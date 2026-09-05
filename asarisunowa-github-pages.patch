@@ -1,0 +1,925 @@
+From f843c81eb45ad32cc850f5d39d604d5e565c6b5f Mon Sep 17 00:00:00 2001
+From: Codex <codex@openai.com>
+Date: Sat, 5 Sep 2026 22:32:09 +0900
+Subject: [PATCH] Deploy static site with GitHub Pages
+
+---
+ .github/workflows/pages.yml      |  42 +++++
+ README.md                        |  94 +----------
+ app/admin/page.tsx               |   3 -
+ app/admin/view.tsx               |  43 -----
+ app/api/admin/route.ts           |   2 -
+ app/api/click/route.ts           |   2 -
+ app/api/comments/route.ts        |  91 ----------
+ app/api/community/route.ts       |   2 -
+ app/api/like/route.ts            |   2 -
+ app/api/spotify-art/route.ts     |  41 -----
+ app/api/visit/route.ts           |   2 -
+ app/community.tsx                | 279 ++++++-------------------------
+ app/globals.css                  |   4 +-
+ app/layout.tsx                   |   1 +
+ app/page.tsx                     |   1 +
+ next.config.ts                   |   4 +-
+ package.json                     |   1 +
+ scripts/prepare-github-pages.mjs |  36 ++++
+ 18 files changed, 142 insertions(+), 508 deletions(-)
+ create mode 100644 .github/workflows/pages.yml
+ delete mode 100644 app/admin/page.tsx
+ delete mode 100644 app/admin/view.tsx
+ delete mode 100644 app/api/admin/route.ts
+ delete mode 100644 app/api/click/route.ts
+ delete mode 100644 app/api/comments/route.ts
+ delete mode 100644 app/api/community/route.ts
+ delete mode 100644 app/api/like/route.ts
+ delete mode 100644 app/api/spotify-art/route.ts
+ delete mode 100644 app/api/visit/route.ts
+ create mode 100644 scripts/prepare-github-pages.mjs
+
+diff --git a/.github/workflows/pages.yml b/.github/workflows/pages.yml
+new file mode 100644
+index 0000000..906db84
+--- /dev/null
++++ b/.github/workflows/pages.yml
+@@ -0,0 +1,42 @@
++name: Deploy GitHub Pages
++
++on:
++  push:
++    branches: [main]
++  workflow_dispatch:
++
++permissions:
++  contents: read
++  pages: write
++  id-token: write
++
++concurrency:
++  group: pages
++  cancel-in-progress: true
++
++jobs:
++  build:
++    runs-on: ubuntu-latest
++    steps:
++      - uses: actions/checkout@v4
++      - uses: actions/setup-node@v4
++        with:
++          node-version: 22
++          cache: npm
++      - run: npm ci
++      - run: npm run build:pages
++      - uses: actions/configure-pages@v5
++      - uses: actions/upload-pages-artifact@v3
++        with:
++          path: dist/client
++
++  deploy:
++    environment:
++      name: github-pages
++      url: ${{ steps.deployment.outputs.page_url }}
++    runs-on: ubuntu-latest
++    needs: build
++    steps:
++      - name: Deploy
++        id: deployment
++        uses: actions/deploy-pages@v4
+diff --git a/README.md b/README.md
+index d233db2..0477abb 100644
+--- a/README.md
++++ b/README.md
+@@ -1,93 +1,11 @@
+-# vinext-starter
++# 朝リスの輪
+ 
+-A clean full-stack starter running on [vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and Drizzle support.
++朝ポキの公式番組・公式プレイリストと、朝リスが作ったプレイリストを探せる非公式リンク集です。
+ 
+-## Prerequisites
++公開URL: https://neyito96.github.io/asarisunowa/
+ 
+-- Node.js `>=22.13.0`
+-- Linux with `flock`, `curl`, and GNU `timeout`
++## 公開方法
+ 
+-## Sites Lifecycle
++`main` ブランチへ更新を送ると、GitHub Actions が静的サイトを生成し、GitHub Pagesへ公開します。
+ 
+-The Sites lifecycle CLI runs the locked dependency install before returning this checkout. Edit the source under `app/`, then checkpoint when a coherent milestone is ready to inspect or share. The remote Sites builder runs `npm run build` against the pushed commit. Do not repeat install or build as a normal pre-checkpoint step.
+-
+-This starter does not use `wrangler.jsonc`.
+-
+-`install:ci` is intentionally a single, non-retrying `npm ci`. It refuses a concurrent install for the same project, consumes a matching image-seeded npm cache with `--prefer-offline` while retaining registry fallback for a missing cache object, otherwise downloads and verifies the complete vinext tarball recorded in `package-lock.json`, limits npm to one socket, and terminates a stalled install. `build` applies a short timeout. These helpers target Linux and use GNU `timeout`; they are not native macOS scripts.
+-
+-Scripts that need writable project-scoped home, npm, XDG, and temporary paths use `scripts/sites-env.sh`. The `dev` and `start` scripts honor the caller's runtime environment and keep Wrangler logs inside the checkout. The generated `.sites-runtime/` directory is disposable and ignored by Git.
+-
+-## Included Shape
+-
+-- edit site code under `app/`
+-- `app/chatgpt-auth.ts` provides optional dispatch-owned ChatGPT sign-in helpers
+-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
+-- `vite.config.ts` simulates declared bindings for local development
+-- `db/index.ts` reads the D1 binding from the Cloudflare Worker environment
+-- `db/schema.ts` starts intentionally empty
+-- `examples/d1/` contains an optional D1 example surface
+-- `drizzle.config.ts` supports local migration generation when needed
+-
+-## Workspace Auth Headers
+-
+-OpenAI workspace sites can read the current user's email from `oai-authenticated-user-email`.
+-
+-SIWC-authenticated workspace sites may also receive `oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty `name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by `oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
+-
+-Treat the full name as optional and fall back to email when it is absent:
+-
+-```tsx
+-import { headers } from "next/headers";
+-
+-export default async function Home() {
+-  const requestHeaders = await headers();
+-  const email = requestHeaders.get("oai-authenticated-user-email");
+-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
+-  const fullName =
+-    encodedFullName &&
+-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
+-      "percent-encoded-utf-8"
+-      ? decodeURIComponent(encodedFullName)
+-      : null;
+-
+-  const displayName = fullName ?? email;
+-  // ...
+-}
+-```
+-
+-## Optional Dispatch-Owned ChatGPT Sign-In
+-
+-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs optional or required ChatGPT sign-in:
+-
+-- Use `getChatGPTUser()` for optional signed-in UI.
+-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send anonymous visitors through Sign in with ChatGPT.
+-- In a Server Component, start sign-in with `<a href={chatGPTSignInPath(returnTo)} target="_top">`. The auth helper module is server-only; do not import it into a Client Component.
+-- Do not use `fetch`, XHR, a client-side router, or a framework link that can prefetch the sign-in route. SIWC must start as a top-level navigation.
+-- Never request the AuthAPI authorization endpoint directly. The dispatch-owned `/signin-with-chatgpt` route must start the SIWC flow.
+-- Use `chatGPTSignOutPath(returnTo)` for browser sign-out links or actions.
+-- Pass a same-origin relative `returnTo` path for the destination after sign-in or sign-out. The helper validates and safely encodes it.
+-- Mark protected pages with `export const dynamic = "force-dynamic"` because they depend on per-request identity headers.
+-
+-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the OAuth cookies, and identity header injection. Do not implement app routes for those reserved paths. Routes that do not import and call the helper remain anonymous-compatible.
+-
+-SIWC establishes identity only; it does not prove workspace membership. Use the Sites hosting platform's access policy controls for workspace-wide restrictions, or enforce explicit server-side membership or allowlist checks.
+-
+-Use SIWC for account pages, user-specific dashboards, saved records, and write actions tied to the current ChatGPT user. Leave public content anonymous.
+-
+-## Diagnostic Commands
+-
+-- `npm run install:ci`: perform the one bounded lockfile install
+-- `npm run dev`: start the Vite/Vinext development server
+-- `npm run build`: build the deployable Sites artifact
+-- `npm run start`: start the built Vinext application
+-- `npm test`: build and verify the rendered development-preview metadata
+-- `npm run db:generate`: generate Drizzle migrations after schema changes
+-
+-Use build commands for targeted diagnosis after a remote failure, not as part of the normal checkpoint path.
+-
+-The timeout defaults can be overridden for a controlled canary with `SITES_INSTALL_TIMEOUT`, `SITES_INSTALL_KILL_AFTER`, `SITES_BUILD_TIMEOUT`, and `SITES_BUILD_KILL_AFTER`. A timeout fails the command; the helpers never retry an unchanged install or build.
+-
+-## Learn More
+-
+-- [vinext Documentation](https://github.com/cloudflare/vinext)
+-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
++♡は共有ランキングではなく、各端末のブラウザ内だけに保存される「聴いた」印です。コメント、アクセスカウンター、サーバーへの個人データ保存はありません。
+diff --git a/app/admin/page.tsx b/app/admin/page.tsx
+deleted file mode 100644
+index 04ccb5e..0000000
+--- a/app/admin/page.tsx
++++ /dev/null
+@@ -1,3 +0,0 @@
+-import Admin from "./view";
+-export const dynamic="force-dynamic";
+-export default function Page(){return <Admin/>}
+diff --git a/app/admin/view.tsx b/app/admin/view.tsx
+deleted file mode 100644
+index 8cb5218..0000000
+--- a/app/admin/view.tsx
++++ /dev/null
+@@ -1,43 +0,0 @@
+-"use client";
+-import { useEffect, useState } from "react";
+-type M = {
+-  all: number;
+-  today: number;
+-  weekUsers: number;
+-  clicks: number;
+-  likes: number;
+-};
+-export default function Admin() {
+-  const [m, setM] = useState<M | null>(null);
+-  async function load() {
+-    const d = await fetch("/api/admin").then((r) => r.json());
+-    setM(d.metrics);
+-  }
+-  useEffect(() => {
+-    load();
+-  }, []);
+-  return (
+-    <main className="wrap admin">
+-      <a href="/">← サイトへ戻る</a>
+-      <h1>管理ダッシュボード</h1>
+-      <div className="metrics">
+-        <div className="metric">
+-          累計ページ表示<strong>{m?.all ?? "—"}</strong>
+-        </div>
+-        <div className="metric">
+-          今日の表示<strong>{m?.today ?? "—"}</strong>
+-        </div>
+-        <div className="metric">
+-          7日間の来訪者<strong>{m?.weekUsers ?? "—"}</strong>
+-        </div>
+-        <div className="metric">
+-          Spotifyへ移動<strong>{m?.clicks ?? "—"}</strong>
+-        </div>
+-        <div className="metric">
+-          ♡合計<strong>{m?.likes ?? "—"}</strong>
+-        </div>
+-      </div>
+-      <p>アクセス数はサイト上には表示せず、この管理画面だけで確認できます。</p>
+-    </main>
+-  );
+-}
+diff --git a/app/api/admin/route.ts b/app/api/admin/route.ts
+deleted file mode 100644
+index 676f18d..0000000
+--- a/app/api/admin/route.ts
++++ /dev/null
+@@ -1,2 +0,0 @@
+-import { gte,sql } from "drizzle-orm";import { getDb } from "../../../db";import { outboundClicks,reactions,visits } from "../../../db/schema";
+-export async function GET(){const db=getDb();const today=new Date();today.setUTCHours(0,0,0,0);const week=new Date(Date.now()-7*86400000).toISOString();const [[all],[todayViews],[weekUsers],[clicks],[likes]]=await Promise.all([db.select({n:sql<number>`count(*)`}).from(visits),db.select({n:sql<number>`count(*)`}).from(visits).where(gte(visits.createdAt,today.toISOString())),db.select({n:sql<number>`count(distinct ${visits.visitorKey})`}).from(visits).where(gte(visits.createdAt,week)),db.select({n:sql<number>`count(*)`}).from(outboundClicks),db.select({n:sql<number>`count(*)`}).from(reactions)]);return Response.json({metrics:{all:Number(all.n),today:Number(todayViews.n),weekUsers:Number(weekUsers.n),clicks:Number(clicks.n),likes:Number(likes.n)}})}
+diff --git a/app/api/click/route.ts b/app/api/click/route.ts
+deleted file mode 100644
+index e9efebb..0000000
+--- a/app/api/click/route.ts
++++ /dev/null
+@@ -1,2 +0,0 @@
+-import { getDb } from "../../../db";import { outboundClicks } from "../../../db/schema";
+-export async function POST(req:Request){const x=await req.json() as {playlistId?:string};if(!x.playlistId)return Response.json({error:"invalid"},{status:400});await getDb().insert(outboundClicks).values({playlistId:x.playlistId});return Response.json({ok:true},{status:201})}
+diff --git a/app/api/comments/route.ts b/app/api/comments/route.ts
+deleted file mode 100644
+index 9950287..0000000
+--- a/app/api/comments/route.ts
++++ /dev/null
+@@ -1,91 +0,0 @@
+-import { and, desc, eq, sql } from "drizzle-orm";
+-import { getDb } from "../../../db";
+-import { comments } from "../../../db/schema";
+-export async function GET(req: Request) {
+-  const id = new URL(req.url).searchParams.get("playlistId") || "";
+-  const rows = await getDb()
+-    .select({
+-      id: comments.id,
+-      nickname: comments.nickname,
+-      body: comments.body,
+-      tag: comments.tag,
+-    })
+-    .from(comments)
+-    .where(and(eq(comments.playlistId, id), eq(comments.status, "approved")))
+-    .orderBy(desc(comments.id))
+-    .limit(30);
+-  return Response.json({ comments: rows });
+-}
+-export async function POST(req: Request) {
+-  const x = (await req.json()) as Record<string, string>;
+-  const nickname = x.nickname?.trim(),
+-    body = x.body?.trim(),
+-    tag = x.tag?.trim(),
+-    visitorKey = x.visitorKey?.trim();
+-  const allowedTags = new Set([
+-    "初めての人に",
+-    "学びが深い",
+-    "笑った",
+-    "何度も聴きたい",
+-    "今こそ聴きたい",
+-  ]);
+-  if (
+-    !x.playlistId ||
+-    !nickname ||
+-    nickname.length > 30 ||
+-    !body ||
+-    body.length > 120 ||
+-    !tag ||
+-    !allowedTags.has(tag) ||
+-    !visitorKey ||
+-    visitorKey.length > 80 ||
+-    x.website
+-  )
+-    return Response.json({ error: "invalid" }, { status: 400 });
+-
+-  if (
+-    /(https?:\/\/|www\.|discord\.gg|open\.spotify\.com|[a-z0-9-]+\.(com|jp|net|org|io)\b)/i.test(
+-      `${nickname} ${body}`,
+-    )
+-  ) {
+-    return Response.json({ error: "link" }, { status: 400 });
+-  }
+-
+-  const db = getDb();
+-  const recent = await db
+-    .select({ id: comments.id })
+-    .from(comments)
+-    .where(
+-      and(
+-        eq(comments.visitorKey, visitorKey),
+-        sql`${comments.createdAt} >= datetime('now', '-60 seconds')`,
+-      ),
+-    )
+-    .limit(1);
+-  if (recent.length)
+-    return Response.json({ error: "cooldown" }, { status: 429 });
+-
+-  const duplicate = await db
+-    .select({ id: comments.id })
+-    .from(comments)
+-    .where(
+-      and(
+-        eq(comments.playlistId, x.playlistId),
+-        eq(comments.visitorKey, visitorKey),
+-        eq(comments.body, body),
+-      ),
+-    )
+-    .limit(1);
+-  if (duplicate.length)
+-    return Response.json({ error: "duplicate" }, { status: 409 });
+-
+-  await db.insert(comments).values({
+-    playlistId: x.playlistId,
+-    nickname,
+-    body,
+-    tag,
+-    visitorKey,
+-    status: "approved",
+-  });
+-  return Response.json({ ok: true }, { status: 201 });
+-}
+diff --git a/app/api/community/route.ts b/app/api/community/route.ts
+deleted file mode 100644
+index d9f303b..0000000
+--- a/app/api/community/route.ts
++++ /dev/null
+@@ -1,2 +0,0 @@
+-import { eq, sql } from "drizzle-orm"; import { getDb } from "../../../db"; import { reactions,comments } from "../../../db/schema";
+-export async function GET(){const db=getDb();const [r,c]=await Promise.all([db.select({id:reactions.playlistId,n:sql<number>`count(*)`}).from(reactions).groupBy(reactions.playlistId),db.select({id:comments.playlistId,n:sql<number>`count(*)`}).from(comments).where(eq(comments.status,"approved")).groupBy(comments.playlistId)]);const stats:Record<string,{likes:number;comments:number}>={};for(const x of r)stats[x.id]={likes:Number(x.n),comments:0};for(const x of c)stats[x.id]={likes:stats[x.id]?.likes||0,comments:Number(x.n)};return Response.json({stats})}
+diff --git a/app/api/like/route.ts b/app/api/like/route.ts
+deleted file mode 100644
+index b086f63..0000000
+--- a/app/api/like/route.ts
++++ /dev/null
+@@ -1,2 +0,0 @@
+-import { and,eq,sql } from "drizzle-orm";import { getDb } from "../../../db";import { reactions } from "../../../db/schema";
+-export async function POST(req:Request){const {playlistId,visitorKey}=await req.json() as Record<string,string>;if(!playlistId||!visitorKey||visitorKey.length>100)return Response.json({error:"invalid"},{status:400});const db=getDb();const found=await db.select({id:reactions.id}).from(reactions).where(and(eq(reactions.playlistId,playlistId),eq(reactions.visitorKey,visitorKey))).limit(1);let liked=true;if(found[0]){await db.delete(reactions).where(eq(reactions.id,found[0].id));liked=false}else await db.insert(reactions).values({playlistId,visitorKey});const [{n}]=await db.select({n:sql<number>`count(*)`}).from(reactions).where(eq(reactions.playlistId,playlistId));return Response.json({liked,likes:Number(n)})}
+diff --git a/app/api/spotify-art/route.ts b/app/api/spotify-art/route.ts
+deleted file mode 100644
+index bc4f6b4..0000000
+--- a/app/api/spotify-art/route.ts
++++ /dev/null
+@@ -1,41 +0,0 @@
+-import { NextResponse } from "next/server";
+-
+-export async function GET(request: Request) {
+-  const value = new URL(request.url).searchParams.get("url");
+-  if (!value)
+-    return NextResponse.json({ error: "url is required" }, { status: 400 });
+-
+-  try {
+-    const supplied = new URL(value);
+-    if (supplied.protocol !== "https:") throw new Error("invalid url");
+-    const resolved =
+-      supplied.hostname === "open.spotify.com"
+-        ? supplied
+-        : new URL((await fetch(supplied, { redirect: "follow" })).url);
+-    const spotifyType = resolved.pathname.split("/")[1];
+-    if (
+-      resolved.hostname !== "open.spotify.com" ||
+-      !["show", "playlist"].includes(spotifyType)
+-    ) {
+-      throw new Error("not a supported Spotify page");
+-    }
+-    const oembed = await fetch(
+-      `https://open.spotify.com/oembed?url=${encodeURIComponent(resolved.toString())}`,
+-    );
+-    if (!oembed.ok) throw new Error("oEmbed unavailable");
+-    const data = (await oembed.json()) as {
+-      thumbnail_url?: string;
+-      title?: string;
+-    };
+-    return NextResponse.json(
+-      {
+-        thumbnailUrl: data.thumbnail_url,
+-        title: data.title,
+-        spotifyUrl: resolved.toString(),
+-      },
+-      { headers: { "cache-control": "public, max-age=3600, s-maxage=86400" } },
+-    );
+-  } catch {
+-    return NextResponse.json({ error: "artwork unavailable" }, { status: 404 });
+-  }
+-}
+diff --git a/app/api/visit/route.ts b/app/api/visit/route.ts
+deleted file mode 100644
+index 7512dd2..0000000
+--- a/app/api/visit/route.ts
++++ /dev/null
+@@ -1,2 +0,0 @@
+-import { getDb } from "../../../db";import { visits } from "../../../db/schema";
+-export async function POST(req:Request){const x=await req.json() as Record<string,string>;if(!x.visitorKey)return Response.json({error:"invalid"},{status:400});await getDb().insert(visits).values({visitorKey:x.visitorKey.slice(0,100),path:(x.path||"/").slice(0,100)});return Response.json({ok:true},{status:201})}
+diff --git a/app/community.tsx b/app/community.tsx
+index fbf62d0..963d995 100644
+--- a/app/community.tsx
++++ b/app/community.tsx
+@@ -1,8 +1,6 @@
+ "use client";
+ import { useEffect, useMemo, useState } from "react";
+ import type { Playlist } from "./data";
+-type Stat = { likes: number; comments: number };
+-type Comment = { id: number; nickname: string; body: string; tag: string };
+ type OfficialProgram = {
+   name: string;
+   mark?: string;
+@@ -15,13 +13,26 @@ type OfficialProgram = {
+ };
+ const ASAPOKI_YOUTUBE = "https://www.youtube.com/@asapoki_official";
+ const ASAPOKI_OFFICIAL = "https://www.asahi.com/special/podcasts/";
+-const tags = [
+-  "初めての人に",
+-  "学びが深い",
+-  "笑った",
+-  "何度も聴きたい",
+-  "今こそ聴きたい",
+-];
++const officialArtwork: Record<string, string> = {
++  "https://open.spotify.com/show/7euH6hzudIdp61JRSi9E8w":
++    "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1fbe37e2b90a9796052cdda598",
++  "https://open.spotify.com/show/0341I5UOUrJgm7KEvNGInZ":
++    "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1fff5d81785074ee5566790630",
++  "https://open.spotify.com/show/0yhef9ORZkUZs9ZeotdCSY":
++    "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1fe29ec03cb712107152d7eb0f",
++  "https://open.spotify.com/show/392h0MYfvMTndEVzf2cOvC":
++    "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f691eb2ed78c31f9b1ab7cc35",
++  "https://open.spotify.com/show/5Dt1uyQaJpM6hPV8aEMP3R":
++    "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f8f8d12c4e8bc804b599d4656",
++  "https://open.spotify.com/show/1KExdSsjQnatS4TdseGoC0":
++    "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1ffd6d8f02a2455ef9301b89d3",
++  "https://open.spotify.com/show/2uG9W6CnsaNi87AfSuGe8r":
++    "https://image-cdn-fa.spotifycdn.com/image/ab67656300005f1f6a5b28cd6f20817f2499ca75",
++  "https://open.spotify.com/show/5nF17xZ9nxBIDKkiqeyvYT":
++    "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1fdac17024f0d28b49d721db9d",
++  "https://open.spotify.com/show/5UwHBIfMDqWs0EyfPOz50N":
++    "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f72bc24f7f9a0b42fedbe9570",
++};
+ const officialPrograms: OfficialProgram[] = [
+   {
+     name: "スポンジ Sports Lounge",
+@@ -137,14 +148,7 @@ const officialPrograms: OfficialProgram[] = [
+   },
+ ];
+ function OfficialArtwork({ url, name }: { url?: string; name: string }) {
+-  const [art, setArt] = useState("");
+-  useEffect(() => {
+-    if (!url) return;
+-    fetch(`/api/spotify-art?url=${encodeURIComponent(url)}`)
+-      .then((r) => (r.ok ? r.json() : null))
+-      .then((d) => d?.thumbnailUrl && setArt(d.thumbnailUrl))
+-      .catch(() => undefined);
+-  }, [url]);
++  const art = url ? officialArtwork[url] : "";
+   return (
+     <div className="officialArt">
+       {art ? (
+@@ -155,137 +159,35 @@ function OfficialArtwork({ url, name }: { url?: string; name: string }) {
+     </div>
+   );
+ }
+-function visitor() {
+-  let k = localStorage.getItem("asapoki-visitor");
+-  if (!k) {
+-    k = crypto.randomUUID();
+-    localStorage.setItem("asapoki-visitor", k);
+-  }
+-  return k;
+-}
+ export default function Community({ playlists }: { playlists: Playlist[] }) {
+   const [view, setView] = useState<"listeners" | "official" | "circle">(
+       "official",
+     ),
+     [query, setQuery] = useState(""),
+-    [sort, setSort] = useState("hot"),
+-    [stats, setStats] = useState<Record<string, Stat>>({}),
+-    [liked, setLiked] = useState<string[]>([]),
+-    [open, setOpen] = useState<Playlist | null>(null),
+-    [comments, setComments] = useState<Comment[]>([]),
+-    [notice, setNotice] = useState("");
++    [sort, setSort] = useState<"new" | "number">("new"),
++    [listened, setListened] = useState<string[]>([]);
+   useEffect(() => {
+-    const key = visitor();
+-    fetch("/api/community")
+-      .then((r) => r.json())
+-      .then((d) => setStats(d.stats || {}));
+-    fetch("/api/visit", {
+-      method: "POST",
+-      headers: { "content-type": "application/json" },
+-      body: JSON.stringify({ visitorKey: key, path: "/" }),
+-    });
+-    setLiked(JSON.parse(localStorage.getItem("asapoki-liked") || "[]"));
++    const saved = JSON.parse(localStorage.getItem("asapoki-listened") || "[]");
++    const timer = window.setTimeout(() => setListened(saved), 0);
++    return () => window.clearTimeout(timer);
+   }, []);
+-  const newestId = useMemo(
+-    () => Math.max(0, ...playlists.map((p) => Number(p.id) || 0)),
+-    [playlists],
+-  );
+   const rows = useMemo(
+     () =>
+       playlists
+         .filter((p) =>
+           (p.title + " " + p.maker).toLowerCase().includes(query.toLowerCase()),
+         )
+-        .sort((a, b) => {
+-          const A = stats[a.id] || { likes: 0, comments: 0 },
+-            B = stats[b.id] || { likes: 0, comments: 0 };
+-          if (sort === "likes") return B.likes - A.likes;
+-          if (sort === "comments") return B.comments - A.comments;
+-          if (sort === "new") return Number(b.id) - Number(a.id);
+-          const recentA = Math.max(0, 10 - (newestId - Number(a.id))) * 0.4;
+-          const recentB = Math.max(0, 10 - (newestId - Number(b.id))) * 0.4;
+-          return (
+-            B.likes +
+-            B.comments * 3 +
+-            recentB -
+-            (A.likes + A.comments * 3 + recentA)
+-          );
+-        }),
+-    [query, sort, stats, playlists, newestId],
++        .sort((a, b) =>
++          sort === "new" ? Number(b.id) - Number(a.id) : Number(a.id) - Number(b.id),
++        ),
++    [query, sort, playlists],
+   );
+-  async function heart(id: string) {
+-    const r = await fetch("/api/like", {
+-      method: "POST",
+-      headers: { "content-type": "application/json" },
+-      body: JSON.stringify({ playlistId: id, visitorKey: visitor() }),
+-    });
+-    const d = await r.json();
+-    setStats((s) => ({
+-      ...s,
+-      [id]: { ...(s[id] || { likes: 0, comments: 0 }), likes: d.likes },
+-    }));
+-    const next = d.liked
+-      ? [...new Set([...liked, id])]
+-      : liked.filter((x) => x !== id);
+-    setLiked(next);
+-    localStorage.setItem("asapoki-liked", JSON.stringify(next));
+-  }
+-  async function showComments(p: Playlist) {
+-    setOpen(p);
+-    setNotice("");
+-    const d = await fetch(`/api/comments?playlistId=${p.id}`).then((r) =>
+-      r.json(),
+-    );
+-    setComments(d.comments || []);
+-  }
+-  async function submit(e: React.FormEvent<HTMLFormElement>) {
+-    e.preventDefault();
+-    if (!open) return;
+-    const f = new FormData(e.currentTarget);
+-    const r = await fetch("/api/comments", {
+-      method: "POST",
+-      headers: { "content-type": "application/json" },
+-      body: JSON.stringify({
+-        playlistId: open.id,
+-        nickname: f.get("nickname"),
+-        body: f.get("body"),
+-        tag: f.get("tag"),
+-        visitorKey: visitor(),
+-        website: f.get("website"),
+-      }),
+-    });
+-    if (r.ok) {
+-      const d = await fetch(`/api/comments?playlistId=${open.id}`).then((x) =>
+-        x.json(),
+-      );
+-      setComments(d.comments || []);
+-      setStats((s) => ({
+-        ...s,
+-        [open.id]: {
+-          likes: s[open.id]?.likes || 0,
+-          comments: (s[open.id]?.comments || 0) + 1,
+-        },
+-      }));
+-      setNotice("投稿しました。朝リスの推しコメントに仲間入りです！");
+-      e.currentTarget.reset();
+-    } else {
+-      const d = await r.json().catch(() => ({}));
+-      const messages: Record<string, string> = {
+-        link: "URLやリンクは投稿できません。推しポイントだけをどうぞ。",
+-        cooldown: "連続投稿はできません。1分ほど待ってください。",
+-        duplicate: "同じ内容はすでに投稿されています。",
+-      };
+-      setNotice(
+-        messages[d.error] || "投稿できませんでした。内容をご確認ください。",
+-      );
+-    }
+-  }
+-  function click(p: Playlist) {
+-    fetch("/api/click", {
+-      method: "POST",
+-      headers: { "content-type": "application/json" },
+-      body: JSON.stringify({ playlistId: p.id }),
+-    });
++  function toggleListened(id: string) {
++    const next = listened.includes(id)
++      ? listened.filter((value) => value !== id)
++      : [...listened, id];
++    setListened(next);
++    localStorage.setItem("asapoki-listened", JSON.stringify(next));
+   }
+   return (
+     <>
+@@ -334,30 +236,18 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
+                 aria-label="検索"
+               />
+               <div className="sorts" role="group" aria-label="並べ替え">
+-                <button
+-                  className={sort === "hot" ? "on" : ""}
+-                  onClick={() => setSort("hot")}
+-                >
+-                  🔥 人気＋新着
+-                </button>
+-                <button
+-                  className={sort === "likes" ? "on" : ""}
+-                  onClick={() => setSort("likes")}
+-                >
+-                  ♡順
+-                </button>
+-                <button
+-                  className={sort === "comments" ? "on" : ""}
+-                  onClick={() => setSort("comments")}
+-                >
+-                  💬順
+-                </button>
+                 <button
+                   className={sort === "new" ? "on" : ""}
+                   onClick={() => setSort("new")}
+                 >
+                   新着
+                 </button>
++                <button
++                  className={sort === "number" ? "on" : ""}
++                  onClick={() => setSort("number")}
++                >
++                  登録順
++                </button>
+               </div>
+             </div>
+           </div>
+@@ -368,14 +258,14 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
+                 <h2>朝リスのプレイリスト</h2>
+                 <p>リスナーが作ったアーカイブ。更新はゆっくりめです。</p>
+                 <small className="rankingNote">
+-                  初期表示は♡・コメント数に、新しい項目への小さな加点を加えています。
++                  ♡を押すと、この端末で「聴いた」印を残せます。
+                 </small>
+               </div>
+               <span>{rows.length}件</span>
+             </div>
+             <div className="grid">
+-              {rows.map((p, i) => {
+-                const st = stats[p.id] || { likes: 0, comments: 0 };
++              {rows.map((p) => {
++                const isListened = listened.includes(p.id);
+                 return (
+                   <article className="card" key={p.id}>
+                     <div className="cover">
+@@ -401,31 +291,23 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
+                         </span>
+                       )}
+                     </div>
+-                    {i < 3 && sort === "hot" ? (
+-                      <em className="rank">{i + 1}</em>
+-                    ) : null}
+                     <div className="cardBody">
+                       <small>PLAYLIST {p.id.padStart(2, "0")}</small>
+                       <h3>{p.title}</h3>
+                       <p>by {p.maker}</p>
+                       <div className="actions">
+                         <button
+-                          className={
+-                            liked.includes(p.id) ? "heart liked" : "heart"
+-                          }
+-                          onClick={() => heart(p.id)}
++                          className={isListened ? "heart liked" : "heart"}
++                          onClick={() => toggleListened(p.id)}
++                          aria-pressed={isListened}
+                         >
+-                          {liked.includes(p.id) ? "♥" : "♡"} {st.likes}
+-                        </button>
+-                        <button onClick={() => showComments(p)}>
+-                          💬 {st.comments}
++                          {isListened ? "♥ 聴いた" : "♡ 未聴"}
+                         </button>
+                       </div>
+                       {p.url ? (
+                         <a
+                           className="listen"
+                           href={p.url}
+-                          onClick={() => click(p)}
+                           target="_blank"
+                           rel="noreferrer"
+                         >
+@@ -581,70 +463,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
+           </section>
+         </main>
+       )}
+-      {open && (
+-        <div className="modal" role="dialog" aria-modal="true">
+-          <div className="panel">
+-            <button
+-              className="close"
+-              onClick={() => setOpen(null)}
+-              aria-label="閉じる"
+-            >
+-              ×
+-            </button>
+-            <p className="kicker">推しコメント</p>
+-            <h2>{open.title}</h2>
+-            <div className="commentList">
+-              {comments.length ? (
+-                comments.map((c) => (
+-                  <blockquote key={c.id}>
+-                    <span>{c.tag}</span>
+-                    <p>{c.body}</p>
+-                    <cite>— {c.nickname}</cite>
+-                  </blockquote>
+-                ))
+-              ) : (
+-                <p className="muted">最初の推しコメントをどうぞ。</p>
+-              )}
+-            </div>
+-            <form onSubmit={submit}>
+-              <p className="commentRule">
+-                ここは議論ではなく、推しポイントを置く場所。人への批判・返信・URL投稿はできません。管理者判断で非表示にすることがあります。
+-              </p>
+-              <label className="honey" aria-hidden="true">
+-                Website
+-                <input name="website" tabIndex={-1} autoComplete="off" />
+-              </label>
+-              <label>
+-                朝リスネーム
+-                <input name="nickname" maxLength={30} required />
+-              </label>
+-              <label>
+-                推しタグ
+-                <select name="tag" required>
+-                  <option value="">選んでください</option>
+-                  {tags.map((t) => (
+-                    <option key={t}>{t}</option>
+-                  ))}
+-                </select>
+-              </label>
+-              <label>
+-                どこが推し？
+-                <textarea
+-                  name="body"
+-                  maxLength={120}
+-                  required
+-                  placeholder="120字以内"
+-                />
+-              </label>
+-              <button className="submit">推しコメントを投稿</button>
+-              <p className="notice">{notice}</p>
+-            </form>
+-          </div>
+-        </div>
+-      )}
+       <footer>
+         <div className="wrap">
+-          非公式・朝リスコミュニティ　<a href="/admin">管理</a>
++          非公式・朝リスコミュニティ
+         </div>
+       </footer>
+     </>
+diff --git a/app/globals.css b/app/globals.css
+index 09c78fd..135ba61 100644
+--- a/app/globals.css
++++ b/app/globals.css
+@@ -777,7 +777,7 @@ header {
+   border-radius: 34px;
+   background:
+     linear-gradient(90deg, #fffaf1f2 0%, #fffaf1c9 38%, #fffaf100 61%),
+-    url("/asarisu-message-sea-illustration.png") center/cover;
++    url("/asarisunowa/asarisu-message-sea-illustration.png") center/cover;
+   box-shadow: 0 18px 45px #177b9a25;
+   overflow: hidden;
+ }
+@@ -1128,7 +1128,7 @@ footer {
+     align-items: flex-end;
+     background:
+       linear-gradient(180deg, #fffaf100 0%, #fffaf10d 38%, #effbfff2 72%),
+-      url("/asarisu-message-sea-illustration.png") 52% top/cover;
++      url("/asarisunowa/asarisu-message-sea-illustration.png") 52% top/cover;
+     border-radius: 24px;
+   }
+   .heroCopy {
+diff --git a/app/layout.tsx b/app/layout.tsx
+index dd936f2..7fdb166 100644
+--- a/app/layout.tsx
++++ b/app/layout.tsx
+@@ -5,6 +5,7 @@ export const metadata: Metadata = {
+   title: "朝リスの輪｜朝ポキプレイリスト案内所",
+   description:
+     "公式番組と朝リスのおすすめがつながる、朝ポキのプレイリスト案内所。",
++  other: { "codex-preview": "development" },
+ };
+ 
+ export default function RootLayout({
+diff --git a/app/page.tsx b/app/page.tsx
+index 3327594..22d2489 100644
+--- a/app/page.tsx
++++ b/app/page.tsx
+@@ -1,3 +1,4 @@
+ import Community from "./community";
+ import { playlists } from "./data";
++export const dynamic = "force-static";
+ export default function Home(){ return <Community playlists={playlists}/>; }
+diff --git a/next.config.ts b/next.config.ts
+index e9ffa30..cb6946a 100644
+--- a/next.config.ts
++++ b/next.config.ts
+@@ -1,7 +1,9 @@
+ import type { NextConfig } from "next";
+ 
+ const nextConfig: NextConfig = {
+-  /* config options here */
++  output: "export",
++  trailingSlash: true,
++  images: { unoptimized: true },
+ };
+ 
+ export default nextConfig;
+diff --git a/package.json b/package.json
+index 370a7c9..c8c9c76 100644
+--- a/package.json
++++ b/package.json
+@@ -9,6 +9,7 @@
+     "install:ci": "bash scripts/install-ci.sh",
+     "dev": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vite",
+     "build": "bash scripts/build-verified.sh",
++    "build:pages": "npm run build && node scripts/prepare-github-pages.mjs",
+     "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
+     "test": "npm run build && node --test tests/*.test.mjs",
+     "lint": "bash scripts/sites-env.sh -- eslint . --ignore-pattern dist --ignore-pattern .next",
+diff --git a/scripts/prepare-github-pages.mjs b/scripts/prepare-github-pages.mjs
+new file mode 100644
+index 0000000..c9e91a9
+--- /dev/null
++++ b/scripts/prepare-github-pages.mjs
+@@ -0,0 +1,36 @@
++import { readdir, readFile, writeFile } from "node:fs/promises";
++import { extname, join } from "node:path";
++
++const outputDirectory = "dist/client";
++const repositoryPath = "/asarisunowa";
++const textExtensions = new Set([".html", ".rsc", ".js", ".css", ".json"]);
++
++async function collectFiles(directory) {
++  const entries = await readdir(directory, { withFileTypes: true });
++  const files = [];
++  for (const entry of entries) {
++    const path = join(directory, entry.name);
++    if (entry.isDirectory()) files.push(...(await collectFiles(path)));
++    else files.push(path);
++  }
++  return files;
++}
++
++for (const file of await collectFiles(outputDirectory)) {
++  if (!textExtensions.has(extname(file))) continue;
++  const source = await readFile(file, "utf8");
++  const prepared = source
++    .replaceAll('"/assets/', `"${repositoryPath}/assets/`)
++    .replaceAll("'/assets/", `'${repositoryPath}/assets/`)
++    .replaceAll("(/assets/", `(${repositoryPath}/assets/`)
++    .replaceAll("\\\"/assets/", `\\\"${repositoryPath}/assets/`);
++  if (prepared !== source) await writeFile(file, prepared);
++}
++
++await writeFile(join(outputDirectory, ".nojekyll"), "");
++await writeFile(
++  join(outputDirectory, "404.html"),
++  await readFile(join(outputDirectory, "index.html"), "utf8"),
++);
++
++console.log(`GitHub Pages files prepared in ${outputDirectory}`);
+-- 
+2.51.1
+
