@@ -1,8 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import type { Playlist } from "./data";
-type Stat = { likes: number; comments: number };
-type Comment = { id: number; nickname: string; body: string; tag: string };
 type OfficialProgram = {
   name: string;
   mark?: string;
@@ -15,13 +13,26 @@ type OfficialProgram = {
 };
 const ASAPOKI_YOUTUBE = "https://www.youtube.com/@asapoki_official";
 const ASAPOKI_OFFICIAL = "https://www.asahi.com/special/podcasts/";
-const tags = [
-  "初めての人に",
-  "学びが深い",
-  "笑った",
-  "何度も聴きたい",
-  "今こそ聴きたい",
-];
+const officialArtwork: Record<string, string> = {
+  "https://open.spotify.com/show/7euH6hzudIdp61JRSi9E8w":
+    "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1fbe37e2b90a9796052cdda598",
+  "https://open.spotify.com/show/0341I5UOUrJgm7KEvNGInZ":
+    "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1fff5d81785074ee5566790630",
+  "https://open.spotify.com/show/0yhef9ORZkUZs9ZeotdCSY":
+    "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1fe29ec03cb712107152d7eb0f",
+  "https://open.spotify.com/show/392h0MYfvMTndEVzf2cOvC":
+    "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f691eb2ed78c31f9b1ab7cc35",
+  "https://open.spotify.com/show/5Dt1uyQaJpM6hPV8aEMP3R":
+    "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f8f8d12c4e8bc804b599d4656",
+  "https://open.spotify.com/show/1KExdSsjQnatS4TdseGoC0":
+    "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1ffd6d8f02a2455ef9301b89d3",
+  "https://open.spotify.com/show/2uG9W6CnsaNi87AfSuGe8r":
+    "https://image-cdn-fa.spotifycdn.com/image/ab67656300005f1f6a5b28cd6f20817f2499ca75",
+  "https://open.spotify.com/show/5nF17xZ9nxBIDKkiqeyvYT":
+    "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1fdac17024f0d28b49d721db9d",
+  "https://open.spotify.com/show/5UwHBIfMDqWs0EyfPOz50N":
+    "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f72bc24f7f9a0b42fedbe9570",
+};
 const officialPrograms: OfficialProgram[] = [
   {
     name: "スポンジ Sports Lounge",
@@ -137,14 +148,7 @@ const officialPrograms: OfficialProgram[] = [
   },
 ];
 function OfficialArtwork({ url, name }: { url?: string; name: string }) {
-  const [art, setArt] = useState("");
-  useEffect(() => {
-    if (!url) return;
-    fetch(`/api/spotify-art?url=${encodeURIComponent(url)}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => d?.thumbnailUrl && setArt(d.thumbnailUrl))
-      .catch(() => undefined);
-  }, [url]);
+  const art = url ? officialArtwork[url] : "";
   return (
     <div className="officialArt">
       {art ? (
@@ -155,137 +159,35 @@ function OfficialArtwork({ url, name }: { url?: string; name: string }) {
     </div>
   );
 }
-function visitor() {
-  let k = localStorage.getItem("asapoki-visitor");
-  if (!k) {
-    k = crypto.randomUUID();
-    localStorage.setItem("asapoki-visitor", k);
-  }
-  return k;
-}
 export default function Community({ playlists }: { playlists: Playlist[] }) {
   const [view, setView] = useState<"listeners" | "official" | "circle">(
       "official",
     ),
     [query, setQuery] = useState(""),
-    [sort, setSort] = useState("hot"),
-    [stats, setStats] = useState<Record<string, Stat>>({}),
-    [liked, setLiked] = useState<string[]>([]),
-    [open, setOpen] = useState<Playlist | null>(null),
-    [comments, setComments] = useState<Comment[]>([]),
-    [notice, setNotice] = useState("");
+    [sort, setSort] = useState<"new" | "number">("new"),
+    [listened, setListened] = useState<string[]>([]);
   useEffect(() => {
-    const key = visitor();
-    fetch("/api/community")
-      .then((r) => r.json())
-      .then((d) => setStats(d.stats || {}));
-    fetch("/api/visit", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ visitorKey: key, path: "/" }),
-    });
-    setLiked(JSON.parse(localStorage.getItem("asapoki-liked") || "[]"));
+    const saved = JSON.parse(localStorage.getItem("asapoki-listened") || "[]");
+    const timer = window.setTimeout(() => setListened(saved), 0);
+    return () => window.clearTimeout(timer);
   }, []);
-  const newestId = useMemo(
-    () => Math.max(0, ...playlists.map((p) => Number(p.id) || 0)),
-    [playlists],
-  );
   const rows = useMemo(
     () =>
       playlists
         .filter((p) =>
           (p.title + " " + p.maker).toLowerCase().includes(query.toLowerCase()),
         )
-        .sort((a, b) => {
-          const A = stats[a.id] || { likes: 0, comments: 0 },
-            B = stats[b.id] || { likes: 0, comments: 0 };
-          if (sort === "likes") return B.likes - A.likes;
-          if (sort === "comments") return B.comments - A.comments;
-          if (sort === "new") return Number(b.id) - Number(a.id);
-          const recentA = Math.max(0, 10 - (newestId - Number(a.id))) * 0.4;
-          const recentB = Math.max(0, 10 - (newestId - Number(b.id))) * 0.4;
-          return (
-            B.likes +
-            B.comments * 3 +
-            recentB -
-            (A.likes + A.comments * 3 + recentA)
-          );
-        }),
-    [query, sort, stats, playlists, newestId],
+        .sort((a, b) =>
+          sort === "new" ? Number(b.id) - Number(a.id) : Number(a.id) - Number(b.id),
+        ),
+    [query, sort, playlists],
   );
-  async function heart(id: string) {
-    const r = await fetch("/api/like", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ playlistId: id, visitorKey: visitor() }),
-    });
-    const d = await r.json();
-    setStats((s) => ({
-      ...s,
-      [id]: { ...(s[id] || { likes: 0, comments: 0 }), likes: d.likes },
-    }));
-    const next = d.liked
-      ? [...new Set([...liked, id])]
-      : liked.filter((x) => x !== id);
-    setLiked(next);
-    localStorage.setItem("asapoki-liked", JSON.stringify(next));
-  }
-  async function showComments(p: Playlist) {
-    setOpen(p);
-    setNotice("");
-    const d = await fetch(`/api/comments?playlistId=${p.id}`).then((r) =>
-      r.json(),
-    );
-    setComments(d.comments || []);
-  }
-  async function submit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!open) return;
-    const f = new FormData(e.currentTarget);
-    const r = await fetch("/api/comments", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        playlistId: open.id,
-        nickname: f.get("nickname"),
-        body: f.get("body"),
-        tag: f.get("tag"),
-        visitorKey: visitor(),
-        website: f.get("website"),
-      }),
-    });
-    if (r.ok) {
-      const d = await fetch(`/api/comments?playlistId=${open.id}`).then((x) =>
-        x.json(),
-      );
-      setComments(d.comments || []);
-      setStats((s) => ({
-        ...s,
-        [open.id]: {
-          likes: s[open.id]?.likes || 0,
-          comments: (s[open.id]?.comments || 0) + 1,
-        },
-      }));
-      setNotice("投稿しました。朝リスの推しコメントに仲間入りです！");
-      e.currentTarget.reset();
-    } else {
-      const d = await r.json().catch(() => ({}));
-      const messages: Record<string, string> = {
-        link: "URLやリンクは投稿できません。推しポイントだけをどうぞ。",
-        cooldown: "連続投稿はできません。1分ほど待ってください。",
-        duplicate: "同じ内容はすでに投稿されています。",
-      };
-      setNotice(
-        messages[d.error] || "投稿できませんでした。内容をご確認ください。",
-      );
-    }
-  }
-  function click(p: Playlist) {
-    fetch("/api/click", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ playlistId: p.id }),
-    });
+  function toggleListened(id: string) {
+    const next = listened.includes(id)
+      ? listened.filter((value) => value !== id)
+      : [...listened, id];
+    setListened(next);
+    localStorage.setItem("asapoki-listened", JSON.stringify(next));
   }
   return (
     <>
@@ -335,28 +237,16 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               />
               <div className="sorts" role="group" aria-label="並べ替え">
                 <button
-                  className={sort === "hot" ? "on" : ""}
-                  onClick={() => setSort("hot")}
-                >
-                  🔥 人気＋新着
-                </button>
-                <button
-                  className={sort === "likes" ? "on" : ""}
-                  onClick={() => setSort("likes")}
-                >
-                  ♡順
-                </button>
-                <button
-                  className={sort === "comments" ? "on" : ""}
-                  onClick={() => setSort("comments")}
-                >
-                  💬順
-                </button>
-                <button
                   className={sort === "new" ? "on" : ""}
                   onClick={() => setSort("new")}
                 >
                   新着
+                </button>
+                <button
+                  className={sort === "number" ? "on" : ""}
+                  onClick={() => setSort("number")}
+                >
+                  登録順
                 </button>
               </div>
             </div>
@@ -368,14 +258,14 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <h2>朝リスのプレイリスト</h2>
                 <p>リスナーが作ったアーカイブ。更新はゆっくりめです。</p>
                 <small className="rankingNote">
-                  初期表示は♡・コメント数に、新しい項目への小さな加点を加えています。
+                  ♡を押すと、この端末で「聴いた」印を残せます。
                 </small>
               </div>
               <span>{rows.length}件</span>
             </div>
             <div className="grid">
-              {rows.map((p, i) => {
-                const st = stats[p.id] || { likes: 0, comments: 0 };
+              {rows.map((p) => {
+                const isListened = listened.includes(p.id);
                 return (
                   <article className="card" key={p.id}>
                     <div className="cover">
@@ -401,31 +291,23 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                         </span>
                       )}
                     </div>
-                    {i < 3 && sort === "hot" ? (
-                      <em className="rank">{i + 1}</em>
-                    ) : null}
                     <div className="cardBody">
                       <small>PLAYLIST {p.id.padStart(2, "0")}</small>
                       <h3>{p.title}</h3>
                       <p>by {p.maker}</p>
                       <div className="actions">
                         <button
-                          className={
-                            liked.includes(p.id) ? "heart liked" : "heart"
-                          }
-                          onClick={() => heart(p.id)}
+                          className={isListened ? "heart liked" : "heart"}
+                          onClick={() => toggleListened(p.id)}
+                          aria-pressed={isListened}
                         >
-                          {liked.includes(p.id) ? "♥" : "♡"} {st.likes}
-                        </button>
-                        <button onClick={() => showComments(p)}>
-                          💬 {st.comments}
+                          {isListened ? "♥ 聴いた" : "♡ 未聴"}
                         </button>
                       </div>
                       {p.url ? (
                         <a
                           className="listen"
                           href={p.url}
-                          onClick={() => click(p)}
                           target="_blank"
                           rel="noreferrer"
                         >
@@ -581,70 +463,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           </section>
         </main>
       )}
-      {open && (
-        <div className="modal" role="dialog" aria-modal="true">
-          <div className="panel">
-            <button
-              className="close"
-              onClick={() => setOpen(null)}
-              aria-label="閉じる"
-            >
-              ×
-            </button>
-            <p className="kicker">推しコメント</p>
-            <h2>{open.title}</h2>
-            <div className="commentList">
-              {comments.length ? (
-                comments.map((c) => (
-                  <blockquote key={c.id}>
-                    <span>{c.tag}</span>
-                    <p>{c.body}</p>
-                    <cite>— {c.nickname}</cite>
-                  </blockquote>
-                ))
-              ) : (
-                <p className="muted">最初の推しコメントをどうぞ。</p>
-              )}
-            </div>
-            <form onSubmit={submit}>
-              <p className="commentRule">
-                ここは議論ではなく、推しポイントを置く場所。人への批判・返信・URL投稿はできません。管理者判断で非表示にすることがあります。
-              </p>
-              <label className="honey" aria-hidden="true">
-                Website
-                <input name="website" tabIndex={-1} autoComplete="off" />
-              </label>
-              <label>
-                朝リスネーム
-                <input name="nickname" maxLength={30} required />
-              </label>
-              <label>
-                推しタグ
-                <select name="tag" required>
-                  <option value="">選んでください</option>
-                  {tags.map((t) => (
-                    <option key={t}>{t}</option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                どこが推し？
-                <textarea
-                  name="body"
-                  maxLength={120}
-                  required
-                  placeholder="120字以内"
-                />
-              </label>
-              <button className="submit">推しコメントを投稿</button>
-              <p className="notice">{notice}</p>
-            </form>
-          </div>
-        </div>
-      )}
       <footer>
         <div className="wrap">
-          非公式・朝リスコミュニティ　<a href="/admin">管理</a>
+          非公式・朝リスコミュニティ
         </div>
       </footer>
     </>

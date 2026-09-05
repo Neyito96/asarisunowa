@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   title: "朝リスの輪｜朝ポキプレイリスト案内所",
   description:
     "公式番組と朝リスのおすすめがつながる、朝ポキのプレイリスト案内所。",
+  other: { "codex-preview": "development" },
 };
 
 export default function RootLayout({
