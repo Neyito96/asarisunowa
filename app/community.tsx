@@ -407,33 +407,18 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               >
                 <small className="resourceBadge">🏆 レジェンド認定</small>
                 <b>朝リスの検索ツール</b>
+                <small className="creatorCredit">
+                  制作者：@おんさ・@あさひあいち・@朝リス群
+                </small>
                 <span>出演者や番組から朝ポキを探す ↗</span>
               </a>
               <a href="https://x.gd/6R84T" target="_blank" rel="noreferrer">
                 <small className="resourceBadge">㊗️ ドーナツ始動</small>
                 <b>日曜版で紹介された朝リスPodcast一覧</b>
+                <small className="creatorCredit">制作者：@タンタン</small>
                 <span>
                   これまで番組で紹介された朝リスさんのPodcastをまとめて見る ↗
                 </span>
-              </a>
-              <a
-                href="https://discord.gg/pbTQ6qajb3"
-                target="_blank"
-                rel="noreferrer"
-              >
-                <b>朝リス課外活動</b>
-                <span>
-                  朝リス同士のオンライン座談会。聴くだけ・テキスト参加も歓迎。開催日程はDiscordで確認
-                  ↗
-                </span>
-              </a>
-              <a
-                href="https://discord.gg/TU8c9qtzvw"
-                target="_blank"
-                rel="noreferrer"
-              >
-                <b>ドーナツDiscord</b>
-                <span>ドーナツの話題はこちら ↗</span>
               </a>
               <a
                 href="https://ja.wikipedia.org/wiki/%E6%9C%9D%E6%97%A5%E6%96%B0%E8%81%9E%E3%83%9D%E3%83%83%E3%83%89%E3%82%AD%E3%83%A3%E3%82%B9%E3%83%88"
@@ -441,6 +426,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 rel="noreferrer"
               >
                 <b>ピノ子さんの夏休みの自由研究</b>
+                <small className="creatorCredit">制作者：@ピノ子</small>
                 <span>朝ポキのWikipedia。みんなで編集できます ✌️ ↗</span>
               </a>
               <a
@@ -460,6 +446,32 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <span>朝日新聞ポッドキャスト一覧 ↗</span>
               </a>
             </div>
+            <section className="discordHub" aria-labelledby="discord-title">
+              <div className="discordHubHead">
+                <span aria-hidden="true">💬</span>
+                <div>
+                  <p className="kicker">DISCORD LINKS</p>
+                  <h3 id="discord-title">話す場所はこちら</h3>
+                </div>
+              </div>
+              <div className="discordLinkGrid">
+                <a href="https://discord.gg/6zBhm97F9" target="_blank" rel="noreferrer">
+                  <i aria-hidden="true">🌅</i><span><b>朝ポキのDiscord</b><small>総合交流サーバー</small></span>
+                </a>
+                <a href="https://discord.gg/d7sAbSRQvq" target="_blank" rel="noreferrer">
+                  <i aria-hidden="true">🎙️</i><span><b>報談のDiscord</b><small>報談専用サーバー</small></span>
+                </a>
+                <a href="https://discord.gg/TU8c9qtzvw" target="_blank" rel="noreferrer">
+                  <i aria-hidden="true">🍩</i><span><b>ドーナツのDiscord</b><small>ドーナツの話題はこちら</small></span>
+                </a>
+                <a href="https://discord.gg/6zBhm97F9" target="_blank" rel="noreferrer">
+                  <i aria-hidden="true">📝</i><span><b>記者サロンの感想</b><small>朝ポキDiscord内で感想を共有</small></span>
+                </a>
+                <a href="https://discord.gg/pbTQ6qajb3" target="_blank" rel="noreferrer">
+                  <i aria-hidden="true">🛟</i><span><b>朝リス課外活動</b><small>座談会・聴くだけ参加も歓迎</small></span>
+                </a>
+              </div>
+            </section>
           </section>
         </main>
       )}
