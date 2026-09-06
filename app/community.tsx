@@ -207,9 +207,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       </header>
 
       <div className="wrap siteNotice">
-  <strong>朝リスの輪｜リスナーがつくる非公式案内所</strong>
+  <strong>リスナーがつくる非公式案内所</strong>
   <p>
-    掲載情報は必ずしも最新・正確とは限りませんので、ご容赦ください。
+    掲載情報は必ずしも最新・正確とは限りません
     ご意見・ご要望はDiscordへお気軽にどうぞ！
   </p>
 </div>

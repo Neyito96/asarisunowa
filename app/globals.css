@@ -1318,3 +1318,18 @@ footer {
     font-size: 16px;
   }
 }
+.siteNotice {
+  margin: 7px auto 9px;
+  padding: 8px 12px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.siteNotice strong {
+  margin-bottom: 0;
+  font-size: 14px;
+}
+
+.siteNotice p {
+  margin: 1px 0 0;
+}
