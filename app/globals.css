@@ -1471,3 +1471,36 @@ footer {
   line-height: 1.5;
   white-space: nowrap;
 }
+
+/* あれどこ？の色分けを明確にする */
+.circlePage {
+  background: #eefafd;
+  border-radius: 22px;
+  padding-top: 18px;
+  padding-bottom: 24px;
+}
+
+.resourceGrid a.newResource {
+  background: #ffffff !important;
+  border: 1px solid #f1a1b9 !important;
+  border-left: 7px solid #d54e78 !important;
+  box-shadow: 0 8px 20px rgba(32, 74, 88, 0.12) !important;
+}
+
+.resourceGrid a.newResource .newBadge {
+  background: #d54e78 !important;
+  color: #ffffff !important;
+  border-radius: 999px;
+  padding: 5px 10px;
+}
+
+.resourceGrid .officialResourceLabel {
+  background: #cceff4 !important;
+  color: #086c80 !important;
+}
+
+.resourceGrid .officialResourceLabel ~ a {
+  background: #e8f7f4 !important;
+  border-color: #8ccfc2 !important;
+  box-shadow: none !important;
+}
