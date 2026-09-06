@@ -208,14 +208,43 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               alt=""
               aria-hidden="true"
             />
-            <span>朝リスの輪</span>
+            <span>タイトル案：朝リスの輪／朝リスの田／朝リスの間——どれ？</span>
           </b>
           <a
             href="https://www.asahi.com/special/podcasts/"
             target="_blank"
             rel="noreferrer"
           >
-            公式・全番組 ↗
+            python3 - <<'PY'
+from pathlib import Path
+
+p = Path("app/globals.css")
+s = p.read_text(encoding="utf-8")
+
+marker = "/* PC版NEWカードも通常サイズに統一 */"
+
+block = """
+/* PC版NEWカードも通常サイズに統一 */
+@media (min-width: 781px) {
+  .officialCard.featured {
+    grid-template-columns: 94px 1fr;
+    min-height: 0;
+  }
+}
+"""
+
+if marker not in s:
+    s = s.rstrip() + "\n\n" + block
+
+p.write_text(s, encoding="utf-8")
+print("NEWカードの画像サイズをほかの番組と統一しました")
+PY
+
+git --no-pager diff -- app/globals.css
+
+git add app/globals.css
+git commit -m "NEW番組の画像サイズを統一"
+git push origin main・全番組 ↗
           </a>
         </div>
       </header>
