@@ -203,7 +203,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           <b className="siteBrand">
             <img
               className="brandMark"
-              src="/asarisunowa/asarisunowa-ring-logo.png"
+              src="/asarisunowa/asarisunowa-woven-ring-logo-brown-v4.png"
               alt=""
               aria-hidden="true"
             />
@@ -350,6 +350,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         </>
       ) : view === "official" ? (
         <main className="wrap official">
+          <p className="officialIntro">
+            朝日新聞ポッドキャストの公式プレイリストをまとめています。
+          </p>
           <div className="officialGrid">
             {officialPrograms.map((p, index) => (
               <article

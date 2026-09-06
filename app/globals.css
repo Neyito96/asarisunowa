@@ -932,6 +932,12 @@ header::after {
   grid-template-columns: repeat(2, 1fr);
   gap: 18px;
 }
+.officialIntro {
+  margin: 0 0 12px;
+  color: #52737c;
+  font-size: 14px;
+  line-height: 1.5;
+}
 .officialCard {
   padding: 0;
   display: grid;
