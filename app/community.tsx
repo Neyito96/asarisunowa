@@ -242,9 +242,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
   >
     ◯ あれどこ？
   </button>
-</div>git add app/community.tsx
-git commit -m "上部メニューの並び順を変更"
-git push origin main
+</div>
       {view === "listeners" ? (
         <>
           <div className="toolbar">
