@@ -208,7 +208,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               alt=""
               aria-hidden="true"
             />
-            <span>タイトル案：朝リスの輪／朝リスの田／朝リスの間——どれ？</span>
+            <span>朝リスの輪（仮）</span>
           </b>
           <a
             href="https://www.asahi.com/special/podcasts/"
@@ -249,7 +249,7 @@ git push origin main・全番組 ↗
         </div>
       </header>
       <div className="wrap compactNotice">
-        <span>非公式・リスナー制作｜情報は最新・正確でない場合があります</span>
+        <span><strong>タイトル案：朝リスの輪／朝リスの田／朝リスの間——どれ？</strong><br />非公式・リスナー制作｜情報は最新・正確でない場合があります</span>
         <button type="button" onClick={() => setView("discord")}>
           ご意見はDiscordへ
         </button>
