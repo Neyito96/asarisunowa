@@ -446,7 +446,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <small className="resourceBadge">🔍 ポキっと見つかる</small>
                 <b>朝ポキ検索ツール</b>
                 <small className="creatorCredit">
-                  制作者：@オンサさん・@あさひあいちさん・@朝リス
+                  制作者：@おんささん・@あさひあいちさん・@朝リス
                 </small>
                 <span>出演者や番組、記者も探せるよ ↗</span>
               </a>
