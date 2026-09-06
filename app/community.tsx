@@ -206,9 +206,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         </div>
       </header>
 
-      <div className="wrap siteNotice">
+      <div className="wrap siteNotice" style={{ margin: "6px auto 8px", padding: "7px 10px", background: "#fff1f5", fontSize: "14px", lineHeight: 1.45 }}>
   <strong>リスナーがつくる非公式案内所</strong>
-  <p>
+  <p style={{ margin: "1px 0 0" }}>
     掲載情報は必ずしも最新・正確とは限りません
     ご意見・ご要望はDiscordへお気軽にどうぞ！
   </p>
@@ -412,7 +412,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <small className="resourceBadge">🏆 レジェンド認定</small>
                 <b>朝リスの検索ツール</b>
                 <small className="creatorCredit">
-                  制作者：@おんさ・@あさひあいち・@朝リス群
+                  制作者：@おんさ・@あさひあいち・@朝リス
                 </small>
                 <span>出演者や番組から朝ポキを探す ↗</span>
               </a>
@@ -429,9 +429,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 target="_blank"
                 rel="noreferrer"
               >
-                <b>ピノ子さんの夏休みの自由研究</b>
+                <b>朝ポキのWikipedia</b>
                 <small className="creatorCredit">制作者：@ピノ子</small>
-                <span>朝ポキのWikipedia。みんなで編集できます ✌️ ↗</span>
+                <span>みんなで編集できます ✌️ ↗</span>
               </a>
               <a
                 href="https://www.asahi.com/withnews/podcasts/"
