@@ -1153,6 +1153,15 @@ header::after {
   border-radius: 14px;
   text-decoration: none;
 }
+.discordLinkGrid a.featuredDiscord {
+  color: #60344a;
+  background: linear-gradient(135deg, #fff2d9, #ffe3ec);
+  border: 2px solid #f2ad73;
+  box-shadow: 0 6px 16px #d78b5630;
+}
+.discordLinkGrid a.featuredDiscord small {
+  color: #79566a;
+}
 .discordLinkGrid i {
   font-size: 25px;
   font-style: normal;

@@ -92,7 +92,7 @@ const officialPrograms: OfficialProgram[] = [
     official: "https://omny.fm/shows/asahi/playlists/podcast",
   },
   {
-    name: "報談",
+    name: "報談【HOU-DAN】",
     schedule:
       "月：カロリーオフ／木：報談本編（音声先行、木曜夜～金曜にSpotify動画）",
     spotify: "https://open.spotify.com/show/5Dt1uyQaJpM6hPV8aEMP3R",
@@ -499,15 +499,15 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   <i aria-hidden="true">🌅</i><span><b>朝ポキのDiscord</b><small>総合交流サーバー</small></span>
                 </a>
                 <a href="https://discord.gg/d7sAbSRQvq" target="_blank" rel="noreferrer">
-                  <i aria-hidden="true">🎙️</i><span><b>報談のDiscord</b><small>報談専用サーバー</small></span>
+                  <i aria-hidden="true">🎙️</i><span><b>報談【HOU-DAN】</b><small>報談専用サーバー</small></span>
                 </a>
                 <a href="https://discord.gg/TU8c9qtzvw" target="_blank" rel="noreferrer">
-                  <i aria-hidden="true">🍩</i><span><b>ドーナツのDiscord</b><small>ドーナツの話題はこちら</small></span>
+                  <i aria-hidden="true">🍩</i><span><b>ドーナツ</b><small>ドーナツの話題はこちら</small></span>
                 </a>
                 <a href="https://discord.gg/BUZ6cmV8Fh" target="_blank" rel="noreferrer">
-                  <i aria-hidden="true">📝</i><span><b>記者サロンの感想</b><small>記者サロン専用Discord</small></span>
+                  <i aria-hidden="true">📝</i><span><b>朝日新聞 記者サロン</b><small>記者サロン専用Discord</small></span>
                 </a>
-                <a href="https://discord.gg/pbTQ6qajb3" target="_blank" rel="noreferrer">
+                <a className="featuredDiscord" href="https://discord.gg/pbTQ6qajb3" target="_blank" rel="noreferrer">
                   <i aria-hidden="true">🛟</i><span><b>朝リス課外活動</b><small>座談会・聴くだけ参加も歓迎</small></span>
                 </a>
               </div>
