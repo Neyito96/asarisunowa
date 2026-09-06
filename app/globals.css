@@ -1595,3 +1595,10 @@ footer {
     min-height: 0;
   }
 }
+
+
+/* withnews記事化格納庫の注目バッジ */
+.resourceBadge.withnewsBadge {
+  background: #008fd3 !important;
+  color: #ffffff !important;
+}
