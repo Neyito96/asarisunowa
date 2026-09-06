@@ -208,7 +208,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               alt=""
               aria-hidden="true"
             />
-            <span>朝リスの輪（仮）</span>
+            <span>朝リスの輪（仮） 田or間（どれ？）</span>
           </b>
           <a
             href="https://www.asahi.com/special/podcasts/"
@@ -220,7 +220,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         </div>
       </header>
       <div className="wrap compactNotice">
-        <span><strong>タイトル案：朝リスの輪／朝リスの田／朝リスの間——どれ？</strong><br />非公式・リスナー制作｜情報は最新・正確でない場合があります</span>
+        <span>非公式・リスナー制作｜情報は最新・正確でない場合があります</span>
         <button type="button" onClick={() => setView("discord")}>
           ご意見はDiscordへ
         </button>
@@ -443,7 +443,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 target="_blank"
                 rel="noreferrer"
               >
-                <small className="resourceBadge">🏆 レジェンド認定</small>
+                <small className="resourceBadge">🔍 ポキっと見つかる</small>
                 <b>朝ポキ検索ツール</b>
                 <small className="creatorCredit">
                   制作者：@オンサさん・@あさひあいちさん・@朝リス
