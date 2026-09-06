@@ -405,7 +405,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             ))}
           </div>
           <p className="sourceNote">
-            画像：公式サイト・各配信サービス／番組リスト：中島さんのDiscord投稿・音声配信をもとに編集
+            画像：公式サイト・各配信サービス／番組情報：ナカジマシンヤ（朝ポキ）さんのDiscord投稿・音声配信を参考に編集
           </p>
         </main>
       ) : view === "circle" ? (
@@ -525,7 +525,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       <footer>
         <div className="wrap">
           <small>
-            このページは、朝リスのネジートがAIと試行錯誤しながら制作している非公式リスナーサイトです。お助け歓迎です〜
+            朝リス @ネジートが制作・運営する非公式リスナーサイトです。
           </small>
         </div>
       </footer>
