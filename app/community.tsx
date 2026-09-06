@@ -78,7 +78,7 @@ const officialPrograms: OfficialProgram[] = [
   {
     name: "ニュースの現場から",
     schedule:
-      "月：新聞をめくろう／火：カガク・そなえ／水：World Insight・GLOBE CAST／木：PUERTA／金：ゆるっと経済／土：ポリレビ／日：大阪／不定：ON GOING",
+      "月：新聞をめくろう／火：カガク・そなえ／水：World Insight・GLOBE CAST／木：PUERTA／金：ゆるっと経済／土：ポリレビ／日：ニュース大阪目線／不定：ON GOING",
     spotify: "https://open.spotify.com/show/392h0MYfvMTndEVzf2cOvC",
     links: [
       ["Spotify", "https://open.spotify.com/show/392h0MYfvMTndEVzf2cOvC"],
