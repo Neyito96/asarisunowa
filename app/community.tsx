@@ -414,6 +414,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             </div>
             <div className="resourceGrid">
               <a
+                className="newResource"
                 href="https://ja.wikipedia.org/wiki/%E6%9C%9D%E6%97%A5%E6%96%B0%E8%81%9E%E3%83%9D%E3%83%83%E3%83%89%E3%82%AD%E3%83%A3%E3%82%B9%E3%83%88"
                 target="_blank"
                 rel="noreferrer"
@@ -423,7 +424,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <small className="creatorCredit">制作者：@ピノさん</small>
                 <span>みんなで編集できます ✌️ ↗</span>
               </a>
-              <a href="https://x.gd/6R84T" target="_blank" rel="noreferrer">
+              <a className="newResource" href="https://x.gd/6R84T" target="_blank" rel="noreferrer">
                 <small className="resourceBadge newBadge">NEW</small>
                 <b>日曜版で紹介された朝リスのPodcast</b>
                 <small className="creatorCredit">制作者：@タンタンさん</small>
@@ -432,7 +433,6 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 </span>
               </a>
               <a
-                className="legendResource"
                 href="https://yoshimotomasahir.github.io/asapoki_vis/speakers2.html?screen=0"
                 target="_blank"
                 rel="noreferrer"
@@ -444,7 +444,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 </small>
                 <span>出演者や番組、記者も探せるよ ↗</span>
               </a>
-              <p className="resourceSectionLabel">公式リンク</p>
+              <p className="resourceSectionLabel officialResourceLabel">公式リンク</p>
               <a
                 href="https://www.asahi.com/withnews/podcasts/"
                 target="_blank"

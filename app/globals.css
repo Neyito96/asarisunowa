@@ -1424,3 +1424,34 @@ footer {
     height: 42px;
   }
 }
+
+/* あれどこ？ NEW・公式リンクの区分 */
+.resourceGrid a.newResource {
+  background: linear-gradient(135deg, #fff0f5, #fff9fb);
+  border: 2px solid #ee789c;
+  box-shadow: 0 7px 18px rgba(209, 74, 116, 0.16);
+}
+
+.resourceGrid a.newResource:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(209, 74, 116, 0.22);
+}
+
+.resourceGrid a.newResource .newBadge {
+  background: #d54e78;
+  color: #fff;
+  font-weight: 900;
+}
+
+.resourceGrid .officialResourceLabel {
+  background: #dff5fa;
+  border-radius: 12px;
+  padding: 9px 12px;
+  color: #08768c;
+}
+
+.resourceGrid .officialResourceLabel ~ a {
+  background: #f0fbfd;
+  border-color: #8bd0dc;
+  box-shadow: none;
+}
