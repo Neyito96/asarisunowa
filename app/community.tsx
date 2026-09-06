@@ -54,7 +54,7 @@ const officialPrograms: OfficialProgram[] = [
     name: "ドーナツ～このポッドキャストはSNSです",
     mark: "NEW",
     schedule:
-      "日：日曜版／月：散歩、対話、1on1、別企画／木：親モヤ／第一木：スナックよりみ知／隔週金：アラサーかいわい／土：農MUSIC 猟ライフ",
+      "日：日曜版／月：散歩、対話、1on1、👀 別企画?!／木：親モヤ／第一木：スナックよりみ知／隔週金：アラサーかいわい／土：農MUSIC 猟ライフ",
     spotify: "https://open.spotify.com/show/0341I5UOUrJgm7KEvNGInZ",
     links: [
       ["Spotify", "https://open.spotify.com/show/0341I5UOUrJgm7KEvNGInZ"],
@@ -82,7 +82,7 @@ const officialPrograms: OfficialProgram[] = [
   {
     name: "ニュースの現場から",
     schedule:
-      "月：新聞をめくろう／火：カガク・そなえ／水：World Insight・GLOBE CAST／木：PUERTA／金：ゆるっと経済／土：ポリレビ／日：大阪／不定：ON GOING",
+      "月：新聞をめくろう／火：カガク・そなえ／水：World Insight・GLOBE CAST／木：PUERTA／金：ゆるっと経済／土：ポリレビ／日：👀 ニュース大阪目線／不定：ON GOING",
     spotify: "https://open.spotify.com/show/392h0MYfvMTndEVzf2cOvC",
     links: [
       ["Spotify", "https://open.spotify.com/show/392h0MYfvMTndEVzf2cOvC"],
