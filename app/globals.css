@@ -6,6 +6,36 @@
   scrollbar-width: thin;
 }
 
+.compactNotice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 6px auto 8px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: #fff1f5;
+  color: #66777c;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.compactNotice button {
+  flex: 0 0 auto;
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  color: #9b3e61;
+  font: inherit;
+  font-weight: 800;
+  text-decoration: underline;
+}
+@media (max-width: 520px) {
+  .compactNotice {
+    align-items: flex-start;
+    font-size: 11px;
+  }
+}
+
 @utility scrollbar-none {
   scrollbar-width: none;
 
@@ -1317,19 +1347,4 @@ footer {
   .nav b {
     font-size: 16px;
   }
-}
-.siteNotice {
-  margin: 7px auto 9px;
-  padding: 8px 12px;
-  font-size: 14px;
-  line-height: 1.45;
-}
-
-.siteNotice strong {
-  margin-bottom: 0;
-  font-size: 14px;
-}
-
-.siteNotice p {
-  margin: 1px 0 0;
 }

@@ -78,7 +78,7 @@ const officialPrograms: OfficialProgram[] = [
   {
     name: "ニュースの現場から",
     schedule:
-      "月：新聞をめくろう／火：カガク・そなえ／水：World Insight・GLOBE CAST／木：PUERTA／金：ゆるっと経済／土：ポリレビ／日：ニュース大阪目線／不定：ON GOING",
+      "月：新聞をめくろう／火：カガク・そなえ／水：World Insight・GLOBE CAST／木：PUERTA／金：ゆるっと経済／土：ポリレビ／日：大阪／不定：ON GOING",
     spotify: "https://open.spotify.com/show/392h0MYfvMTndEVzf2cOvC",
     links: [
       ["Spotify", "https://open.spotify.com/show/392h0MYfvMTndEVzf2cOvC"],
@@ -205,44 +205,38 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           </a>
         </div>
       </header>
-
-      <div className="wrap siteNotice" style={{ margin: "6px auto 8px", padding: "7px 10px", background: "#fff1f5", fontSize: "14px", lineHeight: 1.45 }}>
-  <strong>リスナーがつくる非公式案内所</strong>
-  <p style={{ margin: "1px 0 0" }}>
-    掲載情報は必ずしも最新・正確とは限りません
-    ご意見・ご要望はDiscordへお気軽にどうぞ！
-  </p>
-</div>
-
-  <div className="wrap viewTabs" role="tablist" aria-label="掲載区分">
-  <button
-    className={view === "official" ? "on" : ""}
-    onClick={() => setView("official")}
-  >
-    ★ 公式
-  </button>
-
-  <button
-    className={view === "listeners" ? "on" : ""}
-    onClick={() => setView("listeners")}
-  >
-    ♡ 朝リス
-  </button>
-
-  <button
-    className={view === "discord" ? "on" : ""}
-    onClick={() => setView("discord")}
-  >
-    💬 Discord
-  </button>
-
-  <button
-    className={view === "circle" ? "on" : ""}
-    onClick={() => setView("circle")}
-  >
-    ◯ あれどこ？
-  </button>
-</div>
+      <div className="wrap compactNotice">
+        <span>非公式・リスナー制作｜情報は最新・正確でない場合があります</span>
+        <button type="button" onClick={() => setView("discord")}>
+          ご意見はDiscordへ
+        </button>
+      </div>
+      <div className="wrap viewTabs" role="tablist" aria-label="掲載区分">
+        <button
+          className={view === "official" ? "on" : ""}
+          onClick={() => setView("official")}
+        >
+          ★ 公式
+        </button>
+        <button
+          className={view === "listeners" ? "on" : ""}
+          onClick={() => setView("listeners")}
+        >
+          ♡ 朝リス
+        </button>
+        <button
+          className={view === "circle" ? "on" : ""}
+          onClick={() => setView("circle")}
+        >
+          ◯ あれどこ？
+        </button>
+        <button
+          className={view === "discord" ? "on" : ""}
+          onClick={() => setView("discord")}
+        >
+          💬 Discord
+        </button>
+      </div>
       {view === "listeners" ? (
         <>
           <div className="toolbar">
@@ -343,12 +337,6 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         </>
       ) : view === "official" ? (
         <main className="wrap official">
-          <div className="officialLead">
-            <div>
-              <p className="kicker">OFFICIAL PLAYLISTS</p>
-              <h2>まずは 公式から</h2>
-            </div>
-          </div>
           <div className="officialGrid">
             {officialPrograms.map((p, index) => (
               <article
@@ -415,7 +403,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <small className="resourceBadge">🏆 レジェンド認定</small>
                 <b>朝リスの検索ツール</b>
                 <small className="creatorCredit">
-                  制作者：@おんさ・@あさひあいち・@朝リス
+                  制作者：@おんさ・@あさひあいち・@朝リス群
                 </small>
                 <span>出演者や番組から朝ポキを探す ↗</span>
               </a>
@@ -432,9 +420,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 target="_blank"
                 rel="noreferrer"
               >
-                <b>朝ポキのWikipedia</b>
+                <b>ピノ子さんの夏休みの自由研究</b>
                 <small className="creatorCredit">制作者：@ピノ子</small>
-                <span>みんなで編集できます ✌️ ↗</span>
+                <span>朝ポキのWikipedia。みんなで編集できます ✌️ ↗</span>
               </a>
               <a
                 href="https://www.asahi.com/withnews/podcasts/"
@@ -480,7 +468,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   <i aria-hidden="true">📝</i><span><b>記者サロンの感想</b><small>記者サロン専用Discord</small></span>
                 </a>
                 <a href="https://discord.gg/pbTQ6qajb3" target="_blank" rel="noreferrer">
-                  {/* <i aria-hidden="true">🛟</i><span><b>朝リス課外活動</b><small>広場や座談会・聴くだけ参加も歓迎</small></span> */}
+                  <i aria-hidden="true">🛟</i><span><b>朝リス課外活動</b><small>座談会・聴くだけ参加も歓迎</small></span>
                 </a>
               </div>
             </section>
