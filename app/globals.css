@@ -1425,53 +1425,6 @@ footer {
   }
 }
 
-/* あれどこ？ NEW・公式リンクの区分 */
-.resourceGrid a.newResource {
-  background: linear-gradient(135deg, #fff0f5, #fff9fb);
-  border: 2px solid #ee789c;
-  box-shadow: 0 7px 18px rgba(209, 74, 116, 0.16);
-}
-
-.resourceGrid a.newResource:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 22px rgba(209, 74, 116, 0.22);
-}
-
-.resourceGrid a.newResource .newBadge {
-  background: #d54e78;
-  color: #fff;
-  font-weight: 900;
-}
-
-.resourceGrid .officialResourceLabel {
-  background: #dff5fa;
-  border-radius: 12px;
-  padding: 9px 12px;
-  color: #08768c;
-}
-
-.resourceGrid .officialResourceLabel ~ a {
-  background: #f0fbfd;
-  border-color: #8bd0dc;
-  box-shadow: none;
-}
-
-/* 公式ページの見出しを2行に収める */
-.officialHeading {
-  margin-bottom: 12px;
-}
-
-.officialHeading .kicker {
-  margin-bottom: 4px;
-}
-
-.officialHeading .officialIntro {
-  margin: 0;
-  font-size: clamp(12px, 3.4vw, 15px);
-  line-height: 1.5;
-  white-space: nowrap;
-}
-
 /* あれどこ？の色分けを明確にする */
 .circlePage {
   background: #eefafd;
@@ -1505,23 +1458,6 @@ footer {
   box-shadow: none !important;
 }
 
-/* OFFICIAL PLAYLISTSを太見出しにする */
-.officialHeading .officialTitle {
-  margin: 0 0 4px;
-  color: #08768c;
-  font-size: clamp(25px, 5vw, 38px);
-  font-weight: 900;
-  line-height: 1.1;
-  letter-spacing: 0.04em;
-}
-
-.officialHeading .officialIntro {
-  margin: 0;
-  font-size: clamp(12px, 3.4vw, 15px);
-  line-height: 1.5;
-  white-space: nowrap;
-}
-
 /* 公式ページ見出し・出典 最終調整 */
 .officialHeading {
   margin: 0 0 14px;
@@ -1551,57 +1487,7 @@ footer {
   line-height: 1.6;
 }
 
-/* スマホ版Discord一覧をコンパクトにする */
-@media (max-width: 780px) {
-  .discordPage {
-    padding-top: 6px !important;
-    padding-bottom: 12px !important;
-  }
-
-  .discordHub {
-    padding: 12px !important;
-  }
-
-  .discordHubHead {
-    margin-bottom: 8px !important;
-  }
-
-  .discordHubHead h3 {
-    margin: 0;
-    font-size: 20px;
-    line-height: 1.2;
-  }
-
-  .discordHubHead .kicker {
-    margin-bottom: 2px;
-    font-size: 12px;
-  }
-
-  .discordLinkGrid {
-    gap: 7px !important;
-  }
-
-  .discordLinkGrid a {
-    min-height: 0 !important;
-    padding: 8px 10px !important;
-  }
-
-  .discordLinkGrid a i {
-    font-size: 19px;
-  }
-
-  .discordLinkGrid a b {
-    font-size: 15px;
-    line-height: 1.2;
-  }
-
-  .discordLinkGrid a small {
-    font-size: 12px;
-    line-height: 1.2;
-  }
-}
-
-/* Discord一覧を全画面でコンパクトにする */
+/* Discord一覧 最終設定 */
 .discordPage {
   padding-top: 8px !important;
   padding-bottom: 14px !important;
@@ -1637,4 +1523,66 @@ footer {
 .discordPage .discordLinkGrid a small {
   margin-top: 2px;
   line-height: 1.25;
+}
+
+@media (max-width: 780px) {
+  .discordPage {
+    padding-top: 6px !important;
+    padding-bottom: 12px !important;
+  }
+
+  .discordPage .discordHub {
+    padding: 12px !important;
+  }
+
+  .discordPage .discordHubHead {
+    margin-bottom: 8px !important;
+  }
+
+  .discordPage .discordHubHead h3 {
+    font-size: 20px;
+  }
+
+  .discordPage .discordHubHead .kicker {
+    margin-bottom: 2px;
+    font-size: 12px;
+  }
+
+  .discordPage .discordLinkGrid {
+    gap: 7px !important;
+  }
+
+  .discordPage .discordLinkGrid a {
+    padding: 8px 10px !important;
+  }
+
+  .discordPage .discordLinkGrid a i {
+    font-size: 19px;
+  }
+
+  .discordPage .discordLinkGrid a b {
+    font-size: 15px;
+  }
+
+  .discordPage .discordLinkGrid a small {
+    font-size: 12px;
+    line-height: 1.2;
+  }
+}
+
+
+/* PC版の番組アートワークを正方形で全体表示 */
+@media (min-width: 781px) {
+  .officialArt {
+    align-self: start;
+    min-height: 0;
+    aspect-ratio: 1 / 1;
+    background: #fff;
+  }
+
+  .officialArt img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
 }

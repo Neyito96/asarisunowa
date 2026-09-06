@@ -132,7 +132,7 @@ const officialPrograms: OfficialProgram[] = [
   },
   {
     name: "朝日新聞アルキキ 最新ニュース",
-    detail: "最新ニュースのサマリーを手軽にまとめ聞きできる音声ニュース番組です。",
+    detail: "毎日6時から23時まで、毎時配信",
     spotify: "https://open.spotify.com/show/5nF17xZ9nxBIDKkiqeyvYT",
     links: [
       ["Spotify", "https://open.spotify.com/show/5nF17xZ9nxBIDKkiqeyvYT"],
@@ -144,7 +144,7 @@ const officialPrograms: OfficialProgram[] = [
   },
   {
     name: "朝日新聞AJW 英語ニュース",
-    detail: "アジアと日本の最新ニュースを英語音声で届けます。",
+    detail: "毎日2回、8時と18時に配信",
     spotify: "https://open.spotify.com/show/5UwHBIfMDqWs0EyfPOz50N",
     links: [
       ["Spotify", "https://open.spotify.com/show/5UwHBIfMDqWs0EyfPOz50N"],
