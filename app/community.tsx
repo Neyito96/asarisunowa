@@ -10,6 +10,7 @@ type OfficialProgram = {
   links?: string[][];
   official?: string;
   discord?: string;
+  youtube?: boolean;
 };
 const ASAPOKI_YOUTUBE = "https://www.youtube.com/@asapoki_official";
 const ASAPOKI_OFFICIAL = "https://www.asahi.com/special/podcasts/";
@@ -47,6 +48,7 @@ const officialPrograms: OfficialProgram[] = [
       ["Pocket Casts", "https://buff.ly/F933Yg0"],
     ],
     official: "https://omny.fm/shows/asahi/playlists/sponge",
+    youtube: false,
   },
   {
     name: "ドーナツ～このポッドキャストはSNSです",
@@ -74,6 +76,7 @@ const officialPrograms: OfficialProgram[] = [
       ["Amazon Music", "https://music.amazon.co.jp/podcasts/55b49660-b1f3-482d-9b1e-791337153bc2/media-talk-%E3%83%A1%E3%83%87%E3%82%A3%E3%82%A2%E3%83%88%E3%83%BC%E3%82%AF"],
     ],
     official: "https://omny.fm/shows/asahi/playlists/playlist-2",
+    youtube: false,
   },
   {
     name: "ニュースの現場から",
@@ -112,6 +115,7 @@ const officialPrograms: OfficialProgram[] = [
       ["Amazon Music", "https://music.amazon.com/es-us/podcasts/16cb0d1f-42eb-433b-8696-b435641c4723/sdgs%E3%82%92%E8%A9%B1%E3%81%9D%E3%81%86-%E3%82%A2%E3%83%BC%E3%82%AB%E3%82%A4%E3%83%96%EF%BC%882021-10-2026-6%EF%BC%89"],
     ],
     official: "https://omny.fm/shows/asahi/playlists/sdgs",
+    youtube: false,
   },
   {
     name: "ニュースの学校",
@@ -123,6 +127,7 @@ const officialPrograms: OfficialProgram[] = [
       ["Amazon Music", "https://music.amazon.co.jp/podcasts/c0bbd7fe-8cfb-4e94-9ec3-7c825aa70217/%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%81%AE%E5%AD%A6%E6%A0%A1"],
     ],
     official: "https://omny.fm/shows/asahi/playlists/playlist-3",
+    youtube: false,
   },
   {
     name: "朝日新聞アルキキ 最新ニュース",
@@ -134,6 +139,7 @@ const officialPrograms: OfficialProgram[] = [
       ["Amazon Music", "https://music.amazon.co.jp/podcasts/e3834140-7cc1-4804-a0c4-9ba9abfa51d2/%E6%9C%9D%E6%97%A5%E6%96%B0%E8%81%9E%E3%82%A2%E3%83%AB%E3%82%AD%E3%82%AD-%E6%9C%80%E6%96%B0%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9"],
     ],
     official: "https://omny.fm/shows/arukiki-ajw",
+    youtube: false,
   },
   {
     name: "朝日新聞AJW 英語ニュース",
@@ -145,6 +151,7 @@ const officialPrograms: OfficialProgram[] = [
       ["Amazon Music", "https://music.amazon.com/es-us/podcasts/81edc5ed-5305-4cd3-b392-3a001e6c1086/%E6%9C%9D%E6%97%A5%E6%96%B0%E8%81%9Eajw-%E8%8B%B1%E8%AA%9E%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%EF%BC%88the-asahi-shimbun-asia-japan-watch%EF%BC%89"],
     ],
     official: "https://www.asahi.com/ajw/",
+    youtube: false,
   },
 ];
 function OfficialArtwork({ url, name }: { url?: string; name: string }) {
@@ -352,7 +359,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   <div className="serviceLinks">
                       {[
                         ...(p.links ?? []),
-                        ["YouTube", ASAPOKI_YOUTUBE],
+                        ...(p.youtube === false
+                          ? []
+                          : [["YouTube", ASAPOKI_YOUTUBE]]),
                         ["公式", p.official ?? ASAPOKI_OFFICIAL],
                       ].map(([label, url]) => (
                         <a
