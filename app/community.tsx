@@ -78,7 +78,7 @@ const officialPrograms: OfficialProgram[] = [
   {
     name: "ニュースの現場から",
     schedule:
-      "月：新聞をめくろう／火：カガク・そなえ／水：World Insight・GLOBE CAST／木：PUERTA／金：ゆるっと経済／土：ポリレビ／日：ニュース大阪目線／不定：ON GOING",
+      "月：新聞をめくろう／火：カガク・そなえ／水：World Insight・GLOBE CAST／木：PUERTA／金：ゆるっと経済／土：ポリレビ／日：大阪／不定：ON GOING",
     spotify: "https://open.spotify.com/show/392h0MYfvMTndEVzf2cOvC",
     links: [
       ["Spotify", "https://open.spotify.com/show/392h0MYfvMTndEVzf2cOvC"],
@@ -160,7 +160,7 @@ function OfficialArtwork({ url, name }: { url?: string; name: string }) {
   );
 }
 export default function Community({ playlists }: { playlists: Playlist[] }) {
-  const [view, setView] = useState<"listeners" | "official" | "circle">(
+  const [view, setView] = useState<"listeners" | "official" | "circle" | "discord">(
       "official",
     ),
     [query, setQuery] = useState(""),
@@ -210,19 +210,25 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           className={view === "official" ? "on" : ""}
           onClick={() => setView("official")}
         >
-          ★ 公式プレイリスト
+          ★ 公式
         </button>
         <button
           className={view === "listeners" ? "on" : ""}
           onClick={() => setView("listeners")}
         >
-          ♡ 朝リスのプレイリスト
+          ♡ 朝リス
         </button>
         <button
           className={view === "circle" ? "on" : ""}
           onClick={() => setView("circle")}
         >
           ◯ あれどこ？
+        </button>
+        <button
+          className={view === "discord" ? "on" : ""}
+          onClick={() => setView("discord")}
+        >
+          💬 Discord
         </button>
       </div>
       {view === "listeners" ? (
@@ -329,18 +335,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             <div>
               <p className="kicker">OFFICIAL PLAYLISTS</p>
               <h2>まずは、公式から。</h2>
-              <p>
-                公式番組の聴取先をまとめています。Spotifyリンクのある番組は、公式アートワークを自動で表示します。
-              </p>
             </div>
-            <a
-              className="discord"
-              href="https://discord.gg/6zBhm97F9"
-              target="_blank"
-              rel="noreferrer"
-            >
-              朝ポキ総合交流Discord ↗
-            </a>
           </div>
           <div className="officialGrid">
             {officialPrograms.map((p, index) => (
@@ -388,7 +383,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             ))}
           </div>
         </main>
-      ) : (
+      ) : view === "circle" ? (
         <main className="wrap circlePage">
           <section className="rings">
             <div>
@@ -446,6 +441,11 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <span>朝日新聞ポッドキャスト一覧 ↗</span>
               </a>
             </div>
+          </section>
+        </main>
+      ) : (
+        <main className="wrap circlePage">
+          <section className="rings discordPage">
             <section className="discordHub" aria-labelledby="discord-title">
               <div className="discordHubHead">
                 <span aria-hidden="true">💬</span>

@@ -816,7 +816,7 @@ header {
 }
 .viewTabs {
   max-width: 940px;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   padding: 0 0 24px;
 }
 .viewTabs button {
@@ -1210,14 +1210,14 @@ footer {
     margin-top: 16px;
   }
   .viewTabs {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     top: 0;
     background: #effbfff2;
     padding: 10px 0;
   }
   .viewTabs button {
-    font-size: 12px;
-    padding: 11px 7px;
+    font-size: 11px;
+    padding: 10px 4px;
     line-height: 1.35;
   }
   .officialLead {
