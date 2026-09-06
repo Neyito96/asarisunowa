@@ -215,36 +215,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             target="_blank"
             rel="noreferrer"
           >
-            python3 - <<'PY'
-from pathlib import Path
-
-p = Path("app/globals.css")
-s = p.read_text(encoding="utf-8")
-
-marker = "/* PC版NEWカードも通常サイズに統一 */"
-
-block = """
-/* PC版NEWカードも通常サイズに統一 */
-@media (min-width: 781px) {
-  .officialCard.featured {
-    grid-template-columns: 94px 1fr;
-    min-height: 0;
-  }
-}
-"""
-
-if marker not in s:
-    s = s.rstrip() + "\n\n" + block
-
-p.write_text(s, encoding="utf-8")
-print("NEWカードの画像サイズをほかの番組と統一しました")
-PY
-
-git --no-pager diff -- app/globals.css
-
-git add app/globals.css
-git commit -m "NEW番組の画像サイズを統一"
-git push origin main・全番組 ↗
+            公式・全番組 ↗
           </a>
         </div>
       </header>
