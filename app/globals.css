@@ -1036,6 +1036,23 @@ header {
   font-size: 12px;
   font-weight: 900;
 }
+.resourceBadge.newBadge {
+  color: #fff;
+  background: #cf4b77;
+  border-radius: 999px;
+  padding: 3px 8px;
+}
+.resourceBadge.officialBadge {
+  color: #08778c;
+}
+.resourceSectionLabel {
+  grid-column: 1 / -1;
+  margin: 8px 0 0;
+  color: #08778c;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
 .resourceGrid b {
   color: #8e3f5c;
 }

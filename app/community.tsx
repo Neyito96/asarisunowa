@@ -395,50 +395,72 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             </div>
             <div className="resourceGrid">
               <a
+                href="https://ja.wikipedia.org/wiki/%E6%9C%9D%E6%97%A5%E6%96%B0%E8%81%9E%E3%83%9D%E3%83%83%E3%83%89%E3%82%AD%E3%83%A3%E3%82%B9%E3%83%88"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <small className="resourceBadge newBadge">NEW</small>
+                <b>朝ポキのWikipedia</b>
+                <small className="creatorCredit">制作者：@ピノさん</small>
+                <span>みんなで編集できます ✌️ ↗</span>
+              </a>
+              <a href="https://x.gd/6R84T" target="_blank" rel="noreferrer">
+                <small className="resourceBadge newBadge">NEW</small>
+                <b>日曜版で紹介された朝リスのPodcast</b>
+                <small className="creatorCredit">制作者：@タンタンさん</small>
+                <span>
+                  これまで番組で紹介された朝リスさんのPodcastをまとめて見る ↗
+                </span>
+              </a>
+              <a
                 className="legendResource"
                 href="https://yoshimotomasahir.github.io/asapoki_vis/speakers2.html?screen=0"
                 target="_blank"
                 rel="noreferrer"
               >
                 <small className="resourceBadge">🏆 レジェンド認定</small>
-                <b>朝リスの検索ツール</b>
+                <b>朝ポキ検索ツール</b>
                 <small className="creatorCredit">
-                  制作者：@おんさ・@あさひあいち・@朝リス群
+                  制作者：@オンサさん・@あさひあいちさん・@朝リス
                 </small>
-                <span>出演者や番組から朝ポキを探す ↗</span>
+                <span>出演者や番組、記者も探せるよ ↗</span>
               </a>
-              <a href="https://x.gd/6R84T" target="_blank" rel="noreferrer">
-                <small className="resourceBadge">㊗️ ドーナツ始動</small>
-                <b>日曜版で紹介された朝リスPodcast一覧</b>
-                <small className="creatorCredit">制作者：@タンタン</small>
-                <span>
-                  これまで番組で紹介された朝リスさんのPodcastをまとめて見る ↗
-                </span>
-              </a>
-              <a
-                href="https://ja.wikipedia.org/wiki/%E6%9C%9D%E6%97%A5%E6%96%B0%E8%81%9E%E3%83%9D%E3%83%83%E3%83%89%E3%82%AD%E3%83%A3%E3%82%B9%E3%83%88"
-                target="_blank"
-                rel="noreferrer"
-              >
-                <b>ピノ子さんの夏休みの自由研究</b>
-                <small className="creatorCredit">制作者：@ピノ子</small>
-                <span>朝ポキのWikipedia。みんなで編集できます ✌️ ↗</span>
-              </a>
+              <p className="resourceSectionLabel">公式リンク</p>
               <a
                 href="https://www.asahi.com/withnews/podcasts/"
                 target="_blank"
                 rel="noreferrer"
               >
-                <b>ポッドキャストから記事化格納庫</b>
-                <span>音声から生まれた記事を読む ↗</span>
+                <small className="resourceBadge officialBadge">公式</small>
+                <b>ポッドキャストから記事化 格納庫</b>
+                <span>withnewsで、音声から生まれた記事を読む ↗</span>
               </a>
               <a
                 href="https://www.asahi.com/special/podcasts/"
                 target="_blank"
                 rel="noreferrer"
               >
+                <small className="resourceBadge officialBadge">公式</small>
                 <b>公式・全番組リスト</b>
                 <span>朝日新聞ポッドキャスト一覧 ↗</span>
+              </a>
+              <a
+                href="https://docs.google.com/forms/d/e/1FAIpQLSff1cc9SvJFtzbk3btowdGocatM2zEZgj-Drn1e8OKFd7Vezw/viewform"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <small className="resourceBadge officialBadge">公式</small>
+                <b>おたよりフォーム</b>
+                <span>番組へおたよりを送る ↗</span>
+              </a>
+              <a
+                href="https://www.youtube.com/@asapoki_official"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <small className="resourceBadge officialBadge">公式</small>
+                <b>朝ポキTV</b>
+                <span>YouTubeで見る ↗</span>
               </a>
             </div>
           </section>
