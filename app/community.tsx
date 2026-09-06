@@ -351,7 +351,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       ) : view === "official" ? (
         <main className="wrap official">
           <p className="officialIntro">
-            朝日新聞ポッドキャストの公式プレイリストです。
+            朝日新聞ポッドキャストの公式プレイリスト集です。
           </p>
           <div className="officialGrid">
             {officialPrograms.map((p, index) => (
