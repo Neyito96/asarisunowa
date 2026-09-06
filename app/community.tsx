@@ -524,7 +524,10 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       )}
       <footer>
         <div className="wrap">
-          非公式・朝リスコミュニティ
+          <p>非公式・朝リスコミュニティ</p>
+          <small>
+            朝リスの一人、@ネジートがAIと試行錯誤しながら制作中です。お助け歓迎です〜
+          </small>
         </div>
       </footer>
     </>
