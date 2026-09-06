@@ -351,7 +351,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       ) : view === "official" ? (
         <main className="wrap official">
           <p className="officialIntro">
-            朝日新聞ポッドキャストの公式プレイリストをまとめています。
+            朝日新聞ポッドキャストの公式プレイリストです。
           </p>
           <div className="officialGrid">
             {officialPrograms.map((p, index) => (
@@ -508,7 +508,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   <i aria-hidden="true">📝</i><span><b>朝日新聞 記者サロン</b><small>記者サロン専用Discord</small></span>
                 </a>
                 <a className="featuredDiscord" href="https://discord.gg/pbTQ6qajb3" target="_blank" rel="noreferrer">
-                  <i aria-hidden="true">🛟</i><span><b>朝リス課外活動</b><small>座談会・聴くだけ参加も歓迎</small></span>
+                  <i aria-hidden="true">🛟</i><span><b>朝リス課外活動</b><small>広場／座談会 聞くだけ参加も歓迎</small></span>
                 </a>
               </div>
             </section>
