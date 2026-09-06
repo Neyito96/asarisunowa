@@ -208,7 +208,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               alt=""
               aria-hidden="true"
             />
-            <span>朝リスの輪（仮） 田or間（どれ？）</span>
+            <span>朝リスの輪（仮） 田or間</span>
           </b>
           <a
             href="https://www.asahi.com/special/podcasts/"
