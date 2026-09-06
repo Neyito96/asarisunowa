@@ -405,7 +405,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             ))}
           </div>
           <p className="sourceNote">
-            画像：公式サイト・各配信サービス／番組情報：ナカジマシンヤ（朝ポキ）さんのDiscord投稿・音声配信を参考に編集
+            画像：公式サイト・各配信サービス／番組情報：ナカジマシンヤ（朝ポキ）さんのDiscord投稿（2026/8/24）・音声配信（2026/9/6 日曜版）を参考に編集
           </p>
         </main>
       ) : view === "circle" ? (
@@ -525,7 +525,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       <footer>
         <div className="wrap">
           <small>
-            朝リス @ネジートが制作・運営する非公式リスナーサイトです。
+            朝リスが制作・運営する非公式リスナーサイトを目指しています。@ネジート
           </small>
         </div>
       </footer>
