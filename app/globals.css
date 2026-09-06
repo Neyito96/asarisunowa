@@ -779,9 +779,49 @@ body {
   color: var(--ink);
 }
 header {
+  position: relative;
+  overflow: hidden;
   background: #ffffffd9;
   border-bottom: 1px solid #fff;
   backdrop-filter: blur(14px);
+}
+.nav {
+  position: relative;
+  z-index: 1;
+}
+.siteBrand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #103a4a;
+  font-weight: 900;
+}
+.brandMark {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 5px #ef799b24);
+}
+header::before,
+header::after {
+  content: "";
+  position: absolute;
+  border: 9px solid #ef799b12;
+  border-radius: 50%;
+  pointer-events: none;
+}
+header::before {
+  width: 74px;
+  height: 74px;
+  left: 28%;
+  top: -46px;
+}
+header::after {
+  width: 46px;
+  height: 46px;
+  right: 18%;
+  bottom: -35px;
+  border-color: #39b8cf14;
 }
 .nav b {
   font-size: 18px;
@@ -1363,5 +1403,9 @@ footer {
   }
   .nav b {
     font-size: 16px;
+  }
+  .brandMark {
+    width: 42px;
+    height: 42px;
   }
 }

@@ -200,8 +200,14 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     <>
       <header>
         <div className="wrap nav">
-          <b>
-            <i>◯</i> 朝リスの輪
+          <b className="siteBrand">
+            <img
+              className="brandMark"
+              src="/asarisunowa/asarisunowa-ring-logo.png"
+              alt=""
+              aria-hidden="true"
+            />
+            <span>朝リスの輪</span>
           </b>
           <a
             href="https://www.asahi.com/special/podcasts/"
