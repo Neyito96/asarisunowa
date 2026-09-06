@@ -1586,3 +1586,12 @@ footer {
     object-fit: contain;
   }
 }
+
+
+/* PC版NEWカードも通常サイズに統一 */
+@media (min-width: 781px) {
+  .officialCard.featured {
+    grid-template-columns: 94px 1fr;
+    min-height: 0;
+  }
+}
