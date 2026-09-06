@@ -1600,3 +1600,41 @@ footer {
     line-height: 1.2;
   }
 }
+
+/* Discord一覧を全画面でコンパクトにする */
+.discordPage {
+  padding-top: 8px !important;
+  padding-bottom: 14px !important;
+}
+
+.discordPage .discordHub {
+  padding: 14px !important;
+}
+
+.discordPage .discordHubHead {
+  margin-bottom: 10px !important;
+}
+
+.discordPage .discordHubHead h3 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.discordPage .discordLinkGrid {
+  gap: 8px !important;
+}
+
+.discordPage .discordLinkGrid a {
+  min-height: 0 !important;
+  padding: 9px 12px !important;
+}
+
+.discordPage .discordLinkGrid a b {
+  line-height: 1.2;
+}
+
+.discordPage .discordLinkGrid a small {
+  margin-top: 2px;
+  line-height: 1.25;
+}
