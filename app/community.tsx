@@ -235,19 +235,19 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           className={view === "listeners" ? "on" : ""}
           onClick={() => setView("listeners")}
         >
-          ♡ 朝リス
-        </button>
-        <button
-          className={view === "circle" ? "on" : ""}
-          onClick={() => setView("circle")}
-        >
-          ◯ あれどこ？
+          ♡ 朝リスト
         </button>
         <button
           className={view === "discord" ? "on" : ""}
           onClick={() => setView("discord")}
         >
           💬 Discord
+        </button>
+        <button
+          className={view === "circle" ? "on" : ""}
+          onClick={() => setView("circle")}
+        >
+          ◯ あれどこ？
         </button>
       </div>
       {view === "listeners" ? (
