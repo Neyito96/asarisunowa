@@ -450,7 +450,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 target="_blank"
                 rel="noreferrer"
               >
-                <small className="resourceBadge officialBadge">公式</small>
+                <small className="resourceBadge newBadge">👀 注目</small>
                 <b>ポッドキャストから記事化 格納庫</b>
                 <span>withnewsで、音声から生まれた記事を読む ↗</span>
               </a>
