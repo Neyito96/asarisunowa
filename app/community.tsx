@@ -351,9 +351,12 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         </>
       ) : view === "official" ? (
         <main className="wrap official">
-          <p className="officialIntro">
-            朝日新聞ポッドキャストの公式プレイリスト集です。
-          </p>
+          <div className="officialHeading">
+            <h2 className="officialTitle">OFFICIAL PLAYLISTS</h2>
+            <p className="officialIntro">
+              朝日新聞ポッドキャストの公式プレイリストです。
+            </p>
+          </div>
           <div className="officialGrid">
             {officialPrograms.map((p, index) => (
               <article
@@ -401,6 +404,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               </article>
             ))}
           </div>
+          <p className="sourceNote">
+            画像：公式サイト・各配信サービス／番組リスト：中島さんのDiscord投稿・音声配信をもとに編集
+          </p>
         </main>
       ) : view === "circle" ? (
         <main className="wrap circlePage">
