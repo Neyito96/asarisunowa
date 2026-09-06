@@ -51,8 +51,8 @@ const officialPrograms: OfficialProgram[] = [
   {
     name: "ドーナツ～このポッドキャストはSNSです",
     mark: "NEW",
-    detail:
-      "日曜版、対話、1on1、アラサーかいわい、親モヤ、スナックよりみ知、農MUSIC 猟LIFE",
+    schedule:
+      "日：日曜版／月：散歩、対話、1on1、別企画／木：親モヤ／第一木：スナックよりみ知／隔週金：アラサーかいわい／土：農MUSIC 猟ライフ",
     spotify: "https://open.spotify.com/show/0341I5UOUrJgm7KEvNGInZ",
     links: [
       ["Spotify", "https://open.spotify.com/show/0341I5UOUrJgm7KEvNGInZ"],
@@ -464,8 +464,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <a href="https://discord.gg/TU8c9qtzvw" target="_blank" rel="noreferrer">
                   <i aria-hidden="true">🍩</i><span><b>ドーナツのDiscord</b><small>ドーナツの話題はこちら</small></span>
                 </a>
-                <a href="https://discord.gg/6zBhm97F9" target="_blank" rel="noreferrer">
-                  <i aria-hidden="true">📝</i><span><b>記者サロンの感想</b><small>朝ポキDiscord内で感想を共有</small></span>
+                <a href="https://discord.gg/BUZ6cmV8Fh" target="_blank" rel="noreferrer">
+                  <i aria-hidden="true">📝</i><span><b>記者サロンの感想</b><small>記者サロン専用Discord</small></span>
                 </a>
                 <a href="https://discord.gg/pbTQ6qajb3" target="_blank" rel="noreferrer">
                   <i aria-hidden="true">🛟</i><span><b>朝リス課外活動</b><small>座談会・聴くだけ参加も歓迎</small></span>
