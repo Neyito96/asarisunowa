@@ -74,6 +74,7 @@ const officialPrograms: OfficialProgram[] = [
       ["Spotify", "https://open.spotify.com/show/0yhef9ORZkUZs9ZeotdCSY"],
       ["Apple Podcasts", "https://podcasts.apple.com/jp/podcast/media-talk-%E3%83%A1%E3%83%87%E3%82%A3%E3%82%A2%E3%83%88%E3%83%BC%E3%82%AF/id1527037575"],
       ["Amazon Music", "https://music.amazon.co.jp/podcasts/55b49660-b1f3-482d-9b1e-791337153bc2/media-talk-%E3%83%A1%E3%83%87%E3%82%A3%E3%82%A2%E3%83%88%E3%83%BC%E3%82%AF"],
+      ["Pocket Casts", "https://pca.st/podcast/e2e4c3f0-c679-0138-e72c-0acc26574db2"],
     ],
     official: "https://omny.fm/shows/asahi/playlists/playlist-2",
     youtube: false,
