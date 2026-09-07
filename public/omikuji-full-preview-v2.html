@@ -1829,13 +1829,6 @@ footer {
 <section id="listeners" class="fakePane on">
 <div class="toolbar"><div class="wrap tools"><input id="q" placeholder="テーマ・制作者で検索"><div class="sorts"><button class="on">新着</button><button>登録順</button></div></div></div>
 <main class="wrap">
-<section style="display:block!important;visibility:visible!important;opacity:1!important;margin:18px 0 26px!important;padding:18px!important;border:2px solid #cb4f78!important;border-radius:18px!important;background:#fff7fa!important">
-<div style="display:flex;gap:12px;align-items:center"><div style="font-size:36px">🎴</div><div><h3 style="margin:0;color:#123d4d">プレイリストおみくじ</h3><p style="margin:4px 0 0;color:#6d6259">今日は何を聴こう？ 朝リストから一本、運まかせ。</p></div></div>
-<button id="draw2" style="width:100%;margin-top:14px;border:0;border-radius:12px;padding:14px;background:#cb4f78;color:white;font-size:17px;font-weight:800">おみくじを引く</button>
-<div id="result2" style="display:none;margin-top:14px;padding:14px;background:white;border:1px solid #ead8c4;border-radius:14px">
-<div style="display:grid;grid-template-columns:82px 1fr;gap:12px;align-items:center"><img id="a2" style="width:82px;height:82px;object-fit:cover;border-radius:10px;background:#eee"><div><small id="n2" style="color:#cb4f78;font-weight:800"></small><h4 id="t2" style="margin:4px 0;color:#123d4d;font-size:18px"></h4><p id="b2" style="margin:0;color:#6d6259"></p></div></div>
-<a id="g2" target="_blank" rel="noreferrer" style="display:block;margin-top:12px;padding:11px;border:1px solid #cb4f78;border-radius:10px;text-align:center;text-decoration:none;color:#cb4f78;font-weight:800">このプレイリストを聴く ↗</a>
-</div></section>
 <div class="listHead"><div><p class="kicker">LISTENER PICKS</p><h2>朝リスのプレイリスト</h2><p>リスナーが作ったアーカイブ。更新はゆっくりめです。</p><small class="rankingNote">♡を押すと、この端末で「聴いた」印を残せます。</small></div><span id="count">65件</span></div>
 
 <section class="omikujiPanel">
@@ -2443,7 +2436,6 @@ function show(id){document.querySelectorAll('.fakePane').forEach(x=>x.classList.
 tabs.forEach(b=>b.addEventListener('click',()=>show(b.dataset.tab)));
 function drawOmikuji(){const p=eligible[Math.floor(Math.random()*eligible.length)];document.getElementById('on').textContent='PLAYLIST '+String(p.id).padStart(2,'0')+'｜本日の一聴';document.getElementById('ot').textContent=p.title;document.getElementById('ob').textContent='by '+p.maker;document.getElementById('og').href=p.url;document.getElementById('oa').src=p.artwork?(p.artwork.startsWith('./')?'/asarisunowa/'+p.artwork.slice(2):p.artwork):'';document.getElementById('omikujiResult').classList.add('on')}
 document.getElementById('draw').addEventListener('click',drawOmikuji);
-document.getElementById('draw2').addEventListener('click',()=>{const p=eligible[Math.floor(Math.random()*eligible.length)];document.getElementById('n2').textContent='PLAYLIST '+String(p.id).padStart(2,'0')+'｜本日の一聴';document.getElementById('t2').textContent=p.title;document.getElementById('b2').textContent='by '+p.maker;document.getElementById('g2').href=p.url;document.getElementById('a2').src=p.artwork?(p.artwork.startsWith('./')?'/asarisunowa/'+p.artwork.slice(2):p.artwork):'';document.getElementById('result2').style.display='block';});
 document.getElementById('q').addEventListener('input',e=>{const s=e.target.value.toLowerCase();let n=0;document.querySelectorAll('.playlist-card').forEach(c=>{const ok=c.dataset.title.includes(s);c.style.display=ok?'':'none';if(ok)n++});count.textContent=n+'件'});
 document.querySelectorAll('.heart').forEach(b=>b.addEventListener('click',()=>{b.textContent=b.textContent.includes('未聴')?'♥ 聴いた':'♡ 未聴';b.classList.toggle('liked')}));
 </script></body></html>
