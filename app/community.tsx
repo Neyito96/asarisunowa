@@ -192,6 +192,17 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         ),
     [query, sort, playlists],
   );
+  function handleSearch(value: string) {
+    setQuery(value);
+    if (value.trim()) {
+      window.requestAnimationFrame(() => {
+        document.getElementById("playlist-results")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      });
+    }
+  }
   function toggleListened(id: string) {
     const next = listened.includes(id)
       ? listened.filter((value) => value !== id)
@@ -270,8 +281,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             <div className="wrap tools">
               <input
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onInput={(e) => setQuery(e.currentTarget.value)}
+                onChange={(e) => handleSearch(e.target.value)}
+                onInput={(e) => handleSearch(e.currentTarget.value)}
                 placeholder="テーマ・制作者で検索"
                 aria-label="検索"
                 autoComplete="off"
@@ -346,7 +357,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 </div>
               )}
             </section>
-            <div className="grid">
+            <div id="playlist-results" className="grid">
               {rows.map((p) => {
                 const isListened = listened.includes(p.id);
                 return (
