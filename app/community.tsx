@@ -437,7 +437,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 target="_blank"
                 rel="noreferrer"
               >
-                <small className="resourceBadge">🔍 ポキっと見つかる</small>
+                <small className="resourceBadge">🔍 パキッと見つかる</small>
                 <b>朝ポキ検索ツール</b>
                 <small className="creatorCredit">
                   制作者：@おんささん・@あさひあいちさん・@朝リス
