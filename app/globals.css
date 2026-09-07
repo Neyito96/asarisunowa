@@ -1805,3 +1805,23 @@ footer {
     margin-top: auto !important;
   }
 }
+
+.themeHead{margin:28px 0 18px}
+.themeHead h2{margin:4px 0 10px;color:#123d4d;font-size:22px}
+.themeKicker{font-size:16px;font-weight:800;letter-spacing:.08em;margin:0}
+.countChips{display:flex;gap:8px;flex-wrap:wrap}
+.countChips span{display:inline-flex;align-items:center;padding:6px 10px;border:1px solid #b9dce4;border-radius:999px;background:#fff;color:#315c68;font-size:12px;font-weight:800;line-height:1}
+.omikujiPanel{margin:0 0 24px;padding:18px;border:1px solid #e4cdb0;border-radius:18px;background:linear-gradient(180deg,#fffaf2,#fff);box-shadow:0 10px 24px rgba(100,70,35,.06)}
+.omikujiLead{display:flex;gap:12px;align-items:center}.omikujiIcon{font-size:34px}
+.omikujiLead h3{margin:0 0 4px;color:#123d4d}.omikujiLead p{margin:0;color:#6d6259;font-size:14px}
+.omikujiDraw{width:100%;margin-top:14px;border:0;border-radius:12px;padding:13px 16px;background:#cb4f78;color:#fff;font-weight:800;font-size:16px}
+.omikujiResult{display:none;margin-top:14px;padding:14px;border-radius:14px;background:#fff;border:1px solid #ead8c4}.omikujiResult.on{display:block}
+.omikujiResultInner{display:grid;grid-template-columns:86px 1fr;gap:12px;align-items:center}
+.omikujiArtwork{width:86px;height:86px;border-radius:10px;overflow:hidden;background:#eee;display:grid;place-items:center;text-align:center;font-size:11px;font-weight:800}
+.omikujiArtwork img{width:100%;height:100%;object-fit:cover}
+.omikujiMeta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.omikujiMeta small{color:#cb4f78;font-weight:800}.omikujiMeta span{padding:3px 8px;border-radius:999px;background:#fbe4ec;color:#cb4f78;font-size:11px;font-weight:800}
+.omikujiResult h4{margin:4px 0 6px;color:#123d4d;font-size:18px}.omikujiResult p{margin:0;color:#6d6259}
+.omikujiGo{display:block;margin-top:12px;padding:11px;border:1px solid #cb4f78;border-radius:10px;text-align:center;text-decoration:none;color:#cb4f78;font-weight:800}
+.playlistWorkbench{margin:30px 0 24px;padding:18px;border:1px solid #cfe1e8;border-radius:16px;background:#f5fbfd;text-align:center}
+.playlistWorkbench h3{margin:0 0 6px;color:#123d4d;font-size:17px}.playlistWorkbench p{margin:0 0 12px;color:#5f6f74;line-height:1.6}.playlistWorkbench a{font-weight:800;color:#1685c0}
+@media(max-width:680px){.themeHead{margin:26px 0 18px}.themeHead h2{font-size:20px}.themeKicker{font-size:16px}.omikujiResultInner{grid-template-columns:76px 1fr}.omikujiArtwork{width:76px;height:76px}}
