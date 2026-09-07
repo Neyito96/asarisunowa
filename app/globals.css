@@ -1825,3 +1825,9 @@ footer {
 .playlistWorkbench{margin:30px 0 24px;padding:18px;border:1px solid #cfe1e8;border-radius:16px;background:#f5fbfd;text-align:center}
 .playlistWorkbench h3{margin:0 0 6px;color:#123d4d;font-size:17px}.playlistWorkbench p{margin:0 0 12px;color:#5f6f74;line-height:1.6}.playlistWorkbench a{font-weight:800;color:#1685c0}
 @media(max-width:680px){.themeHead{margin:26px 0 18px}.themeHead h2{font-size:20px}.themeKicker{font-size:16px}.omikujiResultInner{grid-template-columns:76px 1fr}.omikujiArtwork{width:76px;height:76px}}
+
+/* Compact spacing between listener toolbar and theme heading */
+@media(max-width:680px){
+  main.wrap:has(.themeHead){padding-top:12px!important;}
+  .themeHead{margin-top:0!important;}
+}
