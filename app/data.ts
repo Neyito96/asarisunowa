@@ -1,329 +1,394 @@
-export type Playlist = { id:string; title:string; maker:string; url:string|null };
-const rows:[string,string,string|null][] = [
+export type Playlist = { id:string; title:string; maker:string; url:string|null; artwork:string|null };
+const rows:[string,string,string|null,string|null][] = [
   [
     "一緒に新聞をめくろう！",
     "NEYITO",
-    "https://open.spotify.com/playlist/4tY0lHoV8IemMBp4iTnKnl"
+    "https://open.spotify.com/playlist/4tY0lHoV8IemMBp4iTnKnl",
+    "https://mosaic.scdn.co/300/ab67656300005f1f16d0937799ff9a0751558925ab67656300005f1fb73f1d7e08c7f177ba21f8feab67656300005f1fdab8e88a93d8dd09b8888fe8ab67656300005f1ff68184b096b31538254cf206"
   ],
   [
     "IOK 伊藤大地・奥山晶二郎・神田大介",
     "NEYITO",
-    "https://open.spotify.com/playlist/799Fo9to2TK0ahGEJsvcm2"
+    "https://open.spotify.com/playlist/799Fo9to2TK0ahGEJsvcm2",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e"
   ],
   [
     "#ふな 冨名腰隆",
     "NEYITO",
-    "https://open.spotify.com/playlist/48tpuTjiqGdJrvkX8R1OkI"
+    "https://open.spotify.com/playlist/48tpuTjiqGdJrvkX8R1OkI",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e"
   ],
   [
     "議員になんでも聞いてみよう　秋山訓子の政治家インタビュー",
     "朝日新聞ポッドキャスト",
-    "https://open.spotify.com/playlist/2H3SMQ51i2FG9ZX86R5VH8"
+    "https://open.spotify.com/playlist/2H3SMQ51i2FG9ZX86R5VH8",
+    "https://mosaic.scdn.co/300/ab67656300005f1f46bdba4cf5ef29ec31f5b8c7ab67656300005f1f8620023b00a1b90d47b02feaab67656300005f1fb8e0b644ab05234c1a041046ab67656300005f1ff9a28ae7ac2ecbe57c60d441"
   ],
   [
     "親モヤ",
     "Tommy",
-    "https://open.spotify.com/playlist/2hFyK2sSN33GDr5cilxcdv"
+    "https://open.spotify.com/playlist/2hFyK2sSN33GDr5cilxcdv",
+    "https://mosaic.scdn.co/300/ab67656300005f1f102c0022d2ab99c6a600db03ab67656300005f1f94761c8c736adecce46edc97ab67656300005f1fc12a603983db2eed22aa570dab67656300005f1fee54a162f03b8a0325d7dbb6"
   ],
   [
     "東日本大震災",
     "cobaltore12",
-    "https://open.spotify.com/playlist/4nptiHJbbsjKS37kykLkNF"
+    "https://open.spotify.com/playlist/4nptiHJbbsjKS37kykLkNF",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694"
   ],
   [
     "お坊さんに聞け",
     "杤木ふみ",
+    null,
     null
   ],
   [
     "ニュースチャット 1on1",
     "ルッキー",
-    "https://open.spotify.com/playlist/5dBF4gpwMx8k9iHIibO1Z2"
+    "https://open.spotify.com/playlist/5dBF4gpwMx8k9iHIibO1Z2",
+    "https://mosaic.scdn.co/300/ab67656300005f1f2d03ee68328278afa11f96c8ab67656300005f1f8b88c7f4ff81ff4cae420b6aab67656300005f1feaa27597cc5b738ebe5272c4ab67656300005f1ff4ddfc9ae137e91918c94675"
   ],
   [
     "ニュースの現場から #1000 で紹介されたエピソード",
     "かにこ",
-    "https://open.spotify.com/playlist/1Uyfnkn7uL6NqhXKeY1OqI"
+    "https://open.spotify.com/playlist/1Uyfnkn7uL6NqhXKeY1OqI",
+    "https://mosaic.scdn.co/300/ab67656300005f1f387c226ed0aac5609197482cab67656300005f1f39b7ef567e40d89d28dc29d3ab67656300005f1f4977afa5f4f0efa4b6db3c50ab67656300005f1f86a5b5c7365aa38385ad9943"
   ],
   [
     "建モノがたり",
     "regency",
-    "https://open.spotify.com/playlist/3pSXnlmOO3PvNm4qVOOWzQ"
+    "https://open.spotify.com/playlist/3pSXnlmOO3PvNm4qVOOWzQ",
+    "https://mosaic.scdn.co/300/ab67656300005f1f045cc696931ed8ab438abe10ab67656300005f1f2b4bb4e125e223060e763945ab67656300005f1ffc871a275c2017c03da97af3ab67656300005f1fffe32b45ef0f0ddfffc17463"
   ],
   [
     "朝日新聞社の歴史",
     "さ",
-    "https://open.spotify.com/playlist/6CIUcOIkcQ9UUXN7HzMOLY"
+    "https://open.spotify.com/playlist/6CIUcOIkcQ9UUXN7HzMOLY",
+    "https://mosaic.scdn.co/300/ab67656300005f1f4c9e1c4c65c7b88fb7bc2694ab67656300005f1f936479f577e0f674fe825818ab67656300005f1f95d003f90a6dfd55cf8ff7ceab67656300005f1fbd61129384921624393cc052"
   ],
   [
     "秋山訓子　【日本語と英語で取材】",
     "NEYITO",
-    "https://open.spotify.com/playlist/34JkKBif61SgPyQJNoSEWU"
+    "https://open.spotify.com/playlist/34JkKBif61SgPyQJNoSEWU",
+    "https://mosaic.scdn.co/300/ab67656300005f1f546d7420a16c6df58d35f68dab67656300005f1f9cc5d993a787628525e475cbab67656300005f1fafeb509d094c232808cfc01eab67656300005f1ff7bda31183f355d76b1ae2d5"
   ],
   [
     "アラサー会",
     "Tommy",
-    "https://open.spotify.com/playlist/5AXoo7ujf7viXvf04OrVYh"
+    "https://open.spotify.com/playlist/5AXoo7ujf7viXvf04OrVYh",
+    null
   ],
   [
     "太田匡彦",
     "NEYITO",
-    "https://open.spotify.com/playlist/7jLXrZ0JUNOnsSeFEFbw9S"
+    "https://open.spotify.com/playlist/7jLXrZ0JUNOnsSeFEFbw9S",
+    "https://mosaic.scdn.co/300/ab67656300005f1f12014dede1a47ec9634fed5eab67656300005f1fa84ca60b309ac25e44a360d4ab67656300005f1fe726263e3e1ab32964dd86b3ab67656300005f1ff90fd9b9f6a56a9491ab6a00"
   ],
   [
     "食と料理",
     "bigstone1977",
-    "https://open.spotify.com/playlist/5B4K0bT1bheMZPvMXc9fXf"
+    "https://open.spotify.com/playlist/5B4K0bT1bheMZPvMXc9fXf",
+    "https://mosaic.scdn.co/300/ab67656300005f1f3b47b61c6c961a2081ced625ab67656300005f1f3c3fe9915694e25a02ae855fab67656300005f1f82c19a04de65d6a51e3a9793ab67656300005f1fd6fd95ddffbb0ac51a150ed1"
   ],
   [
     "司法制度",
     "bigstone1977",
-    "https://open.spotify.com/playlist/640v83XcJwDxBqy20mFKbz"
+    "https://open.spotify.com/playlist/640v83XcJwDxBqy20mFKbz",
+    "https://mosaic.scdn.co/300/ab67656300005f1f4a5f167d5bc1b2e4e89df3bcab67656300005f1f7dbcac18aed783f358ab8933ab67656300005f1f962839e3cc8c96aafedf38cdab67656300005f1fdad340b31925c307623cfee0"
   ],
   [
     "世界の車窓から",
     "bigstone1977",
-    "https://open.spotify.com/playlist/5DBp9hKaqYbC2Vssi0hwX2"
+    "https://open.spotify.com/playlist/5DBp9hKaqYbC2Vssi0hwX2",
+    "https://mosaic.scdn.co/300/ab67656300005f1f2ff5138c44dcc98e184f9174ab67656300005f1f528e34af0e4814b67a30850bab67656300005f1f6b63576b0a5e94a344d571efab67656300005f1fb4652a2eeebac2cabddac9cb"
   ],
   [
     "中東",
     "bigstone1977",
-    "https://open.spotify.com/playlist/5XVc7IPTvIeVRAKEAaYdXu"
+    "https://open.spotify.com/playlist/5XVc7IPTvIeVRAKEAaYdXu",
+    "https://mosaic.scdn.co/300/ab67656300005f1f30537ff1336a3c1f3331b2eaab67656300005f1f74c4a917938d51a10dcb207dab67656300005f1f782ed26e3d7dfc593fa488f3ab67656300005f1ff241ff16cde4fd19e4d878e5"
   ],
   [
     "中国の周辺",
     "bigstone1977",
-    "https://open.spotify.com/playlist/6tapnpZnfBLKria1EwD7XE"
+    "https://open.spotify.com/playlist/6tapnpZnfBLKria1EwD7XE",
+    "https://mosaic.scdn.co/300/ab67656300005f1f1b4c6044024e90de6a5a6dabab67656300005f1f20b9920bf943908974d8db2cab67656300005f1f7e5bd6042ed3b293c9f81c91ab67656300005f1ff025e7489c7f3a23d6100ea1"
   ],
   [
     "東南アジア・インド",
     "bigstone1977",
-    "https://open.spotify.com/playlist/5n5OFJCY2SJcNegkwWt6xN"
+    "https://open.spotify.com/playlist/5n5OFJCY2SJcNegkwWt6xN",
+    "https://mosaic.scdn.co/300/ab67656300005f1f15498077168a7bc828cedd42ab67656300005f1f3a758c94138ae401a29faaeaab67656300005f1f585314e2f7d479c6fbb54d50ab67656300005f1f8da02bac203c001995bb89dc"
   ],
   [
     "ミャンマー",
     "bigstone1977",
-    "https://open.spotify.com/playlist/6J3O3Su8YkWOW0ICO6WLj5"
+    "https://open.spotify.com/playlist/6J3O3Su8YkWOW0ICO6WLj5",
+    "https://mosaic.scdn.co/300/ab67656300005f1f2285caabf9383887bdbec3b2ab67656300005f1f64acad9fc8bb3c9f68384579ab67656300005f1f742d350c83047ded95870248ab67656300005f1fe635c511987c198d727eb951"
   ],
   [
     "生命倫理",
     "bigstone1977",
-    "https://open.spotify.com/playlist/73LULd5gCdmFLI2l7L8a4M"
+    "https://open.spotify.com/playlist/73LULd5gCdmFLI2l7L8a4M",
+    "https://mosaic.scdn.co/300/ab67656300005f1f32043aecf7fb5414ceed42f6ab67656300005f1f5d8ad91c84f6481553b5c8baab67656300005f1f7eb8d40ee8dfd5cf0e34125fab67656300005f1fdccdc54aca0c3574305afb1a"
   ],
   [
     "サイバー事件簿",
     "bigstone1977",
-    "https://open.spotify.com/playlist/4Tf32RgrMkkC2MEpMMI0wR"
+    "https://open.spotify.com/playlist/4Tf32RgrMkkC2MEpMMI0wR",
+    "https://mosaic.scdn.co/300/ab67656300005f1f6070892ed40572a1966b8a03ab67656300005f1f777d9cc21747afab0dc28806ab67656300005f1fb7ad7e44d979d54dbe102204ab67656300005f1fffd60495970e6c71b41e9e32"
   ],
   [
     "アフガニスタン",
     "bigstone1977",
-    "https://open.spotify.com/playlist/6I3Ge9DJykZkNlyk1Ktc3x"
+    "https://open.spotify.com/playlist/6I3Ge9DJykZkNlyk1Ktc3x",
+    "https://mosaic.scdn.co/300/ab67656300005f1f0edd5bbf650515f3b3be1828ab67656300005f1f877b774bf629cf9d72419972ab67656300005f1fa84f0f105934060881c12353ab67656300005f1fffca567e2bcca3b4e8d880fb"
   ],
   [
     "民主主義と憲法",
     "bigstone1977",
-    "https://open.spotify.com/playlist/0iSGtkJNnAeHJfbOWMmKvm"
+    "https://open.spotify.com/playlist/0iSGtkJNnAeHJfbOWMmKvm",
+    "https://mosaic.scdn.co/300/ab67656300005f1f099297222905ba03a844e3edab67656300005f1f4ec84da1c64045c4971bedb6ab67656300005f1f9fde6fbeefbca1e9c7ee7c2eab67656300005f1ff5ceb3cf6c18b373c415a474"
   ],
   [
     "労働",
     "bigstone1977",
-    "https://open.spotify.com/playlist/3dog2oLiW8RNyXp7QJx1qP"
+    "https://open.spotify.com/playlist/3dog2oLiW8RNyXp7QJx1qP",
+    "https://mosaic.scdn.co/300/ab67656300005f1f3ee87acbea186efbf90e1256ab67656300005f1f44e2cbb1954463832a563ce8ab67656300005f1f72e57497cd34b25e5f922df1ab67656300005f1fa032431b22527b22ebd428b2"
   ],
   [
     "ビッグテック",
     "bigstone1977",
-    "https://open.spotify.com/playlist/1JSWvYzs7HbBJ9AQHgxDwJ"
+    "https://open.spotify.com/playlist/1JSWvYzs7HbBJ9AQHgxDwJ",
+    "https://mosaic.scdn.co/300/ab67656300005f1f447ee8b2a458199bb341e1ccab67656300005f1f96c816fd97456b785a23b00aab67656300005f1fdab2232ce0526e10290d06fcab67656300005f1ff4a9951a2ea76e58c2dced67"
   ],
   [
     "動物",
     "bigstone1977",
-    "https://open.spotify.com/playlist/0TP0kTHKmxCPowwEomWW2T"
+    "https://open.spotify.com/playlist/0TP0kTHKmxCPowwEomWW2T",
+    "https://mosaic.scdn.co/300/ab67656300005f1f12014dede1a47ec9634fed5eab67656300005f1fa84ca60b309ac25e44a360d4ab67656300005f1ff324016fcffbc9f3eeaaa8efab67656300005f1ff90fd9b9f6a56a9491ab6a00"
   ],
   [
     "SNS・ネット世論",
     "bigstone1977",
-    "https://open.spotify.com/playlist/6BZFv1oPFANvVQnPVzpBWI"
+    "https://open.spotify.com/playlist/6BZFv1oPFANvVQnPVzpBWI",
+    "https://mosaic.scdn.co/300/ab67656300005f1f02aa7f5ac6cde247efd75d7eab67656300005f1f60890fd8b45020a6fce24755ab67656300005f1f8b6d90f8af99571b0d5bcf1dab67656300005f1fae51735bcfe42ffe77b81d98"
   ],
   [
     "多国籍共生",
     "bigstone1977",
-    "https://open.spotify.com/playlist/3QTWaNLWcbw4oS9DzNyQtr"
+    "https://open.spotify.com/playlist/3QTWaNLWcbw4oS9DzNyQtr",
+    "https://mosaic.scdn.co/300/ab67656300005f1f57e6d1f79bee5e240b4024beab67656300005f1f6144464ed748960953e9314fab67656300005f1ffd9661cfcba6bbe21f61d3d5ab67656300005f1ffe0571b855782f94e3a25ead"
   ],
   [
     "オリンピック",
     "bigstone1977",
-    "https://open.spotify.com/playlist/5VAmNftiFBnHHv3LsQDKSf"
+    "https://open.spotify.com/playlist/5VAmNftiFBnHHv3LsQDKSf",
+    "https://mosaic.scdn.co/300/ab67656300005f1f63523828e791cc92ed2ca676ab67656300005f1facea656d6d35dea47d39b71cab67656300005f1fd7b0f4779e2ad2df975b7b77ab67656300005f1ff11ac3fbd5ba485088abcc49"
   ],
   [
     "ロシア・ウクライナ戦争",
     "bigstone1977",
-    "https://open.spotify.com/playlist/34rJAgAZt7yPUqgCugKDYM"
+    "https://open.spotify.com/playlist/34rJAgAZt7yPUqgCugKDYM",
+    "https://mosaic.scdn.co/300/ab67656300005f1f22b2a5e0194e2af9a6600e0aab67656300005f1f6b0bb55dd16be5e6235ea634ab67656300005f1fa3d1fc49b5b6db6d0e3b888eab67656300005f1ffe1ccc86b78baf3076d787de"
   ],
   [
     "オーディオルポ（沖縄編・広島編）",
     "cobaltore12",
-    "https://open.spotify.com/playlist/5a9xksxPayDMgah09FffAZ"
+    "https://open.spotify.com/playlist/5a9xksxPayDMgah09FffAZ",
+    "https://mosaic.scdn.co/300/ab67656300005f1f3749dc8da44df7689b1344e2ab67656300005f1f798ef124315f1b90c45d6985ab67656300005f1f98225fd2fff8cf19dbe95a33ab67656300005f1ff3fd7f0951b5129be15bada0"
   ],
   [
     "メディアを語る　伊藤大地x奥山晶二郎x神田大介",
     "朝日新聞ポッドキャスト",
-    "https://open.spotify.com/playlist/2lA13BSsvyLjq9iPFa6oDo"
+    "https://open.spotify.com/playlist/2lA13BSsvyLjq9iPFa6oDo",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84996d7c4cc61163a9b6ed71d9"
   ],
   [
     "朝ポキ制作会議！　皆さんもご参加ください",
     "朝日新聞ポッドキャスト",
-    "https://open.spotify.com/playlist/4RFidAb3QbDcysbS060a1b"
+    "https://open.spotify.com/playlist/4RFidAb3QbDcysbS060a1b",
+    "https://mosaic.scdn.co/300/ab67656300005f1f271331154330b508ccc7af44ab67656300005f1f2896285f3e1030fbb22d9e58ab67656300005f1f3ce53f8578f4625a982608e9ab67656300005f1f6a9027ac7f75b508d45d31e1"
   ],
   [
     "ウェルビーイングは寺にあり　お坊さんに聞け！",
     "朝日新聞ポッドキャスト",
-    "https://open.spotify.com/playlist/121qJsNELEdzq9LUTmdTdt"
+    "https://open.spotify.com/playlist/121qJsNELEdzq9LUTmdTdt",
+    "https://mosaic.scdn.co/300/ab67656300005f1f34b1ceb7c42ce494ef3492f7ab67656300005f1f861e0a20846c84379a299d3dab67656300005f1fd02625a190ed42860d3fdf7eab67656300005f1ff37dcb87e57465b15d7f4e70"
   ],
   [
     "3.11特別編　記者の取材を追体験　「福島のいま」",
     "朝日新聞ポッドキャスト",
-    "https://open.spotify.com/playlist/4QfZEVeflr1dTyV9RfzWes"
+    "https://open.spotify.com/playlist/4QfZEVeflr1dTyV9RfzWes",
+    "https://mosaic.scdn.co/300/ab67656300005f1f348f70072b476a17691511d2ab67656300005f1f852b268ef4abfd41299a2c8dab67656300005f1fcf9ed0093f8aee836e09bfdbab67656300005f1feabd1aa6631f04b259749698"
   ],
   [
     "東日本大震災から10年　ポッドキャストで考える",
     "朝日新聞ポッドキャスト",
-    "https://open.spotify.com/playlist/5P5ubAJbE3sTAIXNOySpjS"
+    "https://open.spotify.com/playlist/5P5ubAJbE3sTAIXNOySpjS",
+    "https://mosaic.scdn.co/300/ab67656300005f1f36253fbac21d453d802c40a9ab67656300005f1f4eccf9a50fa418fc16bf03b0ab67656300005f1f7886fe20994d9c321571ec7fab67656300005f1f997251ac92c00ffc27fba7c7"
   ],
   [
     "子供への性暴力　大久保真紀",
     "朝日新聞ポッドキャスト",
-    "https://open.spotify.com/playlist/0qTp4leNc1yThyoPCMoRBi"
+    "https://open.spotify.com/playlist/0qTp4leNc1yThyoPCMoRBi",
+    "https://mosaic.scdn.co/300/ab67656300005f1f21ec2856d7e2affbe49bab65ab67656300005f1f5121257e7907349907b5cabbab67656300005f1f9bd2f8d1012cb8190a6fdea1ab67656300005f1ffdb916667b3f3c5b79f2467f"
   ],
   [
     "藤えりか　シネマニア経済サロン",
     "朝日新聞ポッドキャスト",
-    "https://open.spotify.com/playlist/20HFJSL3TNNYTR7w0xXTue"
+    "https://open.spotify.com/playlist/20HFJSL3TNNYTR7w0xXTue",
+    "https://mosaic.scdn.co/300/ab67656300005f1f49e87af01730a72f2db2d072ab67656300005f1f5a5ffbf2e1fc943bc050c8fdab67656300005f1fde84392b5165823ae76ff1bcab67656300005f1ff21dc2c37e7721c6f0c602c3"
   ],
   [
     "新聞社員の「楽屋裏」",
     "朝日新聞ポッドキャスト",
-    "https://open.spotify.com/playlist/1u1qT0BxRZT1OeNM0LDA72"
+    "https://open.spotify.com/playlist/1u1qT0BxRZT1OeNM0LDA72",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844ac19eab5ced53a5396e809c"
   ],
   [
     "「SDGsを話そう」厳選エピソード",
     "朝日新聞ポッドキャスト",
-    "https://open.spotify.com/playlist/4styp7b6VpZThsevXCRDla"
+    "https://open.spotify.com/playlist/4styp7b6VpZThsevXCRDla",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84a1ed8e9ca1ad0f9a7c2b7b07"
   ],
   [
     "ポキ-1グランプリ 2023",
     "朝日新聞ポッドキャスト",
-    "https://open.spotify.com/playlist/5xUDKa3r5arvKSx4gqjwI3"
+    "https://open.spotify.com/playlist/5xUDKa3r5arvKSx4gqjwI3",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9"
   ],
   [
     "「MEDIA TALK」 2023厳選エピソード",
     "朝日新聞ポッドキャスト",
-    "https://open.spotify.com/playlist/6Q0iXwuC9PuLV3cqg11Dmt"
+    "https://open.spotify.com/playlist/6Q0iXwuC9PuLV3cqg11Dmt",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938"
   ],
   [
     "楽屋裏2023　厳選エピソード",
     "朝日新聞ポッドキャスト",
-    "https://open.spotify.com/playlist/0I9wCLs5oFLNIG1aPLQneg"
+    "https://open.spotify.com/playlist/0I9wCLs5oFLNIG1aPLQneg",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32"
   ],
   [
     "バスケ通信―クラッチタイム（バスクラ）",
     "朝日新聞ポッドキャスト",
-    "https://open.spotify.com/playlist/3axOpfDhMhLEtelwGwvMHb"
+    "https://open.spotify.com/playlist/3axOpfDhMhLEtelwGwvMHb",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244"
   ],
   [
     "音でよみがえる甲子園",
     "cobaltore12",
-    "https://open.spotify.com/playlist/4u8wg28E5lWgk79zjz5ClJ"
+    "https://open.spotify.com/playlist/4u8wg28E5lWgk79zjz5ClJ",
+    null
   ],
   [
     "ディープ日本史",
     "Tommy",
+    null,
     null
   ],
   [
     "サイバー事件簿",
     "ルッキー",
-    "https://open.spotify.com/playlist/0LupbqYF7obtNaog7tL0dH"
+    "https://open.spotify.com/playlist/0LupbqYF7obtNaog7tL0dH",
+    "https://mosaic.scdn.co/300/ab67656300005f1f777d9cc21747afab0dc28806ab67656300005f1fa56fc7ea721a4d333acc9153ab67656300005f1fc48c6ec78140eba690b9c8dbab67656300005f1fffd60495970e6c71b41e9e32"
   ],
   [
     "豊秀一　教えて豊さん！他",
     "NEYITO",
-    "https://open.spotify.com/playlist/4Ri6rxTGFimTm0KkZtKfBZ"
+    "https://open.spotify.com/playlist/4Ri6rxTGFimTm0KkZtKfBZ",
+    "https://mosaic.scdn.co/300/ab67656300005f1f07dac423bb0c090b8bfa3376ab67656300005f1f236fa2091cf232a259a2cb8bab67656300005f1fb258c864ae7121258bcf7958ab67656300005f1fc27761b41f54bb1335e995b7"
   ],
   [
     "GLOBE CAST",
     "Tommy",
-    "https://open.spotify.com/playlist/1NdFNZ1kDgFIO1zmjs3zXA"
+    "https://open.spotify.com/playlist/1NdFNZ1kDgFIO1zmjs3zXA",
+    "https://mosaic.scdn.co/300/ab67656300005f1f32a66c42ed0b6a9005237f79ab67656300005f1f71486406d646a2d4bc3c3717ab67656300005f1fb837bc8a8ad748399988cb95ab67656300005f1fdd1959f5ede690aea1e56bd4"
   ],
   [
     "#懐メロ（#朝ポキ 楽屋裏）＋おじさんのメロディ",
     "koike",
-    "https://open.spotify.com/playlist/0vItsmD8tW7fsv18NkZKzh"
+    "https://open.spotify.com/playlist/0vItsmD8tW7fsv18NkZKzh",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600"
   ],
   [
     "#ジャニーズ性加害問題（#朝ポキ）",
     "koike",
-    "https://open.spotify.com/playlist/0m66sbWEJVXlCi3HwsE53A"
+    "https://open.spotify.com/playlist/0m66sbWEJVXlCi3HwsE53A",
+    "https://mosaic.scdn.co/300/ab67656300005f1f18cc1e8f60728d0d17692693ab67656300005f1f810ddf582a456c507187964fab67656300005f1f8fb44b9f5d532bae02adb9daab67656300005f1fd16b738822e5e021eed1076f"
   ],
   [
     "#きのどう「木下君、あの動画みた？」",
     "NEYITO",
-    "https://open.spotify.com/playlist/6nDhZQG75F1wU62sdcYJMq"
+    "https://open.spotify.com/playlist/6nDhZQG75F1wU62sdcYJMq",
+    "https://mosaic.scdn.co/300/ab67656300005f1f7c49378fc19b81c6f0f72987ab67656300005f1fc5f5a9b3d17bef4f19db1042ab67656300005f1ff383700d6fda3443a1b3c72bab67656300005f1ff5aae7b621c525db61fc819f"
   ],
   [
     "PRIDE CODE その声が、世界を変える。世界をポジティブに変えていく声を祝福するプレイリスト。",
     "朝日新聞社 x Spotify",
-    "https://open.spotify.com/playlist/37i9dQZF1DWUB0g2l65cg8"
+    "https://open.spotify.com/playlist/37i9dQZF1DWUB0g2l65cg8",
+    "https://i.scdn.co/image/ab67706f0000000250bbbc94a652fd1d81d4a0d1"
   ],
   [
     "神田大介がゲスト出演した番組",
     "神田大介",
-    "https://open.spotify.com/playlist/1pigWAC5IwVZbad2ein8pS"
+    "https://open.spotify.com/playlist/1pigWAC5IwVZbad2ein8pS",
+    "https://mosaic.scdn.co/300/ab67656300005f1f1691a44fb03515aee5cff22fab67656300005f1f8aa983b65f7315d38eb355abab67656300005f1fa84b032cf9fcf5b52048e8d6ab67656300005f1fde686fdc424979fc1f93fb48"
   ],
   [
     "#最終回特集（#朝ポキ）",
     "koike",
-    "https://open.spotify.com/playlist/57wC6nrgQmc9q87A4zi7Dq"
+    "https://open.spotify.com/playlist/57wC6nrgQmc9q87A4zi7Dq",
+    "https://mosaic.scdn.co/300/ab67656300005f1f418749dc11de5b7eea861e46ab67656300005f1f556aee35c1eb8e1df0e4ce0cab67656300005f1f55b53f39a112f10dcddd8dfdab67656300005f1ffd7e50fabddf2e76c2b58ceb"
   ],
   [
     "バスクラ",
     "たんたん",
+    null,
     null
   ],
   [
     "#初登場特集（#朝ポキ）",
     "koike",
-    "https://open.spotify.com/playlist/3WLp56ohdZs2AqDoUwNNWd"
+    "https://open.spotify.com/playlist/3WLp56ohdZs2AqDoUwNNWd",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef"
   ],
   [
     "8がけ社会",
     "カンダ ・マサキ",
-    "https://open.spotify.com/playlist/1cXfuT6GHoqUKuroVTPXwf"
+    "https://open.spotify.com/playlist/1cXfuT6GHoqUKuroVTPXwf",
+    "https://mosaic.scdn.co/300/ab67656300005f1f1e1d404117e7af5a5e24cfa6ab67656300005f1f811cfee8a74e67a163b71eadab67656300005f1fb8fa76a3cbc970115eb44e7bab67656300005f1fbcc37f1004029499a70c3947"
   ],
   [
     "編集マニア",
     "カンダ ・マサキ",
-    "https://open.spotify.com/playlist/71mdQ5ANqZda48jBkj0Qmz"
+    "https://open.spotify.com/playlist/71mdQ5ANqZda48jBkj0Qmz",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d"
   ],
   [
     "朝日新聞社の歴史",
     "カンダ ・マサキ",
-    "https://open.spotify.com/playlist/2HhjxXEnYX8bUsBbFkW5r9"
+    "https://open.spotify.com/playlist/2HhjxXEnYX8bUsBbFkW5r9",
+    "https://mosaic.scdn.co/300/ab67656300005f1f4c9e1c4c65c7b88fb7bc2694ab67656300005f1f936479f577e0f674fe825818ab67656300005f1f95d003f90a6dfd55cf8ff7ceab67656300005f1fbd61129384921624393cc052"
   ],
   [
     "まなび場天声人語　見出しづくりにチャレンジ",
     "朝日新聞ポッドキャスト",
-    "https://open.spotify.com/playlist/7aKDEfAdCjTxiqiv19Grar"
+    "https://open.spotify.com/playlist/7aKDEfAdCjTxiqiv19Grar",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da848d2c65afeadf0c8d7c18f392"
   ],
   [
     "#朝ポキ 他流試合 +PCWE2024 +α",
     "koike",
-    "https://open.spotify.com/playlist/3UU3yKIkVmGwT0ZPQ6YW7E"
+    "https://open.spotify.com/playlist/3UU3yKIkVmGwT0ZPQ6YW7E",
+    "https://mosaic.scdn.co/300/ab67656300005f1f367c360e6e35ade5f51e5fbeab67656300005f1f894a05eaec78aa6c57950476ab67656300005f1fadbe1f733aeaec4afd974d77ab67656300005f1fd719e3a203daaec9baa70da5"
   ],
   [
     "ニュースチャット1on1",
     "Sachi",
-    "https://open.spotify.com/playlist/7vwoC9fKfYGILwaPgnLJER"
+    "https://open.spotify.com/playlist/7vwoC9fKfYGILwaPgnLJER",
+    "https://mosaic.scdn.co/300/ab67656300005f1f2365d5361f8ec0a4c5a3d442ab67656300005f1f276260b244eab5e25f076134ab67656300005f1f6dd6cda0c26397c6ca6df8e5ab67656300005f1fecc8b64fdf593a1d5e042429"
   ]
 ];
-export const playlists:Playlist[] = rows.map((r,i)=>({id:String(i+1),title:r[0],maker:r[1],url:r[2]}));
+export const playlists:Playlist[] = rows.map((r,i)=>({id:String(i+1),title:r[0],maker:r[1],url:r[2],artwork:r[3]}));

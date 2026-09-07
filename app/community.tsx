@@ -295,28 +295,20 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 return (
                   <article className="card" key={p.id}>
                     <div className="cover">
-                      {p.url?.includes("open.spotify.com/playlist/") ? (
-                        <iframe
-                          title={`${p.title} Spotify`}
-                          src={
-                            p.url
-                              .replace(
-                                "open.spotify.com/playlist/",
-                                "open.spotify.com/embed/playlist/",
-                              )
-                              .split("?")[0]
-                          }
-                          loading="lazy"
-                          allow="encrypted-media"
-                        />
-                      ) : (
-                        <span>
-                          ASAPOKI
-                          <br />
-                          PLAYLIST
-                        </span>
-                      )}
-                    </div>
+                  {p.artwork ? (
+                    <img
+                      src={p.artwork}
+                      alt={`${p.title}のアートワーク`}
+                      loading="lazy"
+                    />
+                  ) : (
+                    <span>
+                      ASAPOKI
+                      <br />
+                      PLAYLIST
+                    </span>
+                  )}
+                </div>
                     <div className="cardBody">
                       <small>PLAYLIST {p.id.padStart(2, "0")}</small>
                       <h3>{p.title}</h3>
