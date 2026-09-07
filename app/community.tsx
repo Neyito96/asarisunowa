@@ -519,12 +519,17 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   {guideProgram.detail && <p>{guideProgram.detail}</p>}
                   {guideProgram.schedule && <p>{guideProgram.schedule}</p>}
                   <div className="officialGuideResultLinks">
-                    {guideProgram.spotify && (
-                      <a href={guideProgram.spotify} target="_blank" rel="noreferrer">Spotifyで聴く ↗</a>
-                    )}
-                    {guideProgram.official && (
-                      <a href={guideProgram.official} target="_blank" rel="noreferrer">公式を見る ↗</a>
-                    )}
+                    {[
+                      ...(guideProgram.links ?? []),
+                      ...(guideProgram.youtube === false
+                        ? []
+                        : [["YouTube", ASAPOKI_YOUTUBE]]),
+                      ["公式", guideProgram.official ?? ASAPOKI_OFFICIAL],
+                    ].map(([label, url]) => (
+                      <a href={url} target="_blank" rel="noreferrer" key={label}>
+                        {label} ↗
+                      </a>
+                    ))}
                   </div>
                 </div>
               </div>
