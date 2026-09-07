@@ -1986,3 +1986,15 @@ footer {
     flex-basis:82px;
   }
 }
+
+
+/* Guide result service links: equal visual weight */
+.officialGuideResultLinks a,
+.officialGuideResultLinks a + a{
+  background:#eee4d8;
+  color:#4a392d;
+  border:1px solid rgba(91,65,43,.12);
+}
+.officialGuideResultLinks a:hover{
+  background:#e7dacb;
+}
