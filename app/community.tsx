@@ -271,8 +271,11 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
+                onInput={(e) => setQuery(e.currentTarget.value)}
                 placeholder="テーマ・制作者で検索"
                 aria-label="検索"
+                autoComplete="off"
+                enterKeyHint="search"
               />
               <div className="sorts" role="group" aria-label="並べ替え">
                 <button
