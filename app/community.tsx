@@ -34,6 +34,21 @@ const officialArtwork: Record<string, string> = {
   "https://open.spotify.com/show/5UwHBIfMDqWs0EyfPOz50N":
     "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f72bc24f7f9a0b42fedbe9570",
 };
+type GuideStep = "q1" | "q2" | "q3" | "q4" | "q5" | "q6" | "q7" | "q8" | "q9" | "q10";
+type GuideChoice = { yes: GuideStep | string; no: GuideStep | string };
+const guideQuestions: Record<GuideStep, { question: string; choice: GuideChoice }> = {
+  q1: { question: "今日は「答え」が欲しい？", choice: { yes: "q2", no: "q5" } },
+  q2: { question: "10分くらいで分かった気になりたい？", choice: { yes: "ニュースの学校", no: "q3" } },
+  q3: { question: "人間の声より、とにかく最新情報が欲しい？", choice: { yes: "朝日新聞アルキキ 最新ニュース", no: "q4" } },
+  q4: { question: "ひとつの話を、簡単に片付けず最後まで考えたい？", choice: { yes: "ニュースの現場から", no: "報談【HOU-DAN】" } },
+  q5: { question: "誰かがちゃんと迷っている話を聴きたい？", choice: { yes: "q6", no: "q8" } },
+  q6: { question: "新聞社の人たちが\n「そもそも伝えるって何？」と悩むのを聴きたい？", choice: { yes: "MEDIA TALK", no: "q7" } },
+  q7: { question: "知らない人同士が話して\nだんだん何かが生まれる感じが好き？", choice: { yes: "ドーナツ～このポッドキャストはSNSです", no: "報談【HOU-DAN】" } },
+  q8: { question: "「なんで？」って言うのが好き？", choice: { yes: "こどもそうだんしつ", no: "q9" } },
+  q9: { question: "スポーツを勝った負けただけで終わらせたくない？", choice: { yes: "スポンジ Sports Lounge", no: "q10" } },
+  q10: { question: "英語が流れてきても逃げない？", choice: { yes: "朝日新聞AJW 英語ニュース", no: "OMIKUJI" } },
+};
+
 const officialPrograms: OfficialProgram[] = [
   {
     name: "スポンジ Sports Lounge",
@@ -175,7 +190,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     [sort, setSort] = useState<"new" | "number">("new"),
     [listened, setListened] = useState<string[]>([]),
     [omikuji, setOmikuji] = useState<Playlist | null>(null),
-    [showAllListened, setShowAllListened] = useState(false);
+    [showAllListened, setShowAllListened] = useState(false),
+    [guideStep, setGuideStep] = useState<GuideStep>("q1"),
+    [guideResult, setGuideResult] = useState<string | null>(null);
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("asapoki-listened") || "[]");
     const timer = window.setTimeout(() => setListened(saved), 0);
@@ -220,6 +237,26 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     setShowAllListened(false);
     setOmikuji(pool[Math.floor(Math.random() * pool.length)]);
   }
+  function answerGuide(answer: "yes" | "no") {
+    const next = guideQuestions[guideStep].choice[answer];
+    if (next === "OMIKUJI") {
+      setGuideResult("OMIKUJI");
+      return;
+    }
+    if (next in guideQuestions) {
+      setGuideStep(next as GuideStep);
+      return;
+    }
+    setGuideResult(next);
+  }
+  function resetGuide() {
+    setGuideStep("q1");
+    setGuideResult(null);
+  }
+  const guideProgram =
+    guideResult && guideResult !== "OMIKUJI"
+      ? officialPrograms.find((program) => program.name === guideResult) ?? null
+      : null;
   return (
     <>
       <header>
@@ -431,6 +468,68 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               朝日新聞ポッドキャストの公式プレイリストです。
             </p>
           </div>
+          <section className="officialGuide" aria-labelledby="official-guide-title">
+            <div className="officialGuideTop">
+              <div>
+                <p className="officialGuideKicker">🤔 どれ聴く？</p>
+                <h3 id="official-guide-title">朝ポキ案内所</h3>
+                <p>YES / NOでたどる、いまの耳に合いそうな公式番組。</p>
+              </div>
+              {(guideStep !== "q1" || guideResult) && (
+                <button type="button" className="officialGuideReset" onClick={resetGuide}>
+                  最初から
+                </button>
+              )}
+            </div>
+
+            {!guideResult ? (
+              <div className="officialGuideQuestion">
+                <small>QUESTION {Number(guideStep.slice(1))}</small>
+                <p>
+                  {guideQuestions[guideStep].question.split("\n").map((line, index) => (
+                    <span key={line + index}>
+                      {line}
+                      {index < guideQuestions[guideStep].question.split("\n").length - 1 && <br />}
+                    </span>
+                  ))}
+                </p>
+                <div className="officialGuideButtons" role="group" aria-label="回答">
+                  <button type="button" onClick={() => answerGuide("yes")}>YES</button>
+                  <button type="button" onClick={() => answerGuide("no")}>NO</button>
+                </div>
+              </div>
+            ) : guideResult === "OMIKUJI" ? (
+              <div className="officialGuideResult">
+                <div className="officialGuideResultIcon">⛩️</div>
+                <div>
+                  <small>今日の結論</small>
+                  <h4>決められない日もある。</h4>
+                  <p>そんな日は、朝リストのおみくじに任せよう。</p>
+                  <button type="button" className="officialGuideGo" onClick={() => setView("listeners")}>
+                    ⛩️ おみくじへ
+                  </button>
+                </div>
+              </div>
+            ) : guideProgram ? (
+              <div className="officialGuideResult">
+                <OfficialArtwork url={guideProgram.spotify} name={guideProgram.name} />
+                <div className="officialGuideResultBody">
+                  <small>あなたの今日の一聴</small>
+                  <h4>{guideProgram.name}</h4>
+                  {guideProgram.detail && <p>{guideProgram.detail}</p>}
+                  {guideProgram.schedule && <p>{guideProgram.schedule}</p>}
+                  <div className="officialGuideResultLinks">
+                    {guideProgram.spotify && (
+                      <a href={guideProgram.spotify} target="_blank" rel="noreferrer">Spotifyで聴く ↗</a>
+                    )}
+                    {guideProgram.official && (
+                      <a href={guideProgram.official} target="_blank" rel="noreferrer">公式を見る ↗</a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </section>
           <div className="officialGrid">
             {officialPrograms.map((p, index) => (
               <article
