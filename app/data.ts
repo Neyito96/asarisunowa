@@ -346,7 +346,7 @@ const rows:[string,string,string|null,string|null][] = [
     "バスクラ",
     "たんたん",
     "https://music.youtube.com/playlist?list=PLW_Nbzh9Y-J8PPlwXSOvfANQz4Xf39BBi",
-    "https://i.ytimg.com/vi/KuRj0p0xb5Y/hqdefault.jpg"
+    "./playlist-artwork/basukura.jpg"
   ],
   [
     "#初登場特集（#朝ポキ）",

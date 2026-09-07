@@ -7,6 +7,13 @@ from concurrent.futures import ThreadPoolExecutor
 
 CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQHi9LM842wuiTT-N8FzgJXVFyY4W5sZRYEdp4a9OVBTgVBJgPWG52AK6sgH4qBciqB6Q5UAd2-n2bA/pub?gid=697105746&single=true&output=csv"
 
+# 外部CDNの読み込みが不安定な項目は、GitHub Pages内に保存した
+# 公式アートワークを使う。スプレッドシート同期後もこの指定を保つ。
+LOCAL_ARTWORK_BY_URL = {
+    "https://music.youtube.com/playlist?list=PLW_Nbzh9Y-J8PPlwXSOvfANQz4Xf39BBi":
+        "./playlist-artwork/basukura.jpg",
+}
+
 def normalize_url(value):
     value = value.strip()
     if not value:
@@ -86,11 +93,14 @@ if len(base_rows) < 10:
 with ThreadPoolExecutor(max_workers=6) as executor:
     artworks = list(executor.map(
         get_artwork,
-        [row[2] for row in base_rows],
+        [
+            None if row[2] in LOCAL_ARTWORK_BY_URL else row[2]
+            for row in base_rows
+        ],
     ))
 
 rows = [
-    [title, maker, url, artwork]
+    [title, maker, url, LOCAL_ARTWORK_BY_URL.get(url, artwork)]
     for (title, maker, url), artwork in zip(base_rows, artworks)
 ]
 
