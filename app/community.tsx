@@ -194,14 +194,13 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
   );
   function handleSearch(value: string) {
     setQuery(value);
-    if (value.trim()) {
-      window.requestAnimationFrame(() => {
-        document.getElementById("playlist-results")?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      });
-    }
+  }
+  function jumpToSearchResults() {
+    if (!query.trim()) return;
+    document.getElementById("playlist-results")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
   }
   function toggleListened(id: string) {
     const next = listened.includes(id)
@@ -287,6 +286,12 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 aria-label="検索"
                 autoComplete="off"
                 enterKeyHint="search"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    jumpToSearchResults();
+                  }
+                }}
               />
               <div className="sorts" role="group" aria-label="並べ替え">
                 <button
