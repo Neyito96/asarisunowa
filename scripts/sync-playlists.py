@@ -29,9 +29,15 @@ def get_artwork(url):
 
     try:
         if "music.youtube.com" in url:
+            # YouTube Music の公開プレイリストも、画像は YouTube 公式の
+            # oEmbed エンドポイントから取得する。oEmbed へ渡す URL は
+            # YouTube 標準形のほうが安定して認識される。
+            parsed = urllib.parse.urlparse(url)
+            playlist_id = urllib.parse.parse_qs(parsed.query).get("list", [""])[0]
+            oembed_url = f"https://www.youtube.com/playlist?list={playlist_id}"
             endpoint = (
                 "https://www.youtube.com/oembed?format=json&url="
-                + urllib.parse.quote(url, safe="")
+                + urllib.parse.quote(oembed_url, safe="")
             )
         else:
             endpoint = (
@@ -43,7 +49,14 @@ def get_artwork(url):
             headers={"User-Agent": "asarisunowa-artwork-sync/1.0"},
         )
         with urllib.request.urlopen(request, timeout=20) as response:
-            return json.load(response).get("thumbnail_url")
+            thumbnail_url = json.load(response).get("thumbnail_url")
+
+        if "music.youtube.com" in url and thumbnail_url:
+            thumbnail_host = urllib.parse.urlparse(thumbnail_url).hostname or ""
+            if thumbnail_host not in {"i.ytimg.com", "img.youtube.com"}:
+                raise ValueError("YouTube公式以外の画像URLが返されました")
+
+        return thumbnail_url
     except Exception as error:
         print(f"注意：画像を取得できませんでした: {url} ({error})")
         return None
