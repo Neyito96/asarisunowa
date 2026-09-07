@@ -15,7 +15,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">{children}
+        {/* Cloudflare Web Analytics */}
+        <script
+          type="module"
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token":"06c64615da3b42ceba758c2fa9a439c7"}'
+        />
+      </body>
     </html>
   );
 }
