@@ -309,7 +309,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     </span>
                   )}
                 </div>
-                    <div className="cardBody">
+                    <div className="cardBody listenerCardBody">
                       <small>PLAYLIST {p.id.padStart(2, "0")}</small>
                       <h3>{p.title}</h3>
                       <p>by {p.maker}</p>
@@ -329,7 +329,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                           target="_blank"
                           rel="noreferrer"
                         >
-                          Spotifyで聴く ↗
+                          {p.url.includes("music.youtube.com")
+                        ? "YouTube Musicで聴く ↗"
+                        : "Spotifyで聴く ↗"}
                         </a>
                       ) : (
                         <span className="listen disabled">リンク準備中</span>

@@ -1740,3 +1740,68 @@ footer {
     margin-top: auto !important;
   }
 }
+
+
+/* definitive desktop playlist field */
+@media (min-width: 701px) {
+  .card:has(.listenerCardBody) {
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    background: #fff !important;
+  }
+
+  .card:has(.listenerCardBody) > .cover {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    aspect-ratio: 1 / 1 !important;
+    flex: none !important;
+    overflow: hidden !important;
+  }
+
+  .card:has(.listenerCardBody) > .cover img {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+
+  .listenerCardBody {
+    position: static !important;
+    display: flex !important;
+    flex: 1 !important;
+    flex-direction: column !important;
+    min-height: 280px !important;
+    padding: 20px 22px !important;
+    background: #fff !important;
+  }
+
+  .listenerCardBody > small {
+    position: static !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin: 0 0 10px !important;
+    color: #cb4f78 !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    line-height: 1.2 !important;
+  }
+
+  .listenerCardBody > h3 {
+    position: static !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin: 0 0 14px !important;
+    color: #123d4d !important;
+  }
+
+  .listenerCardBody .listen {
+    margin-top: auto !important;
+  }
+}

@@ -46,7 +46,7 @@ const rows:[string,string,string|null,string|null][] = [
     "ニュースチャット 1on1",
     "ルッキー",
     "https://open.spotify.com/playlist/5dBF4gpwMx8k9iHIibO1Z2",
-    "https://mosaic.scdn.co/300/ab67656300005f1f2d03ee68328278afa11f96c8ab67656300005f1f8b88c7f4ff81ff4cae420b6aab67656300005f1feaa27597cc5b738ebe5272c4ab67656300005f1ff4ddfc9ae137e91918c94675"
+    null
   ],
   [
     "ニュースの現場から #1000 で紹介されたエピソード",
@@ -88,7 +88,7 @@ const rows:[string,string,string|null,string|null][] = [
     "食と料理",
     "bigstone1977",
     "https://open.spotify.com/playlist/5B4K0bT1bheMZPvMXc9fXf",
-    "https://mosaic.scdn.co/300/ab67656300005f1f3b47b61c6c961a2081ced625ab67656300005f1f3c3fe9915694e25a02ae855fab67656300005f1f82c19a04de65d6a51e3a9793ab67656300005f1fd6fd95ddffbb0ac51a150ed1"
+    null
   ],
   [
     "司法制度",
@@ -124,13 +124,13 @@ const rows:[string,string,string|null,string|null][] = [
     "ミャンマー",
     "bigstone1977",
     "https://open.spotify.com/playlist/6J3O3Su8YkWOW0ICO6WLj5",
-    "https://mosaic.scdn.co/300/ab67656300005f1f2285caabf9383887bdbec3b2ab67656300005f1f64acad9fc8bb3c9f68384579ab67656300005f1f742d350c83047ded95870248ab67656300005f1fe635c511987c198d727eb951"
+    null
   ],
   [
     "生命倫理",
     "bigstone1977",
     "https://open.spotify.com/playlist/73LULd5gCdmFLI2l7L8a4M",
-    "https://mosaic.scdn.co/300/ab67656300005f1f32043aecf7fb5414ceed42f6ab67656300005f1f5d8ad91c84f6481553b5c8baab67656300005f1f7eb8d40ee8dfd5cf0e34125fab67656300005f1fdccdc54aca0c3574305afb1a"
+    null
   ],
   [
     "サイバー事件簿",
@@ -154,7 +154,7 @@ const rows:[string,string,string|null,string|null][] = [
     "労働",
     "bigstone1977",
     "https://open.spotify.com/playlist/3dog2oLiW8RNyXp7QJx1qP",
-    "https://mosaic.scdn.co/300/ab67656300005f1f3ee87acbea186efbf90e1256ab67656300005f1f44e2cbb1954463832a563ce8ab67656300005f1f72e57497cd34b25e5f922df1ab67656300005f1fa032431b22527b22ebd428b2"
+    null
   ],
   [
     "ビッグテック",
@@ -220,7 +220,7 @@ const rows:[string,string,string|null,string|null][] = [
     "3.11特別編　記者の取材を追体験　「福島のいま」",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/4QfZEVeflr1dTyV9RfzWes",
-    "https://mosaic.scdn.co/300/ab67656300005f1f348f70072b476a17691511d2ab67656300005f1f852b268ef4abfd41299a2c8dab67656300005f1fcf9ed0093f8aee836e09bfdbab67656300005f1feabd1aa6631f04b259749698"
+    null
   ],
   [
     "東日本大震災から10年　ポッドキャストで考える",
@@ -238,7 +238,7 @@ const rows:[string,string,string|null,string|null][] = [
     "藤えりか　シネマニア経済サロン",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/20HFJSL3TNNYTR7w0xXTue",
-    "https://mosaic.scdn.co/300/ab67656300005f1f49e87af01730a72f2db2d072ab67656300005f1f5a5ffbf2e1fc943bc050c8fdab67656300005f1fde84392b5165823ae76ff1bcab67656300005f1ff21dc2c37e7721c6f0c602c3"
+    null
   ],
   [
     "新聞社員の「楽屋裏」",
@@ -268,7 +268,7 @@ const rows:[string,string,string|null,string|null][] = [
     "楽屋裏2023　厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/0I9wCLs5oFLNIG1aPLQneg",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32"
+    null
   ],
   [
     "バスケ通信―クラッチタイム（バスクラ）",
@@ -304,7 +304,7 @@ const rows:[string,string,string|null,string|null][] = [
     "GLOBE CAST",
     "Tommy",
     "https://open.spotify.com/playlist/1NdFNZ1kDgFIO1zmjs3zXA",
-    "https://mosaic.scdn.co/300/ab67656300005f1f32a66c42ed0b6a9005237f79ab67656300005f1f71486406d646a2d4bc3c3717ab67656300005f1fb837bc8a8ad748399988cb95ab67656300005f1fdd1959f5ede690aea1e56bd4"
+    null
   ],
   [
     "#懐メロ（#朝ポキ 楽屋裏）＋おじさんのメロディ",
@@ -345,8 +345,8 @@ const rows:[string,string,string|null,string|null][] = [
   [
     "バスクラ",
     "たんたん",
-    null,
-    null
+    "https://music.youtube.com/playlist?list=PLW_Nbzh9Y-J8PPlwXSOvfANQz4Xf39BBi",
+    "https://i.ytimg.com/vi/KuRj0p0xb5Y/hqdefault.jpg"
   ],
   [
     "#初登場特集（#朝ポキ）",

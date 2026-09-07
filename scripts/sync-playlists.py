@@ -13,20 +13,31 @@ def normalize_url(value):
         return None
 
     parsed = urllib.parse.urlparse(value)
-    if parsed.netloc != "open.spotify.com" or not parsed.path.startswith("/playlist/"):
-        return None
+    if parsed.netloc == "open.spotify.com" and parsed.path.startswith("/playlist/"):
+        return f"https://open.spotify.com{parsed.path}"
 
-    return f"https://open.spotify.com{parsed.path}"
+    if parsed.netloc == "music.youtube.com" and parsed.path == "/playlist":
+        playlist_id = urllib.parse.parse_qs(parsed.query).get("list", [""])[0]
+        if playlist_id:
+            return f"https://music.youtube.com/playlist?list={playlist_id}"
+
+    return None
 
 def get_artwork(url):
     if not url:
         return None
 
     try:
-        endpoint = (
-            "https://open.spotify.com/oembed?url="
-            + urllib.parse.quote(url, safe="")
-        )
+        if "music.youtube.com" in url:
+            endpoint = (
+                "https://www.youtube.com/oembed?format=json&url="
+                + urllib.parse.quote(url, safe="")
+            )
+        else:
+            endpoint = (
+                "https://open.spotify.com/oembed?url="
+                + urllib.parse.quote(url, safe="")
+            )
         request = urllib.request.Request(
             endpoint,
             headers={"User-Agent": "asarisunowa-artwork-sync/1.0"},
