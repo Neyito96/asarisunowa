@@ -1602,3 +1602,30 @@ footer {
   background: #008fd3 !important;
   color: #ffffff !important;
 }
+
+
+/* 仮タイトル候補をスマホ一行で表示 */
+.siteBrand span {
+  white-space: nowrap;
+}
+
+@media (max-width: 780px) {
+  .siteBrand {
+    gap: 5px;
+  }
+
+  .siteBrand span {
+    font-size: clamp(12px, 3.4vw, 15px);
+    letter-spacing: 0;
+  }
+
+  .siteBrand .brandMark {
+    width: 36px;
+    height: 36px;
+  }
+
+  .nav a {
+    font-size: 11px;
+    white-space: nowrap;
+  }
+}
