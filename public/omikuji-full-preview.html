@@ -2434,9 +2434,8 @@ const eligible=[{"title":"一緒に新聞をめくろう！","maker":"NEYITO","u
 const tabs=[...document.querySelectorAll('[data-tab]')];
 function show(id){document.querySelectorAll('.fakePane').forEach(x=>x.classList.toggle('on',x.id===id));document.querySelectorAll('.viewTabs [data-tab]').forEach(x=>x.classList.toggle('on',x.dataset.tab===id));scrollTo({top:0,behavior:'smooth'})}
 tabs.forEach(b=>b.addEventListener('click',()=>show(b.dataset.tab)));
-function draw(){const p=eligible[Math.floor(Math.random()*eligible.length)];on.textContent='PLAYLIST '+String(p.id).padStart(2,'0')+'｜本日の一聴';ot.textContent=p.title;ob.textContent='by '+p.maker;og.href=p.url;oa.src=p.artwork?(p.artwork.startsWith('./')?'/asarisunowa/'+p.artwork.slice(2):p.artwork):'';omikujiResult.classList.add('on')}
-draw.addEventListener?0:0;
-document.getElementById('draw').addEventListener('click',draw);
+function drawOmikuji(){const p=eligible[Math.floor(Math.random()*eligible.length)];document.getElementById('on').textContent='PLAYLIST '+String(p.id).padStart(2,'0')+'｜本日の一聴';document.getElementById('ot').textContent=p.title;document.getElementById('ob').textContent='by '+p.maker;document.getElementById('og').href=p.url;document.getElementById('oa').src=p.artwork?(p.artwork.startsWith('./')?'/asarisunowa/'+p.artwork.slice(2):p.artwork):'';document.getElementById('omikujiResult').classList.add('on')}
+document.getElementById('draw').addEventListener('click',drawOmikuji);
 document.getElementById('q').addEventListener('input',e=>{const s=e.target.value.toLowerCase();let n=0;document.querySelectorAll('.playlist-card').forEach(c=>{const ok=c.dataset.title.includes(s);c.style.display=ok?'':'none';if(ok)n++});count.textContent=n+'件'});
 document.querySelectorAll('.heart').forEach(b=>b.addEventListener('click',()=>{b.textContent=b.textContent.includes('未聴')?'♥ 聴いた':'♡ 未聴';b.classList.toggle('liked')}));
 </script></body></html>
