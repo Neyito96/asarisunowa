@@ -173,7 +173,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     ),
     [query, setQuery] = useState(""),
     [sort, setSort] = useState<"new" | "number">("new"),
-    [listened, setListened] = useState<string[]>([]);
+    [listened, setListened] = useState<string[]>([]),
+    [omikuji, setOmikuji] = useState<Playlist | null>(null),
+    [showAllListened, setShowAllListened] = useState(false);
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("asapoki-listened") || "[]");
     const timer = window.setTimeout(() => setListened(saved), 0);
@@ -196,6 +198,17 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       : [...listened, id];
     setListened(next);
     localStorage.setItem("asapoki-listened", JSON.stringify(next));
+  }
+  const unheard = playlists.filter((p) => p.url && !listened.includes(p.id));
+  function drawOmikuji(includeListened = false) {
+    const pool = includeListened ? playlists.filter((p) => p.url) : unheard;
+    if (!pool.length) {
+      setOmikuji(null);
+      setShowAllListened(true);
+      return;
+    }
+    setShowAllListened(false);
+    setOmikuji(pool[Math.floor(Math.random() * pool.length)]);
   }
   return (
     <>
@@ -278,17 +291,58 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             </div>
           </div>
           <main className="wrap">
-            <div className="listHead">
-              <div>
-                <p className="kicker">LISTENER PICKS</p>
-                <h2>朝リスのプレイリスト</h2>
-                <p>リスナーが作ったアーカイブ。更新はゆっくりめです。</p>
-                <small className="rankingNote">
-                  ♡を押すと、この端末で「聴いた」印を残せます。
-                </small>
+            <div className="themeHead">
+              <p className="kicker themeKicker">THEME PLAYLISTS</p>
+              <h2>テーマ別プレイリスト</h2>
+              <div className="countChips" aria-label="プレイリスト視聴状況">
+                <span>全{playlists.length}</span>
+                <span>未聴{playlists.length - listened.length}</span>
+                <span>既聴{listened.length}</span>
               </div>
-              <span>{rows.length}件</span>
             </div>
+            <section className="omikujiPanel">
+              <div className="omikujiLead">
+                <div className="omikujiIcon">⛩️</div>
+                <div>
+                  <h3>プレイリストおみくじ</h3>
+                  <p>未聴{unheard.length}本から選びます。</p>
+                </div>
+              </div>
+              <button className="omikujiDraw" type="button" onClick={() => drawOmikuji(false)}>
+                おみくじを引く
+              </button>
+              {showAllListened && (
+                <div className="omikujiResult on">
+                  <h4>全部聴いてる！🎉</h4>
+                  <p>未聴のプレイリストがありません。</p>
+                  <button className="omikujiDraw" type="button" onClick={() => drawOmikuji(true)}>
+                    既聴も含めてもう一度引く
+                  </button>
+                </div>
+              )}
+              {omikuji && (
+                <div className="omikujiResult on">
+                  <div className="omikujiResultInner">
+                    <div className="omikujiArtwork">
+                      {omikuji.artwork ? <img src={omikuji.artwork} alt="" /> : <span>ASAPOKI<br />PLAYLIST</span>}
+                    </div>
+                    <div>
+                      <div className="omikujiMeta">
+                        <small>PLAYLIST {omikuji.id.padStart(2, "0")}｜本日の一聴</small>
+                        {!listened.includes(omikuji.id) && <span>♡ 未聴</span>}
+                      </div>
+                      <h4>{omikuji.title}</h4>
+                      <p>by {omikuji.maker}</p>
+                    </div>
+                  </div>
+                  {omikuji.url && (
+                    <a className="omikujiGo" href={omikuji.url} target="_blank" rel="noreferrer">
+                      このプレイリストを聴く ↗
+                    </a>
+                  )}
+                </div>
+              )}
+            </section>
             <div className="grid">
               {rows.map((p) => {
                 const isListened = listened.includes(p.id);
@@ -341,6 +395,13 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 );
               })}
             </div>
+            <section className="playlistWorkbench">
+              <h3>みんなで更新する作業台</h3>
+              <p>プレイリストの追加・修正はこちら。どなたでも編集できます。</p>
+              <a href="https://docs.google.com/spreadsheets/d/1KSzoIkOsjUagNBLt3IbKIvgWEmez4f0XISQ-jkUjmwQ/edit?usp=drivesdk" target="_blank" rel="noreferrer">
+                作業台スプレッドシートを開く ↗
+              </a>
+            </section>
           </main>
         </>
       ) : view === "official" ? (
