@@ -13,10 +13,10 @@ const rows:[string,string,string|null,string|null][] = [
     "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e"
   ],
   [
-    "#ふな 冨名腰隆",
+    "#ふな 冨名腰隆　旧【報談】",
     "NEYITO",
     "https://open.spotify.com/playlist/48tpuTjiqGdJrvkX8R1OkI",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e"
   ],
   [
     "議員になんでも聞いてみよう　秋山訓子の政治家インタビュー",
@@ -34,7 +34,7 @@ const rows:[string,string,string|null,string|null][] = [
     "東日本大震災",
     "cobaltore12",
     "https://open.spotify.com/playlist/4nptiHJbbsjKS37kykLkNF",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694"
   ],
   [
     "お坊さんに聞け",
@@ -46,7 +46,7 @@ const rows:[string,string,string|null,string|null][] = [
     "ニュースチャット 1on1",
     "ルッキー",
     "https://open.spotify.com/playlist/5dBF4gpwMx8k9iHIibO1Z2",
-    null
+    "https://mosaic.scdn.co/300/ab67656300005f1f2d03ee68328278afa11f96c8ab67656300005f1f8b88c7f4ff81ff4cae420b6aab67656300005f1feaa27597cc5b738ebe5272c4ab67656300005f1ff4ddfc9ae137e91918c94675"
   ],
   [
     "ニュースの現場から #1000 で紹介されたエピソード",
@@ -88,7 +88,7 @@ const rows:[string,string,string|null,string|null][] = [
     "食と料理",
     "bigstone1977",
     "https://open.spotify.com/playlist/5B4K0bT1bheMZPvMXc9fXf",
-    null
+    "https://mosaic.scdn.co/300/ab67656300005f1f3b47b61c6c961a2081ced625ab67656300005f1f3c3fe9915694e25a02ae855fab67656300005f1f82c19a04de65d6a51e3a9793ab67656300005f1fd6fd95ddffbb0ac51a150ed1"
   ],
   [
     "司法制度",
@@ -124,13 +124,13 @@ const rows:[string,string,string|null,string|null][] = [
     "ミャンマー",
     "bigstone1977",
     "https://open.spotify.com/playlist/6J3O3Su8YkWOW0ICO6WLj5",
-    null
+    "https://mosaic.scdn.co/300/ab67656300005f1f2285caabf9383887bdbec3b2ab67656300005f1f64acad9fc8bb3c9f68384579ab67656300005f1f742d350c83047ded95870248ab67656300005f1fe635c511987c198d727eb951"
   ],
   [
     "生命倫理",
     "bigstone1977",
     "https://open.spotify.com/playlist/73LULd5gCdmFLI2l7L8a4M",
-    null
+    "https://mosaic.scdn.co/300/ab67656300005f1f32043aecf7fb5414ceed42f6ab67656300005f1f5d8ad91c84f6481553b5c8baab67656300005f1f7eb8d40ee8dfd5cf0e34125fab67656300005f1fdccdc54aca0c3574305afb1a"
   ],
   [
     "サイバー事件簿",
@@ -154,7 +154,7 @@ const rows:[string,string,string|null,string|null][] = [
     "労働",
     "bigstone1977",
     "https://open.spotify.com/playlist/3dog2oLiW8RNyXp7QJx1qP",
-    null
+    "https://mosaic.scdn.co/300/ab67656300005f1f3ee87acbea186efbf90e1256ab67656300005f1f44e2cbb1954463832a563ce8ab67656300005f1f72e57497cd34b25e5f922df1ab67656300005f1fa032431b22527b22ebd428b2"
   ],
   [
     "ビッグテック",
@@ -220,7 +220,7 @@ const rows:[string,string,string|null,string|null][] = [
     "3.11特別編　記者の取材を追体験　「福島のいま」",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/4QfZEVeflr1dTyV9RfzWes",
-    null
+    "https://mosaic.scdn.co/300/ab67656300005f1f348f70072b476a17691511d2ab67656300005f1f852b268ef4abfd41299a2c8dab67656300005f1fcf9ed0093f8aee836e09bfdbab67656300005f1feabd1aa6631f04b259749698"
   ],
   [
     "東日本大震災から10年　ポッドキャストで考える",
@@ -238,7 +238,7 @@ const rows:[string,string,string|null,string|null][] = [
     "藤えりか　シネマニア経済サロン",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/20HFJSL3TNNYTR7w0xXTue",
-    null
+    "https://mosaic.scdn.co/300/ab67656300005f1f49e87af01730a72f2db2d072ab67656300005f1f5a5ffbf2e1fc943bc050c8fdab67656300005f1fde84392b5165823ae76ff1bcab67656300005f1ff21dc2c37e7721c6f0c602c3"
   ],
   [
     "新聞社員の「楽屋裏」",
@@ -256,7 +256,7 @@ const rows:[string,string,string|null,string|null][] = [
     "ポキ-1グランプリ 2023",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/5xUDKa3r5arvKSx4gqjwI3",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9"
   ],
   [
     "「MEDIA TALK」 2023厳選エピソード",
@@ -268,13 +268,13 @@ const rows:[string,string,string|null,string|null][] = [
     "楽屋裏2023　厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/0I9wCLs5oFLNIG1aPLQneg",
-    null
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32"
   ],
   [
     "バスケ通信―クラッチタイム（バスクラ）",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/3axOpfDhMhLEtelwGwvMHb",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244"
   ],
   [
     "音でよみがえる甲子園",
@@ -304,13 +304,13 @@ const rows:[string,string,string|null,string|null][] = [
     "GLOBE CAST",
     "Tommy",
     "https://open.spotify.com/playlist/1NdFNZ1kDgFIO1zmjs3zXA",
-    null
+    "https://mosaic.scdn.co/300/ab67656300005f1f32a66c42ed0b6a9005237f79ab67656300005f1f71486406d646a2d4bc3c3717ab67656300005f1fb837bc8a8ad748399988cb95ab67656300005f1fdd1959f5ede690aea1e56bd4"
   ],
   [
     "#懐メロ（#朝ポキ 楽屋裏）＋おじさんのメロディ",
     "koike",
     "https://open.spotify.com/playlist/0vItsmD8tW7fsv18NkZKzh",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600"
   ],
   [
     "#ジャニーズ性加害問題（#朝ポキ）",
@@ -364,7 +364,7 @@ const rows:[string,string,string|null,string|null][] = [
     "編集マニア",
     "カンダ ・マサキ",
     "https://open.spotify.com/playlist/71mdQ5ANqZda48jBkj0Qmz",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d"
   ],
   [
     "朝日新聞社の歴史",
