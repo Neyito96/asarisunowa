@@ -1669,3 +1669,74 @@ footer {
     margin-block: 0 !important;
   }
 }
+
+
+/* organized playlist field on desktop */
+@media (min-width: 701px) {
+  .card:has(.listen) {
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    background: #fff !important;
+  }
+
+  .card:has(.listen) .cover {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    aspect-ratio: 1 / 1 !important;
+    overflow: hidden !important;
+    flex: none !important;
+  }
+
+  .card:has(.listen) .cover img,
+  .card:has(.listen) .cover span {
+    display: flex !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    aspect-ratio: 1 / 1 !important;
+    object-fit: cover !important;
+  }
+
+  .card:has(.listen) .cover span {
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .card:has(.listen) .cardBody {
+    position: relative !important;
+    z-index: 1 !important;
+    display: flex !important;
+    flex: 1 !important;
+    flex-direction: column !important;
+    min-height: 275px !important;
+    padding: 20px 22px !important;
+    background: #fff !important;
+  }
+
+  .card:has(.listen) .cardBody > small {
+    display: block !important;
+    position: static !important;
+    margin: 0 0 12px !important;
+    color: #cb4f78 !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.04em !important;
+  }
+
+  .card:has(.listen) .cardBody h3 {
+    margin: 0 0 14px !important;
+    line-height: 1.35 !important;
+  }
+
+  .card:has(.listen) .cardBody p {
+    margin: 0 0 16px !important;
+  }
+
+  .card:has(.listen) .listen {
+    margin-top: auto !important;
+  }
+}
