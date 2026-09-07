@@ -1629,3 +1629,43 @@ footer {
     white-space: nowrap;
   }
 }
+
+
+/* compact listener cards on mobile */
+@media (max-width: 700px) {
+  .card:has(.listen) {
+    min-height: 0 !important;
+    grid-template-columns: 108px minmax(0, 1fr) !important;
+    align-items: start !important;
+  }
+
+  .card:has(.listen) .cover {
+    width: 108px !important;
+    height: 108px !important;
+    min-height: 108px !important;
+    aspect-ratio: 1 / 1 !important;
+    align-self: start !important;
+    overflow: hidden !important;
+  }
+
+  .card:has(.listen) .cover iframe,
+  .card:has(.listen) .cover img,
+  .card:has(.listen) .cover span {
+    width: 108px !important;
+    height: 108px !important;
+    min-height: 0 !important;
+    aspect-ratio: 1 / 1 !important;
+    object-fit: cover !important;
+  }
+
+  .card:has(.listen) .cardBody {
+    min-height: 0 !important;
+    padding: 14px !important;
+    gap: 7px !important;
+  }
+
+  .card:has(.listen) .cardBody h3,
+  .card:has(.listen) .cardBody p {
+    margin-block: 0 !important;
+  }
+}
