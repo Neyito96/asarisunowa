@@ -1957,3 +1957,32 @@ footer {
   .officialGuideResult .officialArt{width:82px;min-width:82px}
   .officialGuideResultIcon{width:64px;height:64px;font-size:2rem}
 }
+
+
+/* Keep recommendation artwork perfectly square */
+.officialGuideResult > .officialArt{
+  width:104px;
+  min-width:104px;
+  height:104px;
+  min-height:104px;
+  aspect-ratio:1 / 1;
+  flex:0 0 104px;
+  border-radius:14px;
+  overflow:hidden;
+}
+.officialGuideResult > .officialArt img{
+  display:block;
+  width:100%;
+  height:100%;
+  aspect-ratio:1 / 1;
+  object-fit:cover;
+}
+@media(max-width:640px){
+  .officialGuideResult > .officialArt{
+    width:82px;
+    min-width:82px;
+    height:82px;
+    min-height:82px;
+    flex-basis:82px;
+  }
+}
