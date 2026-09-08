@@ -17,6 +17,7 @@ function doPost(e) {
     const title = String(data.title || "").trim();
     const maker = String(data.maker || "").trim();
     const comment = String(data.comment || "").trim();
+    const introducedDate = String(data.introducedDate || "").trim();
     const kind = String(data.kind || "playlist").trim();
     const securityAnswer = String(data.securityAnswer || "").trim();
     const website = String(data.website || "").trim();
@@ -86,7 +87,7 @@ function doPost(e) {
     let duplicateReason = "";
     if (!duplicateByUrl && !duplicateByTitle) {
       if (kind === "listenerPodcast") {
-        targetSheet.appendRow([url, title, maker, new Date(), comment, ""]);
+        targetSheet.appendRow([url, title, maker, introducedDate || "", comment, ""]);
       } else if (kind === "podcast") {
         targetSheet.appendRow([url, title, maker, new Date(), comment]);
       } else {
