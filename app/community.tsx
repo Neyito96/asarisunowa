@@ -17,6 +17,7 @@ const ASAPOKI_OFFICIAL = "https://www.asahi.com/special/podcasts/";
 // Google Apps Script のウェブアプリURLを設定すると投稿フォームが自動送信になります。
 const PLAYLIST_SUBMIT_ENDPOINT = "https://script.google.com/macros/s/AKfycbxlZCNqGqOEY7j61OgcSGM8_xfGT08f4jjamXtSj2DES9fXl-xwJrvcRGYHnskidjIMug/exec";
 const LISTENER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQHi9LM842wuiTT-N8FzgJXVFyY4W5sZRYEdp4a9OVBTgVBJgPWG52AK6sgH4qBciqB6Q5UAd2-n2bA/pub?gid=697105746&single=true&output=csv";
+const PODCAST_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQHi9LM842wuiTT-N8FzgJXVFyY4W5sZRYEdp4a9OVBTgVBJgPWG52AK6sgH4qBciqB6Q5UAd2-n2bA/pub?gid=1297557590&single=true&output=csv";
 
 function parseCsv(text: string) {
   const rows: string[][] = [];
@@ -226,6 +227,7 @@ function OfficialArtwork({ url, name }: { url?: string; name: string }) {
 }
 export default function Community({ playlists }: { playlists: Playlist[] }) {
   const [livePlaylists, setLivePlaylists] = useState<Playlist[]>(playlists);
+  const [recommendedPodcasts, setRecommendedPodcasts] = useState<Playlist[]>([]);
   const [view, setView] = useState<"listeners" | "official" | "circle" | "discord">(
       "official",
     ),
@@ -292,7 +294,36 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false;
+    async function refreshRecommendedPodcasts() {
+      try {
+        const response = await fetch(PODCAST_CSV_URL + "&_=" + Date.now(), { cache: "no-store" });
+        if (!response.ok) return;
+        const table = parseCsv(await response.text());
+        if (!table.length) return;
+        const next = table.slice(1)
+          .map((source, index) => {
+            const [url = "", title = "", maker = ""] = source;
+            return {
+              id: String(index + 1),
+              title: title.trim(),
+              maker: maker.trim(),
+              url: url.trim() || null,
+              artwork: null,
+            } satisfies Playlist;
+          })
+          .filter((item) => item.title);
+        if (!cancelled) setRecommendedPodcasts(next);
+      } catch {
+        // 公開CSV取得失敗時は空欄のまま
+      }
+    }
+    refreshRecommendedPodcasts();
+    return () => { cancelled = true; };
+  }, []);;
   const rows = useMemo(
     () =>
       livePlaylists
@@ -668,6 +699,106 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 )}
               </form>
            </section>
+            <section className="recommendedPodcasts" aria-labelledby="recommended-podcasts-title">
+              <div className="themeHead">
+                <p className="kicker themeKicker">RECOMMENDED PODCASTS</p>
+                <h2 id="recommended-podcasts-title">🎧 朝リスのおすすめPodcast</h2>
+                <p>朝リスさんが「これも聴いてほしい」と思った番組を持ち寄る棚。</p>
+              </div>
+              <div className="grid podcastGrid">
+                {recommendedPodcasts.map((p) => (
+                  <article className="card" key={"podcast-" + p.id}>
+                    <div className="cover podcastCover"><span>PODCAST<br />RECOMMEND</span></div>
+                    <div className="cardBody listenerCardBody">
+                      <small>RECOMMEND {p.id.padStart(2, "0")}</small>
+                      <h3>{p.title}</h3>
+                      <p>おすすめ：{p.maker}</p>
+                      {p.url && <a className="listen" href={p.url} target="_blank" rel="noreferrer">番組を聴く ↗</a>}
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <section className="playlistSubmit" aria-labelledby="podcast-submit-title">
+              <div className="playlistSubmitHead">
+                <div>
+                  <p className="kicker">RECOMMENDED PODCASTS</p>
+                  <h3 id="podcast-submit-title">おすすめPodcastを追加する</h3>
+                  <p>朝リスさんの「これも聴いてほしい」を持ち寄る棚です。</p>
+                </div>
+              </div>
+              <form onSubmit={submitPlaylist}>
+                <label className="submitKind">
+                  <span>投稿するもの</span>
+                  <select value={submitKind} onChange={(e) => setSubmitKind(e.target.value as "playlist" | "podcast")}>
+                    <option value="podcast">朝リスのおすすめPodcast</option>
+                    <option value="playlist">朝ポキ関連プレイリスト</option>
+                  </select>
+                </label>
+                <label>
+                  <span>{submitKind === "podcast" ? "番組URL" : "プレイリストURL"}</span>
+                  <input
+                    type="url"
+                    value={submitUrl}
+                    onChange={(e) => setSubmitUrl(e.target.value)}
+                    placeholder={submitKind === "podcast" ? "Spotifyなどの番組URL" : "Spotify / YouTube Music のプレイリストURL"}
+                    required
+                  />
+                </label>
+                <label>
+                  <span>{submitKind === "podcast" ? "番組名" : "タイトル"}</span>
+                  <input
+                    type="text"
+                    value={submitTitle}
+                    onChange={(e) => setSubmitTitle(e.target.value)}
+                    placeholder={submitKind === "podcast" ? "Podcast番組名" : "プレイリスト名"}
+                    maxLength={120}
+                    required
+                  />
+                </label>
+                <label>
+                  <span>朝リスネーム</span>
+                  <input
+                    type="text"
+                    value={submitMaker}
+                    onChange={(e) => setSubmitMaker(e.target.value)}
+                    placeholder="お名前・ハンドルネーム"
+                    maxLength={80}
+                    required
+                  />
+                </label>
+                <label>
+                  <span>セキュリティチェック：「神田」といえば？</span>
+                  <input
+                    type="text"
+                    value={submitSecurityAnswer}
+                    onChange={(e) => setSubmitSecurityAnswer(e.target.value)}
+                    placeholder="漢字2文字"
+                    maxLength={10}
+                    autoComplete="off"
+                    required
+                  />
+                </label>
+                <label className="submitHoneypot" aria-hidden="true">
+                  <span>website</span>
+                  <input
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={submitWebsite}
+                    onChange={(e) => setSubmitWebsite(e.target.value)}
+                  />
+                </label>
+                <button type="submit" disabled={submitStatus === "sending"}>
+                  {submitStatus === "sending" ? "送信中…" : "投稿する"}
+                </button>
+                {submitMessage && (
+                  <p className={submitStatus === "success" ? "submitNotice success" : "submitNotice error"}>
+                    {submitMessage}
+                  </p>
+                )}
+              </form>
+           </section>
+            </section>
           </main>
         </>
       ) : view === "official" ? (
