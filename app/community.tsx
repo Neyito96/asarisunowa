@@ -27,6 +27,52 @@ type ListenerPodcast = {
   comment?: string;
 };
 
+const LISTENER_PODCAST_BACKUP: ListenerPodcast[] = [
+  { id:"01", title:"どいらじ（映画凡人が集いしラジオ）", maker:"たんたん", introduced:"2026.04.05", artwork:null, links:[
+    {label:"Spotify",url:"https://open.spotify.com/show/7zHjRdGtexVH84tlrNjF1J"},
+    {label:"Apple Podcasts",url:"https://podcasts.apple.com/jp/podcast/%E3%81%A9%E3%81%84%E3%82%89%E3%81%98-%E6%98%A0%E7%94%BB%E5%87%A1%E4%BA%BA%E3%81%8C%E9%9B%86%E3%81%84%E3%81%97%E3%83%A9%E3%82%B8%E3%82%AA/id1072323753"}
+  ]},
+  { id:"02", title:"映画は絶賛に限る", maker:"たんたん", introduced:"2026.04.05", artwork:null, links:[
+    {label:"Spotify",url:"https://open.spotify.com/show/5AFLaarpYIp6irqeaiGiOr"},
+    {label:"Apple Podcasts",url:"https://podcasts.apple.com/jp/podcast/%E6%98%A0%E7%94%BB%E3%81%AF%E7%B5%B6%E8%B3%9B%E3%81%AB%E9%99%90%E3%82%8B/id1780539738"},
+    {label:"Amazon Music",url:"https://music.amazon.com/podcasts/d40eec33-937d-4428-9031-f537faf28750/%E6%98%A0%E7%94%BB%E3%81%AF%E7%B5%B6%E8%B3%9B%E3%81%AB%E9%99%90%E3%82%8B"},
+    {label:"YouTube",url:"https://www.youtube.com/@bri-cul"}
+  ]},
+  { id:"03", title:"そえたとおもちの美容室トーク", maker:"そえた", introduced:"2026.04.12", artwork:null, links:[
+    {label:"Spotify",url:"https://x.gd/ixSgB"},{label:"Apple Podcasts",url:"https://x.gd/OA1Cv"},
+    {label:"LISTEN",url:"https://listen.style/p/soeta"},{label:"stand.fm",url:"https://stand.fm/channels/68def4bc036795923c44a430"}
+  ]},
+  { id:"04", title:"僕たちの吹奏楽部を作ろう ～地域が支える新しい部活動のカタチ", maker:"団長平井", introduced:"2026.04.19", artwork:null, links:[
+    {label:"Spotify",url:"https://open.spotify.com/show/22FvoWsAxljuf7gzxXHx2I"},{label:"Apple Podcasts",url:"https://podcasts.apple.com/jp/podcast/id1859046970"},
+    {label:"YouTube",url:"https://www.youtube.com/playlist?list=PLMZ8i-eYRSt8FUulZ68VynKRbBcXUJLSb"}
+  ]},
+  { id:"05", title:"つる日和", maker:"ハルちゃん、ミカちゃん", introduced:"2026.04.26", artwork:null, links:[
+    {label:"Spotify",url:"https://open.spotify.com/show/4LCiSt59H17vsBJnoLwEoX"},{label:"Apple Podcasts",url:"https://podcasts.apple.com/ca/podcast/%E3%81%A4%E3%82%8B%E6%97%A5%E5%92%8C/id1807427581"}
+  ]},
+  { id:"06", title:"歴史から学ぶ精神科ラジオ", maker:"かけるマリモ", introduced:"2026.05.10", artwork:null, links:[
+    {label:"Spotify",url:"https://x.gd/ifxHV"},{label:"Apple Podcasts",url:"https://podcasts.apple.com/jp/podcast/id1811499079"}
+  ]},
+  { id:"07", title:"南方政談録", maker:"らっきー", introduced:"2026.05.24", artwork:null, links:[
+    {label:"Spotify",url:"https://open.spotify.com/show/3D0CFQSrCLGXD8vBFjnxcd"},{label:"Apple Podcasts",url:"https://podcasts.apple.com/jp/podcast/%E5%8D%97%E6%96%B9%E6%94%BF%E8%AB%87%E9%8C%B2/id6791313843"}
+  ]},
+  { id:"08", title:"注文の多い出版相談室", maker:"牧野", introduced:"2026.06.14", artwork:null, links:[
+    {label:"Spotify",url:"https://x.gd/Jrdk6"},{label:"Apple Podcasts",url:"https://podcasts.apple.com/jp/podcast/id1852752696"},{label:"Amazon Music",url:"https://x.gd/X60o6"}
+  ]},
+  { id:"09", title:"うんちく聖書ラジオ", maker:"MK", introduced:"2026.06.28", artwork:null, links:[
+    {label:"Spotify",url:"https://x.gd/5ubgU"},{label:"Apple Podcasts",url:"https://podcasts.apple.com/jp/podcast/id1594176663"}
+  ]},
+  { id:"10", title:"福祉探偵団", maker:"KELLY", introduced:"2026.07.19", artwork:null, links:[
+    {label:"Spotify",url:"https://open.spotify.com/show/0dWvU0ZpReAn4Vb7inQu7c"},{label:"Apple Podcasts",url:"https://podcasts.apple.com/jp/podcast/%E7%A6%8F%E7%A5%89%E6%8E%A2%E5%81%B5%E5%9B%A3season%EF%BC%92/id1780241386"}
+  ]},
+  { id:"11", title:"ののラジオ", maker:"「劇団のの」スズキ", introduced:"2026.08.02", artwork:null, links:[
+    {label:"Spotify",url:"https://x.gd/NyLcQ"},{label:"YouTube",url:"https://x.gd/HqeK8"},{label:"番組HP",url:"https://gekidannono.com/wp/"}
+  ]},
+  { id:"12", title:"ネジネジ低空飛行 — ゆるバイポーラー thinking aloud —", maker:"ネジート", introduced:"2026.08.16", artwork:null, links:[
+    {label:"Spotify",url:"https://open.spotify.com/show/0PfcrUCDN6O8JdtscTQo1B"},{label:"Apple Podcasts",url:"https://podcasts.apple.com/jp/podcast/id6802532797"},
+    {label:"LISTEN",url:"https://listen.style/p/neyineyi"},{label:"stand.fm",url:"https://stand.fm/channels/6273e1e5fd1be6fc466b6131"}
+  ]}
+];
+
 function loadJsonp<T>(url: string): Promise<T> {
   return new Promise((resolve, reject) => {
     const functionName = "__asarisunowa_" + Date.now() + "_" + Math.random().toString(36).slice(2);
@@ -368,7 +414,7 @@ function OfficialArtwork({ url, name }: { url?: string; name: string }) {
 export default function Community({ playlists }: { playlists: Playlist[] }) {
   const [livePlaylists, setLivePlaylists] = useState<Playlist[]>(playlists);
   const [recommendedPodcasts, setRecommendedPodcasts] = useState<Playlist[]>([]);
-  const [liveListenerPodcasts, setLiveListenerPodcasts] = useState<ListenerPodcast[]>([]);
+  const [liveListenerPodcasts, setLiveListenerPodcasts] = useState<ListenerPodcast[]>(LISTENER_PODCAST_BACKUP);
   const [view, setView] = useState<"listeners" | "official" | "circle" | "discord" | "podcasts" | "listenerPodcasts">(
       "official",
     ),
@@ -619,7 +665,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         if (!cancelled) setLiveListenerPodcasts(base);
         await fillPodcastArtwork(base);
       } catch {
-        // 取得失敗時は空表示のままにし、古い固定データへは戻さない。
+        if (!cancelled) setLiveListenerPodcasts(LISTENER_PODCAST_BACKUP);
+        await fillPodcastArtwork(LISTENER_PODCAST_BACKUP);
       }
     }
 
