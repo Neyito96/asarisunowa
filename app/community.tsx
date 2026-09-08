@@ -28,7 +28,9 @@ type ListenerPodcast = {
 };
 
 const listenerPodcasts: ListenerPodcast[] = [
-  { id:"01", title:"どいらじ（映画凡人が集いしラジオ）", maker:"たんたん", introduced:"2026.4.5", links:[] },
+  { id:"01", title:"どいらじ（映画凡人が集いしラジオ）", maker:"たんたん", introduced:"2026.4.5", links:[
+    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1072323753"}
+  ]},
   { id:"02", title:"映画は絶賛に限る", maker:"たんたん", introduced:"2026.4.5", links:[
     {label:"Spotify",url:"https://open.spotify.com/show/5AFLaarpYIp6irqeaiGiOr"},
     {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/%E6%98%A0%E7%94%BB%E3%81%AF%E7%B5%B6%E8%B3%9B%E3%81%AB%E9%99%90%E3%82%8B/id1780539738"}
@@ -39,14 +41,35 @@ const listenerPodcasts: ListenerPodcast[] = [
   { id:"04", title:"僕たちの吹奏楽部を作ろう ～地域が支える新しい部活動のカタチ", maker:"団長平井", introduced:"2026.4.19", links:[
     {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/%E5%83%95%E3%81%9F%E3%81%A1%E3%81%AE%E5%90%B9%E5%A5%8F%E6%A5%BD%E9%83%A8%E3%82%92%E4%BD%9C%E3%82%8D%E3%81%86-%E5%9C%B0%E5%9F%9F%E3%81%8C%E6%94%AF%E3%81%88%E3%82%8B%E6%96%B0%E3%81%97%E3%81%84%E9%83%A8%E6%B4%BB%E5%8B%95%E3%81%AE%E3%82%AB%E3%82%BF%E3%83%81/id1859046970"}
   ]},
-  { id:"05", title:"つる日和", maker:"ハルちゃん、ミカちゃん", introduced:"2026.4.26", links:[] },
-  { id:"06", title:"歴史から学ぶ精神科ラジオ", maker:"かけるマリモ", introduced:"2026.5.10", links:[] },
+  { id:"05", title:"つる日和", maker:"ハルちゃん、ミカちゃん", introduced:"2026.4.26", links:[
+    {label:"Spotify",url:"https://open.spotify.com/show/4LCiSt59H17vsBJnoLwEoX"},
+    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1807427581"}
+  ]},
+  { id:"06", title:"歴史から学ぶ精神科ラジオ", maker:"かけるマリモ", introduced:"2026.5.10", links:[
+    {label:"Spotify",url:"https://open.spotify.com/show/588zBvya6sfjV77t0CVKZG"},
+    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1811499079"},
+    {label:"LISTEN",url:"https://listen.style/p/marimo3"}
+  ]},
   { id:"07", title:"南方政談録", maker:"らっきー", introduced:"2026.5.24", links:[] },
-  { id:"08", title:"注文の多い出版相談室", maker:"牧野", introduced:"2026.6.14", links:[] },
-  { id:"09", title:"うんちく聖書ラジオ", maker:"MK", introduced:"2026.6.28", links:[] },
-  { id:"10", title:"福祉探偵団", maker:"KELLY", introduced:"2026.7.19", links:[] },
-  { id:"11", title:"ののラジオ", maker:"「劇団のの」スズキ", introduced:"2026.8.2", links:[] },
-  { id:"12", title:"ネジネジ低空飛行 — ゆるバイポーラー thinking aloud —", maker:"ネジート", introduced:"2026.8.16", links:[] },
+  { id:"08", title:"注文の多い出版相談室", maker:"牧野", introduced:"2026.6.14", links:[
+    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1852752696"}
+  ]},
+  { id:"09", title:"うんちく聖書ラジオ", maker:"MK", introduced:"2026.6.28", links:[
+    {label:"Spotify",url:"https://open.spotify.com/show/15nPIYmjjspnDPhLIGXD09"},
+    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1594176663"}
+  ]},
+  { id:"10", title:"福祉探偵団", maker:"KELLY", introduced:"2026.7.19", links:[
+    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id528929649"}
+  ]},
+  { id:"11", title:"ののラジオ", maker:"「劇団のの」スズキ", introduced:"2026.8.2", links:[
+    {label:"Spotify",url:"https://open.spotify.com/show/2FEWfewOOouavDxYCfwDyG"},
+    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1347661112"},
+    {label:"公式",url:"https://gekidannono.com/"}
+  ]},
+  { id:"12", title:"ネジネジ低空飛行 — ゆるバイポーラー thinking aloud —", maker:"ネジート", introduced:"2026.8.16", links:[
+    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id6802532797"},
+    {label:"LISTEN",url:"https://listen.style/p/neyineyi"}
+  ]},
 ];
 
 
@@ -443,7 +466,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     let cancelled = false;
     async function refreshListenerPodcasts() {
       try {
-        const payload = await loadJsonp<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; introduced?: string; comment?: string; artwork?: string }> }>(
+        const payload = await loadJsonp<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; introduced?: string; comment?: string }> }>(
           ASARISU_API_URL + "?type=listenerPodcast&_=" + Date.now()
         );
         if (!payload?.ok || !Array.isArray(payload.items)) return;
@@ -454,7 +477,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             maker: String(source.maker || "").trim(),
             introduced: String(source.introduced || "").trim(),
             links: source.url ? [{ label: "番組", url: String(source.url) }] : [],
-            artwork: String(source.artwork || "").trim() || null,
+            artwork: null,
             comment: String(source.comment || "").trim(),
           } satisfies ListenerPodcast))
           .filter((item) => item.title);
@@ -600,10 +623,6 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     setSubmitMessage("");
     try {
       const postedKind = forcedKind ?? submitKind;
-      const artworkForSubmit =
-        postedKind === "podcast" || postedKind === "listenerPodcast"
-          ? (resolvedArtwork ?? await discoverPodcastArtwork(submitTitle.trim(), submitUrl.trim() || null))
-          : null;
 
       await fetch(PLAYLIST_SUBMIT_ENDPOINT, {
         method: "POST",
@@ -615,7 +634,6 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           maker: submitMaker.trim(),
           comment: submitComment.trim(),
           introducedDate: submitIntroducedDate,
-          artwork: artworkForSubmit || "",
           kind: postedKind,
           securityAnswer: submitSecurityAnswer.trim(),
           website: submitWebsite,
