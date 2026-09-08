@@ -443,7 +443,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     let cancelled = false;
     async function refreshListenerPodcasts() {
       try {
-        const payload = await loadJsonp<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; introduced?: string; comment?: string }> }>(
+        const payload = await loadJsonp<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; introduced?: string; comment?: string; artwork?: string }> }>(
           ASARISU_API_URL + "?type=listenerPodcast&_=" + Date.now()
         );
         if (!payload?.ok || !Array.isArray(payload.items)) return;
@@ -454,12 +454,13 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             maker: String(source.maker || "").trim(),
             introduced: String(source.introduced || "").trim(),
             links: source.url ? [{ label: "番組", url: String(source.url) }] : [],
-            artwork: null,
+            artwork: String(source.artwork || "").trim() || null,
             comment: String(source.comment || "").trim(),
           } satisfies ListenerPodcast))
           .filter((item) => item.title);
         if (!cancelled) setLiveListenerPodcasts(base);
         await Promise.all(base.map(async (item) => {
+          if (item.artwork) return;
           if (!item.links[0]?.url) return;
           const artwork = await discoverPodcastArtwork(item.title, item.links[0].url);
           if (!artwork || cancelled) return;
@@ -598,6 +599,12 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     setSubmitStatus("sending");
     setSubmitMessage("");
     try {
+      const postedKind = forcedKind ?? submitKind;
+      const artworkForSubmit =
+        postedKind === "podcast" || postedKind === "listenerPodcast"
+          ? (resolvedArtwork ?? await discoverPodcastArtwork(submitTitle.trim(), submitUrl.trim() || null))
+          : null;
+
       await fetch(PLAYLIST_SUBMIT_ENDPOINT, {
         method: "POST",
         mode: "no-cors",
@@ -608,12 +615,12 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           maker: submitMaker.trim(),
           comment: submitComment.trim(),
           introducedDate: submitIntroducedDate,
-          kind: forcedKind ?? submitKind,
+          artwork: artworkForSubmit || "",
+          kind: postedKind,
           securityAnswer: submitSecurityAnswer.trim(),
           website: submitWebsite,
         }),
       });
-      const postedKind = forcedKind ?? submitKind;
       setSubmitStatus("success");
       setSubmitMessage(
         postedKind === "listenerPodcast"
