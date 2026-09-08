@@ -58,7 +58,8 @@ const listenerPodcasts: ListenerPodcast[] = [
     {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1811499079"}
   ]},
   { id:"07", title:"南方政談録", maker:"らっきー", introduced:"2026.5.24", links:[
-    {label:"Spotify",url:"https://open.spotify.com/show/3D0CFQSrCLGXD8vBFjnxcd"}
+    {label:"Spotify",url:"https://open.spotify.com/show/3D0CFQSrCLGXD8vBFjnxcd"},
+    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/%E5%8D%97%E6%96%B9%E6%94%BF%E8%AB%87%E9%8C%B2/id6791313843"}
   ]},
   { id:"08", title:"注文の多い出版相談室", maker:"牧野", introduced:"2026.6.14", links:[
     {label:"Spotify",url:"https://x.gd/Jrdk6"},
@@ -71,7 +72,7 @@ const listenerPodcasts: ListenerPodcast[] = [
   ]},
   { id:"10", title:"福祉探偵団", maker:"KELLY", introduced:"2026.7.19", links:[
     {label:"Spotify",url:"https://open.spotify.com/show/0dWvU0ZpReAn4Vb7inQu7c"},
-    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/%E7%A6%8F%E7%A5%89%E6%8E%A2%E5%81%B5%E5%9B%A3/id528929649"}
+    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/%E7%A6%8F%E7%A5%89%E6%8E%A2%E5%81%B5%E5%9B%A3season%EF%BC%92/id1780241386"}
   ]},
   { id:"11", title:"ののラジオ", maker:"「劇団のの」スズキ", introduced:"2026.8.2", links:[
     {label:"番組HP",url:"https://gekidannono.com/wp/"},
