@@ -528,7 +528,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             target="_blank"
             rel="noreferrer"
           >
-            公式・全番組 ↗
+            <span className="asaMincho">朝</span> 公式・全番組 ↗
           </a>
         </div>
       </header>
@@ -567,7 +567,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           className={view === "podcasts" ? "on" : ""}
           onClick={() => { setSubmitKind("podcast"); setView("podcasts"); }}
         >
-          🎧 おすすめPodcast
+          🎧 おすすめ
         </button>
       </div>
       {view === "listeners" ? (
