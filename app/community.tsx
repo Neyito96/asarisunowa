@@ -76,7 +76,7 @@ const LISTENER_PODCAST_BACKUP: ListenerPodcast[] = [
 function loadJsonp<T>(url: string): Promise<T> {
   return new Promise((resolve, reject) => {
     const functionName = "__asarisunowa_" + Date.now() + "_" + Math.random().toString(36).slice(2);
-    const callbackPath = "window." + functionName;
+    const callbackPath = functionName;
     const script = document.createElement("script");
     const globalWindow = window as unknown as Record<string, unknown>;
     const cleanup = () => {
