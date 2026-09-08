@@ -745,6 +745,54 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           }
         }
 
+        const appleSlugMatch = url.match(/podcasts\.apple\.com\/[^/]+\/podcast\/([^/]+)\/id\d+/i);
+        if (appleSlugMatch) {
+          try {
+            const appleTerm = decodeURIComponent(appleSlugMatch[1]).replace(/-/g, " ").trim();
+            const appleSearch = await loadJsonp<{
+              resultCount?: number;
+              results?: Array<{
+                collectionName?: string;
+                trackName?: string;
+                artistName?: string;
+                collectionArtistName?: string;
+                artworkUrl600?: string;
+                artworkUrl100?: string;
+              }>;
+            }>(
+              "https://itunes.apple.com/search?media=podcast&entity=podcast&country=JP&limit=12&term=" +
+                encodeURIComponent(appleTerm)
+            );
+            const normalizeName = (value: string) =>
+              value.toLowerCase().replace(/[\s　・･\-—–_()（）「」『』【】!！?？:：]/g, "");
+            const wanted = normalizeName(appleTerm);
+            const results = Array.isArray(appleSearch?.results) ? appleSearch.results : [];
+            const item =
+              results.find((candidate) =>
+                normalizeName(String(candidate.collectionName || candidate.trackName || "")) === wanted
+              ) ?? results[0];
+
+            const appleTitle = String(item?.collectionName || item?.trackName || "").trim();
+            const appleMaker = String(item?.artistName || item?.collectionArtistName || "").trim();
+            const appleArtwork = String(item?.artworkUrl600 || item?.artworkUrl100 || "").trim();
+
+            if (appleTitle) {
+              setSubmitTitle(appleTitle);
+              if (appleMaker) setSubmitMaker(appleMaker);
+              setResolvedArtwork(appleArtwork || null);
+              setResolveStatus("success");
+              setResolveMessage(
+                "Apple Podcastsから" +
+                  (appleMaker ? "番組名・配信者" : "番組名") +
+                  "を取得しました。"
+              );
+              return;
+            }
+          } catch {
+            // Apple Search APIでも取得できなければ、通常のエラー表示へ。
+          }
+        }
+
         setResolveStatus("error");
         setResolveMessage(payload?.error || "番組タイトルを取得できませんでした。手入力してください。");
         return;
