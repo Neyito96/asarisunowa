@@ -18,7 +18,6 @@ function doPost(e) {
     const maker = String(data.maker || "").trim();
     const comment = String(data.comment || "").trim();
     const introducedDate = String(data.introducedDate || "").trim();
-    let artwork = String(data.artwork || "").trim();
     const kind = String(data.kind || "playlist").trim();
     const securityAnswer = String(data.securityAnswer || "").trim();
     const website = String(data.website || "").trim();
@@ -26,9 +25,6 @@ function doPost(e) {
     if (website) return jsonResponse({ ok: true });
     if (!url || !title || !maker) return jsonResponse({ ok: false, error: "必須項目が不足しています" });
 
-    if (!artwork && (kind === "podcast" || kind === "listenerPodcast")) {
-      artwork = findPodcastArtworkByTitle(title);
-    }
     if (securityAnswer !== "大介") return jsonResponse({ ok: false, error: "合言葉が違います" });
     if (kind !== "playlist" && kind !== "podcast" && kind !== "listenerPodcast") return jsonResponse({ ok: false, error: "投稿の種類が正しくありません" });
 
@@ -92,9 +88,9 @@ function doPost(e) {
     let duplicateReason = "";
     if (!duplicateByUrl && !duplicateByTitle) {
       if (kind === "listenerPodcast") {
-        targetSheet.appendRow([url, title, maker, introducedDate || "", comment, "", artwork || ""]);
+        targetSheet.appendRow([url, title, maker, introducedDate || "", comment, ""]);
       } else if (kind === "podcast") {
-        targetSheet.appendRow([url, title, maker, new Date(), comment, artwork || ""]);
+        targetSheet.appendRow([url, title, maker, new Date(), comment]);
       } else {
         targetSheet.appendRow([url, title, maker]);
       }
@@ -126,7 +122,7 @@ function doGet(e) {
     const type = e && e.parameter && e.parameter.type ? String(e.parameter.type) : "status";
 
     if (type === "status") {
-      return apiResponse({ ok: true, service: "asarisunowa-api", version: "2026.09.08-artwork1" }, callback);
+      return apiResponse({ ok: true, service: "asarisunowa-api", version: "2026.09.08-site-artwork" }, callback);
     }
 
     if (type === "resolve") {
@@ -318,10 +314,10 @@ function readPlaylistSheet(sheet) {
 function readListenerPodcastSheet(sheet) {
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return { ok: true, type: "listenerPodcast", count: 0, items: [] };
-  const values = sheet.getRange(2, 1, lastRow - 1, 7).getDisplayValues();
+  const values = sheet.getRange(2, 1, lastRow - 1, 6).getDisplayValues();
   const items = values.filter(r => r[0] || r[1]).map((r, i) => ({
     id: String(i + 1), url: r[0] || "", title: r[1] || "", maker: r[2] || "",
-    introduced: r[3] || "", comment: r[4] || "", platforms: r[5] || "", artwork: r[6] || ""
+    introduced: r[3] || "", comment: r[4] || "", platforms: r[5] || ""
   }));
   return { ok: true, type: "listenerPodcast", count: items.length, items: items };
 }
@@ -329,46 +325,12 @@ function readListenerPodcastSheet(sheet) {
 function readPodcastSheet(sheet) {
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return { ok: true, type: "podcast", count: 0, items: [] };
-  const values = sheet.getRange(2, 1, lastRow - 1, 6).getDisplayValues();
+  const values = sheet.getRange(2, 1, lastRow - 1, 5).getDisplayValues();
   const items = values.filter(r => r[0] || r[1]).map((r, i) => ({
     id: String(i + 1), url: r[0] || "", title: r[1] || "", maker: r[2] || "",
-    receivedAt: r[3] || "", comment: r[4] || "", artwork: r[5] || ""
+    receivedAt: r[3] || "", comment: r[4] || ""
   }));
   return { ok: true, type: "podcast", count: items.length, items: items };
-}
-
-function findPodcastArtworkByTitle(title) {
-  const term = String(title || "").trim();
-  if (!term) return "";
-
-  try {
-    const data = fetchJson(
-      "https://itunes.apple.com/search?media=podcast&entity=podcast&limit=8&country=JP&term=" +
-      encodeURIComponent(term)
-    );
-    const results = data && Array.isArray(data.results) ? data.results : [];
-    if (!results.length) return "";
-
-    const wanted = normalizeTitle(term);
-    let best = null;
-
-    for (let i = 0; i < results.length; i++) {
-      const name = String(results[i].collectionName || results[i].trackName || "");
-      const normalized = normalizeTitle(name);
-      if (normalized === wanted) {
-        best = results[i];
-        break;
-      }
-      if (!best && normalized && wanted && (normalized.indexOf(wanted) >= 0 || wanted.indexOf(normalized) >= 0)) {
-        best = results[i];
-      }
-    }
-
-    if (!best) return "";
-    return String(best.artworkUrl600 || best.artworkUrl100 || "").trim();
-  } catch (_) {
-    return "";
-  }
 }
 
 function fetchJson(url) {
