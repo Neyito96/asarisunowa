@@ -343,6 +343,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     [submitTitle, setSubmitTitle] = useState(""),
     [submitMaker, setSubmitMaker] = useState(""),
     [submitComment, setSubmitComment] = useState(""),
+    [submitIntroducedDate, setSubmitIntroducedDate] = useState(""),
     [submitKind, setSubmitKind] = useState<"playlist" | "podcast">("playlist"),
     [submitSecurityAnswer, setSubmitSecurityAnswer] = useState(""),
     [submitWebsite, setSubmitWebsite] = useState(""),
@@ -599,6 +600,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       setSubmitTitle("");
       setSubmitMaker("");
       setSubmitComment("");
+      setSubmitIntroducedDate("");
       setSubmitKind("playlist");
       setSubmitSecurityAnswer("");
       setSubmitWebsite("");
@@ -1093,6 +1095,15 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <label>
                   <span>朝リスネーム</span>
                   <input type="text" value={submitMaker} onChange={(e) => setSubmitMaker(e.target.value)} placeholder="制作者・出演者名" maxLength={80} required />
+                </label>
+                <label>
+                  <span>紹介配信日 <small>（任意）</small></span>
+                  <input
+                    type="date"
+                    value={submitIntroducedDate}
+                    onChange={(e) => setSubmitIntroducedDate(e.target.value)}
+                  />
+                  <small>日曜版などで紹介された日が分かる場合に選んでください。</small>
                 </label>
                 <label>
                   <span>ひとこと <small>（任意）</small></span>
