@@ -852,6 +852,15 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           }
         }
 
+        // Spotify oEmbed does not expose CORS headers, so browser-side fetch can fail.
+        // If the Spotify resolver failed, ask the user for an Apple/LISTEN URL instead of pretending
+        // that another client-side Spotify request will work.
+        if (spotifyShowId) {
+          setResolveStatus("error");
+          setResolveMessage("Spotify URLはブラウザから番組情報を取得できない場合があります。Apple Podcasts または LISTEN のURLで探してください。Spotify URLは登録時の配信先として使えます。");
+          return;
+        }
+
         setResolveStatus("error");
         setResolveMessage(payload?.error || "番組タイトルを取得できませんでした。手入力してください。");
         return;
