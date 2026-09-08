@@ -1998,3 +1998,46 @@ footer {
 .officialGuideResultLinks a:hover{
   background:#e7dacb;
 }
+
+
+/* Update log */
+.siteHistory{
+  margin:34px 0 8px;
+  padding-top:24px;
+  border-top:1px solid rgba(91,65,43,.16);
+  color:#5f544b;
+}
+.siteHistory>h3{
+  margin:0 0 16px;
+  font-size:1.05rem;
+  color:#3f342c;
+}
+.historyItem{
+  display:grid;
+  grid-template-columns:88px 1fr;
+  column-gap:14px;
+  row-gap:3px;
+  padding:10px 0;
+  border-bottom:1px solid rgba(91,65,43,.09);
+}
+.historyItem time{
+  grid-row:1 / span 3;
+  font-size:.82rem;
+  font-weight:800;
+  color:#8a7666;
+  font-variant-numeric:tabular-nums;
+}
+.historyItem p,.historyItem small{margin:0;line-height:1.55}
+.historyItem small{color:#8a7666}
+.historySources{
+  margin-top:20px;
+  padding:16px 18px;
+  border-radius:14px;
+  background:rgba(255,255,255,.58);
+}
+.historySources h4{margin:0 0 8px;color:#4a3d33}
+.historySources p{margin:4px 0;font-size:.86rem;line-height:1.65;color:#75685d}
+@media(max-width:640px){
+  .historyItem{grid-template-columns:1fr;gap:3px}
+  .historyItem time{grid-row:auto;margin-bottom:2px}
+}
