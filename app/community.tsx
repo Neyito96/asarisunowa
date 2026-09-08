@@ -702,6 +702,46 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           "&_=" + Date.now()
       );
       if (!payload?.ok || !payload.title) {
+        // Spotifyのshow URLはブラウザ/API環境によってoEmbed取得に失敗することがある。
+        // その場合はSpotify show IDをApple Podcastsカタログで補完するため、
+        // まずSpotify公開ページのタイトルを取得する軽量プロキシ経路を試す。
+        const spotifyShowId = url.match(/open\.spotify\.com\/show\/([A-Za-z0-9]+)/i)?.[1];
+        if (spotifyShowId) {
+          try {
+            const spotifyOembed = await fetch(
+              "https://open.spotify.com/oembed?url=" +
+                encodeURIComponent("https://open.spotify.com/show/" + spotifyShowId),
+              { cache: "no-store" }
+            );
+            if (spotifyOembed.ok) {
+              const spotifyData = await spotifyOembed.json() as {
+                title?: string;
+                author_name?: string;
+                thumbnail_url?: string;
+              };
+              const spotifyTitle = String(spotifyData.title || "").trim();
+              const spotifyMaker = String(spotifyData.author_name || "").trim();
+              const spotifyArtwork = String(spotifyData.thumbnail_url || "").trim();
+              if (spotifyTitle) {
+                setSubmitTitle(spotifyTitle);
+                if (spotifyMaker && spotifyMaker.toLowerCase() !== "spotify") {
+                  setSubmitMaker(spotifyMaker);
+                }
+                setResolvedArtwork(spotifyArtwork || null);
+                setResolveStatus("success");
+                setResolveMessage(
+                  "Spotifyから" +
+                    (spotifyMaker && spotifyMaker.toLowerCase() !== "spotify" ? "番組名・配信者" : "番組名") +
+                    "を取得しました。"
+                );
+                return;
+              }
+            }
+          } catch {
+            // Spotify直接取得に失敗した場合は、下のApple経路などへ。
+          }
+        }
+
         const appleId = url.match(/\/id(\d+)/i)?.[1];
         if (appleId) {
           try {
