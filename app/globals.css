@@ -2141,3 +2141,16 @@ footer {
   .submitNotice{grid-column:1}
   .playlistSubmit form>button{width:100%}
 }
+
+.playlistSubmit select{
+  width:100%;
+  box-sizing:border-box;
+  min-height:46px;
+  padding:10px 12px;
+  border:1px solid rgba(91,65,43,.18);
+  border-radius:12px;
+  background:#fff;
+  color:#332a24;
+  font:inherit;
+}
+.playlistSubmit .submitKind{grid-column:1 / -1}
