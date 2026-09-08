@@ -130,6 +130,16 @@ function parseCsv(text: string) {
   if (row.some((value) => value !== "")) rows.push(row);
   return rows;
 }
+function looksLikePodcastEpisodeTitle(value: string) {
+  const title = String(value || "").trim();
+  return (
+    /^(ep(?:isode)?[\s._-]*\d+)/i.test(title) ||
+    /^#\s*\d+/.test(title) ||
+    /^第\s*\d+\s*(回|話|章)/.test(title) ||
+    /\bepisode\b/i.test(title)
+  );
+}
+
 function normalizePodcastInput(value: string) {
   let clean = String(value || "").trim();
   for (let i = 0; i < 2; i += 1) {
@@ -723,7 +733,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               const spotifyTitle = String(spotifyData.title || "").trim();
               const spotifyMaker = String(spotifyData.author_name || "").trim();
               const spotifyArtwork = String(spotifyData.thumbnail_url || "").trim();
-              if (spotifyTitle) {
+              if (spotifyTitle && !looksLikePodcastEpisodeTitle(spotifyTitle)) {
                 setSubmitTitle(spotifyTitle);
                 if (spotifyMaker && spotifyMaker.toLowerCase() !== "spotify") {
                   setSubmitMaker(spotifyMaker);
