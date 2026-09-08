@@ -130,6 +130,22 @@ function parseCsv(text: string) {
   if (row.some((value) => value !== "")) rows.push(row);
   return rows;
 }
+function normalizePodcastInput(value: string) {
+  let clean = String(value || "").trim();
+  for (let i = 0; i < 2; i += 1) {
+    try {
+      const decoded = decodeURIComponent(clean);
+      if (decoded === clean) break;
+      clean = decoded;
+    } catch {
+      break;
+    }
+  }
+  const embedded = clean.match(/https?:\/\/[^\s]+/i)?.[0];
+  if (embedded) clean = embedded;
+  return clean.trim();
+}
+
 function podcastProviderLabel(url: string) {
   if (/spotify\.com/i.test(url)) return "Spotify";
   if (/podcasts\.apple\.com/i.test(url)) return "Apple";
@@ -655,7 +671,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     setGuideResult(null);
   }
   async function resolvePodcastInput() {
-    const url = submitUrl.trim();
+    const url = normalizePodcastInput(submitUrl);
     if (!url) {
       setResolveStatus("error");
       setResolveMessage("まず番組URLを入力してください。");
@@ -1233,7 +1249,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     type="url"
                     value={submitUrl}
                     onChange={(e) => {
-                      setSubmitUrl(e.target.value);
+                      setSubmitUrl(normalizePodcastInput(e.target.value));
                       setResolveStatus("idle");
                       setResolveMessage("");
                       setResolvedDuplicate(false);
