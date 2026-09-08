@@ -530,23 +530,59 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         await fillPodcastArtwork(base);
         return;
       } catch {
-        // 公開CSVが取得できない場合のみ、Apps Scriptの代表URLデータで最低限表示する。
+        // 公開CSVが取得できない場合は、Apps Scriptのプラットフォーム別URLを使う。
       }
 
       try {
-        const payload = await loadJsonp<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; introduced?: string; comment?: string }> }>(
+        const payload = await loadJsonp<{ ok: boolean; items?: Array<{
+          id?: string;
+          url?: string;
+          title?: string;
+          maker?: string;
+          introduced?: string;
+          comment?: string;
+          spotify?: string;
+          apple?: string;
+          listen?: string;
+          standfm?: string;
+          amazon?: string;
+          youtube?: string;
+          website?: string;
+        }> }>(
           ASARISU_API_URL + "?type=listenerPodcast&_=" + Date.now()
         );
         if (!payload?.ok || !Array.isArray(payload.items)) return;
         const base = payload.items
           .map((source, index) => {
-            const url = String(source.url || "").trim();
+            const primaryUrl = String(source.url || "").trim();
+            const links = [
+              ["Spotify", source.spotify],
+              ["Apple Podcasts", source.apple],
+              ["LISTEN", source.listen],
+              ["stand.fm", source.standfm],
+              ["Amazon Music", source.amazon],
+              ["YouTube", source.youtube],
+              ["番組HP", source.website],
+            ]
+              .map(([label, value]) => {
+                const url = String(value || "").trim();
+                return url ? { label: String(label), url } : null;
+              })
+              .filter((link): link is { label: string; url: string } => Boolean(link));
+
+            if (
+              primaryUrl &&
+              !links.some((link) => normalizeUrl(link.url) === normalizeUrl(primaryUrl))
+            ) {
+              links.push({ label: podcastProviderLabel(primaryUrl), url: primaryUrl });
+            }
+
             return {
               id: String(source.id || index + 1).padStart(2, "0"),
               title: String(source.title || "").trim(),
               maker: String(source.maker || "").trim(),
               introduced: String(source.introduced || "").trim().replace(/\//g, "."),
-              links: url ? [{ label: podcastProviderLabel(url), url }] : [],
+              links,
               artwork: null,
               comment: String(source.comment || "").trim(),
             } satisfies ListenerPodcast;
