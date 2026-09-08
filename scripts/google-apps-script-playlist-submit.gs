@@ -4,6 +4,7 @@
 
 const SPREADSHEET_ID = "1KSzoIkOsjUagNBLt3IbKIvgWEmez4f0XISQ-jkUjmwQ";
 const SHEET_NAME = "投稿受付";
+const PUBLIC_SHEET_NAME = "サイト公開用";
 
 function doPost(e) {
   try {
@@ -23,25 +24,37 @@ function doPost(e) {
     }
 
     const isAllowed =
-      /^https:\/\/open\.spotify\.com\/playlist\//i.test(url) ||
+      /^https:\/\/open\.spotify\.com\/(playlist|show)\//i.test(url) ||
       /^https:\/\/music\.youtube\.com\/playlist\?/i.test(url);
 
     if (!isAllowed) {
-      return jsonResponse({ ok: false, error: "Spotify または YouTube Music のプレイリストURLを入力してください" });
+      return jsonResponse({ ok: false, error: "Spotifyのプレイリスト／番組、またはYouTube MusicのプレイリストURLを入力してください" });
     }
 
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName(SHEET_NAME);
+    const publicSheet = ss.getSheetByName(PUBLIC_SHEET_NAME);
     if (!sheet) throw new Error("投稿受付シートが見つかりません");
+    if (!publicSheet) throw new Error("サイト公開用シートが見つかりません");
 
+    // 受付記録を残す
     sheet.appendRow([
       new Date(),
       url,
       title,
       maker,
-      "未確認",
+      "自動掲載",
       ""
     ]);
+
+    // 同じURLが既に公開用にあれば重複追加しない
+    const lastRow = publicSheet.getLastRow();
+    const existing = lastRow > 1
+      ? publicSheet.getRange(2, 1, lastRow - 1, 1).getDisplayValues().flat()
+      : [];
+    if (!existing.includes(url)) {
+      publicSheet.appendRow([url, title, maker]);
+    }
 
     return jsonResponse({ ok: true });
   } catch (error) {
