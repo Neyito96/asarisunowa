@@ -67,9 +67,9 @@ const listenerPodcasts: ListenerPodcast[] = [
     {label:"Apple",url:"https://x.gd/1t3Dy"}
   ]},
   { id:"11", title:"ののラジオ", maker:"「劇団のの」スズキ", introduced:"2026.8.2", links:[
-    {label:"Spotify",url:"https://open.spotify.com/show/2FEWfewOOouavDxYCfwDyG"},
-    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1347661112"},
-    {label:"公式",url:"https://gekidannono.com/"}
+    {label:"番組HP",url:"https://gekidannono.com/wp/"},
+    {label:"Spotify",url:"https://x.gd/NyLcQ"},
+    {label:"YouTube",url:"https://x.gd/HqeK8"}
   ]},
   { id:"12", title:"ネジネジ低空飛行 — ゆるバイポーラー thinking aloud —", maker:"ネジート", introduced:"2026.8.16", links:[
     {label:"Spotify",url:"https://open.spotify.com/show/0PfcrUCDN6O8JdtscTQo1B"},
