@@ -241,16 +241,7 @@ function OfficialArtwork({ url, name }: { url?: string; name: string }) {
 }
 export default function Community({ playlists }: { playlists: Playlist[] }) {
   const [livePlaylists, setLivePlaylists] = useState<Playlist[]>(playlists);
-  const [recommendedPodcasts, setRecommendedPodcasts] = useState<Playlist[]>([
-    {
-      id: "1",
-      title: "AERAのだべらじお",
-      maker: "ARERA",
-      url: "https://open.spotify.com/show/3NdPcDtxhkuHCvDTQ1MmwQ",
-      artwork: recommendedPodcastArtwork["AERAのだべらじお"] ?? null,
-      comment: "",
-    },
-  ]);
+  const [recommendedPodcasts, setRecommendedPodcasts] = useState<Playlist[]>([]);
   const [view, setView] = useState<"listeners" | "official" | "circle" | "discord" | "podcasts">(
       "official",
     ),
