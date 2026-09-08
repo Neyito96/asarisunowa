@@ -239,6 +239,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     [submitUrl, setSubmitUrl] = useState(""),
     [submitTitle, setSubmitTitle] = useState(""),
     [submitMaker, setSubmitMaker] = useState(""),
+    [submitKind, setSubmitKind] = useState<"playlist" | "podcast">("playlist"),
     [submitSecurityAnswer, setSubmitSecurityAnswer] = useState(""),
     [submitWebsite, setSubmitWebsite] = useState(""),
     [submitStatus, setSubmitStatus] = useState<"idle" | "sending" | "success" | "error">("idle"),
@@ -370,6 +371,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           url: submitUrl.trim(),
           title: submitTitle.trim(),
           maker: submitMaker.trim(),
+          kind: submitKind,
           securityAnswer: submitSecurityAnswer.trim(),
           website: submitWebsite,
         }),
@@ -379,6 +381,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       setSubmitUrl("");
       setSubmitTitle("");
       setSubmitMaker("");
+      setSubmitKind("playlist");
       setSubmitSecurityAnswer("");
       setSubmitWebsite("");
     } catch {
@@ -590,27 +593,34 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <div>
                   <p className="kicker">ADD A PLAYLIST</p>
                   <h3 id="playlist-submit-title">朝リストに追加する</h3>
-                  <p>3項目だけで投稿できます。投稿すると朝リストへ自動反映されます。</p>
+                  <p>朝ポキ関連プレイリストと、朝リスおすすめPodcastを投稿できます。</p>
                 </div>
               </div>
               <form onSubmit={submitPlaylist}>
+                <label className="submitKind">
+                  <span>投稿するもの</span>
+                  <select value={submitKind} onChange={(e) => setSubmitKind(e.target.value as "playlist" | "podcast")}>
+                    <option value="playlist">朝ポキ関連プレイリスト</option>
+                    <option value="podcast">朝リスのおすすめPodcast</option>
+                  </select>
+                </label>
                 <label>
-                  <span>プレイリストURL</span>
+                  <span>{submitKind === "podcast" ? "番組URL" : "プレイリストURL"}</span>
                   <input
                     type="url"
                     value={submitUrl}
                     onChange={(e) => setSubmitUrl(e.target.value)}
-                    placeholder="Spotifyのプレイリスト・番組 / YouTube Music のURL"
+                    placeholder={submitKind === "podcast" ? "Spotifyなどの番組URL" : "Spotify / YouTube Music のプレイリストURL"}
                     required
                   />
                 </label>
                 <label>
-                  <span>タイトル</span>
+                  <span>{submitKind === "podcast" ? "番組名" : "タイトル"}</span>
                   <input
                     type="text"
                     value={submitTitle}
                     onChange={(e) => setSubmitTitle(e.target.value)}
-                    placeholder="プレイリスト名"
+                    placeholder={submitKind === "podcast" ? "Podcast番組名" : "プレイリスト名"}
                     maxLength={120}
                     required
                   />
