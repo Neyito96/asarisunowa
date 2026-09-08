@@ -701,7 +701,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           url: submitUrl.trim(),
           title: submitTitle.trim(),
           maker: submitMaker.trim(),
-          comment: submitComment.trim(),
+          comment: postedKind === "listenerPodcast" ? "" : submitComment.trim(),
           introducedDate: submitIntroducedDate,
           kind: postedKind,
           securityAnswer: submitSecurityAnswer.trim(),
@@ -1227,10 +1227,6 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     onChange={(e) => setSubmitIntroducedDate(e.target.value)}
                   />
                   <small>ドーナツで紹介された日が分かる場合に選んでください。</small>
-                </label>
-                <label>
-                  <span>ひとこと <small>（任意）</small></span>
-                  <textarea value={submitComment} onChange={(e) => setSubmitComment(e.target.value)} placeholder="番組紹介など" maxLength={140} rows={3} />
                 </label>
                 <label>
                   <span>セキュリティ：神田さんの名は？</span>
