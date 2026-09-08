@@ -43,7 +43,7 @@ const LISTENER_PODCAST_BACKUP: ListenerPodcast[] = [
     {label:"LISTEN",url:"https://listen.style/p/soeta"},{label:"stand.fm",url:"https://stand.fm/channels/68def4bc036795923c44a430"}
   ]},
   { id:"04", title:"僕たちの吹奏楽部を作ろう ～地域が支える新しい部活動のカタチ", maker:"団長平井", introduced:"2026.04.19", artwork:null, links:[
-    {label:"Spotify",url:"https://open.spotify.com/show/22FvoWsAxljuf7gzxXHx2I"},{label:"Apple Podcasts",url:"https://podcasts.apple.com/jp/podcast/id1859046970"},
+    {label:"Spotify",url:"https://open.spotify.com/show/22FvoWsAxljuf7gzxXHx2I"},{label:"Apple Podcasts",url:"https://podcasts.apple.com/jp/podcast/%E5%83%95%E3%81%9F%E3%81%A1%E3%81%AE%E5%90%B9%E5%A5%8F%E6%A5%BD%E9%83%A8%E3%82%92%E4%BD%9C%E3%82%8D%E3%81%86-%E5%9C%B0%E5%9F%9F%E3%81%8C%E6%94%AF%E3%81%88%E3%82%8B%E6%96%B0%E3%81%97%E3%81%84%E9%83%A8%E6%B4%BB%E5%8B%95%E3%81%AE%E3%82%AB%E3%82%BF%E3%83%81/id1859046970"},
     {label:"YouTube",url:"https://www.youtube.com/playlist?list=PLMZ8i-eYRSt8FUulZ68VynKRbBcXUJLSb"}
   ]},
   { id:"05", title:"つる日和", maker:"ハルちゃん、ミカちゃん", introduced:"2026.04.26", artwork:null, links:[
@@ -65,7 +65,7 @@ const LISTENER_PODCAST_BACKUP: ListenerPodcast[] = [
     {label:"Spotify",url:"https://open.spotify.com/show/0dWvU0ZpReAn4Vb7inQu7c"},{label:"Apple Podcasts",url:"https://podcasts.apple.com/jp/podcast/%E7%A6%8F%E7%A5%89%E6%8E%A2%E5%81%B5%E5%9B%A3season%EF%BC%92/id1780241386"}
   ]},
   { id:"11", title:"ののラジオ", maker:"「劇団のの」スズキ", introduced:"2026.08.02", artwork:null, links:[
-    {label:"Spotify",url:"https://x.gd/NyLcQ"},{label:"YouTube",url:"https://x.gd/HqeK8"},{label:"番組HP",url:"https://gekidannono.com/wp/"}
+    {label:"Spotify",url:"https://x.gd/NyLcQ"},{label:"Apple Podcasts",url:"https://podcasts.apple.com/jp/podcast/%E3%81%AE%E3%81%AE%E3%83%A9%E3%82%B8%E3%82%AA-%E5%90%8D%E4%BD%9C%E6%96%87%E5%AD%A6%E3%82%92%E6%9C%97%E8%AA%AD%E3%81%A7/id1347661112"},{label:"YouTube",url:"https://x.gd/HqeK8"},{label:"番組HP",url:"https://gekidannono.com/wp/"}
   ]},
   { id:"12", title:"ネジネジ低空飛行 — ゆるバイポーラー thinking aloud —", maker:"ネジート", introduced:"2026.08.16", artwork:null, links:[
     {label:"Spotify",url:"https://open.spotify.com/show/0PfcrUCDN6O8JdtscTQo1B"},{label:"Apple Podcasts",url:"https://podcasts.apple.com/jp/podcast/id6802532797"},
