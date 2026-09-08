@@ -705,7 +705,6 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 )}
               </form>
            </section>
-            </section>
           </main>
         </>
       ) : view === "official" ? (
