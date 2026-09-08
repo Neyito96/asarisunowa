@@ -121,7 +121,7 @@ function doGet(e) {
     const type = e && e.parameter && e.parameter.type ? String(e.parameter.type) : "status";
 
     if (type === "status") {
-      return apiResponse({ ok: true, service: "asarisunowa-api", version: "2026.09.08-resolver2" }, callback);
+      return apiResponse({ ok: true, service: "asarisunowa-api", version: "2026.09.08-resolver3" }, callback);
     }
 
     if (type === "resolve") {
@@ -195,13 +195,31 @@ function resolvePodcastUrl(url) {
     let artwork = "";
     let provider = detectProvider(cleanUrl);
 
-    // Spotify oEmbed
+    // Spotify: oEmbed -> public page metadata fallback
     if (/^https:\/\/open\.spotify\.com\//i.test(cleanUrl)) {
       const res = fetchJson("https://open.spotify.com/oembed?url=" + encodeURIComponent(cleanUrl));
       if (res) {
         title = String(res.title || "").trim();
         artwork = String(res.thumbnail_url || "").trim();
         provider = "Spotify";
+      }
+
+      if (!title) {
+        const html = fetchText(cleanUrl);
+        if (html) {
+          title = firstMeta(html, [
+            /<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i,
+            /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:title["']/i,
+            /<meta[^>]+name=["']twitter:title["'][^>]+content=["']([^"']+)["']/i,
+            /<title[^>]*>([\s\S]*?)<\/title>/i
+          ]);
+          artwork = firstMeta(html, [
+            /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i,
+            /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i,
+            /<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i
+          ]);
+          provider = "Spotify";
+        }
       }
     }
 
