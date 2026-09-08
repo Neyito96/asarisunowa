@@ -70,8 +70,8 @@ const listenerPodcasts: ListenerPodcast[] = [
     {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1594176663"}
   ]},
   { id:"10", title:"福祉探偵団", maker:"KELLY", introduced:"2026.7.19", links:[
-    {label:"Spotify",url:"https://x.gd/t1YHV"},
-    {label:"Apple",url:"https://x.gd/1t3Dy"}
+    {label:"Spotify",url:"https://open.spotify.com/show/0dWvU0ZpReAn4Vb7inQu7c"},
+    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/%E7%A6%8F%E7%A5%89%E6%8E%A2%E5%81%B5%E5%9B%A3/id528929649"}
   ]},
   { id:"11", title:"ののラジオ", maker:"「劇団のの」スズキ", introduced:"2026.8.2", links:[
     {label:"番組HP",url:"https://gekidannono.com/wp/"},
