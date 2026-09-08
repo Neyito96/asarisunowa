@@ -202,6 +202,19 @@ function normalizePodcastInput(value: string) {
   return clean.trim();
 }
 
+function normalizeUrl(value: string) {
+  const clean = String(value || "").trim();
+  if (!clean) return "";
+  try {
+    const parsed = new URL(clean);
+    parsed.search = "";
+    parsed.hash = "";
+    return parsed.toString().replace(/\/$/, "");
+  } catch {
+    return clean.replace(/[?#].*$/, "").replace(/\/$/, "");
+  }
+}
+
 function podcastProviderLabel(url: string) {
   if (/spotify\.com/i.test(url)) return "Spotify";
   if (/podcasts\.apple\.com/i.test(url)) return "Apple";
