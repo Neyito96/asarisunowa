@@ -637,6 +637,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         title?: string;
         artwork?: string;
         provider?: string;
+        maker?: string;
+        author?: string;
+        publisher?: string;
         error?: string;
         duplicate?: boolean;
         duplicateId?: string;
@@ -652,6 +655,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         return;
       }
       setSubmitTitle(payload.title);
+      const resolvedMaker = String(payload.maker || payload.author || payload.publisher || "").trim();
+      if (resolvedMaker) setSubmitMaker(resolvedMaker);
       setResolvedArtwork(payload.artwork || null);
       if (payload.duplicate) {
         setResolvedDuplicate(true);
@@ -664,7 +669,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         return;
       }
       setResolveStatus("success");
-      setResolveMessage((payload.provider ? payload.provider + "から " : "") + "番組名を取得しました。未登録です。");
+      setResolveMessage((payload.provider ? payload.provider + "から " : "") + (resolvedMaker ? "番組名・配信者を取得しました。" : "番組名を取得しました。配信者は確認して入力してください。") + " 未登録です。");
     } catch {
       setResolveStatus("error");
       setResolveMessage("番組情報を取得できませんでした。手入力してください。");
@@ -1180,9 +1185,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             <section className="playlistSubmit" aria-labelledby="listener-podcast-submit-title">
               <div className="playlistSubmitHead">
                 <div>
-                  <p className="kicker">ADD A LISTENER PODCAST</p>
+                  <p className="kicker">ADD A LISTENER&apos;S PODCAST</p>
                   <h3 id="listener-podcast-submit-title">朝リスさんのPodcastを追加する</h3>
-                  <p>ドーナツなどで紹介された朝リスさんのPodcastを追加できます。<strong>番組URLは1つだけでOK！</strong> Spotify・Apple Podcasts・LISTEN・stand.fmなど、分かる番組URLを1つ入れて「番組を探す」を押してください。番組名と重複を確認し、ほかの配信先やアートワークは「朝リスの輪」で探して追加します。</p>
+                  <p>番組URLから番組名・配信者を自動取得。必要なら修正できます。</p>
                 </div>
               </div>
               <form onSubmit={(e) => submitPlaylist(e, "listenerPodcast")}>
@@ -1210,8 +1215,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   <input type="text" value={submitTitle} onChange={(e) => setSubmitTitle(e.target.value)} placeholder="自動取得／手入力も可" maxLength={120} required />
                 </label>
                 <label>
-                  <span>朝リスネーム</span>
-                  <input type="text" value={submitMaker} onChange={(e) => setSubmitMaker(e.target.value)} placeholder="制作者・出演者名" maxLength={80} required />
+                  <span>この番組の朝リスさん</span>
+                  <input type="text" value={submitMaker} onChange={(e) => setSubmitMaker(e.target.value)} placeholder="自動取得／修正できます" maxLength={80} required />
+                  <small>投稿するあなたの名前ではなく、この番組を配信している朝リスさんです。</small>
                 </label>
                 <label>
                   <span>ドーナツ紹介日 <small>（任意）</small></span>
