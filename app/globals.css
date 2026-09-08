@@ -2231,9 +2231,9 @@ footer {
   .viewTabs button{
     white-space:nowrap;
   }
-  .viewTabs button:last-child{
-    font-size:.78rem;
-    padding-left:8px;
-    padding-right:8px;
-  }
+}
+
+.asaMincho{
+  font-family:"Yu Mincho","Hiragino Mincho ProN","Hiragino Mincho Pro",serif;
+  font-weight:700;
 }
