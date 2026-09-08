@@ -50,7 +50,9 @@ const listenerPodcasts: ListenerPodcast[] = [
     {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1811499079"},
     {label:"LISTEN",url:"https://listen.style/p/marimo3"}
   ]},
-  { id:"07", title:"南方政談録", maker:"らっきー", introduced:"2026.5.24", links:[] },
+  { id:"07", title:"南方政談録", maker:"らっきー", introduced:"2026.5.24", links:[
+    {label:"Spotify",url:"https://open.spotify.com/show/3D0CFQSrCLGXD8vBFjnxcd"}
+  ]},
   { id:"08", title:"注文の多い出版相談室", maker:"牧野", introduced:"2026.6.14", links:[
     {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1852752696"}
   ]},
