@@ -13,6 +13,7 @@ function doPost(e) {
     const url = String(data.url || "").trim();
     const title = String(data.title || "").trim();
     const maker = String(data.maker || "").trim();
+    const comment = String(data.comment || "").trim();
     const website = String(data.website || "").trim();
     const kind = String(data.kind || "playlist").trim();
     const securityAnswer = String(data.securityAnswer || "").trim();
@@ -68,7 +69,7 @@ function doPost(e) {
       : [];
     if (!existing.includes(url)) {
       if (kind === "podcast") {
-        targetSheet.appendRow([url, title, maker, new Date()]);
+        targetSheet.appendRow([url, title, maker, new Date(), comment]);
       } else {
         targetSheet.appendRow([url, title, maker]);
       }
