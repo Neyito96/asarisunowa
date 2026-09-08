@@ -793,6 +793,25 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           }
         }
 
+        // Apple Podcasts URL itself contains the show title.
+        // Even if Apple's catalogue/API is unavailable from the browser,
+        // never make the user type a title that is already present in the URL.
+        const appleTitleFromUrl = url.match(/podcasts\.apple\.com\/[^/]+\/podcast\/([^/]+)\/id\d+/i)?.[1];
+        if (appleTitleFromUrl) {
+          let fallbackTitle = "";
+          try {
+            fallbackTitle = decodeURIComponent(appleTitleFromUrl).replace(/-/g, " ").trim();
+          } catch {
+            fallbackTitle = appleTitleFromUrl.replace(/-/g, " ").trim();
+          }
+          if (fallbackTitle) {
+            setSubmitTitle(fallbackTitle);
+            setResolveStatus("success");
+            setResolveMessage("Apple PodcastsのURLから番組名を取得しました。配信者は確認して入力してください。");
+            return;
+          }
+        }
+
         setResolveStatus("error");
         setResolveMessage(payload?.error || "番組タイトルを取得できませんでした。手入力してください。");
         return;
