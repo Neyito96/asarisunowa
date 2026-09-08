@@ -488,7 +488,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               artwork: existing?.artwork ?? null,
             } satisfies Playlist;
           })
-          .filter((item: Playlist) => item.title);
+          .filter((item: Playlist) => item.title && !["66", "67", "68"].includes(String(item.id)));
         if (!cancelled && next.length) setLivePlaylists(next);
       } catch {
         // API取得失敗時はビルド済みデータをそのまま使う
