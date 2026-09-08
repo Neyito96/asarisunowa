@@ -14,6 +14,8 @@ type OfficialProgram = {
 };
 const ASAPOKI_YOUTUBE = "https://www.youtube.com/@asapoki_official";
 const ASAPOKI_OFFICIAL = "https://www.asahi.com/special/podcasts/";
+// Google Apps Script のウェブアプリURLを設定すると投稿フォームが自動送信になります。
+const PLAYLIST_SUBMIT_ENDPOINT = "";
 const officialArtwork: Record<string, string> = {
   "https://open.spotify.com/show/7euH6hzudIdp61JRSi9E8w":
     "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1fbe37e2b90a9796052cdda598",
@@ -199,7 +201,13 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     [omikuji, setOmikuji] = useState<Playlist | null>(null),
     [showAllListened, setShowAllListened] = useState(false),
     [guideStep, setGuideStep] = useState<GuideStep>("q1"),
-    [guideResult, setGuideResult] = useState<string | null>(null);
+    [guideResult, setGuideResult] = useState<string | null>(null),
+    [submitUrl, setSubmitUrl] = useState(""),
+    [submitTitle, setSubmitTitle] = useState(""),
+    [submitMaker, setSubmitMaker] = useState(""),
+    [submitWebsite, setSubmitWebsite] = useState(""),
+    [submitStatus, setSubmitStatus] = useState<"idle" | "sending" | "success" | "error">("idle"),
+    [submitMessage, setSubmitMessage] = useState("");
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("asapoki-listened") || "[]");
     const timer = window.setTimeout(() => setListened(saved), 0);
@@ -260,6 +268,39 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     setGuideStep("q1");
     setGuideResult(null);
   }
+  async function submitPlaylist(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!PLAYLIST_SUBMIT_ENDPOINT) {
+      setSubmitStatus("error");
+      setSubmitMessage("自動送信の接続準備中です。現在は下の作業台スプレッドシートをご利用ください。");
+      return;
+    }
+    setSubmitStatus("sending");
+    setSubmitMessage("");
+    try {
+      await fetch(PLAYLIST_SUBMIT_ENDPOINT, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          url: submitUrl.trim(),
+          title: submitTitle.trim(),
+          maker: submitMaker.trim(),
+          website: submitWebsite,
+        }),
+      });
+      setSubmitStatus("success");
+      setSubmitMessage("送信しました。確認後、朝リストへ反映します。ありがとうございます！");
+      setSubmitUrl("");
+      setSubmitTitle("");
+      setSubmitMaker("");
+      setSubmitWebsite("");
+    } catch {
+      setSubmitStatus("error");
+      setSubmitMessage("送信できませんでした。時間をおいてもう一度お試しください。");
+    }
+  }
+
   const guideProgram =
     guideResult && guideResult !== "OMIKUJI"
       ? officialPrograms.find((program) => program.name === guideResult) ?? null
@@ -458,12 +499,73 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 );
               })}
             </div>
-            <section className="playlistWorkbench">
-              <h3>みんなで更新する作業台</h3>
-              <p>プレイリストの追加・修正はこちら。どなたでも編集できます。</p>
-              <a href="https://docs.google.com/spreadsheets/d/1KSzoIkOsjUagNBLt3IbKIvgWEmez4f0XISQ-jkUjmwQ/edit?usp=drivesdk" target="_blank" rel="noreferrer">
-                作業台スプレッドシートを開く ↗
-              </a>
+            <section className="playlistSubmit" aria-labelledby="playlist-submit-title">
+              <div className="playlistSubmitHead">
+                <div>
+                  <p className="kicker">ADD A PLAYLIST</p>
+                  <h3 id="playlist-submit-title">朝リストに追加する</h3>
+                  <p>3項目だけで投稿できます。内容を確認後、朝リストへ反映します。</p>
+                </div>
+              </div>
+              <form onSubmit={submitPlaylist}>
+                <label>
+                  <span>プレイリストURL</span>
+                  <input
+                    type="url"
+                    value={submitUrl}
+                    onChange={(e) => setSubmitUrl(e.target.value)}
+                    placeholder="Spotify / YouTube Music のURL"
+                    required
+                  />
+                </label>
+                <label>
+                  <span>タイトル</span>
+                  <input
+                    type="text"
+                    value={submitTitle}
+                    onChange={(e) => setSubmitTitle(e.target.value)}
+                    placeholder="プレイリスト名"
+                    maxLength={120}
+                    required
+                  />
+                </label>
+                <label>
+                  <span>朝リスネーム</span>
+                  <input
+                    type="text"
+                    value={submitMaker}
+                    onChange={(e) => setSubmitMaker(e.target.value)}
+                    placeholder="お名前・ハンドルネーム"
+                    maxLength={80}
+                    required
+                  />
+                </label>
+                <label className="submitHoneypot" aria-hidden="true">
+                  <span>website</span>
+                  <input
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={submitWebsite}
+                    onChange={(e) => setSubmitWebsite(e.target.value)}
+                  />
+                </label>
+                <button type="submit" disabled={submitStatus === "sending"}>
+                  {submitStatus === "sending" ? "送信中…" : "投稿する"}
+                </button>
+                {submitMessage && (
+                  <p className={submitStatus === "success" ? "submitNotice success" : "submitNotice error"}>
+                    {submitMessage}
+                  </p>
+                )}
+              </form>
+              <details className="playlistWorkbench">
+                <summary>作業台スプレッドシートを直接編集する</summary>
+                <p>これまで通り、スプレッドシートからの追加・修正もできます。</p>
+                <a href="https://docs.google.com/spreadsheets/d/1KSzoIkOsjUagNBLt3IbKIvgWEmez4f0XISQ-jkUjmwQ/edit?usp=drivesdk" target="_blank" rel="noreferrer">
+                  作業台スプレッドシートを開く ↗
+                </a>
+              </details>
             </section>
           </main>
         </>
@@ -591,34 +693,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               </article>
             ))}
           </div>
-          <section className="siteHistory" aria-labelledby="site-history-title">
-            <h3 id="site-history-title">更新ログ</h3>
-            <div className="historyItem">
-              <time dateTime="2026-09-08">2026.9.8</time>
-              <p>「どれ聴く？ 朝ポキ案内所」開設</p>
-              <small>💡 @ピノ子さんのアイデアをもとに制作</small>
-            </div>
-            <div className="historyItem">
-              <time dateTime="2026-09-07">2026.9.7</time>
-              <p>「プレイリストおみくじ」開設</p>
-              <small>💡 @ピノ子さんのアイデアをもとに制作</small>
-            </div>
-            <div className="historyItem">
-              <time dateTime="2026-09-06">2026.9.6</time>
-              <p>「朝リスの輪 or 朝リスの田」開設</p>
-              <p>日曜版を参考に「ドーナツ」の配信情報を追加・編集</p>
-            </div>
-            <div className="historyItem">
-              <time dateTime="2026-08-23">2026.8.23</time>
-              <p>@ナカジマシンヤ（朝ポキ）さんのDiscord投稿を参考に、公式プレイリストの番組情報を整理</p>
-            </div>
-            <div className="historySources">
-              <h4>情報・画像について</h4>
-              <p>番組情報は、朝日新聞ポッドキャスト公式情報、配信・投稿内容を参考に編集しています。</p>
-              <p>番組画像は、公式サイトおよび各配信サービス掲載画像を引用しています。</p>
-            </div>
-          </section>
-        </main>
+       </main>
       ) : view === "circle" ? (
         <main className="wrap circlePage">
           <section className="rings">
@@ -733,6 +808,38 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           </section>
         </main>
       )}
+      <section className="wrap siteHistory" aria-labelledby="site-history-title">
+        <h3 id="site-history-title">更新ログ</h3>
+        <div className="historyItem">
+          <time dateTime="2026-09-08">2026.9.8</time>
+          <p>朝リストに「プレイリスト投稿フォーム」を追加</p>
+          <small>プレイリストURL・タイトル・朝リスネームの3項目で投稿受付</small>
+        </div>
+        <div className="historyItem">
+          <time dateTime="2026-09-08">2026.9.8</time>
+          <p>「どれ聴く？ 朝ポキ案内所」開設</p>
+          <small>💡 @ピノ子さんのアイデアをもとに制作</small>
+        </div>
+        <div className="historyItem">
+          <time dateTime="2026-09-07">2026.9.7</time>
+          <p>「プレイリストおみくじ」開設</p>
+          <small>💡 @ピノ子さんのアイデアをもとに制作</small>
+        </div>
+        <div className="historyItem">
+          <time dateTime="2026-09-06">2026.9.6</time>
+          <p>「朝リスの輪 or 朝リスの田」開設</p>
+          <p>日曜版を参考に「ドーナツ」の配信情報を追加・編集</p>
+        </div>
+        <div className="historyItem">
+          <time dateTime="2026-08-23">2026.8.23</time>
+          <p>@ナカジマシンヤ（朝ポキ）さんのDiscord投稿を参考に、公式プレイリストの番組情報を整理</p>
+        </div>
+        <div className="historySources">
+          <h4>情報・画像について</h4>
+          <p>番組情報は、朝日新聞ポッドキャスト公式情報、配信・投稿内容を参考に編集しています。</p>
+          <p>番組画像は、公式サイトおよび各配信サービス掲載画像を引用しています。</p>
+        </div>
+      </section>
       <footer>
         <div className="wrap">
           <small>
