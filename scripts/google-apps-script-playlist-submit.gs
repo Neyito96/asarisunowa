@@ -5,6 +5,7 @@
 const SPREADSHEET_ID = "1KSzoIkOsjUagNBLt3IbKIvgWEmez4f0XISQ-jkUjmwQ";
 const SHEET_NAME = "投稿受付";
 const PUBLIC_SHEET_NAME = "サイト公開用";
+const PODCAST_SHEET_NAME = "おすすめPodcast";
 
 function doPost(e) {
   try {
@@ -13,6 +14,7 @@ function doPost(e) {
     const title = String(data.title || "").trim();
     const maker = String(data.maker || "").trim();
     const website = String(data.website || "").trim();
+    const kind = String(data.kind || "playlist").trim();
     const securityAnswer = String(data.securityAnswer || "").trim();
 
     // bot向けハニーポット
@@ -29,19 +31,25 @@ function doPost(e) {
       return jsonResponse({ ok: false, error: "合言葉が違います" });
     }
 
-    const isAllowed =
-      /^https:\/\/open\.spotify\.com\/(playlist|show)\//i.test(url) ||
+    const isPlaylistUrl =
+      /^https:\/\/open\.spotify\.com\/playlist\//i.test(url) ||
       /^https:\/\/music\.youtube\.com\/playlist\?/i.test(url);
+    const isPodcastUrl =
+      /^https:\/\/open\.spotify\.com\/show\//i.test(url) ||
+      /^https:\/\/podcasts\.apple\.com\//i.test(url) ||
+      /^https:\/\/music\.amazon\./i.test(url);
 
-    if (!isAllowed) {
-      return jsonResponse({ ok: false, error: "Spotifyのプレイリスト／番組、またはYouTube MusicのプレイリストURLを入力してください" });
+    if ((kind === "playlist" && !isPlaylistUrl) || (kind === "podcast" && !isPodcastUrl)) {
+      return jsonResponse({ ok: false, error: "投稿の種類とURLを確認してください" });
     }
 
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName(SHEET_NAME);
     const publicSheet = ss.getSheetByName(PUBLIC_SHEET_NAME);
+    const podcastSheet = ss.getSheetByName(PODCAST_SHEET_NAME);
     if (!sheet) throw new Error("投稿受付シートが見つかりません");
     if (!publicSheet) throw new Error("サイト公開用シートが見つかりません");
+    if (!podcastSheet) throw new Error("おすすめPodcastシートが見つかりません");
 
     // 受付記録を残す
     sheet.appendRow([
@@ -49,17 +57,21 @@ function doPost(e) {
       url,
       title,
       maker,
-      "自動掲載",
+      kind === "podcast" ? "おすすめPodcast" : "朝ポキプレイリスト",
       ""
     ]);
 
-    // 同じURLが既に公開用にあれば重複追加しない
-    const lastRow = publicSheet.getLastRow();
+    const targetSheet = kind === "podcast" ? podcastSheet : publicSheet;
+    const lastRow = targetSheet.getLastRow();
     const existing = lastRow > 1
-      ? publicSheet.getRange(2, 1, lastRow - 1, 1).getDisplayValues().flat()
+      ? targetSheet.getRange(2, 1, lastRow - 1, 1).getDisplayValues().flat()
       : [];
     if (!existing.includes(url)) {
-      publicSheet.appendRow([url, title, maker]);
+      if (kind === "podcast") {
+        targetSheet.appendRow([url, title, maker, new Date()]);
+      } else {
+        targetSheet.appendRow([url, title, maker]);
+      }
     }
 
     return jsonResponse({ ok: true });
