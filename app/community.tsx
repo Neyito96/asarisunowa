@@ -111,12 +111,29 @@ async function discoverPodcastArtwork(title: string, url: string | null): Promis
   const preset = recommendedPodcastArtwork[title];
   if (preset) return preset;
 
-  // Apple Podcasts / iTunes Search API: no API key required and CORS-friendly.
-  // Search by the submitted programme title so Spotify/Amazon/YouTube submissions
-  // can still acquire the canonical podcast artwork automatically.
   try {
+    // If the confirmed destination itself is Apple Podcasts, use its podcast ID.
+    // This is more reliable than title search and avoids a similarly named show.
+    const appleId = String(url || "").match(/podcasts\.apple\.com\/[^/]+\/podcast\/[^/]+\/id(\d+)/i)?.[1];
+    if (appleId) {
+      const lookup = await fetch(
+        "https://itunes.apple.com/lookup?id=" + encodeURIComponent(appleId) + "&entity=podcast",
+        { cache: "no-store" }
+      );
+      if (lookup.ok) {
+        const lookupData = await lookup.json() as {
+          results?: Array<{ artworkUrl600?: string; artworkUrl100?: string }>;
+        };
+        const item = Array.isArray(lookupData.results) ? lookupData.results[0] : undefined;
+        const image = item?.artworkUrl600 ?? item?.artworkUrl100;
+        if (image) return image;
+      }
+    }
+
+    // Otherwise use Apple's podcast catalogue by exact programme title.
+    // This also works when the confirmed destination is Spotify/YouTube/Amazon.
     const endpoint =
-      "https://itunes.apple.com/search?media=podcast&entity=podcast&limit=5&country=JP&term=" +
+      "https://itunes.apple.com/search?media=podcast&entity=podcast&limit=8&country=JP&term=" +
       encodeURIComponent(title);
     const response = await fetch(endpoint, { cache: "no-store" });
     if (!response.ok) return null;
@@ -124,12 +141,12 @@ async function discoverPodcastArtwork(title: string, url: string | null): Promis
       results?: Array<{ collectionName?: string; artworkUrl600?: string; artworkUrl100?: string }>;
     };
     const normalize = (value: string) =>
-      value.toLowerCase().replace(/[\s　・･\-—–_()（）「」『』]/g, "");
+      value.toLowerCase().replace(/[\s　・･\-—–_()（）「」『』【】!！?？:：]/g, "");
     const wanted = normalize(title);
     const results = Array.isArray(data.results) ? data.results : [];
     const exact = results.find((item) => normalize(String(item.collectionName || "")) === wanted);
-    const best = exact ?? results[0];
-    return best?.artworkUrl600 ?? best?.artworkUrl100 ?? null;
+    if (!exact) return null;
+    return exact.artworkUrl600 ?? exact.artworkUrl100 ?? null;
   } catch {
     return null;
   }
