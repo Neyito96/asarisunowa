@@ -250,6 +250,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     [submitUrl, setSubmitUrl] = useState(""),
     [submitTitle, setSubmitTitle] = useState(""),
     [submitMaker, setSubmitMaker] = useState(""),
+    [submitComment, setSubmitComment] = useState(""),
     [submitKind, setSubmitKind] = useState<"playlist" | "podcast">("playlist"),
     [submitSecurityAnswer, setSubmitSecurityAnswer] = useState(""),
     [submitWebsite, setSubmitWebsite] = useState(""),
@@ -411,6 +412,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           url: submitUrl.trim(),
           title: submitTitle.trim(),
           maker: submitMaker.trim(),
+          comment: submitComment.trim(),
           kind: forcedKind ?? submitKind,
           securityAnswer: submitSecurityAnswer.trim(),
           website: submitWebsite,
@@ -421,6 +423,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       setSubmitUrl("");
       setSubmitTitle("");
       setSubmitMaker("");
+      setSubmitComment("");
       setSubmitKind("playlist");
       setSubmitSecurityAnswer("");
       setSubmitWebsite("");
@@ -902,6 +905,16 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     placeholder="お名前・ハンドルネーム"
                     maxLength={80}
                     required
+                  />
+                </label>
+                <label>
+                  <span>ひとこと <small>（任意）</small></span>
+                  <textarea
+                    value={submitComment}
+                    onChange={(e) => setSubmitComment(e.target.value)}
+                    placeholder="どんなところがおすすめ？"
+                    maxLength={140}
+                    rows={3}
                   />
                 </label>
                 <label>
