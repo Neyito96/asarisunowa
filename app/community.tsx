@@ -574,14 +574,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   </p>
                 )}
               </form>
-              <details className="playlistWorkbench">
-                <summary>作業台スプレッドシートを直接編集する</summary>
-                <p>これまで通り、スプレッドシートからの追加・修正もできます。</p>
-                <a href="https://docs.google.com/spreadsheets/d/1KSzoIkOsjUagNBLt3IbKIvgWEmez4f0XISQ-jkUjmwQ/edit?usp=drivesdk" target="_blank" rel="noreferrer">
-                  作業台スプレッドシートを開く ↗
-                </a>
-              </details>
-            </section>
+           </section>
           </main>
         </>
       ) : view === "official" ? (
