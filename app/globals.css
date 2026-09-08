@@ -2237,3 +2237,30 @@ footer {
   font-family:"Yu Mincho","Hiragino Mincho ProN","Hiragino Mincho Pro",serif;
   font-weight:700;
 }
+
+.resolvePodcastButton{
+  width:max-content;
+  margin-top:8px;
+  padding:9px 13px;
+  border:1px solid rgba(91,65,43,.18);
+  border-radius:999px;
+  background:#fff;
+  color:#4d4037;
+  font:inherit;
+  font-size:.84rem;
+  font-weight:800;
+  cursor:pointer;
+}
+.resolvePodcastButton:disabled{
+  opacity:.55;
+  cursor:wait;
+}
+.resolveMessage{
+  display:block;
+  margin-top:6px;
+  color:#66745f;
+  line-height:1.5;
+}
+.resolveMessage.error{
+  color:#a64a4a;
+}
