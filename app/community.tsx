@@ -15,7 +15,7 @@ type OfficialProgram = {
 const ASAPOKI_YOUTUBE = "https://www.youtube.com/@asapoki_official";
 const ASAPOKI_OFFICIAL = "https://www.asahi.com/special/podcasts/";
 // Google Apps Script のウェブアプリURLを設定すると投稿フォームが自動送信になります。
-const PLAYLIST_SUBMIT_ENDPOINT = "";
+const PLAYLIST_SUBMIT_ENDPOINT = "https://script.google.com/macros/s/AKfycbxlZCNqGqOEY7j61OgcSGM8_xfGT08f4jjamXtSj2DES9fXl-xwJrvcRGYHnskidjIMug/exec";
 const officialArtwork: Record<string, string> = {
   "https://open.spotify.com/show/7euH6hzudIdp61JRSi9E8w":
     "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1fbe37e2b90a9796052cdda598",
