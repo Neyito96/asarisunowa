@@ -40,7 +40,8 @@ const listenerPodcasts: ListenerPodcast[] = [
     {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/%E3%81%9D%E3%81%88%E3%81%9F%E3%81%A8%E3%81%8A%E3%82%82%E3%81%A1%E3%81%AE%E7%BE%8E%E5%AE%B9%E5%AE%A4%E3%83%88%E3%83%BC%E3%82%AF/id1836037911"}
   ]},
   { id:"04", title:"僕たちの吹奏楽部を作ろう ～地域が支える新しい部活動のカタチ", maker:"団長平井", introduced:"2026.4.19", links:[
-    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/%E5%83%95%E3%81%9F%E3%81%A1%E3%81%AE%E5%90%B9%E5%A5%8F%E6%A5%BD%E9%83%A8%E3%82%92%E4%BD%9C%E3%82%8D%E3%81%86-%E5%9C%B0%E5%9F%9F%E3%81%8C%E6%94%AF%E3%81%88%E3%82%8B%E6%96%B0%E3%81%97%E3%81%84%E9%83%A8%E6%B4%BB%E5%8B%95%E3%81%AE%E3%82%AB%E3%82%BF%E3%83%81/id1859046970"}
+    {label:"Spotify",url:"https://open.spotify.com/show/22FvoWsAxljuf7gzxXHx2I"},
+    {label:"YouTube",url:"https://www.youtube.com/playlist?list=PLMZ8i-eYRSt8FUulZ68VynKRbBcXUJLSb"}
   ]},
   { id:"05", title:"つる日和", maker:"ハルちゃん、ミカちゃん", introduced:"2026.4.26", links:[
     {label:"Spotify",url:"https://open.spotify.com/show/4LCiSt59H17vsBJnoLwEoX"},
