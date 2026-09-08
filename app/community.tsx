@@ -16,6 +16,39 @@ const ASAPOKI_YOUTUBE = "https://www.youtube.com/@asapoki_official";
 const ASAPOKI_OFFICIAL = "https://www.asahi.com/special/podcasts/";
 // Google Apps Script のウェブアプリURLを設定すると投稿フォームが自動送信になります。
 const PLAYLIST_SUBMIT_ENDPOINT = "https://script.google.com/macros/s/AKfycbxlZCNqGqOEY7j61OgcSGM8_xfGT08f4jjamXtSj2DES9fXl-xwJrvcRGYHnskidjIMug/exec";
+const LISTENER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQHi9LM842wuiTT-N8FzgJXVFyY4W5sZRYEdp4a9OVBTgVBJgPWG52AK6sgH4qBciqB6Q5UAd2-n2bA/pub?gid=697105746&single=true&output=csv";
+
+function parseCsv(text: string) {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let field = "";
+  let quoted = false;
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i];
+    if (ch === '"') {
+      if (quoted && text[i + 1] === '"') {
+        field += '"';
+        i += 1;
+      } else {
+        quoted = !quoted;
+      }
+    } else if (ch === "," && !quoted) {
+      row.push(field);
+      field = "";
+    } else if ((ch === "\n" || ch === "\r") && !quoted) {
+      if (ch === "\r" && text[i + 1] === "\n") i += 1;
+      row.push(field);
+      if (row.some((value) => value !== "")) rows.push(row);
+      row = [];
+      field = "";
+    } else {
+      field += ch;
+    }
+  }
+  row.push(field);
+  if (row.some((value) => value !== "")) rows.push(row);
+  return rows;
+}
 const officialArtwork: Record<string, string> = {
   "https://open.spotify.com/show/7euH6hzudIdp61JRSi9E8w":
     "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1fbe37e2b90a9796052cdda598",
@@ -192,6 +225,7 @@ function OfficialArtwork({ url, name }: { url?: string; name: string }) {
   );
 }
 export default function Community({ playlists }: { playlists: Playlist[] }) {
+  const [livePlaylists, setLivePlaylists] = useState<Playlist[]>(playlists);
   const [view, setView] = useState<"listeners" | "official" | "circle" | "discord">(
       "official",
     ),
@@ -214,16 +248,47 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     const timer = window.setTimeout(() => setListened(saved), 0);
     return () => window.clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function refreshListenerPlaylists() {
+      try {
+        const response = await fetch(LISTENER_CSV_URL + "&_=" + Date.now(), { cache: "no-store" });
+        if (!response.ok) return;
+        const table = parseCsv(await response.text());
+        if (!table.length) return;
+        const next = table.slice(1)
+          .map((source, index) => {
+            const [url = "", title = "", maker = ""] = source;
+            return {
+              id: String(index + 1),
+              title: title.trim(),
+              maker: maker.trim(),
+              url: url.trim() || null,
+              artwork: null,
+            } satisfies Playlist;
+          })
+          .filter((item) => item.title);
+        if (!cancelled && next.length) setLivePlaylists(next);
+      } catch {
+        // 公開CSVの取得に失敗した場合はビルド済みデータをそのまま使う
+      }
+    }
+    refreshListenerPlaylists();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const rows = useMemo(
     () =>
-      playlists
+      livePlaylists
         .filter((p) =>
           (p.title + " " + p.maker).toLowerCase().includes(query.toLowerCase()),
         )
         .sort((a, b) =>
           sort === "new" ? Number(b.id) - Number(a.id) : Number(a.id) - Number(b.id),
         ),
-    [query, sort, playlists],
+    [query, sort, livePlaylists],
   );
   function handleSearch(value: string) {
     setQuery(value);
@@ -242,9 +307,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     setListened(next);
     localStorage.setItem("asapoki-listened", JSON.stringify(next));
   }
-  const unheard = playlists.filter((p) => p.url && !listened.includes(p.id));
+  const unheard = livePlaylists.filter((p) => p.url && !listened.includes(p.id));
   function drawOmikuji(includeListened = false) {
-    const pool = includeListened ? playlists.filter((p) => p.url) : unheard;
+    const pool = includeListened ? livePlaylists.filter((p) => p.url) : unheard;
     if (!pool.length) {
       setOmikuji(null);
       setShowAllListened(true);
@@ -402,8 +467,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               <p className="kicker themeKicker">THEME PLAYLISTS</p>
               <h2>テーマ別プレイリスト</h2>
               <div className="countChips" aria-label="プレイリスト視聴状況">
-                <span>全{playlists.length}</span>
-                <span>未聴{playlists.length - listened.length}</span>
+                <span>全{livePlaylists.length}</span>
+                <span>未聴{livePlaylists.length - listened.length}</span>
                 <span>既聴{listened.length}</span>
               </div>
             </div>
