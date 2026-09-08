@@ -513,6 +513,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         const makerCol = column("朝リスネーム", 2);
         const introducedCol = column("紹介配信日", 3);
         const commentCol = column("ひとこと", 4);
+        const artworkCol = column("Artwork", 12);
         const platformColumns: Array<{ label: string; columnName: string }> = [
           { label: "Spotify", columnName: "Spotify" },
           { label: "Apple Podcasts", columnName: "Apple Podcasts" },
@@ -545,7 +546,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               maker: String(row[makerCol] || "").trim(),
               introduced: String(row[introducedCol] || "").trim().replace(/\//g, "."),
               links,
-              artwork: null,
+              artwork: String(row[artworkCol] || "").trim() || null,
               comment: String(row[commentCol] || "").trim(),
             } satisfies ListenerPodcast;
           })
@@ -574,6 +575,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           amazon?: string;
           youtube?: string;
           website?: string;
+          artwork?: string;
         }> }>(
           ASARISU_API_URL + "?type=listenerPodcast&_=" + Date.now()
         );
@@ -609,7 +611,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               maker: String(source.maker || "").trim(),
               introduced: String(source.introduced || "").trim().replace(/\//g, "."),
               links,
-              artwork: null,
+              artwork: String(source.artwork || "").trim() || null,
               comment: String(source.comment || "").trim(),
             } satisfies ListenerPodcast;
           })
@@ -868,7 +870,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         // that another client-side Spotify request will work.
         if (spotifyShowId) {
           setResolveStatus("error");
-          setResolveMessage("Spotify URLはブラウザから番組情報を取得できない場合があります。Apple Podcasts または LISTEN のURLで探してください。Spotify URLは登録時の配信先として使えます。");
+          setResolveMessage("Spotifyから番組情報を取得できませんでした。時間をおいてもう一度試すか、別の番組URLで確認してください。");
           return;
         }
 
@@ -904,7 +906,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         return;
       }
       setResolveStatus("success");
-      setResolveMessage((payload.provider ? payload.provider + "から " : "") + (resolvedMaker ? "番組名・配信者を取得しました。" : "番組名を取得しました。配信者は確認して入力してください。") + " 未登録です。");
+      setResolveMessage((payload.provider ? payload.provider + "から " : "") + (resolvedMaker ? "番組名・配信者を取得しました。" : "番組名を取得しました。配信者は必要なら修正してください。") + " 未登録です。");
     } catch {
       setResolveStatus("error");
       setResolveMessage("番組情報を取得できませんでした。手入力してください。");
