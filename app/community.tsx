@@ -582,9 +582,33 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               </article>
             ))}
           </div>
-          <p className="sourceNote">
-            画像：公式サイト・各配信サービス／番組情報：ナカジマシンヤ（朝ポキ）さんのDiscord投稿（2026/8/24）・音声配信（2026/9/6 日曜版）を参考に編集
-          </p>
+          <section className="siteHistory" aria-labelledby="site-history-title">
+            <h3 id="site-history-title">更新ログ</h3>
+            <div className="historyItem">
+              <time dateTime="2026-09-08">2026.9.8</time>
+              <p>「どれ聴く？ 朝ポキ案内所」開設</p>
+              <small>💡 @ピノ子さんのアイデアをもとに制作</small>
+            </div>
+            <div className="historyItem">
+              <time dateTime="2026-09-07">2026.9.7</time>
+              <p>「プレイリストおみくじ」開設</p>
+              <small>💡 @ピノ子さんのアイデアをもとに制作</small>
+            </div>
+            <div className="historyItem">
+              <time dateTime="2026-09-06">2026.9.6</time>
+              <p>「朝リスの輪 or 朝リスの田」開設</p>
+              <p>日曜版を参考に「ドーナツ」の配信情報を追加・編集</p>
+            </div>
+            <div className="historyItem">
+              <time dateTime="2026-08-24">2026.8.24</time>
+              <p>@ナカジマシンヤ（朝ポキ）さんのDiscord投稿を参考に、公式プレイリストの番組情報を整理</p>
+            </div>
+            <div className="historySources">
+              <h4>情報・画像について</h4>
+              <p>番組情報は、朝日新聞ポッドキャスト公式情報、配信・投稿内容を参考に編集しています。</p>
+              <p>番組画像は、公式サイトおよび各配信サービス掲載画像を引用しています。</p>
+            </div>
+          </section>
         </main>
       ) : view === "circle" ? (
         <main className="wrap circlePage">
