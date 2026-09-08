@@ -48,9 +48,8 @@ const listenerPodcasts: ListenerPodcast[] = [
     {label:"Apple",url:"https://podcasts.apple.com/ca/podcast/%E3%81%A4%E3%82%8B%E6%97%A5%E5%92%8C/id1807427581"}
   ]},
   { id:"06", title:"歴史から学ぶ精神科ラジオ", maker:"かけるマリモ", introduced:"2026.5.10", links:[
-    {label:"Spotify",url:"https://open.spotify.com/show/588zBvya6sfjV77t0CVKZG"},
-    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1811499079"},
-    {label:"LISTEN",url:"https://listen.style/p/marimo3"}
+    {label:"Spotify",url:"https://x.gd/ifxHV"},
+    {label:"Apple",url:"https://x.gd/IgfrM"}
   ]},
   { id:"07", title:"南方政談録", maker:"らっきー", introduced:"2026.5.24", links:[
     {label:"Spotify",url:"https://open.spotify.com/show/3D0CFQSrCLGXD8vBFjnxcd"}
