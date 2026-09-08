@@ -92,12 +92,13 @@ const officialPrograms: OfficialProgram[] = [
       ["Pocket Casts", "https://pca.st/podcast/e2e4c3f0-c679-0138-e72c-0acc26574db2"],
     ],
     official: "https://omny.fm/shows/asahi/playlists/playlist-2",
+    discord: "https://discord.gg/6zBhm97F9",
     youtube: false,
   },
   {
     name: "ニュースの現場から",
     schedule:
-      "月：新聞をめくろう／火：カガク・そなえ／水：World Insight・GLOBE CAST／木：PUERTA／金：ゆるっと経済／土：ポリレビ／日：👀 ニュース大阪目線／不定：ON GOING",
+      "月：一緒に新聞をめくろう！／火：カガクをひらく（月1～）、そなえトーク（月1程度）／水：World Insight（月2程度）、GLOBE CAST（月2程度）／木：PUERTA（月1程度）／金：ゆるっと経済（月1～）／土：ポリレビ／日：大阪／曜日不定：ON GOING（月数回）",
     spotify: "https://open.spotify.com/show/392h0MYfvMTndEVzf2cOvC",
     links: [
       ["Spotify", "https://open.spotify.com/show/392h0MYfvMTndEVzf2cOvC"],
@@ -574,7 +575,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     >
                       {p.name.startsWith("ドーナツ")
                         ? "ドーナツDiscord"
-                        : "報談専用Discord"}{" "}
+                        : p.name === "MEDIA TALK"
+                          ? "朝ポキのDiscord"
+                          : "報談専用Discord"}{" "}
                       ↗
                     </a>
                   )}
@@ -600,7 +603,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               <p>日曜版を参考に「ドーナツ」の配信情報を追加・編集</p>
             </div>
             <div className="historyItem">
-              <time dateTime="2026-08-24">2026.8.24</time>
+              <time dateTime="2026-08-23">2026.8.23</time>
               <p>@ナカジマシンヤ（朝ポキ）さんのDiscord投稿を参考に、公式プレイリストの番組情報を整理</p>
             </div>
             <div className="historySources">
