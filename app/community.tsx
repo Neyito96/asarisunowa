@@ -47,6 +47,34 @@ function loadJsonp<T>(url: string): Promise<T> {
   });
 }
 
+async function discoverPodcastArtwork(title: string, url: string | null): Promise<string | null> {
+  const preset = recommendedPodcastArtwork[title];
+  if (preset) return preset;
+
+  // Apple Podcasts / iTunes Search API: no API key required and CORS-friendly.
+  // Search by the submitted programme title so Spotify/Amazon/YouTube submissions
+  // can still acquire the canonical podcast artwork automatically.
+  try {
+    const endpoint =
+      "https://itunes.apple.com/search?media=podcast&entity=podcast&limit=5&country=JP&term=" +
+      encodeURIComponent(title);
+    const response = await fetch(endpoint, { cache: "no-store" });
+    if (!response.ok) return null;
+    const data = await response.json() as {
+      results?: Array<{ collectionName?: string; artworkUrl600?: string; artworkUrl100?: string }>;
+    };
+    const normalize = (value: string) =>
+      value.toLowerCase().replace(/[\s　・･\-—–_()（）「」『』]/g, "");
+    const wanted = normalize(title);
+    const results = Array.isArray(data.results) ? data.results : [];
+    const exact = results.find((item) => normalize(String(item.collectionName || "")) === wanted);
+    const best = exact ?? results[0];
+    return best?.artworkUrl600 ?? best?.artworkUrl100 ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function parseCsv(text: string) {
   const rows: string[][] = [];
   let row: string[] = [];
@@ -340,7 +368,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           ASARISU_API_URL + "?type=podcast&_=" + Date.now()
         );
         if (!payload?.ok || !Array.isArray(payload.items)) return;
-        const next = payload.items
+        const base = payload.items
           .map((source, index) => {
             const title = String(source.title || "").trim();
             return {
@@ -353,7 +381,19 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             } satisfies Playlist;
           })
           .filter((item) => item.title);
-        if (!cancelled) setRecommendedPodcasts(next);
+
+        // Show text immediately, then fill artwork as each lookup completes.
+        if (!cancelled) setRecommendedPodcasts(base);
+        await Promise.all(
+          base.map(async (item) => {
+            if (item.artwork) return;
+            const artwork = await discoverPodcastArtwork(item.title, item.url);
+            if (!artwork || cancelled) return;
+            setRecommendedPodcasts((current) =>
+              current.map((p) => p.id === item.id ? { ...p, artwork } : p)
+            );
+          })
+        );
       } catch {
         // 読み込み失敗時は現在の表示を維持
       }
