@@ -412,7 +412,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     }
     if (submitSecurityAnswer.trim() !== "大介") {
       setSubmitStatus("error");
-      setSubmitMessage("合言葉が違います。「神田」といえば？ をもう一度どうぞ。");
+      setSubmitMessage("合言葉が違います。「神田さんの名は？」をもう一度どうぞ。");
       return;
     }
     setSubmitStatus("sending");
@@ -698,7 +698,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   />
                 </label>
                 <label>
-                  <span>セキュリティチェック：「神田」といえば？</span>
+                  <span>セキュリティ：神田さんの名は？</span>
                   <input
                     type="text"
                     value={submitSecurityAnswer}
@@ -901,7 +901,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     type="url"
                     value={submitUrl}
                     onChange={(e) => setSubmitUrl(e.target.value)}
-                    placeholder="Spotifyなどの番組URL"
+                    placeholder="Spotify / Apple などの番組URL"
                     required
                   />
                 </label>
@@ -938,7 +938,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   />
                 </label>
                 <label>
-                  <span>セキュリティチェック：「神田」といえば？</span>
+                  <span>セキュリティ：神田さんの名は？</span>
                   <input
                     type="text"
                     value={submitSecurityAnswer}
@@ -1087,6 +1087,11 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       )}
       <section className="wrap siteHistory" aria-labelledby="site-history-title">
         <h3 id="site-history-title">更新ログ</h3>
+        <div className="historyItem">
+          <time dateTime="2026-09-08">2026.9.8</time>
+          <p>「🎧 おすすめPodcast」ページを追加</p>
+          <small>朝リスおすすめ番組の投稿・一覧表示に対応</small>
+        </div>
         <div className="historyItem">
           <time dateTime="2026-09-08">2026.9.8</time>
           <p>投稿フォームから朝リストへの自動掲載に対応</p>
