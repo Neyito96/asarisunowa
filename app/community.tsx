@@ -487,18 +487,38 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         const makerCol = column("朝リスネーム", 2);
         const introducedCol = column("紹介配信日", 3);
         const commentCol = column("ひとこと", 4);
-        const linksCol = column("配信先メモ", 5);
+        const platformColumns: Array<{ label: string; columnName: string }> = [
+          { label: "Spotify", columnName: "Spotify" },
+          { label: "Apple Podcasts", columnName: "Apple Podcasts" },
+          { label: "LISTEN", columnName: "LISTEN" },
+          { label: "stand.fm", columnName: "stand.fm" },
+          { label: "Amazon Music", columnName: "Amazon Music" },
+          { label: "YouTube", columnName: "YouTube" },
+          { label: "番組HP", columnName: "番組HP" },
+        ];
 
         const base = rows.slice(1)
           .map((row, index) => {
             const title = String(row[titleCol] || "").trim();
             const primaryUrl = String(row[urlCol] || "").trim();
+            const links = platformColumns
+              .map(({ label, columnName }) => {
+                const col = header.findIndex((value) => value.trim() === columnName);
+                const url = col >= 0 ? String(row[col] || "").trim() : "";
+                return url ? { label, url } : null;
+              })
+              .filter((link): link is { label: string; url: string } => Boolean(link));
+
+            if (primaryUrl && !links.some((link) => normalizeUrl(link.url) === normalizeUrl(primaryUrl))) {
+              links.push({ label: podcastProviderLabel(primaryUrl), url: primaryUrl });
+            }
+
             return {
               id: String(index + 1).padStart(2, "0"),
               title,
               maker: String(row[makerCol] || "").trim(),
               introduced: String(row[introducedCol] || "").trim().replace(/\//g, "."),
-              links: parsePodcastLinks(String(row[linksCol] || ""), primaryUrl),
+              links,
               artwork: null,
               comment: String(row[commentCol] || "").trim(),
             } satisfies ListenerPodcast;
