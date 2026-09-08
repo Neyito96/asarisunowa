@@ -66,13 +66,25 @@ function doPost(e) {
 
     const targetSheet = kind === "listenerPodcast" ? listenerPodcastSheet : kind === "podcast" ? podcastSheet : workSheet;
     const lastRow = targetSheet.getLastRow();
-    const existingUrls = lastRow > 1
-      ? targetSheet.getRange(2, 1, lastRow - 1, 1).getDisplayValues().flat().map(normalizeUrl)
+    const existingRows = lastRow > 1
+      ? targetSheet.getRange(2, 1, lastRow - 1, Math.max(2, targetSheet.getLastColumn())).getDisplayValues()
       : [];
     const normalized = normalizeUrl(url);
+    const normalizedTitle = normalizeTitle(title);
+
+    const duplicateByUrl = existingRows.some(function(row) {
+      return normalizeUrl(row[0]) === normalized;
+    });
+    const duplicateByTitle =
+      kind === "podcast" || kind === "listenerPodcast"
+        ? existingRows.some(function(row) {
+            return normalizeTitle(row[1]) === normalizedTitle;
+          })
+        : false;
 
     let added = false;
-    if (!existingUrls.includes(normalized)) {
+    let duplicateReason = "";
+    if (!duplicateByUrl && !duplicateByTitle) {
       if (kind === "listenerPodcast") {
         targetSheet.appendRow([url, title, maker, new Date(), comment, ""]);
       } else if (kind === "podcast") {
@@ -81,10 +93,18 @@ function doPost(e) {
         targetSheet.appendRow([url, title, maker]);
       }
       added = true;
+    } else {
+      duplicateReason = duplicateByTitle ? "title" : "url";
     }
 
     SpreadsheetApp.flush();
-    return jsonResponse({ ok: true, kind: kind, added: added, message: added ? "保存しました" : "すでに登録されています" });
+    return jsonResponse({
+      ok: true,
+      kind: kind,
+      added: added,
+      duplicateReason: duplicateReason,
+      message: added ? "保存しました" : "すでに登録されています"
+    });
   } catch (error) {
     return jsonResponse({ ok: false, error: String(error && error.message ? error.message : error) });
   }
@@ -312,6 +332,13 @@ function getSheetLoose(ss, wanted) {
 
 function normalizeUrl(url) {
   return String(url || "").trim().split("?")[0].replace(/\/+$/, "");
+}
+
+function normalizeTitle(title) {
+  return String(title || "")
+    .toLowerCase()
+    .replace(/[\s　・･\-—–_()（）「」『』【】\[\]！!？?：:]/g, "")
+    .trim();
 }
 
 function jsonResponse(payload) {
