@@ -2041,3 +2041,103 @@ footer {
   .historyItem{grid-template-columns:1fr;gap:3px}
   .historyItem time{grid-row:auto;margin-bottom:2px}
 }
+
+
+/* Playlist submission form */
+.playlistSubmit{
+  margin:34px 0 10px;
+  padding:22px;
+  border:1px solid rgba(91,65,43,.16);
+  border-radius:20px;
+  background:linear-gradient(180deg,rgba(255,252,246,.98),rgba(247,240,229,.92));
+}
+.playlistSubmitHead h3{margin:3px 0 6px;font-size:1.25rem}
+.playlistSubmitHead p{margin:0;color:#6f6257}
+.playlistSubmit form{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-top:18px;
+}
+.playlistSubmit form label{
+  display:grid;
+  gap:6px;
+}
+.playlistSubmit form label:first-of-type{
+  grid-column:1 / -1;
+}
+.playlistSubmit form label span{
+  font-size:.86rem;
+  font-weight:800;
+  color:#5e5046;
+}
+.playlistSubmit input{
+  width:100%;
+  box-sizing:border-box;
+  min-height:46px;
+  padding:10px 12px;
+  border:1px solid rgba(91,65,43,.18);
+  border-radius:12px;
+  background:#fff;
+  color:#332a24;
+  font:inherit;
+}
+.playlistSubmit input:focus{
+  outline:2px solid rgba(95,70,52,.22);
+  outline-offset:1px;
+}
+.playlistSubmit form>button{
+  grid-column:1 / -1;
+  justify-self:start;
+  min-height:46px;
+  border:0;
+  border-radius:999px;
+  padding:10px 18px;
+  background:#5f4634;
+  color:#fff;
+  font-weight:900;
+}
+.playlistSubmit form>button:disabled{opacity:.6}
+.submitHoneypot{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  overflow:hidden!important;
+  clip:rect(0 0 0 0)!important;
+  white-space:nowrap!important;
+}
+.submitNotice{
+  grid-column:1 / -1;
+  margin:0;
+  padding:10px 12px;
+  border-radius:10px;
+  font-size:.9rem;
+}
+.submitNotice.success{background:#edf5ea;color:#42613c}
+.submitNotice.error{background:#f8eee8;color:#77503a}
+.playlistSubmit .playlistWorkbench{
+  margin-top:16px;
+  padding-top:14px;
+  border-top:1px solid rgba(91,65,43,.11);
+}
+.playlistSubmit .playlistWorkbench summary{
+  cursor:pointer;
+  font-weight:800;
+  color:#665446;
+}
+.playlistSubmit .playlistWorkbench p{
+  margin:8px 0;
+  color:#75685d;
+}
+.playlistSubmit .playlistWorkbench a{
+  display:inline-block;
+  font-weight:800;
+}
+@media(max-width:640px){
+  .playlistSubmit{padding:16px;border-radius:16px}
+  .playlistSubmit form{grid-template-columns:1fr}
+  .playlistSubmit form label:first-of-type,
+  .playlistSubmit form>button,
+  .submitNotice{grid-column:1}
+  .playlistSubmit form>button{width:100%}
+}
