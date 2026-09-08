@@ -45,7 +45,7 @@ const listenerPodcasts: ListenerPodcast[] = [
   ]},
   { id:"05", title:"つる日和", maker:"ハルちゃん、ミカちゃん", introduced:"2026.4.26", links:[
     {label:"Spotify",url:"https://open.spotify.com/show/4LCiSt59H17vsBJnoLwEoX"},
-    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1807427581"}
+    {label:"Apple",url:"https://podcasts.apple.com/ca/podcast/%E3%81%A4%E3%82%8B%E6%97%A5%E5%92%8C/id1807427581"}
   ]},
   { id:"06", title:"歴史から学ぶ精神科ラジオ", maker:"かけるマリモ", introduced:"2026.5.10", links:[
     {label:"Spotify",url:"https://open.spotify.com/show/588zBvya6sfjV77t0CVKZG"},
