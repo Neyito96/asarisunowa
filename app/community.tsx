@@ -702,6 +702,46 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           "&_=" + Date.now()
       );
       if (!payload?.ok || !payload.title) {
+        const appleId = url.match(/\/id(\d+)/i)?.[1];
+        if (appleId) {
+          try {
+            const apple = await loadJsonp<{
+              resultCount?: number;
+              results?: Array<{
+                collectionName?: string;
+                trackName?: string;
+                artistName?: string;
+                collectionArtistName?: string;
+                artworkUrl600?: string;
+                artworkUrl100?: string;
+              }>;
+            }>(
+              "https://itunes.apple.com/lookup?id=" +
+                encodeURIComponent(appleId) +
+                "&country=JP&entity=podcast"
+            );
+            const item = Array.isArray(apple?.results) ? apple.results[0] : undefined;
+            const appleTitle = String(item?.collectionName || item?.trackName || "").trim();
+            const appleMaker = String(item?.artistName || item?.collectionArtistName || "").trim();
+            const appleArtwork = String(item?.artworkUrl600 || item?.artworkUrl100 || "").trim();
+
+            if (appleTitle) {
+              setSubmitTitle(appleTitle);
+              if (appleMaker) setSubmitMaker(appleMaker);
+              setResolvedArtwork(appleArtwork || null);
+              setResolveStatus("success");
+              setResolveMessage(
+                "Apple Podcastsから" +
+                  (appleMaker ? "番組名・配信者" : "番組名") +
+                  "を取得しました。"
+              );
+              return;
+            }
+          } catch {
+            // Apple直接取得も失敗した場合は、下のエラー表示へ。
+          }
+        }
+
         setResolveStatus("error");
         setResolveMessage(payload?.error || "番組タイトルを取得できませんでした。手入力してください。");
         return;
