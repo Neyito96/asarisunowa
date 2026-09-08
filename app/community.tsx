@@ -933,7 +933,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 )}
               </form>
            </section>
-
+            </section>
         </main>
       ) : view === "circle" ? (
         <main className="wrap circlePage">
