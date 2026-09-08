@@ -546,67 +546,6 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
 
     async function refreshListenerPodcasts() {
       try {
-        const response = await fetch(PODCAST_CSV_URL + "&_=" + Date.now(), { cache: "no-store" });
-        if (!response.ok) throw new Error("Podcast CSV load failed");
-        const rows = parseCsv(await response.text());
-        const header = rows[0] ?? [];
-        const column = (name: string, fallback: number) => {
-          const found = header.findIndex((value) => value.trim() === name);
-          return found >= 0 ? found : fallback;
-        };
-        const urlCol = column("番組URL", 0);
-        const titleCol = column("番組名", 1);
-        const makerCol = column("朝リスネーム", 2);
-        const introducedCol = column("紹介配信日", 3);
-        const commentCol = column("ひとこと", 4);
-        const artworkCol = column("Artwork", 12);
-        const platformColumns: Array<{ label: string; columnName: string }> = [
-          { label: "Spotify", columnName: "Spotify" },
-          { label: "Apple Podcasts", columnName: "Apple Podcasts" },
-          { label: "LISTEN", columnName: "LISTEN" },
-          { label: "stand.fm", columnName: "stand.fm" },
-          { label: "Amazon Music", columnName: "Amazon Music" },
-          { label: "YouTube", columnName: "YouTube" },
-          { label: "番組HP", columnName: "番組HP" },
-        ];
-
-        const base = rows.slice(1)
-          .map((row, index) => {
-            const title = String(row[titleCol] || "").trim();
-            const primaryUrl = String(row[urlCol] || "").trim();
-            const links = platformColumns
-              .map(({ label, columnName }) => {
-                const col = header.findIndex((value) => value.trim() === columnName);
-                const url = col >= 0 ? String(row[col] || "").trim() : "";
-                return url ? { label, url } : null;
-              })
-              .filter((link): link is { label: string; url: string } => Boolean(link));
-
-            if (primaryUrl && !links.some((link) => normalizeUrl(link.url) === normalizeUrl(primaryUrl))) {
-              links.push({ label: podcastProviderLabel(primaryUrl), url: primaryUrl });
-            }
-
-            return {
-              id: String(index + 1).padStart(2, "0"),
-              title,
-              maker: String(row[makerCol] || "").trim(),
-              introduced: String(row[introducedCol] || "").trim().replace(/\//g, "."),
-              links,
-              artwork: String(row[artworkCol] || "").trim() || null,
-              comment: String(row[commentCol] || "").trim(),
-            } satisfies ListenerPodcast;
-          })
-          .filter((item) => item.title);
-
-        if (!base.length) throw new Error("Podcast CSV is empty");
-        if (!cancelled) setLiveListenerPodcasts(base);
-        await fillPodcastArtwork(base);
-        return;
-      } catch {
-        // 公開CSVが取得できない場合は、Apps Scriptのプラットフォーム別URLを使う。
-      }
-
-      try {
         const payload = await loadJsonp<{ ok: boolean; items?: Array<{
           id?: string;
           url?: string;
