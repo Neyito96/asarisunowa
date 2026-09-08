@@ -69,8 +69,10 @@ const listenerPodcasts: ListenerPodcast[] = [
     {label:"公式",url:"https://gekidannono.com/"}
   ]},
   { id:"12", title:"ネジネジ低空飛行 — ゆるバイポーラー thinking aloud —", maker:"ネジート", introduced:"2026.8.16", links:[
+    {label:"Spotify",url:"https://open.spotify.com/show/0PfcrUCDN6O8JdtscTQo1B"},
     {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id6802532797"},
-    {label:"LISTEN",url:"https://listen.style/p/neyineyi"}
+    {label:"LISTEN",url:"https://listen.style/p/neyineyi"},
+    {label:"stand.fm",url:"https://stand.fm/channels/6273e1e5fd1be6fc466b6131"}
   ]},
 ];
 
