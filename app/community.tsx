@@ -705,7 +705,14 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         const appleId = url.match(/\/id(\d+)/i)?.[1];
         if (appleId) {
           try {
-            const apple = await loadJsonp<{
+            const appleResponse = await fetch(
+              "https://itunes.apple.com/lookup?id=" +
+                encodeURIComponent(appleId) +
+                "&country=JP",
+              { cache: "no-store" }
+            );
+            if (!appleResponse.ok) throw new Error("Apple lookup failed");
+            const apple = await appleResponse.json() as {
               resultCount?: number;
               results?: Array<{
                 collectionName?: string;
@@ -715,11 +722,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 artworkUrl600?: string;
                 artworkUrl100?: string;
               }>;
-            }>(
-              "https://itunes.apple.com/lookup?id=" +
-                encodeURIComponent(appleId) +
-                "&country=JP&entity=podcast"
-            );
+            };
             const item = Array.isArray(apple?.results) ? apple.results[0] : undefined;
             const appleTitle = String(item?.collectionName || item?.trackName || "").trim();
             const appleMaker = String(item?.artistName || item?.collectionArtistName || "").trim();
