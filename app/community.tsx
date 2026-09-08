@@ -70,6 +70,15 @@ const officialArtwork: Record<string, string> = {
   "https://open.spotify.com/show/5UwHBIfMDqWs0EyfPOz50N":
     "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f72bc24f7f9a0b42fedbe9570",
 };
+const recommendedPodcastLinks: Record<string, [string, string][]> = {
+  "AERAのだべらじお": [
+    ["Spotify", "https://open.spotify.com/show/3NdPcDtxhkuHCvDTQ1MmwQ"],
+    ["Apple Podcasts", "https://podcasts.apple.com/jp/podcast/aera%E3%81%AE%E3%81%A0%E3%81%B9%E3%82%89%E3%81%98%E3%81%8A/id1757557634"],
+    ["Amazon Music", "https://music.amazon.co.jp/podcasts/4ac9df3c-f5cc-4158-8bf7-94145f096421/aera%E3%81%AE%E3%81%A0%E3%81%B9%E3%82%89%E3%81%98%E3%81%8A"],
+    ["YouTube", "https://www.youtube.com/playlist?list=PLyNWE800jSWdcGh-A1o7hGg6hOUMrWVaj"],
+  ],
+};
+
 type GuideStep = "q1" | "q2" | "q3" | "q4" | "q5" | "q6" | "q7" | "q8" | "q9" | "q10";
 type GuideChoice = { yes: GuideStep | string; no: GuideStep | string };
 const guideQuestions: Record<GuideStep, { question: string; choice: GuideChoice }> = {
@@ -841,7 +850,15 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                       <small>RECOMMEND {p.id.padStart(2, "0")}</small>
                       <h3>{p.title}</h3>
                       <p>おすすめ：{p.maker}</p>
-                      {p.url && <a className="listen" href={p.url} target="_blank" rel="noreferrer">番組を聴く ↗</a>}
+                      {recommendedPodcastLinks[p.title] ? (
+                        <div className="platformLinks">
+                          {recommendedPodcastLinks[p.title].map(([label, href]) => (
+                            <a className="listen" key={label} href={href} target="_blank" rel="noreferrer">{label} ↗</a>
+                          ))}
+                        </div>
+                      ) : p.url ? (
+                        <a className="listen" href={p.url} target="_blank" rel="noreferrer">番組を聴く ↗</a>
+                      ) : null}
                     </div>
                   </article>
                 ))}
