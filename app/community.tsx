@@ -351,6 +351,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     [submitMessage, setSubmitMessage] = useState(""),
     [resolveStatus, setResolveStatus] = useState<"idle" | "loading" | "success" | "error">("idle"),
     [resolveMessage, setResolveMessage] = useState(""),
+    [resolvedDuplicate, setResolvedDuplicate] = useState(false),
     [resolvedArtwork, setResolvedArtwork] = useState<string | null>(null);
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("asapoki-listened") || "[]");
@@ -534,14 +535,28 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     if (!url) {
       setResolveStatus("error");
       setResolveMessage("まず番組URLを入力してください。");
+      setResolvedDuplicate(false);
       return;
     }
     setResolveStatus("loading");
     setResolveMessage("番組情報を探しています…");
+    setResolvedDuplicate(false);
     setResolvedArtwork(null);
     try {
-      const payload = await loadJsonp<{ ok: boolean; title?: string; artwork?: string; provider?: string; error?: string }>(
-        ASARISU_API_URL + "?type=resolve&url=" + encodeURIComponent(url) + "&_=" + Date.now()
+      const resolveKind = view === "listenerPodcasts" ? "listenerPodcast" : "podcast";
+      const payload = await loadJsonp<{
+        ok: boolean;
+        title?: string;
+        artwork?: string;
+        provider?: string;
+        error?: string;
+        duplicate?: boolean;
+        duplicateId?: string;
+      }>(
+        ASARISU_API_URL +
+          "?type=resolve&kind=" + encodeURIComponent(resolveKind) +
+          "&url=" + encodeURIComponent(url) +
+          "&_=" + Date.now()
       );
       if (!payload?.ok || !payload.title) {
         setResolveStatus("error");
@@ -550,8 +565,18 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       }
       setSubmitTitle(payload.title);
       setResolvedArtwork(payload.artwork || null);
+      if (payload.duplicate) {
+        setResolvedDuplicate(true);
+        setResolveStatus("error");
+        setResolveMessage(
+          "⚠️ この番組はすでに" +
+          (resolveKind === "listenerPodcast" && payload.duplicateId ? "朝リスPodcast #" + payload.duplicateId + " に" : "") +
+          "登録されています。"
+        );
+        return;
+      }
       setResolveStatus("success");
-      setResolveMessage((payload.provider ? payload.provider + "から " : "") + "番組名を取得しました。");
+      setResolveMessage((payload.provider ? payload.provider + "から " : "") + "番組名を取得しました。未登録です。");
     } catch {
       setResolveStatus("error");
       setResolveMessage("番組情報を取得できませんでした。手入力してください。");
@@ -582,6 +607,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           title: submitTitle.trim(),
           maker: submitMaker.trim(),
           comment: submitComment.trim(),
+          introducedDate: submitIntroducedDate,
           kind: forcedKind ?? submitKind,
           securityAnswer: submitSecurityAnswer.trim(),
           website: submitWebsite,
@@ -601,6 +627,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       setSubmitMaker("");
       setSubmitComment("");
       setSubmitIntroducedDate("");
+      setResolvedDuplicate(false);
       setSubmitKind("playlist");
       setSubmitSecurityAnswer("");
       setSubmitWebsite("");
@@ -1066,7 +1093,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <div>
                   <p className="kicker">ADD A LISTENER PODCAST</p>
                   <h3 id="listener-podcast-submit-title">朝リスさんのPodcastを追加する</h3>
-                  <p>知っている配信先URLを1つ入れて「番組を探す」を押してください。番組名を自動取得し、既存番組との重複もチェックします。</p>
+                  <p>ドーナツなどで紹介された朝リスさんのPodcastを追加できます。配信先URLを1つ入れて「番組を探す」を押してください。番組名を自動取得し、既存番組との重複もチェックします。</p>
                 </div>
               </div>
               <form onSubmit={(e) => submitPlaylist(e, "listenerPodcast")}>
@@ -1079,6 +1106,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                       setSubmitUrl(e.target.value);
                       setResolveStatus("idle");
                       setResolveMessage("");
+                      setResolvedDuplicate(false);
                     }}
                     placeholder="Spotify / Apple / LISTEN / stand.fm など"
                     required
@@ -1097,13 +1125,13 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   <input type="text" value={submitMaker} onChange={(e) => setSubmitMaker(e.target.value)} placeholder="制作者・出演者名" maxLength={80} required />
                 </label>
                 <label>
-                  <span>紹介配信日 <small>（任意）</small></span>
+                  <span>ドーナツ紹介日 <small>（任意）</small></span>
                   <input
                     type="date"
                     value={submitIntroducedDate}
                     onChange={(e) => setSubmitIntroducedDate(e.target.value)}
                   />
-                  <small>日曜版などで紹介された日が分かる場合に選んでください。</small>
+                  <small>ドーナツで紹介された日が分かる場合に選んでください。</small>
                 </label>
                 <label>
                   <span>ひとこと <small>（任意）</small></span>
@@ -1117,7 +1145,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   <span>website</span>
                   <input type="text" tabIndex={-1} autoComplete="off" value={submitWebsite} onChange={(e) => setSubmitWebsite(e.target.value)} />
                 </label>
-                <button type="submit" disabled={submitStatus === "sending"}>{submitStatus === "sending" ? "送信中…" : "投稿する"}</button>
+                <button type="submit" disabled={submitStatus === "sending" || resolvedDuplicate}>{submitStatus === "sending" ? "送信中…" : resolvedDuplicate ? "登録済みです" : "投稿する"}</button>
                 {submitMessage && <p className={submitStatus === "success" ? "submitNotice success" : "submitNotice error"}>{submitMessage}</p>}
               </form>
             </section>
