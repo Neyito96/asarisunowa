@@ -326,6 +326,36 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     refreshListenerPlaylists();
     return () => { cancelled = true; };
   }, []);;
+  useEffect(() => {
+    let cancelled = false;
+    async function refreshRecommendedPodcasts() {
+      try {
+        const payload = await loadJsonp<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; comment?: string }> }>(
+          ASARISU_API_URL + "?type=podcast&_=" + Date.now()
+        );
+        if (!payload?.ok || !Array.isArray(payload.items)) return;
+        const next = payload.items
+          .map((source, index) => {
+            const title = String(source.title || "").trim();
+            return {
+              id: String(source.id || index + 1),
+              title,
+              maker: String(source.maker || "").trim(),
+              url: String(source.url || "").trim() || null,
+              artwork: recommendedPodcastArtwork[title] ?? null,
+              comment: String(source.comment || "").trim(),
+            } satisfies Playlist;
+          })
+          .filter((item) => item.title);
+        if (!cancelled) setRecommendedPodcasts(next);
+      } catch {
+        // 読み込み失敗時は現在の表示を維持
+      }
+    }
+    refreshRecommendedPodcasts();
+    return () => { cancelled = true; };
+  }, []);
+
   const rows = useMemo(
     () =>
       livePlaylists
