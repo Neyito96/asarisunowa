@@ -290,7 +290,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         }),
       });
       setSubmitStatus("success");
-      setSubmitMessage("送信しました。確認後、朝リストへ反映します。ありがとうございます！");
+      setSubmitMessage("送信しました。朝リストへ自動反映されます。ありがとうございます！");
       setSubmitUrl("");
       setSubmitTitle("");
       setSubmitMaker("");
@@ -504,7 +504,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <div>
                   <p className="kicker">ADD A PLAYLIST</p>
                   <h3 id="playlist-submit-title">朝リストに追加する</h3>
-                  <p>3項目だけで投稿できます。内容を確認後、朝リストへ反映します。</p>
+                  <p>3項目だけで投稿できます。投稿すると朝リストへ自動反映されます。</p>
                 </div>
               </div>
               <form onSubmit={submitPlaylist}>
@@ -514,7 +514,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     type="url"
                     value={submitUrl}
                     onChange={(e) => setSubmitUrl(e.target.value)}
-                    placeholder="Spotify / YouTube Music のURL"
+                    placeholder="Spotifyのプレイリスト・番組 / YouTube Music のURL"
                     required
                   />
                 </label>
@@ -812,8 +812,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         <h3 id="site-history-title">更新ログ</h3>
         <div className="historyItem">
           <time dateTime="2026-09-08">2026.9.8</time>
-          <p>投稿受付から朝リストへの「掲載OK」連携を追加</p>
-          <small>投稿を確認して「掲載」をチェックすると、公開用リストへ自動反映</small>
+          <p>投稿フォームから朝リストへの自動掲載に対応</p>
+          <small>Spotifyのプレイリスト・番組、YouTube Musicのプレイリストを投稿可能</small>
         </div>
         <div className="historyItem">
           <time dateTime="2026-09-08">2026.9.8</time>
