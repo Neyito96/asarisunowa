@@ -29,7 +29,8 @@ type ListenerPodcast = {
 
 const listenerPodcasts: ListenerPodcast[] = [
   { id:"01", title:"どいらじ（映画凡人が集いしラジオ）", maker:"たんたん", introduced:"2026.4.5", links:[
-    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1072323753"}
+    {label:"Spotify",url:"https://open.spotify.com/show/7zHjRdGtexVH84tlrNjF1J"},
+    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/%E3%81%A9%E3%81%84%E3%82%89%E3%81%98-%E6%98%A0%E7%94%BB%E5%87%A1%E4%BA%BA%E3%81%8C%E9%9B%86%E3%81%84%E3%81%97%E3%83%A9%E3%82%B8%E3%82%AA/id1072323753"}
   ]},
   { id:"02", title:"映画は絶賛に限る", maker:"たんたん", introduced:"2026.4.5", links:[
     {label:"Spotify",url:"https://open.spotify.com/show/5AFLaarpYIp6irqeaiGiOr"},
