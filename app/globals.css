@@ -2174,3 +2174,54 @@ footer {
   object-fit:cover;
   display:block;
 }
+
+/* Update log readability */
+.siteHistory{
+  max-width:760px;
+  margin:38px auto 10px;
+  padding:26px 18px 0;
+}
+.siteHistory>h3{
+  margin-bottom:18px;
+}
+.historyItem{
+  padding:15px 4px;
+  column-gap:18px;
+}
+.historyItem time{
+  display:inline-block;
+  width:max-content;
+  height:max-content;
+  padding:3px 8px;
+  border-radius:999px;
+  background:rgba(91,65,43,.08);
+  line-height:1.45;
+}
+.historyItem p{
+  line-height:1.65;
+}
+.historyItem small{
+  font-size:.82rem;
+  line-height:1.65;
+}
+.historySources{
+  margin:24px 0 0;
+  padding:18px 20px;
+  border:1px solid rgba(91,65,43,.10);
+}
+@media(max-width:640px){
+  .siteHistory{
+    margin-top:32px;
+    padding:24px 16px 0;
+  }
+  .historyItem{
+    padding:16px 2px;
+    gap:7px;
+  }
+  .historyItem time{
+    margin-bottom:3px;
+  }
+  .historySources{
+    padding:16px;
+  }
+}
