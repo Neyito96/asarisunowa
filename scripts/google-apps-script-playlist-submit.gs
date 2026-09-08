@@ -8,6 +8,7 @@ const LOG_SHEET_NAME = "投稿受付";
 const WORK_SHEET_NAME = "作業台";
 const PUBLIC_SHEET_NAME = "サイト公開用";
 const PODCAST_SHEET_NAME = "おすすめPodcast";
+const LISTENER_PODCAST_SHEET_NAME = "朝リスPodcast";
 
 function doPost(e) {
   try {
@@ -23,7 +24,7 @@ function doPost(e) {
     if (website) return jsonResponse({ ok: true });
     if (!url || !title || !maker) return jsonResponse({ ok: false, error: "必須項目が不足しています" });
     if (securityAnswer !== "大介") return jsonResponse({ ok: false, error: "合言葉が違います" });
-    if (kind !== "playlist" && kind !== "podcast") return jsonResponse({ ok: false, error: "投稿の種類が正しくありません" });
+    if (kind !== "playlist" && kind !== "podcast" && kind !== "listenerPodcast") return jsonResponse({ ok: false, error: "投稿の種類が正しくありません" });
 
     const isPlaylistUrl =
       /^https:\/\/open\.spotify\.com\/playlist\//i.test(url) ||
@@ -43,7 +44,7 @@ function doPost(e) {
     if (kind === "playlist" && !isPlaylistUrl) {
       return jsonResponse({ ok: false, error: "朝リストにはSpotifyまたはYouTube MusicのプレイリストURLを入力してください" });
     }
-    if (kind === "podcast" && !isPodcastUrl) {
+    if ((kind === "podcast" || kind === "listenerPodcast") && !isPodcastUrl) {
       return jsonResponse({ ok: false, error: "Podcastの番組URLを確認してください" });
     }
 
@@ -51,17 +52,19 @@ function doPost(e) {
     const logSheet = getSheetLoose(ss, LOG_SHEET_NAME);
     const workSheet = getSheetLoose(ss, WORK_SHEET_NAME);
     const podcastSheet = getSheetLoose(ss, PODCAST_SHEET_NAME);
+    const listenerPodcastSheet = getSheetLoose(ss, LISTENER_PODCAST_SHEET_NAME);
     if (!logSheet) throw new Error("投稿受付シートが見つかりません");
     if (!workSheet) throw new Error("作業台シートが見つかりません");
     if (!podcastSheet) throw new Error("おすすめPodcastシートが見つかりません");
+    if (!listenerPodcastSheet) throw new Error("朝リスPodcastシートが見つかりません");
 
     logSheet.appendRow([
       new Date(), url, title, maker,
-      kind === "podcast" ? "おすすめPodcast" : "朝ポキプレイリスト",
+      kind === "listenerPodcast" ? "朝リスPodcast" : kind === "podcast" ? "おすすめPodcast" : "朝ポキプレイリスト",
       comment
     ]);
 
-    const targetSheet = kind === "podcast" ? podcastSheet : workSheet;
+    const targetSheet = kind === "listenerPodcast" ? listenerPodcastSheet : kind === "podcast" ? podcastSheet : workSheet;
     const lastRow = targetSheet.getLastRow();
     const existingUrls = lastRow > 1
       ? targetSheet.getRange(2, 1, lastRow - 1, 1).getDisplayValues().flat().map(normalizeUrl)
@@ -70,7 +73,9 @@ function doPost(e) {
 
     let added = false;
     if (!existingUrls.includes(normalized)) {
-      if (kind === "podcast") {
+      if (kind === "listenerPodcast") {
+        targetSheet.appendRow([url, title, maker, new Date(), comment, ""]);
+      } else if (kind === "podcast") {
         targetSheet.appendRow([url, title, maker, new Date(), comment]);
       } else {
         targetSheet.appendRow([url, title, maker]);
@@ -112,13 +117,19 @@ function doGet(e) {
       return apiResponse(readPlaylistSheet(sheet), callback);
     }
 
+    if (type === "listenerPodcast") {
+      const sheet = getSheetLoose(ss, LISTENER_PODCAST_SHEET_NAME);
+      if (!sheet) throw new Error("朝リスPodcastシートが見つかりません");
+      return apiResponse(readListenerPodcastSheet(sheet), callback);
+    }
+
     if (type === "podcast") {
       const sheet = getSheetLoose(ss, PODCAST_SHEET_NAME);
       if (!sheet) throw new Error("おすすめPodcastシートが見つかりません");
       return apiResponse(readPodcastSheet(sheet), callback);
     }
 
-    return apiResponse({ ok: false, error: "type は playlist / podcast / resolve を指定してください" }, callback);
+    return apiResponse({ ok: false, error: "type は playlist / podcast / listenerPodcast / resolve を指定してください" }, callback);
   } catch (error) {
     return apiResponse({ ok: false, error: String(error && error.message ? error.message : error) }, callback);
   }
@@ -201,6 +212,17 @@ function readPlaylistSheet(sheet) {
     id: String(i + 1), url: r[0] || "", title: r[1] || "", maker: r[2] || ""
   }));
   return { ok: true, type: "playlist", count: items.length, items: items };
+}
+
+function readListenerPodcastSheet(sheet) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return { ok: true, type: "listenerPodcast", count: 0, items: [] };
+  const values = sheet.getRange(2, 1, lastRow - 1, 6).getDisplayValues();
+  const items = values.filter(r => r[0] || r[1]).map((r, i) => ({
+    id: String(i + 1), url: r[0] || "", title: r[1] || "", maker: r[2] || "",
+    introduced: r[3] || "", comment: r[4] || "", platforms: r[5] || ""
+  }));
+  return { ok: true, type: "listenerPodcast", count: items.length, items: items };
 }
 
 function readPodcastSheet(sheet) {
