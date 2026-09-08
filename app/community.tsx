@@ -22,13 +22,15 @@ const PODCAST_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQHi9LM
 
 function loadJsonp<T>(url: string): Promise<T> {
   return new Promise((resolve, reject) => {
-    const callbackName = "__asarisunowa_" + Date.now() + "_" + Math.random().toString(36).slice(2);
+    const functionName = "__asarisunowa_" + Date.now() + "_" + Math.random().toString(36).slice(2);
+    const callbackPath = "window." + functionName;
     const script = document.createElement("script");
+    const globalWindow = window as unknown as Record<string, unknown>;
     const cleanup = () => {
       script.remove();
-      delete (window as unknown as Record<string, unknown>)[callbackName];
+      delete globalWindow[functionName];
     };
-    (window as unknown as Record<string, unknown>)[callbackName] = (payload: T) => {
+    globalWindow[functionName] = (payload: T) => {
       cleanup();
       resolve(payload);
     };
@@ -36,7 +38,11 @@ function loadJsonp<T>(url: string): Promise<T> {
       cleanup();
       reject(new Error("JSONP load failed"));
     };
-    script.src = url + (url.includes("?") ? "&" : "?") + "callback=" + encodeURIComponent(callbackName);
+    script.src =
+      url +
+      (url.includes("?") ? "&" : "?") +
+      "callback=" +
+      encodeURIComponent(callbackPath);
     document.head.appendChild(script);
   });
 }
