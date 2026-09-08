@@ -695,6 +695,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         error?: string;
         duplicate?: boolean;
         duplicateId?: string;
+        url?: string;
       }>(
         ASARISU_API_URL +
           "?type=resolve&kind=" + encodeURIComponent(resolveKind) +
@@ -866,6 +867,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         return;
       }
       setSubmitTitle(payload.title);
+      if (payload.url && /^https?:\/\//i.test(payload.url)) {
+        setSubmitUrl(payload.url);
+      }
       const resolvedMaker = String(payload.maker || payload.author || payload.publisher || "").trim();
       if (resolvedMaker) setSubmitMaker(resolvedMaker);
       setResolvedArtwork(payload.artwork || null);
