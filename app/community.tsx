@@ -55,7 +55,8 @@ const listenerPodcasts: ListenerPodcast[] = [
     {label:"Spotify",url:"https://open.spotify.com/show/3D0CFQSrCLGXD8vBFjnxcd"}
   ]},
   { id:"08", title:"注文の多い出版相談室", maker:"牧野", introduced:"2026.6.14", links:[
-    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1852752696"}
+    {label:"Spotify",url:"https://x.gd/Jrdk6"},
+    {label:"Amazon",url:"https://x.gd/X60o6"}
   ]},
   { id:"09", title:"うんちく聖書ラジオ", maker:"MK", introduced:"2026.6.28", links:[
     {label:"Spotify",url:"https://open.spotify.com/show/15nPIYmjjspnDPhLIGXD09"},
