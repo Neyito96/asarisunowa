@@ -39,7 +39,9 @@ const listenerPodcasts: ListenerPodcast[] = [
     {label:"YouTube",url:"https://www.youtube.com/@bri-cul"}
   ]},
   { id:"03", title:"そえたとおもちの美容室トーク", maker:"そえた", introduced:"2026.4.12", links:[
-    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/%E3%81%9D%E3%81%88%E3%81%9F%E3%81%A8%E3%81%8A%E3%82%82%E3%81%A1%E3%81%AE%E7%BE%8E%E5%AE%B9%E5%AE%A4%E3%83%88%E3%83%BC%E3%82%AF/id1836037911"}
+    {label:"Spotify",url:"https://x.gd/ixSgB"},
+    {label:"Apple",url:"https://x.gd/OA1Cv"},
+    {label:"LISTEN",url:"https://listen.style/p/soeta"}
   ]},
   { id:"04", title:"僕たちの吹奏楽部を作ろう ～地域が支える新しい部活動のカタチ", maker:"団長平井", introduced:"2026.4.19", links:[
     {label:"Spotify",url:"https://open.spotify.com/show/22FvoWsAxljuf7gzxXHx2I"},
