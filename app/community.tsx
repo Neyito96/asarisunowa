@@ -23,6 +23,8 @@ const PODCAST_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQHi9LM
 type ListenerPodcast = {
   id: string; title: string; maker: string; introduced: string;
   links: { label: string; url: string }[];
+  artwork?: string | null;
+  comment?: string;
 };
 
 const listenerPodcasts: ListenerPodcast[] = [
@@ -325,6 +327,7 @@ function OfficialArtwork({ url, name }: { url?: string; name: string }) {
 export default function Community({ playlists }: { playlists: Playlist[] }) {
   const [livePlaylists, setLivePlaylists] = useState<Playlist[]>(playlists);
   const [recommendedPodcasts, setRecommendedPodcasts] = useState<Playlist[]>([]);
+  const [liveListenerPodcasts, setLiveListenerPodcasts] = useState<ListenerPodcast[]>(listenerPodcasts);
   const [view, setView] = useState<"listeners" | "official" | "circle" | "discord" | "podcasts" | "listenerPodcasts">(
       "official",
     ),
@@ -343,7 +346,10 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     [submitSecurityAnswer, setSubmitSecurityAnswer] = useState(""),
     [submitWebsite, setSubmitWebsite] = useState(""),
     [submitStatus, setSubmitStatus] = useState<"idle" | "sending" | "success" | "error">("idle"),
-    [submitMessage, setSubmitMessage] = useState("");
+    [submitMessage, setSubmitMessage] = useState(""),
+    [resolveStatus, setResolveStatus] = useState<"idle" | "loading" | "success" | "error">("idle"),
+    [resolveMessage, setResolveMessage] = useState(""),
+    [resolvedArtwork, setResolvedArtwork] = useState<string | null>(null);
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("asapoki-listened") || "[]");
     const timer = window.setTimeout(() => setListened(saved), 0);
@@ -430,6 +436,42 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     return () => { cancelled = true; };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    async function refreshListenerPodcasts() {
+      try {
+        const payload = await loadJsonp<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; introduced?: string; comment?: string }> }>(
+          ASARISU_API_URL + "?type=listenerPodcast&_=" + Date.now()
+        );
+        if (!payload?.ok || !Array.isArray(payload.items)) return;
+        const base = payload.items
+          .map((source, index) => ({
+            id: String(source.id || index + 1).padStart(2, "0"),
+            title: String(source.title || "").trim(),
+            maker: String(source.maker || "").trim(),
+            introduced: String(source.introduced || "").trim(),
+            links: source.url ? [{ label: "番組", url: String(source.url) }] : [],
+            artwork: null,
+            comment: String(source.comment || "").trim(),
+          } satisfies ListenerPodcast))
+          .filter((item) => item.title);
+        if (!cancelled) setLiveListenerPodcasts(base);
+        await Promise.all(base.map(async (item) => {
+          if (!item.links[0]?.url) return;
+          const artwork = await discoverPodcastArtwork(item.title, item.links[0].url);
+          if (!artwork || cancelled) return;
+          setLiveListenerPodcasts((current) =>
+            current.map((p) => p.id === item.id ? { ...p, artwork } : p)
+          );
+        }));
+      } catch {
+        // 初期12件を維持
+      }
+    }
+    refreshListenerPodcasts();
+    return () => { cancelled = true; };
+  }, []);
+
   const rows = useMemo(
     () =>
       livePlaylists
@@ -485,7 +527,36 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     setGuideStep("q1");
     setGuideResult(null);
   }
-  async function submitPlaylist(event: React.FormEvent<HTMLFormElement>, forcedKind?: "playlist" | "podcast") {
+  async function resolvePodcastInput() {
+    const url = submitUrl.trim();
+    if (!url) {
+      setResolveStatus("error");
+      setResolveMessage("まず番組URLを入力してください。");
+      return;
+    }
+    setResolveStatus("loading");
+    setResolveMessage("番組情報を探しています…");
+    setResolvedArtwork(null);
+    try {
+      const payload = await loadJsonp<{ ok: boolean; title?: string; artwork?: string; provider?: string; error?: string }>(
+        ASARISU_API_URL + "?type=resolve&url=" + encodeURIComponent(url) + "&_=" + Date.now()
+      );
+      if (!payload?.ok || !payload.title) {
+        setResolveStatus("error");
+        setResolveMessage(payload?.error || "番組タイトルを取得できませんでした。手入力してください。");
+        return;
+      }
+      setSubmitTitle(payload.title);
+      setResolvedArtwork(payload.artwork || null);
+      setResolveStatus("success");
+      setResolveMessage((payload.provider ? payload.provider + "から " : "") + "番組名を取得しました。");
+    } catch {
+      setResolveStatus("error");
+      setResolveMessage("番組情報を取得できませんでした。手入力してください。");
+    }
+  }
+
+  async function submitPlaylist(event: React.FormEvent<HTMLFormElement>, forcedKind?: "playlist" | "podcast" | "listenerPodcast") {
     event.preventDefault();
     if (!PLAYLIST_SUBMIT_ENDPOINT) {
       setSubmitStatus("error");
@@ -517,9 +588,11 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       const postedKind = forcedKind ?? submitKind;
       setSubmitStatus("success");
       setSubmitMessage(
-        postedKind === "podcast"
-          ? "おすすめPodcastを送信しました。ありがとうございます！ リストへの反映には数分かかる場合があります。"
-          : "プレイリストを送信しました。ありがとうございます！ リストへの反映には数分かかる場合があります。"
+        postedKind === "listenerPodcast"
+          ? "朝リスPodcastを送信しました。ありがとうございます！ リストへの反映には少し時間がかかる場合があります。"
+          : postedKind === "podcast"
+            ? "おすすめPodcastを送信しました。ありがとうございます！ リストへの反映には数分かかる場合があります。"
+            : "プレイリストを送信しました。ありがとうございます！ リストへの反映には数分かかる場合があります。"
       );
       setSubmitUrl("");
       setSubmitTitle("");
@@ -528,6 +601,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       setSubmitKind("playlist");
       setSubmitSecurityAnswer("");
       setSubmitWebsite("");
+      setResolveStatus("idle");
+      setResolveMessage("");
+      setResolvedArtwork(null);
     } catch {
       setSubmitStatus("error");
       setSubmitMessage("送信できませんでした。時間をおいてもう一度お試しください。");
@@ -944,6 +1020,89 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             ))}
           </div>
        </main>
+      ) : view === "listenerPodcasts" ? (
+        <main className="wrap recommendedPodcastPage">
+          <section className="recommendedPodcasts">
+            <div className="themeHead">
+              <p className="kicker themeKicker">LISTENER PODCASTS</p>
+              <h2>🎙 朝リスさんのPodcast</h2>
+              <p>タンタンさん作「朝リスさんのポッドキャスト」をもとに、みんなで更新できるリストへ育てています。</p>
+            </div>
+            <div className="grid podcastGrid">
+              {[...liveListenerPodcasts].reverse().map((p) => (
+                <article className="card" key={"listener-podcast-" + p.id}>
+                  <div className="cover podcastCover">
+                    {p.artwork ? <img src={p.artwork} alt={p.title + "のアートワーク"} loading="lazy" /> : <span>ASARISU<br />PODCAST</span>}
+                  </div>
+                  <div className="cardBody listenerCardBody">
+                    <small>PODCAST {p.id}</small>
+                    <h3>{p.title}</h3>
+                    <p>by {p.maker}</p>
+                    {p.introduced && <p className="podcastComment">紹介配信日 {p.introduced}</p>}
+                    {p.comment && <p className="podcastComment">💬 {p.comment}</p>}
+                    {p.links.length > 0 ? (
+                      <div className="platformLinks">
+                        {p.links.map((link) => <a className="listen" key={link.url} href={link.url} target="_blank" rel="noreferrer">{link.label} ↗</a>)}
+                      </div>
+                    ) : <span className="listen disabled">配信先を確認中</span>}
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <section className="playlistSubmit" aria-labelledby="listener-podcast-submit-title">
+              <div className="playlistSubmitHead">
+                <div>
+                  <p className="kicker">ADD A LISTENER PODCAST</p>
+                  <h3 id="listener-podcast-submit-title">朝リスさんのPodcastを追加する</h3>
+                  <p>知っている配信先URLを1つ入れて「番組を探す」を押してください。番組名を自動取得します。</p>
+                </div>
+              </div>
+              <form onSubmit={(e) => submitPlaylist(e, "listenerPodcast")}>
+                <label>
+                  <span>番組URL</span>
+                  <input
+                    type="url"
+                    value={submitUrl}
+                    onChange={(e) => {
+                      setSubmitUrl(e.target.value);
+                      setResolveStatus("idle");
+                      setResolveMessage("");
+                    }}
+                    placeholder="Spotify / Apple / LISTEN / stand.fm など"
+                    required
+                  />
+                  <button className="resolvePodcastButton" type="button" onClick={resolvePodcastInput} disabled={resolveStatus === "loading"}>
+                    {resolveStatus === "loading" ? "探索中…" : "🔎 番組を探す"}
+                  </button>
+                  {resolveMessage && <small className={resolveStatus === "error" ? "resolveMessage error" : "resolveMessage"}>{resolveMessage}</small>}
+                </label>
+                <label>
+                  <span>番組名</span>
+                  <input type="text" value={submitTitle} onChange={(e) => setSubmitTitle(e.target.value)} placeholder="自動取得／手入力も可" maxLength={120} required />
+                </label>
+                <label>
+                  <span>朝リスネーム</span>
+                  <input type="text" value={submitMaker} onChange={(e) => setSubmitMaker(e.target.value)} placeholder="制作者・出演者名" maxLength={80} required />
+                </label>
+                <label>
+                  <span>ひとこと <small>（任意）</small></span>
+                  <textarea value={submitComment} onChange={(e) => setSubmitComment(e.target.value)} placeholder="番組紹介など" maxLength={140} rows={3} />
+                </label>
+                <label>
+                  <span>セキュリティ：神田さんの名は？</span>
+                  <input type="text" value={submitSecurityAnswer} onChange={(e) => setSubmitSecurityAnswer(e.target.value)} placeholder="漢字2文字" maxLength={10} autoComplete="off" required />
+                </label>
+                <label className="submitHoneypot" aria-hidden="true">
+                  <span>website</span>
+                  <input type="text" tabIndex={-1} autoComplete="off" value={submitWebsite} onChange={(e) => setSubmitWebsite(e.target.value)} />
+                </label>
+                <button type="submit" disabled={submitStatus === "sending"}>{submitStatus === "sending" ? "送信中…" : "投稿する"}</button>
+                {submitMessage && <p className={submitStatus === "success" ? "submitNotice success" : "submitNotice error"}>{submitMessage}</p>}
+              </form>
+            </section>
+          </section>
+        </main>
       ) : view === "podcasts" ? (
         <main className="wrap recommendedPodcastPage">
             <section className="recommendedPodcasts" aria-labelledby="recommended-podcasts-title">
@@ -998,10 +1157,18 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   <input
                     type="url"
                     value={submitUrl}
-                    onChange={(e) => setSubmitUrl(e.target.value)}
-                    placeholder="Spotify / Apple などの番組URL"
+                    onChange={(e) => {
+                      setSubmitUrl(e.target.value);
+                      setResolveStatus("idle");
+                      setResolveMessage("");
+                    }}
+                    placeholder="Spotify / Apple / LISTEN / stand.fm などの番組URL"
                     required
                   />
+                  <button className="resolvePodcastButton" type="button" onClick={resolvePodcastInput} disabled={resolveStatus === "loading"}>
+                    {resolveStatus === "loading" ? "探索中…" : "🔎 番組を探す"}
+                  </button>
+                  {resolveMessage && <small className={resolveStatus === "error" ? "resolveMessage error" : "resolveMessage"}>{resolveMessage}</small>}
                 </label>
                 <label>
                   <span>番組名</span>
