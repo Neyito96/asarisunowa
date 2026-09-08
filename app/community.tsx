@@ -341,6 +341,11 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       setSubmitMessage("自動送信の接続準備中です。現在は下の作業台スプレッドシートをご利用ください。");
       return;
     }
+    if (submitSecurityAnswer.trim() !== "大介") {
+      setSubmitStatus("error");
+      setSubmitMessage("合言葉が違います。「神田」といえば？ をもう一度どうぞ。");
+      return;
+    }
     setSubmitStatus("sending");
     setSubmitMessage("");
     try {
