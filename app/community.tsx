@@ -20,6 +20,27 @@ const ASARISU_API_URL = PLAYLIST_SUBMIT_ENDPOINT;
 const LISTENER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQHi9LM842wuiTT-N8FzgJXVFyY4W5sZRYEdp4a9OVBTgVBJgPWG52AK6sgH4qBciqB6Q5UAd2-n2bA/pub?gid=697105746&single=true&output=csv";
 const PODCAST_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQHi9LM842wuiTT-N8FzgJXVFyY4W5sZRYEdp4a9OVBTgVBJgPWG52AK6sgH4qBciqB6Q5UAd2-n2bA/pub?gid=1297557590&single=true&output=csv";
 
+function loadJsonp<T>(url: string): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const callbackName = "__asarisunowa_" + Date.now() + "_" + Math.random().toString(36).slice(2);
+    const script = document.createElement("script");
+    const cleanup = () => {
+      script.remove();
+      delete (window as unknown as Record<string, unknown>)[callbackName];
+    };
+    (window as unknown as Record<string, unknown>)[callbackName] = (payload: T) => {
+      cleanup();
+      resolve(payload);
+    };
+    script.onerror = () => {
+      cleanup();
+      reject(new Error("JSONP load failed"));
+    };
+    script.src = url + (url.includes("?") ? "&" : "?") + "callback=" + encodeURIComponent(callbackName);
+    document.head.appendChild(script);
+  });
+}
+
 function parseCsv(text: string) {
   const rows: string[][] = [];
   let row: string[] = [];
@@ -271,9 +292,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     let cancelled = false;
     async function refreshListenerPlaylists() {
       try {
-        const response = await fetch(ASARISU_API_URL + "?type=playlist&_=" + Date.now(), { cache: "no-store" });
-        if (!response.ok) return;
-        const payload = await response.json();
+        const payload = await loadJsonp<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string }> }>(
+          ASARISU_API_URL + "?type=playlist&_=" + Date.now()
+        );
         if (!payload?.ok || !Array.isArray(payload.items)) return;
         const existingByUrl = new Map(
           playlists.filter((item) => item.url).map((item) => [item.url as string, item]),
