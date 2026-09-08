@@ -205,6 +205,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     [submitUrl, setSubmitUrl] = useState(""),
     [submitTitle, setSubmitTitle] = useState(""),
     [submitMaker, setSubmitMaker] = useState(""),
+    [submitSecurityAnswer, setSubmitSecurityAnswer] = useState(""),
     [submitWebsite, setSubmitWebsite] = useState(""),
     [submitStatus, setSubmitStatus] = useState<"idle" | "sending" | "success" | "error">("idle"),
     [submitMessage, setSubmitMessage] = useState("");
@@ -286,6 +287,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           url: submitUrl.trim(),
           title: submitTitle.trim(),
           maker: submitMaker.trim(),
+          securityAnswer: submitSecurityAnswer.trim(),
           website: submitWebsite,
         }),
       });
@@ -294,6 +296,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       setSubmitUrl("");
       setSubmitTitle("");
       setSubmitMaker("");
+      setSubmitSecurityAnswer("");
       setSubmitWebsite("");
     } catch {
       setSubmitStatus("error");
@@ -537,6 +540,18 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     onChange={(e) => setSubmitMaker(e.target.value)}
                     placeholder="お名前・ハンドルネーム"
                     maxLength={80}
+                    required
+                  />
+                </label>
+                <label>
+                  <span>セキュリティチェック：「神田」といえば？</span>
+                  <input
+                    type="text"
+                    value={submitSecurityAnswer}
+                    onChange={(e) => setSubmitSecurityAnswer(e.target.value)}
+                    placeholder="漢字2文字"
+                    maxLength={10}
+                    autoComplete="off"
                     required
                   />
                 </label>
