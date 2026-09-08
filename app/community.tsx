@@ -812,6 +812,11 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         <h3 id="site-history-title">更新ログ</h3>
         <div className="historyItem">
           <time dateTime="2026-09-08">2026.9.8</time>
+          <p>投稿受付から朝リストへの「掲載OK」連携を追加</p>
+          <small>投稿を確認して「掲載」をチェックすると、公開用リストへ自動反映</small>
+        </div>
+        <div className="historyItem">
+          <time dateTime="2026-09-08">2026.9.8</time>
           <p>朝リストに「プレイリスト投稿フォーム」を追加</p>
           <small>プレイリストURL・タイトル・朝リスネームの3項目で投稿受付</small>
         </div>
