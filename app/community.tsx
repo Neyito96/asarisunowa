@@ -426,8 +426,13 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           website: submitWebsite,
         }),
       });
+      const postedKind = forcedKind ?? submitKind;
       setSubmitStatus("success");
-      setSubmitMessage("送信しました。朝リストへ自動反映されます。ありがとうございます！");
+      setSubmitMessage(
+        postedKind === "podcast"
+          ? "おすすめPodcastを送信しました。ありがとうございます！ リストへの反映には数分かかる場合があります。"
+          : "プレイリストを送信しました。ありがとうございます！ リストへの反映には数分かかる場合があります。"
+      );
       setSubmitUrl("");
       setSubmitTitle("");
       setSubmitMaker("");
