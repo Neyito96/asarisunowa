@@ -257,15 +257,28 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         if (!response.ok) return;
         const table = parseCsv(await response.text());
         if (!table.length) return;
+        const existingByUrl = new Map(
+          playlists
+            .filter((item) => item.url)
+            .map((item) => [item.url as string, item]),
+        );
+        const existingByTitle = new Map(
+          playlists.map((item) => [item.title.trim(), item]),
+        );
         const next = table.slice(1)
           .map((source, index) => {
             const [url = "", title = "", maker = ""] = source;
+            const cleanUrl = url.trim() || null;
+            const cleanTitle = title.trim();
+            const existing =
+              (cleanUrl ? existingByUrl.get(cleanUrl) : undefined) ??
+              existingByTitle.get(cleanTitle);
             return {
               id: String(index + 1),
-              title: title.trim(),
+              title: cleanTitle,
               maker: maker.trim(),
-              url: url.trim() || null,
-              artwork: null,
+              url: cleanUrl,
+              artwork: existing?.artwork ?? null,
             } satisfies Playlist;
           })
           .filter((item) => item.title);
