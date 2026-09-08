@@ -1137,8 +1137,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         </div>
         <div className="historySources">
           <h4>情報・画像について</h4>
-          <p>番組情報は、朝日新聞ポッドキャスト公式情報、配信・投稿内容を参考に編集しています。</p>
-          <p>番組画像は、公式サイトおよび各配信サービス掲載画像を引用しています。</p>
+          <p>番組情報は、朝日新聞ポッドキャスト公式情報および各配信プラットフォームの公開情報を参考に編集しています。</p>
+          <p>番組画像・アートワークは、番組を識別し配信先をご案内する目的で、公式サイト、Spotify、Apple Podcasts、Amazon Music、YouTube等で公開されている画像を出典元が分かる形で引用しています。</p>
+          <p>各番組・画像等の権利は、それぞれの権利者に帰属します。</p>
         </div>
       </section>
       <footer>
