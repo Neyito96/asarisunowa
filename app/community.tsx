@@ -496,22 +496,36 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           ASARISU_API_URL + "?type=listenerPodcast&_=" + Date.now()
         );
         if (!payload?.ok || !Array.isArray(payload.items)) return;
+        const curatedByTitle = new Map(listenerPodcasts.map((item) => [item.title.trim(), item]));
         const base = payload.items
-          .map((source, index) => ({
-            id: String(source.id || index + 1).padStart(2, "0"),
-            title: String(source.title || "").trim(),
-            maker: String(source.maker || "").trim(),
-            introduced: String(source.introduced || "").trim(),
-            links: source.url ? [{ label: "番組", url: String(source.url) }] : [],
-            artwork: null,
-            comment: String(source.comment || "").trim(),
-          } satisfies ListenerPodcast))
+          .map((source, index) => {
+            const title = String(source.title || "").trim();
+            const curated = curatedByTitle.get(title);
+            const submittedUrl = String(source.url || "").trim();
+            const submittedLink = submittedUrl ? { label: providerLabel(submittedUrl), url: submittedUrl } : null;
+            const curatedLinks = curated?.links ?? [];
+            const links = submittedLink
+              ? [submittedLink, ...curatedLinks.filter((link) => normalizeUrl(link.url) !== normalizeUrl(submittedUrl))]
+              : curatedLinks;
+            return {
+              id: String(source.id || index + 1).padStart(2, "0"),
+              title,
+              maker: String(source.maker || "").trim(),
+              introduced: String(source.introduced || "").trim(),
+              links,
+              artwork: curated?.artwork ?? null,
+              comment: String(source.comment || "").trim(),
+            } satisfies ListenerPodcast;
+          })
           .filter((item) => item.title);
         if (!cancelled) setLiveListenerPodcasts(base);
         await Promise.all(base.map(async (item) => {
           if (item.artwork) return;
-          if (!item.links[0]?.url) return;
-          const artwork = await discoverPodcastArtwork(item.title, item.links[0].url);
+          const artworkSource =
+            item.links.find((link) => /podcasts\.apple\.com/i.test(link.url))?.url ??
+            item.links[0]?.url ??
+            null;
+          const artwork = await discoverPodcastArtwork(item.title, artworkSource);
           if (!artwork || cancelled) return;
           setLiveListenerPodcasts((current) =>
             current.map((p) => p.id === item.id ? { ...p, artwork } : p)
@@ -1144,7 +1158,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <div>
                   <p className="kicker">ADD A LISTENER PODCAST</p>
                   <h3 id="listener-podcast-submit-title">朝リスさんのPodcastを追加する</h3>
-                  <p>ドーナツなどで紹介された朝リスさんのPodcastを追加できます。配信先URLを1つ入れて「番組を探す」を押してください。番組名を自動取得し、既存番組との重複もチェックします。</p>
+                  <p>ドーナツなどで紹介された朝リスさんのPodcastを追加できます。<strong>番組URLは1つだけでOK！</strong> Spotify・Apple Podcasts・LISTEN・stand.fmなど、分かる番組URLを1つ入れて「番組を探す」を押してください。番組名と重複を確認し、ほかの配信先やアートワークは「朝リスの輪」で探して追加します。</p>
                 </div>
               </div>
               <form onSubmit={(e) => submitPlaylist(e, "listenerPodcast")}>
