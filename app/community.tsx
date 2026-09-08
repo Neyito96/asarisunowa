@@ -876,6 +876,16 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         setResolveMessage(payload?.error || "番組タイトルを取得できませんでした。手入力してください。");
         return;
       }
+      if (looksLikePodcastEpisodeTitle(payload.title)) {
+        setSubmitTitle("");
+        setSubmitMaker("");
+        setResolvedArtwork(null);
+        setResolveStatus("error");
+        setResolveMessage(
+          "Spotifyがエピソード名を返しました。番組名としては採用しません。Spotify番組URL（/show/）またはApple Podcasts URLで試してください。"
+        );
+        return;
+      }
       setSubmitTitle(payload.title);
       if (payload.url && /^https?:\/\//i.test(payload.url)) {
         setSubmitUrl(payload.url);
