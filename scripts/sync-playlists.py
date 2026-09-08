@@ -20,7 +20,9 @@ def normalize_url(value):
         return None
 
     parsed = urllib.parse.urlparse(value)
-    if parsed.netloc == "open.spotify.com" and parsed.path.startswith("/playlist/"):
+    if parsed.netloc == "open.spotify.com" and (
+        parsed.path.startswith("/playlist/") or parsed.path.startswith("/show/")
+    ):
         return f"https://open.spotify.com{parsed.path}"
 
     if parsed.netloc == "music.youtube.com" and parsed.path == "/playlist":
