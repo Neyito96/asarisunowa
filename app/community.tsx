@@ -34,6 +34,8 @@ const listenerPodcasts: ListenerPodcast[] = [
   ]},
   { id:"02", title:"映画は絶賛に限る", maker:"たんたん", introduced:"2026.4.5", links:[
     {label:"Spotify",url:"https://open.spotify.com/show/5AFLaarpYIp6irqeaiGiOr"},
+    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/%E6%98%A0%E7%94%BB%E3%81%AF%E7%B5%B6%E8%B3%9B%E3%81%AB%E9%99%90%E3%82%8B/id1780539738"},
+    {label:"Amazon",url:"https://music.amazon.com/podcasts/d40eec33-937d-4428-9031-f537faf28750/%E6%98%A0%E7%94%BB%E3%81%AF%E7%B5%B6%E8%B3%9B%E3%81%AB%E9%99%90%E3%82%8B"},
     {label:"YouTube",url:"https://www.youtube.com/@bri-cul"}
   ]},
   { id:"03", title:"そえたとおもちの美容室トーク", maker:"そえた", introduced:"2026.4.12", links:[
