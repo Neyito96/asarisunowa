@@ -16,6 +16,7 @@ const ASAPOKI_YOUTUBE = "https://www.youtube.com/@asapoki_official";
 const ASAPOKI_OFFICIAL = "https://www.asahi.com/special/podcasts/";
 // Google Apps Script のウェブアプリURLを設定すると投稿フォームが自動送信になります。
 const PLAYLIST_SUBMIT_ENDPOINT = "https://script.google.com/macros/s/AKfycbxlZCNqGqOEY7j61OgcSGM8_xfGT08f4jjamXtSj2DES9fXl-xwJrvcRGYHnskidjIMug/exec";
+const ASARISU_API_URL = PLAYLIST_SUBMIT_ENDPOINT;
 const LISTENER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQHi9LM842wuiTT-N8FzgJXVFyY4W5sZRYEdp4a9OVBTgVBJgPWG52AK6sgH4qBciqB6Q5UAd2-n2bA/pub?gid=697105746&single=true&output=csv";
 const PODCAST_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQHi9LM842wuiTT-N8FzgJXVFyY4W5sZRYEdp4a9OVBTgVBJgPWG52AK6sgH4qBciqB6Q5UAd2-n2bA/pub?gid=1297557590&single=true&output=csv";
 
@@ -279,73 +280,38 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     let cancelled = false;
     async function refreshListenerPlaylists() {
       try {
-        const response = await fetch(LISTENER_CSV_URL + "&_=" + Date.now(), { cache: "no-store" });
+        const response = await fetch(ASARISU_API_URL + "?type=playlist&_=" + Date.now(), { cache: "no-store" });
         if (!response.ok) return;
-        const table = parseCsv(await response.text());
-        if (!table.length) return;
+        const payload = await response.json();
+        if (!payload?.ok || !Array.isArray(payload.items)) return;
         const existingByUrl = new Map(
-          playlists
-            .filter((item) => item.url)
-            .map((item) => [item.url as string, item]),
+          playlists.filter((item) => item.url).map((item) => [item.url as string, item]),
         );
         const existingByTitle = new Map(
           playlists.map((item) => [item.title.trim(), item]),
         );
-        const next = table.slice(1)
-          .map((source, index) => {
-            const [url = "", title = "", maker = ""] = source;
-            const cleanUrl = url.trim() || null;
-            const cleanTitle = title.trim();
+        const next = payload.items
+          .map((source: { id?: string; url?: string; title?: string; maker?: string }, index: number) => {
+            const cleanUrl = String(source.url || "").trim() || null;
+            const cleanTitle = String(source.title || "").trim();
             const existing =
               (cleanUrl ? existingByUrl.get(cleanUrl) : undefined) ??
               existingByTitle.get(cleanTitle);
             return {
-              id: String(index + 1),
+              id: String(source.id || index + 1),
               title: cleanTitle,
-              maker: maker.trim(),
+              maker: String(source.maker || "").trim(),
               url: cleanUrl,
               artwork: existing?.artwork ?? null,
             } satisfies Playlist;
           })
-          .filter((item) => item.title);
+          .filter((item: Playlist) => item.title);
         if (!cancelled && next.length) setLivePlaylists(next);
       } catch {
-        // 公開CSVの取得に失敗した場合はビルド済みデータをそのまま使う
+        // API取得失敗時はビルド済みデータをそのまま使う
       }
     }
     refreshListenerPlaylists();
-    return () => {
-      cancelled = true;
-    };
-  }, [])
-
-  useEffect(() => {
-    let cancelled = false;
-    async function refreshRecommendedPodcasts() {
-      try {
-        const response = await fetch(PODCAST_CSV_URL + "&_=" + Date.now(), { cache: "no-store" });
-        if (!response.ok) return;
-        const table = parseCsv(await response.text());
-        if (!table.length) return;
-        const next = table.slice(1)
-          .map((source, index) => {
-            const [url = "", title = "", maker = "", _receivedAt = "", comment = ""] = source;
-            return {
-              id: String(index + 1),
-              title: title.trim(),
-              maker: maker.trim(),
-              url: url.trim() || null,
-              artwork: recommendedPodcastArtwork[title.trim()] ?? null,
-              comment: comment.trim(),
-            } satisfies Playlist;
-          })
-          .filter((item) => item.title);
-        if (!cancelled && next.length) setRecommendedPodcasts(next);
-      } catch {
-        // 公開CSV取得失敗時は空欄のまま
-      }
-    }
-    refreshRecommendedPodcasts();
     return () => { cancelled = true; };
   }, []);;
   const rows = useMemo(
