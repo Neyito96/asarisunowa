@@ -2225,3 +2225,15 @@ footer {
     padding:16px;
   }
 }
+
+/* Keep the long Recommended Podcast tab compact on mobile */
+@media(max-width:640px){
+  .viewTabs button{
+    white-space:nowrap;
+  }
+  .viewTabs button:last-child{
+    font-size:.78rem;
+    padding-left:8px;
+    padding-right:8px;
+  }
+}
