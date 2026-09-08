@@ -1064,7 +1064,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <div>
                   <p className="kicker">ADD A LISTENER PODCAST</p>
                   <h3 id="listener-podcast-submit-title">朝リスさんのPodcastを追加する</h3>
-                  <p>知っている配信先URLを1つ入れて「番組を探す」を押してください。番組名を自動取得します。</p>
+                  <p>知っている配信先URLを1つ入れて「番組を探す」を押してください。番組名を自動取得し、既存番組との重複もチェックします。</p>
                 </div>
               </div>
               <form onSubmit={(e) => submitPlaylist(e, "listenerPodcast")}>
@@ -1361,6 +1361,11 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       )}
       <section className="wrap siteHistory" aria-labelledby="site-history-title">
         <h3 id="site-history-title">更新ログ</h3>
+        <div className="historyItem">
+          <time dateTime="2026-09-08">2026.9.8</time>
+          <p>「🎙 朝リスPodcast」ページを追加</p>
+          <small>@タンタンさん作「朝リスさんのポッドキャスト」をもとに、共同更新できるリストへ拡張</small>
+        </div>
         <div className="historyItem">
           <time dateTime="2026-09-08">2026.9.8</time>
           <p>「🎧 おすすめPodcast」ページを追加</p>
