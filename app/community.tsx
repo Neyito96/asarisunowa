@@ -41,7 +41,8 @@ const listenerPodcasts: ListenerPodcast[] = [
   { id:"03", title:"そえたとおもちの美容室トーク", maker:"そえた", introduced:"2026.4.12", links:[
     {label:"Spotify",url:"https://x.gd/ixSgB"},
     {label:"Apple",url:"https://x.gd/OA1Cv"},
-    {label:"LISTEN",url:"https://listen.style/p/soeta"}
+    {label:"LISTEN",url:"https://listen.style/p/soeta"},
+    {label:"stand.fm",url:"https://stand.fm/channels/68def4bc036795923c44a430"}
   ]},
   { id:"04", title:"僕たちの吹奏楽部を作ろう ～地域が支える新しい部活動のカタチ", maker:"団長平井", introduced:"2026.4.19", links:[
     {label:"Spotify",url:"https://open.spotify.com/show/22FvoWsAxljuf7gzxXHx2I"},
