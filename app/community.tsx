@@ -46,6 +46,7 @@ const listenerPodcasts: ListenerPodcast[] = [
   ]},
   { id:"04", title:"僕たちの吹奏楽部を作ろう ～地域が支える新しい部活動のカタチ", maker:"団長平井", introduced:"2026.4.19", links:[
     {label:"Spotify",url:"https://open.spotify.com/show/22FvoWsAxljuf7gzxXHx2I"},
+    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1859046970"},
     {label:"YouTube",url:"https://www.youtube.com/playlist?list=PLMZ8i-eYRSt8FUulZ68VynKRbBcXUJLSb"}
   ]},
   { id:"05", title:"つる日和", maker:"ハルちゃん、ミカちゃん", introduced:"2026.4.26", links:[
@@ -54,18 +55,19 @@ const listenerPodcasts: ListenerPodcast[] = [
   ]},
   { id:"06", title:"歴史から学ぶ精神科ラジオ", maker:"かけるマリモ", introduced:"2026.5.10", links:[
     {label:"Spotify",url:"https://x.gd/ifxHV"},
-    {label:"Apple",url:"https://x.gd/IgfrM"}
+    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1811499079"}
   ]},
   { id:"07", title:"南方政談録", maker:"らっきー", introduced:"2026.5.24", links:[
     {label:"Spotify",url:"https://open.spotify.com/show/3D0CFQSrCLGXD8vBFjnxcd"}
   ]},
   { id:"08", title:"注文の多い出版相談室", maker:"牧野", introduced:"2026.6.14", links:[
     {label:"Spotify",url:"https://x.gd/Jrdk6"},
+    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1852752696"},
     {label:"Amazon",url:"https://x.gd/X60o6"}
   ]},
   { id:"09", title:"うんちく聖書ラジオ", maker:"MK", introduced:"2026.6.28", links:[
     {label:"Spotify",url:"https://x.gd/5ubgU"},
-    {label:"Apple",url:"https://x.gd/l7McR"}
+    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1594176663"}
   ]},
   { id:"10", title:"福祉探偵団", maker:"KELLY", introduced:"2026.7.19", links:[
     {label:"Spotify",url:"https://x.gd/t1YHV"},
