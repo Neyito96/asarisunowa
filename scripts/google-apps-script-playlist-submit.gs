@@ -13,6 +13,7 @@ function doPost(e) {
     const title = String(data.title || "").trim();
     const maker = String(data.maker || "").trim();
     const website = String(data.website || "").trim();
+    const securityAnswer = String(data.securityAnswer || "").trim();
 
     // bot向けハニーポット
     if (website) {
@@ -21,6 +22,11 @@ function doPost(e) {
 
     if (!url || !title || !maker) {
       return jsonResponse({ ok: false, error: "必須項目が不足しています" });
+    }
+
+    // 朝リス向けの簡単なロボット対策
+    if (securityAnswer !== "大介") {
+      return jsonResponse({ ok: false, error: "合言葉が違います" });
     }
 
     const isAllowed =
