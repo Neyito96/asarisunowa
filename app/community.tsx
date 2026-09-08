@@ -18,7 +18,7 @@ const ASAPOKI_OFFICIAL = "https://www.asahi.com/special/podcasts/";
 const PLAYLIST_SUBMIT_ENDPOINT = "https://script.google.com/macros/s/AKfycbxlZCNqGqOEY7j61OgcSGM8_xfGT08f4jjamXtSj2DES9fXl-xwJrvcRGYHnskidjIMug/exec";
 const ASARISU_API_URL = PLAYLIST_SUBMIT_ENDPOINT;
 const LISTENER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQHi9LM842wuiTT-N8FzgJXVFyY4W5sZRYEdp4a9OVBTgVBJgPWG52AK6sgH4qBciqB6Q5UAd2-n2bA/pub?gid=697105746&single=true&output=csv";
-const PODCAST_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQHi9LM842wuiTT-N8FzgJXVFyY4W5sZRYEdp4a9OVBTgVBJgPWG52AK6sgH4qBciqB6Q5UAd2-n2bA/pub?gid=1297557590&single=true&output=csv";
+const PODCAST_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQHi9LM842wuiTT-N8FzgJXVFyY4W5sZRYEdp4a9OVBTgVBJgPWG52AK6sgH4qBciqB6Q5UAd2-n2bA/pub?gid=2141201014&single=true&output=csv";
 
 type ListenerPodcast = {
   id: string; title: string; maker: string; introduced: string;
@@ -26,67 +26,6 @@ type ListenerPodcast = {
   artwork?: string | null;
   comment?: string;
 };
-
-const listenerPodcasts: ListenerPodcast[] = [
-  { id:"01", title:"どいらじ（映画凡人が集いしラジオ）", maker:"たんたん", introduced:"2026.4.5", links:[
-    {label:"Spotify",url:"https://open.spotify.com/show/7zHjRdGtexVH84tlrNjF1J"},
-    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/%E3%81%A9%E3%81%84%E3%82%89%E3%81%98-%E6%98%A0%E7%94%BB%E5%87%A1%E4%BA%BA%E3%81%8C%E9%9B%86%E3%81%84%E3%81%97%E3%83%A9%E3%82%B8%E3%82%AA/id1072323753"}
-  ]},
-  { id:"02", title:"映画は絶賛に限る", maker:"たんたん", introduced:"2026.4.5", links:[
-    {label:"Spotify",url:"https://open.spotify.com/show/5AFLaarpYIp6irqeaiGiOr"},
-    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/%E6%98%A0%E7%94%BB%E3%81%AF%E7%B5%B6%E8%B3%9B%E3%81%AB%E9%99%90%E3%82%8B/id1780539738"},
-    {label:"Amazon",url:"https://music.amazon.com/podcasts/d40eec33-937d-4428-9031-f537faf28750/%E6%98%A0%E7%94%BB%E3%81%AF%E7%B5%B6%E8%B3%9B%E3%81%AB%E9%99%90%E3%82%8B"},
-    {label:"YouTube",url:"https://www.youtube.com/@bri-cul"}
-  ]},
-  { id:"03", title:"そえたとおもちの美容室トーク", maker:"そえた", introduced:"2026.4.12", links:[
-    {label:"Spotify",url:"https://x.gd/ixSgB"},
-    {label:"Apple",url:"https://x.gd/OA1Cv"},
-    {label:"LISTEN",url:"https://listen.style/p/soeta"},
-    {label:"stand.fm",url:"https://stand.fm/channels/68def4bc036795923c44a430"}
-  ]},
-  { id:"04", title:"僕たちの吹奏楽部を作ろう ～地域が支える新しい部活動のカタチ", maker:"団長平井", introduced:"2026.4.19", links:[
-    {label:"Spotify",url:"https://open.spotify.com/show/22FvoWsAxljuf7gzxXHx2I"},
-    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1859046970"},
-    {label:"YouTube",url:"https://www.youtube.com/playlist?list=PLMZ8i-eYRSt8FUulZ68VynKRbBcXUJLSb"}
-  ]},
-  { id:"05", title:"つる日和", maker:"ハルちゃん、ミカちゃん", introduced:"2026.4.26", links:[
-    {label:"Spotify",url:"https://open.spotify.com/show/4LCiSt59H17vsBJnoLwEoX"},
-    {label:"Apple",url:"https://podcasts.apple.com/ca/podcast/%E3%81%A4%E3%82%8B%E6%97%A5%E5%92%8C/id1807427581"}
-  ]},
-  { id:"06", title:"歴史から学ぶ精神科ラジオ", maker:"かけるマリモ", introduced:"2026.5.10", links:[
-    {label:"Spotify",url:"https://x.gd/ifxHV"},
-    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1811499079"}
-  ]},
-  { id:"07", title:"南方政談録", maker:"らっきー", introduced:"2026.5.24", links:[
-    {label:"Spotify",url:"https://open.spotify.com/show/3D0CFQSrCLGXD8vBFjnxcd"},
-    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/%E5%8D%97%E6%96%B9%E6%94%BF%E8%AB%87%E9%8C%B2/id6791313843"}
-  ]},
-  { id:"08", title:"注文の多い出版相談室", maker:"牧野", introduced:"2026.6.14", links:[
-    {label:"Spotify",url:"https://x.gd/Jrdk6"},
-    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1852752696"},
-    {label:"Amazon",url:"https://x.gd/X60o6"}
-  ]},
-  { id:"09", title:"うんちく聖書ラジオ", maker:"MK", introduced:"2026.6.28", links:[
-    {label:"Spotify",url:"https://x.gd/5ubgU"},
-    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1594176663"}
-  ]},
-  { id:"10", title:"福祉探偵団", maker:"KELLY", introduced:"2026.7.19", links:[
-    {label:"Spotify",url:"https://open.spotify.com/show/0dWvU0ZpReAn4Vb7inQu7c"},
-    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/%E7%A6%8F%E7%A5%89%E6%8E%A2%E5%81%B5%E5%9B%A3season%EF%BC%92/id1780241386"}
-  ]},
-  { id:"11", title:"ののラジオ", maker:"「劇団のの」スズキ", introduced:"2026.8.2", links:[
-    {label:"番組HP",url:"https://gekidannono.com/wp/"},
-    {label:"Spotify",url:"https://x.gd/NyLcQ"},
-    {label:"YouTube",url:"https://x.gd/HqeK8"}
-  ]},
-  { id:"12", title:"ネジネジ低空飛行 — ゆるバイポーラー thinking aloud —", maker:"ネジート", introduced:"2026.8.16", links:[
-    {label:"Spotify",url:"https://open.spotify.com/show/0PfcrUCDN6O8JdtscTQo1B"},
-    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id6802532797"},
-    {label:"LISTEN",url:"https://listen.style/p/neyineyi"},
-    {label:"stand.fm",url:"https://stand.fm/channels/6273e1e5fd1be6fc466b6131"}
-  ]},
-];
-
 
 function loadJsonp<T>(url: string): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -191,6 +130,36 @@ function parseCsv(text: string) {
   if (row.some((value) => value !== "")) rows.push(row);
   return rows;
 }
+function podcastProviderLabel(url: string) {
+  if (/spotify\.com/i.test(url)) return "Spotify";
+  if (/podcasts\.apple\.com/i.test(url)) return "Apple";
+  if (/listen\.style/i.test(url)) return "LISTEN";
+  if (/stand\.fm/i.test(url)) return "stand.fm";
+  if (/amazon\./i.test(url)) return "Amazon";
+  if (/youtube\.com|youtu\.be/i.test(url)) return "YouTube";
+  return "番組HP";
+}
+
+function parsePodcastLinks(memo: string, primaryUrl: string) {
+  const links: { label: string; url: string }[] = [];
+  const seen = new Set<string>();
+  const add = (label: string, url: string) => {
+    const cleanUrl = url.trim();
+    if (!/^https?:\/\//i.test(cleanUrl)) return;
+    const key = cleanUrl.replace(/\/$/, "");
+    if (seen.has(key)) return;
+    seen.add(key);
+    links.push({ label: label.trim() || podcastProviderLabel(cleanUrl), url: cleanUrl });
+  };
+
+  memo.split("|").forEach((part) => {
+    const match = part.trim().match(/^([^:]+):\s*(https?:\/\/\S.*)$/i);
+    if (match) add(match[1], match[2]);
+  });
+  if (primaryUrl) add(podcastProviderLabel(primaryUrl), primaryUrl);
+  return links;
+}
+
 const officialArtwork: Record<string, string> = {
   "https://open.spotify.com/show/7euH6hzudIdp61JRSi9E8w":
     "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1fbe37e2b90a9796052cdda598",
@@ -373,7 +342,7 @@ function OfficialArtwork({ url, name }: { url?: string; name: string }) {
 export default function Community({ playlists }: { playlists: Playlist[] }) {
   const [livePlaylists, setLivePlaylists] = useState<Playlist[]>(playlists);
   const [recommendedPodcasts, setRecommendedPodcasts] = useState<Playlist[]>([]);
-  const [liveListenerPodcasts, setLiveListenerPodcasts] = useState<ListenerPodcast[]>(listenerPodcasts);
+  const [liveListenerPodcasts, setLiveListenerPodcasts] = useState<ListenerPodcast[]>([]);
   const [view, setView] = useState<"listeners" | "official" | "circle" | "discord" | "podcasts" | "listenerPodcasts">(
       "official",
     ),
@@ -487,51 +456,89 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
 
   useEffect(() => {
     let cancelled = false;
+
+    async function fillPodcastArtwork(base: ListenerPodcast[]) {
+      await Promise.all(base.map(async (item) => {
+        if (item.artwork) return;
+        const artworkSource =
+          item.links.find((link) => /podcasts\.apple\.com/i.test(link.url))?.url ??
+          item.links[0]?.url ??
+          null;
+        const artwork = await discoverPodcastArtwork(item.title, artworkSource);
+        if (!artwork || cancelled) return;
+        setLiveListenerPodcasts((current) =>
+          current.map((p) => p.id === item.id ? { ...p, artwork } : p)
+        );
+      }));
+    }
+
     async function refreshListenerPodcasts() {
+      try {
+        const response = await fetch(PODCAST_CSV_URL + "&_=" + Date.now(), { cache: "no-store" });
+        if (!response.ok) throw new Error("Podcast CSV load failed");
+        const rows = parseCsv(await response.text());
+        const header = rows[0] ?? [];
+        const column = (name: string, fallback: number) => {
+          const found = header.findIndex((value) => value.trim() === name);
+          return found >= 0 ? found : fallback;
+        };
+        const urlCol = column("番組URL", 0);
+        const titleCol = column("番組名", 1);
+        const makerCol = column("朝リスネーム", 2);
+        const introducedCol = column("紹介配信日", 3);
+        const commentCol = column("ひとこと", 4);
+        const linksCol = column("配信先メモ", 5);
+
+        const base = rows.slice(1)
+          .map((row, index) => {
+            const title = String(row[titleCol] || "").trim();
+            const primaryUrl = String(row[urlCol] || "").trim();
+            return {
+              id: String(index + 1).padStart(2, "0"),
+              title,
+              maker: String(row[makerCol] || "").trim(),
+              introduced: String(row[introducedCol] || "").trim().replace(/\//g, "."),
+              links: parsePodcastLinks(String(row[linksCol] || ""), primaryUrl),
+              artwork: null,
+              comment: String(row[commentCol] || "").trim(),
+            } satisfies ListenerPodcast;
+          })
+          .filter((item) => item.title);
+
+        if (!base.length) throw new Error("Podcast CSV is empty");
+        if (!cancelled) setLiveListenerPodcasts(base);
+        await fillPodcastArtwork(base);
+        return;
+      } catch {
+        // 公開CSVが取得できない場合のみ、Apps Scriptの代表URLデータで最低限表示する。
+      }
+
       try {
         const payload = await loadJsonp<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; introduced?: string; comment?: string }> }>(
           ASARISU_API_URL + "?type=listenerPodcast&_=" + Date.now()
         );
         if (!payload?.ok || !Array.isArray(payload.items)) return;
-        const curatedByTitle = new Map(listenerPodcasts.map((item) => [item.title.trim(), item]));
         const base = payload.items
           .map((source, index) => {
-            const title = String(source.title || "").trim();
-            const curated = curatedByTitle.get(title);
-            const submittedUrl = String(source.url || "").trim();
-            const submittedLink = submittedUrl ? { label: providerLabel(submittedUrl), url: submittedUrl } : null;
-            const curatedLinks = curated?.links ?? [];
-            const links = submittedLink
-              ? [submittedLink, ...curatedLinks.filter((link) => normalizeUrl(link.url) !== normalizeUrl(submittedUrl))]
-              : curatedLinks;
+            const url = String(source.url || "").trim();
             return {
               id: String(source.id || index + 1).padStart(2, "0"),
-              title,
+              title: String(source.title || "").trim(),
               maker: String(source.maker || "").trim(),
-              introduced: String(source.introduced || "").trim(),
-              links,
-              artwork: curated?.artwork ?? null,
+              introduced: String(source.introduced || "").trim().replace(/\//g, "."),
+              links: url ? [{ label: podcastProviderLabel(url), url }] : [],
+              artwork: null,
               comment: String(source.comment || "").trim(),
             } satisfies ListenerPodcast;
           })
           .filter((item) => item.title);
         if (!cancelled) setLiveListenerPodcasts(base);
-        await Promise.all(base.map(async (item) => {
-          if (item.artwork) return;
-          const artworkSource =
-            item.links.find((link) => /podcasts\.apple\.com/i.test(link.url))?.url ??
-            item.links[0]?.url ??
-            null;
-          const artwork = await discoverPodcastArtwork(item.title, artworkSource);
-          if (!artwork || cancelled) return;
-          setLiveListenerPodcasts((current) =>
-            current.map((p) => p.id === item.id ? { ...p, artwork } : p)
-          );
-        }));
+        await fillPodcastArtwork(base);
       } catch {
-        // 初期12件を維持
+        // 取得失敗時は空表示のままにし、古い固定データへは戻さない。
       }
     }
+
     refreshListenerPodcasts();
     return () => { cancelled = true; };
   }, []);
