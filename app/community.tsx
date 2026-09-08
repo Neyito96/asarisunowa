@@ -567,7 +567,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           className={view === "podcasts" ? "on" : ""}
           onClick={() => { setSubmitKind("podcast"); setView("podcasts"); }}
         >
-          🎧 おすすめ
+          🎧 他おすすめ
         </button>
       </div>
       {view === "listeners" ? (
