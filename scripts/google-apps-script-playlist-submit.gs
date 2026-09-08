@@ -121,13 +121,45 @@ function doGet(e) {
     const type = e && e.parameter && e.parameter.type ? String(e.parameter.type) : "status";
 
     if (type === "status") {
-      return apiResponse({ ok: true, service: "asarisunowa-api", version: "2026.09.08-resolver" }, callback);
+      return apiResponse({ ok: true, service: "asarisunowa-api", version: "2026.09.08-resolver2" }, callback);
     }
 
     if (type === "resolve") {
       const url = e && e.parameter && e.parameter.url ? String(e.parameter.url).trim() : "";
+      const kind = e && e.parameter && e.parameter.kind ? String(e.parameter.kind).trim() : "listenerPodcast";
       if (!url) return apiResponse({ ok: false, error: "URLを入力してください" }, callback);
-      return apiResponse(resolvePodcastUrl(url), callback);
+
+      const ssForResolve = SpreadsheetApp.openById(SPREADSHEET_ID);
+      const targetSheetName = kind === "podcast" ? PODCAST_SHEET_NAME : LISTENER_PODCAST_SHEET_NAME;
+      const targetSheet = getSheetLoose(ssForResolve, targetSheetName);
+      const known = targetSheet ? findPodcastDuplicate(targetSheet, url, "") : null;
+
+      // 登録済みURLなら外部サービスへ問い合わせなくても既存データから即時に判定できる。
+      if (known && known.urlMatch) {
+        return apiResponse({
+          ok: true,
+          title: known.title,
+          artwork: "",
+          provider: detectProvider(url),
+          duplicate: true,
+          duplicateId: known.id,
+          duplicateReason: "url",
+          url: url
+        }, callback);
+      }
+
+      const resolved = resolvePodcastUrl(url);
+      if (resolved && resolved.ok && targetSheet) {
+        const duplicate = findPodcastDuplicate(targetSheet, url, resolved.title || "");
+        if (duplicate) {
+          resolved.duplicate = true;
+          resolved.duplicateId = duplicate.id;
+          resolved.duplicateReason = duplicate.titleMatch ? "title" : "url";
+        } else {
+          resolved.duplicate = false;
+        }
+      }
+      return apiResponse(resolved, callback);
     }
 
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
@@ -223,6 +255,31 @@ function resolvePodcastUrl(url) {
   } catch (error) {
     return { ok: false, error: "番組情報を取得できませんでした。", detail: String(error && error.message ? error.message : error) };
   }
+}
+
+function findPodcastDuplicate(sheet, url, title) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return null;
+
+  const values = sheet.getRange(2, 1, lastRow - 1, Math.max(2, sheet.getLastColumn())).getDisplayValues();
+  const wantedUrl = normalizeUrl(url);
+  const wantedTitle = normalizeTitle(title);
+
+  for (let i = 0; i < values.length; i++) {
+    const rowUrl = normalizeUrl(values[i][0] || "");
+    const rowTitle = normalizeTitle(values[i][1] || "");
+    const urlMatch = !!wantedUrl && rowUrl === wantedUrl;
+    const titleMatch = !!wantedTitle && rowTitle === wantedTitle;
+    if (urlMatch || titleMatch) {
+      return {
+        id: String(i + 1).padStart(2, "0"),
+        title: String(values[i][1] || "").trim(),
+        urlMatch: urlMatch,
+        titleMatch: titleMatch
+      };
+    }
+  }
+  return null;
 }
 
 function readPlaylistSheet(sheet) {
