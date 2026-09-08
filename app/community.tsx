@@ -881,7 +881,17 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               <div className="grid podcastGrid">
                 {recommendedPodcasts.map((p) => (
                   <article className="card" key={"podcast-" + p.id}>
-                    <div className="cover podcastCover"><span>PODCAST<br />RECOMMEND</span></div>
+                    <div className="cover podcastCover">
+                      {p.artwork ? (
+                        <img
+                          src={p.artwork}
+                          alt={`${p.title}のアートワーク`}
+                          loading="lazy"
+                        />
+                      ) : (
+                        <span>PODCAST<br />RECOMMEND</span>
+                      )}
+                    </div>
                     <div className="cardBody listenerCardBody">
                       <small>RECOMMEND {p.id.padStart(2, "0")}</small>
                       <h3>{p.title}</h3>
