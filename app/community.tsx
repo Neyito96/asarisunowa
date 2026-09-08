@@ -333,6 +333,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     ),
     [query, setQuery] = useState(""),
     [sort, setSort] = useState<"new" | "number">("new"),
+    [listenerPodcastSort, setListenerPodcastSort] = useState<"new" | "number">("new"),
     [listened, setListened] = useState<string[]>([]),
     [omikuji, setOmikuji] = useState<Playlist | null>(null),
     [showAllListened, setShowAllListened] = useState(false),
@@ -1028,8 +1029,16 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               <h2>🎙 朝リスさんのPodcast</h2>
               <p>タンタンさん作「朝リスさんのポッドキャスト」をもとに、みんなで更新できるリストへ育てています。</p>
             </div>
+            <div className="toolbar listenerPodcastToolbar">
+              <div className="tools">
+                <div className="sorts" role="group" aria-label="朝リスPodcastの並べ替え">
+                  <button className={listenerPodcastSort === "new" ? "on" : ""} onClick={() => setListenerPodcastSort("new")}>新着</button>
+                  <button className={listenerPodcastSort === "number" ? "on" : ""} onClick={() => setListenerPodcastSort("number")}>登録順</button>
+                </div>
+              </div>
+            </div>
             <div className="grid podcastGrid">
-              {[...liveListenerPodcasts].reverse().map((p) => (
+              {(listenerPodcastSort === "new" ? [...liveListenerPodcasts].reverse() : liveListenerPodcasts).map((p) => (
                 <article className="card" key={"listener-podcast-" + p.id}>
                   <div className="cover podcastCover">
                     {p.artwork ? <img src={p.artwork} alt={p.title + "のアートワーク"} loading="lazy" /> : <span>ASARISU<br />PODCAST</span>}
