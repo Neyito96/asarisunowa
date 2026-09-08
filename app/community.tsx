@@ -70,6 +70,10 @@ const officialArtwork: Record<string, string> = {
   "https://open.spotify.com/show/5UwHBIfMDqWs0EyfPOz50N":
     "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f72bc24f7f9a0b42fedbe9570",
 };
+const recommendedPodcastArtwork: Record<string, string> = {
+  "AERAのだべらじお": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/0a/a1/64/0aa164cc-07a6-8f76-13bc-f4f0b6e1d514/mza_8598913033247722206.jpg/600x600bb.jpg",
+};
+
 const recommendedPodcastLinks: Record<string, [string, string][]> = {
   "AERAのだべらじお": [
     ["Spotify", "https://open.spotify.com/show/3NdPcDtxhkuHCvDTQ1MmwQ"],
@@ -242,7 +246,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       title: "AERAのだべらじお",
       maker: "ARERA",
       url: "https://open.spotify.com/show/3NdPcDtxhkuHCvDTQ1MmwQ",
-      artwork: null,
+      artwork: recommendedPodcastArtwork["AERAのだべらじお"] ?? null,
+      comment: "",
     },
   ]);
   const [view, setView] = useState<"listeners" | "official" | "circle" | "discord" | "podcasts">(
@@ -324,13 +329,14 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         if (!table.length) return;
         const next = table.slice(1)
           .map((source, index) => {
-            const [url = "", title = "", maker = ""] = source;
+            const [url = "", title = "", maker = "", _receivedAt = "", comment = ""] = source;
             return {
               id: String(index + 1),
               title: title.trim(),
               maker: maker.trim(),
               url: url.trim() || null,
-              artwork: null,
+              artwork: recommendedPodcastArtwork[title.trim()] ?? null,
+              comment: comment.trim(),
             } satisfies Playlist;
           })
           .filter((item) => item.title);
@@ -866,6 +872,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                       <small>RECOMMEND {p.id.padStart(2, "0")}</small>
                       <h3>{p.title}</h3>
                       <p>おすすめ：{p.maker}</p>
+                      {p.comment && <p className="podcastComment">💬 {p.comment}</p>}
                       {recommendedPodcastLinks[p.title] ? (
                         <div className="platformLinks">
                           {recommendedPodcastLinks[p.title].map(([label, href]) => (
