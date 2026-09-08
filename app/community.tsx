@@ -59,8 +59,8 @@ const listenerPodcasts: ListenerPodcast[] = [
     {label:"Amazon",url:"https://x.gd/X60o6"}
   ]},
   { id:"09", title:"うんちく聖書ラジオ", maker:"MK", introduced:"2026.6.28", links:[
-    {label:"Spotify",url:"https://open.spotify.com/show/15nPIYmjjspnDPhLIGXD09"},
-    {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id1594176663"}
+    {label:"Spotify",url:"https://x.gd/5ubgU"},
+    {label:"Apple",url:"https://x.gd/l7McR"}
   ]},
   { id:"10", title:"福祉探偵団", maker:"KELLY", introduced:"2026.7.19", links:[
     {label:"Apple",url:"https://podcasts.apple.com/jp/podcast/id528929649"}
