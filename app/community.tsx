@@ -476,6 +476,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     [autoUpdatePlaylistId, setAutoUpdatePlaylistId] = useState(""),
     [autoUpdateMaker, setAutoUpdateMaker] = useState(""),
     [autoUpdateInviteUrl, setAutoUpdateInviteUrl] = useState(""),
+    [autoUpdateKeywords, setAutoUpdateKeywords] = useState(""),
+    [autoUpdateRuleNote, setAutoUpdateRuleNote] = useState(""),
     [autoUpdateSecurityAnswer, setAutoUpdateSecurityAnswer] = useState(""),
     [autoUpdateStatus, setAutoUpdateStatus] = useState<"idle" | "sending" | "success" | "error">("idle"),
     [autoUpdateMessage, setAutoUpdateMessage] = useState(""),
@@ -975,6 +977,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           title: selected.title,
           maker: autoUpdateMaker.trim(),
           inviteUrl: autoUpdateInviteUrl.trim(),
+          keywords: autoUpdateKeywords.trim(),
+          ruleNote: autoUpdateRuleNote.trim(),
           securityAnswer: autoUpdateSecurityAnswer.trim(),
           website: ""
         }),
@@ -984,6 +988,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       setAutoUpdatePlaylistId("");
       setAutoUpdateMaker("");
       setAutoUpdateInviteUrl("");
+      setAutoUpdateKeywords("");
+      setAutoUpdateRuleNote("");
       setAutoUpdateSecurityAnswer("");
     } catch {
       setAutoUpdateStatus("error");
@@ -1387,6 +1393,15 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     <span>Spotify 共同編集者招待URL</span>
                     <input type="url" value={autoUpdateInviteUrl} onChange={(e) => setAutoUpdateInviteUrl(e.target.value)} placeholder="Spotifyで発行した共同編集者の招待リンク" required />
                     <small>Spotifyで対象プレイリストを開き「共同編集者を招待」から発行したリンクを貼ってください。</small>
+                  </label>
+                  <label>
+                    <span>自動更新のキーワード</span>
+                    <textarea value={autoUpdateKeywords} onChange={(e) => setAutoUpdateKeywords(e.target.value)} placeholder={"例：めくろう\n一緒に新聞をめくろう\n新聞をめくろう"} rows={3} required />
+                    <small>新着エピソードを見つけるための言葉です。複数ある場合は改行か「,」で区切ってください。</small>
+                  </label>
+                  <label>
+                    <span>更新ルール・補足 <small>（任意）</small></span>
+                    <textarea value={autoUpdateRuleNote} onChange={(e) => setAutoUpdateRuleNote(e.target.value)} placeholder="例：「一緒に新聞をめくろう！」の新着回だけ追加。再配信や予告編は除外。" rows={3} />
                   </label>
                   <label>
                     <span>セキュリティ：神田さんの名は？</span>
