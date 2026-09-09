@@ -2264,3 +2264,24 @@ footer {
 .resolveMessage.error{
   color:#a64a4a;
 }
+
+.playlistUpdateMeta{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:2px 0 8px;
+  color:#68766f;
+  font-size:12px;
+  font-weight:800;
+}
+.playlistNewBadge{
+  display:inline-flex;
+  align-items:center;
+  border-radius:999px;
+  padding:3px 8px;
+  background:#cb4f78;
+  color:#fff;
+  font-size:11px;
+  line-height:1;
+  letter-spacing:.04em;
+}
