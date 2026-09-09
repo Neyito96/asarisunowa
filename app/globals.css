@@ -2305,3 +2305,17 @@ footer {
   height:100%;
   display:block;
 }
+
+
+/* Playlist auto-update request */
+.autoUpdateRequest{margin:18px 0 8px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--card)}
+.autoUpdateToggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 18px;border:0;background:transparent;text-align:left;color:inherit;cursor:pointer}
+.autoUpdateToggle span:first-child{display:flex;flex-direction:column;gap:4px}
+.autoUpdateToggle small{font-weight:400;opacity:.72}
+.autoUpdateForm{padding:0 18px 18px;display:grid;gap:14px}
+.autoUpdateForm h3{margin:4px 0 0}
+.autoUpdateForm p{margin:0;line-height:1.65}
+.autoUpdateForm label{display:grid;gap:6px}
+.autoUpdateForm input,.autoUpdateForm select{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:inherit;font:inherit}
+.autoUpdateForm label small{opacity:.7;line-height:1.5}
+.autoUpdateForm button[type="submit"]{padding:12px 16px;border:0;border-radius:999px;font-weight:700;cursor:pointer}
