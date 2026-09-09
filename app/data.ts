@@ -4,7 +4,7 @@ const rows:[string,string,string|null,string|null][] = [
     "一緒に新聞をめくろう！",
     "NEYITO",
     "https://open.spotify.com/playlist/4tY0lHoV8IemMBp4iTnKnl",
-    "https://i.scdn.co/image/ab67656300005f1ff68184b096b31538254cf206"
+    "/asarisunowa/mekurou-latest-20260907.jpg"
   ],
   [
     "IOK 伊藤大地・奥山晶二郎・神田大介",
