@@ -1163,8 +1163,13 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     </div>
                   </div>
                   {omikuji.url && (
-                    <a className="omikujiGo" href={omikuji.url} target="_blank" rel="noreferrer">
-                      このプレイリストを聴く ↗
+                    <a className="omikujiGo" href={omikuji.url} target="_blank" rel="noreferrer" aria-label="Spotifyで聴く">
+                      <span className="spotifyMark" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" role="img">
+                          <path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm4.58 14.42a.62.62 0 0 1-.85.2c-2.34-1.43-5.29-1.75-8.76-.96a.62.62 0 1 1-.28-1.21c3.8-.87 7.06-.5 9.69 1.1.29.18.38.57.2.87Zm1.21-2.7a.78.78 0 0 1-1.07.26c-2.68-1.65-6.77-2.13-9.94-1.17a.78.78 0 1 1-.45-1.49c3.63-1.1 8.14-.56 11.2 1.32.37.23.49.71.26 1.08Zm.1-2.81C14.68 9 9.37 8.82 6.3 9.75a.94.94 0 1 1-.54-1.79c3.53-1.07 9.4-.86 13.08 1.32a.94.94 0 0 1-.95 1.63Z"/>
+                        </svg>
+                      </span>
+                      <span>Spotifyで聴く ↗</span>
                     </a>
                   )}
                 </div>
