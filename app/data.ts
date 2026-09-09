@@ -390,23 +390,5 @@ const rows:[string,string,string|null,string|null][] = [
     "https://open.spotify.com/playlist/7vwoC9fKfYGILwaPgnLJER",
     "https://mosaic.scdn.co/300/ab67656300005f1f2365d5361f8ec0a4c5a3d442ab67656300005f1f276260b244eab5e25f076134ab67656300005f1f6dd6cda0c26397c6ca6df8e5ab67656300005f1fecc8b64fdf593a1d5e042429"
   ],
-  [
-    "AERAのだべらじお",
-    "ARERA",
-    "https://open.spotify.com/show/3NdPcDtxhkuHCvDTQ1MmwQ",
-    "https://image-cdn-fa.spotifycdn.com/image/ab6772ab000015be5f63fc6a2442f52b21becfc8"
-  ],
-  [
-    "AERAのだべらじお",
-    "ARARE",
-    "https://open.spotify.com/show/3NdPcDtxhkuHCvDTQ1MmwQ",
-    "https://image-cdn-ak.spotifycdn.com/image/ab6772ab000015be5f63fc6a2442f52b21becfc8"
-  ],
-  [
-    "AERAのだべらじお",
-    "ネジート",
-    "https://open.spotify.com/show/3NdPcDtxhkuHCvDTQ1MmwQ",
-    "https://image-cdn-fa.spotifycdn.com/image/ab6772ab000015be5f63fc6a2442f52b21becfc8"
-  ]
 ];
 export const playlists:Playlist[] = rows.map((r,i)=>({id:String(i+1),title:r[0],maker:r[1],url:r[2],artwork:r[3]}));
