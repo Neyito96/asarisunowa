@@ -1150,6 +1150,12 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     <div>
                       <div className="omikujiMeta">
                         <small>PLAYLIST {omikuji.id.padStart(2, "0")}｜本日の一聴</small>
+                        {omikuji.latestDate && (
+                          <span className="playlistUpdateMeta">
+                            {isRecentPlaylistDate(omikuji.latestDate) && <span className="playlistNewBadge">NEW</span>}
+                            <span>{formatPlaylistDate(omikuji.latestDate)} 更新</span>
+                          </span>
+                        )}
                         {!listened.includes(omikuji.id) && <span>♡ 未聴</span>}
                       </div>
                       <h4>{omikuji.title}</h4>
