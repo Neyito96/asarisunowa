@@ -250,19 +250,19 @@ const rows:[string,string,string|null,string|null][] = [
     "「SDGsを話そう」厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/4styp7b6VpZThsevXCRDla",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84a1ed8e9ca1ad0f9a7c2b7b07"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84a1ed8e9ca1ad0f9a7c2b7b07"
   ],
   [
     "ポキ-1グランプリ 2023",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/5xUDKa3r5arvKSx4gqjwI3",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9"
   ],
   [
     "「MEDIA TALK」 2023厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/6Q0iXwuC9PuLV3cqg11Dmt",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938"
   ],
   [
     "楽屋裏2023　厳選エピソード",
@@ -376,7 +376,7 @@ const rows:[string,string,string|null,string|null][] = [
     "まなび場天声人語　見出しづくりにチャレンジ",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/7aKDEfAdCjTxiqiv19Grar",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da848d2c65afeadf0c8d7c18f392"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da848d2c65afeadf0c8d7c18f392"
   ],
   [
     "#朝ポキ 他流試合 +PCWE2024 +α",
@@ -400,7 +400,7 @@ const rows:[string,string,string|null,string|null][] = [
     "AERAのだべらじお",
     "ARARE",
     "https://open.spotify.com/show/3NdPcDtxhkuHCvDTQ1MmwQ",
-    "https://image-cdn-fa.spotifycdn.com/image/ab6772ab000015be5f63fc6a2442f52b21becfc8"
+    "https://image-cdn-ak.spotifycdn.com/image/ab6772ab000015be5f63fc6a2442f52b21becfc8"
   ],
   [
     "AERAのだべらじお",
