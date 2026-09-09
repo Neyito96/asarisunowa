@@ -4,7 +4,7 @@ const rows:[string,string,string|null,string|null][] = [
     "一緒に新聞をめくろう！",
     "NEYITO",
     "https://open.spotify.com/playlist/4tY0lHoV8IemMBp4iTnKnl",
-    "/asarisunowa/mekurou-latest-20260907.jpg"
+    "https://mosaic.scdn.co/300/ab67656300005f1f16d0937799ff9a0751558925ab67656300005f1fb73f1d7e08c7f177ba21f8feab67656300005f1fdab8e88a93d8dd09b8888fe8ab67656300005f1ff68184b096b31538254cf206"
   ],
   [
     "IOK 伊藤大地・奥山晶二郎・神田大介",
@@ -250,7 +250,7 @@ const rows:[string,string,string|null,string|null][] = [
     "「SDGsを話そう」厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/4styp7b6VpZThsevXCRDla",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84a1ed8e9ca1ad0f9a7c2b7b07"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84a1ed8e9ca1ad0f9a7c2b7b07"
   ],
   [
     "ポキ-1グランプリ 2023",
@@ -262,7 +262,7 @@ const rows:[string,string,string|null,string|null][] = [
     "「MEDIA TALK」 2023厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/6Q0iXwuC9PuLV3cqg11Dmt",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938"
   ],
   [
     "楽屋裏2023　厳選エピソード",
@@ -310,7 +310,7 @@ const rows:[string,string,string|null,string|null][] = [
     "#懐メロ（#朝ポキ 楽屋裏）＋おじさんのメロディ",
     "koike",
     "https://open.spotify.com/playlist/0vItsmD8tW7fsv18NkZKzh",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600"
   ],
   [
     "#ジャニーズ性加害問題（#朝ポキ）",
@@ -322,7 +322,7 @@ const rows:[string,string,string|null,string|null][] = [
     "#きのどう「木下君、あの動画みた？」",
     "NEYITO",
     "https://open.spotify.com/playlist/6nDhZQG75F1wU62sdcYJMq",
-    "https://i.scdn.co/image/ab67656300005f1f7c49378fc19b81c6f0f72987"
+    "https://mosaic.scdn.co/300/ab67656300005f1f7c49378fc19b81c6f0f72987ab67656300005f1fc5f5a9b3d17bef4f19db1042ab67656300005f1ff383700d6fda3443a1b3c72bab67656300005f1ff5aae7b621c525db61fc819f"
   ],
   [
     "PRIDE CODE その声が、世界を変える。世界をポジティブに変えていく声を祝福するプレイリスト。",
@@ -376,7 +376,7 @@ const rows:[string,string,string|null,string|null][] = [
     "まなび場天声人語　見出しづくりにチャレンジ",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/7aKDEfAdCjTxiqiv19Grar",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da848d2c65afeadf0c8d7c18f392"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da848d2c65afeadf0c8d7c18f392"
   ],
   [
     "#朝ポキ 他流試合 +PCWE2024 +α",
@@ -406,7 +406,7 @@ const rows:[string,string,string|null,string|null][] = [
     "AERAのだべらじお",
     "ネジート",
     "https://open.spotify.com/show/3NdPcDtxhkuHCvDTQ1MmwQ",
-    "https://image-cdn-ak.spotifycdn.com/image/ab6772ab000015be5f63fc6a2442f52b21becfc8"
+    "https://image-cdn-fa.spotifycdn.com/image/ab6772ab000015be5f63fc6a2442f52b21becfc8"
   ]
 ];
 export const playlists:Playlist[] = rows.map((r,i)=>({id:String(i+1),title:r[0],maker:r[1],url:r[2],artwork:r[3]}));
