@@ -1055,7 +1055,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           className={view === "circle" ? "on" : ""}
           onClick={() => setView("circle")}
         >
-          ◯ あれどこ？
+          🔎あれどこ?
         </button>
         <button
           className={view === "listenerPodcasts" ? "on" : ""}
