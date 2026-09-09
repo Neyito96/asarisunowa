@@ -455,7 +455,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       "official",
     ),
     [query, setQuery] = useState(""),
-    [sort, setSort] = useState<"new" | "number">("new"),
+    [sort, setSort] = useState<"new" | "number" | "numberDesc">("new"),
     [listenerPodcastSort, setListenerPodcastSort] = useState<"new" | "number">("new"),
     [listened, setListened] = useState<string[]>([]),
     [omikuji, setOmikuji] = useState<Playlist | null>(null),
@@ -656,11 +656,15 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         .filter((p) =>
           (p.title + " " + p.maker).toLowerCase().includes(query.toLowerCase()),
         )
-        .sort((a, b) =>
-          sort === "new"
-            ? playlistDateValue(b.latestDate) - playlistDateValue(a.latestDate) || Number(b.id) - Number(a.id)
-            : Number(a.id) - Number(b.id),
-        ),
+        .sort((a, b) => {
+          if (sort === "new") {
+            return playlistDateValue(b.latestDate) - playlistDateValue(a.latestDate) || Number(b.id) - Number(a.id);
+          }
+          if (sort === "numberDesc") {
+            return Number(b.id) - Number(a.id);
+          }
+          return Number(a.id) - Number(b.id);
+        }),
     [query, sort, livePlaylists],
   );
   function handleSearch(value: string) {
@@ -1097,6 +1101,12 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   onClick={() => setSort("number")}
                 >
                   登録順
+                </button>
+                <button
+                  className={sort === "numberDesc" ? "on" : ""}
+                  onClick={() => setSort("numberDesc")}
+                >
+                  登録逆順
                 </button>
               </div>
             </div>
