@@ -9,6 +9,7 @@ const WORK_SHEET_NAME = "作業台";
 const PUBLIC_SHEET_NAME = "サイト公開用";
 const PODCAST_SHEET_NAME = "おすすめPodcast";
 const LISTENER_PODCAST_SHEET_NAME = "朝リスPodcast";
+const AUTO_UPDATE_REQUEST_SHEET_NAME = "自動更新申請";
 
 function doPost(e) {
   try {
@@ -26,7 +27,7 @@ function doPost(e) {
     if (!url || !title || !maker) return jsonResponse({ ok: false, error: "必須項目が不足しています" });
 
     if (securityAnswer !== "大介") return jsonResponse({ ok: false, error: "合言葉が違います" });
-    if (kind !== "playlist" && kind !== "podcast" && kind !== "listenerPodcast") return jsonResponse({ ok: false, error: "投稿の種類が正しくありません" });
+    if (kind !== "playlist" && kind !== "podcast" && kind !== "listenerPodcast" && kind !== "autoUpdateRequest") return jsonResponse({ ok: false, error: "投稿の種類が正しくありません" });
 
     const isPlaylistUrl =
       /^https:\/\/open\.spotify\.com\/playlist\//i.test(url) ||
@@ -46,6 +47,15 @@ function doPost(e) {
     if (kind === "playlist" && !isPlaylistUrl) {
       return jsonResponse({ ok: false, error: "朝リストにはSpotifyまたはYouTube MusicのプレイリストURLを入力してください" });
     }
+    if (kind === "autoUpdateRequest") {
+      if (!/^https:\/\/open\.spotify\.com\/playlist\//i.test(url)) {
+        return jsonResponse({ ok: false, error: "Spotifyプレイリストを選んでください" });
+      }
+      const inviteUrl = String(data.inviteUrl || "").trim();
+      if (!/^https:\/\/open\.spotify\.com\/playlist\//i.test(inviteUrl) || !/[?&]pt=/i.test(inviteUrl)) {
+        return jsonResponse({ ok: false, error: "Spotifyの共同編集者招待URLを確認してください" });
+      }
+    }
     if ((kind === "podcast" || kind === "listenerPodcast") && !isPodcastUrl) {
       return jsonResponse({ ok: false, error: "Podcastの番組URLを確認してください" });
     }
@@ -55,10 +65,20 @@ function doPost(e) {
     const workSheet = getSheetLoose(ss, WORK_SHEET_NAME);
     const podcastSheet = getSheetLoose(ss, PODCAST_SHEET_NAME);
     const listenerPodcastSheet = getSheetLoose(ss, LISTENER_PODCAST_SHEET_NAME);
+    const autoUpdateRequestSheet = getSheetLoose(ss, AUTO_UPDATE_REQUEST_SHEET_NAME);
     if (!logSheet) throw new Error("投稿受付シートが見つかりません");
     if (!workSheet) throw new Error("作業台シートが見つかりません");
     if (!podcastSheet) throw new Error("おすすめPodcastシートが見つかりません");
     if (!listenerPodcastSheet) throw new Error("朝リスPodcastシートが見つかりません");
+    if (!autoUpdateRequestSheet) throw new Error("自動更新申請シートが見つかりません");
+
+    if (kind === "autoUpdateRequest") {
+      autoUpdateRequestSheet.appendRow([
+        new Date(), url, title, maker, String(data.inviteUrl || "").trim(), "未設定", ""
+      ]);
+      SpreadsheetApp.flush();
+      return jsonResponse({ ok: true, kind: kind, added: true, message: "申請を受け付けました" });
+    }
 
     logSheet.appendRow([
       new Date(), url, title, maker,
