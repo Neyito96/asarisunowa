@@ -1781,6 +1781,10 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       <section className="wrap siteHistory" aria-labelledby="site-history-title">
         <h3 id="site-history-title">更新ログ</h3>
         <div className="historyItem">
+          <time dateTime="2026-09-09">2026.9.9</time>
+          <p>Spotifyプレイリストの一部分を自動更新に対応！</p>
+        </div>
+        <div className="historyItem">
           <time dateTime="2026-09-08">2026.9.8</time>
           <p>「🎙 朝リスPodcast」ページを追加</p>
           <small>@タンタンさん作「朝リスさんのポッドキャスト」をもとに、共同更新できるリストへ拡張</small>
