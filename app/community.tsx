@@ -472,6 +472,13 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     [submitWebsite, setSubmitWebsite] = useState(""),
     [submitStatus, setSubmitStatus] = useState<"idle" | "sending" | "success" | "error">("idle"),
     [submitMessage, setSubmitMessage] = useState(""),
+    [autoUpdateOpen, setAutoUpdateOpen] = useState(false),
+    [autoUpdatePlaylistId, setAutoUpdatePlaylistId] = useState(""),
+    [autoUpdateMaker, setAutoUpdateMaker] = useState(""),
+    [autoUpdateInviteUrl, setAutoUpdateInviteUrl] = useState(""),
+    [autoUpdateSecurityAnswer, setAutoUpdateSecurityAnswer] = useState(""),
+    [autoUpdateStatus, setAutoUpdateStatus] = useState<"idle" | "sending" | "success" | "error">("idle"),
+    [autoUpdateMessage, setAutoUpdateMessage] = useState(""),
     [resolveStatus, setResolveStatus] = useState<"idle" | "loading" | "success" | "error">("idle"),
     [resolveMessage, setResolveMessage] = useState(""),
     [resolvedDuplicate, setResolvedDuplicate] = useState(false),
@@ -942,6 +949,48 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     }
   }
 
+  async function submitAutoUpdateRequest(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const selected = livePlaylists.find((p) => p.id === autoUpdatePlaylistId);
+    if (!selected?.url) {
+      setAutoUpdateStatus("error");
+      setAutoUpdateMessage("朝リストからプレイリストを選んでください。");
+      return;
+    }
+    if (autoUpdateSecurityAnswer.trim() !== "大介") {
+      setAutoUpdateStatus("error");
+      setAutoUpdateMessage("合言葉が違います。「神田さんの名は？」をもう一度どうぞ。");
+      return;
+    }
+    setAutoUpdateStatus("sending");
+    setAutoUpdateMessage("");
+    try {
+      await fetch(PLAYLIST_SUBMIT_ENDPOINT, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          kind: "autoUpdateRequest",
+          url: selected.url,
+          title: selected.title,
+          maker: autoUpdateMaker.trim(),
+          inviteUrl: autoUpdateInviteUrl.trim(),
+          securityAnswer: autoUpdateSecurityAnswer.trim(),
+          website: ""
+        }),
+      });
+      setAutoUpdateStatus("success");
+      setAutoUpdateMessage("申請を受け付けました。確認後、自動更新の設定を行います。");
+      setAutoUpdatePlaylistId("");
+      setAutoUpdateMaker("");
+      setAutoUpdateInviteUrl("");
+      setAutoUpdateSecurityAnswer("");
+    } catch {
+      setAutoUpdateStatus("error");
+      setAutoUpdateMessage("送信できませんでした。時間をおいてもう一度お試しください。");
+    }
+  }
+
   async function submitPlaylist(event: React.FormEvent<HTMLFormElement>, forcedKind?: "playlist" | "podcast" | "listenerPodcast") {
     event.preventDefault();
     if (!PLAYLIST_SUBMIT_ENDPOINT) {
@@ -1306,6 +1355,48 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 )}
               </form>
            </section>
+
+            <section className="autoUpdateRequest" aria-labelledby="auto-update-title">
+              <button
+                type="button"
+                className="autoUpdateToggle"
+                onClick={() => setAutoUpdateOpen((open) => !open)}
+                aria-expanded={autoUpdateOpen}
+              >
+                <span><b>🔄 このプレイリスト、自動更新しませんか？</b><small>眠っている朝リストも、共同編集で自動更新できるかも。</small></span>
+                <span aria-hidden="true">{autoUpdateOpen ? "−" : "＋"}</span>
+              </button>
+              {autoUpdateOpen && (
+                <form className="autoUpdateForm" onSubmit={submitAutoUpdateRequest}>
+                  <h3 id="auto-update-title">自動更新を申し込む</h3>
+                  <p>あなたが編集できるSpotifyプレイリストを選び、共同編集者の招待リンクを送ってください。一度設定すれば、その後は自動更新を続けられます。</p>
+                  <label>
+                    <span>朝リストから選ぶ</span>
+                    <select value={autoUpdatePlaylistId} onChange={(e) => setAutoUpdatePlaylistId(e.target.value)} required>
+                      <option value="">プレイリストを選択</option>
+                      {livePlaylists.filter((p) => p.url?.includes("open.spotify.com/playlist/")).map((p) => (
+                        <option key={p.id} value={p.id}>PLAYLIST {p.id.padStart(2, "0")}｜{p.title}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    <span>あなたの朝リスネーム</span>
+                    <input type="text" value={autoUpdateMaker} onChange={(e) => setAutoUpdateMaker(e.target.value)} maxLength={80} required />
+                  </label>
+                  <label>
+                    <span>Spotify 共同編集者招待URL</span>
+                    <input type="url" value={autoUpdateInviteUrl} onChange={(e) => setAutoUpdateInviteUrl(e.target.value)} placeholder="Spotifyで発行した共同編集者の招待リンク" required />
+                    <small>Spotifyで対象プレイリストを開き「共同編集者を招待」から発行したリンクを貼ってください。</small>
+                  </label>
+                  <label>
+                    <span>セキュリティ：神田さんの名は？</span>
+                    <input type="text" value={autoUpdateSecurityAnswer} onChange={(e) => setAutoUpdateSecurityAnswer(e.target.value)} placeholder="漢字2文字" maxLength={10} autoComplete="off" required />
+                  </label>
+                  <button type="submit" disabled={autoUpdateStatus === "sending"}>{autoUpdateStatus === "sending" ? "送信中…" : "自動更新を申し込む"}</button>
+                  {autoUpdateMessage && <p className={autoUpdateStatus === "success" ? "submitNotice success" : "submitNotice error"}>{autoUpdateMessage}</p>}
+                </form>
+              )}
+            </section>
           </main>
         </>
       ) : view === "official" ? (
