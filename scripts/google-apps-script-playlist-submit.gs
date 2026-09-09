@@ -74,7 +74,7 @@ function doPost(e) {
 
     if (kind === "autoUpdateRequest") {
       autoUpdateRequestSheet.appendRow([
-        new Date(), url, title, maker, String(data.inviteUrl || "").trim(), "未設定", ""
+        new Date(), url, title, maker, String(data.inviteUrl || "").trim(), String(data.keywords || "").trim(), String(data.ruleNote || "").trim(), "未設定", ""
       ]);
       SpreadsheetApp.flush();
       return jsonResponse({ ok: true, kind: kind, added: true, message: "申請を受け付けました" });
