@@ -424,6 +424,29 @@ function OfficialArtwork({ url, name }: { url?: string; name: string }) {
     </div>
   );
 }
+function formatPlaylistDate(value?: string | null) {
+  const clean = String(value || "").trim();
+  if (!clean) return "";
+  const match = clean.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
+  if (!match) return clean;
+  return `${Number(match[1])}.${Number(match[2])}.${Number(match[3])}`;
+}
+function isRecentPlaylistDate(value?: string | null, days = 7) {
+  const clean = String(value || "").trim();
+  const match = clean.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return false;
+  const updated = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])).getTime();
+  const now = Date.now();
+  const diff = now - updated;
+  return diff >= 0 && diff <= days * 24 * 60 * 60 * 1000;
+}
+function playlistDateValue(value?: string | null) {
+  const clean = String(value || "").trim();
+  const match = clean.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return 0;
+  return Number(match[1] + match[2] + match[3]);
+}
+
 export default function Community({ playlists }: { playlists: Playlist[] }) {
   const [livePlaylists, setLivePlaylists] = useState<Playlist[]>(playlists);
   const [recommendedPodcasts, setRecommendedPodcasts] = useState<Playlist[]>([]);
@@ -463,7 +486,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     let cancelled = false;
     async function refreshListenerPlaylists() {
       try {
-        const payload = await loadJsonp<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string }> }>(
+        const payload = await loadJsonp<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; latestDate?: string }> }>(
           ASARISU_API_URL + "?type=playlist&_=" + Date.now()
         );
         if (!payload?.ok || !Array.isArray(payload.items)) return;
@@ -474,7 +497,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           playlists.map((item) => [item.title.trim(), item]),
         );
         const next = payload.items
-          .map((source: { id?: string; url?: string; title?: string; maker?: string }, index: number) => {
+          .map((source: { id?: string; url?: string; title?: string; maker?: string; latestDate?: string }, index: number) => {
             const cleanUrl = String(source.url || "").trim() || null;
             const cleanTitle = String(source.title || "").trim();
             const existing =
@@ -486,6 +509,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               maker: String(source.maker || "").trim(),
               url: cleanUrl,
               artwork: existing?.artwork ?? null,
+              latestDate: String(source.latestDate || "").trim() || null,
             } satisfies Playlist;
           })
           .filter((item: Playlist) => item.title && !["66", "67", "68"].includes(String(item.id)));
@@ -633,7 +657,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           (p.title + " " + p.maker).toLowerCase().includes(query.toLowerCase()),
         )
         .sort((a, b) =>
-          sort === "new" ? Number(b.id) - Number(a.id) : Number(a.id) - Number(b.id),
+          sort === "new"
+            ? playlistDateValue(b.latestDate) - playlistDateValue(a.latestDate) || Number(b.id) - Number(a.id)
+            : Number(a.id) - Number(b.id),
         ),
     [query, sort, livePlaylists],
   );
@@ -1150,6 +1176,12 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 </div>
                     <div className="cardBody listenerCardBody">
                       <small>PLAYLIST {p.id.padStart(2, "0")}</small>
+                      {p.latestDate && (
+                        <div className="playlistUpdateMeta">
+                          {isRecentPlaylistDate(p.latestDate) && <span className="playlistNewBadge">NEW</span>}
+                          <span>{formatPlaylistDate(p.latestDate)} 更新</span>
+                        </div>
+                      )}
                       <h3>{p.title}</h3>
                       <p>by {p.maker}</p>
                       <div className="actions">
