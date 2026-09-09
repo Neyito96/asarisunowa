@@ -1043,7 +1043,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           className={view === "listeners" ? "on" : ""}
           onClick={() => setView("listeners")}
         >
-          ♡ 朝リスト
+          🐿️朝リスト
         </button>
         <button
           className={view === "discord" ? "on" : ""}
