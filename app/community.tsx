@@ -1037,7 +1037,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           className={view === "official" ? "on" : ""}
           onClick={() => setView("official")}
         >
-          ★ 公式
+          <span className="asaMincho">朝</span><span>公式</span>
         </button>
         <button
           className={view === "listeners" ? "on" : ""}
