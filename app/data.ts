@@ -4,7 +4,7 @@ const rows:[string,string,string|null,string|null][] = [
     "一緒に新聞をめくろう！",
     "NEYITO",
     "https://open.spotify.com/playlist/4tY0lHoV8IemMBp4iTnKnl",
-    "https://mosaic.scdn.co/300/ab67656300005f1f16d0937799ff9a0751558925ab67656300005f1fb73f1d7e08c7f177ba21f8feab67656300005f1fdab8e88a93d8dd09b8888fe8ab67656300005f1ff68184b096b31538254cf206"
+    "https://i.scdn.co/image/ab67656300005f1f16d0937799ff9a0751558925"
   ],
   [
     "IOK 伊藤大地・奥山晶二郎・神田大介",
@@ -322,7 +322,7 @@ const rows:[string,string,string|null,string|null][] = [
     "#きのどう「木下君、あの動画みた？」",
     "NEYITO",
     "https://open.spotify.com/playlist/6nDhZQG75F1wU62sdcYJMq",
-    "https://mosaic.scdn.co/300/ab67656300005f1f7c49378fc19b81c6f0f72987ab67656300005f1fc5f5a9b3d17bef4f19db1042ab67656300005f1ff383700d6fda3443a1b3c72bab67656300005f1ff5aae7b621c525db61fc819f"
+    "https://i.scdn.co/image/ab67656300005f1f7c49378fc19b81c6f0f72987"
   ],
   [
     "PRIDE CODE その声が、世界を変える。世界をポジティブに変えていく声を祝福するプレイリスト。",
