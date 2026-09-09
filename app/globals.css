@@ -2285,3 +2285,23 @@ footer {
   line-height:1;
   letter-spacing:.04em;
 }
+
+
+/* Spotify attribution inside the playlist omikuji link */
+.omikujiGo{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+.spotifyMark{
+  width:21px;
+  height:21px;
+  display:inline-flex;
+  flex:0 0 21px;
+}
+.spotifyMark svg{
+  width:100%;
+  height:100%;
+  display:block;
+}
