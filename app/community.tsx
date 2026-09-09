@@ -1420,11 +1420,11 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                       target="_blank"
                       rel="noreferrer"
                     >
-                      {p.name.startsWith("ドーナツ")
+                      {p.discord === "https://discord.gg/TU8c9qtzvw"
                         ? "ドーナツDiscord"
-                        : p.name === "MEDIA TALK"
-                          ? "朝ポキのDiscord"
-                          : "報談専用Discord"}{" "}
+                        : p.discord === "https://discord.gg/d7sAbSRQvq"
+                          ? "報談専用Discord"
+                          : "朝ポキのDiscord"}{" "}
                       ↗
                     </a>
                   )}
