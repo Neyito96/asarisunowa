@@ -1381,7 +1381,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 onClick={() => setAutoUpdateOpen((open) => !open)}
                 aria-expanded={autoUpdateOpen}
               >
-                <span><b>🔄 このプレイリスト、自動更新しませんか？</b><small>眠っている朝リストも、共同編集で自動更新できるかも。</small></span>
+                <span><b>🔄 このプレイリスト、自動更新にしませんか？</b><small>眠っている朝リストも、共同編集で自動更新できるかも。</small></span>
                 <span aria-hidden="true">{autoUpdateOpen ? "−" : "＋"}</span>
               </button>
               {autoUpdateOpen && (
