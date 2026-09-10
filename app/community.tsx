@@ -473,6 +473,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     [submitStatus, setSubmitStatus] = useState<"idle" | "sending" | "success" | "error">("idle"),
     [submitMessage, setSubmitMessage] = useState(""),
     [autoUpdateOpen, setAutoUpdateOpen] = useState(false),
+    [autoUpdateType, setAutoUpdateType] = useState<"series" | "speaker" | "theme">("series"),
     [autoUpdatePlaylistId, setAutoUpdatePlaylistId] = useState(""),
     [autoUpdateMaker, setAutoUpdateMaker] = useState(""),
     [autoUpdateInviteUrl, setAutoUpdateInviteUrl] = useState(""),
@@ -973,6 +974,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({
           kind: "autoUpdateRequest",
+          updateType: autoUpdateType,
           url: selected.url,
           title: selected.title,
           maker: autoUpdateMaker.trim(),
@@ -1375,7 +1377,13 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               {autoUpdateOpen && (
                 <form className="autoUpdateForm" onSubmit={submitAutoUpdateRequest}>
                   <h3 id="auto-update-title">自動更新を申し込む</h3>
-                  <p>あなたが編集できるSpotifyプレイリストを選び、共同編集者の招待リンクを送ってください。一度設定すれば、その後は自動更新を続けられます。</p>
+                  <p>あなたが編集できるSpotifyプレイリストを選び、「どんな回を追加したいか」を教えてください。一度設定すれば、その後は自動更新を続けられます。</p>
+                  <fieldset className="autoUpdateTypes">
+                    <legend>どんなプレイリスト？</legend>
+                    <label><input type="radio" name="autoUpdateType" value="series" checked={autoUpdateType === "series"} onChange={() => setAutoUpdateType("series")} /><span><b>📻 シリーズ別</b><small>例：一緒に新聞をめくろう！</small></span></label>
+                    <label><input type="radio" name="autoUpdateType" value="speaker" checked={autoUpdateType === "speaker"} onChange={() => setAutoUpdateType("speaker")} /><span><b>🎙️ 出演者別</b><small>例：宮沢賢一さん出演回</small></span></label>
+                    <label><input type="radio" name="autoUpdateType" value="theme" checked={autoUpdateType === "theme"} onChange={() => setAutoUpdateType("theme")} /><span><b>🔎 テーマ別</b><small>例：中東・鉄道・教育</small></span></label>
+                  </fieldset>
                   <label>
                     <span>朝リストから選ぶ</span>
                     <select value={autoUpdatePlaylistId} onChange={(e) => setAutoUpdatePlaylistId(e.target.value)} required>
@@ -1395,9 +1403,15 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     <small>Spotifyで対象プレイリストを開き「共同編集者を招待」から発行したリンクを貼ってください。</small>
                   </label>
                   <label>
-                    <span>自動更新のキーワード</span>
-                    <textarea value={autoUpdateKeywords} onChange={(e) => setAutoUpdateKeywords(e.target.value)} placeholder={"例：めくろう\n一緒に新聞をめくろう\n新聞をめくろう"} rows={3} required />
-                    <small>新着エピソードを見つけるための言葉です。複数ある場合は改行か「,」で区切ってください。</small>
+                    <span>{autoUpdateType === "series" ? "シリーズ名・キーワード" : autoUpdateType === "speaker" ? "出演者名" : "テーマのキーワード"}</span>
+                    <textarea
+                      value={autoUpdateKeywords}
+                      onChange={(e) => setAutoUpdateKeywords(e.target.value)}
+                      placeholder={autoUpdateType === "series" ? "例：めくろう\n一緒に新聞をめくろう" : autoUpdateType === "speaker" ? "例：宮沢賢一" : "例：中東\nイスラエル\nパレスチナ\nイラン"}
+                      rows={autoUpdateType === "speaker" ? 2 : 3}
+                      required
+                    />
+                    <small>{autoUpdateType === "speaker" ? "タイトルや概要欄に出演者名がある回を探すために使います。" : "複数ある場合は改行か「,」で区切ってください。"}</small>
                   </label>
                   <label>
                     <span>更新ルール・補足 <small>（任意）</small></span>
