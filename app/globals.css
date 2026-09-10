@@ -2386,3 +2386,41 @@ footer {
   .playlistThemeHead{padding-right:76px}
   .playlistOwnerJump{top:0;right:0;padding:6px 9px}
 }
+
+
+/* Keep auto-update type choices readable on mobile */
+.autoUpdateTypes{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+  margin:0;
+  padding:0;
+  border:0;
+}
+.autoUpdateTypes legend{
+  width:100%;
+  margin:0 0 8px;
+  color:#064f69;
+  font-weight:700;
+}
+.autoUpdateTypes label{
+  display:flex;
+  align-items:flex-start;
+  gap:7px;
+  min-width:0;
+  padding:10px 9px;
+  border:1px solid #c7e7ee;
+  border-radius:12px;
+  background:#fff;
+}
+.autoUpdateTypes label>span{display:flex;flex-direction:column;gap:3px;min-width:0}
+.autoUpdateTypes b{white-space:nowrap;font-size:13px}
+.autoUpdateTypes small{font-size:11px;line-height:1.35}
+.autoUpdateTypes input{width:auto;margin:2px 0 0;flex:0 0 auto}
+@media (max-width:640px){
+  .autoUpdateTypes{grid-template-columns:1fr}
+  .autoUpdateTypes label{align-items:center}
+  .autoUpdateTypes label>span{flex-direction:row;align-items:baseline;gap:8px}
+  .autoUpdateTypes b{font-size:14px}
+  .autoUpdateTypes small{font-size:12px}
+}
