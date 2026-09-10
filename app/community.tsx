@@ -1169,9 +1169,26 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             </div>
           </div>
           <main className="wrap">
-            <div className="themeHead">
-              <p className="kicker themeKicker">THEME PLAYLISTS</p>
-              <h2>テーマ別プレイリスト</h2>
+            <div className="themeHead playlistThemeHead">
+              <div>
+                <p className="kicker themeKicker">THEME PLAYLISTS</p>
+                <h2>テーマ別プレイリスト</h2>
+              </div>
+              <button
+                type="button"
+                className="playlistOwnerJump"
+                onClick={() => {
+                  setAutoUpdateOpen(true);
+                  window.setTimeout(() => {
+                    document.getElementById("auto-update-request")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }, 0);
+                }}
+                aria-label="Spotifyプレイリスト管理者向け・自動更新申請へ"
+                title="Spotifyプレイリスト管理者向け"
+              >
+                <span aria-hidden="true">🎵</span>
+                <small>管理者</small>
+              </button>
               <div className="countChips" aria-label="プレイリスト視聴状況">
                 <span>全{livePlaylists.length}</span>
                 <span>未聴{livePlaylists.length - listened.length}</span>
@@ -1364,7 +1381,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               </form>
            </section>
 
-            <section className="autoUpdateRequest" aria-labelledby="auto-update-title">
+            <section id="auto-update-request" className="autoUpdateRequest" aria-labelledby="auto-update-title">
               <button
                 type="button"
                 className="autoUpdateToggle"
