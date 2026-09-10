@@ -2319,3 +2319,44 @@ footer {
 .autoUpdateForm input,.autoUpdateForm select{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:inherit;font:inherit}
 .autoUpdateForm label small{opacity:.7;line-height:1.5}
 .autoUpdateForm button[type="submit"]{padding:12px 16px;border:0;border-radius:999px;font-weight:700;cursor:pointer}
+
+
+/* 2026-09-10: make the auto-update form match the light 朝リスト UI */
+.autoUpdateRequest{
+  background:#f8fdff;
+  border:2px solid #c7e7ee;
+  box-shadow:none;
+  color:#064f69;
+}
+.autoUpdateToggle{
+  background:#f8fdff;
+  color:#064f69;
+}
+.autoUpdateToggle small{color:#456f7c;opacity:1}
+.autoUpdateForm{
+  border-top:1px solid #c7e7ee;
+  background:#f8fdff;
+  color:#064f69;
+  padding-top:16px;
+}
+.autoUpdateForm h3,.autoUpdateForm label>span{color:#064f69}
+.autoUpdateForm p,.autoUpdateForm label small{color:#456f7c;opacity:1}
+.autoUpdateForm input,
+.autoUpdateForm select,
+.autoUpdateForm textarea{
+  width:100%;
+  box-sizing:border-box;
+  padding:12px;
+  border:1.5px solid #a9ced8;
+  border-radius:12px;
+  background:#fff;
+  color:#173f4d;
+  font:inherit;
+}
+.autoUpdateForm textarea{resize:vertical}
+.autoUpdateForm input::placeholder,
+.autoUpdateForm textarea::placeholder{color:#718d96}
+.autoUpdateForm button[type="submit"]{
+  background:#1685bd;
+  color:#fff;
+}
