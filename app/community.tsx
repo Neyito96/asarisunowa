@@ -960,11 +960,6 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       setAutoUpdateMessage("朝リストからプレイリストを選んでください。");
       return;
     }
-    if (autoUpdateSecurityAnswer.trim() !== "大介") {
-      setAutoUpdateStatus("error");
-      setAutoUpdateMessage("合言葉が違います。「神田さんの名は？」をもう一度どうぞ。");
-      return;
-    }
     setAutoUpdateStatus("sending");
     setAutoUpdateMessage("");
     try {
@@ -981,7 +976,6 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           inviteUrl: autoUpdateInviteUrl.trim(),
           keywords: autoUpdateKeywords.trim(),
           ruleNote: autoUpdateRuleNote.trim(),
-          securityAnswer: autoUpdateSecurityAnswer.trim(),
           website: ""
         }),
       });
@@ -992,7 +986,6 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       setAutoUpdateInviteUrl("");
       setAutoUpdateKeywords("");
       setAutoUpdateRuleNote("");
-      setAutoUpdateSecurityAnswer("");
     } catch {
       setAutoUpdateStatus("error");
       setAutoUpdateMessage("送信できませんでした。時間をおいてもう一度お試しください。");
@@ -1433,10 +1426,6 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   <label>
                     <span>更新ルール・補足 <small>（任意）</small></span>
                     <textarea value={autoUpdateRuleNote} onChange={(e) => setAutoUpdateRuleNote(e.target.value)} placeholder="例：「一緒に新聞をめくろう！」の新着回だけ追加。再配信や予告編は除外。" rows={3} />
-                  </label>
-                  <label>
-                    <span>セキュリティ：神田さんの名は？</span>
-                    <input type="text" value={autoUpdateSecurityAnswer} onChange={(e) => setAutoUpdateSecurityAnswer(e.target.value)} placeholder="漢字2文字" maxLength={10} autoComplete="off" required />
                   </label>
                   <button type="submit" disabled={autoUpdateStatus === "sending"}>{autoUpdateStatus === "sending" ? "送信中…" : "自動更新を申し込む"}</button>
                   {autoUpdateMessage && <p className={autoUpdateStatus === "success" ? "submitNotice success" : "submitNotice error"}>{autoUpdateMessage}</p>}
