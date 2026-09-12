@@ -10,6 +10,25 @@ const AUTO_PLAYLIST_RULES = [
     showId: "0yhef9ORZkUZs9ZeotdCSY",
     playlistId: "6nDhZQG75F1wU62sdcYJMq",
     keyword: "動画みた？"
+  },
+  {
+    name: "豊秀一",
+    showIds: [
+      "7euH6hzudIdp61JRSi9E8w",
+      "0341I5UOUrJgm7KEvNGInZ",
+      "0yhef9ORZkUZs9ZeotdCSY",
+      "392h0MYfvMTndEVzf2cOvC",
+      "5Dt1uyQaJpM6hPV8aEMP3R",
+      "1KExdSsjQnatS4TdseGoC0",
+      "2uG9W6CnsaNi87AfSuGe8r"
+    ],
+    playlistId: "4Ri6rxTGFimTm0KkZtKfBZ",
+    keywords: ["豊秀一", "豊 秀一"],
+    fields: ["name", "description", "html_description"],
+    fetchAllPages: true,
+    continueOnShowFetchError: true,
+    addIndividually: true,
+    updateLatestDateOnAdd: true
   }
 ];
 
