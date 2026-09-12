@@ -119,6 +119,8 @@ function fetchAutoPlaylistEpisodes_(rule, token) {
 
   const episodesByUri = {};
   const fetchAllPages = rule.fetchAllPages === true;
+  const continueOnShowFetchError =
+    rule.continueOnShowFetchError === true;
 
   showIds.forEach(function(showId) {
     let nextUrl =
@@ -136,7 +138,19 @@ function fetchAutoPlaylistEpisodes_(rule, token) {
       });
 
       if (showRes.getResponseCode() !== 200) {
-        Logger.log(showRes.getContentText());
+        Logger.log(
+          "Show取得失敗: " +
+          showId +
+          " | status=" +
+          showRes.getResponseCode() +
+          " | " +
+          showRes.getContentText()
+        );
+
+        if (continueOnShowFetchError) {
+          break;
+        }
+
         throw new Error(rule.name + " のShow取得に失敗しました: " + showId);
       }
 
@@ -161,6 +175,55 @@ function fetchAutoPlaylistEpisodes_(rule, token) {
   return Object.keys(episodesByUri).map(function(key) {
     return episodesByUri[key];
   });
+}
+
+function addAutoPlaylistEpisodesIndividually_(rule, token, episodes) {
+  let addedCount = 0;
+  let failedCount = 0;
+
+  episodes.forEach(function(ep) {
+    const addRes = UrlFetchApp.fetch(
+      "https://api.spotify.com/v1/playlists/" +
+        encodeURIComponent(rule.playlistId) +
+        "/items",
+      {
+        method: "post",
+        muteHttpExceptions: true,
+        contentType: "application/json",
+        headers: {
+          Authorization: "Bearer " + token
+        },
+        payload: JSON.stringify({
+          uris: [String(ep.uri)]
+        })
+      }
+    );
+
+    const status = addRes.getResponseCode();
+
+    if (status === 200 || status === 201) {
+      addedCount++;
+      Logger.log("追加成功 ✅ " + ep.name);
+    } else {
+      failedCount++;
+      Logger.log(
+        "追加不可 ⚠️ " +
+        ep.name +
+        " | status=" +
+        status +
+        " | " +
+        addRes.getContentText()
+      );
+    }
+  });
+
+  Logger.log("追加成功件数: " + addedCount);
+  Logger.log("追加不可件数: " + failedCount);
+
+  return {
+    addedCount: addedCount,
+    failedCount: failedCount
+  };
 }
 
 function syncOneAutoPlaylist_(rule, token) {
@@ -195,6 +258,20 @@ function syncOneAutoPlaylist_(rule, token) {
 
   if (!newEpisodes.length) {
     Logger.log("追加なし。すべて登録済みです ✅");
+    return;
+  }
+
+  if (rule.addIndividually === true) {
+    const result =
+      addAutoPlaylistEpisodesIndividually_(rule, token, newEpisodes);
+
+    if (
+      result.addedCount > 0 &&
+      rule.updateLatestDateOnAdd === true
+    ) {
+      updatePlaylistLatestDate_(rule.playlistId);
+    }
+
     return;
   }
 
