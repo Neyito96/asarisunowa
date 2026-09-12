@@ -12,6 +12,7 @@ const AUTO_PLAYLIST_RULES = [
     keyword: "動画みた？"
   }
 ];
+
 function syncAllAutoPlaylists() {
   const token = getSpotifyUserAccessToken();
 
@@ -23,29 +24,123 @@ function syncAllAutoPlaylists() {
     syncOneAutoPlaylist_(rule, token);
   });
 }
+
+function getAutoPlaylistShowIds_(rule) {
+  if (Array.isArray(rule.showIds) && rule.showIds.length) {
+    return rule.showIds.map(function(showId) {
+      return String(showId || "").trim();
+    }).filter(Boolean);
+  }
+
+  const showId = String(rule.showId || "").trim();
+  return showId ? [showId] : [];
+}
+
+function getAutoPlaylistEpisodeText_(episode, rule) {
+  const fields =
+    Array.isArray(rule.fields) && rule.fields.length
+      ? rule.fields
+      : ["name"];
+
+  return fields.map(function(field) {
+    return String(
+      episode && episode[field] != null
+        ? episode[field]
+        : ""
+    );
+  }).join("\n");
+}
+
+function matchesAutoPlaylistRule_(episode, rule) {
+  const text = getAutoPlaylistEpisodeText_(episode, rule);
+
+  const includeKeywords =
+    Array.isArray(rule.keywords) && rule.keywords.length
+      ? rule.keywords
+      : rule.keyword
+      ? [rule.keyword]
+      : [];
+
+  const excludeKeywords =
+    Array.isArray(rule.excludeKeywords)
+      ? rule.excludeKeywords
+      : [];
+
+  const excluded = excludeKeywords.some(function(keyword) {
+    return text.indexOf(String(keyword)) >= 0;
+  });
+
+  if (excluded) {
+    return false;
+  }
+
+  if (!includeKeywords.length) {
+    return true;
+  }
+
+  const mode = String(rule.matchMode || "any").toLowerCase();
+
+  if (mode === "all") {
+    return includeKeywords.every(function(keyword) {
+      return text.indexOf(String(keyword)) >= 0;
+    });
+  }
+
+  return includeKeywords.some(function(keyword) {
+    return text.indexOf(String(keyword)) >= 0;
+  });
+}
+
+function fetchAutoPlaylistEpisodes_(rule, token) {
+  const showIds = getAutoPlaylistShowIds_(rule);
+
+  if (!showIds.length) {
+    throw new Error(rule.name + " のShow IDが設定されていません");
+  }
+
+  const episodesByUri = {};
+
+  showIds.forEach(function(showId) {
+    const showRes = UrlFetchApp.fetch(
+      "https://api.spotify.com/v1/shows/" +
+        encodeURIComponent(showId) +
+        "/episodes?market=JP&limit=50",
+      {
+        muteHttpExceptions: true,
+        headers: {
+          Authorization: "Bearer " + token,
+          Accept: "application/json"
+        }
+      }
+    );
+
+    if (showRes.getResponseCode() !== 200) {
+      Logger.log(showRes.getContentText());
+      throw new Error(rule.name + " のShow取得に失敗しました: " + showId);
+    }
+
+    const showData = JSON.parse(showRes.getContentText());
+    const episodes = Array.isArray(showData.items) ? showData.items : [];
+
+    episodes.forEach(function(episode) {
+      const uri = String(episode && episode.uri ? episode.uri : "");
+      const key = uri || (showId + "::" + String(episode && episode.id ? episode.id : ""));
+
+      if (key) {
+        episodesByUri[key] = episode;
+      }
+    });
+  });
+
+  return Object.keys(episodesByUri).map(function(key) {
+    return episodesByUri[key];
+  });
+}
+
 function syncOneAutoPlaylist_(rule, token) {
   Logger.log("=== " + rule.name + " ===");
 
-  const showRes = UrlFetchApp.fetch(
-    "https://api.spotify.com/v1/shows/" +
-      encodeURIComponent(rule.showId) +
-      "/episodes?market=JP&limit=50",
-    {
-      muteHttpExceptions: true,
-      headers: {
-        Authorization: "Bearer " + token,
-        Accept: "application/json"
-      }
-    }
-  );
-
-  if (showRes.getResponseCode() !== 200) {
-    Logger.log(showRes.getContentText());
-    throw new Error(rule.name + " のShow取得に失敗しました");
-  }
-
-  const showData = JSON.parse(showRes.getContentText());
-  const episodes = Array.isArray(showData.items) ? showData.items : [];
+  const episodes = fetchAutoPlaylistEpisodes_(rule, token);
 
   const playlistItems =
     getAllSpotifyPlaylistItems_(rule.playlistId, token);
@@ -61,8 +156,7 @@ function syncOneAutoPlaylist_(rule, token) {
   );
 
   const candidates = episodes.filter(function(ep) {
-    const name = String(ep && ep.name ? ep.name : "");
-    return name.indexOf(rule.keyword) >= 0;
+    return matchesAutoPlaylistRule_(ep, rule);
   });
 
   const newEpisodes = candidates.filter(function(ep) {
@@ -110,4 +204,4 @@ function syncOneAutoPlaylist_(rule, token) {
   newEpisodes.forEach(function(ep) {
     Logger.log("追加完了 ✅ " + ep.name);
   });
-}　
+}
