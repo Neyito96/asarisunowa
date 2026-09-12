@@ -269,7 +269,7 @@ const recommendedPodcastArtwork: Record<string, string> = {};
 
 const recommendedPodcastLinks: Record<string, [string, string][]> = {};
 
-type GuideStep = "q1" | "q2" | "q3" | "q4" | "q5" | "q6" | "q7" | "q8" | "q9" | "q10";
+type GuideStep = "q1" | "q2" | "q3" | "q4" | "q5" | "q6" | "q7" | "q8" | "q9";
 type GuideChoice = { yes: GuideStep | string; no: GuideStep | string };
 const guideQuestions: Record<GuideStep, { question: string; choice: GuideChoice }> = {
   q1: { question: "今日は「答え」が欲しい？", choice: { yes: "q2", no: "q5" } },
