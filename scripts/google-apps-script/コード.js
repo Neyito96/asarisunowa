@@ -52,20 +52,6 @@ function validatePostInputLengths_(values) {
   return "";
 }
 
-function withPostWriteLock_(fn) {
-  const lock = LockService.getScriptLock();
-
-  if (!lock.tryLock(5000)) {
-    throw new Error("ただいま投稿が混み合っています。少し待って再度お試しください");
-  }
-
-  try {
-    return fn();
-  } finally {
-    lock.releaseLock();
-  }
-}
-
 function doPost(e) {
   try {
     const data = JSON.parse((e && e.postData && e.postData.contents) || "{}");
@@ -97,56 +83,62 @@ function doPost(e) {
     }
 
     if (kind === "autoUpdateRequest") {
-      const updateType = String(data.updateType || "").trim();
-      const inviteUrl = String(data.inviteUrl || "").trim();
-      const keywords = String(data.keywords || "").trim();
-      const ruleNote = String(data.ruleNote || "").trim();
+  const updateType = String(data.updateType || "").trim();
+  const inviteUrl = String(data.inviteUrl || "").trim();
+  const keywords = String(data.keywords || "").trim();
+  const ruleNote = String(data.ruleNote || "").trim();
 
-      const autoUpdateLengthError = validatePostInputLengths_({
-        updateType: updateType,
-        inviteUrl: inviteUrl,
-        keywords: keywords,
-        ruleNote: ruleNote
-      });
+  const autoUpdateLengthError = validatePostInputLengths_({
+    updateType: updateType,
+    inviteUrl: inviteUrl,
+    keywords: keywords,
+    ruleNote: ruleNote
+  });
 
-      if (autoUpdateLengthError) {
-        return jsonResponse({ ok: false, error: autoUpdateLengthError });
-      }
+  if (autoUpdateLengthError) {
+    return jsonResponse({ ok: false, error: autoUpdateLengthError });
+  }
 
-      return withPostWriteLock_(function() {
-        const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-        const logSheet = getSheetLoose(ss, LOG_SHEET_NAME);
+  const autoUpdateLock = LockService.getScriptLock();
+  if (!autoUpdateLock.tryLock(5000)) {
+    throw new Error("ただいま投稿が混み合っています。少し待って再度お試しください");
+  }
 
-        if (!logSheet) {
-          throw new Error("投稿受付シートが見つかりません");
-        }
+  try {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const logSheet = getSheetLoose(ss, LOG_SHEET_NAME);
 
-        const memo = [
-          "方式: " + updateType,
-          "キーワード: " + keywords,
-          "共同編集URL: " + inviteUrl,
-          ruleNote ? "ルール: " + ruleNote : ""
-        ].filter(Boolean).join("\n");
+  if (!logSheet) {
+    throw new Error("投稿受付シートが見つかりません");
+  }
 
-        logSheet.appendRow([
-          new Date(),
-          url,
-          title,
-          maker,
-          "自動更新申請",
-          memo
-        ]);
+  const memo = [
+    "方式: " + updateType,
+    "キーワード: " + keywords,
+    "共同編集URL: " + inviteUrl,
+    ruleNote ? "ルール: " + ruleNote : ""
+  ].filter(Boolean).join("\n");
 
-        SpreadsheetApp.flush();
+  logSheet.appendRow([
+    new Date(),
+    url,
+    title,
+    maker,
+    "自動更新申請",
+    memo
+  ]);
 
-        return jsonResponse({
-          ok: true,
-          kind: "autoUpdateRequest",
-          message: "自動更新申請を受け付けました"
-        });
-      });
-    }
+  SpreadsheetApp.flush();
 
+  return jsonResponse({
+    ok: true,
+    kind: "autoUpdateRequest",
+    message: "自動更新申請を受け付けました"
+  });
+  } finally {
+    autoUpdateLock.releaseLock();
+  }
+}
     if (!url || !title || !maker) return jsonResponse({ ok: false, error: "必須項目が不足しています" });
 
     if (!artwork && (kind === "podcast" || kind === "listenerPodcast")) {
@@ -188,121 +180,128 @@ function doPost(e) {
       });
     }
 
-    return withPostWriteLock_(function() {
-      const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-      const logSheet = getSheetLoose(ss, LOG_SHEET_NAME);
-      const workSheet = getSheetLoose(ss, WORK_SHEET_NAME);
-      const podcastSheet = getSheetLoose(ss, PODCAST_SHEET_NAME);
-      const listenerPodcastSheet = getSheetLoose(ss, LISTENER_PODCAST_SHEET_NAME);
+    const writeLock = LockService.getScriptLock();
+    if (!writeLock.tryLock(5000)) {
+      throw new Error("ただいま投稿が混み合っています。少し待って再度お試しください");
+    }
 
-      if (!logSheet) throw new Error("投稿受付シートが見つかりません");
-      if (!workSheet) throw new Error("作業台シートが見つかりません");
-      if (!podcastSheet) throw new Error("おすすめPodcastシートが見つかりません");
-      if (!listenerPodcastSheet) throw new Error("朝リスPodcastシートが見つかりません");
+    try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const logSheet = getSheetLoose(ss, LOG_SHEET_NAME);
+    const workSheet = getSheetLoose(ss, WORK_SHEET_NAME);
+    const podcastSheet = getSheetLoose(ss, PODCAST_SHEET_NAME);
+    const listenerPodcastSheet = getSheetLoose(ss, LISTENER_PODCAST_SHEET_NAME);
 
-      logSheet.appendRow([
-        new Date(),
-        url,
-        title,
-        maker,
-        kind === "listenerPodcast"
-          ? "朝リスPodcast"
-          : kind === "podcast"
-          ? "おすすめPodcast"
-          : "朝ポキプレイリスト",
-        comment
-      ]);
+    if (!logSheet) throw new Error("投稿受付シートが見つかりません");
+    if (!workSheet) throw new Error("作業台シートが見つかりません");
+    if (!podcastSheet) throw new Error("おすすめPodcastシートが見つかりません");
+    if (!listenerPodcastSheet) throw new Error("朝リスPodcastシートが見つかりません");
 
-      const targetSheet =
-        kind === "listenerPodcast"
-          ? listenerPodcastSheet
-          : kind === "podcast"
-          ? podcastSheet
-          : workSheet;
+    logSheet.appendRow([
+      new Date(),
+      url,
+      title,
+      maker,
+      kind === "listenerPodcast"
+        ? "朝リスPodcast"
+        : kind === "podcast"
+        ? "おすすめPodcast"
+        : "朝ポキプレイリスト",
+      comment
+    ]);
 
-      const lastRow = targetSheet.getLastRow();
+    const targetSheet =
+      kind === "listenerPodcast"
+        ? listenerPodcastSheet
+        : kind === "podcast"
+        ? podcastSheet
+        : workSheet;
 
-      const existingRows =
-        lastRow > 1
-          ? targetSheet
-              .getRange(
-                2,
-                1,
-                lastRow - 1,
-                Math.max(2, targetSheet.getLastColumn())
-              )
-              .getDisplayValues()
-          : [];
+    const lastRow = targetSheet.getLastRow();
 
-      const normalized = normalizeUrl(url);
-      const normalizedTitle = normalizeTitle(title);
+    const existingRows =
+      lastRow > 1
+        ? targetSheet
+            .getRange(
+              2,
+              1,
+              lastRow - 1,
+              Math.max(2, targetSheet.getLastColumn())
+            )
+            .getDisplayValues()
+        : [];
 
-      const duplicateByUrl = existingRows.some(function(row) {
-        return normalizeUrl(row[0]) === normalized;
-      });
+    const normalized = normalizeUrl(url);
+    const normalizedTitle = normalizeTitle(title);
 
-      const duplicateByTitle =
-        kind === "podcast" || kind === "listenerPodcast"
-          ? existingRows.some(function(row) {
-              return normalizeTitle(row[1]) === normalizedTitle;
-            })
-          : false;
+    const duplicateByUrl = existingRows.some(function(row) {
+      return normalizeUrl(row[0]) === normalized;
+    });
 
-      let added = false;
-      let duplicateReason = "";
+    const duplicateByTitle =
+      kind === "podcast" || kind === "listenerPodcast"
+        ? existingRows.some(function(row) {
+            return normalizeTitle(row[1]) === normalizedTitle;
+          })
+        : false;
 
-      if (!duplicateByUrl && !duplicateByTitle) {
-        if (kind === "listenerPodcast") {
-          const provider = detectProvider(url);
-          targetSheet.appendRow([
-            url,
-            title,
-            maker,
-            introducedDate || "",
-            comment,
-            provider === "Spotify" ? url : "",
-            provider === "Apple Podcasts" ? url : "",
-            provider === "LISTEN" ? url : "",
-            provider === "stand.fm" ? url : "",
-            provider === "Amazon Music" ? url : "",
-            provider === "YouTube" ? url : "",
-            provider && provider !== "Spotify" && provider !== "Apple Podcasts" &&
-              provider !== "LISTEN" && provider !== "stand.fm" &&
-              provider !== "Amazon Music" && provider !== "YouTube" ? url : "",
-            artwork || ""
-          ]);
-        } else if (kind === "podcast") {
-          targetSheet.appendRow([
-            url,
-            title,
-            maker,
-            new Date(),
-            comment,
-            artwork || ""
-          ]);
-        } else {
-          targetSheet.appendRow([
-            url,
-            title,
-            maker
-          ]);
-        }
+    let added = false;
+    let duplicateReason = "";
 
-        added = true;
+    if (!duplicateByUrl && !duplicateByTitle) {
+      if (kind === "listenerPodcast") {
+        const provider = detectProvider(url);
+        targetSheet.appendRow([
+          url,
+          title,
+          maker,
+          introducedDate || "",
+          comment,
+          provider === "Spotify" ? url : "",
+          provider === "Apple Podcasts" ? url : "",
+          provider === "LISTEN" ? url : "",
+          provider === "stand.fm" ? url : "",
+          provider === "Amazon Music" ? url : "",
+          provider === "YouTube" ? url : "",
+          provider && provider !== "Spotify" && provider !== "Apple Podcasts" &&
+            provider !== "LISTEN" && provider !== "stand.fm" &&
+            provider !== "Amazon Music" && provider !== "YouTube" ? url : "",
+          artwork || ""
+        ]);
+      } else if (kind === "podcast") {
+        targetSheet.appendRow([
+          url,
+          title,
+          maker,
+          new Date(),
+          comment,
+          artwork || ""
+        ]);
       } else {
-        duplicateReason = duplicateByTitle ? "title" : "url";
+        targetSheet.appendRow([
+          url,
+          title,
+          maker
+        ]);
       }
 
-      SpreadsheetApp.flush();
+      added = true;
+    } else {
+      duplicateReason = duplicateByTitle ? "title" : "url";
+    }
 
-      return jsonResponse({
-        ok: true,
-        kind: kind,
-        added: added,
-        duplicateReason: duplicateReason,
-        message: added ? "保存しました" : "すでに登録されています"
-      });
+    SpreadsheetApp.flush();
+
+    return jsonResponse({
+      ok: true,
+      kind: kind,
+      added: added,
+      duplicateReason: duplicateReason,
+      message: added ? "保存しました" : "すでに登録されています"
     });
+    } finally {
+      writeLock.releaseLock();
+    }
 
   } catch (error) {
     return jsonResponse({
