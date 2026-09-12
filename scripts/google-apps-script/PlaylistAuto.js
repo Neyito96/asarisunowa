@@ -23,6 +23,25 @@ function syncAllAutoPlaylists() {
     syncOneAutoPlaylist_(rule, token);
   });
 }
+
+function syncAutoPlaylistByPlaylistId_(playlistId) {
+  const rule = AUTO_PLAYLIST_RULES.find(function(item) {
+    return item.playlistId === playlistId;
+  });
+
+  if (!rule) {
+    throw new Error("自動更新ルールが見つかりません: " + playlistId);
+  }
+
+  const token = getSpotifyUserAccessToken();
+
+  if (!token) {
+    throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
+  }
+
+  syncOneAutoPlaylist_(rule, token);
+}
+
 function syncOneAutoPlaylist_(rule, token) {
   Logger.log("=== " + rule.name + " ===");
 
