@@ -13,7 +13,6 @@ const LISTENER_PODCAST_SHEET_NAME = "朝リスPodcast";
 function doPost(e) {
   try {
     const data = JSON.parse((e && e.postData && e.postData.contents) || "{}");
-    console.log(JSON.stringify(data));
    
     const url = String(data.url || "").trim();
     const title = String(data.title || "").trim();
