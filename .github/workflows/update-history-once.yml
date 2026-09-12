@@ -1,0 +1,39 @@
+name: Update site history once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/update-history-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-history:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Insert 2026-09-10 and 2026-09-11 history entries
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('app/community.tsx')
+          s = p.read_text()
+          marker = '        <h3 id="site-history-title">更新ログ</h3>\n'
+          block = '''        <div className="historyItem">\n          <time dateTime="2026-09-11">2026.9.11</time>\n          <p>「見えないところも、ちょっと整理整頓。🧹」</p>\n          <small>・自動更新の仕組みを整理 ・機能ごとに分けて管理しやすく ・更新日の反映方法を修正 ・自動更新を増やせる土台づくり</small>\n        </div>\n        <div className="historyItem">\n          <time dateTime="2026-09-10">2026.9.10</time>\n          <p>「眠っているプレイリストを、もう一度育てよう！🔄」</p>\n          <small>Spotifyプレイリストの自動更新を拡張。既存プレイリストが育ち続ける仕組みを模索中。</small>\n        </div>\n'''
+          if 'dateTime="2026-09-11"' not in s:
+              if marker not in s:
+                  raise SystemExit('history marker not found')
+              s = s.replace(marker, marker + block, 1)
+              p.write_text(s)
+          Path('__placeholder__').unlink(missing_ok=True)
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name 'ChatGPT'
+          git config user.email 'actions@users.noreply.github.com'
+          git add app/community.tsx __placeholder__ || true
+          git diff --cached --quiet && exit 0
+          git commit -m 'Update site history for Sep 10-11'
+          git push
