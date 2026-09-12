@@ -1,37 +1,44 @@
 name: Restore and rebuild guide
+
 on:
   push:
     branches: [main]
-    paths: ['.github/workflows/restore-guide.yml']
+    paths:
+      - '.github/workflows/restore-guide.yml'
+
 permissions:
   contents: write
+
 jobs:
   rebuild:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
-      - name: Restore previous file and rebuild guide
+          fetch-depth: 5
+      - name: Restore and rebuild
         run: |
-          git show HEAD^:app/community.tsx > app/community.tsx
+          git show 9c1796fa08f1fc33bf3e8f3a3f7209b3f37c1b9f:app/community.tsx > app/community.tsx
           python - <<'PY'
           from pathlib import Path
           p=Path('app/community.tsx')
           s=p.read_text()
           start=s.index('type GuideStep =')
           end=s.index('\n\nconst officialPrograms:', start)
-          block='''type GuideStep = "q1" | "q2" | "q3" | "q4" | "q5" | "q6" | "q7";
-type GuideChoice = { yes: GuideStep | string; no: GuideStep | string };
-const guideQuestions: Record<GuideStep, { question: string; choice: GuideChoice }> = {
-  q1: { question: "邪悪なSNSにこりごりだ", choice: { yes: "ドーナツ～このポッドキャストはSNSです", no: "q2" } },
-  q2: { question: "ニュースのキーワードをサクッと知りたい？", choice: { yes: "ニュースの学校", no: "q3" } },
-  q3: { question: "ひとつの話を、簡単に片付けず最後まで考えたい？", choice: { yes: "ニュースの現場から", no: "q4" } },
-  q4: { question: "新聞社の人たちが\\n「そもそも伝えるって何？」と悩むのを聴きたい？", choice: { yes: "MEDIA TALK", no: "q5" } },
-  q5: { question: "雑談による報道が聞きたい？", choice: { yes: "報談【HOU-DAN】", no: "q6" } },
-  q6: { question: "「なんで？」って言うのが好き？", choice: { yes: "こどもそうだんしつ", no: "q7" } },
-  q7: { question: "スポーツを勝った負けただけで終わらせたくない？", choice: { yes: "スポンジ Sports Lounge", no: "OMIKUJI" } },
-};'''
+          lines = [
+            'type GuideStep = "q1" | "q2" | "q3" | "q4" | "q5" | "q6" | "q7";',
+            'type GuideChoice = { yes: GuideStep | string; no: GuideStep | string };',
+            'const guideQuestions: Record<GuideStep, { question: string; choice: GuideChoice }> = {',
+            '  q1: { question: "邪悪なSNSにこりごりだ", choice: { yes: "ドーナツ～このポッドキャストはSNSです", no: "q2" } },',
+            '  q2: { question: "ニュースのキーワードをサクッと知りたい？", choice: { yes: "ニュースの学校", no: "q3" } },',
+            '  q3: { question: "ひとつの話を、簡単に片付けず最後まで考えたい？", choice: { yes: "ニュースの現場から", no: "q4" } },',
+            '  q4: { question: "新聞社の人たちが\\n「そもそも伝えるって何？」と悩むのを聴きたい？", choice: { yes: "MEDIA TALK", no: "q5" } },',
+            '  q5: { question: "雑談による報道が聞きたい？", choice: { yes: "報談【HOU-DAN】", no: "q6" } },',
+            '  q6: { question: "「なんで？」って言うのが好き？", choice: { yes: "こどもそうだんしつ", no: "q7" } },',
+            '  q7: { question: "スポーツを勝った負けただけで終わらせたくない？", choice: { yes: "スポンジ Sports Lounge", no: "OMIKUJI" } },',
+            '};'
+          ]
+          block='\n'.join(lines)
           p.write_text(s[:start]+block+s[end:])
           PY
       - name: Commit
