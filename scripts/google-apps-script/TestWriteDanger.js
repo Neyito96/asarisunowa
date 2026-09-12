@@ -264,3 +264,62 @@ function testUpdateToyohideLatestDate() {
     "4Ri6rxTGFimTm0KkZtKfBZ"
   );
 }
+
+function addToyohideNewEpisode() {
+  const PLAYLIST_ID = "4Ri6rxTGFimTm0KkZtKfBZ";
+
+  // 今回見つかった #2244
+  const EPISODE_URI = "spotify:episode:21Bx1Naz0iJebxLUWPD8yV";
+
+  const token = getSpotifyUserAccessToken();
+  if (!token) {
+    throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
+  }
+
+  // 念のため重複チェック
+  const existingItems =
+    getAllSpotifyPlaylistItems_(PLAYLIST_ID, token);
+
+  const alreadyExists = existingItems.some(function(item) {
+    return (
+      item &&
+      item.item &&
+      item.item.uri === EPISODE_URI
+    );
+  });
+
+  if (alreadyExists) {
+    Logger.log("すでに登録済みです。追加しません。");
+    return;
+  }
+
+  const res = UrlFetchApp.fetch(
+    "https://api.spotify.com/v1/playlists/" +
+     encodeURIComponent(PLAYLIST_ID)+
+      "/items",
+    {
+      method: "post",
+      muteHttpExceptions: true,
+      contentType: "application/json",
+      headers: {
+        Authorization: "Bearer " + token
+      },
+      payload: JSON.stringify({
+        uris: [EPISODE_URI]
+      })
+    }
+  );
+
+  const status = res.getResponseCode();
+
+  Logger.log("追加 status: " + status);
+  Logger.log(res.getContentText());
+
+  if (status !== 200 && status !== 201) {
+    throw new Error("Spotifyへの追加に失敗しました");
+  }
+
+  Logger.log(
+    "追加成功：9条があるから平和、ではない　4つの視点で考えてみた #2244"
+  );
+}
