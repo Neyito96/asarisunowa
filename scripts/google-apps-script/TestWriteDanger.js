@@ -1,3 +1,11 @@
+// ======================================================
+// ⚠️ DANGER: 書き込み系テスト専用
+// このファイルの関数は Spotify プレイリストや関連データを
+// 実際に作成・追加・更新する可能性があります。
+// 実行前に対象・変更内容・ロールバック方法を確認し、
+// ユーザーの明示的な承認なしに実行しないでください。
+// ======================================================
+
 function addToyohideNewEpisodeQueryTest() {
   const PLAYLIST_ID = "4Ri6rxTGFimTm0KkZtKfBZ";
   const EPISODE_URI = "spotify:episode:21Bx1Naz0iJebxLUWPD8yV";
