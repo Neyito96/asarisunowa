@@ -1,0 +1,113 @@
+const AUTO_PLAYLIST_RULES = [
+  {
+    name: "一緒に新聞をめくろう！",
+    showId: "392h0MYfvMTndEVzf2cOvC",
+    playlistId: "4tY0lHoV8IemMBp4iTnKnl",
+    keyword: "めくろう"
+  },
+  {
+    name: "木下君、あの動画みた？ #きのどう",
+    showId: "0yhef9ORZkUZs9ZeotdCSY",
+    playlistId: "6nDhZQG75F1wU62sdcYJMq",
+    keyword: "動画みた？"
+  }
+];
+function syncAllAutoPlaylists() {
+  const token = getSpotifyUserAccessToken();
+
+  if (!token) {
+    throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
+  }
+
+  AUTO_PLAYLIST_RULES.forEach(function(rule) {
+    syncOneAutoPlaylist_(rule, token);
+  });
+}
+function syncOneAutoPlaylist_(rule, token) {
+  Logger.log("=== " + rule.name + " ===");
+
+  const showRes = UrlFetchApp.fetch(
+    "https://api.spotify.com/v1/shows/" +
+      encodeURIComponent(rule.showId) +
+      "/episodes?market=JP&limit=50",
+    {
+      muteHttpExceptions: true,
+      headers: {
+        Authorization: "Bearer " + token,
+        Accept: "application/json"
+      }
+    }
+  );
+
+  if (showRes.getResponseCode() !== 200) {
+    Logger.log(showRes.getContentText());
+    throw new Error(rule.name + " のShow取得に失敗しました");
+  }
+
+  const showData = JSON.parse(showRes.getContentText());
+  const episodes = Array.isArray(showData.items) ? showData.items : [];
+
+  const playlistItems =
+    getAllSpotifyPlaylistItems_(rule.playlistId, token);
+
+  const existingUris = new Set(
+    playlistItems
+      .map(function(item) {
+        return item && item.item && item.item.uri
+          ? String(item.item.uri)
+          : "";
+      })
+      .filter(Boolean)
+  );
+
+  const candidates = episodes.filter(function(ep) {
+    const name = String(ep && ep.name ? ep.name : "");
+    return name.indexOf(rule.keyword) >= 0;
+  });
+
+  const newEpisodes = candidates.filter(function(ep) {
+    const uri = String(ep && ep.uri ? ep.uri : "");
+    return uri && !existingUris.has(uri);
+  });
+
+  Logger.log("候補件数: " + candidates.length);
+  Logger.log("新規追加候補: " + newEpisodes.length);
+
+  if (!newEpisodes.length) {
+    Logger.log("追加なし。すべて登録済みです ✅");
+    return;
+  }
+
+  const uris = newEpisodes.map(function(ep) {
+    return String(ep.uri);
+  });
+
+  const addRes = UrlFetchApp.fetch(
+    "https://api.spotify.com/v1/playlists/" +
+      encodeURIComponent(rule.playlistId) +
+      "/items",
+    {
+      method: "post",
+      muteHttpExceptions: true,
+      contentType: "application/json",
+      headers: {
+        Authorization: "Bearer " + token
+      },
+      payload: JSON.stringify({ uris: uris })
+    }
+  );
+
+  Logger.log("Add status: " + addRes.getResponseCode());
+  Logger.log(addRes.getContentText());
+
+  if (
+    addRes.getResponseCode() !== 200 &&
+    addRes.getResponseCode() !== 201
+  ) {
+    throw new Error(rule.name + " への追加に失敗しました");
+  }
+
+  newEpisodes.forEach(function(ep) {
+    Logger.log("追加完了 ✅ " + ep.name);
+  });
+}　
