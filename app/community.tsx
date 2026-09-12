@@ -1907,6 +1907,16 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       <section className="wrap siteHistory" aria-labelledby="site-history-title">
         <h3 id="site-history-title">更新ログ</h3>
         <div className="historyItem">
+          <time dateTime="2026-09-11">2026.9.11</time>
+          <p>「見えないところも、ちょっと整理整頓。🧹」</p>
+          <small>・自動更新の仕組みを整理 ・機能ごとに分けて管理しやすく ・更新日の反映方法を修正 ・自動更新を増やせる土台づくり</small>
+        </div>
+        <div className="historyItem">
+          <time dateTime="2026-09-10">2026.9.10</time>
+          <p>「眠っているプレイリストを、もう一度育てよう！🔄」</p>
+          <small>Spotifyプレイリストの自動更新を拡張。既存プレイリストが育ち続ける仕組みを模索中。</small>
+        </div>
+        <div className="historyItem">
           <time dateTime="2026-09-09">2026.9.9</time>
           <p>Spotifyプレイリストの一部分を自動更新に対応！</p>
         </div>
