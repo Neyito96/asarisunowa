@@ -118,37 +118,44 @@ function fetchAutoPlaylistEpisodes_(rule, token) {
   }
 
   const episodesByUri = {};
+  const fetchAllPages = rule.fetchAllPages === true;
 
   showIds.forEach(function(showId) {
-    const showRes = UrlFetchApp.fetch(
+    let nextUrl =
       "https://api.spotify.com/v1/shows/" +
-        encodeURIComponent(showId) +
-        "/episodes?market=JP&limit=50",
-      {
+      encodeURIComponent(showId) +
+      "/episodes?market=JP&limit=50";
+
+    while (nextUrl) {
+      const showRes = UrlFetchApp.fetch(nextUrl, {
         muteHttpExceptions: true,
         headers: {
           Authorization: "Bearer " + token,
           Accept: "application/json"
         }
-      }
-    );
+      });
 
-    if (showRes.getResponseCode() !== 200) {
-      Logger.log(showRes.getContentText());
-      throw new Error(rule.name + " のShow取得に失敗しました: " + showId);
+      if (showRes.getResponseCode() !== 200) {
+        Logger.log(showRes.getContentText());
+        throw new Error(rule.name + " のShow取得に失敗しました: " + showId);
+      }
+
+      const showData = JSON.parse(showRes.getContentText());
+      const episodes = Array.isArray(showData.items) ? showData.items : [];
+
+      episodes.forEach(function(episode) {
+        const uri = String(episode && episode.uri ? episode.uri : "");
+        const key = uri || (showId + "::" + String(episode && episode.id ? episode.id : ""));
+
+        if (key) {
+          episodesByUri[key] = episode;
+        }
+      });
+
+      nextUrl = fetchAllPages && showData.next
+        ? String(showData.next)
+        : null;
     }
-
-    const showData = JSON.parse(showRes.getContentText());
-    const episodes = Array.isArray(showData.items) ? showData.items : [];
-
-    episodes.forEach(function(episode) {
-      const uri = String(episode && episode.uri ? episode.uri : "");
-      const key = uri || (showId + "::" + String(episode && episode.id ? episode.id : ""));
-
-      if (key) {
-        episodesByUri[key] = episode;
-      }
-    });
   });
 
   return Object.keys(episodesByUri).map(function(key) {
@@ -223,4 +230,8 @@ function syncOneAutoPlaylist_(rule, token) {
   newEpisodes.forEach(function(ep) {
     Logger.log("追加完了 ✅ " + ep.name);
   });
+
+  if (rule.updateLatestDateOnAdd === true) {
+    updatePlaylistLatestDate_(rule.playlistId);
+  }
 }
