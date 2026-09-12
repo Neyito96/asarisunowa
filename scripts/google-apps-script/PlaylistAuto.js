@@ -25,6 +25,25 @@ function syncAllAutoPlaylists() {
   });
 }
 
+function syncAutoPlaylistByPlaylistId_(playlistId) {
+  const wantedId = String(playlistId || "").trim();
+  const rule = AUTO_PLAYLIST_RULES.find(function(item) {
+    return String(item && item.playlistId ? item.playlistId : "") === wantedId;
+  });
+
+  if (!rule) {
+    throw new Error("自動更新ルールが見つかりません: " + wantedId);
+  }
+
+  const token = getSpotifyUserAccessToken();
+
+  if (!token) {
+    throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
+  }
+
+  syncOneAutoPlaylist_(rule, token);
+}
+
 function getAutoPlaylistShowIds_(rule) {
   if (Array.isArray(rule.showIds) && rule.showIds.length) {
     return rule.showIds.map(function(showId) {
