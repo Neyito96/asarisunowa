@@ -258,3 +258,9 @@ function testAddKnownEpisode() {
     Logger.log("★★ 既存episode追加失敗 ★★");
   }
 }
+
+function testUpdateToyohideLatestDate() {
+  updatePlaylistLatestDate_(
+    "4Ri6rxTGFimTm0KkZtKfBZ"
+  );
+}
