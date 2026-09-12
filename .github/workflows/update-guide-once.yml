@@ -21,6 +21,7 @@ jobs:
 
           p = Path('app/community.tsx')
           s = p.read_text()
+          s = s.replace('type GuideStep = "q1" | "q2" | "q3" | "q4" | "q5" | "q6" | "q7" | "q8" | "q9" | "q10";', 'type GuideStep = "q1" | "q2" | "q3" | "q4" | "q5" | "q6" | "q7" | "q8" | "q9";')
           s = s.replace('q2: { question: "いま起きていることを、まずサッと知りたい？", choice: { yes: "朝日新聞アルキキ 最新ニュース", no: "q3" } },', 'q2: { question: "いま起きていることを、まずサッと知りたい？", choice: { yes: "ニュースの学校", no: "q3" } },')
           s = s.replace('q9: { question: "スポーツを勝った負けただけで終わらせたくない？", choice: { yes: "スポンジ Sports Lounge", no: "q10" } },\n  q10: { question: "英語が流れてきても逃げない？", choice: { yes: "朝日新聞AJW 英語ニュース", no: "OMIKUJI" } },', 'q9: { question: "スポーツを勝った負けただけで終わらせたくない？", choice: { yes: "スポンジ Sports Lounge", no: "OMIKUJI" } },')
           p.write_text(s)
