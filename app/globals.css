@@ -2424,3 +2424,27 @@ footer {
   .autoUpdateTypes b{font-size:14px}
   .autoUpdateTypes small{font-size:12px}
 }
+
+
+/* 2026-09-12: compact official guide on mobile */
+@media(max-width:640px){
+  .official{padding-top:8px!important;}
+  .officialHeading{margin-bottom:8px!important;}
+  .officialHeading .officialIntro{font-size:12px!important;line-height:1.35!important;}
+  .officialGuide{margin:10px 0 14px!important;padding:11px!important;border-radius:14px!important;}
+  .officialGuideTop{align-items:center!important;}
+  .officialGuideTop h3{font-size:1.05rem!important;margin:0 0 2px!important;}
+  .officialGuideTop>div>p:last-child{font-size:.78rem!important;line-height:1.35!important;}
+  .officialGuideKicker{font-size:.72rem!important;margin:0 0 1px!important;}
+  .officialGuideQuestion{margin-top:10px!important;padding:12px 9px!important;}
+  .officialGuideQuestion>p{margin:6px auto 10px!important;font-size:1rem!important;line-height:1.4!important;}
+  .officialGuideButtons{gap:8px!important;}
+  .officialGuideButtons button{min-height:42px!important;border-radius:11px!important;}
+  .officialGuideReset{padding:6px 9px!important;font-size:.76rem!important;}
+  .officialGuideResult{margin-top:10px!important;padding:11px!important;gap:10px!important;}
+  .officialGuideResult > .officialArt{width:68px!important;min-width:68px!important;height:68px!important;min-height:68px!important;flex-basis:68px!important;}
+  .officialGuideResult h4{font-size:1.05rem!important;}
+  .officialGuideResult p{font-size:.82rem!important;line-height:1.4!important;}
+  .officialGuideResultLinks{margin-top:8px!important;gap:6px!important;}
+  .officialGuideResultLinks a,.officialGuideGo{padding:7px 10px!important;font-size:.78rem!important;}
+}

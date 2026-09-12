@@ -273,15 +273,14 @@ type GuideStep = "q1" | "q2" | "q3" | "q4" | "q5" | "q6" | "q7" | "q8" | "q9" | 
 type GuideChoice = { yes: GuideStep | string; no: GuideStep | string };
 const guideQuestions: Record<GuideStep, { question: string; choice: GuideChoice }> = {
   q1: { question: "今日は「答え」が欲しい？", choice: { yes: "q2", no: "q5" } },
-  q2: { question: "いま起きていることを、まずサッと知りたい？", choice: { yes: "朝日新聞アルキキ 最新ニュース", no: "q3" } },
+  q2: { question: "いま起きていることを、まずサッと知りたい？", choice: { yes: "ニュースの学校", no: "q3" } },
   q3: { question: "10分くらいでニュースの背景や言葉まで分かりたい？", choice: { yes: "ニュースの学校", no: "q4" } },
   q4: { question: "ひとつの話を、簡単に片付けず最後まで考えたい？", choice: { yes: "ニュースの現場から", no: "報談【HOU-DAN】" } },
   q5: { question: "誰かがちゃんと迷っている話を聴きたい？", choice: { yes: "q6", no: "q8" } },
   q6: { question: "新聞社の人たちが\n「そもそも伝えるって何？」と悩むのを聴きたい？", choice: { yes: "MEDIA TALK", no: "q7" } },
   q7: { question: "知らない人同士が話して\nだんだん何かが生まれる感じが好き？", choice: { yes: "ドーナツ～このポッドキャストはSNSです", no: "報談【HOU-DAN】" } },
   q8: { question: "「なんで？」って言うのが好き？", choice: { yes: "こどもそうだんしつ", no: "q9" } },
-  q9: { question: "スポーツを勝った負けただけで終わらせたくない？", choice: { yes: "スポンジ Sports Lounge", no: "q10" } },
-  q10: { question: "英語が流れてきても逃げない？", choice: { yes: "朝日新聞AJW 英語ニュース", no: "OMIKUJI" } },
+  q9: { question: "スポーツを勝った負けただけで終わらせたくない？", choice: { yes: "スポンジ Sports Lounge", no: "OMIKUJI" } },
 };
 
 const officialPrograms: OfficialProgram[] = [
