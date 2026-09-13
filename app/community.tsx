@@ -1611,7 +1611,11 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   <div className="cardBody listenerCardBody">
                     <small>
                       PODCAST {p.id}
-                      {listenerPodcastBadge(p.introduced) && <span className="newBadge">{listenerPodcastBadge(p.introduced)}</span>}
+                      {listenerPodcastBadge(p.introduced) && (
+  <span className={`newBadge ${listenerPodcastBadge(p.introduced) === "SOON" ? "soonBadge" : "newBadgeActive"}`}>
+    {listenerPodcastBadge(p.introduced)}
+  </span>
+)}
                     </small>
                     <h3>{p.title}</h3>
                     <p>by {p.maker}</p>
