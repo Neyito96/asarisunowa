@@ -9,32 +9,65 @@ export default function PlaylistEntryModeBridge() {
   const [host, setHost] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
-    const registerSection = document.querySelector<HTMLElement>("main .playlistSubmit[aria-labelledby='playlist-submit-title']");
-    const autoSection = document.getElementById("auto-update-request");
-    if (!registerSection || !autoSection) return;
+    let currentHost: HTMLElement | null = null;
 
-    let mount = document.getElementById("playlist-entry-mode-host") as HTMLElement | null;
-    if (!mount) {
-      mount = document.createElement("section");
-      mount.id = "playlist-entry-mode-host";
-      mount.className = "playlistSubmit";
-      mount.setAttribute("aria-label", "朝リストに追加・育てる");
-      registerSection.parentElement?.insertBefore(mount, registerSection);
-    }
-    setHost(mount);
+    const mountWhenReady = () => {
+      const registerSection = document.querySelector<HTMLElement>(
+        "main .playlistSubmit[aria-labelledby='playlist-submit-title']",
+      );
+      const autoSection = document.getElementById("auto-update-request");
+      if (!registerSection || !autoSection) {
+        if (currentHost && !currentHost.isConnected) {
+          currentHost = null;
+          setHost(null);
+        }
+        return;
+      }
 
-    registerSection.hidden = false;
-    autoSection.hidden = true;
+      let mount = document.getElementById("playlist-entry-mode-host") as HTMLElement | null;
+      if (!mount) {
+        mount = document.createElement("section");
+        mount.id = "playlist-entry-mode-host";
+        mount.className = "playlistSubmit";
+        mount.setAttribute("aria-label", "朝リストに追加・育てる");
+        registerSection.parentElement?.insertBefore(mount, registerSection);
+      }
+
+      if (currentHost !== mount) {
+        currentHost = mount;
+        setHost(mount);
+      }
+    };
+
+    mountWhenReady();
+    const observer = new MutationObserver(mountWhenReady);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    const handleManagerJump = (event: Event) => {
+      const target = event.target as Element | null;
+      if (target?.closest(".playlistOwnerJump")) setMode("autoExisting");
+    };
+    document.addEventListener("click", handleManagerJump);
 
     return () => {
-      registerSection.hidden = false;
-      autoSection.hidden = false;
-      mount?.remove();
+      observer.disconnect();
+      document.removeEventListener("click", handleManagerJump);
+      const registerSection = document.querySelector<HTMLElement>(
+        "main .playlistSubmit[aria-labelledby='playlist-submit-title']",
+      );
+      const autoSection = document.getElementById("auto-update-request");
+      if (registerSection) registerSection.hidden = false;
+      if (autoSection) autoSection.hidden = false;
+      currentHost?.remove();
     };
   }, []);
 
   useEffect(() => {
-    const registerSection = document.querySelector<HTMLElement>("main .playlistSubmit[aria-labelledby='playlist-submit-title']");
+    if (!host?.isConnected) return;
+
+    const registerSection = document.querySelector<HTMLElement>(
+      "main .playlistSubmit[aria-labelledby='playlist-submit-title']",
+    );
     const autoSection = document.getElementById("auto-update-request");
     if (!registerSection || !autoSection) return;
 
@@ -51,9 +84,9 @@ export default function PlaylistEntryModeBridge() {
       const form = autoSection.querySelector<HTMLFormElement>(".autoUpdateForm");
       if (!form && toggle) toggle.click();
     }
-  }, [mode]);
+  }, [mode, host]);
 
-  if (!host) return null;
+  if (!host?.isConnected) return null;
 
   return createPortal(
     <div className="playlistSubmitHead">
