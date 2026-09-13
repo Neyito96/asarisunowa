@@ -53,21 +53,20 @@ function doPost(e) {
       );
     }
 
-    if (securityAnswer !== SUBMIT_SECURITY_ANSWER) {
-      return jsonResponse({
-        ok: false,
-        error: "セキュリティ回答が正しくありません"
-      });
-    }
+    const basicError = validatePostBasic_(url, title, maker, securityAnswer);
 
-    if (!url || !title || !maker) return jsonResponse({ ok: false, error: "必須項目が不足しています" });
+    if (basicError) {
+      return jsonResponse({ ok: false, error: basicError });
+    }
 
     if (!artwork && (kind === "podcast" || kind === "listenerPodcast")) {
       artwork = findPodcastArtworkByTitle(title);
     }
 
-    if (kind !== "playlist" && kind !== "podcast" && kind !== "listenerPodcast") {
-      return jsonResponse({ ok: false, error: "投稿の種類が正しくありません" });
+    const kindError = validatePostKind_(kind);
+
+    if (kindError) {
+      return jsonResponse({ ok: false, error: kindError });
     }
 
     const targetUrlError = validatePostTargetUrl_(kind, url);
