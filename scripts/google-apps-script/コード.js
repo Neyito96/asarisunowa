@@ -13,18 +13,17 @@ const SUBMIT_SECURITY_ANSWER = "大介";
 
 function doPost(e) {
   try {
-    const data = JSON.parse((e && e.postData && e.postData.contents) || "{}");
-   
-    const url = String(data.url || "").trim();
-    const title = String(data.title || "").trim();
-    const maker = String(data.maker || "").trim();
-    const comment = String(data.comment || "").trim();
-    const introducedDate = String(data.introducedDate || "").trim();
-    let artwork = String(data.artwork || "").trim();
-    const kind = String(data.kind || "playlist").trim();
-    const securityAnswer = String(data.securityAnswer || "").trim();
-    
-    const website = String(data.website || "").trim();
+    const input = parsePostInput_(e);
+    const data = input.data;
+    const url = input.url;
+    const title = input.title;
+    const maker = input.maker;
+    const comment = input.comment;
+    const introducedDate = input.introducedDate;
+    let artwork = input.artwork;
+    const kind = input.kind;
+    const securityAnswer = input.securityAnswer;
+    const website = input.website;
 
     if (website) return jsonResponse({ ok: true });
 
