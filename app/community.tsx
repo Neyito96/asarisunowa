@@ -302,7 +302,7 @@ const officialPrograms: OfficialProgram[] = [
     name: "ドーナツ～このポッドキャストはSNSです",
     mark: "NEW",
     schedule:
-      "日：日曜版／月：さんぽ、対話、1on1、👀 別企画?!／火：ポ薦め-人類ポカン計画（ドー人）／木：親モヤ／第一木：スナックよりみ知／隔週金：アラサーかいわい／土：農MUSIC 猟ライフ",
+      "日：日曜版／月：さんぽ、対話、1on1／火：ポ薦め-人類ポカン計画（ドー人）／木：親モヤ／第一木：スナックよりみ知／隔週金：アラサーかいわい／土：農MUSIC 猟ライフ",
     spotify: "https://open.spotify.com/show/0341I5UOUrJgm7KEvNGInZ",
     links: [
       ["Spotify", "https://open.spotify.com/show/0341I5UOUrJgm7KEvNGInZ"],
