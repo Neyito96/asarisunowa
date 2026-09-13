@@ -45,7 +45,16 @@ export default function PlaylistEntryModeSelector({
       {options.map((option) => {
         const disabled = disabledModes.includes(option.value);
         return (
-          <label key={option.value} aria-disabled={disabled || undefined}>
+          <label
+            key={option.value}
+            aria-disabled={disabled || undefined}
+            style={{
+              display: "grid",
+              gridTemplateColumns: "22px minmax(0, 1fr)",
+              alignItems: "start",
+              columnGap: 12,
+            }}
+          >
             <input
               type="radio"
               name="playlistEntryMode"
@@ -68,9 +77,9 @@ export default function PlaylistEntryModeSelector({
                 accentColor: "#cc4b78",
               }}
             />
-            <span>
-              <b>{option.icon} {option.title}{disabled ? "（準備中）" : ""}</b>
-              <small>{option.description}</small>
+            <span style={{ minWidth: 0 }}>
+              <b style={{ display: "block" }}>{option.icon} {option.title}{disabled ? "（準備中）" : ""}</b>
+              <small style={{ display: "block", marginTop: 4, lineHeight: 1.5 }}>{option.description}</small>
             </span>
           </label>
         );
