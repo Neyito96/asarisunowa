@@ -78,38 +78,7 @@ function syncOneAutoPlaylist_(rule, token) {
     return;
   }
 
-  const uris = newEpisodes.map(function(ep) {
-    return String(ep.uri);
-  });
-
-  const addRes = UrlFetchApp.fetch(
-    "https://api.spotify.com/v1/playlists/" +
-      encodeURIComponent(rule.playlistId) +
-      "/items",
-    {
-      method: "post",
-      muteHttpExceptions: true,
-      contentType: "application/json",
-      headers: {
-        Authorization: "Bearer " + token
-      },
-      payload: JSON.stringify({ uris: uris })
-    }
-  );
-
-  Logger.log("Add status: " + addRes.getResponseCode());
-  Logger.log(addRes.getContentText());
-
-  if (
-    addRes.getResponseCode() !== 200 &&
-    addRes.getResponseCode() !== 201
-  ) {
-    throw new Error(rule.name + " への追加に失敗しました");
-  }
-
-  newEpisodes.forEach(function(ep) {
-    Logger.log("追加完了 ✅ " + ep.name);
-  });
+  addAutoPlaylistEpisodesBatch_(rule, token, newEpisodes);
 
   if (rule.updateLatestDateOnAdd === true) {
     updatePlaylistLatestDate_(rule.playlistId);
