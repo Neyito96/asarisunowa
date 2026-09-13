@@ -111,7 +111,7 @@ function doGet(e) {
       : "";
 
   try {
-    if (callback && !/^[A-Za-z_$][0-9A-Za-z_$\.]*$/.test(callback)) {
+    if (!isValidJsonpCallback_(callback)) {
       return jsonResponse({
         ok: false,
         error: "callback名が正しくありません"
