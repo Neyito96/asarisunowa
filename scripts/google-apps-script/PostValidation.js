@@ -43,3 +43,32 @@ function validatePostInputLengths_(values) {
 
   return "";
 }
+
+function validatePostTargetUrl_(kind, url) {
+  const isPlaylistUrl =
+    /^https:\/\/open\.spotify\.com\/playlist\//i.test(url) ||
+    /^https:\/\/music\.youtube\.com\/playlist\?/i.test(url);
+
+  const isPodcastUrl =
+    /^https:\/\/open\.spotify\.com\/show\//i.test(url) ||
+    /^https:\/\/open\.spotify\.com\/episode\//i.test(url) ||
+    /^https:\/\/podcasts\.apple\.com\//i.test(url) ||
+    /^https:\/\/music\.amazon\./i.test(url) ||
+    /^https:\/\/www\.amazon\./i.test(url) ||
+    /^https:\/\/listen\.style\//i.test(url) ||
+    /^https:\/\/stand\.fm\//i.test(url) ||
+    /^https:\/\/pca\.st\//i.test(url) ||
+    /^https:\/\/pocketcasts\.com\//i.test(url) ||
+    /^https:\/\/(www\.)?youtube\.com\//i.test(url) ||
+    /^https:\/\/youtu\.be\//i.test(url);
+
+  if (kind === "playlist" && !isPlaylistUrl) {
+    return "朝リストにはSpotifyまたはYouTube MusicのプレイリストURLを入力してください";
+  }
+
+  if ((kind === "podcast" || kind === "listenerPodcast") && !isPodcastUrl) {
+    return "Podcastの番組URLを確認してください";
+  }
+
+  return "";
+}
