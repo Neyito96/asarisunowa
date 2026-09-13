@@ -302,7 +302,7 @@ const officialPrograms: OfficialProgram[] = [
     name: "ドーナツ～このポッドキャストはSNSです",
     mark: "NEW",
     schedule:
-      "日：日曜版／月：さんぽ、対話、1on1、👀 別企画?!／木：親モヤ／第一木：スナックよりみ知／隔週金：アラサーかいわい／土：農MUSIC 猟ライフ",
+      "日：日曜版／月：さんぽ、対話、1on1、👀 別企画?!／火：ポ薦め-人類ポカン計画（ドー人）／木：親モヤ／第一木：スナックよりみ知／隔週金：アラサーかいわい／土：農MUSIC 猟ライフ",
     spotify: "https://open.spotify.com/show/0341I5UOUrJgm7KEvNGInZ",
     links: [
       ["Spotify", "https://open.spotify.com/show/0341I5UOUrJgm7KEvNGInZ"],
@@ -1115,7 +1115,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           className={view === "listenerPodcasts" ? "on" : ""}
           onClick={() => setView("listenerPodcasts")}
         >
-          🎙 朝リスPodcast
+          🎙 ポ薦め
         </button>
         <button
           className={view === "podcasts" ? "on" : ""}
@@ -1572,8 +1572,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           <section className="recommendedPodcasts">
             <div className="themeHead">
               <p className="kicker themeKicker">LISTENER PODCASTS</p>
-              <h2>🎙 朝リスさんのPodcast</h2>
-              <p>タンタンさん作「朝リスさんのポッドキャスト」をもとに、みんなで更新できるリストへ育てています。</p>
+              <h2>🎙 ポ薦め</h2>
+              <p>タンタンさん作のリストをもとに、みんなで更新できる「ポ薦め」へ育てています。</p>
             </div>
             <div className="toolbar listenerPodcastToolbar">
               <div className="tools">
@@ -1609,7 +1609,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               <div className="playlistSubmitHead">
                 <div>
                   <p className="kicker">ADD A LISTENER&apos;S PODCAST</p>
-                  <h3 id="listener-podcast-submit-title">朝リスさんのPodcastを追加する</h3>
+                  <h3 id="listener-podcast-submit-title">ポ薦めに追加する</h3>
                   <p>番組URLから番組名・配信者を自動取得。必要なら修正できます。</p>
                 </div>
               </div>
