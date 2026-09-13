@@ -53,6 +53,20 @@ export default function PlaylistEntryModeSelector({
               checked={value === option.value}
               disabled={disabled}
               onChange={() => onChange(option.value)}
+              style={{
+                WebkitAppearance: "radio",
+                appearance: "auto",
+                width: 18,
+                height: 18,
+                minWidth: 18,
+                padding: 0,
+                margin: "2px 0 0",
+                border: 0,
+                background: "transparent",
+                borderRadius: "50%",
+                flex: "0 0 auto",
+                accentColor: "#cc4b78",
+              }}
             />
             <span>
               <b>{option.icon} {option.title}{disabled ? "（準備中）" : ""}</b>
