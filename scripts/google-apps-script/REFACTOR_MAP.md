@@ -30,11 +30,13 @@
 | `PodcastResolve.js` | Spotify episode URLを番組へ解決する処理。 |
 | `PodcastApple.js` | Apple Podcasts / iTunes Searchによる番組メタデータ補完。 |
 | `PodcastResolveCommon.js` | Podcast URL正規化、HTMLメタ抽出、タイトル・配信者整形、配信元判定。 |
+| `PodcastUrlResolve.js` | Spotify / Apple Podcasts / YouTube / LISTEN / stand.fm等を横断するPodcast URL解決ルーター。 |
 | `PodcastResolveHandler.js` | `doGet` の `type=resolve` API処理。 |
 | `PodcastPlatformSync.js` | 朝リスPodcastの配信先URL補完。シートへの書き込みを伴う。 |
 | `SpotifyAuth.js` | SpotifyユーザーOAuth、認証callback、ユーザーアクセストークン取得。 |
-| `Spotify.js` | プレイリスト全件取得補助、Client Credentials、Spotify番組解決、Spotify HTTP補助、Podcast URL全体の解決。 |
+| `Spotify.js` | Client Credentials、Spotify番組取得・解決、Spotify専用HTTP補助。 |
 | `PlaylistAuto.js` | 共通ルールによるSpotifyプレイリスト自動更新。 |
+| `PlaylistAutoSpotify.js` | 自動更新で使うSpotifyプレイリスト全件取得補助。 |
 | `PlaylistSpecial.js` | 共通自動更新への薄い入口。 |
 | `PlaylistDates.js` | プレイリスト最終更新日の取得・書き込み。 |
 | `Test.js` | 読み取り中心の手動診断。実行前に呼び出し先を確認する。 |
@@ -59,6 +61,8 @@
 - PR #45: SpotifyユーザーOAuth関連を `SpotifyAuth.js` へ分離。
 - PR #47: Apple Podcastsカタログ補完3関数を `PodcastApple.js` へ分離。
 - PR #48: Podcast解析の共通補助7関数を `PodcastResolveCommon.js` へ分離。
+- PR #50: `resolvePodcastUrl()` を `PodcastUrlResolve.js` へ分離。
+- PR #51: `getAllSpotifyPlaylistItems_()` を `PlaylistAutoSpotify.js` へ分離。
 
 ## 現在の評価
 
@@ -74,69 +78,50 @@
 
 **方針:** `status` や `type` 読み取りだけをさらに別ファイルへ移すような細分化は優先しない。
 
-### `PodcastResolve.js`
+### Podcast URL解析
 
-PR #47・#48で責務がかなり整理され、現在は `resolveSpotifyEpisode()` が中心。
+PR #47・#48・#50により、Apple補完・共通補助・URL全体ルーター・Spotify episode解決の境界が明確になった。
 
-**方針:** ここは一旦完成扱いとし、これ以上の細分化は優先しない。
+**方針:** Podcast URL解析側は一旦完成扱いとし、これ以上の細分化を優先しない。
 
-## Spotify.js 再評価（2026-09-13）
+### `Spotify.js`
 
-ユーザーOAuthは `SpotifyAuth.js` へ分離済みだが、`Spotify.js` にはまだ性質の異なる処理が残る。
+PR #45・#50・#51後、残る主な責務は以下。
 
-1. **ユーザー権限プレイリスト読み取り**
-   - `getAllSpotifyPlaylistItems_(playlistId, token)`
+- `getSpotifyAccessToken()`：Client Credentials用アクセストークン取得。
+- `fetchSpotifyShowFromWebApi()`：Spotify Web APIから番組情報取得。
+- `resolveSpotifyShow()`：Spotify show URLから番組情報解決。
+- `fetchSpotifyJson()` / `fetchSpotifyText()`：Spotify公開情報取得用補助。
 
-2. **Client Credentials / Spotify Web API**
-   - `getSpotifyAccessToken()`
-   - `fetchSpotifyShowFromWebApi(showId)`
+これらはSpotify番組解決のために相互依存が強く、現時点では1つの責務として自然にまとまっている。
 
-3. **Spotify番組解決**
-   - `resolveSpotifyShow(cleanUrl)`
-   - `fetchSpotifyJson(url)`
-   - `fetchSpotifyText(url)`
+**方針:** Spotify整理はここで一旦完了扱い。HTTP補助だけをさらに分けるような細分化は優先しない。
 
-4. **Podcast URL全体の解決ルーター**
-   - `resolvePodcastUrl(url)`
+## 次に確認する候補
 
-`resolvePodcastUrl()` は名前のとおりSpotify専用ではなく、以下を横断して扱う。
+### 1. `PlaylistSpecial.js` の役割とトリガー互換
 
-- Spotify episode / show
-- Apple Podcasts
-- YouTube
-- LISTEN
-- stand.fm
-- Amazon Music
-- Pocket Casts
-- その他HTMLメタ情報取得可能な配信先
+現在は以下2関数だけの薄い入口。
 
-そのため、`Spotify.js` に残すより Podcast URL解決全体の責務として独立させる方が自然。
+- `syncToyohidePlaylist()`
+- `syncIsshoShinbunPlaylist()`
 
-### 次の安全な候補
+どちらも `syncAutoPlaylistByPlaylistId_()` を呼ぶだけだが、Apps Scriptの既存トリガーがこれらの関数名を参照している可能性がある。
 
-`resolvePodcastUrl(url)` だけを新しい `PodcastUrlResolve.js` へ単純移動する。
+**次の確認方針:**
+- まずGitHub上で呼び出し元・関数名参照を調査する。
+- トリガー互換の可能性があるため、確認なしに削除・改名しない。
+- 実トリガー確認が必要な場合は、GitHub整理とは別工程として扱う。
 
-- 関数名は変更しない。
-- 配信先ごとの分岐順は変更しない。
-- Apple補完、Spotify解決、HTMLフォールバックの条件は変更しない。
-- 戻り値・エラーメッセージは変更しない。
-- 外部APIの実行テストや本番デプロイは整理PRでは行わない。
+### 2. `PlaylistAuto.js` の内部責務
 
-これにより `Spotify.js` はSpotify固有の処理に近づき、Podcast URL全体のルーティングは `PodcastUrlResolve.js` に集約できる。
+ルール定義、候補取得、マッチング、追加、最終更新日反映を1ファイルで持つが、現時点で機能的なまとまりは保たれている。
 
-## その次に確認する候補
-
-### 1. `PlaylistAuto.js` / `PlaylistSpecial.js` の境界
-
-`PlaylistSpecial.js` は現在、共通ルールへの薄い入口になっている。残す価値があるか、名前を含めて後で棚卸しする。ただし実際の更新ロジック変更は別PRにする。
-
-### 2. `Spotify.js` の残り
-
-`resolvePodcastUrl()` 分離後に、Client Credentials系とSpotify番組解決系が十分まとまっているかを再評価する。`getAllSpotifyPlaylistItems_()` 1関数だけのための新ファイルは現時点では優先しない。
+**方針:** 行数だけを理由に分割しない。次に分けるなら、明確な責務境界が確認できた場合のみ。
 
 ### 3. 定数配置
 
-`SPREADSHEET_ID`、シート名、投稿合言葉などの定数を `Config.js` へまとめる案はあるが、効果は限定的。優先度は低い。
+`SPREADSHEET_ID`、シート名、投稿合言葉などを `Config.js` へまとめる案はあるが、効果は限定的。優先度は低い。
 
 ## 安全な進め方
 
@@ -145,10 +130,10 @@ PR #47・#48で責務がかなり整理され、現在は `resolveSpotifyEpisode
 3. グローバル関数名・定数名の重複がないことを確認する。
 4. Apps Script本番への `clasp push` / デプロイ / トリガー変更は別工程にする。
 5. 本番Spotify・スプレッドシートへの書き込み処理は、整理PRの確認目的では実行しない。
-6. `コード.js` は現時点で「入口として十分薄い」とみなし、過剰分割を避ける。
+6. `コード.js`、Podcast URL解析、`Spotify.js` は現時点で十分整理されたとみなし、過剰分割を避ける。
 
 ## 推奨する次の作業
 
-`Spotify.js` の `resolvePodcastUrl(url)` を `PodcastUrlResolve.js` へ単純移動する。
+`PlaylistSpecial.js` の2つの入口関数がGitHub上のどこから参照されているかを調査し、既存トリガー互換のために残すべき薄いラッパーかを判断する。
 
-この作業では関数名、分岐順、検索条件、戻り値、エラーメッセージを変えず、Apps Script本番デプロイや外部サービスへの書き込みは行わない。
+この調査では関数削除・改名・トリガー変更・Apps Script本番操作は行わない。
