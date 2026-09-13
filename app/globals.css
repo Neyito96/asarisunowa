@@ -1792,6 +1792,20 @@ footer {
     line-height: 1.2 !important;
   }
 
+
+.newBadge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.08rem 0.4rem;
+  border-radius: 999px;
+  font-size: 0.72em;
+  font-weight: 700;
+  line-height: 1.4;
+  vertical-align: 0.08em;
+  background: #cc4b78;
+  color: #fff;
+}
+
   .listenerCardBody > h3 {
     position: static !important;
     display: block !important;
