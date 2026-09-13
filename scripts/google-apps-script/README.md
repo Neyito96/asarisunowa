@@ -8,14 +8,58 @@
 
 ## ファイル構成
 
+### Web API・投稿処理
+
 | ファイル | 役割 |
 | --- | --- |
-| `コード.js` | Web アプリの入口である `doGet` / `doPost`、スプレッドシートの読み書き、API レスポンス、Podcast 情報の補助処理、プレイリスト更新日処理、および一部の運用・診断処理を含むメインコードです。 |
-| `Spotify.js` | Spotify のユーザー OAuth、アクセストークン更新、Spotify Web API、プレイリスト項目取得、および Spotify を含む Podcast URL の情報解決を担当します。 |
-| `PlaylistAuto.js` | 番組、対象プレイリスト、キーワードのルールに基づく Spotify プレイリストの自動更新を担当します。 |
-| `PlaylistSpecial.js` | 複数番組を横断する出演者検索など、共通ルールに収まらない特殊な Spotify プレイリスト更新を担当します。 |
-| `Test.js` | Spotify の取得結果やプレイリスト差分をログで確認する手動診断コードです。本番 API を参照するため、一般的なオフライン単体テストとは異なります。 |
-| `appsscript.json` | タイムゾーン、V8 ランタイム、例外ログ、Web アプリの実行主体・公開範囲などを定義する GAS マニフェストです。 |
+| `コード.js` | Web アプリ入口 (`doGet` / `doPost`) とルーティング。 |
+| `ApiCommon.js` | URL・タイトル正規化、JSON / JSONPレスポンス、JSONP callback検証。 |
+| `ApiReadHandler.js` | `playlist` / `podcast` / `listenerPodcast` のAPI読み取り分岐。 |
+| `HttpFetch.js` | `fetchJson` / `fetchText` による共通HTTP取得補助。 |
+| `PostInput.js` | `doPost` 入力の読み取り・正規化。 |
+| `PostValidation.js` | 投稿入力長、必須項目、投稿種別、URL形式の検証。 |
+| `PostArtwork.js` | 投稿時のアートワーク補完。 |
+| `PostSheets.js` | 投稿保存で使うシート取得と受付ログ。 |
+| `PostDuplicate.js` | 通常投稿の重複判定。 |
+| `PostWrite.js` | 通常投稿の保存先選択と行追加。 |
+| `PostSave.js` | 通常投稿保存処理全体の取りまとめ。 |
+| `AutoUpdateRequest.js` | プレイリスト自動更新申請の受付。 |
+| `SheetData.js` | シート読取、重複判定、シート名のゆるい取得。 |
+
+### Podcast・Spotify
+
+| ファイル | 役割 |
+| --- | --- |
+| `PodcastResolve.js` | Spotify episode URLを番組へ解決する処理。 |
+| `PodcastApple.js` | Apple Podcasts / iTunes Searchによる番組メタデータ補完。 |
+| `PodcastResolveCommon.js` | Podcast URL正規化、HTMLメタ抽出、タイトル・配信者整形、配信元判定。 |
+| `PodcastUrlResolve.js` | Spotify / Apple Podcasts / YouTube / LISTEN / stand.fm等を横断するPodcast URL解決ルーター。 |
+| `PodcastResolveHandler.js` | `doGet` の `type=resolve` API処理。 |
+| `PodcastPlatformSync.js` | 朝リスPodcastの配信先URL補完。シートへの書き込みを伴う。 |
+| `SpotifyAuth.js` | SpotifyユーザーOAuth、認証callback、ユーザーアクセストークン取得。 |
+| `Spotify.js` | Client Credentials、Spotify番組取得・解決、Spotify専用HTTP補助。 |
+
+### プレイリスト自動更新
+
+| ファイル | 役割 |
+| --- | --- |
+| `PlaylistAuto.js` | 自動更新の入口・候補抽出・追加方式選択・更新日反映のオーケストレーション。 |
+| `PlaylistAutoRules.js` | 自動更新ルール定義、Show ID展開、対象テキスト生成、キーワード判定。 |
+| `PlaylistAutoEpisodes.js` | 自動更新対象エピソードのSpotify取得・ページング・重複排除。 |
+| `PlaylistAutoSpotify.js` | 自動更新で使うSpotifyプレイリスト全件取得補助。 |
+| `PlaylistAutoWrite.js` | Spotifyプレイリストへの個別追加・一括追加の書き込み補助。 |
+| `PlaylistSpecial.js` | 個別プレイリスト用の互換入口。既存トリガーが関数名を参照している可能性があるため保持。 |
+| `PlaylistDates.js` | プレイリスト最終更新日の取得・書き込み。 |
+
+### 診断・設定
+
+| ファイル | 役割 |
+| --- | --- |
+| `Test.js` | 読み取り中心の手動診断。実行前に呼び出し先を確認する。 |
+| `TestWriteDanger.js` | 本番データを書き換える可能性がある診断。明示承認なしに実行しない。 |
+| `appsscript.json` | タイムゾーン、V8ランタイム、例外ログ、Webアプリ設定などを定義するGASマニフェスト。 |
+| `REFACTOR_MAP.md` | 現在の責務分担と整理方針、残タスクを記録する作業メモ。 |
+| `AGENTS.md` | GitHub/GAS作業時の安全ルールと運用ルール。 |
 
 ## Web サイトと Apps Script の関係
 
@@ -56,10 +100,19 @@ Apps Script オンラインエディタで直接変更した場合は、その�
 
 時間主導トリガーなどのインストール済みトリガーは Apps Script プロジェクト側で管理され、現在のGitHubソースと `appsscript.json` だけからは完全に再現できません。
 
-`syncAllAutoPlaylists`、`syncToyohidePlaylist`、`updatePlaylistLatestDates` などを定期実行している場合は、Apps Script 管理画面で関数名、頻度、実行アカウント、失敗通知を確認してください。トリガーを追加・削除・変更するときは、本番運用への影響を確認し、その構成を本READMEまたは運用資料にも記録します。
+`syncAllAutoPlaylists`、`syncToyohidePlaylist`、`syncIsshoShinbunPlaylist`、`updatePlaylistLatestDates` などを定期実行している場合は、Apps Script 管理画面で関数名、頻度、実行アカウント、失敗通知を確認してください。トリガーを追加・削除・変更するときは、本番運用への影響を確認し、その構成を本READMEまたは運用資料にも記録します。
+
+`PlaylistSpecial.js` の互換入口は、実トリガー一覧を確認するまでは削除・改名しません。
 
 ## 安全な確認方法
 
 - 通常は静的解析、差分確認、構文確認、読み取り専用の診断を優先します。
 - 本番 Spotify プレイリスト、本番スプレッドシート、Script Properties、デプロイ、トリガーを変更する操作は、管理者の明示的な承認を得てから実行します。
 - `Test.js` や `test` という名前だけで安全とは判断しません。関数内の API メソッドとシート操作を確認し、書き込みがないことを確認してから実行します。
+- `TestWriteDanger.js` の関数は書き込みを伴う可能性があるため、明示承認なしに実行しません。
+
+## 現在の整理状態
+
+2026-09時点で、`コード.js`、Podcast URL解析、Spotify認証・番組解決、プレイリスト自動更新は責務ごとに分離済みです。行数を減らすこと自体を目的にした細分化はここで止め、今後は機能追加や不具合修正で明確な責務境界が必要になった場合だけ再分割します。
+
+詳細な整理履歴と残タスクは `REFACTOR_MAP.md` を参照してください。
