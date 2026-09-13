@@ -24,6 +24,10 @@ function normalizeTitle(title) {
     .trim();
 }
 
+function isValidJsonpCallback_(callback) {
+  return !callback || /^[A-Za-z_$][0-9A-Za-z_$\.]*$/.test(callback);
+}
+
 function jsonResponse(payload) {
   return ContentService
     .createTextOutput(
