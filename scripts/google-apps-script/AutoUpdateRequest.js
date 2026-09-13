@@ -1,5 +1,7 @@
 // プレイリスト自動更新申請の受付
 
+const AUTO_UPDATE_REQUEST_SHEET_NAME = "自動更新申請";
+
 function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
   const updateType = String(data.updateType || "").trim();
   const inviteUrl = String(data.inviteUrl || "").trim();
@@ -31,26 +33,22 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
 
   try {
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    const logSheet = getSheetLoose(ss, LOG_SHEET_NAME);
+    const requestSheet = getSheetLoose(ss, AUTO_UPDATE_REQUEST_SHEET_NAME);
 
-    if (!logSheet) {
-      throw new Error("投稿受付シートが見つかりません");
+    if (!requestSheet) {
+      throw new Error("自動更新申請シートが見つかりません");
     }
 
-    const memo = [
-      "方式: " + updateType,
-      "キーワード: " + keywords,
-      "共同編集URL: " + inviteUrl,
-      ruleNote ? "ルール: " + ruleNote : ""
-    ].filter(Boolean).join("\n");
-
-    logSheet.appendRow([
+    requestSheet.appendRow([
       new Date(),
       url,
       title,
       maker,
-      "自動更新申請",
-      memo
+      inviteUrl,
+      keywords,
+      ruleNote,
+      "受付",
+      "方式: " + updateType
     ]);
 
     SpreadsheetApp.flush();
