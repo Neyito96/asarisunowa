@@ -47,3 +47,38 @@ function addAutoPlaylistEpisodesIndividually_(rule, token, episodes) {
     failedCount: failedCount
   };
 }
+
+function addAutoPlaylistEpisodesBatch_(rule, token, episodes) {
+  const uris = episodes.map(function(ep) {
+    return String(ep.uri);
+  });
+
+  const addRes = UrlFetchApp.fetch(
+    "https://api.spotify.com/v1/playlists/" +
+      encodeURIComponent(rule.playlistId) +
+      "/items",
+    {
+      method: "post",
+      muteHttpExceptions: true,
+      contentType: "application/json",
+      headers: {
+        Authorization: "Bearer " + token
+      },
+      payload: JSON.stringify({ uris: uris })
+    }
+  );
+
+  Logger.log("Add status: " + addRes.getResponseCode());
+  Logger.log(addRes.getContentText());
+
+  if (
+    addRes.getResponseCode() !== 200 &&
+    addRes.getResponseCode() !== 201
+  ) {
+    throw new Error(rule.name + " への追加に失敗しました");
+  }
+
+  episodes.forEach(function(ep) {
+    Logger.log("追加完了 ✅ " + ep.name);
+  });
+}
