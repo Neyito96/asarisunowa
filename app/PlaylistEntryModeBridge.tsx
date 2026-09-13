@@ -23,6 +23,9 @@ export default function PlaylistEntryModeBridge() {
     }
     setHost(mount);
 
+    registerSection.hidden = false;
+    autoSection.hidden = true;
+
     return () => {
       registerSection.hidden = false;
       autoSection.hidden = false;
@@ -35,10 +38,15 @@ export default function PlaylistEntryModeBridge() {
     const autoSection = document.getElementById("auto-update-request");
     if (!registerSection || !autoSection) return;
 
-    registerSection.hidden = mode === "autoExisting";
-    autoSection.hidden = mode === "register";
+    if (mode === "register") {
+      registerSection.hidden = false;
+      autoSection.hidden = true;
+      return;
+    }
 
-    if (mode === "registerAndAuto" || mode === "autoExisting") {
+    if (mode === "autoExisting") {
+      registerSection.hidden = true;
+      autoSection.hidden = false;
       const toggle = autoSection.querySelector<HTMLButtonElement>(".autoUpdateToggle");
       const form = autoSection.querySelector<HTMLFormElement>(".autoUpdateForm");
       if (!form && toggle) toggle.click();
@@ -53,12 +61,14 @@ export default function PlaylistEntryModeBridge() {
         <p className="kicker">ADD / GROW A PLAYLIST</p>
         <h3>朝リストに追加・育てる</h3>
         <p>やりたいことを選ぶと、必要なフォームだけ表示します。</p>
-        <PlaylistEntryModeSelector value={mode} onChange={setMode} />
-        {mode === "registerAndAuto" && (
-          <p className="submitNotice">
-            登録情報と自動更新情報を続けて入力できます。2つをまとめて送る処理は次の段階で接続します。
-          </p>
-        )}
+        <PlaylistEntryModeSelector
+          value={mode}
+          onChange={setMode}
+          disabledModes={["registerAndAuto"]}
+        />
+        <p className="submitNotice">
+          「登録して、自動更新も申し込む」は、入力を一度で済ませる送信処理を次の段階で接続します。
+        </p>
       </div>
     </div>,
     host,
