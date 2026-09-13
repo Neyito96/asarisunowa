@@ -444,6 +444,23 @@ function playlistDateValue(value?: string | null) {
   return Number(match[1] + match[2] + match[3]);
 }
 
+function isListenerPodcastNew(introduced?: string) {
+  if (!introduced) return false;
+
+  const normalized = introduced.replace(/\./g, "-").replace(/\//g, "-");
+  const introducedDate = new Date(normalized + "T00:00:00");
+
+  if (Number.isNaN(introducedDate.getTime())) return false;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const endDate = new Date(introducedDate);
+  endDate.setDate(endDate.getDate() + 30);
+
+  return today >= introducedDate && today < endDate;
+}
+
 export default function Community({ playlists }: { playlists: Playlist[] }) {
   const [livePlaylists, setLivePlaylists] = useState<Playlist[]>(playlists);
   const [recommendedPodcasts, setRecommendedPodcasts] = useState<Playlist[]>([]);
@@ -1590,7 +1607,10 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     {p.artwork ? <img src={p.artwork} alt={p.title + "のアートワーク"} loading="lazy" /> : <span>ASARISU<br />PODCAST</span>}
                   </div>
                   <div className="cardBody listenerCardBody">
-                    <small>PODCAST {p.id}</small>
+                    <small>
+                      PODCAST {p.id}
+                      {isListenerPodcastNew(p.introduced) && <span className="newBadge">NEW</span>}
+                    </small>
                     <h3>{p.title}</h3>
                     <p>by {p.maker}</p>
                     {p.introduced && <p className="podcastComment">紹介配信日 {p.introduced}</p>}
