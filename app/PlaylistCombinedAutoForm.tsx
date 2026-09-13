@@ -52,6 +52,7 @@ export default function PlaylistCombinedAutoForm() {
 
     setStatus("sending");
     setMessage("");
+    let registrationSent = false;
 
     try {
       await postPayload({
@@ -64,6 +65,7 @@ export default function PlaylistCombinedAutoForm() {
         securityAnswer: cleanSecurityAnswer,
         website,
       });
+      registrationSent = true;
 
       await postPayload({
         kind: "autoUpdateRequest",
@@ -91,7 +93,11 @@ export default function PlaylistCombinedAutoForm() {
       setWebsite("");
     } catch {
       setStatus("error");
-      setMessage("送信できませんでした。時間をおいてもう一度お試しください。");
+      setMessage(
+        registrationSent
+          ? "朝リスト登録は送信しましたが、自動更新申請の送信に失敗しました。時間をおいて『登録済みを自動更新にする』から申請してください。"
+          : "送信できませんでした。時間をおいてもう一度お試しください。",
+      );
     }
   }
 
@@ -102,114 +108,48 @@ export default function PlaylistCombinedAutoForm() {
 
       <label>
         <span>SpotifyプレイリストURL</span>
-        <input
-          type="url"
-          value={url}
-          onChange={(event) => setUrl(event.target.value)}
-          placeholder="https://open.spotify.com/playlist/..."
-          required
-        />
+        <input type="url" value={url} onChange={(event) => setUrl(event.target.value)} placeholder="https://open.spotify.com/playlist/..." required />
       </label>
       <label>
         <span>タイトル</span>
-        <input
-          type="text"
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          placeholder="プレイリスト名"
-          maxLength={120}
-          required
-        />
+        <input type="text" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="プレイリスト名" maxLength={120} required />
       </label>
       <label>
         <span>朝リスネーム</span>
-        <input
-          type="text"
-          value={maker}
-          onChange={(event) => setMaker(event.target.value)}
-          placeholder="お名前・ハンドルネーム"
-          maxLength={80}
-          required
-        />
+        <input type="text" value={maker} onChange={(event) => setMaker(event.target.value)} placeholder="お名前・ハンドルネーム" maxLength={80} required />
       </label>
 
       <fieldset className="autoUpdateTypes">
         <legend>どんなプレイリスト？</legend>
-        <label>
-          <input type="radio" name="combinedAutoUpdateType" checked={updateType === "series"} onChange={() => setUpdateType("series")} />
-          <span><b>📻 シリーズ別</b><small>例：一緒に新聞をめくろう！</small></span>
-        </label>
-        <label>
-          <input type="radio" name="combinedAutoUpdateType" checked={updateType === "speaker"} onChange={() => setUpdateType("speaker")} />
-          <span><b>🎙️ 出演者別</b><small>例：宮沢賢一さん出演回</small></span>
-        </label>
-        <label>
-          <input type="radio" name="combinedAutoUpdateType" checked={updateType === "theme"} onChange={() => setUpdateType("theme")} />
-          <span><b>🔎 テーマ別</b><small>例：中東・鉄道・教育</small></span>
-        </label>
+        <label><input type="radio" name="combinedAutoUpdateType" checked={updateType === "series"} onChange={() => setUpdateType("series")} /><span><b>📻 シリーズ別</b><small>例：一緒に新聞をめくろう！</small></span></label>
+        <label><input type="radio" name="combinedAutoUpdateType" checked={updateType === "speaker"} onChange={() => setUpdateType("speaker")} /><span><b>🎙️ 出演者別</b><small>例：宮沢賢一さん出演回</small></span></label>
+        <label><input type="radio" name="combinedAutoUpdateType" checked={updateType === "theme"} onChange={() => setUpdateType("theme")} /><span><b>🔎 テーマ別</b><small>例：中東・鉄道・教育</small></span></label>
       </fieldset>
 
       <label>
         <span>Spotify 共同編集者招待URL</span>
-        <input
-          type="url"
-          value={inviteUrl}
-          onChange={(event) => setInviteUrl(event.target.value)}
-          placeholder="Spotifyで発行した共同編集者の招待リンク"
-          required
-        />
+        <input type="url" value={inviteUrl} onChange={(event) => setInviteUrl(event.target.value)} placeholder="Spotifyで発行した共同編集者の招待リンク" required />
         <small>対象プレイリストを開き「共同編集者を招待」から発行したリンクを貼ってください。</small>
       </label>
       <label>
         <span>{updateType === "series" ? "シリーズ名・キーワード" : updateType === "speaker" ? "出演者名" : "テーマのキーワード"}</span>
-        <textarea
-          value={keywords}
-          onChange={(event) => setKeywords(event.target.value)}
-          placeholder={updateType === "series" ? "例：めくろう\n一緒に新聞をめくろう" : updateType === "speaker" ? "例：宮沢賢一" : "例：中東\nイスラエル\nパレスチナ\nイラン"}
-          rows={updateType === "speaker" ? 2 : 3}
-          required
-        />
+        <textarea value={keywords} onChange={(event) => setKeywords(event.target.value)} placeholder={updateType === "series" ? "例：めくろう\n一緒に新聞をめくろう" : updateType === "speaker" ? "例：宮沢賢一" : "例：中東\nイスラエル\nパレスチナ\nイラン"} rows={updateType === "speaker" ? 2 : 3} required />
       </label>
       <label>
         <span>更新ルール・補足 <small>（任意）</small></span>
-        <textarea
-          value={ruleNote}
-          onChange={(event) => setRuleNote(event.target.value)}
-          placeholder="例：新着回だけ追加。再配信や予告編は除外。"
-          rows={3}
-        />
+        <textarea value={ruleNote} onChange={(event) => setRuleNote(event.target.value)} placeholder="例：新着回だけ追加。再配信や予告編は除外。" rows={3} />
       </label>
       <label>
         <span>セキュリティ：神田さんの名は？</span>
-        <input
-          type="text"
-          value={securityAnswer}
-          onChange={(event) => setSecurityAnswer(event.target.value)}
-          placeholder="漢字2文字"
-          maxLength={10}
-          autoComplete="off"
-          required
-        />
+        <input type="text" value={securityAnswer} onChange={(event) => setSecurityAnswer(event.target.value)} placeholder="漢字2文字" maxLength={10} autoComplete="off" required />
       </label>
       <label className="submitHoneypot" aria-hidden="true">
         <span>website</span>
-        <input
-          type="text"
-          tabIndex={-1}
-          autoComplete="off"
-          value={website}
-          onChange={(event) => setWebsite(event.target.value)}
-        />
+        <input type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(event) => setWebsite(event.target.value)} />
       </label>
 
-      <button type="submit" disabled={status === "sending"}>
-        {status === "sending" ? "2件を送信中…" : "登録＋自動更新を申し込む"}
-      </button>
-      {message && (
-        <p className={status === "success" ? "submitNotice success" : "submitNotice error"}>
-          {message}
-        </p>
-      )}
+      <button type="submit" disabled={status === "sending"}>{status === "sending" ? "2件を送信中…" : "登録＋自動更新を申し込む"}</button>
+      {message && <p className={status === "success" ? "submitNotice success" : "submitNotice error"}>{message}</p>}
     </form>
   );
 }
