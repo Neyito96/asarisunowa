@@ -1,4 +1,58 @@
 // プレイリスト自動更新用エピソード取得
+
+function fetchSpotifyReadWithRetry_(url, options, contextLabel) {
+  const maxRetries = 2;
+  let retryCount = 0;
+
+  while (true) {
+    const response = UrlFetchApp.fetch(url, options);
+    const status = response.getResponseCode();
+
+    if (status !== 429) {
+      return response;
+    }
+
+    if (retryCount >= maxRetries) {
+      throw new Error(
+        "Spotify APIのレート制限が続いているため取得を中止しました: " +
+        String(contextLabel || url)
+      );
+    }
+
+    const headers = response.getAllHeaders
+      ? response.getAllHeaders()
+      : response.getHeaders();
+    const retryAfterRaw =
+      headers["Retry-After"] ||
+      headers["retry-after"] ||
+      "";
+    const retryAfterParsed = parseInt(String(retryAfterRaw), 10);
+    const fallbackSeconds = Math.pow(2, retryCount + 1);
+    const waitSeconds = Math.max(
+      1,
+      Math.min(
+        60,
+        Number.isFinite(retryAfterParsed)
+          ? retryAfterParsed
+          : fallbackSeconds
+      )
+    );
+
+    retryCount += 1;
+    Logger.log(
+      "Spotify 429: " +
+      String(contextLabel || url) +
+      " | " +
+      waitSeconds +
+      "秒待って再試行 " +
+      retryCount +
+      "/" +
+      maxRetries
+    );
+    Utilities.sleep(waitSeconds * 1000);
+  }
+}
+
 function fetchAutoPlaylistEpisodes_(rule, token) {
   const showIds = getAutoPlaylistShowIds_(rule);
 
@@ -18,13 +72,17 @@ function fetchAutoPlaylistEpisodes_(rule, token) {
       "/episodes?market=JP&limit=50";
 
     while (nextUrl) {
-      const showRes = UrlFetchApp.fetch(nextUrl, {
-        muteHttpExceptions: true,
-        headers: {
-          Authorization: "Bearer " + token,
-          Accept: "application/json"
-        }
-      });
+      const showRes = fetchSpotifyReadWithRetry_(
+        nextUrl,
+        {
+          muteHttpExceptions: true,
+          headers: {
+            Authorization: "Bearer " + token,
+            Accept: "application/json"
+          }
+        },
+        "Show " + showId
+      );
 
       if (showRes.getResponseCode() !== 200) {
         Logger.log(
