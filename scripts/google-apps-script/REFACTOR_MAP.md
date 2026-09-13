@@ -5,10 +5,11 @@
 ## 現在の方針
 
 - `コード.js` は Web アプリの入口 (`doGet` / `doPost`) とルーティングに限定する。
-- 入力解析、検証、保存、API読み取り、Podcast URL解析などの補助処理は責務ごとのファイルへ分離する。
+- 入力解析、検証、保存、API読み取り、Podcast URL解析、プレイリスト自動更新などは責務ごとのファイルへ分離する。
 - 1 PR = 1責務を基本とし、整理と挙動変更を同じPRに混ぜない。
 - GitHub上の整理と Apps Script 本番への `clasp push` / デプロイ / トリガー変更は別工程にする。
 - 本番Spotify・スプレッドシートへの書き込み処理は、整理PRの確認目的では実行しない。
+- 行数だけを理由に細分化せず、責務境界が明確な場合だけ分ける。
 
 ## 現在の主な役割
 
@@ -35,8 +36,11 @@
 | `PodcastPlatformSync.js` | 朝リスPodcastの配信先URL補完。シートへの書き込みを伴う。 |
 | `SpotifyAuth.js` | SpotifyユーザーOAuth、認証callback、ユーザーアクセストークン取得。 |
 | `Spotify.js` | Client Credentials、Spotify番組取得・解決、Spotify専用HTTP補助。 |
-| `PlaylistAuto.js` | 共通ルールによるSpotifyプレイリスト自動更新。 |
+| `PlaylistAuto.js` | プレイリスト自動更新の入口・候補抽出・追加方式選択・更新日反映のオーケストレーション。 |
+| `PlaylistAutoRules.js` | 自動更新ルール定義、Show ID展開、対象テキスト生成、キーワード判定。 |
+| `PlaylistAutoEpisodes.js` | 自動更新対象エピソードのSpotify取得・ページング・重複排除。 |
 | `PlaylistAutoSpotify.js` | 自動更新で使うSpotifyプレイリスト全件取得補助。 |
+| `PlaylistAutoWrite.js` | Spotifyプレイリストへの個別追加・一括追加の書き込み補助。 |
 | `PlaylistSpecial.js` | 個別プレイリスト用の互換入口。既存Apps Scriptトリガーが関数名を参照している可能性があるため保持。 |
 | `PlaylistDates.js` | プレイリスト最終更新日の取得・書き込み。 |
 | `Test.js` | 読み取り中心の手動診断。実行前に呼び出し先を確認する。 |
@@ -45,88 +49,93 @@
 ## 完了した主な分離
 
 - PR #28: HTTP取得補助を `HttpFetch.js` へ分離。
-- PR #30: 投稿入力長チェックを `PostValidation.js` へ分離。
-- PR #31: 投稿URL検証を `PostValidation.js` へ分離。
-- PR #32: 自動更新申請処理を `AutoUpdateRequest.js` へ分離。
-- PR #33: 投稿重複判定を `PostDuplicate.js` へ分離。
-- PR #34: 通常投稿の保存先選択・行追加を `PostWrite.js` へ分離。
-- PR #35: 通常投稿のシート取得・受付ログを `PostSheets.js` へ分離。
-- PR #36: 通常投稿保存処理全体を `PostSave.js` へ分離。
-- PR #37: 通常投稿の基本入力検証を `PostValidation.js` へ分離。
-- PR #38: 投稿時のアートワーク補完を分離。
-- PR #39: `doPost` 入力読み取りを `PostInput.js` へ分離。
-- PR #40: JSONP callback検証を `ApiCommon.js` へ共通化。
-- PR #41: Podcast URL解析API処理を `PodcastResolveHandler.js` へ分離。
-- PR #42: `playlist` / `podcast` / `listenerPodcast` のAPI読み取りを `ApiReadHandler.js` へ分離。
+- PR #30〜#39: `doPost` の入力、検証、重複判定、保存、アートワーク補完を責務別に分離。
+- PR #40〜#42: `doGet` の callback検証、Podcast解析API、データ読み取り分岐を分離。
 - PR #45: SpotifyユーザーOAuth関連を `SpotifyAuth.js` へ分離。
-- PR #47: Apple Podcastsカタログ補完3関数を `PodcastApple.js` へ分離。
-- PR #48: Podcast解析の共通補助7関数を `PodcastResolveCommon.js` へ分離。
+- PR #47: Apple Podcastsカタログ補完を `PodcastApple.js` へ分離。
+- PR #48: Podcast解析の共通補助を `PodcastResolveCommon.js` へ分離。
 - PR #50: `resolvePodcastUrl()` を `PodcastUrlResolve.js` へ分離。
 - PR #51: `getAllSpotifyPlaylistItems_()` を `PlaylistAutoSpotify.js` へ分離。
+- PR #53: `PlaylistSpecial.js` を既存トリガー互換入口として保持する方針を明文化。
+- PR #54: 自動更新ルール定義・判定を `PlaylistAutoRules.js` へ分離。
+- PR #55: 自動更新対象エピソード取得を `PlaylistAutoEpisodes.js` へ分離。
+- PR #56: 個別追加処理を `PlaylistAutoWrite.js` へ分離。
+- PR #57: 一括追加処理を `PlaylistAutoWrite.js` へ分離。
 
 ## 現在の評価
 
 ### `doPost`
 
-現時点で十分に薄い。入力解析、入力長チェック、自動更新申請、基本検証、アートワーク補完、投稿種別・URL検証、保存処理の順に補助関数へ委譲している。
+十分に薄い。入力解析、入力長チェック、自動更新申請、基本検証、アートワーク補完、投稿種別・URL検証、保存処理の順に補助関数へ委譲している。
 
-**方針:** 当面はこれ以上細分化しない。
+**方針:** これ以上細分化しない。
 
 ### `doGet`
 
-現時点で十分に薄い。OAuth callback / OAuth取消、callback検証、status、resolve、各データ読み取り、未知typeエラーのルーティングを担当する。
+十分に薄い。OAuth callback / OAuth取消、callback検証、status、resolve、各データ読み取り、未知typeエラーのルーティングを担当する。
 
-**方針:** `status` や `type` 読み取りだけをさらに別ファイルへ移すような細分化は優先しない。
+**方針:** これ以上の細分化を優先しない。
 
 ### Podcast URL解析
 
-PR #47・#48・#50により、Apple補完・共通補助・URL全体ルーター・Spotify episode解決の境界が明確になった。
+Apple補完・共通補助・URL全体ルーター・Spotify episode解決の境界が明確になった。
 
-**方針:** Podcast URL解析側は一旦完成扱いとし、これ以上の細分化を優先しない。
+**方針:** 一旦完成扱い。これ以上の細分化を優先しない。
 
 ### `Spotify.js`
 
-PR #45・#50・#51後、残る主な責務は以下。
+Client Credentials、Spotify番組取得・解決、Spotify専用HTTP補助が残っているが、相互依存が強く1つの責務として自然にまとまっている。
 
-- `getSpotifyAccessToken()`：Client Credentials用アクセストークン取得。
-- `fetchSpotifyShowFromWebApi()`：Spotify Web APIから番組情報取得。
-- `resolveSpotifyShow()`：Spotify show URLから番組情報解決。
-- `fetchSpotifyJson()` / `fetchSpotifyText()`：Spotify公開情報取得用補助。
+**方針:** 一旦完成扱い。過剰分割しない。
 
-これらはSpotify番組解決のために相互依存が強く、現時点では1つの責務として自然にまとまっている。
+### プレイリスト自動更新
 
-**方針:** Spotify整理はここで一旦完了扱い。HTTP補助だけをさらに分けるような細分化は優先しない。
+PR #54〜#57により責務が以下へ分かれた。
+
+- `PlaylistAutoRules.js`: ルール定義・判定
+- `PlaylistAutoEpisodes.js`: エピソード取得
+- `PlaylistAutoSpotify.js`: 既存プレイリスト項目取得
+- `PlaylistAutoWrite.js`: Spotify書き込み
+- `PlaylistAuto.js`: 同期オーケストレーション
+- `PlaylistSpecial.js`: 互換入口
+- `PlaylistDates.js`: 最終更新日
+
+`PlaylistAuto.js` は現在、全件同期入口、playlistId指定入口、1ルール分の同期進行を担当しており、オーケストレーションとして自然なまとまりになっている。
+
+**方針:** プレイリスト自動更新の構造整理は一旦完成扱い。これ以上は機能追加・不具合修正の必要が生じた時だけ見直す。
 
 ### `PlaylistSpecial.js`
 
-現在は以下2関数だけの薄い入口。
+`syncToyohidePlaylist()` と `syncIsshoShinbunPlaylist()` は `syncAutoPlaylistByPlaylistId_()` を呼ぶだけの薄い入口。
 
-- `syncToyohidePlaylist()`
-- `syncIsshoShinbunPlaylist()`
+Apps Scriptのインストール済みトリガー設定はGitHubには保存されないため、実環境で参照されている可能性をGitHubだけでは否定できない。
 
-どちらも `syncAutoPlaylistByPlaylistId_()` を呼ぶだけで、更新ロジック自体は `PlaylistAuto.js` に集約されている。
+**方針:** 実トリガー一覧を確認するまでは削除・改名しない。
 
-GitHub上のコード検索では、この2関数の呼び出し元は確認できなかった。一方、Apps Scriptのインストール済みトリガー設定はGitHubリポジトリには保存されないため、実環境のトリガーがこれらの関数名を参照している可能性はGitHubだけでは否定できない。
+## 残タスク
 
-**方針:** `PlaylistSpecial.js` は既存トリガー互換のための薄い入口として残す。実トリガー一覧を確認するまでは削除・改名しない。
+構造整理そのものはほぼ完了。残りは以下の安全確認を中心とする。
 
-## 次に確認する候補
+### 1. リポジトリ全体の最終棚卸し
 
-### 1. `PlaylistAuto.js` の内部責務
+- 同名トップレベル関数・定数の重複がないか。
+- 旧ファイル名・旧責務を参照する文書やコメントが残っていないか。
+- テスト関数が本番処理と混在していないか。
+- 書き込み系テストが `TestWriteDanger.js` 以外へ残っていないか。
 
-ルール定義、候補取得、マッチング、追加、最終更新日反映を1ファイルで持つが、現時点で機能的なまとまりは保たれている。
-
-**方針:** 行数だけを理由に分割しない。次に分けるなら、明確な責務境界が確認できた場合のみ。
+この棚卸しは原則として読み取り・検索だけで行い、問題が見つかった場合のみ個別PRにする。
 
 ### 2. 定数配置
 
-`SPREADSHEET_ID`、シート名、投稿合言葉などを `Config.js` へまとめる案はあるが、効果は限定的。優先度は低い。
+`SPREADSHEET_ID`、シート名、投稿合言葉などを `Config.js` へまとめる案はあるが、現状で重大な保守上の問題はない。
+
+**方針:** 優先度低。整理のためだけには実施しない。
 
 ### 3. 実トリガー棚卸し
 
 `PlaylistSpecial.js` の互換入口を将来整理する場合のみ、Apps Script本番側でインストール済みトリガーの関数名を読み取り確認する。
 
-**注意:** トリガー確認はGitHub整理とは別工程とし、明示依頼なしにトリガーの作成・削除・変更は行わない。
+**注意:** トリガー確認はGitHub整理とは別工程。明示依頼なしにトリガーの作成・削除・変更は行わない。
 
 ## 安全な進め方
 
@@ -135,11 +144,13 @@ GitHub上のコード検索では、この2関数の呼び出し元は確認で�
 3. グローバル関数名・定数名の重複がないことを確認する。
 4. Apps Script本番への `clasp push` / デプロイ / トリガー変更は別工程にする。
 5. 本番Spotify・スプレッドシートへの書き込み処理は、整理PRの確認目的では実行しない。
-6. `コード.js`、Podcast URL解析、`Spotify.js` は現時点で十分整理されたとみなし、過剰分割を避ける。
+6. `コード.js`、Podcast URL解析、`Spotify.js`、プレイリスト自動更新は現時点で十分整理されたとみなし、過剰分割を避ける。
 7. `PlaylistSpecial.js` の入口関数は、実トリガー確認前に削除・改名しない。
 
 ## 推奨する次の作業
 
-`PlaylistAuto.js` を責務ベースで再評価し、行数ではなく「ルール定義」「Spotify取得」「候補判定」「書き込み」のどこかに独立させる価値のある境界があるかを調査する。
+GitHub上で `scripts/google-apps-script/` 全体の最終棚卸しを行う。
 
-この調査ではロジック変更、プレイリスト更新、トリガー変更、Apps Script本番操作は行わない。
+目的は新たな分割ではなく、重複関数、古い参照、テスト混在、危険な書き込み系診断の取り残しがないかを確認し、問題がなければ今回の構造整理を完了扱いにすること。
+
+この棚卸しでは、Apps Script本番、Spotify API、スプレッドシート、Script Properties、トリガーは操作しない。
