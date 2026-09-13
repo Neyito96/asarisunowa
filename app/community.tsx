@@ -444,21 +444,23 @@ function playlistDateValue(value?: string | null) {
   return Number(match[1] + match[2] + match[3]);
 }
 
-function isListenerPodcastNew(introduced?: string) {
-  if (!introduced) return false;
+function listenerPodcastBadge(introduced?: string) {
+  if (!introduced) return null;
 
   const normalized = introduced.replace(/\./g, "-").replace(/\//g, "-");
   const introducedDate = new Date(normalized + "T00:00:00");
 
-  if (Number.isNaN(introducedDate.getTime())) return false;
+  if (Number.isNaN(introducedDate.getTime())) return null;
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  if (today < introducedDate) return "SOON";
+
   const endDate = new Date(introducedDate);
   endDate.setDate(endDate.getDate() + 30);
 
-  return today >= introducedDate && today < endDate;
+  return today < endDate ? "NEW" : null;
 }
 
 export default function Community({ playlists }: { playlists: Playlist[] }) {
@@ -1609,7 +1611,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   <div className="cardBody listenerCardBody">
                     <small>
                       PODCAST {p.id}
-                      {isListenerPodcastNew(p.introduced) && <span className="newBadge">NEW</span>}
+                      {listenerPodcastBadge(p.introduced) && <span className="newBadge">{listenerPodcastBadge(p.introduced)}</span>}
                     </small>
                     <h3>{p.title}</h3>
                     <p>by {p.maker}</p>
