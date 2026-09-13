@@ -2461,4 +2461,26 @@ footer {
   .officialGuideResult p{font-size:.82rem!important;line-height:1.4!important;}
   .officialGuideResultLinks{margin-top:8px!important;gap:6px!important;}
   .officialGuideResultLinks a,.officialGuideGo{padding:7px 10px!important;font-size:.78rem!important;}
+}\n\n
+/* listener podcast status badges */
+.newBadge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.72em;
+  font-weight: 800;
+  line-height: 1.4;
+  vertical-align: 0.08em;
 }
+
+.newBadgeActive {
+  background: #cc4b78;
+  color: #fff;
+}
+
+.soonBadge {
+  background: #f2c66d;
+  color: #5a3d00;
+}
+\n
