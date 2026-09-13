@@ -109,12 +109,12 @@ function doPost(e) {
       comment
     ]);
 
-    const targetSheet =
-      kind === "listenerPodcast"
-        ? listenerPodcastSheet
-        : kind === "podcast"
-        ? podcastSheet
-        : workSheet;
+    const targetSheet = getPostTargetSheet_(
+      kind,
+      workSheet,
+      podcastSheet,
+      listenerPodcastSheet
+    );
 
     const lastRow = targetSheet.getLastRow();
 
@@ -136,41 +136,16 @@ function doPost(e) {
     let duplicateReason = "";
 
     if (!duplicate.duplicateByUrl && !duplicate.duplicateByTitle) {
-      if (kind === "listenerPodcast") {
-        const provider = detectProvider(url);
-        targetSheet.appendRow([
-          url,
-          title,
-          maker,
-          introducedDate || "",
-          comment,
-          provider === "Spotify" ? url : "",
-          provider === "Apple Podcasts" ? url : "",
-          provider === "LISTEN" ? url : "",
-          provider === "stand.fm" ? url : "",
-          provider === "Amazon Music" ? url : "",
-          provider === "YouTube" ? url : "",
-          provider && provider !== "Spotify" && provider !== "Apple Podcasts" &&
-            provider !== "LISTEN" && provider !== "stand.fm" &&
-            provider !== "Amazon Music" && provider !== "YouTube" ? url : "",
-          artwork || ""
-        ]);
-      } else if (kind === "podcast") {
-        targetSheet.appendRow([
-          url,
-          title,
-          maker,
-          new Date(),
-          comment,
-          artwork || ""
-        ]);
-      } else {
-        targetSheet.appendRow([
-          url,
-          title,
-          maker
-        ]);
-      }
+      appendPostRow_(
+        targetSheet,
+        kind,
+        url,
+        title,
+        maker,
+        introducedDate,
+        comment,
+        artwork
+      );
 
       added = true;
     } else {
