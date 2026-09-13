@@ -9,13 +9,17 @@ function getAllSpotifyPlaylistItems_(playlistId, token) {
     "/items?market=JP&limit=100";
 
   while (url) {
-    const response = UrlFetchApp.fetch(url, {
-      muteHttpExceptions: true,
-      headers: {
-        Authorization: "Bearer " + token,
-        Accept: "application/json"
-      }
-    });
+    const response = fetchSpotifyReadWithRetry_(
+      url,
+      {
+        muteHttpExceptions: true,
+        headers: {
+          Authorization: "Bearer " + token,
+          Accept: "application/json"
+        }
+      },
+      "Playlist " + playlistId
+    );
 
     const status = response.getResponseCode();
     Logger.log("Playlist page status: " + status);
