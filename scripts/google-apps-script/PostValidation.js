@@ -44,6 +44,26 @@ function validatePostInputLengths_(values) {
   return "";
 }
 
+function validatePostBasic_(url, title, maker, securityAnswer) {
+  if (securityAnswer !== SUBMIT_SECURITY_ANSWER) {
+    return "セキュリティ回答が正しくありません";
+  }
+
+  if (!url || !title || !maker) {
+    return "必須項目が不足しています";
+  }
+
+  return "";
+}
+
+function validatePostKind_(kind) {
+  if (kind !== "playlist" && kind !== "podcast" && kind !== "listenerPodcast") {
+    return "投稿の種類が正しくありません";
+  }
+
+  return "";
+}
+
 function validatePostTargetUrl_(kind, url) {
   const isPlaylistUrl =
     /^https:\/\/open\.spotify\.com\/playlist\//i.test(url) ||
