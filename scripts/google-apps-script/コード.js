@@ -9,6 +9,7 @@ const WORK_SHEET_NAME = "作業台　 ";
 const PUBLIC_SHEET_NAME = "サイト公開用";
 const PODCAST_SHEET_NAME = "おすすめPodcast";
 const LISTENER_PODCAST_SHEET_NAME = "朝リスPodcast";
+const SUBMIT_SECURITY_ANSWER = "大介";
 
 function validatePostInputLengths_(values) {
   const limits = {
@@ -19,6 +20,7 @@ function validatePostInputLengths_(values) {
     introducedDate: 32,
     artwork: 2048,
     kind: 32,
+    securityAnswer: 20,
     updateType: 100,
     inviteUrl: 2048,
     keywords: 500,
@@ -33,6 +35,7 @@ function validatePostInputLengths_(values) {
     introducedDate: "紹介日",
     artwork: "画像URL",
     kind: "投稿種別",
+    securityAnswer: "セキュリティ回答",
     updateType: "更新方式",
     inviteUrl: "共同編集URL",
     keywords: "キーワード",
@@ -63,6 +66,7 @@ function doPost(e) {
     const introducedDate = String(data.introducedDate || "").trim();
     let artwork = String(data.artwork || "").trim();
     const kind = String(data.kind || "playlist").trim();
+    const securityAnswer = String(data.securityAnswer || "").trim();
     
     const website = String(data.website || "").trim();
 
@@ -75,7 +79,8 @@ function doPost(e) {
       comment: comment,
       introducedDate: introducedDate,
       artwork: artwork,
-      kind: kind
+      kind: kind,
+      securityAnswer: securityAnswer
     });
 
     if (baseLengthError) {
@@ -139,6 +144,14 @@ function doPost(e) {
     autoUpdateLock.releaseLock();
   }
 }
+
+    if (securityAnswer !== SUBMIT_SECURITY_ANSWER) {
+      return jsonResponse({
+        ok: false,
+        error: "セキュリティ回答が正しくありません"
+      });
+    }
+
     if (!url || !title || !maker) return jsonResponse({ ok: false, error: "必須項目が不足しています" });
 
     if (!artwork && (kind === "podcast" || kind === "listenerPodcast")) {
