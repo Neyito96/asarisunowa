@@ -8,9 +8,11 @@ import PlaylistEntryModeSelector, { type PlaylistEntryMode } from "./PlaylistEnt
 export default function PlaylistEntryModeBridge() {
   const [mode, setMode] = useState<PlaylistEntryMode>("register");
   const [host, setHost] = useState<HTMLElement | null>(null);
+  const [sortHost, setSortHost] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
     let currentHost: HTMLElement | null = null;
+    let currentSortHost: HTMLElement | null = null;
 
     const mountWhenReady = () => {
       const registerSection = document.querySelector<HTMLElement>(
@@ -38,6 +40,15 @@ export default function PlaylistEntryModeBridge() {
         currentHost = mount;
         setHost(mount);
       }
+
+      const nextSortHost = document.querySelector<HTMLElement>(".sorts");
+      if (nextSortHost && currentSortHost !== nextSortHost) {
+        currentSortHost = nextSortHost;
+        setSortHost(nextSortHost);
+      }
+
+      const legacyManagerButton = document.querySelector<HTMLButtonElement>(".playlistOwnerJump");
+      if (legacyManagerButton) legacyManagerButton.hidden = true;
     };
 
     mountWhenReady();
@@ -46,7 +57,12 @@ export default function PlaylistEntryModeBridge() {
 
     const handleManagerJump = (event: Event) => {
       const target = event.target as Element | null;
-      if (target?.closest(".playlistOwnerJump")) setMode("autoExisting");
+      if (target?.closest(".playlistOwnerJump")) {
+        setMode("autoExisting");
+        window.setTimeout(() => {
+          document.getElementById("playlist-entry-mode-host")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 0);
+      }
     };
     document.addEventListener("click", handleManagerJump);
 
@@ -57,8 +73,10 @@ export default function PlaylistEntryModeBridge() {
         "main .playlistSubmit[aria-labelledby='playlist-submit-title']",
       );
       const autoSection = document.getElementById("auto-update-request");
+      const legacyManagerButton = document.querySelector<HTMLButtonElement>(".playlistOwnerJump");
       if (registerSection) registerSection.hidden = false;
       if (autoSection) autoSection.hidden = false;
+      if (legacyManagerButton) legacyManagerButton.hidden = false;
       currentHost?.remove();
     };
   }, []);
@@ -93,18 +111,44 @@ export default function PlaylistEntryModeBridge() {
 
   if (!host?.isConnected) return null;
 
-  return createPortal(
-    <div>
-      <div className="playlistSubmitHead">
+  const jumpToManagerForm = () => {
+    setMode("autoExisting");
+    window.setTimeout(() => {
+      document.getElementById("playlist-entry-mode-host")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+  };
+
+  return (
+    <>
+      {createPortal(
         <div>
-          <p className="kicker">ADD / GROW A PLAYLIST</p>
-          <h3>朝リストに追加・育てる</h3>
-          <p>やりたいことを選ぶと、必要なフォームだけ表示します。</p>
-          <PlaylistEntryModeSelector value={mode} onChange={setMode} />
-        </div>
-      </div>
-      {mode === "registerAndAuto" && <PlaylistCombinedAutoForm />}
-    </div>,
-    host,
+          <div className="playlistSubmitHead">
+            <div>
+              <p className="kicker">ADD / GROW A PLAYLIST</p>
+              <h3>朝リストに追加・育てる</h3>
+              <p>やりたいことを選ぶと、必要なフォームだけ表示します。</p>
+              <PlaylistEntryModeSelector value={mode} onChange={setMode} />
+            </div>
+          </div>
+          {mode === "registerAndAuto" && <PlaylistCombinedAutoForm />}
+        </div>,
+        host,
+      )}
+      {sortHost?.isConnected
+        ? createPortal(
+            <button
+              type="button"
+              className="playlistManagerSortButton"
+              onClick={jumpToManagerForm}
+              aria-label="プレイリスト管理者向け・自動更新申請へ"
+              title="プレイリスト管理者向け"
+              style={{ marginLeft: "auto", borderColor: "#cc4b78", color: "#0b5874", fontWeight: 800 }}
+            >
+              ⚙️ プレイリスト管理者
+            </button>,
+            sortHost,
+          )
+        : null}
+    </>
   );
 }
