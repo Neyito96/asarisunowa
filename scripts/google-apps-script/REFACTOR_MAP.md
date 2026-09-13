@@ -30,7 +30,7 @@
 | `PodcastResolve.js` | Podcast URL解析、番組情報・アートワーク・配信元判定。 |
 | `PodcastResolveHandler.js` | `doGet` の `type=resolve` API処理。 |
 | `PodcastPlatformSync.js` | 朝リスPodcastの配信先URL補完。シートへの書き込みを伴う。 |
-| `Spotify.js` | Spotify OAuth / API / Podcast解決。 |
+| `Spotify.js` | SpotifyユーザーOAuth、Client Credentials、プレイリスト取得、Spotify番組解決、Podcast URL解決。 |
 | `PlaylistAuto.js` | 共通ルールによるSpotifyプレイリスト自動更新。 |
 | `PlaylistSpecial.js` | 共通ルールに収まらない特殊更新。 |
 | `PlaylistDates.js` | プレイリスト最終更新日の取得・書き込み。 |
@@ -68,19 +68,65 @@
 
 **方針:** `status` や `type` 読み取りだけをさらに別ファイルへ移すような細分化は、現時点では効果が小さいため優先しない。
 
+## Spotify責務調査（2026-09-13）
+
+`Spotify.js` は現在、少なくとも次の4系統の責務が同居している。
+
+1. **ユーザーOAuth**
+   - `SPOTIFY_USER_REDIRECT_URI`
+   - `startSpotifyUserAuth()`
+   - `handleSpotifyUserOAuthCallback_(e)`
+   - `getSpotifyUserAccessToken()`
+
+2. **ユーザー権限でのプレイリスト取得補助**
+   - `getAllSpotifyPlaylistItems_(playlistId, token)`
+
+3. **Client CredentialsによるSpotify公開API読み取り**
+   - `getSpotifyAccessToken()`
+   - `fetchSpotifyShowFromWebApi(showId)`
+
+4. **Spotify / Podcast URL解決**
+   - `resolveSpotifyShow(cleanUrl)`
+   - `fetchSpotifyJson(url)`
+   - `fetchSpotifyText(url)`
+   - `resolvePodcastUrl(url)`
+
+### 依存関係上の重要点
+
+- `getSpotifyUserAccessToken()` はユーザーOAuth用で、プレイリスト更新系から使う。
+- `getSpotifyAccessToken()` はClient Credentials用で、Spotify番組情報取得側から使う。名前が似ているが用途は別。
+- `fetchSpotifyShowFromWebApi()` は `getSpotifyAccessToken()` に依存する。
+- `resolveSpotifyShow()` は `fetchSpotifyShowFromWebApi()` と、`PodcastResolve.js` 側の `firstMeta` / `cleanupMaker` / `decodeHtml` / `looksLikeEpisodeTitle` / Apple補完関数群に依存する。
+- `resolvePodcastUrl()` はSpotifyだけでなくApple Podcasts、YouTube、HTMLメタ情報取得も扱うため、単純に `Spotify.js` だけの責務とは言い切れない。
+
+### 分離方針
+
+最も安全な次の候補は、**ユーザーOAuthだけを `SpotifyAuth.js` へ単純移動すること**。
+
+移動対象は以下だけに限定する。
+
+- `SPOTIFY_USER_REDIRECT_URI`
+- `startSpotifyUserAuth()`
+- `handleSpotifyUserOAuthCallback_(e)`
+- `getSpotifyUserAccessToken()`
+
+この4項目は `Spotify.js` の先頭に連続しており、その直後からプレイリスト取得処理へ切り替わるため、責務境界が明確。
+
+一方、`getSpotifyAccessToken()` や `fetchSpotifyShowFromWebApi()` はPodcast解決側と密接なので、この段階では動かさない。
+
 ## 次に確認する候補
 
-### 1. `PodcastResolve.js` の責務整理
+### 1. `SpotifyAuth.js` へのユーザーOAuth分離
+
+上記4項目を処理内容・関数名・定数値を変えずに単純移動する。
+
+**注意:** 認証フロー自体は実行しない。GitHub上のファイル分割だけに限定する。
+
+### 2. `PodcastResolve.js` の責務整理
 
 Podcast解決処理は機能上まとまりがある一方、Spotify / Apple / HTMLメタデータ / タイトル整形など複数の補助処理を含む。まずは関数一覧と依存関係を確認し、分けるなら「単純移動だけ」で成立するまとまりがあるかを調査する。
 
 **注意:** 動作が複雑で外部サービス依存もあるため、無理に分割しない。
-
-### 2. `Spotify.js` の責務整理
-
-OAuth、API呼び出し、番組解決などが同居している可能性がある。書き込み系と読み取り系、OAuth系を安全に区別できるかを先に棚卸しする。
-
-**注意:** Spotify本番書き込みや認証情報に関わるため、整理PRで実行テストしない。
 
 ### 3. `PlaylistAuto.js` / `PlaylistSpecial.js` の境界確認
 
@@ -101,6 +147,6 @@ OAuth、API呼び出し、番組解決などが同居している可能性があ
 
 ## 推奨する次の作業
 
-`PodcastResolve.js` と `Spotify.js` の関数一覧・依存関係だけを調査し、次の分離候補が本当にあるかを判断する。
+`Spotify.js` 先頭のユーザーOAuth4項目を `SpotifyAuth.js` へ単純移動する。
 
-この調査段階ではコード変更を行わず、分割価値がある場合のみ次のPRを作る。
+この作業では処理内容・関数名・定数値を変えず、Spotify認証・プレイリスト更新・Apps Script本番デプロイは実行しない。
