@@ -104,6 +104,13 @@ function doPost(e) {
     return jsonResponse({ ok: false, error: autoUpdateLengthError });
   }
 
+  if (securityAnswer !== SUBMIT_SECURITY_ANSWER) {
+    return jsonResponse({
+      ok: false,
+      error: "セキュリティ回答が正しくありません"
+    });
+  }
+
   const autoUpdateLock = LockService.getScriptLock();
   if (!autoUpdateLock.tryLock(5000)) {
     throw new Error("ただいま投稿が混み合っています。少し待って再度お試しください");
