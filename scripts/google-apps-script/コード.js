@@ -130,24 +130,12 @@ function doPost(e) {
             .getDisplayValues()
         : [];
 
-    const normalized = normalizeUrl(url);
-    const normalizedTitle = normalizeTitle(title);
-
-    const duplicateByUrl = existingRows.some(function(row) {
-      return normalizeUrl(row[0]) === normalized;
-    });
-
-    const duplicateByTitle =
-      kind === "podcast" || kind === "listenerPodcast"
-        ? existingRows.some(function(row) {
-            return normalizeTitle(row[1]) === normalizedTitle;
-          })
-        : false;
+    const duplicate = findPostDuplicate_(existingRows, kind, url, title);
 
     let added = false;
     let duplicateReason = "";
 
-    if (!duplicateByUrl && !duplicateByTitle) {
+    if (!duplicate.duplicateByUrl && !duplicate.duplicateByTitle) {
       if (kind === "listenerPodcast") {
         const provider = detectProvider(url);
         targetSheet.appendRow([
@@ -186,7 +174,7 @@ function doPost(e) {
 
       added = true;
     } else {
-      duplicateReason = duplicateByTitle ? "title" : "url";
+      duplicateReason = duplicate.duplicateReason;
     }
 
     SpreadsheetApp.flush();
