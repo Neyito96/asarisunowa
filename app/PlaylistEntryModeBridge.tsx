@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import PlaylistCombinedAutoForm from "./PlaylistCombinedAutoForm";
+import CombinedPlaylistAutoForm from "./CombinedPlaylistAutoForm";
 import PlaylistEntryModeSelector, { type PlaylistEntryMode } from "./PlaylistEntryMode";
 
 export default function PlaylistEntryModeBridge() {
@@ -103,7 +103,7 @@ export default function PlaylistEntryModeBridge() {
           <PlaylistEntryModeSelector value={mode} onChange={setMode} />
         </div>
       </div>
-      {mode === "registerAndAuto" && <PlaylistCombinedAutoForm />}
+      {mode === "registerAndAuto" && <CombinedPlaylistAutoForm />}
     </div>,
     host,
   );
