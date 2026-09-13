@@ -1,31 +1,47 @@
 // プレイリスト自動更新ルール定義・判定
 
+// 朝日新聞ポッドキャスト公式の一次ソース番組群。
+// 二次プレイリストの自動更新は、原則としてこの共通ソースから検索する。
+// アルキキ / AJW は対象外。
+const ASAHI_PRIMARY_SHOW_IDS = [
+  "7euH6hzudIdp61JRSi9E8w",
+  "0341I5UOUrJgm7KEvNGInZ",
+  "0yhef9ORZkUZs9ZeotdCSY",
+  "392h0MYfvMTndEVzf2cOvC",
+  "5Dt1uyQaJpM6hPV8aEMP3R",
+  "1KExdSsjQnatS4TdseGoC0",
+  "2uG9W6CnsaNi87AfSuGe8r"
+];
+
 const AUTO_PLAYLIST_RULES = [
   {
     name: "一緒に新聞をめくろう！",
-    showId: "392h0MYfvMTndEVzf2cOvC",
+    showIds: ASAHI_PRIMARY_SHOW_IDS,
     playlistId: "4tY0lHoV8IemMBp4iTnKnl",
     keyword: "めくろう"
   },
   {
     name: "木下君、あの動画みた？ #きのどう",
-    showId: "0yhef9ORZkUZs9ZeotdCSY",
+    showIds: ASAHI_PRIMARY_SHOW_IDS,
     playlistId: "6nDhZQG75F1wU62sdcYJMq",
     keyword: "動画みた？"
   },
   {
     name: "豊秀一",
-    showIds: [
-      "7euH6hzudIdp61JRSi9E8w",
-      "0341I5UOUrJgm7KEvNGInZ",
-      "0yhef9ORZkUZs9ZeotdCSY",
-      "392h0MYfvMTndEVzf2cOvC",
-      "5Dt1uyQaJpM6hPV8aEMP3R",
-      "1KExdSsjQnatS4TdseGoC0",
-      "2uG9W6CnsaNi87AfSuGe8r"
-    ],
+    showIds: ASAHI_PRIMARY_SHOW_IDS,
     playlistId: "4Ri6rxTGFimTm0KkZtKfBZ",
     keywords: ["豊秀一", "豊 秀一"],
+    fields: ["name", "description", "html_description"],
+    fetchAllPages: true,
+    continueOnShowFetchError: true,
+    addIndividually: true,
+    updateLatestDateOnAdd: true
+  },
+  {
+    name: "太田匡彦",
+    showIds: ASAHI_PRIMARY_SHOW_IDS,
+    playlistId: "7jLXrZ0JUNOnsSeFEFbw9S",
+    keywords: ["太田匡彦", "太田 匡彦"],
     fields: ["name", "description", "html_description"],
     fetchAllPages: true,
     continueOnShowFetchError: true,
