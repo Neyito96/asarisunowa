@@ -5,6 +5,7 @@ export type PlaylistEntryMode = "register" | "registerAndAuto" | "autoExisting";
 type PlaylistEntryModeSelectorProps = {
   value: PlaylistEntryMode;
   onChange: (value: PlaylistEntryMode) => void;
+  disabledModes?: PlaylistEntryMode[];
 };
 
 const options: Array<{
@@ -36,25 +37,30 @@ const options: Array<{
 export default function PlaylistEntryModeSelector({
   value,
   onChange,
+  disabledModes = [],
 }: PlaylistEntryModeSelectorProps) {
   return (
     <fieldset className="autoUpdateTypes" aria-label="プレイリストの追加・自動更新メニュー">
       <legend>何をしたい？</legend>
-      {options.map((option) => (
-        <label key={option.value}>
-          <input
-            type="radio"
-            name="playlistEntryMode"
-            value={option.value}
-            checked={value === option.value}
-            onChange={() => onChange(option.value)}
-          />
-          <span>
-            <b>{option.icon} {option.title}</b>
-            <small>{option.description}</small>
-          </span>
-        </label>
-      ))}
+      {options.map((option) => {
+        const disabled = disabledModes.includes(option.value);
+        return (
+          <label key={option.value} aria-disabled={disabled || undefined}>
+            <input
+              type="radio"
+              name="playlistEntryMode"
+              value={option.value}
+              checked={value === option.value}
+              disabled={disabled}
+              onChange={() => onChange(option.value)}
+            />
+            <span>
+              <b>{option.icon} {option.title}{disabled ? "（準備中）" : ""}</b>
+              <small>{option.description}</small>
+            </span>
+          </label>
+        );
+      })}
     </fieldset>
   );
 }
