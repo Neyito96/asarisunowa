@@ -6,8 +6,9 @@
 
 | ファイル | 主な役割 |
 | --- | --- |
-| `コード.js` | Web アプリの入口 (`doGet` / `doPost`) と投稿受付。現在は `fetchJson` / `fetchText` も残る。 |
+| `コード.js` | Web アプリの入口 (`doGet` / `doPost`)、投稿受付、投稿入力長チェック。 |
 | `ApiCommon.js` | URL・タイトル正規化、JSON / JSONP レスポンス生成。 |
+| `HttpFetch.js` | `fetchJson` / `fetchText` による共通HTTP取得補助。 |
 | `SheetData.js` | シート読取、重複判定、シート名のゆるい取得。 |
 | `PodcastResolve.js` | Podcast URL解析、番組情報・アートワーク・配信元判定。 |
 | `PodcastPlatformSync.js` | 朝リスPodcastの配信先URL補完。シートへの書き込みを伴う。 |
@@ -18,35 +19,55 @@
 | `Test.js` | 読み取り中心の手動診断。実行前に呼び出し先を確認する。 |
 | `TestWriteDanger.js` | 本番データを書き換える可能性がある診断。明示承認なしに実行しない。 |
 
-## 次に分ける候補
+## 完了した分離
 
-### 1. HTTP取得補助
+### HTTP取得補助
 
-`コード.js` に残る以下を `ApiCommon.js` または新しい `HttpCommon.js` へ移す候補とする。
+PR #28で、`コード.js` にあった以下の関数を `HttpFetch.js` へ移動済み。
 
 - `fetchJson`
 - `fetchText`
 
-移動時は処理内容を変更せず、関数名も変更しない。GASは複数ファイルでグローバル名前空間を共有するため、移動だけなら既存呼び出し側の変更は不要。
+関数名・処理内容・戻り値は変更していない。
 
-### 2. 投稿入力検証
+## 次に分ける候補
 
-`コード.js` の `validatePostInputLengths_` と投稿種別ごとの入力検証は、将来的に `PostValidation.js` へ分離する候補。ただし `doPost` のAPI契約と密接なので、HTTP取得補助の移動後に別PRで扱う。
+### 1. 投稿入力長チェック
+
+`コード.js` の `validatePostInputLengths_` を `PostValidation.js` へ移す候補とする。
+
+最初のPRでは以下を守る。
+
+- 関数名を変えない
+- `limits` の値を変えない
+- `labels` の文言を変えない
+- 戻り値を変えない
+- `doPost` 側の呼び出し方を変えない
+
+GASは複数ファイルでグローバル名前空間を共有するため、関数本体だけの移動なら呼び出し側の変更は不要。
+
+### 2. 投稿種別ごとの検証
+
+URL形式や投稿種別の検証も将来的な分離候補。ただしAPI契約に関わるため、`validatePostInputLengths_` の単純移動とは別PRにする。
 
 ### 3. `doPost` 本体
 
-現時点では分割しない。自動更新申請、プレイリスト、Podcast、朝リスPodcastの受付が同居しているため、まずテスト可能な補助処理を外へ出してから小さく分ける。
+現時点では分割しない。自動更新申請、プレイリスト、Podcast、朝リスPodcastの受付が同居しているため、補助処理を外へ出してから小さく分ける。
+
+### 4. `doGet` 本体
+
+現時点では分割しない。status / resolve / playlist / podcast / listenerPodcast の既存API契約を維持する。
 
 ## 安全な進め方
 
 1. 1 PR = 1責務の移動に限定する。
-2. 最初のPRでは挙動・定数値・関数名を変更しない。
+2. 挙動変更とファイル移動を同じPRに混ぜない。
 3. GitHub上の整理と `clasp push` / デプロイ / トリガー変更を別工程にする。
 4. 本番Spotify・スプレッドシートへの書き込み処理は、整理PRの確認目的では実行しない。
 5. 各PRでグローバル関数名・定数名の重複がないことを確認する。
 
 ## 推奨する次のPR
 
-`コード.js` の `fetchJson` / `fetchText` を共通HTTP補助ファイルへ移す。
+`コード.js` の `validatePostInputLengths_` を `PostValidation.js` へ移す。
 
-この変更は、関数本体をそのまま移動するだけにして、APIレスポンス、Spotify、シート、トリガー、デプロイには触れない。
+この変更では、関数本体をそのまま移動するだけにして、APIレスポンス、Spotify、シート、トリガー、デプロイには触れない。
