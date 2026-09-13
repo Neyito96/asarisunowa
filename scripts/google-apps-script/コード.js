@@ -85,35 +85,22 @@ function doPost(e) {
     }
 
     try {
-    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    const logSheet = getSheetLoose(ss, LOG_SHEET_NAME);
-    const workSheet = getSheetLoose(ss, WORK_SHEET_NAME);
-    const podcastSheet = getSheetLoose(ss, PODCAST_SHEET_NAME);
-    const listenerPodcastSheet = getSheetLoose(ss, LISTENER_PODCAST_SHEET_NAME);
+    const postSheets = getPostSheets_();
 
-    if (!logSheet) throw new Error("投稿受付シートが見つかりません");
-    if (!workSheet) throw new Error("作業台シートが見つかりません");
-    if (!podcastSheet) throw new Error("おすすめPodcastシートが見つかりません");
-    if (!listenerPodcastSheet) throw new Error("朝リスPodcastシートが見つかりません");
-
-    logSheet.appendRow([
-      new Date(),
+    appendPostLog_(
+      postSheets.logSheet,
       url,
       title,
       maker,
-      kind === "listenerPodcast"
-        ? "朝リスPodcast"
-        : kind === "podcast"
-        ? "おすすめPodcast"
-        : "朝ポキプレイリスト",
+      kind,
       comment
-    ]);
+    );
 
     const targetSheet = getPostTargetSheet_(
       kind,
-      workSheet,
-      podcastSheet,
-      listenerPodcastSheet
+      postSheets.workSheet,
+      postSheets.podcastSheet,
+      postSheets.listenerPodcastSheet
     );
 
     const lastRow = targetSheet.getLastRow();
