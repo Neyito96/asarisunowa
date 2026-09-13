@@ -59,9 +59,7 @@ function doPost(e) {
       return jsonResponse({ ok: false, error: basicError });
     }
 
-    if (!artwork && (kind === "podcast" || kind === "listenerPodcast")) {
-      artwork = findPodcastArtworkByTitle(title);
-    }
+    artwork = resolvePostArtwork_(artwork, kind, title);
 
     const kindError = validatePostKind_(kind);
 
