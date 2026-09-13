@@ -10,6 +10,48 @@ const PUBLIC_SHEET_NAME = "サイト公開用";
 const PODCAST_SHEET_NAME = "おすすめPodcast";
 const LISTENER_PODCAST_SHEET_NAME = "朝リスPodcast";
 
+function validatePostInputLengths_(values) {
+  const limits = {
+    url: 2048,
+    title: 200,
+    maker: 100,
+    comment: 2000,
+    introducedDate: 32,
+    artwork: 2048,
+    kind: 32,
+    updateType: 100,
+    inviteUrl: 2048,
+    keywords: 500,
+    ruleNote: 2000
+  };
+
+  const labels = {
+    url: "URL",
+    title: "タイトル",
+    maker: "作成者",
+    comment: "コメント",
+    introducedDate: "紹介日",
+    artwork: "画像URL",
+    kind: "投稿種別",
+    updateType: "更新方式",
+    inviteUrl: "共同編集URL",
+    keywords: "キーワード",
+    ruleNote: "ルール"
+  };
+
+  for (const key in values) {
+    if (
+      Object.prototype.hasOwnProperty.call(values, key) &&
+      limits[key] &&
+      String(values[key] || "").length > limits[key]
+    ) {
+      return labels[key] + "が長すぎます";
+    }
+  }
+
+  return "";
+}
+
 function doPost(e) {
   try {
     const data = JSON.parse((e && e.postData && e.postData.contents) || "{}");
@@ -25,12 +67,44 @@ function doPost(e) {
     const website = String(data.website || "").trim();
 
     if (website) return jsonResponse({ ok: true });
+
+    const baseLengthError = validatePostInputLengths_({
+      url: url,
+      title: title,
+      maker: maker,
+      comment: comment,
+      introducedDate: introducedDate,
+      artwork: artwork,
+      kind: kind
+    });
+
+    if (baseLengthError) {
+      return jsonResponse({ ok: false, error: baseLengthError });
+    }
+
     if (kind === "autoUpdateRequest") {
   const updateType = String(data.updateType || "").trim();
   const inviteUrl = String(data.inviteUrl || "").trim();
   const keywords = String(data.keywords || "").trim();
   const ruleNote = String(data.ruleNote || "").trim();
 
+  const autoUpdateLengthError = validatePostInputLengths_({
+    updateType: updateType,
+    inviteUrl: inviteUrl,
+    keywords: keywords,
+    ruleNote: ruleNote
+  });
+
+  if (autoUpdateLengthError) {
+    return jsonResponse({ ok: false, error: autoUpdateLengthError });
+  }
+
+  const autoUpdateLock = LockService.getScriptLock();
+  if (!autoUpdateLock.tryLock(5000)) {
+    throw new Error("ただいま投稿が混み合っています。少し待って再度お試しください");
+  }
+
+  try {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const logSheet = getSheetLoose(ss, LOG_SHEET_NAME);
 
@@ -61,6 +135,9 @@ function doPost(e) {
     kind: "autoUpdateRequest",
     message: "自動更新申請を受け付けました"
   });
+  } finally {
+    autoUpdateLock.releaseLock();
+  }
 }
     if (!url || !title || !maker) return jsonResponse({ ok: false, error: "必須項目が不足しています" });
 
@@ -103,6 +180,12 @@ function doPost(e) {
       });
     }
 
+    const writeLock = LockService.getScriptLock();
+    if (!writeLock.tryLock(5000)) {
+      throw new Error("ただいま投稿が混み合っています。少し待って再度お試しください");
+    }
+
+    try {
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const logSheet = getSheetLoose(ss, LOG_SHEET_NAME);
     const workSheet = getSheetLoose(ss, WORK_SHEET_NAME);
@@ -216,6 +299,9 @@ function doPost(e) {
       duplicateReason: duplicateReason,
       message: added ? "保存しました" : "すでに登録されています"
     });
+    } finally {
+      writeLock.releaseLock();
+    }
 
   } catch (error) {
     return jsonResponse({
