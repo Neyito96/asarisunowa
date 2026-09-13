@@ -125,34 +125,12 @@ function doPost(e) {
       return jsonResponse({ ok: false, error: "投稿の種類が正しくありません" });
     }
 
-    const isPlaylistUrl =
-      /^https:\/\/open\.spotify\.com\/playlist\//i.test(url) ||
-      /^https:\/\/music\.youtube\.com\/playlist\?/i.test(url);
+    const targetUrlError = validatePostTargetUrl_(kind, url);
 
-    const isPodcastUrl =
-      /^https:\/\/open\.spotify\.com\/show\//i.test(url) ||
-      /^https:\/\/open\.spotify\.com\/episode\//i.test(url) ||
-      /^https:\/\/podcasts\.apple\.com\//i.test(url) ||
-      /^https:\/\/music\.amazon\./i.test(url) ||
-      /^https:\/\/www\.amazon\./i.test(url) ||
-      /^https:\/\/listen\.style\//i.test(url) ||
-      /^https:\/\/stand\.fm\//i.test(url) ||
-      /^https:\/\/pca\.st\//i.test(url) ||
-      /^https:\/\/pocketcasts\.com\//i.test(url) ||
-      /^https:\/\/(www\.)?youtube\.com\//i.test(url) ||
-      /^https:\/\/youtu\.be\//i.test(url);
-
-    if (kind === "playlist" && !isPlaylistUrl) {
+    if (targetUrlError) {
       return jsonResponse({
         ok: false,
-        error: "朝リストにはSpotifyまたはYouTube MusicのプレイリストURLを入力してください"
-      });
-    }
-
-    if ((kind === "podcast" || kind === "listenerPodcast") && !isPodcastUrl) {
-      return jsonResponse({
-        ok: false,
-        error: "Podcastの番組URLを確認してください"
+        error: targetUrlError
       });
     }
 
