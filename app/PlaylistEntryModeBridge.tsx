@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import PlaylistCombinedAutoForm from "./PlaylistCombinedAutoForm";
 import PlaylistEntryModeSelector, { type PlaylistEntryMode } from "./PlaylistEntryMode";
 
 export default function PlaylistEntryModeBridge() {
@@ -77,32 +78,32 @@ export default function PlaylistEntryModeBridge() {
       return;
     }
 
-    if (mode === "autoExisting") {
+    if (mode === "registerAndAuto") {
       registerSection.hidden = true;
-      autoSection.hidden = false;
-      const toggle = autoSection.querySelector<HTMLButtonElement>(".autoUpdateToggle");
-      const form = autoSection.querySelector<HTMLFormElement>(".autoUpdateForm");
-      if (!form && toggle) toggle.click();
+      autoSection.hidden = true;
+      return;
     }
+
+    registerSection.hidden = true;
+    autoSection.hidden = false;
+    const toggle = autoSection.querySelector<HTMLButtonElement>(".autoUpdateToggle");
+    const form = autoSection.querySelector<HTMLFormElement>(".autoUpdateForm");
+    if (!form && toggle) toggle.click();
   }, [mode, host]);
 
   if (!host?.isConnected) return null;
 
   return createPortal(
-    <div className="playlistSubmitHead">
-      <div>
-        <p className="kicker">ADD / GROW A PLAYLIST</p>
-        <h3>朝リストに追加・育てる</h3>
-        <p>やりたいことを選ぶと、必要なフォームだけ表示します。</p>
-        <PlaylistEntryModeSelector
-          value={mode}
-          onChange={setMode}
-          disabledModes={["registerAndAuto"]}
-        />
-        <p className="submitNotice">
-          「登録して、自動更新も申し込む」は、入力を一度で済ませる送信処理を次の段階で接続します。
-        </p>
+    <div>
+      <div className="playlistSubmitHead">
+        <div>
+          <p className="kicker">ADD / GROW A PLAYLIST</p>
+          <h3>朝リストに追加・育てる</h3>
+          <p>やりたいことを選ぶと、必要なフォームだけ表示します。</p>
+          <PlaylistEntryModeSelector value={mode} onChange={setMode} />
+        </div>
       </div>
+      {mode === "registerAndAuto" && <PlaylistCombinedAutoForm />}
     </div>,
     host,
   );
