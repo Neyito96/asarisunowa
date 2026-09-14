@@ -241,4 +241,31 @@
   .circlePage > .discordPage .discordLinkGrid i {
     font-size: 23px;
   }
+
+  /* Final desktop pass: use one heading scale and one card geometry across
+     the six primary tabs so moving between views feels like one site. */
+  .themeHead h2,
+  .officialTitle::after,
+  .circlePage > .rings:not(.discordPage) > div:first-child h2 {
+    font-size: 26px;
+    line-height: 1.25;
+  }
+
+  .themeHead h2 {
+    margin: 5px 0 7px;
+  }
+
+  .themeHead > p:last-child,
+  .officialIntro {
+    margin-top: 0;
+    margin-bottom: 0;
+    line-height: 1.55;
+  }
+
+  .officialCard,
+  .card,
+  .resourceGrid a,
+  .discordLinkGrid a {
+    border-radius: 15px;
+  }
 }
