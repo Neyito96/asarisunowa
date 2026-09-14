@@ -1,10 +1,12 @@
 // Podcast resolve API handler
 
 function handlePodcastResolve_(e, callback) {
-  const url =
+  const rawUrl =
     e && e.parameter && e.parameter.url
       ? String(e.parameter.url).trim()
       : "";
+
+  const url = normalizePodcastInputUrl(rawUrl);
 
   const kind =
     e && e.parameter && e.parameter.kind
@@ -15,6 +17,13 @@ function handlePodcastResolve_(e, callback) {
     return apiResponse({
       ok: false,
       error: "URLを入力してください"
+    }, callback);
+  }
+
+  if (kind !== "podcast" && kind !== "listenerPodcast") {
+    return apiResponse({
+      ok: false,
+      error: "kind は podcast / listenerPodcast を指定してください"
     }, callback);
   }
 
@@ -67,6 +76,10 @@ function handlePodcastResolve_(e, callback) {
     } else {
       resolved.duplicate = false;
     }
+  }
+
+  if (resolved && resolved.ok) {
+    resolved.url = url;
   }
 
   return apiResponse(resolved, callback);
