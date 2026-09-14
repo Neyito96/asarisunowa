@@ -149,19 +149,18 @@ export default function PlaylistEntryModeBridge() {
         setShelf("series");
       };
 
-      const listenersActive = otherTab.classList.contains("on");
-      seriesTab.classList.toggle("on", listenersActive && shelf === "series");
-      if (listenersActive && shelf === "series") otherTab.classList.remove("on");
-
       const playlistGrid = document.getElementById("playlist-results");
+      const listenersActive = Boolean(playlistGrid);
+      seriesTab.classList.toggle("on", listenersActive && shelf === "series");
+      if (listenersActive && shelf === "series") {
+        otherTab.classList.remove("on");
+      } else if (listenersActive && shelf === "other") {
+        otherTab.classList.add("on");
+      }
+
       if (!playlistGrid) return;
 
       const cards = Array.from(playlistGrid.querySelectorAll<HTMLElement>("article.card"));
-      if (!listenersActive) {
-        cards.forEach((card) => { card.hidden = false; });
-        return;
-      }
-
       cards.forEach((card) => {
         const title = card.querySelector("h3")?.textContent?.trim() ?? "";
         const isSeries = isSeriesPlaylistTitle(title);
