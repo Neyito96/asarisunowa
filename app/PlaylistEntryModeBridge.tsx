@@ -60,7 +60,7 @@ export default function PlaylistEntryModeBridge() {
       if (target?.closest(".playlistOwnerJump")) {
         setMode("autoExisting");
         window.setTimeout(() => {
-          document.getElementById("playlist-entry-mode-host")?.scrollIntoView({ behavior: "smooth", block: "start" });
+          document.getElementById("playlist-entry-mode-host")?.scrollIntoView({ behavior: "smooth", block: "center" });
         }, 0);
       }
     };
@@ -114,7 +114,7 @@ export default function PlaylistEntryModeBridge() {
   const jumpToManagerForm = () => {
     setMode("autoExisting");
     window.setTimeout(() => {
-      document.getElementById("playlist-entry-mode-host")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.getElementById("playlist-entry-mode-host")?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 0);
   };
 
