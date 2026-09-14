@@ -153,4 +153,46 @@
     min-height: 44px;
     border-radius: 12px;
   }
+
+  /* あれどこ？: align the first view with the other main pages and bring
+     the resource cards closer to the tabs without changing their content. */
+  .circlePage {
+    padding-top: 14px;
+  }
+
+  .circlePage > .rings:not(.discordPage) {
+    margin-top: 0;
+    padding: 22px 24px 24px;
+  }
+
+  .circlePage > .rings:not(.discordPage) > div:first-child .kicker {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.2;
+    letter-spacing: .08em;
+  }
+
+  .circlePage > .rings:not(.discordPage) > div:first-child h2 {
+    margin: 5px 0 7px;
+    font-size: 26px;
+    line-height: 1.25;
+  }
+
+  .circlePage > .rings:not(.discordPage) .circleIntro {
+    margin: 0 0 16px;
+    line-height: 1.55;
+  }
+
+  .circlePage > .rings:not(.discordPage) .resourceGrid {
+    gap: 10px;
+  }
+
+  .circlePage > .rings:not(.discordPage) .resourceGrid a {
+    padding: 14px 16px;
+    gap: 5px;
+  }
+
+  .circlePage > .rings:not(.discordPage) .resourceSectionLabel {
+    margin-top: 4px;
+  }
 }
