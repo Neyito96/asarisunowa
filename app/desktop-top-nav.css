@@ -268,4 +268,32 @@
   .discordLinkGrid a {
     border-radius: 15px;
   }
+
+  /* 朝リスト: keep search and sorting easy to scan, but reduce the desktop
+     control bar so the page heading and omikuji reach the first view sooner. */
+  .toolbar {
+    padding: 8px 0;
+  }
+
+  .toolbar .tools {
+    grid-template-columns: minmax(320px, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .toolbar .tools > input {
+    padding: 9px 12px;
+    min-height: 42px;
+  }
+
+  .toolbar .sorts {
+    gap: 5px;
+    align-items: center;
+  }
+
+  .toolbar .sorts button {
+    padding: 8px 11px;
+    min-height: 42px;
+    line-height: 1.15;
+  }
 }
