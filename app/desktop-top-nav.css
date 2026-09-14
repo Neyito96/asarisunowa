@@ -73,4 +73,35 @@
   .themeHead h2 {
     margin-top: 5px;
   }
+
+  /* Official page: treat the English label as a kicker and make Japanese the
+     visual primary heading, matching the other main views. */
+  .officialHeading {
+    margin-bottom: 12px;
+  }
+
+  .officialTitle {
+    margin: 0 0 5px;
+    font-size: 13px;
+    line-height: 1.2;
+    letter-spacing: .08em;
+  }
+
+  .officialTitle::after {
+    content: "朝公式プレイリスト";
+    display: block;
+    margin-top: 5px;
+    color: #123d4d;
+    font-size: 22px;
+    line-height: 1.35;
+    letter-spacing: 0;
+  }
+
+  .officialIntro {
+    margin: 0;
+  }
+
+  .officialGuide {
+    margin-top: 12px;
+  }
 }
