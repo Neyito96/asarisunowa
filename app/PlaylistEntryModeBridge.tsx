@@ -32,7 +32,7 @@ export default function PlaylistEntryModeBridge() {
         mount = document.createElement("section");
         mount.id = "playlist-entry-mode-host";
         mount.className = "playlistSubmit";
-        mount.setAttribute("aria-label", "朝リストに追加・育てる");
+        mount.setAttribute("aria-label", "二次プレイリストを追加・育てる");
         registerSection.parentElement?.insertBefore(mount, registerSection);
       }
 
@@ -124,9 +124,11 @@ export default function PlaylistEntryModeBridge() {
         <div>
           <div className="playlistSubmitHead">
             <div>
-              <p className="kicker">ADD / GROW A PLAYLIST</p>
-              <h3>朝リストに追加・育てる</h3>
-              <p>やりたいことを選ぶと、必要なフォームだけ表示します。</p>
+              <p className="kicker">SECONDARY PLAYLISTS</p>
+              <h3>二次プレイリストを追加・育てる</h3>
+              <p>
+                朝公式の番組・一次プレイリストをもとに、テーマや出演者ごとの二次プレイリストを育てます。
+              </p>
               <PlaylistEntryModeSelector value={mode} onChange={setMode} />
             </div>
           </div>
