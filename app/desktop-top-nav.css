@@ -101,7 +101,56 @@
     margin: 0;
   }
 
+  /* Keep the YES/NO guide useful but compact enough that the featured
+     Sponge and Donut cards start appearing in the first desktop viewport. */
   .officialGuide {
-    margin-top: 12px;
+    margin: 10px 0 14px;
+    padding: 14px 18px;
+  }
+
+  .officialGuideTop {
+    gap: 12px;
+  }
+
+  .officialGuideKicker {
+    margin: 0 0 2px;
+    font-size: 13px;
+    line-height: 1.2;
+  }
+
+  .officialGuideTop h3 {
+    margin: 0 0 3px;
+    font-size: 1.15rem;
+  }
+
+  .officialGuideTop p {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .officialGuideQuestion {
+    margin-top: 10px;
+    padding: 13px 16px 14px;
+  }
+
+  .officialGuideQuestion small {
+    font-size: 12px;
+    line-height: 1.2;
+  }
+
+  .officialGuideQuestion > p {
+    margin: 6px auto 10px;
+    font-size: 1.3rem;
+    line-height: 1.35;
+  }
+
+  .officialGuideButtons {
+    gap: 10px;
+    max-width: 560px;
+  }
+
+  .officialGuideButtons button {
+    min-height: 44px;
+    border-radius: 12px;
   }
 }
