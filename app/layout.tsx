@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
+import "./desktop-top-nav.css";
 
 export const metadata: Metadata = {
   title: "朝リスの輪 or 朝リスの田｜朝ポキと朝リスの遊び場",
