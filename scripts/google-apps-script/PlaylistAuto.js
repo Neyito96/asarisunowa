@@ -5,9 +5,19 @@ function syncAllAutoPlaylists() {
     throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
   }
 
-  AUTO_PLAYLIST_RULES.forEach(function(rule) {
+  getEnabledAutoPlaylistRules_().forEach(function(rule) {
     syncOneAutoPlaylist_(rule, token);
   });
+}
+
+function syncAutoPlaylistByKey_(key) {
+  const rule = getAutoPlaylistRuleByKey_(key);
+
+  if (!rule) {
+    throw new Error("自動更新ルールが見つかりません: " + String(key || ""));
+  }
+
+  syncConfiguredAutoPlaylist_(rule);
 }
 
 function syncAutoPlaylistByPlaylistId_(playlistId) {
@@ -18,6 +28,14 @@ function syncAutoPlaylistByPlaylistId_(playlistId) {
 
   if (!rule) {
     throw new Error("自動更新ルールが見つかりません: " + wantedId);
+  }
+
+  syncConfiguredAutoPlaylist_(rule);
+}
+
+function syncConfiguredAutoPlaylist_(rule) {
+  if (rule && rule.enabled === false) {
+    throw new Error("自動更新を停止中です: " + String(rule.name || rule.key || "unknown"));
   }
 
   const token = getSpotifyUserAccessToken();
