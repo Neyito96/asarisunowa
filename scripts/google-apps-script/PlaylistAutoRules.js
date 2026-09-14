@@ -13,20 +13,28 @@ const ASAHI_PRIMARY_SHOW_IDS = [
   "2uG9W6CnsaNi87AfSuGe8r"
 ];
 
+// 新しい自動更新プレイリストは、原則ここへルールを1件追加する。
+// enabled:false は syncAllAutoPlaylists() と個別同期の両方から停止する。
 const AUTO_PLAYLIST_RULES = [
   {
+    key: "issho-shinbun",
+    enabled: true,
     name: "一緒に新聞をめくろう！",
     showIds: ASAHI_PRIMARY_SHOW_IDS,
     playlistId: "4tY0lHoV8IemMBp4iTnKnl",
     keyword: "めくろう"
   },
   {
+    key: "kino-douga",
+    enabled: true,
     name: "木下君、あの動画みた？ #きのどう",
     showIds: ASAHI_PRIMARY_SHOW_IDS,
     playlistId: "6nDhZQG75F1wU62sdcYJMq",
     keyword: "動画みた？"
   },
   {
+    key: "toyohide",
+    enabled: true,
     name: "豊秀一",
     showIds: ASAHI_PRIMARY_SHOW_IDS,
     playlistId: "4Ri6rxTGFimTm0KkZtKfBZ",
@@ -38,6 +46,8 @@ const AUTO_PLAYLIST_RULES = [
     updateLatestDateOnAdd: true
   },
   {
+    key: "ota-masahiko",
+    enabled: false,
     name: "太田匡彦",
     showIds: ASAHI_PRIMARY_SHOW_IDS,
     playlistId: "7jLXrZ0JUNOnsSeFEFbw9S",
@@ -49,6 +59,19 @@ const AUTO_PLAYLIST_RULES = [
     updateLatestDateOnAdd: true
   }
 ];
+
+function getEnabledAutoPlaylistRules_() {
+  return AUTO_PLAYLIST_RULES.filter(function(rule) {
+    return rule && rule.enabled !== false;
+  });
+}
+
+function getAutoPlaylistRuleByKey_(key) {
+  const wantedKey = String(key || "").trim();
+  return AUTO_PLAYLIST_RULES.find(function(rule) {
+    return String(rule && rule.key ? rule.key : "") === wantedKey;
+  }) || null;
+}
 
 function getAutoPlaylistShowIds_(rule) {
   if (Array.isArray(rule.showIds) && rule.showIds.length) {
