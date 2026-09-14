@@ -195,4 +195,50 @@
   .circlePage > .rings:not(.discordPage) .resourceSectionLabel {
     margin-top: 4px;
   }
+
+  /* Discord: use the same compact first-view rhythm as the other tabs while
+     keeping the distinctive Discord hub and all destination links intact. */
+  .circlePage > .discordPage {
+    margin-top: 0;
+    padding: 18px 20px 20px;
+  }
+
+  .circlePage > .discordPage .discordHub {
+    margin-top: 0;
+    padding: 16px 18px 18px;
+  }
+
+  .circlePage > .discordPage .discordHubHead {
+    gap: 10px;
+    margin-bottom: 11px;
+  }
+
+  .circlePage > .discordPage .discordHubHead > span {
+    font-size: 28px;
+  }
+
+  .circlePage > .discordPage .discordHubHead .kicker {
+    font-size: 12px;
+    line-height: 1.2;
+    letter-spacing: .1em;
+  }
+
+  .circlePage > .discordPage .discordHubHead h3 {
+    margin-top: 3px;
+    font-size: 21px;
+    line-height: 1.25;
+  }
+
+  .circlePage > .discordPage .discordLinkGrid {
+    gap: 8px;
+  }
+
+  .circlePage > .discordPage .discordLinkGrid a {
+    min-height: 60px;
+    padding: 10px 12px;
+  }
+
+  .circlePage > .discordPage .discordLinkGrid i {
+    font-size: 23px;
+  }
 }
