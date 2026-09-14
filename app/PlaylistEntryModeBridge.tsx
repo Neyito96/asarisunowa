@@ -5,6 +5,15 @@ import { createPortal } from "react-dom";
 import PlaylistCombinedAutoForm from "./PlaylistCombinedAutoForm";
 import PlaylistEntryModeSelector, { type PlaylistEntryMode } from "./PlaylistEntryMode";
 
+function scrollPlaylistEntryIntoView() {
+  const section = document.getElementById("playlist-entry-mode-host");
+  if (!section) return;
+
+  const controlsBottom = document.querySelector<HTMLElement>(".sorts")?.getBoundingClientRect().bottom ?? 0;
+  const top = window.scrollY + section.getBoundingClientRect().top - controlsBottom - 16;
+  window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+}
+
 export default function PlaylistEntryModeBridge() {
   const [mode, setMode] = useState<PlaylistEntryMode>("register");
   const [host, setHost] = useState<HTMLElement | null>(null);
@@ -59,9 +68,7 @@ export default function PlaylistEntryModeBridge() {
       const target = event.target as Element | null;
       if (target?.closest(".playlistOwnerJump")) {
         setMode("autoExisting");
-        window.setTimeout(() => {
-          document.getElementById("playlist-entry-mode-host")?.scrollIntoView({ behavior: "smooth", block: "center" });
-        }, 0);
+        window.setTimeout(scrollPlaylistEntryIntoView, 0);
       }
     };
     document.addEventListener("click", handleManagerJump);
@@ -113,9 +120,7 @@ export default function PlaylistEntryModeBridge() {
 
   const jumpToManagerForm = () => {
     setMode("autoExisting");
-    window.setTimeout(() => {
-      document.getElementById("playlist-entry-mode-host")?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 0);
+    window.setTimeout(scrollPlaylistEntryIntoView, 0);
   };
 
   return (
