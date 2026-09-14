@@ -41,11 +41,31 @@ export default function PlaylistEntryModeSelector({
 }: PlaylistEntryModeSelectorProps) {
   return (
     <fieldset
-      className="autoUpdateTypes playlistEntryModeSelector"
+      className="playlistEntryModeSelector"
       aria-label="二次プレイリストの追加・自動更新メニュー"
-      style={{ display: "grid", gap: 12 }}
+      style={{
+        display: "grid",
+        gap: 10,
+        width: "100%",
+        minWidth: 0,
+        margin: "18px 0 0",
+        padding: 0,
+        border: 0,
+      }}
     >
-      <legend style={{ marginBottom: 8 }}>何をしたい？</legend>
+      <legend
+        style={{
+          width: "100%",
+          margin: "0 0 2px",
+          padding: 0,
+          fontSize: "0.82rem",
+          fontWeight: 800,
+          lineHeight: 1.3,
+          color: "#6a5d55",
+        }}
+      >
+        何をしたい？
+      </legend>
       {options.map((option) => {
         const disabled = disabledModes.includes(option.value);
         const selected = value === option.value;
@@ -54,17 +74,19 @@ export default function PlaylistEntryModeSelector({
             key={option.value}
             aria-disabled={disabled || undefined}
             style={{
-              display: "grid",
-              gridTemplateColumns: "24px minmax(0, 1fr)",
-              alignItems: "start",
-              columnGap: 12,
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 12,
               width: "100%",
-              padding: "16px 18px",
-              borderRadius: 16,
+              minWidth: 0,
+              padding: "14px 15px",
+              border: selected ? "2px solid #cc4b78" : "1px solid #d9d1cb",
+              borderRadius: 14,
               boxSizing: "border-box",
               cursor: disabled ? "not-allowed" : "pointer",
-              opacity: disabled ? 0.6 : 1,
-              background: selected ? "rgba(204, 75, 120, 0.06)" : "#fff",
+              opacity: disabled ? 0.58 : 1,
+              background: selected ? "rgba(204, 75, 120, 0.055)" : "#fff",
+              boxShadow: selected ? "0 2px 10px rgba(110, 55, 70, 0.08)" : "none",
             }}
           >
             <input
@@ -77,39 +99,46 @@ export default function PlaylistEntryModeSelector({
               style={{
                 WebkitAppearance: "radio",
                 appearance: "auto",
-                width: 18,
-                height: 18,
-                minWidth: 18,
+                flex: "0 0 auto",
+                width: 19,
+                height: 19,
+                minWidth: 19,
                 padding: 0,
-                margin: "3px 0 0",
+                margin: "2px 0 0",
                 border: 0,
                 background: "transparent",
                 borderRadius: "50%",
                 accentColor: "#cc4b78",
               }}
             />
-            <span style={{ display: "block", minWidth: 0 }}>
+            <div style={{ flex: "1 1 auto", minWidth: 0 }}>
               <b
                 style={{
                   display: "block",
-                  fontSize: "1.02rem",
-                  lineHeight: 1.35,
                   margin: 0,
+                  fontSize: "0.98rem",
+                  fontWeight: 800,
+                  lineHeight: 1.35,
+                  overflowWrap: "anywhere",
                 }}
               >
                 <span aria-hidden="true">{option.icon}</span> {option.title}{disabled ? "（準備中）" : ""}
               </b>
-              <small
+              <p
                 style={{
                   display: "block",
-                  marginTop: 6,
-                  lineHeight: 1.55,
-                  fontSize: "0.9rem",
+                  width: "100%",
+                  minWidth: 0,
+                  margin: "5px 0 0",
+                  fontSize: "0.86rem",
+                  lineHeight: 1.5,
+                  color: "#6f625c",
+                  overflowWrap: "break-word",
                 }}
               >
                 {option.description}
-              </small>
-            </span>
+              </p>
+            </div>
           </label>
         );
       })}
