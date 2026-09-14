@@ -5,6 +5,33 @@ import { createPortal } from "react-dom";
 import PlaylistCombinedAutoForm from "./PlaylistCombinedAutoForm";
 import PlaylistEntryModeSelector, { type PlaylistEntryMode } from "./PlaylistEntryMode";
 
+type PlaylistShelf = "series" | "other";
+
+const SERIES_PLAYLIST_TITLES = new Set([
+  "一緒に新聞をめくろう！",
+  "編集マニア",
+  "8がけ社会",
+  "朝日新聞社の歴史",
+  "バスクラ",
+  "#きのどう「木下君、あの動画みた？」",
+  "GLOBE CAST",
+  "新聞社員の「楽屋裏」",
+  "アラサー会",
+  "親モヤ",
+].map(normalizeShelfTitle));
+
+function normalizeShelfTitle(value: string) {
+  return String(value || "")
+    .trim()
+    .replace(/[\s　]+/g, "")
+    .replace(/[“”]/g, '"')
+    .replace(/[‘’]/g, "'");
+}
+
+function isSeriesPlaylistTitle(title: string) {
+  return SERIES_PLAYLIST_TITLES.has(normalizeShelfTitle(title));
+}
+
 function scrollPlaylistEntryIntoView() {
   const section = document.getElementById("playlist-entry-mode-host");
   if (!section) return;
@@ -16,6 +43,7 @@ function scrollPlaylistEntryIntoView() {
 
 export default function PlaylistEntryModeBridge() {
   const [mode, setMode] = useState<PlaylistEntryMode>("register");
+  const [shelf, setShelf] = useState<PlaylistShelf>("other");
   const [host, setHost] = useState<HTMLElement | null>(null);
   const [sortHost, setSortHost] = useState<HTMLElement | null>(null);
 
@@ -89,6 +117,117 @@ export default function PlaylistEntryModeBridge() {
   }, []);
 
   useEffect(() => {
+    let scheduled = false;
+
+    const syncShelfUi = () => {
+      scheduled = false;
+      const tabs = document.querySelector<HTMLElement>(".viewTabs");
+      if (!tabs) return;
+
+      const buttons = Array.from(tabs.querySelectorAll<HTMLButtonElement>("button"));
+      const otherTab =
+        buttons.find((button) => button.dataset.playlistShelfTab === "other") ??
+        buttons.find((button) => button.textContent?.includes("朝リスト"));
+      if (!otherTab) return;
+
+      otherTab.dataset.playlistShelfTab = "other";
+      if (otherTab.textContent?.trim() !== "🐿️朝リスト（その他）") {
+        otherTab.textContent = "🐿️朝リスト（その他）";
+      }
+      otherTab.onclick = () => setShelf("other");
+
+      let seriesTab = tabs.querySelector<HTMLButtonElement>("button[data-playlist-shelf-tab='series']");
+      if (!seriesTab) {
+        seriesTab = document.createElement("button");
+        seriesTab.type = "button";
+        seriesTab.dataset.playlistShelfTab = "series";
+        seriesTab.textContent = "朝リスト（連載）";
+        tabs.insertBefore(seriesTab, otherTab);
+      }
+      seriesTab.onclick = () => {
+        otherTab.click();
+        setShelf("series");
+      };
+
+      const playlistGrid = document.getElementById("playlist-results");
+      const listenersActive = Boolean(playlistGrid);
+      seriesTab.classList.toggle("on", listenersActive && shelf === "series");
+      if (listenersActive && shelf === "series") {
+        otherTab.classList.remove("on");
+      } else if (listenersActive && shelf === "other") {
+        otherTab.classList.add("on");
+      }
+
+      if (!playlistGrid) return;
+
+      const cards = Array.from(playlistGrid.querySelectorAll<HTMLElement>("article.card"));
+      cards.forEach((card) => {
+        const title = card.querySelector("h3")?.textContent?.trim() ?? "";
+        const isSeries = isSeriesPlaylistTitle(title);
+        card.hidden = shelf === "series" ? !isSeries : isSeries;
+      });
+
+      const visibleCards = cards.filter((card) => !card.hidden);
+      const listenedCount = visibleCards.filter((card) => card.querySelector(".heart.liked")).length;
+      const countSpans = Array.from(document.querySelectorAll<HTMLElement>(".playlistThemeHead .countChips span"));
+      if (countSpans[0]) countSpans[0].textContent = `全${visibleCards.length}`;
+      if (countSpans[1]) countSpans[1].textContent = `未聴${Math.max(0, visibleCards.length - listenedCount)}`;
+      if (countSpans[2]) countSpans[2].textContent = `既聴${listenedCount}`;
+
+      const themeHead = document.querySelector<HTMLElement>(".playlistThemeHead");
+      const kicker = themeHead?.querySelector<HTMLElement>(".themeKicker");
+      const heading = themeHead?.querySelector<HTMLElement>("h2");
+      if (kicker) kicker.textContent = shelf === "series" ? "SERIES PLAYLISTS" : "OTHER PLAYLISTS";
+      if (heading) heading.textContent = shelf === "series" ? "朝リスト（連載）" : "朝リスト（その他）";
+
+      const omikuji = document.querySelector<HTMLElement>(".omikujiPanel");
+      if (omikuji) omikuji.hidden = shelf === "series";
+
+      const makerLabel = Array.from(
+        document.querySelectorAll<HTMLElement>(
+          "main .playlistSubmit[aria-labelledby='playlist-submit-title'] form label > span",
+        ),
+      ).find((element) => element.textContent?.trim() === "朝リスネーム");
+      if (makerLabel) makerLabel.textContent = "プレイリスト制作者名";
+    };
+
+    const scheduleSync = () => {
+      if (scheduled) return;
+      scheduled = true;
+      window.requestAnimationFrame(syncShelfUi);
+    };
+
+    syncShelfUi();
+    const observer = new MutationObserver(scheduleSync);
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    window.addEventListener("resize", scheduleSync);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", scheduleSync);
+      document
+        .querySelector<HTMLButtonElement>("button[data-playlist-shelf-tab='series']")
+        ?.remove();
+      const otherTab = document.querySelector<HTMLButtonElement>("button[data-playlist-shelf-tab='other']");
+      if (otherTab) {
+        otherTab.textContent = "🐿️朝リスト";
+        delete otherTab.dataset.playlistShelfTab;
+        otherTab.onclick = null;
+      }
+      document.querySelectorAll<HTMLElement>("#playlist-results article.card").forEach((card) => {
+        card.hidden = false;
+      });
+      const omikuji = document.querySelector<HTMLElement>(".omikujiPanel");
+      if (omikuji) omikuji.hidden = false;
+    };
+  }, [shelf]);
+
+  useEffect(() => {
     if (!host?.isConnected) return;
 
     const registerSection = document.querySelector<HTMLElement>(
@@ -116,8 +255,6 @@ export default function PlaylistEntryModeBridge() {
     if (!form && toggle) toggle.click();
   }, [mode, host]);
 
-  if (!host?.isConnected) return null;
-
   const jumpToManagerForm = () => {
     setMode("autoExisting");
     window.setTimeout(scrollPlaylistEntryIntoView, 0);
@@ -125,22 +262,24 @@ export default function PlaylistEntryModeBridge() {
 
   return (
     <>
-      {createPortal(
-        <div>
-          <div className="playlistSubmitHead">
+      {host?.isConnected
+        ? createPortal(
             <div>
-              <p className="kicker">SECONDARY PLAYLISTS</p>
-              <h3>二次プレイリストを追加・育てる</h3>
-              <p>
-                朝公式の番組・一次プレイリストをもとに、テーマや出演者ごとの二次プレイリストを育てます。
-              </p>
-              <PlaylistEntryModeSelector value={mode} onChange={setMode} />
-            </div>
-          </div>
-          {mode === "registerAndAuto" && <PlaylistCombinedAutoForm />}
-        </div>,
-        host,
-      )}
+              <div className="playlistSubmitHead">
+                <div>
+                  <p className="kicker">SECONDARY PLAYLISTS</p>
+                  <h3>二次プレイリストを追加・育てる</h3>
+                  <p>
+                    朝公式の番組・一次プレイリストをもとに、テーマや出演者ごとの二次プレイリストを育てます。
+                  </p>
+                  <PlaylistEntryModeSelector value={mode} onChange={setMode} />
+                </div>
+              </div>
+              {mode === "registerAndAuto" && <PlaylistCombinedAutoForm />}
+            </div>,
+            host,
+          )
+        : null}
       {sortHost?.isConnected
         ? createPortal(
             <button
