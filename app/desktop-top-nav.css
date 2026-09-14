@@ -45,4 +45,32 @@
   main.official {
     padding-top: 10px;
   }
+
+  /* Give the main desktop views one compact vertical rhythm below the tabs. */
+  main.wrap:not(.official):has(.themeHead) {
+    padding-top: 14px;
+  }
+
+  main.wrap:not(.official):has(.themeHead) .themeHead {
+    margin-top: 0;
+    margin-bottom: 14px;
+  }
+
+  .recommendedPodcastPage {
+    padding-top: 14px;
+  }
+
+  .recommendedPodcastPage .themeHead {
+    margin-top: 0;
+    margin-bottom: 14px;
+  }
+
+  .themeKicker {
+    font-size: 13px;
+    line-height: 1.2;
+  }
+
+  .themeHead h2 {
+    margin-top: 5px;
+  }
 }
