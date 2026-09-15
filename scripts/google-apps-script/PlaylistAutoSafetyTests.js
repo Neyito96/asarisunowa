@@ -58,8 +58,37 @@ function testAutoPlaylistSafetyPureFunctions() {
     title: "テーマ申請テスト",
     keywords: "中東"
   });
-  if (themePrepared.requestPlan.supported || themePrepared.validation.valid) {
-    throw new Error("仕様未確定のtheme申請が自動構築可能になっています");
+  if (!themePrepared.requestPlan.supported) {
+    throw new Error("フォームのthemeがthemeへ正規化されません");
+  }
+  if (
+    themePrepared.candidate.ruleType !== AUTO_PLAYLIST_RULE_TYPE_THEME_ ||
+    themePrepared.candidate.reviewRequired !== true ||
+    themePrepared.candidate.enabled !== false ||
+    themePrepared.candidate.productionWriteAllowed !== false
+  ) {
+    throw new Error("theme申請がreview必須の安全停止状態になっていません");
+  }
+
+  const themeRule = {
+    key: "test-theme",
+    enabled: false,
+    lifecycleStatus: AUTO_PLAYLIST_LIFECYCLE_.REVIEW,
+    ruleType: AUTO_PLAYLIST_RULE_TYPE_THEME_,
+    name: "中東テーマ",
+    playlistId: "test-playlist",
+    showIds: ["test-show"],
+    keywords: ["中東"],
+    fields: ["name", "description", "html_description"],
+    reviewRequired: true
+  };
+  const themeEpisode = {
+    name: "国際ニュースを読み解く",
+    description: "中東情勢について解説します",
+    html_description: ""
+  };
+  if (!matchesAutoPlaylistRule_(themeEpisode, themeRule)) {
+    throw new Error("themeが概要欄のキーワードを検出できません");
   }
 
   const requestCandidate = buildAutoPlaylistRuleCandidateFromRequest_({

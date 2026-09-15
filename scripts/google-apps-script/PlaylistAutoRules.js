@@ -13,11 +13,13 @@ const ASAHI_PRIMARY_SHOW_IDS = [
   "2uG9W6CnsaNi87AfSuGe8r"
 ];
 
-// 自動更新ルールは大きく2種類。
+// 自動更新ルールは3種類。
 // title-text: エピソードタイトル(name)内だけで指定文字列を判定する。
 // speaker: 出演者・ゲスト用。タイトルと概要欄を対象にし、必要なら専用matchStrategyで安全判定する。
+// theme: テーマ用。タイトルと概要欄を対象にキーワード判定し、初回構築後のreviewを必須とする。
 const AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_ = "title-text";
 const AUTO_PLAYLIST_RULE_TYPE_SPEAKER_ = "speaker";
+const AUTO_PLAYLIST_RULE_TYPE_THEME_ = "theme";
 
 // 新しい自動更新プレイリストは、原則ここへルールを1件追加する。
 // enabled:false は syncAllAutoPlaylists() と個別同期の両方から停止する。

@@ -25,12 +25,19 @@ function buildAutoPlaylistRuleCandidateFromRequest_(request) {
     requestSupported: plan.supported === true
   };
 
-  if (plan.ruleType === AUTO_PLAYLIST_RULE_TYPE_SPEAKER_) {
+  if (
+    plan.ruleType === AUTO_PLAYLIST_RULE_TYPE_SPEAKER_ ||
+    plan.ruleType === AUTO_PLAYLIST_RULE_TYPE_THEME_
+  ) {
     candidate.fields = ["name", "description", "html_description"];
     candidate.fetchAllPages = true;
     candidate.continueOnShowFetchError = true;
     candidate.addIndividually = true;
     candidate.updateLatestDateOnAdd = true;
+  }
+
+  if (plan.ruleType === AUTO_PLAYLIST_RULE_TYPE_THEME_) {
+    candidate.reviewRequired = true;
   }
 
   return candidate;
