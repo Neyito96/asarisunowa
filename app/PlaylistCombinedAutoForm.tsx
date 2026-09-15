@@ -57,6 +57,7 @@ export default function PlaylistCombinedAutoForm() {
     try {
       await postPayload({
         kind: "playlist",
+        updateType,
         url: cleanUrl,
         title: cleanTitle,
         maker: cleanMaker,
@@ -81,7 +82,7 @@ export default function PlaylistCombinedAutoForm() {
       });
 
       setStatus("success");
-      setMessage("朝リスト登録と自動更新申請を送信しました。確認後、登録・設定を行います。");
+      setMessage("プレイリスト登録と自動更新申請を送信しました。確認後、登録・設定を行います。");
       setUrl("");
       setTitle("");
       setMaker("");
@@ -95,7 +96,7 @@ export default function PlaylistCombinedAutoForm() {
       setStatus("error");
       setMessage(
         registrationSent
-          ? "朝リスト登録は送信しましたが、自動更新申請の送信に失敗しました。時間をおいて『登録済みを自動更新にする』から申請してください。"
+          ? "プレイリスト登録は送信しましたが、自動更新申請の送信に失敗しました。時間をおいて『今あるリストを自動で育てる』から申請してください。"
           : "送信できませんでした。時間をおいてもう一度お試しください。",
       );
     }
@@ -104,7 +105,7 @@ export default function PlaylistCombinedAutoForm() {
   return (
     <form className="autoUpdateForm" onSubmit={submit}>
       <h3>登録＋自動更新を申し込む</h3>
-      <p>新しいSpotifyプレイリストを朝リストへ登録し、同じ内容で自動更新も申請します。</p>
+      <p>新しいSpotifyプレイリストを登録し、同じ内容で自動更新も申請します。リストの種類を選べば、掲載先の整理にも使われます。</p>
 
       <label>
         <span>SpotifyプレイリストURL</span>
@@ -121,7 +122,7 @@ export default function PlaylistCombinedAutoForm() {
 
       <fieldset className="autoUpdateTypes">
         <legend>どんなプレイリスト？</legend>
-        <label><input type="radio" name="combinedAutoUpdateType" checked={updateType === "series"} onChange={() => setUpdateType("series")} /><span><b>📻 シリーズ別</b><small>例：一緒に新聞をめくろう！</small></span></label>
+        <label><input type="radio" name="combinedAutoUpdateType" checked={updateType === "series"} onChange={() => setUpdateType("series")} /><span><b>📻 連載・シリーズ</b><small>同じシリーズの回をまとめる　例：一緒に新聞をめくろう！</small></span></label>
         <label><input type="radio" name="combinedAutoUpdateType" checked={updateType === "speaker"} onChange={() => setUpdateType("speaker")} /><span><b>🎙️ 出演者別</b><small>例：宮沢賢一さん出演回</small></span></label>
         <label><input type="radio" name="combinedAutoUpdateType" checked={updateType === "theme"} onChange={() => setUpdateType("theme")} /><span><b>🔎 テーマ別</b><small>例：中東・鉄道・教育</small></span></label>
       </fieldset>
@@ -132,7 +133,7 @@ export default function PlaylistCombinedAutoForm() {
         <small>対象プレイリストを開き「共同編集者を招待」から発行したリンクを貼ってください。</small>
       </label>
       <label>
-        <span>{updateType === "series" ? "シリーズ名・キーワード" : updateType === "speaker" ? "出演者名" : "テーマのキーワード"}</span>
+        <span>{updateType === "series" ? "連載・シリーズ名／キーワード" : updateType === "speaker" ? "出演者名" : "テーマのキーワード"}</span>
         <textarea value={keywords} onChange={(event) => setKeywords(event.target.value)} placeholder={updateType === "series" ? "例：めくろう\n一緒に新聞をめくろう" : updateType === "speaker" ? "例：宮沢賢一" : "例：中東\nイスラエル\nパレスチナ\nイラン"} rows={updateType === "speaker" ? 2 : 3} required />
       </label>
       <label>
