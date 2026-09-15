@@ -26,6 +26,14 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
     });
   }
 
+  // 申請時点ではSpotifyへ接続せず、初回構築前の安全なプランだけを確定する。
+  const requestPlan = buildAutoPlaylistRequestPlan_({
+    updateType: updateType,
+    url: url,
+    title: title,
+    keywords: keywords
+  });
+
   const autoUpdateLock = LockService.getScriptLock();
   if (!autoUpdateLock.tryLock(5000)) {
     throw new Error("ただいま投稿が混み合っています。少し待って再度お試しください");
@@ -47,8 +55,8 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
       inviteUrl,
       keywords,
       ruleNote,
-      "受付",
-      "方式: " + updateType
+      requestPlan.statusLabel,
+      "方式: " + updateType + " / ruleType: " + requestPlan.ruleType
     ]);
 
     SpreadsheetApp.flush();
@@ -56,7 +64,10 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
     return jsonResponse({
       ok: true,
       kind: "autoUpdateRequest",
-      message: "自動更新申請を受け付けました"
+      message: "自動更新申請を受け付けました",
+      lifecycle: requestPlan.status,
+      ruleType: requestPlan.ruleType,
+      productionWriteAllowed: requestPlan.productionWriteAllowed
     });
   } finally {
     autoUpdateLock.releaseLock();
