@@ -9,6 +9,11 @@ function dryRunAutoPlaylistIncrementalStep() {
   const props = PropertiesService.getUserProperties();
   let state = loadAutoPlaylistIncrementalV1State_(props);
   const showIds = ASAHI_PRIMARY_SHOW_IDS.slice();
+  const token = getSpotifyUserAccessToken();
+
+  if (!token) {
+    throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
+  }
 
   if (!state) {
     state = {
@@ -51,7 +56,7 @@ function dryRunAutoPlaylistIncrementalStep() {
     const response = UrlFetchApp.fetch(url, {
       muteHttpExceptions: true,
       headers: {
-        Authorization: "Bearer " + getSpotifyUserAccessToken(),
+        Authorization: "Bearer " + token,
         Accept: "application/json"
       }
     });
@@ -104,6 +109,14 @@ function dryRunAutoPlaylistIncrementalStep() {
     state.newEpisodeIds = Array.from(newEpisodeSet);
     state.pagesFetched += 1;
     pagesThisRun += 1;
+
+    if (previousBoundary && !reachedBoundary && !data.next) {
+      saveAutoPlaylistIncrementalV1State_(props, state);
+      throw new Error(
+        "前回境界を最後まで発見できなかったため安全停止しました: Show " + showId +
+        " | boundary=" + previousBoundary
+      );
+    }
 
     if (reachedBoundary || !data.next) {
       state.showIndex += 1;
