@@ -115,8 +115,8 @@ export default function PlaylistCombinedAutoForm() {
         <input type="text" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="プレイリスト名" maxLength={120} required />
       </label>
       <label>
-        <span>朝リスネーム</span>
-        <input type="text" value={maker} onChange={(event) => setMaker(event.target.value)} placeholder="お名前・ハンドルネーム" maxLength={80} required />
+        <span>プレイリスト制作者</span>
+        <input type="text" value={maker} onChange={(event) => setMaker(event.target.value)} placeholder="朝リスネーム または 朝日新聞ポッドキャスト" maxLength={80} required />
       </label>
 
       <fieldset className="autoUpdateTypes">
