@@ -19,13 +19,14 @@
     white-space: nowrap;
   }
 
-  /* Keep content-oriented tabs together and Discord at the right edge. */
+  /* PC order: 朝公式 → 朝リスト（連載） → 朝リスト（その他） → Discord → あれどこ？ → ポ薦め → 他おすすめ */
   .viewTabs button:nth-child(1) { order: 1; }
   .viewTabs button:nth-child(2) { order: 2; }
-  .viewTabs button:nth-child(4) { order: 3; }
-  .viewTabs button:nth-child(5) { order: 4; }
-  .viewTabs button:nth-child(6) { order: 5; }
-  .viewTabs button:nth-child(3) { order: 6; }
+  .viewTabs button:nth-child(7) { order: 3; }
+  .viewTabs button:nth-child(3) { order: 4; }
+  .viewTabs button:nth-child(4) { order: 5; }
+  .viewTabs button:nth-child(5) { order: 6; }
+  .viewTabs button:nth-child(6) { order: 7; }
 
   main.official { padding-top: 10px; }
   main.wrap:not(.official):has(.themeHead) { padding-top: 14px; }
