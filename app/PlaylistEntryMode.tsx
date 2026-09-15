@@ -16,20 +16,20 @@ const options: Array<{
 }> = [
   {
     value: "register",
-    icon: "＋",
-    title: "プレイリストを登録",
+    icon: "🌱",
+    title: "リストを植える",
     description: "Spotify / YouTube Musicで作ったプレイリストを、このサイトに登録する",
   },
   {
     value: "registerAndAuto",
-    icon: "＋🔄",
-    title: "登録して自動で育てる",
+    icon: "🌱🔄",
+    title: "植えて、そのまま育てる",
     description: "Spotifyプレイリストを登録して、条件に合う新しい回も自動で追加する",
   },
   {
     value: "autoExisting",
     icon: "🔄",
-    title: "今あるリストを自動で育てる",
+    title: "今あるリストを育てる",
     description: "すでに登録されているSpotifyプレイリストに、条件に合う新しい回を自動で追加する",
   },
 ];
