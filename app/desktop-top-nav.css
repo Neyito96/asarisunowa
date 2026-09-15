@@ -8,6 +8,12 @@
 .viewTabs button:nth-child(5) { order: 6; }
 .viewTabs button:nth-child(7) { order: 7; }
 
+/* Playlist numbers remain internal IDs for sorting/listened state/data matching,
+   but are no longer shown on the public playlist cards. */
+#playlist-results .listenerCardBody > small:first-child {
+  display: none;
+}
+
 /* Desktop-only first-view compaction for 朝リスの輪.
    Mobile layout remains controlled by globals.css. */
 @media (min-width: 901px) {
