@@ -1,8 +1,8 @@
 // 太田匡彦プレイリスト：安全な新規候補判定 dry-run
 // 既存V2監査で実績のある分類器を流用し、confirmed の未登録回だけを追加候補にする。
-// Spotify・スプレッドシートへの書き込みは行わない。
+// dry-run は Spotify・スプレッドシートへの書き込みを行わない。
 
-function dryRunOtaMasahikoSafeAutoUpdate() {
+function buildOtaMasahikoSafeAutoUpdatePlan_() {
   const rule = getAutoPlaylistRuleByKey_("ota-masahiko");
   if (!rule) throw new Error("太田匡彦の自動更新ルールが見つかりません");
 
@@ -56,28 +56,45 @@ function dryRunOtaMasahikoSafeAutoUpdate() {
     }
   });
 
+  return {
+    rule: rule,
+    token: token,
+    episodes: episodes,
+    playlistItems: playlistItems,
+    alreadyRegistered: alreadyRegistered,
+    candidates: candidates,
+    rejected: rejected,
+    review: review,
+    unresolved: unresolved
+  };
+}
+
+function dryRunOtaMasahikoSafeAutoUpdate() {
+  const plan = buildOtaMasahikoSafeAutoUpdatePlan_();
+  const rule = plan.rule;
+
   Logger.log("=== OTA SAFE AUTO UPDATE DRY RUN ===");
   Logger.log("ルール enabled: " + rule.enabled + "（falseのままが正常）");
   Logger.log("一次ソース数: " + getAutoPlaylistShowIds_(rule).length);
-  Logger.log("取得エピソード数: " + episodes.length);
-  Logger.log("現在のプレイリスト項目数: " + playlistItems.length);
-  Logger.log("既存登録: " + alreadyRegistered.length);
-  Logger.log("ADD候補 confirmed: " + candidates.length);
-  Logger.log("除外 false_positive: " + rejected.length);
-  Logger.log("要確認 review: " + review.length);
-  Logger.log("保留 unresolved: " + unresolved.length);
+  Logger.log("取得エピソード数: " + plan.episodes.length);
+  Logger.log("現在のプレイリスト項目数: " + plan.playlistItems.length);
+  Logger.log("既存登録: " + plan.alreadyRegistered.length);
+  Logger.log("ADD候補 confirmed: " + plan.candidates.length);
+  Logger.log("除外 false_positive: " + plan.rejected.length);
+  Logger.log("要確認 review: " + plan.review.length);
+  Logger.log("保留 unresolved: " + plan.unresolved.length);
   Logger.log("Spotify書き込み: なし");
 
-  candidates.forEach(function(item) {
+  plan.candidates.forEach(function(item) {
     Logger.log("ADD | " + item.releaseDate + " | " + item.name + " | " + item.uri +
       " | reasons=" + item.reasons.join(",") +
       (item.excerpt ? " | excerpt=" + item.excerpt : ""));
   });
-  rejected.forEach(function(item) {
+  plan.rejected.forEach(function(item) {
     Logger.log("REJECT | " + item.releaseDate + " | " + item.name + " | " + item.uri +
       " | reasons=" + item.reasons.join(","));
   });
-  review.forEach(function(item) {
+  plan.review.forEach(function(item) {
     Logger.log("REVIEW | " + item.releaseDate + " | " + item.name + " | " + item.uri +
       " | reasons=" + item.reasons.join(",") +
       (item.excerpt ? " | excerpt=" + item.excerpt : ""));
@@ -87,14 +104,63 @@ function dryRunOtaMasahikoSafeAutoUpdate() {
     dryRun: true,
     playlistId: rule.playlistId,
     ruleEnabled: rule.enabled,
-    fetchedEpisodeCount: episodes.length,
-    playlistItemCount: playlistItems.length,
-    alreadyRegisteredCount: alreadyRegistered.length,
-    addCandidateCount: candidates.length,
-    falsePositiveCount: rejected.length,
-    reviewCount: review.length,
-    unresolvedCount: unresolved.length,
-    candidates: candidates,
-    review: review
+    fetchedEpisodeCount: plan.episodes.length,
+    playlistItemCount: plan.playlistItems.length,
+    alreadyRegisteredCount: plan.alreadyRegistered.length,
+    addCandidateCount: plan.candidates.length,
+    falsePositiveCount: plan.rejected.length,
+    reviewCount: plan.review.length,
+    unresolvedCount: plan.unresolved.length,
+    candidates: plan.candidates,
+    review: plan.review
+  };
+}
+
+function addOtaMasahikoConfirmedCandidates() {
+  const plan = buildOtaMasahikoSafeAutoUpdatePlan_();
+
+  // 今回確認済みの状態からずれたら、Spotifyへ書き込む前に必ず停止する。
+  if (plan.rule.enabled !== false) {
+    throw new Error("安全停止: ota-masahiko が enabled:false ではありません");
+  }
+  if (plan.playlistItems.length !== 32) {
+    throw new Error("安全停止: 現在のプレイリスト件数が想定32件と一致しません: " + plan.playlistItems.length);
+  }
+  if (plan.candidates.length !== 2) {
+    throw new Error("安全停止: confirmed の未登録候補が想定2件と一致しません: " + plan.candidates.length);
+  }
+
+  const candidateUris = plan.candidates.map(function(item) { return String(item.uri); });
+  const uniqueUris = {};
+  candidateUris.forEach(function(uri) {
+    if (!uri) throw new Error("安全停止: ADD候補にURIなしがあります");
+    if (uniqueUris[uri]) throw new Error("安全停止: ADD候補URIが重複しています: " + uri);
+    uniqueUris[uri] = true;
+  });
+
+  Logger.log("=== OTA SAFE AUTO UPDATE WRITE ===");
+  Logger.log("追加対象: confirmed 2件のみ");
+  plan.candidates.forEach(function(item) {
+    Logger.log("ADD | " + item.releaseDate + " | " + item.name + " | " + item.uri);
+  });
+
+  addAutoPlaylistEpisodesBatch_(plan.rule, plan.token, plan.candidates);
+
+  const afterItems = getAllSpotifyPlaylistItems_(plan.rule.playlistId, plan.token);
+  Logger.log("追加前: " + plan.playlistItems.length);
+  Logger.log("追加成功: " + plan.candidates.length);
+  Logger.log("追加後: " + afterItems.length);
+
+  if (afterItems.length !== 34) {
+    throw new Error("追加APIは成功しましたが、追加後件数が想定34件と一致しません: " + afterItems.length);
+  }
+
+  Logger.log("=== OTA SAFE AUTO UPDATE COMPLETE ===");
+  Logger.log("confirmed 2件を追加し、34件になりました。");
+
+  return {
+    ok: true,
+    added: plan.candidates.length,
+    remaining: afterItems.length
   };
 }
