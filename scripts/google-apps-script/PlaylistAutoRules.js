@@ -47,12 +47,13 @@ const AUTO_PLAYLIST_RULES = [
   },
   {
     key: "ota-masahiko",
-    enabled: false,
+    enabled: true,
     name: "太田匡彦",
     showIds: ASAHI_PRIMARY_SHOW_IDS,
     playlistId: "7jLXrZ0JUNOnsSeFEFbw9S",
     keywords: ["太田匡彦", "太田 匡彦"],
     fields: ["name", "description", "html_description"],
+    matchStrategy: "ota-safe-confirmed",
     fetchAllPages: true,
     continueOnShowFetchError: true,
     addIndividually: true,
@@ -100,6 +101,11 @@ function getAutoPlaylistEpisodeText_(episode, rule) {
 }
 
 function matchesAutoPlaylistRule_(episode, rule) {
+  if (String(rule && rule.matchStrategy ? rule.matchStrategy : "") === "ota-safe-confirmed") {
+    const classification = classifyOtaMasahikoExistingPlaylistAuditEpisodeV2_(episode);
+    return classification && classification.classification === "confirmed";
+  }
+
   const text = getAutoPlaylistEpisodeText_(episode, rule);
 
   const includeKeywords =
