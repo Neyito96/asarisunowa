@@ -25,7 +25,8 @@ function validateAutoPlaylistRule_(rule) {
 
   if (
     ruleType !== AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_ &&
-    ruleType !== AUTO_PLAYLIST_RULE_TYPE_SPEAKER_
+    ruleType !== AUTO_PLAYLIST_RULE_TYPE_SPEAKER_ &&
+    ruleType !== AUTO_PLAYLIST_RULE_TYPE_THEME_
   ) {
     errors.push("未対応の ruleType: " + ruleType);
   }
@@ -36,6 +37,10 @@ function validateAutoPlaylistRule_(rule) {
     source.fields.some(function(field) { return String(field) !== "name"; })
   ) {
     warnings.push("title-text は fields 指定に関係なく episode.name のみを検索します");
+  }
+
+  if (ruleType === AUTO_PLAYLIST_RULE_TYPE_THEME_ && source.reviewRequired !== true) {
+    errors.push("theme は初回構築後の reviewRequired:true が必要です");
   }
 
   if (source.enabled !== false && source.lifecycleStatus) {
