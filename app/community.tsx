@@ -9,6 +9,7 @@ type OfficialProgram = {
   spotify?: string;
   links?: string[][];
   official?: string;
+  pody?: string;
   discord?: string;
   youtube?: boolean;
 };
@@ -295,6 +296,7 @@ const officialPrograms: OfficialProgram[] = [
       ["Pocket Casts", "https://buff.ly/F933Yg0"],
     ],
     official: "https://omny.fm/shows/asahi/playlists/sponge",
+    pody: "https://pody.jp/player/SLYemnwXxXWVj4z0zqt0",
     youtube: false,    discord: "https://discord.gg/6zBhm97F9",
 
   },
@@ -312,6 +314,7 @@ const officialPrograms: OfficialProgram[] = [
       ["LISTEN", "https://listen.style/p/swt65jwj"]
     ],
     official: "https://omny.fm/shows/asahi/playlists/donut",
+    pody: "https://pody.jp/player/to04ABW3puiCBtAvp6Wx",
     discord: "https://discord.gg/TU8c9qtzvw",
   },
   {
@@ -327,6 +330,7 @@ const officialPrograms: OfficialProgram[] = [
       ["LISTEN", "https://listen.style/p/vbc86ror"]
     ],
     official: "https://omny.fm/shows/asahi/playlists/playlist-2",
+    pody: "https://pody.jp/player/woMdDOpTDIxhqS4HtAsS",
     discord: "https://discord.gg/6zBhm97F9",
     youtube: false,
   },
@@ -342,7 +346,8 @@ const officialPrograms: OfficialProgram[] = [
       ["Pocket Casts", "https://pocketcasts.com/podcast/%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%81%AE%E7%8F%BE%E5%A0%B4%E3%81%8B%E3%82%89/ce4f8cb0-c119-0138-e716-0acc26574db2"],
       ["LISTEN", "https://listen.style/p/tvzppbdm"]
     ],
-    official: "https://omny.fm/shows/asahi/playlists/podcast",    discord: "https://discord.gg/6zBhm97F9",
+    official: "https://omny.fm/shows/asahi/playlists/podcast",
+    pody: "https://pody.jp/player/4UD5sHilP15gqAc0clXN",    discord: "https://discord.gg/6zBhm97F9",
 
   },
   {
@@ -358,6 +363,7 @@ const officialPrograms: OfficialProgram[] = [
       ["LISTEN", "https://listen.style/p/ywaodpkl"]
     ],
     official: "https://omny.fm/shows/asahi/playlists/playlist-1",
+    pody: "https://pody.jp/player/sDYbQUEUe07sRv1wMI9z",
     discord: "https://discord.gg/d7sAbSRQvq",
   },
   {
@@ -371,6 +377,7 @@ const officialPrograms: OfficialProgram[] = [
       ["LISTEN", "https://listen.style/p/yhap2rfc"]
     ],
     official: "https://omny.fm/shows/asahi/playlists/sdgs",
+    pody: "https://pody.jp/player/8aeTZ7uuPPmWLxZTkRER",
     youtube: false,    discord: "https://discord.gg/6zBhm97F9",
 
   },
@@ -1475,6 +1482,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             <p className="officialIntro">
               朝日新聞ポッドキャストの公式プレイリストです。
             </p>
+            <p className="officialPodyNote">
+              Podyでは、一部のエピソードをAI記事でも読めます。
+            </p>
           </div>
           <section className="officialGuide" aria-labelledby="official-guide-title">
             <div className="officialGuideTop">
@@ -1528,13 +1538,21 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   {guideProgram.schedule && <p>{guideProgram.schedule}</p>}
                   <div className="officialGuideResultLinks">
                     {[
-                      ...(guideProgram.links ?? []),
+                      ...(guideProgram.links ?? []).filter(([label]) => label !== "LISTEN"),
                       ...(guideProgram.youtube === false
                         ? []
                         : [["YouTube", ASAPOKI_YOUTUBE]]),
+                      ...(guideProgram.links ?? []).filter(([label]) => label === "LISTEN"),
+                      ...(guideProgram.pody ? [["Pody", guideProgram.pody]] : []),
                       ["公式", guideProgram.official ?? ASAPOKI_OFFICIAL],
                     ].map(([label, url]) => (
-                      <a href={url} target="_blank" rel="noreferrer" key={label}>
+                      <a
+                        className={label === "Pody" ? "podyLink" : undefined}
+                        href={url}
+                        target="_blank"
+                        rel="noreferrer"
+                        key={label}
+                      >
                         {label} ↗
                       </a>
                     ))}
@@ -1562,9 +1580,11 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                           ? []
                           : [["YouTube", ASAPOKI_YOUTUBE]]),
                         ...(p.links ?? []).filter(([label]) => label === "LISTEN"),
-                    ["公式", p.official ?? ASAPOKI_OFFICIAL],
+                        ...(p.pody ? [["Pody", p.pody]] : []),
+                        ["公式", p.official ?? ASAPOKI_OFFICIAL],
                       ].map(([label, url]) => (
                         <a
+                          className={label === "Pody" ? "podyLink" : undefined}
                           href={url}
                           target="_blank"
                           rel="noreferrer"
