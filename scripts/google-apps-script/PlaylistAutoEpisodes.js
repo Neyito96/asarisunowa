@@ -53,6 +53,27 @@ function fetchSpotifyReadWithRetry_(url, options, contextLabel) {
   }
 }
 
+function getAutoPlaylistEpisodeCacheKey_(rule) {
+  return JSON.stringify({
+    showIds: getAutoPlaylistShowIds_(rule),
+    fetchAllPages: rule.fetchAllPages === true,
+    continueOnShowFetchError: rule.continueOnShowFetchError === true
+  });
+}
+
+function fetchAutoPlaylistEpisodesCached_(rule, token, cache) {
+  const key = getAutoPlaylistEpisodeCacheKey_(rule);
+
+  if (Object.prototype.hasOwnProperty.call(cache, key)) {
+    Logger.log("エピソード取得キャッシュ利用: " + rule.name);
+    return cache[key];
+  }
+
+  const episodes = fetchAutoPlaylistEpisodes_(rule, token);
+  cache[key] = episodes;
+  return episodes;
+}
+
 function fetchAutoPlaylistEpisodes_(rule, token) {
   const showIds = getAutoPlaylistShowIds_(rule);
 
