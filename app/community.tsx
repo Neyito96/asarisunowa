@@ -1947,60 +1947,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         </main>
       )}
       <section className="wrap siteHistory" aria-labelledby="site-history-title">
-        <h3 id="site-history-title">更新ログ</h3>
-        <div className="historyItem">
-          <time dateTime="2026-09-11">2026.9.11</time>
-          <p>「見えないところも、ちょっと整理整頓。🧹」</p>
-          <small>・自動更新の仕組みを整理 ・機能ごとに分けて管理しやすく ・更新日の反映方法を修正 ・自動更新を増やせる土台づくり</small>
-        </div>
-        <div className="historyItem">
-          <time dateTime="2026-09-10">2026.9.10</time>
-          <p>「眠っているプレイリストを、もう一度育てよう！🔄」</p>
-          <small>Spotifyプレイリストの自動更新を拡張。既存プレイリストが育ち続ける仕組みを模索中。</small>
-        </div>
-        <div className="historyItem">
-          <time dateTime="2026-09-09">2026.9.9</time>
-          <p>Spotifyプレイリストの一部分を自動更新に対応！</p>
-        </div>
-        <div className="historyItem">
-          <time dateTime="2026-09-08">2026.9.8</time>
-          <p>「🎙 朝リスPodcast」ページを追加</p>
-          <small>@タンタンさん作「朝リスさんのポッドキャスト」をもとに、共同更新できるリストへ拡張</small>
-        </div>
-        <div className="historyItem">
-          <time dateTime="2026-09-08">2026.9.8</time>
-          <p>「🎧 おすすめPodcast」ページを追加</p>
-          <small>朝リスおすすめ番組の投稿・一覧表示に対応</small>
-        </div>
-        <div className="historyItem">
-          <time dateTime="2026-09-08">2026.9.8</time>
-          <p>投稿フォームから朝リストへの自動掲載に対応</p>
-          <small>Spotifyのプレイリスト・番組、YouTube Musicのプレイリストを投稿可能</small>
-        </div>
-        <div className="historyItem">
-          <time dateTime="2026-09-08">2026.9.8</time>
-          <p>朝リストに「プレイリスト投稿フォーム」を追加</p>
-          <small>プレイリストURL・タイトル・朝リスネームの3項目で投稿受付</small>
-        </div>
-        <div className="historyItem">
-          <time dateTime="2026-09-08">2026.9.8</time>
-          <p>「どれ聴く？ 朝ポキ案内所」開設</p>
-          <small>💡 @ピノ子さんのアイデアをもとに制作</small>
-        </div>
-        <div className="historyItem">
-          <time dateTime="2026-09-07">2026.9.7</time>
-          <p>「プレイリストおみくじ」開設</p>
-          <small>💡 @ピノ子さんのアイデアをもとに制作</small>
-        </div>
-        <div className="historyItem">
-          <time dateTime="2026-09-06">2026.9.6</time>
-          <p>「朝リスの輪 or 朝リスの田」開設</p>
-          <p>日曜版を参考に「ドーナツ」の配信情報を追加・編集</p>
-        </div>
-        <div className="historyItem">
-          <time dateTime="2026-08-23">2026.8.23</time>
-          <p>@ナカジマシンヤ（朝ポキ）さんのDiscord投稿を参考に、公式プレイリストの番組情報を整理</p>
-        </div>
+        <p className="historyNote">
+          朝リスのみなさんのアイデアや情報をもとに、ゆるゆる更新中です。🐿️
+        </p>
         <div className="historySources">
           <h4>情報・画像について</h4>
           <p>番組情報は、朝日新聞ポッドキャスト公式情報および各配信プラットフォームの公開情報を参考に編集しています。</p>
