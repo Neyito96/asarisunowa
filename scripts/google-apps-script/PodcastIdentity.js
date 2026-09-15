@@ -17,16 +17,29 @@ function podcastIdentityFromResolved_(resolved) {
   };
 }
 
-function isSamePodcastIdentity_(left, right) {
+function podcastIdentityMatch_(left, right) {
   const a = podcastIdentityFromResolved_(left);
   const b = podcastIdentityFromResolved_(right);
 
-  if (!a.title || !b.title || a.title !== b.title) return false;
+  if (!a.title || !b.title || a.title !== b.title) {
+    return { duplicate: false, candidate: false, reason: "" };
+  }
 
-  // 配信者情報が両方取れている場合は一致も要求する。
-  // 片方しか取れない場合はタイトル一致を候補として扱えるようにする。
-  if (a.maker && b.maker) return a.maker === b.maker;
-  return true;
+  // タイトルと配信者の両方が取れて一致したときだけ、同一番組を確定する。
+  if (a.maker && b.maker) {
+    return {
+      duplicate: a.maker === b.maker,
+      candidate: a.maker !== b.maker,
+      reason: a.maker === b.maker ? "title_maker" : "title_only"
+    };
+  }
+
+  // 配信者情報が片方でも欠ける場合、タイトル一致だけでは確定しない。
+  return { duplicate: false, candidate: true, reason: "title_only" };
+}
+
+function isSamePodcastIdentity_(left, right) {
+  return podcastIdentityMatch_(left, right).duplicate;
 }
 
 function findPodcastDuplicateByIdentity_(items, resolved) {
