@@ -1,5 +1,5 @@
 // 連載プレイリストの既存エピソードから、今後探索する親番組候補を判定する。
-// 純粋関数のみ。Spotify API・スプレッドシート・プレイリストへの書き込みは行わない。
+// 判定とdry-run確認専用。プレイリスト・スプレッドシートへの書き込みは行わない。
 
 function detectSeriesSourceShows_(playlistItems, options) {
   const settings = options || {};
@@ -97,7 +97,52 @@ function detectSeriesSourceShows_(playlistItems, options) {
   };
 }
 
-// ログ確認用。playlistItems は外から渡す前提で、本番書き込みはしない。
+function extractSpotifyPlaylistId_(value) {
+  const text = String(value || "").trim();
+  if (!text) return "";
+
+  const urlMatch = text.match(/open\.spotify\.com\/playlist\/([A-Za-z0-9]+)/i);
+  if (urlMatch) return String(urlMatch[1]);
+
+  const uriMatch = text.match(/^spotify:playlist:([A-Za-z0-9]+)$/i);
+  if (uriMatch) return String(uriMatch[1]);
+
+  return /^[A-Za-z0-9]+$/.test(text) ? text : "";
+}
+
+// 実際のSpotifyプレイリストを「読むだけ」のdry-run。
+// 既存のユーザーOAuthと getAllSpotifyPlaylistItems_() を再利用する。
+function dryRunSeriesSourceDetectionByPlaylist_(playlistUrlOrId, options) {
+  const playlistId = extractSpotifyPlaylistId_(playlistUrlOrId);
+  if (!playlistId) {
+    throw new Error("SpotifyプレイリストURLまたはIDを確認してください");
+  }
+
+  const token = getSpotifyUserAccessToken();
+  if (!token) {
+    throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
+  }
+
+  const playlistItems = getAllSpotifyPlaylistItems_(playlistId, token);
+  const result = detectSeriesSourceShows_(playlistItems, options);
+
+  result.playlistId = playlistId;
+  result.productionWriteAllowed = false;
+
+  Logger.log(JSON.stringify(result, null, 2));
+  return result;
+}
+
+// 既知の連載プレイリストでの確認用。どちらも読み取りのみ。
+function dryRunIsshoShinbunSourceDetection() {
+  return dryRunSeriesSourceDetectionByPlaylist_("4tY0lHoV8IemMBp4iTnKnl");
+}
+
+function dryRunKinoDougaSourceDetection() {
+  return dryRunSeriesSourceDetectionByPlaylist_("6nDhZQG75F1wU62sdcYJMq");
+}
+
+// playlistItems を直接渡す単体確認用。
 function logSeriesSourceDetection_(playlistItems, options) {
   const result = detectSeriesSourceShows_(playlistItems, options);
   Logger.log(JSON.stringify(result, null, 2));
