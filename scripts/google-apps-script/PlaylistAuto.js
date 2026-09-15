@@ -5,8 +5,10 @@ function syncAllAutoPlaylists() {
     throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
   }
 
+  const episodeCache = {};
+
   getEnabledAutoPlaylistRules_().forEach(function(rule) {
-    syncOneAutoPlaylist_(rule, token);
+    syncOneAutoPlaylist_(rule, token, episodeCache);
   });
 }
 
@@ -47,10 +49,12 @@ function syncConfiguredAutoPlaylist_(rule) {
   syncOneAutoPlaylist_(rule, token);
 }
 
-function syncOneAutoPlaylist_(rule, token) {
+function syncOneAutoPlaylist_(rule, token, episodeCache) {
   Logger.log("=== " + rule.name + " ===");
 
-  const episodes = fetchAutoPlaylistEpisodes_(rule, token);
+  const episodes = episodeCache
+    ? fetchAutoPlaylistEpisodesCached_(rule, token, episodeCache)
+    : fetchAutoPlaylistEpisodes_(rule, token);
 
   const playlistItems =
     getAllSpotifyPlaylistItems_(rule.playlistId, token);
@@ -74,11 +78,15 @@ function syncOneAutoPlaylist_(rule, token) {
     return uri && !existingUris.has(uri);
   });
 
-  Logger.log("候補件数: " + candidates.length);
-  Logger.log("新規追加候補: " + newEpisodes.length);
+  Logger.log("判定通過件数: " + candidates.length);
+  Logger.log("新規追加対象: " + newEpisodes.length);
 
   if (!newEpisodes.length) {
-    Logger.log("追加なし。すべて登録済みです ✅");
+    Logger.log(
+      candidates.length
+        ? "判定通過候補はすべて登録済みです ✅"
+        : "追加対象なし ✅"
+    );
     return;
   }
 
