@@ -347,7 +347,8 @@ const officialPrograms: OfficialProgram[] = [
       ["LISTEN", "https://listen.style/p/tvzppbdm"]
     ],
     official: "https://omny.fm/shows/asahi/playlists/podcast",
-    pody: "https://pody.jp/player/4UD5sHilP15gqAc0clXN",    discord: "https://discord.gg/6zBhm97F9",
+    pody: "https://pody.jp/player/4UD5sHilP15gqAc0clXN",
+    discord: "https://discord.gg/6zBhm97F9",
 
   },
   {
