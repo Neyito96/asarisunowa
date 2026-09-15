@@ -2483,3 +2483,19 @@ footer {
   background: #f2c66d;
   color: #5a3d00;
 }
+
+
+/* Pody: official podcast links and reading note */
+.officialHeading .officialPodyNote {
+  margin: 4px 0 0;
+  color: #6f6257;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.serviceLinks a.podyLink,
+.officialGuideResultLinks a.podyLink {
+  border-color: #d7b85b;
+  background: #fff3bf;
+  color: #684f00;
+}
