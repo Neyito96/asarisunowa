@@ -1483,9 +1483,6 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             <p className="officialIntro">
               朝日新聞ポッドキャストの公式プレイリストです。
             </p>
-            <p className="officialPodyNote">
-              Podyでは、一部のエピソードをAI記事でも読めます。
-            </p>
           </div>
           <section className="officialGuide" aria-labelledby="official-guide-title">
             <div className="officialGuideTop">
@@ -1548,7 +1545,6 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                       ["公式", guideProgram.official ?? ASAPOKI_OFFICIAL],
                     ].map(([label, url]) => (
                       <a
-                        className={label === "Pody" ? "podyLink" : undefined}
                         href={url}
                         target="_blank"
                         rel="noreferrer"
@@ -1585,7 +1581,6 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                         ["公式", p.official ?? ASAPOKI_OFFICIAL],
                       ].map(([label, url]) => (
                         <a
-                          className={label === "Pody" ? "podyLink" : undefined}
                           href={url}
                           target="_blank"
                           rel="noreferrer"
@@ -1614,6 +1609,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               </article>
             ))}
           </div>
+          <p className="officialPodyFootnote">
+            ※ Podyでは、一部のエピソードを記事でも読めます。
+          </p>
        </main>
       ) : view === "listenerPodcasts" ? (
         <main className="wrap recommendedPodcastPage">
