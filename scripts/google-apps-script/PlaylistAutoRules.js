@@ -13,12 +13,19 @@ const ASAHI_PRIMARY_SHOW_IDS = [
   "2uG9W6CnsaNi87AfSuGe8r"
 ];
 
+// 自動更新ルールは大きく2種類。
+// title-text: エピソードタイトル(name)内だけで指定文字列を判定する。
+// speaker: 出演者・ゲスト用。タイトルと概要欄を対象にし、必要なら専用matchStrategyで安全判定する。
+const AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_ = "title-text";
+const AUTO_PLAYLIST_RULE_TYPE_SPEAKER_ = "speaker";
+
 // 新しい自動更新プレイリストは、原則ここへルールを1件追加する。
 // enabled:false は syncAllAutoPlaylists() と個別同期の両方から停止する。
 const AUTO_PLAYLIST_RULES = [
   {
     key: "issho-shinbun",
     enabled: true,
+    ruleType: AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_,
     name: "一緒に新聞をめくろう！",
     showIds: ASAHI_PRIMARY_SHOW_IDS,
     playlistId: "4tY0lHoV8IemMBp4iTnKnl",
@@ -27,6 +34,7 @@ const AUTO_PLAYLIST_RULES = [
   {
     key: "kino-douga",
     enabled: true,
+    ruleType: AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_,
     name: "木下君、あの動画みた？ #きのどう",
     showIds: ASAHI_PRIMARY_SHOW_IDS,
     playlistId: "6nDhZQG75F1wU62sdcYJMq",
@@ -35,6 +43,7 @@ const AUTO_PLAYLIST_RULES = [
   {
     key: "toyohide",
     enabled: true,
+    ruleType: AUTO_PLAYLIST_RULE_TYPE_SPEAKER_,
     name: "豊秀一",
     showIds: ASAHI_PRIMARY_SHOW_IDS,
     playlistId: "4Ri6rxTGFimTm0KkZtKfBZ",
@@ -48,6 +57,7 @@ const AUTO_PLAYLIST_RULES = [
   {
     key: "ota-masahiko",
     enabled: true,
+    ruleType: AUTO_PLAYLIST_RULE_TYPE_SPEAKER_,
     name: "太田匡彦",
     showIds: ASAHI_PRIMARY_SHOW_IDS,
     playlistId: "7jLXrZ0JUNOnsSeFEFbw9S",
@@ -74,6 +84,22 @@ function getAutoPlaylistRuleByKey_(key) {
   }) || null;
 }
 
+function getAutoPlaylistRuleType_(rule) {
+  const explicitType = String(rule && rule.ruleType ? rule.ruleType : "").trim();
+  if (explicitType) return explicitType;
+
+  // 既存・移行途中のルールとの互換性。
+  const fields = Array.isArray(rule && rule.fields) ? rule.fields : [];
+  if (
+    String(rule && rule.matchStrategy ? rule.matchStrategy : "") ||
+    fields.indexOf("description") >= 0 ||
+    fields.indexOf("html_description") >= 0
+  ) {
+    return AUTO_PLAYLIST_RULE_TYPE_SPEAKER_;
+  }
+  return AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_;
+}
+
 function getAutoPlaylistShowIds_(rule) {
   if (Array.isArray(rule.showIds) && rule.showIds.length) {
     return rule.showIds.map(function(showId) {
@@ -86,10 +112,12 @@ function getAutoPlaylistShowIds_(rule) {
 }
 
 function getAutoPlaylistEpisodeText_(episode, rule) {
-  const fields =
-    Array.isArray(rule.fields) && rule.fields.length
-      ? rule.fields
-      : ["name"];
+  const ruleType = getAutoPlaylistRuleType_(rule);
+  const fields = ruleType === AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_
+    ? ["name"]
+    : Array.isArray(rule.fields) && rule.fields.length
+    ? rule.fields
+    : ["name", "description", "html_description"];
 
   return fields.map(function(field) {
     return String(
