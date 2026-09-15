@@ -193,6 +193,15 @@ export default function PlaylistEntryModeBridge() {
         const makerInput = makerLabel.parentElement?.querySelector<HTMLInputElement>("input");
         if (makerInput) makerInput.placeholder = "朝リスネーム または 朝日新聞ポッドキャスト";
       }
+
+      const autoMakerLabel = Array.from(
+        document.querySelectorAll<HTMLElement>("#auto-update-request .autoUpdateForm label > span"),
+      ).find((element) => element.textContent?.trim() === "あなたの朝リスネーム");
+      if (autoMakerLabel) {
+        autoMakerLabel.textContent = "プレイリスト制作者";
+        const autoMakerInput = autoMakerLabel.parentElement?.querySelector<HTMLInputElement>("input");
+        if (autoMakerInput) autoMakerInput.placeholder = "朝リスネーム または 朝日新聞ポッドキャスト";
+      }
     };
 
     const scheduleSync = () => {
