@@ -118,7 +118,7 @@ function deleteOtaMasahikoConfirmedFalsePositives() {
   Logger.log("保持: confirmed 22件 / review・unresolved 10件");
 
   const url = "https://api.spotify.com/v1/playlists/" + encodeURIComponent(plan.playlistId) + "/items";
-  const tracks = plan.remove.map(function(item) {
+  const items = plan.remove.map(function(item) {
     return { uri: item.uri };
   });
 
@@ -130,7 +130,7 @@ function deleteOtaMasahikoConfirmedFalsePositives() {
       Authorization: "Bearer " + plan.token,
       Accept: "application/json"
     },
-    payload: JSON.stringify({ tracks: tracks })
+    payload: JSON.stringify({ items: items })
   });
 
   const status = response.getResponseCode();
