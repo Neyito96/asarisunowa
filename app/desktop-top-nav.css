@@ -1,5 +1,5 @@
 /* Shared tab order after the series shelf tab is inserted.
-   朝公式 → 朝リスト（連載） → 朝リスト（その他） → ポ薦め → Discord → あれどこ？ → 他おすすめ */
+   朝公式 → 連載 → 朝リスト → ポ薦め → Discord → あれどこ？ → 他おすすめ */
 .viewTabs button:nth-child(1) { order: 1; }
 .viewTabs button[data-playlist-shelf-tab="series"] { order: 2; }
 .viewTabs button[data-playlist-shelf-tab="other"] { order: 3; }

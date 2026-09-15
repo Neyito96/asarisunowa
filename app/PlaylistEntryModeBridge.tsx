@@ -131,8 +131,8 @@ export default function PlaylistEntryModeBridge() {
       if (!otherTab) return;
 
       otherTab.dataset.playlistShelfTab = "other";
-      if (otherTab.textContent?.trim() !== "🐿️朝リスト（その他）") {
-        otherTab.textContent = "🐿️朝リスト（その他）";
+      if (otherTab.textContent?.trim() !== "🐿️朝リスト") {
+        otherTab.textContent = "🐿️朝リスト";
       }
       otherTab.onclick = () => setShelf("other");
 
@@ -141,7 +141,7 @@ export default function PlaylistEntryModeBridge() {
         seriesTab = document.createElement("button");
         seriesTab.type = "button";
         seriesTab.dataset.playlistShelfTab = "series";
-        seriesTab.textContent = "朝リスト（連載）";
+        seriesTab.textContent = "連載";
         tabs.insertBefore(seriesTab, otherTab);
       }
       seriesTab.onclick = () => {
