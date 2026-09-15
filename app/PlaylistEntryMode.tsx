@@ -18,7 +18,7 @@ const options: Array<{
     value: "register",
     icon: "＋",
     title: "プレイリストを登録",
-    description: "Spotify / YouTube Musicで作ったプレイリストを、朝リスの輪に追加する",
+    description: "Spotify / YouTube Musicで作ったプレイリストを、このサイトに登録する",
   },
   {
     value: "registerAndAuto",
