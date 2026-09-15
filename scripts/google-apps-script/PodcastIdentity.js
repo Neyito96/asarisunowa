@@ -1,5 +1,4 @@
 // ポ薦め: 配信プラットフォームをまたいだ番組同定・重複判定の共通処理
-// まずは純粋関数として追加し、既存の投稿経路にはまだ接続しない。
 
 function normalizePodcastIdentityText_(value) {
   return String(value || "")
@@ -36,4 +35,23 @@ function findPodcastDuplicateByIdentity_(items, resolved) {
     if (isSamePodcastIdentity_(list[i], resolved)) return list[i];
   }
   return null;
+}
+
+function findListenerPodcastDuplicateByIdentityInSheet_(sheet, resolved) {
+  if (!sheet || !resolved || !resolved.title) return null;
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return null;
+
+  const values = sheet.getRange(2, 1, lastRow - 1, 3).getDisplayValues();
+  const items = values.map(function(row, index) {
+    return {
+      id: String(index + 1).padStart(2, "0"),
+      url: String(row[0] || "").trim(),
+      title: String(row[1] || "").trim(),
+      maker: String(row[2] || "").trim()
+    };
+  });
+
+  return findPodcastDuplicateByIdentity_(items, resolved);
 }
