@@ -33,16 +33,46 @@ function logSpeakerSafeV2SourceSummary_(source) {
   source.skippedOther.forEach(function(item) { Logger.log("SKIP #" + (item.index + 1) + " | " + item.reason + " | type=" + String(item.type||"") + " | " + String(item.name||"")); });
 }
 
-function diagnoseOtaSpeakerSafeV2SkippedItems() {
-  const rule = getAutoPlaylistRuleByKey_("ota-masahiko");
-  if (!rule) throw new Error("太田匡彦ルールが見つかりません");
+function diagnoseSpeakerSafeV2Metadata_(ruleKey) {
+  const rule = getAutoPlaylistRuleByKey_(ruleKey);
+  if (!rule) throw new Error("自動更新ルールが見つかりません: " + ruleKey);
   const token = getSpotifyUserAccessToken();
   if (!token) throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
   const source = getSpeakerSafeV2PlaylistEpisodesForRegression_(rule, token);
-  Logger.log("=== OTA SPEAKER SAFE V2 SOURCE DIAGNOSIS ===");
+  const summary = { name:0, description:0, htmlDescription:0, show:0, id:0 };
+  const rows = source.episodes.map(function(ep, index) {
+    const row = {
+      index:index,
+      id:!!String(ep && ep.id || ""),
+      name:!!String(ep && ep.name || ""),
+      description:!!String(ep && ep.description || ""),
+      htmlDescription:!!String(ep && ep.html_description || ""),
+      show:!!(ep && ep.show),
+      keys:Object.keys(ep || {})
+    };
+    if (row.id) summary.id++;
+    if (row.name) summary.name++;
+    if (row.description) summary.description++;
+    if (row.htmlDescription) summary.htmlDescription++;
+    if (row.show) summary.show++;
+    return row;
+  });
+  Logger.log("=== SPEAKER SAFE V2 METADATA: " + rule.name + " ===");
   logSpeakerSafeV2SourceSummary_(source);
-  return { dryRun:true, productionWriteAllowed:false, playlistItemCount:source.playlistItems.length, episodeCount:source.episodes.length, unavailableItemCount:source.unavailableItems.length, otherSkippedCount:source.skippedOther.length, unavailableItems:source.unavailableItems, skippedOther:source.skippedOther };
+  Logger.log("id: " + summary.id + "/" + source.episodes.length);
+  Logger.log("name: " + summary.name + "/" + source.episodes.length);
+  Logger.log("description: " + summary.description + "/" + source.episodes.length);
+  Logger.log("html_description: " + summary.htmlDescription + "/" + source.episodes.length);
+  Logger.log("show: " + summary.show + "/" + source.episodes.length);
+  rows.forEach(function(row) {
+    if (!row.description || !row.htmlDescription) Logger.log("META #" + (row.index+1) + " | id=" + row.id + " name=" + row.name + " desc=" + row.description + " html=" + row.htmlDescription + " show=" + row.show + " | keys=" + row.keys.join(","));
+  });
+  return { dryRun:true, productionWriteAllowed:false, ruleKey:rule.key, playlistItemCount:source.playlistItems.length, episodeCount:source.episodes.length, unavailableItemCount:source.unavailableItems.length, summary:summary, rows:rows };
 }
+
+function diagnoseToyohideSpeakerSafeV2Metadata(){ return diagnoseSpeakerSafeV2Metadata_("toyohide"); }
+function diagnoseOtaSpeakerSafeV2Metadata(){ return diagnoseSpeakerSafeV2Metadata_("ota-masahiko"); }
+function diagnoseOtaSpeakerSafeV2SkippedItems(){ return diagnoseSpeakerSafeV2Metadata_("ota-masahiko"); }
 
 function dryRunSpeakerSafeV2(ruleKey) {
   const rule = getAutoPlaylistRuleByKey_(ruleKey);
@@ -84,7 +114,6 @@ function compareOtaLegacyAndSpeakerSafeV2() {
   logSpeakerSafeV2SourceSummary_(source);
   Logger.log("same: " + counts.same + " / different: " + counts.different);
   Logger.log("REGRESSION: " + (regressionPassed ? "PASS" : "REVIEW"));
-  mismatches.forEach(function(item){ Logger.log(item.legacy + " -> " + item.speakerSafeV2 + " | " + item.name); });
   return { dryRun:true, productionWriteAllowed:false, scope:"existing-playlist-only", playlistItemCount:source.playlistItems.length, episodeCount:source.episodes.length, unavailableItemCount:source.unavailableItems.length, otherSkippedCount:source.skippedOther.length, counts:counts, regressionPassed:regressionPassed, classificationExactMatch:counts.different===0, mismatches:mismatches, unavailableItems:source.unavailableItems, skippedOther:source.skippedOther };
 }
 
