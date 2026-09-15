@@ -1,35 +1,20 @@
 /* Desktop-only first-view compaction for 朝リスの輪.
    Mobile layout remains controlled by globals.css. */
 @media (min-width: 901px) {
-  header {
-    padding: 12px 0;
-  }
-
-  .nav {
-    gap: 12px;
-  }
-
-  .siteBrand {
-    gap: 9px;
-  }
-
-  .compactNotice {
-    margin-top: 4px;
-    margin-bottom: 6px;
-    padding-top: 4px;
-    padding-bottom: 4px;
-  }
+  header { padding: 12px 0; }
+  .nav { gap: 12px; }
+  .siteBrand { gap: 9px; }
+  .compactNotice { margin-top: 4px; margin-bottom: 6px; padding-top: 4px; padding-bottom: 4px; }
 
   .viewTabs {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 7px;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
     padding-bottom: 10px;
   }
-
   .viewTabs button {
     min-width: 0;
-    padding: 9px 7px;
-    font-size: 14px;
+    padding: 9px 5px;
+    font-size: 13px;
     line-height: 1.2;
     white-space: nowrap;
   }
@@ -42,258 +27,63 @@
   .viewTabs button:nth-child(6) { order: 5; }
   .viewTabs button:nth-child(3) { order: 6; }
 
-  main.official {
-    padding-top: 10px;
-  }
+  main.official { padding-top: 10px; }
+  main.wrap:not(.official):has(.themeHead) { padding-top: 14px; }
+  main.wrap:not(.official):has(.themeHead) .themeHead { margin-top: 0; margin-bottom: 14px; }
+  .recommendedPodcastPage { padding-top: 14px; }
+  .recommendedPodcastPage .themeHead { margin-top: 0; margin-bottom: 14px; }
+  .themeKicker { font-size: 13px; line-height: 1.2; }
+  .themeHead h2 { margin-top: 5px; }
 
-  /* Give the main desktop views one compact vertical rhythm below the tabs. */
-  main.wrap:not(.official):has(.themeHead) {
-    padding-top: 14px;
-  }
+  .officialHeading { margin-bottom: 12px; }
+  .officialTitle { margin: 0 0 5px; font-size: 13px; line-height: 1.2; letter-spacing: .08em; }
+  .officialTitle::after { content: "朝公式プレイリスト"; display: block; margin-top: 5px; color: #123d4d; font-size: 22px; line-height: 1.35; letter-spacing: 0; }
+  .officialIntro { margin: 0; }
 
-  main.wrap:not(.official):has(.themeHead) .themeHead {
-    margin-top: 0;
-    margin-bottom: 14px;
-  }
+  .officialGuide { margin: 8px 0 12px; padding: 12px 16px; }
+  .officialGuideTop { gap: 10px; }
+  .officialGuideKicker { margin: 0 0 1px; font-size: 12px; line-height: 1.15; }
+  .officialGuideTop h3 { margin: 0 0 2px; font-size: 1.1rem; }
+  .officialGuideTop p { font-size: 13px; line-height: 1.35; }
+  .officialGuideQuestion { margin-top: 8px; padding: 10px 14px 11px; }
+  .officialGuideQuestion small { font-size: 11px; line-height: 1.15; }
+  .officialGuideQuestion > p { margin: 4px auto 8px; font-size: 1.2rem; line-height: 1.3; }
+  .officialGuideButtons { gap: 9px; max-width: 600px; }
+  .officialGuideButtons button { min-height: 40px; border-radius: 11px; }
 
-  .recommendedPodcastPage {
-    padding-top: 14px;
-  }
+  .circlePage { padding-top: 14px; }
+  .circlePage > .rings:not(.discordPage) { margin-top: 0; padding: 22px 24px 24px; }
+  .circlePage > .rings:not(.discordPage) > div:first-child .kicker { margin: 0; font-size: 13px; line-height: 1.2; letter-spacing: .08em; }
+  .circlePage > .rings:not(.discordPage) > div:first-child h2 { margin: 5px 0 7px; font-size: 26px; line-height: 1.25; }
+  .circlePage > .rings:not(.discordPage) .circleIntro { margin: 0 0 16px; line-height: 1.55; }
+  .circlePage > .rings:not(.discordPage) .resourceGrid { gap: 10px; }
+  .circlePage > .rings:not(.discordPage) .resourceGrid a { padding: 14px 16px; gap: 5px; }
+  .circlePage > .rings:not(.discordPage) .resourceSectionLabel { margin-top: 4px; }
 
-  .recommendedPodcastPage .themeHead {
-    margin-top: 0;
-    margin-bottom: 14px;
-  }
+  .circlePage > .discordPage { margin-top: 0; padding: 18px 20px 20px; }
+  .circlePage > .discordPage .discordHub { margin-top: 0; padding: 16px 18px 18px; }
+  .circlePage > .discordPage .discordHubHead { gap: 10px; margin-bottom: 11px; }
+  .circlePage > .discordPage .discordHubHead > span { font-size: 28px; }
+  .circlePage > .discordPage .discordHubHead .kicker { font-size: 12px; line-height: 1.2; letter-spacing: .1em; }
+  .circlePage > .discordPage .discordHubHead h3 { margin-top: 3px; font-size: 21px; line-height: 1.25; }
+  .circlePage > .discordPage .discordLinkGrid { gap: 8px; }
+  .circlePage > .discordPage .discordLinkGrid a { min-height: 60px; padding: 10px 12px; }
+  .circlePage > .discordPage .discordLinkGrid i { font-size: 23px; }
 
-  .themeKicker {
-    font-size: 13px;
-    line-height: 1.2;
-  }
-
-  .themeHead h2 {
-    margin-top: 5px;
-  }
-
-  /* Official page: treat the English label as a kicker and make Japanese the
-     visual primary heading, matching the other main views. */
-  .officialHeading {
-    margin-bottom: 12px;
-  }
-
-  .officialTitle {
-    margin: 0 0 5px;
-    font-size: 13px;
-    line-height: 1.2;
-    letter-spacing: .08em;
-  }
-
-  .officialTitle::after {
-    content: "朝公式プレイリスト";
-    display: block;
-    margin-top: 5px;
-    color: #123d4d;
-    font-size: 22px;
-    line-height: 1.35;
-    letter-spacing: 0;
-  }
-
-  .officialIntro {
-    margin: 0;
-  }
-
-  /* Keep the YES/NO guide useful but compact enough that the featured
-     Sponge and Donut cards start appearing in the first desktop viewport. */
-  .officialGuide {
-    margin: 8px 0 12px;
-    padding: 12px 16px;
-  }
-
-  .officialGuideTop {
-    gap: 10px;
-  }
-
-  .officialGuideKicker {
-    margin: 0 0 1px;
-    font-size: 12px;
-    line-height: 1.15;
-  }
-
-  .officialGuideTop h3 {
-    margin: 0 0 2px;
-    font-size: 1.1rem;
-  }
-
-  .officialGuideTop p {
-    font-size: 13px;
-    line-height: 1.35;
-  }
-
-  .officialGuideQuestion {
-    margin-top: 8px;
-    padding: 10px 14px 11px;
-  }
-
-  .officialGuideQuestion small {
-    font-size: 11px;
-    line-height: 1.15;
-  }
-
-  .officialGuideQuestion > p {
-    margin: 4px auto 8px;
-    font-size: 1.2rem;
-    line-height: 1.3;
-  }
-
-  .officialGuideButtons {
-    gap: 9px;
-    max-width: 600px;
-  }
-
-  .officialGuideButtons button {
-    min-height: 40px;
-    border-radius: 11px;
-  }
-
-  /* あれどこ？: align the first view with the other main pages and bring
-     the resource cards closer to the tabs without changing their content. */
-  .circlePage {
-    padding-top: 14px;
-  }
-
-  .circlePage > .rings:not(.discordPage) {
-    margin-top: 0;
-    padding: 22px 24px 24px;
-  }
-
-  .circlePage > .rings:not(.discordPage) > div:first-child .kicker {
-    margin: 0;
-    font-size: 13px;
-    line-height: 1.2;
-    letter-spacing: .08em;
-  }
-
-  .circlePage > .rings:not(.discordPage) > div:first-child h2 {
-    margin: 5px 0 7px;
-    font-size: 26px;
-    line-height: 1.25;
-  }
-
-  .circlePage > .rings:not(.discordPage) .circleIntro {
-    margin: 0 0 16px;
-    line-height: 1.55;
-  }
-
-  .circlePage > .rings:not(.discordPage) .resourceGrid {
-    gap: 10px;
-  }
-
-  .circlePage > .rings:not(.discordPage) .resourceGrid a {
-    padding: 14px 16px;
-    gap: 5px;
-  }
-
-  .circlePage > .rings:not(.discordPage) .resourceSectionLabel {
-    margin-top: 4px;
-  }
-
-  /* Discord: use the same compact first-view rhythm as the other tabs while
-     keeping the distinctive Discord hub and all destination links intact. */
-  .circlePage > .discordPage {
-    margin-top: 0;
-    padding: 18px 20px 20px;
-  }
-
-  .circlePage > .discordPage .discordHub {
-    margin-top: 0;
-    padding: 16px 18px 18px;
-  }
-
-  .circlePage > .discordPage .discordHubHead {
-    gap: 10px;
-    margin-bottom: 11px;
-  }
-
-  .circlePage > .discordPage .discordHubHead > span {
-    font-size: 28px;
-  }
-
-  .circlePage > .discordPage .discordHubHead .kicker {
-    font-size: 12px;
-    line-height: 1.2;
-    letter-spacing: .1em;
-  }
-
-  .circlePage > .discordPage .discordHubHead h3 {
-    margin-top: 3px;
-    font-size: 21px;
-    line-height: 1.25;
-  }
-
-  .circlePage > .discordPage .discordLinkGrid {
-    gap: 8px;
-  }
-
-  .circlePage > .discordPage .discordLinkGrid a {
-    min-height: 60px;
-    padding: 10px 12px;
-  }
-
-  .circlePage > .discordPage .discordLinkGrid i {
-    font-size: 23px;
-  }
-
-  /* Final desktop pass: use one heading scale and one card geometry across
-     the six primary tabs so moving between views feels like one site. */
   .themeHead h2,
   .officialTitle::after,
-  .circlePage > .rings:not(.discordPage) > div:first-child h2 {
-    font-size: 26px;
-    line-height: 1.25;
-  }
-
-  .themeHead h2 {
-    margin: 5px 0 7px;
-  }
-
+  .circlePage > .rings:not(.discordPage) > div:first-child h2 { font-size: 26px; line-height: 1.25; }
+  .themeHead h2 { margin: 5px 0 7px; }
   .themeHead > p:last-child,
-  .officialIntro {
-    margin-top: 0;
-    margin-bottom: 0;
-    line-height: 1.55;
-  }
-
+  .officialIntro { margin-top: 0; margin-bottom: 0; line-height: 1.55; }
   .officialCard,
   .card,
   .resourceGrid a,
-  .discordLinkGrid a {
-    border-radius: 15px;
-  }
+  .discordLinkGrid a { border-radius: 15px; }
 
-  /* 朝リスト: keep search and sorting easy to scan, but reduce the desktop
-     control bar so the page heading and omikuji reach the first view sooner. */
-  .toolbar {
-    padding: 8px 0;
-  }
-
-  .toolbar .tools {
-    grid-template-columns: minmax(320px, 1fr) auto;
-    gap: 10px;
-    align-items: center;
-  }
-
-  .toolbar .tools > input {
-    padding: 9px 12px;
-    min-height: 42px;
-  }
-
-  .toolbar .sorts {
-    gap: 5px;
-    align-items: center;
-  }
-
-  .toolbar .sorts button {
-    padding: 8px 11px;
-    min-height: 42px;
-    line-height: 1.15;
-  }
+  .toolbar { padding: 8px 0; }
+  .toolbar .tools { grid-template-columns: minmax(320px, 1fr) auto; gap: 10px; align-items: center; }
+  .toolbar .tools > input { padding: 9px 12px; min-height: 42px; }
+  .toolbar .sorts { gap: 5px; align-items: center; }
+  .toolbar .sorts button { padding: 8px 11px; min-height: 42px; line-height: 1.15; }
 }
