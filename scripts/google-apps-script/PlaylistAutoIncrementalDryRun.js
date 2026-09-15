@@ -1,6 +1,6 @@
 // プレイリスト自動更新向けの汎用増分取得 dry-run v1
 // Spotifyプレイリスト・スプレッドシートへの書き込みは行わない。
-// UserPropertiesには AUTO_INCREMENTAL_V1_ 接頭辞の一時状態だけを保存する。
+// UserPropertiesには AUTO_INCREMENTAL_V1_ 接頭辞の軽量な進捗状態だけを保存する。
 
 const AUTO_INCREMENTAL_V1_PREFIX_ = "AUTO_INCREMENTAL_V1_";
 const AUTO_INCREMENTAL_V1_PAGES_PER_RUN_ = 2;
@@ -23,9 +23,9 @@ function dryRunAutoPlaylistIncrementalStep() {
       showIndex: 0,
       nextUrl: "",
       pagesFetched: 0,
+      episodeCount: 0,
       pendingBoundaries: {},
       boundaries: {},
-      newEpisodeIds: [],
       complete: false
     };
     saveAutoPlaylistIncrementalV1State_(props, state);
@@ -37,7 +37,6 @@ function dryRunAutoPlaylistIncrementalStep() {
   }
 
   let pagesThisRun = 0;
-  const newEpisodeSet = new Set(state.newEpisodeIds || []);
 
   while (pagesThisRun < AUTO_INCREMENTAL_V1_PAGES_PER_RUN_ && !state.complete) {
     if (state.showIndex >= state.showIds.length) {
@@ -93,6 +92,7 @@ function dryRunAutoPlaylistIncrementalStep() {
     }
 
     let reachedBoundary = false;
+    let pageEpisodeCount = 0;
     episodes.forEach(function(ep) {
       if (reachedBoundary) return;
       const id = String(ep && ep.id ? ep.id : "").trim();
@@ -103,10 +103,10 @@ function dryRunAutoPlaylistIncrementalStep() {
         return;
       }
 
-      newEpisodeSet.add(id);
+      pageEpisodeCount += 1;
     });
 
-    state.newEpisodeIds = Array.from(newEpisodeSet);
+    state.episodeCount = Number(state.episodeCount || 0) + pageEpisodeCount;
     state.pagesFetched += 1;
     pagesThisRun += 1;
 
@@ -135,7 +135,7 @@ function dryRunAutoPlaylistIncrementalStep() {
       " | show=" + Math.min(state.showIndex + 1, state.showIds.length) +
       "/" + state.showIds.length +
       " | pages=" + state.pagesFetched +
-      " | episodes=" + state.newEpisodeIds.length +
+      " | episodes=" + state.episodeCount +
       (state.complete ? " | complete" : "")
     );
   }
@@ -163,7 +163,7 @@ function dryRunAutoPlaylistIncrementalReport() {
   Logger.log("mode: " + state.mode);
   Logger.log("complete: " + state.complete);
   Logger.log("pagesFetched: " + state.pagesFetched);
-  Logger.log("取得エピソード数: " + (state.newEpisodeIds || []).length);
+  Logger.log("取得エピソード数: " + Number(state.episodeCount || 0));
   Logger.log("境界Show数: " + Object.keys(state.boundaries || {}).length + "/" + (state.showIds || []).length);
   Object.keys(state.boundaries || {}).forEach(function(showId) {
     Logger.log("boundary | " + showId + " | " + state.boundaries[showId]);
@@ -175,7 +175,7 @@ function dryRunAutoPlaylistIncrementalReport() {
     mode: state.mode,
     complete: state.complete,
     pagesFetched: state.pagesFetched,
-    episodeCount: (state.newEpisodeIds || []).length,
+    episodeCount: Number(state.episodeCount || 0),
     boundaries: state.boundaries || {}
   };
 }
@@ -194,9 +194,9 @@ function startNextAutoPlaylistIncrementalDryRun() {
     showIndex: 0,
     nextUrl: "",
     pagesFetched: 0,
+    episodeCount: 0,
     pendingBoundaries: {},
     boundaries: Object.assign({}, previous.boundaries || {}),
-    newEpisodeIds: [],
     complete: false
   };
   saveAutoPlaylistIncrementalV1State_(props, next);
