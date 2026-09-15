@@ -1,3 +1,13 @@
+/* Shared tab order after the series shelf tab is inserted.
+   朝公式 → 朝リスト（連載） → 朝リスト（その他） → ポ薦め → Discord → あれどこ？ → 他おすすめ */
+.viewTabs button:nth-child(1) { order: 1; }
+.viewTabs button[data-playlist-shelf-tab="series"] { order: 2; }
+.viewTabs button[data-playlist-shelf-tab="other"] { order: 3; }
+.viewTabs button:nth-child(6) { order: 4; }
+.viewTabs button:nth-child(4) { order: 5; }
+.viewTabs button:nth-child(5) { order: 6; }
+.viewTabs button:nth-child(7) { order: 7; }
+
 /* Desktop-only first-view compaction for 朝リスの輪.
    Mobile layout remains controlled by globals.css. */
 @media (min-width: 901px) {
@@ -18,15 +28,6 @@
     line-height: 1.2;
     white-space: nowrap;
   }
-
-  /* PC order: 朝公式 → 朝リスト（連載） → 朝リスト（その他） → Discord → あれどこ？ → ポ薦め → 他おすすめ */
-  .viewTabs button:nth-child(1) { order: 1; }
-  .viewTabs button:nth-child(2) { order: 2; }
-  .viewTabs button:nth-child(7) { order: 3; }
-  .viewTabs button:nth-child(3) { order: 4; }
-  .viewTabs button:nth-child(4) { order: 5; }
-  .viewTabs button:nth-child(5) { order: 6; }
-  .viewTabs button:nth-child(6) { order: 7; }
 
   main.official { padding-top: 10px; }
   main.wrap:not(.official):has(.themeHead) { padding-top: 14px; }
