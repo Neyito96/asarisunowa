@@ -3,6 +3,11 @@
 // unresolved / review / confirmed は削除対象にしない。
 // dryRunOtaMasahikoPlaylistRebuild() は Spotify への書き込みを行わない。
 
+const OTA_REBUILD_EXPECTED_PLAYLIST_ITEMS_ = 68;
+const OTA_REBUILD_EXPECTED_REMOVE_COUNT_ = 36;
+const OTA_REBUILD_EXPECTED_KEEP_COUNT_ = 22;
+const OTA_REBUILD_EXPECTED_PROTECTED_COUNT_ = 10;
+
 function buildOtaMasahikoPlaylistRebuildPlan_() {
   const props = PropertiesService.getUserProperties();
   const state = loadOtaMasahikoAuditV5State_(props);
@@ -47,7 +52,8 @@ function buildOtaMasahikoPlaylistRebuildPlan_() {
     remove: remove,
     keep: keep,
     protectedItems: protectedItems,
-    items: items
+    items: items,
+    token: token
   };
 }
 
@@ -77,5 +83,78 @@ function dryRunOtaMasahikoPlaylistRebuild() {
     protectedCount: plan.protectedItems.length,
     remove: plan.remove,
     protectedItems: plan.protectedItems
+  };
+}
+
+function assertOtaMasahikoPlaylistRebuildPlanSafe_(plan) {
+  if (plan.playlistItemCount !== OTA_REBUILD_EXPECTED_PLAYLIST_ITEMS_) {
+    throw new Error("安全停止: 既存項目数が監査時の68件と一致しません: " + plan.playlistItemCount);
+  }
+  if (plan.remove.length !== OTA_REBUILD_EXPECTED_REMOVE_COUNT_) {
+    throw new Error("安全停止: 削除候補が36件ではありません: " + plan.remove.length);
+  }
+  if (plan.keep.length !== OTA_REBUILD_EXPECTED_KEEP_COUNT_) {
+    throw new Error("安全停止: confirmedが22件ではありません: " + plan.keep.length);
+  }
+  if (plan.protectedItems.length !== OTA_REBUILD_EXPECTED_PROTECTED_COUNT_) {
+    throw new Error("安全停止: review/unresolvedが10件ではありません: " + plan.protectedItems.length);
+  }
+  if (plan.remove.some(function(item) { return item.classification !== "false_positive" || !item.uri; })) {
+    throw new Error("安全停止: false_positive以外、またはURIなしの削除候補があります");
+  }
+
+  const uniqueUris = Array.from(new Set(plan.remove.map(function(item) { return item.uri; })));
+  if (uniqueUris.length !== OTA_REBUILD_EXPECTED_REMOVE_COUNT_) {
+    throw new Error("安全停止: 削除候補URIが36件の一意なURIになっていません: " + uniqueUris.length);
+  }
+}
+
+function deleteOtaMasahikoConfirmedFalsePositives() {
+  const plan = buildOtaMasahikoPlaylistRebuildPlan_();
+  assertOtaMasahikoPlaylistRebuildPlanSafe_(plan);
+
+  Logger.log("=== OTA PLAYLIST REBUILD WRITE ===");
+  Logger.log("削除対象: false_positive 36件のみ");
+  Logger.log("保持: confirmed 22件 / review・unresolved 10件");
+
+  const url = "https://api.spotify.com/v1/playlists/" + encodeURIComponent(plan.playlistId) + "/items";
+  const tracks = plan.remove.map(function(item) {
+    return { uri: item.uri };
+  });
+
+  const response = UrlFetchApp.fetch(url, {
+    method: "delete",
+    contentType: "application/json",
+    muteHttpExceptions: true,
+    headers: {
+      Authorization: "Bearer " + plan.token,
+      Accept: "application/json"
+    },
+    payload: JSON.stringify({ tracks: tracks })
+  });
+
+  const status = response.getResponseCode();
+  Logger.log("Spotify delete status: " + status);
+  if (status < 200 || status >= 300) {
+    Logger.log(response.getContentText());
+    throw new Error("Spotify削除に失敗しました。status=" + status);
+  }
+
+  const afterItems = getAllSpotifyPlaylistItems_(plan.playlistId, plan.token);
+  Logger.log("削除前: " + plan.playlistItemCount);
+  Logger.log("削除成功: " + plan.remove.length);
+  Logger.log("削除後: " + afterItems.length);
+
+  if (afterItems.length !== 32) {
+    throw new Error("削除APIは成功しましたが、削除後件数が想定32件と一致しません: " + afterItems.length);
+  }
+
+  Logger.log("=== OTA PLAYLIST REBUILD COMPLETE ===");
+  Logger.log("false_positive 36件を削除し、32件を保持しました。");
+
+  return {
+    ok: true,
+    removed: plan.remove.length,
+    remaining: afterItems.length
   };
 }
