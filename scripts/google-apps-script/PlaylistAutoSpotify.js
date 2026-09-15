@@ -40,3 +40,48 @@ function getAllSpotifyPlaylistItems_(playlistId, token) {
 
   return allItems;
 }
+
+// Playlist Items APIが返すepisodeはdescription等が省略されることがある。
+// speaker-safe-v2で必要な場合だけepisode単体APIを呼び、全番組履歴走査を避ける。
+function hydrateSpotifyEpisodeForSpeakerSafeV2_(episode, token) {
+  if (!episode) return null;
+
+  const hasDescription = !!String(episode.description || episode.html_description || "").trim();
+  if (hasDescription) return episode;
+
+  const id = String(episode.id || "").trim();
+  if (!id) return episode;
+
+  const url = "https://api.spotify.com/v1/episodes/" + encodeURIComponent(id) + "?market=JP";
+  const response = fetchSpotifyReadWithRetry_(
+    url,
+    {
+      muteHttpExceptions: true,
+      headers: {
+        Authorization: "Bearer " + token,
+        Accept: "application/json"
+      }
+    },
+    "Episode " + id
+  );
+
+  const status = response.getResponseCode();
+  Logger.log("Episode detail status: " + status + " | " + id);
+  if (status !== 200) return episode;
+
+  try {
+    const detail = JSON.parse(response.getContentText());
+    if (!detail || !detail.id) return episode;
+    // 単体APIの完全なメタデータを優先。ただしplaylist側にしかない値は保持。
+    return Object.assign({}, episode, detail);
+  } catch (_) {
+    return episode;
+  }
+}
+
+function hydrateSpotifyEpisodesForSpeakerSafeV2_(episodes, token) {
+  const list = Array.isArray(episodes) ? episodes : [];
+  return list.map(function(episode) {
+    return hydrateSpotifyEpisodeForSpeakerSafeV2_(episode, token);
+  });
+}
