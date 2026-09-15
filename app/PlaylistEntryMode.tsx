@@ -17,20 +17,20 @@ const options: Array<{
   {
     value: "register",
     icon: "＋",
-    title: "二次プレイリストを登録",
-    description: "Spotify / YouTube Music のプレイリストを朝リストに追加",
+    title: "プレイリストを登録",
+    description: "Spotify / YouTube Musicで作ったプレイリストを、朝リスの輪に追加する",
   },
   {
     value: "registerAndAuto",
     icon: "＋🔄",
-    title: "登録 ＋ 自動更新",
-    description: "新しいSpotifyプレイリストを登録し、そのまま自動更新も申し込む",
+    title: "登録して自動で育てる",
+    description: "Spotifyプレイリストを登録して、条件に合う新しい回も自動で追加する",
   },
   {
     value: "autoExisting",
     icon: "🔄",
-    title: "登録済みを自動更新",
-    description: "朝リストにあるSpotifyプレイリストを、自動で育てる",
+    title: "今あるリストを自動で育てる",
+    description: "すでに登録されているSpotifyプレイリストに、条件に合う新しい回を自動で追加する",
   },
 ];
 
@@ -42,7 +42,7 @@ export default function PlaylistEntryModeSelector({
   return (
     <fieldset
       className="playlistEntryModeSelector"
-      aria-label="二次プレイリストの追加・自動更新メニュー"
+      aria-label="プレイリストの登録・自動更新メニュー"
       style={{
         display: "grid",
         gap: 10,
