@@ -29,7 +29,7 @@ const AUTO_PLAYLIST_RULES = [
     enabled: true,
     ruleType: AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_,
     name: "一緒に新聞をめくろう！",
-    showIds: ASAHI_PRIMARY_SHOW_IDS,
+    showIds: ["392h0MYfvMTndEVzf2cOvC"],
     playlistId: "4tY0lHoV8IemMBp4iTnKnl",
     keyword: "めくろう"
   },
