@@ -12,7 +12,7 @@ const SERIES_PLAYLIST_TITLES = new Set([
   "編集マニア",
   "8がけ社会",
   "朝日新聞社の歴史",
-  "バスクラ",
+  "バスケ通信―クラッチタイム（バスクラ）",
   "#きのどう「木下君、あの動画みた？」",
   "GLOBE CAST",
   "新聞社員の「楽屋裏」",
@@ -187,8 +187,12 @@ export default function PlaylistEntryModeBridge() {
         document.querySelectorAll<HTMLElement>(
           "main .playlistSubmit[aria-labelledby='playlist-submit-title'] form label > span",
         ),
-      ).find((element) => element.textContent?.trim() === "朝リスネーム");
-      if (makerLabel) makerLabel.textContent = "プレイリスト制作者名";
+      ).find((element) => ["朝リスネーム", "プレイリスト制作者名"].includes(element.textContent?.trim() ?? ""));
+      if (makerLabel) {
+        makerLabel.textContent = "プレイリスト制作者";
+        const makerInput = makerLabel.parentElement?.querySelector<HTMLInputElement>("input");
+        if (makerInput) makerInput.placeholder = "朝リスネーム または 朝日新聞ポッドキャスト";
+      }
     };
 
     const scheduleSync = () => {
