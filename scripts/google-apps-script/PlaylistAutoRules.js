@@ -38,7 +38,7 @@ const AUTO_PLAYLIST_RULES = [
     enabled: true,
     ruleType: AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_,
     name: "木下君、あの動画みた？ #きのどう",
-    showIds: ASAHI_PRIMARY_SHOW_IDS,
+    showIds: ["0yhef9ORZkUZs9ZeotdCSY"],
     playlistId: "6nDhZQG75F1wU62sdcYJMq",
     keyword: "動画みた？"
   },
