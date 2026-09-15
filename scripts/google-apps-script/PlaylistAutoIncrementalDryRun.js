@@ -3,17 +3,14 @@
 // UserPropertiesには AUTO_INCREMENTAL_V1_ 接頭辞の軽量な進捗状態だけを保存する。
 
 const AUTO_INCREMENTAL_V1_PREFIX_ = "AUTO_INCREMENTAL_V1_";
-const AUTO_INCREMENTAL_V1_PAGES_PER_RUN_ = 2;
+const AUTO_INCREMENTAL_V1_PAGES_PER_RUN_ = 1;
+const AUTO_INCREMENTAL_V1_COOLDOWN_FALLBACK_SECONDS_ = 3600;
+const AUTO_INCREMENTAL_V1_COOLDOWN_BUFFER_SECONDS_ = 60;
 
 function dryRunAutoPlaylistIncrementalStep() {
   const props = PropertiesService.getUserProperties();
   let state = loadAutoPlaylistIncrementalV1State_(props);
   const showIds = ASAHI_PRIMARY_SHOW_IDS.slice();
-  const token = getSpotifyUserAccessToken();
-
-  if (!token) {
-    throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
-  }
 
   if (!state) {
     state = {
@@ -26,6 +23,7 @@ function dryRunAutoPlaylistIncrementalStep() {
       episodeCount: 0,
       pendingBoundaries: {},
       boundaries: {},
+      retryNotBeforeMs: 0,
       complete: false
     };
     saveAutoPlaylistIncrementalV1State_(props, state);
@@ -34,6 +32,22 @@ function dryRunAutoPlaylistIncrementalStep() {
   if (state.complete) {
     Logger.log("増分dry-runは完了済みです。dryRunAutoPlaylistIncrementalReport を実行してください。");
     return state;
+  }
+
+  const now = Date.now();
+  const retryNotBeforeMs = Number(state.retryNotBeforeMs || 0);
+  if (retryNotBeforeMs > now) {
+    const remainingSeconds = Math.ceil((retryNotBeforeMs - now) / 1000);
+    Logger.log(
+      "Spotify cooldown中のためAPIアクセスせず停止しました | 残り約" +
+      remainingSeconds + "秒 | 再開目安=" + new Date(retryNotBeforeMs).toISOString()
+    );
+    return state;
+  }
+
+  const token = getSpotifyUserAccessToken();
+  if (!token) {
+    throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
   }
 
   let pagesThisRun = 0;
@@ -64,13 +78,17 @@ function dryRunAutoPlaylistIncrementalStep() {
     if (status === 429) {
       const headers = response.getAllHeaders ? response.getAllHeaders() : response.getHeaders();
       const retryAfter = headers["Retry-After"] || headers["retry-after"] || "";
+      const retryAfterSeconds = Math.max(0, Number(retryAfter) || 0);
+      const waitSeconds = retryAfterSeconds || AUTO_INCREMENTAL_V1_COOLDOWN_FALLBACK_SECONDS_;
+      state.retryNotBeforeMs = Date.now() +
+        (waitSeconds + AUTO_INCREMENTAL_V1_COOLDOWN_BUFFER_SECONDS_) * 1000;
       saveAutoPlaylistIncrementalV1State_(props, state);
       Logger.log(
         "Spotify 429: Show " + showId +
-        " | 状態を保存して停止しました" +
-        (retryAfter ? " | Retry-After=" + retryAfter + "秒" : "")
+        " | 状態とcooldownを保存して停止しました" +
+        (retryAfter ? " | Retry-After=" + retryAfter + "秒" : " | Retry-Afterなし")
       );
-      Logger.log("時間を置いて同じdry-run Stepを再実行してください。");
+      Logger.log("cooldown終了までは同じdry-run Stepを実行してもSpotify APIへアクセスしません。");
       return state;
     }
 
@@ -83,12 +101,14 @@ function dryRunAutoPlaylistIncrementalStep() {
       );
     }
 
+    state.retryNotBeforeMs = 0;
+
     const data = JSON.parse(response.getContentText());
     const episodes = Array.isArray(data.items) ? data.items : [];
 
     if (!state.nextUrl && episodes.length) {
-      const newestId = String(episodes[0] && episodes[0].id ? episodes[0].id : "").trim();
-      if (newestId) state.pendingBoundaries[showId] = newestId;
+      const headBoundaryId = String(episodes[0] && episodes[0].id ? episodes[0].id : "").trim();
+      if (headBoundaryId) state.pendingBoundaries[showId] = headBoundaryId;
     }
 
     let reachedBoundary = false;
@@ -149,6 +169,7 @@ function dryRunAutoPlaylistIncrementalStep() {
 function finishAutoPlaylistIncrementalV1Run_(state) {
   state.boundaries = Object.assign({}, state.boundaries || {}, state.pendingBoundaries || {});
   state.pendingBoundaries = {};
+  state.retryNotBeforeMs = 0;
   state.complete = true;
 }
 
@@ -159,11 +180,17 @@ function dryRunAutoPlaylistIncrementalReport() {
     throw new Error("増分dry-run状態がありません。先に dryRunAutoPlaylistIncrementalStep を実行してください。");
   }
 
+  const retryNotBeforeMs = Number(state.retryNotBeforeMs || 0);
+  const cooldownRemainingSeconds = retryNotBeforeMs > Date.now()
+    ? Math.ceil((retryNotBeforeMs - Date.now()) / 1000)
+    : 0;
+
   Logger.log("=== AUTO PLAYLIST INCREMENTAL DRY RUN V1 ===");
   Logger.log("mode: " + state.mode);
   Logger.log("complete: " + state.complete);
   Logger.log("pagesFetched: " + state.pagesFetched);
   Logger.log("取得エピソード数: " + Number(state.episodeCount || 0));
+  Logger.log("cooldown残り秒: " + cooldownRemainingSeconds);
   Logger.log("境界Show数: " + Object.keys(state.boundaries || {}).length + "/" + (state.showIds || []).length);
   Object.keys(state.boundaries || {}).forEach(function(showId) {
     Logger.log("boundary | " + showId + " | " + state.boundaries[showId]);
@@ -176,6 +203,7 @@ function dryRunAutoPlaylistIncrementalReport() {
     complete: state.complete,
     pagesFetched: state.pagesFetched,
     episodeCount: Number(state.episodeCount || 0),
+    cooldownRemainingSeconds: cooldownRemainingSeconds,
     boundaries: state.boundaries || {}
   };
 }
@@ -197,6 +225,7 @@ function startNextAutoPlaylistIncrementalDryRun() {
     episodeCount: 0,
     pendingBoundaries: {},
     boundaries: Object.assign({}, previous.boundaries || {}),
+    retryNotBeforeMs: 0,
     complete: false
   };
   saveAutoPlaylistIncrementalV1State_(props, next);
