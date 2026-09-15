@@ -10,23 +10,43 @@ function getPostTargetSheet_(kind, workSheet, podcastSheet, listenerPodcastSheet
 
 function appendPostRow_(targetSheet, kind, url, title, maker, introducedDate, comment, artwork) {
   if (kind === "listenerPodcast") {
-    const provider = detectProvider(url);
+    // 投稿された1本のURLを起点に、既存の安全な補完処理を使って
+    // 確認できた配信先だけ保存する。補完に失敗しても投稿自体は継続する。
+    let platforms = null;
+    try {
+      platforms = resolveListenerPodcastPlatforms_(title, maker, url);
+    } catch (_) {
+      platforms = null;
+    }
+
+    const resolved = platforms || {
+      spotify: "",
+      apple: "",
+      listen: "",
+      standfm: "",
+      amazon: "",
+      youtube: "",
+      website: "",
+      artwork: ""
+    };
+
+    // 入力URLは必ず既知URLとして反映する。
+    applyKnownPodcastUrl_(resolved, url);
+
     targetSheet.appendRow([
       url,
       title,
       maker,
       introducedDate || "",
       comment,
-      provider === "Spotify" ? url : "",
-      provider === "Apple Podcasts" ? url : "",
-      provider === "LISTEN" ? url : "",
-      provider === "stand.fm" ? url : "",
-      provider === "Amazon Music" ? url : "",
-      provider === "YouTube" ? url : "",
-      provider && provider !== "Spotify" && provider !== "Apple Podcasts" &&
-        provider !== "LISTEN" && provider !== "stand.fm" &&
-        provider !== "Amazon Music" && provider !== "YouTube" ? url : "",
-      artwork || ""
+      resolved.spotify || "",
+      resolved.apple || "",
+      resolved.listen || "",
+      resolved.standfm || "",
+      resolved.amazon || "",
+      resolved.youtube || "",
+      resolved.website || "",
+      resolved.artwork || artwork || ""
     ]);
     return;
   }
