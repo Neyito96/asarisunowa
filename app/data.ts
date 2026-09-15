@@ -16,7 +16,7 @@ const rows:[string,string,string|null,string|null][] = [
     "#ふな 冨名腰隆　旧【報談】",
     "NEYITO",
     "https://open.spotify.com/playlist/48tpuTjiqGdJrvkX8R1OkI",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e"
   ],
   [
     "議員になんでも聞いてみよう　秋山訓子の政治家インタビュー",
@@ -34,7 +34,7 @@ const rows:[string,string,string|null,string|null][] = [
     "東日本大震災",
     "cobaltore12",
     "https://open.spotify.com/playlist/4nptiHJbbsjKS37kykLkNF",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694"
   ],
   [
     "お坊さんに聞け",
@@ -202,7 +202,7 @@ const rows:[string,string,string|null,string|null][] = [
     "メディアを語る　伊藤大地x奥山晶二郎x神田大介",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/2lA13BSsvyLjq9iPFa6oDo",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84996d7c4cc61163a9b6ed71d9"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84996d7c4cc61163a9b6ed71d9"
   ],
   [
     "朝ポキ制作会議！　皆さんもご参加ください",
@@ -268,13 +268,13 @@ const rows:[string,string,string|null,string|null][] = [
     "楽屋裏2023　厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/0I9wCLs5oFLNIG1aPLQneg",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32"
   ],
   [
     "バスケ通信―クラッチタイム（バスクラ）",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/3axOpfDhMhLEtelwGwvMHb",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244"
   ],
   [
     "音でよみがえる甲子園",
@@ -352,7 +352,7 @@ const rows:[string,string,string|null,string|null][] = [
     "#初登場特集（#朝ポキ）",
     "koike",
     "https://open.spotify.com/playlist/3WLp56ohdZs2AqDoUwNNWd",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef"
   ],
   [
     "8がけ社会",
