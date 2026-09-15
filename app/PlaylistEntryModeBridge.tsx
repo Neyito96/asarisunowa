@@ -69,7 +69,7 @@ export default function PlaylistEntryModeBridge() {
         mount = document.createElement("section");
         mount.id = "playlist-entry-mode-host";
         mount.className = "playlistSubmit";
-        mount.setAttribute("aria-label", "二次プレイリストを追加・育てる");
+        mount.setAttribute("aria-label", "プレイリストを登録・自動更新する");
         registerSection.parentElement?.insertBefore(mount, registerSection);
       }
 
@@ -280,10 +280,10 @@ export default function PlaylistEntryModeBridge() {
             <div>
               <div className="playlistSubmitHead">
                 <div>
-                  <p className="kicker">SECONDARY PLAYLISTS</p>
-                  <h3>二次プレイリストを追加・育てる</h3>
+                  <p className="kicker">GROW YOUR PLAYLIST</p>
+                  <h3>🌱 リストを育てる！</h3>
                   <p>
-                    朝公式の番組・一次プレイリストをもとに、テーマや出演者ごとの二次プレイリストを育てます。
+                    朝日新聞ポッドキャストのエピソードを、シリーズ・出演者・テーマなど、自分の好きな切り口でまとめたプレイリストを登録できます。Spotifyなら、条件に合う新しい回を探して自動で追加することもできます。
                   </p>
                   <PlaylistEntryModeSelector value={mode} onChange={setMode} />
                 </div>
@@ -299,11 +299,11 @@ export default function PlaylistEntryModeBridge() {
               type="button"
               className="playlistManagerSortButton"
               onClick={jumpToManagerForm}
-              aria-label="プレイリスト管理者向け・自動更新申請へ"
-              title="プレイリスト管理者向け"
+              aria-label="リストを育てるメニューへ"
+              title="プレイリストを登録・自動更新"
               style={{ marginLeft: "auto", borderColor: "#cc4b78", color: "#0b5874", fontWeight: 800 }}
             >
-              ⚙️ プレイリスト管理者
+              🌱 リストを育てる！
             </button>,
             sortHost,
           )
