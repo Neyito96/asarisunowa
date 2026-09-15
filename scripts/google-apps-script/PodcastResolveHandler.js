@@ -61,20 +61,38 @@ function handlePodcastResolve_(e, callback) {
     resolvePodcastUrl(url);
 
   if (resolved && resolved.ok && targetSheet) {
-    const duplicate =
-      findPodcastDuplicate(
-        targetSheet,
-        url,
-        resolved.title || ""
-      );
+    if (kind === "listenerPodcast") {
+      // ポ薦めは、別プラットフォームのURLでも
+      // 番組タイトル＋配信者を使って同一番組を判定する。
+      const identityDuplicate =
+        findListenerPodcastDuplicateByIdentityInSheet_(targetSheet, resolved);
 
-    if (duplicate) {
-      resolved.duplicate = true;
-      resolved.duplicateId = duplicate.id;
-      resolved.duplicateReason =
-        duplicate.titleMatch ? "title" : "url";
+      if (identityDuplicate) {
+        resolved.duplicate = true;
+        resolved.duplicateId = identityDuplicate.id;
+        resolved.duplicateReason = "identity";
+        resolved.duplicateTitle = identityDuplicate.title;
+        resolved.duplicateMaker = identityDuplicate.maker || "";
+      } else {
+        resolved.duplicate = false;
+      }
     } else {
-      resolved.duplicate = false;
+      // 従来のおすすめPodcastは既存挙動を変えない。
+      const duplicate =
+        findPodcastDuplicate(
+          targetSheet,
+          url,
+          resolved.title || ""
+        );
+
+      if (duplicate) {
+        resolved.duplicate = true;
+        resolved.duplicateId = duplicate.id;
+        resolved.duplicateReason =
+          duplicate.titleMatch ? "title" : "url";
+      } else {
+        resolved.duplicate = false;
+      }
     }
   }
 
