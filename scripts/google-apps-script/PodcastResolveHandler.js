@@ -14,10 +14,7 @@ function handlePodcastResolve_(e, callback) {
       : "listenerPodcast";
 
   if (!url) {
-    return apiResponse({
-      ok: false,
-      error: "URLを入力してください"
-    }, callback);
+    return apiResponse({ ok: false, error: "URLを入力してください" }, callback);
   }
 
   if (kind !== "podcast" && kind !== "listenerPodcast") {
@@ -27,22 +24,31 @@ function handlePodcastResolve_(e, callback) {
     }, callback);
   }
 
-  const ssForResolve =
-    SpreadsheetApp.openById(SPREADSHEET_ID);
+  const ssForResolve = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const targetSheetName = kind === "podcast" ? PODCAST_SHEET_NAME : LISTENER_PODCAST_SHEET_NAME;
+  const targetSheet = getSheetLoose(ssForResolve, targetSheetName);
 
-  const targetSheetName =
-    kind === "podcast"
-      ? PODCAST_SHEET_NAME
-      : LISTENER_PODCAST_SHEET_NAME;
+  if (kind === "listenerPodcast" && targetSheet) {
+    // A列だけでなく、Spotify / Apple / LISTEN / stand.fm / Amazon / YouTube / 公式サイトも照合する。
+    const knownPlatform = findListenerPodcastDuplicateByAnyUrlInSheet_(targetSheet, [url]);
+    if (knownPlatform) {
+      return apiResponse({
+        ok: true,
+        title: knownPlatform.title,
+        maker: knownPlatform.maker || "",
+        artwork: "",
+        provider: detectProvider(url),
+        duplicate: true,
+        duplicateId: knownPlatform.id,
+        duplicateReason: "platform_url",
+        duplicateTitle: knownPlatform.title,
+        duplicateMaker: knownPlatform.maker || "",
+        url: url
+      }, callback);
+    }
+  }
 
-  const targetSheet =
-    getSheetLoose(ssForResolve, targetSheetName);
-
-  const known =
-    targetSheet
-      ? findPodcastDuplicate(targetSheet, url, "")
-      : null;
-
+  const known = targetSheet ? findPodcastDuplicate(targetSheet, url, "") : null;
   if (known && known.urlMatch) {
     return apiResponse({
       ok: true,
@@ -57,48 +63,53 @@ function handlePodcastResolve_(e, callback) {
     }, callback);
   }
 
-  const resolved =
-    resolvePodcastUrl(url);
+  const resolved = resolvePodcastUrl(url);
 
   if (resolved && resolved.ok && targetSheet) {
     if (kind === "listenerPodcast") {
-      // ポ薦めは、別プラットフォームのURLでも
-      // 番組タイトル＋配信者を使って同一番組を判定する。
-      const identityDuplicate =
-        findListenerPodcastDuplicateByIdentityInSheet_(targetSheet, resolved);
-
-      if (identityDuplicate) {
-        resolved.duplicate = true;
-        resolved.duplicateId = identityDuplicate.id;
-        resolved.duplicateReason = "identity";
-        resolved.duplicateTitle = identityDuplicate.title;
-        resolved.duplicateMaker = identityDuplicate.maker || "";
-      } else {
-        resolved.duplicate = false;
-      }
-    } else {
-      // 従来のおすすめPodcastは既存挙動を変えない。
-      const duplicate =
-        findPodcastDuplicate(
-          targetSheet,
-          url,
-          resolved.title || ""
+      // まず、入力URLから確認できる他配信先も含めて既存行と照合する。
+      let discovered = null;
+      try {
+        discovered = resolveListenerPodcastPlatforms_(
+          resolved.title || "",
+          resolved.maker || resolved.author || resolved.publisher || "",
+          url
         );
+      } catch (_) {
+        discovered = null;
+      }
+
+      const platformDuplicate = findListenerPodcastDuplicateByAnyUrlInSheet_(
+        targetSheet,
+        [url].concat(podcastPlatformUrlsFromResolved_(discovered))
+      );
+
+      const identityDuplicate = platformDuplicate
+        ? null
+        : findListenerPodcastDuplicateByIdentityInSheet_(targetSheet, resolved);
+      const duplicate = platformDuplicate || identityDuplicate;
 
       if (duplicate) {
         resolved.duplicate = true;
         resolved.duplicateId = duplicate.id;
-        resolved.duplicateReason =
-          duplicate.titleMatch ? "title" : "url";
+        resolved.duplicateReason = platformDuplicate ? "platform_url" : "identity";
+        resolved.duplicateTitle = duplicate.title;
+        resolved.duplicateMaker = duplicate.maker || "";
+      } else {
+        resolved.duplicate = false;
+      }
+    } else {
+      const duplicate = findPodcastDuplicate(targetSheet, url, resolved.title || "");
+      if (duplicate) {
+        resolved.duplicate = true;
+        resolved.duplicateId = duplicate.id;
+        resolved.duplicateReason = duplicate.titleMatch ? "title" : "url";
       } else {
         resolved.duplicate = false;
       }
     }
   }
 
-  if (resolved && resolved.ok) {
-    resolved.url = url;
-  }
-
+  if (resolved && resolved.ok) resolved.url = url;
   return apiResponse(resolved, callback);
 }

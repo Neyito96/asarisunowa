@@ -25,7 +25,6 @@ function podcastIdentityMatch_(left, right) {
     return { duplicate: false, candidate: false, reason: "" };
   }
 
-  // タイトルと配信者の両方が取れて一致したときだけ、同一番組を確定する。
   if (a.maker && b.maker) {
     return {
       duplicate: a.maker === b.maker,
@@ -34,7 +33,6 @@ function podcastIdentityMatch_(left, right) {
     };
   }
 
-  // 配信者情報が片方でも欠ける場合、タイトル一致だけでは確定しない。
   return { duplicate: false, candidate: true, reason: "title_only" };
 }
 
@@ -50,21 +48,76 @@ function findPodcastDuplicateByIdentity_(items, resolved) {
   return null;
 }
 
+function canonicalPodcastIdentityUrl_(value) {
+  const raw = String(value || "").trim();
+  if (!/^https?:\/\//i.test(raw)) return "";
+  try {
+    const parsed = new URL(raw);
+    parsed.search = "";
+    parsed.hash = "";
+    let normalized = parsed.toString();
+    if (normalized.endsWith("/")) normalized = normalized.slice(0, -1);
+    return normalized.toLowerCase();
+  } catch (_) {
+    return raw.replace(/[?#].*$/, "").replace(/\/$/, "").toLowerCase();
+  }
+}
+
+function listenerPodcastRowFromValues_(row, index) {
+  return {
+    id: String(index + 1).padStart(2, "0"),
+    url: String(row[0] || "").trim(),
+    title: String(row[1] || "").trim(),
+    maker: String(row[2] || "").trim(),
+    urls: [row[0], row[5], row[6], row[7], row[8], row[9], row[10], row[11]]
+      .map(canonicalPodcastIdentityUrl_)
+      .filter(Boolean)
+  };
+}
+
+function findListenerPodcastDuplicateByAnyUrlInSheet_(sheet, urls) {
+  if (!sheet) return null;
+
+  const wanted = (Array.isArray(urls) ? urls : [urls])
+    .map(canonicalPodcastIdentityUrl_)
+    .filter(Boolean);
+  if (!wanted.length) return null;
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return null;
+
+  const values = sheet.getRange(2, 1, lastRow - 1, 12).getDisplayValues();
+  for (var i = 0; i < values.length; i += 1) {
+    const item = listenerPodcastRowFromValues_(values[i], i);
+    if (item.urls.some(function(url) { return wanted.indexOf(url) >= 0; })) {
+      return item;
+    }
+  }
+  return null;
+}
+
+function podcastPlatformUrlsFromResolved_(resolved) {
+  const source = resolved || {};
+  return [
+    source.url,
+    source.spotify,
+    source.apple,
+    source.listen,
+    source.standfm,
+    source.amazon,
+    source.youtube,
+    source.website
+  ].filter(Boolean);
+}
+
 function findListenerPodcastDuplicateByIdentityInSheet_(sheet, resolved) {
   if (!sheet || !resolved || !resolved.title) return null;
 
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return null;
 
-  const values = sheet.getRange(2, 1, lastRow - 1, 3).getDisplayValues();
-  const items = values.map(function(row, index) {
-    return {
-      id: String(index + 1).padStart(2, "0"),
-      url: String(row[0] || "").trim(),
-      title: String(row[1] || "").trim(),
-      maker: String(row[2] || "").trim()
-    };
-  });
+  const values = sheet.getRange(2, 1, lastRow - 1, 12).getDisplayValues();
+  const items = values.map(listenerPodcastRowFromValues_);
 
   return findPodcastDuplicateByIdentity_(items, resolved);
 }
