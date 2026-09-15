@@ -43,8 +43,27 @@ function testAutoPlaylistSafetyPureFunctions() {
     throw new Error("speaker が概要欄の出演者名を検出できません");
   }
 
+  const seriesPlan = buildAutoPlaylistRequestPlan_({ updateType: "series" });
+  if (seriesPlan.ruleType !== AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_ || !seriesPlan.supported) {
+    throw new Error("フォームのseriesがtitle-textへ正規化されません");
+  }
+
+  const speakerPlan = buildAutoPlaylistRequestPlan_({ updateType: "speaker" });
+  if (speakerPlan.ruleType !== AUTO_PLAYLIST_RULE_TYPE_SPEAKER_ || !speakerPlan.supported) {
+    throw new Error("フォームのspeakerがspeakerへ正規化されません");
+  }
+
+  const themePrepared = prepareAutoPlaylistRuleCandidate_({
+    updateType: "theme",
+    title: "テーマ申請テスト",
+    keywords: "中東"
+  });
+  if (themePrepared.requestPlan.supported || themePrepared.validation.valid) {
+    throw new Error("仕様未確定のtheme申請が自動構築可能になっています");
+  }
+
   const requestCandidate = buildAutoPlaylistRuleCandidateFromRequest_({
-    updateType: AUTO_PLAYLIST_RULE_TYPE_SPEAKER_,
+    updateType: "speaker",
     title: "申請テスト",
     keywords: "山田太郎、山田 太郎"
   });

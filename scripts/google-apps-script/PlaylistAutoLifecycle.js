@@ -23,22 +23,48 @@ function isAutoPlaylistProductionReady_(status) {
   return String(status || "") === AUTO_PLAYLIST_LIFECYCLE_.INCREMENTAL;
 }
 
+function normalizeAutoPlaylistRequestRuleType_(value) {
+  const requestedType = String(value || "").trim().toLowerCase();
+
+  if (
+    requestedType === "series" ||
+    requestedType === AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_
+  ) {
+    return AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_;
+  }
+
+  if (requestedType === "speaker") {
+    return AUTO_PLAYLIST_RULE_TYPE_SPEAKER_;
+  }
+
+  // theme はタイトルだけを見るか概要欄も見るかの仕様が未確定。
+  // 安全のため title-text へ黙って変換せず、未対応として止める。
+  if (requestedType === "theme") {
+    return "unsupported-theme";
+  }
+
+  return "unsupported";
+}
+
 function buildAutoPlaylistRequestPlan_(request) {
   const source = request || {};
   const requestedType = String(source.ruleType || source.updateType || "").trim();
-  const ruleType = requestedType === AUTO_PLAYLIST_RULE_TYPE_SPEAKER_
-    ? AUTO_PLAYLIST_RULE_TYPE_SPEAKER_
-    : AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_;
+  const ruleType = normalizeAutoPlaylistRequestRuleType_(requestedType);
+  const supported =
+    ruleType === AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_ ||
+    ruleType === AUTO_PLAYLIST_RULE_TYPE_SPEAKER_;
 
   return {
     dryRun: true,
     status: AUTO_PLAYLIST_LIFECYCLE_.REQUESTED,
     statusLabel: getAutoPlaylistLifecycleLabel_(AUTO_PLAYLIST_LIFECYCLE_.REQUESTED),
+    requestedType: requestedType,
     ruleType: ruleType,
+    supported: supported,
     playlistUrl: String(source.url || "").trim(),
     playlistTitle: String(source.title || "").trim(),
     keywords: String(source.keywords || "").trim(),
-    nextStep: "bootstrap",
+    nextStep: supported ? "bootstrap" : "manual-review",
     productionWriteAllowed: false
   };
 }

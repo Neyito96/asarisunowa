@@ -21,7 +21,8 @@ function buildAutoPlaylistRuleCandidateFromRequest_(request) {
     playlistId: "",
     showIds: ASAHI_PRIMARY_SHOW_IDS.slice(),
     keywords: keywords,
-    productionWriteAllowed: false
+    productionWriteAllowed: false,
+    requestSupported: plan.supported === true
   };
 
   if (plan.ruleType === AUTO_PLAYLIST_RULE_TYPE_SPEAKER_) {
@@ -36,12 +37,25 @@ function buildAutoPlaylistRuleCandidateFromRequest_(request) {
 }
 
 function prepareAutoPlaylistRuleCandidate_(request) {
+  const plan = buildAutoPlaylistRequestPlan_(request || {});
   const candidate = buildAutoPlaylistRuleCandidateFromRequest_(request);
+  const validation = validateAutoPlaylistRule_(candidate);
+
+  if (!plan.supported) {
+    validation.valid = false;
+    validation.errors.push(
+      "申請方式 " + String(plan.requestedType || "(未指定)") + " は自動ルール化の仕様確認が必要です"
+    );
+  }
+
   return {
     dryRun: true,
+    requestPlan: plan,
     candidate: candidate,
-    validation: validateAutoPlaylistRule_(candidate),
+    validation: validation,
     productionWriteAllowed: false,
-    note: "key と playlistId を管理者が確定し、bootstrap・reviewを完了するまで本番有効化しません"
+    note: plan.supported
+      ? "key と playlistId を管理者が確定し、bootstrap・reviewを完了するまで本番有効化しません"
+      : "未対応の申請方式は自動構築せず、管理者確認へ送ります"
   };
 }
