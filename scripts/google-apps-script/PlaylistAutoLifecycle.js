@@ -37,10 +37,8 @@ function normalizeAutoPlaylistRequestRuleType_(value) {
     return AUTO_PLAYLIST_RULE_TYPE_SPEAKER_;
   }
 
-  // theme はタイトルだけを見るか概要欄も見るかの仕様が未確定。
-  // 安全のため title-text へ黙って変換せず、未対応として止める。
   if (requestedType === "theme") {
-    return "unsupported-theme";
+    return AUTO_PLAYLIST_RULE_TYPE_THEME_;
   }
 
   return "unsupported";
@@ -52,7 +50,8 @@ function buildAutoPlaylistRequestPlan_(request) {
   const ruleType = normalizeAutoPlaylistRequestRuleType_(requestedType);
   const supported =
     ruleType === AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_ ||
-    ruleType === AUTO_PLAYLIST_RULE_TYPE_SPEAKER_;
+    ruleType === AUTO_PLAYLIST_RULE_TYPE_SPEAKER_ ||
+    ruleType === AUTO_PLAYLIST_RULE_TYPE_THEME_;
 
   return {
     dryRun: true,
