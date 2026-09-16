@@ -117,6 +117,16 @@ function testNewAutoPlaylistRuleCandidatesPure() {
     throw new Error("佐藤陽記者と同席者が話す出演回を検出できません");
   }
 
+  const rolePrefixedSato = {
+    name: "記者が語る取材の現場",
+    uri: "spotify:episode:sato-role-prefixed",
+    description: "【出演】\n（朝日新聞記者）佐藤陽",
+    html_description: ""
+  };
+  if (!matchesAutoPlaylistRule_(rolePrefixedSato, satoYo)) {
+    throw new Error("出演欄の役職付き佐藤陽記者を検出できません");
+  }
+
   const announcementOnly = {
     name: "別の出演者による回",
     uri: "spotify:episode:sato-announcement",
