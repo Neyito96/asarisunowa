@@ -9,9 +9,11 @@
 .viewTabs button:nth-child(7) { order: 7; }
 
 /* Playlist numbers remain internal IDs for sorting/listened state/data matching,
-   but are no longer shown on the public playlist cards. */
-#playlist-results .listenerCardBody > small:first-child {
-  display: none;
+   but are no longer shown anywhere in the public playlist UI. */
+#playlist-results .listenerCardBody > small:first-child,
+#playlist-results .cardBody > small:first-child,
+.omikujiMeta > small:first-child {
+  display: none !important;
 }
 
 /* Desktop-only first-view compaction for 朝リスの輪.
