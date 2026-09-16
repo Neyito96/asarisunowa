@@ -4,7 +4,7 @@ import "./globals.css";
 import "./desktop-top-nav.css";
 
 export const metadata: Metadata = {
-  title: "朝リスの輪 or 朝リスの田｜朝ポキと朝リスの遊び場",
+  title: "朝日新聞ポッドキャスト案内所「朝リスの田」",
   description:
     "公式番組と朝リスのおすすめがつながる、朝ポキのプレイリスト案内所。",
   other: { "codex-preview": "development" },
