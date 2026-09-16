@@ -136,9 +136,13 @@ export default function PlaylistCombinedAutoForm() {
         <span>{updateType === "series" ? "連載・シリーズ名／キーワード" : updateType === "speaker" ? "出演者名" : "テーマのキーワード"}</span>
         <textarea value={keywords} onChange={(event) => setKeywords(event.target.value)} placeholder={updateType === "series" ? "例：めくろう\n一緒に新聞をめくろう" : updateType === "speaker" ? "例：宮沢賢一" : "例：中東\nイスラエル\nパレスチナ\nイラン"} rows={updateType === "speaker" ? 2 : 3} required />
       </label>
+      <div className="autoUpdateCommonRule">
+        <b>自動更新について</b>
+        <p>不足している回を追加し、以後は新着回を自動で追加します。</p>
+      </div>
       <label>
         <span>更新ルール・補足 <small>（任意）</small></span>
-        <textarea value={ruleNote} onChange={(event) => setRuleNote(event.target.value)} placeholder="例：新着回だけ追加。再配信や予告編は除外。" rows={3} />
+        <textarea value={ruleNote} onChange={(event) => setRuleNote(event.target.value)} placeholder="標準の自動更新と違う希望があれば入力してください" rows={3} />
       </label>
       <label>
         <span>セキュリティ：神田さんの名は？</span>
