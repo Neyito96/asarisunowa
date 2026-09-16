@@ -1000,7 +1000,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       setAutoUpdateMessage("合言葉が違います。「神田さんの名は？」をもう一度どうぞ。");
       return;
     }
-    if (!isSpotifyCollaborativeInviteUrl(autoUpdateInviteUrl)) {
+    if (!isSpotifyCollaborativeInviteUrl(autoUpdateInviteUrl, selected.url)) {
       setAutoUpdateStatus("error");
       setAutoUpdateMessage("Spotifyの「共同編集者を招待」で発行したURLを貼ってください。");
       return;
