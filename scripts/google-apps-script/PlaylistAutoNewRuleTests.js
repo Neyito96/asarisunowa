@@ -19,6 +19,10 @@ function testNewAutoPlaylistRuleCandidatesPure() {
     }
   });
 
+  if (noMirai.fetchAllPages !== true) {
+    throw new Error("ノーミライの全ページ取得が無効です");
+  }
+
   if (!matchesAutoPlaylistRule_({
     name: "（ノーミライ #1）犬がキャンと鳴いた、というお話",
     description: "",
@@ -75,6 +79,15 @@ function testNewAutoPlaylistRuleCandidatesPure() {
   };
   if (matchesAutoPlaylistRule_(titleOnly, satoYo)) {
     throw new Error("概要欄で出演確認できない佐藤陽タイトルを誤採用しました");
+  }
+
+  const unrelatedHeadingAfterCast = {
+    name: "別の出演者による回",
+    description: "【出演】\n山田太郎\n【今回のテーマ】\n佐藤陽記者の仕事を紹介します。",
+    html_description: ""
+  };
+  if (matchesAutoPlaylistRule_(unrelatedHeadingAfterCast, satoYo)) {
+    throw new Error("佐藤陽さんを別見出し後も出演者として誤採用しました");
   }
 
   Logger.log("New auto playlist rule candidates pure tests: PASS");
