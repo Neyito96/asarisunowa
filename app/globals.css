@@ -1609,6 +1609,16 @@ footer {
   white-space: nowrap;
 }
 
+.siteBrandPortraitBreak {
+  display: none;
+}
+
+@media (max-width: 780px) and (orientation: portrait) {
+  .siteBrandPortraitBreak {
+    display: block;
+  }
+}
+
 @media (max-width: 780px) {
   .siteBrand {
     gap: 5px;
