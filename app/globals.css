@@ -1615,8 +1615,11 @@ footer {
   }
 
   .siteBrand span {
-    font-size: clamp(12px, 3.4vw, 15px);
+    max-width: 58vw;
+    font-size: clamp(11px, 3vw, 14px);
+    line-height: 1.25;
     letter-spacing: 0;
+    white-space: normal;
   }
 
   .siteBrand .brandMark {

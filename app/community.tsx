@@ -1108,7 +1108,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               alt=""
               aria-hidden="true"
             />
-            <span>朝リスの輪 or 朝リスの田</span>
+            <span>朝日新聞ポッドキャスト案内所「朝リスの田」</span>
           </b>
           <a
             href="https://www.asahi.com/special/podcasts/"
@@ -1860,7 +1860,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         <main className="wrap circlePage">
           <section className="rings">
             <div>
-              <p className="kicker">朝リスの輪</p>
+              <p className="kicker">朝リスの田</p>
               <h2>あれどこ？</h2>
               <p className="circleIntro">
                 朝リスの活動・検索・読み物への入口を、ここにまとめています。
