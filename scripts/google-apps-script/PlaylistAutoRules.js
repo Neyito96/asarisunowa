@@ -82,7 +82,8 @@ const AUTO_PLAYLIST_RULES = [
     showIds: ["0341I5UOUrJgm7KEvNGInZ"],
     playlistId: "4FBXSFf2nLjLb3qaRoSdoD",
     keyword: "（ノーミライ #",
-    matchStrategy: "no-mirai-title-prefix"
+    matchStrategy: "no-mirai-title-prefix",
+    fetchAllPages: true
   },
   {
     key: "sato-yo",
