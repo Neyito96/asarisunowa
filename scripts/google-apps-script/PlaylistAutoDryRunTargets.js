@@ -7,7 +7,6 @@ function dryRunOtaMasahiko() {
   );
 }
 
-
 function dryRunNoMirai() {
   return dryRunAutoPlaylistByPlaylistId(
     "4FBXSFf2nLjLb3qaRoSdoD"
