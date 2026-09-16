@@ -70,6 +70,37 @@ const AUTO_PLAYLIST_RULES = [
     continueOnShowFetchError: true,
     addIndividually: true,
     updateLatestDateOnAdd: true
+  },
+  {
+    key: "no-mirai",
+    enabled: false,
+    lifecycleStatus: "requested",
+    productionWriteAllowed: false,
+    reviewRequired: true,
+    ruleType: AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_,
+    name: "農MUSIC 猟ライフ（ノーミライ）",
+    showIds: ["0341I5UOUrJgm7KEvNGInZ"],
+    playlistId: "4FBXSFf2nLjLb3qaRoSdoD",
+    keyword: "（ノーミライ #",
+    matchStrategy: "no-mirai-title-prefix"
+  },
+  {
+    key: "sato-yo",
+    enabled: false,
+    lifecycleStatus: "requested",
+    productionWriteAllowed: false,
+    reviewRequired: true,
+    ruleType: AUTO_PLAYLIST_RULE_TYPE_SPEAKER_,
+    name: "佐藤陽",
+    showIds: ASAHI_PRIMARY_SHOW_IDS,
+    playlistId: "73ppqrTcsjVgl1xwIZa4SY",
+    keywords: ["佐藤陽", "佐藤 陽"],
+    fields: ["name", "description", "html_description"],
+    matchStrategy: "sato-yo-safe-confirmed",
+    fetchAllPages: true,
+    continueOnShowFetchError: true,
+    addIndividually: true,
+    updateLatestDateOnAdd: true
   }
 ];
 
@@ -131,8 +162,17 @@ function getAutoPlaylistEpisodeText_(episode, rule) {
 }
 
 function matchesAutoPlaylistRule_(episode, rule) {
+  if (String(rule && rule.matchStrategy ? rule.matchStrategy : "") === "no-mirai-title-prefix") {
+    return /^（ノーミライ\s*#\d+）/.test(String(episode && episode.name ? episode.name : ""));
+  }
+
   if (String(rule && rule.matchStrategy ? rule.matchStrategy : "") === "ota-safe-confirmed") {
     const classification = classifyOtaMasahikoExistingPlaylistAuditEpisodeV2_(episode);
+    return classification && classification.classification === "confirmed";
+  }
+
+  if (String(rule && rule.matchStrategy ? rule.matchStrategy : "") === "sato-yo-safe-confirmed") {
+    const classification = classifySatoYoAutoPlaylistEpisode_(episode);
     return classification && classification.classification === "confirmed";
   }
 
