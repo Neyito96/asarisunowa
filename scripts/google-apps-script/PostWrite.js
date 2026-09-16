@@ -63,9 +63,13 @@ function appendPostRow_(targetSheet, kind, url, title, maker, introducedDate, co
     return;
   }
 
-  targetSheet.appendRow([
+  // プレイリストはH列に登録日を保存する。
+  // F列（最終更新日）とG列（更新日取得方法）は既存用途のまま保持する。
+  const row = targetSheet.getLastRow() + 1;
+  targetSheet.getRange(row, 1, 1, 3).setValues([[
     url,
     title,
     maker
-  ]);
+  ]]);
+  targetSheet.getRange(row, 8).setValue(new Date());
 }
