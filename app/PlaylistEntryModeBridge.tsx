@@ -95,7 +95,7 @@ export default function PlaylistEntryModeBridge() {
     const handleManagerJump = (event: Event) => {
       const target = event.target as Element | null;
       if (target?.closest(".playlistOwnerJump")) {
-        setMode("autoExisting");
+        setMode("register");
         window.setTimeout(scrollPlaylistEntryIntoView, 0);
       }
     };
@@ -285,7 +285,11 @@ export default function PlaylistEntryModeBridge() {
                   <p>
                     朝日新聞ポッドキャストのエピソードを、シリーズ・出演者・テーマなど、自分の好きな切り口でまとめたプレイリストを登録できます。Spotifyなら、条件に合う新しい回を探して自動で追加することもできます。
                   </p>
-                  <PlaylistEntryModeSelector value={mode} onChange={setMode} />
+                  <PlaylistEntryModeSelector
+                    value={mode}
+                    onChange={setMode}
+                    disabledModes={["registerAndAuto", "autoExisting"]}
+                  />
                 </div>
               </div>
               {mode === "registerAndAuto" && <PlaylistCombinedAutoForm />}
