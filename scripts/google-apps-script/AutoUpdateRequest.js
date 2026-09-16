@@ -1,29 +1,30 @@
 // プレイリスト自動更新申請の受付
 
 const AUTO_UPDATE_REQUEST_SHEET_NAME = "自動更新申請";
+const AUTO_UPDATE_RECEIPT_CACHE_PREFIX_ = "AUTO_UPDATE_RECEIPT_";
+const AUTO_UPDATE_RECEIPT_SECONDS_ = 600;
 
 function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
   const updateType = String(data.updateType || "").trim();
   const inviteUrl = String(data.inviteUrl || "").trim();
   const keywords = String(data.keywords || "").trim();
   const ruleNote = String(data.ruleNote || "").trim();
+  const requestId = String(data.requestId || "").trim();
 
-  const autoUpdateLengthError = validatePostInputLengths_({
+  const validationError = validateAutoUpdateRequest_({
+    url: url,
+    title: title,
+    maker: maker,
     updateType: updateType,
     inviteUrl: inviteUrl,
     keywords: keywords,
-    ruleNote: ruleNote
+    ruleNote: ruleNote,
+    securityAnswer: securityAnswer,
+    requestId: requestId
   });
 
-  if (autoUpdateLengthError) {
-    return jsonResponse({ ok: false, error: autoUpdateLengthError });
-  }
-
-  if (securityAnswer !== SUBMIT_SECURITY_ANSWER) {
-    return jsonResponse({
-      ok: false,
-      error: "セキュリティ回答が正しくありません"
-    });
+  if (validationError) {
+    return jsonResponse({ ok: false, error: validationError });
   }
 
   // 申請時点ではSpotifyへ接続せず、初回構築前の安全なプランだけを確定する。
@@ -61,6 +62,14 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
 
     SpreadsheetApp.flush();
 
+    if (requestId) {
+      CacheService.getScriptCache().put(
+        AUTO_UPDATE_RECEIPT_CACHE_PREFIX_ + requestId,
+        "accepted",
+        AUTO_UPDATE_RECEIPT_SECONDS_
+      );
+    }
+
     return jsonResponse({
       ok: true,
       kind: "autoUpdateRequest",
@@ -72,4 +81,23 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
   } finally {
     autoUpdateLock.releaseLock();
   }
+}
+
+
+function handleAutoUpdateRequestStatus_(e, callback) {
+  const requestId = String(
+    e && e.parameter && e.parameter.requestId
+      ? e.parameter.requestId
+      : ""
+  ).trim();
+
+  if (!/^[A-Za-z0-9_-]{16,100}$/.test(requestId)) {
+    return apiResponse({ ok: false, accepted: false, error: "受付番号が正しくありません" }, callback);
+  }
+
+  const accepted = CacheService.getScriptCache().get(
+    AUTO_UPDATE_RECEIPT_CACHE_PREFIX_ + requestId
+  ) === "accepted";
+
+  return apiResponse({ ok: true, accepted: accepted }, callback);
 }
