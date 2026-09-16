@@ -135,6 +135,10 @@ function doGet(e) {
       return handlePodcastResolve_(e, callback);
     }
 
+    if (type === "autoUpdateRequestStatus") {
+      return handleAutoUpdateRequestStatus_(e, callback);
+    }
+
     const readResponse = handleApiRead_(type, callback);
 
     if (readResponse) {
