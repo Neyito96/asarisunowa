@@ -89,6 +89,7 @@ function testNewAutoPlaylistRuleCandidatesPure() {
 
   const confirmedSato = {
     name: "#7-1 こんな夜更けにパクチーかよ",
+    uri: "spotify:episode:sato-confirmed",
     description: "連載『それぞれの最終楽章』から、文化くらし報道部の佐藤陽記者が話します。",
     html_description: ""
   };
@@ -98,6 +99,7 @@ function testNewAutoPlaylistRuleCandidatesPure() {
 
   const invitedSato = {
     name: "（1on1）佐藤陽さん 友達がいない神田大介の悩み相談",
+    uri: "spotify:episode:sato-invited",
     description: "記事が掲載されるや大きな反響を呼びました。今回は、著者の佐藤陽記者を招き、その後のことを聞きました。",
     html_description: ""
   };
@@ -107,6 +109,7 @@ function testNewAutoPlaylistRuleCandidatesPure() {
 
   const satoAndWife = {
     name: "手洗いがやめられない①",
+    uri: "spotify:episode:sato-and-wife",
     description: "その当事者である佐藤陽記者と、向き合い続けている妻が、それぞれの立場から長い道のりについて話します。",
     html_description: ""
   };
@@ -116,6 +119,7 @@ function testNewAutoPlaylistRuleCandidatesPure() {
 
   const announcementOnly = {
     name: "別の出演者による回",
+    uri: "spotify:episode:sato-announcement",
     description: "【イベントのお知らせ】佐藤陽記者が登壇します。詳しくはこちら。",
     html_description: ""
   };
@@ -125,6 +129,7 @@ function testNewAutoPlaylistRuleCandidatesPure() {
 
   const publicRecordingAnnouncement = {
     name: "別の出演者による回",
+    uri: "spotify:episode:sato-public-recording",
     description: "記念グッズを大放出。公開収録や交流会も！ 寺下真理加、太田匡彦、佐藤陽に朝ポキメンバーも多数参加。会場はこちら。",
     html_description: ""
   };
@@ -134,6 +139,7 @@ function testNewAutoPlaylistRuleCandidatesPure() {
 
   const articleOnly = {
     name: "別の記者による解説",
+    uri: "spotify:episode:sato-article",
     description: "【関連記事】佐藤陽記者が執筆した記事はこちらです。",
     html_description: ""
   };
@@ -143,6 +149,7 @@ function testNewAutoPlaylistRuleCandidatesPure() {
 
   const titleOnly = {
     name: "佐藤陽記者に聞く",
+    uri: "spotify:episode:sato-title-only",
     description: "番組の詳しい出演情報はありません。",
     html_description: ""
   };
@@ -152,11 +159,50 @@ function testNewAutoPlaylistRuleCandidatesPure() {
 
   const unrelatedHeadingAfterCast = {
     name: "別の出演者による回",
+    uri: "spotify:episode:sato-unrelated-heading",
     description: "【出演】\n山田太郎\n【今回のテーマ】\n佐藤陽記者の仕事を紹介します。",
     html_description: ""
   };
   if (matchesAutoPlaylistRule_(unrelatedHeadingAfterCast, satoYo)) {
     throw new Error("佐藤陽さんを別見出し後も出演者として誤採用しました");
+  }
+
+  const beFourKingsReview = {
+    name: "遊びじゃない、ガチの付録だよ　BE四天王が集合",
+    uri: "spotify:episode:be-four-kings-review",
+    description: "佐藤陽、太田匡彦ほか4人の名前がありますが、出演上の役割は確認できません。",
+    html_description: ""
+  };
+  const beFourKingsClassification = classifySatoYoAutoPlaylistEpisode_(beFourKingsReview);
+  if (beFourKingsClassification.classification !== "review") {
+    throw new Error("BE四天王の既知回がreviewに固定されていません");
+  }
+  if (matchesAutoPlaylistRule_(beFourKingsReview, satoYo)) {
+    throw new Error("BE四天王の既知review回を自動採用しました");
+  }
+
+  const missingIdentityClassification = classifySatoYoAutoPlaylistEpisode_({
+    name: "佐藤陽記者の出演回",
+    description: "佐藤陽記者が話します。",
+    html_description: ""
+  });
+  if (
+    missingIdentityClassification.classification !== "unresolved" ||
+    missingIdentityClassification.reason !== "episode_identity_missing"
+  ) {
+    throw new Error("URI・ID欠落時にunresolvedで安全停止しません");
+  }
+
+  const classifierError = classifySpeakerEpisodeWithGuardrail_({
+    name: "テスト回",
+    uri: "spotify:episode:classifier-error",
+    description: "出演情報",
+    html_description: ""
+  }, {}, function() {
+    throw new Error("test classifier failure");
+  });
+  if (classifierError.classification !== "unresolved" || classifierError.reason !== "classifier_error") {
+    throw new Error("人物別classifier例外時にunresolvedで安全停止しません");
   }
 
   const linkedSheet = classifyAutoPlaylistSheetRows_([

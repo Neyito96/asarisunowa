@@ -175,7 +175,7 @@ function matchesAutoPlaylistRule_(episode, rule) {
 
   if (String(rule && rule.matchStrategy ? rule.matchStrategy : "") === "sato-yo-safe-confirmed") {
     const classification = classifySatoYoAutoPlaylistEpisode_(episode);
-    return classification && classification.classification === "confirmed";
+    return isSpeakerGuardrailConfirmed_(classification);
   }
 
   const text = getAutoPlaylistEpisodeText_(episode, rule);

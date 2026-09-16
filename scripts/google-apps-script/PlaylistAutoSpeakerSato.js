@@ -2,8 +2,13 @@
 // 氏名が概要欄にあるだけでは採用せず、出演・発話が確認できる回だけ confirmed にする。
 
 function classifySatoYoAutoPlaylistEpisode_(episode) {
-  if (!episode) return satoYoClassification_("unresolved", "episode_missing", "");
+  return classifySpeakerEpisodeWithGuardrail_(episode, {
+    requireEpisodeIdentity: true,
+    knownReviewTitleIncludes: [SPEAKER_GUARDRAIL_KNOWN_REVIEW_TITLES_.BE_FOUR_KINGS]
+  }, classifySatoYoEpisodeEvidence_);
+}
 
+function classifySatoYoEpisodeEvidence_(episode) {
   const description = normalizeSatoYoText_(episode.description, false);
   const htmlDescription = normalizeSatoYoText_(episode.html_description, true);
   if (!description && !htmlDescription) {
@@ -126,6 +131,7 @@ function satoYoClassification_(classification, reason, excerpt) {
   return {
     classification: classification,
     reasons: [reason],
+    reason: reason,
     excerpt: String(excerpt || "")
   };
 }
