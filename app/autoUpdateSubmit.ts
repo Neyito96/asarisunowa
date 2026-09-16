@@ -12,12 +12,21 @@ export type AutoUpdatePayload = {
 };
 
 export function isSpotifyPlaylistUrl(value: string) {
-  return /^https:\/\/open\.spotify\.com\/playlist\/[A-Za-z0-9]+(?:[?/#]|$)/i.test(value.trim());
+  return Boolean(spotifyPlaylistId(value));
 }
 
-export function isSpotifyCollaborativeInviteUrl(value: string) {
+function spotifyPlaylistId(value: string) {
+  return value.trim().match(/^https:\/\/open\.spotify\.com\/playlist\/([A-Za-z0-9]+)(?:[?#]|$)/i)?.[1] ?? "";
+}
+
+export function isSpotifyCollaborativeInviteUrl(value: string, playlistUrl?: string) {
   const clean = value.trim();
-  return isSpotifyPlaylistUrl(clean) && /[?&]pt=[^&#]+/i.test(clean);
+  const invitePlaylistId = spotifyPlaylistId(clean);
+  return Boolean(
+    invitePlaylistId &&
+      /[?&]pt=[^&#]+/i.test(clean) &&
+      (!playlistUrl || invitePlaylistId === spotifyPlaylistId(playlistUrl)),
+  );
 }
 
 function createRequestId() {
@@ -36,7 +45,12 @@ function loadJsonp<T>(url: string): Promise<T> {
     const functionName = "__asarisunowa_receipt_" + Date.now() + "_" + Math.random().toString(36).slice(2);
     const script = document.createElement("script");
     const globalWindow = window as unknown as Record<string, unknown>;
+    const timeout = window.setTimeout(() => {
+      cleanup();
+      reject(new Error("受付結果の確認がタイムアウトしました"));
+    }, 5000);
     const cleanup = () => {
+      window.clearTimeout(timeout);
       script.remove();
       delete globalWindow[functionName];
     };
@@ -64,10 +78,14 @@ export async function submitAutoUpdateRequestConfirmed(endpoint: string, payload
 
   for (const delay of [250, 500, 1000, 1500]) {
     await wait(delay);
-    const status = await loadJsonp<{ ok?: boolean; accepted?: boolean }>(
-      endpoint + "?type=autoUpdateRequestStatus&requestId=" + encodeURIComponent(requestId) + "&_=" + Date.now(),
-    );
-    if (status?.ok && status.accepted) return;
+    try {
+      const status = await loadJsonp<{ ok?: boolean; accepted?: boolean }>(
+        endpoint + "?type=autoUpdateRequestStatus&requestId=" + encodeURIComponent(requestId) + "&_=" + Date.now(),
+      );
+      if (status?.ok && status.accepted) return;
+    } catch {
+      // 一時的なJSONP読み込み失敗は、次の照会で再確認する。
+    }
   }
 
   throw new Error("送信結果を確認できませんでした。入力内容を確認して、時間をおいてもう一度お試しください。");
