@@ -87,7 +87,11 @@ function detectSeriesSourceShows_(playlistItems, options) {
   return {
     dryRun: true,
     detected: candidates.length > 0,
-    reason: candidates.length > 1 ? "multiple-recent-source-shows" : "recent-source-show",
+    reason: candidates.length === 0
+      ? "no-candidate-meets-threshold"
+      : candidates.length > 1
+      ? "multiple-recent-source-shows"
+      : "recent-source-show",
     showIds: candidates.map(function(candidate) {
       return candidate.showId;
     }),
