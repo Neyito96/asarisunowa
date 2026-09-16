@@ -1108,7 +1108,11 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               alt=""
               aria-hidden="true"
             />
-            <span>朝日新聞ポッドキャスト案内所「朝リスの田」</span>
+            <span>
+              朝日新聞ポッドキャスト案内所
+              <br className="siteBrandPortraitBreak" />
+              「朝リスの田」
+            </span>
           </b>
           <a
             href="https://www.asahi.com/special/podcasts/"
