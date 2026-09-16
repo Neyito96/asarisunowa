@@ -79,20 +79,32 @@ function validateAutoUpdateRequest_(values) {
   if (["series", "speaker", "theme"].indexOf(updateType) < 0) {
     return "自動更新の種類が正しくありません";
   }
-  if (!/^https:\/\/open\.spotify\.com\/playlist\/[A-Za-z0-9]+(?:[?/#]|$)/i.test(url)) {
+  const playlistId = extractAutoUpdateSpotifyPlaylistId_(url);
+  const invitePlaylistId = extractAutoUpdateSpotifyPlaylistId_(inviteUrl);
+  if (!playlistId) {
     return "Spotifyプレイリストを選んでください";
   }
   if (
-    !/^https:\/\/open\.spotify\.com\/playlist\/[A-Za-z0-9]+(?:[?/#]|$)/i.test(inviteUrl) ||
+    !invitePlaylistId ||
     !/[?&]pt=[^&#]+/i.test(inviteUrl)
   ) {
     return "Spotifyの共同編集者招待URLを確認してください";
+  }
+  if (playlistId !== invitePlaylistId) {
+    return "共同編集者招待URLのプレイリストが一致しません";
   }
   if (requestId && !/^[A-Za-z0-9_-]{16,100}$/.test(requestId)) {
     return "受付番号が正しくありません";
   }
 
   return "";
+}
+
+function extractAutoUpdateSpotifyPlaylistId_(value) {
+  const match = String(value || "").trim().match(
+    /^https:\/\/open\.spotify\.com\/playlist\/([A-Za-z0-9]+)(?:[?#]|$)/i
+  );
+  return match ? String(match[1]) : "";
 }
 
 function validatePostBasic_(url, title, maker, securityAnswer) {
