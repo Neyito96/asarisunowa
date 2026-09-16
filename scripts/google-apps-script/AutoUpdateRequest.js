@@ -83,7 +83,6 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
   }
 }
 
-
 function handleAutoUpdateRequestStatus_(e, callback) {
   const requestId = String(
     e && e.parameter && e.parameter.requestId
