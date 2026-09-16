@@ -449,7 +449,7 @@ function formatPlaylistDate(value?: string | null) {
 }
 function isRecentPlaylistDate(value?: string | null, days = 7) {
   const clean = String(value || "").trim();
-  const match = clean.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  const match = clean.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
   if (!match) return false;
   const updated = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])).getTime();
   const now = Date.now();
@@ -531,7 +531,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     let cancelled = false;
     async function refreshListenerPlaylists() {
       try {
-        const payload = await loadJsonp<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; latestDate?: string }> }>(
+        const payload = await loadJsonp<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; latestDate?: string; introducedDate?: string }> }>(
           ASARISU_API_URL + "?type=playlist&_=" + Date.now()
         );
         if (!payload?.ok || !Array.isArray(payload.items)) return;
@@ -542,7 +542,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           playlists.map((item) => [item.title.trim(), item]),
         );
         const next = payload.items
-          .map((source: { id?: string; url?: string; title?: string; maker?: string; latestDate?: string }, index: number) => {
+          .map((source: { id?: string; url?: string; title?: string; maker?: string; latestDate?: string; introducedDate?: string }, index: number) => {
             const cleanUrl = String(source.url || "").trim() || null;
             const cleanTitle = String(source.title || "").trim();
             const existing =
@@ -555,6 +555,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               url: cleanUrl,
               artwork: existing?.artwork ?? null,
               latestDate: String(source.latestDate || "").trim() || null,
+              introducedDate: String(source.introducedDate || "").trim() || null,
             } satisfies Playlist;
           })
           .filter((item: Playlist) => item.title && !["66", "67", "68"].includes(String(item.id)));
@@ -1259,10 +1260,10 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     <div>
                       <div className="omikujiMeta">
                         <small>PLAYLIST {omikuji.id.padStart(2, "0")}｜本日の一聴</small>
-                        {omikuji.latestDate && (
+                        {(omikuji.latestDate || isRecentPlaylistDate(omikuji.introducedDate)) && (
                           <span className="playlistUpdateMeta">
-                            {isRecentPlaylistDate(omikuji.latestDate) && <span className="playlistNewBadge">NEW</span>}
-                            <span>{formatPlaylistDate(omikuji.latestDate)} 更新</span>
+                            {isRecentPlaylistDate(omikuji.introducedDate) && <span className="playlistNewBadge">NEW</span>}
+                            {omikuji.latestDate && <span>{formatPlaylistDate(omikuji.latestDate)} 更新</span>}
                           </span>
                         )}
                         {!listened.includes(omikuji.id) && <span>♡ 未聴</span>}
@@ -1306,10 +1307,10 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 </div>
                     <div className="cardBody listenerCardBody">
                       <small>PLAYLIST {p.id.padStart(2, "0")}</small>
-                      {p.latestDate && (
+                      {(p.latestDate || isRecentPlaylistDate(p.introducedDate)) && (
                         <div className="playlistUpdateMeta">
-                          {isRecentPlaylistDate(p.latestDate) && <span className="playlistNewBadge">NEW</span>}
-                          <span>{formatPlaylistDate(p.latestDate)} 更新</span>
+                          {isRecentPlaylistDate(p.introducedDate) && <span className="playlistNewBadge">NEW</span>}
+                          {p.latestDate && <span>{formatPlaylistDate(p.latestDate)} 更新</span>}
                         </div>
                       )}
                       <h3>{p.title}</h3>

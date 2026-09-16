@@ -2431,6 +2431,85 @@ footer {
 .autoUpdateTypes b{white-space:nowrap;font-size:13px}
 .autoUpdateTypes small{font-size:11px;line-height:1.35}
 .autoUpdateTypes input{width:auto;margin:2px 0 0;flex:0 0 auto}
+@media (min-width:641px){
+  #playlist-entry-mode-host{
+    max-width:860px;
+    margin:34px auto 0;
+    padding:28px 30px 24px;
+    border-bottom:0;
+    border-radius:20px 20px 0 0;
+  }
+  #playlist-entry-mode-host + .playlistSubmit{
+    max-width:860px;
+    margin:0 auto 10px;
+    padding:0 30px 28px;
+    border-top:0;
+    border-radius:0 0 20px 20px;
+  }
+  #playlist-entry-mode-host + .playlistSubmit .playlistSubmitHead{
+    padding-top:22px;
+    border-top:1px solid rgba(91,65,43,.11);
+  }
+  #playlist-entry-mode-host .playlistSubmitHead h3,
+  #playlist-entry-mode-host + .playlistSubmit .playlistSubmitHead h3{
+    font-size:1.35rem;
+    line-height:1.35;
+  }
+  #playlist-entry-mode-host .playlistSubmitHead > div > p:last-of-type,
+  #playlist-entry-mode-host + .playlistSubmit .playlistSubmitHead > div > p:last-of-type{
+    max-width:760px;
+    font-size:.95rem;
+    line-height:1.7;
+  }
+  .playlistEntryModeSelector{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:12px!important;
+  }
+  .playlistEntryModeSelector legend{
+    font-size:.9rem!important;
+  }
+  .playlistEntryModeOption{
+    min-height:132px;
+    padding:16px!important;
+  }
+  .playlistEntryModeTitle{
+    font-size:1rem!important;
+  }
+  .playlistEntryModeDescription{
+    font-size:.9rem!important;
+    line-height:1.6!important;
+  }
+  .playlistSubmit form label span,
+  .autoUpdateForm label>span{
+    font-size:.9rem;
+  }
+  .playlistSubmit input,
+  .playlistSubmit select,
+  .autoUpdateForm input,
+  .autoUpdateForm select,
+  .autoUpdateForm textarea{
+    font-size:1rem;
+  }
+  .autoUpdateTypes label{
+    min-height:78px;
+    padding:13px 12px;
+  }
+  .autoUpdateTypes b{
+    font-size:.94rem;
+  }
+  .autoUpdateTypes small{
+    font-size:.8rem;
+    line-height:1.5;
+  }
+  #playlist-entry-mode-host .autoUpdateForm h3,
+  #playlist-entry-mode-host .autoUpdateForm > p,
+  #playlist-entry-mode-host .autoUpdateTypes,
+  #playlist-entry-mode-host .autoUpdateCommonRule,
+  #playlist-entry-mode-host .autoUpdateForm > button,
+  #playlist-entry-mode-host .submitNotice{
+    grid-column:1 / -1;
+  }
+}
 @media (max-width:640px){
   .autoUpdateTypes{grid-template-columns:1fr}
   .autoUpdateTypes label{align-items:center}

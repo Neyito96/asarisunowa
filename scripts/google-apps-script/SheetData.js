@@ -94,13 +94,14 @@ function readPlaylistSheet(sheet) {
     };
   }
 
+  // サイト公開用: A=URL, B=タイトル, C=制作者, D=最終更新日, E=新規登録日
   const values =
     sheet
       .getRange(
         2,
         1,
         lastRow - 1,
-        4
+        5
       )
       .getDisplayValues();
 
@@ -121,9 +122,10 @@ function readPlaylistSheet(sheet) {
             r[1] || "",
           maker:
             r[2] || "",
-          
-            latestDate:
-  r[3] || ""
+          latestDate:
+            r[3] || "",
+          introducedDate:
+            r[4] || ""
         })
       );
 

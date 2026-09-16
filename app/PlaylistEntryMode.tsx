@@ -72,6 +72,7 @@ export default function PlaylistEntryModeSelector({
         return (
           <label
             key={option.value}
+            className="playlistEntryModeOption"
             aria-disabled={disabled || undefined}
             style={{
               display: "flex",
@@ -113,6 +114,7 @@ export default function PlaylistEntryModeSelector({
             />
             <div style={{ flex: "1 1 auto", minWidth: 0 }}>
               <b
+                className="playlistEntryModeTitle"
                 style={{
                   display: "block",
                   margin: 0,
@@ -125,6 +127,7 @@ export default function PlaylistEntryModeSelector({
                 <span aria-hidden="true">{option.icon}</span> {option.title}{disabled ? "（準備中）" : ""}
               </b>
               <p
+                className="playlistEntryModeDescription"
                 style={{
                   display: "block",
                   width: "100%",

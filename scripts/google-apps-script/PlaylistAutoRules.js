@@ -82,7 +82,8 @@ const AUTO_PLAYLIST_RULES = [
     showIds: ["0341I5UOUrJgm7KEvNGInZ"],
     playlistId: "4FBXSFf2nLjLb3qaRoSdoD",
     keyword: "（ノーミライ #",
-    matchStrategy: "no-mirai-title-prefix"
+    matchStrategy: "no-mirai-title-prefix",
+    fetchAllPages: true
   },
   {
     key: "sato-yo",
@@ -98,9 +99,10 @@ const AUTO_PLAYLIST_RULES = [
     fields: ["name", "description", "html_description"],
     matchStrategy: "sato-yo-safe-confirmed",
     fetchAllPages: true,
-    continueOnShowFetchError: true,
+    continueOnShowFetchError: false,
     addIndividually: true,
-    updateLatestDateOnAdd: true
+    updateLatestDateOnAdd: true,
+    requireSheetLinkBeforeWrite: true
   }
 ];
 
@@ -163,7 +165,7 @@ function getAutoPlaylistEpisodeText_(episode, rule) {
 
 function matchesAutoPlaylistRule_(episode, rule) {
   if (String(rule && rule.matchStrategy ? rule.matchStrategy : "") === "no-mirai-title-prefix") {
-    return /^（ノーミライ\s*#\d+）/.test(String(episode && episode.name ? episode.name : ""));
+    return extractNoMiraiEpisodeNumber_(episode && episode.name) !== null;
   }
 
   if (String(rule && rule.matchStrategy ? rule.matchStrategy : "") === "ota-safe-confirmed") {
@@ -173,7 +175,7 @@ function matchesAutoPlaylistRule_(episode, rule) {
 
   if (String(rule && rule.matchStrategy ? rule.matchStrategy : "") === "sato-yo-safe-confirmed") {
     const classification = classifySatoYoAutoPlaylistEpisode_(episode);
-    return classification && classification.classification === "confirmed";
+    return isSpeakerGuardrailConfirmed_(classification);
   }
 
   const text = getAutoPlaylistEpisodeText_(episode, rule);
@@ -213,4 +215,12 @@ function matchesAutoPlaylistRule_(episode, rule) {
   return includeKeywords.some(function(keyword) {
     return text.indexOf(String(keyword)) >= 0;
   });
+}
+
+function extractNoMiraiEpisodeNumber_(title) {
+  const normalized = String(title || "").normalize("NFKC");
+  const match = normalized.match(
+    /^\((?:ノーミライ|農M\s*[,、]\s*猟L)\s*#\s*(\d+)\)/
+  );
+  return match ? Number(match[1]) : null;
 }
