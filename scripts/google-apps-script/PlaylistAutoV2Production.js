@@ -94,6 +94,33 @@ function fetchOneAutoPlaylistV2ProductionPage_(rule, showId, existingState, toke
   return state;
 }
 
+function fetchAutoPlaylistV2EpisodeDetails_(episodeIds, token) {
+  return (Array.isArray(episodeIds) ? episodeIds : []).map(function(id) {
+    const episodeId = String(id || "").trim();
+    if (!episodeId) return null;
+
+    const response = UrlFetchApp.fetch(
+      "https://api.spotify.com/v1/episodes/" + encodeURIComponent(episodeId) + "?market=JP",
+      {
+        muteHttpExceptions: true,
+        headers: { Authorization: "Bearer " + token, Accept: "application/json" }
+      }
+    );
+    const status = response.getResponseCode();
+    if (status !== 200) {
+      throw new Error("V2候補エピソード詳細取得に失敗しました: " + episodeId + " | status=" + status);
+    }
+
+    const episode = JSON.parse(response.getContentText());
+    return {
+      id: String(episode.id || episodeId),
+      uri: String(episode.uri || ("spotify:episode:" + episodeId)),
+      name: String(episode.name || episodeId),
+      release_date: String(episode.release_date || "").trim()
+    };
+  }).filter(Boolean);
+}
+
 function commitAutoPlaylistV2ProductionRun_(rule, states, token) {
   const candidateIds = mergeAutoPlaylistCandidateIds_([], states.reduce(function(all, state) {
     return all.concat(state.candidateIds || []);
@@ -104,11 +131,13 @@ function commitAutoPlaylistV2ProductionRun_(rule, states, token) {
     return item && item.item && item.item.uri ? String(item.item.uri) : "";
   }).filter(Boolean));
 
-  const episodes = candidateIds.map(function(id) {
-    return { id: id, uri: "spotify:episode:" + id, name: id };
-  }).filter(function(ep) { return !existingUris.has(ep.uri); });
+  const missingCandidateIds = candidateIds.filter(function(id) {
+    return !existingUris.has("spotify:episode:" + id);
+  });
+  const episodes = fetchAutoPlaylistV2EpisodeDetails_(missingCandidateIds, token);
 
   let addedCount = 0;
+  let addedEpisodes = [];
   if (episodes.length) {
     if (rule.addIndividually === true) {
       const result = addAutoPlaylistEpisodesIndividually_(rule, token, episodes);
@@ -116,9 +145,11 @@ function commitAutoPlaylistV2ProductionRun_(rule, states, token) {
         throw new Error("V2追加に一部失敗したため境界を確定しません: " + rule.name);
       }
       addedCount = result.addedCount;
+      addedEpisodes = Array.isArray(result.addedEpisodes) ? result.addedEpisodes : [];
     } else {
       addAutoPlaylistEpisodesBatch_(rule, token, episodes);
       addedCount = episodes.length;
+      addedEpisodes = episodes.slice();
     }
   }
 
@@ -132,7 +163,10 @@ function commitAutoPlaylistV2ProductionRun_(rule, states, token) {
   });
 
   if (addedCount > 0 && rule.updateLatestDateOnAdd === true) {
-    updatePlaylistLatestDate_(rule.playlistId);
+    updatePlaylistLatestDate_(
+      rule.playlistId,
+      getLatestReleaseDate_(addedEpisodes)
+    );
   }
   Logger.log("V2 commit完了 | " + rule.name + " | added=" + addedCount);
   return { complete: true, addedCount: addedCount };
