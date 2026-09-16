@@ -1,8 +1,10 @@
 // V2 scoped stateを使う本番同期エンジン。
 // 初回はShowを最後まで走査し、以後は前回境界までだけ取得する。
-// 1回の実行で1ルールにつき最大1ページを処理し、全Show完了後だけplaylistへ書き込む。
+// playlistへの書き込みに成功した場合だけ境界を確定する。
 
+// 安全スイッチ。既存syncAllAutoPlaylists()にはまだ接続しない。
 const AUTO_PLAYLIST_V2_PRODUCTION_ENABLED_ = false;
+const AUTO_PLAYLIST_V2_MAX_PAGES_PER_RULE_RUN_ = 100;
 
 function syncOneAutoPlaylistV2_(rule, token) {
   if (AUTO_PLAYLIST_V2_PRODUCTION_ENABLED_ !== true) {
@@ -18,18 +20,22 @@ function syncOneAutoPlaylistV2_(rule, token) {
   if (!showIds.length) throw new Error("V2同期対象Showがありません: " + rule.key);
 
   prepareAutoPlaylistV2ProductionRun_(rule, showIds);
-  const next = findAutoPlaylistV2NextShow_(rule);
+  let pagesThisRun = 0;
+  let next = findAutoPlaylistV2NextShow_(rule);
 
-  if (next) {
-    fetchOneAutoPlaylistV2ProductionPage_(rule, next.showId, next.state, token);
+  while (next && pagesThisRun < AUTO_PLAYLIST_V2_MAX_PAGES_PER_RULE_RUN_) {
+    const state = fetchOneAutoPlaylistV2ProductionPage_(rule, next.showId, next.state, token);
+    pagesThisRun += 1;
+    if (Number(state.retryNotBeforeMs || 0) > Date.now()) break;
+    next = findAutoPlaylistV2NextShow_(rule);
   }
 
   const states = showIds.map(function(showId) {
     return loadAutoPlaylistScopedState_(rule.key, showId);
   });
   if (states.some(function(state) { return !state || state.complete !== true; })) {
-    Logger.log("V2 progress保存済み。次回syncで続きから再開します: " + rule.name);
-    return { complete: false, addedCount: 0 };
+    Logger.log("V2 progress保存済み。次回syncで続きから再開します: " + rule.name + " | pages=" + pagesThisRun);
+    return { complete: false, addedCount: 0, pagesFetched: pagesThisRun };
   }
 
   return commitAutoPlaylistV2ProductionRun_(rule, states, token);
@@ -44,8 +50,7 @@ function prepareAutoPlaylistV2ProductionRun_(rule, showIds) {
     }
     if (previous.complete === true && previous.committed === true) {
       const boundary = String(previous.committedBoundaryId || previous.pendingBoundaryId || "").trim();
-      const next = createAutoPlaylistScopedShowState_(rule, showId, "incremental", boundary);
-      saveAutoPlaylistScopedState_(next);
+      saveAutoPlaylistScopedState_(createAutoPlaylistScopedShowState_(rule, showId, "incremental", boundary));
     }
   });
 }
