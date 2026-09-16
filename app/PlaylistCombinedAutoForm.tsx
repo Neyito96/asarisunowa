@@ -49,7 +49,7 @@ export default function PlaylistCombinedAutoForm() {
       setMessage("自動更新を申し込む場合は、SpotifyプレイリストURLを入力してください。");
       return;
     }
-    if (!isSpotifyCollaborativeInviteUrl(cleanInviteUrl)) {
+    if (!isSpotifyCollaborativeInviteUrl(cleanInviteUrl, cleanUrl)) {
       setStatus("error");
       setMessage("Spotifyの「共同編集者を招待」で発行したURLを貼ってください。");
       return;
