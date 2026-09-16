@@ -19,6 +19,13 @@ function testNewAutoPlaylistRuleCandidatesPure() {
     }
   });
 
+  if (satoYo.requireSheetLinkBeforeWrite !== true) {
+    throw new Error("佐藤陽ルールの書き込み前シート確認が無効です");
+  }
+  if (satoYo.continueOnShowFetchError !== false) {
+    throw new Error("佐藤陽ルールが番組取得失敗後も継続する設定です");
+  }
+
   if (noMirai.fetchAllPages !== true) {
     throw new Error("ノーミライの全ページ取得が無効です");
   }
@@ -89,6 +96,24 @@ function testNewAutoPlaylistRuleCandidatesPure() {
     throw new Error("佐藤陽記者の出演確認文を検出できません");
   }
 
+  const invitedSato = {
+    name: "（1on1）佐藤陽さん 友達がいない神田大介の悩み相談",
+    description: "記事が掲載されるや大きな反響を呼びました。今回は、著者の佐藤陽記者を招き、その後のことを聞きました。",
+    html_description: ""
+  };
+  if (!matchesAutoPlaylistRule_(invitedSato, satoYo)) {
+    throw new Error("佐藤陽記者を招いた出演回を検出できません");
+  }
+
+  const satoAndWife = {
+    name: "手洗いがやめられない①",
+    description: "その当事者である佐藤陽記者と、向き合い続けている妻が、それぞれの立場から長い道のりについて話します。",
+    html_description: ""
+  };
+  if (!matchesAutoPlaylistRule_(satoAndWife, satoYo)) {
+    throw new Error("佐藤陽記者と同席者が話す出演回を検出できません");
+  }
+
   const announcementOnly = {
     name: "別の出演者による回",
     description: "【イベントのお知らせ】佐藤陽記者が登壇します。詳しくはこちら。",
@@ -96,6 +121,15 @@ function testNewAutoPlaylistRuleCandidatesPure() {
   };
   if (matchesAutoPlaylistRule_(announcementOnly, satoYo)) {
     throw new Error("佐藤陽さんのイベント告知を誤採用しました");
+  }
+
+  const publicRecordingAnnouncement = {
+    name: "別の出演者による回",
+    description: "記念グッズを大放出。公開収録や交流会も！ 寺下真理加、太田匡彦、佐藤陽に朝ポキメンバーも多数参加。会場はこちら。",
+    html_description: ""
+  };
+  if (matchesAutoPlaylistRule_(publicRecordingAnnouncement, satoYo)) {
+    throw new Error("佐藤陽さんの公開収録告知を誤採用しました");
   }
 
   const articleOnly = {
@@ -123,6 +157,33 @@ function testNewAutoPlaylistRuleCandidatesPure() {
   };
   if (matchesAutoPlaylistRule_(unrelatedHeadingAfterCast, satoYo)) {
     throw new Error("佐藤陽さんを別見出し後も出演者として誤採用しました");
+  }
+
+  const linkedSheet = classifyAutoPlaylistSheetRows_([
+    ["https://open.spotify.com/playlist/other", "別リスト", "A", "", "", ""],
+    ["https://open.spotify.com/playlist/73ppqrTcsjVgl1xwIZa4SY", "佐藤陽", "B", "", "", "2026-09-16"]
+  ], satoYo.playlistId);
+  if (!linkedSheet.found || linkedSheet.match.row !== 3) {
+    throw new Error("佐藤陽プレイリストの作業台連携を検出できません");
+  }
+  const validHeaders = validateAutoPlaylistSheetHeaders_([
+    "Spotifyプレイリストのリンク", "公開プレイリスト", "プロフィール", "共同編集URL", "", "最終更新日"
+  ]);
+  if (!validHeaders.valid) {
+    throw new Error("作業台の列見出し契約を検証できません");
+  }
+  const invalidHeaders = validateAutoPlaylistSheetHeaders_([
+    "URL", "公開プレイリスト", "プロフィール", "", "", "更新日"
+  ]);
+  if (invalidHeaders.valid || invalidHeaders.missing.length !== 2) {
+    throw new Error("作業台の列見出し変更を安全停止できません");
+  }
+  const duplicateSheet = classifyAutoPlaylistSheetRows_([
+    ["https://open.spotify.com/playlist/73ppqrTcsjVgl1xwIZa4SY", "佐藤陽", "B"],
+    ["https://open.spotify.com/playlist/73ppqrTcsjVgl1xwIZa4SY?si=x", "佐藤陽 duplicate", "C"]
+  ], satoYo.playlistId);
+  if (!duplicateSheet.duplicate || duplicateSheet.found) {
+    throw new Error("佐藤陽プレイリストの重複行を安全停止できません");
   }
 
   Logger.log("New auto playlist rule candidates pure tests: PASS");

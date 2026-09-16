@@ -99,9 +99,10 @@ const AUTO_PLAYLIST_RULES = [
     fields: ["name", "description", "html_description"],
     matchStrategy: "sato-yo-safe-confirmed",
     fetchAllPages: true,
-    continueOnShowFetchError: true,
+    continueOnShowFetchError: false,
     addIndividually: true,
-    updateLatestDateOnAdd: true
+    updateLatestDateOnAdd: true,
+    requireSheetLinkBeforeWrite: true
   }
 ];
 

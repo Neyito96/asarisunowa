@@ -281,8 +281,8 @@ export default function PlaylistEntryModeBridge() {
             <div>
               <div className="playlistSubmitHead">
                 <div>
-                  <p className="kicker">GROW YOUR PLAYLIST</p>
-                  <h3>🌱 リストを育てる！</h3>
+                  <p className="kicker">ADD / GROW A PLAYLIST</p>
+                  <h3>🌱 朝リストに追加・育てる</h3>
                   <p>
                     朝日新聞ポッドキャストのエピソードを、シリーズ・出演者・テーマなど、自分の好きな切り口でまとめたプレイリストを登録できます。Spotifyなら、条件に合う新しい回を探して自動で追加することもできます。
                   </p>

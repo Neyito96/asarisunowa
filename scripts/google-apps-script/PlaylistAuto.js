@@ -90,6 +90,10 @@ function syncOneAutoPlaylist_(rule, token, episodeCache) {
     return;
   }
 
+  if (rule.requireSheetLinkBeforeWrite === true) {
+    assertAutoPlaylistSheetLinkBeforeWrite_(rule);
+  }
+
   if (rule.addIndividually === true) {
     const result =
       addAutoPlaylistEpisodesIndividually_(rule, token, newEpisodes);
