@@ -24,6 +24,13 @@ function testAutoUpdateRequestValidationPure() {
     throw new Error("ptなしの共同編集URLが許可されました");
   }
 
+  const mismatchedInvite = Object.assign({}, valid, {
+    inviteUrl: "https://open.spotify.com/playlist/73ppqrTcsjVgl1xwIZa4SY?pt=test-token"
+  });
+  if (!validateAutoUpdateRequest_(mismatchedInvite)) {
+    throw new Error("別プレイリストの共同編集URLが許可されました");
+  }
+
   const invalidType = Object.assign({}, valid, { updateType: "unknown" });
   if (!validateAutoUpdateRequest_(invalidType)) {
     throw new Error("未対応の自動更新種別が許可されました");
