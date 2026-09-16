@@ -46,7 +46,7 @@ function analyzeSatoYoText_(text) {
   const namePattern = /佐藤[\s　]*陽/;
   const confirmedHeadingPattern = /^(?:【|\[|（|\()?\s*(出演者?|ゲスト|パーソナリティ|MC|聞き手|語り|ナビゲーター)(?:】|\]|）|\)|:|：|\s|$)/i;
   const announcementHeadingPattern = /^(?:【|\[|（|\()?\s*(イベント|お知らせ|番組からのお知らせ|次回|次回予告|関連記事|関連リンク|過去回|キャンペーン|応募|購読|配信|SNS|X|Twitter|お問い合わせ)(?:】|\]|）|\)|:|：|\s|$)/i;
-  const genericHeadingPattern = /^(?:【[^】]{1,40}】|\\[[^\\]]{1,40}\\]|（[^）]{1,40}）|\\([^)]{1,40}\\)|[^。！？\\n]{1,24}[：:])\\s*/;
+  const genericHeadingPattern = /^(?:【[^】]{1,40}】|\[[^\]]{1,40}\]|（[^）]{1,40}）|\([^)]{1,40}\)|[^。！？\n]{1,24}[：:])\s*/;
   const announcementContextPattern = /(イベント|告知|お知らせ|登壇|次回|次回予告|関連記事|関連リンク|過去回|申し込み|申込み|応募|キャンペーン|詳しくはこちら|購読|配信予定)/;
   const nonAppearanceRolePattern = /(編集|制作|音源|取材協力|構成|技術|デザイン|写真|撮影|執筆|記事)/;
   const appearanceByNamePattern = /佐藤[\s　]*陽(?:記者|さん|氏)?(?:が|に|と|を)?(?:話|聞|解説|説明|出演|登場|語)/;
