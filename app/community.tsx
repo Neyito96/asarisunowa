@@ -1,6 +1,10 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import type { Playlist } from "./data";
+import {
+  isSpotifyCollaborativeInviteUrl,
+  submitAutoUpdateRequestConfirmed,
+} from "./autoUpdateSubmit";
 type OfficialProgram = {
   name: string;
   mark?: string;
@@ -996,37 +1000,37 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       setAutoUpdateMessage("合言葉が違います。「神田さんの名は？」をもう一度どうぞ。");
       return;
     }
+    if (!isSpotifyCollaborativeInviteUrl(autoUpdateInviteUrl)) {
+      setAutoUpdateStatus("error");
+      setAutoUpdateMessage("Spotifyの「共同編集者を招待」で発行したURLを貼ってください。");
+      return;
+    }
     setAutoUpdateStatus("sending");
     setAutoUpdateMessage("");
     try {
-      await fetch(PLAYLIST_SUBMIT_ENDPOINT, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({
-          kind: "autoUpdateRequest",
-          updateType: autoUpdateType,
-          url: selected.url,
-          title: selected.title,
-          maker: autoUpdateMaker.trim(),
-          inviteUrl: autoUpdateInviteUrl.trim(),
-          keywords: autoUpdateKeywords.trim(),
-          ruleNote: autoUpdateRuleNote.trim(),
-          securityAnswer: autoUpdateSecurityAnswer.trim(),
-          website: ""
-        }),
+      await submitAutoUpdateRequestConfirmed(PLAYLIST_SUBMIT_ENDPOINT, {
+        kind: "autoUpdateRequest",
+        updateType: autoUpdateType,
+        url: selected.url,
+        title: selected.title,
+        maker: autoUpdateMaker.trim(),
+        inviteUrl: autoUpdateInviteUrl.trim(),
+        keywords: autoUpdateKeywords.trim(),
+        ruleNote: autoUpdateRuleNote.trim(),
+        securityAnswer: autoUpdateSecurityAnswer.trim(),
+        website: "",
       });
       setAutoUpdateStatus("success");
-      setAutoUpdateMessage("申請を受け付けました。確認後、自動更新の設定を行います。");
+      setAutoUpdateMessage("申請の受付を確認しました。内容確認後、自動更新の設定を行います。");
       setAutoUpdatePlaylistId("");
       setAutoUpdateMaker("");
       setAutoUpdateInviteUrl("");
       setAutoUpdateKeywords("");
       setAutoUpdateRuleNote("");
       setAutoUpdateSecurityAnswer("");
-    } catch {
+    } catch (error) {
       setAutoUpdateStatus("error");
-      setAutoUpdateMessage("送信できませんでした。時間をおいてもう一度お試しください。");
+      setAutoUpdateMessage(error instanceof Error ? error.message : "送信できませんでした。時間をおいてもう一度お試しください。");
     }
   }
 
