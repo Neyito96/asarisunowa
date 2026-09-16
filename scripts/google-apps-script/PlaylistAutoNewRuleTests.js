@@ -30,6 +30,41 @@ function testNewAutoPlaylistRuleCandidatesPure() {
   }, noMirai)) {
     throw new Error("ノーミライの正しいタイトルを検出できません");
   }
+  if (!matchesAutoPlaylistRule_({
+    name: "（農M,猟L #2）うじうじしてたらあかんのかい、というお話",
+    description: "",
+    html_description: ""
+  }, noMirai)) {
+    throw new Error("ノーミライのSpotify表示名を検出できません");
+  }
+  if (extractNoMiraiEpisodeNumber_("（農M，猟L #4）テスト") !== 4) {
+    throw new Error("ノーミライの回番号を取得できません");
+  }
+  const launchEpisodes = selectExactNoMiraiEpisodes_([
+    { name: "（農M,猟L #4）四", uri: "spotify:episode:4" },
+    { name: "（ノーミライ #2）二", uri: "spotify:episode:2" },
+    { name: "（農M、猟L #3）三", uri: "spotify:episode:3" },
+    { name: "（ノーミライ #1）一", uri: "spotify:episode:1" }
+  ], [2, 3, 4]);
+  if (launchEpisodes.map(function(ep) {
+    return extractNoMiraiEpisodeNumber_(ep.name);
+  }).join(",") !== "2,3,4") {
+    throw new Error("ノーミライ初回追加が#2・#3・#4に限定されていません");
+  }
+  let duplicateStopped = false;
+  try {
+    selectExactNoMiraiEpisodes_([
+      { name: "（ノーミライ #2）二", uri: "spotify:episode:2" },
+      { name: "（農M,猟L #2）二の重複", uri: "spotify:episode:2b" },
+      { name: "（ノーミライ #3）三", uri: "spotify:episode:3" },
+      { name: "（ノーミライ #4）四", uri: "spotify:episode:4" }
+    ], [2, 3, 4]);
+  } catch (_) {
+    duplicateStopped = true;
+  }
+  if (!duplicateStopped) {
+    throw new Error("同じ回番号が複数ある場合に初回追加が停止しません");
+  }
   if (matchesAutoPlaylistRule_({
     name: "農と音楽のこれから",
     description: "概要欄にノーミライ #2 と書かれています",

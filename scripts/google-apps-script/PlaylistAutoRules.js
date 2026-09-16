@@ -164,7 +164,7 @@ function getAutoPlaylistEpisodeText_(episode, rule) {
 
 function matchesAutoPlaylistRule_(episode, rule) {
   if (String(rule && rule.matchStrategy ? rule.matchStrategy : "") === "no-mirai-title-prefix") {
-    return /^（ノーミライ\s*#\d+）/.test(String(episode && episode.name ? episode.name : ""));
+    return extractNoMiraiEpisodeNumber_(episode && episode.name) !== null;
   }
 
   if (String(rule && rule.matchStrategy ? rule.matchStrategy : "") === "ota-safe-confirmed") {
@@ -214,4 +214,12 @@ function matchesAutoPlaylistRule_(episode, rule) {
   return includeKeywords.some(function(keyword) {
     return text.indexOf(String(keyword)) >= 0;
   });
+}
+
+function extractNoMiraiEpisodeNumber_(title) {
+  const normalized = String(title || "").normalize("NFKC");
+  const match = normalized.match(
+    /^\((?:ノーミライ|農M\s*[,、]\s*猟L)\s*#\s*(\d+)\)/
+  );
+  return match ? Number(match[1]) : null;
 }
