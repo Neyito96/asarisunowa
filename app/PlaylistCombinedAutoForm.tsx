@@ -1,6 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import {
+  isSpotifyCollaborativeInviteUrl,
+  isSpotifyPlaylistUrl,
+  submitAutoUpdateRequestConfirmed,
+} from "./autoUpdateSubmit";
 
 const PLAYLIST_SUBMIT_ENDPOINT = "https://script.google.com/macros/s/AKfycbxlZCNqGqOEY7j61OgcSGM8_xfGT08f4jjamXtSj2DES9fXl-xwJrvcRGYHnskidjIMug/exec";
 
@@ -39,9 +44,14 @@ export default function PlaylistCombinedAutoForm() {
     const cleanKeywords = keywords.trim();
     const cleanSecurityAnswer = securityAnswer.trim();
 
-    if (!/^https:\/\/open\.spotify\.com\/playlist\//i.test(cleanUrl)) {
+    if (!isSpotifyPlaylistUrl(cleanUrl)) {
       setStatus("error");
       setMessage("自動更新を申し込む場合は、SpotifyプレイリストURLを入力してください。");
+      return;
+    }
+    if (!isSpotifyCollaborativeInviteUrl(cleanInviteUrl)) {
+      setStatus("error");
+      setMessage("Spotifyの「共同編集者を招待」で発行したURLを貼ってください。");
       return;
     }
     if (cleanSecurityAnswer !== "大介") {
@@ -68,7 +78,7 @@ export default function PlaylistCombinedAutoForm() {
       });
       registrationSent = true;
 
-      await postPayload({
+      await submitAutoUpdateRequestConfirmed(PLAYLIST_SUBMIT_ENDPOINT, {
         kind: "autoUpdateRequest",
         updateType,
         url: cleanUrl,
@@ -82,7 +92,7 @@ export default function PlaylistCombinedAutoForm() {
       });
 
       setStatus("success");
-      setMessage("プレイリスト登録と自動更新申請を送信しました。確認後、登録・設定を行います。");
+      setMessage("自動更新申請の受付を確認しました。プレイリスト登録は公開一覧への反映後に確認できます。");
       setUrl("");
       setTitle("");
       setMaker("");
@@ -92,11 +102,13 @@ export default function PlaylistCombinedAutoForm() {
       setRuleNote("");
       setSecurityAnswer("");
       setWebsite("");
-    } catch {
+    } catch (error) {
       setStatus("error");
       setMessage(
         registrationSent
-          ? "プレイリスト登録は送信しましたが、自動更新申請の送信に失敗しました。時間をおいて『今あるリストを自動で育てる』から申請してください。"
+          ? "プレイリスト登録は送信しましたが、自動更新申請の受付を確認できませんでした。時間をおいて『今あるリストを育てる』から申請してください。"
+          : error instanceof Error
+          ? error.message
           : "送信できませんでした。時間をおいてもう一度お試しください。",
       );
     }
