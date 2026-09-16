@@ -5,3 +5,7 @@ function syncToyohidePlaylist() {
 function syncIsshoShinbunPlaylist() {
   syncAutoPlaylistByPlaylistId_("4tY0lHoV8IemMBp4iTnKnl");
 }
+
+function syncKinoDougaPlaylist() {
+  syncAutoPlaylistByPlaylistId_("6nDhZQG75F1wU62sdcYJMq");
+}

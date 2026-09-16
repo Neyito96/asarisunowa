@@ -269,7 +269,7 @@ function scanBlankPlaylistDates() {
   );
 }
 
-function updatePlaylistLatestDate_(playlistId) {
+function updatePlaylistLatestDate_(playlistId, releaseDate) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
 
   // 更新元は「作業台」
@@ -305,19 +305,21 @@ function updatePlaylistLatestDate_(playlistId) {
 
   const rowNumber = targetRowIndex + 2;
 
-  const today = Utilities.formatDate(
-    new Date(),
-    Session.getScriptTimeZone(),
-    "yyyy-MM-dd"
-  );
+  const latestDate =
+    String(releaseDate || "").trim() ||
+    Utilities.formatDate(
+      new Date(),
+      Session.getScriptTimeZone(),
+      "yyyy-MM-dd"
+    );
 
   // 作業台 F列 = 最終更新日
-  sheet.getRange(rowNumber, 6).setValue(today);
+  sheet.getRange(rowNumber, 6).setValue(latestDate);
 
   Logger.log(
     "更新日反映 ✅ 作業台 row=" +
     rowNumber +
     " date=" +
-    today
+    latestDate
   );
 }

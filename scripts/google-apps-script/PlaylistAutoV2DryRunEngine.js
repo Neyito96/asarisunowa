@@ -118,3 +118,15 @@ function reportOtaMasahikoAutoPlaylistV2DryRun() {
 function dryRunOtaMasahikoAutoPlaylistV2Step() {
   return dryRunAutoPlaylistV2Step("ota-masahiko");
 }
+
+//
+// ノーミライ：V2初回構築テスト。
+// 1回につきSpotify最大1ページ。playlist / Spreadsheetには書き込まない。
+//
+function dryRunNoMiraiAutoPlaylistV2Step() {
+  return dryRunAutoPlaylistV2Step("no-mirai");
+}
+
+function reportNoMiraiAutoPlaylistV2DryRun() {
+  return reportAutoPlaylistV2Rule_("no-mirai");
+}

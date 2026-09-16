@@ -18,6 +18,7 @@ function doPost(e) {
     const url = input.url;
     const title = input.title;
     const maker = input.maker;
+    const inviteUrl = input.inviteUrl;
     const comment = input.comment;
     const introducedDate = input.introducedDate;
     let artwork = input.artwork;
@@ -82,7 +83,8 @@ function doPost(e) {
       introducedDate,
       comment,
       artwork,
-      kind
+      kind,
+      inviteUrl
     );
 
   } catch (error) {
