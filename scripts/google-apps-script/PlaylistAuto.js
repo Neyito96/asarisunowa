@@ -49,6 +49,16 @@ function syncConfiguredAutoPlaylist_(rule) {
   syncOneAutoPlaylist_(rule, token);
 }
 
+function getLatestReleaseDate_(episodes) {
+  return (episodes || [])
+    .map(function(ep) {
+      return String(ep && ep.release_date ? ep.release_date : "").trim();
+    })
+    .filter(Boolean)
+    .sort()
+    .pop() || "";
+}
+
 function syncOneAutoPlaylist_(rule, token, episodeCache) {
   Logger.log("=== " + rule.name + " ===");
 
@@ -102,7 +112,10 @@ function syncOneAutoPlaylist_(rule, token, episodeCache) {
       result.addedCount > 0 &&
       rule.updateLatestDateOnAdd === true
     ) {
-      updatePlaylistLatestDate_(rule.playlistId);
+      updatePlaylistLatestDate_(
+        rule.playlistId,
+        getLatestReleaseDate_(result.addedEpisodes)
+      );
     }
 
     return;
@@ -111,6 +124,9 @@ function syncOneAutoPlaylist_(rule, token, episodeCache) {
   addAutoPlaylistEpisodesBatch_(rule, token, newEpisodes);
 
   if (rule.updateLatestDateOnAdd === true) {
-    updatePlaylistLatestDate_(rule.playlistId);
+    updatePlaylistLatestDate_(
+      rule.playlistId,
+      getLatestReleaseDate_(newEpisodes)
+    );
   }
 }

@@ -2,6 +2,7 @@
 function addAutoPlaylistEpisodesIndividually_(rule, token, episodes) {
   let addedCount = 0;
   let failedCount = 0;
+  const addedEpisodes = [];
 
   episodes.forEach(function(ep) {
     const addRes = UrlFetchApp.fetch(
@@ -25,6 +26,7 @@ function addAutoPlaylistEpisodesIndividually_(rule, token, episodes) {
 
     if (status === 200 || status === 201) {
       addedCount++;
+      addedEpisodes.push(ep);
       Logger.log("追加成功 ✅ " + ep.name);
     } else {
       failedCount++;
@@ -44,7 +46,8 @@ function addAutoPlaylistEpisodesIndividually_(rule, token, episodes) {
 
   return {
     addedCount: addedCount,
-    failedCount: failedCount
+    failedCount: failedCount,
+    addedEpisodes: addedEpisodes
   };
 }
 

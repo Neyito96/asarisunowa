@@ -1,6 +1,6 @@
 // 通常投稿の保存処理
 
-function savePost_(url, title, maker, introducedDate, comment, artwork, kind) {
+function savePost_(url, title, maker, introducedDate, comment, artwork, kind, inviteUrl) {
   const writeLock = LockService.getScriptLock();
   if (!writeLock.tryLock(5000)) {
     throw new Error("ただいま投稿が混み合っています。少し待って再度お試しください");
@@ -53,7 +53,8 @@ function savePost_(url, title, maker, introducedDate, comment, artwork, kind) {
         maker,
         introducedDate,
         comment,
-        artwork
+        artwork,
+        inviteUrl
       );
 
       added = true;
