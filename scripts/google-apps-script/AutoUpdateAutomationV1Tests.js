@@ -10,6 +10,9 @@ function testAutoUpdateAutomationV1Pure() {
   if (AUTO_UPDATE_V1_RECENT_EPISODES_PER_SHOW_ !== 20) {
     throw new Error("日次巡回の取得件数が想定外です");
   }
+  if (AUTO_UPDATE_V1_MAX_ADDITIONS_PER_RUN_ !== 10) {
+    throw new Error("初回補完の1回あたり追加上限が想定外です");
+  }
 
   if (!isAutoUpdateV1TypeEligible_(AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_)) {
     throw new Error("シリーズ型が自動化対象になっていません");
@@ -38,6 +41,26 @@ function testAutoUpdateAutomationV1Pure() {
   }
   if (rule.lifecycleStatus !== AUTO_PLAYLIST_LIFECYCLE_.INCREMENTAL) {
     throw new Error("増分自動更新状態になりません");
+  }
+
+  const seed = findAutoUpdateSeedEpisodeV1_([
+    { item: { id: "new", name: "佐藤陽 新しい回", release_date: "2026-01-02" } },
+    { item: { id: "old", name: "佐藤陽 起点回", release_date: "2025-01-02" } },
+    { item: { id: "other", name: "別の出演者", release_date: "2024-01-02" } }
+  ], rule);
+  if (!seed || seed.id !== "old" || seed.releaseDate !== "2025-01-02") {
+    throw new Error("条件に合う最古の起点回を選べません");
+  }
+
+  const bootstrapState = createAutoPlaylistScopedShowState_(rule, "show-test", "seed-bootstrap", "");
+  bootstrapState.bootstrapSeedDate = "2025-01-02";
+  const pageState = applyAutoUpdateSeedBootstrapPageV1_(bootstrapState, [
+    { id: "new", name: "佐藤陽 新しい回", release_date: "2026-01-02" },
+    { id: "seed", name: "佐藤陽 起点回", release_date: "2025-01-02" },
+    { id: "too-old", name: "佐藤陽 対象外", release_date: "2025-01-01" }
+  ], rule, "next-url");
+  if (!pageState.complete || pageState.candidateIds.join(",") !== "new,seed") {
+    throw new Error("起点日より古い回で初回補完を停止できません");
   }
   if (rule.requestSheetRow !== 5 || rule.playlistId !== "73ppqrTcsjVgl1xwIZa4SY") {
     throw new Error("申請行またはPlaylist IDを保持できません");
