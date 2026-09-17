@@ -7,6 +7,12 @@ function testAutoUpdateAutomationV1Pure() {
   if (AUTO_UPDATE_V1_IMMEDIATE_DELAY_MS_ < 60 * 1000) {
     throw new Error("直後実行の予約間隔が短すぎます");
   }
+  if (AUTO_UPDATE_V1_WAITING_RETRY_DELAY_MS_ !== 15 * 60 * 1000) {
+    throw new Error("招待承認待ちの再確認間隔が15分ではありません");
+  }
+  if (AUTO_UPDATE_V1_WAITING_RETRY_WINDOW_MS_ !== 6 * 60 * 60 * 1000) {
+    throw new Error("招待承認待ちの再確認期間が6時間ではありません");
+  }
   if (AUTO_UPDATE_V1_RECENT_EPISODES_PER_SHOW_ !== 20) {
     throw new Error("日次巡回の取得件数が想定外です");
   }
