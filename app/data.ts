@@ -412,7 +412,7 @@ const rows:[string,string,string|null,string|null][] = [
     "ポリレビ",
     "田",
     "https://open.spotify.com/playlist/6hNrobOVHmYaQT5C7hPkNa",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f717992ffd72644df90b51d19"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f09a8bd5875be5defced61b26"
   ]
 ];
 export const playlists:Playlist[] = rows.map((r,i)=>({id:String(i+1),title:r[0],maker:r[1],url:r[2],artwork:r[3]}));
