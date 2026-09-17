@@ -1,6 +1,9 @@
 // 通常投稿の保存処理
 
-function savePost_(url, title, maker, introducedDate, comment, artwork, kind, inviteUrl) {
+const PLAYLIST_RECEIPT_CACHE_PREFIX_ = "PLAYLIST_RECEIPT_";
+const PLAYLIST_RECEIPT_SECONDS_ = 600;
+
+function savePost_(url, title, maker, introducedDate, comment, artwork, kind, inviteUrl, requestId) {
   const writeLock = LockService.getScriptLock();
   if (!writeLock.tryLock(5000)) {
     throw new Error("ただいま投稿が混み合っています。少し待って再度お試しください");
@@ -64,6 +67,15 @@ function savePost_(url, title, maker, introducedDate, comment, artwork, kind, in
 
     SpreadsheetApp.flush();
 
+    const cleanRequestId = String(requestId || "").trim();
+    if (kind === "playlist" && /^[A-Za-z0-9_-]{16,100}$/.test(cleanRequestId)) {
+      CacheService.getScriptCache().put(
+        PLAYLIST_RECEIPT_CACHE_PREFIX_ + cleanRequestId,
+        "accepted",
+        PLAYLIST_RECEIPT_SECONDS_
+      );
+    }
+
     return jsonResponse({
       ok: true,
       kind: kind,
@@ -74,4 +86,22 @@ function savePost_(url, title, maker, introducedDate, comment, artwork, kind, in
   } finally {
     writeLock.releaseLock();
   }
+}
+
+function handlePlaylistRequestStatus_(e, callback) {
+  const requestId = String(
+    e && e.parameter && e.parameter.requestId
+      ? e.parameter.requestId
+      : ""
+  ).trim();
+
+  if (!/^[A-Za-z0-9_-]{16,100}$/.test(requestId)) {
+    return apiResponse({ ok: false, accepted: false, error: "受付番号が正しくありません" }, callback);
+  }
+
+  const accepted = CacheService.getScriptCache().get(
+    PLAYLIST_RECEIPT_CACHE_PREFIX_ + requestId
+  ) === "accepted";
+
+  return apiResponse({ ok: true, accepted: accepted }, callback);
 }
