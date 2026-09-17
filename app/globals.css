@@ -2090,7 +2090,7 @@ footer {
   display:grid;
   gap:6px;
 }
-.playlistSubmit form label:first-of-type{
+.playlistSubmit form > label:first-of-type{
   grid-column:1 / -1;
 }
 .playlistSubmit form label span{
@@ -2163,7 +2163,7 @@ footer {
 @media(max-width:640px){
   .playlistSubmit{padding:16px;border-radius:16px}
   .playlistSubmit form{grid-template-columns:1fr}
-  .playlistSubmit form label:first-of-type,
+  .playlistSubmit form > label:first-of-type,
   .playlistSubmit form>button,
   .submitNotice{grid-column:1}
   .playlistSubmit form>button{width:100%}
@@ -2444,6 +2444,16 @@ footer {
 .autoUpdateTypes b{white-space:nowrap;font-size:13px}
 .autoUpdateTypes small{font-size:11px;line-height:1.35}
 .autoUpdateTypes input{width:auto;margin:2px 0 0;flex:0 0 auto}
+.autoUpdateAfterSubmit{
+  padding:12px 14px;
+  border:1px solid #c7e7ee;
+  border-radius:12px;
+  background:#eef9fc;
+  color:#064f69;
+}
+.autoUpdateAfterSubmit b{display:block;margin-bottom:4px}
+.autoUpdateAfterSubmit p{font-size:.9rem;line-height:1.55!important}
+.autoUpdateAfterSubmit small{display:block;margin-top:5px;color:#456f7c;line-height:1.5}
 @media (min-width:641px){
   #playlist-entry-mode-host{
     max-width:860px;
@@ -2518,6 +2528,7 @@ footer {
   #playlist-entry-mode-host .autoUpdateForm > p,
   #playlist-entry-mode-host .autoUpdateTypes,
   #playlist-entry-mode-host .autoUpdateCommonRule,
+  #playlist-entry-mode-host .autoUpdateAfterSubmit,
   #playlist-entry-mode-host .autoUpdateForm > button,
   #playlist-entry-mode-host .submitNotice{
     grid-column:1 / -1;
