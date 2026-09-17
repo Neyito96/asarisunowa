@@ -283,9 +283,11 @@ export default function PlaylistEntryModeBridge() {
               <div className="playlistSubmitHead">
                 <div>
                   <p className="kicker">ADD / GROW A PLAYLIST</p>
-                  <h3>🌱 朝リストに追加・育てる</h3>
+                  <h3>{shelf === "series" ? "🌱 連載に追加・育てる" : "🌱 朝リストに追加・育てる"}</h3>
                   <p>
-                    朝日新聞ポッドキャストのエピソードを、シリーズ・出演者・テーマなど、自分の好きな切り口でまとめたプレイリストを登録できます。Spotifyなら、条件に合う新しい回を探して自動で追加することもできます。
+                    {shelf === "series"
+                      ? "同じシリーズのエピソードをまとめたプレイリストを登録できます。Spotifyなら、新しい回も自動で追加できます。"
+                      : "出演者やテーマなど、好きな切り口でまとめたプレイリストを登録できます。Spotifyなら、新しい回も自動で追加できます。"}
                   </p>
                   <PlaylistEntryModeSelector
                     value={mode}
