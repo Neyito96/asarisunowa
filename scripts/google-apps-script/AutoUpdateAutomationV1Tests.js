@@ -17,7 +17,10 @@ function testAutoUpdateAutomationV1Pure() {
     throw new Error("日次巡回の取得件数が想定外です");
   }
   if (AUTO_UPDATE_V1_MAX_ADDITIONS_PER_RUN_ !== 10) {
-    throw new Error("初回補完の1回あたり追加上限が想定外です");
+    throw new Error("日次増分の1回あたり追加上限が想定外です");
+  }
+  if (AUTO_UPDATE_V1_BOOTSTRAP_MAX_ADDITIONS_PER_RUN_ !== 100) {
+    throw new Error("初回補完の1回あたり追加上限が100件ではありません");
   }
   if (typeof authorizeAutoUpdateAutomationV1 !== "function") {
     throw new Error("トリガー権限承認用の管理関数がありません");

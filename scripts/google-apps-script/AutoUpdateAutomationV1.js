@@ -5,6 +5,7 @@ const AUTO_UPDATE_V1_RULE_IDS_KEY_ = "AUTO_UPDATE_V1_RULE_IDS";
 const AUTO_UPDATE_V1_RULE_PREFIX_ = "AUTO_UPDATE_V1_RULE_";
 const AUTO_UPDATE_V1_BOUNDARY_PREFIX_ = "AUTO_UPDATE_V1_BOUNDARY_";
 const AUTO_UPDATE_V1_MAX_ADDITIONS_PER_RUN_ = 10;
+const AUTO_UPDATE_V1_BOOTSTRAP_MAX_ADDITIONS_PER_RUN_ = 100;
 const AUTO_UPDATE_V1_RECENT_EPISODES_PER_SHOW_ = 20;
 const AUTO_UPDATE_V1_BOOTSTRAP_MAX_PAGES_PER_RUN_ = 5;
 const AUTO_UPDATE_V1_BOOTSTRAP_MAX_CANDIDATES_PER_SHOW_ = 250;
@@ -62,7 +63,9 @@ function authorizeAutoUpdateAutomationV1() {
 function runAutoUpdateAutomationV1() {
   const activation = processPendingAutoUpdateRequestsV1();
   const sync = syncApprovedAutoUpdateRequestsV1();
-  if (sync.some(function(result) { return result && result.bootstrapPending === true; })) {
+  if (sync.some(function(result) {
+    return result && result.bootstrapPending === true && result.deferredUntilDaily !== true;
+  })) {
     scheduleAutoUpdateAutomationV1_(AUTO_UPDATE_V1_IMMEDIATE_DELAY_MS_);
   } else if (activation.waiting > 0) {
     scheduleWaitingAutoUpdateRetryV1_();
@@ -204,6 +207,17 @@ function syncOneApprovedAutoUpdateRequestV1_(rule, token) {
   if (!validation.valid) return pauseAutoUpdateRuleV1_(rule, "ルール検証失敗: " + validation.errors.join(" / "));
 
   if (rule.bootstrapPending === true) {
+    const resumeAfterMs = Number(rule.bootstrapResumeAfterMs || 0);
+    if (resumeAfterMs > Date.now()) {
+      return {
+        playlistId: rule.playlistId,
+        ok: true,
+        bootstrapPending: true,
+        deferredUntilDaily: true,
+        resumeAfterMs: resumeAfterMs,
+        addedCount: 0
+      };
+    }
     return syncAutoUpdateSeedBootstrapV1_(rule, token);
   }
 
@@ -423,7 +437,7 @@ function syncAutoUpdateSeedBootstrapV1_(rule, token) {
   if (candidateEpisodes.length !== candidateIds.length) {
     return pauseAutoUpdateRuleV1_(rule, "取得できない候補回があるため初回補完を停止しました");
   }
-  const episodesToAdd = candidateEpisodes.slice(0, AUTO_UPDATE_V1_MAX_ADDITIONS_PER_RUN_);
+  const episodesToAdd = candidateEpisodes.slice(0, AUTO_UPDATE_V1_BOOTSTRAP_MAX_ADDITIONS_PER_RUN_);
 
   if (episodesToAdd.length) assertAutoPlaylistSheetLinkBeforeWrite_(rule);
   const addResult = episodesToAdd.length
@@ -444,8 +458,23 @@ function syncAutoUpdateSeedBootstrapV1_(rule, token) {
     return sum + Number(state.candidateCount || 0);
   }, 0);
   if (remainingCount > 0) {
-    setAutoUpdateRuleSheetStatusV1_(rule, "初回補完中", "前回追加 " + addResult.addedCount + "件・残り " + remainingCount + "件");
-    return { playlistId: rule.playlistId, ok: true, bootstrapPending: true, addedCount: addResult.addedCount, remainingCount: remainingCount };
+    rule.bootstrapResumeAfterMs = nextAutoUpdateDailyWindowStartMsV1_(Date.now());
+    saveAutoUpdateRuntimeRuleV1_(rule);
+    setAutoUpdateRuleSheetStatusV1_(
+      rule,
+      "初回補完中",
+      "前回追加 " + addResult.addedCount + "件・残り " + remainingCount +
+        "件。残りは翌朝4〜5時に最大100件追加します"
+    );
+    return {
+      playlistId: rule.playlistId,
+      ok: true,
+      bootstrapPending: true,
+      deferredUntilDaily: true,
+      resumeAfterMs: rule.bootstrapResumeAfterMs,
+      addedCount: addResult.addedCount,
+      remainingCount: remainingCount
+    };
   }
 
   states.forEach(function(state) {
@@ -455,12 +484,23 @@ function syncAutoUpdateSeedBootstrapV1_(rule, token) {
     deleteAutoPlaylistScopedState_(rule.key, state.showId);
   });
   rule.bootstrapPending = false;
+  delete rule.bootstrapResumeAfterMs;
   saveAutoUpdateRuntimeRuleV1_(rule);
   if (addResult.addedCount > 0) {
     updatePlaylistLatestDate_(rule.playlistId, getLatestReleaseDate_(addResult.addedEpisodes));
   }
   setAutoUpdateRuleSheetStatusV1_(rule, "増分自動更新", "初回補完完了。以後は新着回を巡回します");
   return { playlistId: rule.playlistId, ok: true, bootstrapPending: false, addedCount: addResult.addedCount, complete: true };
+}
+
+function nextAutoUpdateDailyWindowStartMsV1_(nowMs) {
+  const timeZone = Session.getScriptTimeZone() || "Asia/Tokyo";
+  const tomorrow = Utilities.formatDate(
+    new Date(Number(nowMs || Date.now()) + 24 * 60 * 60 * 1000),
+    timeZone,
+    "yyyy-MM-dd"
+  );
+  return Utilities.parseDate(tomorrow + " 04:00", timeZone, "yyyy-MM-dd HH:mm").getTime();
 }
 
 function autoUpdateRequestFromSheetRowV1_(row) {
