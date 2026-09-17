@@ -71,6 +71,13 @@ function testAutoUpdateAutomationV1Pure() {
   if (rule.requestSheetRow !== 5 || rule.playlistId !== "73ppqrTcsjVgl1xwIZa4SY") {
     throw new Error("申請行またはPlaylist IDを保持できません");
   }
+  const statusNote = mergeAutoUpdateStatusNoteV1_(
+    "方式: series / 申請を受け付けました",
+    "招待承認待ち"
+  );
+  if (statusNote !== "方式: series / 招待承認待ち") {
+    throw new Error("再試行に必要な自動更新方式を状態メモに保持できません");
+  }
 
   Logger.log("Auto update automation v1 pure tests: PASS");
   return true;

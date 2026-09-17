@@ -606,7 +606,20 @@ function loadAutoUpdateBoundaryV1_(playlistId, showId) {
 }
 
 function setAutoUpdateRequestStatusV1_(sheet, rowNumber, status, note) {
-  sheet.getRange(rowNumber, 8, 1, 2).setValues([[status, note]]);
+  const noteCell = sheet.getRange(rowNumber, 9);
+  const existingNote = String(noteCell.getDisplayValue() || "");
+  sheet.getRange(rowNumber, 8, 1, 2).setValues([[
+    status,
+    mergeAutoUpdateStatusNoteV1_(existingNote, note)
+  ]]);
+}
+
+function mergeAutoUpdateStatusNoteV1_(existingNote, note) {
+  const typeMatch = String(existingNote || "").match(/方式:\s*([^/\s]+)/);
+  const detail = String(note || "").trim();
+  return typeMatch
+    ? "方式: " + String(typeMatch[1] || "") + (detail ? " / " + detail : "")
+    : detail;
 }
 
 function setAutoUpdateRuleSheetStatusV1_(rule, status, note) {
