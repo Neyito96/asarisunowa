@@ -5,6 +5,29 @@ const AUTO_UPDATE_V1_RULE_IDS_KEY_ = "AUTO_UPDATE_V1_RULE_IDS";
 const AUTO_UPDATE_V1_RULE_PREFIX_ = "AUTO_UPDATE_V1_RULE_";
 const AUTO_UPDATE_V1_BOUNDARY_PREFIX_ = "AUTO_UPDATE_V1_BOUNDARY_";
 const AUTO_UPDATE_V1_MAX_ADDITIONS_PER_RUN_ = 10;
+const AUTO_UPDATE_V1_RECENT_EPISODES_PER_SHOW_ = 20;
+const AUTO_UPDATE_V1_IMMEDIATE_HANDLER_ = "runAutoUpdateAutomationSoonV1";
+const AUTO_UPDATE_V1_IMMEDIATE_DELAY_MS_ = 60 * 1000;
+
+// フォーム受付直後の1回だけを予約する。同じ予約があれば新規作成しない。
+function scheduleImmediateAutoUpdateAutomationV1_() {
+  const triggers = ScriptApp.getProjectTriggers();
+  const alreadyScheduled = triggers.some(function(trigger) {
+    return trigger.getHandlerFunction() === AUTO_UPDATE_V1_IMMEDIATE_HANDLER_;
+  });
+  if (alreadyScheduled) return { scheduled: true, reason: "already-scheduled" };
+
+  ScriptApp.newTrigger(AUTO_UPDATE_V1_IMMEDIATE_HANDLER_)
+    .timeBased()
+    .after(AUTO_UPDATE_V1_IMMEDIATE_DELAY_MS_)
+    .create();
+  return { scheduled: true, reason: "created" };
+}
+
+// 1回限りの時間主導トリガーから呼ばれる公開関数。
+function runAutoUpdateAutomationSoonV1() {
+  return runAutoUpdateAutomationV1();
+}
 
 // 時間主導トリガーはこの関数1本だけを登録する。
 function runAutoUpdateAutomationV1() {
@@ -140,7 +163,12 @@ function syncOneApprovedAutoUpdateRequestV1_(rule, token) {
     const boundaryIndex = episodes.findIndex(function(ep) {
       return String(ep && ep.id ? ep.id : "") === boundary;
     });
-    if (boundaryIndex < 0) return pauseAutoUpdateRuleV1_(rule, "新着50件内に前回境界が見つかりません: " + showId);
+    if (boundaryIndex < 0) {
+      return pauseAutoUpdateRuleV1_(
+        rule,
+        "最新" + AUTO_UPDATE_V1_RECENT_EPISODES_PER_SHOW_ + "件内に前回境界が見つかりません: " + showId
+      );
+    }
 
     episodes.slice(0, boundaryIndex).forEach(function(ep) {
       if (matchesAutoPlaylistRule_(ep, rule) && ep && ep.id) candidateIds.push(String(ep.id));
@@ -253,7 +281,9 @@ function isAutoUpdatePlaylistInCurrentUserLibraryV1_(playlistId, token) {
 }
 
 function fetchAutoUpdateShowFirstPageV1_(showId, token) {
-  const response = UrlFetchApp.fetch(buildAutoPlaylistV2InitialUrl_(showId), {
+  const url = "https://api.spotify.com/v1/shows/" + encodeURIComponent(String(showId || "")) +
+    "/episodes?market=JP&limit=" + AUTO_UPDATE_V1_RECENT_EPISODES_PER_SHOW_;
+  const response = UrlFetchApp.fetch(url, {
     muteHttpExceptions: true,
     headers: { Authorization: "Bearer " + token, Accept: "application/json" }
   });
