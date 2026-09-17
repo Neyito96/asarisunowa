@@ -322,7 +322,7 @@ const rows:[string,string,string|null,string|null][] = [
     "#きのどう「木下君、あの動画みた？」",
     "カンノン",
     "https://open.spotify.com/playlist/6nDhZQG75F1wU62sdcYJMq",
-    "https://mosaic.scdn.co/300/ab67656300005f1f7c49378fc19b81c6f0f72987ab67656300005f1fc5f5a9b3d17bef4f19db1042ab67656300005f1ff383700d6fda3443a1b3c72bab67656300005f1ff5aae7b621c525db61fc819f"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f7c49378fc19b81c6f0f72987"
   ],
   [
     "PRIDE CODE その声が、世界を変える。世界をポジティブに変えていく声を祝福するプレイリスト。",
@@ -406,7 +406,7 @@ const rows:[string,string,string|null,string|null][] = [
     "農MUSIC 猟ライフ（ノーミライ）",
     "じゃあ真似",
     "https://open.spotify.com/playlist/4FBXSFf2nLjLb3qaRoSdoD",
-    "https://mosaic.scdn.co/300/ab67656300005f1f4ea26c84e38a43b8859df430ab67656300005f1f60e565e7af555751e7bf5b10ab67656300005f1f75aa5c373000703d1fd6dfa8ab67656300005f1fff2f32d2dcbc49e037488fb5"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f4ea26c84e38a43b8859df430"
   ],
   [
     "ポリレビ",
