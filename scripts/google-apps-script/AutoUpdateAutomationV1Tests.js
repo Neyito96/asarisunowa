@@ -19,6 +19,9 @@ function testAutoUpdateAutomationV1Pure() {
   if (AUTO_UPDATE_V1_MAX_ADDITIONS_PER_RUN_ !== 10) {
     throw new Error("初回補完の1回あたり追加上限が想定外です");
   }
+  if (typeof authorizeAutoUpdateAutomationV1 !== "function") {
+    throw new Error("トリガー権限承認用の管理関数がありません");
+  }
 
   if (!isAutoUpdateV1TypeEligible_(AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_)) {
     throw new Error("シリーズ型が自動化対象になっていません");
