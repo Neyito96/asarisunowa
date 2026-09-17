@@ -92,7 +92,7 @@ export default function PlaylistCombinedAutoForm() {
       });
 
       setStatus("success");
-      setMessage("自動更新申請の受付を確認しました。プレイリスト登録は公開一覧への反映後に確認できます。");
+      setMessage("登録と自動更新申請を受け付けました。共同編集招待の承認後、安全条件を満たす申請は新着回の自動更新を開始します。");
       setUrl("");
       setTitle("");
       setMaker("");
@@ -150,7 +150,7 @@ export default function PlaylistCombinedAutoForm() {
       </label>
       <div className="autoUpdateCommonRule">
         <b>自動更新について</b>
-        <p>不足している回を追加し、以後は新着回を自動で追加します。</p>
+        <p>共同編集招待の承認時点を開始地点として、それ以後に公開された新着回を自動で追加します。過去回は自動では追加しません。</p>
       </div>
       <label>
         <span>更新ルール・補足 <small>（任意）</small></span>
