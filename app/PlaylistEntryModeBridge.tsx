@@ -289,7 +289,7 @@ export default function PlaylistEntryModeBridge() {
                   <PlaylistEntryModeSelector
                     value={mode}
                     onChange={setMode}
-                    disabledModes={["registerAndAuto", "autoExisting"]}
+                    disabledModes={["registerAndAuto"]}
                   />
                 </div>
               </div>
