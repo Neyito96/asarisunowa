@@ -320,7 +320,7 @@ const officialPrograms: OfficialProgram[] = [
     name: "ドーナツ～このポッドキャストはSNSです",
     mark: "NEW",
     schedule:
-      "日：日曜版／月：さんぽ、対話、1on1／火：ポ薦め-人類ポカン計画（ドー人）／木：親モヤ／第一木：スナックよりみ知／隔週金：アラサーかいわい／土：農MUSIC 猟ライフ",
+            "日：日曜版／月：さんぽ、対話、1on1／火：ポすすめ／木：親モヤ／第一木：スナックよりみ知／隔週金：アラサーかいわい／土：農MUSIC 猟ライフ（ノーミライ）",
     spotify: "https://open.spotify.com/show/0341I5UOUrJgm7KEvNGInZ",
     links: [
       ["Spotify", "https://open.spotify.com/show/0341I5UOUrJgm7KEvNGInZ"],
@@ -353,7 +353,7 @@ const officialPrograms: OfficialProgram[] = [
   {
     name: "ニュースの現場から",
     schedule:
-      "月：一緒に新聞をめくろう！／火：カガクをひらく（月1～）、そなえトーク（月1程度）／水：World Insight（月2程度）、GLOBE CAST（月2程度）／木：PUERTA（月1程度）／金：ゆるっと経済（月1～）／土：ポリレビ／日：大阪／曜日不定：ON GOING（月数回）",
+            "月：一緒に新聞をめくろう！／火：カガクをひらく（月1～）、そなえトーク（月1程度）／水：World Insight（月2程度）、GLOBE CAST（月2程度）／木：PUERTA（月1程度）／金：ゆるっと経済（月1～）／土：ポリレビ／日：ニュース大阪目線／曜日不定：ON GOING（月数回）",
     spotify: "https://open.spotify.com/show/392h0MYfvMTndEVzf2cOvC",
     links: [
       ["Spotify", "https://open.spotify.com/show/392h0MYfvMTndEVzf2cOvC"],
@@ -1988,7 +1988,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       )}
       <section className="wrap siteHistory" aria-labelledby="site-history-title">
         <p className="historyNote">
-          朝リスのみなさんのアイデアや情報をもとに、ゆるゆる更新中です。🐿️
+                    朝リスのアイデアや情報をもとに、ゆるゆる更新中🐿️（朝公式デスクワーク一部あり）
         </p>
         <div className="historySources">
           <h4>情報・画像について</h4>
