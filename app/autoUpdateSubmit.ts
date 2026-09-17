@@ -11,6 +11,18 @@ export type AutoUpdatePayload = {
   website: string;
 };
 
+export type PlaylistRegistrationPayload = {
+  kind: "playlist";
+  updateType: "series" | "speaker" | "theme";
+  url: string;
+  title: string;
+  maker: string;
+  comment: string;
+  introducedDate: string;
+  securityAnswer: string;
+  website: string;
+};
+
 export function isSpotifyPlaylistUrl(value: string) {
   return Boolean(spotifyPlaylistId(value));
 }
@@ -67,7 +79,11 @@ function loadJsonp<T>(url: string): Promise<T> {
   });
 }
 
-export async function submitAutoUpdateRequestConfirmed(endpoint: string, payload: AutoUpdatePayload) {
+async function submitRequestConfirmed(
+  endpoint: string,
+  payload: AutoUpdatePayload | PlaylistRegistrationPayload,
+  statusType: "autoUpdateRequestStatus" | "playlistRequestStatus",
+) {
   const requestId = createRequestId();
   await fetch(endpoint, {
     method: "POST",
@@ -80,7 +96,7 @@ export async function submitAutoUpdateRequestConfirmed(endpoint: string, payload
     await wait(delay);
     try {
       const status = await loadJsonp<{ ok?: boolean; accepted?: boolean }>(
-        endpoint + "?type=autoUpdateRequestStatus&requestId=" + encodeURIComponent(requestId) + "&_=" + Date.now(),
+        endpoint + "?type=" + statusType + "&requestId=" + encodeURIComponent(requestId) + "&_=" + Date.now(),
       );
       if (status?.ok && status.accepted) return;
     } catch {
@@ -89,4 +105,12 @@ export async function submitAutoUpdateRequestConfirmed(endpoint: string, payload
   }
 
   throw new Error("送信結果を確認できませんでした。入力内容を確認して、時間をおいてもう一度お試しください。");
+}
+
+export function submitPlaylistRegistrationConfirmed(endpoint: string, payload: PlaylistRegistrationPayload) {
+  return submitRequestConfirmed(endpoint, payload, "playlistRequestStatus");
+}
+
+export function submitAutoUpdateRequestConfirmed(endpoint: string, payload: AutoUpdatePayload) {
+  return submitRequestConfirmed(endpoint, payload, "autoUpdateRequestStatus");
 }
