@@ -1022,7 +1022,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         website: "",
       });
       setAutoUpdateStatus("success");
-      setAutoUpdateMessage("申請の受付を確認しました。内容確認後、自動更新の設定を行います。");
+      setAutoUpdateMessage("申請を受け付けました。運用アカウントで共同編集招待を承認後、安全条件を満たす申請は自動更新を開始します。異常時だけ確認待ちになります。");
       setAutoUpdatePlaylistId("");
       setAutoUpdateMaker("");
       setAutoUpdateInviteUrl("");
