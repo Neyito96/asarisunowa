@@ -2,21 +2,21 @@ export type Playlist = { id:string; title:string; maker:string; url:string|null;
 const rows:[string,string,string|null,string|null][] = [
   [
     "一緒に新聞をめくろう！",
-    "NEYITO",
+    "ダブルスタンダード半年割",
     "https://open.spotify.com/playlist/4tY0lHoV8IemMBp4iTnKnl",
     "https://mosaic.scdn.co/300/ab67656300005f1f16d0937799ff9a0751558925ab67656300005f1fb73f1d7e08c7f177ba21f8feab67656300005f1fdab8e88a93d8dd09b8888fe8ab67656300005f1ff68184b096b31538254cf206"
   ],
   [
     "IOK 伊藤大地・奥山晶二郎・神田大介",
-    "NEYITO",
+    "I'm OK",
     "https://open.spotify.com/playlist/799Fo9to2TK0ahGEJsvcm2",
     "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e"
   ],
   [
     "#ふな 冨名腰隆　旧【報談】",
-    "NEYITO",
+    "ふね",
     "https://open.spotify.com/playlist/48tpuTjiqGdJrvkX8R1OkI",
-    null
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e"
   ],
   [
     "議員になんでも聞いてみよう　秋山訓子の政治家インタビュー",
@@ -68,7 +68,7 @@ const rows:[string,string,string|null,string|null][] = [
   ],
   [
     "秋山訓子　【日本語と英語で取材】",
-    "NEYITO",
+    "不思議の国会",
     "https://open.spotify.com/playlist/34JkKBif61SgPyQJNoSEWU",
     "https://mosaic.scdn.co/300/ab67656300005f1f546d7420a16c6df58d35f68dab67656300005f1f9cc5d993a787628525e475cbab67656300005f1fafeb509d094c232808cfc01eab67656300005f1ff7bda31183f355d76b1ae2d5"
   ],
@@ -80,7 +80,7 @@ const rows:[string,string,string|null,string|null][] = [
   ],
   [
     "太田匡彦",
-    "NEYITO",
+    "Wreath",
     "https://open.spotify.com/playlist/7jLXrZ0JUNOnsSeFEFbw9S",
     "https://mosaic.scdn.co/300/ab67656300005f1f12014dede1a47ec9634fed5eab67656300005f1fa84ca60b309ac25e44a360d4ab67656300005f1fe726263e3e1ab32964dd86b3ab67656300005f1ff90fd9b9f6a56a9491ab6a00"
   ],
@@ -262,7 +262,7 @@ const rows:[string,string,string|null,string|null][] = [
     "「MEDIA TALK」 2023厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/6Q0iXwuC9PuLV3cqg11Dmt",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938"
   ],
   [
     "楽屋裏2023　厳選エピソード",
@@ -296,7 +296,7 @@ const rows:[string,string,string|null,string|null][] = [
   ],
   [
     "豊秀一　教えて豊さん！他",
-    "NEYITO",
+    "LUNA",
     "https://open.spotify.com/playlist/4Ri6rxTGFimTm0KkZtKfBZ",
     "https://mosaic.scdn.co/300/ab67656300005f1f07dac423bb0c090b8bfa3376ab67656300005f1f236fa2091cf232a259a2cb8bab67656300005f1fb258c864ae7121258bcf7958ab67656300005f1fc27761b41f54bb1335e995b7"
   ],
@@ -320,7 +320,7 @@ const rows:[string,string,string|null,string|null][] = [
   ],
   [
     "#きのどう「木下君、あの動画みた？」",
-    "NEYITO",
+    "カンノン",
     "https://open.spotify.com/playlist/6nDhZQG75F1wU62sdcYJMq",
     "https://mosaic.scdn.co/300/ab67656300005f1f7c49378fc19b81c6f0f72987ab67656300005f1fc5f5a9b3d17bef4f19db1042ab67656300005f1ff383700d6fda3443a1b3c72bab67656300005f1ff5aae7b621c525db61fc819f"
   ],
@@ -352,7 +352,7 @@ const rows:[string,string,string|null,string|null][] = [
     "#初登場特集（#朝ポキ）",
     "koike",
     "https://open.spotify.com/playlist/3WLp56ohdZs2AqDoUwNNWd",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef"
   ],
   [
     "8がけ社会",
@@ -364,7 +364,7 @@ const rows:[string,string,string|null,string|null][] = [
     "編集マニア",
     "カンダ ・マサキ",
     "https://open.spotify.com/playlist/71mdQ5ANqZda48jBkj0Qmz",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d"
   ],
   [
     "朝日新聞社の歴史",
@@ -376,7 +376,7 @@ const rows:[string,string,string|null,string|null][] = [
     "まなび場天声人語　見出しづくりにチャレンジ",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/7aKDEfAdCjTxiqiv19Grar",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000d72c8d2c65afeadf0c8d7c18f392"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da848d2c65afeadf0c8d7c18f392"
   ],
   [
     "#朝ポキ 他流試合 +PCWE2024 +α",
@@ -398,15 +398,21 @@ const rows:[string,string,string|null,string|null][] = [
   ],
   [
     "佐藤陽 記者が出演した番組",
-    "ネジート",
+    "パクチー",
     "https://open.spotify.com/playlist/73ppqrTcsjVgl1xwIZa4SY",
-    "https://i.scdn.co/image/ab67656300005f1fad23c0bcf15f7fee6b04142d"
+    "https://mosaic.scdn.co/300/ab67656300005f1f02f50cdd722327142f66a691ab67656300005f1f27371eef7ab4c7f56a764aa5ab67656300005f1f2a63027fedca396f67dc181cab67656300005f1fad23c0bcf15f7fee6b04142d"
   ],
   [
     "農MUSIC 猟ライフ（ノーミライ）",
-    "ネジート",
+    "じゃあ真似",
     "https://open.spotify.com/playlist/4FBXSFf2nLjLb3qaRoSdoD",
     "https://mosaic.scdn.co/300/ab67656300005f1f4ea26c84e38a43b8859df430ab67656300005f1f60e565e7af555751e7bf5b10ab67656300005f1f75aa5c373000703d1fd6dfa8ab67656300005f1fff2f32d2dcbc49e037488fb5"
+  ],
+  [
+    "ポリレビ",
+    "田",
+    "https://open.spotify.com/playlist/6hNrobOVHmYaQT5C7hPkNa",
+    "https://mosaic.scdn.co/300/ab67656300005f1f09a8bd5875be5defced61b26ab67656300005f1f4e4a4dc64811a6396f5ed7aeab67656300005f1f717992ffd72644df90b51d19ab67656300005f1fa3ad5762b78578f4d18cc453"
   ]
 ];
 export const playlists:Playlist[] = rows.map((r,i)=>({id:String(i+1),title:r[0],maker:r[1],url:r[2],artwork:r[3]}));
