@@ -53,6 +53,11 @@ function runAutoUpdateAutomationSoonV1() {
   return runAutoUpdateAutomationV1();
 }
 
+// 初回だけGASエディタから実行し、時間主導トリガー権限を承認するための管理用関数。
+function authorizeAutoUpdateAutomationV1() {
+  return scheduleAutoUpdateAutomationV1_(AUTO_UPDATE_V1_IMMEDIATE_DELAY_MS_);
+}
+
 // 時間主導トリガーはこの関数1本だけを登録する。
 function runAutoUpdateAutomationV1() {
   const activation = processPendingAutoUpdateRequestsV1();
