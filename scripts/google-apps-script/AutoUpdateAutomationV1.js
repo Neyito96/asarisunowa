@@ -10,9 +10,20 @@ const AUTO_UPDATE_V1_BOOTSTRAP_MAX_PAGES_PER_RUN_ = 5;
 const AUTO_UPDATE_V1_BOOTSTRAP_MAX_CANDIDATES_PER_SHOW_ = 250;
 const AUTO_UPDATE_V1_IMMEDIATE_HANDLER_ = "runAutoUpdateAutomationSoonV1";
 const AUTO_UPDATE_V1_IMMEDIATE_DELAY_MS_ = 60 * 1000;
+const AUTO_UPDATE_V1_WAITING_RETRY_DELAY_MS_ = 15 * 60 * 1000;
+const AUTO_UPDATE_V1_WAITING_RETRY_WINDOW_MS_ = 6 * 60 * 60 * 1000;
+const AUTO_UPDATE_V1_WAITING_RETRY_STARTED_KEY_ = "AUTO_UPDATE_V1_WAITING_RETRY_STARTED";
 
 // フォーム受付直後の1回だけを予約する。同じ予約があれば新規作成しない。
 function scheduleImmediateAutoUpdateAutomationV1_() {
+  PropertiesService.getScriptProperties().setProperty(
+    AUTO_UPDATE_V1_WAITING_RETRY_STARTED_KEY_,
+    String(Date.now())
+  );
+  return scheduleAutoUpdateAutomationV1_(AUTO_UPDATE_V1_IMMEDIATE_DELAY_MS_);
+}
+
+function scheduleAutoUpdateAutomationV1_(delayMs) {
   const triggers = ScriptApp.getProjectTriggers();
   const alreadyScheduled = triggers.some(function(trigger) {
     return trigger.getHandlerFunction() === AUTO_UPDATE_V1_IMMEDIATE_HANDLER_;
@@ -21,9 +32,20 @@ function scheduleImmediateAutoUpdateAutomationV1_() {
 
   ScriptApp.newTrigger(AUTO_UPDATE_V1_IMMEDIATE_HANDLER_)
     .timeBased()
-    .after(AUTO_UPDATE_V1_IMMEDIATE_DELAY_MS_)
+    .after(Math.max(60 * 1000, Number(delayMs) || AUTO_UPDATE_V1_IMMEDIATE_DELAY_MS_))
     .create();
   return { scheduled: true, reason: "created" };
+}
+
+function scheduleWaitingAutoUpdateRetryV1_() {
+  const props = PropertiesService.getScriptProperties();
+  const started = Number(props.getProperty(AUTO_UPDATE_V1_WAITING_RETRY_STARTED_KEY_) || 0) || Date.now();
+  if (Date.now() - started >= AUTO_UPDATE_V1_WAITING_RETRY_WINDOW_MS_) {
+    props.deleteProperty(AUTO_UPDATE_V1_WAITING_RETRY_STARTED_KEY_);
+    return { scheduled: false, reason: "retry-window-ended" };
+  }
+  props.setProperty(AUTO_UPDATE_V1_WAITING_RETRY_STARTED_KEY_, String(started));
+  return scheduleAutoUpdateAutomationV1_(AUTO_UPDATE_V1_WAITING_RETRY_DELAY_MS_);
 }
 
 // 1回限りの時間主導トリガーから呼ばれる公開関数。
@@ -36,7 +58,11 @@ function runAutoUpdateAutomationV1() {
   const activation = processPendingAutoUpdateRequestsV1();
   const sync = syncApprovedAutoUpdateRequestsV1();
   if (sync.some(function(result) { return result && result.bootstrapPending === true; })) {
-    scheduleImmediateAutoUpdateAutomationV1_();
+    scheduleAutoUpdateAutomationV1_(AUTO_UPDATE_V1_IMMEDIATE_DELAY_MS_);
+  } else if (activation.waiting > 0) {
+    scheduleWaitingAutoUpdateRetryV1_();
+  } else {
+    PropertiesService.getScriptProperties().deleteProperty(AUTO_UPDATE_V1_WAITING_RETRY_STARTED_KEY_);
   }
   return { activation: activation, sync: sync };
 }
