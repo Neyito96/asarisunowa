@@ -5,21 +5,13 @@ import {
   isSpotifyCollaborativeInviteUrl,
   isSpotifyPlaylistUrl,
   submitAutoUpdateRequestConfirmed,
+  submitPlaylistRegistrationConfirmed,
 } from "./autoUpdateSubmit";
 
 const PLAYLIST_SUBMIT_ENDPOINT = "https://script.google.com/macros/s/AKfycbxlZCNqGqOEY7j61OgcSGM8_xfGT08f4jjamXtSj2DES9fXl-xwJrvcRGYHnskidjIMug/exec";
 
 type AutoUpdateType = "series" | "speaker" | "theme";
 type SubmitStatus = "idle" | "sending" | "success" | "error";
-
-async function postPayload(payload: Record<string, string>) {
-  await fetch(PLAYLIST_SUBMIT_ENDPOINT, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify(payload),
-  });
-}
 
 export default function PlaylistCombinedAutoForm() {
   const [url, setUrl] = useState("");
@@ -62,10 +54,10 @@ export default function PlaylistCombinedAutoForm() {
 
     setStatus("sending");
     setMessage("");
-    let registrationSent = false;
+    let registrationConfirmed = false;
 
     try {
-      await postPayload({
+      await submitPlaylistRegistrationConfirmed(PLAYLIST_SUBMIT_ENDPOINT, {
         kind: "playlist",
         updateType,
         url: cleanUrl,
@@ -76,7 +68,7 @@ export default function PlaylistCombinedAutoForm() {
         securityAnswer: cleanSecurityAnswer,
         website,
       });
-      registrationSent = true;
+      registrationConfirmed = true;
 
       await submitAutoUpdateRequestConfirmed(PLAYLIST_SUBMIT_ENDPOINT, {
         kind: "autoUpdateRequest",
@@ -92,7 +84,11 @@ export default function PlaylistCombinedAutoForm() {
       });
 
       setStatus("success");
-      setMessage("申請を受け付けました。Spotifyの初回補完は共同編集確認後、通常は数分後に始まり、最初に最大100件追加します。100件を超える分は翌朝以降、毎朝4〜5時に最大100件ずつ追加します。朝リスの田への掲載は通常1時間以内、長くても約90分です。");
+      setMessage(
+        updateType === "theme"
+          ? "登録と申請を受け付けました。テーマ別は内容を確認してから自動更新を開始します。朝リスの田への掲載は通常30〜60分程度です。"
+          : "登録と申請を受け付けました。Spotifyの初回補完は共同編集確認後、通常は数分後に始まり、最初に最大100件追加します。100件を超える分は翌朝以降、毎朝4〜5時に最大100件ずつ追加します。朝リスの田への掲載は通常30〜60分程度です。",
+      );
       setUrl("");
       setTitle("");
       setMaker("");
@@ -105,8 +101,8 @@ export default function PlaylistCombinedAutoForm() {
     } catch (error) {
       setStatus("error");
       setMessage(
-        registrationSent
-          ? "プレイリスト登録は送信しましたが、自動更新申請の受付を確認できませんでした。時間をおいて『今あるリストが育つ』から申請してください。"
+        registrationConfirmed
+          ? "プレイリスト登録は確認できましたが、自動更新申請の受付を確認できませんでした。時間をおいて『今あるリストが育つ』から申請してください。"
           : error instanceof Error
           ? error.message
           : "送信できませんでした。時間をおいてもう一度お試しください。",
@@ -136,7 +132,7 @@ export default function PlaylistCombinedAutoForm() {
         <legend>どんなプレイリスト？</legend>
         <label><input type="radio" name="combinedAutoUpdateType" checked={updateType === "series"} onChange={() => setUpdateType("series")} /><span><b>📻 連載・シリーズ</b><small>同じシリーズの回をまとめる　例：一緒に新聞をめくろう！</small></span></label>
         <label><input type="radio" name="combinedAutoUpdateType" checked={updateType === "speaker"} onChange={() => setUpdateType("speaker")} /><span><b>🎙️ 出演者別</b><small>例：宮沢賢一さん出演回</small></span></label>
-        <label><input type="radio" name="combinedAutoUpdateType" checked={updateType === "theme"} onChange={() => setUpdateType("theme")} /><span><b>🔎 テーマ別</b><small>例：中東・鉄道・教育</small></span></label>
+        <label><input type="radio" name="combinedAutoUpdateType" checked={updateType === "theme"} onChange={() => setUpdateType("theme")} /><span><b>🔎 テーマ別（確認後に開始）</b><small>例：中東・鉄道・教育</small></span></label>
       </fieldset>
 
       <label>
@@ -157,7 +153,8 @@ export default function PlaylistCombinedAutoForm() {
         <p><b>連載：</b>同じシリーズを集めたリスト</p>
         <p><b>朝リスト：</b>出演者やテーマで集めたリスト</p>
         <p><b>初回：</b>最大100件。残りは翌朝4〜5時に追加します。</p>
-        <p><b>掲載：</b>通常1時間以内です。</p>
+        <p><b>テーマ別：</b>内容を確認してから自動更新を開始します。</p>
+        <p><b>掲載：</b>通常30〜60分程度です。</p>
       </div>
       <label>
         <span>更新ルール・補足 <small>（任意）</small></span>
