@@ -23,9 +23,13 @@ const ASAPOKI_OFFICIAL = "https://www.asahi.com/special/podcasts/";
 const PLAYLIST_SUBMIT_ENDPOINT = "https://script.google.com/macros/s/AKfycbxlZCNqGqOEY7j61OgcSGM8_xfGT08f4jjamXtSj2DES9fXl-xwJrvcRGYHnskidjIMug/exec";
 const ASARISU_API_URL = PLAYLIST_SUBMIT_ENDPOINT;
 const PLAYLIST_ARTWORK_OVERRIDES: Record<string, string> = {
+  "https://open.spotify.com/playlist/4tY0lHoV8IemMBp4iTnKnl":
+    "https://image-cdn-fa.spotifycdn.com/image/ab67656300005f1f2b3a4e572f8666f2bb05c46c",
   "https://open.spotify.com/playlist/6hNrobOVHmYaQT5C7hPkNa":
     "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f09a8bd5875be5defced61b26",
 };
+const getPlaylistArtworkOverride = (url: string) =>
+  PLAYLIST_ARTWORK_OVERRIDES[url] ?? PLAYLIST_ARTWORK_OVERRIDES[url.split("?")[0]];
 const LISTENER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQHi9LM842wuiTT-N8FzgJXVFyY4W5sZRYEdp4a9OVBTgVBJgPWG52AK6sgH4qBciqB6Q5UAd2-n2bA/pub?gid=697105746&single=true&output=csv";
 const PODCAST_CSV_URL = "https://docs.google.com/spreadsheets/d/1KSzoIkOsjUagNBLt3IbKIvgWEmez4f0XISQ-jkUjmwQ/gviz/tq?tqx=out:csv&sheet=%E6%9C%9D%E3%83%AA%E3%82%B9Podcast";
 
@@ -557,7 +561,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               title: cleanTitle,
               maker: String(source.maker || "").trim(),
               url: cleanUrl,
-              artwork: (cleanUrl ? PLAYLIST_ARTWORK_OVERRIDES[cleanUrl] : undefined) ?? existing?.artwork ?? null,
+              artwork: (cleanUrl ? getPlaylistArtworkOverride(cleanUrl) : undefined) ?? existing?.artwork ?? null,
               latestDate: String(source.latestDate || "").trim() || null,
               introducedDate: String(source.introducedDate || "").trim() || null,
             } satisfies Playlist;
