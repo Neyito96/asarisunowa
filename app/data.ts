@@ -16,7 +16,7 @@ const rows:[string,string,string|null,string|null][] = [
     "#ふな 冨名腰隆　旧【報談】",
     "NEYITO",
     "https://open.spotify.com/playlist/48tpuTjiqGdJrvkX8R1OkI",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e"
+    null
   ],
   [
     "議員になんでも聞いてみよう　秋山訓子の政治家インタビュー",
@@ -82,13 +82,13 @@ const rows:[string,string,string|null,string|null][] = [
     "太田匡彦",
     "NEYITO",
     "https://open.spotify.com/playlist/7jLXrZ0JUNOnsSeFEFbw9S",
-    null
+    "https://mosaic.scdn.co/300/ab67656300005f1f12014dede1a47ec9634fed5eab67656300005f1fa84ca60b309ac25e44a360d4ab67656300005f1fe726263e3e1ab32964dd86b3ab67656300005f1ff90fd9b9f6a56a9491ab6a00"
   ],
   [
     "食と料理",
     "bigstone1977",
     "https://open.spotify.com/playlist/5B4K0bT1bheMZPvMXc9fXf",
-    null
+    "https://mosaic.scdn.co/300/ab67656300005f1f3b47b61c6c961a2081ced625ab67656300005f1f3c3fe9915694e25a02ae855fab67656300005f1f82c19a04de65d6a51e3a9793ab67656300005f1fd6fd95ddffbb0ac51a150ed1"
   ],
   [
     "司法制度",
@@ -250,13 +250,13 @@ const rows:[string,string,string|null,string|null][] = [
     "「SDGsを話そう」厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/4styp7b6VpZThsevXCRDla",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84a1ed8e9ca1ad0f9a7c2b7b07"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84a1ed8e9ca1ad0f9a7c2b7b07"
   ],
   [
     "ポキ-1グランプリ 2023",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/5xUDKa3r5arvKSx4gqjwI3",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9"
   ],
   [
     "「MEDIA TALK」 2023厳選エピソード",
@@ -352,7 +352,7 @@ const rows:[string,string,string|null,string|null][] = [
     "#初登場特集（#朝ポキ）",
     "koike",
     "https://open.spotify.com/playlist/3WLp56ohdZs2AqDoUwNNWd",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef"
   ],
   [
     "8がけ社会",
@@ -364,7 +364,7 @@ const rows:[string,string,string|null,string|null][] = [
     "編集マニア",
     "カンダ ・マサキ",
     "https://open.spotify.com/playlist/71mdQ5ANqZda48jBkj0Qmz",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d"
   ],
   [
     "朝日新聞社の歴史",
@@ -376,7 +376,7 @@ const rows:[string,string,string|null,string|null][] = [
     "まなび場天声人語　見出しづくりにチャレンジ",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/7aKDEfAdCjTxiqiv19Grar",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da848d2c65afeadf0c8d7c18f392"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000d72c8d2c65afeadf0c8d7c18f392"
   ],
   [
     "#朝ポキ 他流試合 +PCWE2024 +α",
@@ -406,7 +406,7 @@ const rows:[string,string,string|null,string|null][] = [
     "農MUSIC 猟ライフ（ノーミライ）",
     "ネジート",
     "https://open.spotify.com/playlist/4FBXSFf2nLjLb3qaRoSdoD",
-    "https://i.scdn.co/image/ab67656300005f1f75aa5c373000703d1fd6dfa8"
+    "https://mosaic.scdn.co/300/ab67656300005f1f4ea26c84e38a43b8859df430ab67656300005f1f60e565e7af555751e7bf5b10ab67656300005f1f75aa5c373000703d1fd6dfa8ab67656300005f1fff2f32d2dcbc49e037488fb5"
   ]
 ];
 export const playlists:Playlist[] = rows.map((r,i)=>({id:String(i+1),title:r[0],maker:r[1],url:r[2],artwork:r[3]}));
