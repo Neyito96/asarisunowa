@@ -283,7 +283,7 @@ export default function PlaylistEntryModeBridge() {
               <div className="playlistSubmitHead">
                 <div>
                   <p className="kicker">ADD / GROW A PLAYLIST</p>
-                  <h3>{shelf === "series" ? "🌱 連載に追加・育てる" : "🌱 朝リストに追加・育てる"}</h3>
+                  <h3>{shelf === "series" ? "🌱 連載が育つ" : "🌱 朝リストが育つ"}</h3>
                   <p>
                     {shelf === "series"
                       ? "同じシリーズのエピソードをまとめたプレイリストを登録できます。Spotifyなら、新しい回も自動で追加できます。"
@@ -306,11 +306,11 @@ export default function PlaylistEntryModeBridge() {
               type="button"
               className="playlistManagerSortButton"
               onClick={jumpToManagerForm}
-              aria-label="リストを育てるメニューへ"
+              aria-label="リストが育つメニューへ"
               title="プレイリストを登録・自動更新"
               style={{ marginLeft: "auto", borderColor: "#cc4b78", color: "#0b5874", fontWeight: 800 }}
             >
-              🌱 リストを育てる！
+              🌱 リストが育つ
             </button>,
             sortHost,
           )

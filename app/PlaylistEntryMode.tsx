@@ -23,13 +23,13 @@ const options: Array<{
   {
     value: "registerAndAuto",
     icon: "🌱🔄",
-    title: "植えて、そのまま育てる",
+    title: "植えて、そのまま育つ",
     description: "Spotifyプレイリストを登録して、条件に合う新しい回も自動で追加する",
   },
   {
     value: "autoExisting",
     icon: "🔄",
-    title: "今あるリストを育てる",
+    title: "今あるリストが育つ",
     description: "すでに登録されているSpotifyプレイリストに、条件に合う新しい回を自動で追加する",
   },
 ];

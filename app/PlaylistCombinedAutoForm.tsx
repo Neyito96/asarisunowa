@@ -106,7 +106,7 @@ export default function PlaylistCombinedAutoForm() {
       setStatus("error");
       setMessage(
         registrationSent
-          ? "プレイリスト登録は送信しましたが、自動更新申請の受付を確認できませんでした。時間をおいて『今あるリストを育てる』から申請してください。"
+          ? "プレイリスト登録は送信しましたが、自動更新申請の受付を確認できませんでした。時間をおいて『今あるリストが育つ』から申請してください。"
           : error instanceof Error
           ? error.message
           : "送信できませんでした。時間をおいてもう一度お試しください。",
