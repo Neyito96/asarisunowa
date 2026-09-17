@@ -25,6 +25,7 @@ function doPost(e) {
     const kind = input.kind;
     const securityAnswer = input.securityAnswer;
     const website = input.website;
+    const requestId = String(data.requestId || "").trim();
 
     if (website) return jsonResponse({ ok: true });
 
@@ -84,7 +85,8 @@ function doPost(e) {
       comment,
       artwork,
       kind,
-      inviteUrl
+      inviteUrl,
+      requestId
     );
 
   } catch (error) {
@@ -139,6 +141,10 @@ function doGet(e) {
 
     if (type === "autoUpdateRequestStatus") {
       return handleAutoUpdateRequestStatus_(e, callback);
+    }
+
+    if (type === "playlistRequestStatus") {
+      return handlePlaylistRequestStatus_(e, callback);
     }
 
     const readResponse = handleApiRead_(type, callback);
