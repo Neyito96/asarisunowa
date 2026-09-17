@@ -62,6 +62,16 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
 
     SpreadsheetApp.flush();
 
+    // 受付レスポンスを待たせず、直後の1回だけを時間主導トリガーへ予約する。
+    // すでに予約済みなら同じトリガーへ相乗りし、トリガー数の増加を防ぐ。
+    let immediateRun = { scheduled: false, reason: "scheduler-unavailable" };
+    try {
+      immediateRun = scheduleImmediateAutoUpdateAutomationV1_();
+    } catch (scheduleError) {
+      // 毎朝4〜5時の定期巡回が予備になるため、受付自体は成功として残す。
+      console.error("自動更新の直後実行を予約できませんでした", scheduleError);
+    }
+
     if (requestId) {
       CacheService.getScriptCache().put(
         AUTO_UPDATE_RECEIPT_CACHE_PREFIX_ + requestId,
@@ -76,7 +86,9 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
       message: "自動更新申請を受け付けました。共同編集招待の承認後、安全条件を満たす申請は自動更新を開始します",
       lifecycle: requestPlan.status,
       ruleType: requestPlan.ruleType,
-      productionWriteAllowed: requestPlan.productionWriteAllowed
+      productionWriteAllowed: requestPlan.productionWriteAllowed,
+      immediateRunScheduled: immediateRun.scheduled,
+      immediateRunReason: immediateRun.reason
     });
   } finally {
     autoUpdateLock.releaseLock();
