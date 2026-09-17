@@ -49,10 +49,10 @@ function testAutoUpdateAutomationV1Pure() {
     throw new Error("増分自動更新状態になりません");
   }
 
-  const seed = findAutoUpdateSeedEpisodeV1_([
-    { item: { id: "new", name: "佐藤陽 新しい回", release_date: "2026-01-02" } },
-    { item: { id: "old", name: "佐藤陽 起点回", release_date: "2025-01-02" } },
-    { item: { id: "other", name: "別の出演者", release_date: "2024-01-02" } }
+  const seed = selectAutoUpdateSeedEpisodeV1_([
+    { id: "new", name: "佐藤陽 新しい回", release_date: "2026-01-02" },
+    { id: "old", name: "佐藤陽 起点回", release_date: "2025-01-02" },
+    { id: "other", name: "別の出演者", release_date: "2024-01-02" }
   ], rule);
   if (!seed || seed.id !== "old" || seed.releaseDate !== "2025-01-02") {
     throw new Error("条件に合う最古の起点回を選べません");
