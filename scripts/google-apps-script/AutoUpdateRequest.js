@@ -56,7 +56,7 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
       inviteUrl,
       keywords,
       ruleNote,
-      requestPlan.statusLabel,
+      "招待承認待ち",
       "方式: " + updateType + " / ruleType: " + requestPlan.ruleType
     ]);
 
@@ -73,7 +73,7 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
     return jsonResponse({
       ok: true,
       kind: "autoUpdateRequest",
-      message: "自動更新申請を受け付けました",
+      message: "自動更新申請を受け付けました。共同編集招待の承認後、安全条件を満たす申請は自動更新を開始します",
       lifecycle: requestPlan.status,
       ruleType: requestPlan.ruleType,
       productionWriteAllowed: requestPlan.productionWriteAllowed
