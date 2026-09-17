@@ -1,11 +1,13 @@
 // 「今あるリストを育てる」申請の安全な自動運用 v1。
-// 招待承認を検知した時点を境界として保存し、それ以後の新着差分だけを追加する。
+// プレイリスト内の最古の対象回から初回補完し、完了後は新着差分だけを追加する。
 
 const AUTO_UPDATE_V1_RULE_IDS_KEY_ = "AUTO_UPDATE_V1_RULE_IDS";
 const AUTO_UPDATE_V1_RULE_PREFIX_ = "AUTO_UPDATE_V1_RULE_";
 const AUTO_UPDATE_V1_BOUNDARY_PREFIX_ = "AUTO_UPDATE_V1_BOUNDARY_";
 const AUTO_UPDATE_V1_MAX_ADDITIONS_PER_RUN_ = 10;
 const AUTO_UPDATE_V1_RECENT_EPISODES_PER_SHOW_ = 20;
+const AUTO_UPDATE_V1_BOOTSTRAP_MAX_PAGES_PER_RUN_ = 5;
+const AUTO_UPDATE_V1_BOOTSTRAP_MAX_CANDIDATES_PER_SHOW_ = 250;
 const AUTO_UPDATE_V1_IMMEDIATE_HANDLER_ = "runAutoUpdateAutomationSoonV1";
 const AUTO_UPDATE_V1_IMMEDIATE_DELAY_MS_ = 60 * 1000;
 
@@ -33,6 +35,9 @@ function runAutoUpdateAutomationSoonV1() {
 function runAutoUpdateAutomationV1() {
   const activation = processPendingAutoUpdateRequestsV1();
   const sync = syncApprovedAutoUpdateRequestsV1();
+  if (sync.some(function(result) { return result && result.bootstrapPending === true; })) {
+    scheduleImmediateAutoUpdateAutomationV1_();
+  }
   return { activation: activation, sync: sync };
 }
 
@@ -107,12 +112,31 @@ function processPendingAutoUpdateRequestsV1() {
       assertAutoPlaylistRuleActivationSafe_(rule);
 
       assertAutoPlaylistSheetLinkBeforeWrite_(rule);
-      captureAutoUpdateBoundariesV1_(rule, token);
+      const seed = findAutoUpdateSeedEpisodeV1_(
+        getAllSpotifyPlaylistItems_(rule.playlistId, token),
+        rule
+      );
+      if (!seed) {
+        setAutoUpdateRequestStatusV1_(
+          sheet,
+          rowNumber,
+          "確認待ち",
+          "条件に合う起点エピソードがプレイリスト内にありません"
+        );
+        result.review += 1;
+        return;
+      }
+      prepareAutoUpdateSeedBootstrapV1_(rule, seed);
       saveAutoUpdateRuntimeRuleV1_(rule);
 
       // 招待リンクは権限確認後にシートから消し、不要な露出を残さない。
       sheet.getRange(rowNumber, 5).clearContent();
-      setAutoUpdateRequestStatusV1_(sheet, rowNumber, "増分自動更新", "招待承認を確認。新着差分のみ自動追加します");
+      setAutoUpdateRequestStatusV1_(
+        sheet,
+        rowNumber,
+        "初回補完中",
+        "起点 " + seed.releaseDate + " から不足回を古い順に補完します"
+      );
       result.activated += 1;
     });
 
@@ -146,6 +170,10 @@ function syncApprovedAutoUpdateRequestsV1() {
 function syncOneApprovedAutoUpdateRequestV1_(rule, token) {
   const validation = validateAutoPlaylistRule_(rule);
   if (!validation.valid) return pauseAutoUpdateRuleV1_(rule, "ルール検証失敗: " + validation.errors.join(" / "));
+
+  if (rule.bootstrapPending === true) {
+    return syncAutoUpdateSeedBootstrapV1_(rule, token);
+  }
 
   const showIds = getAutoPlaylistShowIds_(rule);
   let candidateIds = [];
@@ -202,6 +230,183 @@ function syncOneApprovedAutoUpdateRequestV1_(rule, token) {
   }
   setAutoUpdateRuleSheetStatusV1_(rule, "増分自動更新", "前回追加 " + addResult.addedCount + "件");
   return { playlistId: rule.playlistId, ok: true, addedCount: addResult.addedCount };
+}
+
+function findAutoUpdateSeedEpisodeV1_(playlistItems, rule) {
+  const seeds = (Array.isArray(playlistItems) ? playlistItems : []).map(function(row) {
+    const episode = row && row.item ? row.item : null;
+    const releaseDate = String(episode && episode.release_date ? episode.release_date : "").trim();
+    if (!episode || !episode.id || !/^\d{4}-\d{2}-\d{2}$/.test(releaseDate)) return null;
+    if (!matchesAutoPlaylistRule_(episode, rule)) return null;
+    return {
+      id: String(episode.id),
+      releaseDate: releaseDate,
+      name: String(episode.name || episode.id)
+    };
+  }).filter(Boolean);
+
+  seeds.sort(function(a, b) {
+    if (a.releaseDate !== b.releaseDate) return a.releaseDate < b.releaseDate ? -1 : 1;
+    return a.id < b.id ? -1 : 1;
+  });
+  return seeds.length ? seeds[0] : null;
+}
+
+function prepareAutoUpdateSeedBootstrapV1_(rule, seed) {
+  rule.bootstrapPending = true;
+  rule.bootstrapSeedEpisodeId = String(seed.id || "");
+  rule.bootstrapSeedDate = String(seed.releaseDate || "");
+
+  getAutoPlaylistShowIds_(rule).forEach(function(showId) {
+    const state = createAutoPlaylistScopedShowState_(rule, showId, "seed-bootstrap", "");
+    state.bootstrapSeedDate = rule.bootstrapSeedDate;
+    saveAutoPlaylistScopedState_(state);
+  });
+}
+
+function applyAutoUpdateSeedBootstrapPageV1_(state, episodes, rule, nextUrl) {
+  const current = Object.assign({}, state || {});
+  const seedDate = String(current.bootstrapSeedDate || rule.bootstrapSeedDate || "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(seedDate)) throw new Error("初回補完の起点日が不正です");
+
+  const source = Array.isArray(episodes) ? episodes : [];
+  if (!current.nextUrl && !current.pendingBoundaryId && source.length) {
+    current.pendingBoundaryId = String(source[0] && source[0].id ? source[0].id : "").trim();
+  }
+
+  let reachedSeedDate = false;
+  const pageCandidateIds = [];
+  source.forEach(function(episode) {
+    if (reachedSeedDate) return;
+    const releaseDate = String(episode && episode.release_date ? episode.release_date : "").trim();
+    if (releaseDate && releaseDate < seedDate) {
+      reachedSeedDate = true;
+      return;
+    }
+    if (releaseDate && releaseDate >= seedDate && episode && episode.id && matchesAutoPlaylistRule_(episode, rule)) {
+      pageCandidateIds.push(String(episode.id));
+    }
+  });
+
+  current.pagesFetched = Number(current.pagesFetched || 0) + 1;
+  current.inspectedCount = Number(current.inspectedCount || 0) + source.length;
+  current.candidateIds = mergeAutoPlaylistCandidateIds_(
+    current.candidateIds || [],
+    pageCandidateIds,
+    AUTO_UPDATE_V1_BOOTSTRAP_MAX_CANDIDATES_PER_SHOW_
+  );
+  current.candidateCount = current.candidateIds.length;
+  current.reachedBoundary = reachedSeedDate;
+  current.committed = false;
+
+  const hasNext = Boolean(String(nextUrl || "").trim());
+  current.complete = reachedSeedDate || !hasNext;
+  current.nextUrl = current.complete ? "" : String(nextUrl);
+  return current;
+}
+
+function fetchAutoUpdateSeedBootstrapPageV1_(rule, state, token) {
+  const url = String(state.nextUrl || "") || buildAutoPlaylistV2InitialUrl_(state.showId);
+  const response = fetchSpotifyReadWithRetry_(
+    url,
+    {
+      muteHttpExceptions: true,
+      headers: { Authorization: "Bearer " + token, Accept: "application/json" }
+    },
+    "Seed bootstrap " + state.showId
+  );
+  const status = response.getResponseCode();
+  if (status !== 200) throw new Error("初回補完のShow取得に失敗しました: " + state.showId + " status=" + status);
+  const data = JSON.parse(response.getContentText());
+  const nextState = applyAutoUpdateSeedBootstrapPageV1_(
+    state,
+    Array.isArray(data.items) ? data.items : [],
+    rule,
+    data.next || ""
+  );
+  saveAutoPlaylistScopedState_(nextState);
+  return nextState;
+}
+
+function syncAutoUpdateSeedBootstrapV1_(rule, token) {
+  const showIds = getAutoPlaylistShowIds_(rule);
+  let pagesFetched = 0;
+
+  for (let i = 0; i < showIds.length && pagesFetched < AUTO_UPDATE_V1_BOOTSTRAP_MAX_PAGES_PER_RUN_; i += 1) {
+    let state = loadAutoPlaylistScopedState_(rule.key, showIds[i]);
+    if (!state) {
+      return pauseAutoUpdateRuleV1_(rule, "初回補完の進捗がありません: " + showIds[i]);
+    }
+    while (!state.complete && pagesFetched < AUTO_UPDATE_V1_BOOTSTRAP_MAX_PAGES_PER_RUN_) {
+      state = fetchAutoUpdateSeedBootstrapPageV1_(rule, state, token);
+      pagesFetched += 1;
+    }
+  }
+
+  const states = showIds.map(function(showId) {
+    return loadAutoPlaylistScopedState_(rule.key, showId);
+  });
+  if (states.some(function(state) { return !state || state.complete !== true; })) {
+    setAutoUpdateRuleSheetStatusV1_(rule, "初回補完中", "対象回を確認中（今回 " + pagesFetched + "ページ）");
+    return { playlistId: rule.playlistId, ok: true, bootstrapPending: true, pagesFetched: pagesFetched, addedCount: 0 };
+  }
+
+  const existingUris = new Set(getAllSpotifyPlaylistItems_(rule.playlistId, token).map(function(row) {
+    return String(row && row.item && row.item.uri ? row.item.uri : "");
+  }).filter(Boolean));
+  const allCandidateIds = mergeAutoPlaylistCandidateIds_([], states.reduce(function(all, state) {
+    return all.concat(state.candidateIds || []);
+  }, []), AUTO_PLAYLIST_MAX_PENDING_CANDIDATE_IDS_);
+  const candidateIds = allCandidateIds.filter(function(id) {
+    return !existingUris.has("spotify:episode:" + id);
+  });
+  const candidateEpisodes = fetchPlayableAutoUpdateEpisodesV1_(candidateIds, token).sort(function(a, b) {
+    const left = String(a.release_date || "");
+    const right = String(b.release_date || "");
+    if (left !== right) return left < right ? -1 : 1;
+    return String(a.id) < String(b.id) ? -1 : 1;
+  });
+  if (candidateEpisodes.length !== candidateIds.length) {
+    return pauseAutoUpdateRuleV1_(rule, "取得できない候補回があるため初回補完を停止しました");
+  }
+  const episodesToAdd = candidateEpisodes.slice(0, AUTO_UPDATE_V1_MAX_ADDITIONS_PER_RUN_);
+
+  if (episodesToAdd.length) assertAutoPlaylistSheetLinkBeforeWrite_(rule);
+  const addResult = episodesToAdd.length
+    ? addAutoPlaylistEpisodesIndividually_(rule, token, episodesToAdd)
+    : { addedCount: 0, failedCount: 0, addedEpisodes: [] };
+  if (addResult.failedCount > 0) return pauseAutoUpdateRuleV1_(rule, "初回補完のSpotify追加に一部失敗しました");
+
+  const resolvedIds = new Set(allCandidateIds.filter(function(id) {
+    return existingUris.has("spotify:episode:" + id);
+  }).concat(addResult.addedEpisodes.map(function(episode) { return String(episode.id); })));
+  states.forEach(function(state) {
+    state.candidateIds = (state.candidateIds || []).filter(function(id) { return !resolvedIds.has(String(id)); });
+    state.candidateCount = state.candidateIds.length;
+    saveAutoPlaylistScopedState_(state);
+  });
+
+  const remainingCount = states.reduce(function(sum, state) {
+    return sum + Number(state.candidateCount || 0);
+  }, 0);
+  if (remainingCount > 0) {
+    setAutoUpdateRuleSheetStatusV1_(rule, "初回補完中", "前回追加 " + addResult.addedCount + "件・残り " + remainingCount + "件");
+    return { playlistId: rule.playlistId, ok: true, bootstrapPending: true, addedCount: addResult.addedCount, remainingCount: remainingCount };
+  }
+
+  states.forEach(function(state) {
+    const boundary = String(state.pendingBoundaryId || "").trim();
+    if (!boundary) throw new Error("初回補完後の新着境界を確定できません: " + state.showId);
+    saveAutoUpdateBoundaryV1_(rule.playlistId, state.showId, boundary);
+    deleteAutoPlaylistScopedState_(rule.key, state.showId);
+  });
+  rule.bootstrapPending = false;
+  saveAutoUpdateRuntimeRuleV1_(rule);
+  if (addResult.addedCount > 0) {
+    updatePlaylistLatestDate_(rule.playlistId, getLatestReleaseDate_(addResult.addedEpisodes));
+  }
+  setAutoUpdateRuleSheetStatusV1_(rule, "増分自動更新", "初回補完完了。以後は新着回を巡回します");
+  return { playlistId: rule.playlistId, ok: true, bootstrapPending: false, addedCount: addResult.addedCount, complete: true };
 }
 
 function autoUpdateRequestFromSheetRowV1_(row) {
