@@ -92,7 +92,7 @@ export default function PlaylistCombinedAutoForm() {
       });
 
       setStatus("success");
-      setMessage("登録と自動更新申請を受け付けました。共同編集招待の承認後、起点の回から不足分を補い、その後は新着回を自動更新します。");
+      setMessage("申請を受け付けました。共同編集を確認できれば数分後、間に合わない場合は翌朝4〜5時に初回補完を始めます。サイトへの掲載はデータ同期後（最長12時間ほど）です。");
       setUrl("");
       setTitle("");
       setMaker("");
@@ -152,6 +152,11 @@ export default function PlaylistCombinedAutoForm() {
         <b>自動更新について</b>
         <p>起点の回から現在までの不足回を古い順に補い、完了後は毎朝、新着回だけを確認して追加します。</p>
       </div>
+      <div className="autoUpdateAfterSubmit">
+        <b>申請後の流れ</b>
+        <p>共同編集を確認できれば数分後、間に合わない場合は翌朝4〜5時に開始 → 不足回を10本ずつ追加 → 完了後は毎朝4〜5時に新着確認</p>
+        <small>サイトへの掲載は別のデータ同期後となるため、最長12時間ほどかかります。</small>
+      </div>
       <label>
         <span>更新ルール・補足 <small>（任意）</small></span>
         <textarea value={ruleNote} onChange={(event) => setRuleNote(event.target.value)} placeholder="標準の自動更新と違う希望があれば入力してください" rows={3} />
@@ -165,8 +170,8 @@ export default function PlaylistCombinedAutoForm() {
         <input type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(event) => setWebsite(event.target.value)} />
       </label>
 
-      <button type="submit" disabled={status === "sending"}>{status === "sending" ? "2件を送信中…" : "登録＋自動更新を申し込む"}</button>
-      {message && <p className={status === "success" ? "submitNotice success" : "submitNotice error"}>{message}</p>}
+      <button type="submit" disabled={status === "sending"}>{status === "sending" ? "送信中…" : "登録＋自動更新を申し込む"}</button>
+      {message && <p aria-live="polite" className={status === "success" ? "submitNotice success" : "submitNotice error"}>{message}</p>}
     </form>
   );
 }
