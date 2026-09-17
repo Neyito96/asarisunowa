@@ -156,7 +156,6 @@ export default function PlaylistCombinedAutoForm() {
         <b>申請後</b>
         <p><b>Spotify：</b>共同編集の確認後、通常は数分で更新します。初回は最大100件、残りは翌朝4〜5時に追加します。</p>
         <p><b>朝リスの田：</b>通常は1時間以内に掲載します。</p>
-        <small>掲載後も初回補完が続いている場合があります。Spotifyの内容は翌朝の処理後に増えることがあります。</small>
       </div>
       <label>
         <span>更新ルール・補足 <small>（任意）</small></span>
