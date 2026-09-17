@@ -140,7 +140,8 @@ function processPendingAutoUpdateRequestsV1() {
       assertAutoPlaylistSheetLinkBeforeWrite_(rule);
       const seed = findAutoUpdateSeedEpisodeV1_(
         getAllSpotifyPlaylistItems_(rule.playlistId, token),
-        rule
+        rule,
+        token
       );
       if (!seed) {
         setAutoUpdateRequestStatusV1_(
@@ -258,9 +259,31 @@ function syncOneApprovedAutoUpdateRequestV1_(rule, token) {
   return { playlistId: rule.playlistId, ok: true, addedCount: addResult.addedCount };
 }
 
-function findAutoUpdateSeedEpisodeV1_(playlistItems, rule) {
-  const seeds = (Array.isArray(playlistItems) ? playlistItems : []).map(function(row) {
-    const episode = row && row.item ? row.item : null;
+function findAutoUpdateSeedEpisodeV1_(playlistItems, rule, token) {
+  const episodes = (Array.isArray(playlistItems) ? playlistItems : []).map(function(row) {
+    const episode = row && (row.item || row.track) ? (row.item || row.track) : null;
+    if (!episode || !episode.id) return null;
+    const releaseDate = String(episode.release_date || "").trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(releaseDate)) return episode;
+    return fetchAutoUpdateEpisodeDetailV1_(episode.id, token);
+  }).filter(Boolean);
+  return selectAutoUpdateSeedEpisodeV1_(episodes, rule);
+}
+
+function fetchAutoUpdateEpisodeDetailV1_(episodeId, token) {
+  const response = UrlFetchApp.fetch(
+    "https://api.spotify.com/v1/episodes/" + encodeURIComponent(String(episodeId || "")) + "?market=JP",
+    {
+      muteHttpExceptions: true,
+      headers: { Authorization: "Bearer " + token, Accept: "application/json" }
+    }
+  );
+  if (response.getResponseCode() !== 200) return null;
+  return JSON.parse(response.getContentText());
+}
+
+function selectAutoUpdateSeedEpisodeV1_(episodes, rule) {
+  const seeds = (Array.isArray(episodes) ? episodes : []).map(function(episode) {
     const releaseDate = String(episode && episode.release_date ? episode.release_date : "").trim();
     if (!episode || !episode.id || !/^\d{4}-\d{2}-\d{2}$/.test(releaseDate)) return null;
     if (!matchesAutoPlaylistRule_(episode, rule)) return null;
