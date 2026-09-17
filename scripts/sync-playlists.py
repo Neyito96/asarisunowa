@@ -10,6 +10,10 @@ CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQHi9LM842wuiTT-N8Fzg
 # 外部CDNの読み込みが不安定な項目は、GitHub Pages内に保存した
 # 公式アートワークを使う。スプレッドシート同期後もこの指定を保つ。
 LOCAL_ARTWORK_BY_URL = {
+    "https://open.spotify.com/playlist/4FBXSFf2nLjLb3qaRoSdoD":
+        "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f4ea26c84e38a43b8859df430",
+    "https://open.spotify.com/playlist/6nDhZQG75F1wU62sdcYJMq":
+        "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f7c49378fc19b81c6f0f72987",
     "https://open.spotify.com/playlist/4tY0lHoV8IemMBp4iTnKnl":
         "https://image-cdn-fa.spotifycdn.com/image/ab67656300005f1f2b3a4e572f8666f2bb05c46c",
     "https://open.spotify.com/playlist/6hNrobOVHmYaQT5C7hPkNa":
