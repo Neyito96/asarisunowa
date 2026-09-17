@@ -19,6 +19,7 @@ const SERIES_PLAYLIST_TITLES = new Set([
   "アラサー会",
   "親モヤ",
   "農MUSIC 猟ライフ（ノーミライ）",
+  "ポリレビ",
 ].map(normalizeShelfTitle));
 
 function normalizeShelfTitle(value: string) {
