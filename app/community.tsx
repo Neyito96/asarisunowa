@@ -24,7 +24,7 @@ const PLAYLIST_SUBMIT_ENDPOINT = "https://script.google.com/macros/s/AKfycbxlZCN
 const ASARISU_API_URL = PLAYLIST_SUBMIT_ENDPOINT;
 const PLAYLIST_ARTWORK_OVERRIDES: Record<string, string> = {
   "https://open.spotify.com/playlist/6hNrobOVHmYaQT5C7hPkNa":
-    "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f717992ffd72644df90b51d19",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f09a8bd5875be5defced61b26",
 };
 const LISTENER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQHi9LM842wuiTT-N8FzgJXVFyY4W5sZRYEdp4a9OVBTgVBJgPWG52AK6sgH4qBciqB6Q5UAd2-n2bA/pub?gid=697105746&single=true&output=csv";
 const PODCAST_CSV_URL = "https://docs.google.com/spreadsheets/d/1KSzoIkOsjUagNBLt3IbKIvgWEmez4f0XISQ-jkUjmwQ/gviz/tq?tqx=out:csv&sheet=%E6%9C%9D%E3%83%AA%E3%82%B9Podcast";
