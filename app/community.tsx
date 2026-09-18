@@ -1477,12 +1477,12 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               {autoUpdateOpen && (
                 <form className="autoUpdateForm" onSubmit={submitAutoUpdateRequest}>
                   <h3 id="auto-update-title">自動更新を申し込む</h3>
-                  <p>あなたが編集できるSpotifyプレイリストを選び、「どんな回を追加したいか」を教えてください。一度設定すれば、その後は自動更新を続けられます。</p>
+                  <p>あなたが編集できるSpotifyプレイリストを選び、「どんな回を追加したいか」を教えてください。シリーズ別・出演者別は条件確認後、テーマ別は候補確認後に自動更新を開始します。</p>
                   <fieldset className="autoUpdateTypes">
                     <legend>どんなプレイリスト？</legend>
                     <label><input type="radio" name="autoUpdateType" value="series" checked={autoUpdateType === "series"} onChange={() => setAutoUpdateType("series")} /><span><b>📻 シリーズ別</b><small>例：一緒に新聞をめくろう！</small></span></label>
                     <label><input type="radio" name="autoUpdateType" value="speaker" checked={autoUpdateType === "speaker"} onChange={() => setAutoUpdateType("speaker")} /><span><b>🎙️ 出演者別</b><small>例：宮沢賢一さん出演回</small></span></label>
-                    <label><input type="radio" name="autoUpdateType" value="theme" checked={autoUpdateType === "theme"} onChange={() => setAutoUpdateType("theme")} /><span><b>🔎 テーマ別</b><small>例：中東・鉄道・教育</small></span></label>
+                    <label><input type="radio" name="autoUpdateType" value="theme" checked={autoUpdateType === "theme"} onChange={() => setAutoUpdateType("theme")} /><span><b>🔎 テーマ別（候補確認後に開始）</b><small>例：中東・鉄道・教育</small></span></label>
                   </fieldset>
                   <label>
                     <span>朝リストから選ぶ</span>
