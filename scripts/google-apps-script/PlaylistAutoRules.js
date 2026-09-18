@@ -103,6 +103,24 @@ const AUTO_PLAYLIST_RULES = [
     addIndividually: true,
     updateLatestDateOnAdd: true,
     requireSheetLinkBeforeWrite: true
+  },
+  {
+    key: "south-america",
+    enabled: false,
+    lifecycleStatus: "requested",
+    productionWriteAllowed: false,
+    reviewRequired: true,
+    ruleType: AUTO_PLAYLIST_RULE_TYPE_THEME_,
+    name: "南米 中南米",
+    showIds: ASAHI_PRIMARY_SHOW_IDS,
+    playlistId: "2Org6cCBgVas4d9OwzzxAv",
+    keywords: ["南米", "中南米", "メキシコ", "ブラジル", "ベネズエラ", "キューバ"],
+    fields: ["name", "description", "html_description"],
+    fetchAllPages: true,
+    continueOnShowFetchError: true,
+    addIndividually: true,
+    updateLatestDateOnAdd: true,
+    requireSheetLinkBeforeWrite: true
   }
 ];
 

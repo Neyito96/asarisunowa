@@ -130,3 +130,13 @@ function dryRunNoMiraiAutoPlaylistV2Step() {
 function reportNoMiraiAutoPlaylistV2DryRun() {
   return reportAutoPlaylistV2Rule_("no-mirai");
 }
+
+// 南米・中南米：テーマ候補の読み取り専用取得。
+// 候補確認前はplaylist・Spreadsheetへ一切書き込まない。
+function dryRunSouthAmericaAutoPlaylistV2Step() {
+  return dryRunAutoPlaylistV2Step("south-america");
+}
+
+function reportSouthAmericaAutoPlaylistV2DryRun() {
+  return reportAutoPlaylistV2Rule_("south-america");
+}

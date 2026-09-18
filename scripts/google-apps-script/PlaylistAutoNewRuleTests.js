@@ -1,12 +1,13 @@
-// ノーミライ・佐藤陽ルール候補の純粋テスト。
+// ノーミライ・佐藤陽・南米中南米ルール候補の純粋テスト。
 // Spotify・Spreadsheetへのアクセスや本番書き込みは行わない。
 
 function testNewAutoPlaylistRuleCandidatesPure() {
   const noMirai = getAutoPlaylistRuleByKey_("no-mirai");
   const satoYo = getAutoPlaylistRuleByKey_("sato-yo");
-  if (!noMirai || !satoYo) throw new Error("新規ルール候補が見つかりません");
+  const southAmerica = getAutoPlaylistRuleByKey_("south-america");
+  if (!noMirai || !satoYo || !southAmerica) throw new Error("新規ルール候補が見つかりません");
 
-  [noMirai, satoYo].forEach(function(rule) {
+  [noMirai, satoYo, southAmerica].forEach(function(rule) {
     if (rule.enabled !== false) throw new Error(rule.key + " が有効化されています");
     if (rule.lifecycleStatus !== AUTO_PLAYLIST_LIFECYCLE_.REQUESTED) {
       throw new Error(rule.key + " がrequested状態ではありません");
@@ -28,6 +29,21 @@ function testNewAutoPlaylistRuleCandidatesPure() {
 
   if (noMirai.fetchAllPages !== true) {
     throw new Error("ノーミライの全ページ取得が無効です");
+  }
+
+  const southAmericaValidation = validateAutoPlaylistRule_(southAmerica);
+  if (!southAmericaValidation.valid) {
+    throw new Error("南米・中南米ルールが不正です: " + southAmericaValidation.errors.join(" / "));
+  }
+  if (southAmerica.ruleType !== AUTO_PLAYLIST_RULE_TYPE_THEME_ || southAmerica.reviewRequired !== true) {
+    throw new Error("南米・中南米のテーマ確認条件が不正です");
+  }
+  if (!matchesAutoPlaylistRule_({
+    name: "南米の現在を考える",
+    description: "ブラジルとベネズエラを取材しました",
+    html_description: ""
+  }, southAmerica)) {
+    throw new Error("南米・中南米のテーマ候補を検出できません");
   }
 
   if (!matchesAutoPlaylistRule_({
