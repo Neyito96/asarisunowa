@@ -1085,7 +1085,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           ? "朝リスPodcastを送信しました。ありがとうございます！ リストへの反映には少し時間がかかる場合があります。"
           : postedKind === "podcast"
             ? "おすすめPodcastを送信しました。ありがとうございます！ リストへの反映には数分かかる場合があります。"
-            : "プレイリストを送信しました。ありがとうございます！ リストへの反映には数分かかる場合があります。"
+            : "登録を受け付けました🐿️\n朝リスの田への掲載は通常30〜60分程度です。反映されない場合はDiscordでお知らせください。"
       );
       setSubmitUrl("");
       setSubmitTitle("");
