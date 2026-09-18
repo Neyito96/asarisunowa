@@ -1,5 +1,5 @@
-export type Playlist = { id:string; title:string; maker:string; url:string|null; artwork:string|null };
-const rows:[string,string,string|null,string|null][] = [
+export type Playlist = { id:string; title:string; maker:string; url:string|null; artwork:string|null; latestDate?:string|null; introducedDate?:string|null };
+const rows:[string,string,string|null,string|null,string?,string?][] = [
   [
     "一緒に新聞をめくろう！",
     "ダブルスタンダード半年割",
@@ -391,12 +391,6 @@ const rows:[string,string,string|null,string|null][] = [
     "https://mosaic.scdn.co/300/ab67656300005f1f2365d5361f8ec0a4c5a3d442ab67656300005f1f276260b244eab5e25f076134ab67656300005f1f6dd6cda0c26397c6ca6df8e5ab67656300005f1fecc8b64fdf593a1d5e042429"
   ],
   [
-    "【TEST】登録＋自動更新 2026-09-13",
-    "ネジート TEST",
-    "https://open.spotify.com/playlist/TEST20260913",
-    null
-  ],
-  [
     "佐藤陽 記者が出演した番組",
     "パクチー",
     "https://open.spotify.com/playlist/73ppqrTcsjVgl1xwIZa4SY",
@@ -413,6 +407,14 @@ const rows:[string,string,string|null,string|null][] = [
     "田",
     "https://open.spotify.com/playlist/6hNrobOVHmYaQT5C7hPkNa",
     "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f09a8bd5875be5defced61b26"
+  ],
+  [
+    "南米 中南米",
+    "Mayito",
+    "https://open.spotify.com/playlist/2Org6cCBgVas4d9OwzzxAv",
+    null,
+    "2026-09-18",
+    "2026-09-18"
   ]
 ];
-export const playlists:Playlist[] = rows.map((r,i)=>({id:String(i+1),title:r[0],maker:r[1],url:r[2],artwork:r[3]}));
+export const playlists:Playlist[] = rows.map((r,i)=>({id:String(i+1),title:r[0],maker:r[1],url:r[2],artwork:r[3],latestDate:r[4]||null,introducedDate:r[5]||null}));
