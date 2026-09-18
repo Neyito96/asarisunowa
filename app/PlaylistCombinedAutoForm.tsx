@@ -63,6 +63,7 @@ export default function PlaylistCombinedAutoForm() {
         url: cleanUrl,
         title: cleanTitle,
         maker: cleanMaker,
+        inviteUrl: cleanInviteUrl,
         comment: "",
         introducedDate: "",
         securityAnswer: cleanSecurityAnswer,
