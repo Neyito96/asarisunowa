@@ -103,10 +103,13 @@ function runAutoUpdateAutomationV1() {
   } else {
     PropertiesService.getScriptProperties().deleteProperty(AUTO_UPDATE_V1_WAITING_RETRY_STARTED_KEY_);
   }
-  // 既存の日次トリガーを共用し、テーマ候補用の追加トリガー権限を不要にする。
-  const theme = typeof runThemeReviewAutomation === "function"
+  // 既存の日次トリガーを共用する。テーマ運用が停止中でも、
+  // 固定ルール（ノーミライ）まで巻き込んで止めない。
+  const themeEnabled = typeof isThemeReviewSpotifyWriteEnabled_ === "function" &&
+    isThemeReviewSpotifyWriteEnabled_();
+  const theme = themeEnabled && typeof runThemeReviewAutomation === "function"
     ? runThemeReviewAutomation()
-    : null;
+    : { skipped: true, reason: "disabled" };
   const managed = syncDailyManagedAutoPlaylistsV1_();
   return { activation: activation, sync: sync, theme: theme, managed: managed };
 }
