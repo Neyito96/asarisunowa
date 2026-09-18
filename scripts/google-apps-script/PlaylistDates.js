@@ -93,8 +93,8 @@ if (!shouldTry) {
     .getRange(i + 1, latestCol + 1)
     .setValue(latestDate);
 
-  // 「更新日取得方法」列を見出し名から探して AUTO と記録
-  const methodCol = headers.indexOf("更新日取得方法");
+  // 現行見出し「更新日取得状況」を優先し、旧見出しにも互換対応する。
+  const methodCol = findPlaylistUpdateStatusColumn_(headers);
 
   if (methodCol >= 0) {
     sheet
@@ -145,7 +145,7 @@ function scanBlankPlaylistDates() {
   const urlCol = headers.indexOf("Spotifyプレイリストのリンク");
   const titleCol = headers.indexOf("公開プレイリスト");
   const latestCol = headers.indexOf("最終更新日");
-  const methodCol = headers.indexOf("更新日取得方法");
+  const methodCol = findPlaylistUpdateStatusColumn_(headers);
 
   if (
     urlCol < 0 ||
@@ -267,6 +267,11 @@ function scanBlankPlaylistDates() {
     " / 要確認=" + checkCount +
     " / 対象外=" + excludedCount
   );
+}
+
+function findPlaylistUpdateStatusColumn_(headers) {
+  const current = headers.indexOf("更新日取得状況");
+  return current >= 0 ? current : headers.indexOf("更新日取得方法");
 }
 
 function updatePlaylistLatestDate_(playlistId, releaseDate) {
