@@ -10,7 +10,7 @@ const rows:[string,string,string|null,string|null][] = [
     "IOK 伊藤大地・奥山晶二郎・神田大介",
     "I'm OK",
     "https://open.spotify.com/playlist/799Fo9to2TK0ahGEJsvcm2",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e"
   ],
   [
     "#ふな 冨名腰隆　旧【報談】",
@@ -34,7 +34,7 @@ const rows:[string,string,string|null,string|null][] = [
     "東日本大震災",
     "cobaltore12",
     "https://open.spotify.com/playlist/4nptiHJbbsjKS37kykLkNF",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694"
   ],
   [
     "お坊さんに聞け",
@@ -244,7 +244,7 @@ const rows:[string,string,string|null,string|null][] = [
     "新聞社員の「楽屋裏」",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/1u1qT0BxRZT1OeNM0LDA72",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844ac19eab5ced53a5396e809c"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da844ac19eab5ced53a5396e809c"
   ],
   [
     "「SDGsを話そう」厳選エピソード",
@@ -262,19 +262,19 @@ const rows:[string,string,string|null,string|null][] = [
     "「MEDIA TALK」 2023厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/6Q0iXwuC9PuLV3cqg11Dmt",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938"
   ],
   [
     "楽屋裏2023　厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/0I9wCLs5oFLNIG1aPLQneg",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32"
   ],
   [
     "バスケ通信―クラッチタイム（バスクラ）",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/3axOpfDhMhLEtelwGwvMHb",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244"
   ],
   [
     "音でよみがえる甲子園",
@@ -364,7 +364,7 @@ const rows:[string,string,string|null,string|null][] = [
     "編集マニア",
     "カンダ ・マサキ",
     "https://open.spotify.com/playlist/71mdQ5ANqZda48jBkj0Qmz",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d"
   ],
   [
     "朝日新聞社の歴史",
@@ -376,7 +376,7 @@ const rows:[string,string,string|null,string|null][] = [
     "まなび場天声人語　見出しづくりにチャレンジ",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/7aKDEfAdCjTxiqiv19Grar",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da848d2c65afeadf0c8d7c18f392"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da848d2c65afeadf0c8d7c18f392"
   ],
   [
     "#朝ポキ 他流試合 +PCWE2024 +α",
