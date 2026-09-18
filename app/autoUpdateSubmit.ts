@@ -17,6 +17,7 @@ export type PlaylistRegistrationPayload = {
   url: string;
   title: string;
   maker: string;
+  inviteUrl: string;
   comment: string;
   introducedDate: string;
   securityAnswer: string;
