@@ -34,7 +34,7 @@ const rows:[string,string,string|null,string|null][] = [
     "東日本大震災",
     "cobaltore12",
     "https://open.spotify.com/playlist/4nptiHJbbsjKS37kykLkNF",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694"
   ],
   [
     "お坊さんに聞け",
@@ -58,7 +58,7 @@ const rows:[string,string,string|null,string|null][] = [
     "建モノがたり",
     "regency",
     "https://open.spotify.com/playlist/3pSXnlmOO3PvNm4qVOOWzQ",
-    null
+    "https://mosaic.scdn.co/300/ab67656300005f1f045cc696931ed8ab438abe10ab67656300005f1f2b4bb4e125e223060e763945ab67656300005f1ffc871a275c2017c03da97af3ab67656300005f1fffe32b45ef0f0ddfffc17463"
   ],
   [
     "朝日新聞社の歴史",
@@ -142,7 +142,7 @@ const rows:[string,string,string|null,string|null][] = [
     "アフガニスタン",
     "bigstone1977",
     "https://open.spotify.com/playlist/6I3Ge9DJykZkNlyk1Ktc3x",
-    null
+    "https://mosaic.scdn.co/300/ab67656300005f1f0edd5bbf650515f3b3be1828ab67656300005f1f877b774bf629cf9d72419972ab67656300005f1fa84f0f105934060881c12353ab67656300005f1fffca567e2bcca3b4e8d880fb"
   ],
   [
     "民主主義と憲法",
@@ -244,19 +244,19 @@ const rows:[string,string,string|null,string|null][] = [
     "新聞社員の「楽屋裏」",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/1u1qT0BxRZT1OeNM0LDA72",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844ac19eab5ced53a5396e809c"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da844ac19eab5ced53a5396e809c"
   ],
   [
     "「SDGsを話そう」厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/4styp7b6VpZThsevXCRDla",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84a1ed8e9ca1ad0f9a7c2b7b07"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84a1ed8e9ca1ad0f9a7c2b7b07"
   ],
   [
     "ポキ-1グランプリ 2023",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/5xUDKa3r5arvKSx4gqjwI3",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9"
   ],
   [
     "「MEDIA TALK」 2023厳選エピソード",
@@ -304,7 +304,7 @@ const rows:[string,string,string|null,string|null][] = [
     "GLOBE CAST",
     "Tommy",
     "https://open.spotify.com/playlist/1NdFNZ1kDgFIO1zmjs3zXA",
-    null
+    "https://mosaic.scdn.co/300/ab67656300005f1f32a66c42ed0b6a9005237f79ab67656300005f1f71486406d646a2d4bc3c3717ab67656300005f1fb837bc8a8ad748399988cb95ab67656300005f1fdd1959f5ede690aea1e56bd4"
   ],
   [
     "#懐メロ（#朝ポキ 楽屋裏）＋おじさんのメロディ",
@@ -364,7 +364,7 @@ const rows:[string,string,string|null,string|null][] = [
     "編集マニア",
     "カンダ ・マサキ",
     "https://open.spotify.com/playlist/71mdQ5ANqZda48jBkj0Qmz",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d"
   ],
   [
     "朝日新聞社の歴史",
