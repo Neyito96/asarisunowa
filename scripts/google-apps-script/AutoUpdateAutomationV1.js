@@ -292,6 +292,26 @@ function normalizeAutoUpdateRuntimeRuleV1_(rule) {
   return normalized;
 }
 
+// 旧版ルールのshowIds修復後などに、初回補完の進捗だけが欠けていても
+// 同じ起点日から安全に再開できるようにする。候補は既存Playlistと照合してから
+// 追加されるため、再作成しても重複追加にはならない。
+function ensureAutoUpdateSeedBootstrapProgressV1_(rule) {
+  const seedDate = String(rule.bootstrapSeedDate || rule.seedDateOverride || "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(seedDate)) {
+    throw new Error("初回補完の起点日を復旧できません");
+  }
+
+  return getAutoPlaylistShowIds_(rule).map(function(showId) {
+    const existing = loadAutoPlaylistScopedState_(rule.key, showId);
+    if (existing) return existing;
+
+    const state = createAutoPlaylistScopedShowState_(rule, showId, "seed-bootstrap", "");
+    state.bootstrapSeedDate = seedDate;
+    saveAutoPlaylistScopedState_(state);
+    return state;
+  });
+}
+
 function syncOneApprovedAutoUpdateRequestV1_(rule, token) {
   const validation = validateAutoPlaylistRule_(rule);
   if (!validation.valid) return pauseAutoUpdateRuleV1_(rule, "ルール検証失敗: " + validation.errors.join(" / "));
@@ -308,6 +328,7 @@ function syncOneApprovedAutoUpdateRequestV1_(rule, token) {
         addedCount: 0
       };
     }
+    ensureAutoUpdateSeedBootstrapProgressV1_(rule);
     return syncAutoUpdateSeedBootstrapV1_(rule, token);
   }
 
