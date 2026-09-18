@@ -87,6 +87,11 @@ const LISTENER_PODCAST_BACKUP: ListenerPodcast[] = [
   { id:"12", title:"ネジネジ低空飛行 — ゆるバイポーラー thinking aloud —", maker:"ネジート", introduced:"2026.08.16", artwork:null, links:[
     {label:"Spotify",url:"https://open.spotify.com/show/0PfcrUCDN6O8JdtscTQo1B"},{label:"Apple Podcasts",url:"https://podcasts.apple.com/jp/podcast/id6802532797"},
     {label:"LISTEN",url:"https://listen.style/p/neyineyi"},{label:"stand.fm",url:"https://stand.fm/channels/69df8fe3828ab6b195a8cd0f"}
+  ]},
+  { id:"13", title:"奥会津、風のラジオ", maker:"ハナナナ", introduced:"2026.09.15", artwork:"https://is1-ssl.mzstatic.com/image/thumb/Podcasts211/v4/2c/07/09/2c0709e6-825c-63eb-f057-61d730e94661/mza_14134673457044380375.jpg/600x600bb.jpg", links:[
+    {label:"Spotify",url:"https://open.spotify.com/show/6Kc11T9E3OcX78WPyIyHML?si=7bf71fb1e22a4d8e"},
+    {label:"Apple Podcasts",url:"https://podcasts.apple.com/jp/podcast/%E5%A5%A5%E4%BC%9A%E6%B4%A5-%E9%A2%A8%E3%81%AE%E3%83%A9%E3%82%B8%E3%82%AA/id1893309443"},
+    {label:"stand.fm",url:"https://stand.fm/channels/69dde5cd828ab6b195a5af16"}
   ]}
 ];
 
