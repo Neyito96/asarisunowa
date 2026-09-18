@@ -63,19 +63,8 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
     SpreadsheetApp.flush();
     const requestRowNumber = requestSheet.getLastRow();
 
-    // 受付レスポンスを待たせず、直後の1回だけを時間主導トリガーへ予約する。
-    // すでに予約済みなら同じトリガーへ相乗りし、トリガー数の増加を防ぐ。
-    let immediateRun = { scheduled: false, reason: "scheduler-unavailable" };
-    try {
-      immediateRun = scheduleImmediateAutoUpdateAutomationV1_();
-    } catch (scheduleError) {
-      // 毎朝4〜5時の定期巡回が予備になるため、受付自体は成功として残す。
-      console.error("自動更新の直後実行を予約できませんでした", scheduleError);
-      requestSheet.getRange(requestRowNumber, 9).setValue(
-        "方式: " + updateType + " / ruleType: " + requestPlan.ruleType +
-        " / 直後実行予約失敗（翌朝巡回待ち）"
-      );
-    }
+    // 受付ごとの臨時トリガーは作らず、常設の1時間処理が順番に受け取る。
+    const immediateRun = { scheduled: true, reason: "hourly-backfill-queue" };
 
     try {
       notifyAutoUpdateRequestReceived_({
@@ -106,7 +95,7 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
     return jsonResponse({
       ok: true,
       kind: "autoUpdateRequest",
-      message: "自動更新申請を受け付けました。共同編集招待の承認後、安全条件を満たす申請は自動更新を開始します",
+      message: "自動更新申請を受け付けました。共同編集確認後、初回分は1時間ごとに最大50件ずつ追加し、完了後は毎朝4〜5時に新着回だけ確認します",
       lifecycle: requestPlan.status,
       ruleType: requestPlan.ruleType,
       productionWriteAllowed: requestPlan.productionWriteAllowed,

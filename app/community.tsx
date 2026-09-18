@@ -1065,7 +1065,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         website: "",
       });
       setAutoUpdateStatus("success");
-      setAutoUpdateMessage("申請を受け付けました。運用アカウントで共同編集招待を承認後、安全条件を満たす申請は自動更新を開始します。異常時だけ確認待ちになります。");
+      setAutoUpdateMessage("申請を受け付けました🐿️ 共同編集確認後、Spotifyの初回分は1時間ごとに最大50件ずつ、古い回から順に追加します。完了後は毎朝4〜5時に新着回だけ確認します。異常時だけ確認待ちになります。");
       setAutoUpdatePlaylistId("");
       setAutoUpdateMaker("");
       setAutoUpdateInviteUrl("");

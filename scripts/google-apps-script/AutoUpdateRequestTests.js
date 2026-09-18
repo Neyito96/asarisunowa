@@ -62,7 +62,7 @@ function testAutoUpdateRequestNotificationPure() {
   if (mail.name !== "朝リスの田") throw new Error("差出人表示名が正しくありません");
   if (mail.subject.indexOf("【朝リスの田】") !== 0) throw new Error("通知件名が正しくありません");
   if (mail.body.indexOf("自動更新申請シート 8行目") < 0) throw new Error("確認場所が本文にありません");
-  if (mail.body.indexOf("翌朝4〜5時") < 0) throw new Error("予約失敗時の案内が本文にありません");
+  if (mail.body.indexOf("補完待ちに登録できませんでした") < 0) throw new Error("補完待ち登録失敗時の案内が本文にありません");
   if (/pt=|access[_ -]?token|refresh[_ -]?token/i.test(serialized)) {
     throw new Error("通知メールに秘密情報らしき文字列が含まれています");
   }

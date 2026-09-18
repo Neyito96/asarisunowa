@@ -24,12 +24,12 @@ function buildAutoUpdateRequestNotificationMail_(request) {
     "判定条件：" + (keywords || "未入力"),
     "現在の状態：招待承認待ち",
     "確認場所：自動更新申請シート " + (rowNumber >= 2 ? rowNumber + "行目" : "（行番号不明）"),
-    "直後実行：" + (immediateRunScheduled ? "予約済み" : "予約できませんでした。翌朝4〜5時の巡回で再確認します"),
+    "初回処理：" + (immediateRunScheduled ? "1時間ごとの補完待ちに登録済み" : "補完待ちに登録できませんでした"),
     "",
     "共同編集の承認など、人の操作が必要な場合はシートの状態欄をご確認ください。"
   ];
   if (!immediateRunScheduled && immediateRunReason) {
-    lines.push("予約結果：" + immediateRunReason);
+    lines.push("登録結果：" + immediateRunReason);
   }
 
   return {

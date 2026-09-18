@@ -7,6 +7,9 @@ function testAutoUpdateAutomationV1Pure() {
   if (AUTO_UPDATE_V1_DAILY_HANDLER_ !== "runAutoUpdateAutomationV1") {
     throw new Error("日次巡回用の公開ハンドラー名が不正です");
   }
+  if (AUTO_UPDATE_V1_BACKFILL_HANDLER_ !== "runAutoUpdateBackfillHourlyV1") {
+    throw new Error("毎時補完用の公開ハンドラー名が不正です");
+  }
   if (typeof deleteAutoUpdateAutomationSoonTriggersV1_ !== "function") {
     throw new Error("実行済み継続トリガーの削除関数がありません");
   }
@@ -31,8 +34,8 @@ function testAutoUpdateAutomationV1Pure() {
   if (AUTO_UPDATE_V1_MAX_ADDITIONS_PER_RUN_ !== 10) {
     throw new Error("日次増分の1回あたり追加上限が想定外です");
   }
-  if (AUTO_UPDATE_V1_BOOTSTRAP_MAX_ADDITIONS_PER_RUN_ !== 100) {
-    throw new Error("初回補完の1回あたり追加上限が100件ではありません");
+  if (AUTO_UPDATE_V1_BOOTSTRAP_MAX_ADDITIONS_PER_RUN_ !== 50) {
+    throw new Error("初回補完の1回あたり追加上限が50件ではありません");
   }
   if (AUTO_UPDATE_V1_BOOTSTRAP_MAX_CANDIDATES_PER_SHOW_ !== AUTO_PLAYLIST_MAX_PENDING_CANDIDATE_IDS_) {
     throw new Error("初回補完の候補保存上限が共通安全上限と一致していません");
@@ -42,6 +45,25 @@ function testAutoUpdateAutomationV1Pure() {
   }
   if (typeof ensureAutoUpdateSeedBootstrapProgressV1_ !== "function") {
     throw new Error("欠落した初回補完進捗の復旧関数がありません");
+  }
+  if (!isAutoUpdateTriggerPermissionErrorV1_(new Error("Required permissions: script.scriptapp"))) {
+    throw new Error("トリガー権限不足の判定が不正です");
+  }
+  if (isAutoUpdateTriggerPermissionErrorV1_(new Error("Spotify API error"))) {
+    throw new Error("通常エラーをトリガー権限不足と誤判定しています");
+  }
+  const managedKeys = getDailyManagedAutoPlaylistKeysV1_();
+  ["ota-masahiko", "no-mirai", "sato-yo"].forEach(function(key) {
+    if (managedKeys.indexOf(key) < 0) {
+      throw new Error("朝の固定ルール巡回に不足があります: " + key);
+    }
+  });
+  const nextBootstrap = selectNextAutoUpdateBootstrapRuleV1_([
+    { key: "backstage" },
+    { key: "tensei" }
+  ], "backstage");
+  if (!nextBootstrap || nextBootstrap.key !== "tensei") {
+    throw new Error("初回補完対象を順番に選べません");
   }
 
   const migratedSeriesRule = normalizeAutoUpdateRuntimeRuleV1_({

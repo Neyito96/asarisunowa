@@ -84,4 +84,12 @@ function addAutoPlaylistEpisodesBatch_(rule, token, episodes) {
   episodes.forEach(function(ep) {
     Logger.log("追加完了 ✅ " + ep.name);
   });
+
+  const responseBody = JSON.parse(addRes.getContentText() || "{}");
+  return {
+    addedCount: episodes.length,
+    failedCount: 0,
+    addedEpisodes: episodes.slice(),
+    snapshotId: String(responseBody.snapshot_id || "")
+  };
 }
