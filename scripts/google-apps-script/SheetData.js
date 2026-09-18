@@ -108,9 +108,13 @@ function readPlaylistSheet(sheet) {
   const items =
     values
       .filter(
-        r =>
-          r[0] ||
-          r[1]
+        r => {
+          const url = String(r[0] || "").trim();
+          const title = String(r[1] || "").trim();
+          if (!url && !title) return false;
+          if (/\bTEST\b/i.test(url) || /^[\s\u3000]*[【\[]?TEST[】\]]?/i.test(title)) return false;
+          return true;
+        }
       )
       .map(
         (r, i) => ({
