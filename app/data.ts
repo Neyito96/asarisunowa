@@ -1,5 +1,5 @@
-export type Playlist = { id:string; title:string; maker:string; url:string|null; artwork:string|null; latestDate?:string|null; introducedDate?:string|null };
-const rows:[string,string,string|null,string|null,string?,string?][] = [
+export type Playlist = { id:string; title:string; maker:string; url:string|null; artwork:string|null };
+const rows:[string,string,string|null,string|null][] = [
   [
     "一緒に新聞をめくろう！",
     "ダブルスタンダード半年割",
@@ -10,7 +10,7 @@ const rows:[string,string,string|null,string|null,string?,string?][] = [
     "IOK 伊藤大地・奥山晶二郎・神田大介",
     "I'm OK",
     "https://open.spotify.com/playlist/799Fo9to2TK0ahGEJsvcm2",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e"
   ],
   [
     "#ふな 冨名腰隆　旧【報談】",
@@ -244,7 +244,7 @@ const rows:[string,string,string|null,string|null,string?,string?][] = [
     "新聞社員の「楽屋裏」",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/1u1qT0BxRZT1OeNM0LDA72",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da844ac19eab5ced53a5396e809c"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844ac19eab5ced53a5396e809c"
   ],
   [
     "「SDGsを話そう」厳選エピソード",
@@ -274,7 +274,7 @@ const rows:[string,string,string|null,string|null,string?,string?][] = [
     "バスケ通信―クラッチタイム（バスクラ）",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/3axOpfDhMhLEtelwGwvMHb",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244"
   ],
   [
     "音でよみがえる甲子園",
@@ -310,7 +310,7 @@ const rows:[string,string,string|null,string|null,string?,string?][] = [
     "#懐メロ（#朝ポキ 楽屋裏）＋おじさんのメロディ",
     "koike",
     "https://open.spotify.com/playlist/0vItsmD8tW7fsv18NkZKzh",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600"
   ],
   [
     "#ジャニーズ性加害問題（#朝ポキ）",
@@ -352,7 +352,7 @@ const rows:[string,string,string|null,string|null,string?,string?][] = [
     "#初登場特集（#朝ポキ）",
     "koike",
     "https://open.spotify.com/playlist/3WLp56ohdZs2AqDoUwNNWd",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef"
   ],
   [
     "8がけ社会",
@@ -391,6 +391,12 @@ const rows:[string,string,string|null,string|null,string?,string?][] = [
     "https://mosaic.scdn.co/300/ab67656300005f1f2365d5361f8ec0a4c5a3d442ab67656300005f1f276260b244eab5e25f076134ab67656300005f1f6dd6cda0c26397c6ca6df8e5ab67656300005f1fecc8b64fdf593a1d5e042429"
   ],
   [
+    "【TEST】登録＋自動更新 2026-09-13",
+    "ネジート TEST",
+    "https://open.spotify.com/playlist/TEST20260913",
+    null
+  ],
+  [
     "佐藤陽 記者が出演した番組",
     "パクチー",
     "https://open.spotify.com/playlist/73ppqrTcsjVgl1xwIZa4SY",
@@ -412,9 +418,7 @@ const rows:[string,string,string|null,string|null,string?,string?][] = [
     "南米 中南米",
     "Mayito",
     "https://open.spotify.com/playlist/2Org6cCBgVas4d9OwzzxAv",
-    null,
-    "2026-09-18",
-    "2026-09-18"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000d72cd1cb781afe81f1720cb9d5cf"
   ]
 ];
-export const playlists:Playlist[] = rows.map((r,i)=>({id:String(i+1),title:r[0],maker:r[1],url:r[2],artwork:r[3],latestDate:r[4]||null,introducedDate:r[5]||null}));
+export const playlists:Playlist[] = rows.map((r,i)=>({id:String(i+1),title:r[0],maker:r[1],url:r[2],artwork:r[3]}));
