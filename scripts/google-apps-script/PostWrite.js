@@ -63,8 +63,8 @@ function appendPostRow_(targetSheet, kind, url, title, maker, introducedDate, co
     return;
   }
 
-  // プレイリストはH列に登録日を保存する。
-  // F列（最終更新日）とG列（更新日取得方法）は既存用途のまま保持する。
+  // プレイリストはD列に共同編集URL、G列に取得待ち状態、H列に登録日を保存する。
+  // Spotify取得に成功したら PlaylistDates.js がF列を書き、G列をAUTOへ進める。
   const row = targetSheet.getLastRow() + 1;
   targetSheet.getRange(row, 1, 1, 4).setValues([[
     url,
@@ -72,5 +72,6 @@ function appendPostRow_(targetSheet, kind, url, title, maker, introducedDate, co
     maker,
     inviteUrl || ""
   ]]);
+  targetSheet.getRange(row, 7).setValue("要確認");
   targetSheet.getRange(row, 8).setValue(new Date());
 }
