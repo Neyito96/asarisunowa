@@ -101,7 +101,12 @@ function loadJsonp<T>(url: string): Promise<T> {
     const callbackPath = functionName;
     const script = document.createElement("script");
     const globalWindow = window as unknown as Record<string, unknown>;
+    const timeout = window.setTimeout(() => {
+      cleanup();
+      reject(new Error("JSONP load timed out"));
+    }, 8000);
     const cleanup = () => {
+      window.clearTimeout(timeout);
       script.remove();
       delete globalWindow[functionName];
     };
@@ -120,6 +125,27 @@ function loadJsonp<T>(url: string): Promise<T> {
       encodeURIComponent(callbackPath);
     document.head.appendChild(script);
   });
+}
+
+async function loadJsonpWithRetry<T>(url: string, attempts = 3): Promise<T> {
+  let lastError: unknown = null;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      return await loadJsonp<T>(url + (url.includes("?") ? "&" : "?") + "attempt=" + attempt);
+    } catch (error) {
+      lastError = error;
+      if (attempt + 1 < attempts) {
+        await new Promise<void>((resolve) => window.setTimeout(resolve, 400 * (attempt + 1)));
+      }
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error("JSONP load failed");
+}
+
+function isPublishablePlaylistSource(source: { url?: string | null; title?: string | null }) {
+  const url = String(source.url || "").trim();
+  const title = String(source.title || "").trim();
+  return !/\bTEST\b/i.test(url) && !/^[\s\u3000]*[【\[]?TEST[】\]]?/i.test(title);
 }
 
 async function discoverPodcastArtwork(title: string, url: string | null): Promise<string | null> {
@@ -548,7 +574,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     let cancelled = false;
     async function refreshListenerPlaylists() {
       try {
-        const payload = await loadJsonp<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; latestDate?: string; introducedDate?: string }> }>(
+        const payload = await loadJsonpWithRetry<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; latestDate?: string; introducedDate?: string }> }>(
           ASARISU_API_URL + "?type=playlist&_=" + Date.now()
         );
         if (!payload?.ok || !Array.isArray(payload.items)) return;
@@ -575,7 +601,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               introducedDate: String(source.introducedDate || "").trim() || null,
             } satisfies Playlist;
           })
-          .filter((item: Playlist) => item.title && !["66"].includes(String(item.id)));
+          .filter((item: Playlist) => item.title && isPublishablePlaylistSource(item));
         if (!cancelled && next.length) setLivePlaylists(next);
       } catch {
         // API取得失敗時はビルド済みデータをそのまま使う
