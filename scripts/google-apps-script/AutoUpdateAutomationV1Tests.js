@@ -34,6 +34,9 @@ function testAutoUpdateAutomationV1Pure() {
   if (AUTO_UPDATE_V1_BOOTSTRAP_MAX_ADDITIONS_PER_RUN_ !== 100) {
     throw new Error("初回補完の1回あたり追加上限が100件ではありません");
   }
+  if (AUTO_UPDATE_V1_BOOTSTRAP_MAX_CANDIDATES_PER_SHOW_ !== AUTO_PLAYLIST_MAX_PENDING_CANDIDATE_IDS_) {
+    throw new Error("初回補完の候補保存上限が共通安全上限と一致していません");
+  }
   if (typeof authorizeAutoUpdateAutomationV1 !== "function") {
     throw new Error("トリガー権限承認用の管理関数がありません");
   }
