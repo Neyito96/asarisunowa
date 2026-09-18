@@ -121,6 +121,20 @@ const AUTO_PLAYLIST_RULES = [
     addIndividually: true,
     updateLatestDateOnAdd: true,
     requireSheetLinkBeforeWrite: true
+  },
+  {
+    key: "polirebi-rebuild-audit",
+    enabled: false,
+    lifecycleStatus: "audit",
+    productionWriteAllowed: false,
+    reviewRequired: true,
+    ruleType: AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_,
+    name: "ポリレビ 完全再構築監査",
+    showIds: ["392h0MYfvMTndEVzf2cOvC"],
+    playlistId: "6hNrobOVHmYaQT5C7hPkNa",
+    keyword: "ポリレビ",
+    fields: ["name"],
+    fetchAllPages: true
   }
 ];
 

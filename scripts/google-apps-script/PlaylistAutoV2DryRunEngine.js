@@ -140,3 +140,12 @@ function dryRunSouthAmericaAutoPlaylistV2Step() {
 function reportSouthAmericaAutoPlaylistV2DryRun() {
   return reportAutoPlaylistV2Rule_("south-america");
 }
+
+// ポリレビ完全再構築の読み取り専用監査。
+function dryRunPolirebiRebuildAuditV2Step() {
+  return dryRunAutoPlaylistV2Step("polirebi-rebuild-audit");
+}
+
+function reportPolirebiRebuildAuditV2DryRun() {
+  return reportAutoPlaylistV2Rule_("polirebi-rebuild-audit");
+}
