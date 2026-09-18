@@ -73,17 +73,20 @@ const AUTO_PLAYLIST_RULES = [
   },
   {
     key: "no-mirai",
-    enabled: false,
-    lifecycleStatus: "requested",
-    productionWriteAllowed: false,
-    reviewRequired: true,
+    enabled: true,
+    lifecycleStatus: "incremental",
+    productionWriteAllowed: true,
+    reviewRequired: false,
     ruleType: AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_,
     name: "農MUSIC 猟ライフ（ノーミライ）",
     showIds: ["0341I5UOUrJgm7KEvNGInZ"],
     playlistId: "4FBXSFf2nLjLb3qaRoSdoD",
     keyword: "（ノーミライ #",
     matchStrategy: "no-mirai-title-prefix",
-    fetchAllPages: true
+    fetchAllPages: true,
+    addIndividually: true,
+    updateLatestDateOnAdd: true,
+    requireSheetLinkBeforeWrite: true
   },
   {
     key: "sato-yo",
@@ -211,6 +214,13 @@ function matchesAutoPlaylistRule_(episode, rule) {
   }
 
   const text = getAutoPlaylistEpisodeText_(episode, rule);
+
+  const seriesTitleCode = String(rule && rule.seriesTitleCode ? rule.seriesTitleCode : "");
+  if (seriesTitleCode) {
+    const escapedCode = seriesTitleCode.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const title = String(episode && episode.name ? episode.name : "");
+    if (new RegExp(escapedCode + "[0-9]+").test(title)) return true;
+  }
 
   const includeKeywords =
     Array.isArray(rule.keywords) && rule.keywords.length

@@ -10,10 +10,12 @@ const AUTO_UPDATE_V1_RECENT_EPISODES_PER_SHOW_ = 20;
 const AUTO_UPDATE_V1_BOOTSTRAP_MAX_PAGES_PER_RUN_ = 5;
 const AUTO_UPDATE_V1_BOOTSTRAP_MAX_CANDIDATES_PER_SHOW_ = 250;
 const AUTO_UPDATE_V1_IMMEDIATE_HANDLER_ = "runAutoUpdateAutomationSoonV1";
+const AUTO_UPDATE_V1_DAILY_HANDLER_ = "runAutoUpdateAutomationV1";
 const AUTO_UPDATE_V1_IMMEDIATE_DELAY_MS_ = 60 * 1000;
 const AUTO_UPDATE_V1_WAITING_RETRY_DELAY_MS_ = 15 * 60 * 1000;
 const AUTO_UPDATE_V1_WAITING_RETRY_WINDOW_MS_ = 6 * 60 * 60 * 1000;
 const AUTO_UPDATE_V1_WAITING_RETRY_STARTED_KEY_ = "AUTO_UPDATE_V1_WAITING_RETRY_STARTED";
+const AUTO_UPDATE_V1_MEDIA_TALK_SHOW_ID_ = "0yhef9ORZkUZs9ZeotdCSY";
 
 // フォーム受付直後の1回だけを予約する。同じ予約があれば新規作成しない。
 function scheduleImmediateAutoUpdateAutomationV1_() {
@@ -51,7 +53,36 @@ function scheduleWaitingAutoUpdateRetryV1_() {
 
 // 1回限りの時間主導トリガーから呼ばれる公開関数。
 function runAutoUpdateAutomationSoonV1() {
+  // 1回限りのトリガーは実行中も getProjectTriggers() に残ることがある。
+  // 先に自分自身を削除しないと、処理後の継続予約が
+  // "already-scheduled" と誤判定され、初回補完が5ページで止まる。
+  deleteAutoUpdateAutomationSoonTriggersV1_();
   return runAutoUpdateAutomationV1();
+}
+
+function deleteAutoUpdateAutomationSoonTriggersV1_() {
+  let deleted = 0;
+  ScriptApp.getProjectTriggers().forEach(function(trigger) {
+    if (trigger.getHandlerFunction() !== AUTO_UPDATE_V1_IMMEDIATE_HANDLER_) return;
+    ScriptApp.deleteTrigger(trigger);
+    deleted += 1;
+  });
+  return deleted;
+}
+
+// 日次巡回を4時台に1本だけ維持する管理用関数。
+function installAutoUpdateAutomationDailyTriggerV1() {
+  ScriptApp.getProjectTriggers().forEach(function(trigger) {
+    if (trigger.getHandlerFunction() === AUTO_UPDATE_V1_DAILY_HANDLER_) {
+      ScriptApp.deleteTrigger(trigger);
+    }
+  });
+  const trigger = ScriptApp.newTrigger(AUTO_UPDATE_V1_DAILY_HANDLER_)
+    .timeBased()
+    .atHour(4)
+    .everyDays(1)
+    .create();
+  return { installed: true, handler: trigger.getHandlerFunction(), hour: 4 };
 }
 
 // 初回だけGASエディタから実行し、時間主導トリガー権限を承認するための管理用関数。
@@ -72,7 +103,30 @@ function runAutoUpdateAutomationV1() {
   } else {
     PropertiesService.getScriptProperties().deleteProperty(AUTO_UPDATE_V1_WAITING_RETRY_STARTED_KEY_);
   }
-  return { activation: activation, sync: sync };
+  // 既存の日次トリガーを共用し、テーマ候補用の追加トリガー権限を不要にする。
+  const theme = typeof runThemeReviewAutomation === "function"
+    ? runThemeReviewAutomation()
+    : null;
+  const managed = syncDailyManagedAutoPlaylistsV1_();
+  return { activation: activation, sync: sync, theme: theme, managed: managed };
+}
+
+// フォーム由来の実行ルールとは別に、初回登録済みの固定ルールを同じ日次巡回で育てる。
+function syncDailyManagedAutoPlaylistsV1_() {
+  return ["no-mirai"].map(function(key) {
+    try {
+      const result = syncAutoPlaylistByKey_(key) || {};
+      return {
+        key: key,
+        ok: true,
+        addedCount: Number(result.addedCount || 0),
+        failedCount: Number(result.failedCount || 0)
+      };
+    } catch (error) {
+      Logger.log("固定ルール巡回失敗: " + key + " | " + String(error));
+      return { key: key, ok: false, error: String(error) };
+    }
+  });
 }
 
 function processPendingAutoUpdateRequestsV1() {
@@ -129,7 +183,11 @@ function processPendingAutoUpdateRequestsV1() {
 
       const playlistId = requestPlaylistId;
       const access = inspectAutoUpdatePlaylistAccessV1_(playlistId, token);
-      if (!access.editable) {
+      // Spotifyの新しい共同編集招待は、Web上で共同編集者になっていても
+      // Web APIの collaborative が false のまま返る。招待URLがあり、かつ
+      // 運用アカウントのライブラリに存在する場合を承認済みとして扱う。
+      const invitedAndSaved = Boolean(request.inviteUrl) && access.presentInLibrary === true;
+      if (!access.editable && !invitedAndSaved) {
         setAutoUpdateRequestStatusV1_(sheet, rowNumber, "招待承認待ち", "運用アカウントで共同編集招待を承認してください");
         result.waiting += 1;
         return;
@@ -146,11 +204,18 @@ function processPendingAutoUpdateRequestsV1() {
       assertAutoPlaylistRuleActivationSafe_(rule);
 
       assertAutoPlaylistSheetLinkBeforeWrite_(rule);
-      const seed = findAutoUpdateSeedEpisodeV1_(
+      let seed = findAutoUpdateSeedEpisodeV1_(
         getAllSpotifyPlaylistItems_(rule.playlistId, token),
         rule,
         token
       );
+      if (!seed && rule.seedDateOverride) {
+        seed = {
+          id: "manual-date-boundary-" + playlistId,
+          releaseDate: rule.seedDateOverride,
+          name: "申請で確認した最新既存回"
+        };
+      }
       if (!seed) {
         setAutoUpdateRequestStatusV1_(
           sheet,
@@ -302,20 +367,27 @@ function fetchAutoUpdateEpisodeDetailV1_(episodeId, token) {
 }
 
 function selectAutoUpdateSeedEpisodeV1_(episodes, rule) {
-  const seeds = (Array.isArray(episodes) ? episodes : []).map(function(episode) {
+  const validEpisodes = (Array.isArray(episodes) ? episodes : []).map(function(episode) {
     const releaseDate = String(episode && episode.release_date ? episode.release_date : "").trim();
     if (!episode || !episode.id || !/^\d{4}-\d{2}-\d{2}$/.test(releaseDate)) return null;
-    if (!matchesAutoPlaylistRule_(episode, rule)) return null;
     return {
       id: String(episode.id),
       releaseDate: releaseDate,
-      name: String(episode.name || episode.id)
+      name: String(episode.name || episode.id),
+      matchesRule: matchesAutoPlaylistRule_(episode, rule)
     };
   }).filter(Boolean);
 
+  let seeds = validEpisodes.filter(function(episode) { return episode.matchesRule; });
+  // 連載コード付きの専用プレイリストでは、Spotify APIが共同編集項目の
+  // タイトルを省略して一致判定できない場合に限り、最新既存回を起点にする。
+  if (!seeds.length && String(rule && rule.seriesTitleCode ? rule.seriesTitleCode : "")) {
+    seeds = validEpisodes.slice();
+  }
+
   seeds.sort(function(a, b) {
-    if (a.releaseDate !== b.releaseDate) return a.releaseDate < b.releaseDate ? -1 : 1;
-    return a.id < b.id ? -1 : 1;
+    if (a.releaseDate !== b.releaseDate) return a.releaseDate > b.releaseDate ? -1 : 1;
+    return a.id > b.id ? -1 : 1;
   });
   return seeds.length ? seeds[0] : null;
 }
@@ -351,7 +423,9 @@ function applyAutoUpdateSeedBootstrapPageV1_(state, episodes, rule, nextUrl) {
       reachedSeedDate = true;
       return;
     }
-    if (releaseDate && releaseDate >= seedDate && episode && episode.id && matchesAutoPlaylistRule_(episode, rule)) {
+    // プレイリスト内の最新対象回を境界にし、その配信日より後だけを補完する。
+    // 起点回自身や同日公開の曖昧な回を再追加しない。
+    if (releaseDate && releaseDate > seedDate && episode && episode.id && matchesAutoPlaylistRule_(episode, rule)) {
       pageCandidateIds.push(String(episode.id));
     }
   });
@@ -532,7 +606,25 @@ function buildAutoUpdateRuntimeRuleV1_(request, playlistId, rowNumber) {
   candidate.requireSheetLinkBeforeWrite = true;
   candidate.requestSheetRow = rowNumber;
   candidate.updateType = String(request.updateType || "");
+  candidate.seriesTitleCode = extractAutoUpdateSeriesTitleCodeV1_(request.ruleNote);
+  candidate.seedDateOverride = extractAutoUpdateSeedDateV1_(request.ruleNote);
+  if (["#52-", "#42-"].indexOf(candidate.seriesTitleCode) >= 0) {
+    candidate.showIds = [AUTO_UPDATE_V1_MEDIA_TALK_SHOW_ID_];
+  }
   return candidate;
+}
+
+// 申請補足の「#52-」「#42-」などを連載固有コードとして取り込む。
+// タイトル側ではこのコードの直後に半角数字が続く場合だけ一致とする。
+function extractAutoUpdateSeriesTitleCodeV1_(ruleNote) {
+  const normalized = String(ruleNote || "").normalize("NFKC");
+  const match = normalized.match(/#(\d+)-/);
+  return match ? "#" + match[1] + "-" : "";
+}
+
+function extractAutoUpdateSeedDateV1_(ruleNote) {
+  const match = String(ruleNote || "").match(/(?:起点日|最新既存回)[：:\s]*(\d{4}-\d{2}-\d{2})/);
+  return match ? match[1] : "";
 }
 
 function inspectAutoUpdatePlaylistAccessV1_(playlistId, token) {
@@ -557,6 +649,54 @@ function inspectAutoUpdatePlaylistAccessV1_(playlistId, token) {
     collaborative: collaborative,
     presentInLibrary: presentInLibrary
   };
+}
+
+// 共同編集招待の承認状態を、秘密値を出さずに確認する管理用診断。
+function diagnosePendingAutoUpdateAccessV1() {
+  const token = getSpotifyUserAccessToken();
+  if (!token) throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = getSheetLoose(ss, AUTO_UPDATE_REQUEST_SHEET_NAME);
+  if (!sheet) throw new Error("自動更新申請シートが見つかりません");
+  const lastRow = sheet.getLastRow();
+  const rows = lastRow >= 2 ? sheet.getRange(2, 1, lastRow - 1, 9).getDisplayValues() : [];
+  const results = rows.map(function(row, index) {
+    const status = String(row[7] || "").trim();
+    if (status !== "招待承認待ち") return null;
+    const playlistId = extractAutoUpdateSpotifyPlaylistId_(String(row[1] || ""));
+    const access = inspectAutoUpdatePlaylistAccessV1_(playlistId, token);
+    return {
+      row: index + 2,
+      playlistId: playlistId,
+      editable: access.editable === true,
+      owned: access.owned === true,
+      collaborative: access.collaborative === true,
+      presentInLibrary: access.presentInLibrary === true,
+      reason: String(access.reason || "")
+    };
+  }).filter(Boolean);
+  Logger.log(JSON.stringify(results));
+  return results;
+}
+
+// 今回受付したMEDIA TALK内の2シリーズだけを初回補完する管理用関数。
+function syncAsahiRequestedSeriesV1() {
+  const targetIds = new Set([
+    "1u1qT0BxRZT1OeNM0LDA72",
+    "7aKDEfAdCjTxiqiv19Grar"
+  ]);
+  const token = getSpotifyUserAccessToken();
+  if (!token) throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
+  const rules = loadAutoUpdateRuntimeRulesV1_().filter(function(rule) {
+    return targetIds.has(String(rule && rule.playlistId ? rule.playlistId : ""));
+  });
+  const results = rules.map(function(rule) {
+    rule.showIds = [AUTO_UPDATE_V1_MEDIA_TALK_SHOW_ID_];
+    saveAutoUpdateRuntimeRuleV1_(rule);
+    return syncOneApprovedAutoUpdateRequestV1_(rule, token);
+  });
+  Logger.log(JSON.stringify(results));
+  return results;
 }
 
 function isAutoUpdatePlaylistInCurrentUserLibraryV1_(playlistId, token) {

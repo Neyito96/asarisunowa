@@ -73,7 +73,6 @@ function reportPolirebiRebuildCandidates() {
   return audit;
 }
 
-
 function rebuildPolirebiPlaylistInReleaseOrder() {
   const rule = getAutoPlaylistRuleByKey_("polirebi-rebuild-audit");
   const report = reportAutoPlaylistV2Rule_(rule.key);

@@ -4,6 +4,18 @@ function testAutoUpdateAutomationV1Pure() {
   if (AUTO_UPDATE_V1_IMMEDIATE_HANDLER_ !== "runAutoUpdateAutomationSoonV1") {
     throw new Error("直後実行用の公開ハンドラー名が不正です");
   }
+  if (AUTO_UPDATE_V1_DAILY_HANDLER_ !== "runAutoUpdateAutomationV1") {
+    throw new Error("日次巡回用の公開ハンドラー名が不正です");
+  }
+  if (typeof deleteAutoUpdateAutomationSoonTriggersV1_ !== "function") {
+    throw new Error("実行済み継続トリガーの削除関数がありません");
+  }
+  if (typeof installAutoUpdateAutomationDailyTriggerV1 !== "function") {
+    throw new Error("4時台の日次トリガー設定関数がありません");
+  }
+  if (typeof syncDailyManagedAutoPlaylistsV1_ !== "function") {
+    throw new Error("固定ルールの日次巡回関数がありません");
+  }
   if (AUTO_UPDATE_V1_IMMEDIATE_DELAY_MS_ < 60 * 1000) {
     throw new Error("直後実行の予約間隔が短すぎます");
   }
@@ -60,8 +72,8 @@ function testAutoUpdateAutomationV1Pure() {
     { id: "old", name: "佐藤陽 起点回", release_date: "2025-01-02" },
     { id: "other", name: "別の出演者", release_date: "2024-01-02" }
   ], rule);
-  if (!seed || seed.id !== "old" || seed.releaseDate !== "2025-01-02") {
-    throw new Error("条件に合う最古の起点回を選べません");
+  if (!seed || seed.id !== "new" || seed.releaseDate !== "2026-01-02") {
+    throw new Error("条件に合う最新の起点回を選べません");
   }
 
   const bootstrapState = createAutoPlaylistScopedShowState_(rule, "show-test", "seed-bootstrap", "");
@@ -71,8 +83,35 @@ function testAutoUpdateAutomationV1Pure() {
     { id: "seed", name: "佐藤陽 起点回", release_date: "2025-01-02" },
     { id: "too-old", name: "佐藤陽 対象外", release_date: "2025-01-01" }
   ], rule, "next-url");
-  if (!pageState.complete || pageState.candidateIds.join(",") !== "new,seed") {
-    throw new Error("起点日より古い回で初回補完を停止できません");
+  if (!pageState.complete || pageState.candidateIds.join(",") !== "new") {
+    throw new Error("起点日より後の回だけを初回補完候補にできません");
+  }
+
+  const backstageRequest = {
+    updateType: "series",
+    title: "新聞社員の「楽屋裏」",
+    keywords: "楽屋裏",
+    ruleNote: "#52- とあるものも追加"
+  };
+  const backstageRule = buildAutoUpdateRuntimeRuleV1_(backstageRequest, "playlist-backstage", 8);
+  if (backstageRule.seriesTitleCode !== "#52-") {
+    throw new Error("楽屋裏の連載コードを申請補足から抽出できません");
+  }
+  if (!matchesAutoPlaylistRule_({ name: "採用の舞台裏 #52-123" }, backstageRule)) {
+    throw new Error("#52-半角数字の楽屋裏回を判定できません");
+  }
+  if (matchesAutoPlaylistRule_({ name: "別シリーズ #52-ABC" }, backstageRule)) {
+    throw new Error("半角数字でない連載コードを誤判定しています");
+  }
+
+  const tenseiRule = buildAutoUpdateRuntimeRuleV1_({
+    updateType: "series",
+    title: "まなび場天声人語",
+    keywords: "まなび場天声人語",
+    ruleNote: "タイトルに #42- と書かれた回を追加"
+  }, "playlist-tensei", 9);
+  if (!matchesAutoPlaylistRule_({ name: "見出しづくり #42-007" }, tenseiRule)) {
+    throw new Error("#42-半角数字のまなび場天声人語回を判定できません");
   }
   if (rule.requestSheetRow !== 5 || rule.playlistId !== "73ppqrTcsjVgl1xwIZa4SY") {
     throw new Error("申請行またはPlaylist IDを保持できません");

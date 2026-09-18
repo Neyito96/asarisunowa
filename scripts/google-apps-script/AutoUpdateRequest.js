@@ -61,6 +61,7 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
     ]);
 
     SpreadsheetApp.flush();
+    const requestRowNumber = requestSheet.getLastRow();
 
     // 受付レスポンスを待たせず、直後の1回だけを時間主導トリガーへ予約する。
     // すでに予約済みなら同じトリガーへ相乗りし、トリガー数の増加を防ぐ。
@@ -70,6 +71,28 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
     } catch (scheduleError) {
       // 毎朝4〜5時の定期巡回が予備になるため、受付自体は成功として残す。
       console.error("自動更新の直後実行を予約できませんでした", scheduleError);
+      requestSheet.getRange(requestRowNumber, 9).setValue(
+        "方式: " + updateType + " / ruleType: " + requestPlan.ruleType +
+        " / 直後実行予約失敗（翌朝巡回待ち）"
+      );
+    }
+
+    try {
+      notifyAutoUpdateRequestReceived_({
+        receivedAt: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy/MM/dd HH:mm:ss"),
+        title: title,
+        maker: maker,
+        updateType: updateType,
+        keywords: keywords,
+        rowNumber: requestRowNumber,
+        immediateRunScheduled: immediateRun.scheduled === true,
+        immediateRunReason: immediateRun.reason
+      });
+    } catch (notificationError) {
+      console.error("自動更新申請の管理者メール通知に失敗しました", notificationError);
+      const noteCell = requestSheet.getRange(requestRowNumber, 9);
+      const currentNote = String(noteCell.getDisplayValue() || "");
+      noteCell.setValue(currentNote + " / 管理者メール通知失敗");
     }
 
     if (requestId) {

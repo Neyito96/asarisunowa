@@ -2,6 +2,7 @@
 // 候補抽出と人の確認をSpotify本番書き込みから分離する。
 
 const THEME_REVIEW_SHEET_NAME_ = "テーマ候補確認";
+const THEME_REVIEW_HISTORY_SHEET_NAME_ = "テーマ判定履歴";
 const THEME_REVIEW_HEADERS_ = [
   "ルールキー",
   "エピソードID",
@@ -18,6 +19,8 @@ const THEME_REVIEW_HEADERS_ = [
 ];
 const THEME_REVIEW_DECISIONS_ = ["未確認", "採用", "除外"];
 const THEME_REVIEW_SPOTIFY_WRITE_ENABLED_ = false;
+const THEME_REVIEW_AUTOMATION_ENABLED_PROPERTY_ = "THEME_REVIEW_AUTOMATION_ENABLED";
+const THEME_REVIEW_AUTOMATION_HANDLER_ = "runThemeReviewAutomation";
 
 function getThemeReviewCandidateIds_(rule) {
   const report = reportAutoPlaylistV2Rule_(rule.key);
@@ -90,15 +93,133 @@ function ensureThemeReviewSheet_() {
   return sheet;
 }
 
+function ensureThemeReviewHistorySheet_() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let sheet = ss.getSheetByName(THEME_REVIEW_HISTORY_SHEET_NAME_);
+  if (!sheet) sheet = ss.insertSheet(THEME_REVIEW_HISTORY_SHEET_NAME_);
+
+  const headerRange = sheet.getRange(1, 1, 1, THEME_REVIEW_HEADERS_.length);
+  headerRange.setValues([THEME_REVIEW_HEADERS_]);
+  headerRange.setFontWeight("bold").setBackground("#eeeeee");
+  sheet.setFrozenRows(1);
+  return sheet;
+}
+
+function getThemeReviewRowKey_(row) {
+  return String(row && row[0] ? row[0] : "").trim() + "::" +
+    String(row && row[1] ? row[1] : "").trim();
+}
+
+function readThemeReviewRows_(sheet) {
+  const lastRow = sheet ? sheet.getLastRow() : 0;
+  if (lastRow < 2) return [];
+  return sheet.getRange(2, 1, lastRow - 1, THEME_REVIEW_HEADERS_.length).getValues();
+}
+
 function readThemeReviewExistingRows_(sheet) {
-  const lastRow = sheet.getLastRow();
-  if (lastRow < 2) return {};
-  const values = sheet.getRange(2, 1, lastRow - 1, THEME_REVIEW_HEADERS_.length).getValues();
-  return values.reduce(function(map, row) {
-    const key = String(row[0] || "").trim() + "::" + String(row[1] || "").trim();
+  return readThemeReviewRows_(sheet).reduce(function(map, row) {
+    const key = getThemeReviewRowKey_(row);
     if (key !== "::") map[key] = row;
     return map;
   }, {});
+}
+
+function writeThemeReviewQueueRows_(sheet, rows) {
+  const oldLastRow = sheet.getLastRow();
+  if (rows.length) {
+    sheet.getRange(2, 1, rows.length, THEME_REVIEW_HEADERS_.length).setValues(rows);
+  }
+  if (oldLastRow > rows.length + 1) {
+    sheet.getRange(rows.length + 2, 1, oldLastRow - rows.length - 1, THEME_REVIEW_HEADERS_.length)
+      .clearContent();
+  }
+}
+
+function isThemeReviewSpotifyWriteEnabled_() {
+  if (THEME_REVIEW_SPOTIFY_WRITE_ENABLED_ === true) return true;
+  return PropertiesService.getScriptProperties()
+    .getProperty(THEME_REVIEW_AUTOMATION_ENABLED_PROPERTY_) === "true";
+}
+
+// 除外済み、またはSpotify追加済みの採用行だけを履歴へ移す。
+// 「採用」でも追加前・追加失敗中の行は確認シートに残し、取りこぼしを防ぐ。
+function archiveCompletedThemeReviewRows_() {
+  const queueSheet = ensureThemeReviewSheet_();
+  const historySheet = ensureThemeReviewHistorySheet_();
+  const queueRows = readThemeReviewRows_(queueSheet);
+  const historyRows = readThemeReviewRows_(historySheet);
+  const historyKeys = new Set(historyRows.map(getThemeReviewRowKey_));
+  const remaining = [];
+  const archived = [];
+
+  queueRows.forEach(function(row) {
+    const decision = String(row[8] || "").trim();
+    const completed = decision === "除外" || (decision === "採用" && Boolean(row[10]));
+    if (!completed) {
+      remaining.push(row);
+      return;
+    }
+    const key = getThemeReviewRowKey_(row);
+    if (!row[9]) row[9] = new Date();
+    if (key !== "::" && !historyKeys.has(key)) {
+      archived.push(row);
+      historyKeys.add(key);
+    }
+  });
+
+  if (archived.length) {
+    historySheet.getRange(
+      historySheet.getLastRow() + 1,
+      1,
+      archived.length,
+      THEME_REVIEW_HEADERS_.length
+    ).setValues(archived);
+  }
+  writeThemeReviewQueueRows_(queueSheet, remaining);
+  SpreadsheetApp.flush();
+  return { archivedCount: archived.length, remainingCount: remaining.length };
+}
+
+function appendThemeReviewEpisodesToQueue_(rule, episodes) {
+  archiveCompletedThemeReviewRows_();
+  const sheet = ensureThemeReviewSheet_();
+  const historySheet = ensureThemeReviewHistorySheet_();
+  const existing = readThemeReviewExistingRows_(sheet);
+  const history = readThemeReviewExistingRows_(historySheet);
+  const newRows = (episodes || []).map(function(episode) {
+    const key = rule.key + "::" + String(episode && episode.id ? episode.id : "");
+    if (!episode || !episode.id || history[key] || existing[key]) return null;
+    const matchedKeywords = getThemeReviewMatchedKeywords_(episode, rule);
+    return [
+      rule.key,
+      String(episode.id || ""),
+      String(episode.release_date || ""),
+      String(episode.show && episode.show.name ? episode.show.name : ""),
+      String(episode.name || ""),
+      matchedKeywords.join(" / "),
+      buildThemeReviewExcerpt_(episode, matchedKeywords),
+      String(episode.external_urls && episode.external_urls.spotify
+        ? episode.external_urls.spotify
+        : "https://open.spotify.com/episode/" + episode.id),
+      "未確認",
+      "",
+      "",
+      ""
+    ];
+  }).filter(Boolean);
+
+  const rows = readThemeReviewRows_(sheet).concat(newRows).sort(function(a, b) {
+    const ruleCompare = String(a[0]).localeCompare(String(b[0]));
+    return ruleCompare || String(b[2]).localeCompare(String(a[2]));
+  });
+  writeThemeReviewQueueRows_(sheet, rows);
+  sheet.autoResizeColumns(1, THEME_REVIEW_HEADERS_.length);
+  sheet.setColumnWidth(5, 320);
+  sheet.setColumnWidth(7, 420);
+  sheet.getRange(2, 1, Math.max(1, rows.length), THEME_REVIEW_HEADERS_.length)
+    .setVerticalAlignment("top");
+  SpreadsheetApp.flush();
+  return { newCandidateCount: newRows.length, queueCount: rows.length };
 }
 
 function exportThemeRuleCandidatesToReviewSheet_(ruleKey) {
@@ -112,52 +233,118 @@ function exportThemeRuleCandidatesToReviewSheet_(ruleKey) {
   const token = getSpotifyUserAccessToken();
   if (!token) throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
   const episodes = fetchThemeReviewEpisodeDetails_(candidateIds, token);
-  const sheet = ensureThemeReviewSheet_();
-  const existing = readThemeReviewExistingRows_(sheet);
+  const appended = appendThemeReviewEpisodesToQueue_(rule, episodes);
 
-  const rows = episodes.map(function(episode) {
-    const key = rule.key + "::" + episode.id;
-    const old = existing[key] || [];
-    const matchedKeywords = getThemeReviewMatchedKeywords_(episode, rule);
-    return [
-      rule.key,
-      String(episode.id || ""),
-      String(episode.release_date || ""),
-      String(episode.show && episode.show.name ? episode.show.name : ""),
-      String(episode.name || ""),
-      matchedKeywords.join(" / "),
-      buildThemeReviewExcerpt_(episode, matchedKeywords),
-      String(episode.external_urls && episode.external_urls.spotify
-        ? episode.external_urls.spotify
-        : "https://open.spotify.com/episode/" + episode.id),
-      String(old[8] || "未確認"),
-      old[9] || "",
-      old[10] || "",
-      old[11] || ""
-    ];
-  }).sort(function(a, b) {
-    return String(b[2]).localeCompare(String(a[2]));
-  });
-
-  if (rows.length) {
-    sheet.getRange(2, 1, rows.length, THEME_REVIEW_HEADERS_.length).setValues(rows);
-  }
-  const oldLastRow = sheet.getLastRow();
-  if (oldLastRow > rows.length + 1) {
-    sheet.getRange(rows.length + 2, 1, oldLastRow - rows.length - 1, THEME_REVIEW_HEADERS_.length).clearContent();
-  }
-  sheet.autoResizeColumns(1, THEME_REVIEW_HEADERS_.length);
-  sheet.setColumnWidth(5, 320);
-  sheet.setColumnWidth(7, 420);
-  sheet.getRange(2, 1, Math.max(1, rows.length), THEME_REVIEW_HEADERS_.length).setVerticalAlignment("top");
-  SpreadsheetApp.flush();
-
-  Logger.log("テーマ候補確認シート更新: rule=" + rule.key + " | candidates=" + rows.length);
-  return { ruleKey: rule.key, candidateCount: rows.length, sheetName: THEME_REVIEW_SHEET_NAME_ };
+  Logger.log("テーマ候補確認シート更新: rule=" + rule.key + " | new=" + appended.newCandidateCount);
+  return {
+    ruleKey: rule.key,
+    candidateCount: candidateIds.length,
+    newCandidateCount: appended.newCandidateCount,
+    queueCount: appended.queueCount,
+    sheetName: THEME_REVIEW_SHEET_NAME_
+  };
 }
 
 function exportSouthAmericaThemeCandidatesToReviewSheet() {
   return exportThemeRuleCandidatesToReviewSheet_("south-america");
+}
+
+// 日次運用では各番組の最新50件だけを確認する。
+// 初回の全件調査はV2 dry-runで行い、その後はこの軽量差分取得を使う。
+function fetchRecentThemeReviewEpisodes_(rule, token) {
+  const byId = {};
+  getAutoPlaylistShowIds_(rule).forEach(function(showId) {
+    const response = UrlFetchApp.fetch(
+      "https://api.spotify.com/v1/shows/" + encodeURIComponent(showId) +
+        "/episodes?market=JP&limit=50",
+      {
+        muteHttpExceptions: true,
+        headers: { Authorization: "Bearer " + token, Accept: "application/json" }
+      }
+    );
+    const status = response.getResponseCode();
+    if (status !== 200) {
+      throw new Error("テーマ新着確認に失敗しました: " + showId + " | status=" + status);
+    }
+    const data = JSON.parse(response.getContentText());
+    (Array.isArray(data.items) ? data.items : []).forEach(function(episode) {
+      if (episode && episode.id && matchesAutoPlaylistRule_(episode, rule)) {
+        byId[String(episode.id)] = episode;
+      }
+    });
+  });
+  return Object.keys(byId).map(function(id) { return byId[id]; });
+}
+
+function exportRecentThemeRuleCandidatesToReviewSheet_(rule, token) {
+  const episodes = fetchRecentThemeReviewEpisodes_(rule, token);
+  return appendThemeReviewEpisodesToQueue_(rule, episodes);
+}
+
+function getThemeReviewAutomationRules_() {
+  return AUTO_PLAYLIST_RULES.filter(function(rule) {
+    return rule && rule.reviewRequired === true &&
+      getAutoPlaylistRuleType_(rule) === AUTO_PLAYLIST_RULE_TYPE_THEME_;
+  });
+}
+
+// 時間主導トリガー用。未確認候補の追記と、採用済み候補のSpotify反映を1回で行う。
+function runThemeReviewAutomation() {
+  if (!isThemeReviewSpotifyWriteEnabled_()) {
+    throw new Error("テーマ候補の自動運用は停止中です");
+  }
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) throw new Error("別のテーマ候補処理が実行中です");
+
+  try {
+    const token = getSpotifyUserAccessToken();
+    if (!token) throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
+    const results = getThemeReviewAutomationRules_().map(function(rule) {
+      const queue = exportRecentThemeRuleCandidatesToReviewSheet_(rule, token);
+      const spotify = addApprovedThemeCandidatesToSpotify_(rule.key);
+      return { ruleKey: rule.key, queue: queue, spotify: spotify };
+    });
+    const archive = archiveCompletedThemeReviewRows_();
+    Logger.log(JSON.stringify({ results: results, archive: archive }));
+    return { results: results, archive: archive };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// 初回のみ管理者が実行する。毎朝5時台のトリガーを重複なしで作る。
+function enableThemeReviewAutomation() {
+  const props = PropertiesService.getScriptProperties();
+  props.setProperty(THEME_REVIEW_AUTOMATION_ENABLED_PROPERTY_, "true");
+  const exists = ScriptApp.getProjectTriggers().some(function(trigger) {
+    return trigger.getHandlerFunction() === THEME_REVIEW_AUTOMATION_HANDLER_;
+  });
+  if (!exists) {
+    ScriptApp.newTrigger(THEME_REVIEW_AUTOMATION_HANDLER_)
+      .timeBased()
+      .everyDays(1)
+      .atHour(5)
+      .create();
+  }
+  return { enabled: true, triggerCreated: !exists };
+}
+
+// ScriptApp権限を追加せず、管理画面から手動作成したトリガーを有効にする。
+function enableThemeReviewAutomationFlagOnly() {
+  PropertiesService.getScriptProperties()
+    .setProperty(THEME_REVIEW_AUTOMATION_ENABLED_PROPERTY_, "true");
+  return { enabled: true, triggerCreated: false };
+}
+
+function disableThemeReviewAutomation() {
+  PropertiesService.getScriptProperties()
+    .deleteProperty(THEME_REVIEW_AUTOMATION_ENABLED_PROPERTY_);
+  ScriptApp.getProjectTriggers().forEach(function(trigger) {
+    if (trigger.getHandlerFunction() === THEME_REVIEW_AUTOMATION_HANDLER_) {
+      ScriptApp.deleteTrigger(trigger);
+    }
+  });
+  return { enabled: false };
 }
 
 function previewApprovedThemeCandidates_(ruleKey) {
@@ -181,7 +368,7 @@ function previewApprovedSouthAmericaThemeCandidates() {
 }
 
 function addApprovedThemeCandidatesToSpotify_(ruleKey) {
-  if (THEME_REVIEW_SPOTIFY_WRITE_ENABLED_ !== true) {
+  if (!isThemeReviewSpotifyWriteEnabled_()) {
     throw new Error("テーマ候補のSpotify本番追加は安全スイッチで停止中です");
   }
   const rule = getAutoPlaylistRuleByKey_(ruleKey);
@@ -197,7 +384,14 @@ function addApprovedThemeCandidatesToSpotify_(ruleKey) {
       return String(item.row[0] || "") === rule.key &&
         String(item.row[8] || "") === "採用" && !item.row[10];
     });
-  if (!approved.length) return { addedCount: 0, skippedCount: 0 };
+  if (!approved.length) {
+    const archiveOnly = archiveCompletedThemeReviewRows_();
+    return {
+      addedCount: 0,
+      skippedCount: 0,
+      archivedCount: archiveOnly.archivedCount
+    };
+  }
 
   const token = getSpotifyUserAccessToken();
   if (!token) throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
@@ -243,7 +437,12 @@ function addApprovedThemeCandidatesToSpotify_(ruleKey) {
     updatePlaylistLatestDate_(rule.playlistId, getLatestReleaseDate_(addedEpisodes));
   }
   SpreadsheetApp.flush();
-  return { addedCount: addedCount, skippedCount: skippedCount };
+  const archive = archiveCompletedThemeReviewRows_();
+  return {
+    addedCount: addedCount,
+    skippedCount: skippedCount,
+    archivedCount: archive.archivedCount
+  };
 }
 
 function addApprovedSouthAmericaThemeCandidatesToSpotify() {

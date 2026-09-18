@@ -7,7 +7,7 @@ function testNewAutoPlaylistRuleCandidatesPure() {
   const southAmerica = getAutoPlaylistRuleByKey_("south-america");
   if (!noMirai || !satoYo || !southAmerica) throw new Error("新規ルール候補が見つかりません");
 
-  [noMirai, satoYo, southAmerica].forEach(function(rule) {
+  [satoYo, southAmerica].forEach(function(rule) {
     if (rule.enabled !== false) throw new Error(rule.key + " が有効化されています");
     if (rule.lifecycleStatus !== AUTO_PLAYLIST_LIFECYCLE_.REQUESTED) {
       throw new Error(rule.key + " がrequested状態ではありません");
@@ -19,6 +19,16 @@ function testNewAutoPlaylistRuleCandidatesPure() {
       throw new Error(rule.key + " が申請直後に有効化可能です");
     }
   });
+
+  if (noMirai.enabled !== true || noMirai.productionWriteAllowed !== true) {
+    throw new Error("ノーミライが増分自動更新として有効ではありません");
+  }
+  if (noMirai.lifecycleStatus !== AUTO_PLAYLIST_LIFECYCLE_.INCREMENTAL) {
+    throw new Error("ノーミライがincremental状態ではありません");
+  }
+  if (noMirai.reviewRequired !== false || noMirai.requireSheetLinkBeforeWrite !== true) {
+    throw new Error("ノーミライの本番安全条件が不正です");
+  }
 
   if (satoYo.requireSheetLinkBeforeWrite !== true) {
     throw new Error("佐藤陽ルールの書き込み前シート確認が無効です");
