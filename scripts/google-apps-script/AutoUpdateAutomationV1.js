@@ -261,13 +261,35 @@ function syncApprovedAutoUpdateRequestsV1() {
     const rules = loadAutoUpdateRuntimeRulesV1_();
     const results = [];
     rules.forEach(function(rule) {
-      results.push(syncOneApprovedAutoUpdateRequestV1_(rule, token));
+      try {
+        const normalizedRule = normalizeAutoUpdateRuntimeRuleV1_(rule);
+        if (JSON.stringify(normalizedRule.showIds || []) !== JSON.stringify(rule.showIds || [])) {
+          saveAutoUpdateRuntimeRuleV1_(normalizedRule);
+        }
+        results.push(syncOneApprovedAutoUpdateRequestV1_(normalizedRule, token));
+      } catch (error) {
+        const reason = "巡回エラー: " + String(error && error.message ? error.message : error);
+        Logger.log(reason);
+        results.push(pauseAutoUpdateRuleV1_(rule, reason));
+      }
     });
     Logger.log(JSON.stringify(results));
     return results;
   } finally {
     lock.releaseLock();
   }
+}
+
+// 保存済みルールも現行仕様へ寄せる。
+// #52-（楽屋裏）/#42-（まなび場天声人語）は MEDIA TALK 内の連載なので、
+// 旧版が保存した全公式番組のshowIdsを実行時に自動修復する。
+function normalizeAutoUpdateRuntimeRuleV1_(rule) {
+  const normalized = Object.assign({}, rule || {});
+  const seriesTitleCode = String(normalized.seriesTitleCode || "").trim();
+  if (["#52-", "#42-"].indexOf(seriesTitleCode) >= 0) {
+    normalized.showIds = [AUTO_UPDATE_V1_MEDIA_TALK_SHOW_ID_];
+  }
+  return normalized;
 }
 
 function syncOneApprovedAutoUpdateRequestV1_(rule, token) {
