@@ -37,6 +37,9 @@ function testAutoUpdateAutomationV1Pure() {
   if (typeof authorizeAutoUpdateAutomationV1 !== "function") {
     throw new Error("トリガー権限承認用の管理関数がありません");
   }
+  if (typeof ensureAutoUpdateSeedBootstrapProgressV1_ !== "function") {
+    throw new Error("欠落した初回補完進捗の復旧関数がありません");
+  }
 
   const migratedSeriesRule = normalizeAutoUpdateRuntimeRuleV1_({
     seriesTitleCode: "#52-",
