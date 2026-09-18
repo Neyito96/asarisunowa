@@ -38,6 +38,15 @@ function testAutoUpdateAutomationV1Pure() {
     throw new Error("トリガー権限承認用の管理関数がありません");
   }
 
+  const migratedSeriesRule = normalizeAutoUpdateRuntimeRuleV1_({
+    seriesTitleCode: "#52-",
+    showIds: ["old-show", AUTO_UPDATE_V1_MEDIA_TALK_SHOW_ID_]
+  });
+  if (migratedSeriesRule.showIds.length !== 1 ||
+      migratedSeriesRule.showIds[0] !== AUTO_UPDATE_V1_MEDIA_TALK_SHOW_ID_) {
+    throw new Error("保存済み連載ルールをMEDIA TALK限定へ移行できません");
+  }
+
   if (!isAutoUpdateV1TypeEligible_(AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_)) {
     throw new Error("シリーズ型が自動化対象になっていません");
   }
