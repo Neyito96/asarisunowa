@@ -31,13 +31,9 @@ function getThemeReviewCandidateIds_(rule) {
 
 function fetchThemeReviewEpisodeDetails_(episodeIds, token) {
   const ids = Array.isArray(episodeIds) ? episodeIds.filter(Boolean) : [];
-  const episodes = [];
-
-  for (let offset = 0; offset < ids.length; offset += 50) {
-    const chunk = ids.slice(offset, offset + 50);
+  return ids.map(function(episodeId) {
     const response = UrlFetchApp.fetch(
-      "https://api.spotify.com/v1/episodes?market=JP&ids=" +
-        encodeURIComponent(chunk.join(",")),
+      "https://api.spotify.com/v1/episodes/" + encodeURIComponent(episodeId) + "?market=JP",
       {
         muteHttpExceptions: true,
         headers: { Authorization: "Bearer " + token, Accept: "application/json" }
@@ -45,14 +41,11 @@ function fetchThemeReviewEpisodeDetails_(episodeIds, token) {
     );
     const status = response.getResponseCode();
     if (status !== 200) {
-      throw new Error("テーマ候補詳細取得に失敗しました: status=" + status);
+      throw new Error("テーマ候補詳細取得に失敗しました: " + episodeId + " | status=" + status);
     }
-    const data = JSON.parse(response.getContentText());
-    (Array.isArray(data.episodes) ? data.episodes : []).forEach(function(episode) {
-      if (episode && episode.id) episodes.push(episode);
-    });
-  }
-  return episodes;
+    const episode = JSON.parse(response.getContentText());
+    return episode && episode.id ? episode : null;
+  }).filter(Boolean);
 }
 
 function getThemeReviewMatchedKeywords_(episode, rule) {
