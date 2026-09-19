@@ -85,6 +85,11 @@ async function submitRequestConfirmed(
   payload: AutoUpdatePayload | PlaylistRegistrationPayload,
   statusType: "autoUpdateRequestStatus" | "playlistRequestStatus",
 ) {
+  // Temporary pause: remove this guard when theme submissions reopen.
+  if (payload.updateType === "theme") {
+    throw new Error("テーマ別は現在、耕し中のため新規申請を受け付けていません。");
+  }
+
   const requestId = createRequestId();
   await fetch(endpoint, {
     method: "POST",
