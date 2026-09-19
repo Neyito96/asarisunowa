@@ -29,6 +29,13 @@ export default function PlaylistCombinedAutoForm() {
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    // 一時停止中のテーマ別は、通常のプレイリスト登録も含め送信前に止める。
+    if (updateType === "theme") {
+      setStatus("error");
+      setMessage("テーマ別は現在、耕し中のため新規受付を休止しています。");
+      return;
+    }
+
     const cleanUrl = url.trim();
     const cleanTitle = title.trim();
     const cleanMaker = maker.trim();
@@ -133,7 +140,7 @@ export default function PlaylistCombinedAutoForm() {
         <legend>どんなプレイリスト？</legend>
         <label><input type="radio" name="combinedAutoUpdateType" checked={updateType === "series"} onChange={() => setUpdateType("series")} /><span><b>📻 連載・シリーズ</b><small>同じシリーズの回をまとめる　例：一緒に新聞をめくろう！</small></span></label>
         <label><input type="radio" name="combinedAutoUpdateType" checked={updateType === "speaker"} onChange={() => setUpdateType("speaker")} /><span><b>🎙️ 出演者別</b><small>例：宮沢賢一さん出演回</small></span></label>
-        <label><input type="radio" name="combinedAutoUpdateType" checked={updateType === "theme"} onChange={() => setUpdateType("theme")} /><span><b>🔎 テーマ別（確認後に開始）</b><small>例：中東・鉄道・教育</small></span></label>
+        <label><input type="radio" name="combinedAutoUpdateType" checked={updateType === "theme"} onChange={() => setUpdateType("theme")} disabled /><span><b>🌱 テーマ別（耕し中）</b><small>新規受付は一時休止しています</small></span></label>
       </fieldset>
 
       <label>
@@ -160,7 +167,7 @@ export default function PlaylistCombinedAutoForm() {
           <div><dt>完了後</dt><dd>毎朝4〜5時に新着回だけ確認</dd></div>
           <div><dt>掲載</dt><dd>通常30〜60分</dd></div>
         </dl>
-        <p className="autoUpdateThemeNote">※テーマ別は内容確認後に開始します。</p>
+        <p className="autoUpdateThemeNote">※テーマ別は現在、耕し中のため新規受付を休止しています。</p>
       </div>
       <label>
         <span>更新ルール・補足 <small>（任意）</small></span>
