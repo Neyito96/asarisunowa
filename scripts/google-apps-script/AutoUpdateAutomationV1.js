@@ -183,6 +183,7 @@ function syncDailyManagedAutoPlaylistsV1_() {
       };
     } catch (error) {
       Logger.log("固定ルール巡回失敗: " + key + " | " + String(error));
+      notifyAutoUpdateFailureSafely_({ target: key, stage: "毎朝巡回", error: error });
       return { key: key, ok: false, error: String(error) };
     }
   });
@@ -379,6 +380,11 @@ function syncApprovedAutoUpdateRequestsV1() {
       } catch (error) {
         const reason = "巡回エラー: " + String(error && error.message ? error.message : error);
         Logger.log(reason);
+        notifyAutoUpdateFailureSafely_({
+          target: String(rule && (rule.name || rule.key || rule.playlistId) || "申請プレイリスト"),
+          stage: "毎朝巡回",
+          error: error
+        });
         results.push(pauseAutoUpdateRuleV1_(rule, reason));
       }
     });
@@ -437,6 +443,11 @@ function syncNextAutoUpdateBootstrapV1_() {
           reason: reason
         };
       }
+      notifyAutoUpdateFailureSafely_({
+        target: String(selected && (selected.name || selected.key || selected.playlistId) || "初回補完"),
+        stage: "毎時50件補充",
+        error: error
+      });
       return pauseAutoUpdateRuleV1_(selected, reason);
     }
   } finally {

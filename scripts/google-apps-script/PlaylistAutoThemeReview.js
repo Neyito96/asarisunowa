@@ -309,6 +309,9 @@ function runThemeReviewAutomation() {
     const archive = archiveCompletedThemeReviewRows_();
     Logger.log(JSON.stringify({ results: results, archive: archive }));
     return { results: results, archive: archive };
+  } catch (error) {
+    notifyAutoUpdateFailureSafely_({ target: "南米 中南米", stage: "テーマ候補の毎朝巡回", error: error });
+    throw error;
   } finally {
     lock.releaseLock();
   }

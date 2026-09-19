@@ -27,6 +27,19 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
     return jsonResponse({ ok: false, error: validationError });
   }
 
+  // ブラウザ側が受付確認を再試行しても、同じ申請を二重保存しない。
+  if (requestId && CacheService.getScriptCache().get(
+    AUTO_UPDATE_RECEIPT_CACHE_PREFIX_ + requestId
+  ) === "accepted") {
+    return jsonResponse({
+      ok: true,
+      kind: "autoUpdateRequest",
+      added: false,
+      duplicateReason: "requestId",
+      message: "この申請はすでに受け付けています"
+    });
+  }
+
   // 申請時点ではSpotifyへ接続せず、初回構築前の安全なプランだけを確定する。
   const requestPlan = buildAutoPlaylistRequestPlan_({
     updateType: updateType,
@@ -46,6 +59,27 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
 
     if (!requestSheet) {
       throw new Error("自動更新申請シートが見つかりません");
+    }
+
+    const playlistId = extractAutoUpdateSpotifyPlaylistId_(url);
+    const existingRequest = findActiveAutoUpdateRequestDuplicate_(requestSheet, playlistId);
+    if (existingRequest.found) {
+      if (requestId) {
+        CacheService.getScriptCache().put(
+          AUTO_UPDATE_RECEIPT_CACHE_PREFIX_ + requestId,
+          "accepted",
+          AUTO_UPDATE_RECEIPT_SECONDS_
+        );
+      }
+      return jsonResponse({
+        ok: true,
+        kind: "autoUpdateRequest",
+        added: false,
+        duplicateReason: "playlist",
+        existingRow: existingRequest.rowNumber,
+        existingStatus: existingRequest.status,
+        message: "このプレイリストの自動更新申請はすでに受け付けています"
+      });
     }
 
     requestSheet.appendRow([
@@ -105,6 +139,28 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
   } finally {
     autoUpdateLock.releaseLock();
   }
+}
+
+function findActiveAutoUpdateRequestDuplicate_(sheet, playlistId) {
+  const wantedId = String(playlistId || "").trim();
+  const lastRow = sheet ? sheet.getLastRow() : 0;
+  if (!wantedId || lastRow < 2) return { found: false, rowNumber: 0, status: "" };
+
+  const rows = sheet.getRange(2, 1, lastRow - 1, 8).getDisplayValues();
+  for (let index = rows.length - 1; index >= 0; index -= 1) {
+    const row = rows[index];
+    if (extractAutoUpdateSpotifyPlaylistId_(row[1]) !== wantedId) continue;
+    const status = String(row[7] || "").trim();
+    if (isInactiveAutoUpdateRequestStatus_(status)) continue;
+    return { found: true, rowNumber: index + 2, status: status || "受付済み" };
+  }
+  return { found: false, rowNumber: 0, status: "" };
+}
+
+function isInactiveAutoUpdateRequestStatus_(status) {
+  return ["重複申請", "却下", "取消", "キャンセル", "停止"].indexOf(
+    String(status || "").trim()
+  ) >= 0;
 }
 
 function handleAutoUpdateRequestStatus_(e, callback) {
