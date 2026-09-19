@@ -2295,11 +2295,24 @@ footer {
 .playlistUpdateMeta{
   display:flex;
   align-items:center;
+  flex-wrap:wrap;
   gap:8px;
   margin:2px 0 8px;
   color:#68766f;
   font-size:12px;
   font-weight:800;
+}
+.playlistGrowingBadge{
+  display:inline-flex;
+  align-items:center;
+  border:1px solid #78aa84;
+  border-radius:999px;
+  padding:3px 8px;
+  background:#e4f3e7;
+  color:#205d37;
+  font-size:11px;
+  line-height:1;
+  letter-spacing:.03em;
 }
 .playlistNewBadge{
   display:inline-flex;
@@ -2311,6 +2324,10 @@ footer {
   font-size:11px;
   line-height:1;
   letter-spacing:.04em;
+}
+.playlistLatestDate{
+  color:#68766f;
+  white-space:nowrap;
 }
 
 

@@ -81,7 +81,36 @@ function findPodcastDuplicate(sheet, url, title) {
   return null;
 }
 
-function readPlaylistSheet(sheet) {
+function playlistIdForPublicRead_(url) {
+  const match = String(url || "").match(/open\.spotify\.com\/playlist\/([A-Za-z0-9]+)/i);
+  return match ? match[1] : "";
+}
+
+function isAutoPlaylistUpdateStatus_(status) {
+  return String(status || "").trim().toUpperCase() === "AUTO";
+}
+
+function readPlaylistUpdateStatusMap_(workSheet) {
+  const result = {};
+  if (!workSheet || workSheet.getLastRow() < 2) return result;
+
+  const lastColumn = Math.max(7, workSheet.getLastColumn());
+  const headers = workSheet.getRange(1, 1, 1, lastColumn).getDisplayValues()[0]
+    .map(function(value) { return String(value || "").trim(); });
+  const urlCol = headers.indexOf("Spotifyプレイリストのリンク");
+  const statusCol = findPlaylistUpdateStatusColumn_(headers);
+  if (urlCol < 0 || statusCol < 0) return result;
+
+  const rows = workSheet.getRange(2, 1, workSheet.getLastRow() - 1, lastColumn).getDisplayValues();
+  rows.forEach(function(row) {
+    const playlistId = playlistIdForPublicRead_(row[urlCol]);
+    if (!playlistId) return;
+    result[playlistId] = String(row[statusCol] || "").trim();
+  });
+  return result;
+}
+
+function readPlaylistSheet(sheet, workSheet) {
   const lastRow =
     sheet.getLastRow();
 
@@ -94,7 +123,9 @@ function readPlaylistSheet(sheet) {
     };
   }
 
-  // サイト公開用: A=URL, B=タイトル, C=制作者, D=最終更新日, E=新規登録日
+  // サイト公開用: A=URL, B=タイトル, C=制作者, D=最終更新日, E=新規登録日。
+  // AUTO判定は作業台の「更新日取得状況／更新日取得方法」をURLで安全に照合する。
+  const updateStatusByPlaylistId = readPlaylistUpdateStatusMap_(workSheet);
   const values =
     sheet
       .getRange(
@@ -117,7 +148,9 @@ function readPlaylistSheet(sheet) {
         }
       )
       .map(
-        (r, i) => ({
+        (r, i) => {
+          const updateStatus = updateStatusByPlaylistId[playlistIdForPublicRead_(r[0])] || "";
+          return ({
           id:
             String(i + 1),
           url:
@@ -129,8 +162,13 @@ function readPlaylistSheet(sheet) {
           latestDate:
             r[3] || "",
           introducedDate:
-            r[4] || ""
-        })
+            r[4] || "",
+          updateStatus:
+            updateStatus,
+          autoManaged:
+            isAutoPlaylistUpdateStatus_(updateStatus)
+          });
+        }
       );
 
   return {

@@ -506,6 +506,14 @@ function playlistDateValue(value?: string | null) {
   return Number(match[1] + match[2] + match[3]);
 }
 
+function isPlaylistGrowing(p: Playlist) {
+  return p.autoManaged === true || String(p.updateStatus || "").trim().toUpperCase() === "AUTO";
+}
+
+function hasRecentPlaylistNews(p: Playlist) {
+  return isRecentPlaylistDate(p.latestDate) || isRecentPlaylistDate(p.introducedDate);
+}
+
 function listenerPodcastBadge(introduced?: string) {
   if (!introduced) return null;
 
@@ -574,7 +582,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     let cancelled = false;
     async function refreshListenerPlaylists() {
       try {
-        const payload = await loadJsonpWithRetry<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; latestDate?: string; introducedDate?: string }> }>(
+        const payload = await loadJsonpWithRetry<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; latestDate?: string; introducedDate?: string; updateStatus?: string; autoManaged?: boolean }> }>(
           ASARISU_API_URL + "?type=playlist&_=" + Date.now()
         );
         if (!payload?.ok || !Array.isArray(payload.items)) return;
@@ -585,7 +593,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           playlists.map((item) => [item.title.trim(), item]),
         );
         const next = payload.items
-          .map((source: { id?: string; url?: string; title?: string; maker?: string; latestDate?: string; introducedDate?: string }, index: number) => {
+          .map((source: { id?: string; url?: string; title?: string; maker?: string; latestDate?: string; introducedDate?: string; updateStatus?: string; autoManaged?: boolean }, index: number) => {
             const cleanUrl = String(source.url || "").trim() || null;
             const cleanTitle = String(source.title || "").trim();
             const existing =
@@ -599,6 +607,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               artwork: (cleanUrl ? getPlaylistArtworkOverride(cleanUrl) : undefined) ?? existing?.artwork ?? null,
               latestDate: String(source.latestDate || "").trim() || null,
               introducedDate: String(source.introducedDate || "").trim() || null,
+              updateStatus: String(source.updateStatus || "").trim() || null,
+              autoManaged: source.autoManaged === true || String(source.updateStatus || "").trim().toUpperCase() === "AUTO",
             } satisfies Playlist;
           })
           .filter((item: Playlist) => item.title && isPublishablePlaylistSource(item));
@@ -747,7 +757,11 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         )
         .sort((a, b) => {
           if (sort === "new") {
-            return playlistDateValue(b.latestDate) - playlistDateValue(a.latestDate) || Number(b.id) - Number(a.id);
+            return (
+              Number(isPlaylistGrowing(b)) - Number(isPlaylistGrowing(a)) ||
+              playlistDateValue(b.latestDate) - playlistDateValue(a.latestDate) ||
+              Number(b.id) - Number(a.id)
+            );
           }
           if (sort === "numberDesc") {
             return Number(b.id) - Number(a.id);
@@ -1307,12 +1321,11 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     <div>
                       <div className="omikujiMeta">
                         <small>PLAYLIST {omikuji.id.padStart(2, "0")}｜本日の一聴</small>
-                        {(omikuji.latestDate || isRecentPlaylistDate(omikuji.introducedDate)) && (
-                          <span className="playlistUpdateMeta">
-                            {isRecentPlaylistDate(omikuji.introducedDate) && <span className="playlistNewBadge">NEW</span>}
-                            {omikuji.latestDate && <span>{formatPlaylistDate(omikuji.latestDate)} 更新</span>}
-                          </span>
-                        )}
+                        <span className="playlistUpdateMeta">
+                          {isPlaylistGrowing(omikuji) && <span className="playlistGrowingBadge">🌱 楽育ち</span>}
+                          {hasRecentPlaylistNews(omikuji) && <span className="playlistNewBadge">NEW</span>}
+                          <span className="playlistLatestDate">最終新着 {formatPlaylistDate(omikuji.latestDate) || "未取得"}</span>
+                        </span>
                         {!listened.includes(omikuji.id) && <span>♡ 未聴</span>}
                       </div>
                       <h4>{omikuji.title}</h4>
@@ -1354,12 +1367,11 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 </div>
                     <div className="cardBody listenerCardBody">
                       <small>PLAYLIST {p.id.padStart(2, "0")}</small>
-                      {(p.latestDate || isRecentPlaylistDate(p.introducedDate)) && (
-                        <div className="playlistUpdateMeta">
-                          {isRecentPlaylistDate(p.introducedDate) && <span className="playlistNewBadge">NEW</span>}
-                          {p.latestDate && <span>{formatPlaylistDate(p.latestDate)} 更新</span>}
-                        </div>
-                      )}
+                      <div className="playlistUpdateMeta">
+                        {isPlaylistGrowing(p) && <span className="playlistGrowingBadge">🌱 楽育ち</span>}
+                        {hasRecentPlaylistNews(p) && <span className="playlistNewBadge">NEW</span>}
+                        <span className="playlistLatestDate">最終新着 {formatPlaylistDate(p.latestDate) || "未取得"}</span>
+                      </div>
                       <h3>{p.title}</h3>
                       <p>by {p.maker}</p>
                       <div className="actions">
