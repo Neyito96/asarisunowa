@@ -1493,7 +1493,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     <legend>どんなプレイリスト？</legend>
                     <label><input type="radio" name="autoUpdateType" value="series" checked={autoUpdateType === "series"} onChange={() => setAutoUpdateType("series")} /><span><b>📻 シリーズ別</b><small>例：一緒に新聞をめくろう！</small></span></label>
                     <label><input type="radio" name="autoUpdateType" value="speaker" checked={autoUpdateType === "speaker"} onChange={() => setAutoUpdateType("speaker")} /><span><b>🎙️ 出演者別</b><small>例：宮沢賢一さん出演回</small></span></label>
-                    <label><input type="radio" name="autoUpdateType" value="theme" checked={autoUpdateType === "theme"} onChange={() => setAutoUpdateType("theme")} /><span><b>🔎 テーマ別（候補確認後に開始）</b><small>例：中東・鉄道・教育</small></span></label>
+                    <label><input type="radio" name="autoUpdateType" value="theme" checked={autoUpdateType === "theme"} onChange={() => setAutoUpdateType("theme")} disabled /><span><b>🌱 テーマ別（耕し中・新規受付停止）</b><small>例：中東・鉄道・教育</small></span></label>
                   </fieldset>
                   <label>
                     <span>朝リストから選ぶ</span>
