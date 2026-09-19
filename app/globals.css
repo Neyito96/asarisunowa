@@ -2314,6 +2314,44 @@ footer {
   line-height:1;
   letter-spacing:.03em;
 }
+.playlistGrowingIntro{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:7px 16px;
+  margin:0 0 18px;
+  padding:12px 15px;
+  border:1px solid #9ac4a3;
+  border-radius:14px;
+  background:#f0f8f1;
+  color:#205d37;
+}
+.playlistGrowingIntro strong{
+  font-size:14px;
+}
+.playlistGrowingIntro span{
+  position:relative;
+  padding-left:12px;
+  color:#526b59;
+  font-size:13px;
+  font-weight:700;
+}
+.playlistGrowingIntro span::before{
+  content:"・";
+  position:absolute;
+  left:0;
+}
+@media (max-width:640px){
+  .playlistGrowingIntro{
+    align-items:flex-start;
+    gap:6px;
+    padding:11px 13px;
+  }
+  .playlistGrowingIntro strong,
+  .playlistGrowingIntro span{
+    flex-basis:100%;
+  }
+}
 .playlistNewBadge{
   display:inline-flex;
   align-items:center;
