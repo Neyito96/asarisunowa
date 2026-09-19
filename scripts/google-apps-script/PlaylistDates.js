@@ -66,25 +66,25 @@ if (!shouldTry) {
     try {
       const items = getAllSpotifyPlaylistItems_(playlistId, token);
 
-      let latestAddedAt = "";
+      let latestReleaseDate = "";
 
       items.forEach(function(row) {
-        const addedAt =
-          row && row.added_at
-            ? String(row.added_at)
+        const releaseDate =
+          row && row.item && row.item.release_date
+            ? String(row.item.release_date)
             : "";
 
         if (
-          addedAt &&
-          (!latestAddedAt || addedAt > latestAddedAt)
+          releaseDate &&
+          (!latestReleaseDate || releaseDate > latestReleaseDate)
         ) {
-          latestAddedAt = addedAt;
+          latestReleaseDate = releaseDate;
         }
       });
 
       const latestDate =
-        latestAddedAt
-          ? latestAddedAt.slice(0, 10)
+        latestReleaseDate
+          ? latestReleaseDate.slice(0, 10)
           : "";
 
       if (latestDate) {
@@ -199,25 +199,25 @@ function scanBlankPlaylistDates() {
     try {
       const items = getAllSpotifyPlaylistItems_(playlistId, token);
 
-      let latestAddedAt = "";
+      let latestReleaseDate = "";
 
       items.forEach(function(row) {
-        const addedAt =
-          row && row.added_at
-            ? String(row.added_at)
+        const releaseDate =
+          row && row.item && row.item.release_date
+            ? String(row.item.release_date)
             : "";
 
         if (
-          addedAt &&
-          (!latestAddedAt || addedAt > latestAddedAt)
+          releaseDate &&
+          (!latestReleaseDate || releaseDate > latestReleaseDate)
         ) {
-          latestAddedAt = addedAt;
+          latestReleaseDate = releaseDate;
         }
       });
 
       const latestDate =
-        latestAddedAt
-          ? latestAddedAt.slice(0, 10)
+        latestReleaseDate
+          ? latestReleaseDate.slice(0, 10)
           : "";
 
       if (latestDate) {

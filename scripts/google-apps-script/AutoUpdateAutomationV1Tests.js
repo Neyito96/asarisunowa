@@ -19,6 +19,12 @@ function testAutoUpdateAutomationV1Pure() {
   if (typeof syncDailyManagedAutoPlaylistsV1_ !== "function") {
     throw new Error("固定ルールの日次巡回関数がありません");
   }
+  if (typeof syncRecentManagedAutoPlaylistV1_ !== "function") {
+    throw new Error("朝の最新回限定巡回関数がありません");
+  }
+  if (!isSpotifyRateLimitErrorV1_(new Error("Spotify APIのレート制限が続いています"))) {
+    throw new Error("Spotify 429を一時停止として判定できません");
+  }
   if (AUTO_UPDATE_V1_IMMEDIATE_DELAY_MS_ < 60 * 1000) {
     throw new Error("直後実行の予約間隔が短すぎます");
   }
@@ -53,7 +59,15 @@ function testAutoUpdateAutomationV1Pure() {
     throw new Error("通常エラーをトリガー権限不足と誤判定しています");
   }
   const managedKeys = getDailyManagedAutoPlaylistKeysV1_();
-  ["ota-masahiko", "no-mirai", "sato-yo"].forEach(function(key) {
+  [
+    "issho-shinbun",
+    "kino-douga",
+    "toyohide",
+    "ota-masahiko",
+    "no-mirai",
+    "polirebi",
+    "sato-yo"
+  ].forEach(function(key) {
     if (managedKeys.indexOf(key) < 0) {
       throw new Error("朝の固定ルール巡回に不足があります: " + key);
     }

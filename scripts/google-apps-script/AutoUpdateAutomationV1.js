@@ -19,8 +19,12 @@ const AUTO_UPDATE_V1_WAITING_RETRY_WINDOW_MS_ = 6 * 60 * 60 * 1000;
 const AUTO_UPDATE_V1_WAITING_RETRY_STARTED_KEY_ = "AUTO_UPDATE_V1_WAITING_RETRY_STARTED";
 const AUTO_UPDATE_V1_MEDIA_TALK_SHOW_ID_ = "0yhef9ORZkUZs9ZeotdCSY";
 const AUTO_UPDATE_V1_MANAGED_FIXED_RULE_KEYS_ = [
+  "issho-shinbun",
+  "kino-douga",
+  "toyohide",
   "ota-masahiko",
   "no-mirai",
+  "polirebi",
   "sato-yo"
 ];
 
@@ -164,9 +168,13 @@ function isAutoUpdateDailyWindowV1_(nowMs) {
 
 // フォーム由来の実行ルールとは別に、初回登録済みの固定ルールを同じ日次巡回で育てる。
 function syncDailyManagedAutoPlaylistsV1_() {
+  const token = getSpotifyUserAccessToken();
+  if (!token) throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
+  const recentEpisodeCache = {};
   return getDailyManagedAutoPlaylistKeysV1_().map(function(key) {
     try {
-      const result = syncAutoPlaylistByKey_(key) || {};
+      const rule = getAutoPlaylistRuleByKey_(key);
+      const result = syncRecentManagedAutoPlaylistV1_(rule, token, recentEpisodeCache) || {};
       return {
         key: key,
         ok: true,
@@ -178,6 +186,50 @@ function syncDailyManagedAutoPlaylistsV1_() {
       return { key: key, ok: false, error: String(error) };
     }
   });
+}
+
+// 毎朝の巡回は各Showの最新20件だけを見る。
+// 全件走査と初回補完は1時間ごとの別処理へ分離し、朝のAPI負荷を抑える。
+function syncRecentManagedAutoPlaylistV1_(rule, token, episodeCache) {
+  if (!rule || rule.enabled === false) throw new Error("有効な固定ルールがありません");
+  const episodesById = {};
+  getAutoPlaylistShowIds_(rule).forEach(function(showId) {
+    const cacheKey = String(showId);
+    const page = episodeCache[cacheKey] || fetchAutoUpdateShowFirstPageV1_(showId, token);
+    episodeCache[cacheKey] = page;
+    page.items.forEach(function(episode) {
+      if (episode && episode.id && matchesAutoPlaylistRule_(episode, rule)) {
+        episodesById[String(episode.id)] = episode;
+      }
+    });
+  });
+
+  const existingUris = new Set(getAllSpotifyPlaylistItems_(rule.playlistId, token).map(function(row) {
+    return String(row && row.item && row.item.uri ? row.item.uri : "");
+  }).filter(Boolean));
+  const missing = Object.keys(episodesById).map(function(id) {
+    return episodesById[id];
+  }).filter(function(episode) {
+    return !existingUris.has(String(episode.uri || ("spotify:episode:" + episode.id)));
+  }).sort(function(a, b) {
+    const left = String(a.release_date || "");
+    const right = String(b.release_date || "");
+    return left === right
+      ? String(a.id).localeCompare(String(b.id))
+      : left < right ? -1 : 1;
+  });
+
+  if (missing.length > AUTO_UPDATE_V1_MAX_ADDITIONS_PER_RUN_) {
+    throw new Error("朝の追加候補が上限を超えました: " + missing.length);
+  }
+  if (!missing.length) return { addedCount: 0, failedCount: 0 };
+  assertAutoPlaylistSheetLinkBeforeWrite_(rule);
+  const result = addAutoPlaylistEpisodesIndividually_(rule, token, missing);
+  if (result.failedCount > 0) throw new Error("Spotify追加に一部失敗しました");
+  if (result.addedCount > 0 && rule.updateLatestDateOnAdd === true) {
+    updatePlaylistLatestDate_(rule.playlistId, getLatestReleaseDate_(result.addedEpisodes));
+  }
+  return result;
 }
 
 function getDailyManagedAutoPlaylistKeysV1_() {
@@ -372,11 +424,30 @@ function syncNextAutoUpdateBootstrapV1_() {
     } catch (error) {
       const reason = "初回補完エラー: " + String(error && error.message ? error.message : error);
       Logger.log(reason);
+      if (isSpotifyRateLimitErrorV1_(error)) {
+        setAutoUpdateRuleSheetStatusV1_(
+          selected,
+          "初回補完中",
+          "Spotify混雑のため一時保留。次の1時間枠で同じ続きから再開します"
+        );
+        return {
+          playlistId: selected.playlistId,
+          ok: false,
+          retryNextHourlyRun: true,
+          reason: reason
+        };
+      }
       return pauseAutoUpdateRuleV1_(selected, reason);
     }
   } finally {
     lock.releaseLock();
   }
+}
+
+function isSpotifyRateLimitErrorV1_(error) {
+  return /Spotify API.*レート制限|status=429|\b429\b/i.test(
+    String(error && error.message ? error.message : error)
+  );
 }
 
 function selectNextAutoUpdateBootstrapRuleV1_(rules, previousKey) {
@@ -887,24 +958,30 @@ function fetchAutoUpdateShowFirstPageV1_(showId, token) {
 }
 
 function fetchPlayableAutoUpdateEpisodesV1_(episodeIds, token) {
+  const ids = Array.from(new Set((episodeIds || []).map(function(id) {
+    return String(id || "").trim();
+  }).filter(Boolean)));
   const episodes = [];
-  (episodeIds || []).forEach(function(id, index) {
+  for (let offset = 0; offset < ids.length; offset += 50) {
+    const batch = ids.slice(offset, offset + 50);
     const response = fetchSpotifyReadWithRetry_(
-      "https://api.spotify.com/v1/episodes/" + encodeURIComponent(id) + "?market=JP",
+      "https://api.spotify.com/v1/episodes?market=JP&ids=" +
+        encodeURIComponent(batch.join(",")),
       { muteHttpExceptions: true, headers: { Authorization: "Bearer " + token, Accept: "application/json" } },
-      "Episode " + id
+      "Episodes batch " + String(offset / 50 + 1)
     );
-    if (response.getResponseCode() !== 200) return;
-    const episode = JSON.parse(response.getContentText());
-    if (episode.is_playable === false) return;
-    episodes.push({
-      id: String(episode.id || id),
-      uri: String(episode.uri || ("spotify:episode:" + id)),
-      name: String(episode.name || id),
-      release_date: String(episode.release_date || "")
+    if (response.getResponseCode() !== 200) continue;
+    const data = JSON.parse(response.getContentText());
+    (Array.isArray(data.episodes) ? data.episodes : []).forEach(function(episode) {
+      if (!episode || episode.is_playable === false) return;
+      episodes.push({
+        id: String(episode.id || ""),
+        uri: String(episode.uri || ("spotify:episode:" + episode.id)),
+        name: String(episode.name || episode.id),
+        release_date: String(episode.release_date || "")
+      });
     });
-    if (index < episodeIds.length - 1) Utilities.sleep(200);
-  });
+  }
   return episodes;
 }
 

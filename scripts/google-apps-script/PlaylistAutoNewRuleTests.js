@@ -3,22 +3,17 @@
 
 function testNewAutoPlaylistRuleCandidatesPure() {
   const noMirai = getAutoPlaylistRuleByKey_("no-mirai");
+  const polirebi = getAutoPlaylistRuleByKey_("polirebi");
   const satoYo = getAutoPlaylistRuleByKey_("sato-yo");
   const southAmerica = getAutoPlaylistRuleByKey_("south-america");
-  if (!noMirai || !satoYo || !southAmerica) throw new Error("新規ルール候補が見つかりません");
+  if (!noMirai || !polirebi || !satoYo || !southAmerica) throw new Error("新規ルール候補が見つかりません");
 
-  [satoYo, southAmerica].forEach(function(rule) {
-    if (rule.enabled !== false) throw new Error(rule.key + " が有効化されています");
-    if (rule.lifecycleStatus !== AUTO_PLAYLIST_LIFECYCLE_.REQUESTED) {
-      throw new Error(rule.key + " がrequested状態ではありません");
-    }
-    if (rule.productionWriteAllowed !== false) {
-      throw new Error(rule.key + " の本番書き込みが許可されています");
-    }
-    if (canActivateAutoPlaylistRule_(rule).canActivate) {
-      throw new Error(rule.key + " が申請直後に有効化可能です");
-    }
-  });
+  if (southAmerica.enabled !== true || southAmerica.productionWriteAllowed !== true) {
+    throw new Error("南米・中南米が候補確認付き自動更新として有効ではありません");
+  }
+  if (southAmerica.lifecycleStatus !== AUTO_PLAYLIST_LIFECYCLE_.INCREMENTAL) {
+    throw new Error("南米・中南米がincremental状態ではありません");
+  }
 
   if (noMirai.enabled !== true || noMirai.productionWriteAllowed !== true) {
     throw new Error("ノーミライが増分自動更新として有効ではありません");
@@ -28,6 +23,23 @@ function testNewAutoPlaylistRuleCandidatesPure() {
   }
   if (noMirai.reviewRequired !== false || noMirai.requireSheetLinkBeforeWrite !== true) {
     throw new Error("ノーミライの本番安全条件が不正です");
+  }
+
+  if (polirebi.enabled !== true || polirebi.productionWriteAllowed !== true) {
+    throw new Error("ポリレビが増分自動更新として有効ではありません");
+  }
+  if (polirebi.lifecycleStatus !== AUTO_PLAYLIST_LIFECYCLE_.INCREMENTAL) {
+    throw new Error("ポリレビがincremental状態ではありません");
+  }
+  if (polirebi.requireSheetLinkBeforeWrite !== true) {
+    throw new Error("ポリレビの書き込み前シート確認が無効です");
+  }
+
+  if (satoYo.enabled !== true || satoYo.productionWriteAllowed !== true) {
+    throw new Error("佐藤陽が増分自動更新として有効ではありません");
+  }
+  if (satoYo.lifecycleStatus !== AUTO_PLAYLIST_LIFECYCLE_.INCREMENTAL) {
+    throw new Error("佐藤陽がincremental状態ではありません");
   }
 
   if (satoYo.requireSheetLinkBeforeWrite !== true) {

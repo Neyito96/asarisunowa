@@ -18,7 +18,9 @@ const THEME_REVIEW_HEADERS_ = [
   "エラー"
 ];
 const THEME_REVIEW_DECISIONS_ = ["未確認", "採用", "除外"];
-const THEME_REVIEW_SPOTIFY_WRITE_ENABLED_ = false;
+// 南米・中南米はユーザー承認済みのAUTO対象。
+// キーワード一致だけではSpotifyへ追加せず、候補確認シートで「採用」された回だけを書き込む。
+const THEME_REVIEW_SPOTIFY_WRITE_ENABLED_ = true;
 const THEME_REVIEW_AUTOMATION_ENABLED_PROPERTY_ = "THEME_REVIEW_AUTOMATION_ENABLED";
 const THEME_REVIEW_AUTOMATION_HANDLER_ = "runThemeReviewAutomation";
 
@@ -283,7 +285,7 @@ function exportRecentThemeRuleCandidatesToReviewSheet_(rule, token) {
 
 function getThemeReviewAutomationRules_() {
   return AUTO_PLAYLIST_RULES.filter(function(rule) {
-    return rule && rule.reviewRequired === true &&
+    return rule && rule.enabled !== false && rule.reviewRequired === true &&
       getAutoPlaylistRuleType_(rule) === AUTO_PLAYLIST_RULE_TYPE_THEME_;
   });
 }
