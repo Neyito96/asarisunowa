@@ -103,7 +103,7 @@ export default function PlaylistCombinedAutoForm() {
       setStatus("error");
       setMessage(
         registrationConfirmed
-          ? "プレイリスト登録は確認できましたが、自動更新申請の受付を確認できませんでした。時間をおいて『今あるリストが育つ』から申請してください。"
+          ? "プレイリスト登録は確認できましたが、自動更新申請の受付を確認できませんでした。時間をおいて『今あるリストを自動更新』から申請してください。"
           : error instanceof Error
           ? error.message
           : "送信できませんでした。時間をおいてもう一度お試しください。",
@@ -113,7 +113,7 @@ export default function PlaylistCombinedAutoForm() {
 
   return (
     <form className="autoUpdateForm" onSubmit={submit}>
-      <h3>登録＋自動更新を申し込む</h3>
+      <h3>登録＋自動更新（楽育ち）を申し込む</h3>
       <p>まずSpotifyで新しいプレイリストを作り、起点となる一番古いエピソードを1本入れてください。その後、この画面から申請してください。</p>
 
       <label>
@@ -146,17 +146,21 @@ export default function PlaylistCombinedAutoForm() {
         <textarea value={keywords} onChange={(event) => setKeywords(event.target.value)} placeholder={updateType === "series" ? "例：めくろう\n一緒に新聞をめくろう" : updateType === "speaker" ? "例：宮沢賢一" : "例：中東\nイスラエル\nパレスチナ\nイラン"} rows={updateType === "speaker" ? 2 : 3} required />
       </label>
       <div className="autoUpdateCommonRule">
-        <b>自動更新について</b>
+        <b>自動更新（楽育ち）について</b>
         <p>最初に入れた1本を目印に、そこから最新回までを古い順に追加します。準備が終わった後は、毎朝、新しい回がないか確認します。</p>
       </div>
       <div className="autoUpdateAfterSubmit">
-        <b>連載と朝リスト</b>
-        <p><b>連載：</b>同じシリーズを集めたリスト</p>
-        <p><b>朝リスト：</b>出演者やテーマで集めたリスト</p>
-        <p><b>初回：</b>1時間ごとに最大50件ずつ、古い回から順に追加します。</p>
-        <p><b>完了後：</b>毎朝4〜5時に新着回だけ確認します。</p>
-        <p><b>テーマ別：</b>内容を確認してから自動更新を開始します。</p>
-        <p><b>掲載：</b>通常30〜60分程度です。</p>
+        <strong className="autoUpdateGuideTitle">連載と朝リスト</strong>
+        <div className="autoUpdateShelfGuide">
+          <span><b>連載</b><small>同じシリーズ</small></span>
+          <span><b>朝リスト</b><small>出演者・テーマ別</small></span>
+        </div>
+        <dl className="autoUpdateTimingGuide">
+          <div><dt>初回</dt><dd>1時間ごとに最大50件、古い回から追加</dd></div>
+          <div><dt>完了後</dt><dd>毎朝4〜5時に新着回だけ確認</dd></div>
+          <div><dt>掲載</dt><dd>通常30〜60分</dd></div>
+        </dl>
+        <p className="autoUpdateThemeNote">※テーマ別は内容確認後に開始します。</p>
       </div>
       <label>
         <span>更新ルール・補足 <small>（任意）</small></span>
@@ -171,7 +175,7 @@ export default function PlaylistCombinedAutoForm() {
         <input type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(event) => setWebsite(event.target.value)} />
       </label>
 
-      <button type="submit" disabled={status === "sending"}>{status === "sending" ? "送信中…" : "登録＋自動更新を申し込む"}</button>
+      <button type="submit" disabled={status === "sending"}>{status === "sending" ? "送信中…" : "登録＋自動更新（楽育ち）を申し込む"}</button>
       {message && <p aria-live="polite" className={status === "success" ? "submitNotice success" : "submitNotice error"}>{message}</p>}
     </form>
   );

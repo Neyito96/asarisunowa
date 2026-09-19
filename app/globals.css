@@ -2506,9 +2506,16 @@ footer {
   background:#eef9fc;
   color:#064f69;
 }
-.autoUpdateAfterSubmit b{display:block;margin-bottom:4px}
-.autoUpdateAfterSubmit p{font-size:.9rem;line-height:1.55!important}
-.autoUpdateAfterSubmit small{display:block;margin-top:5px;color:#456f7c;line-height:1.5}
+.autoUpdateGuideTitle{display:block;margin-bottom:9px}
+.autoUpdateShelfGuide{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.autoUpdateShelfGuide>span{display:flex;align-items:baseline;gap:7px;min-width:0;padding:8px 10px;border:1px solid #c7e7ee;border-radius:10px;background:#fff}
+.autoUpdateShelfGuide b{flex:0 0 auto;font-size:.82rem}
+.autoUpdateShelfGuide small{min-width:0;color:#456f7c;font-size:.76rem;line-height:1.3}
+.autoUpdateTimingGuide{display:grid;gap:0;margin:9px 0 0}
+.autoUpdateTimingGuide>div{display:grid;grid-template-columns:4.2em minmax(0,1fr);gap:8px;padding:6px 2px;border-top:1px solid #d8edf2}
+.autoUpdateTimingGuide dt{font-size:.78rem;font-weight:800;color:#064f69}
+.autoUpdateTimingGuide dd{margin:0;color:#456f7c;font-size:.78rem;line-height:1.35}
+.autoUpdateThemeNote{margin:7px 0 0!important;color:#456f7c;font-size:.75rem!important;line-height:1.35!important}
 @media (min-width:641px){
   #playlist-entry-mode-host{
     max-width:860px;

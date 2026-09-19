@@ -1266,7 +1266,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           </div>
           <main className="wrap">
             <aside className="playlistGrowingIntro" aria-label="楽育ちの説明">
-              <strong>🌱 楽育ち（スマート栽培）</strong>
+              <strong>🌱 自動更新（楽育ち）</strong>
               <span>植えてそのまま育つ</span>
               <span>今あるリストが育つ</span>
             </aside>
@@ -1487,12 +1487,12 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 onClick={() => setAutoUpdateOpen((open) => !open)}
                 aria-expanded={autoUpdateOpen}
               >
-                <span><b>🔄 このプレイリスト、自動更新にしませんか？</b><small>眠っている朝リストも、共同編集で自動更新できるかも。</small></span>
+                <span><b>🌱 自動更新（楽育ち）にしませんか？</b><small>今あるSpotifyプレイリストに、新しい回を自動追加できます。</small></span>
                 <span aria-hidden="true">{autoUpdateOpen ? "−" : "＋"}</span>
               </button>
               {autoUpdateOpen && (
                 <form className="autoUpdateForm" onSubmit={submitAutoUpdateRequest}>
-                  <h3 id="auto-update-title">自動更新を申し込む</h3>
+                  <h3 id="auto-update-title">今あるリストを自動更新（楽育ち）</h3>
                   <p>あなたが編集できるSpotifyプレイリストを選び、「どんな回を追加したいか」を教えてください。シリーズ別・出演者別は条件確認後、テーマ別は候補確認後に自動更新を開始します。</p>
                   <fieldset className="autoUpdateTypes">
                     <legend>どんなプレイリスト？</legend>
@@ -1537,7 +1537,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     <span>セキュリティ：神田さんの名は？</span>
                     <input type="text" value={autoUpdateSecurityAnswer} onChange={(e) => setAutoUpdateSecurityAnswer(e.target.value)} placeholder="漢字2文字" maxLength={10} autoComplete="off" required />
                   </label>
-                  <button type="submit" disabled={autoUpdateStatus === "sending"}>{autoUpdateStatus === "sending" ? "送信中…" : "自動更新を申し込む"}</button>
+                  <button type="submit" disabled={autoUpdateStatus === "sending"}>{autoUpdateStatus === "sending" ? "送信中…" : "自動更新（楽育ち）を申し込む"}</button>
                   {autoUpdateMessage && <p className={autoUpdateStatus === "success" ? "submitNotice success" : "submitNotice error"}>{autoUpdateMessage}</p>}
                 </form>
               )}

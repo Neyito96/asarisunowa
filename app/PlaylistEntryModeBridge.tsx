@@ -283,11 +283,11 @@ export default function PlaylistEntryModeBridge() {
               <div className="playlistSubmitHead">
                 <div>
                   <p className="kicker">ADD / GROW A PLAYLIST</p>
-                  <h3>{shelf === "series" ? "🌱 連載が育つ" : "🌱 朝リストが育つ"}</h3>
+                  <h3>{shelf === "series" ? "🌱 連載の登録・自動更新" : "🌱 朝リストの登録・自動更新"}</h3>
                   <p>
                     {shelf === "series"
-                      ? "同じシリーズのエピソードをまとめたプレイリストを登録できます。Spotifyなら、新しい回も自動で追加できます。"
-                      : "出演者やテーマなど、好きな切り口でまとめたプレイリストを登録できます。Spotifyなら、新しい回も自動で追加できます。"}
+                      ? "同じシリーズをまとめて登録。Spotifyなら新着回も自動追加できます。"
+                      : "出演者・テーマ別に登録。Spotifyなら新着回も自動追加できます。"}
                   </p>
                   <PlaylistEntryModeSelector
                     value={mode}
@@ -306,11 +306,11 @@ export default function PlaylistEntryModeBridge() {
               type="button"
               className="playlistManagerSortButton"
               onClick={jumpToManagerForm}
-              aria-label="リストが育つメニューへ"
+              aria-label="自動更新（楽育ち）メニューへ"
               title="プレイリストを登録・自動更新"
               style={{ marginLeft: "auto", borderColor: "#cc4b78", color: "#0b5874", fontWeight: 800 }}
             >
-              🌱 リストが育つ
+              🌱 自動更新（楽育ち）
             </button>,
             sortHost,
           )
