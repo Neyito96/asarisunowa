@@ -1265,11 +1265,6 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             </div>
           </div>
           <main className="wrap">
-            <aside className="playlistGrowingIntro" aria-label="楽育ちの説明">
-              <strong>🌱 自動更新（楽育ち）</strong>
-              <span>植えてそのまま育つ</span>
-              <span>今あるリストが育つ</span>
-            </aside>
             <div className="themeHead playlistThemeHead">
               <div>
                 <p className="kicker themeKicker">THEME PLAYLISTS</p>
