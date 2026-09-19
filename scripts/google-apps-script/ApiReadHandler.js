@@ -5,13 +5,12 @@ function handleApiRead_(type, callback) {
 
   if (type === "playlist") {
     const sheet = getSheetLoose(ss, PUBLIC_SHEET_NAME);
-    const workSheet = getSheetLoose(ss, WORK_SHEET_NAME);
 
     if (!sheet) {
       throw new Error("サイト公開用シートが見つかりません");
     }
 
-    return apiResponse(readPlaylistSheet(sheet, workSheet), callback);
+    return apiResponse(readPlaylistSheet(sheet), callback);
   }
 
   if (type === "listenerPodcast") {

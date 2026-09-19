@@ -86,31 +86,27 @@ function playlistIdForPublicRead_(url) {
   return match ? match[1] : "";
 }
 
-function isAutoPlaylistUpdateStatus_(status) {
-  return String(status || "").trim().toUpperCase() === "AUTO";
-}
-
-function readPlaylistUpdateStatusMap_(workSheet) {
+function readAutoManagedPlaylistIdMap_() {
   const result = {};
-  if (!workSheet || workSheet.getLastRow() < 2) return result;
+  let rules = [];
+  if (typeof AUTO_PLAYLIST_RULES !== "undefined" && Array.isArray(AUTO_PLAYLIST_RULES)) {
+    rules = rules.concat(AUTO_PLAYLIST_RULES);
+  }
+  if (typeof loadAutoUpdateRuntimeRulesV1_ === "function") {
+    rules = rules.concat(loadAutoUpdateRuntimeRulesV1_());
+  }
 
-  const lastColumn = Math.max(7, workSheet.getLastColumn());
-  const headers = workSheet.getRange(1, 1, 1, lastColumn).getDisplayValues()[0]
-    .map(function(value) { return String(value || "").trim(); });
-  const urlCol = headers.indexOf("Spotifyプレイリストのリンク");
-  const statusCol = findPlaylistUpdateStatusColumn_(headers);
-  if (urlCol < 0 || statusCol < 0) return result;
-
-  const rows = workSheet.getRange(2, 1, workSheet.getLastRow() - 1, lastColumn).getDisplayValues();
-  rows.forEach(function(row) {
-    const playlistId = playlistIdForPublicRead_(row[urlCol]);
-    if (!playlistId) return;
-    result[playlistId] = String(row[statusCol] || "").trim();
+  rules.forEach(function(rule) {
+    if (!rule || rule.enabled === false || rule.productionWriteAllowed === false) return;
+    const lifecycle = String(rule.lifecycleStatus || "").trim().toLowerCase();
+    if (["requested", "audit", "paused"].indexOf(lifecycle) >= 0) return;
+    const playlistId = String(rule.playlistId || "").trim();
+    if (playlistId) result[playlistId] = true;
   });
   return result;
 }
 
-function readPlaylistSheet(sheet, workSheet) {
+function readPlaylistSheet(sheet) {
   const lastRow =
     sheet.getLastRow();
 
@@ -124,8 +120,8 @@ function readPlaylistSheet(sheet, workSheet) {
   }
 
   // サイト公開用: A=URL, B=タイトル, C=制作者, D=最終更新日, E=新規登録日。
-  // AUTO判定は作業台の「更新日取得状況／更新日取得方法」をURLで安全に照合する。
-  const updateStatusByPlaylistId = readPlaylistUpdateStatusMap_(workSheet);
+  // 「楽育ち」は更新日の取得方法ではなく、実際に有効な自動更新ルールだけを示す。
+  const autoManagedPlaylistIds = readAutoManagedPlaylistIdMap_();
   const values =
     sheet
       .getRange(
@@ -149,7 +145,7 @@ function readPlaylistSheet(sheet, workSheet) {
       )
       .map(
         (r, i) => {
-          const updateStatus = updateStatusByPlaylistId[playlistIdForPublicRead_(r[0])] || "";
+          const playlistId = playlistIdForPublicRead_(r[0]);
           return ({
           id:
             String(i + 1),
@@ -163,10 +159,8 @@ function readPlaylistSheet(sheet, workSheet) {
             r[3] || "",
           introducedDate:
             r[4] || "",
-          updateStatus:
-            updateStatus,
           autoManaged:
-            isAutoPlaylistUpdateStatus_(updateStatus)
+            autoManagedPlaylistIds[playlistId] === true
           });
         }
       );

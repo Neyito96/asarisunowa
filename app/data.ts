@@ -1,4 +1,13 @@
-export type Playlist = { id:string; title:string; maker:string; url:string|null; artwork:string|null };
+export type Playlist = {
+  id: string;
+  title: string;
+  maker: string;
+  url: string | null;
+  artwork: string | null;
+  latestDate?: string | null;
+  introducedDate?: string | null;
+  autoManaged?: boolean;
+};
 const rows:[string,string,string|null,string|null][] = [
   [
     "一緒に新聞をめくろう！",

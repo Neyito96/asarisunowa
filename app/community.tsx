@@ -507,7 +507,7 @@ function playlistDateValue(value?: string | null) {
 }
 
 function isPlaylistGrowing(p: Playlist) {
-  return p.autoManaged === true || String(p.updateStatus || "").trim().toUpperCase() === "AUTO";
+  return p.autoManaged === true;
 }
 
 function hasRecentPlaylistNews(p: Playlist) {
@@ -582,7 +582,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     let cancelled = false;
     async function refreshListenerPlaylists() {
       try {
-        const payload = await loadJsonpWithRetry<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; latestDate?: string; introducedDate?: string; updateStatus?: string; autoManaged?: boolean }> }>(
+        const payload = await loadJsonpWithRetry<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; latestDate?: string; introducedDate?: string; autoManaged?: boolean }> }>(
           ASARISU_API_URL + "?type=playlist&_=" + Date.now()
         );
         if (!payload?.ok || !Array.isArray(payload.items)) return;
@@ -593,7 +593,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           playlists.map((item) => [item.title.trim(), item]),
         );
         const next = payload.items
-          .map((source: { id?: string; url?: string; title?: string; maker?: string; latestDate?: string; introducedDate?: string; updateStatus?: string; autoManaged?: boolean }, index: number) => {
+          .map((source: { id?: string; url?: string; title?: string; maker?: string; latestDate?: string; introducedDate?: string; autoManaged?: boolean }, index: number) => {
             const cleanUrl = String(source.url || "").trim() || null;
             const cleanTitle = String(source.title || "").trim();
             const existing =
@@ -607,8 +607,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               artwork: (cleanUrl ? getPlaylistArtworkOverride(cleanUrl) : undefined) ?? existing?.artwork ?? null,
               latestDate: String(source.latestDate || "").trim() || null,
               introducedDate: String(source.introducedDate || "").trim() || null,
-              updateStatus: String(source.updateStatus || "").trim() || null,
-              autoManaged: source.autoManaged === true || String(source.updateStatus || "").trim().toUpperCase() === "AUTO",
+              autoManaged: source.autoManaged === true,
             } satisfies Playlist;
           })
           .filter((item: Playlist) => item.title && isPublishablePlaylistSource(item));

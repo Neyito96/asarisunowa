@@ -115,9 +115,15 @@ rows = [
 ]
 
 output = (
-    "export type Playlist = { "
-    "id:string; title:string; maker:string; "
-    "url:string|null; artwork:string|null "
+    "export type Playlist = {\n"
+    "  id: string;\n"
+    "  title: string;\n"
+    "  maker: string;\n"
+    "  url: string | null;\n"
+    "  artwork: string | null;\n"
+    "  latestDate?: string | null;\n"
+    "  introducedDate?: string | null;\n"
+    "  autoManaged?: boolean;\n"
     "};\n"
     + "const rows:[string,string,string|null,string|null][] = "
     + json.dumps(rows, ensure_ascii=False, indent=2)
