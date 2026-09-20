@@ -1,0 +1,18 @@
+const assert = require('node:assert/strict');
+const { diagnoseAutoUpdateEpisodeSnapshotV1: diagnose } = require('./AutoUpdateReadOnlyDiagnosis');
+const base = {candidateIds:['a','b','c','c'],existingIds:['a'],batchIds:['b','c'],httpStatus:200,results:[{id:'b',found:true,isPlayable:true},{id:'c',found:true,isPlayable:false}]};
+let r = diagnose(base);
+assert.deepEqual(r.playableIds,['b']);
+assert.deepEqual(r.unplayableIds,['c']);
+assert.equal(r.safeToResume,false);
+r = diagnose({...base,results:[{id:'b',found:true,isPlayable:true}]});
+assert.deepEqual(r.unresolvedIds,['c']);
+r = diagnose({...base,httpStatus:429,results:[]});
+assert.deepEqual(r.apiErrorIds,['b','c']);
+assert.equal(r.safeToResume,false);
+r = diagnose({...base,results:[{id:'b',found:true,isPlayable:true},{id:'c',found:true,isPlayable:true}]});
+assert.equal(r.safeToResume,true);
+assert.throws(()=>diagnose({...base,batchIds:['x']}),/subset/);
+assert.throws(()=>diagnose({...base,limit:51}),/limit/);
+assert.throws(()=>diagnose({...base,batchIds:undefined}),/explicit batchIds/);
+console.log('PASS: 6 offline tests; no external services contacted');
