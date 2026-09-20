@@ -10,6 +10,9 @@ function buildAutoUpdateDiagnosisSnapshotV1(input) {
       !Array.isArray(input.batchIds) || !input.spotifyResponse) {
     throw new Error('states, playlistItems, batchIds and spotifyResponse required');
   }
+  if (input.playlistComplete !== true) {
+    throw new Error('playlistComplete === true required; partial playlist pages cannot be diagnosed');
+  }
   if (input.states.some(function(s) { return !s || !Array.isArray(s.candidateIds); })) {
     throw new Error('each scoped state must contain candidateIds');
   }
