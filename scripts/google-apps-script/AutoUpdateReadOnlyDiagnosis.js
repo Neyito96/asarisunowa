@@ -48,7 +48,9 @@ function diagnoseAutoUpdateEpisodeSnapshotV1(snapshot) {
     unplayableIds: entries.filter(function(e) { return e.outcome === 'unplayable'; }).map(function(e) { return e.id; }),
     apiErrorIds: entries.filter(function(e) { return e.outcome === 'api_error'; }).map(function(e) { return e.id; }),
     httpStatus: status,
-    safeToResume: status === 200 && entries.every(function(e) { return e.outcome === 'playable'; })
+    // Only describes this explicitly supplied batch; never authorizes production resume.
+    batchFetchComplete: status === 200 && batch.length > 0 &&
+      entries.every(function(e) { return e.outcome === 'playable'; })
   };
 }
 if (typeof module !== 'undefined') module.exports = { diagnoseAutoUpdateEpisodeSnapshotV1 };
