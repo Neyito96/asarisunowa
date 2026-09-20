@@ -1,0 +1,16 @@
+const assert = require('node:assert/strict');
+const {buildAutoUpdateDiagnosisSnapshotV1: build} = require('../../scripts/google-apps-script/AutoUpdateSnapshotAdapter');
+const {diagnoseAutoUpdateEpisodeSnapshotV1: diagnose} = require('../../scripts/google-apps-script/AutoUpdateReadOnlyDiagnosis');
+const sample = {playlistComplete:true,states:[{candidateIds:['a','b']},{candidateIds:['b','c']}],playlistItems:[{item:{uri:'spotify:episode:a'}}],batchIds:['b','c'],spotifyResponse:{httpStatus:200,episodes:[{id:'b',is_playable:true},null,{id:'c',is_playable:false}]}};
+const snapshot = build(sample);
+assert.deepEqual(snapshot.candidateIds,['a','b','c']);
+assert.deepEqual(snapshot.existingIds,['a']);
+assert.deepEqual(diagnose(snapshot).unplayableIds,['c']);
+assert.deepEqual(diagnose(build({...sample,spotifyResponse:{httpStatus:429}})).apiErrorIds,['b','c']);
+assert.throws(()=>build({...sample,spotifyResponse:{httpStatus:200}}),/episodes array/);
+assert.throws(()=>build({...sample,states:[{}]}),/candidateIds/);
+assert.throws(()=>build({...sample,batchIds:['unknown']}) && diagnose(build({...sample,batchIds:['unknown']})),/subset/);
+assert.throws(()=>build({...sample,playlistComplete:false}),/playlistComplete/);
+assert.throws(()=>build({...sample,playlistComplete:undefined}),/playlistComplete/);
+assert.equal(build(sample).playlistComplete,undefined);
+console.log('PASS: adapter regression assertions; no external services contacted');
