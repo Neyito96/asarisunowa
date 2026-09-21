@@ -12,11 +12,15 @@ function testThemePlaylistPendingRowsSafety_() {
   }
   const rows = [
     row('theme-b', 'foreign', '手動採用'),
+    row('theme-a', 'excluded', '採用'),
     row('theme-a', 'excluded', '手動除外'),
     row('theme-a', 'pending', '要確認'),
     row('theme-a', 'added', '自動採用', '2026-09-21'),
+    row('theme-a', 'added', '手動採用'),
+    row('theme-a', 'approved', '採用'),
     row('theme-a', 'approved', '手動採用'),
-    row('theme-a', 'approved', '手動採用')
+    row('theme-a', 'later-approved', '除外'),
+    row('theme-a', 'later-approved', '手動採用')
   ];
   const sheet = {};
   const originalRead = readThemeReviewRows_;
@@ -26,10 +30,14 @@ function testThemePlaylistPendingRowsSafety_() {
       return rows;
     };
     const pending = getThemePlaylistPendingRows_(rule, sheet);
-    if (pending.length !== 1 || pending[0].row[1] !== 'approved' || pending[0].rowNumber !== 6) {
-      throw new Error('Only one unadded, approved, same-rule episode should be selected');
+    const ids = pending.map(function(item) { return item.row[1]; });
+    if (ids.join() !== 'approved,later-approved') {
+      throw new Error('Latest decision must win; added history, manual exclusion, pending and foreign rows must be skipped: ' + ids.join());
     }
-    return { passed: 1, productionWrites: 0 };
+    if (pending[0].rowNumber !== 9 || pending[1].rowNumber !== 11) {
+      throw new Error('Latest row numbers must be retained for status writes');
+    }
+    return { passed: 2, productionWrites: 0 };
   } finally {
     readThemeReviewRows_ = originalRead;
   }
