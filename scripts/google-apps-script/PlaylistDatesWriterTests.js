@@ -1,5 +1,5 @@
-// Read-only mock tests for the real updatePlaylistLatestDate_ function.
-// Run manually in a test Apps Script project; never run against production sheets.
+// Isolated test project ONLY: temporarily substitutes global Apps Script services.
+// Never execute in production GAS. Does not access actual Spotify or spreadsheets.
 function testPlaylistDateWriterWithMocks_() {
   const originalSpreadsheetApp = SpreadsheetApp;
   const originalGetSheetLoose = getSheetLoose;
@@ -11,7 +11,7 @@ function testPlaylistDateWriterWithMocks_() {
   ];
   const sheet = {
     getLastRow: function() { return rows.length + 1; },
-    getRange: function(row, col, height, width) {
+    getRange: function(row, col, height) {
       if (height) return {getDisplayValues: function() { return rows.map(function(item) { return item.slice(); }); }};
       return {setValue: function(value) { writes.push({row: row, col: col, value: value}); rows[row - 2][col - 1] = value; }};
     }
@@ -25,7 +25,9 @@ function testPlaylistDateWriterWithMocks_() {
     check(updatePlaylistLatestDate_("EXACT123", "2026-09-21") === true, "new release should advance");
     check(writes.length === 1 && writes[0].row === 2 && writes[0].col === 6 && writes[0].value === "2026-09-21", "only exact playlist F2 should change");
     check(rows[1][5] === "2026-09-20", "similar playlist ID must remain untouched");
-    check(updatePlaylistLatestDate_("MISSING", "2026-09-21") === false, "missing ID should not write");
+    let missingThrew = false;
+    try { updatePlaylistLatestDate_("MISSING", "2026-09-21"); } catch (error) { missingThrew = /見つかりません/.test(String(error)); }
+    check(missingThrew && writes.length === 1, "missing ID must throw without writing");
     Logger.log("PASS: playlist date writer mock tests (6 checks)");
   } finally {
     SpreadsheetApp = originalSpreadsheetApp;
