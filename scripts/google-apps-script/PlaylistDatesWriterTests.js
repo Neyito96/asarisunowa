@@ -6,13 +6,13 @@ function testPlaylistDateWriterWithMocks_() {
   const originalSpreadsheetId = SPREADSHEET_ID;
   const writes = [];
   const rows = [
-    ["https://open.spotify.com/playlist/EXACT123", "", "", "", "", "2026-09-13"],
+    ["https://open.spotify.com/playlist/EXACT123", "", "", "", "", "2026/09/13"],
     ["https://open.spotify.com/playlist/EXACT1234", "", "", "", "", "2026-09-20"]
   ];
   const sheet = {
     getLastRow: function() { return rows.length + 1; },
     getRange: function(row, col, height, width) {
-      if (height) return {getDisplayValues: function() { return rows.map(function(item) { return item.slice(); }); }};
+      if (height) return {getValues: function() { return rows.map(function(item) { return item.slice(); }); }};
       return {setValue: function(value) { writes.push({row: row, col: col, value: value}); rows[row - 2][col - 1] = value; }};
     }
   };
@@ -22,6 +22,8 @@ function testPlaylistDateWriterWithMocks_() {
     getSheetLoose = function() { return sheet; };
     check(updatePlaylistLatestDate_("EXACT123", "") === false, "missing date should skip");
     check(updatePlaylistLatestDate_("EXACT123", "2023-01-26") === false, "backfill should skip");
+    check(updatePlaylistLatestDate_("EXACT123", "2026-09-12") === false, "localized existing date must not regress");
+    check(writes.length === 0, "no write for missing or older dates");
     check(updatePlaylistLatestDate_("EXACT123", "2026-09-21") === true, "new release should advance");
     check(writes.length === 1 && writes[0].row === 2 && writes[0].col === 6 && writes[0].value === "2026-09-21", "only exact playlist F2 should change");
     check(rows[1][5] === "2026-09-20", "similar playlist ID must remain untouched");
@@ -33,7 +35,7 @@ function testPlaylistDateWriterWithMocks_() {
     }
     check(missingIdRejected, "missing ID should throw without writing");
     check(writes.length === 1, "missing ID must not write");
-    Logger.log("PASS: playlist date writer mock tests (7 checks)");
+    Logger.log("PASS: playlist date writer mock tests (9 checks)");
   } finally {
     SpreadsheetApp = originalSpreadsheetApp;
     getSheetLoose = originalGetSheetLoose;
