@@ -1,6 +1,8 @@
 // テーマごとの候補タブ。既存の「テーマ候補確認」「テーマ候補確認コピー」は変更しない。
 // 既存の判定を壊さず移行できるよう、作成・コピーは明示的な関数に分離する。
 const THEME_PLAYLIST_TAB_PREFIX_ = "テーマ_";
+const THEME_PLAYLIST_APPROVED_DECISIONS_ = ["採用", "自動採用", "手動採用"];
+const THEME_PLAYLIST_EXCLUDED_DECISIONS_ = ["除外", "自動除外", "手動除外"];
 
 function getThemePlaylistTabName_(rule) {
   if (!rule || getAutoPlaylistRuleType_(rule) !== AUTO_PLAYLIST_RULE_TYPE_THEME_) {
@@ -14,6 +16,13 @@ function getThemePlaylistTabName_(rule) {
   const suffix = "_" + id;
   return THEME_PLAYLIST_TAB_PREFIX_ +
     name.slice(0, 100 - THEME_PLAYLIST_TAB_PREFIX_.length - suffix.length) + suffix;
+}
+
+// 読み取り専用。専用タブが未作成なら既存の共通キューを参照し、移行途中でも処理対象を見失わない。
+function getThemePlaylistReadSheet_(rule) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  return ss.getSheetByName(getThemePlaylistTabName_(rule)) ||
+    ss.getSheetByName(THEME_REVIEW_SHEET_NAME_);
 }
 
 function ensureThemePlaylistTab_(rule) {
@@ -64,4 +73,42 @@ function copyThemeReviewRowsToPlaylistTab_(ruleKey) {
       .setValues(toCopy);
   }
   return { ruleKey: rule.key, sheetName: destination.getName(), copiedCount: toCopy.length };
+}
+
+// 判定プレビューは書き込みをしない。専用タブが存在すればその手動判定を優先する。
+// 未移行の共通キューには他テーマの行もあるため、必ずルールキーで絞り込む。
+function previewThemePlaylistDecisions_(ruleKey) {
+  const rule = getAutoPlaylistRuleByKey_(ruleKey);
+  if (!rule || getAutoPlaylistRuleType_(rule) !== AUTO_PLAYLIST_RULE_TYPE_THEME_) {
+    throw new Error("テーマルールが見つかりません: " + ruleKey);
+  }
+  const sheet = getThemePlaylistReadSheet_(rule);
+  const rows = readThemeReviewRows_(sheet).filter(function(row) {
+    return String(row[0] || "").trim() === String(rule.key);
+  });
+  const result = {
+    ruleKey: rule.key,
+    sheetName: sheet ? sheet.getName() : "",
+    approvedIds: [],
+    excludedIds: [],
+    pendingIds: [],
+    alreadyAddedIds: []
+  };
+  const seen = new Set();
+  rows.forEach(function(row) {
+    const id = String(row[1] || "").trim();
+    if (!id || seen.has(id)) return;
+    seen.add(id);
+    const decision = String(row[8] || "").trim();
+    if (row[10]) {
+      result.alreadyAddedIds.push(id);
+    } else if (THEME_PLAYLIST_APPROVED_DECISIONS_.indexOf(decision) !== -1) {
+      result.approvedIds.push(id);
+    } else if (THEME_PLAYLIST_EXCLUDED_DECISIONS_.indexOf(decision) !== -1) {
+      result.excludedIds.push(id);
+    } else {
+      result.pendingIds.push(id);
+    }
+  });
+  return result;
 }
