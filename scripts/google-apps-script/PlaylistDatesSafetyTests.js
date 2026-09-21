@@ -14,5 +14,8 @@ function testPlaylistDateSafety_() {
     {item:{release_date:"2026-09-21"}},
     {item:{release_date:"2023-01-26"}}
   ]), "2026-09-21", "maximum episode date");
-  Logger.log("PASS: playlist date safety (7 assertions)");
+  assertEquals(latestPlaylistReleaseDateFromItems_([]), "", "empty playlist has no invented date");
+  assertEquals(latestPlaylistReleaseDateFromItems_([{item:null}, {}, {item:{release_date:"invalid"}}]), "", "missing and invalid episode dates");
+  assertEquals(maxPlaylistReleaseDate_("2026-09-21", "2026-02-30"), "2026-09-21", "invalid candidate preserves date");
+  Logger.log("PASS: playlist date safety (10 assertions)");
 }
