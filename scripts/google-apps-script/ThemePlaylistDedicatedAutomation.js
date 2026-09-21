@@ -1,17 +1,28 @@
 // 専用タブ方式の独立した実装。既存トリガーには接続しない。
 // 明示的な呼び出しまで本番のSpotify・シートには書き込まない。
 function getThemePlaylistPendingRows_(rule, sheet) {
+  const rows = readThemeReviewRows_(sheet);
   const seen = new Set();
-  return readThemeReviewRows_(sheet).map(function(row, index) {
-    return { row: row, rowNumber: index + 2 };
-  }).filter(function(item) {
-    const row = item.row;
+  const alreadyAdded = new Set();
+  // 重複行のどれかが追加済みなら、別の行から同じ回を再追加しない。
+  rows.forEach(function(row) {
+    if (String(row[0] || '').trim() !== String(rule.key)) return;
     const id = String(row[1] || '').trim();
-    const decision = String(row[8] || '').trim();
-    if (String(row[0] || '').trim() !== String(rule.key) || !id || seen.has(id)) return false;
-    seen.add(id);
-    return !row[10] && THEME_PLAYLIST_APPROVED_DECISIONS_.indexOf(decision) !== -1;
+    if (id && row[10]) alreadyAdded.add(id);
   });
+  const pending = [];
+  // 同じIDの判定は下にある行を最新として扱う。古い採用で新しい手動除外を覆さない。
+  for (let index = rows.length - 1; index >= 0; index -= 1) {
+    const row = rows[index];
+    const id = String(row[1] || '').trim();
+    if (String(row[0] || '').trim() !== String(rule.key) || !id || seen.has(id)) continue;
+    seen.add(id);
+    const decision = String(row[8] || '').trim();
+    if (!alreadyAdded.has(id) && THEME_PLAYLIST_APPROVED_DECISIONS_.indexOf(decision) !== -1) {
+      pending.push({ row: row, rowNumber: index + 2 });
+    }
+  }
+  return pending.reverse();
 }
 
 // 候補の登録先を専用タブに限定。既存キュー・履歴の行は消さない。
