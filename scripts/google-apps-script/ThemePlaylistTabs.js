@@ -100,12 +100,15 @@ function previewThemePlaylistDecisions_(ruleKey) {
     if (!id || seen.has(id)) return;
     seen.add(id);
     const decision = String(row[8] || "").trim();
-    if (row[10]) {
+    // 追加済みでも手動除外の意思を表示する。Spotifyからの自動削除はしない。
+    if (decision === "手動除外") {
+      result.excludedIds.push(id);
+    } else if (row[10]) {
       result.alreadyAddedIds.push(id);
-    } else if (THEME_PLAYLIST_APPROVED_DECISIONS_.indexOf(decision) !== -1) {
-      result.approvedIds.push(id);
     } else if (THEME_PLAYLIST_EXCLUDED_DECISIONS_.indexOf(decision) !== -1) {
       result.excludedIds.push(id);
+    } else if (THEME_PLAYLIST_APPROVED_DECISIONS_.indexOf(decision) !== -1) {
+      result.approvedIds.push(id);
     } else {
       result.pendingIds.push(id);
     }
