@@ -26,6 +26,24 @@ function latestPlaylistReleaseDateFromItems_(items) {
   }, "");
 }
 
+// 追加0件でもSpotifyの実際の収録回から日付を確認する。
+// Spotify読取に失敗した場合は既存の日付を変更しない。書込失敗は呼出元へ通知する。
+function reconcilePlaylistLatestDateFromSpotify_(playlistId, token, playlistItems) {
+  const id = String(playlistId || "").trim();
+  if (!/^[A-Za-z0-9]+$/.test(id)) throw new Error("プレイリストIDが不正です");
+  if (!token) throw new Error("Spotifyユーザー認証トークンがありません");
+  const items = playlistItems === undefined
+    ? getAllSpotifyPlaylistItems_(id, token)
+    : playlistItems;
+  if (!Array.isArray(items)) throw new Error("Spotifyプレイリストの取得結果が不正です");
+  const latest = latestPlaylistReleaseDateFromItems_(items);
+  if (!latest) {
+    Logger.log("配信日未取得・既存値維持: " + id);
+    return false;
+  }
+  return updatePlaylistLatestDate_(id, latest);
+}
+
 function updatePlaylistLatestDates() {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = getSheetLoose(ss, "作業台");
