@@ -1,7 +1,15 @@
 // Spotify エピソードの配信日だけを採用する。取得日時は代用しない。
 function normalizePlaylistReleaseDate_(value) {
-  const date = String(value || "").trim().slice(0, 10);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return "";
+  let date = "";
+  if (value instanceof Date) {
+    if (isNaN(value.getTime())) return "";
+    date = Utilities.formatDate(value, Session.getScriptTimeZone(), "yyyy-MM-dd");
+  } else {
+    const raw = String(value || "").trim();
+    const match = raw.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+    if (!match) return "";
+    date = match[1] + "-" + match[2].padStart(2, "0") + "-" + match[3].padStart(2, "0");
+  }
   const parsed = new Date(date + "T00:00:00Z");
   return !isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === date ? date : "";
 }
@@ -22,7 +30,7 @@ function updatePlaylistLatestDates() {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const sheet = getSheetLoose(ss, "作業台");
   if (!sheet) throw new Error("作業台シートが見つかりません");
-  const values = sheet.getDataRange().getDisplayValues();
+  const values = sheet.getDataRange().getValues();
   if (!values.length) return;
   const headers = values[0].map(function(v) { return String(v || "").trim(); });
   const urlCol = headers.indexOf("Spotifyプレイリストのリンク");
@@ -94,9 +102,7 @@ function scanBlankPlaylistDates() {
     try {
       const latest = latestPlaylistReleaseDateFromItems_(getAllSpotifyPlaylistItems_(match[1], token));
       if (latest) {
-        const previous = normalizePlaylistReleaseDate_(values[i][latestCol] instanceof Date
-          ? Utilities.formatDate(values[i][latestCol], Session.getScriptTimeZone(), "yyyy-MM-dd")
-          : values[i][latestCol]);
+        const previous = normalizePlaylistReleaseDate_(values[i][latestCol]);
         if (latest > previous) sheet.getRange(i + 1, latestCol + 1).setValue(latest);
         sheet.getRange(i + 1, methodCol + 1).setValue("AUTO");
         Logger.log("AUTO 配信日確認: " + title + " → " + maxPlaylistReleaseDate_(previous, latest));
@@ -131,7 +137,7 @@ function updatePlaylistLatestDate_(playlistId, releaseDate) {
   if (!sheet) throw new Error("作業台シートが見つかりません");
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) throw new Error("作業台シートにデータがありません");
-  const values = sheet.getRange(2, 1, lastRow - 1, 6).getDisplayValues();
+  const values = sheet.getRange(2, 1, lastRow - 1, 6).getValues();
   const targetRowIndex = values.findIndex(function(row) {
     const match = String(row[0] || "").match(/open\.spotify\.com\/playlist\/([A-Za-z0-9]+)/i);
     return match && match[1] === playlistId;
