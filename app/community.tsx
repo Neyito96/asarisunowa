@@ -95,7 +95,7 @@ const LISTENER_PODCAST_BACKUP: ListenerPodcast[] = [
   ]}
 ];
 
-function loadJsonp<T>(url: string): Promise<T> {
+function loadJsonp<T>(url: string, timeoutMs = 8000): Promise<T> {
   return new Promise((resolve, reject) => {
     const functionName = "__asarisunowa_" + Date.now() + "_" + Math.random().toString(36).slice(2);
     const callbackPath = functionName;
@@ -104,7 +104,7 @@ function loadJsonp<T>(url: string): Promise<T> {
     const timeout = window.setTimeout(() => {
       cleanup();
       reject(new Error("JSONP load timed out"));
-    }, 8000);
+    }, timeoutMs);
     const cleanup = () => {
       window.clearTimeout(timeout);
       script.remove();
@@ -127,11 +127,11 @@ function loadJsonp<T>(url: string): Promise<T> {
   });
 }
 
-async function loadJsonpWithRetry<T>(url: string, attempts = 3): Promise<T> {
+async function loadJsonpWithRetry<T>(url: string, attempts = 3, timeoutMs = 8000): Promise<T> {
   let lastError: unknown = null;
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     try {
-      return await loadJsonp<T>(url + (url.includes("?") ? "&" : "?") + "attempt=" + attempt);
+      return await loadJsonp<T>(url + (url.includes("?") ? "&" : "?") + "attempt=" + attempt, timeoutMs);
     } catch (error) {
       lastError = error;
       if (attempt + 1 < attempts) {
@@ -537,6 +537,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
   const [livePlaylists, setLivePlaylists] = useState<Playlist[]>(playlists);
   const [recommendedPodcasts, setRecommendedPodcasts] = useState<Playlist[]>([]);
   const [liveListenerPodcasts, setLiveListenerPodcasts] = useState<ListenerPodcast[]>(LISTENER_PODCAST_BACKUP);
+  const [listenerPodcastStatus, setListenerPodcastStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [listenerPodcastReloadKey, setListenerPodcastReloadKey] = useState(0);
   const [view, setView] = useState<"listeners" | "official" | "circle" | "discord" | "podcasts" | "listenerPodcasts">(
       "official",
     ),
@@ -680,8 +682,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     }
 
     async function refreshListenerPodcasts() {
+      if (!cancelled) setListenerPodcastStatus("loading");
       try {
-        const payload = await loadJsonp<{ ok: boolean; items?: Array<{
+        const payload = await loadJsonpWithRetry<{ ok: boolean; items?: Array<{
           id?: string;
           url?: string;
           title?: string;
@@ -697,9 +700,12 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           website?: string;
           artwork?: string;
         }> }>(
-          ASARISU_API_URL + "?type=listenerPodcast&_=" + Date.now()
+          ASARISU_API_URL + "?type=listenerPodcast&_=" + Date.now(),
+          2, 15000
         );
-        if (!payload?.ok || !Array.isArray(payload.items)) return;
+        if (!payload?.ok || !Array.isArray(payload.items)) {
+          throw new Error("Listener podcast API returned invalid data");
+        }
         const base = payload.items
           .map((source, index) => {
             const primaryUrl = String(source.url || "").trim();
@@ -736,17 +742,20 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             } satisfies ListenerPodcast;
           })
           .filter((item) => item.title);
-        if (!cancelled) setLiveListenerPodcasts(base);
+        if (!cancelled) {
+          setLiveListenerPodcasts(base);
+          setListenerPodcastStatus("ready");
+        }
         await fillPodcastArtwork(base);
       } catch {
-        if (!cancelled) setLiveListenerPodcasts(LISTENER_PODCAST_BACKUP);
-        await fillPodcastArtwork(LISTENER_PODCAST_BACKUP);
+        // Keep the newest successfully loaded list; do not silently replace it with stale backup.
+        if (!cancelled) setListenerPodcastStatus("error");
       }
     }
 
     refreshListenerPodcasts();
     return () => { cancelled = true; };
-  }, []);
+  }, [listenerPodcastReloadKey]);
 
   const rows = useMemo(
     () =>
@@ -1692,6 +1701,16 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 </div>
               </div>
             </div>
+            {listenerPodcastStatus !== "ready" && (
+              <p role="status" style={{ padding: "0.7rem 1rem", background: "#fff3e3", borderRadius: "0.6rem" }}>
+                {listenerPodcastStatus === "loading"
+                  ? "最新の番組情報を取得中です。下の一覧は確認前の参考表示です。"
+                  : "最新の番組情報を取得できませんでした。下の一覧は最新とは限りません。"}
+                {listenerPodcastStatus === "error" && (
+                  <button type="button" onClick={() => setListenerPodcastReloadKey((n) => n + 1)} style={{ marginLeft: "0.8rem" }}>再取得</button>
+                )}
+              </p>
+            )}
             <div className="grid podcastGrid">
               {(listenerPodcastSort === "new" ? [...liveListenerPodcasts].reverse() : liveListenerPodcasts).map((p) => (
                 <article className="card" key={"listener-podcast-" + p.id}>
