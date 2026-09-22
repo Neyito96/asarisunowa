@@ -2619,3 +2619,17 @@ footer {
   font-size: 12px;
   line-height: 1.5;
 }
+
+/* Recently registered lists: independent of episode NEW and automatic growth. */
+.playlistRiceBadge {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #e5ca81;
+  border-radius: 999px;
+  padding: 3px 8px;
+  background: #fff1cd;
+  color: #79511f;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
