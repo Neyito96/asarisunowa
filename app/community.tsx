@@ -515,9 +515,19 @@ function hasRecentPlaylistNews(p: Playlist) {
   return isRecentPlaylistDate(p.latestDate);
 }
 
-// 🌾 新米: the 180 calendar days beginning on the registration date (H column).
-// Use local calendar dates so the badge has a stable day boundary.
+// 🌾 新米: only playlists confirmed to have been newly CREATED for this project.
+// Existing playlists imported into the site are not new rice, even if registered recently.
+// When a genuinely new playlist is created, review its ID and add it here explicitly.
+const NEW_RICE_PLAYLIST_IDS = new Set([
+  "2Org6cCBgVas4d9OwzzxAv", // 中南米
+  "6hNrobOVHmYaQT5C7hPkNa", // ポリレビ
+  "4FBXSFf2nLjLb3qaRoSdoD", // ノーミライ
+]);
+
 function isNewRice(p: Playlist) {
+  const playlistId = String(p.url || "").match(/open\.spotify\.com\/playlist\/([A-Za-z0-9]+)/)?.[1];
+  if (!playlistId || !NEW_RICE_PLAYLIST_IDS.has(playlistId)) return false;
+  // The registration date is still mandatory to enforce the 180-day expiration.
   const match = String(p.introducedDate || "").trim()
     .match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
   if (!match) return false;
@@ -782,7 +792,22 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           (p.title + " " + p.maker).toLowerCase().includes(query.toLowerCase()),
         )
         .sort((a, b) => {
+          // Pin 中南米 regardless of its editable display name or badge expiry.
+          const pinnedId = "2Org6cCBgVas4d9OwzzxAv";
+          const isPinned = (p: Playlist) =>
+            String(p.url || "").match(/open\.spotify\.com\/playlist\/([A-Za-z0-9]+)/)?.[1] === pinnedId;
+          const pinnedDifference = Number(isPinned(b)) - Number(isPinned(a));
+          if (pinnedDifference) return pinnedDifference;
+
           if (sort === "new") {
+            const newRiceDifference = Number(isNewRice(b)) - Number(isNewRice(a));
+            if (newRiceDifference) return newRiceDifference;
+            // Compare registration dates ONLY for genuinely new playlists.
+            if (isNewRice(a) && isNewRice(b)) {
+              const dateDifference =
+                playlistDateValue(b.introducedDate) - playlistDateValue(a.introducedDate);
+              if (dateDifference) return dateDifference;
+            }
             return (
               Number(isPlaylistGrowing(b)) - Number(isPlaylistGrowing(a)) ||
               playlistDateValue(b.latestDate) - playlistDateValue(a.latestDate) ||
