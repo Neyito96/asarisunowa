@@ -510,8 +510,26 @@ function isPlaylistGrowing(p: Playlist) {
   return p.autoManaged === true;
 }
 
+// NEW denotes a recently published episode, never a recently registered list.
 function hasRecentPlaylistNews(p: Playlist) {
-  return isRecentPlaylistDate(p.latestDate) || isRecentPlaylistDate(p.introducedDate);
+  return isRecentPlaylistDate(p.latestDate);
+}
+
+// 🌾 新米: the 180 calendar days beginning on the registration date (H column).
+// Use local calendar dates so the badge has a stable day boundary.
+function isNewRice(p: Playlist) {
+  const match = String(p.introducedDate || "").trim()
+    .match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
+  if (!match) return false;
+  const registered = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  if (registered.getFullYear() !== Number(match[1]) ||
+      registered.getMonth() !== Number(match[2]) - 1 ||
+      registered.getDate() !== Number(match[3])) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const end = new Date(registered);
+  end.setDate(end.getDate() + 180);
+  return today >= registered && today < end;
 }
 
 function listenerPodcastBadge(introduced?: string) {
@@ -1331,6 +1349,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                         <small>PLAYLIST {omikuji.id.padStart(2, "0")}｜本日の一聴</small>
                         <span className="playlistUpdateMeta">
                           {isPlaylistGrowing(omikuji) && <span className="playlistGrowingBadge">🌱 楽育ち</span>}
+                          {isNewRice(omikuji) && <span className="playlistRiceBadge">🌾 新米</span>}
                           {hasRecentPlaylistNews(omikuji) && <span className="playlistNewBadge">NEW</span>}
                           <span className="playlistLatestDate">最終新着 {formatPlaylistDate(omikuji.latestDate) || "未取得"}</span>
                         </span>
@@ -1377,6 +1396,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                       <small>PLAYLIST {p.id.padStart(2, "0")}</small>
                       <div className="playlistUpdateMeta">
                         {isPlaylistGrowing(p) && <span className="playlistGrowingBadge">🌱 楽育ち</span>}
+                        {isNewRice(p) && <span className="playlistRiceBadge">🌾 新米</span>}
                         {hasRecentPlaylistNews(p) && <span className="playlistNewBadge">NEW</span>}
                         <span className="playlistLatestDate">最終新着 {formatPlaylistDate(p.latestDate) || "未取得"}</span>
                       </div>
