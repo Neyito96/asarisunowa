@@ -756,6 +756,16 @@ function syncAutoUpdateSeedBootstrapV1_(rule, token, maxAdditions) {
     : { addedCount: 0, failedCount: 0, addedEpisodes: [] };
   if (addResult.failedCount > 0) return pauseAutoUpdateRuleV1_(rule, "初回補完のSpotify追加に一部失敗しました");
 
+  // 日付更新が失敗しても再実行できるよう、完了処理より先に記録する。
+  if (addResult.addedCount > 0) {
+    const addedDate = getLatestReleaseDate_(addResult.addedEpisodes);
+    if (addedDate > String(rule.bootstrapLatestReleaseDate || "")) {
+      rule.bootstrapLatestReleaseDate = addedDate;
+    }
+    saveAutoUpdateRuntimeRuleV1_(rule);
+  }
+  updateAutoUpdateBootstrapLatestDateV1_(rule);
+
   const resolvedIds = new Set(allCandidateIds.filter(function(id) {
     return existingUris.has("spotify:episode:" + id);
   }).concat(addResult.addedEpisodes.map(function(episode) { return String(episode.id); })));
@@ -795,12 +805,44 @@ function syncAutoUpdateSeedBootstrapV1_(rule, token, maxAdditions) {
   });
   rule.bootstrapPending = false;
   delete rule.bootstrapResumeAfterMs;
+  delete rule.bootstrapLatestReleaseDate;
   saveAutoUpdateRuntimeRuleV1_(rule);
-  if (addResult.addedCount > 0) {
-    updatePlaylistLatestDate_(rule.playlistId, getLatestReleaseDate_(addResult.addedEpisodes));
-  }
   setAutoUpdateRuleSheetStatusV1_(rule, "増分自動更新", "初回補完完了。以後は新着回を巡回します");
   return { playlistId: rule.playlistId, ok: true, bootstrapPending: false, addedCount: addResult.addedCount, complete: true };
+}
+
+function updateAutoUpdateBootstrapLatestDateV1_(rule) {
+  const latest = String(rule.bootstrapLatestReleaseDate || "").trim();
+  if (!latest) return;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(latest)) {
+    throw new Error("初回補完の更新日が不正: " + latest);
+  }
+
+  const sheet = getSheetLoose(
+    SpreadsheetApp.openById(SPREADSHEET_ID), "作業台"
+  );
+  if (!sheet) throw new Error("作業台シートが見つかりません");
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) throw new Error("作業台にデータがありません");
+
+  const rows = sheet.getRange(2, 1, lastRow - 1, 6).getDisplayValues();
+  const matches = rows.filter(function(row) {
+    return String(row[0] || "").indexOf(rule.playlistId) >= 0;
+  });
+  if (matches.length !== 1) {
+    throw new Error("更新対象の行を一意に特定できません: " + rule.playlistId);
+  }
+
+  const current = String(matches[0][5] || "").trim()
+    .split("/").join("-");
+  if (current && !/^\d{4}-\d{2}-\d{2}$/.test(current)) {
+    throw new Error("現在の更新日が不正: " + current);
+  }
+
+  if (!current || latest > current) {
+    updatePlaylistLatestDate_(rule.playlistId, latest);
+  }
 }
 
 function nextAutoUpdateDailyWindowStartMsV1_(nowMs) {
@@ -973,26 +1015,44 @@ function fetchPlayableAutoUpdateEpisodesV1_(episodeIds, token) {
     return String(id || "").trim();
   }).filter(Boolean)));
   const episodes = [];
-  for (let offset = 0; offset < ids.length; offset += 50) {
-    const batch = ids.slice(offset, offset + 50);
+
+  ids.forEach(function(id) {
     const response = fetchSpotifyReadWithRetry_(
-      "https://api.spotify.com/v1/episodes?market=JP&ids=" +
-        encodeURIComponent(batch.join(",")),
-      { muteHttpExceptions: true, headers: { Authorization: "Bearer " + token, Accept: "application/json" } },
-      "Episodes batch " + String(offset / 50 + 1)
+      "https://api.spotify.com/v1/episodes/" +
+        encodeURIComponent(id) + "?market=JP",
+      {
+        muteHttpExceptions: true,
+        headers: {
+          Authorization: "Bearer " + token,
+          Accept: "application/json"
+        }
+      },
+      "Episode detail " + id
     );
-    if (response.getResponseCode() !== 200) continue;
-    const data = JSON.parse(response.getContentText());
-    (Array.isArray(data.episodes) ? data.episodes : []).forEach(function(episode) {
-      if (!episode || episode.is_playable === false) return;
-      episodes.push({
-        id: String(episode.id || ""),
-        uri: String(episode.uri || ("spotify:episode:" + episode.id)),
-        name: String(episode.name || episode.id),
-        release_date: String(episode.release_date || "")
-      });
+
+    const status = response.getResponseCode();
+    if (status !== 200) {
+      throw new Error(
+        "Episode取得失敗: id=" + id + " status=" + status
+      );
+    }
+
+    const episode = JSON.parse(response.getContentText());
+
+    if (!episode || String(episode.id || "") !== id ||
+        episode.is_playable === false ||
+        !/^\d{4}-\d{2}-\d{2}$/.test(String(episode.release_date || ""))) {
+      throw new Error("Episode取得結果が不正: id=" + id);
+    }
+
+    episodes.push({
+      id: id,
+      uri: String(episode.uri || ("spotify:episode:" + id)),
+      name: String(episode.name || id),
+      release_date: String(episode.release_date)
     });
-  }
+  });
+
   return episodes;
 }
 
