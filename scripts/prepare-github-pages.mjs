@@ -23,6 +23,7 @@ for (const file of await collectFiles(outputDirectory)) {
     .replaceAll('"/assets/', `"${repositoryPath}/assets/`)
     .replaceAll("'/assets/", `'${repositoryPath}/assets/`)
     .replaceAll("(/assets/", `(${repositoryPath}/assets/`)
+    .replaceAll('"assets/', `"${repositoryPath.slice(1)}/assets/`)
     .replaceAll("\\\"/assets/", `\\\"${repositoryPath}/assets/`);
   if (prepared !== source) await writeFile(file, prepared);
 }
