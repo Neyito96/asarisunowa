@@ -750,20 +750,22 @@ function syncAutoUpdateSeedBootstrapV1_(rule, token, maxAdditions) {
   }
   const episodesToAdd = candidateEpisodes;
 
-  if (episodesToAdd.length) assertAutoPlaylistSheetLinkBeforeWrite_(rule);
+  // Spotify追加前に日付情報を保存する。
+  // 保存失敗時は追加を開始せず、再実行時の日付情報消失を防ぐ。
+  if (episodesToAdd.length) {
+    assertAutoPlaylistSheetLinkBeforeWrite_(rule);
+    const addedDate = getLatestReleaseDate_(episodesToAdd);
+    if (addedDate > String(rule.bootstrapLatestReleaseDate || "")) {
+      rule.bootstrapLatestReleaseDate = addedDate;
+      saveAutoUpdateRuntimeRuleV1_(rule);
+    }
+  }
+
   const addResult = episodesToAdd.length
     ? addAutoPlaylistEpisodesBatch_(rule, token, episodesToAdd)
     : { addedCount: 0, failedCount: 0, addedEpisodes: [] };
   if (addResult.failedCount > 0) return pauseAutoUpdateRuleV1_(rule, "初回補完のSpotify追加に一部失敗しました");
 
-  // 日付更新が失敗しても再実行できるよう、完了処理より先に記録する。
-  if (addResult.addedCount > 0) {
-    const addedDate = getLatestReleaseDate_(addResult.addedEpisodes);
-    if (addedDate > String(rule.bootstrapLatestReleaseDate || "")) {
-      rule.bootstrapLatestReleaseDate = addedDate;
-    }
-    saveAutoUpdateRuntimeRuleV1_(rule);
-  }
   updateAutoUpdateBootstrapLatestDateV1_(rule);
 
   const resolvedIds = new Set(allCandidateIds.filter(function(id) {
