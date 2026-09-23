@@ -19,7 +19,7 @@ const rows:[string,string,string|null,string|null][] = [
     "IOK 伊藤大地・奥山晶二郎・神田大介",
     "I'm OK",
     "https://open.spotify.com/playlist/799Fo9to2TK0ahGEJsvcm2",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e"
   ],
   [
     "#ふな 冨名腰隆　旧【報談】",
@@ -265,13 +265,13 @@ const rows:[string,string,string|null,string|null][] = [
     "ポキ-1グランプリ 2023",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/5xUDKa3r5arvKSx4gqjwI3",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9"
   ],
   [
     "「MEDIA TALK」 2023厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/6Q0iXwuC9PuLV3cqg11Dmt",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938"
   ],
   [
     "楽屋裏2023　厳選エピソード",
@@ -283,7 +283,7 @@ const rows:[string,string,string|null,string|null][] = [
     "バスケ通信―クラッチタイム（バスクラ）",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/3axOpfDhMhLEtelwGwvMHb",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244"
   ],
   [
     "音でよみがえる甲子園",
@@ -361,7 +361,7 @@ const rows:[string,string,string|null,string|null][] = [
     "#初登場特集（#朝ポキ）",
     "koike",
     "https://open.spotify.com/playlist/3WLp56ohdZs2AqDoUwNNWd",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef"
   ],
   [
     "8がけ社会",
@@ -385,7 +385,7 @@ const rows:[string,string,string|null,string|null][] = [
     "まなび場天声人語　見出しづくりにチャレンジ",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/7aKDEfAdCjTxiqiv19Grar",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da848d2c65afeadf0c8d7c18f392"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da848d2c65afeadf0c8d7c18f392"
   ],
   [
     "#朝ポキ 他流試合 +PCWE2024 +α",
