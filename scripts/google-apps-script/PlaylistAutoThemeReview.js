@@ -145,9 +145,22 @@ function isThemeReviewSpotifyWriteEnabled_() {
 
 // 除外済み、またはSpotify追加済みの採用行だけを履歴へ移す。
 // 「採用」でも追加前・追加失敗中の行は確認シートに残し、取りこぼしを防ぐ。
-function archiveCompletedThemeReviewRows_() {
-  const queueSheet = ensureThemeReviewSheet_();
-  const historySheet = ensureThemeReviewHistorySheet_();
+function archiveCompletedThemeReviewRows_(rule) {
+  let queueSheet;
+  let historySheet;
+
+  if (rule && !getAutoPlaylistRuleByKey_(rule.key)) {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const pair = getThemeReviewSheetPairV1_(rule, ss);
+    if (!pair) {
+      throw new Error("テーマ専用の候補・履歴タブが不足しています");
+    }
+    queueSheet = pair.queue;
+    historySheet = pair.history;
+  } else {
+    queueSheet = ensureThemeReviewSheet_();
+    historySheet = ensureThemeReviewHistorySheet_();
+  }
   const queueRows = readThemeReviewRows_(queueSheet);
   const historyRows = readThemeReviewRows_(historySheet);
   const historyKeys = new Set(historyRows.map(getThemeReviewRowKey_));
@@ -183,9 +196,24 @@ function archiveCompletedThemeReviewRows_() {
 }
 
 function appendThemeReviewEpisodesToQueue_(rule, episodes) {
-  archiveCompletedThemeReviewRows_();
-  const sheet = ensureThemeReviewSheet_();
-  const historySheet = ensureThemeReviewHistorySheet_();
+  // Both sheets must exist before archiving or appending candidates.
+  let sheet;
+  let historySheet;
+
+  if (rule && !getAutoPlaylistRuleByKey_(rule.key)) {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const pair = getThemeReviewSheetPairV1_(rule, ss);
+    if (!pair) {
+      throw new Error("テーマ専用の候補・履歴タブが不足しています");
+    }
+    sheet = pair.queue;
+    historySheet = pair.history;
+  } else {
+    sheet = ensureThemeReviewSheet_();
+    historySheet = ensureThemeReviewHistorySheet_();
+  }
+
+  archiveCompletedThemeReviewRows_(rule);
   const existing = readThemeReviewExistingRows_(sheet);
   const history = readThemeReviewExistingRows_(historySheet);
   const newRows = (episodes || []).map(function(episode) {
@@ -283,6 +311,204 @@ function exportRecentThemeRuleCandidatesToReviewSheet_(rule, token) {
   return appendThemeReviewEpisodesToQueue_(rule, episodes);
 }
 
+// Fixed rules take precedence. Submitted theme rules are resolved
+// only when explicitly approved for production.
+function getThemeReviewRuleByKeyV1_(key) {
+  const wanted = String(key || "").trim();
+  if (!wanted) return null;
+
+  const fixed = getAutoPlaylistRuleByKey_(wanted);
+  if (fixed) return fixed;
+
+  const runtime = typeof loadAutoUpdateRuntimeRulesV1_ === "function"
+    ? loadAutoUpdateRuntimeRulesV1_()
+    : [];
+
+  const matches = runtime.filter(function(rule) {
+    return rule &&
+      String(rule.key || "").trim() === wanted &&
+      rule.enabled === true &&
+      rule.productionWriteAllowed === true &&
+      rule.reviewRequired === true &&
+      getAutoPlaylistRuleType_(rule) === AUTO_PLAYLIST_RULE_TYPE_THEME_ &&
+      ["requested", "audit", "paused"].indexOf(
+        String(rule.lifecycleStatus || "").trim().toLowerCase()
+      ) < 0;
+  });
+
+  return matches.length === 1 ? matches[0] : null;
+}
+
+// Resolve a review-sheet name without creating or modifying sheets.
+// Existing fixed themes retain their legacy shared queue.
+function getThemeReviewSheetNameV1_(rule) {
+  if (!rule || !rule.key || !rule.playlistId) return "";
+
+  const fixed = getAutoPlaylistRuleByKey_(rule.key);
+  if (fixed) {
+    return String(fixed.playlistId || "") ===
+      String(rule.playlistId || "")
+      ? THEME_REVIEW_SHEET_NAME_
+      : "";
+  }
+
+  if (!String(rule.key).startsWith("request-")) return "";
+
+  const id = String(rule.playlistId || "").trim();
+  if (!/^[A-Za-z0-9]{22}$/.test(id)) return "";
+
+  return "テーマ候補_" + id;
+}
+
+// Resolve an existing review sheet without creating or editing it.
+// New theme sheets are provisioned in a separate, reviewed step.
+function getThemeReviewSheetForRuleV1_(rule, ss) {
+  const name = getThemeReviewSheetNameV1_(rule);
+  if (!name || !ss) return null;
+
+  const sheet = ss.getSheetByName(name);
+  if (!sheet) return null;
+
+  return sheet;
+}
+
+// Return queue and history names together.
+// This function does not access or modify a spreadsheet.
+function getThemeReviewSheetNamesV1_(rule) {
+  const queueName = getThemeReviewSheetNameV1_(rule);
+  if (!queueName) return null;
+
+  const fixed = getAutoPlaylistRuleByKey_(rule.key);
+
+  if (fixed) {
+    return {
+      queue: THEME_REVIEW_SHEET_NAME_,
+      history: THEME_REVIEW_HISTORY_SHEET_NAME_
+    };
+  }
+
+  const id = String(rule.playlistId || "").trim();
+
+  return {
+    queue: queueName,
+    history: "テーマ履歴_" + id
+  };
+}
+
+// Resolve both sheets before processing a theme.
+// Never fall back to the shared queue for a submitted theme.
+function getThemeReviewSheetPairV1_(rule, ss) {
+  const names = getThemeReviewSheetNamesV1_(rule);
+  if (!names || !ss) return null;
+
+  const queue = ss.getSheetByName(names.queue);
+  const history = ss.getSheetByName(names.history);
+
+  if (!queue || !history || queue === history) return null;
+
+  return {
+    queue: queue,
+    history: history
+  };
+}
+
+// Administrator-only preparation. Never call from a timed trigger.
+function prepareThemeReviewSheetsV1_(ruleKey) {
+  const key = String(ruleKey || "").trim();
+
+  if (!key.startsWith("request-")) {
+    throw new Error("新規投稿テーマのみ準備できます");
+  }
+
+  const matches = loadAutoUpdateRuntimeRulesV1_()
+    .filter(function(rule) {
+      return rule && rule.key === key;
+    });
+
+  if (matches.length !== 1) {
+    throw new Error("対象ルールが一意に見つかりません");
+  }
+
+  const rule = matches[0];
+
+  if (
+    getAutoPlaylistRuleType_(rule) !==
+      AUTO_PLAYLIST_RULE_TYPE_THEME_ ||
+    rule.enabled !== false ||
+    rule.productionWriteAllowed !== false ||
+    rule.reviewRequired !== true ||
+    rule.lifecycleStatus !== "requested"
+  ) {
+    throw new Error("未承認テーマの安全条件を満たしていません");
+  }
+
+  const id = String(rule.playlistId || "").trim();
+
+  if (!/^[A-Za-z0-9]{22}$/.test(id) ||
+      key !== "request-" + id ||
+      getAutoPlaylistRuleByKey_(key)) {
+    throw new Error("テーマIDまたは固定ルールとの対応が不正です");
+  }
+
+  const names = getThemeReviewSheetNamesV1_(rule);
+
+  if (
+    !names ||
+    names.queue !== "テーマ候補_" + id ||
+    names.history !== "テーマ履歴_" + id
+  ) {
+    throw new Error("専用タブ名が不正です");
+  }
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+
+  const queue = ss.getSheetByName(names.queue);
+  const history = ss.getSheetByName(names.history);
+
+  if (queue && history) {
+    return {
+      ok: true,
+      created: false,
+      queue: names.queue,
+      history: names.history
+    };
+  }
+
+  if (queue || history) {
+    throw new Error(
+      "専用タブが片方だけ存在します。管理者確認が必要です"
+    );
+  }
+
+  // Only initialize newly created sheets.
+  const newQueue = ss.insertSheet(names.queue);
+  const newHistory = ss.insertSheet(names.history);
+
+  [newQueue, newHistory].forEach(function(sheet) {
+    sheet.getRange(
+      1, 1, 1, THEME_REVIEW_HEADERS_.length
+    ).setValues([THEME_REVIEW_HEADERS_]);
+
+    sheet.setFrozenRows(1);
+  });
+
+  newQueue.getRange(
+    2, 9, Math.max(1, newQueue.getMaxRows() - 1), 1
+  ).setDataValidation(
+    SpreadsheetApp.newDataValidation()
+      .requireValueInList(THEME_REVIEW_DECISIONS_, true)
+      .setAllowInvalid(false)
+      .build()
+  );
+
+  return {
+    ok: true,
+    created: true,
+    queue: names.queue,
+    history: names.history
+  };
+}
+
 function getThemeReviewAutomationRules_() {
   return AUTO_PLAYLIST_RULES.filter(function(rule) {
     return rule && rule.enabled !== false && rule.reviewRequired === true &&
@@ -376,12 +602,16 @@ function addApprovedThemeCandidatesToSpotify_(ruleKey) {
   if (!isThemeReviewSpotifyWriteEnabled_()) {
     throw new Error("テーマ候補のSpotify本番追加は安全スイッチで停止中です");
   }
-  const rule = getAutoPlaylistRuleByKey_(ruleKey);
+  const rule = getThemeReviewRuleByKeyV1_(ruleKey);
   if (!rule) throw new Error("テーマルールが見つかりません: " + ruleKey);
   assertAutoPlaylistSheetLinkBeforeWrite_(rule);
 
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  const sheet = ss.getSheetByName(THEME_REVIEW_SHEET_NAME_);
+  const pair = getThemeReviewSheetPairV1_(rule, ss);
+  if (!pair) {
+    throw new Error("テーマの候補・履歴タブが不足しています");
+  }
+  const sheet = pair.queue;
   if (!sheet || sheet.getLastRow() < 2) return { addedCount: 0, skippedCount: 0 };
   const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, THEME_REVIEW_HEADERS_.length).getValues();
   const approved = rows.map(function(row, index) { return { row: row, rowNumber: index + 2 }; })
@@ -390,7 +620,7 @@ function addApprovedThemeCandidatesToSpotify_(ruleKey) {
         String(item.row[8] || "") === "採用" && !item.row[10];
     });
   if (!approved.length) {
-    const archiveOnly = archiveCompletedThemeReviewRows_();
+    const archiveOnly = archiveCompletedThemeReviewRows_(rule);
     return {
       addedCount: 0,
       skippedCount: 0,
@@ -442,7 +672,7 @@ function addApprovedThemeCandidatesToSpotify_(ruleKey) {
     updatePlaylistLatestDate_(rule.playlistId, getLatestReleaseDate_(addedEpisodes));
   }
   SpreadsheetApp.flush();
-  const archive = archiveCompletedThemeReviewRows_();
+  const archive = archiveCompletedThemeReviewRows_(rule);
   return {
     addedCount: addedCount,
     skippedCount: skippedCount,
@@ -452,4 +682,72 @@ function addApprovedThemeCandidatesToSpotify_(ruleKey) {
 
 function addApprovedSouthAmericaThemeCandidatesToSpotify() {
   return addApprovedThemeCandidatesToSpotify_("south-america");
+}
+
+// Read-only removal planning. Never calls Spotify or writes to Sheets.
+// rows: current queue/history rows.
+// existingIds: episode IDs currently found in the target playlist.
+function planThemeSpotifyRemovalV1_(rule, rows, existingIds) {
+  if (!rule || !/^[A-Za-z0-9]{22}$/.test(
+    String(rule.playlistId || "")
+  )) {
+    throw new Error("対象プレイリストIDが不正です");
+  }
+
+  if (!rule.key || !Array.isArray(rows) ||
+      !Array.isArray(existingIds)) {
+    throw new Error("照合情報が不足しています");
+  }
+
+  const existing = new Set(existingIds);
+  const decisions = new Map();
+
+  rows.forEach(function(row) {
+    if (!row || row[0] !== rule.key) return;
+
+    const id = String(row[1] || "").trim();
+    if (!/^[A-Za-z0-9]{22}$/.test(id)) {
+      throw new Error("エピソードIDが不正です");
+    }
+
+    const decision = String(row[8] || "").trim();
+
+    if (!["未確認", "採用", "除外"].includes(decision)) {
+      throw new Error("判定が不正です");
+    }
+
+    const previous = decisions.get(id);
+
+    if (previous && previous.decision !== decision) {
+      throw new Error("同じエピソードの判定が衝突しています");
+    }
+
+    decisions.set(id, {
+      decision: decision,
+      added: Boolean(row[10]) ||
+        Boolean(previous && previous.added)
+    });
+  });
+
+  const candidates = [];
+
+  decisions.forEach(function(state, id) {
+    if (
+      state.decision === "除外" &&
+      state.added &&
+      existing.has(id)
+    ) {
+      candidates.push({
+        playlistId: rule.playlistId,
+        episodeId: id,
+        action: "REVIEW_REMOVAL"
+      });
+    }
+  });
+
+  return {
+    dryRun: true,
+    candidateCount: candidates.length,
+    candidates: candidates
+  };
 }
