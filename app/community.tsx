@@ -1210,12 +1210,6 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       <header>
         <div className="wrap nav">
           <b className="siteBrand">
-            <img
-              className="brandMark"
-              src="/asarisunowa/asarisunowa-woven-ring-logo-brown-v4.png"
-              alt=""
-              aria-hidden="true"
-            />
             <span>
               朝日新聞ポッドキャスト案内所
               <br className="siteBrandPortraitBreak" />

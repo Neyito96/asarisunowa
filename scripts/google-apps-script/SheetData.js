@@ -86,22 +86,45 @@ function playlistIdForPublicRead_(url) {
   return match ? match[1] : "";
 }
 
-function readAutoManagedPlaylistIdMap_() {
-  const result = {};
-  let rules = [];
-  if (typeof AUTO_PLAYLIST_RULES !== "undefined" && Array.isArray(AUTO_PLAYLIST_RULES)) {
-    rules = rules.concat(AUTO_PLAYLIST_RULES);
-  }
-  if (typeof loadAutoUpdateRuntimeRulesV1_ === "function") {
-    rules = rules.concat(loadAutoUpdateRuntimeRulesV1_());
-  }
+// Form-submitted playlists become 🌱 only after bootstrap has finished and the
+// matching application row confirms incremental updates. Fixed rules keep their
+// existing eligibility policy; a stale runtime rule cannot change their badge.
+function isAutoUpdateRuntimeRuleGrowingV1_(rule, requestRows) {
+  if (!rule || rule.enabled === false || rule.productionWriteAllowed !== true ||
+      rule.bootstrapPending !== false ||
+      String(rule.lifecycleStatus || "").trim().toLowerCase() !== "incremental") return false;
+  const rowNumber = Number(rule.requestSheetRow);
+  const rows = Array.isArray(requestRows) ? requestRows : [];
+  if (!Number.isInteger(rowNumber) || rowNumber < 2 || rowNumber > rows.length + 1) return false;
+  const row = rows[rowNumber - 2];
+  return playlistIdForPublicRead_(row[1]) === String(rule.playlistId || "").trim() &&
+    String(row[7] || "").trim() === "増分自動更新";
+}
 
-  rules.forEach(function(rule) {
-    if (!rule || rule.enabled === false || rule.productionWriteAllowed === false) return;
-    const lifecycle = String(rule.lifecycleStatus || "").trim().toLowerCase();
-    if (["requested", "audit", "paused"].indexOf(lifecycle) >= 0) return;
-    const playlistId = String(rule.playlistId || "").trim();
-    if (playlistId) result[playlistId] = true;
+function readAutoManagedPlaylistIdMap_(ss) {
+  const result = {};
+  // Preserve existing handling of explicitly configured, fixed playlists.
+  if (typeof AUTO_PLAYLIST_RULES !== "undefined" && Array.isArray(AUTO_PLAYLIST_RULES)) {
+    AUTO_PLAYLIST_RULES.forEach(function(rule) {
+      if (!rule || rule.enabled === false || rule.productionWriteAllowed === false) return;
+      const lifecycle = String(rule.lifecycleStatus || "").trim().toLowerCase();
+      if (["requested", "audit", "paused"].indexOf(lifecycle) >= 0) return;
+      const playlistId = String(rule.playlistId || "").trim();
+      if (playlistId) result[playlistId] = true;
+    });
+  }
+  const runtimeRules = typeof loadAutoUpdateRuntimeRulesV1_ === "function"
+    ? loadAutoUpdateRuntimeRulesV1_() : [];
+  if (!runtimeRules.length) return result;
+  const requestSheet = getSheetLoose(ss, AUTO_UPDATE_REQUEST_SHEET_NAME);
+  if (!requestSheet) return result; // Fail closed for new submissions.
+  const lastRow = requestSheet.getLastRow();
+  const requestRows = lastRow >= 2
+    ? requestSheet.getRange(2, 1, lastRow - 1, 8).getDisplayValues() : [];
+  runtimeRules.forEach(function(rule) {
+    if (isAutoUpdateRuntimeRuleGrowingV1_(rule, requestRows)) {
+      result[String(rule.playlistId).trim()] = true;
+    }
   });
   return result;
 }
@@ -121,7 +144,7 @@ function readPlaylistSheet(sheet) {
 
   // サイト公開用: A=URL, B=タイトル, C=制作者, D=最終更新日, E=新規登録日。
   // 「楽育ち」は更新日の取得方法ではなく、実際に有効な自動更新ルールだけを示す。
-  const autoManagedPlaylistIds = readAutoManagedPlaylistIdMap_();
+  const autoManagedPlaylistIds = readAutoManagedPlaylistIdMap_(sheet.getParent());
   const values =
     sheet
       .getRange(
