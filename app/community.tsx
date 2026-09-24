@@ -1215,7 +1215,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         <div className="wrap nav">
           <b className="siteBrand">
             <span className="siteBrandText">
-              <span className="siteBrandLead">朝日新聞ポッドキャスト案内所</span>
+              <span className="siteBrandLead"><span className="asaMincho">朝</span>日新聞ポッドキャスト案内所</span>
               <br className="siteBrandPortraitBreak" />
               <span className="siteBrandTitle">「朝リスの田」</span>
             </span>
