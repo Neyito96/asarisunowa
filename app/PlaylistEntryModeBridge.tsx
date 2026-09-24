@@ -289,6 +289,11 @@ export default function PlaylistEntryModeBridge() {
                       ? "同じシリーズをまとめて登録。Spotifyなら新着回も自動追加できます。"
                       : "出演者・テーマ別に登録。Spotifyなら新着回も自動追加できます。"}
                   </p>
+                  <div className="playlistGrowGuide" aria-label="楽育ちの使い方">
+                    <p><b>🌱 楽育ちとは？</b> 条件に合う新着回をSpotifyプレイリストへ自動で追加する仕組みです。</p>
+                    <p><b>新しく作る場合</b> Spotifyでプレイリストを作り、対象回を1本以上入れてから、共同編集者招待URLと条件を送ってください。</p>
+                    <p><b>すでにある場合</b> 「今あるリストを自動更新」から、プレイリストURL・共同編集者招待URL・条件を送ってください。</p>
+                  </div>
                   <PlaylistEntryModeSelector
                     value={mode}
                     onChange={setMode}
