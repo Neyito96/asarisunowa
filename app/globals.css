@@ -2486,6 +2486,36 @@ footer {
 }
 
 
+.playlistGrowGuide{
+  margin:12px 0 2px;
+  padding:11px 12px;
+  border:1px solid #d8e7dd;
+  border-radius:12px;
+  background:#f7fbf6;
+  color:#4f6256;
+}
+.playlistGrowGuide p{
+  margin:0;
+  font-size:.82rem;
+  line-height:1.55;
+}
+.playlistGrowGuide p + p{
+  margin-top:5px;
+}
+.playlistGrowGuide b{
+  color:#315442;
+}
+@media(max-width:640px){
+  .playlistGrowGuide{
+    margin-top:10px;
+    padding:10px;
+  }
+  .playlistGrowGuide p{
+    font-size:.78rem;
+    line-height:1.5;
+  }
+}
+
 /* Playlist owner shortcut */
 .playlistThemeHead{position:relative}
 .playlistOwnerJump{
