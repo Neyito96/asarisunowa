@@ -29,7 +29,7 @@ const options: Array<{
   {
     value: "autoExisting",
     icon: "🔄",
-    title: "今あるリストを自動更新",
+    title: "今あるリストを自動更新（楽育ち）",
     description: "登録済みリストに、新しい回を自動で追加する",
   },
 ];
