@@ -105,6 +105,102 @@ function testAutoPlaylistSafetyPureFunctions() {
     throw new Error("申請直後のルール候補が本番有効化可能になっています");
   }
 
+  const themeDryRun = dryRunThemeRequestProvisioningNoWriteV1_();
+  if (
+    themeDryRun.status !== "確認待ち" ||
+    themeDryRun.spotifyAccessed !== false ||
+    themeDryRun.playlistWritten !== false ||
+    themeDryRun.createdSheets.length !== 2
+  ) {
+    throw new Error("theme申請の最終dry-runが安全停止条件を満たしていません");
+  }
+
   Logger.log("Auto playlist pure safety tests: PASS");
   return true;
+}
+
+// 新規テーマ申請の最終確認用。
+// SpreadsheetApp / Spotify API / PropertiesService は呼ばず、
+// 実運用と同じルール生成・専用タブ名決定までを純粋関数だけで確認する。
+function dryRunThemeRequestProvisioningNoWriteV1_() {
+  const playlistId = "AbCdEfGhIjKlMnOpQrStUv";
+  const request = {
+    updateType: "theme",
+    title: "テーマ申請dry-run",
+    keywords: "鉄道, 地方交通",
+    ruleNote: ""
+  };
+
+  const rule = buildAutoUpdateRuntimeRuleV1_(request, playlistId, 9999);
+
+  if (
+    rule.key !== "request-" + playlistId ||
+    getAutoPlaylistRuleType_(rule) !== AUTO_PLAYLIST_RULE_TYPE_THEME_ ||
+    rule.enabled !== false ||
+    rule.productionWriteAllowed !== false ||
+    rule.reviewRequired !== true ||
+    rule.lifecycleStatus !== "requested"
+  ) {
+    throw new Error("テーマ申請ルールが未承認の安全停止状態になっていません");
+  }
+
+  const names = getThemeReviewSheetNamesV1_(rule);
+  const expectedQueue = "テーマ候補_" + playlistId;
+  const expectedHistory = "テーマ履歴_" + playlistId;
+
+  if (
+    !names ||
+    names.queue !== expectedQueue ||
+    names.history !== expectedHistory ||
+    names.queue === names.history
+  ) {
+    throw new Error("テーマ専用候補/履歴タブ名の生成が不正です");
+  }
+
+  // 実シートは作らず、作成予定だけをメモリ上で再現する。
+  const fakeSpreadsheet = {
+    sheets: {},
+    getSheetByName: function(name) {
+      return this.sheets[name] || null;
+    },
+    insertSheet: function(name) {
+      if (this.sheets[name]) throw new Error("dry-run内でタブ名が重複しました: " + name);
+      const sheet = { name: name };
+      this.sheets[name] = sheet;
+      return sheet;
+    }
+  };
+
+  if (fakeSpreadsheet.getSheetByName(names.queue) ||
+      fakeSpreadsheet.getSheetByName(names.history)) {
+    throw new Error("dry-run開始時点で専用タブが存在しています");
+  }
+
+  fakeSpreadsheet.insertSheet(names.queue);
+  fakeSpreadsheet.insertSheet(names.history);
+
+  const createdSheets = Object.keys(fakeSpreadsheet.sheets).sort();
+  if (
+    createdSheets.length !== 2 ||
+    !fakeSpreadsheet.getSheetByName(expectedQueue) ||
+    !fakeSpreadsheet.getSheetByName(expectedHistory)
+  ) {
+    throw new Error("テーマ専用候補/履歴タブの作成計画を再現できません");
+  }
+
+  const result = {
+    dryRun: true,
+    ruleKey: rule.key,
+    playlistId: playlistId,
+    createdSheets: createdSheets,
+    status: "確認待ち",
+    note: "テーマ専用タブを準備しました。内容確認と承認が必要です",
+    reviewRequired: true,
+    incrementalActivationAllowed: false,
+    spotifyAccessed: false,
+    playlistWritten: false
+  };
+
+  Logger.log(JSON.stringify(result, null, 2));
+  return result;
 }
