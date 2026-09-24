@@ -1214,10 +1214,10 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       <header>
         <div className="wrap nav">
           <b className="siteBrand">
-            <span>
-              朝日新聞ポッドキャスト案内所
+            <span className="siteBrandText">
+              <span className="siteBrandLead">朝日新聞ポッドキャスト案内所</span>
               <br className="siteBrandPortraitBreak" />
-              「朝リスの田」
+              <span className="siteBrandTitle">「朝リスの田」</span>
             </span>
           </b>
           <a
