@@ -1648,6 +1648,21 @@ footer {
   display: none;
 }
 
+.siteBrandText {
+  display: inline-block;
+}
+
+.siteBrandLead {
+  font-size: .82em;
+  font-weight: 800;
+}
+
+.siteBrandTitle {
+  font-size: 1.2em;
+  font-weight: 900;
+  letter-spacing: .01em;
+}
+
 @media (max-width: 780px) and (orientation: portrait) {
   .siteBrandPortraitBreak {
     display: block;
@@ -1666,12 +1681,20 @@ footer {
     gap: 0;
   }
 
-  .siteBrand span {
+  .siteBrand > .siteBrandText {
     max-width: 66vw;
     font-size: clamp(11px, 3vw, 14px);
-    line-height: 1.2;
+    line-height: 1.15;
     letter-spacing: 0;
     white-space: normal;
+  }
+
+  .siteBrandLead {
+    font-size: .82em;
+  }
+
+  .siteBrandTitle {
+    font-size: 1.22em;
   }
 
   .nav a {
@@ -1715,9 +1738,13 @@ footer {
     padding-bottom: 6px;
   }
 
-  .siteBrand span {
+  .siteBrand > .siteBrandText {
     max-width: 64vw;
     font-size: 11px;
+  }
+
+  .siteBrandTitle {
+    font-size: 1.22em;
   }
 
   .nav a {
