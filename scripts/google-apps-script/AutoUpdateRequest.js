@@ -6,10 +6,6 @@ const AUTO_UPDATE_RECEIPT_SECONDS_ = 600;
 
 function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
   const updateType = String(data.updateType || "").trim();
-  // テーマ別は耕し中。再開時はこの条件だけ取り除く。
-  if (updateType === "theme") {
-    return jsonResponse({ ok: false, error: "テーマ別は現在、耕し中のため新規受付を休止しています。" });
-  }
   const inviteUrl = String(data.inviteUrl || "").trim();
   const keywords = String(data.keywords || "").trim();
   const ruleNote = String(data.ruleNote || "").trim();

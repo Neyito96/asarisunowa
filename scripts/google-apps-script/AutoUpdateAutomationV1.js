@@ -351,9 +351,21 @@ function processPendingAutoUpdateRequestsV1() {
         saveAutoUpdateRuntimeRuleV1_(rule);
       }
 
+      try {
+        prepareThemeReviewSheetsV1_(rule.key);
+      } catch (error) {
+        setAutoUpdateRequestStatusV1_(
+          sheet, rowNumber, "確認待ち",
+          "テーマ専用タブの準備に失敗しました: " +
+            (error && error.message ? error.message : String(error))
+        );
+        result.review += 1;
+        return;
+      }
+
       setAutoUpdateRequestStatusV1_(
         sheet, rowNumber, "確認待ち",
-        "テーマ専用タブの準備と承認が必要です"
+        "テーマ専用タブを準備しました。内容確認と承認が必要です"
       );
 
       result.review += 1;
