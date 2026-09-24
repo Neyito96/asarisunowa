@@ -334,7 +334,7 @@ const officialPrograms: OfficialProgram[] = [
     name: "スポンジ Sports Lounge",
     mark: "NEW",
     detail:
-      "ポキフト、バスクラ、フィギュアスケートストーリー、お相撲ちゃんねる、野球",
+      "ポキフト、バスクラ、フィギュアスケートストーリー、お相撲ちゃんねる、球談",
     spotify: "https://open.spotify.com/show/7euH6hzudIdp61JRSi9E8w",
     links: [
       ["Spotify", "https://open.spotify.com/show/7euH6hzudIdp61JRSi9E8w"],
