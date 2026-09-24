@@ -1232,7 +1232,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       <div className="wrap compactNotice">
         <span>非公式・リスナー制作｜情報は最新・正確でない場合があります</span>
         <button type="button" onClick={() => setView("discord")}>
-          ご意見はDiscordへ
+          チャットはDiscordへ
         </button>
       </div>
       <div className="wrap viewTabs" role="tablist" aria-label="掲載区分">
