@@ -781,47 +781,58 @@ body {
 header {
   position: relative;
   overflow: hidden;
-  background: #ffffffd9;
-  border-bottom: 1px solid #fff;
-  backdrop-filter: blur(14px);
-}
-.nav {
-  position: relative;
-  z-index: 1;
-}
-.siteBrand {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: #103a4a;
-  font-weight: 900;
-}
-.brandMark {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-  filter: drop-shadow(0 4px 5px #ef799b24);
+  padding: 0;
+  background:
+    linear-gradient(180deg, rgba(255,253,247,.94) 0%, rgba(247,241,226,.97) 100%);
+  border-bottom: 1px solid rgba(104,88,61,.14);
+  backdrop-filter: blur(10px);
 }
 header::before,
 header::after {
   content: "";
   position: absolute;
-  border: 9px solid #ef799b12;
-  border-radius: 50%;
   pointer-events: none;
 }
 header::before {
-  width: 74px;
-  height: 74px;
-  left: 28%;
-  top: -46px;
+  z-index: 0;
+  left: -4%;
+  right: -4%;
+  bottom: -18px;
+  height: 62px;
+  background:
+    linear-gradient(135deg, transparent 0 18%, rgba(119,139,111,.15) 18% 31%, transparent 31%) 0 100% / 34% 100% no-repeat,
+    linear-gradient(45deg, transparent 0 21%, rgba(139,153,120,.13) 21% 36%, transparent 36%) 28% 100% / 36% 100% no-repeat,
+    linear-gradient(135deg, transparent 0 24%, rgba(102,126,101,.11) 24% 40%, transparent 40%) 58% 100% / 42% 100% no-repeat,
+    linear-gradient(45deg, transparent 0 22%, rgba(129,146,111,.10) 22% 38%, transparent 38%) 88% 100% / 34% 100% no-repeat;
+  opacity: .95;
 }
 header::after {
-  width: 46px;
-  height: 46px;
-  right: 18%;
-  bottom: -35px;
-  border-color: #39b8cf14;
+  z-index: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 22px;
+  background: linear-gradient(180deg, rgba(213,205,179,0) 0%, rgba(213,205,179,.18) 100%);
+}
+.nav {
+  position: relative;
+  z-index: 1;
+  min-height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+.siteBrand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  margin: 0;
+  color: #4f513f;
+  font-weight: 900;
+  line-height: 1.2;
 }
 .nav b {
   font-size: 20px;
@@ -1620,26 +1631,51 @@ footer {
 }
 
 @media (max-width: 780px) {
+  .nav {
+    min-height: 58px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    gap: 8px;
+  }
+
   .siteBrand {
-    gap: 5px;
+    gap: 0;
   }
 
   .siteBrand span {
-    max-width: 58vw;
+    max-width: 66vw;
     font-size: clamp(11px, 3vw, 14px);
-    line-height: 1.25;
+    line-height: 1.2;
     letter-spacing: 0;
     white-space: normal;
-  }
-
-  .siteBrand .brandMark {
-    width: 36px;
-    height: 36px;
   }
 
   .nav a {
     font-size: 11px;
     white-space: nowrap;
+  }
+
+  header::before {
+    bottom: -22px;
+    height: 54px;
+    opacity: .82;
+  }
+}
+
+@media (max-width: 520px) {
+  .nav {
+    min-height: 54px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  .siteBrand span {
+    max-width: 64vw;
+    font-size: 11px;
+  }
+
+  .nav a {
+    font-size: 10px;
   }
 }
 
