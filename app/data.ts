@@ -19,7 +19,7 @@ const rows:[string,string,string|null,string|null][] = [
     "IOK 伊藤大地・奥山晶二郎・神田大介",
     "I'm OK",
     "https://open.spotify.com/playlist/799Fo9to2TK0ahGEJsvcm2",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000d72ce0bb218d517bbbae7f9cc91e"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e"
   ],
   [
     "#ふな 冨名腰隆　旧【報談】",
@@ -43,7 +43,7 @@ const rows:[string,string,string|null,string|null][] = [
     "東日本大震災",
     "cobaltore12",
     "https://open.spotify.com/playlist/4nptiHJbbsjKS37kykLkNF",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694"
   ],
   [
     "お坊さんに聞け",
@@ -89,7 +89,7 @@ const rows:[string,string,string|null,string|null][] = [
   ],
   [
     "太田匡彦",
-    "Wreath",
+    "リース",
     "https://open.spotify.com/playlist/7jLXrZ0JUNOnsSeFEFbw9S",
     "https://mosaic.scdn.co/300/ab67656300005f1f12014dede1a47ec9634fed5eab67656300005f1fa84ca60b309ac25e44a360d4ab67656300005f1fe726263e3e1ab32964dd86b3ab67656300005f1ff90fd9b9f6a56a9491ab6a00"
   ],
@@ -211,7 +211,7 @@ const rows:[string,string,string|null,string|null][] = [
     "メディアを語る　伊藤大地x奥山晶二郎x神田大介",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/2lA13BSsvyLjq9iPFa6oDo",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84996d7c4cc61163a9b6ed71d9"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000d72c996d7c4cc61163a9b6ed71d9"
   ],
   [
     "朝ポキ制作会議！　皆さんもご参加ください",
@@ -253,7 +253,7 @@ const rows:[string,string,string|null,string|null][] = [
     "新聞社員の「楽屋裏」",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/1u1qT0BxRZT1OeNM0LDA72",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844ac19eab5ced53a5396e809c"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da844ac19eab5ced53a5396e809c"
   ],
   [
     "「SDGsを話そう」厳選エピソード",
@@ -265,7 +265,7 @@ const rows:[string,string,string|null,string|null][] = [
     "ポキ-1グランプリ 2023",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/5xUDKa3r5arvKSx4gqjwI3",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000d72c74741ef011e8289b8beefdd9"
   ],
   [
     "「MEDIA TALK」 2023厳選エピソード",
@@ -329,7 +329,7 @@ const rows:[string,string,string|null,string|null][] = [
   ],
   [
     "#きのどう「木下君、あの動画みた？」",
-    "カンノン",
+    "VHS",
     "https://open.spotify.com/playlist/6nDhZQG75F1wU62sdcYJMq",
     "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f7c49378fc19b81c6f0f72987"
   ],
@@ -407,19 +407,19 @@ const rows:[string,string,string|null,string|null][] = [
   ],
   [
     "佐藤陽 記者が出演した番組",
-    "パクチー",
+    "アミーゴ",
     "https://open.spotify.com/playlist/73ppqrTcsjVgl1xwIZa4SY",
     "https://mosaic.scdn.co/300/ab67656300005f1f02f50cdd722327142f66a691ab67656300005f1f27371eef7ab4c7f56a764aa5ab67656300005f1f2a63027fedca396f67dc181cab67656300005f1fad23c0bcf15f7fee6b04142d"
   ],
   [
     "農MUSIC 猟ライフ（ノーミライ）",
-    "じゃあ真似",
+    "ハザ干し",
     "https://open.spotify.com/playlist/4FBXSFf2nLjLb3qaRoSdoD",
     "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f4ea26c84e38a43b8859df430"
   ],
   [
     "ポリレビ",
-    "田",
+    "田田田（デンデンデン）",
     "https://open.spotify.com/playlist/6hNrobOVHmYaQT5C7hPkNa",
     "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f09a8bd5875be5defced61b26"
   ],
@@ -427,7 +427,7 @@ const rows:[string,string,string|null,string|null][] = [
     "中南米",
     "マリオ",
     "https://open.spotify.com/playlist/2Org6cCBgVas4d9OwzzxAv",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37"
   ]
 ];
 export const playlists:Playlist[] = rows.map((r,i)=>({id:String(i+1),title:r[0],maker:r[1],url:r[2],artwork:r[3]}));
