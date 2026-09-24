@@ -32,7 +32,18 @@
 @media (max-width: 520px) {
   .compactNotice {
     align-items: flex-start;
+    font-size: 10px;
+    line-height: 1.3;
+  }
+
+  .compactNotice > span {
+    color: #7b878b;
+  }
+
+  .compactNotice button {
     font-size: 11px;
+    line-height: 1.3;
+    color: #9b3e61;
   }
 }
 
