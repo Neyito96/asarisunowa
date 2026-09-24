@@ -1654,12 +1654,15 @@ footer {
 }
 
 .siteBrandLead {
-  font-size: .9em;
+  display: inline-block;
+  font-size: .95em;
   font-weight: 800;
+  margin-bottom: 3px;
 }
 
 .siteBrandTitle {
-  font-size: 1.3em;
+  display: inline-block;
+  font-size: 1.35em;
   font-weight: 900;
   letter-spacing: .01em;
 }
@@ -1691,11 +1694,12 @@ footer {
   }
 
   .siteBrandLead {
-    font-size: .9em;
+    font-size: .95em;
+    margin-bottom: 3px;
   }
 
   .siteBrandTitle {
-    font-size: 1.3em;
+    font-size: 1.35em;
   }
 
   .nav a {
