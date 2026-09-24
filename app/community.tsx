@@ -1130,7 +1130,11 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         website: "",
       });
       setAutoUpdateStatus("success");
-      setAutoUpdateMessage("申請を受け付けました🐿️ 共同編集確認後、Spotifyの初回分は1時間ごとに最大50件ずつ、古い回から順に追加します。完了後は毎朝4〜5時に新着回だけ確認します。異常時だけ確認待ちになります。");
+      setAutoUpdateMessage(
+        autoUpdateType === "theme"
+          ? "申請を受け付けました🐿️ テーマ別は候補を確認・承認してから自動更新を開始します。"
+          : "申請を受け付けました🐿️ 共同編集確認後、Spotifyの初回分は1時間ごとに最大50件ずつ、古い回から順に追加します。完了後は毎朝4〜5時に新着回だけ確認します。異常時だけ確認待ちになります。"
+      );
       setAutoUpdatePlaylistId("");
       setAutoUpdateMaker("");
       setAutoUpdateInviteUrl("");
@@ -1547,7 +1551,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     <legend>どんなプレイリスト？</legend>
                     <label><input type="radio" name="autoUpdateType" value="series" checked={autoUpdateType === "series"} onChange={() => setAutoUpdateType("series")} /><span><b>📻 シリーズ別</b><small>例：一緒に新聞をめくろう！</small></span></label>
                     <label><input type="radio" name="autoUpdateType" value="speaker" checked={autoUpdateType === "speaker"} onChange={() => setAutoUpdateType("speaker")} /><span><b>🎙️ 出演者別</b><small>例：宮沢賢一さん出演回</small></span></label>
-                    <label><input type="radio" name="autoUpdateType" value="theme" checked={autoUpdateType === "theme"} onChange={() => setAutoUpdateType("theme")} disabled /><span><b>🌱 テーマ別（耕し中・新規受付停止）</b><small>例：中東・鉄道・教育</small></span></label>
+                    <label><input type="radio" name="autoUpdateType" value="theme" checked={autoUpdateType === "theme"} onChange={() => setAutoUpdateType("theme")} /><span><b>🌱 テーマ別</b><small>例：中東・鉄道・教育</small></span></label>
                   </fieldset>
                   <label>
                     <span>朝リストから選ぶ</span>
