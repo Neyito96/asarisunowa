@@ -77,7 +77,15 @@ function sortPodcastLinks(links: PodcastPlatformLink[]) {
     );
     return index < 0 ? 99 : index;
   };
-  return [...links].sort((a, b) => rank(a.label) - rank(b.label));
+  const seenProviders = new Set<string>();
+  return [...links]
+    .sort((a, b) => rank(a.label) - rank(b.label))
+    .filter((link) => {
+      const provider = link.label.trim().toLowerCase();
+      if (seenProviders.has(provider)) return false;
+      seenProviders.add(provider);
+      return true;
+    });
 }
 
 function PlatformIcon({ label }: { label: string }) {
@@ -693,6 +701,7 @@ function listenerPodcastBadge(introduced?: string) {
 export default function Community({ playlists }: { playlists: Playlist[] }) {
   const [livePlaylists, setLivePlaylists] = useState<Playlist[]>(playlists);
   const [recommendedPodcasts, setRecommendedPodcasts] = useState<RecommendedPodcast[]>([]);
+  const [recommendedPodcastStatus, setRecommendedPodcastStatus] = useState<"loading" | "ready" | "error">("loading");
   const [liveListenerPodcasts, setLiveListenerPodcasts] = useState<ListenerPodcast[]>(LISTENER_PODCAST_BACKUP);
   const [listenerPodcastStatus, setListenerPodcastStatus] = useState<"loading" | "ready" | "error">("loading");
   const [listenerPodcastReloadKey, setListenerPodcastReloadKey] = useState(0);
@@ -831,7 +840,10 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           .reverse();
 
         // Show newest submitted podcasts first, then fill artwork as each lookup completes.
-        if (!cancelled) setRecommendedPodcasts(base);
+        if (!cancelled) {
+          setRecommendedPodcasts(base);
+          setRecommendedPodcastStatus("ready");
+        }
         await Promise.all(
           base.map(async (item) => {
             if (item.artwork) return;
@@ -843,7 +855,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           })
         );
       } catch {
-        // 読み込み失敗時は現在の表示を維持
+        if (!cancelled) setRecommendedPodcastStatus("error");
       }
     }
     refreshRecommendedPodcasts();
@@ -2067,6 +2079,12 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <h2 id="recommended-podcasts-title">🎧 朝リスのおすすめPodcast</h2>
                 <p>朝リスさんが「これも聴いてほしい」と思った番組を持ち寄る棚。</p>
               </div>
+              {recommendedPodcastStatus === "loading" && recommendedPodcasts.length === 0 && (
+                <p className="podcastComment">おすすめPodcastを読み込んでいます…</p>
+              )}
+              {recommendedPodcastStatus === "error" && recommendedPodcasts.length === 0 && (
+                <p className="podcastComment">おすすめPodcastを読み込めませんでした。ページを再読み込みしてください。</p>
+              )}
               <div className="grid podcastGrid">
                 {recommendedPodcasts.map((p) => (
                   <article className="card" key={"podcast-" + p.id}>
@@ -2089,11 +2107,22 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                       {p.comment && <p className="podcastComment">💬 {p.comment}</p>}
                       {p.links.length > 0 ? (
                         <div className="platformLinks compactPlatformLinks">
-                          {sortPodcastLinks(p.links).map((link) => (
-                            <a className="platformIconLink" key={link.url} href={link.url} target="_blank" rel="noreferrer" title={link.label} aria-label={link.label}>
-                              <PlatformIcon label={link.label} />
-                            </a>
-                          ))}
+                          {sortPodcastLinks(p.links).map((link) => {
+                            const iconOnly = ["YouTube", "Spotify", "Apple Podcasts"].includes(link.label);
+                            return (
+                              <a
+                                className={iconOnly ? "platformIconLink" : "platformTextLink"}
+                                key={link.label}
+                                href={link.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                title={link.label}
+                                aria-label={link.label}
+                              >
+                                {iconOnly ? <PlatformIcon label={link.label} /> : link.label}
+                              </a>
+                            );
+                          })}
                         </div>
                       ) : null}
                     </div>
