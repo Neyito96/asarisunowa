@@ -2355,6 +2355,33 @@ footer {
   background:#fff;
   box-shadow:0 4px 12px rgba(17,65,76,.10);
 }
+.platformTextLink{
+  display:inline-flex;
+  align-items:center;
+  min-height:2.1rem;
+  padding:0 .7rem;
+  border:1px solid rgba(91,65,43,.16);
+  border-radius:999px;
+  background:rgba(255,255,255,.86);
+  color:#4f5f59;
+  font-size:.78rem;
+  font-weight:800;
+  line-height:1;
+  text-decoration:none;
+  white-space:nowrap;
+}
+.platformTextLink:hover{
+  background:#fff;
+  box-shadow:0 4px 12px rgba(17,65,76,.10);
+}
+@media(max-width:780px){
+  .listenerPodcastCard{
+    grid-template-columns:156px 1fr;
+  }
+  .listenerPodcastCard .podcastCover{
+    min-height:230px;
+  }
+}
 .platformBrandIcon{
   display:inline-flex;
   align-items:center;
