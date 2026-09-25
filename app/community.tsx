@@ -1052,7 +1052,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           if (fallbackTitle) {
             setSubmitTitle(fallbackTitle);
             setResolveStatus("success");
-            setResolveMessage("Apple PodcastsのURLから番組名を取得しました。配信者は確認して入力してください。");
+            setResolveMessage("Apple PodcastsのURLから番組名を取得しました。");
             return;
           }
         }
@@ -1099,7 +1099,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         return;
       }
       setResolveStatus("success");
-      setResolveMessage((payload.provider ? payload.provider + "から " : "") + (resolvedMaker ? "番組名・配信者を取得しました。" : "番組名を取得しました。配信者は必要なら修正してください。") + " 未登録です。");
+      setResolveMessage((payload.provider ? payload.provider + "から " : "") + (resolvedMaker ? "番組名・配信者を取得しました。" : "番組名を取得しました。") + " 未登録です。");
     } catch {
       setResolveStatus("error");
       setResolveMessage("番組情報を取得できませんでした。手入力してください。");
@@ -1912,6 +1912,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                       setSubmitUrl(e.target.value);
                       setResolveStatus("idle");
                       setResolveMessage("");
+                      setResolvedHost("");
                     }}
                     placeholder="Spotify / Apple / LISTEN / stand.fm などの番組URL"
                     required
