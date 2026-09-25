@@ -70,17 +70,6 @@ const PODCAST_PLATFORM_ORDER = [
   "Pody",
 ] as const;
 
-const PODCAST_PLATFORM_MARK: Record<string, string> = {
-  "YouTube": "YT",
-  "Spotify": "S",
-  "Amazon Music": "A",
-  "Apple Podcasts": "",
-  "Pocket Casts": "PC",
-  "LISTEN": "L",
-  "stand.fm": "stand",
-  "Pody": "P",
-};
-
 function sortPodcastLinks(links: PodcastPlatformLink[]) {
   const rank = (label: string) => {
     const index = PODCAST_PLATFORM_ORDER.indexOf(
@@ -91,8 +80,97 @@ function sortPodcastLinks(links: PodcastPlatformLink[]) {
   return [...links].sort((a, b) => rank(a.label) - rank(b.label));
 }
 
-function platformMark(label: string) {
-  return PODCAST_PLATFORM_MARK[label] || label.slice(0, 2);
+function PlatformIcon({ label }: { label: string }) {
+  const common = { viewBox: "0 0 24 24", focusable: false, "aria-hidden": true } as const;
+
+  let icon: React.ReactNode;
+  switch (label) {
+    case "YouTube":
+      icon = (
+        <svg {...common}>
+          <rect x="2.5" y="6" width="19" height="12" rx="4" fill="currentColor" />
+          <path d="M10 9l6 3-6 3z" fill="white" />
+        </svg>
+      );
+      break;
+    case "Spotify":
+      icon = (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="10" fill="currentColor" />
+          <path d="M7 9.3c3.8-1.1 7.4-.7 10.4.9M7.6 12.4c3.2-.8 6.4-.5 9 .7M8.4 15.2c2.5-.6 5-.4 7.1.5" fill="none" stroke="white" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+      );
+      break;
+    case "Amazon Music":
+      icon = (
+        <svg {...common}>
+          <path d="M7 7.2h6.1c2.3 0 3.9 1.4 3.9 3.5v5.7h-2.3v-1.2c-1 .9-2.2 1.4-3.7 1.4-2.4 0-4.1-1.2-4.1-3.2 0-2.1 1.8-3.3 4.8-3.3h3v-.2c0-1-.7-1.5-2.1-1.5H7z" fill="currentColor" />
+          <path d="M6.3 18.2c3.3 1.5 7.3 1.6 10.8.2" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+      );
+      break;
+    case "Apple Podcasts":
+      icon = (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="10" fill="currentColor" />
+          <circle cx="12" cy="10" r="2" fill="white" />
+          <path d="M8.2 10a3.8 3.8 0 0 1 7.6 0M6.1 10a5.9 5.9 0 0 1 11.8 0" fill="none" stroke="white" strokeWidth="1.4" strokeLinecap="round" />
+          <path d="M10.2 13.2h3.6l-.8 5h-2z" fill="white" />
+        </svg>
+      );
+      break;
+    case "Pocket Casts":
+      icon = (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="2" />
+          <circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" strokeWidth="2" />
+          <path d="M12 7a5 5 0 0 1 5 5" fill="none" stroke="white" strokeWidth="3" />
+          <path d="M12 3a9 9 0 0 1 9 9" fill="none" stroke="white" strokeWidth="3" />
+        </svg>
+      );
+      break;
+    case "LISTEN":
+      icon = (
+        <svg {...common}>
+          <path d="M5 14V10M8 17V7M11 15V9M14 18V6M17 15V9M20 14V10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      );
+      break;
+    case "stand.fm":
+      icon = (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="2.2" fill="currentColor" />
+          <path d="M8.3 8.3a5.2 5.2 0 0 0 0 7.4M15.7 8.3a5.2 5.2 0 0 1 0 7.4M5.6 5.6a9 9 0 0 0 0 12.8M18.4 5.6a9 9 0 0 1 0 12.8" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+      );
+      break;
+    case "Pody":
+      icon = (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="10" fill="currentColor" />
+          <path d="M9 6.8h4.1a4 4 0 0 1 0 8H11v2.4H9zm2 2v4h2a2 2 0 0 0 0-4z" fill="white" />
+        </svg>
+      );
+      break;
+    default:
+      icon = (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M3 12h18M12 3c3 3.3 3 14.7 0 18M12 3c-3 3.3-3 14.7 0 18" fill="none" stroke="currentColor" strokeWidth="1.4" />
+        </svg>
+      );
+  }
+
+  const key = label
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/[^a-z0-9]/g, "") || "official";
+
+  return (
+    <span className={`platformBrandIcon platformBrandIcon--${key}`} aria-hidden="true">
+      {icon}
+    </span>
+  );
 }
 
 const LISTENER_PODCAST_BACKUP: ListenerPodcast[] = [
@@ -1772,8 +1850,10 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                         target="_blank"
                         rel="noreferrer"
                         key={label}
-                      >
-                        {label} ↗
+                       className="serviceLink">
+                        <PlatformIcon label={label} />
+                        <span>{label}</span>
+                        <span className="serviceLinkArrow" aria-hidden="true">↗</span>
                       </a>
                     ))}
                   </div>
@@ -1886,7 +1966,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                       <div className="platformLinks compactPlatformLinks">
                         {sortPodcastLinks(p.links).map((link) => (
                           <a className="platformIconLink" key={link.url} href={link.url} target="_blank" rel="noreferrer" title={link.label} aria-label={link.label}>
-                            <span aria-hidden="true">{platformMark(link.label)}</span>
+                            <PlatformIcon label={link.label} />
                           </a>
                         ))}
                       </div>
@@ -1999,7 +2079,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                         <div className="platformLinks compactPlatformLinks">
                           {sortPodcastLinks(p.links).map((link) => (
                             <a className="platformIconLink" key={link.url} href={link.url} target="_blank" rel="noreferrer" title={link.label} aria-label={link.label}>
-                              <span aria-hidden="true">{platformMark(link.label)}</span>
+                              <PlatformIcon label={link.label} />
                             </a>
                           ))}
                         </div>
