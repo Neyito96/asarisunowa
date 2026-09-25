@@ -19,6 +19,7 @@ function doPost(e) {
     const title = input.title;
     const maker = input.maker;
     const host = input.host;
+    const rss = input.rss;
     const inviteUrl = input.inviteUrl;
     const comment = input.comment;
     const introducedDate = input.introducedDate;
@@ -35,6 +36,7 @@ function doPost(e) {
       title: title,
       maker: maker,
       host: host,
+      rss: rss,
       comment: comment,
       introducedDate: introducedDate,
       artwork: artwork,
@@ -84,6 +86,7 @@ function doPost(e) {
       title,
       maker,
       host,
+      rss,
       introducedDate,
       comment,
       artwork,
