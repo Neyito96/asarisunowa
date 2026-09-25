@@ -37,12 +37,61 @@ const getPlaylistArtworkOverride = (url: string) =>
 const LISTENER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQHi9LM842wuiTT-N8FzgJXVFyY4W5sZRYEdp4a9OVBTgVBJgPWG52AK6sgH4qBciqB6Q5UAd2-n2bA/pub?gid=697105746&single=true&output=csv";
 const PODCAST_CSV_URL = "https://docs.google.com/spreadsheets/d/1KSzoIkOsjUagNBLt3IbKIvgWEmez4f0XISQ-jkUjmwQ/gviz/tq?tqx=out:csv&sheet=%E6%9C%9D%E3%83%AA%E3%82%B9Podcast";
 
+type PodcastPlatformLink = { label: string; url: string };
+
 type ListenerPodcast = {
   id: string; title: string; maker: string; introduced: string;
-  links: { label: string; url: string }[];
+  links: PodcastPlatformLink[];
   artwork?: string | null;
   comment?: string;
+  genre?: string;
 };
+
+type RecommendedPodcast = {
+  id: string;
+  title: string;
+  maker: string;
+  url: string | null;
+  artwork: string | null;
+  comment?: string;
+  host?: string;
+  genre?: string;
+  links: PodcastPlatformLink[];
+};
+
+const PODCAST_PLATFORM_ORDER = [
+  "YouTube",
+  "Spotify",
+  "Amazon Music",
+  "Apple Podcasts",
+  "Pocket Casts",
+  "LISTEN",
+  "stand.fm",
+  "Pody",
+] as const;
+
+const PODCAST_PLATFORM_MARK: Record<string, string> = {
+  "YouTube": "YT",
+  "Spotify": "S",
+  "Amazon Music": "A",
+  "Apple Podcasts": "",
+  "Pocket Casts": "PC",
+  "LISTEN": "L",
+  "stand.fm": "stand",
+  "Pody": "P",
+};
+
+function sortPodcastLinks(links: PodcastPlatformLink[]) {
+  const rank = new Map(PODCAST_PLATFORM_ORDER.map((label, index) => [label, index]));
+  return [...links].sort(
+    (a, b) => (rank.get(a.label as typeof PODCAST_PLATFORM_ORDER[number]) ?? 99) -
+      (rank.get(b.label as typeof PODCAST_PLATFORM_ORDER[number]) ?? 99)
+  );
+}
+
+function platformMark(label: string) {
+  return PODCAST_PLATFORM_MARK[label] || label.slice(0, 2);
+}
 
 const LISTENER_PODCAST_BACKUP: ListenerPodcast[] = [
   { id:"01", title:"どいらじ（映画凡人が集いしラジオ）", maker:"たんたん", introduced:"2026.04.05", artwork:null, links:[
@@ -315,8 +364,6 @@ const officialArtwork: Record<string, string> = {
 };
 const recommendedPodcastArtwork: Record<string, string> = {};
 
-const recommendedPodcastLinks: Record<string, [string, string][]> = {};
-
 type GuideStep = "q1" | "q2" | "q3" | "q4" | "q5" | "q6" | "q7";
 type GuideChoice = { yes: GuideStep | string; no: GuideStep | string };
 const guideQuestions: Record<GuideStep, { question: string; choice: GuideChoice }> = {
@@ -563,7 +610,7 @@ function listenerPodcastBadge(introduced?: string) {
 
 export default function Community({ playlists }: { playlists: Playlist[] }) {
   const [livePlaylists, setLivePlaylists] = useState<Playlist[]>(playlists);
-  const [recommendedPodcasts, setRecommendedPodcasts] = useState<Playlist[]>([]);
+  const [recommendedPodcasts, setRecommendedPodcasts] = useState<RecommendedPodcast[]>([]);
   const [liveListenerPodcasts, setLiveListenerPodcasts] = useState<ListenerPodcast[]>(LISTENER_PODCAST_BACKUP);
   const [listenerPodcastStatus, setListenerPodcastStatus] = useState<"loading" | "ready" | "error">("loading");
   const [listenerPodcastReloadKey, setListenerPodcastReloadKey] = useState(0);
@@ -581,6 +628,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     [submitUrl, setSubmitUrl] = useState(""),
     [submitTitle, setSubmitTitle] = useState(""),
     [submitMaker, setSubmitMaker] = useState(""),
+    [submitRss, setSubmitRss] = useState(""),
     [submitComment, setSubmitComment] = useState(""),
     [submitIntroducedDate, setSubmitIntroducedDate] = useState(""),
     [submitKind, setSubmitKind] = useState<"playlist" | "podcast">("playlist"),
@@ -654,21 +702,48 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     let cancelled = false;
     async function refreshRecommendedPodcasts() {
       try {
-        const payload = await loadJsonp<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; comment?: string }> }>(
+        const payload = await loadJsonp<{ ok: boolean; items?: Array<{
+          id?: string; url?: string; title?: string; maker?: string; comment?: string;
+          artwork?: string; host?: string; genre?: string;
+          youtube?: string; spotify?: string; amazon?: string; apple?: string;
+          pocketcasts?: string; listen?: string; standfm?: string; pody?: string;
+        }> }>(
           ASARISU_API_URL + "?type=podcast&_=" + Date.now()
         );
         if (!payload?.ok || !Array.isArray(payload.items)) return;
         const base = payload.items
           .map((source, index) => {
             const title = String(source.title || "").trim();
+            const links = sortPodcastLinks([
+              ["YouTube", source.youtube],
+              ["Spotify", source.spotify],
+              ["Amazon Music", source.amazon],
+              ["Apple Podcasts", source.apple],
+              ["Pocket Casts", source.pocketcasts],
+              ["LISTEN", source.listen],
+              ["stand.fm", source.standfm],
+              ["Pody", source.pody],
+            ].map(([label, value]) => {
+              const linkUrl = String(value || "").trim();
+              return linkUrl ? { label: String(label), url: linkUrl } : null;
+            }).filter((link): link is PodcastPlatformLink => Boolean(link)));
+
+            const primaryUrl = String(source.url || "").trim();
+            if (!links.length && primaryUrl) {
+              links.push({ label: podcastProviderLabel(primaryUrl), url: primaryUrl });
+            }
+
             return {
               id: String(source.id || index + 1),
               title,
               maker: String(source.maker || "").trim(),
-              url: String(source.url || "").trim() || null,
-              artwork: recommendedPodcastArtwork[title] ?? null,
+              url: primaryUrl || null,
+              artwork: String(source.artwork || "").trim() || recommendedPodcastArtwork[title] || null,
               comment: String(source.comment || "").trim(),
-            } satisfies Playlist;
+              host: String(source.host || "").trim(),
+              genre: String(source.genre || "").trim(),
+              links,
+            } satisfies RecommendedPodcast;
           })
           .filter((item) => item.title);
 
@@ -728,6 +803,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           youtube?: string;
           website?: string;
           artwork?: string;
+          pocketcasts?: string;
+          pody?: string;
+          genre?: string;
         }> }>(
           ASARISU_API_URL + "?type=listenerPodcast&_=" + Date.now(),
           2, 15000
@@ -738,20 +816,21 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         const base = payload.items
           .map((source, index) => {
             const primaryUrl = String(source.url || "").trim();
-            const links = [
+            const links = sortPodcastLinks([
+              ["YouTube", source.youtube],
               ["Spotify", source.spotify],
+              ["Amazon Music", source.amazon],
               ["Apple Podcasts", source.apple],
+              ["Pocket Casts", source.pocketcasts],
               ["LISTEN", source.listen],
               ["stand.fm", source.standfm],
-              ["Amazon Music", source.amazon],
-              ["YouTube", source.youtube],
-              ["番組HP", source.website],
+              ["Pody", source.pody],
             ]
               .map(([label, value]) => {
                 const url = String(value || "").trim();
                 return url ? { label: String(label), url } : null;
               })
-              .filter((link): link is { label: string; url: string } => Boolean(link));
+              .filter((link): link is PodcastPlatformLink => Boolean(link)));
 
             if (
               primaryUrl &&
@@ -768,6 +847,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               links,
               artwork: String(source.artwork || "").trim() || null,
               comment: String(source.comment || "").trim(),
+              genre: String(source.genre || "").trim(),
             } satisfies ListenerPodcast;
           })
           .filter((item) => item.title);
@@ -896,10 +976,14 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         maker?: string;
         author?: string;
         publisher?: string;
+        rss?: string;
+        genre?: string;
         error?: string;
         duplicate?: boolean;
         duplicateId?: string;
         url?: string;
+        inputUrl?: string;
+        upgradedFromEpisode?: boolean;
       }>(
         ASARISU_API_URL +
           "?type=resolve&kind=" + encodeURIComponent(resolveKind) +
@@ -1088,6 +1172,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       const resolvedMaker = String(payload.maker || payload.author || payload.publisher || "").trim();
       if (resolvedMaker) applyResolvedMaker(resolvedMaker);
       setResolvedArtwork(payload.artwork || null);
+      if (payload.rss) setSubmitRss(payload.rss);
       if (payload.duplicate) {
         setResolvedDuplicate(true);
         setResolveStatus("error");
@@ -1099,7 +1184,13 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         return;
       }
       setResolveStatus("success");
-      setResolveMessage((payload.provider ? payload.provider + "から " : "") + (resolvedMaker ? "番組名・配信者を取得しました。" : "番組名を取得しました。") + " 未登録です。");
+      setResolveMessage(
+        payload.upgradedFromEpisode
+          ? "エピソードURLから「" + payload.title + "」という番組を見つけました。この番組を登録します。"
+          : (payload.provider ? payload.provider + "から " : "") +
+            (resolvedMaker ? "番組名・配信者を取得しました。" : "番組名を取得しました。") +
+            " 未登録です。"
+      );
     } catch {
       setResolveStatus("error");
       setResolveMessage("番組情報を取得できませんでした。手入力してください。");
@@ -1183,6 +1274,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           title: submitTitle.trim(),
           maker: submitMaker.trim(),
           host: postedKind === "podcast" ? resolvedHost.trim() : "",
+          rss: (postedKind === "podcast" || postedKind === "listenerPodcast") ? submitRss.trim() : "",
           comment: postedKind === "listenerPodcast" ? "" : submitComment.trim(),
           introducedDate: submitIntroducedDate,
           kind: postedKind,
@@ -1201,6 +1293,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       setSubmitUrl("");
       setSubmitTitle("");
       setSubmitMaker("");
+      setSubmitRss("");
       setSubmitComment("");
       setSubmitIntroducedDate("");
       setResolvedDuplicate(false);
@@ -1783,10 +1876,15 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     <h3>{p.title}</h3>
                     <p>by {p.maker}</p>
                     {p.introduced && <p className="podcastComment">紹介配信日 {p.introduced}</p>}
+                    {p.genre && <span className="podcastGenreTag">{p.genre}</span>}
                     {p.comment && <p className="podcastComment">💬 {p.comment}</p>}
                     {p.links.length > 0 ? (
-                      <div className="platformLinks">
-                        {p.links.map((link) => <a className="listen" key={link.url} href={link.url} target="_blank" rel="noreferrer">{link.label} ↗</a>)}
+                      <div className="platformLinks compactPlatformLinks">
+                        {sortPodcastLinks(p.links).map((link) => (
+                          <a className="platformIconLink" key={link.url} href={link.url} target="_blank" rel="noreferrer" title={link.label} aria-label={link.label}>
+                            <span aria-hidden="true">{platformMark(link.label)}</span>
+                          </a>
+                        ))}
                       </div>
                     ) : <span className="listen disabled">配信先を確認中</span>}
                   </div>
@@ -1814,7 +1912,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                       setResolveMessage("");
                       setResolvedDuplicate(false);
                     }}
-                    placeholder="Spotify / Apple / LISTEN / stand.fm など"
+                    placeholder="Spotify / Apple / LISTEN / stand.fm / RSS など"
                     required
                   />
                   <button className="resolvePodcastButton" type="button" onClick={resolvePodcastInput} disabled={resolveStatus === "loading"}>
@@ -1825,6 +1923,16 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <label>
                   <span>番組名</span>
                   <input type="text" value={submitTitle} onChange={(e) => setSubmitTitle(e.target.value)} placeholder="自動取得／手入力も可" maxLength={120} required />
+                </label>
+                <label>
+                  <span>RSS <small>（任意・自動取得可）</small></span>
+                  <input
+                    type="url"
+                    value={submitRss}
+                    onChange={(e) => setSubmitRss(e.target.value)}
+                    placeholder="https://…/rss"
+                    maxLength={2048}
+                  />
                 </label>
                 <label>
                   <span>この番組の朝リスさん</span>
@@ -1880,15 +1988,16 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                       <small>RECOMMEND {p.id.padStart(2, "0")}</small>
                       <h3>{p.title}</h3>
                       <p>おすすめ：{p.maker}</p>
+                      {p.genre && <span className="podcastGenreTag">{p.genre}</span>}
                       {p.comment && <p className="podcastComment">💬 {p.comment}</p>}
-                      {recommendedPodcastLinks[p.title] ? (
-                        <div className="platformLinks">
-                          {recommendedPodcastLinks[p.title].map(([label, href]) => (
-                            <a className="listen" key={label} href={href} target="_blank" rel="noreferrer">{label} ↗</a>
+                      {p.links.length > 0 ? (
+                        <div className="platformLinks compactPlatformLinks">
+                          {sortPodcastLinks(p.links).map((link) => (
+                            <a className="platformIconLink" key={link.url} href={link.url} target="_blank" rel="noreferrer" title={link.label} aria-label={link.label}>
+                              <span aria-hidden="true">{platformMark(link.label)}</span>
+                            </a>
                           ))}
                         </div>
-                      ) : p.url ? (
-                        <a className="listen" href={p.url} target="_blank" rel="noreferrer">番組を聴く ↗</a>
                       ) : null}
                     </div>
                   </article>
@@ -1914,7 +2023,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                       setResolveMessage("");
                       setResolvedHost("");
                     }}
-                    placeholder="Spotify / Apple / LISTEN / stand.fm などの番組URL"
+                    placeholder="Spotify / Apple / LISTEN / stand.fm / RSS など"
                     required
                   />
                   <button className="resolvePodcastButton" type="button" onClick={resolvePodcastInput} disabled={resolveStatus === "loading"}>
@@ -1931,6 +2040,16 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     placeholder="Podcast番組名"
                     maxLength={120}
                     required
+                  />
+                </label>
+                <label>
+                  <span>RSS <small>（任意・自動取得可）</small></span>
+                  <input
+                    type="url"
+                    value={submitRss}
+                    onChange={(e) => setSubmitRss(e.target.value)}
+                    placeholder="https://…/rss"
+                    maxLength={2048}
                   />
                 </label>
                 <label>
