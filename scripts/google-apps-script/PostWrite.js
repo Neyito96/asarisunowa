@@ -8,7 +8,7 @@ function getPostTargetSheet_(kind, workSheet, podcastSheet, listenerPodcastSheet
     : workSheet;
 }
 
-function appendPostRow_(targetSheet, kind, url, title, maker, introducedDate, comment, artwork, inviteUrl) {
+function appendPostRow_(targetSheet, kind, url, title, maker, host, introducedDate, comment, artwork, inviteUrl) {
   if (kind === "listenerPodcast") {
     // 投稿された1本のURLを起点に、既存の安全な補完処理を使って
     // 確認できた配信先だけ保存する。補完に失敗しても投稿自体は継続する。
@@ -58,7 +58,8 @@ function appendPostRow_(targetSheet, kind, url, title, maker, introducedDate, co
       maker,
       new Date(),
       comment,
-      artwork || ""
+      artwork || "",
+      host || ""
     ]);
     return;
   }
