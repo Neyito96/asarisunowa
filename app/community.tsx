@@ -601,7 +601,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     [resolveStatus, setResolveStatus] = useState<"idle" | "loading" | "success" | "error">("idle"),
     [resolveMessage, setResolveMessage] = useState(""),
     [resolvedDuplicate, setResolvedDuplicate] = useState(false),
-    [resolvedArtwork, setResolvedArtwork] = useState<string | null>(null);
+    [resolvedArtwork, setResolvedArtwork] = useState<string | null>(null),
+    [resolvedHost, setResolvedHost] = useState("");
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("asapoki-listened") || "[]");
     const timer = window.setTimeout(() => setListened(saved), 0);
@@ -877,8 +878,16 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     setResolveMessage("番組情報を探しています…");
     setResolvedDuplicate(false);
     setResolvedArtwork(null);
+    setResolvedHost("");
     try {
       const resolveKind = view === "listenerPodcasts" ? "listenerPodcast" : "podcast";
+      const applyResolvedMaker = (value: string) => {
+        if (resolveKind === "podcast") {
+          setResolvedHost(value);
+        } else {
+          applyResolvedMaker(value);
+        }
+      };
       const payload = await loadJsonp<{
         ok: boolean;
         title?: string;
@@ -921,7 +930,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               if (spotifyTitle && !looksLikePodcastEpisodeTitle(spotifyTitle)) {
                 setSubmitTitle(spotifyTitle);
                 if (spotifyMaker && spotifyMaker.toLowerCase() !== "spotify") {
-                  setSubmitMaker(spotifyMaker);
+                  applyResolvedMaker(spotifyMaker);
                 }
                 setResolvedArtwork(spotifyArtwork || null);
                 setResolveStatus("success");
@@ -966,7 +975,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
 
             if (appleTitle) {
               setSubmitTitle(appleTitle);
-              if (appleMaker) setSubmitMaker(appleMaker);
+              if (appleMaker) applyResolvedMaker(appleMaker);
               setResolvedArtwork(appleArtwork || null);
               setResolveStatus("success");
               setResolveMessage(
@@ -1014,7 +1023,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
 
             if (appleTitle) {
               setSubmitTitle(appleTitle);
-              if (appleMaker) setSubmitMaker(appleMaker);
+              if (appleMaker) applyResolvedMaker(appleMaker);
               setResolvedArtwork(appleArtwork || null);
               setResolveStatus("success");
               setResolveMessage(
@@ -1063,8 +1072,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       }
       if (looksLikePodcastEpisodeTitle(payload.title)) {
         setSubmitTitle("");
-        setSubmitMaker("");
+        applyResolvedMaker("");
         setResolvedArtwork(null);
+      setResolvedHost("");
         setResolveStatus("error");
         setResolveMessage(
           "Spotifyがエピソード名を返しました。番組名としては採用しません。Spotify番組URL（/show/）またはApple Podcasts URLで試してください。"
@@ -1076,7 +1086,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         setSubmitUrl(payload.url);
       }
       const resolvedMaker = String(payload.maker || payload.author || payload.publisher || "").trim();
-      if (resolvedMaker) setSubmitMaker(resolvedMaker);
+      if (resolvedMaker) applyResolvedMaker(resolvedMaker);
       setResolvedArtwork(payload.artwork || null);
       if (payload.duplicate) {
         setResolvedDuplicate(true);
@@ -1172,6 +1182,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           url: submitUrl.trim(),
           title: submitTitle.trim(),
           maker: submitMaker.trim(),
+          host: postedKind === "podcast" ? resolvedHost.trim() : "",
           comment: postedKind === "listenerPodcast" ? "" : submitComment.trim(),
           introducedDate: submitIntroducedDate,
           kind: postedKind,
@@ -1922,12 +1933,12 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   />
                 </label>
                 <label>
-                  <span>配信者 / Host</span>
+                  <span>おすすめ朝リスネーム</span>
                   <input
                     type="text"
                     value={submitMaker}
                     onChange={(e) => setSubmitMaker(e.target.value)}
-                    placeholder="配信者名・Host名"
+                    placeholder="お名前・ハンドルネーム"
                     maxLength={80}
                     required
                   />
