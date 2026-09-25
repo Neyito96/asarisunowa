@@ -221,7 +221,7 @@ function readListenerPodcastSheet(sheet) {
         2,
         1,
         lastRow - 1,
-        13
+        17
       )
       .getDisplayValues();
 
@@ -242,7 +242,10 @@ function readListenerPodcastSheet(sheet) {
         amazon: r[9] || "",
         youtube: r[10] || "",
         website: r[11] || "",
-        artwork: r[12] || ""
+        artwork: r[12] || "",
+        pocketcasts: r[14] || "",
+        pody: r[15] || "",
+        genre: r[16] || ""
       }));
 
   return {
@@ -272,7 +275,7 @@ function readPodcastSheet(sheet) {
         2,
         1,
         lastRow - 1,
-        7
+        18
       )
       .getDisplayValues();
 
@@ -300,7 +303,27 @@ function readPodcastSheet(sheet) {
           artwork:
             r[5] || "",
           host:
-            r[6] || ""
+            r[6] || "",
+          youtube:
+            r[8] || "",
+          spotify:
+            r[9] || "",
+          amazon:
+            r[10] || "",
+          apple:
+            r[11] || "",
+          pocketcasts:
+            r[12] || "",
+          listen:
+            r[13] || "",
+          standfm:
+            r[14] || "",
+          pody:
+            r[15] || "",
+          website:
+            r[16] || "",
+          genre:
+            r[17] || ""
         })
       );
 
