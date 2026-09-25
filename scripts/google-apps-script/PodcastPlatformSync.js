@@ -149,6 +149,11 @@ function resolveListenerPodcastPlatforms_(title, maker, sourceUrl, explicitRss) 
     resolved.rss = "https://rss.listen.style/p/" + listenSlug[1] + "/rss";
   }
 
+  if (!resolved.spotify && typeof findSpotifyShowByTitle_ === "function") {
+    const spotifyUrl = findSpotifyShowByTitle_(title);
+    if (spotifyUrl) resolved.spotify = spotifyUrl;
+  }
+
   const apple = findExactApplePodcast_(title, maker);
   if (!apple) {
     if (resolved.rss) {
