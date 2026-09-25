@@ -22,7 +22,7 @@ function syncListenerPodcastPlatforms() {
       return { checked: 0, updatedRows: 0, updatedCells: 0 };
     }
 
-    const values = sheet.getRange(2, 1, lastRow - 1, 13).getDisplayValues();
+    const values = sheet.getRange(2, 1, lastRow - 1, 17).getDisplayValues();
     let updatedRows = 0;
     let updatedCells = 0;
 
@@ -43,12 +43,16 @@ function syncListenerPodcastPlatforms() {
         amazon: String(row[9] || "").trim(),
         youtube: String(row[10] || "").trim(),
         website: String(row[11] || "").trim(),
-        artwork: String(row[12] || "").trim()
+        artwork: String(row[12] || "").trim(),
+        rss: String(row[13] || "").trim(),
+        pocketcasts: String(row[14] || "").trim(),
+        pody: String(row[15] || "").trim(),
+        genre: String(row[16] || "").trim()
       };
 
       if (listenerPodcastPlatformRowComplete_(existing)) continue;
 
-      const resolved = resolveListenerPodcastPlatforms_(title, maker, existing.sourceUrl);
+      const resolved = resolveListenerPodcastPlatforms_(title, maker, existing.sourceUrl, existing.rss);
       if (!resolved) continue;
 
       const updates = [];
@@ -61,6 +65,10 @@ function syncListenerPodcastPlatforms() {
       queuePodcastCellUpdate_(updates, rowNumber, 11, existing.youtube, resolved.youtube);
       queuePodcastCellUpdate_(updates, rowNumber, 12, existing.website, resolved.website);
       queuePodcastCellUpdate_(updates, rowNumber, 13, existing.artwork, resolved.artwork);
+      queuePodcastCellUpdate_(updates, rowNumber, 14, existing.rss, resolved.rss);
+      queuePodcastCellUpdate_(updates, rowNumber, 15, existing.pocketcasts, resolved.pocketcasts);
+      queuePodcastCellUpdate_(updates, rowNumber, 16, existing.pody, resolved.pody);
+      queuePodcastCellUpdate_(updates, rowNumber, 17, existing.genre, resolved.genre);
 
       if (!updates.length) continue;
 
@@ -97,7 +105,10 @@ function listenerPodcastPlatformRowComplete_(existing) {
     existing.amazon &&
     existing.youtube &&
     existing.website &&
-    existing.artwork
+    existing.artwork &&
+    existing.rss &&
+    existing.pocketcasts &&
+    existing.genre
   );
 }
 
@@ -105,40 +116,75 @@ function queuePodcastCellUpdate_(updates, row, column, currentValue, candidateVa
   const current = String(currentValue || "").trim();
   const candidate = String(candidateValue || "").trim();
 
-  if (!current && /^https?:\/\//i.test(candidate)) {
+  if (!current && candidate) {
     updates.push({ row: row, column: column, value: candidate });
   }
 }
 
-function resolveListenerPodcastPlatforms_(title, maker, sourceUrl) {
+function resolveListenerPodcastPlatforms_(title, maker, sourceUrl, explicitRss) {
   const resolved = {
     spotify: "",
     apple: "",
+    pocketcasts: "",
     listen: "",
     standfm: "",
     amazon: "",
     youtube: "",
+    pody: "",
     website: "",
-    artwork: ""
+    artwork: "",
+    rss: "",
+    genre: ""
   };
 
   applyKnownPodcastUrl_(resolved, sourceUrl);
 
+  const manualRss = String(explicitRss || "").trim();
+  if (/^https?:\/\//i.test(manualRss)) {
+    resolved.rss = manualRss;
+  }
+
+  const listenSlug = String(sourceUrl || "").match(/^https?:\/\/listen\.style\/p\/([^/?#]+)/i);
+  if (!resolved.rss && listenSlug && listenSlug[1]) {
+    resolved.rss = "https://rss.listen.style/p/" + listenSlug[1] + "/rss";
+  }
+
   const apple = findExactApplePodcast_(title, maker);
   if (!apple) {
+    if (resolved.rss) {
+      const rssLinks = readPodcastFeedLinks_(resolved.rss);
+      rssLinks.forEach(function(url) {
+        applyKnownPodcastUrl_(resolved, url);
+      });
+      if (isSafePublicPodcastRss_(resolved.rss)) {
+        resolved.pocketcasts = pocketCastsFollowUrl_(resolved.rss);
+      }
+      const rssMeta = readPodcastFeedMetadata_(resolved.rss);
+      if (rssMeta) {
+        if (!resolved.artwork) resolved.artwork = rssMeta.artwork || "";
+        if (!resolved.genre) resolved.genre = rssMeta.genre || "";
+      }
+    }
     return resolved;
   }
 
   resolved.apple = String(apple.collectionViewUrl || apple.trackViewUrl || "").trim();
   resolved.artwork = String(apple.artworkUrl600 || apple.artworkUrl100 || "").trim();
+  resolved.genre = normalizePodcastGenre_(
+    Array.isArray(apple.genres) ? apple.genres : [],
+    apple.primaryGenreName || ""
+  );
 
-  const feedUrl = String(apple.feedUrl || "").trim();
+  const feedUrl = String(apple.feedUrl || resolved.rss || "").trim();
   if (feedUrl) {
-    applyKnownPodcastUrl_(resolved, feedUrl);
+    resolved.rss = feedUrl;
     const rssLinks = readPodcastFeedLinks_(feedUrl);
     rssLinks.forEach(function(url) {
       applyKnownPodcastUrl_(resolved, url);
     });
+    if (isSafePublicPodcastRss_(feedUrl)) {
+      resolved.pocketcasts = pocketCastsFollowUrl_(feedUrl);
+    }
   }
 
   return resolved;
@@ -254,6 +300,16 @@ function applyKnownPodcastUrl_(resolved, value) {
     return;
   }
 
+  if (/pocketcasts\.com\//i.test(url)) {
+    resolved.pocketcasts = resolved.pocketcasts || canonicalPodcastUrl_(url);
+    return;
+  }
+
+  if (/pody\.jp\//i.test(url)) {
+    resolved.pody = resolved.pody || canonicalPodcastUrl_(url);
+    return;
+  }
+
   if (!/itunes\.apple\.com|spotify\.com|googleusercontent\.com|google\.com/i.test(url)) {
     resolved.website = resolved.website || canonicalPodcastUrl_(url);
   }
@@ -268,5 +324,61 @@ function canonicalPodcastUrl_(value) {
     return parsed.toString();
   } catch (_) {
     return url;
+  }
+}
+
+
+function pocketCastsFollowUrl_(feedUrl) {
+  const rss = String(feedUrl || "").trim();
+  return rss ? "https://pocketcasts.com/follow/" + encodeURIComponent(rss) : "";
+}
+
+function isSafePublicPodcastRss_(feedUrl) {
+  const value = String(feedUrl || "").trim();
+  if (!/^https?:\/\//i.test(value)) return false;
+  try {
+    const parsed = new URL(value);
+    if (parsed.username || parsed.password) return false;
+    const sensitive = ["token", "auth", "key", "signature", "sig", "access_token"];
+    for (let i = 0; i < sensitive.length; i++) {
+      if (parsed.searchParams.has(sensitive[i])) return false;
+    }
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+function readPodcastFeedMetadata_(feedUrl) {
+  try {
+    const response = UrlFetchApp.fetch(String(feedUrl || ""), {
+      muteHttpExceptions: true,
+      followRedirects: true
+    });
+    if (response.getResponseCode() < 200 || response.getResponseCode() >= 300) return null;
+
+    const document = XmlService.parse(response.getContentText());
+    const root = document.getRootElement();
+    const channel = root.getChild("channel");
+    if (!channel) return null;
+
+    const itunes = XmlService.getNamespace("itunes", "http://www.itunes.com/dtds/podcast-1.0.dtd");
+    const author = channel.getChildText("author", itunes) || "";
+    const imageNode = channel.getChild("image", itunes);
+    const imageAttr = imageNode && imageNode.getAttribute("href");
+    const artwork = imageAttr ? imageAttr.getValue() : "";
+    const categories = channel.getChildren("category", itunes).map(function(node) {
+      const attr = node.getAttribute("text");
+      return attr ? attr.getValue() : "";
+    }).filter(Boolean);
+
+    return {
+      title: String(channel.getChildText("title") || "").trim(),
+      maker: String(author || "").trim(),
+      artwork: String(artwork || "").trim(),
+      genre: normalizePodcastGenre_(categories, categories[0] || "")
+    };
+  } catch (_) {
+    return null;
   }
 }
