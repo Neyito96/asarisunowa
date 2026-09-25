@@ -10,6 +10,7 @@ function getPostTargetSheet_(kind, workSheet, podcastSheet, listenerPodcastSheet
 
 function appendPostRow_(targetSheet, kind, url, title, maker, host, rss, introducedDate, comment, artwork, inviteUrl) {
   if (kind === "listenerPodcast") {
+    ensurePodcastMetadataHeaders_(targetSheet, kind);
     // 投稿された1本のURLを起点に、既存の安全な補完処理を使って
     // 確認できた配信先だけ保存する。補完に失敗しても投稿自体は継続する。
     let platforms = null;
@@ -60,6 +61,7 @@ function appendPostRow_(targetSheet, kind, url, title, maker, host, rss, introdu
   }
 
   if (kind === "podcast") {
+    ensurePodcastMetadataHeaders_(targetSheet, kind);
     let platforms = null;
     try {
       platforms = resolveListenerPodcastPlatforms_(title, host, url, rss);
@@ -116,4 +118,53 @@ function appendPostRow_(targetSheet, kind, url, title, maker, host, rss, introdu
   ]]);
   targetSheet.getRange(row, 7).setValue("要確認");
   targetSheet.getRange(row, 8).setValue(new Date());
+}
+
+
+function ensurePodcastMetadataHeaders_(sheet, kind) {
+  if (!sheet) return;
+
+  if (kind === "podcast") {
+    const headers = [
+      "配信者 / Host",
+      "RSS",
+      "YouTube",
+      "Spotify",
+      "Amazon Music",
+      "Apple Podcasts",
+      "Pocket Casts",
+      "LISTEN",
+      "stand.fm",
+      "Pody",
+      "番組HP",
+      "ジャンル"
+    ];
+    const range = sheet.getRange(1, 7, 1, headers.length);
+    const current = range.getDisplayValues()[0];
+    const next = current.slice();
+    let changed = false;
+    for (let i = 0; i < headers.length; i++) {
+      if (!String(next[i] || "").trim()) {
+        next[i] = headers[i];
+        changed = true;
+      }
+    }
+    if (changed) range.setValues([next]);
+    return;
+  }
+
+  if (kind === "listenerPodcast") {
+    const headers = ["RSS", "Pocket Casts", "Pody", "ジャンル"];
+    const range = sheet.getRange(1, 14, 1, headers.length);
+    const current = range.getDisplayValues()[0];
+    const next = current.slice();
+    let changed = false;
+    for (let i = 0; i < headers.length; i++) {
+      if (!String(next[i] || "").trim()) {
+        next[i] = headers[i];
+        changed = true;
+      }
+    }
+    if (changed) range.setValues([next]);
+  }
 }
