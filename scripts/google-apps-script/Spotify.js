@@ -32,6 +32,11 @@ function getSpotifyAccessToken() {
   }
 
   try {
+    const basic =
+      Utilities.base64Encode(
+        clientId + ":" + clientSecret
+      );
+
     const res =
       UrlFetchApp.fetch(
         "https://accounts.spotify.com/api/token",
@@ -40,13 +45,15 @@ function getSpotifyAccessToken() {
           muteHttpExceptions: true,
           contentType:
             "application/x-www-form-urlencoded",
+          headers: {
+            Authorization:
+              "Basic " + basic,
+            Accept:
+              "application/json"
+          },
           payload: {
             grant_type:
-              "client_credentials",
-            client_id:
-              clientId,
-            client_secret:
-              clientSecret
+              "client_credentials"
           }
         }
       );
