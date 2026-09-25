@@ -20,6 +20,30 @@ function resolveSpotifyEpisode(cleanUrl) {
   let artwork = "";
   let showUrl = "";
 
+  // 0) Spotify公式Web APIから所属番組を取得する。
+  const officialEpisode =
+    typeof fetchSpotifyEpisodeFromWebApi === "function"
+      ? fetchSpotifyEpisodeFromWebApi(episodeId)
+      : null;
+
+  if (officialEpisode && officialEpisode.showId) {
+    episodeTitle = String(officialEpisode.episodeTitle || "").trim();
+    showTitle = String(officialEpisode.title || "").trim();
+    artwork = String(officialEpisode.artwork || "").trim();
+    showUrl = "https://open.spotify.com/show/" + String(officialEpisode.showId);
+
+    const show = resolveSpotifyShow(showUrl);
+    if (show && show.title) {
+      return {
+        title: show.title,
+        maker: show.maker || "",
+        artwork: show.artwork || artwork,
+        showUrl: showUrl,
+        episodeTitle: episodeTitle
+      };
+    }
+  }
+
   // 1) oEmbed
   const data =
     fetchSpotifyJson(
