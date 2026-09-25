@@ -2318,6 +2318,41 @@ footer {
   gap:.45rem;
   margin-top:.55rem;
 }
+.compactPlatformLinks{
+  align-items:center;
+  gap:.4rem;
+}
+.platformIconLink{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:2rem;
+  height:2rem;
+  padding:0 .48rem;
+  border:1px solid rgba(91,65,43,.16);
+  border-radius:999px;
+  background:rgba(255,255,255,.78);
+  color:var(--ink);
+  font-size:.72rem;
+  font-weight:900;
+  line-height:1;
+  text-decoration:none;
+}
+.platformIconLink:hover{
+  transform:translateY(-1px);
+  background:#fff;
+}
+.podcastGenreTag{
+  display:inline-flex;
+  width:max-content;
+  margin:.1rem 0 .35rem;
+  padding:.22rem .55rem;
+  border-radius:999px;
+  background:rgba(85,135,107,.10);
+  color:#506b5a;
+  font-size:.72rem;
+  font-weight:800;
+}
 .podcastCover img{
   width:100%;
   height:100%;
