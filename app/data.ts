@@ -25,7 +25,7 @@ const rows:[string,string,string|null,string|null][] = [
     "#ふな 冨名腰隆　旧【報談】",
     "ふね",
     "https://open.spotify.com/playlist/48tpuTjiqGdJrvkX8R1OkI",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e"
   ],
   [
     "議員になんでも聞いてみよう　秋山訓子の政治家インタビュー",
@@ -88,7 +88,7 @@ const rows:[string,string,string|null,string|null][] = [
     null
   ],
   [
-    "太田匡彦",
+    "太田匡彦 出演回",
     "リース",
     "https://open.spotify.com/playlist/7jLXrZ0JUNOnsSeFEFbw9S",
     "https://mosaic.scdn.co/300/ab67656300005f1f12014dede1a47ec9634fed5eab67656300005f1fa84ca60b309ac25e44a360d4ab67656300005f1fe726263e3e1ab32964dd86b3ab67656300005f1ff90fd9b9f6a56a9491ab6a00"
@@ -211,7 +211,7 @@ const rows:[string,string,string|null,string|null][] = [
     "メディアを語る　伊藤大地x奥山晶二郎x神田大介",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/2lA13BSsvyLjq9iPFa6oDo",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84996d7c4cc61163a9b6ed71d9"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84996d7c4cc61163a9b6ed71d9"
   ],
   [
     "朝ポキ制作会議！　皆さんもご参加ください",
@@ -271,7 +271,7 @@ const rows:[string,string,string|null,string|null][] = [
     "「MEDIA TALK」 2023厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/6Q0iXwuC9PuLV3cqg11Dmt",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938"
   ],
   [
     "楽屋裏2023　厳選エピソード",
@@ -406,7 +406,7 @@ const rows:[string,string,string|null,string|null][] = [
     null
   ],
   [
-    "佐藤陽 記者が出演した番組",
+    "佐藤陽 出演回",
     "アミーゴ",
     "https://open.spotify.com/playlist/73ppqrTcsjVgl1xwIZa4SY",
     "https://mosaic.scdn.co/300/ab67656300005f1f02f50cdd722327142f66a691ab67656300005f1f27371eef7ab4c7f56a764aa5ab67656300005f1f2a63027fedca396f67dc181cab67656300005f1fad23c0bcf15f7fee6b04142d"
@@ -428,6 +428,12 @@ const rows:[string,string,string|null,string|null][] = [
     "マリオ",
     "https://open.spotify.com/playlist/2Org6cCBgVas4d9OwzzxAv",
     "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37"
+  ],
+  [
+    "寺下真理加　出演回",
+    "招き猫",
+    "https://open.spotify.com/playlist/1qhNqjSTfwvJP3cQaXg9bn",
+    "https://i.scdn.co/image/ab67656300005f1fb9700620d31b12d2abe26946"
   ]
 ];
 export const playlists:Playlist[] = rows.map((r,i)=>({id:String(i+1),title:r[0],maker:r[1],url:r[2],artwork:r[3]}));
