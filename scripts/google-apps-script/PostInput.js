@@ -14,6 +14,7 @@ function parsePostInput_(e) {
     url: url,
     title: String(data.title || "").trim(),
     maker: String(data.maker || "").trim(),
+    host: String(data.host || "").trim(),
     inviteUrl: String(data.inviteUrl || "").trim(),
     comment: String(data.comment || "").trim(),
     introducedDate: String(data.introducedDate || "").trim(),
