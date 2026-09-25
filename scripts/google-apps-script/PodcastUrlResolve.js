@@ -321,8 +321,11 @@ function resolvePodcastUrl(url) {
       url:
         resolvedUrl,
       upgradedFromEpisode:
-        /^https:\/\/open\.spotify\.com\/episode\//i.test(cleanUrl) &&
-        resolvedUrl !== cleanUrl
+        resolvedUrl !== cleanUrl &&
+        (
+          /^https:\/\/open\.spotify\.com\/episode\//i.test(cleanUrl) ||
+          /^https:\/\/listen\.style\/p\/[^/?#]+\/[^/?#]+/i.test(cleanUrl)
+        )
     };
 
   } catch (error) {
