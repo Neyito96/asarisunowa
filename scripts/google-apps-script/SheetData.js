@@ -69,6 +69,11 @@ function findPodcastDuplicate(sheet, url, title) {
             values[i][2] || ""
           ).trim(),
 
+        host:
+          String(
+            values[i][6] || ""
+          ).trim(),
+
         urlMatch:
           urlMatch,
 
@@ -267,7 +272,7 @@ function readPodcastSheet(sheet) {
         2,
         1,
         lastRow - 1,
-        6
+        7
       )
       .getDisplayValues();
 
@@ -293,7 +298,9 @@ function readPodcastSheet(sheet) {
           comment:
             r[4] || "",
           artwork:
-            r[5] || ""
+            r[5] || "",
+          host:
+            r[6] || ""
         })
       );
 
