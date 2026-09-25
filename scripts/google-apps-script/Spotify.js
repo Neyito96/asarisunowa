@@ -104,6 +104,45 @@ function getSpotifyAccessToken() {
     return "";
   }
 }
+function fetchSpotifyEpisodeFromWebApi(episodeId) {
+  const id = String(episodeId || "").trim();
+  if (!id) return null;
+
+  const token = getSpotifyAccessToken();
+  if (!token) return null;
+
+  try {
+    const res = UrlFetchApp.fetch(
+      "https://api.spotify.com/v1/episodes/" + encodeURIComponent(id) + "?market=JP",
+      {
+        muteHttpExceptions: true,
+        headers: {
+          Authorization: "Bearer " + token,
+          Accept: "application/json"
+        }
+      }
+    );
+
+    if (res.getResponseCode() < 200 || res.getResponseCode() >= 300) {
+      return null;
+    }
+
+    const data = JSON.parse(res.getContentText());
+    const show = data && data.show ? data.show : null;
+    if (!show || !show.id || !show.name) return null;
+
+    const images = Array.isArray(show.images) ? show.images : [];
+    return {
+      episodeTitle: String(data.name || "").trim(),
+      showId: String(show.id || "").trim(),
+      title: String(show.name || "").trim(),
+      artwork: images.length ? String(images[0].url || "").trim() : ""
+    };
+  } catch (_) {
+    return null;
+  }
+}
+
 function fetchSpotifyShowFromWebApi(showId) {
   const id =
     String(showId || "").trim();
