@@ -152,7 +152,18 @@ function findPodcastMetadataByTitle(title) {
               item.artworkUrl600 ||
               item.artworkUrl100 ||
               ""
-            ).trim()
+            ).trim(),
+          feedUrl:
+            String(item.feedUrl || "").trim(),
+          appleUrl:
+            String(item.collectionViewUrl || item.trackViewUrl || "").trim(),
+          rawGenre:
+            String(item.primaryGenreName || "").trim(),
+          genre:
+            normalizePodcastGenre_(
+              Array.isArray(item.genres) ? item.genres : [],
+              item.primaryGenreName || ""
+            )
         };
       }
     }
@@ -244,4 +255,28 @@ function findPodcastArtworkByTitle(title) {
   } catch (_) {
     return "";
   }
+}
+
+
+function normalizePodcastGenre_(genres, primaryGenreName) {
+  const values = []
+    .concat(Array.isArray(genres) ? genres : [])
+    .concat([primaryGenreName || ""])
+    .map(function(value) { return String(value || "").toLowerCase(); });
+
+  const has = function(pattern) {
+    return values.some(function(value) { return pattern.test(value); });
+  };
+
+  if (has(/news|daily news|news commentary/)) return "ニュース・時事";
+  if (has(/government|politic/)) return "政治";
+  if (has(/history/)) return "歴史";
+  if (has(/education|courses|how to/)) return "教育";
+  if (has(/health|fitness|medicine|mental health|nutrition/)) return "福祉・医療";
+  if (has(/tv|film|music/)) return "映画・音楽";
+  if (has(/sports/)) return "スポーツ";
+  if (has(/leisure|hobbies|home|garden|food|games/)) return "趣味・暮らし";
+  if (has(/comedy/)) return "雑談・トーク";
+  if (has(/society|culture|personal journals|documentary|relationships/)) return "社会・文化";
+  return "その他";
 }
