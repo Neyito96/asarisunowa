@@ -104,6 +104,55 @@ function getSpotifyAccessToken() {
     return "";
   }
 }
+function findSpotifyShowByTitle_(title) {
+  const term = String(title || "").trim();
+  if (!term) return null;
+
+  const token = getSpotifyAccessToken();
+  if (!token) return null;
+
+  try {
+    const res = UrlFetchApp.fetch(
+      "https://api.spotify.com/v1/search?q=" +
+        encodeURIComponent(term) +
+        "&type=show&market=JP&limit=10",
+      {
+        muteHttpExceptions: true,
+        headers: {
+          Authorization: "Bearer " + token,
+          Accept: "application/json"
+        }
+      }
+    );
+
+    if (res.getResponseCode() < 200 || res.getResponseCode() >= 300) {
+      return null;
+    }
+
+    const data = JSON.parse(res.getContentText());
+    const items =
+      data && data.shows && Array.isArray(data.shows.items)
+        ? data.shows.items
+        : [];
+    const wanted = normalizeTitle(term);
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (normalizeTitle(item && item.name ? item.name : "") !== wanted) continue;
+      const external =
+        item && item.external_urls && item.external_urls.spotify
+          ? String(item.external_urls.spotify)
+          : "";
+      if (external) return external;
+      if (item && item.id) return "https://open.spotify.com/show/" + String(item.id);
+    }
+  } catch (_) {
+    return null;
+  }
+
+  return null;
+}
+
 function fetchSpotifyEpisodeFromWebApi(episodeId) {
   const id = String(episodeId || "").trim();
   if (!id) return null;
