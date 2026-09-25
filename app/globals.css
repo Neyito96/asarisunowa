@@ -1050,11 +1050,23 @@ header::after {
 }
 .serviceLinks a {
   display: inline-flex;
+  align-items: center;
+  gap: 6px;
   border: 1px solid #83c8d5;
   border-radius: 999px;
   padding: 7px 10px;
   text-decoration: none;
   color: #0c6578;
+}
+.serviceLinks .platformBrandIcon{
+  width:1rem;
+  height:1rem;
+  flex-basis:1rem;
+}
+.serviceLinkArrow{
+  margin-left:1px;
+  opacity:.72;
+  font-size:.9em;
 }
 .discordSub {
   display: inline-flex;
@@ -2326,22 +2338,45 @@ footer {
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  min-width:2rem;
-  height:2rem;
-  padding:0 .48rem;
+  width:2.1rem;
+  min-width:2.1rem;
+  height:2.1rem;
+  padding:0;
   border:1px solid rgba(91,65,43,.16);
   border-radius:999px;
-  background:rgba(255,255,255,.78);
+  background:rgba(255,255,255,.86);
   color:var(--ink);
-  font-size:.72rem;
-  font-weight:900;
   line-height:1;
   text-decoration:none;
+  transition:.16s ease;
 }
 .platformIconLink:hover{
   transform:translateY(-1px);
   background:#fff;
+  box-shadow:0 4px 12px rgba(17,65,76,.10);
 }
+.platformBrandIcon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:1.08rem;
+  height:1.08rem;
+  flex:0 0 1.08rem;
+  color:#426a74;
+}
+.platformBrandIcon svg{
+  display:block;
+  width:100%;
+  height:100%;
+}
+.platformBrandIcon--youtube{color:#ff0033}
+.platformBrandIcon--spotify{color:#1db954}
+.platformBrandIcon--amazonmusic{color:#00a8e1}
+.platformBrandIcon--applepodcasts{color:#8f54d8}
+.platformBrandIcon--pocketcasts{color:#f43e37}
+.platformBrandIcon--listen{color:#21897e}
+.platformBrandIcon--standfm{color:#e99c28}
+.platformBrandIcon--pody{color:#d45078}
 .podcastGenreTag{
   display:inline-flex;
   width:max-content;
