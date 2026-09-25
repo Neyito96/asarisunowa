@@ -17,6 +17,10 @@ function syncListenerPodcastPlatforms() {
       throw new Error("朝リスPodcastシートが見つかりません");
     }
 
+    if (typeof ensurePodcastMetadataHeaders_ === "function") {
+      ensurePodcastMetadataHeaders_(sheet, "listenerPodcast");
+    }
+
     const lastRow = sheet.getLastRow();
     if (lastRow < 2) {
       return { checked: 0, updatedRows: 0, updatedCells: 0 };
@@ -106,6 +110,10 @@ function syncRecommendedPodcastPlatforms() {
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = getSheetLoose(ss, PODCAST_SHEET_NAME);
     if (!sheet) throw new Error("おすすめPodcastシートが見つかりません");
+
+    if (typeof ensurePodcastMetadataHeaders_ === "function") {
+      ensurePodcastMetadataHeaders_(sheet, "podcast");
+    }
 
     const lastRow = sheet.getLastRow();
     if (lastRow < 2) {
