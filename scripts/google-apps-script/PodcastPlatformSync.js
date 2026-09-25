@@ -96,6 +96,100 @@ function syncListenerPodcastPlatforms() {
   }
 }
 
+function syncRecommendedPodcastPlatforms() {
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) {
+    throw new Error("おすすめPodcast配信先同期を開始できませんでした。少し待って再実行してください。");
+  }
+
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = getSheetLoose(ss, PODCAST_SHEET_NAME);
+    if (!sheet) throw new Error("おすすめPodcastシートが見つかりません");
+
+    const lastRow = sheet.getLastRow();
+    if (lastRow < 2) {
+      return { checked: 0, updatedRows: 0, updatedCells: 0 };
+    }
+
+    const values = sheet.getRange(2, 1, lastRow - 1, 18).getDisplayValues();
+    let updatedRows = 0;
+    let updatedCells = 0;
+
+    for (let i = 0; i < values.length; i++) {
+      const rowNumber = i + 2;
+      const row = values[i];
+      const sourceUrl = String(row[0] || "").trim();
+      const title = String(row[1] || "").trim();
+      if (!title) continue;
+
+      let host = String(row[6] || "").trim();
+      let rss = String(row[7] || "").trim();
+      let artwork = String(row[5] || "").trim();
+      let genre = String(row[17] || "").trim();
+
+      let identity = null;
+      try {
+        identity = resolvePodcastUrl(sourceUrl);
+      } catch (_) {
+        identity = null;
+      }
+
+      if (identity && identity.ok) {
+        if (!host) host = String(identity.maker || "").trim();
+        if (!rss) rss = String(identity.rss || "").trim();
+        if (!artwork) artwork = String(identity.artwork || "").trim();
+        if (!genre) genre = String(identity.genre || "").trim();
+      }
+
+      const resolved = resolveListenerPodcastPlatforms_(title, host, sourceUrl, rss);
+      const updates = [];
+
+      queuePodcastCellUpdate_(updates, rowNumber, 6, row[5], artwork || resolved.artwork);
+      queuePodcastCellUpdate_(updates, rowNumber, 7, row[6], host);
+      queuePodcastCellUpdate_(updates, rowNumber, 8, row[7], rss || resolved.rss);
+      queuePodcastCellUpdate_(updates, rowNumber, 9, row[8], resolved.youtube);
+      queuePodcastCellUpdate_(updates, rowNumber, 10, row[9], resolved.spotify);
+      queuePodcastCellUpdate_(updates, rowNumber, 11, row[10], resolved.amazon);
+      queuePodcastCellUpdate_(updates, rowNumber, 12, row[11], resolved.apple);
+      queuePodcastCellUpdate_(updates, rowNumber, 13, row[12], resolved.pocketcasts);
+      queuePodcastCellUpdate_(updates, rowNumber, 14, row[13], resolved.listen);
+      queuePodcastCellUpdate_(updates, rowNumber, 15, row[14], resolved.standfm);
+      queuePodcastCellUpdate_(updates, rowNumber, 16, row[15], resolved.pody);
+      queuePodcastCellUpdate_(updates, rowNumber, 17, row[16], resolved.website);
+      queuePodcastCellUpdate_(updates, rowNumber, 18, row[17], genre || resolved.genre);
+
+      if (!updates.length) continue;
+      updates.forEach(function(update) {
+        sheet.getRange(update.row, update.column).setValue(update.value);
+      });
+      updatedRows++;
+      updatedCells += updates.length;
+    }
+
+    console.log(
+      "おすすめPodcast配信先同期: checked=" + values.length +
+      " updatedRows=" + updatedRows +
+      " updatedCells=" + updatedCells
+    );
+
+    return {
+      checked: values.length,
+      updatedRows: updatedRows,
+      updatedCells: updatedCells
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function syncAllPodcastPlatforms() {
+  return {
+    listenerPodcasts: syncListenerPodcastPlatforms(),
+    recommendedPodcasts: syncRecommendedPodcastPlatforms()
+  };
+}
+
 function listenerPodcastPlatformRowComplete_(existing) {
   return !!(
     existing.spotify &&
