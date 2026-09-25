@@ -827,9 +827,10 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               links,
             } satisfies RecommendedPodcast;
           })
-          .filter((item) => item.title);
+          .filter((item) => item.title)
+          .reverse();
 
-        // Show text immediately, then fill artwork as each lookup completes.
+        // Show newest submitted podcasts first, then fill artwork as each lookup completes.
         if (!cancelled) setRecommendedPodcasts(base);
         await Promise.all(
           base.map(async (item) => {
