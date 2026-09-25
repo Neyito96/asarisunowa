@@ -2377,9 +2377,18 @@ footer {
 @media(max-width:780px){
   .listenerPodcastCard{
     grid-template-columns:156px 1fr;
+    align-items:start;
   }
   .listenerPodcastCard .podcastCover{
-    min-height:230px;
+    width:156px;
+    height:156px;
+    min-height:156px;
+    aspect-ratio:1 / 1;
+  }
+  .listenerPodcastCard .podcastCover img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
   }
 }
 .platformBrandIcon{
