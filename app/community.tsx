@@ -885,7 +885,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         if (resolveKind === "podcast") {
           setResolvedHost(value);
         } else {
-          applyResolvedMaker(value);
+          setSubmitMaker(value);
         }
       };
       const payload = await loadJsonp<{
@@ -1074,7 +1074,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         setSubmitTitle("");
         applyResolvedMaker("");
         setResolvedArtwork(null);
-      setResolvedHost("");
+        setResolvedHost("");
         setResolveStatus("error");
         setResolveMessage(
           "Spotifyがエピソード名を返しました。番組名としては採用しません。Spotify番組URL（/show/）またはApple Podcasts URLで試してください。"
