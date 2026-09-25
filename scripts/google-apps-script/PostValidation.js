@@ -6,6 +6,7 @@ function validatePostInputLengths_(values) {
     title: 200,
     maker: 100,
     host: 100,
+    rss: 2048,
     comment: 2000,
     introducedDate: 32,
     artwork: 2048,
@@ -23,6 +24,7 @@ function validatePostInputLengths_(values) {
     title: "タイトル",
     maker: "作成者",
     host: "配信者 / Host",
+    rss: "RSS",
     comment: "コメント",
     introducedDate: "紹介日",
     artwork: "画像URL",
@@ -145,7 +147,9 @@ function validatePostTargetUrl_(kind, url) {
     /^https:\/\/pca\.st\//i.test(url) ||
     /^https:\/\/pocketcasts\.com\//i.test(url) ||
     /^https:\/\/(www\.)?youtube\.com\//i.test(url) ||
-    /^https:\/\/youtu\.be\//i.test(url);
+    /^https:\/\/youtu\.be\//i.test(url) ||
+    /^https?:\/\/[^\s]+\/(?:rss|feed)(?:[/?#]|$)/i.test(url) ||
+    /^https?:\/\/[^\s]+\.(?:rss|xml)(?:[?#]|$)/i.test(url);
 
   if (kind === "playlist" && !isPlaylistUrl) {
     return "朝リストにはSpotifyまたはYouTube MusicのプレイリストURLを入力してください";
