@@ -99,7 +99,11 @@ function handlePodcastResolve_(e, callback) {
         resolved.duplicate = false;
       }
     } else {
-      const duplicate = findPodcastDuplicate(targetSheet, url, resolved.title || "");
+      const duplicate = findPodcastDuplicate(
+        targetSheet,
+        String(resolved.url || url),
+        resolved.title || ""
+      );
       if (duplicate) {
         resolved.duplicate = true;
         resolved.duplicateId = duplicate.id;
@@ -110,6 +114,9 @@ function handlePodcastResolve_(e, callback) {
     }
   }
 
-  if (resolved && resolved.ok) resolved.url = url;
+  if (resolved && resolved.ok) {
+    resolved.inputUrl = url;
+    if (!resolved.url) resolved.url = url;
+  }
   return apiResponse(resolved, callback);
 }
