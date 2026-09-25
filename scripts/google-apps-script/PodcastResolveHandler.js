@@ -53,7 +53,7 @@ function handlePodcastResolve_(e, callback) {
     return apiResponse({
       ok: true,
       title: known.title,
-      maker: known.maker || "",
+      maker: kind === "podcast" ? (known.host || "") : (known.maker || ""),
       artwork: "",
       provider: detectProvider(url),
       duplicate: true,
