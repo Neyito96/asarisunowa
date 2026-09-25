@@ -8,13 +8,13 @@ function getPostTargetSheet_(kind, workSheet, podcastSheet, listenerPodcastSheet
     : workSheet;
 }
 
-function appendPostRow_(targetSheet, kind, url, title, maker, host, introducedDate, comment, artwork, inviteUrl) {
+function appendPostRow_(targetSheet, kind, url, title, maker, host, rss, introducedDate, comment, artwork, inviteUrl) {
   if (kind === "listenerPodcast") {
     // 投稿された1本のURLを起点に、既存の安全な補完処理を使って
     // 確認できた配信先だけ保存する。補完に失敗しても投稿自体は継続する。
     let platforms = null;
     try {
-      platforms = resolveListenerPodcastPlatforms_(title, maker, url);
+      platforms = resolveListenerPodcastPlatforms_(title, maker, url, rss);
     } catch (_) {
       platforms = null;
     }
@@ -27,7 +27,11 @@ function appendPostRow_(targetSheet, kind, url, title, maker, host, introducedDa
       amazon: "",
       youtube: "",
       website: "",
-      artwork: ""
+      artwork: "",
+      rss: "",
+      pocketcasts: "",
+      pody: "",
+      genre: ""
     };
 
     // 入力URLは必ず既知URLとして反映する。
@@ -46,20 +50,57 @@ function appendPostRow_(targetSheet, kind, url, title, maker, host, introducedDa
       resolved.amazon || "",
       resolved.youtube || "",
       resolved.website || "",
-      resolved.artwork || artwork || ""
+      resolved.artwork || artwork || "",
+      resolved.rss || rss || "",
+      resolved.pocketcasts || "",
+      resolved.pody || "",
+      resolved.genre || ""
     ]);
     return;
   }
 
   if (kind === "podcast") {
+    let platforms = null;
+    try {
+      platforms = resolveListenerPodcastPlatforms_(title, host, url, rss);
+    } catch (_) {
+      platforms = null;
+    }
+
+    const resolved = platforms || {
+      youtube: "",
+      spotify: "",
+      amazon: "",
+      apple: "",
+      pocketcasts: "",
+      listen: "",
+      standfm: "",
+      pody: "",
+      website: "",
+      artwork: "",
+      rss: "",
+      genre: ""
+    };
+
     targetSheet.appendRow([
       url,
       title,
       maker,
       new Date(),
       comment,
-      artwork || "",
-      host || ""
+      resolved.artwork || artwork || "",
+      host || "",
+      resolved.rss || rss || "",
+      resolved.youtube || "",
+      resolved.spotify || "",
+      resolved.amazon || "",
+      resolved.apple || "",
+      resolved.pocketcasts || "",
+      resolved.listen || "",
+      resolved.standfm || "",
+      resolved.pody || "",
+      resolved.website || "",
+      resolved.genre || ""
     ]);
     return;
   }
