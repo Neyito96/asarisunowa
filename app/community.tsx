@@ -316,7 +316,7 @@ function normalizeUrl(value: string) {
 
 function podcastProviderLabel(url: string) {
   if (/spotify\.com/i.test(url)) return "Spotify";
-  if (/podcasts\.apple\.com/i.test(url)) return "Apple";
+  if (/podcasts\.apple\.com/i.test(url)) return "Apple Podcasts";
   if (/listen\.style/i.test(url)) return "LISTEN";
   if (/stand\.fm/i.test(url)) return "stand.fm";
   if (/amazon\./i.test(url)) return "Amazon Music";
