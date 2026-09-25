@@ -142,6 +142,25 @@ function resolveSpotifyEpisode(cleanUrl) {
     }
   }
 
+  // Spotify側から所属番組が取れない場合は、取得できたエピソード名を
+  // Apple Podcastsのエピソード検索に渡して番組へ戻す。
+  if (!showTitle && episodeTitle) {
+    const appleEpisode =
+      typeof findPodcastByEpisodeTitle === "function"
+        ? findPodcastByEpisodeTitle(episodeTitle)
+        : null;
+
+    if (appleEpisode && appleEpisode.title) {
+      showTitle = String(appleEpisode.title || "").trim();
+      if (!maker) {
+        maker = String(appleEpisode.maker || "").trim();
+      }
+      if (!artwork) {
+        artwork = String(appleEpisode.artwork || "").trim();
+      }
+    }
+  }
+
   showTitle =
     cleanupTitle(
       decodeHtml(showTitle)
