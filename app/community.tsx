@@ -1922,12 +1922,12 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   />
                 </label>
                 <label>
-                  <span>朝リスネーム</span>
+                  <span>配信者 / Host</span>
                   <input
                     type="text"
                     value={submitMaker}
                     onChange={(e) => setSubmitMaker(e.target.value)}
-                    placeholder="お名前・ハンドルネーム"
+                    placeholder="配信者名・Host名"
                     maxLength={80}
                     required
                   />
