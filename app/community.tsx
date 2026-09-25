@@ -82,11 +82,13 @@ const PODCAST_PLATFORM_MARK: Record<string, string> = {
 };
 
 function sortPodcastLinks(links: PodcastPlatformLink[]) {
-  const rank = new Map(PODCAST_PLATFORM_ORDER.map((label, index) => [label, index]));
-  return [...links].sort(
-    (a, b) => (rank.get(a.label as typeof PODCAST_PLATFORM_ORDER[number]) ?? 99) -
-      (rank.get(b.label as typeof PODCAST_PLATFORM_ORDER[number]) ?? 99)
-  );
+  const rank = (label: string) => {
+    const index = PODCAST_PLATFORM_ORDER.indexOf(
+      label as typeof PODCAST_PLATFORM_ORDER[number]
+    );
+    return index < 0 ? 99 : index;
+  };
+  return [...links].sort((a, b) => rank(a.label) - rank(b.label));
 }
 
 function platformMark(label: string) {
@@ -317,7 +319,9 @@ function podcastProviderLabel(url: string) {
   if (/podcasts\.apple\.com/i.test(url)) return "Apple";
   if (/listen\.style/i.test(url)) return "LISTEN";
   if (/stand\.fm/i.test(url)) return "stand.fm";
-  if (/amazon\./i.test(url)) return "Amazon";
+  if (/amazon\./i.test(url)) return "Amazon Music";
+  if (/pocketcasts\.com|pca\.st/i.test(url)) return "Pocket Casts";
+  if (/pody\.jp/i.test(url)) return "Pody";
   if (/youtube\.com|youtu\.be/i.test(url)) return "YouTube";
   return "番組HP";
 }
@@ -844,7 +848,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               title: String(source.title || "").trim(),
               maker: String(source.maker || "").trim(),
               introduced: String(source.introduced || "").trim().replace(/\//g, "."),
-              links,
+              links: sortPodcastLinks(links),
               artwork: String(source.artwork || "").trim() || null,
               comment: String(source.comment || "").trim(),
               genre: String(source.genre || "").trim(),
@@ -1911,6 +1915,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                       setResolveStatus("idle");
                       setResolveMessage("");
                       setResolvedDuplicate(false);
+                      setSubmitRss("");
                     }}
                     placeholder="Spotify / Apple / LISTEN / stand.fm / RSS など"
                     required
@@ -2022,6 +2027,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                       setResolveStatus("idle");
                       setResolveMessage("");
                       setResolvedHost("");
+                      setSubmitRss("");
                     }}
                     placeholder="Spotify / Apple / LISTEN / stand.fm / RSS など"
                     required
