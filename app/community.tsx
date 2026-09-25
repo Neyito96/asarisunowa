@@ -1945,7 +1945,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             )}
             <div className="grid podcastGrid">
               {(listenerPodcastSort === "new" ? [...liveListenerPodcasts].reverse() : liveListenerPodcasts).map((p) => (
-                <article className="card" key={"listener-podcast-" + p.id}>
+                <article className="card listenerPodcastCard" key={"listener-podcast-" + p.id}>
                   <div className="cover podcastCover">
                     {p.artwork ? <img src={p.artwork} alt={p.title + "のアートワーク"} loading="lazy" /> : <span>ASARISU<br />PODCAST</span>}
                   </div>
@@ -1965,11 +1965,22 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     {p.comment && <p className="podcastComment">💬 {p.comment}</p>}
                     {p.links.length > 0 ? (
                       <div className="platformLinks compactPlatformLinks">
-                        {sortPodcastLinks(p.links).map((link) => (
-                          <a className="platformIconLink" key={link.url} href={link.url} target="_blank" rel="noreferrer" title={link.label} aria-label={link.label}>
-                            <PlatformIcon label={link.label} />
-                          </a>
-                        ))}
+                        {sortPodcastLinks(p.links).map((link) => {
+                          const iconOnly = ["YouTube", "Spotify", "Apple Podcasts"].includes(link.label);
+                          return (
+                            <a
+                              className={iconOnly ? "platformIconLink" : "platformTextLink"}
+                              key={link.url}
+                              href={link.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              title={link.label}
+                              aria-label={link.label}
+                            >
+                              {iconOnly ? <PlatformIcon label={link.label} /> : link.label}
+                            </a>
+                          );
+                        })}
                       </div>
                     ) : <span className="listen disabled">配信先を確認中</span>}
                   </div>
