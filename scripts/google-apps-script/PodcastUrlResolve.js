@@ -6,6 +6,8 @@ function resolvePodcastUrl(url) {
     let title = "";
     let maker = "";
     let artwork = "";
+    let rss = "";
+    let genre = "";
     let provider =
       detectProvider(cleanUrl);
 
@@ -118,6 +120,12 @@ function resolvePodcastUrl(url) {
               ""
             ).trim();
 
+          rss = String(item.feedUrl || "").trim();
+          genre = normalizePodcastGenre_(
+            Array.isArray(item.genres) ? item.genres : [],
+            item.primaryGenreName || ""
+          );
+
           provider =
             "Apple Podcasts";
         }
@@ -152,6 +160,36 @@ function resolvePodcastUrl(url) {
           provider =
             "Apple Podcasts";
         }
+      }
+    }
+
+    // LISTEN番組ページは公開RSSへ変換して番組情報を取得する。
+    if (!title && /^https:\/\/listen\.style\/p\//i.test(cleanUrl)) {
+      const listenMatch = cleanUrl.match(/^https:\/\/listen\.style\/p\/([^/?#]+)/i);
+      if (listenMatch && listenMatch[1]) {
+        rss = "https://rss.listen.style/p/" + listenMatch[1] + "/rss";
+        const feedMeta = readPodcastFeedMetadata_(rss);
+        if (feedMeta && feedMeta.title) {
+          title = String(feedMeta.title || "").trim();
+          maker = String(feedMeta.maker || "").trim();
+          artwork = String(feedMeta.artwork || "").trim();
+          genre = String(feedMeta.genre || "").trim();
+          resolvedUrl = "https://listen.style/p/" + listenMatch[1];
+          provider = "LISTEN";
+        }
+      }
+    }
+
+    // RSS URLを直接入力した場合も番組情報へ解決する。
+    if (!title && looksLikePodcastRssUrl_(cleanUrl)) {
+      const feedMeta = readPodcastFeedMetadata_(cleanUrl);
+      if (feedMeta && feedMeta.title) {
+        title = String(feedMeta.title || "").trim();
+        maker = String(feedMeta.maker || "").trim();
+        artwork = String(feedMeta.artwork || "").trim();
+        genre = String(feedMeta.genre || "").trim();
+        rss = cleanUrl;
+        provider = "RSS";
       }
     }
 
@@ -232,7 +270,7 @@ function resolvePodcastUrl(url) {
 
     // Spotify等で番組名だけ取れた場合、Apple Podcastカタログを
     // 「完全一致」で照合し、配信者名・アートワークを補完する。
-    if (title && (!maker || !artwork)) {
+    if (title) {
       const appleMeta =
         findPodcastMetadataByTitle(title);
 
@@ -244,6 +282,14 @@ function resolvePodcastUrl(url) {
         if (!artwork) {
           artwork =
             String(appleMeta.artwork || "").trim();
+        }
+        if (!rss) {
+          rss =
+            String(appleMeta.feedUrl || "").trim();
+        }
+        if (!genre) {
+          genre =
+            String(appleMeta.genre || "").trim();
         }
       }
     }
@@ -266,10 +312,17 @@ function resolvePodcastUrl(url) {
         maker,
       artwork:
         artwork,
+      rss:
+        rss,
+      genre:
+        genre,
       provider:
         provider,
       url:
-        resolvedUrl
+        resolvedUrl,
+      upgradedFromEpisode:
+        /^https:\/\/open\.spotify\.com\/episode\//i.test(cleanUrl) &&
+        resolvedUrl !== cleanUrl
     };
 
   } catch (error) {
@@ -286,4 +339,13 @@ function resolvePodcastUrl(url) {
         )
     };
   }
+}
+
+function looksLikePodcastRssUrl_(value) {
+  const url = String(value || "").trim();
+  return (
+    /^https?:\/\/[^\s]+\/(?:rss|feed)(?:[/?#]|$)/i.test(url) ||
+    /^https?:\/\/[^\s]+\.(?:rss|xml)(?:[?#]|$)/i.test(url) ||
+    /^https?:\/\/rss\.listen\.style\//i.test(url)
+  );
 }
