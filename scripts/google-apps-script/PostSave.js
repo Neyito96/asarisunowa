@@ -3,7 +3,7 @@
 const PLAYLIST_RECEIPT_CACHE_PREFIX_ = "PLAYLIST_RECEIPT_";
 const PLAYLIST_RECEIPT_SECONDS_ = 600;
 
-function savePost_(url, title, maker, introducedDate, comment, artwork, kind, inviteUrl, requestId) {
+function savePost_(url, title, maker, host, introducedDate, comment, artwork, kind, inviteUrl, requestId) {
   const writeLock = LockService.getScriptLock();
   if (!writeLock.tryLock(5000)) {
     throw new Error("ただいま投稿が混み合っています。少し待って再度お試しください");
@@ -54,6 +54,7 @@ function savePost_(url, title, maker, introducedDate, comment, artwork, kind, in
         url,
         title,
         maker,
+        host,
         introducedDate,
         comment,
         artwork,
