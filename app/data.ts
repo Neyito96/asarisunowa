@@ -19,7 +19,7 @@ const rows:[string,string,string|null,string|null][] = [
     "IOK 伊藤大地・奥山晶二郎・神田大介",
     "I'm OK",
     "https://open.spotify.com/playlist/799Fo9to2TK0ahGEJsvcm2",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e"
   ],
   [
     "#ふな 冨名腰隆　旧【報談】",
@@ -73,7 +73,7 @@ const rows:[string,string,string|null,string|null][] = [
     "朝日新聞社の歴史",
     "さ",
     "https://open.spotify.com/playlist/6CIUcOIkcQ9UUXN7HzMOLY",
-    "https://mosaic.scdn.co/300/ab67656300005f1f4c9e1c4c65c7b88fb7bc2694ab67656300005f1f936479f577e0f674fe825818ab67656300005f1f95d003f90a6dfd55cf8ff7ceab67656300005f1fbd61129384921624393cc052"
+    null
   ],
   [
     "秋山訓子　【日本語と英語で取材】",
@@ -211,7 +211,7 @@ const rows:[string,string,string|null,string|null][] = [
     "メディアを語る　伊藤大地x奥山晶二郎x神田大介",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/2lA13BSsvyLjq9iPFa6oDo",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84996d7c4cc61163a9b6ed71d9"
+    null
   ],
   [
     "朝ポキ制作会議！　皆さんもご参加ください",
@@ -265,7 +265,7 @@ const rows:[string,string,string|null,string|null][] = [
     "ポキ-1グランプリ 2023",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/5xUDKa3r5arvKSx4gqjwI3",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9"
   ],
   [
     "「MEDIA TALK」 2023厳選エピソード",
@@ -385,7 +385,7 @@ const rows:[string,string,string|null,string|null][] = [
     "まなび場天声人語　見出しづくりにチャレンジ",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/7aKDEfAdCjTxiqiv19Grar",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da848d2c65afeadf0c8d7c18f392"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da848d2c65afeadf0c8d7c18f392"
   ],
   [
     "#朝ポキ 他流試合 +PCWE2024 +α",
@@ -427,13 +427,13 @@ const rows:[string,string,string|null,string|null][] = [
     "中南米",
     "マリオ",
     "https://open.spotify.com/playlist/2Org6cCBgVas4d9OwzzxAv",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37"
   ],
   [
     "寺下真理加　出演回",
     "招き猫",
     "https://open.spotify.com/playlist/1qhNqjSTfwvJP3cQaXg9bn",
-    "https://i.scdn.co/image/ab67656300005f1fb9700620d31b12d2abe26946"
+    "https://mosaic.scdn.co/300/ab67656300005f1f6a6d0998c685bd17a5f80b4aab67656300005f1faa1a80675ea9bd8f2ce8d690ab67656300005f1faa20a97cf7b1aa3204614d40ab67656300005f1fb9700620d31b12d2abe26946"
   ]
 ];
 export const playlists:Playlist[] = rows.map((r,i)=>({id:String(i+1),title:r[0],maker:r[1],url:r[2],artwork:r[3]}));
