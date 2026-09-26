@@ -175,6 +175,34 @@ function testAutoUpdateAutomationV1Pure() {
     throw new Error("再試行に必要な自動更新方式を状態メモに保持できません");
   }
 
+  // 回帰テスト: Spotifyの初回ページが空なら、
+  // 境界なしで初回補完完了にしてはいけない。
+  const emptyBootstrapState = createAutoPlaylistScopedShowState_(
+    rule,
+    "empty-show-test",
+    "seed-bootstrap",
+    ""
+  );
+  emptyBootstrapState.bootstrapSeedDate = "2025-01-02";
+
+  let emptyBootstrapStopped = false;
+  try {
+    applyAutoUpdateSeedBootstrapPageV1_(
+      emptyBootstrapState,
+      [],
+      rule,
+      ""
+    );
+  } catch (error) {
+    emptyBootstrapStopped =
+      String(error && error.message || error)
+        .indexOf("初回補完の先頭回を取得できません") >= 0;
+  }
+
+  if (!emptyBootstrapStopped) {
+    throw new Error("空の初回ページを境界なしで完了扱いにしています");
+  }
+
   Logger.log("Auto update automation v1 pure tests: PASS");
   return true;
 }

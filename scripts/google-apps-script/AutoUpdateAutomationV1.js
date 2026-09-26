@@ -168,6 +168,11 @@ function isAutoUpdateDailyWindowV1_(nowMs) {
 
 // フォーム由来の実行ルールとは別に、初回登録済みの固定ルールを同じ日次巡回で育てる。
 function syncDailyManagedAutoPlaylistsV1_() {
+  // Share the script lock with request sync and hourly backfill. Do not acquire
+  // this lock in the daily top-level runner: its other stages lock themselves.
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) throw new Error("別の自動更新処理が実行中です");
+  try {
   const token = getSpotifyUserAccessToken();
   if (!token) throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
   const recentEpisodeCache = {};
@@ -187,6 +192,9 @@ function syncDailyManagedAutoPlaylistsV1_() {
       return { key: key, ok: false, error: String(error) };
     }
   });
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 // 毎朝の巡回は各Showの最新20件だけを見る。
@@ -223,12 +231,21 @@ function syncRecentManagedAutoPlaylistV1_(rule, token, episodeCache) {
   if (missing.length > AUTO_UPDATE_V1_MAX_ADDITIONS_PER_RUN_) {
     throw new Error("朝の追加候補が上限を超えました: " + missing.length);
   }
-  if (!missing.length) return { addedCount: 0, failedCount: 0 };
-  assertAutoPlaylistSheetLinkBeforeWrite_(rule);
-  const result = addAutoPlaylistEpisodesIndividually_(rule, token, missing);
+  // A previous run may have added the episode but failed to persist its date.
+  // Reconcile even when there is nothing left to add; never write a guessed date.
+  const presentEpisodes = Object.keys(episodesById).map(function(id) {
+    return episodesById[id];
+  }).filter(function(episode) {
+    return existingUris.has(String(episode.uri || ("spotify:episode:" + episode.id)));
+  });
+  if (missing.length) assertAutoPlaylistSheetLinkBeforeWrite_(rule);
+  const result = missing.length
+    ? addAutoPlaylistEpisodesIndividually_(rule, token, missing)
+    : { addedCount: 0, failedCount: 0, addedEpisodes: [] };
   if (result.failedCount > 0) throw new Error("Spotify追加に一部失敗しました");
-  if (result.addedCount > 0 && rule.updateLatestDateOnAdd === true) {
-    updatePlaylistLatestDate_(rule.playlistId, getLatestReleaseDate_(result.addedEpisodes));
+  if (rule.updateLatestDateOnAdd === true) {
+    const latestDate = getLatestReleaseDate_(presentEpisodes.concat(result.addedEpisodes));
+    if (latestDate) updateAutoUpdateBootstrapLatestDateIfNewerV1_(rule.playlistId, latestDate);
   }
   return result;
 }
@@ -560,12 +577,23 @@ function syncOneApprovedAutoUpdateRequestV1_(rule, token, bootstrapMaxAdditions)
     : { addedCount: 0, failedCount: 0, addedEpisodes: [] };
   if (addResult.failedCount > 0) return pauseAutoUpdateRuleV1_(rule, "Spotify追加に一部失敗しました");
 
+  // Reconcile already-added candidates as well: a previous run may have added to
+  // Spotify successfully but failed before recording the date or boundary.
+  const presentCandidateIds = candidateIds.filter(function(id) {
+    return existingUris.has("spotify:episode:" + id);
+  });
+  const presentEpisodes = presentCandidateIds.length
+    ? fetchPlayableAutoUpdateEpisodesV1_(presentCandidateIds, token)
+    : [];
+  if (presentEpisodes.length !== presentCandidateIds.length) {
+    throw new Error("既存Spotify回の日付を確認できないため境界を保存しません");
+  }
+  const latestDate = getLatestReleaseDate_(presentEpisodes.concat(addResult.addedEpisodes));
+  if (latestDate) updateAutoUpdateBootstrapLatestDateIfNewerV1_(rule.playlistId, latestDate);
+  // Commit the boundary only after date reconciliation succeeds.
   Object.keys(nextBoundaries).forEach(function(showId) {
     saveAutoUpdateBoundaryV1_(rule.playlistId, showId, nextBoundaries[showId]);
   });
-  if (addResult.addedCount > 0) {
-    updatePlaylistLatestDate_(rule.playlistId, getLatestReleaseDate_(addResult.addedEpisodes));
-  }
   setAutoUpdateRuleSheetStatusV1_(rule, "増分自動更新", "前回追加 " + addResult.addedCount + "件");
   return { playlistId: rule.playlistId, ok: true, addedCount: addResult.addedCount };
 }
@@ -669,6 +697,14 @@ function applyAutoUpdateSeedBootstrapPageV1_(state, episodes, rule, nextUrl) {
   current.committed = false;
 
   const hasNext = Boolean(String(nextUrl || "").trim());
+
+  // 初回ページが空の場合は境界を確定できない。
+  // 境界なしのまま complete=true にすると、後段の境界保存で
+  // 「初回補完後の新着境界を確定できません」になるため安全停止する。
+  if (!current.pendingBoundaryId && source.length === 0) {
+    throw new Error("初回補完の先頭回を取得できません: " + current.showId);
+  }
+
   current.complete = reachedSeedDate || !hasNext;
   current.nextUrl = current.complete ? "" : String(nextUrl);
   return current;
@@ -756,6 +792,20 @@ function syncAutoUpdateSeedBootstrapV1_(rule, token, maxAdditions) {
     : { addedCount: 0, failedCount: 0, addedEpisodes: [] };
   if (addResult.failedCount > 0) return pauseAutoUpdateRuleV1_(rule, "初回補完のSpotify追加に一部失敗しました");
 
+  // Include candidates already present on Spotify: they may have been added
+  // before a previous date-write failure. Do not clear progress until reconciled.
+  const presentCandidateIds = allCandidateIds.filter(function(id) {
+    return existingUris.has("spotify:episode:" + id);
+  });
+  const presentEpisodes = presentCandidateIds.length
+    ? fetchPlayableAutoUpdateEpisodesV1_(presentCandidateIds, token)
+    : [];
+  if (presentEpisodes.length !== presentCandidateIds.length) {
+    throw new Error("初回補完済みSpotify回の日付を確認できません");
+  }
+  const latestDate = getLatestReleaseDate_(presentEpisodes.concat(addResult.addedEpisodes));
+  if (latestDate) updateAutoUpdateBootstrapLatestDateIfNewerV1_(rule.playlistId, latestDate);
+
   const resolvedIds = new Set(allCandidateIds.filter(function(id) {
     return existingUris.has("spotify:episode:" + id);
   }).concat(addResult.addedEpisodes.map(function(episode) { return String(episode.id); })));
@@ -796,9 +846,6 @@ function syncAutoUpdateSeedBootstrapV1_(rule, token, maxAdditions) {
   rule.bootstrapPending = false;
   delete rule.bootstrapResumeAfterMs;
   saveAutoUpdateRuntimeRuleV1_(rule);
-  if (addResult.addedCount > 0) {
-    updatePlaylistLatestDate_(rule.playlistId, getLatestReleaseDate_(addResult.addedEpisodes));
-  }
   setAutoUpdateRuleSheetStatusV1_(rule, "増分自動更新", "初回補完完了。以後は新着回を巡回します");
   return { playlistId: rule.playlistId, ok: true, bootstrapPending: false, addedCount: addResult.addedCount, complete: true };
 }
@@ -981,17 +1028,64 @@ function fetchPlayableAutoUpdateEpisodesV1_(episodeIds, token) {
       { muteHttpExceptions: true, headers: { Authorization: "Bearer " + token, Accept: "application/json" } },
       "Episodes batch " + String(offset / 50 + 1)
     );
-    if (response.getResponseCode() !== 200) continue;
+    if (response.getResponseCode() !== 200) {
+      throw new Error(
+        "エピソード詳細取得失敗: status=" + response.getResponseCode() +
+        " IDs=" + batch.join(",")
+      );
+    }
     const data = JSON.parse(response.getContentText());
-    (Array.isArray(data.episodes) ? data.episodes : []).forEach(function(episode) {
-      if (!episode || episode.is_playable === false) return;
-      episodes.push({
-        id: String(episode.id || ""),
-        uri: String(episode.uri || ("spotify:episode:" + episode.id)),
-        name: String(episode.name || episode.id),
+    const returned = Array.isArray(data.episodes) ? data.episodes : [];
+    const expectedIds = new Set(batch);
+    const seenIds = new Set();
+    const unavailableIds = [];
+    const unexpectedIds = [];
+    const duplicateIds = [];
+    const validEpisodes = [];
+
+    returned.forEach(function(episode) {
+      const id = String(episode && episode.id ? episode.id : "").trim();
+      if (!id) return;
+
+      if (!expectedIds.has(id)) {
+        unexpectedIds.push(id);
+        return;
+      }
+      if (seenIds.has(id)) {
+        duplicateIds.push(id);
+        return;
+      }
+      seenIds.add(id);
+
+      if (episode.is_playable === false) {
+        unavailableIds.push(id);
+        return;
+      }
+
+      validEpisodes.push({
+        id: id,
+        uri: String(episode.uri || ("spotify:episode:" + id)),
+        name: String(episode.name || id),
         release_date: String(episode.release_date || "")
       });
     });
+
+    const missingIds = batch.filter(function(id) {
+      return !seenIds.has(id);
+    });
+
+    if (missingIds.length || unavailableIds.length ||
+        unexpectedIds.length || duplicateIds.length) {
+      throw new Error(
+        "エピソード詳細の完全性エラー: " +
+        "missing=" + missingIds.join(",") +
+        " unavailable=" + unavailableIds.join(",") +
+        " unexpected=" + unexpectedIds.join(",") +
+        " duplicate=" + duplicateIds.join(",")
+      );
+    }
+
+    episodes.push.apply(episodes, validEpisodes);
   }
   return episodes;
 }
@@ -1062,4 +1156,38 @@ function setAutoUpdateRuleSheetStatusV1_(rule, status, note) {
 function pauseAutoUpdateRuleV1_(rule, reason) {
   setAutoUpdateRuleSheetStatusV1_(rule, "確認待ち", reason);
   return { playlistId: rule.playlistId, ok: false, reviewRequired: true, reason: reason };
+}
+
+
+function updateAutoUpdateBootstrapLatestDateIfNewerV1_(playlistId, releaseDate) {
+  const date = String(releaseDate || "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    throw new Error("配信日が不正です: " + date);
+  }
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = getSheetLoose(ss, "作業台");
+  if (!sheet || sheet.getLastRow() < 2) {
+    throw new Error("作業台シートが見つからないか、データがありません");
+  }
+  const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, 6).getDisplayValues();
+  const targetId = String(playlistId || "").trim();
+  if (!targetId) throw new Error("プレイリストIDが空です");
+  const matchingIndexes = [];
+  values.forEach(function(row, index) {
+    const cell = String(row[0] || "").trim();
+    // URLのplaylist/直後のIDのみ照合。p1とp10などの部分一致を禁止する。
+    const match = cell.match(/(?:^|\/)playlist\/([^/?#]+)/);
+    const cellId = match ? match[1] : cell;
+    if (cellId === targetId) matchingIndexes.push(index);
+  });
+  if (matchingIndexes.length !== 1) {
+    throw new Error("対象プレイリストの一致行数が不正です: " + targetId + " (" + matchingIndexes.length + "件)");
+  }
+  const index = matchingIndexes[0];
+
+  const current = String(values[index][5] || "").trim();
+  if (current && current >= date) return;
+
+  updatePlaylistLatestDate_(playlistId, date);
 }
