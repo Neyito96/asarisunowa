@@ -652,19 +652,9 @@ function hasRecentPlaylistNews(p: Playlist) {
   return isRecentPlaylistDate(p.latestDate);
 }
 
-// 🌾 新米: only playlists confirmed to have been newly CREATED for this project.
-// Existing playlists imported into the site are not new rice, even if registered recently.
-// When a genuinely new playlist is created, review its ID and add it here explicitly.
-const NEW_RICE_PLAYLIST_IDS = new Set([
-  "2Org6cCBgVas4d9OwzzxAv", // 中南米
-  "6hNrobOVHmYaQT5C7hPkNa", // ポリレビ
-  "4FBXSFf2nLjLb3qaRoSdoD", // ノーミライ
-]);
-
+// 🌾 新米: any playlist registered within the last year.
+// AUTO / manual registration are treated the same; after one year the badge disappears.
 function isNewRice(p: Playlist) {
-  const playlistId = String(p.url || "").match(/open\.spotify\.com\/playlist\/([A-Za-z0-9]+)/)?.[1];
-  if (!playlistId || !NEW_RICE_PLAYLIST_IDS.has(playlistId)) return false;
-  // The registration date is still mandatory to enforce the 180-day expiration.
   const match = String(p.introducedDate || "").trim()
     .match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
   if (!match) return false;
@@ -675,7 +665,7 @@ function isNewRice(p: Playlist) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const end = new Date(registered);
-  end.setDate(end.getDate() + 180);
+  end.setFullYear(end.getFullYear() + 1);
   return today >= registered && today < end;
 }
 
@@ -968,7 +958,19 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           (p.title + " " + p.maker).toLowerCase().includes(query.toLowerCase()),
         )
         .sort((a, b) => {
-          // Pin 中南米 regardless of its editable display name or badge expiry.
+          // Keep new-rice playlists together at the top; newest registration is upper-left.
+          if (sort === "new") {
+            const newRiceDifference = Number(isNewRice(b)) - Number(isNewRice(a));
+            if (newRiceDifference) return newRiceDifference;
+            if (isNewRice(a) && isNewRice(b)) {
+              const dateDifference =
+                playlistDateValue(b.introducedDate) - playlistDateValue(a.introducedDate);
+              if (dateDifference) return dateDifference;
+              return Number(b.id) - Number(a.id);
+            }
+          }
+
+          // Preserve the existing fixed pin for non-new-rice playlists.
           const pinnedId = "2Org6cCBgVas4d9OwzzxAv";
           const isPinned = (p: Playlist) =>
             String(p.url || "").match(/open\.spotify\.com\/playlist\/([A-Za-z0-9]+)/)?.[1] === pinnedId;
@@ -976,14 +978,6 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           if (pinnedDifference) return pinnedDifference;
 
           if (sort === "new") {
-            const newRiceDifference = Number(isNewRice(b)) - Number(isNewRice(a));
-            if (newRiceDifference) return newRiceDifference;
-            // Compare registration dates ONLY for genuinely new playlists.
-            if (isNewRice(a) && isNewRice(b)) {
-              const dateDifference =
-                playlistDateValue(b.introducedDate) - playlistDateValue(a.introducedDate);
-              if (dateDifference) return dateDifference;
-            }
             return (
               Number(isPlaylistGrowing(b)) - Number(isPlaylistGrowing(a)) ||
               playlistDateValue(b.latestDate) - playlistDateValue(a.latestDate) ||
@@ -1496,7 +1490,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   className={sort === "new" ? "on" : ""}
                   onClick={() => setSort("new")}
                 >
-                  新着
+                  新米順
                 </button>
                 <button
                   className={sort === "number" ? "on" : ""}
