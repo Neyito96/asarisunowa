@@ -783,15 +783,18 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     let cancelled = false;
     async function refreshRecommendedPodcasts() {
       try {
-        const payload = await loadJsonp<{ ok: boolean; items?: Array<{
+        const payload = await loadJsonpWithRetry<{ ok: boolean; items?: Array<{
           id?: string; url?: string; title?: string; maker?: string; comment?: string;
           artwork?: string; host?: string; genre?: string;
           youtube?: string; spotify?: string; amazon?: string; apple?: string;
           pocketcasts?: string; listen?: string; standfm?: string; pody?: string;
         }> }>(
-          ASARISU_API_URL + "?type=podcast&_=" + Date.now()
+          ASARISU_API_URL + "?type=podcast&_=" + Date.now(),
+          2, 15000
         );
-        if (!payload?.ok || !Array.isArray(payload.items)) return;
+        if (!payload?.ok || !Array.isArray(payload.items)) {
+          throw new Error("Recommended podcast API returned invalid data");
+        }
         const base = payload.items
           .map((source, index) => {
             const title = String(source.title || "").trim();
