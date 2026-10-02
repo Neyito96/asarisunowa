@@ -211,7 +211,7 @@ const rows:[string,string,string|null,string|null][] = [
     "メディアを語る　伊藤大地x奥山晶二郎x神田大介",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/2lA13BSsvyLjq9iPFa6oDo",
-    null
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84996d7c4cc61163a9b6ed71d9"
   ],
   [
     "朝ポキ制作会議！　皆さんもご参加ください",
@@ -277,13 +277,13 @@ const rows:[string,string,string|null,string|null][] = [
     "楽屋裏2023　厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/0I9wCLs5oFLNIG1aPLQneg",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32"
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32"
   ],
   [
     "バスケ通信―クラッチタイム（バスクラ）",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/3axOpfDhMhLEtelwGwvMHb",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244"
   ],
   [
     "ディープ日本史",
@@ -355,7 +355,7 @@ const rows:[string,string,string|null,string|null][] = [
     "#初登場特集（#朝ポキ）",
     "koike",
     "https://open.spotify.com/playlist/3WLp56ohdZs2AqDoUwNNWd",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef"
   ],
   [
     "8がけ社会",
@@ -367,7 +367,7 @@ const rows:[string,string,string|null,string|null][] = [
     "編集マニア",
     "カンダ ・マサキ",
     "https://open.spotify.com/playlist/71mdQ5ANqZda48jBkj0Qmz",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d"
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d"
   ],
   [
     "朝日新聞社の歴史",
@@ -379,7 +379,7 @@ const rows:[string,string,string|null,string|null][] = [
     "まなび場天声人語　見出しづくりにチャレンジ",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/7aKDEfAdCjTxiqiv19Grar",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da848d2c65afeadf0c8d7c18f392"
+    null
   ],
   [
     "#朝ポキ 他流試合 +PCWE2024 +α",
