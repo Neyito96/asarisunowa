@@ -44,7 +44,9 @@ function launchNoMiraiEpisodes234() {
       registerNoMiraiPlaylistInWorkSheet_();
     }
 
-    updatePlaylistLatestDate_(NO_MIRAI_LAUNCH_.playlistId);
+    // 追加日時ではなく、確認済みエピソードの実際の配信日を渡す。
+    // 日付が取得できない場合は安全な日付更新関数が既存値を維持する。
+    updatePlaylistLatestDate_(NO_MIRAI_LAUNCH_.playlistId, getLatestReleaseDate_(plan.episodes));
 
     const result = {
       ok: true,
