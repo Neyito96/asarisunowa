@@ -22,6 +22,7 @@ const ASAPOKI_OFFICIAL = "https://www.asahi.com/special/podcasts/";
 // Google Apps Script のウェブアプリURLを設定すると投稿フォームが自動送信になります。
 const PLAYLIST_SUBMIT_ENDPOINT = "https://script.google.com/macros/s/AKfycbxlZCNqGqOEY7j61OgcSGM8_xfGT08f4jjamXtSj2DES9fXl-xwJrvcRGYHnskidjIMug/exec";
 const ASARISU_API_URL = PLAYLIST_SUBMIT_ENDPOINT;
+const PLAYLIST_READ_ENDPOINT = "https://script.google.com/macros/s/AKfycbx2KEcpf_ThYKOB3sYY2RVZj6TA0wI9qYxJ2Y4z82TMTc-sc_YwlHPqtKFIrPOdk8NA2Q/exec";
 const PLAYLIST_ARTWORK_OVERRIDES: Record<string, string> = {
   "https://open.spotify.com/playlist/4FBXSFf2nLjLb3qaRoSdoD":
     "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f4ea26c84e38a43b8859df430",
@@ -743,7 +744,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     async function refreshListenerPlaylists() {
       try {
         const payload = await loadJsonpWithRetry<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; latestDate?: string; introducedDate?: string; autoManaged?: boolean }> }>(
-          ASARISU_API_URL + "?type=playlist&_=" + Date.now()
+          PLAYLIST_READ_ENDPOINT + "?type=playlist&_=" + Date.now()
         );
         if (!payload?.ok || !Array.isArray(payload.items)) return;
         const existingByUrl = new Map(
