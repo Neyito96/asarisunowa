@@ -412,6 +412,91 @@ function getThemeReviewSheetPairV1_(rule, ss) {
   };
 }
 
+function findSubmittedThemeReviewRuleV1_(rules, ruleKey) {
+  const key = String(ruleKey || "").trim();
+  if (!key.startsWith("request-")) {
+    throw new Error("新規投稿テーマのruleKeyを指定してください");
+  }
+
+  const matches = (Array.isArray(rules) ? rules : []).filter(function(rule) {
+    return rule && String(rule.key || "").trim() === key;
+  });
+
+  if (!matches.length) {
+    throw new Error("申請テーマが見つかりません: " + key);
+  }
+  if (matches.length > 1) {
+    throw new Error("申請テーマが複数存在します: " + key + " count=" + matches.length);
+  }
+  return matches[0];
+}
+
+function buildApprovedSubmittedThemeReviewRuleV1_(rule, ruleKey) {
+  const key = String(ruleKey || "").trim();
+  const source = Object.assign({}, rule || {});
+  const id = String(source.playlistId || "").trim();
+
+  if (
+    getAutoPlaylistRuleType_(source) !== AUTO_PLAYLIST_RULE_TYPE_THEME_ ||
+    source.enabled !== false ||
+    source.productionWriteAllowed !== false ||
+    source.reviewRequired !== true ||
+    source.lifecycleStatus !== "requested"
+  ) {
+    throw new Error("未承認テーマの安全条件を満たしていません");
+  }
+  if (!/^[A-Za-z0-9]{22}$/.test(id) ||
+      key !== "request-" + id ||
+      Number(source.requestSheetRow) < 2 ||
+      getAutoPlaylistRuleByKey_(key)) {
+    throw new Error("テーマID・申請行・固定ルールとの対応が不正です");
+  }
+
+  source.enabled = true;
+  source.productionWriteAllowed = true;
+  source.reviewRequired = true;
+  source.lifecycleStatus = AUTO_PLAYLIST_LIFECYCLE_.REVIEW;
+  return source;
+}
+
+// Administrator-only approval. This only enables candidate review;
+// it never fetches episodes or writes to Spotify.
+function approveSubmittedThemeReviewV1(ruleKey) {
+  const key = String(ruleKey || "").trim();
+  const rule = findSubmittedThemeReviewRuleV1_(
+    loadAutoUpdateRuntimeRulesV1_(), key
+  );
+  const approved = buildApprovedSubmittedThemeReviewRuleV1_(rule, key);
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+
+  if (!getThemeReviewSheetPairV1_(approved, ss)) {
+    throw new Error("テーマ専用の候補・履歴タブが不足しています");
+  }
+
+  saveAutoUpdateRuntimeRuleV1_(approved);
+  setAutoUpdateRuleSheetStatusV1_(
+    approved,
+    "候補確認中",
+    "管理者承認済み。候補を確認し、採用した回だけSpotifyへ反映します"
+  );
+  return {
+    ok: true,
+    ruleKey: approved.key,
+    playlistId: approved.playlistId,
+    lifecycleStatus: approved.lifecycleStatus,
+    spotifyWritten: false
+  };
+}
+
+// GASエディタの実行ボタン用。選択中の1セルへruleKeyを入力して実行する。
+function approveSubmittedThemeReviewFromActiveCellV1() {
+  const range = SpreadsheetApp.getActiveRange();
+  if (!range || range.getNumRows() !== 1 || range.getNumColumns() !== 1) {
+    throw new Error("ruleKeyを入力した1セルだけを選択してください");
+  }
+  return approveSubmittedThemeReviewV1(String(range.getDisplayValue() || "").trim());
+}
+
 // Administrator-only preparation. Never call from a timed trigger.
 function prepareThemeReviewSheetsV1_(ruleKey) {
   const key = String(ruleKey || "").trim();
@@ -420,16 +505,9 @@ function prepareThemeReviewSheetsV1_(ruleKey) {
     throw new Error("新規投稿テーマのみ準備できます");
   }
 
-  const matches = loadAutoUpdateRuntimeRulesV1_()
-    .filter(function(rule) {
-      return rule && rule.key === key;
-    });
-
-  if (matches.length !== 1) {
-    throw new Error("対象ルールが一意に見つかりません");
-  }
-
-  const rule = matches[0];
+  const rule = findSubmittedThemeReviewRuleV1_(
+    loadAutoUpdateRuntimeRulesV1_(), key
+  );
 
   if (
     getAutoPlaylistRuleType_(rule) !==
@@ -509,11 +587,29 @@ function prepareThemeReviewSheetsV1_(ruleKey) {
   };
 }
 
-function getThemeReviewAutomationRules_() {
-  return AUTO_PLAYLIST_RULES.filter(function(rule) {
+function selectThemeReviewAutomationRulesV1_(fixedRules, runtimeRules) {
+  const fixed = (Array.isArray(fixedRules) ? fixedRules : []).filter(function(rule) {
     return rule && rule.enabled !== false && rule.reviewRequired === true &&
       getAutoPlaylistRuleType_(rule) === AUTO_PLAYLIST_RULE_TYPE_THEME_;
   });
+  const fixedKeys = new Set(fixed.map(function(rule) { return String(rule.key || ""); }));
+  const submitted = (Array.isArray(runtimeRules) ? runtimeRules : []).filter(function(rule) {
+    return rule && !fixedKeys.has(String(rule.key || "")) &&
+      String(rule.key || "").startsWith("request-") &&
+      rule.enabled === true &&
+      rule.productionWriteAllowed === true &&
+      rule.reviewRequired === true &&
+      getAutoPlaylistRuleType_(rule) === AUTO_PLAYLIST_RULE_TYPE_THEME_ &&
+      String(rule.lifecycleStatus || "") === AUTO_PLAYLIST_LIFECYCLE_.REVIEW;
+  });
+  return fixed.concat(submitted);
+}
+
+function getThemeReviewAutomationRules_() {
+  return selectThemeReviewAutomationRulesV1_(
+    AUTO_PLAYLIST_RULES,
+    loadAutoUpdateRuntimeRulesV1_()
+  );
 }
 
 // 時間主導トリガー用。未確認候補の追記と、採用済み候補のSpotify反映を1回で行う。
@@ -579,10 +675,12 @@ function disableThemeReviewAutomation() {
 }
 
 function previewApprovedThemeCandidates_(ruleKey) {
-  const rule = getAutoPlaylistRuleByKey_(ruleKey);
+  const rule = getThemeReviewRuleByKeyV1_(ruleKey);
   if (!rule) throw new Error("テーマルールが見つかりません: " + ruleKey);
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  const sheet = ss.getSheetByName(THEME_REVIEW_SHEET_NAME_);
+  const pair = getThemeReviewSheetPairV1_(rule, ss);
+  if (!pair) throw new Error("テーマの候補・履歴タブが不足しています");
+  const sheet = pair.queue;
   if (!sheet || sheet.getLastRow() < 2) return { ruleKey: ruleKey, approvedCount: 0, episodeIds: [] };
   const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, THEME_REVIEW_HEADERS_.length).getValues();
   const episodeIds = rows.filter(function(row) {
