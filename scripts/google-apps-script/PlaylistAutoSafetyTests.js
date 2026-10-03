@@ -70,6 +70,8 @@ function testAutoPlaylistSafetyPureFunctions() {
     throw new Error("theme申請がreview必須の安全停止状態になっていません");
   }
 
+  testSubmittedThemeApprovalPureFunctions_();
+
   const themeRule = {
     key: "test-theme",
     enabled: false,
@@ -117,6 +119,62 @@ function testAutoPlaylistSafetyPureFunctions() {
 
   Logger.log("Auto playlist pure safety tests: PASS");
   return true;
+}
+
+function testSubmittedThemeApprovalPureFunctions_() {
+  const playlistId = "AbCdEfGhIjKlMnOpQrStUv";
+  const key = "request-" + playlistId;
+  const pending = buildAutoUpdateRuntimeRuleV1_({
+    updateType: "theme",
+    title: "北欧",
+    keywords: "北欧",
+    ruleNote: ""
+  }, playlistId, 11);
+
+  let missingStopped = false;
+  try {
+    findSubmittedThemeReviewRuleV1_([], key);
+  } catch (error) {
+    missingStopped = /申請テーマが見つかりません/.test(String(error));
+  }
+  if (!missingStopped) throw new Error("申請テーマ0件を個別エラーで停止できません");
+
+  let duplicateStopped = false;
+  try {
+    findSubmittedThemeReviewRuleV1_([pending, pending], key);
+  } catch (error) {
+    duplicateStopped = /申請テーマが複数存在します/.test(String(error));
+  }
+  if (!duplicateStopped) throw new Error("申請テーマ複数件を個別エラーで停止できません");
+
+  const found = findSubmittedThemeReviewRuleV1_([pending], key);
+  const approved = buildApprovedSubmittedThemeReviewRuleV1_(found, key);
+  if (
+    approved.enabled !== true ||
+    approved.productionWriteAllowed !== true ||
+    approved.reviewRequired !== true ||
+    approved.lifecycleStatus !== AUTO_PLAYLIST_LIFECYCLE_.REVIEW ||
+    approved.requestSheetRow !== 11
+  ) {
+    throw new Error("承認済みテーマが候補確認状態へ遷移しません");
+  }
+  if (pending.enabled !== false || pending.productionWriteAllowed !== false ||
+      pending.lifecycleStatus !== "requested") {
+    throw new Error("承認計画が保存前のruntime ruleを破壊しています");
+  }
+
+  const speaker = Object.assign({}, approved, {
+    key: "request-ZyXwVuTsRqPoNmLkJiHgFe",
+    playlistId: "ZyXwVuTsRqPoNmLkJiHgFe",
+    ruleType: AUTO_PLAYLIST_RULE_TYPE_SPEAKER_
+  });
+  const stillPending = Object.assign({}, pending);
+  const selected = selectThemeReviewAutomationRulesV1_(
+    [], [approved, speaker, stillPending]
+  );
+  if (selected.length !== 1 || selected[0].key !== key) {
+    throw new Error("承認済みthemeだけを候補抽出対象にできません");
+  }
 }
 
 // 新規テーマ申請の最終確認用。
