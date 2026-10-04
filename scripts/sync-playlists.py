@@ -1,6 +1,7 @@
 from pathlib import Path
 import csv
 import json
+import re
 import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
@@ -78,59 +79,92 @@ def get_artwork(url):
         print(f"注意：画像を取得できませんでした: {url} ({error})")
         return None
 
-with urllib.request.urlopen(CSV_URL, timeout=30) as response:
-    lines = response.read().decode("utf-8-sig").splitlines()
+def valid_artwork(value):
+    # Validate stored syntax without making an additional image request.
+    if not isinstance(value, str) or not value.strip():
+        return None
+    value = value.strip()
+    parsed = urllib.parse.urlparse(value)
+    if (parsed.scheme in {"https", "http"} and parsed.netloc) or value.startswith("./playlist-artwork/"):
+        return value
+    return None
 
-table = list(csv.reader(lines))
-expected = ["Spotifyプレイリストのリンク", "公開プレイリスト", "プロフィール"]
 
-if not table or table[0][:3] != expected:
-    raise SystemExit("停止：スプレッドシートの見出しが想定と異なります")
+def load_existing_artwork(path):
+    if not path.exists():
+        return {}
+    source = path.read_text(encoding="utf-8")
+    match = re.search(r"const rows:[^=]+?=\s*", source)
+    if not match:
+        raise ValueError("停止：既存アートワークを読み取れません。上書きを中止します")
+    rows, _ = json.JSONDecoder().raw_decode(source[match.end():])
+    return {
+        normalize_url(row[2]): valid_artwork(row[3])
+        for row in rows
+        if row[2] and valid_artwork(row[3])
+    }
 
-base_rows = []
-for source in table[1:]:
-    source += [""] * (3 - len(source))
-    raw_url, title, maker = (value.strip() for value in source[:3])
 
-    if not title:
-        continue
+def main():
+    existing_artwork = load_existing_artwork(Path("app/data.ts"))
 
-    base_rows.append([title, maker, normalize_url(raw_url)])
+    with urllib.request.urlopen(CSV_URL, timeout=30) as response:
+        lines = response.read().decode("utf-8-sig").splitlines()
 
-if len(base_rows) < 10:
-    raise SystemExit(f"停止：取得件数が少なすぎます（{len(base_rows)}件）")
+    table = list(csv.reader(lines))
+    expected = ["Spotifyプレイリストのリンク", "公開プレイリスト", "プロフィール"]
 
-with ThreadPoolExecutor(max_workers=6) as executor:
-    artworks = list(executor.map(
-        get_artwork,
-        [
-            None if row[2] in LOCAL_ARTWORK_BY_URL else row[2]
-            for row in base_rows
-        ],
-    ))
+    if not table or table[0][:3] != expected:
+        raise SystemExit("停止：スプレッドシートの見出しが想定と異なります")
 
-rows = [
-    [title, maker, url, LOCAL_ARTWORK_BY_URL.get(url, artwork)]
-    for (title, maker, url), artwork in zip(base_rows, artworks)
-]
+    base_rows = []
+    for source in table[1:]:
+        source += [""] * (3 - len(source))
+        raw_url, title, maker = (value.strip() for value in source[:3])
 
-output = (
-    "export type Playlist = {\n"
-    "  id: string;\n"
-    "  title: string;\n"
-    "  maker: string;\n"
-    "  url: string | null;\n"
-    "  artwork: string | null;\n"
-    "  latestDate?: string | null;\n"
-    "  introducedDate?: string | null;\n"
-    "  autoManaged?: boolean;\n"
-    "};\n"
-    + "const rows:[string,string,string|null,string|null][] = "
-    + json.dumps(rows, ensure_ascii=False, indent=2)
-    + ";\n"
-    + "export const playlists:Playlist[] = rows.map((r,i)=>"
-      "({id:String(i+1),title:r[0],maker:r[1],url:r[2],artwork:r[3]}));\n"
-)
+        if not title:
+            continue
 
-Path("app/data.ts").write_text(output, encoding="utf-8")
-print(f"成功：{len(rows)}件の情報とアートワークを読み込みました")
+        base_rows.append([title, maker, normalize_url(raw_url)])
+
+    if len(base_rows) < 10:
+        raise SystemExit(f"停止：取得件数が少なすぎます（{len(base_rows)}件）")
+
+    with ThreadPoolExecutor(max_workers=6) as executor:
+        artworks = list(executor.map(
+            get_artwork,
+            [
+                None if row[2] in LOCAL_ARTWORK_BY_URL else row[2]
+                for row in base_rows
+            ],
+        ))
+
+    rows = [
+        [title, maker, url, LOCAL_ARTWORK_BY_URL.get(url) or valid_artwork(artwork) or existing_artwork.get(url)]
+        for (title, maker, url), artwork in zip(base_rows, artworks)
+    ]
+
+    output = (
+        "export type Playlist = {\n"
+        "  id: string;\n"
+        "  title: string;\n"
+        "  maker: string;\n"
+        "  url: string | null;\n"
+        "  artwork: string | null;\n"
+        "  latestDate?: string | null;\n"
+        "  introducedDate?: string | null;\n"
+        "  autoManaged?: boolean;\n"
+        "};\n"
+        + "const rows:[string,string,string|null,string|null][] = "
+        + json.dumps(rows, ensure_ascii=False, indent=2)
+        + ";\n"
+        + "export const playlists:Playlist[] = rows.map((r,i)=>"
+          "({id:String(i+1),title:r[0],maker:r[1],url:r[2],artwork:r[3]}));\n"
+    )
+
+    Path("app/data.ts").write_text(output, encoding="utf-8")
+    print(f"成功：{len(rows)}件の情報とアートワークを読み込みました")
+
+
+if __name__ == "__main__":
+    main()
