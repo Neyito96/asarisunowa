@@ -1,0 +1,64 @@
+✔ one verified speaker episode, bounded one POST and readback
+✔ repeat is no-op and creates no duplicate
+✔ human 除外 blocks
+✔ human 訂正済み blocks
+✔ human 反映済み blocks
+✔ promo mention beyond cast heading is blocked
+✔ saved exclusion wins ledger correction
+✔ paused runtime blocks
+✔ failed latest speaker match blocks
+✔ null Spotify episode omitted from read-only preview
+✔ unresolved date receipt blocks before POST
+✔ Retry-After larger than one minute is not truncated; HTTP-date and zero work
+✔ 429 makes exactly one request and persists global cooldown with reason and resume target
+✔ exact GET cache is shared across theme callers; tokens are isolated; mutation invalidates
+✔ request budget is hard and never increments for cache hit
+✔ fixed playlist and active legacy theme are excluded from new flow
+✔ Japanese-English keywords split correctly while multi-word English phrases survive
+✔ unknown exclusion instructions disable automatic additions; explicit exclusions win
+✔ human deletion and exclusion always beat adoption; hold is never auto confirmed
+✔ shared source fetch has one durable corpus, resumes offset, avoids duplicate GET in execution
+✔ failed feed page does not advance offset and runner waits without further HTTP
+✔ snapshot unchanged skips full playlist fetch; changed snapshot pages and proves stability
+✔ unstable playlist snapshot blocks writes and restarts membership build
+✔ auto addition is journalled before POST; successful retry never posts twice
+✔ ambiguous POST resumes by stable membership evidence, without repeating POST
+✔ 429 during POST retains receipt and candidate; no duplicate or bootstrap completion
+✔ manual deletion detected from complete membership prevents re-addition
+✔ human exclusion removes only tracked auto additions, saving deletion before HTTP
+✔ corpus scanning is bounded to 200 and deduplicates after interrupted resume
+✔ retry cap cycles three failures then defers a recovery probe to next day
+✔ owned new theme reaches incremental after complete scan and durable add, preserving introduction
+✔ human exclusion never deletes an episode recorded as pre-existing membership
+✔ adopted pending candidate keeps bootstrap active until its write completes
+✔ speaker bypasses only theme review and reaches writer
+✔ title rule reaches batch writer
+✔ adopted theme reaches individual writer
+✔ adopted theme reaches batch writer
+✔ switch off
+✔ unknown saved rule
+✔ wrong playlist
+✔ invalid saved enabled=false
+✔ invalid saved productionWriteAllowed=false
+✔ invalid saved reviewRequired=false
+✔ invalid saved ruleType=speaker
+✔ invalid saved lifecycleStatus=requested
+✔ invalid saved lifecycleStatus=audit
+✔ invalid saved lifecycleStatus=paused
+✔ missing sheet pair
+✔ no adoption
+✔ unreviewed
+✔ queue exclusion
+✔ already added
+✔ history exclusion wins
+✔ duplicate queue rows
+✔ wrong rule queue
+✔ URI mismatch
+✔ invalid ID
+✔ all batch targets validated before POST
+✔ theme stops on 403
+✔ theme stops on 429
+✔ non-theme return false is independent of queue
+ℹ tests 61
+ℹ pass 61
+ℹ fail 0
