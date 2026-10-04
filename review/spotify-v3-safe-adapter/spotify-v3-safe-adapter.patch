@@ -1,0 +1,265 @@
+--- a/access-v3/src/SpotifyNordicV3.js
++++ b/access-v3/src/SpotifyNordicV3.js
+@@ -15,8 +15,9 @@
+   if(!sp3Get_('Tombstones',key))sp3Put_('Tombstones',key,{playlistId:id,episodeId:episodeId,reason:reason,at:Date.now()});
+ }
+ function sp3LocalNordic_(rule) {
+-  const pair=themePairV2_(rule,false), state=sp3Prop_('NORDIC',{});
+-  const queue=themeRowsByIdV2_(pair.queue,rule),history=themeRowsByIdV2_(pair.history,rule);
++  const adapter=sp3RequireAdapterForPlaylist_(rule.playlistId);
++  if(!adapter.isOwned(rule))throw new Error('SP3_DOMAIN_OWNER_MISMATCH');
++  const scan=adapter.scan(rule),state=adapter.getState(),queue=scan.queue,history=scan.history;
+   const pool=sp3All_('EpisodePool').filter(function(ep){return rule.showIds.includes(ep.showId);});
+   let scanned=0,added=0;
+   // Resume physical scan position; revisit pool updates on the next complete pass.
+@@ -25,29 +26,29 @@
+   for(let i=start;i<end;i++){
+     const ep=pool[i],id=ep.episodeId;scanned++;
+     if(queue[id]||history[id]||sp3Get_('Tombstones',rule.playlistId+'|'+id))continue;
+-    const result=classifyThemeEpisodeV2_(sp3Episode_(ep),rule);
++    const episode=sp3Episode_(ep),result=adapter.classifyEpisode(episode,rule);
+     if(result.kind==='no-match')continue;
+-    const row=themeRowV2_(rule,sp3Episode_(ep),result);
+-    queue[id]={row:row,index:themeAppendRowV2_(pair.queue,row)};added++;
++    const row=adapter.buildRow(rule,episode,result);
++    queue[id]=adapter.appendQueue(scan,row);added++;
+   }
+-  state.poolCursor=end;sp3Save_('NORDIC',state);
++  state.poolCursor=end;adapter.saveState(state);
+   const membership=sp3Membership_(rule.playlistId);
+   Array.from(new Set(Object.keys(queue).concat(Object.keys(history)))).forEach(function(id){
+-    const q=queue[id],h=history[id],decision=themeDecisionV2_(q&&q.row,h&&h.row);
++    const q=queue[id],h=history[id],decision=adapter.decision(q,h),d={pair:scan.pair,q:q,h:h,decision:decision};
+     if(decision==='blocked')sp3Tombstone_(rule.playlistId,id,'human');
+     // Only a stable complete fresh generation is evidence of a human Spotify deletion.
+     if(h&&h.row[10]&&h.row[15]==='追加済み'&&membership&&membership.value.lastFreshFetchedAt>new Date(h.row[10]).getTime()&&
+        !membership.ids.has(id)&&!sp3PendingWrite_(rule.playlistId,id)){
+       sp3Tombstone_(rule.playlistId,id,'external-removal');
+-      const live=pair.history.getRange(h.index,1,1,16).getValues()[0];
+-      if(!['除外','削除','保留'].includes(String(live[8])))sp3ReceiptPatch_(pair.history,h,{8:'削除',9:new Date()});
+-      sp3ReceiptPatch_(pair.history,h,{15:'人間削除検知'});
++      const live=scan.pair.history.getRange(h.index,1,1,16).getValues()[0];
++      if(!['除外','削除','保留'].includes(String(live[8])))adapter.patchReceipt(d,'history',{8:'削除',9:new Date()});
++      adapter.patchReceipt(d,'history',{15:'人間削除検知'});
+     }
+     if(decision==='blocked'&&h&&h.row[10]&&h.row[15]!=='既存登録確認'&&!/人間削除/.test(h.row[15]))
+       sp3Enqueue_('remove',rule.playlistId+'|'+id,{playlistId:rule.playlistId,episodeId:id},1);
+     if(!q||q.row[10]||h&&h.row[10]||['blocked','hold'].includes(decision)||sp3Get_('Tombstones',rule.playlistId+'|'+id))return;
+     const ep=spotifyPoolRequireV3_([id])[0];if(!ep)return;
+-    if(classifyThemeEpisodeV2_(sp3Episode_(ep),rule).kind==='confirmed')
++    if(adapter.classifyEpisode(sp3Episode_(ep),rule).kind==='confirmed')
+       sp3Enqueue_('add',rule.playlistId+'|'+id,{playlistId:rule.playlistId,episodeId:id},2);
+   });
+   rule.showIds.forEach(function(id){
+@@ -64,41 +65,42 @@
+   return ['add','remove'].some(function(kind){const j=sp3Get_('Jobs',SP3_.scope+'|'+kind+'|'+id+'|'+ep);
+     return j&&['sending','verify','review'].includes(j.status);});
+ }
+-function sp3AccessStep_(ctx,job,rule,meta) {
+-  const state=sp3Prop_('NORDIC',{});
++function sp3AccessStep_(ctx,job,rule,meta,adapter) {
++  adapter=adapter||sp3RequireAdapterForPlaylist_(rule.playlistId);
++  if(!adapter.isOwned(rule))throw new Error('SP3_DOMAIN_OWNER_MISMATCH');
++  const state=adapter.getState();
+   if(state.accessVerified)return true;
+   const me=sp3Gateway_(ctx,job,'me',{mode:'prefer',ttl:86400000});
+   if(!me.id)throw new Error('SP3_PROFILE_MISSING');
+-  if(String(meta.owner&&meta.owner.id)===String(me.id)){state.accessVerified=true;sp3Save_('NORDIC',state);return true;}
++  if(String(meta.owner&&meta.owner.id)===String(me.id)){state.accessVerified=true;adapter.saveState(state);return true;}
+   const req=getSheetLoose(SpreadsheetApp.openById(SPREADSHEET_ID),AUTO_UPDATE_REQUEST_SHEET_NAME);
+   if(!req.getRange(rule.requestSheetRow,5).getDisplayValue())throw new Error('SP3_INVITATION_REQUIRED');
+   const data=sp3Gateway_(ctx,job,state.libraryNext||'me/playlists?limit=50',{mode:'fresh'});
+   if((data.items||[]).some(function(p){return p.id===rule.playlistId;})){
+-    state.accessVerified=true;state.libraryNext='';sp3Save_('NORDIC',state);return true;
++    state.accessVerified=true;state.libraryNext='';adapter.saveState(state);return true;
+   }
+-  state.libraryNext=data.next||'';sp3Save_('NORDIC',state);
++  state.libraryNext=data.next||'';adapter.saveState(state);
+   if(!data.next)throw new Error('SP3_COLLABORATION_UNVERIFIED');
+   throw sp3Yield_('SP3_ACCESS_PAGING');
+ }
+-function sp3ReadDecision_(rule,id) {
+-  const pair=themePairV2_(rule,false),q=themeRowsByIdV2_(pair.queue,rule)[id],h=themeRowsByIdV2_(pair.history,rule)[id];
+-  return {pair:pair,q:q,h:h,decision:themeDecisionV2_(q&&q.row,h&&h.row)};
+-}
+-function sp3FinishWrite_(job,rule,d,status,addedAt) {
+-  if(!d.h){
+-    if(!d.q)throw new Error('SP3_CANDIDATE_MISSING');
+-    const row=d.q.row.slice();d.h={row:row,index:themeAppendRowV2_(d.pair.history,row)};
+-  }
++function sp3ReadDecision_(rule,id,adapter) {
++  adapter=adapter||sp3RequireAdapterForPlaylist_(rule.playlistId);
++  return adapter.readDecision(rule,id);
++}
++function sp3FinishWrite_(job,rule,d,status,addedAt,adapter) {
++  adapter=adapter||sp3RequireAdapterForPlaylist_(rule.playlistId);
++  adapter.ensureHistory(d);
+   const patch={11:'',15:status};if(addedAt)patch[10]=addedAt;
+-  sp3ReceiptPatch_(d.pair.history,d.h,patch);
+-  if(d.q)sp3ReceiptPatch_(d.pair.queue,d.q,patch);
++  adapter.patchReceipt(d,'history',patch);
++  adapter.patchReceipt(d,'queue',patch);
+   job.status='done';job.completedAt=Date.now();sp3SaveJob_(job);
+ }
+ function sp3WriteStep_(ctx,job) {
+-  let rule=sp3NordicRule_();
+-  if(!spotifyThemeOwnedV3_(rule.playlistId)||job.payload.playlistId!==rule.playlistId)throw new Error('SP3_WRITE_SCOPE_DENIED');
++  const adapter=sp3RequireAdapterForJob_(job);
++  let rule=adapter.getRule();
++  if(!adapter.isOwned(rule)||job.payload.playlistId!==rule.playlistId)throw new Error('SP3_WRITE_SCOPE_DENIED');
+   const id=job.payload.episodeId, add=job.kind==='add';
+-  let d=sp3ReadDecision_(rule,id),membership=sp3Membership_(rule.playlistId);
++  let d=sp3ReadDecision_(rule,id,adapter),membership=sp3Membership_(rule.playlistId);
+   // Crash/timeout after journal persistence always reconciles before any retry.
+   if(job.status==='sending')job.status='verify';
+   if(job.status==='verify'){
+@@ -106,7 +108,7 @@
+       sp3RefreshJob_(rule.playlistId,'verify');throw sp3Yield_('SP3_VERIFY_PENDING',Date.now()+1000);
+     }
+     if(membership.ids.has(id)===add){
+-      sp3FinishWrite_(job,rule,d,add?'追加済み':'人間削除済み',add?new Date(job.sentAt):null);return;
++      sp3FinishWrite_(job,rule,d,add?'追加済み':'人間削除済み',add?new Date(job.sentAt):null,adapter);return;
+     }
+     // Never blindly retry an ambiguous POST; an external deletion may already have happened.
+     job.status='review';job.error='SP3_WRITE_OUTCOME_UNRESOLVED';sp3SaveJob_(job);
+@@ -124,27 +126,27 @@
+   if(!membership||Date.now()-membership.value.lastFreshFetchedAt>SP3_.writeFreshMs){
+     sp3RefreshJob_(rule.playlistId,'before-write');throw sp3Yield_('SP3_MEMBERSHIP_PENDING',Date.now()+1000);
+   }
+-  if(membership.ids.has(id)===add){sp3FinishWrite_(job,rule,d,add?'既存登録確認':'人間削除済み',add?new Date():null);return;}
++  if(membership.ids.has(id)===add){sp3FinishWrite_(job,rule,d,add?'既存登録確認':'人間削除済み',add?new Date():null,adapter);return;}
+   if(add){
+     const ep=spotifyPoolRequireV3_([id])[0];
+-    if(!ep||classifyThemeEpisodeV2_(sp3Episode_(ep),rule).kind!=='confirmed'){
++    if(!ep||adapter.classifyEpisode(sp3Episode_(ep),rule).kind!=='confirmed'){
+       job.status='cancelled';sp3SaveJob_(job);return;
+     }
+   }
+   assertAutoPlaylistSheetLinkBeforeWrite_(rule);
+-  if(!sp3AccessStep_(ctx,job,rule,membership.value.meta))return;
++  if(!sp3AccessStep_(ctx,job,rule,membership.value.meta,adapter))return;
+   try {
+     const response=sp3Gateway_(ctx,job,'playlists/'+rule.playlistId+'/items',{
+       method:add?'post':'delete',body:add?{uris:['spotify:episode:'+id]}:{items:[{uri:'spotify:episode:'+id}],snapshot_id:membership.value.snapshotId},
+       beforeSend:function(){
+         // Re-read authoritative rule and human columns after budget and access checks.
+-        rule=sp3NordicRule_();d=sp3ReadDecision_(rule,id);
++        rule=adapter.getRule();d=sp3ReadDecision_(rule,id,adapter);
+         if(!rule.enabled||!rule.productionWriteAllowed||d.decision==='hold'||
+           add&&(d.decision==='blocked'||d.h&&d.h.row[10]||sp3Get_('Tombstones',rule.playlistId+'|'+id))||
+           !add&&d.decision!=='blocked')throw sp3Yield_('SP3_HUMAN_CHANGED');
+-        if(add&&classifyThemeEpisodeV2_(sp3Episode_(spotifyPoolReadV3_(id)),rule).kind!=='confirmed')throw sp3Yield_('SP3_RULE_CHANGED');
+-        if(!d.h){const row=d.q.row.slice();d.h={row:row,index:themeAppendRowV2_(d.pair.history,row)};}
+-        sp3ReceiptPatch_(d.pair.history,d.h,{15:add?'追加準備':'削除準備'});
++        if(add&&adapter.classifyEpisode(sp3Episode_(spotifyPoolReadV3_(id)),rule).kind!=='confirmed')throw sp3Yield_('SP3_RULE_CHANGED');
++        adapter.ensureHistory(d);
++        adapter.patchReceipt(d,'history',{15:add?'追加準備':'削除準備'});
+         job.status='sending';job.sentAt=Date.now();sp3SaveJob_(job);
+         const pl=spotifyPlaylistCachedV3_(rule.playlistId);pl.dirty=true;sp3Put_('Playlist',SP3_.scope+'|'+rule.playlistId,pl);
+       }
+@@ -166,9 +168,10 @@
+   if(job.kind==='playlist')return sp3PlaylistStep_(ctx,job);
+   if(['add','remove'].includes(job.kind))return sp3WriteStep_(ctx,job);
+   if(job.kind==='access'){
+-    const rule=sp3NordicRule_(),pl=spotifyPlaylistCachedV3_(rule.playlistId);
++    const adapter=sp3RequireAdapterForJob_(job),rule=adapter.getRule(),pl=spotifyPlaylistCachedV3_(rule.playlistId);
++    if(!adapter.isOwned(rule)||job.payload.playlistId!==rule.playlistId)throw new Error('SP3_WRITE_SCOPE_DENIED');
+     if(!pl||!pl.meta)throw sp3Yield_('SP3_MEMBERSHIP_PENDING');
+-    sp3AccessStep_(ctx,job,rule,pl.meta);job.status='done';sp3SaveJob_(job);return;
++    sp3AccessStep_(ctx,job,rule,pl.meta,adapter);job.status='done';sp3SaveJob_(job);return;
+   }
+   if(job.kind==='episode'){
+     const data=sp3Gateway_(ctx,job,'episodes/'+job.resource+'?market=JP',{mode:'fresh'});
+--- a/access-v3/tests/harness.cjs
++++ b/access-v3/tests/harness.cjs
+@@ -45,7 +45,7 @@
+  const pair=c.themePairV2_(rule,true);
+  const corpus=c.themeCorpusV2_();
+  const addEp=(id=EP,name='北欧の暮らし')=>corpus.appendRow(['show',id,'2026-10-03',name,'スウェーデンの社会','show',new Clock(),true]);
+- for(const file of ['SpotifyAccessV3.js','SpotifyNordicV3.js'])vm.runInContext(fs.readFileSync('access-v3/src/'+file,'utf8'),c);
++ for(const file of ['SpotifyAccessV3.js','SpotifyAccessV3Adapters.js','SpotifyNordicV3.js'])vm.runInContext(fs.readFileSync('access-v3/src/'+file,'utf8'),c);
+  c.ScriptApp={getProjectTriggers:()=>[],newTrigger:()=>({timeBased(){return this;},everyMinutes(){return this;},create(){}})};
+  runtime=[rule];
+  return {c,props,sheets,requests,logs,rule,pair,corpus,addEp,ss,
+--- a/access-v3/tests/access-v3.test.cjs
++++ b/access-v3/tests/access-v3.test.cjs
+@@ -183,3 +183,21 @@
+  assert.equal(h.c.sp3Membership_(ID).ids.size,0);assert.equal(h.c.sp3All_('PlaylistPages').length,2);
+  assert.ok(h.c.sp3Get_('PlaylistPages','other|g|0'));
+ });
++test('domain adapter resolves Nordic exactly and unknown playlist fails closed',()=>{
++ const h=harness();enable(h);
++ const a=h.c.sp3RequireAdapterForPlaylist_(ID);
++ assert.equal(a.key,'NORDIC');assert.equal(a.getRule().playlistId,ID);assert.equal(a.isOwned(h.rule),true);
++ assert.throws(()=>h.c.sp3RequireAdapterForPlaylist_('UNKNOWN_PLAYLIST'),/SP3_DOMAIN_ADAPTER_MISSING/);
++});
++test('unknown-domain write job fails closed before any Spotify request',()=>{
++ const h=harness(),ctx=fresh(h),job={kind:'add',payload:{playlistId:'UNKNOWN_PLAYLIST',episodeId:EP}};
++ assert.throws(()=>h.c.sp3WriteStep_(ctx,job),/SP3_DOMAIN_ADAPTER_MISSING/);assert.equal(h.requests.length,0);
++});
++test('Nordic adapter preserves decision and row semantics',()=>{
++ const h=harness();pool(h);enable(h);const a=h.c.sp3RequireAdapterForPlaylist_(ID),rule=a.getRule();
++ const ep=h.c.spotifyPoolReadV3_(EP),episode=h.c.sp3Episode_(ep),result=a.classifyEpisode(episode,rule);
++ const directResult=h.c.classifyThemeEpisodeV2_(episode,rule);
++ assert.deepEqual(JSON.parse(JSON.stringify(result)),JSON.parse(JSON.stringify(directResult)));
++ const row=a.buildRow(rule,episode,result),directRow=h.c.themeRowV2_(rule,episode,directResult);
++ assert.deepEqual(JSON.parse(JSON.stringify(row)),JSON.parse(JSON.stringify(directRow)));
++});
+--- /dev/null
++++ b/access-v3/src/SpotifyAccessV3Adapters.js
+@@ -0,0 +1,55 @@
++// Domain adapter boundary for Spotify Access V3.
++// Phase 1 registers only the existing Nordic theme. Unknown playlist domains fail closed.
++function sp3NordicAdapter_() {
++  return {
++    key:'NORDIC',
++    getRule:function(){ return sp3NordicRule_(); },
++    isOwned:function(rule){ return !!rule && spotifyThemeOwnedV3_(rule.playlistId); },
++    getState:function(){ return sp3Prop_('NORDIC',{}); },
++    saveState:function(state){ sp3Save_('NORDIC',state); },
++    scan:function(rule){
++      const pair=themePairV2_(rule,false);
++      return {pair:pair,queue:themeRowsByIdV2_(pair.queue,rule),history:themeRowsByIdV2_(pair.history,rule)};
++    },
++    decision:function(q,h){ return themeDecisionV2_(q&&q.row,h&&h.row); },
++    readDecision:function(rule,id){
++      const scan=this.scan(rule),q=scan.queue[id],h=scan.history[id];
++      return {pair:scan.pair,q:q,h:h,decision:this.decision(q,h)};
++    },
++    classifyEpisode:function(ep,rule){ return classifyThemeEpisodeV2_(ep,rule); },
++    buildRow:function(rule,ep,result){ return themeRowV2_(rule,ep,result); },
++    appendQueue:function(scan,row){ return {row:row,index:themeAppendRowV2_(scan.pair.queue,row)}; },
++    ensureHistory:function(d){
++      if(d.h)return d.h;
++      if(!d.q)throw new Error('SP3_CANDIDATE_MISSING');
++      const row=d.q.row.slice();
++      d.h={row:row,index:themeAppendRowV2_(d.pair.history,row)};
++      return d.h;
++    },
++    patchReceipt:function(d,target,patch){
++      const item=target==='history'?d.h:d.q;
++      if(item)sp3ReceiptPatch_(target==='history'?d.pair.history:d.pair.queue,item,patch);
++    }
++  };
++}
++
++// Future domains may implement this hook in their own file. It must return an adapter
++// for the exact playlistId or null. No implicit Nordic fallback is permitted.
++function sp3AdapterForPlaylist_(playlistId) {
++  if(playlistId===SP3_.nordic)return sp3NordicAdapter_();
++  if(typeof sp3AdditionalAdapterForPlaylist_==='function'){
++    const adapter=sp3AdditionalAdapterForPlaylist_(playlistId);
++    if(adapter)return adapter;
++  }
++  return null;
++}
++function sp3RequireAdapterForPlaylist_(playlistId) {
++  const adapter=sp3AdapterForPlaylist_(playlistId);
++  if(!adapter)throw new Error('SP3_DOMAIN_ADAPTER_MISSING:'+String(playlistId||''));
++  return adapter;
++}
++function sp3RequireAdapterForJob_(job) {
++  const playlistId=job&&job.payload&&job.payload.playlistId;
++  if(!playlistId)throw new Error('SP3_JOB_PLAYLIST_MISSING');
++  return sp3RequireAdapterForPlaylist_(playlistId);
++}
