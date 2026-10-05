@@ -140,11 +140,15 @@ function runAutoUpdateAutomationV1() {
   const sync = syncApprovedAutoUpdateRequestsV1();
   // 既存の日次トリガーを共用する。テーマ運用が停止中でも、
   // 固定ルール（ノーミライ）まで巻き込んで止めない。
-  const themeEnabled = typeof isThemeReviewSpotifyWriteEnabled_ === "function" &&
-    isThemeReviewSpotifyWriteEnabled_();
-  const theme = themeEnabled && typeof runThemeReviewAutomation === "function"
-    ? runThemeReviewAutomation()
-    : { skipped: true, reason: "disabled" };
+  const theme = typeof runThemeV3Automation === "function"
+    ? runThemeV3Automation()
+    : (
+      typeof isThemeReviewSpotifyWriteEnabled_ === "function" &&
+      isThemeReviewSpotifyWriteEnabled_() &&
+      typeof runThemeReviewAutomation === "function"
+        ? runThemeReviewAutomation()
+        : { skipped: true, reason: "disabled" }
+    );
   const managed = syncDailyManagedAutoPlaylistsV1_();
   return { activation: activation, sync: sync, theme: theme, managed: managed };
 }
@@ -313,64 +317,76 @@ function processPendingAutoUpdateRequestsV1() {
         return;
       }
 
-      // Theme requests must remain inactive until reviewed.
-    if (plan.ruleType === AUTO_PLAYLIST_RULE_TYPE_THEME_) {
-      if (rule.enabled !== false ||
+      // Theme V3: after Spotify edit access is confirmed, create one human-readable
+      // sheet, generate a broad AI draft, write it to Spotify, then enter incremental AUTO.
+      if (plan.ruleType === AUTO_PLAYLIST_RULE_TYPE_THEME_) {
+        if (
+          rule.enabled !== false ||
           rule.productionWriteAllowed !== false ||
           rule.reviewRequired !== true ||
-          rule.lifecycleStatus !== "requested") {
-        throw new Error("テーマの初期安全設定が不正です");
-      }
+          rule.lifecycleStatus !== "requested"
+        ) {
+          throw new Error("テーマの初期安全設定が不正です");
+        }
 
-      const existing = loadAutoUpdateRuntimeRulesV1_().filter(function(saved) {
-        return saved && saved.playlistId === playlistId;
-      });
+        const existing = loadAutoUpdateRuntimeRulesV1_().filter(function(saved) {
+          return saved && saved.playlistId === playlistId;
+        });
 
-      const fixedExists = AUTO_PLAYLIST_RULES.some(function(saved) {
-        return saved && saved.playlistId === playlistId;
-      });
+        const fixedExists = AUTO_PLAYLIST_RULES.some(function(saved) {
+          return saved && saved.playlistId === playlistId;
+        });
 
-      const sameRequest = existing.length === 1 &&
-        existing[0].key === rule.key &&
-        Number(existing[0].requestSheetRow) === rowNumber &&
-        existing[0].enabled === false &&
-        existing[0].productionWriteAllowed === false &&
-        existing[0].reviewRequired === true &&
-        existing[0].lifecycleStatus === "requested";
+        const sameRequest = existing.length === 1 &&
+          existing[0].key === rule.key &&
+          Number(existing[0].requestSheetRow) === rowNumber;
 
-      if (fixedExists || (existing.length && !sameRequest)) {
-        setAutoUpdateRequestStatusV1_(
-          sheet, rowNumber, "重複申請",
-          "同じプレイリストの登録済みルールがあります"
-        );
-        result.review += 1;
+        if (fixedExists || (existing.length && !sameRequest)) {
+          setAutoUpdateRequestStatusV1_(
+            sheet,
+            rowNumber,
+            "重複申請",
+            "同じプレイリストの登録済みルールがあります"
+          );
+          result.review += 1;
+          return;
+        }
+
+        const targetRule = sameRequest ? existing[0] : rule;
+
+        try {
+          const themeResult = activateSubmittedThemeV3Request_(targetRule, token);
+
+          // Invite URL is no longer needed after access confirmation.
+          sheet.getRange(rowNumber, 5).clearContent();
+
+          setAutoUpdateRequestStatusV1_(
+            sheet,
+            rowNumber,
+            "増分自動更新",
+            "Theme V3自動開始 / タブ: " +
+              themeResult.sheetName +
+              " / 初稿 " +
+              themeResult.initialCandidateCount +
+              "件 / Spotify追加 " +
+              themeResult.addedCount +
+              "件"
+          );
+
+          result.activated += 1;
+        } catch (error) {
+          setAutoUpdateRequestStatusV1_(
+            sheet,
+            rowNumber,
+            "確認待ち",
+            "Theme V3自動開始に失敗しました: " +
+              (error && error.message ? error.message : String(error))
+          );
+          result.review += 1;
+        }
+
         return;
       }
-
-      if (!sameRequest) {
-        saveAutoUpdateRuntimeRuleV1_(rule);
-      }
-
-      try {
-        prepareThemeReviewSheetsV1_(rule.key);
-      } catch (error) {
-        setAutoUpdateRequestStatusV1_(
-          sheet, rowNumber, "確認待ち",
-          "テーマ専用タブの準備に失敗しました: " +
-            (error && error.message ? error.message : String(error))
-        );
-        result.review += 1;
-        return;
-      }
-
-      setAutoUpdateRequestStatusV1_(
-        sheet, rowNumber, "確認待ち",
-        "テーマ専用タブを準備しました。内容確認と承認が必要です"
-      );
-
-      result.review += 1;
-      return;
-    }
 
     assertAutoPlaylistRuleActivationSafe_(rule);
 
@@ -427,7 +443,9 @@ function syncApprovedAutoUpdateRequestsV1() {
     const token = getSpotifyUserAccessToken();
     if (!token) throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
     const rules = loadAutoUpdateRuntimeRulesV1_().filter(function(rule) {
-      return rule && rule.bootstrapPending !== true;
+      return rule &&
+        rule.bootstrapPending !== true &&
+        !(typeof isThemeV3RuntimeRule_ === "function" && isThemeV3RuntimeRule_(rule));
     });
     const results = [];
     rules.forEach(function(rule) {
