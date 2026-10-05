@@ -628,15 +628,6 @@ function formatPlaylistDate(value?: string | null) {
   if (!match) return clean;
   return `${Number(match[1])}.${Number(match[2])}.${Number(match[3])}`;
 }
-function isRecentPlaylistDate(value?: string | null, days = 7) {
-  const clean = String(value || "").trim();
-  const match = clean.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
-  if (!match) return false;
-  const updated = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])).getTime();
-  const now = Date.now();
-  const diff = now - updated;
-  return diff >= 0 && diff <= days * 24 * 60 * 60 * 1000;
-}
 function playlistDateValue(value?: string | null) {
   const clean = String(value || "").trim();
   const match = clean.match(/^(\d{4})-(\d{2})-(\d{2})/);
@@ -648,13 +639,8 @@ function isPlaylistGrowing(p: Playlist) {
   return p.autoManaged === true;
 }
 
-// NEW denotes a recently published episode, never a recently registered list.
-function hasRecentPlaylistNews(p: Playlist) {
-  return isRecentPlaylistDate(p.latestDate);
-}
-
-// 🌾 新米: any playlist registered within the last year.
-// AUTO / manual registration are treated the same; after one year the badge disappears.
+// 🌾 新米: playlist registered within the last 90 days.
+// AUTO / manual registration are treated the same.
 function isNewRice(p: Playlist) {
   const match = String(p.introducedDate || "").trim()
     .match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
@@ -663,11 +649,11 @@ function isNewRice(p: Playlist) {
   if (registered.getFullYear() !== Number(match[1]) ||
       registered.getMonth() !== Number(match[2]) - 1 ||
       registered.getDate() !== Number(match[3])) return false;
+  registered.setHours(0, 0, 0, 0);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const end = new Date(registered);
-  end.setFullYear(end.getFullYear() + 1);
-  return today >= registered && today < end;
+  const diff = today.getTime() - registered.getTime();
+  return diff >= 0 && diff < 90 * 24 * 60 * 60 * 1000;
 }
 
 function listenerPodcastBadge(introduced?: string) {
@@ -1537,6 +1523,10 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <span>未聴{livePlaylists.length - listened.length}</span>
                 <span>既聴{listened.length}</span>
               </div>
+            </div>
+            <div className="playlistGrowGuide" aria-label="朝リストの表示について">
+              <p><b>みんなで育てる朝リストです。</b> ネジート一人が選ぶリストではなく、朝リスのみなさんの投稿と公式番組の公開情報をもとに、みんなで育てていく非公式の案内所です。</p>
+              <p><b>🌱 楽育ち</b>＝新着を自動巡回して育つプレイリスト　 <b>🌾 新米</b>＝登録から90日以内　 <b>最終新着</b>＝プレイリスト内でいちばん新しいエピソードの公開日</p>
             </div>
             <section className="omikujiPanel">
               <div className="omikujiLead">
