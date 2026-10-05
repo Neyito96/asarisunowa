@@ -42,6 +42,7 @@ function buildThemeV3SpotifyPlan_(rows, currentSpotifyEpisodeIds) {
   const alreadyPresent = [];
   const manualRemovalTombstones = [];
   const removalReview = [];
+  const unavailable = [];
 
   (Array.isArray(rows) ? rows : []).forEach(function(row, index) {
     const episodeId = getThemeV3EpisodeId_(row);
@@ -49,6 +50,7 @@ function buildThemeV3SpotifyPlan_(rows, currentSpotifyEpisodeIds) {
 
     const decision = getThemeV3Decision_(row);
     const addedAt = getThemeV3AddedAt_(row);
+    const errorText = String(row && row[11] ? row[11] : "").trim();
     const present = current.has(episodeId);
 
     if (decision === "採用") {
@@ -59,6 +61,12 @@ function buildThemeV3SpotifyPlan_(rows, currentSpotifyEpisodeIds) {
           rowNumber: index + 2,
           episodeId: episodeId,
           reason: "spotify_manual_removal"
+        });
+      } else if (/^Spotify取得不可/.test(errorText)) {
+        unavailable.push({
+          rowNumber: index + 2,
+          episodeId: episodeId,
+          reason: errorText
         });
       } else {
         additions.push({ rowNumber: index + 2, episodeId: episodeId });
@@ -79,7 +87,8 @@ function buildThemeV3SpotifyPlan_(rows, currentSpotifyEpisodeIds) {
     additions: additions,
     alreadyPresent: alreadyPresent,
     manualRemovalTombstones: manualRemovalTombstones,
-    removalReview: removalReview
+    removalReview: removalReview,
+    unavailable: unavailable
   };
 }
 
@@ -220,20 +229,42 @@ function applyThemeV3SpotifyPlan_(sheet, rule, token, plan) {
     if (!addedCell.getValue()) addedCell.setValue(now);
     const confirmedCell = sheet.getRange(item.rowNumber, 10);
     if (!confirmedCell.getValue()) confirmedCell.setValue(now);
+    sheet.getRange(item.rowNumber, 12).clearContent();
   });
 
   if (!additions.length) {
-    return { addedCount: 0, failedCount: 0, addedEpisodes: [] };
+    return { addedCount: 0, failedCount: 0, addedEpisodes: [], unavailableCount: 0 };
   }
 
   assertAutoPlaylistSheetLinkBeforeWrite_(rule);
-  const episodes = fetchThemeReviewEpisodeDetails_(additions.map(function(item) {
-    return item.episodeId;
-  }), token).sort(function(a, b) {
+
+  // Batch endpoint is tolerant of removed/unavailable historical episodes.
+  // A single 404 must not abort the whole theme playlist update.
+  const episodes = fetchPlayableAutoUpdateEpisodesV1_(
+    additions.map(function(item) { return item.episodeId; }),
+    token
+  ).sort(function(a, b) {
     return String(a.release_date || "").localeCompare(String(b.release_date || ""));
   });
 
-  const result = addAutoPlaylistEpisodesIndividually_(rule, token, episodes);
+  const fetchedIds = new Set(episodes.map(function(ep) {
+    return String(ep && ep.id ? ep.id : "");
+  }));
+
+  const unavailable = additions.filter(function(item) {
+    return !fetchedIds.has(item.episodeId);
+  });
+
+  unavailable.forEach(function(item) {
+    sheet.getRange(item.rowNumber, 12).setValue(
+      "Spotify取得不可（配信停止・地域制限・旧IDの可能性）"
+    );
+  });
+
+  const result = episodes.length
+    ? addAutoPlaylistEpisodesIndividually_(rule, token, episodes)
+    : { addedCount: 0, failedCount: 0, addedEpisodes: [] };
+
   const addedIds = new Set((result.addedEpisodes || []).map(function(ep) {
     return String(ep && ep.id ? ep.id : "");
   }));
@@ -246,9 +277,11 @@ function applyThemeV3SpotifyPlan_(sheet, rule, token, plan) {
     sheet.getRange(item.rowNumber, 12).clearContent();
   });
 
-  return result;
+  return Object.assign({}, result, {
+    unavailableCount: unavailable.length,
+    unavailableIds: unavailable.map(function(item) { return item.episodeId; })
+  });
 }
-
 function appendThemeV3AutoDraftCandidates_(sheet, rule, episodes) {
   const rows = readThemeV3Rows_(sheet);
   const known = new Set(rows.map(getThemeV3EpisodeId_).filter(Boolean));
