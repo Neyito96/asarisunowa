@@ -69,3 +69,22 @@ test("known source tabs identify obsolete south-america copy", () => {
     throw new Error("中南米の重複コピータブを検出できません");
   }
 });
+
+
+test("trusted Nordic reference set contains 13 episodes", () => {
+  const c = context();
+  const count = vm.runInContext("NORDIC_TRUSTED_EPISODE_IDS_V2_.length", c);
+  if (count !== 13) throw new Error("北欧の信頼正解集合が13件ではありません");
+});
+
+test("trusted coverage audit reports missing IDs without writes", () => {
+  const c = context();
+  c.rows = [
+    ["request-x","0GabfxiQpFs1tUJ4luNS2J"],
+    ["request-x","0Afp0GsOsTbK1wdZMIlpYE"]
+  ];
+  const report = vm.runInContext("auditNordicTrustedCoverageV2_(rows)", c);
+  if (report.trustedCount !== 13 || report.presentCount !== 2 || report.missingCount !== 11) {
+    throw new Error("北欧の信頼集合カバレッジ診断が不正です");
+  }
+});
