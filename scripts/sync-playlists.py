@@ -134,13 +134,21 @@ if not table or table[0][:3] != expected:
 
 base_rows = []
 for source in table[1:]:
-    source += [""] * (3 - len(source))
-    raw_url, title, maker = (value.strip() for value in source[:3])
+    source += [""] * (5 - len(source))
+    raw_url, title, maker, latest_date, introduced_date = (
+        value.strip() for value in source[:5]
+    )
 
     if not title:
         continue
 
-    base_rows.append([title, maker, normalize_url(raw_url)])
+    base_rows.append([
+        title,
+        maker,
+        normalize_url(raw_url),
+        latest_date or None,
+        introduced_date or None,
+    ])
 
 if len(base_rows) < 10:
     raise SystemExit(f"停止：取得件数が少なすぎます（{len(base_rows)}件）")
@@ -163,9 +171,11 @@ rows = [
         url,
         LOCAL_ARTWORK_BY_URL.get(url)
         or artwork
-        or existing_artwork_by_url.get(url)
+        or existing_artwork_by_url.get(url),
+        latest_date,
+        introduced_date,
     ]
-    for (title, maker, url), artwork in zip(base_rows, artworks)
+    for (title, maker, url, latest_date, introduced_date), artwork in zip(base_rows, artworks)
 ]
 
 output = (
@@ -179,11 +189,11 @@ output = (
     "  introducedDate?: string | null;\n"
     "  autoManaged?: boolean;\n"
     "};\n"
-    + "const rows:[string,string,string|null,string|null][] = "
+    + "const rows:[string,string,string|null,string|null,string|null,string|null][] = "
     + json.dumps(rows, ensure_ascii=False, indent=2)
     + ";\n"
     + "export const playlists:Playlist[] = rows.map((r,i)=>"
-      "({id:String(i+1),title:r[0],maker:r[1],url:r[2],artwork:r[3]}));\n"
+      "({id:String(i+1),title:r[0],maker:r[1],url:r[2],artwork:r[3],latestDate:r[4],introducedDate:r[5]}));\n"
 )
 
 Path("app/data.ts").write_text(output, encoding="utf-8")
