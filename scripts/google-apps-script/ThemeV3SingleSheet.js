@@ -271,6 +271,69 @@ function fetchThemeV3PlayableEpisodesTolerant_(episodeIds, token) {
   };
 }
 
+
+function assertThemeV3SpotifyWrite_(rule) {
+  if (!rule) throw new Error("Theme V3 ruleがありません");
+  const sheetName = getThemeV3SheetNameByPlaylistId_(rule.playlistId);
+  if (!sheetName) throw new Error("Theme V3対象プレイリストではありません: " + String(rule.playlistId || ""));
+  if (rule.enabled === false) throw new Error("Theme V3 ruleが無効です");
+  if (rule.productionWriteAllowed !== true) throw new Error("Theme V3本番書き込みが許可されていません");
+  if (rule.reviewRequired !== true) throw new Error("Theme V3は人間レビュー有効である必要があります");
+  if (String(rule.lifecycleStatus || "").trim().toLowerCase() !== "incremental") {
+    throw new Error("Theme V3 lifecycleStatusがincrementalではありません");
+  }
+}
+
+function addThemeV3EpisodesIndividually_(rule, token, episodes) {
+  assertThemeV3SpotifyWrite_(rule);
+
+  let addedCount = 0;
+  let failedCount = 0;
+  const addedEpisodes = [];
+
+  (Array.isArray(episodes) ? episodes : []).forEach(function(ep) {
+    const addRes = UrlFetchApp.fetch(
+      "https://api.spotify.com/v1/playlists/" +
+        encodeURIComponent(rule.playlistId) +
+        "/items",
+      {
+        method: "post",
+        muteHttpExceptions: true,
+        contentType: "application/json",
+        headers: {
+          Authorization: "Bearer " + token
+        },
+        payload: JSON.stringify({
+          uris: [String(ep.uri)]
+        })
+      }
+    );
+
+    const status = addRes.getResponseCode();
+    if (status === 200 || status === 201) {
+      addedCount++;
+      addedEpisodes.push(ep);
+      Logger.log("Theme V3追加成功 ✅ " + ep.name);
+    } else {
+      failedCount++;
+      Logger.log(
+        "Theme V3追加不可 ⚠️ " +
+        ep.name +
+        " | status=" +
+        status +
+        " | " +
+        addRes.getContentText()
+      );
+    }
+  });
+
+  return {
+    addedCount: addedCount,
+    failedCount: failedCount,
+    addedEpisodes: addedEpisodes
+  };
+}
+
 function applyThemeV3SpotifyPlan_(sheet, rule, token, plan) {
   const additions = Array.isArray(plan && plan.additions) ? plan.additions : [];
   const already = Array.isArray(plan && plan.alreadyPresent) ? plan.alreadyPresent : [];
@@ -313,7 +376,7 @@ function applyThemeV3SpotifyPlan_(sheet, rule, token, plan) {
   });
 
   const result = episodes.length
-    ? addAutoPlaylistEpisodesIndividually_(rule, token, episodes)
+    ? addThemeV3EpisodesIndividually_(rule, token, episodes)
     : { addedCount: 0, failedCount: 0, addedEpisodes: [] };
 
   const addedIds = new Set((result.addedEpisodes || []).map(function(ep) {
