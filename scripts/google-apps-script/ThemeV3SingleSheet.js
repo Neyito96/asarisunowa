@@ -452,7 +452,7 @@ function fetchThemeV3PlayableEpisodesTolerant_(episodeIds, token) {
 
 function assertThemeV3SpotifyWrite_(rule) {
   if (!rule) throw new Error("Theme V3 ruleがありません");
-  const sheetName = getThemeV3SheetNameByPlaylistId_(rule.playlistId);
+  const sheetName = getThemeV3SheetNameForRule_(rule);
   if (!sheetName) throw new Error("Theme V3対象プレイリストではありません: " + String(rule.playlistId || ""));
   if (rule.enabled === false) throw new Error("Theme V3 ruleが無効です");
   if (rule.productionWriteAllowed !== true) throw new Error("Theme V3本番書き込みが許可されていません");
