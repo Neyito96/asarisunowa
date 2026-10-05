@@ -31,7 +31,10 @@ const AUTO_PLAYLIST_RULES = [
     name: "一緒に新聞をめくろう！",
     showIds: ["392h0MYfvMTndEVzf2cOvC"],
     playlistId: "4tY0lHoV8IemMBp4iTnKnl",
-    keyword: "めくろう"
+    keyword: "めくろう",
+    addIndividually: true,
+    updateLatestDateOnAdd: true,
+    requireSheetLinkBeforeWrite: true
   },
   {
     key: "kino-douga",
