@@ -87,7 +87,7 @@ export default function PlaylistCombinedAutoForm() {
       setStatus("success");
       setMessage(
         updateType === "theme"
-          ? "登録と申請を受け付けました。テーマ別は内容を確認してから自動更新を開始します。朝リスの田への掲載は通常30〜60分程度です。"
+          ? "登録と申請を受け付けました。共同編集の確認後、テーマ候補を自動判定して初稿を作り、Spotifyへ追加して楽育ちを開始します。朝リスの田への掲載は通常30〜60分程度です。"
           : "登録と申請を受け付けました🐿️ 共同編集確認後、Spotifyの初回分は1時間ごとに最大50件ずつ、古い回から順に追加します。完了後は毎朝4〜5時に新着回だけ確認します。朝リスの田への掲載は通常30〜60分程度です。",
       );
       setUrl("");
@@ -114,7 +114,7 @@ export default function PlaylistCombinedAutoForm() {
   return (
     <form className="autoUpdateForm" onSubmit={submit}>
       <h3>登録＋自動更新（楽育ち）を申し込む</h3>
-      <p>まずSpotifyで新しいプレイリストを作り、起点となる一番古いエピソードを1本入れてください。その後、この画面から申請してください。</p>
+      <p>{updateType === "theme" ? "Spotifyでテーマ用のプレイリストを作り、この画面から申請してください。共同編集の確認後、候補を自動判定して初稿を作ります。" : "まずSpotifyで新しいプレイリストを作り、起点となる一番古いエピソードを1本入れてください。その後、この画面から申請してください。"}</p>
 
       <label>
         <span>SpotifyプレイリストURL</span>
@@ -160,7 +160,7 @@ export default function PlaylistCombinedAutoForm() {
           <div><dt>完了後</dt><dd>毎朝4〜5時に新着回だけ確認</dd></div>
           <div><dt>掲載</dt><dd>通常30〜60分</dd></div>
         </dl>
-        <p className="autoUpdateThemeNote">※テーマ別は内容を確認してから自動更新を開始します。</p>
+        <p className="autoUpdateThemeNote">※テーマ別は共同編集の確認後、自動判定した初稿をSpotifyへ追加し、そのまま毎朝の楽育ちへ移行します。</p>
       </div>
       <label>
         <span>更新ルール・補足 <small>（任意）</small></span>
