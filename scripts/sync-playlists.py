@@ -135,9 +135,9 @@ if not table or table[0][:3] != expected:
 
 base_rows = []
 for source in table[1:]:
-    source += [""] * (5 - len(source))
-    raw_url, title, maker, latest_date, introduced_date = (
-        value.strip() for value in source[:5]
+    source += [""] * (6 - len(source))
+    raw_url, title, maker, latest_date, introduced_date, auto_flag = (
+        value.strip() for value in source[:6]
     )
 
     if not title:
@@ -149,6 +149,7 @@ for source in table[1:]:
         normalize_url(raw_url),
         latest_date or None,
         introduced_date or None,
+        auto_flag == "AUTO",
     ])
 
 if len(base_rows) < 10:
@@ -175,8 +176,9 @@ rows = [
         or existing_artwork_by_url.get(url),
         latest_date,
         introduced_date,
+        auto_managed,
     ]
-    for (title, maker, url, latest_date, introduced_date), artwork in zip(base_rows, artworks)
+    for (title, maker, url, latest_date, introduced_date, auto_managed), artwork in zip(base_rows, artworks)
 ]
 
 output = (
@@ -190,11 +192,11 @@ output = (
     "  introducedDate?: string | null;\n"
     "  autoManaged?: boolean;\n"
     "};\n"
-    + "const rows:[string,string,string|null,string|null,string|null,string|null][] = "
+    + "const rows:[string,string,string|null,string|null,string|null,string|null,boolean][] = "
     + json.dumps(rows, ensure_ascii=False, indent=2)
     + ";\n"
     + "export const playlists:Playlist[] = rows.map((r,i)=>"
-      "({id:String(i+1),title:r[0],maker:r[1],url:r[2],artwork:r[3],latestDate:r[4],introducedDate:r[5]}));\n"
+      "({id:String(i+1),title:r[0],maker:r[1],url:r[2],artwork:r[3],latestDate:r[4],introducedDate:r[5],autoManaged:r[6]}));\n"
 )
 
 Path("app/data.ts").write_text(output, encoding="utf-8")
