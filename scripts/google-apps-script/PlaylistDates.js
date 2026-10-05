@@ -321,10 +321,58 @@ function updatePlaylistLatestDate_(playlistId, releaseDate) {
   // 作業台 F列 = 最終更新日
   sheet.getRange(rowNumber, 6).setValue(latestDate);
 
+  // サイトは「サイト公開用」D列を読むため、同じplaylistIdの公開行も同時更新する。
+  // これを行わないとSpotify/作業台だけ新しくなり、サイト表示が古いまま残る。
+  updatePublicPlaylistLatestDateV1_(ss, playlistId, latestDate);
+
   Logger.log(
     "更新日反映 ✅ 作業台 row=" +
     rowNumber +
+    " / サイト公開用 date=" +
+    latestDate
+  );
+}
+
+function updatePublicPlaylistLatestDateV1_(ss, playlistId, latestDate) {
+  const publicSheet = getSheetLoose(ss, PUBLIC_SHEET_NAME);
+  if (!publicSheet) {
+    throw new Error("サイト公開用シートが見つかりません");
+  }
+
+  const lastRow = publicSheet.getLastRow();
+  if (lastRow < 2) {
+    throw new Error("サイト公開用シートにデータがありません");
+  }
+
+  // サイト公開用: A=URL, B=タイトル, C=制作者, D=最終更新日, E=新規登録日
+  const rows = publicSheet
+    .getRange(2, 1, lastRow - 1, 4)
+    .getDisplayValues();
+
+  const matches = [];
+  rows.forEach(function(row, index) {
+    const url = String(row && row[0] ? row[0] : "");
+    if (url.indexOf(playlistId) >= 0) matches.push(index + 2);
+  });
+
+  if (matches.length !== 1) {
+    throw new Error(
+      "サイト公開用の対象プレイリスト行が一意ではありません: " +
+      playlistId +
+      " count=" +
+      matches.length
+    );
+  }
+
+  publicSheet.getRange(matches[0], 4).setValue(latestDate);
+  SpreadsheetApp.flush();
+
+  Logger.log(
+    "更新日反映 ✅ サイト公開用 row=" +
+    matches[0] +
     " date=" +
     latestDate
   );
+
+  return { row: matches[0], latestDate: latestDate };
 }
