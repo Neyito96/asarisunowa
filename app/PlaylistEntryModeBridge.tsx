@@ -179,8 +179,8 @@ export default function PlaylistEntryModeBridge() {
       const themeHead = document.querySelector<HTMLElement>(".playlistThemeHead");
       const kicker = themeHead?.querySelector<HTMLElement>(".themeKicker");
       const heading = themeHead?.querySelector<HTMLElement>("h2");
-      if (kicker) kicker.textContent = shelf === "series" ? "SERIES PLAYLISTS" : "OTHER PLAYLISTS";
-      if (heading) heading.textContent = shelf === "series" ? "朝リスト（連載）" : "朝リスト（その他）";
+      if (kicker) kicker.textContent = shelf === "series" ? "SERIES" : "ASA LIST";
+      if (heading) heading.textContent = shelf === "series" ? "連載" : "朝リスト";
 
       const omikuji = document.querySelector<HTMLElement>(".omikujiPanel");
       if (omikuji) omikuji.hidden = shelf === "series";
