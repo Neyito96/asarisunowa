@@ -140,11 +140,15 @@ function runAutoUpdateAutomationV1() {
   const sync = syncApprovedAutoUpdateRequestsV1();
   // 既存の日次トリガーを共用する。テーマ運用が停止中でも、
   // 固定ルール（ノーミライ）まで巻き込んで止めない。
-  const themeEnabled = typeof isThemeReviewSpotifyWriteEnabled_ === "function" &&
-    isThemeReviewSpotifyWriteEnabled_();
-  const theme = themeEnabled && typeof runThemeReviewAutomation === "function"
-    ? runThemeReviewAutomation()
-    : { skipped: true, reason: "disabled" };
+  const theme = typeof runThemeV3Automation === "function"
+    ? runThemeV3Automation()
+    : (
+      typeof isThemeReviewSpotifyWriteEnabled_ === "function" &&
+      isThemeReviewSpotifyWriteEnabled_() &&
+      typeof runThemeReviewAutomation === "function"
+        ? runThemeReviewAutomation()
+        : { skipped: true, reason: "disabled" }
+    );
   const managed = syncDailyManagedAutoPlaylistsV1_();
   return { activation: activation, sync: sync, theme: theme, managed: managed };
 }
@@ -427,7 +431,8 @@ function syncApprovedAutoUpdateRequestsV1() {
     const token = getSpotifyUserAccessToken();
     if (!token) throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
     const rules = loadAutoUpdateRuntimeRulesV1_().filter(function(rule) {
-      return rule && rule.bootstrapPending !== true;
+      return rule && rule.bootstrapPending !== true &&
+        !(typeof isThemeV3RuntimeRule_ === "function" && isThemeV3RuntimeRule_(rule));
     });
     const results = [];
     rules.forEach(function(rule) {
