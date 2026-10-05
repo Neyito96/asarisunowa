@@ -1,4 +1,5 @@
 from pathlib import Path
+# Newly registered playlists are synced here so artwork is available on first publish.
 import csv
 import json
 import urllib.parse
