@@ -20,6 +20,9 @@ jobs:
       - name: Read repository
         uses: actions/checkout@v4
 
+      - name: Test playlist sync and publish contract
+        run: python3 -m unittest discover -s tests -p 'test_playlist_sync.py' -v
+
       - name: Read public spreadsheet
         run: python3 scripts/sync-playlists.py
 

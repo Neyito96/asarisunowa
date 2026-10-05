@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # GITHUB_TOKEN pushes from sync do not trigger a second push workflow.
+  workflow_run:
+    workflows: [Sync listener playlists]
+    types: [completed]
+    branches: [main]
 
 permissions:
   contents: read
@@ -16,9 +21,15 @@ concurrency:
 
 jobs:
   build:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The sync run's head_sha precedes its generated data commit.
+          ref: ${{ github.event_name == 'workflow_run' && 'main' || github.sha }}
+      - name: Test playlist sync and publish contract
+        run: python3 -m unittest discover -s tests -p 'test_playlist_sync.py' -v
       - uses: actions/setup-node@v4
         with:
           node-version: 22
