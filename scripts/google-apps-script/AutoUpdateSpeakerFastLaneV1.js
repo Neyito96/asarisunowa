@@ -72,13 +72,16 @@ function syncOneBootstrapSpeakerLatestFastLaneV1_(rule, token, episodeCache) {
     });
   });
 
-  const existingUris = new Set(getAllSpotifyPlaylistItems_(rule.playlistId, token).map(function(row) {
+  const playlistItems = getAllSpotifyPlaylistItems_(rule.playlistId, token);
+  const existingUris = new Set(playlistItems.map(function(row) {
     return String(row && row.item && row.item.uri ? row.item.uri : "");
   }).filter(Boolean));
 
-  const missing = Object.keys(confirmedById).map(function(id) {
+  const confirmed = Object.keys(confirmedById).map(function(id) {
     return confirmedById[id];
-  }).filter(function(episode) {
+  });
+
+  const missing = confirmed.filter(function(episode) {
     return !existingUris.has(String(episode.uri || ("spotify:episode:" + episode.id)));
   }).sort(function(a, b) {
     const left = String(a.release_date || "");
@@ -100,10 +103,15 @@ function syncOneBootstrapSpeakerLatestFastLaneV1_(rule, token, episodeCache) {
     throw new Error("speaker fast lane Spotify追加に一部失敗しました");
   }
 
-  if (result.addedCount > 0) {
+  const existingConfirmed = confirmed.filter(function(episode) {
+    return existingUris.has(String(episode.uri || ("spotify:episode:" + episode.id)));
+  });
+
+  const latestSource = result.addedEpisodes.concat(existingConfirmed);
+  if (latestSource.length) {
     updatePlaylistLatestDate_(
       rule.playlistId,
-      getLatestReleaseDate_(result.addedEpisodes)
+      getLatestReleaseDate_(latestSource)
     );
   }
 
