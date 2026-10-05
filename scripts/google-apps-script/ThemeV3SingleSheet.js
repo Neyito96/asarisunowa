@@ -513,7 +513,8 @@ function addThemeV3EpisodesIndividually_(rule, token, episodes) {
 }
 
 function applyThemeV3SpotifyPlan_(sheet, rule, token, plan) {
-  const additions = Array.isArray(plan && plan.additions) ? plan.additions : [];
+  const allAdditions = Array.isArray(plan && plan.additions) ? plan.additions : [];
+  const additions = allAdditions.slice(0, 50);
   const already = Array.isArray(plan && plan.alreadyPresent) ? plan.alreadyPresent : [];
   const now = new Date();
 
@@ -526,7 +527,13 @@ function applyThemeV3SpotifyPlan_(sheet, rule, token, plan) {
   });
 
   if (!additions.length) {
-    return { addedCount: 0, failedCount: 0, addedEpisodes: [], unavailableCount: 0 };
+    return {
+      addedCount: 0,
+      failedCount: 0,
+      addedEpisodes: [],
+      unavailableCount: 0,
+      pendingAdditionCount: Math.max(0, allAdditions.length - additions.length)
+    };
   }
 
   assertAutoPlaylistSheetLinkBeforeWrite_(rule);
@@ -571,7 +578,8 @@ function applyThemeV3SpotifyPlan_(sheet, rule, token, plan) {
 
   return Object.assign({}, result, {
     unavailableCount: unavailable.length,
-    unavailableIds: unavailable.map(function(item) { return item.episodeId; })
+    unavailableIds: unavailable.map(function(item) { return item.episodeId; }),
+    pendingAdditionCount: Math.max(0, allAdditions.length - additions.length)
   });
 }
 function appendThemeV3AutoDraftCandidates_(sheet, rule, episodes) {
