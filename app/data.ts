@@ -557,7 +557,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null][] = [
     "中南米",
     "マリオ",
     "https://open.spotify.com/playlist/2Org6cCBgVas4d9OwzzxAv",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37",
     "2026-09-08",
     "2026-09-18"
   ],
