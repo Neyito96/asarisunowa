@@ -137,9 +137,14 @@ function authorizeAutoUpdateAutomationV1() {
 // 毎朝4時台：初回補完は行わず、前回境界より新しい回だけを確認する。
 function runAutoUpdateAutomationV1() {
   const activation = processPendingAutoUpdateRequestsV1();
+
+  // Daily fallback: even if the hourly backfill trigger is missing or delayed,
+  // one pending bootstrap (e.g. speaker playlists such as 斎藤健一郎) still advances.
+  const backfill = syncNextAutoUpdateBootstrapV1_();
+
   const sync = syncApprovedAutoUpdateRequestsV1();
-  // 既存の日次トリガーを共用する。テーマ運用が停止中でも、
-  // 固定ルール（ノーミライ）まで巻き込んで止めない。
+
+  // Theme V3 uses the same daily trigger after initial automatic provisioning.
   const theme = typeof runThemeV3Automation === "function"
     ? runThemeV3Automation()
     : (
@@ -149,8 +154,15 @@ function runAutoUpdateAutomationV1() {
         ? runThemeReviewAutomation()
         : { skipped: true, reason: "disabled" }
     );
+
   const managed = syncDailyManagedAutoPlaylistsV1_();
-  return { activation: activation, sync: sync, theme: theme, managed: managed };
+  return {
+    activation: activation,
+    backfill: backfill,
+    sync: sync,
+    theme: theme,
+    managed: managed
+  };
 }
 
 // 1時間ごと：新規申請を確認し、補完中のリストを順番に最大50件ずつ処理する。
