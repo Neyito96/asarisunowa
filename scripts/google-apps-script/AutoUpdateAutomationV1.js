@@ -156,8 +156,17 @@ function runAutoUpdateBackfillHourlyV1() {
     return { skipped: true, reason: "daily-window" };
   }
   const activation = processPendingAutoUpdateRequestsV1();
+  let speakerLatest = { skipped: true, reason: "handler-missing" };
+  if (typeof syncBootstrapSpeakerLatestFastLaneV1_ === "function") {
+    try {
+      speakerLatest = syncBootstrapSpeakerLatestFastLaneV1_();
+    } catch (error) {
+      Logger.log("speaker fast lane全体失敗: " + String(error));
+      speakerLatest = { ok: false, error: String(error) };
+    }
+  }
   const backfill = syncNextAutoUpdateBootstrapV1_();
-  return { activation: activation, backfill: backfill };
+  return { activation: activation, speakerLatest: speakerLatest, backfill: backfill };
 }
 
 function isAutoUpdateDailyWindowV1_(nowMs) {
