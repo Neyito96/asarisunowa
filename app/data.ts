@@ -590,7 +590,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null][] = [
     "小籠包",
     "https://open.spotify.com/playlist/53r2m8hClGmp3DLY4wPyXW",
     "https://mosaic.scdn.co/300/ab67656300005f1f0aa34a1751836abecdfaf94eab67656300005f1f4817069b8f17726f5fe279edab67656300005f1f5ff7497b0ca23fdfe1dfe018ab67656300005f1fb6f4bccb6ea3c2f72d9472c7",
-    null,
+    "2026-09-29",
     "2026-10-05"
   ]
 ];
