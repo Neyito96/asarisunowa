@@ -1492,7 +1492,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             </div>
           </div>
           <main className="wrap">
-            <div className="themeHead playlistThemeHead">
+            <div className="playlistTopArea">
+              <div className="themeHead playlistThemeHead">
               <div>
                 <p className="kicker themeKicker">ASA LIST</p>
                 <h2>朝リスト</h2>
@@ -1517,14 +1518,15 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <span>未聴{livePlaylists.length - listened.length}</span>
                 <span>既聴{listened.length}</span>
               </div>
-            </div>
-            <div className="playlistIntro" aria-label="朝リストについて">
+              </div>
+              <div className="playlistIntro" aria-label="朝リストについて">
               <p className="playlistIntroLead"><b>聴く人、番組をつくる人。みんなで少しずつ育てていく朝リスト</b></p>
               <p className="playlistIntroDefinitions">
                 <span><b>連載</b>＝番組やシリーズを追いかけるリスト</span>
                 <span><b>朝リスト</b>＝人物・テーマ・気になる切り口から自由につくるリスト</span>
               </p>
               <p className="playlistIntroInvite"><b>「こんな切り口で作ってみた」も大歓迎。気軽に投稿してください</b></p>
+              </div>
             </div>
             <section className="omikujiPanel">
               <div className="omikujiLead">
