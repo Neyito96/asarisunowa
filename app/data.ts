@@ -29,7 +29,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null][] = [
     "#ふな 冨名腰隆　旧【報談】",
     "ふね",
     "https://open.spotify.com/playlist/48tpuTjiqGdJrvkX8R1OkI",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e",
     "2025-07-11",
     null
   ],
@@ -277,7 +277,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null][] = [
     "メディアを語る　伊藤大地x奥山晶二郎x神田大介",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/2lA13BSsvyLjq9iPFa6oDo",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84996d7c4cc61163a9b6ed71d9",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84996d7c4cc61163a9b6ed71d9",
     null,
     null
   ],
@@ -341,7 +341,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null][] = [
     "「SDGsを話そう」厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/4styp7b6VpZThsevXCRDla",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84a1ed8e9ca1ad0f9a7c2b7b07",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84a1ed8e9ca1ad0f9a7c2b7b07",
     null,
     null
   ],
@@ -357,7 +357,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null][] = [
     "「MEDIA TALK」 2023厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/6Q0iXwuC9PuLV3cqg11Dmt",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938",
     null,
     null
   ],
@@ -365,7 +365,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null][] = [
     "楽屋裏2023　厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/0I9wCLs5oFLNIG1aPLQneg",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32",
     null,
     null
   ],
@@ -413,7 +413,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null][] = [
     "#懐メロ（#朝ポキ 楽屋裏）＋おじさんのメロディ",
     "koike",
     "https://open.spotify.com/playlist/0vItsmD8tW7fsv18NkZKzh",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600",
     null,
     null
   ],
@@ -557,7 +557,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null][] = [
     "中南米",
     "マリオ",
     "https://open.spotify.com/playlist/2Org6cCBgVas4d9OwzzxAv",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37",
     "2026-09-08",
     "2026-09-18"
   ],
@@ -584,6 +584,14 @@ const rows:[string,string,string|null,string|null,string|null,string|null][] = [
     "https://mosaic.scdn.co/300/ab67656300005f1f19491601720d9ac0ce5d6967ab67656300005f1f1abe2c43e624e3ba76259c0dab67656300005f1f62a74b44b0a07d20c7436015ab67656300005f1f7c95cacf4489b1d7aa92ec6d",
     "2026-10-04",
     "2026-10-03"
+  ],
+  [
+    "台湾",
+    "小籠包",
+    "https://open.spotify.com/playlist/53r2m8hClGmp3DLY4wPyXW",
+    "https://mosaic.scdn.co/300/ab67656300005f1f0aa34a1751836abecdfaf94eab67656300005f1f4817069b8f17726f5fe279edab67656300005f1f5ff7497b0ca23fdfe1dfe018ab67656300005f1fb6f4bccb6ea3c2f72d9472c7",
+    null,
+    "2026-10-05"
   ]
 ];
 export const playlists:Playlist[] = rows.map((r,i)=>({id:String(i+1),title:r[0],maker:r[1],url:r[2],artwork:r[3],latestDate:r[4],introducedDate:r[5]}));
