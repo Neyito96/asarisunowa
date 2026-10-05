@@ -283,7 +283,7 @@ export default function PlaylistEntryModeBridge() {
               <div className="playlistSubmitHead">
                 <div>
                   <p className="kicker">ADD / GROW A PLAYLIST</p>
-                  <h3>{shelf === "series" ? "🌱 連載の登録・自動更新" : "🌱 朝リストの登録・自動更新"}</h3>
+                  <h3>🌱 連載・朝リストの登録、自動更新</h3>
                   <p>
                     {shelf === "series"
                       ? "同じシリーズをまとめて登録。Spotifyなら新着回も自動追加できます。"
@@ -291,7 +291,7 @@ export default function PlaylistEntryModeBridge() {
                   </p>
                   <div className="playlistGrowGuide" aria-label="楽育ちの使い方">
                     <p><b>🌱 楽育ちとは？</b> 条件に合う新着回をSpotifyプレイリストへ自動で追加する仕組みです。</p>
-                    <p><b>新しく作る場合</b> Spotifyでプレイリストを作り、対象回を1本以上入れてから、共同編集者招待URLと条件を送ってください。</p>
+                    <p><b>新しく作る場合</b> Spotifyでプレイリストを作り、プレイリストURL、共同編集者URLをフォームに貼り付けてください。</p>
                     <p><b>すでにある場合</b> 「今あるリストを自動更新」から、プレイリストURL・共同編集者招待URL・条件を送ってください。</p>
                   </div>
                   <PlaylistEntryModeSelector
