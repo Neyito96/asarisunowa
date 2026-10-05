@@ -3038,3 +3038,84 @@ footer {
     line-height:1.4;
   }
 }
+
+
+/* Refine 朝リスト mobile copy and compact omikuji */
+.playlistIntroDefinitions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:2px 10px;
+}
+.playlistIntroDefinitions > span{
+  display:inline;
+}
+.playlistLegend{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:2px 4px;
+}
+.playlistLegendDivider{
+  color:#a3afb2;
+}
+
+@media(max-width:680px){
+  .playlistIntroLead{
+    line-height:1.4;
+  }
+  .playlistIntroDefinitions{
+    display:grid;
+    gap:1px;
+  }
+  .playlistIntroInvite{
+    margin-top:3px!important;
+  }
+
+  .omikujiPanel{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    gap:8px 10px;
+    margin:0 0 14px;
+    padding:11px 12px;
+    border-radius:14px;
+    box-shadow:none;
+  }
+  .omikujiLead{
+    min-width:0;
+    gap:8px;
+  }
+  .omikujiIcon{
+    font-size:24px;
+  }
+  .omikujiLead h3{
+    margin:0 0 2px;
+    font-size:15px;
+    line-height:1.25;
+  }
+  .omikujiLead p{
+    font-size:11px;
+    line-height:1.25;
+  }
+  .omikujiDraw{
+    width:auto;
+    min-width:92px;
+    margin:0;
+    padding:9px 11px;
+    border-radius:10px;
+    font-size:12px;
+    line-height:1.2;
+  }
+  .omikujiPanel > .omikujiResult{
+    grid-column:1 / -1;
+    margin-top:4px;
+  }
+
+  .playlistLegend{
+    gap:1px 3px;
+    margin:-3px 0 9px;
+  }
+  .playlistLegendItem{
+    white-space:normal;
+  }
+}
