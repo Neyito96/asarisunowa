@@ -1570,7 +1570,6 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                         <span className="playlistUpdateMeta">
                           {isPlaylistGrowing(omikuji) && <span className="playlistGrowingBadge">🌱 楽育ち</span>}
                           {isNewRice(omikuji) && <span className="playlistRiceBadge">🌾 新米</span>}
-                          {hasRecentPlaylistNews(omikuji) && <span className="playlistNewBadge">NEW</span>}
                           <span className="playlistLatestDate">最終新着 {formatPlaylistDate(omikuji.latestDate) || "未取得"}</span>
                         </span>
                         {!listened.includes(omikuji.id) && <span>♡ 未聴</span>}
@@ -1617,7 +1616,6 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                       <div className="playlistUpdateMeta">
                         {isPlaylistGrowing(p) && <span className="playlistGrowingBadge">🌱 楽育ち</span>}
                         {isNewRice(p) && <span className="playlistRiceBadge">🌾 新米</span>}
-                        {hasRecentPlaylistNews(p) && <span className="playlistNewBadge">NEW</span>}
                         <span className="playlistLatestDate">最終新着 {formatPlaylistDate(p.latestDate) || "未取得"}</span>
                       </div>
                       <h3>{p.title}</h3>
