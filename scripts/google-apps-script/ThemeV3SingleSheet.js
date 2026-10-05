@@ -209,6 +209,33 @@ function updateThemeV3PublicLatestDate_(playlistId, latestDate) {
   sheet.getRange(matches[0], 4).setValue(String(latestDate || "").slice(0, 10));
 }
 
+
+function normalizeThemeV3Date_(value) {
+  if (!value) return "";
+  if (Object.prototype.toString.call(value) === "[object Date]" && !isNaN(value.getTime())) {
+    return Utilities.formatDate(value, Session.getScriptTimeZone() || "Asia/Tokyo", "yyyy-MM-dd");
+  }
+  const text = String(value).trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(text)) return text.slice(0, 10);
+  const parsed = new Date(value);
+  if (!isNaN(parsed.getTime())) {
+    return Utilities.formatDate(parsed, Session.getScriptTimeZone() || "Asia/Tokyo", "yyyy-MM-dd");
+  }
+  return "";
+}
+
+function getThemeV3LatestDateFromCurrentSheet_(sheet, currentSpotifyEpisodeIds) {
+  const current = new Set((currentSpotifyEpisodeIds || []).map(String));
+  let latest = "";
+  readThemeV3Rows_(sheet).forEach(function(row) {
+    const id = getThemeV3EpisodeId_(row);
+    if (!id || !current.has(id)) return;
+    const date = normalizeThemeV3Date_(row[2]);
+    if (date && (!latest || date > latest)) latest = date;
+  });
+  return latest;
+}
+
 function getThemeV3LatestPlaylistDate_(playlistItems) {
   let latest = "";
   (Array.isArray(playlistItems) ? playlistItems : []).forEach(function(row) {
@@ -459,7 +486,13 @@ function syncThemeV3Rule_(rule, token) {
   const addResult = applyThemeV3SpotifyPlan_(sheet, rule, token, plan);
 
   playlistItems = getAllSpotifyPlaylistItems_(rule.playlistId, token);
-  const latestDate = getThemeV3LatestPlaylistDate_(playlistItems);
+  let latestDate = getThemeV3LatestPlaylistDate_(playlistItems);
+  if (!latestDate) {
+    latestDate = getThemeV3LatestDateFromCurrentSheet_(
+      sheet,
+      themeV3CurrentSpotifyEpisodeIds_(playlistItems)
+    );
+  }
   if (latestDate) {
     updatePlaylistLatestDate_(rule.playlistId, latestDate);
     updateThemeV3PublicLatestDate_(rule.playlistId, latestDate);
@@ -531,7 +564,13 @@ function runNordicThemeV3Production() {
   }
 
   playlistItems = getAllSpotifyPlaylistItems_(playlistId, token);
-  const latestDate = getThemeV3LatestPlaylistDate_(playlistItems);
+  let latestDate = getThemeV3LatestPlaylistDate_(playlistItems);
+  if (!latestDate) {
+    latestDate = getThemeV3LatestDateFromCurrentSheet_(
+      sheet,
+      themeV3CurrentSpotifyEpisodeIds_(playlistItems)
+    );
+  }
   if (!latestDate) throw new Error("北欧プレイリストの最新日付を取得できません");
 
   updatePlaylistLatestDate_(playlistId, latestDate);
