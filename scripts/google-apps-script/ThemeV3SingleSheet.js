@@ -219,6 +219,58 @@ function getThemeV3LatestPlaylistDate_(playlistItems) {
   return latest;
 }
 
+
+function fetchThemeV3PlayableEpisodesTolerant_(episodeIds, token) {
+  const ids = Array.from(new Set((episodeIds || []).map(function(id) {
+    return String(id || "").trim();
+  }).filter(Boolean)));
+  const episodes = [];
+  const unavailableIds = [];
+
+  ids.forEach(function(id) {
+    const response = fetchSpotifyReadWithRetry_(
+      "https://api.spotify.com/v1/episodes/" + encodeURIComponent(id) + "?market=JP",
+      {
+        muteHttpExceptions: true,
+        headers: {
+          Authorization: "Bearer " + token,
+          Accept: "application/json"
+        }
+      },
+      "Theme V3 episode " + id
+    );
+
+    const status = response.getResponseCode();
+
+    if (status === 404) {
+      unavailableIds.push(id);
+      return;
+    }
+
+    if (status !== 200) {
+      throw new Error("Theme V3 Episode取得失敗: id=" + id + " status=" + status);
+    }
+
+    const episode = JSON.parse(response.getContentText());
+    if (!episode || !episode.id || episode.is_playable === false) {
+      unavailableIds.push(id);
+      return;
+    }
+
+    episodes.push({
+      id: String(episode.id || ""),
+      uri: String(episode.uri || ("spotify:episode:" + episode.id)),
+      name: String(episode.name || episode.id),
+      release_date: String(episode.release_date || "")
+    });
+  });
+
+  return {
+    episodes: episodes,
+    unavailableIds: unavailableIds
+  };
+}
+
 function applyThemeV3SpotifyPlan_(sheet, rule, token, plan) {
   const additions = Array.isArray(plan && plan.additions) ? plan.additions : [];
   const already = Array.isArray(plan && plan.alreadyPresent) ? plan.alreadyPresent : [];
@@ -240,19 +292,18 @@ function applyThemeV3SpotifyPlan_(sheet, rule, token, plan) {
 
   // Batch endpoint is tolerant of removed/unavailable historical episodes.
   // A single 404 must not abort the whole theme playlist update.
-  const episodes = fetchPlayableAutoUpdateEpisodesV1_(
+  const fetched = fetchThemeV3PlayableEpisodesTolerant_(
     additions.map(function(item) { return item.episodeId; }),
     token
-  ).sort(function(a, b) {
+  );
+
+  const episodes = fetched.episodes.sort(function(a, b) {
     return String(a.release_date || "").localeCompare(String(b.release_date || ""));
   });
 
-  const fetchedIds = new Set(episodes.map(function(ep) {
-    return String(ep && ep.id ? ep.id : "");
-  }));
-
+  const unavailableSet = new Set(fetched.unavailableIds || []);
   const unavailable = additions.filter(function(item) {
-    return !fetchedIds.has(item.episodeId);
+    return unavailableSet.has(item.episodeId);
   });
 
   unavailable.forEach(function(item) {
