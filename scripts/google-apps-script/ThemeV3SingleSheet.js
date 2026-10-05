@@ -641,7 +641,10 @@ function syncThemeV3Rule_(rule, token) {
   const addResult = applyThemeV3SpotifyPlan_(sheet, rule, token, plan);
 
   playlistItems = getAllSpotifyPlaylistItems_(rule.playlistId, token);
-  let latestDate = getThemeV3LatestPlaylistDate_(playlistItems);
+  let latestDate = getLatestReleaseDate_(addResult.addedEpisodes || []);
+  if (!latestDate) {
+    latestDate = getThemeV3LatestPlaylistDate_(playlistItems);
+  }
   if (!latestDate) {
     latestDate = getThemeV3LatestDateFromCurrentSheet_(
       sheet,
@@ -704,7 +707,14 @@ function activateSubmittedThemeV3Request_(rule, token) {
   );
 
   playlistItems = getAllSpotifyPlaylistItems_(activeRule.playlistId, token);
-  let latestDate = getThemeV3LatestPlaylistDate_(playlistItems);
+
+  // Spotify playlist GET can lag just after POST. Prefer the dates from the
+  // episodes that were successfully added in this run so the public latest date
+  // is available immediately, then fall back to the playlist/sheet view.
+  let latestDate = getLatestReleaseDate_(addResult.addedEpisodes || []);
+  if (!latestDate) {
+    latestDate = getThemeV3LatestPlaylistDate_(playlistItems);
+  }
   if (!latestDate) {
     latestDate = getThemeV3LatestDateFromCurrentSheet_(
       sheet,
