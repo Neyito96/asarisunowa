@@ -93,7 +93,7 @@ async function submitRequestConfirmed(
     body: JSON.stringify({ ...payload, requestId }),
   });
 
-  for (const delay of [250, 500, 1000, 1500]) {
+  for (const delay of [250, 500, 1000, 1500, 2500, 4000]) {
     await wait(delay);
     try {
       const status = await loadJsonp<{ ok?: boolean; accepted?: boolean }>(
@@ -105,7 +105,7 @@ async function submitRequestConfirmed(
     }
   }
 
-  throw new Error("送信結果を確認できませんでした。入力内容を確認して、時間をおいてもう一度お試しください。");
+  throw new Error("送信は完了しましたが、受付確認に時間がかかっています。二重登録は防止されるため、少し待ってから状態をご確認ください。");
 }
 
 export function submitPlaylistRegistrationConfirmed(endpoint: string, payload: PlaylistRegistrationPayload) {
