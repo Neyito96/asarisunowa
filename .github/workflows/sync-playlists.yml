@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: sync-listener-playlists
@@ -35,3 +36,9 @@ jobs:
           git add app/data.ts
           git commit -m "朝リストをスプレッドシートから自動更新"
           git push
+
+      - name: Deploy updated Pages
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main
