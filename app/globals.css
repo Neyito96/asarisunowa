@@ -3174,3 +3174,30 @@ footer {
     gap:6px;
   }
 }
+
+
+.playlistManagerButtonText{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:1px;
+  line-height:1.15;
+}
+.playlistManagerButtonText b{
+  font-size:12px;
+  font-weight:800;
+}
+.playlistManagerButtonText small{
+  font-size:9px;
+  font-weight:700;
+  opacity:.72;
+}
+@media(max-width:680px){
+  .playlistManagerButtonText b{
+    font-size:10.5px;
+  }
+  .playlistManagerButtonText small{
+    font-size:8px;
+  }
+}
