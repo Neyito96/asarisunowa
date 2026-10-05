@@ -95,15 +95,27 @@ function playlistIdForPublicRead_(url) {
 // matching application row confirms incremental updates. Fixed rules keep their
 // existing eligibility policy; a stale runtime rule cannot change their badge.
 function isAutoUpdateRuntimeRuleGrowingV1_(rule, requestRows) {
-  if (!rule || rule.enabled === false || rule.productionWriteAllowed !== true ||
-      rule.bootstrapPending !== false ||
-      String(rule.lifecycleStatus || "").trim().toLowerCase() !== "incremental") return false;
+  if (!rule || rule.enabled === false || rule.productionWriteAllowed !== true) return false;
+
+  const lifecycle = String(rule.lifecycleStatus || "").trim().toLowerCase();
+  const bootstrapActive = rule.bootstrapPending === true;
+  const incrementalActive =
+    rule.bootstrapPending === false && lifecycle === "incremental";
+
+  if (!bootstrapActive && !incrementalActive) return false;
+
   const rowNumber = Number(rule.requestSheetRow);
   const rows = Array.isArray(requestRows) ? requestRows : [];
   if (!Number.isInteger(rowNumber) || rowNumber < 2 || rowNumber > rows.length + 1) return false;
+
   const row = rows[rowNumber - 2];
+  const status = String(row[7] || "").trim();
+  const requestActive =
+    status === "増分自動更新" ||
+    (bootstrapActive && status === "初回補完中");
+
   return playlistIdForPublicRead_(row[1]) === String(rule.playlistId || "").trim() &&
-    String(row[7] || "").trim() === "増分自動更新";
+    requestActive;
 }
 
 function readAutoManagedPlaylistIdMap_(ss) {
