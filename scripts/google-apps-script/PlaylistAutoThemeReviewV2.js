@@ -140,3 +140,68 @@ function buildThemeReviewV2MigrationPlan_(rule, queueRows, historyRows) {
     spreadsheetWrite: false
   };
 }
+
+
+// Human review helper for the new one-sheet theme tabs.
+// When column I (判定) changes on 中南米 / 北欧:
+// - 採用 or 除外 => stamp column J (確認日時) if blank
+// - 未確認 => clear column J
+// Column K (追加日時) is reserved for successful Spotify addition only.
+function handleThemeReviewV2Edit_(e) {
+  if (!e || !e.range) return;
+  const sheet = e.range.getSheet();
+  const name = String(sheet.getName() || "");
+  if (name !== "中南米" && name !== "北欧") return;
+  if (e.range.getRow() < 2 || e.range.getColumn() !== 9 || e.range.getNumRows() !== 1) return;
+
+  const decision = String(e.range.getDisplayValue() || "").trim();
+  const confirmedCell = sheet.getRange(e.range.getRow(), 10);
+
+  if (decision === "採用" || decision === "除外") {
+    if (!confirmedCell.getValue()) confirmedCell.setValue(new Date());
+    return;
+  }
+
+  if (decision === "未確認" || !decision) {
+    confirmedCell.clearContent();
+  }
+}
+
+function onEdit(e) {
+  handleThemeReviewV2Edit_(e);
+}
+
+// Read-only diagnostics for the trusted Nordic reference set supplied by the user.
+// The list is intentionally ID-based; it is not used to auto-write Spotify.
+const NORDIC_TRUSTED_EPISODE_IDS_V2_ = [
+  "2aP6Vr8NjS6uQNnr2rh4Ka",
+  "1wJB2t5RvHId3ENbZuSvwi",
+  "7vHzUBJw5FVVKAE9N5Pwt4",
+  "4OtKo7LsQ1KEF2k9bA5Wpu",
+  "24FrufOivF7CIGEzZOFv4J",
+  "5QyPjzIB9h4vvYRKJTBDiN",
+  "0NBBvRoRzWFkViCyo7GhDn",
+  "702ZHPZkrEZdb7JtPVL12q",
+  "0GabfxiQpFs1tUJ4luNS2J",
+  "0Afp0GsOsTbK1wdZMIlpYE",
+  "0TWuU4I2BgibCPSOfeCvq2",
+  "58TZyIy6Wsa3gGQUU9KMzw",
+  "2KoYaGRoTOTSFC0a9klcvc"
+];
+
+function auditNordicTrustedCoverageV2_(rows) {
+  const present = new Set((Array.isArray(rows) ? rows : []).map(function(row) {
+    return String(row && row[1] ? row[1] : "").trim();
+  }).filter(Boolean));
+
+  const missing = NORDIC_TRUSTED_EPISODE_IDS_V2_.filter(function(id) {
+    return !present.has(id);
+  });
+
+  return {
+    trustedCount: NORDIC_TRUSTED_EPISODE_IDS_V2_.length,
+    presentCount: NORDIC_TRUSTED_EPISODE_IDS_V2_.length - missing.length,
+    missingCount: missing.length,
+    missingIds: missing
+  };
+}
