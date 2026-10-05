@@ -3,6 +3,7 @@ import csv
 import json
 import urllib.parse
 import urllib.request
+import re
 from concurrent.futures import ThreadPoolExecutor
 
 CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQHi9LM842wuiTT-N8FzgJXVFyY4W5sZRYEdp4a9OVBTgVBJgPWG52AK6sgH4qBciqB6Q5UAd2-n2bA/pub?gid=697105746&single=true&output=csv"
@@ -40,6 +41,44 @@ def normalize_url(value):
 
     return None
 
+def read_existing_artwork_by_url():
+    path = Path("app/data.ts")
+    if not path.exists():
+        return {}
+    text = path.read_text(encoding="utf-8")
+    match = re.search(r"const rows:\[string,string,string\|null,string\|null\]\[] = (\[.*?\]);", text, re.S)
+    if not match:
+        return {}
+    try:
+        existing_rows = json.loads(match.group(1))
+    except Exception:
+        return {}
+    return {
+        row[2]: row[3]
+        for row in existing_rows
+        if len(row) >= 4 and row[2] and row[3]
+    }
+
+def get_spotify_page_artwork(url):
+    try:
+        request = urllib.request.Request(
+            url,
+            headers={"User-Agent": "Mozilla/5.0 asarisunowa-artwork-sync/1.1"},
+        )
+        with urllib.request.urlopen(request, timeout=20) as response:
+            html = response.read().decode("utf-8", errors="ignore")
+        patterns = [
+            r'<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']',
+            r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:image["\']',
+        ]
+        for pattern in patterns:
+            found = re.search(pattern, html, re.I)
+            if found:
+                return found.group(1)
+    except Exception as error:
+        print(f"注意：Spotifyページ画像を取得できませんでした: {url} ({error})")
+    return None
+
 def get_artwork(url):
     if not url:
         return None
@@ -73,9 +112,15 @@ def get_artwork(url):
             if thumbnail_host not in {"i.ytimg.com", "img.youtube.com"}:
                 raise ValueError("YouTube公式以外の画像URLが返されました")
 
-        return thumbnail_url
+        if thumbnail_url:
+            return thumbnail_url
+        if "open.spotify.com" in url:
+            return get_spotify_page_artwork(url)
+        return None
     except Exception as error:
         print(f"注意：画像を取得できませんでした: {url} ({error})")
+        if "open.spotify.com" in url:
+            return get_spotify_page_artwork(url)
         return None
 
 with urllib.request.urlopen(CSV_URL, timeout=30) as response:
@@ -100,6 +145,8 @@ for source in table[1:]:
 if len(base_rows) < 10:
     raise SystemExit(f"停止：取得件数が少なすぎます（{len(base_rows)}件）")
 
+existing_artwork_by_url = read_existing_artwork_by_url()
+
 with ThreadPoolExecutor(max_workers=6) as executor:
     artworks = list(executor.map(
         get_artwork,
@@ -110,7 +157,14 @@ with ThreadPoolExecutor(max_workers=6) as executor:
     ))
 
 rows = [
-    [title, maker, url, LOCAL_ARTWORK_BY_URL.get(url, artwork)]
+    [
+        title,
+        maker,
+        url,
+        LOCAL_ARTWORK_BY_URL.get(url)
+        or artwork
+        or existing_artwork_by_url.get(url)
+    ]
     for (title, maker, url), artwork in zip(base_rows, artworks)
 ]
 
