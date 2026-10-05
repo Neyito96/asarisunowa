@@ -311,11 +311,14 @@ export default function PlaylistEntryModeBridge() {
               type="button"
               className="playlistManagerSortButton"
               onClick={jumpToManagerForm}
-              aria-label="自動更新（楽育ち）メニューへ"
-              title="プレイリストを登録・自動更新"
+              aria-label="プレイリストを自動で育てる。Spotifyの新着回を自動追加"
+              title="Spotifyの新着回を自動追加"
               style={{ marginLeft: "auto", borderColor: "#cc4b78", color: "#0b5874", fontWeight: 800 }}
             >
-              🌱 自動更新（楽育ち）
+              <span className="playlistManagerButtonText">
+                <b>🌱 プレイリストを自動で育てる</b>
+                <small>Spotifyの新着回を自動追加</small>
+              </span>
             </button>,
             sortHost,
           )
