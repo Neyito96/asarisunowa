@@ -97,6 +97,17 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
     SpreadsheetApp.flush();
     const requestRowNumber = requestSheet.getLastRow();
 
+    // シート保存が完了した時点で受付済みにする。
+    // 管理者通知などの後処理を待たせると、ブラウザ側が誤って
+    // 「受付確認できませんでした」と表示することがある。
+    if (requestId) {
+      CacheService.getScriptCache().put(
+        AUTO_UPDATE_RECEIPT_CACHE_PREFIX_ + requestId,
+        "accepted",
+        AUTO_UPDATE_RECEIPT_SECONDS_
+      );
+    }
+
     // 受付ごとの臨時トリガーは作らず、常設の1時間処理が順番に受け取る。
     const immediateRun = { scheduled: true, reason: "hourly-backfill-queue" };
 
@@ -116,14 +127,6 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
       const noteCell = requestSheet.getRange(requestRowNumber, 9);
       const currentNote = String(noteCell.getDisplayValue() || "");
       noteCell.setValue(currentNote + " / 管理者メール通知失敗");
-    }
-
-    if (requestId) {
-      CacheService.getScriptCache().put(
-        AUTO_UPDATE_RECEIPT_CACHE_PREFIX_ + requestId,
-        "accepted",
-        AUTO_UPDATE_RECEIPT_SECONDS_
-      );
     }
 
     return jsonResponse({
