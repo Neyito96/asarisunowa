@@ -24,6 +24,11 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Check GAS automation syntax
+        run: |
+          node --check scripts/google-apps-script/ThemeV3SingleSheet.js
+          node --check scripts/google-apps-script/AutoUpdateAutomationV1.js
+          node --check scripts/google-apps-script/SheetData.js
       - run: npm run build:pages
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
