@@ -1520,8 +1520,11 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             </div>
             <div className="playlistIntro" aria-label="朝リストについて">
               <p className="playlistIntroLead"><b>聴く人、番組をつくる人。みんなで少しずつ育てていく朝リスト</b></p>
-              <p><b>連載</b>＝番組やシリーズを追いかけるリスト <span aria-hidden="true">／</span> <b>朝リスト</b>＝人物・テーマ・気になる切り口から自由につくるリスト</p>
-              <p><b>「こんな切り口で作ってみた」も大歓迎。気軽に投稿してください</b></p>
+              <p className="playlistIntroDefinitions">
+                <span><b>連載</b>＝番組やシリーズを追いかけるリスト</span>
+                <span><b>朝リスト</b>＝人物・テーマ・気になる切り口から自由につくるリスト</span>
+              </p>
+              <p className="playlistIntroInvite"><b>「こんな切り口で作ってみた」も大歓迎。気軽に投稿してください</b></p>
             </div>
             <section className="omikujiPanel">
               <div className="omikujiLead">
@@ -1577,7 +1580,11 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               )}
             </section>
             <div className="playlistLegend" aria-label="表示の意味">
-              🌱 楽育ち＝現在はSpotifyで自動巡回中 <span>｜</span> 🌾 新米＝登録から90日以内 <span>｜</span> 最終新着＝最新エピソードの公開日
+              <span className="playlistLegendItem">🌱 楽育ち＝現在はSpotifyで自動巡回中</span>
+              <span className="playlistLegendDivider" aria-hidden="true">｜</span>
+              <span className="playlistLegendItem">🌾 新米＝登録から90日以内</span>
+              <span className="playlistLegendDivider" aria-hidden="true">｜</span>
+              <span className="playlistLegendItem">最終新着＝最新エピソードの公開日</span>
             </div>
             <div id="playlist-results" className="grid">
               {rows.map((p) => {
