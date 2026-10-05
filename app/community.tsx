@@ -1459,7 +1459,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       {view === "listeners" ? (
         <>
           <div className="toolbar">
-            <div className="wrap tools">
+            <div className="wrap tools playlistCompactTools">
               <input
                 value={query}
                 onChange={(e) => handleSearch(e.target.value)}
@@ -1475,33 +1475,27 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   }
                 }}
               />
-              <div className="sorts" role="group" aria-label="並べ替え">
-                <button
-                  className={sort === "new" ? "on" : ""}
-                  onClick={() => setSort("new")}
-                >
-                  新米順
-                </button>
-                <button
-                  className={sort === "number" ? "on" : ""}
-                  onClick={() => setSort("number")}
-                >
-                  登録順
-                </button>
-                <button
-                  className={sort === "numberDesc" ? "on" : ""}
-                  onClick={() => setSort("numberDesc")}
-                >
-                  登録逆順
-                </button>
+              <div className="sorts playlistSorts" aria-label="並べ替え">
+                <label className="playlistSortSelect">
+                  <span>並び替え</span>
+                  <select
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value as "new" | "number" | "numberDesc")}
+                    aria-label="並び替え"
+                  >
+                    <option value="new">新米順</option>
+                    <option value="number">登録順</option>
+                    <option value="numberDesc">登録逆順</option>
+                  </select>
+                </label>
               </div>
             </div>
           </div>
           <main className="wrap">
             <div className="themeHead playlistThemeHead">
               <div>
-                <p className="kicker themeKicker">THEME PLAYLISTS</p>
-                <h2>テーマ別プレイリスト</h2>
+                <p className="kicker themeKicker">ASA LIST</p>
+                <h2>朝リスト</h2>
               </div>
               <button
                 type="button"
@@ -1524,9 +1518,10 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <span>既聴{listened.length}</span>
               </div>
             </div>
-            <div className="playlistGrowGuide" aria-label="朝リストの表示について">
-              <p><b>みんなで育てる朝リストです。</b> ネジート一人が選ぶリストではなく、朝リスのみなさんの投稿と公式番組の公開情報をもとに、みんなで育てていく非公式の案内所です。</p>
-              <p><b>🌱 楽育ち</b>＝新着を自動巡回して育つプレイリスト　 <b>🌾 新米</b>＝登録から90日以内　 <b>最終新着</b>＝プレイリスト内でいちばん新しいエピソードの公開日</p>
+            <div className="playlistIntro" aria-label="朝リストについて">
+              <p className="playlistIntroLead"><b>聴く人、番組をつくる人。みんなで少しずつ育てていく朝リスト</b></p>
+              <p><b>連載</b>＝番組やシリーズを追いかけるリスト <span aria-hidden="true">／</span> <b>朝リスト</b>＝人物・テーマ・気になる切り口から自由につくるリスト</p>
+              <p><b>「こんな切り口で作ってみた」も大歓迎。気軽に投稿してください</b></p>
             </div>
             <section className="omikujiPanel">
               <div className="omikujiLead">
@@ -1581,6 +1576,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 </div>
               )}
             </section>
+            <div className="playlistLegend" aria-label="表示の意味">
+              🌱 楽育ち＝現在はSpotifyで自動巡回中 <span>｜</span> 🌾 新米＝登録から90日以内 <span>｜</span> 最終新着＝最新エピソードの公開日
+            </div>
             <div id="playlist-results" className="grid">
               {rows.map((p) => {
                 const isListened = listened.includes(p.id);
