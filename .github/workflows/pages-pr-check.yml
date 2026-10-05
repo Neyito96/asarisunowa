@@ -27,6 +27,9 @@ jobs:
       - name: Run theme V2 single-sheet tests
         run: node --test tests/gas-theme-v2-single-sheet.test.mjs
 
+      - name: Run theme V3 single-sheet tests
+        run: node --test tests/gas-theme-v3-single-sheet.test.mjs
+
       - name: Build and verify Pages
         run: npm run build:pages
 
