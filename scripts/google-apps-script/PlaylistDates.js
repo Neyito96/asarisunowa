@@ -319,7 +319,14 @@ function updatePlaylistLatestDate_(playlistId, releaseDate) {
     );
 
   // 作業台 F列 = 最終更新日
-  sheet.getRange(rowNumber, 6).setValue(latestDate);
+  // QUERY列で文字列扱いされると公開側で空欄になるため、実日付として保存する。
+  const latestDateValue = new Date(latestDate + "T00:00:00");
+  if (isNaN(latestDateValue.getTime())) {
+    throw new Error("最終更新日が不正です: " + latestDate);
+  }
+  sheet.getRange(rowNumber, 6)
+    .setValue(latestDateValue)
+    .setNumberFormat("yyyy-mm-dd");
 
   Logger.log(
     "更新日反映 ✅ 作業台 row=" +
