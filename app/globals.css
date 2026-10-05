@@ -3119,3 +3119,58 @@ footer {
     white-space:normal;
   }
 }
+
+
+/* Desktop balance for 連載 / 朝リスト header */
+.playlistTopArea{
+  display:grid;
+  grid-template-columns:minmax(220px,280px) minmax(0,1fr);
+  gap:26px;
+  align-items:end;
+  margin:24px 0 14px;
+}
+.playlistTopArea .themeHead{
+  margin:0;
+}
+.playlistTopArea .themeHead h2{
+  margin-bottom:10px;
+}
+.playlistTopArea .playlistIntro{
+  margin:0 0 2px;
+  padding-left:22px;
+  border-left:1px solid #c9dfe4;
+  font-size:12px;
+  line-height:1.55;
+}
+.playlistTopArea .playlistIntroLead{
+  margin-bottom:4px;
+  font-size:13px;
+}
+.playlistTopArea .playlistIntroDefinitions{
+  gap:2px 14px;
+}
+.playlistTopArea .playlistIntroInvite{
+  margin-top:4px;
+}
+.playlistLegend{
+  margin:0 0 12px;
+}
+
+@media(max-width:900px){
+  .playlistTopArea{
+    grid-template-columns:1fr;
+    gap:8px;
+    margin:14px 0 10px;
+  }
+  .playlistTopArea .playlistIntro{
+    padding-left:0;
+    border-left:0;
+  }
+}
+
+@media(max-width:680px){
+  .playlistTopArea{
+    margin:0 0 10px;
+    gap:6px;
+  }
+}
