@@ -115,3 +115,18 @@ export function submitPlaylistRegistrationConfirmed(endpoint: string, payload: P
 export function submitAutoUpdateRequestConfirmed(endpoint: string, payload: AutoUpdatePayload) {
   return submitRequestConfirmed(endpoint, payload, "autoUpdateRequestStatus");
 }
+
+
+export async function submitCombinedAutoUpdateConfirmed(
+  endpoint: string,
+  registration: PlaylistRegistrationPayload,
+  autoUpdate: AutoUpdatePayload,
+) {
+  // 2件を先にPOSTする。従来は「登録の受付確認」が終わるまでAUTO申請を
+  // 送らなかったため、JSONP確認待ちが直列になっていた。
+  // 保存先は別シートで、各requestIdの受付確認・重複防止は従来どおり維持する。
+  await Promise.all([
+    submitRequestConfirmed(endpoint, registration, "playlistRequestStatus"),
+    submitRequestConfirmed(endpoint, autoUpdate, "autoUpdateRequestStatus"),
+  ]);
+}
