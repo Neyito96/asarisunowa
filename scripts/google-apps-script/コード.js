@@ -153,6 +153,10 @@ function doGet(e) {
       return handlePlaylistRequestStatus_(e, callback);
     }
 
+    if (type === "playlistResolve") {
+      return handlePlaylistResolve_(e, callback);
+    }
+
     const readResponse = handleApiRead_(type, callback);
 
     if (readResponse) {
