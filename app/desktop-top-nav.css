@@ -50,16 +50,17 @@
   .officialTitle::after { content: "朝公式プレイリスト"; display: block; margin-top: 5px; color: #123d4d; font-size: 22px; line-height: 1.35; letter-spacing: 0; }
   .officialIntro { margin: 0; }
 
-  .officialGuide { margin: 8px 0 12px; padding: 12px 16px; }
-  .officialGuideTop { gap: 10px; }
-  .officialGuideKicker { margin: 0 0 1px; font-size: 12px; line-height: 1.15; }
-  .officialGuideTop h3 { margin: 0 0 2px; font-size: 1.1rem; }
-  .officialGuideTop p { font-size: 13px; line-height: 1.35; }
-  .officialGuideQuestion { margin-top: 8px; padding: 10px 14px 11px; }
-  .officialGuideQuestion small { font-size: 11px; line-height: 1.15; }
-  .officialGuideQuestion > p { margin: 4px auto 8px; font-size: 1.2rem; line-height: 1.3; }
-  .officialGuideButtons { gap: 9px; max-width: 600px; }
-  .officialGuideButtons button { min-height: 40px; border-radius: 11px; }
+  /* 朝ポキ案内所はPCではプレイリストを押し下げないよう縦幅を圧縮する。 */
+  .officialGuide { margin: 6px 0 10px; padding: 8px 14px; }
+  .officialGuideTop { gap: 6px; }
+  .officialGuideKicker { margin: 0; font-size: 11px; line-height: 1.05; }
+  .officialGuideTop h3 { margin: 0 0 1px; font-size: 1rem; line-height: 1.15; }
+  .officialGuideTop p { margin: 0; font-size: 12px; line-height: 1.2; }
+  .officialGuideQuestion { margin-top: 5px; padding: 6px 12px 7px; }
+  .officialGuideQuestion small { font-size: 10px; line-height: 1; }
+  .officialGuideQuestion > p { margin: 2px auto 5px; font-size: 1.05rem; line-height: 1.15; }
+  .officialGuideButtons { gap: 7px; max-width: 600px; }
+  .officialGuideButtons button { min-height: 30px; padding-top: 5px; padding-bottom: 5px; border-radius: 9px; }
 
   .circlePage { padding-top: 14px; }
   .circlePage > .rings:not(.discordPage) { margin-top: 0; padding: 22px 24px 24px; }
