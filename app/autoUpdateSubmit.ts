@@ -125,8 +125,32 @@ export async function submitCombinedAutoUpdateConfirmed(
   // 2件を先にPOSTする。従来は「登録の受付確認」が終わるまでAUTO申請を
   // 送らなかったため、JSONP確認待ちが直列になっていた。
   // 保存先は別シートで、各requestIdの受付確認・重複防止は従来どおり維持する。
-  await Promise.all([
+  const results = await Promise.allSettled([
     submitRequestConfirmed(endpoint, registration, "playlistRequestStatus"),
     submitRequestConfirmed(endpoint, autoUpdate, "autoUpdateRequestStatus"),
   ]);
+
+  const registrationOk = results[0].status === "fulfilled";
+  const autoUpdateOk = results[1].status === "fulfilled";
+
+  if (registrationOk && autoUpdateOk) return;
+
+  if (registrationOk && !autoUpdateOk) {
+    throw new Error(
+      "プレイリスト登録は確認できましたが、自動更新申請の受付確認に時間がかかっています。二重登録は防止されるため、少し待ってから状態をご確認ください。",
+    );
+  }
+
+  if (!registrationOk && autoUpdateOk) {
+    throw new Error(
+      "自動更新申請は確認できましたが、プレイリスト登録の受付確認に時間がかかっています。二重登録は防止されるため、少し待ってから状態をご確認ください。",
+    );
+  }
+
+  const firstError = results.find(
+    (result): result is PromiseRejectedResult => result.status === "rejected",
+  );
+  throw firstError?.reason instanceof Error
+    ? firstError.reason
+    : new Error("送信は完了しましたが、受付確認に時間がかかっています。少し待ってから状態をご確認ください。");
 }
