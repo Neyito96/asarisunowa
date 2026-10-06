@@ -4,8 +4,7 @@ import { useState } from "react";
 import {
   isSpotifyCollaborativeInviteUrl,
   isSpotifyPlaylistUrl,
-  submitAutoUpdateRequestConfirmed,
-  submitPlaylistRegistrationConfirmed,
+  submitCombinedAutoUpdateConfirmed,
 } from "./autoUpdateSubmit";
 
 const PLAYLIST_SUBMIT_ENDPOINT = "https://script.google.com/macros/s/AKfycbxlZCNqGqOEY7j61OgcSGM8_xfGT08f4jjamXtSj2DES9fXl-xwJrvcRGYHnskidjIMug/exec";
@@ -54,35 +53,34 @@ export default function PlaylistCombinedAutoForm() {
 
     setStatus("sending");
     setMessage("");
-    let registrationConfirmed = false;
-
     try {
-      await submitPlaylistRegistrationConfirmed(PLAYLIST_SUBMIT_ENDPOINT, {
-        kind: "playlist",
-        updateType,
-        url: cleanUrl,
-        title: cleanTitle,
-        maker: cleanMaker,
-        inviteUrl: cleanInviteUrl,
-        comment: "",
-        introducedDate: "",
-        securityAnswer: cleanSecurityAnswer,
-        website,
-      });
-      registrationConfirmed = true;
-
-      await submitAutoUpdateRequestConfirmed(PLAYLIST_SUBMIT_ENDPOINT, {
-        kind: "autoUpdateRequest",
-        updateType,
-        url: cleanUrl,
-        title: cleanTitle,
-        maker: cleanMaker,
-        inviteUrl: cleanInviteUrl,
-        keywords: cleanKeywords,
-        ruleNote: ruleNote.trim(),
-        securityAnswer: cleanSecurityAnswer,
-        website,
-      });
+      await submitCombinedAutoUpdateConfirmed(
+        PLAYLIST_SUBMIT_ENDPOINT,
+        {
+          kind: "playlist",
+          updateType,
+          url: cleanUrl,
+          title: cleanTitle,
+          maker: cleanMaker,
+          inviteUrl: cleanInviteUrl,
+          comment: "",
+          introducedDate: "",
+          securityAnswer: cleanSecurityAnswer,
+          website,
+        },
+        {
+          kind: "autoUpdateRequest",
+          updateType,
+          url: cleanUrl,
+          title: cleanTitle,
+          maker: cleanMaker,
+          inviteUrl: cleanInviteUrl,
+          keywords: cleanKeywords,
+          ruleNote: ruleNote.trim(),
+          securityAnswer: cleanSecurityAnswer,
+          website,
+        },
+      );
 
       setStatus("success");
       setMessage(
@@ -102,9 +100,7 @@ export default function PlaylistCombinedAutoForm() {
     } catch (error) {
       setStatus("error");
       setMessage(
-        registrationConfirmed
-          ? "プレイリスト登録は確認できましたが、自動更新申請の受付を確認できませんでした。時間をおいて『今あるリストを自動更新』から申請してください。"
-          : error instanceof Error
+        error instanceof Error
           ? error.message
           : "送信できませんでした。時間をおいてもう一度お試しください。",
       );
