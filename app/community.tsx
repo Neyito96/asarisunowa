@@ -1928,7 +1928,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             <div className="themeHead">
               <p className="kicker themeKicker">LISTENER PODCASTS</p>
               <h2>🎙 ポすすめ</h2>
-              <p>朝ポキで紹介された、朝リスさんのPodcastを集めた棚。「ポすすめ」は神田MCさんが生み出した公式のことばです。以前はドーナツの「日曜版」で紹介され、現在は火曜配信の「ポすすめ」で紹介されています。人類ポ完計画、進行中。</p>
+              <p>ドーナツ（ポすすめ）で紹介された、朝リスさんのPodcastを集めた棚。以前の「日曜版」で紹介された番組もあります。人類ポ完計画、進行中。</p>
             </div>
             <div className="toolbar listenerPodcastToolbar">
               <div className="tools">
