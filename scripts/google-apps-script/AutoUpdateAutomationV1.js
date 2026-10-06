@@ -1232,20 +1232,51 @@ function stopAutoUpdatePlaylistV1(playlistId, reason) {
 function humanDeleteAutoUpdatePlaylistV1(playlistId, reason) {
   const id = String(playlistId || "").trim();
   if (!id) throw new Error("playlistIdが必要です");
-  const rule = loadAutoUpdateRuntimeRuleByPlaylistIdV1_(id);
-  if (!rule) throw new Error("AUTO登録が見つかりません: " + id);
   const detail = String(reason || "人間による手動削除");
-  rule.enabled = false;
-  rule.lifecycleStatus = "human_deleted";
-  rule.humanDeletedAt = new Date().toISOString();
-  rule.humanDeleteReason = detail;
-  saveAutoUpdateRuntimeRuleV1_(rule);
+  const deletedAt = new Date().toISOString();
+  const rule = loadAutoUpdateRuntimeRuleByPlaylistIdV1_(id);
+
+  if (rule) {
+    rule.enabled = false;
+    rule.lifecycleStatus = "human_deleted";
+    rule.humanDeletedAt = deletedAt;
+    rule.humanDeleteReason = detail;
+    saveAutoUpdateRuntimeRuleV1_(rule);
+    setAutoUpdateRuleSheetStatusV1_(rule, "人間削除", detail);
+  } else {
+    const requestRow = findLatestAutoUpdateRequestRowByPlaylistIdV1_(id);
+    if (!requestRow) throw new Error("AUTO申請が見つかりません: " + id);
+    setAutoUpdateRequestStatusV1_(requestRow.sheet, requestRow.rowNumber, "人間削除", detail);
+  }
+
   PropertiesService.getScriptProperties().setProperty(
     AUTO_UPDATE_V1_HUMAN_DELETED_PREFIX_ + id,
-    JSON.stringify({ deletedAt: rule.humanDeletedAt, reason: detail })
+    JSON.stringify({ deletedAt: deletedAt, reason: detail })
   );
-  setAutoUpdateRuleSheetStatusV1_(rule, "人間削除", detail);
-  return { playlistId: id, status: "人間削除", enabled: false };
+  SpreadsheetApp.flush();
+  return {
+    playlistId: id,
+    status: "人間削除",
+    enabled: false,
+    runtimeRuleExisted: Boolean(rule)
+  };
+}
+
+function findLatestAutoUpdateRequestRowByPlaylistIdV1_(playlistId) {
+  const id = String(playlistId || "").trim();
+  if (!id) return null;
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = getSheetLoose(ss, AUTO_UPDATE_REQUEST_SHEET_NAME);
+  if (!sheet) throw new Error("自動更新申請シートが見つかりません");
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return null;
+  const urls = sheet.getRange(2, 2, lastRow - 1, 1).getDisplayValues();
+  for (let index = urls.length - 1; index >= 0; index -= 1) {
+    if (extractAutoUpdateSpotifyPlaylistId_(String(urls[index][0] || "")) === id) {
+      return { sheet: sheet, rowNumber: index + 2 };
+    }
+  }
+  return null;
 }
 
 // 管理用：停止・人間削除したAUTO登録を明示的に再開する。
