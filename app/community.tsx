@@ -1447,13 +1447,13 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           className={view === "listenerPodcasts" ? "on" : ""}
           onClick={() => setView("listenerPodcasts")}
         >
-          🎙 ポ薦め
+          🎙 ポすすめ
         </button>
         <button
           className={view === "podcasts" ? "on" : ""}
           onClick={() => { setSubmitKind("podcast"); setView("podcasts"); }}
         >
-          🎧 他おすすめ
+          🎧 リス推し
         </button>
       </div>
       {view === "listeners" ? (
@@ -1927,8 +1927,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           <section className="recommendedPodcasts">
             <div className="themeHead">
               <p className="kicker themeKicker">LISTENER PODCASTS</p>
-              <h2>🎙 ポ薦め</h2>
-              <p>タンタンさん作のリストをもとに、みんなで更新できる「ポ薦め」へ育てています。</p>
+              <h2>🎙 ポすすめ</h2>
+              <p>朝ポキで紹介された、朝リスさんのPodcastを集めた棚。「ポすすめ」は神田MCさんが生み出した公式のことばです。以前はドーナツの「日曜版」で紹介され、現在は火曜配信の「ポすすめ」で紹介されています。人類ポ完計画、進行中。</p>
             </div>
             <div className="toolbar listenerPodcastToolbar">
               <div className="tools">
@@ -1997,7 +1997,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               <div className="playlistSubmitHead">
                 <div>
                   <p className="kicker">ADD A LISTENER&apos;S PODCAST</p>
-                  <h3 id="listener-podcast-submit-title">ポ薦めに追加する</h3>
+                  <h3 id="listener-podcast-submit-title">ポすすめに追加する</h3>
                   <p>番組URLから番組名・配信者を自動取得。必要なら修正できます。</p>
                 </div>
               </div>
@@ -2069,8 +2069,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             <section className="recommendedPodcasts" aria-labelledby="recommended-podcasts-title">
               <div className="themeHead">
                 <p className="kicker themeKicker">RECOMMENDED PODCASTS</p>
-                <h2 id="recommended-podcasts-title">🎧 朝リスのおすすめPodcast</h2>
-                <p>朝リスさんが「これも聴いてほしい」と思った番組を持ち寄る棚。</p>
+                <h2 id="recommended-podcasts-title">🎧 リス推し</h2>
+                <p>朝リスのみんなが「これ聴いて！」を持ち寄るPodcastの棚。いつもの番組、最近見つけた番組、もっと誰かに聴いてほしい番組。誰かのおすすめから、まだ知らない番組に出会えるかも。あなたの「これ聴いて！」もぜひ教えてください。</p>
               </div>
               {recommendedPodcastStatus === "loading" && recommendedPodcasts.length === 0 && (
                 <p className="podcastComment">おすすめPodcastを読み込んでいます…</p>
@@ -2095,7 +2095,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     <div className="cardBody listenerCardBody">
                       <small>RECOMMEND {p.id.padStart(2, "0")}</small>
                       <h3>{p.title}</h3>
-                      <p>おすすめ：{p.maker}</p>
+                      <p>{p.maker}さんのおすすめ</p>
                       {p.genre && <span className="podcastGenreTag">{p.genre}</span>}
                       {p.comment && <p className="podcastComment">💬 {p.comment}</p>}
                       {p.links.length > 0 ? (
@@ -2126,8 +2126,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               <div className="playlistSubmitHead">
                 <div>
                   <p className="kicker">RECOMMENDED PODCASTS</p>
-                  <h3 id="podcast-submit-title">おすすめPodcastを追加する</h3>
-                  <p>朝リスさんの「これも聴いてほしい」を持ち寄る棚です。</p>
+                  <h3 id="podcast-submit-title">リス推しに追加する</h3>
+                  <p>あなたの「これ聴いて！」をリス推しの棚に加えてください。</p>
                 </div>
               </div>
               <form onSubmit={(e) => submitPlaylist(e, "podcast")}>
