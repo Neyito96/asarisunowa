@@ -675,6 +675,45 @@ function listenerPodcastBadge(introduced?: string) {
   return today < endDate ? "NEW" : null;
 }
 
+const RECOMMENDED_PODCAST_SNAPSHOT_KEY = "asarisunowa:recommended-podcasts:v1";
+const RECOMMENDED_PODCAST_SNAPSHOT_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+function readRecommendedPodcastSnapshot(): RecommendedPodcast[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(RECOMMENDED_PODCAST_SNAPSHOT_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as { savedAt?: number; items?: RecommendedPodcast[] };
+    return Array.isArray(parsed.items) ? parsed.items : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeRecommendedPodcastSnapshot(items: RecommendedPodcast[]) {
+  if (typeof window === "undefined" || !items.length) return;
+  try {
+    window.localStorage.setItem(
+      RECOMMENDED_PODCAST_SNAPSHOT_KEY,
+      JSON.stringify({ savedAt: Date.now(), items })
+    );
+  } catch {
+    // Storage failure must never block the public shelf.
+  }
+}
+
+function isRecommendedPodcastSnapshotFresh() {
+  if (typeof window === "undefined") return false;
+  try {
+    const raw = window.localStorage.getItem(RECOMMENDED_PODCAST_SNAPSHOT_KEY);
+    if (!raw) return false;
+    const parsed = JSON.parse(raw) as { savedAt?: number };
+    return Date.now() - Number(parsed.savedAt || 0) < RECOMMENDED_PODCAST_SNAPSHOT_MAX_AGE_MS;
+  } catch {
+    return false;
+  }
+}
+
 export default function Community({ playlists }: { playlists: Playlist[] }) {
   const [livePlaylists, setLivePlaylists] = useState<Playlist[]>(playlists);
   const [recommendedPodcasts, setRecommendedPodcasts] = useState<RecommendedPodcast[]>([]);
@@ -768,6 +807,12 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
   }, []);;
   useEffect(() => {
     let cancelled = false;
+    const snapshot = readRecommendedPodcastSnapshot();
+    if (snapshot.length) {
+      setRecommendedPodcasts(snapshot);
+      setRecommendedPodcastStatus("ready");
+    }
+
     async function refreshRecommendedPodcasts() {
       try {
         const payload = await loadJsonpWithRetry<{ ok: boolean; items?: Array<{
@@ -823,6 +868,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         if (!cancelled) {
           setRecommendedPodcasts(base);
           setRecommendedPodcastStatus("ready");
+          writeRecommendedPodcastSnapshot(base);
         }
         await Promise.all(
           base.map(async (item) => {
@@ -835,10 +881,16 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           })
         );
       } catch {
-        if (!cancelled) setRecommendedPodcastStatus("error");
+        // Keep the last known-good snapshot visible if refresh fails.
+        if (!cancelled && !snapshot.length) setRecommendedPodcastStatus("error");
       }
     }
-    refreshRecommendedPodcasts();
+
+    // A fresh snapshot is rendered immediately. Refresh only when it has aged,
+    // so quiet periods do not make every visitor wait on GAS.
+    if (!snapshot.length || !isRecommendedPodcastSnapshotFresh()) {
+      refreshRecommendedPodcasts();
+    }
     return () => { cancelled = true; };
   }, []);
 
