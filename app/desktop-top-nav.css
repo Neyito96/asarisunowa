@@ -18,7 +18,7 @@
 
 /* Desktop-only first-view compaction for 朝リスの輪.
    Mobile layout remains controlled by globals.css. */
-@media (min-width: 901px) {
+@media (min-width: 641px) {
   header { padding: 12px 0; }
   .nav { gap: 12px; }
   .siteBrand { gap: 9px; }
