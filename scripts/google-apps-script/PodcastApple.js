@@ -275,6 +275,7 @@ function normalizePodcastGenre_(genres, primaryGenreName) {
   if (has(/health|fitness|medicine|mental health|nutrition/)) return "福祉・医療";
   if (has(/tv|film|music/)) return "映画・音楽";
   if (has(/sports/)) return "スポーツ";
+  if (has(/kids|family|children|parenting/)) return "キッズ・ファミリー";
   if (has(/leisure|hobbies|home|garden|food|games/)) return "趣味・暮らし";
   if (has(/comedy/)) return "雑談・トーク";
   if (has(/society|culture|personal journals|documentary|relationships/)) return "社会・文化";
