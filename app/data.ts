@@ -656,24 +656,6 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "2026-09-29",
     "2026-10-05",
     true
-  ],
-  [
-    "小林友花　出演回",
-    "マチ",
-    "https://open.spotify.com/playlist/3dcdCnYyyDuWxSCgNuCKmd",
-    null,
-    null,
-    "2026-10-06",
-    false
-  ],
-  [
-    "小林友花　出演回",
-    "森",
-    "https://open.spotify.com/playlist/45Z3QPexcZ9vAF2sausEPg",
-    null,
-    null,
-    "2026-10-06",
-    false
   ]
 ];
 export const playlists:Playlist[] = rows.map((r,i)=>({id:String(i+1),title:r[0],maker:r[1],url:r[2],artwork:r[3],latestDate:r[4],introducedDate:r[5],autoManaged:r[6]}));
