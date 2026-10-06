@@ -165,7 +165,7 @@ function syncRecommendedPodcastPlatforms() {
       queuePodcastCellUpdate_(updates, rowNumber, 15, row[14], resolved.standfm);
       queuePodcastCellUpdate_(updates, rowNumber, 16, row[15], resolved.pody);
       queuePodcastCellUpdate_(updates, rowNumber, 17, row[16], resolved.website);
-      queuePodcastCellUpdate_(updates, rowNumber, 18, row[17], genre || resolved.genre);
+      queuePodcastGenreUpdate_(updates, rowNumber, 18, row[17], genre || resolved.genre);
 
       if (!updates.length) continue;
       updates.forEach(function(update) {
@@ -219,6 +219,20 @@ function queuePodcastCellUpdate_(updates, row, column, currentValue, candidateVa
   const candidate = String(candidateValue || "").trim();
 
   if (!current && candidate) {
+    updates.push({ row: row, column: column, value: candidate });
+  }
+}
+
+function queuePodcastGenreUpdate_(updates, row, column, currentValue, candidateValue) {
+  const current = String(currentValue || "").trim();
+  const candidate = String(candidateValue || "").trim();
+
+  // 通常は既存値を守る。ただし旧ロジックで「その他」に落ちた行は、
+  // Apple/RSSから具体的なジャンルが取れた場合だけ修正する。
+  if (
+    (!current && candidate) ||
+    (current === "その他" && candidate && candidate !== "その他")
+  ) {
     updates.push({ row: row, column: column, value: candidate });
   }
 }
