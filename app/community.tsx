@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import type { Playlist } from "./data";
+import { recommendedPodcastSnapshot } from "./recommended-podcasts-data";
 import {
   isSpotifyCollaborativeInviteUrl,
   submitAutoUpdateRequestConfirmed,
@@ -675,6 +676,21 @@ function listenerPodcastBadge(introduced?: string) {
   return today < endDate ? "NEW" : null;
 }
 
+function recommendedPodcastFromSnapshot(source: (typeof recommendedPodcastSnapshot)[number]): RecommendedPodcast {
+  const links = sortPodcastLinks([
+    ["YouTube", source.youtube], ["Spotify", source.spotify], ["Amazon Music", source.amazon],
+    ["Apple Podcasts", source.apple], ["Pocket Casts", source.pocketcasts], ["LISTEN", source.listen],
+    ["stand.fm", source.standfm], ["Pody", source.pody],
+  ].map(([label, url]) => url ? { label, url } : null)
+    .filter((link): link is PodcastPlatformLink => Boolean(link)));
+  if (!links.length && source.url) links.push({ label: podcastProviderLabel(source.url), url: source.url });
+  return {
+    id: source.id, title: source.title, maker: source.maker, url: source.url || null,
+    artwork: source.artwork || null, comment: source.comment, host: source.host,
+    genre: source.genre, links,
+  };
+}
+
 const RECOMMENDED_PODCAST_SNAPSHOT_KEY = "asarisunowa:recommended-podcasts:v1";
 const RECOMMENDED_PODCAST_SNAPSHOT_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
@@ -716,8 +732,8 @@ function isRecommendedPodcastSnapshotFresh() {
 
 export default function Community({ playlists }: { playlists: Playlist[] }) {
   const [livePlaylists, setLivePlaylists] = useState<Playlist[]>(playlists);
-  const [recommendedPodcasts, setRecommendedPodcasts] = useState<RecommendedPodcast[]>([]);
-  const [recommendedPodcastStatus, setRecommendedPodcastStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [recommendedPodcasts, setRecommendedPodcasts] = useState<RecommendedPodcast[]>(() => [...recommendedPodcastSnapshot].map(recommendedPodcastFromSnapshot).reverse());
+  const [recommendedPodcastStatus, setRecommendedPodcastStatus] = useState<"loading" | "ready" | "error">("ready");
   const [liveListenerPodcasts, setLiveListenerPodcasts] = useState<ListenerPodcast[]>(LISTENER_PODCAST_BACKUP);
   const [listenerPodcastStatus, setListenerPodcastStatus] = useState<"loading" | "ready" | "error">("loading");
   const [listenerPodcastReloadKey, setListenerPodcastReloadKey] = useState(0);
