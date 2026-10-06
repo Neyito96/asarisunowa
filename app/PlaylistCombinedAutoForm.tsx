@@ -193,7 +193,7 @@ export default function PlaylistCombinedAutoForm() {
       <label>
         <span>SpotifyプレイリストURL</span>
         <input type="url" value={url} onChange={(event) => { setUrl(event.target.value); setLoadStatus("idle"); setLoadMessage(""); }} placeholder="https://open.spotify.com/playlist/..." required />
-        <button type="button" onClick={loadPlaylist} disabled={loadStatus === "loading"}>{loadStatus === "loading" ? "読み込み中…" : "Spotifyから読み込む"}</button>
+        <button type="button" onClick={loadPlaylist} disabled={!isSpotifyPlaylistUrl(url.trim()) || loadStatus === "loading"} className="spotifyPlaylistLoadButton">{loadStatus === "loading" ? "読み込み中…" : "Spotifyから読み込む"}</button>
         {loadMessage && <small aria-live="polite" className={loadStatus === "success" ? "submitNotice success" : "submitNotice error"}>{loadMessage}</small>}
       </label>
       <label>

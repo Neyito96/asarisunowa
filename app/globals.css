@@ -3217,3 +3217,31 @@ footer {
   font-weight:700;
   cursor:pointer;
 }
+
+
+/* Spotify playlist metadata load action */
+.autoUpdateForm .spotifyPlaylistLoadButton{
+  justify-self:end;
+  width:auto;
+  min-width:190px;
+  padding:10px 18px;
+  border:1.5px solid #1685bd;
+  border-radius:999px;
+  background:#fff;
+  color:#08658f;
+  font:inherit;
+  font-weight:700;
+  cursor:pointer;
+  transition:background .15s ease,color .15s ease,opacity .15s ease;
+}
+.autoUpdateForm .spotifyPlaylistLoadButton:hover:not(:disabled){
+  background:#1685bd;
+  color:#fff;
+}
+.autoUpdateForm .spotifyPlaylistLoadButton:disabled{
+  border-color:#bfd2d8;
+  background:#edf3f5;
+  color:#80979f;
+  cursor:not-allowed;
+  opacity:.72;
+}
