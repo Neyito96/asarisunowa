@@ -11,6 +11,7 @@ const PLAYLIST_SUBMIT_ENDPOINT = "https://script.google.com/macros/s/AKfycbxlZCN
 
 type AutoUpdateType = "series" | "speaker" | "theme";
 type SubmitStatus = "idle" | "sending" | "success" | "error";
+type LoadStatus = "idle" | "loading" | "success" | "error";
 
 export default function PlaylistCombinedAutoForm() {
   const [url, setUrl] = useState("");
@@ -24,6 +25,83 @@ export default function PlaylistCombinedAutoForm() {
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<SubmitStatus>("idle");
   const [message, setMessage] = useState("");
+  const [loadStatus, setLoadStatus] = useState<LoadStatus>("idle");
+  const [loadMessage, setLoadMessage] = useState("");
+
+  async function loadPlaylist() {
+    const cleanUrl = url.trim();
+    if (!isSpotifyPlaylistUrl(cleanUrl)) {
+      setLoadStatus("error");
+      setLoadMessage("SpotifyプレイリストURLを入力してください。");
+      return;
+    }
+
+    setLoadStatus("loading");
+    setLoadMessage("");
+
+    const callbackName =
+      "__asarisPlaylistResolve_" +
+      Date.now().toString(36) +
+      Math.random().toString(36).slice(2);
+    const script = document.createElement("script");
+
+    try {
+      const payload = await new Promise<{ ok?: boolean; title?: string; owner?: string; error?: string }>(
+        (resolve, reject) => {
+          const timer = window.setTimeout(() => {
+            cleanup();
+            reject(new Error("timeout"));
+          }, 8000);
+
+          const cleanup = () => {
+            window.clearTimeout(timer);
+            script.remove();
+            delete (window as unknown as Record<string, unknown>)[callbackName];
+          };
+
+          (window as unknown as Record<string, unknown>)[callbackName] = (data: unknown) => {
+            cleanup();
+            resolve((data || {}) as { ok?: boolean; title?: string; owner?: string; error?: string });
+          };
+
+          script.onerror = () => {
+            cleanup();
+            reject(new Error("load failed"));
+          };
+          script.src =
+            PLAYLIST_SUBMIT_ENDPOINT +
+            "?type=playlistResolve&url=" +
+            encodeURIComponent(cleanUrl) +
+            "&callback=" +
+            encodeURIComponent(callbackName) +
+            "&_=" +
+            Date.now();
+          document.body.appendChild(script);
+        }
+      );
+
+      if (!payload.ok || !payload.title) {
+        throw new Error(payload.error || "Spotifyプレイリストを読み込めませんでした");
+      }
+
+      setTitle(payload.title);
+      // Spotify owner は初期値。ここから投稿者が好きな朝リスネームへ変更できる。
+      if (payload.owner) setMaker(payload.owner);
+      setLoadStatus("success");
+      setLoadMessage(
+        payload.owner
+          ? "Spotifyからプレイリスト名とowner名を読み込みました。朝リスネームは自由に変更できます。"
+          : "Spotifyからプレイリスト名を読み込みました。朝リスネームを入力してください。"
+      );
+    } catch (error) {
+      setLoadStatus("error");
+      setLoadMessage(
+        error instanceof Error && error.message !== "timeout" && error.message !== "load failed"
+          ? error.message
+          : "Spotify情報を取得できませんでした。時間をおいて再度お試しください。"
+      );
+    }
+  }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -114,15 +192,17 @@ export default function PlaylistCombinedAutoForm() {
 
       <label>
         <span>SpotifyプレイリストURL</span>
-        <input type="url" value={url} onChange={(event) => setUrl(event.target.value)} placeholder="https://open.spotify.com/playlist/..." required />
+        <input type="url" value={url} onChange={(event) => { setUrl(event.target.value); setLoadStatus("idle"); setLoadMessage(""); }} placeholder="https://open.spotify.com/playlist/..." required />
+        <button type="button" onClick={loadPlaylist} disabled={loadStatus === "loading"}>{loadStatus === "loading" ? "読み込み中…" : "Spotifyから読み込む"}</button>
+        {loadMessage && <small aria-live="polite" className={loadStatus === "success" ? "submitNotice success" : "submitNotice error"}>{loadMessage}</small>}
       </label>
       <label>
         <span>タイトル</span>
         <input type="text" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="プレイリスト名" maxLength={120} required />
       </label>
       <label>
-        <span>プレイリスト制作者</span>
-        <input type="text" value={maker} onChange={(event) => setMaker(event.target.value)} placeholder="朝リスネーム または 朝日新聞ポッドキャスト" maxLength={80} required />
+        <span>朝リスネーム <small>（Spotify owner名から変更できます）</small></span>
+        <input type="text" value={maker} onChange={(event) => setMaker(event.target.value)} placeholder="朝リスの田に表示する名前" maxLength={80} required />
       </label>
 
       <fieldset className="autoUpdateTypes">
