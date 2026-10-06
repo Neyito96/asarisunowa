@@ -273,7 +273,13 @@ function processPendingAutoUpdateRequestsV1() {
     if (lastRow < 2) return { checked: 0, activated: 0, waiting: 0, review: 0 };
 
     const rows = sheet.getRange(2, 1, lastRow - 1, 9).getDisplayValues();
-    const result = { checked: 0, activated: 0, waiting: 0, review: 0 };
+    const result = { checked: 0, activated: 0, waiting: 0, review: 0, humanDeleted: 0 };
+
+    // スプレッドシートを管理UIとして扱う。
+    // H列を「人間削除」にした申請は、次回AUTO巡回でtombstoneへ同期し、
+    // runtime ruleが存在する場合も無効化して自動復活を防ぐ。
+    syncSheetHumanDeletedAutoUpdateRequestsV1_(sheet, rows, result);
+
     const latestPendingRowByPlaylistId = {};
     rows.forEach(function(row, index) {
       const status = String(row[7] || "").trim();
@@ -1260,6 +1266,40 @@ function humanDeleteAutoUpdatePlaylistV1(playlistId, reason) {
     enabled: false,
     runtimeRuleExisted: Boolean(rule)
   };
+}
+
+function syncSheetHumanDeletedAutoUpdateRequestsV1_(sheet, rows, result) {
+  const props = PropertiesService.getScriptProperties();
+  const deletedAt = new Date().toISOString();
+  (rows || []).forEach(function(row, index) {
+    const status = String(row[7] || "").trim();
+    if (status !== "人間削除") return;
+
+    const playlistId = extractAutoUpdateSpotifyPlaylistId_(String(row[1] || ""));
+    if (!playlistId) return;
+
+    const tombstoneKey = AUTO_UPDATE_V1_HUMAN_DELETED_PREFIX_ + playlistId;
+    if (!props.getProperty(tombstoneKey)) {
+      props.setProperty(
+        tombstoneKey,
+        JSON.stringify({
+          deletedAt: deletedAt,
+          reason: "自動更新申請シートH列の人間削除"
+        })
+      );
+    }
+
+    const rule = loadAutoUpdateRuntimeRuleByPlaylistIdV1_(playlistId);
+    if (rule && (rule.enabled !== false || rule.lifecycleStatus !== "human_deleted")) {
+      rule.enabled = false;
+      rule.lifecycleStatus = "human_deleted";
+      rule.humanDeletedAt = deletedAt;
+      rule.humanDeleteReason = "自動更新申請シートH列の人間削除";
+      saveAutoUpdateRuntimeRuleV1_(rule);
+    }
+
+    if (result) result.humanDeleted += 1;
+  });
 }
 
 function findLatestAutoUpdateRequestRowByPlaylistIdV1_(playlistId) {
