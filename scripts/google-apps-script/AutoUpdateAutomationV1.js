@@ -4,6 +4,7 @@
 const AUTO_UPDATE_V1_RULE_IDS_KEY_ = "AUTO_UPDATE_V1_RULE_IDS";
 const AUTO_UPDATE_V1_RULE_PREFIX_ = "AUTO_UPDATE_V1_RULE_";
 const AUTO_UPDATE_V1_BOUNDARY_PREFIX_ = "AUTO_UPDATE_V1_BOUNDARY_";
+const AUTO_UPDATE_V1_HUMAN_DELETED_PREFIX_ = "AUTO_UPDATE_V1_HUMAN_DELETED_";
 const AUTO_UPDATE_V1_MAX_ADDITIONS_PER_RUN_ = 10;
 const AUTO_UPDATE_V1_BOOTSTRAP_MAX_ADDITIONS_PER_RUN_ = 50;
 const AUTO_UPDATE_V1_RECENT_EPISODES_PER_SHOW_ = 20;
@@ -310,6 +311,16 @@ function processPendingAutoUpdateRequestsV1() {
       }
 
       const playlistId = requestPlaylistId;
+      if (isAutoUpdatePlaylistHumanDeletedV1_(playlistId)) {
+        setAutoUpdateRequestStatusV1_(
+          sheet,
+          rowNumber,
+          "人間削除済み",
+          "人間が削除したAUTO登録です。再開は管理関数から行ってください"
+        );
+        result.review += 1;
+        return;
+      }
       const access = inspectAutoUpdatePlaylistAccessV1_(playlistId, token);
       // Spotifyの新しい共同編集招待は、Web上で共同編集者になっていても
       // Web APIの collaborative が false のまま返る。招待URLがあり、かつ
@@ -456,6 +467,8 @@ function syncApprovedAutoUpdateRequestsV1() {
     if (!token) throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
     const rules = loadAutoUpdateRuntimeRulesV1_().filter(function(rule) {
       return rule &&
+        rule.enabled !== false &&
+        rule.lifecycleStatus !== "human_deleted" &&
         rule.bootstrapPending !== true &&
         !(typeof isThemeV3RuntimeRule_ === "function" && isThemeV3RuntimeRule_(rule));
     });
@@ -1197,6 +1210,81 @@ function saveAutoUpdateRuntimeRuleV1_(rule) {
   if (ids.indexOf(rule.playlistId) < 0) ids.push(rule.playlistId);
   props.setProperty(AUTO_UPDATE_V1_RULE_IDS_KEY_, JSON.stringify(ids));
   props.setProperty(AUTO_UPDATE_V1_RULE_PREFIX_ + rule.playlistId, JSON.stringify(rule));
+}
+
+// 管理用：AUTO登録を一時停止する。行とルールは残し、再開可能にする。
+function stopAutoUpdatePlaylistV1(playlistId, reason) {
+  const id = String(playlistId || "").trim();
+  if (!id) throw new Error("playlistIdが必要です");
+  const rule = loadAutoUpdateRuntimeRuleByPlaylistIdV1_(id);
+  if (!rule) throw new Error("AUTO登録が見つかりません: " + id);
+  rule.enabled = false;
+  rule.lifecycleStatus = "paused";
+  rule.pausedAt = new Date().toISOString();
+  rule.pauseReason = String(reason || "人間による手動停止");
+  saveAutoUpdateRuntimeRuleV1_(rule);
+  setAutoUpdateRuleSheetStatusV1_(rule, "停止", rule.pauseReason);
+  return { playlistId: id, status: "停止", enabled: false };
+}
+
+// 管理用：AUTO登録を人間削除として残す。
+// 物理削除はせず tombstone を保存し、新規申請処理からの自動復活も防ぐ。
+function humanDeleteAutoUpdatePlaylistV1(playlistId, reason) {
+  const id = String(playlistId || "").trim();
+  if (!id) throw new Error("playlistIdが必要です");
+  const rule = loadAutoUpdateRuntimeRuleByPlaylistIdV1_(id);
+  if (!rule) throw new Error("AUTO登録が見つかりません: " + id);
+  const detail = String(reason || "人間による手動削除");
+  rule.enabled = false;
+  rule.lifecycleStatus = "human_deleted";
+  rule.humanDeletedAt = new Date().toISOString();
+  rule.humanDeleteReason = detail;
+  saveAutoUpdateRuntimeRuleV1_(rule);
+  PropertiesService.getScriptProperties().setProperty(
+    AUTO_UPDATE_V1_HUMAN_DELETED_PREFIX_ + id,
+    JSON.stringify({ deletedAt: rule.humanDeletedAt, reason: detail })
+  );
+  setAutoUpdateRuleSheetStatusV1_(rule, "人間削除", detail);
+  return { playlistId: id, status: "人間削除", enabled: false };
+}
+
+// 管理用：停止・人間削除したAUTO登録を明示的に再開する。
+// 人間削除tombstoneを消すのはこの関数だけ。
+function resumeAutoUpdatePlaylistV1(playlistId, reason) {
+  const id = String(playlistId || "").trim();
+  if (!id) throw new Error("playlistIdが必要です");
+  const rule = loadAutoUpdateRuntimeRuleByPlaylistIdV1_(id);
+  if (!rule) throw new Error("AUTO登録が見つかりません: " + id);
+  rule.enabled = true;
+  rule.lifecycleStatus = "active";
+  rule.resumedAt = new Date().toISOString();
+  delete rule.pausedAt;
+  delete rule.pauseReason;
+  delete rule.humanDeletedAt;
+  delete rule.humanDeleteReason;
+  PropertiesService.getScriptProperties().deleteProperty(AUTO_UPDATE_V1_HUMAN_DELETED_PREFIX_ + id);
+  saveAutoUpdateRuntimeRuleV1_(rule);
+  setAutoUpdateRuleSheetStatusV1_(
+    rule,
+    rule.bootstrapPending === true ? "初回補完中" : "増分自動更新",
+    String(reason || "人間が手動で再開")
+  );
+  return { playlistId: id, status: "再開", enabled: true };
+}
+
+function loadAutoUpdateRuntimeRuleByPlaylistIdV1_(playlistId) {
+  const id = String(playlistId || "").trim();
+  return loadAutoUpdateRuntimeRulesV1_().find(function(rule) {
+    return rule && String(rule.playlistId || "") === id;
+  }) || null;
+}
+
+function isAutoUpdatePlaylistHumanDeletedV1_(playlistId) {
+  const id = String(playlistId || "").trim();
+  if (!id) return false;
+  return Boolean(
+    PropertiesService.getScriptProperties().getProperty(AUTO_UPDATE_V1_HUMAN_DELETED_PREFIX_ + id)
+  );
 }
 
 function loadAutoUpdateRuntimeRulesV1_() {
