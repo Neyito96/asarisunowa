@@ -40,3 +40,6 @@ next-env.d.ts
 /.sites-runtime/
 /outputs/
 /work/
+
+# Local Google Apps Script config
+scripts/google-apps-script/.clasp.json
