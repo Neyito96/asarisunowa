@@ -2073,7 +2073,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <p>朝リスのみんなが「これ聴いて！」を持ち寄るPodcastの棚。いつもの番組、最近見つけた番組、もっと誰かに聴いてほしい番組。誰かのおすすめから、まだ知らない番組に出会えるかも。あなたの「これ聴いて！」もぜひ教えてください。</p>
                 <button
                   type="button"
-                  className="playlistOwnerJump"
+                  className="risuoshiSubmitJump"
                   onClick={() => document.getElementById("podcast-submit-title")?.scrollIntoView({ behavior: "smooth", block: "start" })}
                 >
                   ＋ おすすめPodcastを投稿する
