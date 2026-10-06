@@ -31,7 +31,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#ふな 冨名腰隆　旧【報談】",
     "ふね",
     "https://open.spotify.com/playlist/48tpuTjiqGdJrvkX8R1OkI",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e",
     "2025-07-11",
     null,
     true
@@ -382,7 +382,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "「SDGsを話そう」厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/4styp7b6VpZThsevXCRDla",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84a1ed8e9ca1ad0f9a7c2b7b07",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84a1ed8e9ca1ad0f9a7c2b7b07",
     null,
     null,
     false
@@ -418,7 +418,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "バスケ通信―クラッチタイム（バスクラ）",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/3axOpfDhMhLEtelwGwvMHb",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244",
     null,
     null,
     false
@@ -544,7 +544,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "編集マニア",
     "カンダ ・マサキ",
     "https://open.spotify.com/playlist/71mdQ5ANqZda48jBkj0Qmz",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d",
     null,
     null,
     false
@@ -586,15 +586,6 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     false
   ],
   [
-    "【TEST】登録＋自動更新 2026-09-13",
-    "ネジート TEST",
-    "https://open.spotify.com/playlist/TEST20260913",
-    null,
-    null,
-    null,
-    false
-  ],
-  [
     "佐藤陽 出演回",
     "アミーゴ",
     "https://open.spotify.com/playlist/73ppqrTcsjVgl1xwIZa4SY",
@@ -625,7 +616,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "中南米",
     "マリオ",
     "https://open.spotify.com/playlist/2Org6cCBgVas4d9OwzzxAv",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37",
     "2026-09-08",
     "2026-09-18",
     true
