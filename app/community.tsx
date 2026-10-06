@@ -2071,6 +2071,13 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <p className="kicker themeKicker">RECOMMENDED PODCASTS</p>
                 <h2 id="recommended-podcasts-title">🎧 リス推し</h2>
                 <p>朝リスのみんなが「これ聴いて！」を持ち寄るPodcastの棚。いつもの番組、最近見つけた番組、もっと誰かに聴いてほしい番組。誰かのおすすめから、まだ知らない番組に出会えるかも。あなたの「これ聴いて！」もぜひ教えてください。</p>
+                <button
+                  type="button"
+                  className="playlistOwnerJump"
+                  onClick={() => document.getElementById("podcast-submit-title")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                >
+                  ＋ おすすめPodcastを投稿する
+                </button>
               </div>
               {recommendedPodcastStatus === "loading" && recommendedPodcasts.length === 0 && (
                 <p className="podcastComment">おすすめPodcastを読み込んでいます…</p>
