@@ -3,7 +3,7 @@ import csv
 import json
 import urllib.request
 
-CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQHi9LM842wuiTT-N8FzgJXVFyY4W5sZRYEdp4a9OVBTgVBJgPWG52AK6sgH4qBciqB6Q5UAd2-n2bA/pub?gid=0&single=true&output=csv"
+CSV_URL = "https://docs.google.com/spreadsheets/d/1KSzoIkOsjUagNBLt3IbKIvgWEmez4f0XISQ-jkUjmwQ/gviz/tq?tqx=out:csv&sheet=%E3%81%8A%E3%81%99%E3%81%99%E3%82%81Podcast"
 
 # This URL is intentionally configurable via the published sheet. The sync job
 # produces a last-known-good snapshot; it never replaces a healthy snapshot
