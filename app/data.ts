@@ -22,7 +22,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "IOK 伊藤大地・奥山晶二郎・神田大介",
     "I'm OK",
     "https://open.spotify.com/playlist/799Fo9to2TK0ahGEJsvcm2",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e",
     "2026-03-30",
     null,
     true
@@ -58,7 +58,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "東日本大震災",
     "cobaltore12",
     "https://open.spotify.com/playlist/4nptiHJbbsjKS37kykLkNF",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694",
     null,
     null,
     false
@@ -310,7 +310,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "メディアを語る　伊藤大地x奥山晶二郎x神田大介",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/2lA13BSsvyLjq9iPFa6oDo",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84996d7c4cc61163a9b6ed71d9",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84996d7c4cc61163a9b6ed71d9",
     null,
     null,
     false
@@ -391,7 +391,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "ポキ-1グランプリ 2023",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/5xUDKa3r5arvKSx4gqjwI3",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9",
     null,
     null,
     false
@@ -409,7 +409,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "楽屋裏2023　厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/0I9wCLs5oFLNIG1aPLQneg",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32",
     null,
     null,
     false
@@ -616,7 +616,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "中南米",
     "マリオ",
     "https://open.spotify.com/playlist/2Org6cCBgVas4d9OwzzxAv",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37",
     "2026-09-08",
     "2026-09-18",
     true
@@ -656,6 +656,24 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "2026-09-29",
     "2026-10-05",
     true
+  ],
+  [
+    "小林友花　出演回",
+    "マチ",
+    "https://open.spotify.com/playlist/3dcdCnYyyDuWxSCgNuCKmd",
+    null,
+    null,
+    "2026-10-06",
+    false
+  ],
+  [
+    "小林友花　出演回",
+    "森",
+    "https://open.spotify.com/playlist/45Z3QPexcZ9vAF2sausEPg",
+    null,
+    null,
+    "2026-10-06",
+    false
   ]
 ];
 export const playlists:Playlist[] = rows.map((r,i)=>({id:String(i+1),title:r[0],maker:r[1],url:r[2],artwork:r[3],latestDate:r[4],introducedDate:r[5],autoManaged:r[6]}));
