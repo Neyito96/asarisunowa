@@ -2,6 +2,8 @@ from pathlib import Path
 import csv
 import json
 import urllib.request
+import re
+import html
 
 CSV_URL = "https://docs.google.com/spreadsheets/d/1KSzoIkOsjUagNBLt3IbKIvgWEmez4f0XISQ-jkUjmwQ/gviz/tq?tqx=out:csv&sheet=%E3%81%8A%E3%81%99%E3%81%99%E3%82%81Podcast"
 
@@ -36,6 +38,32 @@ def value(row, names):
     i = col(names)
     return str(row[i]).strip() if i is not None and i < len(row) else ""
 
+def apple_genre(apple_url):
+    """Best-effort Apple Podcasts genre lookup. Never erase a sheet genre on failure."""
+    if not apple_url or "podcasts.apple.com" not in apple_url:
+        return ""
+    try:
+        request = urllib.request.Request(
+            apple_url,
+            headers={"User-Agent": "Mozilla/5.0 asarisunowa-recommended-sync/1.0"},
+        )
+        with urllib.request.urlopen(request, timeout=20) as response:
+            page = response.read().decode("utf-8", errors="ignore")
+        # Apple pages expose the visible category in breadcrumb/metadata links.
+        candidates = re.findall(
+            r'<a[^>]+href="[^"]*/genre/[^"]+"[^>]*>(.*?)</a>',
+            page,
+            re.I | re.S,
+        )
+        for candidate in candidates:
+            genre = re.sub(r"<[^>]+>", "", candidate)
+            genre = html.unescape(genre).strip()
+            if genre and genre not in {"Podcast", "ポッドキャスト"}:
+                return genre
+    except Exception as error:
+        print(f"注意：Apple Podcastsジャンルを取得できませんでした: {apple_url} ({error})")
+    return ""
+
 items = []
 for source in table[1:]:
     title = value(source, aliases["title"])
@@ -43,6 +71,9 @@ for source in table[1:]:
     maker = value(source, aliases["maker"])
     if not title:
         continue
+    apple_url = value(source, ["Apple Podcasts", "Apple"])
+    sheet_genre = value(source, ["genre", "ジャンル"])
+    genre = apple_genre(apple_url) or sheet_genre or "その他"
     items.append({
         "id": str(len(items) + 1),
         "url": url,
@@ -51,11 +82,11 @@ for source in table[1:]:
         "comment": value(source, ["コメント", "ひとこと"]),
         "artwork": value(source, ["artwork", "アートワーク", "画像"]),
         "host": value(source, ["host", "配信者 / Host", "出演者"]),
-        "genre": value(source, ["genre", "ジャンル"]),
+        "genre": genre,
         "youtube": value(source, ["YouTube"]),
         "spotify": value(source, ["Spotify"]),
         "amazon": value(source, ["Amazon Music", "Amazon"]),
-        "apple": value(source, ["Apple Podcasts", "Apple"]),
+        "apple": apple_url,
         "pocketcasts": value(source, ["Pocket Casts"]),
         "listen": value(source, ["LISTEN"]),
         "standfm": value(source, ["stand.fm"]),
