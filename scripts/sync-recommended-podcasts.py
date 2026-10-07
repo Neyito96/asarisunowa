@@ -18,7 +18,7 @@ header = [str(x).strip() for x in table[0]]
 aliases = {
     "url": ["URL", "番組URL", "Podcast URL"],
     "title": ["番組名", "タイトル"],
-    "maker": ["おすすめした人", "朝リスネーム", "投稿者", "制作者"],
+    "maker": ["おすすめした人", "おすすめ朝リス", "朝リスネーム", "投稿者", "制作者"],
 }
 def col(names):
     for name in names:
@@ -50,7 +50,7 @@ for source in table[1:]:
         "maker": maker,
         "comment": value(source, ["コメント", "ひとこと"]),
         "artwork": value(source, ["artwork", "アートワーク", "画像"]),
-        "host": value(source, ["host", "出演者"]),
+        "host": value(source, ["host", "配信者 / Host", "出演者"]),
         "genre": value(source, ["genre", "ジャンル"]),
         "youtube": value(source, ["YouTube"]),
         "spotify": value(source, ["Spotify"]),
