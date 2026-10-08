@@ -1945,7 +1945,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <div className="officialBody">
                   {p.mark && <em>{p.mark}</em>}
                   <h3>{p.name}</h3>
-                  {p.detail && <p>{p.detail}</p>}
+                  {p.detail && (p.name === "MEDIA TALK" ? <p><span style={{ display: "inline-block", background: "#d62839", color: "#fff", fontSize: "0.72em", fontWeight: 800, padding: "1px 7px", borderRadius: "4px", marginRight: "5px", verticalAlign: "baseline" }}>NEW</span>{p.detail}</p> : <p>{p.detail}</p>)}
                   {p.schedule && <p className="schedule">{p.schedule}</p>}
                   <div className="serviceLinks">
                       {[
