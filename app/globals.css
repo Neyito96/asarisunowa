@@ -3245,3 +3245,11 @@ footer {
   cursor:not-allowed;
   opacity:.72;
 }
+
+/* Compact official podcast guide without changing its YES/NO behavior */
+.officialGuide{padding:9px 12px!important;margin:7px 0 12px!important}
+.officialGuideQuestion{padding:7px 10px!important;margin-top:6px!important}
+.officialGuideQuestion>p{margin:3px auto 6px!important;font-size:.94rem!important}
+.officialGuideButtons button{min-height:34px!important;padding:5px 12px!important}
+.officialGuideTop h3{font-size:1rem!important}
+@media(max-width:640px){.officialGuide{padding:8px!important}.officialGuideQuestion{padding:8px!important}}
