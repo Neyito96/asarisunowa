@@ -1946,7 +1946,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <div className="officialBody">
                   {p.mark && <em>{p.mark}</em>}
                   <h3>{p.name}</h3>
-                  {p.detail && (p.name === "MEDIA TALK" || p.name === "ニュースの現場から" ? <p>{p.detail.split("、").map((item, i) => { const isNew = p.name === "MEDIA TALK" ? (item === "推し記事" || item === "吹奏楽・高校編") : ["Q&A", "地球会議", "大阪目線"].includes(item); return <React.Fragment key={item}>{i > 0 ? "、" : ""}{isNew && <span style={{ display: "inline-block", background: "#d62839", color: "#fff", fontSize: "0.72em", fontWeight: 800, padding: "1px 6px", borderRadius: "4px", marginRight: "4px" }}>NEW</span>}{item}</React.Fragment>; })}</p> : <p>{p.detail}</p>)}
+                  {p.detail && (p.name === "MEDIA TALK" || p.name === "ニュースの現場から" ? <p>{p.detail.split("、").map((item, i) => { const isNew = p.name === "MEDIA TALK" ? (item === "推し記事" || item === "吹奏楽・高校編") : ["Q&A", "地球会議", "大阪目線"].includes(item); return <span key={item}>{i > 0 ? "、" : ""}{isNew && <span style={{ display: "inline-block", background: "#d62839", color: "#fff", fontSize: "0.72em", fontWeight: 800, padding: "1px 6px", borderRadius: "4px", marginRight: "4px" }}>NEW</span>}{item}</span>; })}</p> : <p>{p.detail}</p>)}
                   {p.schedule && <p className="schedule">{p.schedule}</p>}
                   <div className="serviceLinks">
                       {[
