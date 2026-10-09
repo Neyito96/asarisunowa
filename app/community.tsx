@@ -747,6 +747,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     [listened, setListened] = useState<string[]>([]),
     [omikuji, setOmikuji] = useState<Playlist | null>(null),
     [showAllListened, setShowAllListened] = useState(false),
+    [guideExpanded, setGuideExpanded] = useState(false),
     [guideStep, setGuideStep] = useState<GuideStep>("q1"),
     [guideResult, setGuideResult] = useState<string | null>(null),
     [submitUrl, setSubmitUrl] = useState(""),
@@ -1863,18 +1864,19 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           <section className="officialGuide" aria-labelledby="official-guide-title">
             <div className="officialGuideTop">
               <div>
-                <p className="officialGuideKicker">🤔 どれ聴く？</p>
-                <h3 id="official-guide-title">朝ポキ案内所</h3>
-                <p>YES / NOでたどる、いまの耳に合いそうな公式番組。</p>
+                
+                <h3 id="official-guide-title">🤔 どれ聴く？ 朝ポキ案内所</h3>
+                
               </div>
-              {(guideStep !== "q1" || guideResult) && (
+              <button type="button" className="officialGuideReset" aria-expanded={guideExpanded} onClick={() => setGuideExpanded(!guideExpanded)}>{guideExpanded ? "閉じる ▲" : "診断する ▼"}</button>
+              {guideExpanded && (guideStep !== "q1" || guideResult) && (
                 <button type="button" className="officialGuideReset" onClick={resetGuide}>
                   最初から
                 </button>
               )}
             </div>
 
-            {!guideResult ? (
+            {guideExpanded && (!guideResult ? (
               <div className="officialGuideQuestion">
                 <small>QUESTION {Number(guideStep.slice(1))}</small>
                 <p>
@@ -1934,7 +1936,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   </div>
                 </div>
               </div>
-            ) : null}
+            ) : null)}
           </section>
           <div className="officialGrid">
             {officialPrograms.map((p, index) => (
