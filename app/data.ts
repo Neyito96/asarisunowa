@@ -31,7 +31,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#ふな 冨名腰隆　旧【報談】",
     "ふね",
     "https://open.spotify.com/playlist/48tpuTjiqGdJrvkX8R1OkI",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e",
     "2025-07-11",
     null,
     true
@@ -337,7 +337,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "3.11特別編　記者の取材を追体験　「福島のいま」",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/4QfZEVeflr1dTyV9RfzWes",
-    "https://mosaic.scdn.co/640/ab67656300005f1f348f70072b476a17691511d2ab67656300005f1f852b268ef4abfd41299a2c8dab67656300005f1fcf9ed0093f8aee836e09bfdbab67656300005f1feabd1aa6631f04b259749698",
+    "https://mosaic.scdn.co/300/ab67656300005f1f348f70072b476a17691511d2ab67656300005f1f852b268ef4abfd41299a2c8dab67656300005f1fcf9ed0093f8aee836e09bfdbab67656300005f1feabd1aa6631f04b259749698",
     null,
     null,
     false
@@ -373,7 +373,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "新聞社員の「楽屋裏」",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/1u1qT0BxRZT1OeNM0LDA72",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844ac19eab5ced53a5396e809c",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da844ac19eab5ced53a5396e809c",
     "2026-09-28",
     null,
     true
@@ -391,7 +391,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "ポキ-1グランプリ 2023",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/5xUDKa3r5arvKSx4gqjwI3",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9",
     null,
     null,
     false
@@ -400,7 +400,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "「MEDIA TALK」 2023厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/6Q0iXwuC9PuLV3cqg11Dmt",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938",
     null,
     null,
     false
@@ -409,7 +409,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "楽屋裏2023　厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/0I9wCLs5oFLNIG1aPLQneg",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32",
     null,
     null,
     false
@@ -463,7 +463,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#懐メロ（#朝ポキ 楽屋裏）＋おじさんのメロディ",
     "koike",
     "https://open.spotify.com/playlist/0vItsmD8tW7fsv18NkZKzh",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600",
     null,
     null,
     false
@@ -499,7 +499,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "神田大介がゲスト出演した番組",
     "神田大介",
     "https://open.spotify.com/playlist/1pigWAC5IwVZbad2ein8pS",
-    "https://mosaic.scdn.co/640/ab67656300005f1f1691a44fb03515aee5cff22fab67656300005f1f8aa983b65f7315d38eb355abab67656300005f1fa84b032cf9fcf5b52048e8d6ab67656300005f1fde686fdc424979fc1f93fb48",
+    "https://mosaic.scdn.co/300/ab67656300005f1f1691a44fb03515aee5cff22fab67656300005f1f8aa983b65f7315d38eb355abab67656300005f1fa84b032cf9fcf5b52048e8d6ab67656300005f1fde686fdc424979fc1f93fb48",
     null,
     null,
     false
@@ -526,7 +526,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#初登場特集（#朝ポキ）",
     "koike",
     "https://open.spotify.com/playlist/3WLp56ohdZs2AqDoUwNNWd",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef",
     null,
     null,
     false
@@ -599,7 +599,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "ハザ干し",
     "https://open.spotify.com/playlist/4FBXSFf2nLjLb3qaRoSdoD",
     "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f4ea26c84e38a43b8859df430",
-    "2026-10-02",
+    "2026-10-09",
     "2026-09-17",
     true
   ],
@@ -608,7 +608,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "田田田（デンデンデン）",
     "https://open.spotify.com/playlist/6hNrobOVHmYaQT5C7hPkNa",
     "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f09a8bd5875be5defced61b26",
-    "2026-10-02",
+    "2026-10-09",
     "2026-09-17",
     true
   ],
@@ -616,7 +616,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "中南米",
     "マリオ",
     "https://open.spotify.com/playlist/2Org6cCBgVas4d9OwzzxAv",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37",
     "2026-09-08",
     "2026-09-18",
     true
