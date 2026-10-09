@@ -472,7 +472,7 @@ const officialPrograms: OfficialProgram[] = [
   {
     name: "MEDIA TALK",
     detail:
-      "推し記事、MEDIA TALK、木下くんあの動画見た？、いちおしウニュ！、読書会、楽屋裏、サステナブルHUBスタジオ、制作会議、天声人語、ニュース4U、記者サロンTALK、編集マニア、朝ポキシネマ、web編集の教科書",
+      "推し記事、MEDIA TALK、吹奏楽・高校編、木下くんあの動画見た？、いちおしウニュ！、読書会、楽屋裏、サステナブルHUBスタジオ、制作会議、天声人語、ニュース4U、記者サロンTALK、編集マニア、朝ポキシネマ、web編集の教科書",
     spotify: "https://open.spotify.com/show/0yhef9ORZkUZs9ZeotdCSY",
     links: [
       ["Spotify", "https://open.spotify.com/show/0yhef9ORZkUZs9ZeotdCSY"],
@@ -485,6 +485,24 @@ const officialPrograms: OfficialProgram[] = [
     pody: "https://pody.jp/player/woMdDOpTDIxhqS4HtAsS",
     discord: "https://discord.gg/6zBhm97F9",
     youtube: false,
+  },
+  {
+    name: "ニュースの現場から",
+    detail: "Q&A、地球会議、大阪目線、withyou、8がけ社会",
+    schedule:
+            "月：一緒に新聞をめくろう！／火：カガクをひらく（月1～）、そなえトーク（月1程度）／水：World Insight（月2程度）、GLOBE CAST（月2程度）／木：PUERTA（月1程度）／金：ゆるっと経済（月1～）／土：ポリレビ／日：ニュース大阪目線／曜日不定：ON GOING（月数回）",
+    spotify: "https://open.spotify.com/show/392h0MYfvMTndEVzf2cOvC",
+    links: [
+      ["Spotify", "https://open.spotify.com/show/392h0MYfvMTndEVzf2cOvC"],
+      ["Apple Podcasts", "https://podcasts.apple.com/jp/podcast/%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%81%AE%E7%8F%BE%E5%A0%B4%E3%81%8B%E3%82%89/id1526773927"],
+      ["Amazon Music", "https://music.amazon.co.jp/podcasts/7337408b-4752-4a85-8f27-4208a2ca8b1d/%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%81%AE%E7%8F%BE%E5%A0%B4%E3%81%8B%E3%82%89"],
+      ["Pocket Casts", "https://pocketcasts.com/podcast/%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%81%AE%E7%8F%BE%E5%A0%B4%E3%81%8B%E3%82%89/ce4f8cb0-c119-0138-e716-0acc26574db2"],
+      ["LISTEN", "https://listen.style/p/tvzppbdm"]
+    ],
+    official: "https://omny.fm/shows/asahi/playlists/podcast",
+    pody: "https://pody.jp/player/4UD5sHilP15gqAc0clXN",
+    discord: "https://discord.gg/6zBhm97F9",
+
   },
   {
     name: "スポンジ Sports Lounge",
@@ -519,23 +537,6 @@ const officialPrograms: OfficialProgram[] = [
     official: "https://omny.fm/shows/asahi/playlists/donut",
     pody: "https://pody.jp/player/to04ABW3puiCBtAvp6Wx",
     discord: "https://discord.gg/TU8c9qtzvw",
-  },
-  {
-    name: "ニュースの現場から",
-    schedule:
-            "月：一緒に新聞をめくろう！／火：カガクをひらく（月1～）、そなえトーク（月1程度）／水：World Insight（月2程度）、GLOBE CAST（月2程度）／木：PUERTA（月1程度）／金：ゆるっと経済（月1～）／土：ポリレビ／日：ニュース大阪目線／曜日不定：ON GOING（月数回）",
-    spotify: "https://open.spotify.com/show/392h0MYfvMTndEVzf2cOvC",
-    links: [
-      ["Spotify", "https://open.spotify.com/show/392h0MYfvMTndEVzf2cOvC"],
-      ["Apple Podcasts", "https://podcasts.apple.com/jp/podcast/%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%81%AE%E7%8F%BE%E5%A0%B4%E3%81%8B%E3%82%89/id1526773927"],
-      ["Amazon Music", "https://music.amazon.co.jp/podcasts/7337408b-4752-4a85-8f27-4208a2ca8b1d/%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%81%AE%E7%8F%BE%E5%A0%B4%E3%81%8B%E3%82%89"],
-      ["Pocket Casts", "https://pocketcasts.com/podcast/%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%81%AE%E7%8F%BE%E5%A0%B4%E3%81%8B%E3%82%89/ce4f8cb0-c119-0138-e716-0acc26574db2"],
-      ["LISTEN", "https://listen.style/p/tvzppbdm"]
-    ],
-    official: "https://omny.fm/shows/asahi/playlists/podcast",
-    pody: "https://pody.jp/player/4UD5sHilP15gqAc0clXN",
-    discord: "https://discord.gg/6zBhm97F9",
-
   },
   {
     name: "報談【HOU-DAN】",
@@ -1945,7 +1946,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <div className="officialBody">
                   {p.mark && <em>{p.mark}</em>}
                   <h3>{p.name}</h3>
-                  {p.detail && (p.name === "MEDIA TALK" ? <p><span style={{ display: "inline-block", background: "#d62839", color: "#fff", fontSize: "0.72em", fontWeight: 800, padding: "1px 7px", borderRadius: "4px", marginRight: "5px", verticalAlign: "baseline" }}>NEW</span>{p.detail}</p> : <p>{p.detail}</p>)}
+                  {p.detail && (p.name === "MEDIA TALK" || p.name === "ニュースの現場から" ? <p>{p.detail.split("、").map((item, i) => { const isNew = p.name === "MEDIA TALK" ? (item === "推し記事" || item === "吹奏楽・高校編") : ["Q&A", "地球会議", "大阪目線"].includes(item); return <React.Fragment key={item}>{i > 0 ? "、" : ""}{isNew && <span style={{ display: "inline-block", background: "#d62839", color: "#fff", fontSize: "0.72em", fontWeight: 800, padding: "1px 6px", borderRadius: "4px", marginRight: "4px" }}>NEW</span>}{item}</React.Fragment>; })}</p> : <p>{p.detail}</p>)}
                   {p.schedule && <p className="schedule">{p.schedule}</p>}
                   <div className="serviceLinks">
                       {[
