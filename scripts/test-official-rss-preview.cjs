@@ -11,11 +11,11 @@ const ctx = {
   Utilities: { formatDate(date) { return new Date(date.getTime() + 9 * 3600000).toISOString().slice(0, 10); } },
 };
 vm.createContext(ctx);
-for (const file of ['OfficialRssDeltaPreview.js', 'OfficialRssDeltaPreviewTests.js']) {
+for (const file of ['OfficialRssDeltaPreview.js', 'OfficialRssLibraryPreview.js', 'OfficialRssDeltaPreviewTests.js']) {
   vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), ctx, { filename: file });
 }
 let total = 0;
-for (const name of ['testRssPreviewKeys_', 'testRssPreviewNormalization_', 'testRssPreviewMigrationFixture_']) {
+for (const name of ['testRssPreviewKeys_', 'testRssPreviewNormalization_', 'testRssPreviewMigrationFixture_', 'testRssLibraryExcludedHistory_']) {
   const result = vm.runInContext(name + '()', ctx);
   assert.equal(result.ok, true, name);
   total += result.assertions;
