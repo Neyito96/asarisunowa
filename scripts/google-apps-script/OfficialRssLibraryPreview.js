@@ -21,6 +21,14 @@ function runMigratedRssPreviews() {
     }
   });
 }
+/** History columns: A GUID, B fixed ID, C show, D title. */
+function rssLibraryExcludedHistory_(historyRows, showName) {
+  return (historyRows || []).filter(function(row) {
+    return String(row[2]).trim() === showName;
+  }).map(function(row) {
+    return { guid: row[0], externalId: row[1], title: row[3], excluded: true };
+  });
+}
 function previewLibraryRssForShow_(showName) {
   const name = String(showName || '報談').trim();
   const book = SpreadsheetApp.getActiveSpreadsheet();
@@ -39,11 +47,7 @@ function previewLibraryRssForShow_(showName) {
   if (!exclusions) throw new Error('Exclusion history tab missing');
   const historyRows = exclusions.getLastRow() > 1
     ? exclusions.getRange(2, 1, exclusions.getLastRow() - 1, 9).getValues() : [];
-  const blocked = historyRows.filter(function(row) { return String(row[2]).trim() === name; })
-    .map(function(row) {
-      return { guid: row[0], externalId: row[1], title: row[3],
-        excluded: true };
-    });
+  const blocked = rssLibraryExcludedHistory_(historyRows, name);
   const last = ledger.getLastRow();
   if (last < 2) throw new Error('Ledger has no rows; manual review required');
   const values = ledger.getRange(2, 1, last - 1, 45).getValues();
