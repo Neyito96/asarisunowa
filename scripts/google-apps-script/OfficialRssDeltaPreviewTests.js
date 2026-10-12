@@ -11,3 +11,11 @@ function testRssPreviewKeys_() {
   check(feed.every(function(k) { return k.indexOf('megaphone-audio:') !== 0; }), 'RSS feed not audio');
   return { ok: true, assertions: 4 };
 }
+
+function testRssPreviewNormalization_() {
+  function check(condition, label) { if (!condition) throw new Error(label); }
+  check(rssPreviewTitleKey_('  報談　 テスト  ') === '報談 テスト', 'NFKC and whitespace normalization');
+  check(rssPreviewTitleKey_('ABC   DEF') === 'abc def', 'ASCII whitespace normalization');
+  check(rssPreviewDateKey_('2026-10-09T04:00:00+09:00') === '2026-10-09', 'JST date');
+  return { ok: true, assertions: 3 };
+}
