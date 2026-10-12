@@ -67,3 +67,17 @@ function testRssPreviewMigrationFixture_() {
     Utilities.formatDate = oldFormat;
   }
 }
+
+/** Regression: deleted episodes stay blocked across host migration. */
+function testRssLibraryExcludedHistory_() {
+  const rows = [
+    ['old-guid-001', 'fixed-001', '報談', '削除済みの回'],
+    ['old-guid-002', 'fixed-002', 'ニュースの学校', '別番組の回']
+  ];
+  const mapped = rssLibraryExcludedHistory_(rows, '報談');
+  if (mapped.length !== 1) throw new Error('History must be filtered by show');
+  if (mapped[0].guid !== 'old-guid-001') throw new Error('History A must map to GUID');
+  if (mapped[0].externalId !== 'fixed-001') throw new Error('History B must map to fixed ID');
+  if (mapped[0].excluded !== true) throw new Error('History must remain excluded');
+  return { ok: true, assertions: 4 };
+}
