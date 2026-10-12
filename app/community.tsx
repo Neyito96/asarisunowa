@@ -731,8 +731,17 @@ function isRecommendedPodcastSnapshotFresh() {
   }
 }
 
+// Temporary display-only exclusion for the two Kobayashi Yuka playlist experiments.
+// Keep the underlying registrations and Spotify playlists intact for library/collaboration testing.
+const HIDDEN_TEST_PLAYLIST_IDS = new Set([
+  "45Z3QPexcZ9vAF2sausEPg", // regular
+  "3dcdCnYyyDuWxSCgNuCKmd", // collaborative
+]);
+const isVisiblePlaylist = (item: Playlist): boolean =>
+  ![...HIDDEN_TEST_PLAYLIST_IDS].some((id) => (item.url || "").includes("/playlist/" + id));
+
 export default function Community({ playlists }: { playlists: Playlist[] }) {
-  const [livePlaylists, setLivePlaylists] = useState<Playlist[]>(playlists);
+  const [livePlaylists, setLivePlaylists] = useState<Playlist[]>(() => playlists.filter(isVisiblePlaylist));
   const [recommendedPodcasts, setRecommendedPodcasts] = useState<RecommendedPodcast[]>(() => [...recommendedPodcastSnapshot].map(recommendedPodcastFromSnapshot).reverse());
   const [recommendedPodcastStatus, setRecommendedPodcastStatus] = useState<"loading" | "ready" | "error">("ready");
   const [liveListenerPodcasts, setLiveListenerPodcasts] = useState<ListenerPodcast[]>(LISTENER_PODCAST_BACKUP);
@@ -814,7 +823,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               autoManaged: source.autoManaged === true,
             } satisfies Playlist;
           })
-          .filter((item: Playlist) => item.title && isPublishablePlaylistSource(item));
+          .filter((item: Playlist) => item.title && isPublishablePlaylistSource(item) && isVisiblePlaylist(item));
         if (!cancelled && next.length) setLivePlaylists(next);
       } catch {
         // API取得失敗時はビルド済みデータをそのまま使う
