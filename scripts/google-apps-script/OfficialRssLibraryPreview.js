@@ -41,7 +41,7 @@ function previewLibraryRssForShow_(showName) {
     ? exclusions.getRange(2, 1, exclusions.getLastRow() - 1, 9).getValues() : [];
   const blocked = historyRows.filter(function(row) { return String(row[2]).trim() === name; })
     .map(function(row) {
-      return { externalId: row[0], guid: row[1], title: row[3],
+      return { guid: row[0], externalId: row[1], title: row[3],
         excluded: true };
     });
   const last = ledger.getLastRow();
