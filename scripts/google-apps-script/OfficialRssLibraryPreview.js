@@ -8,6 +8,19 @@ function runHoudanRssPreview() {
 function runNewsSchoolRssPreview() {
   return previewLibraryRssForShow_('ニュースの学校');
 }
+/** Execute both previews independently, without changing Sheets or Spotify. */
+function runMigratedRssPreviews() {
+  return ['報談', 'ニュースの学校'].map(function(show) {
+    try {
+      return previewLibraryRssForShow_(show);
+    } catch (error) {
+      const failure = { mode: 'READ_ONLY', show: show, ok: false,
+        error: String(error && error.message || error) };
+      Logger.log(JSON.stringify(failure));
+      return failure;
+    }
+  });
+}
 function previewLibraryRssForShow_(showName) {
   const name = String(showName || '報談').trim();
   const book = SpreadsheetApp.getActiveSpreadsheet();
