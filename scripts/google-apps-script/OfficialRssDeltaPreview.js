@@ -17,13 +17,25 @@ function rssPreviewKeys_(value) {
 }
 
 /** knownRows: [{externalId,link,enclosureUrl,guid,excluded}] or string IDs. */
+function rssPreviewTitleKey_(title) {
+  return String(title || '').normalize('NFKC').toLowerCase().replace(/\\s+/g, ' ').trim();
+}
+function rssPreviewDateKey_(value) {
+  const d = value instanceof Date ? value : new Date(value);
+  return isNaN(d.getTime()) ? '' : Utilities.formatDate(d, 'Asia/Tokyo', 'yyyy-MM-dd');
+}
 function previewOfficialRssDelta_(feedUrl, knownRows, limit) {
   const url = String(feedUrl || '').trim();
   if (!/^https:\/\/[^\s]+$/i.test(url)) throw new Error('HTTPS RSS URL required');
   const max = Math.max(1, Math.min(Number(limit) || 20, 100));
   const index = {};
+  const titleDateIndex = {};
   (knownRows || []).forEach(function(row, i) {
     const data = typeof row === 'string' ? { externalId: row } : (row || {});
+    const titleDate = rssPreviewTitleKey_(data.title) + '|' + rssPreviewDateKey_(data.pubDate);
+    if (rssPreviewTitleKey_(data.title) && rssPreviewDateKey_(data.pubDate)) {
+      titleDateIndex[titleDate] = true;
+    }
     [data.externalId, data.link, data.enclosureUrl, data.guid].forEach(function(value) {
       rssPreviewKeys_(value).forEach(function(key) {
         if (!index[key]) index[key] = [];
@@ -53,6 +65,9 @@ function previewOfficialRssDelta_(feedUrl, knownRows, limit) {
     const found = Object.values(matches);
     let status = !keys.length ? 'ambiguous' : found.some(function(m) { return m.excluded; }) ? 'excluded'
       : found.length > 1 ? 'ambiguous' : found.length === 1 ? 'matched' : 'new';
+    // A host migration can change GUID and enclosure: title/date is a review hint, not an automatic match.
+    const titleDate = rssPreviewTitleKey_(field('title')) + '|' + rssPreviewDateKey_(field('pubDate'));
+    if (status === 'new' && titleDateIndex[titleDate]) status = 'ambiguous';
     if (keys.some(function(key) { return seen[key]; }) && status === 'new') status = 'ambiguous';
     keys.forEach(function(key) { seen[key] = true; });
     return { guid: guid, link: link, enclosureUrl: enclosureUrl, title: field('title'),
