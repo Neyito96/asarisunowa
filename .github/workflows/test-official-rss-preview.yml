@@ -1,0 +1,20 @@
+name: RSS preview regression (read-only)
+on:
+  pull_request:
+    paths:
+      - 'scripts/google-apps-script/OfficialRssDeltaPreview.js'
+      - 'scripts/google-apps-script/OfficialRssDeltaPreviewTests.js'
+      - 'scripts/test-official-rss-preview.cjs'
+      - '.github/workflows/test-official-rss-preview.yml'
+  workflow_dispatch:
+jobs:
+  offline-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/test-official-rss-preview.cjs
