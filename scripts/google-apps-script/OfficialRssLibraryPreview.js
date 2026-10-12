@@ -16,6 +16,15 @@ function previewLibraryRssForShow_(showName) {
   if (selected.length !== 1) throw new Error('Expected exactly one RSS source for ' + name);
   const feedUrl = String(selected[0][7] || '').trim();
   if (!/^https:\/\//.test(feedUrl)) throw new Error('RSS URL missing for ' + name);
+  const exclusions = book.getSheetByName('削除・除外履歴');
+  if (!exclusions) throw new Error('Exclusion history tab missing');
+  const historyRows = exclusions.getLastRow() > 1
+    ? exclusions.getRange(2, 1, exclusions.getLastRow() - 1, 9).getValues() : [];
+  const blocked = historyRows.filter(function(row) { return String(row[2]).trim() === name; })
+    .map(function(row) {
+      return { externalId: row[0], guid: row[1], title: row[3],
+        excluded: true };
+    });
   const last = ledger.getLastRow();
   if (last < 2) throw new Error('Ledger has no rows; manual review required');
   const values = ledger.getRange(2, 1, last - 1, 45).getValues();
@@ -25,9 +34,9 @@ function previewLibraryRssForShow_(showName) {
       return { externalId: row[6], link: row[8], enclosureUrl: row[14], title: row[2], pubDate: row[3],
         excluded: flag !== '' && flag !== 'false' && flag !== '0' && flag !== '未指定' };
     });
-  const result = previewOfficialRssDelta_(feedUrl, known, 20);
+  const result = previewOfficialRssDelta_(feedUrl, known.concat(blocked), 20);
   const safe = { mode: result.mode, show: name, feed: feedUrl,
-    ledgerRows: known.length, inspected: result.inspected, counts: result.counts,
+    ledgerRows: known.length, exclusionHistoryRows: blocked.length, inspected: result.inspected, counts: result.counts,
     candidates: result.items.map(function(item) {
       return { title: item.title, pubDate: item.pubDate, status: item.status,
         guid: item.guid, link: item.link };
