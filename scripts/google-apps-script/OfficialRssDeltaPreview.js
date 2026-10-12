@@ -63,7 +63,12 @@ function previewOfficialRssDelta_(feedUrl, knownRows, limit) {
     const matches = {};
     keys.forEach(function(key) { (index[key] || []).forEach(function(m) { matches[m.index] = m; }); });
     const found = Object.values(matches);
-    let status = !keys.length ? 'ambiguous' : found.some(function(m) { return m.excluded; }) ? 'excluded'
+    const excludedByTitle = (knownRows || []).some(function(row) {
+      if (!row || typeof row === 'string' || row.excluded !== true) return false;
+      return rssPreviewTitleKey_(row.title) &&
+        rssPreviewTitleKey_(row.title) === rssPreviewTitleKey_(field('title'));
+    });
+    let status = !keys.length ? 'ambiguous' : (found.some(function(m) { return m.excluded; }) || excludedByTitle) ? 'excluded'
       : found.length > 1 ? 'ambiguous' : found.length === 1 ? 'matched' : 'new';
     // A host migration can change GUID and enclosure: title/date is a review hint, not an automatic match.
     const titleDate = rssPreviewTitleKey_(field('title')) + '|' + rssPreviewDateKey_(field('pubDate'));
