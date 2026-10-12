@@ -18,7 +18,7 @@ function rssPreviewKeys_(value) {
 
 /** knownRows: [{externalId,link,enclosureUrl,guid,excluded}] or string IDs. */
 function rssPreviewTitleKey_(title) {
-  return String(title || '').normalize('NFKC').toLowerCase().replace(/\\s+/g, ' ').trim();
+  return String(title || '').normalize('NFKC').toLowerCase().split(/\s+/).join(' ').trim();
 }
 function rssPreviewDateKey_(value) {
   const d = value instanceof Date ? value : new Date(value);
