@@ -21,6 +21,13 @@ function rssPreviewTitleKey_(title) {
   return String(title || '').normalize('NFKC').toLowerCase().split(/\s+/).join(' ').trim();
 }
 function rssPreviewDateKey_(value) {
+  // Sheet display strings already represent JST wall time; avoid parsing them as UTC.
+  if (typeof value === 'string') {
+    const match = value.trim().match(/^(\\d{4})[/-](\\d{1,2})[/-](\\d{1,2})(?:[ T]|$)/);
+    if (match && !/[zZ]|[+-]\\d{2}:?\\d{2}$/.test(value.trim())) {
+      return match[1] + '-' + match[2].padStart(2, '0') + '-' + match[3].padStart(2, '0');
+    }
+  }
   const d = value instanceof Date ? value : new Date(value);
   return isNaN(d.getTime()) ? '' : Utilities.formatDate(d, 'Asia/Tokyo', 'yyyy-MM-dd');
 }
