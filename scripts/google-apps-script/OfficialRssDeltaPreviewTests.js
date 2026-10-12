@@ -17,5 +17,6 @@ function testRssPreviewNormalization_() {
   check(rssPreviewTitleKey_('  報談　 テスト  ') === '報談 テスト', 'NFKC and whitespace normalization');
   check(rssPreviewTitleKey_('ABC   DEF') === 'abc def', 'ASCII whitespace normalization');
   check(rssPreviewDateKey_('2026-10-09T04:00:00+09:00') === '2026-10-09', 'JST date');
-  return { ok: true, assertions: 3 };
+  check(rssPreviewDateKey_('2026/10/09 04:00') === '2026-10-09', 'Ledger JST display date');
+  return { ok: true, assertions: 4 };
 }
