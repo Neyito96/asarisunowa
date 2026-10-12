@@ -22,7 +22,7 @@ function previewLibraryRssForShow_(showName) {
   const known = values.filter(function(row) { return String(row[1]).trim() === name; })
     .map(function(row) {
       const flag = String(row[38] || '').trim().toLowerCase();
-      return { externalId: row[6], link: row[8], enclosureUrl: row[14],
+      return { externalId: row[6], link: row[8], enclosureUrl: row[14], title: row[2], pubDate: row[3],
         excluded: flag !== '' && flag !== 'false' && flag !== '0' && flag !== '未指定' };
     });
   const result = previewOfficialRssDelta_(feedUrl, known, 20);
