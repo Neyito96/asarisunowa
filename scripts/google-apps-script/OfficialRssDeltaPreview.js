@@ -1,20 +1,22 @@
-/** RSS -> library dry-run only. Never writes to Sheets, Spotify, or installs triggers. */
+/** Read-only RSS preview. No trigger, Spotify call or sheet mutation. */
 function rssPreviewKeys_(value) {
   const raw = String(value || '').trim();
   if (!raw) return [];
   const keys = [raw];
-  const uuid = raw.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
-  if (uuid) keys.push('uuid:' + uuid[0].toLowerCase());
-  const megaphone = raw.match(/(?:traffic\.)?megaphone\.fm\/([A-Za-z0-9_-]+)/i);
-  if (megaphone) keys.push('megaphone:' + megaphone[1].toLowerCase());
-  try {
-    const clean = raw.split(/[?#]/)[0].replace(/\/$/, '').toLowerCase();
-    if (/^https?:\/\//i.test(raw)) keys.push('url:' + clean);
-  } catch (_) {}
+  const uuidPattern = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
+  const exactUuid = new RegExp('^' + uuidPattern + '$', 'i');
+  if (exactUuid.test(raw)) keys.push('omny-clip:' + raw.toLowerCase());
+  const clip = raw.match(new RegExp('/d/clips/' + uuidPattern + '/' + uuidPattern + '/(' + uuidPattern + ')(?:/|$)', 'i'));
+  if (clip) keys.push('omny-clip:' + clip[1].toLowerCase());
+  const megaphone = raw.match(/(?:traffic\.)?megaphone\.fm\/([A-Za-z0-9_-]+)\.mp3(?:[?#]|$)/i);
+  if (megaphone) keys.push('megaphone-audio:' + megaphone[1].toLowerCase());
+  if (/^https?:\/\//i.test(raw)) {
+    keys.push('url:' + raw.split(/[?#]/)[0].replace(/\/$/, '').toLowerCase());
+  }
   return Array.from(new Set(keys));
 }
 
-/** knownRows: [{externalId,link,enclosureUrl,guid,excluded}] or old string IDs. */
+/** knownRows: [{externalId,link,enclosureUrl,guid,excluded}] or string IDs. */
 function previewOfficialRssDelta_(feedUrl, knownRows, limit) {
   const url = String(feedUrl || '').trim();
   if (!/^https:\/\/[^\s]+$/i.test(url)) throw new Error('HTTPS RSS URL required');
@@ -42,7 +44,8 @@ function previewOfficialRssDelta_(feedUrl, knownRows, limit) {
   const items = channel.getChildren('item').slice(0, max).map(function(item) {
     const field = function(name) { return String(item.getChildText(name) || '').trim(); };
     const enclosure = item.getChild('enclosure');
-    const enclosureUrl = enclosure ? String(enclosure.getAttribute('url')?.getValue() || '') : '';
+    const attribute = enclosure && enclosure.getAttribute('url');
+    const enclosureUrl = attribute ? String(attribute.getValue() || '') : '';
     const guid = field('guid'), link = field('link');
     const keys = Array.from(new Set([guid, link, enclosureUrl].flatMap(rssPreviewKeys_)));
     const matches = {};
