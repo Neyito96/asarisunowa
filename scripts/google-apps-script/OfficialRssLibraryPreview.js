@@ -4,6 +4,10 @@
 function runHoudanRssPreview() {
   return previewLibraryRssForShow_('報談');
 }
+/** Second migrated feed; independent read-only preview. */
+function runNewsSchoolRssPreview() {
+  return previewLibraryRssForShow_('ニュースの学校');
+}
 function previewLibraryRssForShow_(showName) {
   const name = String(showName || '報談').trim();
   const book = SpreadsheetApp.getActiveSpreadsheet();
@@ -12,6 +16,8 @@ function previewLibraryRssForShow_(showName) {
   const ledger = book.getSheetByName('エピソード台帳');
   if (!source || !ledger) throw new Error('Episode library tabs missing');
   const sourceRows = source.getRange(2, 1, Math.max(1, source.getLastRow() - 1), 8).getValues();
+  const allowedShows = ['報談', 'ニュースの学校'];
+  if (allowedShows.indexOf(name) === -1) throw new Error('Show not allowlisted for migration preview: ' + name);
   const selected = sourceRows.filter(function(row) { return String(row[0]).trim() === name; });
   if (selected.length !== 1) throw new Error('Expected exactly one RSS source for ' + name);
   const feedUrl = String(selected[0][7] || '').trim();
