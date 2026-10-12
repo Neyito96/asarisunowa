@@ -20,3 +20,50 @@ function testRssPreviewNormalization_() {
   check(rssPreviewDateKey_('2026/10/09 04:00') === '2026-10-09', 'Ledger JST display date');
   return { ok: true, assertions: 4 };
 }
+
+/** Integration-style fixture with stubbed GAS services. No HTTP or sheet mutation. */
+function testRssPreviewMigrationFixture_() {
+  const oldFetch = UrlFetchApp.fetch;
+  const oldParse = XmlService.parse;
+  const oldFormat = Utilities.formatDate;
+  function check(ok, message) { if (!ok) throw new Error(message); }
+  function element(fields) {
+    return {
+      getChildText: function(k) { return fields[k] || ''; },
+      getChild: function(k) {
+        return k === 'enclosure' ? {
+          getAttribute: function(a) { return a === 'url' ? { getValue: function() { return fields.audio || ''; } } : null; }
+        } : null;
+      }
+    };
+  }
+  const samples = [
+    { title: '報談　テスト', pubDate: 'Fri, 09 Oct 2026 04:00:00 +0900', guid: 'new-host-1', audio: 'https://traffic.megaphone.fm/TASC00001.mp3' },
+    { title: '除外した回', pubDate: 'Fri, 09 Oct 2026 04:00:00 +0900', guid: 'new-host-2', audio: 'https://traffic.megaphone.fm/TASC00002.mp3' },
+    { title: '完全な新着', pubDate: 'Fri, 09 Oct 2026 04:00:00 +0900', guid: 'new-host-3', audio: 'https://traffic.megaphone.fm/TASC00003.mp3' }
+  ];
+  try {
+    UrlFetchApp.fetch = function() { return { getResponseCode: function() { return 200; }, getContentText: function() { return '<rss />'; } }; };
+    XmlService.parse = function() { return { getRootElement: function() { return {
+      getName: function() { return 'rss'; },
+      getChild: function(k) { return k === 'channel' ? { getChildren: function() { return samples.map(element); } } : null; }
+    }; } }; };
+    Utilities.formatDate = function(date) {
+      const t = date.getTime() + 9 * 3600000;
+      return new Date(t).toISOString().slice(0, 10);
+    };
+    const result = previewOfficialRssDelta_('https://example.org/feed', [
+      { title: '報談 テスト', pubDate: '2026/10/09 04:00', externalId: 'old-omny-id', excluded: false },
+      { title: '除外した回', externalId: 'old-removed-id', excluded: true }
+    ], 20);
+    check(result.inspected === 3, 'fixture inspected');
+    check(result.items[0].status === 'ambiguous', 'cross-host title/date held');
+    check(result.items[1].status === 'excluded', 'excluded title held');
+    check(result.items[2].status === 'new', 'genuine new candidate');
+    return { ok: true, assertions: 4, counts: result.counts };
+  } finally {
+    UrlFetchApp.fetch = oldFetch;
+    XmlService.parse = oldParse;
+    Utilities.formatDate = oldFormat;
+  }
+}
