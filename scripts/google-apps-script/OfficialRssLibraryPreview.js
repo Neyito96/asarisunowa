@@ -20,16 +20,18 @@ function runMigratedRssPreviews() {
       return failure;
     }
   });
-  const summary = { mode: 'READ_ONLY', inspected: 0, newCandidates: 0,
+  const summary = { mode: 'READ_ONLY', complete: false, successfulShows: 0, inspected: 0, newCandidates: 0,
     matched: 0, ambiguous: 0, excluded: 0, errors: 0 };
   results.forEach(function(result) {
     if (result.ok === false) { summary.errors += 1; return; }
+    summary.successfulShows += 1;
     summary.inspected += result.inspected;
     summary.newCandidates += result.counts.new;
     summary.matched += result.counts.matched;
     summary.ambiguous += result.counts.ambiguous;
     summary.excluded += result.counts.excluded;
   });
+  summary.complete = summary.successfulShows === results.length && summary.errors === 0;
   return { summary: summary, shows: results };
 }
 /** History columns: A GUID, B fixed ID, C show, D title. */
