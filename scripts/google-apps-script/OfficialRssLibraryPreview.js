@@ -48,8 +48,8 @@ function rssLibraryExcludedHistory_(historyRows, showName) {
 }
 function previewLibraryRssForShow_(showName) {
   const name = String(showName || '報談').trim();
-  const book = SpreadsheetApp.getActiveSpreadsheet();
-  if (!book) throw new Error('Run inside the episode-library spreadsheet-bound GAS project');
+  const book = SpreadsheetApp.openById('1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4');
+  if (!book) throw new Error('Test episode library spreadsheet not accessible');
   const source = book.getSheetByName('取得元一覧');
   const ledger = book.getSheetByName('エピソード台帳');
   if (!source || !ledger) throw new Error('Episode library tabs missing');
