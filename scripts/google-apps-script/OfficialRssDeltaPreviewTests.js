@@ -81,3 +81,12 @@ function testRssLibraryExcludedHistory_() {
   if (mapped[0].excluded !== true) throw new Error('History must remain excluded');
   return { ok: true, assertions: 4 };
 }
+
+/** Cross-show titles must not be used as evidence of a same-show migration. */
+function testRssPreviewTitleDateIsolation_() {
+  const same = rssPreviewTitleKey_('同じタイトル') + '|' + rssPreviewDateKey_('2026/10/09 08:00');
+  const differentDay = rssPreviewTitleKey_('同じタイトル') + '|' + rssPreviewDateKey_('2026/10/10 08:00');
+  if (same === differentDay) throw new Error('Different publishing day must remain distinct');
+  if (rssPreviewTitleKey_('同じタイトル') !== rssPreviewTitleKey_('同じタイトル')) throw new Error('Stable title key');
+  return { ok: true, assertions: 2 };
+}
