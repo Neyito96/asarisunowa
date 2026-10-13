@@ -24,8 +24,8 @@ function runImport1007FullPreview() {
   const index = Object.fromEntries(header.map((h,i)=>[h,i]));
   const byUrl = new Map(), bySpotify = new Map(), byShowTitle = new Map();
   function norm(v) { return String(v == null ? '' : v).trim(); }
-  function key(show,title) { return show + '|' + norm(title).normalize('NFKC').replace(/\\s+/g,' ').toLowerCase(); }
-  function urlKey(v) { return norm(v).replace(/\\/$/,''); }
+  function key(show,title) { return show + '|' + norm(title).normalize('NFKC').replace(/\s+/g,' ').toLowerCase(); }
+  function urlKey(v) { return norm(v).replace(/\/$/,''); }
   rows.forEach((r,i)=>{
     const show=norm(r[index['番組名']]), id=norm(r[index['台帳ID']]);
     const url=urlKey(r[index['元ページURL']]);
@@ -43,7 +43,8 @@ function runImport1007FullPreview() {
     const stat={sourceTab:tab,show,sourceRows:0,uniqueMatches:0,newCandidates:0,held:0,spotifyFilled:0,asahiFilled:0,pocketFilled:0,descriptionFilled:0,heldSamples:[]};
     data.forEach((r,ri)=>{
       const url=urlKey(r[0]),title=norm(r[2]);
-      if(!/^https:\/\/(omny\\.fm|www\\.omnycontent\\.com)\//.test(url)||!title)return;
+      if(!url.startsWith('https://omny.fm/') && !url.startsWith('https://www.omnycontent.com/')) return;
+      if(!title) return;
       stat.sourceRows++;
       const spotify=norm(r[11]),asahi=norm(r[12]),pocket=norm(r[13]),desc=norm(r[14]);
       if(spotify)stat.spotifyFilled++;
