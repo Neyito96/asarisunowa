@@ -20,6 +20,10 @@ function runMigratedRssPreviews() {
       return failure;
     }
   });
+  return rssLibrarySummarizePreviews_(results);
+}
+/** Explicitly distinguish a partial RSS result from a complete two-show scan. */
+function rssLibrarySummarizePreviews_(results) {
   const summary = { mode: 'READ_ONLY', complete: false, successfulShows: 0, inspected: 0, newCandidates: 0,
     matched: 0, ambiguous: 0, excluded: 0, errors: 0 };
   results.forEach(function(result) {
