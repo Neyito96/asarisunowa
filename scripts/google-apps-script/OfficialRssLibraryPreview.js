@@ -47,6 +47,10 @@ function rssLibraryExcludedHistory_(historyRows, showName) {
   });
 }
 /** Inspect Houdan RSS history before any write. */
+/** Donut RSS backfill preview, test ledger only, no writes. */
+function runDonutBackfillPreview() {
+  return previewLibraryRssForShow_('ドーナツ', 500, true);
+}
 function runSpongeBackfillPreview() {
   return previewLibraryRssForShow_('スポンジ', 500, true);
 }
@@ -65,12 +69,12 @@ function previewLibraryRssForShow_(showName, limit, onlyUnmatched) {
   const ledger = book.getSheetByName('エピソード台帳');
   if (!source || !ledger) throw new Error('Episode library tabs missing');
   const sourceRows = source.getRange(2, 1, Math.max(1, source.getLastRow() - 1), 8).getValues();
-  const allowedShows = ['報談', 'ニュースの学校'];
+  const allowedShows = ['報談', 'ニュースの学校', 'スポンジ', 'ドーナツ'];
   if (allowedShows.indexOf(name) === -1) throw new Error('Show not allowlisted for migration preview: ' + name);
   const selected = sourceRows.filter(function(row) { return String(row[0]).trim() === name; });
   if (selected.length !== 1) throw new Error('Expected exactly one RSS source for ' + name);
   const feedUrl = String(selected[0][7] || '').trim();
-  const expectedFeed = { '報談': 'https://feeds.megaphone.fm/TASC9421488254', 'ニュースの学校': 'https://feeds.megaphone.fm/TASC5851398719', 'スポンジ': 'https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/8ceab8ef-af5f-44e9-9545-b4ab0024434b/podcast.rss' }[name];
+  const expectedFeed = { '報談': 'https://feeds.megaphone.fm/TASC9421488254', 'ニュースの学校': 'https://feeds.megaphone.fm/TASC5851398719', 'スポンジ': 'https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/8ceab8ef-af5f-44e9-9545-b4ab0024434b/podcast.rss', 'ドーナツ': 'https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/c373aac9-fb6a-4172-8a8f-b498003d9389/podcast.rss' }[name];
   if (feedUrl !== expectedFeed) throw new Error('RSS source mismatch for ' + name + '; review 取得元一覧 H column');
   if (!/^https:\/\//.test(feedUrl)) throw new Error('RSS URL missing for ' + name);
   const exclusions = book.getSheetByName('削除・除外履歴');
