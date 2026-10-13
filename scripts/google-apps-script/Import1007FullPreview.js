@@ -42,14 +42,21 @@ function runImport1007FullPreview() {
     const sourceRange=sh.getDataRange();
     const data=sourceRange.getValues().slice(1);
     const links=sh.getRange(2,1,Math.max(1,sh.getLastRow()-1),1).getRichTextValues();
-    const stat={sourceTab:tab,show,sourceRows:0,uniqueMatches:0,newCandidates:0,held:0,spotifyFilled:0,asahiFilled:0,pocketFilled:0,descriptionFilled:0,heldSamples:[],rawSamples:[],urlLike:0,titleFilled:0};
+    const stat={sourceTab:tab,show,sourceRows:0,uniqueMatches:0,newCandidates:0,held:0,spotifyFilled:0,asahiFilled:0,pocketFilled:0,descriptionFilled:0,heldSamples:[],rawSamples:[],urlLike:0,titleFilled:0,skipped:0,skipReasons:{},skipSamples:[],duplicateSourceUrls:0,duplicateSourceSpotify:0};
+    const seenUrls=new Set(),seenSpotify=new Set();
     data.forEach((r,ri)=>{
       const rich=links[ri] && links[ri][0];
       const url=urlKey((rich && rich.getLinkUrl()) || r[0]),title=norm(r[2]);
       if(title)stat.titleFilled++;
       if(/^https?:\/\//i.test(url))stat.urlLike++;
       if(stat.rawSamples.length<3 && title)stat.rawSamples.push({row:ri+2,rawA:norm(r[0]).slice(0,140),resolvedA:url.slice(0,140),title:title.slice(0,90)});
-      if(!title || !/^https:\/\/omny\.fm\/shows\/asahi\//i.test(url)) return;
+      if(!title || !/^https:\/\/omny\.fm\/shows\/asahi\//i.test(url)) {
+        stat.skipped++;
+        const reason=!title?'NO_TITLE':(!url?'NO_URL':(/^https?:\/\//i.test(url)?'OTHER_URL':'NON_URL'));
+        stat.skipReasons[reason]=(stat.skipReasons[reason]||0)+1;
+        if(stat.skipSamples.length<30)stat.skipSamples.push({row:ri+2,reason,url:url.slice(0,160),title:title.slice(0,90)});
+        return;
+      }
       if(!url) {stat.held++;if(stat.heldSamples.length<5)stat.heldSamples.push({row:ri+2,reason:'NO_URL'});return;}
       stat.sourceRows++;
       const spotify=norm(r[11]),asahi=norm(r[12]),pocket=norm(r[13]),desc=norm(r[14]);
@@ -57,6 +64,10 @@ function runImport1007FullPreview() {
       if(/^https:\/\/(www\.)?asahi\.com\//i.test(asahi))stat.asahiFilled++;
       if(/^https:\/\/(pca\.st|pocketcasts\.com)\//i.test(pocket))stat.pocketFilled++;
       if(desc)stat.descriptionFilled++;
+      if(seenUrls.has(url))stat.duplicateSourceUrls++;else seenUrls.add(url);
+      if(/^https:\/\/open\.spotify\.com\/episode\/[A-Za-z0-9]+/i.test(spotify)){
+        if(seenSpotify.has(spotify))stat.duplicateSourceSpotify++;else seenSpotify.add(spotify);
+      }
       const matches=byUrl.get(show+'|'+url)||[];
       const spMatches=spotify?(bySpotify.get(spotify)||[]):[];
       const titleMatches=byShowTitle.get(key(show,title))||[];
