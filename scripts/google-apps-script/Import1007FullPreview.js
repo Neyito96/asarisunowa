@@ -39,12 +39,18 @@ function runImport1007FullPreview() {
   const summary={mode:'READ_ONLY',source:'COPY_1007',ledgerRows:rows.length,exclusionRows:excludedRows.length,shows:[],totals:{sourceRows:0,uniqueMatches:0,newCandidates:0,held:0,spotifyFilled:0,asahiFilled:0,pocketFilled:0,descriptionFilled:0}};
   IMPORT1007_SHOWS.forEach(([tab,show])=>{
     const sh=src.getSheetByName(tab); if(!sh)throw new Error('Missing source tab: '+tab);
-    const data=sh.getDataRange().getValues().slice(1);
-    const stat={sourceTab:tab,show,sourceRows:0,uniqueMatches:0,newCandidates:0,held:0,spotifyFilled:0,asahiFilled:0,pocketFilled:0,descriptionFilled:0,heldSamples:[]};
+    const sourceRange=sh.getDataRange();
+    const data=sourceRange.getValues().slice(1);
+    const links=sh.getRange(2,1,Math.max(1,sh.getLastRow()-1),1).getRichTextValues();
+    const stat={sourceTab:tab,show,sourceRows:0,uniqueMatches:0,newCandidates:0,held:0,spotifyFilled:0,asahiFilled:0,pocketFilled:0,descriptionFilled:0,heldSamples:[],rawSamples:[],urlLike:0,titleFilled:0};
     data.forEach((r,ri)=>{
-      const url=urlKey(r[0]),title=norm(r[2]);
-      if(!url.startsWith('https://omny.fm/') && !url.startsWith('https://www.omnycontent.com/')) return;
+      const rich=links[ri] && links[ri][0];
+      const url=urlKey((rich && rich.getLinkUrl()) || r[0]),title=norm(r[2]);
+      if(title)stat.titleFilled++;
+      if(/^https?:\/\//i.test(url))stat.urlLike++;
+      if(stat.rawSamples.length<3 && title)stat.rawSamples.push({row:ri+2,rawA:norm(r[0]).slice(0,140),resolvedA:url.slice(0,140),title:title.slice(0,90)});
       if(!title) return;
+      if(!url) {stat.held++;if(stat.heldSamples.length<5)stat.heldSamples.push({row:ri+2,reason:'NO_URL'});return;}
       stat.sourceRows++;
       const spotify=norm(r[11]),asahi=norm(r[12]),pocket=norm(r[13]),desc=norm(r[14]);
       if(spotify)stat.spotifyFilled++;
