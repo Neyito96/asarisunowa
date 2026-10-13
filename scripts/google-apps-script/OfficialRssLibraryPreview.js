@@ -46,9 +46,9 @@ function rssLibraryExcludedHistory_(historyRows, showName) {
     return { guid: row[0], externalId: row[1], title: row[3], excluded: true };
   });
 }
-/** Inspect up to 100 latest items for historical gaps; still strictly read-only. */
+/** Inspect up to 500 latest items for historical gaps; still strictly read-only. */
 function runNewsSchoolBackfillPreview() {
-  return previewLibraryRssForShow_('ニュースの学校', 100, true);
+  return previewLibraryRssForShow_('ニュースの学校', 500, true);
 }
 function previewLibraryRssForShow_(showName, limit, onlyUnmatched) {
   const name = String(showName || '報談').trim();
