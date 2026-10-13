@@ -90,3 +90,18 @@ function testRssPreviewTitleDateIsolation_() {
   if (rssPreviewTitleKey_('同じタイトル') !== rssPreviewTitleKey_('同じタイトル')) throw new Error('Stable title key');
   return { ok: true, assertions: 2 };
 }
+
+/** A failed feed must never produce a falsely complete scan. */
+function testRssLibrarySummaryPartial_() {
+  const ok = { show: '報談', inspected: 3,
+    counts: { new: 1, matched: 1, ambiguous: 1, excluded: 0 } };
+  const failed = { show: 'ニュースの学校', ok: false, error: 'RSS HTTP 503' };
+  const partial = rssLibrarySummarizePreviews_([ok, failed]).summary;
+  if (partial.complete !== false) throw new Error('Partial scan must be incomplete');
+  if (partial.successfulShows !== 1) throw new Error('One successful show expected');
+  if (partial.errors !== 1) throw new Error('One failed show expected');
+  if (partial.newCandidates !== 1) throw new Error('Retain partial candidate count');
+  const full = rssLibrarySummarizePreviews_([ok, ok]).summary;
+  if (full.complete !== true) throw new Error('Two successful shows should be complete');
+  return { ok: true, assertions: 5 };
+}
