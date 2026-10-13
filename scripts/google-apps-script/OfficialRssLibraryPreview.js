@@ -10,7 +10,7 @@ function runNewsSchoolRssPreview() {
 }
 /** Execute both previews independently, without changing Sheets or Spotify. */
 function runMigratedRssPreviews() {
-  return ['報談', 'ニュースの学校'].map(function(show) {
+  const results = ['報談', 'ニュースの学校'].map(function(show) {
     try {
       return previewLibraryRssForShow_(show);
     } catch (error) {
@@ -20,6 +20,17 @@ function runMigratedRssPreviews() {
       return failure;
     }
   });
+  const summary = { mode: 'READ_ONLY', inspected: 0, newCandidates: 0,
+    matched: 0, ambiguous: 0, excluded: 0, errors: 0 };
+  results.forEach(function(result) {
+    if (result.ok === false) { summary.errors += 1; return; }
+    summary.inspected += result.inspected;
+    summary.newCandidates += result.counts.new;
+    summary.matched += result.counts.matched;
+    summary.ambiguous += result.counts.ambiguous;
+    summary.excluded += result.counts.excluded;
+  });
+  return { summary: summary, shows: results };
 }
 /** History columns: A GUID, B fixed ID, C show, D title. */
 function rssLibraryExcludedHistory_(historyRows, showName) {
