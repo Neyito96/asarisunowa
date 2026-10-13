@@ -15,7 +15,7 @@ for (const file of ['OfficialRssDeltaPreview.js', 'OfficialRssLibraryPreview.js'
   vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), ctx, { filename: file });
 }
 let total = 0;
-for (const name of ['testRssPreviewKeys_', 'testRssPreviewNormalization_', 'testRssPreviewMigrationFixture_', 'testRssLibraryExcludedHistory_', 'testRssPreviewTitleDateIsolation_']) {
+for (const name of ['testRssPreviewKeys_', 'testRssPreviewNormalization_', 'testRssPreviewMigrationFixture_', 'testRssLibraryExcludedHistory_', 'testRssPreviewTitleDateIsolation_', 'testRssLibrarySummaryPartial_']) {
   const result = vm.runInContext(name + '()', ctx);
   assert.equal(result.ok, true, name);
   total += result.assertions;
