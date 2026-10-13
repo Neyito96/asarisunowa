@@ -46,7 +46,11 @@ function rssLibraryExcludedHistory_(historyRows, showName) {
     return { guid: row[0], externalId: row[1], title: row[3], excluded: true };
   });
 }
-function previewLibraryRssForShow_(showName) {
+/** Inspect up to 100 latest items for historical gaps; still strictly read-only. */
+function runNewsSchoolBackfillPreview() {
+  return previewLibraryRssForShow_('ニュースの学校', 100, true);
+}
+function previewLibraryRssForShow_(showName, limit, onlyUnmatched) {
   const name = String(showName || '報談').trim();
   const book = SpreadsheetApp.openById('1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4');
   if (!book) throw new Error('Test episode library spreadsheet not accessible');
@@ -76,10 +80,12 @@ function previewLibraryRssForShow_(showName) {
       return { externalId: row[6], link: row[8], enclosureUrl: row[14], title: row[2], pubDate: row[3],
         excluded: flag !== '' && flag !== 'false' && flag !== '0' && flag !== '未指定' };
     });
-  const result = previewOfficialRssDelta_(feedUrl, known.concat(blocked), 20);
+  const result = previewOfficialRssDelta_(feedUrl, known.concat(blocked), limit || 20);
   const safe = { mode: result.mode, show: name, feed: feedUrl,
     ledgerRows: known.length, exclusionHistoryRows: blocked.length, inspected: result.inspected, counts: result.counts,
-    candidates: result.items.map(function(item) {
+    candidates: result.items.filter(function(item) {
+      return !onlyUnmatched || item.status !== 'matched';
+    }).map(function(item) {
       return { title: item.title, pubDate: item.pubDate, status: item.status,
         guid: item.guid, link: item.link };
     }) };
