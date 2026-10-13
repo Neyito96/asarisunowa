@@ -3,6 +3,14 @@
  * Requires OfficialRssDeltaPreview.js and OfficialRssLibraryPreview.js.
  */
 function runNewsSchoolBackfillWrite20() {
+  return newsSchoolBackfillWriteBatch_(20);
+}
+/** Manually invoked larger batch; single sheet write, same lock and validation. */
+function runNewsSchoolBackfillWrite50() {
+  return newsSchoolBackfillWriteBatch_(50);
+}
+function newsSchoolBackfillWriteBatch_(batchSize) {
+  if (![20,50].includes(batchSize)) throw new Error('Unsupported batch size');
   const show = 'ニュースの学校';
   const ss = SpreadsheetApp.openById('1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4');
   const ledger = ss.getSheetByName('エピソード台帳');
@@ -32,7 +40,7 @@ function runNewsSchoolBackfillWrite20() {
       const m = String(r[0]).match(/^EP-(\d+)$/);
       return m ? Math.max(n, Number(m[1])) : n;
     }, 0);
-    const batch = candidates.filter(x => !guids.has(x.guid)).slice(0,20);
+    const batch = candidates.filter(x => !guids.has(x.guid)).slice(0,batchSize);
     if (!batch.length) {
       const result = {status:'NO_NEW', inspected:preview.inspected, counts:preview.counts, written:0};
       Logger.log(JSON.stringify(result)); return result;
