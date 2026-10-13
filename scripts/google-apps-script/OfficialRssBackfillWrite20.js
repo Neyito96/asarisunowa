@@ -23,7 +23,7 @@ function runNewsSchoolBackfillWrite20() {
     }));
     const excluded = history.getLastRow() > 1
       ? rssLibraryExcludedHistory_(history.getRange(2, 1, history.getLastRow() - 1, 9).getValues(), show) : [];
-    const preview = previewOfficialRssDelta_(feed, known.concat(excluded), 100);
+    const preview = previewOfficialRssDelta_(feed, known.concat(excluded), 500);
     const candidates = preview.items.filter(x => x.status === 'new' && x.guid);
     // Refuse duplicate IDs, even across other shows.
     const ids = new Set(all.slice(1).map(r => String(r[0])));
