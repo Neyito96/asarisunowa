@@ -42,6 +42,8 @@ function previewLibraryRssForShow_(showName) {
   const selected = sourceRows.filter(function(row) { return String(row[0]).trim() === name; });
   if (selected.length !== 1) throw new Error('Expected exactly one RSS source for ' + name);
   const feedUrl = String(selected[0][7] || '').trim();
+  const expectedFeed = { '報談': 'https://feeds.megaphone.fm/TASC9421488254', 'ニュースの学校': 'https://feeds.megaphone.fm/TASC5851398719' }[name];
+  if (feedUrl !== expectedFeed) throw new Error('RSS source mismatch for ' + name + '; review 取得元一覧 H column');
   if (!/^https:\/\//.test(feedUrl)) throw new Error('RSS URL missing for ' + name);
   const exclusions = book.getSheetByName('削除・除外履歴');
   if (!exclusions) throw new Error('Exclusion history tab missing');
