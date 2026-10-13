@@ -46,6 +46,10 @@ function rssLibraryExcludedHistory_(historyRows, showName) {
     return { guid: row[0], externalId: row[1], title: row[3], excluded: true };
   });
 }
+/** Inspect Houdan RSS history before any write. */
+function runHoudanBackfillPreview() {
+  return previewLibraryRssForShow_('報談', 500, true);
+}
 /** Inspect up to 500 latest items for historical gaps; still strictly read-only. */
 function runNewsSchoolBackfillPreview() {
   return previewLibraryRssForShow_('ニュースの学校', 500, true);
