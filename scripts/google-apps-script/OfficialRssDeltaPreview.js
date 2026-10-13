@@ -34,7 +34,7 @@ function rssPreviewDateKey_(value) {
 function previewOfficialRssDelta_(feedUrl, knownRows, limit) {
   const url = String(feedUrl || '').trim();
   if (!/^https:\/\/[^\s]+$/i.test(url)) throw new Error('HTTPS RSS URL required');
-  const max = Math.max(1, Math.min(Number(limit) || 20, 100));
+  const max = Math.max(1, Math.min(Number(limit) || 20, 500));
   const index = {};
   const titleDateIndex = {};
   (knownRows || []).forEach(function(row, i) {
