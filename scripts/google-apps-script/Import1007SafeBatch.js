@@ -121,3 +121,39 @@ function runImport1007TestBatch(){
     Logger.log(JSON.stringify(out));return out;
   }finally{lock.releaseLock();}
 }
+
+/** Install a single 5-minute time trigger. Explicitly starts TEST-only background import. */
+function startImport1007Auto(){
+  const props=PropertiesService.getScriptProperties();
+  props.setProperty('I1007_AUTO','ON');
+  i1007RemoveTriggers_();
+  ScriptApp.newTrigger('tickImport1007Auto').timeBased().everyMinutes(5).create();
+  Logger.log(JSON.stringify({mode:'AUTO_SCHEDULED',intervalMinutes:5,target:'ISOLATED_TEST_ONLY'}));
+}
+/** Disable future automatic runs; does not interrupt an already running batch. */
+function stopImport1007Auto(){
+  PropertiesService.getScriptProperties().setProperty('I1007_AUTO','OFF');
+  i1007RemoveTriggers_();
+  Logger.log(JSON.stringify({mode:'AUTO_STOPPED'}));
+}
+function i1007RemoveTriggers_(){
+  ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='tickImport1007Auto').forEach(t=>ScriptApp.deleteTrigger(t));
+}
+/** One bounded batch per trigger invocation. Stop on completion or error. */
+function tickImport1007Auto(){
+  const props=PropertiesService.getScriptProperties();
+  if(props.getProperty('I1007_AUTO')!=='ON')return;
+  try{
+    const result=runImport1007TestBatch();
+    if(result.changed===0){
+      props.setProperty('I1007_AUTO','OFF');
+      i1007RemoveTriggers_();
+      Logger.log(JSON.stringify({mode:'AUTO_FINISHED',reason:'NO_MORE_CHANGES'}));
+    }
+  }catch(e){
+    props.setProperty('I1007_AUTO','OFF');
+    i1007RemoveTriggers_();
+    Logger.log(JSON.stringify({mode:'AUTO_HALTED',error:String(e)}));
+    throw e;
+  }
+}
