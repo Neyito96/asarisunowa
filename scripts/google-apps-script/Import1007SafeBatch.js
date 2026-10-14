@@ -30,7 +30,7 @@ function i1007Plan(){
   const excluded=target.getSheetByName('削除・除外履歴');
   const ex=excluded&&excluded.getLastRow()>1?excluded.getRange(2,1,excluded.getLastRow()-1,9).getValues():[];
   const blockedIds=new Set(ex.flatMap(r=>[i1007Text(r[0]),i1007Text(r[1])]).filter(Boolean));
-  const plan=[], seenSource=new Set(), counts={matched:0,new:0,held:0,skipped:0,fill:0};
+  const plan=[], heldSamples=[], seenSource=new Set(), counts={matched:0,new:0,held:0,skipped:0,fill:0};
   I1007_SHOWS.forEach(([tab,show])=>{
     const sh=source.getSheetByName(tab);if(!sh)throw Error('Missing source tab '+tab);
     const data=sh.getDataRange().getValues().slice(1);
@@ -42,23 +42,24 @@ function i1007Plan(){
       const asahi=i1007SafeUrl(r[12],/^https:\/\/(www\.)?asahi\.com\//i);
       const pocket=i1007SafeUrl(r[13],/^https:\/\/(pca\.st|pocketcasts\.com)\//i);
       const unique=show+'|'+url;
-      if(seenSource.has(unique)){counts.held++;return;}seenSource.add(unique);
+      if(seenSource.has(unique)){counts.held++;heldSamples.push({tab,row:i+2,reason:'DUPLICATE_SOURCE',title:title.slice(0,90)});return;}seenSource.add(unique);
       const urlMatches=byUrl.get(unique)||[],spMatches=spotify?(bySpotify.get(show+'|'+spotify)||[]):[],titleMatches=byTitle.get(i1007Key(show,title))||[];
       const candidates=[...new Set([...urlMatches,...spMatches,...titleMatches])];
-      if(candidates.length>1){counts.held++;return;}
+      if(candidates.length>1){counts.held++;heldSamples.push({tab,row:i+2,reason:'AMBIGUOUS_MATCH',candidateIds:candidates.map(n=>i1007Text(all[n][ix['台帳ID']])),title:title.slice(0,90)});return;}
       const matched=candidates.length===1?candidates[0]:null;
       if(matched!==null){
         const old=all[matched],flag=i1007Text(old[ix['人間除外']]).toLowerCase();
-        if((flag&&!['未指定','false','0','なし'].includes(flag))||blockedIds.has(i1007Text(old[ix['台帳ID']]))){counts.held++;return;}
+        if((flag&&!['未指定','false','0','なし'].includes(flag))||blockedIds.has(i1007Text(old[ix['台帳ID']]))){counts.held++;heldSamples.push({tab,row:i+2,reason:'HUMAN_EXCLUDED',id:i1007Text(old[ix['台帳ID']]),title:title.slice(0,90)});return;}
+        for(const [col,val] of [['元ページURL',url],['公式個別URL',asahi],['Spotify個別URL',spotify],['Pocket Casts個別URL',pocket],['概要原文',i1007Text(r[14])],['出演者・スタッフ',[r[5],r[6],r[7],r[8]].map(i1007Text).filter(Boolean).join(' / ')]]){if(val&&!i1007Text(old[ix[col]]))counts.fill++;}
         counts.matched++;
       }else{counts.new++;}
       plan.push({show,title,url,spotify,asahi,pocket,description:i1007Text(r[14]),date:i1007Date(r[1]),seconds:Number(r[3])||'',people:[r[5],r[6],r[7],r[8]].map(i1007Text).filter(Boolean).join(' / '),matched});
     });
   });
-  return {sheet,all,ix,header,plan,counts,maxId,usedIds};
+  return {sheet,all,ix,header,plan,counts,heldSamples,maxId,usedIds};
 }
 /** PREVIEW: only returns concise counts. */
-function previewImport1007SafeBatch(){const p=i1007Plan();const result={mode:'READ_ONLY',total:p.plan.length,counts:p.counts,batchSize:I1007_BATCH};Logger.log(JSON.stringify(result));return result;}
+function previewImport1007SafeBatch(){const p=i1007Plan();const result={mode:'READ_ONLY',total:p.plan.length,counts:p.counts,heldSamples:p.heldSamples,batchSize:I1007_BATCH};Logger.log(JSON.stringify(result));return result;}
 /** Explicit opt-in WRITE to isolated test ledger only. Run manually for each <=100-row batch. */
 function runImport1007TestBatch(){
   const lock=LockService.getScriptLock();if(!lock.tryLock(1000))throw Error('Another import is running');
