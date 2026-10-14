@@ -16,7 +16,7 @@ function i1007Plan(){
   if(!sheet)throw Error('Test ledger missing');
   const all=sheet.getDataRange().getValues(), header=all.shift().map(String);
   const ix=Object.fromEntries(header.map((x,i)=>[x,i]));
-  const required=['台帳ID','番組名','タイトル','配信日時（JST）','取得元','元ページURL','公式個別URL','Spotify個別URL','Pocket Casts個別URL','概要原文','出演者・スタッフ','出演者1','出演者2','概要清掃済み','人間除外','保留・備考'];
+  const required=['台帳ID','番組名','タイトル','配信日時（JST）','取得元','元ページURL','公式個別URL','Spotify個別URL','Pocket Casts個別URL','概要原文','出演者・スタッフ','出演者1','出演者2','概要清掃済み','出演者確認根拠','人間除外','保留・備考'];
   required.forEach(x=>{if(ix[x]===undefined)throw Error('Missing column '+x);});
   const byUrl=new Map(),bySpotify=new Map(),byTitle=new Map(),usedIds=new Set();
   let maxId=0;
@@ -57,10 +57,10 @@ function i1007Plan(){
         }
         const flag=i1007Text(old[ix['人間除外']]).toLowerCase();
         if((flag&&!['未指定','false','0','なし'].includes(flag))||blockedIds.has(i1007Text(old[ix['台帳ID']]))){counts.held++;heldSamples.push({tab,row:i+2,reason:'HUMAN_EXCLUDED',id:i1007Text(old[ix['台帳ID']]),title:title.slice(0,90)});return;}
-        for(const [col,val] of [['元ページURL',url],['公式個別URL',asahi],['Spotify個別URL',spotify],['Pocket Casts個別URL',pocket],['概要原文',i1007Text(r[14])],['概要清掃済み',i1007Clean(r[14])],['出演者・スタッフ',[r[5],r[6],r[7],r[8]].map(i1007Text).filter(Boolean).join(' / ')],['出演者1',i1007Text(r[5])],['出演者2',[r[6],r[7],r[8]].map(i1007Text).filter(Boolean).join(' / ')]]){if(val&&!i1007Text(old[ix[col]]))counts.fill++;}
+        for(const [col,val] of [['元ページURL',url],['公式個別URL',asahi],['Spotify個別URL',spotify],['Pocket Casts個別URL',pocket],['概要原文',i1007Text(r[14])],['概要清掃済み',i1007Clean(r[14])],['出演者・スタッフ',[r[5],r[6],r[7],r[8]].map(i1007Text).filter(Boolean).join(' / ')],['出演者1',i1007Text(r[5])],['出演者2',i1007Text(r[6])],['出演者確認根拠',i1007Text(r[10])?'1007 K列（作業メモ・記録者。出典の確認は未実施）：'+i1007Text(r[10]):'']]){if(val&&!i1007Text(old[ix[col]]))counts.fill++;}
         counts.matched++;
       }else{counts.new++;}
-      plan.push({show,title,url,spotify,asahi,pocket,description:i1007Text(r[14]),date:i1007Date(r[1]),seconds:Number(r[3])||'',people:[r[5],r[6],r[7],r[8]].map(i1007Text).filter(Boolean).join(' / '),person1:i1007Text(r[5]),person2:[r[6],r[7],r[8]].map(i1007Text).filter(Boolean).join(' / '),matched});
+      plan.push({show,title,url,spotify,asahi,pocket,description:i1007Text(r[14]),date:i1007Date(r[1]),seconds:Number(r[3])||'',people:[r[5],r[6],r[7],r[8]].map(i1007Text).filter(Boolean).join(' / '),person1:i1007Text(r[5]),person2:i1007Text(r[6]),person3:i1007Text(r[7]),person4:i1007Text(r[8]),memo:i1007Text(r[10]),matched});
     });
   });
   return {sheet,all,ix,header,plan,counts,heldSamples,maxId,usedIds};
@@ -90,7 +90,7 @@ function runImport1007TestBatch(){
         const row=p.all[at],mod=row.slice();let touched=false;
         const put=(col,val)=>{const j=ix[col];if(j!==undefined&&val&&!i1007Text(mod[j])){mod[j]=val;touched=true;}};
         put('元ページURL',item.url);put('公式個別URL',item.asahi);put('Spotify個別URL',item.spotify);
-        put('Pocket Casts個別URL',item.pocket);put('概要原文',item.description);put('概要清掃済み',i1007Clean(item.description));put('出演者・スタッフ',item.people);put('出演者1',item.person1);put('出演者2',item.person2);
+        put('Pocket Casts個別URL',item.pocket);put('概要原文',item.description);put('概要清掃済み',i1007Clean(item.description));put('出演者・スタッフ',item.people);put('出演者1',item.person1);put('出演者2',item.person2);put('出演者3',item.person3);put('出演者4',item.person4);put('出演者確認根拠',item.memo?'1007 K列（作業メモ・記録者。出典の確認は未実施）：'+item.memo:'');
         if(touched){updates.push({row:at+2,values:mod});changed++;}
       }else{
         const row=Array(p.header.length).fill('');
