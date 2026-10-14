@@ -82,7 +82,17 @@ function runImport1007TestBatch(){
     const lookup=new Map();
     p.all.forEach((r,i)=>{const k=i1007Text(r[ix['番組名']])+'|'+i1007Url(r[ix['元ページURL']]);if(!lookup.has(k))lookup.set(k,i);});
     let nextId=p.maxId;
-    for(const item of p.plan){
+    // Prioritize filling existing matched rows before appending any new episodes.
+    // Recompute on every run: once fills are exhausted, automatically proceed to appends.
+    const existing=p.plan.filter(item=>item.matched!==null);
+    const incoming=p.plan.filter(item=>item.matched===null);
+    const phase=existing.some(item=>{
+      const row=p.all[item.matched];
+      const pairs=[['元ページURL',item.url],['公式個別URL',item.asahi],['Spotify個別URL',item.spotify],['Pocket Casts個別URL',item.pocket],['概要原文',item.description],['概要清掃済み',i1007Clean(item.description)],['出演者・スタッフ',item.people],['出演者1',item.person1],['出演者2',item.person2],['出演者3',item.person3],['出演者4',item.person4],['出演者確認根拠',item.memo?'1007 K列（作業メモ・記録者。出典の確認は未実施）：'+item.memo:'']];
+      return pairs.some(([col,val])=>p.ix[col]!==undefined&&val&&!i1007Text(row[p.ix[col]]));
+    })?'FILL_EXISTING':'APPEND_NEW';
+    const work=phase==='FILL_EXISTING'?existing:incoming;
+    for(const item of work){
       if(changed>=I1007_BATCH)break;
       const key=item.show+'|'+item.url;
       const at=lookup.has(key)?lookup.get(key):item.matched;
@@ -136,7 +146,7 @@ function runImport1007TestBatch(){
         throw Error('Batch update failed HTTP '+response.getResponseCode()+': '+response.getContentText().slice(0,500));
     }
     if(appends.length)p.sheet.getRange(p.sheet.getLastRow()+1,1,appends.length,p.header.length).setValues(appends);
-    const out={mode:'TEST_WRITE',changed,updated:updates.length,appended:appends.length,scanned,remainingEstimate:Math.max(0,p.plan.length-done-changed),counts:p.counts};
+    const out={mode:'TEST_WRITE',phase,changed,updated:updates.length,appended:appends.length,scanned,remainingEstimate:Math.max(0,p.plan.length-done-changed),counts:p.counts};
     props.setProperty('I1007_DONE',String(done+changed));
     Logger.log(JSON.stringify(out));return out;
   }finally{lock.releaseLock();}
