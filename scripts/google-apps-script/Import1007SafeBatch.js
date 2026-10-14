@@ -48,7 +48,13 @@ function i1007Plan(){
       if(candidates.length>1){counts.held++;heldSamples.push({tab,row:i+2,reason:'AMBIGUOUS_MATCH',candidateIds:candidates.map(n=>i1007Text(all[n][ix['台帳ID']])),title:title.slice(0,90)});return;}
       const matched=candidates.length===1?candidates[0]:null;
       if(matched!==null){
-        const old=all[matched],flag=i1007Text(old[ix['人間除外']]).toLowerCase();
+        const old=all[matched];
+        const oldUrl=i1007Url(old[ix['元ページURL']]);
+        const oldSpotify=i1007Url(old[ix['Spotify個別URL']]);
+        if((oldUrl&&oldUrl!==url)||(spotify&&oldSpotify&&oldSpotify!==spotify)){
+          counts.held++;heldSamples.push({tab,row:i+2,reason:'CONFLICTING_EXISTING_URL',id:i1007Text(old[ix['台帳ID']]),title:title.slice(0,90)});return;
+        }
+        const flag=i1007Text(old[ix['人間除外']]).toLowerCase();
         if((flag&&!['未指定','false','0','なし'].includes(flag))||blockedIds.has(i1007Text(old[ix['台帳ID']]))){counts.held++;heldSamples.push({tab,row:i+2,reason:'HUMAN_EXCLUDED',id:i1007Text(old[ix['台帳ID']]),title:title.slice(0,90)});return;}
         for(const [col,val] of [['元ページURL',url],['公式個別URL',asahi],['Spotify個別URL',spotify],['Pocket Casts個別URL',pocket],['概要原文',i1007Text(r[14])],['出演者・スタッフ',[r[5],r[6],r[7],r[8]].map(i1007Text).filter(Boolean).join(' / ')]]){if(val&&!i1007Text(old[ix[col]]))counts.fill++;}
         counts.matched++;
