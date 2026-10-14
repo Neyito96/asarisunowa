@@ -57,7 +57,7 @@ function i1007Plan(){
         }
         const flag=i1007Text(old[ix['人間除外']]).toLowerCase();
         if((flag&&!['未指定','false','0','なし'].includes(flag))||blockedIds.has(i1007Text(old[ix['台帳ID']]))){counts.held++;heldSamples.push({tab,row:i+2,reason:'HUMAN_EXCLUDED',id:i1007Text(old[ix['台帳ID']]),title:title.slice(0,90)});return;}
-        for(const [col,val] of [['元ページURL',url],['公式個別URL',asahi],['Spotify個別URL',spotify],['Pocket Casts個別URL',pocket],['概要原文',i1007Text(r[14])],['概要清掃済み',i1007Clean(r[14])],['出演者・スタッフ',[r[5],r[6],r[7],r[8]].map(i1007Text).filter(Boolean).join(' / ')],['出演者1',i1007Text(r[5])],['出演者2',i1007Text(r[6])],['出演者確認根拠',i1007Text(r[10])?'1007 K列（作業メモ・記録者。出典の確認は未実施）：'+i1007Text(r[10]):'']]){if(val&&!i1007Text(old[ix[col]]))counts.fill++;}
+        for(const [col,val] of [['元ページURL',url],['公式個別URL',asahi],['Spotify個別URL',spotify],['Pocket Casts個別URL',pocket],['概要原文',i1007Text(r[14])],['概要清掃済み',i1007Clean(r[14])],['出演者・スタッフ',[r[5],r[6],r[7],r[8]].map(i1007Text).filter(Boolean).join(' / ')],['出演者1',i1007Text(r[5])],['出演者2',i1007Text(r[6])],['出演者3',i1007Text(r[7])],['出演者4',i1007Text(r[8])],['出演者確認根拠',i1007Text(r[10])?'1007 K列（作業メモ・記録者。出典の確認は未実施）：'+i1007Text(r[10]):'']]){if(val&&!i1007Text(old[ix[col]]))counts.fill++;}
         counts.matched++;
       }else{counts.new++;}
       plan.push({show,title,url,spotify,asahi,pocket,description:i1007Text(r[14]),date:i1007Date(r[1]),seconds:Number(r[3])||'',people:[r[5],r[6],r[7],r[8]].map(i1007Text).filter(Boolean).join(' / '),person1:i1007Text(r[5]),person2:i1007Text(r[6]),person3:i1007Text(r[7]),person4:i1007Text(r[8]),memo:i1007Text(r[10]),matched});
@@ -101,7 +101,7 @@ function runImport1007TestBatch(){
         put('配信日時（JST）',item.date);put('媒体','音声');put('取得元','COPY_1007');
         put('元ページURL',item.url);put('公式個別URL',item.asahi);
         put('Spotify個別URL',item.spotify);put('Pocket Casts個別URL',item.pocket);
-        put('概要原文',item.description);put('概要清掃済み',i1007Clean(item.description));put('出演者・スタッフ',item.people);put('出演者1',item.person1);put('出演者2',item.person2);
+        put('概要原文',item.description);put('概要清掃済み',i1007Clean(item.description));put('出演者・スタッフ',item.people);put('出演者1',item.person1);put('出演者2',item.person2);put('出演者3',item.person3);put('出演者4',item.person4);put('出演者確認根拠',item.memo?'1007 K列（作業メモ・記録者。出典の確認は未実施）：'+item.memo:'');
         put('再生時間（秒）',item.seconds);put('取得日時（JST）',now);
         put('人間除外','未指定');put('保留・備考','1007コピーから移行。音声未取得・未再生');
         appends.push(row);lookup.set(key,p.all.length+appends.length-1);changed++;
