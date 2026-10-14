@@ -69,7 +69,7 @@ function i1007Plan(){
 function previewImport1007SafeBatch(){const p=i1007Plan();const result={mode:'READ_ONLY',total:p.plan.length,counts:p.counts,heldSamples:p.heldSamples,batchSize:I1007_BATCH};Logger.log(JSON.stringify(result));return result;}
 /** Explicit opt-in WRITE to isolated test ledger only. Run manually for each <=100-row batch. */
 function runImport1007TestBatch(){
-  const lock=LockService.getScriptLock();if(!lock.tryLock(1000))throw Error('Another import is running');
+  const lock=LockService.getScriptLock();if(!lock.tryLock(1000)){const out={mode:'SKIPPED_BUSY',reason:'Another import is running'};Logger.log(JSON.stringify(out));return out;}
   try{
     const p=i1007Plan(),ss=p.sheet.getParent();
     if(ss.getId()!==I1007_TEST)throw Error('Refusing non-test sheet');
@@ -145,6 +145,7 @@ function tickImport1007Auto(){
   if(props.getProperty('I1007_AUTO')!=='ON')return;
   try{
     const result=runImport1007TestBatch();
+    if(result.mode==='SKIPPED_BUSY')return;
     if(result.changed===0){
       props.setProperty('I1007_AUTO','OFF');
       i1007RemoveTriggers_();
