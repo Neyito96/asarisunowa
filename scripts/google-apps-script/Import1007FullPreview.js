@@ -50,7 +50,7 @@ function runImport1007FullPreview() {
       if(title)stat.titleFilled++;
       if(/^https?:\/\//i.test(url))stat.urlLike++;
       if(stat.rawSamples.length<3 && title)stat.rawSamples.push({row:ri+2,rawA:norm(r[0]).slice(0,140),resolvedA:url.slice(0,140),title:title.slice(0,90)});
-      if(!title || !/^https:\/\/omny\.fm\/shows\/asahi\//i.test(url)) {
+      if(!title || !(/^https:\/\/omny\.fm\/shows\/asahi\//i.test(url) || /^https:\/\/pdst\.fm\/e\/traffic\.megaphone\.fm\//i.test(url))) {
         stat.skipped++;
         const reason=!title?'NO_TITLE':(!url?'NO_URL':(/^https?:\/\//i.test(url)?'OTHER_URL':'NON_URL'));
         stat.skipReasons[reason]=(stat.skipReasons[reason]||0)+1;
@@ -90,5 +90,5 @@ function runImport1007FullPreview() {
     summary.shows.push(stat);
     for(const k of Object.keys(summary.totals))summary.totals[k]+=stat[k]||0;
   });
-  Logger.log(JSON.stringify(summary));return summary;
+  Logger.log(JSON.stringify({mode:summary.mode,ledgerRows:summary.ledgerRows,exclusionRows:summary.exclusionRows,shows:summary.shows.map(x=>({tab:x.sourceTab,sourceRows:x.sourceRows,matches:x.uniqueMatches,newCandidates:x.newCandidates,held:x.held,skipped:x.skipped,skipReasons:x.skipReasons,duplicateSourceUrls:x.duplicateSourceUrls,duplicateSourceSpotify:x.duplicateSourceSpotify,skipSamples:x.skipSamples.slice(0,3)})),totals:summary.totals}));return summary;
 }
