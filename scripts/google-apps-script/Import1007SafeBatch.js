@@ -153,6 +153,7 @@ function startImport1007Auto(){
   const props=PropertiesService.getScriptProperties();
   i1007RemoveTriggers_();
   ScriptApp.newTrigger('tickImport1007Auto').timeBased().everyMinutes(5).create();
+  props.setProperty('I1007_AUTO_FAILURES','0');
   props.setProperty('I1007_AUTO','ON');
   Logger.log(JSON.stringify({mode:'AUTO_SCHEDULED',intervalMinutes:5,target:'ISOLATED_TEST_ONLY'}));
 }
@@ -172,15 +173,26 @@ function tickImport1007Auto(){
   try{
     const result=runImport1007TestBatch();
     if(result.mode==='SKIPPED_BUSY')return;
+    props.setProperty('I1007_AUTO_FAILURES','0');
     if(result.changed===0){
       props.setProperty('I1007_AUTO','OFF');
       i1007RemoveTriggers_();
       Logger.log(JSON.stringify({mode:'AUTO_FINISHED',reason:'NO_MORE_CHANGES'}));
     }
   }catch(e){
-    props.setProperty('I1007_AUTO','OFF');
-    i1007RemoveTriggers_();
-    Logger.log(JSON.stringify({mode:'AUTO_HALTED',error:String(e)}));
-    throw e;
+    // Retry on the next scheduled tick; the next run re-reads the ledger.
+    // This covers transient Google service errors without repeating blindly
+    // inside a potentially partially committed batch.
+    const failures=Number(props.getProperty('I1007_AUTO_FAILURES')||'0')+1;
+    props.setProperty('I1007_AUTO_FAILURES',String(failures));
+    const error=String(e);
+    if(failures>=3){
+      props.setProperty('I1007_AUTO','OFF');
+      i1007RemoveTriggers_();
+      Logger.log(JSON.stringify({mode:'AUTO_HALTED',consecutiveFailures:failures,error}));
+    }else{
+      Logger.log(JSON.stringify({mode:'AUTO_RETRY_NEXT_TICK',consecutiveFailures:failures,error}));
+    }
+    // Avoid throwing: execution history will show the structured retry status.
   }
 }
