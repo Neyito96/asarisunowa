@@ -3,7 +3,7 @@ const I1007_SOURCE='1lJF11Xpx9cz9RLuuJsvl0zV9E5Fpg7I7XreB2R6wS7o';
 const I1007_TEST='1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4';
 const I1007_SHOWS=[['ニュースの現場から','ニュースの現場から'],['メディアトーク','MEDIA TALK'],['ドーナツ','ドーナツ'],['スポンジ','スポンジ'],['SDGs','こどもそうだんしつ'],['報談','報談'],['ニュースの学校','ニュースの学校']];
 const I1007_FILL_BATCH=20; // Slow, noncontiguous cell updates
-const I1007_APPEND_BATCH=100; // Single setValues call for new rows
+const I1007_APPEND_BATCH=50; // Safer overnight append size; single setValues call
 function i1007Text(v){return String(v==null?'':v).trim();}
 function i1007Url(v){return i1007Text(v).replace(/\/$/,'');}
 function i1007Key(show,title){return show+'|'+i1007Text(title).normalize('NFKC').replace(/\s+/g,' ').toLowerCase();}
