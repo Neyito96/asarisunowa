@@ -118,35 +118,30 @@ function runImport1007TestBatch(){
       }
       scanned++;
     }
-    // Group appends in one request, and update only empty destination cells (not full rows).
-    // Batch only the changed cells through Sheets Values API, preserving other cells.
-    // Precondition: the script lock protects this importer; human edits made
-    // between planning and writing still require separate operational coordination.
-    const data=[];
+    // Use native SpreadsheetApp only; no Google Cloud Sheets API setup needed.
+    // Merge consecutive missing cells in the same row into one setValues call.
+    // Never include an already-populated cell in a write range.
+    let filledCells=0,writeRanges=0;
     updates.forEach(u=>{
       const original=p.all[u.row-2];
+      let start=-1,values=[];
+      const flush=()=>{
+        if(start<0)return;
+        p.sheet.getRange(u.row,start+1,1,values.length).setValues([values]);
+        filledCells+=values.length;writeRanges++;
+        start=-1;values=[];
+      };
       u.values.forEach((v,j)=>{
         if(v&&!i1007Text(original[j])){
-          let n=j+1,col='';
-          while(n){n--;col=String.fromCharCode(65+n%26)+col;n=Math.floor(n/26);}
-          data.push({range:"'エピソード台帳'!"+col+u.row,values:[[v]]});
-        }
+          if(start<0)start=j;
+          else if(j!==start+values.length){flush();start=j;}
+          values.push(v);
+        }else flush();
       });
+      flush();
     });
-    for(let offset=0;offset<data.length;offset+=400){
-      const part=data.slice(offset,offset+400);
-      const endpoint='https://sheets.googleapis.com/v4/spreadsheets/'+I1007_TEST+'/values:batchUpdate';
-      const response=UrlFetchApp.fetch(endpoint,{
-        method:'post',contentType:'application/json',
-        headers:{Authorization:'Bearer '+ScriptApp.getOAuthToken()},
-        payload:JSON.stringify({valueInputOption:'RAW',data:part}),
-        muteHttpExceptions:true
-      });
-      if(response.getResponseCode()!==200)
-        throw Error('Batch update failed HTTP '+response.getResponseCode()+': '+response.getContentText().slice(0,500));
-    }
     if(appends.length)p.sheet.getRange(p.sheet.getLastRow()+1,1,appends.length,p.header.length).setValues(appends);
-    const out={mode:'TEST_WRITE',phase,changed,updated:updates.length,appended:appends.length,scanned,remainingEstimate:Math.max(0,p.plan.length-done-changed),counts:p.counts};
+    const out={mode:'TEST_WRITE',phase,changed,filledCells,writeRanges,updated:updates.length,appended:appends.length,scanned,remainingEstimate:Math.max(0,p.plan.length-done-changed),counts:p.counts};
     props.setProperty('I1007_DONE',String(done+changed));
     Logger.log(JSON.stringify(out));return out;
   }finally{lock.releaseLock();}
