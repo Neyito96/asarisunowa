@@ -8,7 +8,7 @@ function i1007Url(v){return i1007Text(v).replace(/\/$/,'');}
 function i1007Key(show,title){return show+'|'+i1007Text(title).normalize('NFKC').replace(/\s+/g,' ').toLowerCase();}
 function i1007Valid(url){return /^https:\/\/omny\.fm\/shows\/asahi\//i.test(url)||/^https:\/\/pdst\.fm\/e\/traffic\.megaphone\.fm\//i.test(url);}
 function i1007SafeUrl(v,pattern){const s=i1007Text(v);return pattern.test(s)?s:'';}
-function i1007Clean(v){return i1007Text(v).replace(/\\r\\n|\\n|\\r/g,' ').replace(/[\r\n]+/g,' ').replace(/[ \t]+/g,' ').trim();}\nfunction i1007Date(v){const d=new Date(v);return isNaN(d.getTime())?'':Utilities.formatDate(d,'Asia/Tokyo','yyyy/MM/dd HH:mm');}
+function i1007Clean(v){return i1007Text(v).replace(/\\r\\n|\\n|\\r/g,' ').replace(/\r?\n/g,' ').replace(/[ \t]+/g,' ').trim();}\nfunction i1007Date(v){const d=new Date(v);return isNaN(d.getTime())?'':Utilities.formatDate(d,'Asia/Tokyo','yyyy/MM/dd HH:mm');}
 function i1007Plan(){
   const source=SpreadsheetApp.openById(I1007_SOURCE), target=SpreadsheetApp.openById(I1007_TEST);
   const sheet=target.getSheetByName('エピソード台帳');
