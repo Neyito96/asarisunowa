@@ -125,9 +125,9 @@ function runImport1007TestBatch(){
 /** Install a single 5-minute time trigger. Explicitly starts TEST-only background import. */
 function startImport1007Auto(){
   const props=PropertiesService.getScriptProperties();
-  props.setProperty('I1007_AUTO','ON');
   i1007RemoveTriggers_();
   ScriptApp.newTrigger('tickImport1007Auto').timeBased().everyMinutes(5).create();
+  props.setProperty('I1007_AUTO','ON');
   Logger.log(JSON.stringify({mode:'AUTO_SCHEDULED',intervalMinutes:5,target:'ISOLATED_TEST_ONLY'}));
 }
 /** Disable future automatic runs; does not interrupt an already running batch. */
