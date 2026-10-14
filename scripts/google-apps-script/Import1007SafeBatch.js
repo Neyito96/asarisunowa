@@ -2,7 +2,8 @@
 const I1007_SOURCE='1lJF11Xpx9cz9RLuuJsvl0zV9E5Fpg7I7XreB2R6wS7o';
 const I1007_TEST='1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4';
 const I1007_SHOWS=[['ニュースの現場から','ニュースの現場から'],['メディアトーク','MEDIA TALK'],['ドーナツ','ドーナツ'],['スポンジ','スポンジ'],['SDGs','こどもそうだんしつ'],['報談','報談'],['ニュースの学校','ニュースの学校']];
-const I1007_BATCH=20; // Conservative cap after 360-second timeout
+const I1007_FILL_BATCH=20; // Slow, noncontiguous cell updates
+const I1007_APPEND_BATCH=100; // Single setValues call for new rows
 function i1007Text(v){return String(v==null?'':v).trim();}
 function i1007Url(v){return i1007Text(v).replace(/\/$/,'');}
 function i1007Key(show,title){return show+'|'+i1007Text(title).normalize('NFKC').replace(/\s+/g,' ').toLowerCase();}
@@ -66,8 +67,8 @@ function i1007Plan(){
   return {sheet,all,ix,header,plan,counts,heldSamples,maxId,usedIds};
 }
 /** PREVIEW: only returns concise counts. */
-function previewImport1007SafeBatch(){const p=i1007Plan();const result={mode:'READ_ONLY',total:p.plan.length,counts:p.counts,heldSamples:p.heldSamples,batchSize:I1007_BATCH};Logger.log(JSON.stringify(result));return result;}
-/** Explicit opt-in WRITE to isolated test ledger only. Run manually for each <=20-row batch. */
+function previewImport1007SafeBatch(){const p=i1007Plan();const result={mode:'READ_ONLY',total:p.plan.length,counts:p.counts,heldSamples:p.heldSamples,batchSize:{fill:I1007_FILL_BATCH,append:I1007_APPEND_BATCH}};Logger.log(JSON.stringify(result));return result;}
+/** Explicit opt-in WRITE to isolated test ledger only. Run manually for each phase-specific bounded batch. */
 function runImport1007TestBatch(){
   const lock=LockService.getScriptLock();if(!lock.tryLock(1000)){const out={mode:'SKIPPED_BUSY',reason:'Another import is running'};Logger.log(JSON.stringify(out));return out;}
   try{
@@ -92,8 +93,9 @@ function runImport1007TestBatch(){
       return pairs.some(([col,val])=>p.ix[col]!==undefined&&val&&!i1007Text(row[p.ix[col]]));
     })?'FILL_EXISTING':'APPEND_NEW';
     const work=phase==='FILL_EXISTING'?existing:incoming;
+    const batchLimit=phase==='FILL_EXISTING'?I1007_FILL_BATCH:I1007_APPEND_BATCH;
     for(const item of work){
-      if(changed>=I1007_BATCH)break;
+      if(changed>=batchLimit)break;
       const key=item.show+'|'+item.url;
       const at=lookup.has(key)?lookup.get(key):item.matched;
       if(at!==null&&at!==undefined){
@@ -141,7 +143,7 @@ function runImport1007TestBatch(){
       flush();
     });
     if(appends.length)p.sheet.getRange(p.sheet.getLastRow()+1,1,appends.length,p.header.length).setValues(appends);
-    const out={mode:'TEST_WRITE',phase,changed,filledCells,writeRanges,updated:updates.length,appended:appends.length,scanned,remainingNewEstimate:Math.max(0,p.counts.new-appends.length),remainingFillEstimate:Math.max(0,p.counts.fill-filledCells),counts:p.counts};
+    const out={mode:'TEST_WRITE',phase,batchLimit,changed,filledCells,writeRanges,updated:updates.length,appended:appends.length,scanned,remainingNewEstimate:Math.max(0,p.counts.new-appends.length),remainingFillEstimate:Math.max(0,p.counts.fill-filledCells),counts:p.counts};
     Logger.log(JSON.stringify(out));return out;
   }finally{lock.releaseLock();}
 }
