@@ -2,7 +2,7 @@
 const I1007_SOURCE='1lJF11Xpx9cz9RLuuJsvl0zV9E5Fpg7I7XreB2R6wS7o';
 const I1007_TEST='1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4';
 const I1007_SHOWS=[['ニュースの現場から','ニュースの現場から'],['メディアトーク','MEDIA TALK'],['ドーナツ','ドーナツ'],['スポンジ','スポンジ'],['SDGs','こどもそうだんしつ'],['報談','報談'],['ニュースの学校','ニュースの学校']];
-const I1007_BATCH=100;
+const I1007_BATCH=20; // Conservative cap after 360-second timeout
 function i1007Text(v){return String(v==null?'':v).trim();}
 function i1007Url(v){return i1007Text(v).replace(/\/$/,'');}
 function i1007Key(show,title){return show+'|'+i1007Text(title).normalize('NFKC').replace(/\s+/g,' ').toLowerCase();}
@@ -67,14 +67,14 @@ function i1007Plan(){
 }
 /** PREVIEW: only returns concise counts. */
 function previewImport1007SafeBatch(){const p=i1007Plan();const result={mode:'READ_ONLY',total:p.plan.length,counts:p.counts,heldSamples:p.heldSamples,batchSize:I1007_BATCH};Logger.log(JSON.stringify(result));return result;}
-/** Explicit opt-in WRITE to isolated test ledger only. Run manually for each <=100-row batch. */
+/** Explicit opt-in WRITE to isolated test ledger only. Run manually for each <=20-row batch. */
 function runImport1007TestBatch(){
   const lock=LockService.getScriptLock();if(!lock.tryLock(1000)){const out={mode:'SKIPPED_BUSY',reason:'Another import is running'};Logger.log(JSON.stringify(out));return out;}
   try{
     const p=i1007Plan(),ss=p.sheet.getParent();
     if(ss.getId()!==I1007_TEST)throw Error('Refusing non-test sheet');
     const props=PropertiesService.getScriptProperties();
-    const done=Number(props.getProperty('I1007_DONE')||0);
+    // No persistent cursor: the current sheet is the source of truth after partial failures.
     // Always reconstruct plan against current ledger. Process first unseen/new or unfilled item;
     // no cursor is needed: each batch is idempotent, and existing values remain untouched.
     const updates=[],appends=[];let changed=0,scanned=0;
@@ -141,8 +141,7 @@ function runImport1007TestBatch(){
       flush();
     });
     if(appends.length)p.sheet.getRange(p.sheet.getLastRow()+1,1,appends.length,p.header.length).setValues(appends);
-    const out={mode:'TEST_WRITE',phase,changed,filledCells,writeRanges,updated:updates.length,appended:appends.length,scanned,remainingEstimate:Math.max(0,p.plan.length-done-changed),counts:p.counts};
-    props.setProperty('I1007_DONE',String(done+changed));
+    const out={mode:'TEST_WRITE',phase,changed,filledCells,writeRanges,updated:updates.length,appended:appends.length,scanned,remainingNewEstimate:Math.max(0,p.counts.new-appends.length),remainingFillEstimate:Math.max(0,p.counts.fill-filledCells),counts:p.counts};
     Logger.log(JSON.stringify(out));return out;
   }finally{lock.releaseLock();}
 }
