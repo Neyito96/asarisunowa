@@ -4,7 +4,7 @@
  */
 const LIB_META_ID_ = '1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4';
 function previewLibraryMetadataBackfill10() { return libraryMetadataBackfill_(10, false); }
-function writeLibraryMetadataBackfill10() { throw Error('Write disabled until dry-run review and explicit enablement'); }
+function writeLibraryMetadataBackfill10() { return libraryMetadataBackfill_(10, true); }
 /** Install one one-shot preview trigger, approximately one minute after invocation. */
 function scheduleLibraryMetadataPreviewOnce() {
   const fn='previewLibraryMetadataBackfill10';
@@ -27,6 +27,7 @@ function libraryMetadataBackfill_(limit, write) {
     const sourceRows=sources.getDataRange().getValues().slice(1);
     const feeds=[...new Set(sourceRows.map(r=>String(r[7]||'').trim()).filter(u=>/^https:\/\//.test(u) && !/youtube\.com|youtu\.be/i.test(u)))];
     const result={mode:write?'WRITE':'DRY_RUN',scanned:data.length,feeds:feeds.length,proposals:[],missingAudio:[],conflicts:[],written:0};
+    if(write && limit!==10) throw Error('Only a 10-row pilot write is authorized');
     const lookup=new Map();
     data.forEach((r,i)=>{
       const id=String(r[6]||'').trim().toLowerCase();
@@ -78,10 +79,12 @@ function libraryMetadataBackfill_(limit, write) {
       }
     }
     if(write){
+      if(result.proposals.length!==10) throw Error('Pilot requires exactly 10 validated proposals');
       if(result.conflicts.length) throw Error('Conflicts detected; refusing write');
       for(const p of result.proposals){
         const id=sh.getRange(p.row,1).getValue();
         if(id!==p.id) throw Error('Row moved: '+p.id);
+        if(String(sh.getRange(p.row,39).getValue()||'').trim() && !['未指定','なし','false','0','no'].includes(String(sh.getRange(p.row,39).getValue()).trim().toLowerCase())) throw Error('Human exclusion: '+p.id);
         for(const f of p._fields){
           const cell=sh.getRange(p.row,f.column);
           if(String(cell.getValue()||'').trim()) continue;
