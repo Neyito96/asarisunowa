@@ -42,11 +42,18 @@ function libraryMetadataBackfill_(limit, write) {
         const enclosure=item.getChild('enclosure');
         const audio=enclosure&&enclosure.getAttribute('url')?enclosure.getAttribute('url').getValue():'';
         const description=String(item.getChildText('description')||'').trim();
+        // Reject likely false matches: GUID alone may be reused or misfiled.
+        const title=String(item.getChildText('title')||'').trim();
+        const norm=t=>String(t||'').normalize('NFKC').replace(/\\s+/g,' ').trim();
+        if(norm(title)!==norm(r[2])) {result.conflicts.push({id:r[0],feed,reason:'GUID/title mismatch'});continue;}
+        const durationNode=item.getChildren().find(x=>x.getName()==='duration');
+        const durationText=durationNode?String(durationNode.getText()||'').trim():'';
+        const durationSeconds=/^\\d+$/.test(durationText)?Number(durationText):(/^\\d+:\\d{2}(?::\\d{2})?$/.test(durationText)?durationText.split(':').map(Number).reduce((a,b)=>a*60+b,0):null);
         const image=item.getChild('image');
         const imageUrl=image&&image.getAttribute('href')?image.getAttribute('href').getValue():'';
         const proposed=[];
-        [[15,audio],[22,description],[14,imageUrl]].forEach(([col,value])=>{
-          if(value && !String(r[col-1]||'').trim()) proposed.push({column:col,value:value});
+        [[15,audio],[22,description],[14,imageUrl],[16,durationSeconds]].forEach(([col,value])=>{
+          if(value !== null && value !== '' && !String(r[col-1]||'').trim()) proposed.push({column:col,value:value});
         });
         if(proposed.length) result.proposals.push({id:r[0],row:entry.row,feed,fields:proposed.map(p=>({column:p.column,preview:String(p.value).slice(0,90)})),_fields:proposed});
       }
