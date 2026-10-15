@@ -5,6 +5,20 @@
 const LIB_META_ID_ = '1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4';
 function previewLibraryMetadataBackfill10() { return libraryMetadataBackfill_(10, false); }
 function writeLibraryMetadataBackfill10() { return libraryMetadataBackfill_(10, true); }
+/** One safe scheduled batch; manually install trigger only after reviewing the next preview. */
+function scheduledLibraryMetadataBackfill10() { return libraryMetadataBackfill_(10, true); }
+function installLibraryMetadataHourlyTrigger() {
+  const fn='scheduledLibraryMetadataBackfill10';
+  const existing=ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()===fn);
+  if(existing.length) { Logger.log('Hourly trigger already installed'); return; }
+  ScriptApp.newTrigger(fn).timeBased().everyHours(1).create();
+  Logger.log('Hourly metadata backfill trigger installed');
+}
+function stopLibraryMetadataHourlyTrigger() {
+  const fn='scheduledLibraryMetadataBackfill10';
+  ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()===fn).forEach(t=>ScriptApp.deleteTrigger(t));
+  Logger.log('Hourly metadata backfill trigger stopped');
+}
 /** Install one one-shot preview trigger, approximately one minute after invocation. */
 function scheduleLibraryMetadataPreviewOnce() {
   const fn='previewLibraryMetadataBackfill10';
@@ -87,7 +101,13 @@ function libraryMetadataBackfill_(limit, write) {
       }
     }
     if(write){
-      if(result.proposals.length!==10) throw Error('Pilot requires exactly 10 validated proposals');
+      if(result.proposals.length===0) {
+        result.status='NO_CANDIDATES';
+        if(feeds.length) props.setProperty(cursorKey,String((cursor+Math.max(1,visited))%feeds.length));
+        result.nextFeedIndex=feeds.length?(cursor+Math.max(1,visited))%feeds.length:0;
+        Logger.log(JSON.stringify(result));
+        return result;
+      }
       if(result.conflicts.length) throw Error('Conflicts detected; refusing write');
       for(const p of result.proposals){
         const id=sh.getRange(p.row,1).getValue();
