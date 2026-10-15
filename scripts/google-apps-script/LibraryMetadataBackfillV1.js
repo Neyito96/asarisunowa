@@ -27,14 +27,22 @@ function libraryMetadataBackfill_(limit, write) {
     const sourceRows=sources.getDataRange().getValues().slice(1);
     const feeds=[...new Set(sourceRows.map(r=>String(r[7]||'').trim()).filter(u=>/^https:\/\//.test(u) && !/youtube\.com|youtu\.be/i.test(u)))];
     const result={mode:write?'WRITE':'DRY_RUN',scanned:data.length,feeds:feeds.length,proposals:[],missingAudio:[],conflicts:[],written:0};
+    // Rotate the first RSS source between runs; avoid starving later shows.
+    const props=PropertiesService.getScriptProperties();
+    const cursorKey='LIB_META_FEED_CURSOR_V1';
+    const cursor=Math.max(0,Number(props.getProperty(cursorKey)||0))%Math.max(1,feeds.length);
+    const orderedFeeds=feeds.slice(cursor).concat(feeds.slice(0,cursor));
+    result.startFeedIndex=cursor;
+    let visited=0;
     if(write && limit!==10) throw Error('Only a 10-row pilot write is authorized');
     const lookup=new Map();
     data.forEach((r,i)=>{
       const id=String(r[6]||'').trim().toLowerCase();
       if(id){if(!lookup.has(id)) lookup.set(id,[]);lookup.get(id).push({row:i+2,values:r});}
     });
-    for(const feed of feeds){
+    for(const feed of orderedFeeds){
       if(result.proposals.length>=limit) break;
+      visited++;
       let response;
       try {response=UrlFetchApp.fetch(feed,{muteHttpExceptions:true,headers:{Accept:'application/rss+xml, application/xml, text/xml'}});}
       catch(error){result.conflicts.push({feed,reason:'Fetch failed: '+String(error)});continue;}
@@ -93,6 +101,9 @@ function libraryMetadataBackfill_(limit, write) {
         }
       }
     }
+    // Advance cursor only after a successful write. Dry runs must never mutate progress.
+    if(write && feeds.length) props.setProperty(cursorKey,String((cursor+Math.max(1,visited))%feeds.length));
+    result.nextFeedIndex=feeds.length?(cursor+Math.max(1,visited))%feeds.length:0;
     result.proposals.forEach(p=>delete p._fields);
     Logger.log(JSON.stringify(result));
     return result;
