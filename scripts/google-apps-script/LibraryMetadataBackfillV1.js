@@ -19,7 +19,7 @@ function libraryMetadataBackfill_(limit, write) {
     const last=sh.getLastRow(), data=last>1?sh.getRange(2,1,last-1,sh.getLastColumn()).getValues():[];
     const sourceRows=sources.getDataRange().getValues().slice(1);
     const feeds=[...new Set(sourceRows.map(r=>String(r[7]||'').trim()).filter(u=>/^https:\/\//.test(u) && !/youtube\.com|youtu\.be/i.test(u)))];
-    const result={mode:write?'WRITE':'DRY_RUN',scanned:data.length,feeds:feeds.length,proposals:[],conflicts:[],written:0};
+    const result={mode:write?'WRITE':'DRY_RUN',scanned:data.length,feeds:feeds.length,proposals:[],missingAudio:[],conflicts:[],written:0};
     const lookup=new Map();
     data.forEach((r,i)=>{
       const id=String(r[6]||'').trim().toLowerCase();
@@ -56,6 +56,14 @@ function libraryMetadataBackfill_(limit, write) {
         const image=item.getChildren().find(x=>x.getName()==='image' && x.getNamespace().getPrefix()==='itunes');
         const imageUrl=image&&image.getAttribute('href')?image.getAttribute('href').getValue():'';
         const proposed=[];
+        // T=音源不在の根拠: record only verified RSS items lacking enclosure.
+        // Do not label blank ledger audio as nonexistent merely because RSS lookup failed.
+        const isSdgs=/SDGs|こどもそうだんしつ|旧SDGs/i.test(String(r[1]||'')+' '+feed);
+        if(!audio && !String(r[14]||'').trim()) {
+          result.missingAudio.push({id:r[0],row:entry.row,feed,reason:'RSS enclosure URL missing',sdgsReview:isSdgs});
+          if(!isSdgs && !String(r[19]||'').trim()) proposed.push({column:20,value:'公式RSSのenclosure URLなし（未再生・要再確認）'});
+          if(isSdgs) result.conflicts.push({id:r[0],reason:'SDGs/こどもそうだんしつ: 音源不在は要手動確認'});
+        }
         [[15,audio],[22,description],[14,imageUrl],[16,durationSeconds]].forEach(([col,value])=>{
           if(value !== null && value !== '' && !String(r[col-1]||'').trim()) proposed.push({column:col,value:value});
         });
