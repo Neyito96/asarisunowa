@@ -102,13 +102,18 @@ function libraryMetadataBackfill_(limit, write) {
     }
     if(write){
       if(result.proposals.length===0) {
+        if(result.conflicts.some(c=>!c.id)) throw Error('Feed failure with zero candidates; cursor not advanced');
         result.status='NO_CANDIDATES';
         if(feeds.length) props.setProperty(cursorKey,String((cursor+Math.max(1,visited))%feeds.length));
         result.nextFeedIndex=feeds.length?(cursor+Math.max(1,visited))%feeds.length:0;
         Logger.log(JSON.stringify(result));
         return result;
       }
-      if(result.conflicts.length) throw Error('Conflicts detected; refusing write');
+      // Row-level GUID/title mismatches are quarantined above and never proposed.
+      // Feed-wide failures remain blocking: a partial source outage must not advance the cursor.
+      const blocking=result.conflicts.filter(c=>!c.id || !['GUID/title mismatch','SDGs/こどもそうだんしつ: 音源不在は要手動確認'].includes(c.reason));
+      if(blocking.length) throw Error('Feed-level conflicts detected; refusing write: '+JSON.stringify(blocking));
+      result.heldConflicts=result.conflicts.length;
       for(const p of result.proposals){
         const id=sh.getRange(p.row,1).getValue();
         if(id!==p.id) throw Error('Row moved: '+p.id);
