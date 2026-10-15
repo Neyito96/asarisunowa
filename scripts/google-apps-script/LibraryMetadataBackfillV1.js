@@ -4,7 +4,14 @@
  */
 const LIB_META_ID_ = '1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4';
 function previewLibraryMetadataBackfill10() { return libraryMetadataBackfill_(10, false); }
-function writeLibraryMetadataBackfill10() { return libraryMetadataBackfill_(10, true); }
+function writeLibraryMetadataBackfill10() { throw Error('Write disabled until dry-run review and explicit enablement'); }
+/** Install one one-shot preview trigger, approximately one minute after invocation. */
+function scheduleLibraryMetadataPreviewOnce() {
+  const fn='previewLibraryMetadataBackfill10';
+  ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()===fn).forEach(t=>ScriptApp.deleteTrigger(t));
+  ScriptApp.newTrigger(fn).timeBased().after(60*1000).create();
+  Logger.log('One-shot read-only RSS preview trigger installed');
+}
 function libraryMetadataBackfill_(limit, write) {
   const lock=LockService.getScriptLock();
   if(!lock.tryLock(20000)) throw Error('Library lock unavailable');
