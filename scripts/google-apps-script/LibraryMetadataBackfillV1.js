@@ -44,12 +44,12 @@ function libraryMetadataBackfill_(limit, write) {
         const description=String(item.getChildText('description')||'').trim();
         // Reject likely false matches: GUID alone may be reused or misfiled.
         const title=String(item.getChildText('title')||'').trim();
-        const norm=t=>String(t||'').normalize('NFKC').replace(/\\s+/g,' ').trim();
+        const norm=t=>String(t||'').normalize('NFKC').replace(/\s+/g,' ').trim();
         if(norm(title)!==norm(r[2])) {result.conflicts.push({id:r[0],feed,reason:'GUID/title mismatch'});continue;}
         const durationNode=item.getChildren().find(x=>x.getName()==='duration');
         const durationText=durationNode?String(durationNode.getText()||'').trim():'';
-        const durationSeconds=/^\\d+$/.test(durationText)?Number(durationText):(/^\\d+:\\d{2}(?::\\d{2})?$/.test(durationText)?durationText.split(':').map(Number).reduce((a,b)=>a*60+b,0):null);
-        const image=item.getChild('image');
+        const durationSeconds=/^\d+$/.test(durationText)?Number(durationText):(/^\d+:\d{2}(?::\d{2})?$/.test(durationText)?durationText.split(':').map(Number).reduce((a,b)=>a*60+b,0):null);
+        const image=item.getChildren().find(x=>x.getName()==='image');
         const imageUrl=image&&image.getAttribute('href')?image.getAttribute('href').getValue():'';
         const proposed=[];
         [[15,audio],[22,description],[14,imageUrl],[16,durationSeconds]].forEach(([col,value])=>{
@@ -59,6 +59,7 @@ function libraryMetadataBackfill_(limit, write) {
       }
     }
     if(write){
+      if(result.conflicts.length) throw Error('Conflicts detected; refusing write');
       for(const p of result.proposals){
         const id=sh.getRange(p.row,1).getValue();
         if(id!==p.id) throw Error('Row moved: '+p.id);
