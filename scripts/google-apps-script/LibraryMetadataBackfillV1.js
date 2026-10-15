@@ -18,16 +18,18 @@ function libraryMetadataBackfill_(limit, write) {
     Object.keys(expected).forEach(k=>{if(headers[+k]!==expected[k]) throw Error('Header mismatch '+k+': '+headers[k]);});
     const last=sh.getLastRow(), data=last>1?sh.getRange(2,1,last-1,sh.getLastColumn()).getValues():[];
     const sourceRows=sources.getDataRange().getValues().slice(1);
-    const feeds=[...new Set(sourceRows.map(r=>String(r[7]||'').trim()).filter(u=>/^https:\/\//.test(u)))];
+    const feeds=[...new Set(sourceRows.map(r=>String(r[7]||'').trim()).filter(u=>/^https:\/\//.test(u) && !/youtube\.com|youtu\.be/i.test(u)))];
     const result={mode:write?'WRITE':'DRY_RUN',scanned:data.length,feeds:feeds.length,proposals:[],conflicts:[],written:0};
     const lookup=new Map();
     data.forEach((r,i)=>{
-      const id=String(r[6]||'').trim();
+      const id=String(r[6]||'').trim().toLowerCase();
       if(id){if(!lookup.has(id)) lookup.set(id,[]);lookup.get(id).push({row:i+2,values:r});}
     });
     for(const feed of feeds){
       if(result.proposals.length>=limit) break;
-      const response=UrlFetchApp.fetch(feed,{muteHttpExceptions:true,headers:{Accept:'application/rss+xml, application/xml, text/xml'}});
+      let response;
+      try {response=UrlFetchApp.fetch(feed,{muteHttpExceptions:true,headers:{Accept:'application/rss+xml, application/xml, text/xml'}});}
+      catch(error){result.conflicts.push({feed,reason:'Fetch failed: '+String(error)});continue;}
       if(response.getResponseCode()!==200){result.conflicts.push({feed,reason:'HTTP '+response.getResponseCode()});continue;}
       const root=XmlService.parse(response.getContentText('UTF-8')).getRootElement();
       const channel=root.getChild('channel');
@@ -35,7 +37,9 @@ function libraryMetadataBackfill_(limit, write) {
       for(const item of channel.getChildren('item')){
         if(result.proposals.length>=limit) break;
         const guid=String(item.getChildText('guid')||'').trim();
-        const matches=lookup.get(guid)||[];
+        const guidClip=guid.match(/([0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12})/i);
+        const key=guidClip?guidClip[1].toLowerCase():guid;
+        const matches=lookup.get(key)||[];
         if(matches.length!==1) continue; // No title/date fuzzy writes or multi-match overwrites.
         const entry=matches[0], r=entry.values;
         if(String(r[38]||'').trim() && !['未指定','なし','false','0','no'].includes(String(r[38]).trim().toLowerCase())) continue;
@@ -46,10 +50,10 @@ function libraryMetadataBackfill_(limit, write) {
         const title=String(item.getChildText('title')||'').trim();
         const norm=t=>String(t||'').normalize('NFKC').replace(/\s+/g,' ').trim();
         if(norm(title)!==norm(r[2])) {result.conflicts.push({id:r[0],feed,reason:'GUID/title mismatch'});continue;}
-        const durationNode=item.getChildren().find(x=>x.getName()==='duration');
+        const durationNode=item.getChildren().find(x=>x.getName()==='duration' && x.getNamespace().getPrefix()==='itunes');
         const durationText=durationNode?String(durationNode.getText()||'').trim():'';
         const durationSeconds=/^\d+$/.test(durationText)?Number(durationText):(/^\d+:\d{2}(?::\d{2})?$/.test(durationText)?durationText.split(':').map(Number).reduce((a,b)=>a*60+b,0):null);
-        const image=item.getChildren().find(x=>x.getName()==='image');
+        const image=item.getChildren().find(x=>x.getName()==='image' && x.getNamespace().getPrefix()==='itunes');
         const imageUrl=image&&image.getAttribute('href')?image.getAttribute('href').getValue():'';
         const proposed=[];
         [[15,audio],[22,description],[14,imageUrl],[16,durationSeconds]].forEach(([col,value])=>{
