@@ -9,6 +9,37 @@
 function scheduledLibraryMetadataBackfillV2Hourly() {
   return writeLibraryMetadataV2Batch_(80);
 }
+/** Read-only audit: inspect title mismatches without changing the ledger. */
+function auditLibraryMetadataV2TitleMismatch() {
+  const ss=SpreadsheetApp.openById(LIB_V2_SHEET_ID);
+  const sh=ss.getSheetByName('エピソード台帳');
+  const src=ss.getSheetByName('取得元一覧');
+  const rows=sh.getDataRange().getValues(); rows.shift();
+  const norm=x=>String(x||'').normalize('NFKC').replace(/\\s+/g,' ').trim();
+  const guid=x=>{const s=String(x||'').trim();const m=s.match(/([0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12})/i);return(m?m[1]:s).toLowerCase();};
+  const byGuid=new Map();
+  rows.forEach((r,i)=>{const g=guid(r[6]);if(g){if(!byGuid.has(g))byGuid.set(g,[]);byGuid.get(g).push({row:i+2,id:r[0],title:r[2]});}});
+  const urls=[...new Set(src.getDataRange().getValues().slice(1).map(r=>String(r[7]||'').trim()).filter(x=>/^https:\\/\\//.test(x)&&!/youtube\\.com|youtu\\.be/i.test(x)))];
+  const responses=UrlFetchApp.fetchAll(urls.map(url=>({url,muteHttpExceptions:true})));
+  const mismatches=[],feedErrors=[];const seen=new Set();
+  responses.forEach((res,i)=>{
+    if(res.getResponseCode()!==200){feedErrors.push({feed:urls[i],http:res.getResponseCode()});return;}
+    try {
+      const channel=XmlService.parse(res.getContentText('UTF-8')).getRootElement().getChild('channel');
+      if(!channel){feedErrors.push({feed:urls[i],reason:'no channel'});return;}
+      channel.getChildren('item').forEach(item=>{
+        const matches=byGuid.get(guid(item.getChildText('guid')))||[];
+        if(matches.length!==1)return;
+        const r=matches[0],rssTitle=item.getChildText('title')||'';
+        if(norm(r.title)===norm(rssTitle)||seen.has(r.id))return;
+        seen.add(r.id);
+        mismatches.push({id:r.id,row:r.row,ledgerTitle:r.title,rssTitle,feed:urls[i]});
+      });
+    } catch(e){feedErrors.push({feed:urls[i],reason:String(e)});}
+  });
+  const result={mode:'READ_ONLY_TITLE_AUDIT',count:mismatches.length,mismatches,feedErrors};
+  Logger.log(JSON.stringify(result));return result;
+}
 function writeLibraryMetadataV2Pilot10() { return writeLibraryMetadataV2Batch_(10); }
 function writeLibraryMetadataV2Pilot80() { return writeLibraryMetadataV2Batch_(80); }
 function writeLibraryMetadataV2Batch_(limit) {
