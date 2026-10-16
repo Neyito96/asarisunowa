@@ -23,12 +23,12 @@ function previewLibraryGuidReconciliation() {
   };
   const key=(show,title,date)=>[normalize(show),normalize(title),date].join('\u001f');
   const guid=x=>{const s=String(x||'').trim();const m=s.match(/([0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12})/i);return(m?m[1]:s).toLowerCase();};
-  const rows=new Map(),knownGuids=new Set(),report={mode:'READ_ONLY_GUID_RECONCILIATION',ledgerGuidBlank:0,blankWithSpotify:0,rssFeeds:0,rssItems:0,uniqueHighConfidence:0,ambiguous:0,alreadyKnownGuid:0,dateMissing:0,feedErrors:[],samples:[],writes:0};
+  const rows=new Map(),knownGuids=new Set(),report={mode:'READ_ONLY_GUID_RECONCILIATION',ledgerGuidBlank:0,blankWithSpotify:0,excludedBlank:0,rssFeeds:0,rssItems:0,uniqueHighConfidence:0,ambiguous:0,eligibleWithSpotify:0,alreadyKnownGuid:0,dateMissing:0,feedErrors:[],samples:[],writes:0};
   values.forEach((r,i)=>{
     if(guid(r[6])){knownGuids.add(guid(r[6]));return;}
     if(!String(r[0]||'').startsWith('EP-'))return;
     report.ledgerGuidBlank++;
-    if(String(r[11]||'').trim())report.blankWithSpotify++;
+    if(String(r[11]||'').trim())report.blankWithSpotify++;\n    const exclusion=String(r[38]||'').trim().toLowerCase();\n    if(exclusion&&!['未指定','なし','false','0','no'].includes(exclusion)){report.excludedBlank++;return;}
     const date=dateKey(r[3]);
     if(!date){report.dateMissing++;return;}
     const k=key(r[1],r[2],date);
@@ -72,7 +72,7 @@ function previewLibraryGuidReconciliation() {
       report.ambiguous++;continue;
     }
     usedGuids.add(uniqueRss[0].guid);
-    report.uniqueHighConfidence++;
+    report.uniqueHighConfidence++;\n    if(matches[0].spotify)report.eligibleWithSpotify++;
     if(report.samples.length<30)report.samples.push({id:matches[0].id,row:matches[0].row,show:matches[0].show,date:matches[0].date,guid:uniqueRss[0].guid,spotifyPresent:!!matches[0].spotify});
   }
   report.note='Exact title/show/JST date match only; does not establish Spotify identity; no writes. RSS show labels must match ledger show labels.';
