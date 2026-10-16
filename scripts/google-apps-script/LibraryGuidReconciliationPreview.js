@@ -74,7 +74,8 @@ function previewLibraryGuidReconciliation() {
       report.ambiguous++;continue;
     }
     usedGuids.add(uniqueRss[0].guid);
-    report.uniqueHighConfidence++;\n    if(matches[0].spotify)report.eligibleWithSpotify++;
+    report.uniqueHighConfidence++;
+    if(matches[0].spotify)report.eligibleWithSpotify++;
     if(report.samples.length<30)report.samples.push({id:matches[0].id,row:matches[0].row,show:matches[0].show,date:matches[0].date,guid:uniqueRss[0].guid,spotifyPresent:!!matches[0].spotify});
   }
   report.note='Exact title/show/JST date match only; does not establish Spotify identity; no writes. RSS show labels must match ledger show labels.';
