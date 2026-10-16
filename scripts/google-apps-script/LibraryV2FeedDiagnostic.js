@@ -15,8 +15,10 @@ function diagnoseLibraryV2Feed7() { return diagnoseLibraryV2Feed_(7); }
 function diagnoseLibraryV2Feed8() { return diagnoseLibraryV2Feed_(8); }
 function diagnoseLibraryV2Feed9() { return diagnoseLibraryV2Feed_(9); }
 
-function diagnoseLibraryV2Feed_(feedIndex) {
+function diagnoseLibraryV2Feed_(feedIndex, sampleLimit) {
   const started = Date.now();
+  sampleLimit=sampleLimit===undefined?10:sampleLimit;
+  if(!Number.isInteger(sampleLimit)||sampleLimit<0||sampleLimit>1000)throw Error('Invalid sample limit');
   const ss = SpreadsheetApp.openById(LIB_V2_SHEET_ID);
   const sh = ss.getSheetByName('エピソード台帳');
   const src = ss.getSheetByName('取得元一覧');
@@ -24,7 +26,7 @@ function diagnoseLibraryV2Feed_(feedIndex) {
   if (!sh || !src || !excluded) throw Error('Required library tab missing');
   const rows = sh.getDataRange().getValues();
   const headers = rows.shift();
-  if (headers[23] !== '出演者・スタッフ') throw Error('Unexpected cast column');
+  libV2CpCheckHeaders_(headers);
   const feeds = new Map();
   src.getDataRange().getValues().slice(1).forEach(r => {
     const url = String(r[7] || '').trim();
@@ -46,11 +48,11 @@ function diagnoseLibraryV2Feed_(feedIndex) {
   function add(map, key, index) {
     if (!key) return;
     if (!map.has(key)) map.set(key, []);
-    map.get(key).push(index);
+    if(!map.get(key).includes(index))map.get(key).push(index);
   }
   rows.forEach((r, i) => {
     add(byGuid, libV2CpGuid_(r[6]), i);
-    add(byClip, libV2CpClip_(r[8]) || libV2CpClip_(r[32]), i);
+    libV2CpRowAnchors_(r).forEach(g=>add(byClip,g,i));
     add(ids, String(r[0] || ''), i);
     add(spotifyOwners, String(r[11] || ''), i);
   });
@@ -64,47 +66,44 @@ function diagnoseLibraryV2Feed_(feedIndex) {
   const summary = {
     mode: 'READ_ONLY_FEED_DIAGNOSTIC', feedIndex, feedCount: urls.length,
     feed: url, show: feeds.get(url), rssItems: items.length, ledgerRows: rows.length,
-    guidMatched: 0, clipMatched: 0, noMatch: 0, ambiguous: 0,
+    guidMatched: 0, clipMatched: 0, officialItemMatched: 0, noMatch: 0, ambiguous: 0,
     duplicateRssGuid: 0, blockedOrConflicting: 0, metadataMismatch: 0,
-    matchedComplete: 0, eligibleEpisodes: 0, eligibleCells: 0,
+    matchedComplete: 0, matchedNoSupportedFill: 0, eligibleEpisodes: 0, eligibleCells: 0,
     missingByField: {guid:0, audio:0, description:0, cast:0, spotify:0},
-    samples: [], unmatchedSamples: [], heldSamples: []
+    unsupportedGaps:{guid:0,audio:0,description:0,cast:0,spotify:0},
+    reasons:{}, samples: [], unmatchedSamples: [], heldSamples: [],
+    note:'matchedComplete is a legacy alias for matchedNoSupportedFill, not a data-completeness claim; eligible fields still require live prewrite/formula checks.'
   };
   items.forEach(it => {
     const direct = byGuid.get(it.guid) || [], clip = byClip.get(it.guid) || [];
     if (direct.length) summary.guidMatched++;
-    else if (clip.length) summary.clipMatched++;
-    const matches = direct.length ? direct : clip;
-    if (!it.guid || counts.get(it.guid) !== 1) { summary.duplicateRssGuid++; if (summary.heldSamples.length < 10) summary.heldSamples.push({guid:it.guid, title:it.title, reason:'blank_or_duplicate_rss_guid'}); return; }
-    if (!matches.length) { summary.noMatch++; if (summary.unmatchedSamples.length < 10) summary.unmatchedSamples.push({guid:it.guid, title:it.title, date:it.date}); return; }
-    if (matches.length !== 1) { summary.ambiguous++; if (summary.heldSamples.length < 10) summary.heldSamples.push({guid:it.guid, title:it.title, reason:'multiple_ledger_matches'}); return; }
-    const r = rows[matches[0]], id = String(r[0] || '');
-    const a = libV2CpClip_(r[8]), b = libV2CpClip_(r[32]);
-    if ((r[14] && it.audio && String(r[14]) !== it.audio) ||
-        (r[11] && it.spotify && String(r[11]) !== it.spotify) ||
-        !/^EP-\d+$/.test(id) || (ids.get(id) || []).length !== 1 ||
-        libV2CpBlocked_(r[38]) || tombGuid.has(it.guid) || tombId.has(id) ||
-        (a && b && a !== b) || (r[6] && libV2CpGuid_(r[6]) !== it.guid)) {
-      summary.blockedOrConflicting++; if (summary.heldSamples.length < 10) summary.heldSamples.push({id, reason:'blocked_or_conflicting'}); return;
+    else if (clip.length) {
+      if(clip.some(i=>libV2CpClip_(rows[i][8])===it.guid||libV2CpClip_(rows[i][32])===it.guid))summary.clipMatched++;
+      else summary.officialItemMatched++;
     }
-    if (libV2CpNorm_(r[1]) !== feeds.get(url) ||
-        libV2CpNorm_(r[2]) !== it.title ||
-        !it.date || libV2CpDate_(r[3]) !== it.date) {
-      summary.metadataMismatch++; if (summary.heldSamples.length < 10) summary.heldSamples.push({id, reason:'metadata_mismatch'}); return;
+    const matches = libV2CpMatches_(it.guid,byGuid,byClip);
+    if (!it.guid || counts.get(it.guid) !== 1) { summary.duplicateRssGuid++; if (summary.heldSamples.length < sampleLimit) summary.heldSamples.push({guid:it.guid, title:it.title, reason:'blank_or_duplicate_rss_guid'}); return; }
+    if (!matches.length) { summary.noMatch++; if (summary.unmatchedSamples.length < sampleLimit) summary.unmatchedSamples.push({guid:it.guid, title:it.title, date:it.date}); return; }
+    if (matches.length !== 1) { summary.ambiguous++; if (summary.heldSamples.length < sampleLimit) summary.heldSamples.push({guid:it.guid, title:it.title, reason:'multiple_ledger_matches'}); return; }
+    const r=rows[matches[0]],id=String(r[0]||'');
+    const reasons=libV2CpRowReasons_(it,feeds.get(url),r,ids,{gs:tombGuid,is:tombId});
+    if(reasons.length){
+      reasons.forEach(reason=>summary.reasons[reason]=(summary.reasons[reason]||0)+1);
+      if(reasons.some(reason=>!['show_mismatch','title_mismatch','date_mismatch'].includes(reason)))summary.blockedOrConflicting++;
+      else summary.metadataMismatch++;
+      if(summary.heldSamples.length<sampleLimit)summary.heldSamples.push({id,reasons});
+      return;
     }
-    const fields = [
-      ['guid', 7, it.guid], ['audio', 15, /^https:\/\//.test(it.audio) ? it.audio : ''],
-      ['description', 22, it.description], ['cast', 24, it.cast],
-      ['spotify', 12, it.spotify]
-    ].filter(([name, col, value]) =>
-      value && !String(r[col-1] || '').trim() &&
-      (col !== 12 || !spotifyOwners.has(value))
-    );
-    if (!fields.length) { summary.matchedComplete++; return; }
+    const fields=libV2CpFields_(it,r,spotifyOwners).map(([col,value,name])=>[name,col,value]);
+    for(const [name,col] of [['guid',7],['audio',15],['description',22],['cast',24],['spotify',12]]) {
+      if(!String(r[col-1]||'').trim()&&!fields.some(f=>f[0]===name))summary.unsupportedGaps[name]++;
+    }
+    if(!fields.length){summary.matchedNoSupportedFill++;summary.matchedComplete++;return;}
+    fields.filter(([,col])=>col===12).forEach(([,col,value])=>spotifyOwners.set(value,[matches[0]]));
     summary.eligibleEpisodes++;
     summary.eligibleCells += fields.length;
     fields.forEach(([name]) => summary.missingByField[name]++);
-    if (summary.samples.length < 10) {
+    if (summary.samples.length < sampleLimit) {
       summary.samples.push({ id, columns: fields.map(([, col]) => col) });
     }
   });
