@@ -45,3 +45,12 @@
 - ログには excludedBlank / eligibleWithSpotify がなく、修正版がGASに反映されたと判断できない。
 - 実データのヘッダーを2026-10-16にGoogle Sheetsから再確認。「人間除外」は39列目（AM列、ゼロ起点38）、「外部ID」はG列、「Spotify個別URL」はL列。既存の「自動補完・実行履歴」はA:Jの10列構成。
 - 次の作業: GUID照合結果の安全検証（除外・既存GUID重複・同一Spotifyエピソードの一致）。検証を経ずに一括書き込みしない。
+
+## 2026-10-16 13:53 JST以降 — V2高速GUID復元のコードレビューと台帳実測
+- 作業時ブランチ先頭は 11ac7fa（official item URL由来のGUID復元コードを追加）。引き継ぎ文末尾の 0e256d3 より新しい。main の自動更新コミットと混同しない。
+- Google Sheetsのエピソード台帳を全6,591行（ヘッダー別）読取。GUID空欄5,457件の公式個別URL（J列）は全件 `https://www.asahi.com/special/podcasts/item/?itemid=...` 形式、Spotify URL（L列）も全件あり。
+- 公式URL itemid が既存GUIDと衝突せず、台帳内で一意、かつ人間除外なしの候補は5,164件。残る293件は重複・除外などで保留（複数の公式URL itemid は290種類が重複）。この5,164件はURL由来の候補であり、RSSのGUIDとSpotifyとの真正な同一性の全件証明ではない。
+- 変更: 既存 `LibraryOfficialGuidFastBackfill.js` のG列書き込みを連続行単位の `setValues` に変更し、まとめ読戻しで検証。履歴ヘッダーは一括読取。直前に全台帳の公式URL由来GUID重複を再検証。10件/80件入口、ScriptLock、実行履歴追記は維持。
+- GitHubコミット: e7b9870（まとめ書き）、c9865c6（直前のURL一意性再確認）。コード編集のみで、GASへのデプロイ、GAS本番実行、GUID補完は一切行っていない。
+- 重要: 既存の `writeLibraryOfficialGuidBatch_` は、公式個別URLの `itemid` からGUIDを候補化する。RSSと突合せる検証・Spotifyエピソードとの同一性検証が未実装のため、5,164件をそのまま大量書き込みしてはならない。次工程は公式URL itemidとRSS GUIDの一意一致をRSS並列取得内で確認し、不一致/欠損を保留すること。
+- ボトルネック: Writer本体は依然 GUID照合専用。公式URLのGUID復元とWriterの統合、および完了監査・途中再開は未実装。10件・80件の書き込みは、GAS反映と適切な確認を経るまで実施しない。
