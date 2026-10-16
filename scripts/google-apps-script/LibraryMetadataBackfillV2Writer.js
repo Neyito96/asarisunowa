@@ -64,6 +64,57 @@ function previewLibraryMetadataV2EP00061() {
   const result={mode:'READ_ONLY_EP00061',id:row[0],row:62,guidMatch:true,ledgerTitle:row[2],rssTitle:item.getChildText('title'),descriptionLength:description.length,descriptionPreview:description.slice(0,800),descriptionPresent:description.length>0,writePerformed:false};
   Logger.log(JSON.stringify(result));return result;
 }
+/** One-time, guarded fill of EP-00061 description (V column only). */
+function writeLibraryMetadataV2EP00061Description() {
+  const lock=LockService.getScriptLock();
+  if(!lock.tryLock(1000))throw Error('Another writer is running');
+  try {
+    const ss=SpreadsheetApp.openById(LIB_V2_SHEET_ID);
+    const sh=ss.getSheetByName('エピソード台帳');
+    const src=ss.getSheetByName('取得元一覧');
+    const history=ss.getSheetByName('自動補完・実行履歴');
+    if(!sh||!src||!history)throw Error('Required sheet missing');
+    const expected=['実行日時','状態','対象EP数','書込セル数','保留件数','更新EP-ID','開始フィード','次フィード','処理秒数','備考'];
+    const actual=history.getRange(1,1,1,10).getValues()[0];
+    if(expected.some((v,i)=>v!==actual[i]))throw Error('History header mismatch');
+    const headers=sh.getRange(1,1,1,23).getValues()[0];
+    if(headers[0]!=='台帳ID'||headers[2]!=='タイトル'||headers[6]!=='外部ID'||headers[21]!=='概要原文')throw Error('Ledger header mismatch');
+    const started=Date.now();
+    const guid=x=>{const v=String(x||'').trim();const m=v.match(/([0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12})/i);return(m?m[1]:v).toLowerCase();};
+    const row=sh.getRange(62,1,1,39).getValues()[0];
+    const expectedTitle='（フィギュア #36）新星・中田璃士、ロシア選手の実力は　GPシリーズ開幕展望（前編）';
+    if(row[0]!=='EP-00061'||row[2]!==expectedTitle||!guid(row[6]))throw Error('EP identity/title changed');
+    if(String(row[21]||'').trim())throw Error('Description no longer blank; no write');
+    const ex=String(row[38]||'').trim().toLowerCase();
+    if(ex&&!['未指定','なし','false','0','no'].includes(ex))throw Error('Human exclusion active');
+    const all=sh.getRange(2,7,sh.getLastRow()-1,1).getValues();
+    if(all.filter(r=>guid(r[0])===guid(row[6])).length!==1)throw Error('GUID not unique in ledger');
+    const source=src.getDataRange().getValues().slice(1).find(r=>String(r[0]||'').trim()==='スポンジ');
+    if(!source||!String(source[7]||'').startsWith('https://'))throw Error('Sponge RSS missing');
+    const res=UrlFetchApp.fetch(source[7],{muteHttpExceptions:true});
+    if(res.getResponseCode()!==200)throw Error('RSS HTTP '+res.getResponseCode());
+    const channel=XmlService.parse(res.getContentText('UTF-8')).getRootElement().getChild('channel');
+    if(!channel)throw Error('RSS channel missing');
+    const matches=channel.getChildren('item').filter(i=>guid(i.getChildText('guid'))===guid(row[6]));
+    if(matches.length!==1)throw Error('RSS GUID not unique');
+    const item=matches[0];
+    const rssTitle=String(item.getChildText('title')||'');
+    const expectedRssTitle='（フィギュア #36）新星・中田璃士、ロシア選手の実力は　GPシリーズ開幕展望前編';
+    if(rssTitle!==expectedRssTitle)throw Error('RSS title changed; review before write');
+    const desc=String(item.getChildText('description')||'').trim().replace(/\r\n?|\n/g,'\\n');
+    if(desc.length<100||!desc.includes('中田璃士')||!desc.includes('GPシリーズ'))throw Error('RSS description content mismatch');
+    const latest=sh.getRange(62,1,1,39).getValues()[0];
+    if(latest[0]!==row[0]||latest[2]!==row[2]||guid(latest[6])!==guid(row[6])||String(latest[21]||'').trim()||String(latest[38]||'').trim().toLowerCase()!==ex)throw Error('Row changed before write');
+    sh.getRange(62,22).setValue(desc);
+    SpreadsheetApp.flush();
+    const stored=String(sh.getRange(62,22).getValue()||'');
+    if(stored!==desc)throw Error('Post-write verification failed; inspect ledger');
+    const seconds=Math.round((Date.now()-started)/1000);
+    history.appendRow([Utilities.formatDate(new Date(),ss.getSpreadsheetTimeZone(),'yyyy/MM/dd HH:mm:ss'),'V2_SUCCESS',1,1,0,'EP-00061','スポンジ','—',seconds,'V2 targeted GUID-verified description fill; no title overwrite']);
+    const result={mode:'WRITE_TARGETED',id:'EP-00061',row:62,column:'V',writtenCells:1,verified:true,history:'APPENDED',seconds};
+    Logger.log(JSON.stringify(result));return result;
+  } finally {lock.releaseLock();}
+}
 function writeLibraryMetadataV2Pilot10() { return writeLibraryMetadataV2Batch_(10); }
 function writeLibraryMetadataV2Pilot80() { return writeLibraryMetadataV2Batch_(80); }
 function writeLibraryMetadataV2Batch_(limit) {
