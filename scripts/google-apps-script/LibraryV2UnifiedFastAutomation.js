@@ -3,7 +3,9 @@
  * No global constants: avoids redeclaration collisions across GAS .gs files.\n * One expensive RSS stage per invocation, not GUID+metadata+GUID previews.
  * Uses a separate lease property to avoid nested ScriptLock deadlock.
  * Existing writers retain their own ScriptLock and row-level safeguards.
- * Alternates 10 GUID rows and up to 40 metadata rows per invocation.\n * Opt-in only. Do not install until prior executions have ended.
+ * Alternates 10 GUID rows and up to 10 metadata rows per invocation.
+ * A completed run taking >=150 seconds disables its own trigger.
+ * NOTE: GAS cannot preempt a blocking RSS fetch; this is a post-run guard.\n * Opt-in only. Do not install until prior executions have ended.
  */
 function previewLibraryV2UnifiedFast(){
  const props=PropertiesService.getScriptProperties();
@@ -62,6 +64,7 @@ function scheduledLibraryV2UnifiedFast(){
  const token=libV2AcquireLease_();
  if(!token){const r={status:'SKIPPED_ALREADY_RUNNING',writes:0};Logger.log(JSON.stringify(r));return r;}
  const stage=p.getProperty('LIB_V2_UNIFIED_STAGE')||'GUID';
+ const started=Date.now();
  try{
   // Only one RSS-heavy stage per run. No expensive pre/post RSS previews.
   let result;
@@ -69,11 +72,19 @@ function scheduledLibraryV2UnifiedFast(){
    result=writeLibraryV2OmnyClipGuidPilot10();
    p.setProperty('LIB_V2_UNIFIED_STAGE','METADATA');
   }else{
-   result=writeLibraryMetadataV2Batch_(40);
+   result=writeLibraryMetadataV2Batch_(10);
    p.setProperty('LIB_V2_UNIFIED_STAGE','GUID');
   }
+  const elapsedSeconds=Math.round((Date.now()-started)/1000);
+  // A completed but unusually slow RSS stage is not safe to repeat unattended.
+  // Stop future triggers before another 5-minute invocation can pile up.
+  const slow=elapsedSeconds>=150;
+  if(slow){
+   p.setProperty('LIB_V2_UNIFIED_ENABLED','false');
+   ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='scheduledLibraryV2UnifiedFast').forEach(t=>ScriptApp.deleteTrigger(t));
+  }
   p.setProperty('LIB_V2_UNIFIED_FAILURES','0');
-  const r={status:'SUCCESS',stage,result};
+  const r={status:slow?'SUCCESS_SLOW_AUTOSTOP':'SUCCESS',stage,result,elapsedSeconds,autoStopped:slow};
   Logger.log(JSON.stringify(r));return r;
  }catch(e){
   const failures=Number(p.getProperty('LIB_V2_UNIFIED_FAILURES')||0)+1;
