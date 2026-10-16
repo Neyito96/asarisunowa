@@ -15,11 +15,11 @@ function auditLibraryMetadataV2TitleMismatch() {
   const sh=ss.getSheetByName('エピソード台帳');
   const src=ss.getSheetByName('取得元一覧');
   const rows=sh.getDataRange().getValues(); rows.shift();
-  const norm=x=>String(x||'').normalize('NFKC').replace(/\\s+/g,' ').trim();
+  const norm=x=>String(x||'').normalize('NFKC').replace(/\s+/g,' ').trim();
   const guid=x=>{const s=String(x||'').trim();const m=s.match(/([0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12})/i);return(m?m[1]:s).toLowerCase();};
   const byGuid=new Map();
   rows.forEach((r,i)=>{const g=guid(r[6]);if(g){if(!byGuid.has(g))byGuid.set(g,[]);byGuid.get(g).push({row:i+2,id:r[0],title:r[2]});}});
-  const urls=[...new Set(src.getDataRange().getValues().slice(1).map(r=>String(r[7]||'').trim()).filter(x=>/^https:\\/\\//.test(x)&&!/youtube\\.com|youtu\\.be/i.test(x)))];
+  const urls=[...new Set(src.getDataRange().getValues().slice(1).map(r=>String(r[7]||'').trim()).filter(x=>x.startsWith('https://')&&!x.includes('youtube.com')&&!x.includes('youtu.be')))];
   const responses=UrlFetchApp.fetchAll(urls.map(url=>({url,muteHttpExceptions:true})));
   const mismatches=[],feedErrors=[];const seen=new Set();
   responses.forEach((res,i)=>{
