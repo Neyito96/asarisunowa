@@ -1,9 +1,9 @@
 /**
- * Fast V2 safe single-stage controller (2026-10-16).
+ * Fast V2 safe alternating controller (2026-10-16; timeout mitigation).
  * No global constants: avoids redeclaration collisions across GAS .gs files.\n * One expensive RSS stage per invocation, not GUID+metadata+GUID previews.
  * Uses a separate lease property to avoid nested ScriptLock deadlock.
  * Existing writers retain their own ScriptLock and row-level safeguards.
- * Opt-in only. Do not install until prior executions have ended.
+ * Alternates 10 GUID rows and up to 40 metadata rows per invocation.\n * Opt-in only. Do not install until prior executions have ended.
  */
 function previewLibraryV2UnifiedFast(){
  const props=PropertiesService.getScriptProperties();
@@ -69,7 +69,7 @@ function scheduledLibraryV2UnifiedFast(){
    result=writeLibraryV2OmnyClipGuidPilot10();
    p.setProperty('LIB_V2_UNIFIED_STAGE','METADATA');
   }else{
-   result=writeLibraryMetadataV2Batch_(80);
+   result=writeLibraryMetadataV2Batch_(40);
    p.setProperty('LIB_V2_UNIFIED_STAGE','GUID');
   }
   p.setProperty('LIB_V2_UNIFIED_FAILURES','0');
