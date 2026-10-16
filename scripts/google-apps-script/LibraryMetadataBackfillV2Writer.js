@@ -1,10 +1,11 @@
 /**
  * V2 controlled metadata writer — manual invocation only.
  * Requires all V1 scheduler triggers to be removed before writing.
+ * IMPORTANT: also confirm no V1 execution is currently running before invoking.
  * Does not create/delete triggers and does not modify episode IDs.
  * Deploy alongside LibraryMetadataBackfillV2.js.
  */
-function writeLibraryMetadataV2Pilot80() {
+function writeLibraryMetadataV2Pilot10() {
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(1000)) throw Error('Another library writer holds the script lock');
   try {
@@ -63,7 +64,7 @@ function writeLibraryMetadataV2Pilot80() {
       if(fields.length)plan.push({row:e.row,id,guid:guid(r[6]),title:norm(r[2]),fields});
     }
     plan.sort((a,b)=>a.row-b.row);
-    const selected=plan.slice(0,80);
+    const selected=plan.slice(0,10);
     // Re-read ALL protected fields and target values immediately before writing.
     const latest=sh.getDataRange().getValues();
     const writes=[];
@@ -72,6 +73,8 @@ function writeLibraryMetadataV2Pilot80() {
       if(!row||String(row[0])!==p.id||guid(row[6])!==p.guid||norm(row[2])!==p.title||excluded(row[38]))throw Error('Row changed/excluded; no writes: '+p.id);
       for(const f of p.fields) if(!String(row[f.col-1]||'').trim())writes.push({row:p.row,col:f.col,value:f.value,id:p.id});
     }
+    // Fail closed on a changed row, and keep the first pilot deliberately small.
+    // Partial writes are possible if Apps Script fails mid-operation: rerun only after inspection.
     // Group adjacent rows with same column into one setValues operation.
     const byColumn=new Map();
     writes.forEach(w=>{if(!byColumn.has(w.col))byColumn.set(w.col,[]);byColumn.get(w.col).push(w);});
