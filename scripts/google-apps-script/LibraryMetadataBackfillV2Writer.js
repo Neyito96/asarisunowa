@@ -19,6 +19,11 @@ function writeLibraryMetadataV2Batch_(limit) {
     const sh=ss.getSheetByName('エピソード台帳');
     const src=ss.getSheetByName('取得元一覧');
     if(!sh||!src) throw Error('Missing required tabs');
+    const history=ss.getSheetByName('自動補完・実行履歴');
+    if(!history) throw Error('V2 write completed but history tab is missing; inspect ledger before retry');
+    const expectedHistory=['実行日時','状態','対象EP数','書込セル数','保留件数','更新EP-ID','開始フィード','次フィード','処理秒数','備考'];
+    const actualHistory=history.getRange(1,1,1,10).getValues()[0];
+    if(expectedHistory.some((h,i)=>h!==actualHistory[i])) throw Error('V2 write completed but history header changed; inspect ledger before retry');
     const all=sh.getDataRange().getValues();
     const headers=all.shift();
     const required={0:'台帳ID',2:'タイトル',6:'外部ID',13:'画像URL',14:'音声URL',15:'再生時間（秒）',19:'音源不在の根拠',21:'概要原文',38:'人間除外'};
@@ -99,11 +104,6 @@ function writeLibraryMetadataV2Batch_(limit) {
     SpreadsheetApp.flush();
     const result={mode:'WRITE_PILOT',candidateEpisodes:plan.length,selectedEpisodes:selected.length,plannedCells:writes.length,writtenCells:written,holds,seconds:Math.round((Date.now()-started)/1000),updatedIds:[...new Set(writes.map(w=>w.id))]};
     // History is append-only. Failure to log is reported as an error, not silent success.
-    const history=ss.getSheetByName('自動補完・実行履歴');
-    if(!history) throw Error('V2 write completed but history tab is missing; inspect ledger before retry');
-    const expectedHistory=['実行日時','状態','対象EP数','書込セル数','保留件数','更新EP-ID','開始フィード','次フィード','処理秒数','備考'];
-    const actualHistory=history.getRange(1,1,1,10).getValues()[0];
-    if(expectedHistory.some((h,i)=>h!==actualHistory[i])) throw Error('V2 write completed but history header changed; inspect ledger before retry');
     const tz=ss.getSpreadsheetTimeZone();
     history.appendRow([Utilities.formatDate(new Date(),tz,'yyyy/MM/dd HH:mm:ss'),'V2_SUCCESS',result.selectedEpisodes,result.writtenCells,holds.title+holds.duplicateGuid+holds.excluded,result.updatedIds.join(', '),'ALL_10_RSS','—',result.seconds,'V2 manual pilot '+limit+'; candidate='+result.candidateEpisodes+'; no overwrite; holds title='+holds.title+', duplicate='+holds.duplicateGuid+', excluded='+holds.excluded]);
     result.history='APPENDED';
