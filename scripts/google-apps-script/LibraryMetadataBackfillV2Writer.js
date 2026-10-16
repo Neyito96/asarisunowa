@@ -5,6 +5,10 @@
  * Does not create/delete triggers and does not modify episode IDs.
  * Deploy alongside LibraryMetadataBackfillV2.js.
  */
+/** Hourly trigger entrypoint. Keep V1 triggers disabled. */
+function scheduledLibraryMetadataBackfillV2Hourly() {
+  return writeLibraryMetadataV2Batch_(80);
+}
 function writeLibraryMetadataV2Pilot10() { return writeLibraryMetadataV2Batch_(10); }
 function writeLibraryMetadataV2Pilot80() { return writeLibraryMetadataV2Batch_(80); }
 function writeLibraryMetadataV2Batch_(limit) {
