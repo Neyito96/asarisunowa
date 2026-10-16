@@ -6,7 +6,7 @@ import crypto from 'node:crypto';
 import {performance} from 'node:perf_hooks';
 const source=fs.readFileSync('scripts/google-apps-script/LibraryV2CheckpointEngine.js','utf8');
 const header=Array(39).fill('');
-for(const [i,v] of Object.entries({0:'台帳ID',1:'番組名',2:'タイトル',3:'配信日時（JST）',6:'外部ID',8:'元ページURL',11:'Spotify個別URL',14:'音声URL',21:'概要原文',23:'出演者',32:'取得元URL',38:'人間除外'}))header[i]=v;
+for(const [i,v] of Object.entries({0:'台帳ID',1:'番組名',2:'タイトル',3:'配信日時（JST）',6:'外部ID',8:'元ページURL',11:'Spotify個別URL',14:'音声URL',21:'概要原文',23:'出演者・スタッフ',32:'取得元URL',38:'人間除外'}))header[i]=v;
 const historyHeader=['実行日時','状態','対象EP数','書込セル数','保留件数','更新EP-ID','開始フィード','次フィード','処理秒数','備考'];
 const guid=i=>`00000000-0000-0000-0000-${String(i).padStart(12,'0')}`;
 const item=i=>({guid:guid(i),title:'Title '+i,date:'2026-10-16',audio:'https://audio.test/'+i,description:'Description '+i,cast:'Guest',spotify:''});
