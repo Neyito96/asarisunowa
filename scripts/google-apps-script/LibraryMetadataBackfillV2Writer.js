@@ -5,7 +5,9 @@
  * Does not create/delete triggers and does not modify episode IDs.
  * Deploy alongside LibraryMetadataBackfillV2.js.
  */
-function writeLibraryMetadataV2Pilot10() {
+function writeLibraryMetadataV2Pilot10() { return writeLibraryMetadataV2Batch_(10); }
+function writeLibraryMetadataV2Pilot80() { return writeLibraryMetadataV2Batch_(80); }
+function writeLibraryMetadataV2Batch_(limit) {
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(1000)) throw Error('Another library writer holds the script lock');
   try {
@@ -64,7 +66,8 @@ function writeLibraryMetadataV2Pilot10() {
       if(fields.length)plan.push({row:e.row,id,guid:guid(r[6]),title:norm(r[2]),fields});
     }
     plan.sort((a,b)=>a.row-b.row);
-    const selected=plan.slice(0,10);
+    if (![10,80].includes(limit)) throw Error('Unsupported V2 pilot limit');
+    const selected=plan.slice(0,limit);
     // Re-read ALL protected fields and target values immediately before writing.
     const latest=sh.getDataRange().getValues();
     const writes=[];
@@ -93,7 +96,17 @@ function writeLibraryMetadataV2Pilot10() {
       }
       flush();
     }
-    const result={mode:'WRITE_PILOT',candidateEpisodes:plan.length,selectedEpisodes:selected.length,plannedCells:writes.length,writtenCells:written,holds,seconds:Math.round((Date.now()-started)/1000)};
+    SpreadsheetApp.flush();
+    const result={mode:'WRITE_PILOT',candidateEpisodes:plan.length,selectedEpisodes:selected.length,plannedCells:writes.length,writtenCells:written,holds,seconds:Math.round((Date.now()-started)/1000),updatedIds:[...new Set(writes.map(w=>w.id))]};
+    // History is append-only. Failure to log is reported as an error, not silent success.
+    const history=ss.getSheetByName('自動補完・実行履歴');
+    if(!history) throw Error('V2 write completed but history tab is missing; inspect ledger before retry');
+    const expectedHistory=['実行日時','状態','対象EP数','書込セル数','保留件数','更新EP-ID','開始フィード','次フィード','処理秒数','備考'];
+    const actualHistory=history.getRange(1,1,1,10).getValues()[0];
+    if(expectedHistory.some((h,i)=>h!==actualHistory[i])) throw Error('V2 write completed but history header changed; inspect ledger before retry');
+    const tz=ss.getSpreadsheetTimeZone();
+    history.appendRow([Utilities.formatDate(new Date(),tz,'yyyy/MM/dd HH:mm:ss'),'V2_SUCCESS',result.selectedEpisodes,result.writtenCells,holds.title+holds.duplicateGuid+holds.excluded,result.updatedIds.join(', '),'ALL_10_RSS','—',result.seconds,'V2 manual pilot '+limit+'; candidate='+result.candidateEpisodes+'; no overwrite; holds title='+holds.title+', duplicate='+holds.duplicateGuid+', excluded='+holds.excluded]);
+    result.history='APPENDED';
     Logger.log(JSON.stringify(result));
     return result;
   } finally {lock.releaseLock();}
