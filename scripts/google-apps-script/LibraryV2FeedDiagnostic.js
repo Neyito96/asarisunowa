@@ -68,16 +68,16 @@ function diagnoseLibraryV2Feed_(feedIndex) {
     duplicateRssGuid: 0, blockedOrConflicting: 0, metadataMismatch: 0,
     matchedComplete: 0, eligibleEpisodes: 0, eligibleCells: 0,
     missingByField: {guid:0, audio:0, description:0, cast:0, spotify:0},
-    samples: []
+    samples: [], unmatchedSamples: [], heldSamples: []
   };
   items.forEach(it => {
     const direct = byGuid.get(it.guid) || [], clip = byClip.get(it.guid) || [];
     if (direct.length) summary.guidMatched++;
     else if (clip.length) summary.clipMatched++;
     const matches = direct.length ? direct : clip;
-    if (!it.guid || counts.get(it.guid) !== 1) { summary.duplicateRssGuid++; return; }
-    if (!matches.length) { summary.noMatch++; return; }
-    if (matches.length !== 1) { summary.ambiguous++; return; }
+    if (!it.guid || counts.get(it.guid) !== 1) { summary.duplicateRssGuid++; if (summary.heldSamples.length < 10) summary.heldSamples.push({guid:it.guid, title:it.title, reason:'blank_or_duplicate_rss_guid'}); return; }
+    if (!matches.length) { summary.noMatch++; if (summary.unmatchedSamples.length < 10) summary.unmatchedSamples.push({guid:it.guid, title:it.title, date:it.date}); return; }
+    if (matches.length !== 1) { summary.ambiguous++; if (summary.heldSamples.length < 10) summary.heldSamples.push({guid:it.guid, title:it.title, reason:'multiple_ledger_matches'}); return; }
     const r = rows[matches[0]], id = String(r[0] || '');
     const a = libV2CpClip_(r[8]), b = libV2CpClip_(r[32]);
     if ((r[14] && it.audio && String(r[14]) !== it.audio) ||
@@ -85,12 +85,12 @@ function diagnoseLibraryV2Feed_(feedIndex) {
         !/^EP-\d+$/.test(id) || (ids.get(id) || []).length !== 1 ||
         libV2CpBlocked_(r[38]) || tombGuid.has(it.guid) || tombId.has(id) ||
         (a && b && a !== b) || (r[6] && libV2CpGuid_(r[6]) !== it.guid)) {
-      summary.blockedOrConflicting++; return;
+      summary.blockedOrConflicting++; if (summary.heldSamples.length < 10) summary.heldSamples.push({id, reason:'blocked_or_conflicting'}); return;
     }
     if (libV2CpNorm_(r[1]) !== feeds.get(url) ||
         libV2CpNorm_(r[2]) !== it.title ||
         !it.date || libV2CpDate_(r[3]) !== it.date) {
-      summary.metadataMismatch++; return;
+      summary.metadataMismatch++; if (summary.heldSamples.length < 10) summary.heldSamples.push({id, reason:'metadata_mismatch'}); return;
     }
     const fields = [
       ['guid', 7, it.guid], ['audio', 15, /^https:\/\//.test(it.audio) ? it.audio : ''],
