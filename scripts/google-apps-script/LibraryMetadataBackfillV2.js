@@ -19,9 +19,14 @@ function previewLibraryMetadataV2() {
   const index = new Map();
   all.forEach((r,i)=>{const k=guidKey(r[6]);if(k){if(!index.has(k))index.set(k,[]);index.get(k).push({row:i+2,data:r});}});
   const requests=feedUrls.map(url=>({url,muteHttpExceptions:true,headers:{Accept:'application/rss+xml, application/xml, text/xml'}}));
+  const seenEpisodeIds=new Set();
   const report={mode:'DRY_RUN',scanned:all.length,feeds:feedUrls.length,matched:0,proposedEpisodes:0,proposedCells:0,missingAudioEvidence:0,ambiguous:0,titleMismatch:0,excluded:0,feedErrors:[],byField:{image:0,audio:0,duration:0,description:0,evidence:0},samples:[]};
   // fetchAll runs parallel network requests; malformed feeds are quarantined.
-  const responses=UrlFetchApp.fetchAll(requests);
+  if (!requests.length) throw Error('No RSS feeds configured');
+  // A network-level fetchAll exception is a failed preview, never a partial success.
+  let responses;
+  try { responses=UrlFetchApp.fetchAll(requests); }
+  catch(e) { throw Error('RSS parallel fetch failed: '+String(e)); }
   responses.forEach((response,i)=>{
     const url=feedUrls[i];
     if(response.getResponseCode()!==200){report.feedErrors.push({url,http:response.getResponseCode()});return;}
@@ -35,6 +40,9 @@ function previewLibraryMetadataV2() {
       const entry=matches[0],r=entry.data;
       if(String(r[38]||'').trim()&&!['未指定','なし','false','0','no'].includes(String(r[38]).trim().toLowerCase())){report.excluded++;return;}
       if(normalize(item.getChildText('title'))!==normalize(r[2])){report.titleMismatch++;return;}
+      // RSS items can repeat across feeds. Count each library episode only once.
+      if (seenEpisodeIds.has(String(r[0]))) return;
+      seenEpisodeIds.add(String(r[0]));
       report.matched++;
       const enclosure=item.getChild('enclosure');
       const audio=enclosure?.getAttribute('url')?.getValue()||'';
@@ -56,6 +64,7 @@ function previewLibraryMetadataV2() {
       if(fields.length){report.proposedEpisodes++;if(report.samples.length<25)report.samples.push({id:r[0],row:entry.row,fields});}
     });
   });
+  report.unmatchedRows=all.length-report.matched;
   report.elapsedSeconds=Math.round((Date.now()-start)/1000);
   Logger.log(JSON.stringify(report));
   return report;
