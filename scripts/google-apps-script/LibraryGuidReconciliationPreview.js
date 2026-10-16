@@ -28,7 +28,9 @@ function previewLibraryGuidReconciliation() {
     if(guid(r[6])){knownGuids.add(guid(r[6]));return;}
     if(!String(r[0]||'').startsWith('EP-'))return;
     report.ledgerGuidBlank++;
-    if(String(r[11]||'').trim())report.blankWithSpotify++;\n    const exclusion=String(r[38]||'').trim().toLowerCase();\n    if(exclusion&&!['未指定','なし','false','0','no'].includes(exclusion)){report.excludedBlank++;return;}
+    if(String(r[11]||'').trim())report.blankWithSpotify++;
+    const exclusion=String(r[38]||'').trim().toLowerCase();
+    if(exclusion&&!['未指定','なし','false','0','no'].includes(exclusion)){report.excludedBlank++;return;}
     const date=dateKey(r[3]);
     if(!date){report.dateMissing++;return;}
     const k=key(r[1],r[2],date);
