@@ -90,7 +90,7 @@ function libV2CheckpointRun_(write) {
     const ss=SpreadsheetApp.openById(LIB_V2_SHEET_ID),sh=ss.getSheetByName('エピソード台帳'),src=ss.getSheetByName('取得元一覧'),ex=ss.getSheetByName('削除・除外履歴'),history=ss.getSheetByName('自動補完・実行履歴');
     if(!sh||!src||!ex||!history)throw Error('Required library tab missing');
     const rows=sh.getDataRange().getValues(),headers=rows.shift();
-    const required={0:'台帳ID',1:'番組名',2:'タイトル',3:'配信日時（JST）',6:'外部ID',8:'元ページURL',11:'Spotify個別URL',14:'音声URL',21:'概要原文',23:'出演者',32:'取得元URL',38:'人間除外'};
+    const required={0:'台帳ID',1:'番組名',2:'タイトル',3:'配信日時（JST）',6:'外部ID',8:'元ページURL',11:'Spotify個別URL',14:'音声URL',21:'概要原文',23:'出演者・スタッフ',32:'取得元URL',38:'人間除外'};
     Object.keys(required).forEach(c=>{if(headers[c]!==required[c])throw Error('Header mismatch '+c);});
     const expected=['実行日時','状態','対象EP数','書込セル数','保留件数','更新EP-ID','開始フィード','次フィード','処理秒数','備考'];
     const historyHeaders=history.getRange(1,1,1,10).getValues()[0];
