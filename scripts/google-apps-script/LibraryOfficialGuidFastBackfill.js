@@ -59,6 +59,13 @@ function writeLibraryOfficialGuidBatch_(limit){
       const liveGuid=check.slice(1).map(r=>guid(r[6])).filter(Boolean);
       const occupied=new Set(liveGuid);
       if(writes.some(p=>occupied.has(p.guid)))throw Error('GUID already occupied; stop');
+      const liveOfficial=new Map();
+      check.slice(1).forEach((r,i)=>{
+        const m=String(r[9]||'').trim().match(/^https:\/\/www\.asahi\.com\/special\/podcasts\/item\/\?itemid=([0-9a-f-]{36})(?:&.*)?$/i);
+        const g=m?guid(m[1]):'';
+        if(g){if(!liveOfficial.has(g))liveOfficial.set(g,[]);liveOfficial.get(g).push(i+2);}
+      });
+      if(writes.some(p=>(liveOfficial.get(p.guid)||[]).length!==1||(liveOfficial.get(p.guid)||[])[0]!==p.row))throw Error('Official GUID duplicate/row moved; stop');
       // Group adjacent target rows, reducing Sheets calls while never touching an occupied cell.
       writes.sort((a,b)=>a.row-b.row);
       let groups=[],group=[];
