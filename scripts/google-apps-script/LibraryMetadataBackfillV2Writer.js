@@ -40,6 +40,30 @@ function auditLibraryMetadataV2TitleMismatch() {
   const result={mode:'READ_ONLY_TITLE_AUDIT',count:mismatches.length,mismatches,feedErrors};
   Logger.log(JSON.stringify(result));return result;
 }
+/** Read-only, targeted verification of EP-00061 RSS description. */
+function previewLibraryMetadataV2EP00061() {
+  const ss=SpreadsheetApp.openById(LIB_V2_SHEET_ID);
+  const sh=ss.getSheetByName('エピソード台帳');
+  const src=ss.getSheetByName('取得元一覧');
+  const row=sh.getRange(62,1,1,23).getValues()[0];
+  if(String(row[0])!=='EP-00061')throw Error('EP-00061 row moved: stop');
+  const guid=x=>{const s=String(x||'').trim();const m=s.match(/([0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12})/i);return(m?m[1]:s).toLowerCase();};
+  const key=guid(row[6]);
+  if(!key||String(row[21]||'').trim())throw Error('Missing GUID or description already populated; stop');
+  const sources=src.getDataRange().getValues().slice(1);
+  const source=sources.find(r=>String(r[0]||'').trim()==='スポンジ');
+  if(!source||!String(source[7]||'').startsWith('https://'))throw Error('Sponge RSS source missing');
+  const response=UrlFetchApp.fetch(source[7],{muteHttpExceptions:true});
+  if(response.getResponseCode()!==200)throw Error('RSS HTTP '+response.getResponseCode());
+  const channel=XmlService.parse(response.getContentText('UTF-8')).getRootElement().getChild('channel');
+  if(!channel)throw Error('Missing RSS channel');
+  const matches=channel.getChildren('item').filter(item=>guid(item.getChildText('guid'))===key);
+  if(matches.length!==1)throw Error('Expected one GUID match; found '+matches.length);
+  const item=matches[0];
+  const description=String(item.getChildText('description')||'').trim();
+  const result={mode:'READ_ONLY_EP00061',id:row[0],row:62,guidMatch:true,ledgerTitle:row[2],rssTitle:item.getChildText('title'),descriptionLength:description.length,descriptionPreview:description.slice(0,800),descriptionPresent:description.length>0,writePerformed:false};
+  Logger.log(JSON.stringify(result));return result;
+}
 function writeLibraryMetadataV2Pilot10() { return writeLibraryMetadataV2Batch_(10); }
 function writeLibraryMetadataV2Pilot80() { return writeLibraryMetadataV2Batch_(80); }
 function writeLibraryMetadataV2Batch_(limit) {
