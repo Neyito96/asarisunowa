@@ -22,7 +22,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "IOK 伊藤大地・奥山晶二郎・神田大介",
     "I'm OK",
     "https://open.spotify.com/playlist/799Fo9to2TK0ahGEJsvcm2",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e",
     "2026-03-30",
     null,
     true
@@ -31,7 +31,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#ふな 冨名腰隆　旧【報談】",
     "ふね",
     "https://open.spotify.com/playlist/48tpuTjiqGdJrvkX8R1OkI",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e",
     "2025-07-11",
     null,
     true
@@ -76,7 +76,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "ニュースチャット 1on1",
     "ルッキー",
     "https://open.spotify.com/playlist/5dBF4gpwMx8k9iHIibO1Z2",
-    "https://mosaic.scdn.co/640/ab67656300005f1f2d03ee68328278afa11f96c8ab67656300005f1f8b88c7f4ff81ff4cae420b6aab67656300005f1feaa27597cc5b738ebe5272c4ab67656300005f1ff4ddfc9ae137e91918c94675",
+    "https://mosaic.scdn.co/300/ab67656300005f1f2d03ee68328278afa11f96c8ab67656300005f1f8b88c7f4ff81ff4cae420b6aab67656300005f1feaa27597cc5b738ebe5272c4ab67656300005f1ff4ddfc9ae137e91918c94675",
     "2025-09-24",
     null,
     false
@@ -202,7 +202,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "生命倫理",
     "bigstone1977",
     "https://open.spotify.com/playlist/73LULd5gCdmFLI2l7L8a4M",
-    "https://mosaic.scdn.co/640/ab67656300005f1f32043aecf7fb5414ceed42f6ab67656300005f1f5d8ad91c84f6481553b5c8baab67656300005f1f7eb8d40ee8dfd5cf0e34125fab67656300005f1fdccdc54aca0c3574305afb1a",
+    "https://mosaic.scdn.co/300/ab67656300005f1f32043aecf7fb5414ceed42f6ab67656300005f1f5d8ad91c84f6481553b5c8baab67656300005f1f7eb8d40ee8dfd5cf0e34125fab67656300005f1fdccdc54aca0c3574305afb1a",
     null,
     null,
     false
@@ -310,7 +310,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "メディアを語る　伊藤大地x奥山晶二郎x神田大介",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/2lA13BSsvyLjq9iPFa6oDo",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84996d7c4cc61163a9b6ed71d9",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84996d7c4cc61163a9b6ed71d9",
     null,
     null,
     false
@@ -328,7 +328,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "ウェルビーイングは寺にあり　お坊さんに聞け！",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/121qJsNELEdzq9LUTmdTdt",
-    "https://mosaic.scdn.co/640/ab67656300005f1f34b1ceb7c42ce494ef3492f7ab67656300005f1f861e0a20846c84379a299d3dab67656300005f1fd02625a190ed42860d3fdf7eab67656300005f1ff37dcb87e57465b15d7f4e70",
+    "https://mosaic.scdn.co/300/ab67656300005f1f34b1ceb7c42ce494ef3492f7ab67656300005f1f861e0a20846c84379a299d3dab67656300005f1fd02625a190ed42860d3fdf7eab67656300005f1ff37dcb87e57465b15d7f4e70",
     null,
     null,
     false
@@ -364,7 +364,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "藤えりか　シネマニア経済サロン",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/20HFJSL3TNNYTR7w0xXTue",
-    "https://mosaic.scdn.co/640/ab67656300005f1f49e87af01730a72f2db2d072ab67656300005f1f5a5ffbf2e1fc943bc050c8fdab67656300005f1fde84392b5165823ae76ff1bcab67656300005f1ff21dc2c37e7721c6f0c602c3",
+    "https://mosaic.scdn.co/300/ab67656300005f1f49e87af01730a72f2db2d072ab67656300005f1f5a5ffbf2e1fc943bc050c8fdab67656300005f1fde84392b5165823ae76ff1bcab67656300005f1ff21dc2c37e7721c6f0c602c3",
     null,
     null,
     false
@@ -373,7 +373,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "新聞社員の「楽屋裏」",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/1u1qT0BxRZT1OeNM0LDA72",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da844ac19eab5ced53a5396e809c",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844ac19eab5ced53a5396e809c",
     "2026-09-28",
     null,
     true
@@ -409,7 +409,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "楽屋裏2023　厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/0I9wCLs5oFLNIG1aPLQneg",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32",
     null,
     null,
     false
@@ -463,7 +463,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#懐メロ（#朝ポキ 楽屋裏）＋おじさんのメロディ",
     "koike",
     "https://open.spotify.com/playlist/0vItsmD8tW7fsv18NkZKzh",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600",
     null,
     null,
     false
@@ -544,7 +544,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "編集マニア",
     "カンダ ・マサキ",
     "https://open.spotify.com/playlist/71mdQ5ANqZda48jBkj0Qmz",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d",
     null,
     null,
     false
@@ -608,7 +608,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "田田田（デンデンデン）",
     "https://open.spotify.com/playlist/6hNrobOVHmYaQT5C7hPkNa",
     "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f09a8bd5875be5defced61b26",
-    "2026-10-09",
+    "2026-10-16",
     "2026-09-17",
     true
   ],
