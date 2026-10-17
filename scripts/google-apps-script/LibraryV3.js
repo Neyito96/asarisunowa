@@ -13,8 +13,8 @@ function libV3Hash_(v){return libV2CpHash_(JSON.stringify(v));}
 function libV3Identity_(r){return [...new Set([libV2CpGuid_(r[6]),...libV2CpRowAnchors_(r)].filter(Boolean))];}
 function libV3Clean_(text){
  // Mechanical rendering only: preserve words, URLs and names, never summarize.
- return String(text||'').replace(/<a\b[^>]*href\s*=\s*(["'])(.*?)\1[^>]*>([\s\S]*?)<\/a>/gi,(_,q,url,label)=>label===url?label:label+' '+url).replace(/\\n|\r\n?|\n/g,' ').replace(/<br\s*\/?\s*>|<\/(?:p|div|li)>/gi,' ')
- .replace(/<[^>]*>/g,' ').replace(/&(?:amp|lt|gt|quot|apos|nbsp);/g,x=>({'&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"','&apos;':"'",'&nbsp;':' '})[x])
+ return String(text||'').replace(/<a\b[^>]*href\s*=\s*(["'])(.*?)\1[^>]*>([\s\S]*?)<\/a>/gi,(_,q,url,label)=>label===url?label:label+' '+url).replace(/\\r\\n|\\n|\\r|\r\n?|\n/g,' ').replace(/<br\s*\/?\s*>|<\/(?:p|div|li)>/gi,' ')
+ .replace(/<(https?:\/\/[^<>\s]+)>/g,'$1').replace(/<[^>]*>/g,' ').replace(/&(?:amp|lt|gt|quot|apos|nbsp);/g,x=>({'&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"','&apos;':"'",'&nbsp;':' '})[x])
  .replace(/&#(x[0-9a-f]+|[0-9]+);/gi,(x,n)=>{const c=n[0].toLowerCase()==='x'?parseInt(n.slice(1),16):Number(n);return c>0&&c<=0x10ffff?String.fromCodePoint(c):x;}).replace(/\s+/g,' ').trim();
 }
 function libV3CheckHeaders_(h){
@@ -27,7 +27,7 @@ function libV3Index_(rows,exclusions,records){
  const guid=new Map(),anchor=new Map(),ids=new Map(),spotify=new Map(),audio=new Map(),metadata=new Map(),registry=new Set(),states=new Map();
  const add=(m,k,i)=>{if(k){if(!m.has(k))m.set(k,[]);if(!m.get(k).includes(i))m.get(k).push(i);}};
  rows.forEach((r,i)=>{add(guid,libV2CpGuid_(r[6]),i);libV2CpRowAnchors_(r).forEach(g=>add(anchor,g,i));add(ids,String(r[0]),i);add(spotify,libV3Text_(r[11]),i);add(audio,libV3Text_(r[14]),i);add(metadata,libV2CpNorm_(r[2])+'|'+libV2CpDate_(r[3]),i);});
- (records||[]).forEach(r=>{states.set(r[0]+'|'+r[1],r);if(r[3]&&!String(r[0]).startsWith('NEW:'))registry.add(r[3]);if(r[1]==='identity')String(r[9]||'').split('|').filter(Boolean).forEach(g=>registry.add(g));});
+ (records||[]).forEach(r=>{states.set(r[0]+'|'+r[1],r);if(r[3]&&(!String(r[0]).startsWith('NEW:')||r[1]==='rssInspection'))registry.add(r[3]);if(r[1]==='identity')String(r[9]||'').split('|').filter(Boolean).forEach(g=>registry.add(g));});
  const tomb={gs:new Set(),is:new Set()};(exclusions||[]).forEach(r=>{if(r[0])tomb.gs.add(libV2CpGuid_(r[0]));if(r[1])tomb.is.add(libV3Text_(r[1]));});
  return {guid,anchor,ids,spotify,audio,metadata,registry,states,tomb};
 }
@@ -41,7 +41,7 @@ function libV3Plan_(it,feed,rows,index,formulas){
  }
  const i=matches[0],r=rows[i],id=String(r[0]);
  reasons.push(...libV2CpRowReasons_(it,feed.show,r,index.ids,index.tomb));
- const raw=libV3Text_(r[21])||it.description,clean=libV3Clean_(raw);
+ const raw=libV3Text_(r[21])?String(r[21]):String(it.description||''),clean=libV3Clean_(raw),cleanEvidence=typeof libV3AutoCleanEvidence_==='function'?libV3AutoCleanEvidence_(raw):null;
  const values={guid:it.guid,audio:/^https:\/\//.test(it.audio)?it.audio:'',description:it.description,clean,
  cast:it.cast,spotify:it.spotify,image:/^https:\/\//.test(it.image||'')?it.image:'',duration:Number(it.duration)>0?Number(it.duration):'',
  rss:feed.url,audioUrlPresence:(libV3Text_(r[14])||it.audio)?'記載あり':'',cleanVersion:clean&&(!libV3Text_(r[22])||String(r[22])===clean)&&!formulas?.[i]?.[22]?'V3-mechanical-1':''};
@@ -53,8 +53,10 @@ function libV3Plan_(it,feed,rows,index,formulas){
  const fields=libV3Schema_().fields.map(([col,name])=>{
   const current=r[col-1],value=values[name],prior=index.states.get(id+'|'+name),valueHash=libV3Hash_(current==null?'':current);
   let state='UNINSPECTED',candidate=false,reason='existing_value_unverified';
-  if(prior&&((prior[6]&&prior[6]!==valueHash)||(prior[2]==='RECHECK_REQUIRED'&&prior[7]==='human_or_other_writer_changed_cell'))){state='RECHECK_REQUIRED';reason='human_or_other_writer_changed_cell';}
+  if(prior&&['reserved_before_cell_write','unresolved_write_reservation'].includes(prior[7])){const target=JSON.parse(prior[9]||'{}').candidateHash;if(!reasons.length&&target&&target===valueHash&&String(current)===String(value)){state='VERIFIED';reason='reserved_write_recovered';}else{state='HOLD';reason='unresolved_write_reservation';}}
+  else if(prior&&((prior[6]&&prior[6]!==valueHash)||(prior[2]==='RECHECK_REQUIRED'&&prior[7]==='human_or_other_writer_changed_cell'))){state='RECHECK_REQUIRED';reason='human_or_other_writer_changed_cell';}
   else if(reasons.length){state='HOLD';reason=reasons.join('|');}
+  else if(['clean','cleanVersion'].includes(name)&&cleanEvidence?.hold){state='HOLD';reason=cleanEvidence.reason;}
   else if(formulas?.[i]?.[col-1]){state='HOLD';reason='formula_protected';}
   else if(name==='spotify'&&value&&(index.spotify.get(value)||[]).some(owner=>owner!==i)){state='HOLD';reason='spotify_owned_by_other_ep';}
   else if(libV3Text_(current)){
@@ -63,7 +65,7 @@ function libV3Plan_(it,feed,rows,index,formulas){
   else {state='NO_INFORMATION';reason='not_explicit_in_current_source';}
   return {col,name,state,candidate,reason,value,valueHash,prior};
  });
- return {guid:it.guid,id,i,matches,reasons,fields,rowHash:libV3Hash_(r),sourceHash:libV3Hash_(it)};
+ return {guid:it.guid,id,i,matches,reasons,fields,rowHash:libV3Hash_(r),sourceHash:libV3Hash_(it),cleanEvidence};
 }
 function libV3Feeds_(sourceRows){
  const map=new Map();sourceRows.forEach(r=>{const url=libV3Text_(r[7]),show=libV2CpNorm_(r[0]);if(/^https:\/\//.test(url)&&!/youtube\.com|youtu\.be/i.test(url)){
@@ -88,7 +90,7 @@ function libV3Config_(){
  const raw=PropertiesService.getScriptProperties().getProperty('LIB_V3_CONFIG');
  const c=raw?JSON.parse(raw):{};
  // Old V1/V2 enabled flags cannot authorize V3.
- return {enabled:c.enabled===true,allowEnrich:c.allowEnrich===true,allowNew:c.allowNew===true,newAfter:c.newAfter||'',maxEpisodes:10,maxItems:200};
+ return {enabled:c.enabled===true,allowEnrich:c.allowEnrich===true,allowNew:c.allowNew===true,newAfter:c.newAfter||'',maxEpisodes:10,maxItems:200,autonomous:c.autonomous===true};
 }
 function libV3Conflicts_(){
  // Enumerate installed handlers, not a partial list of known scheduler names.
@@ -97,13 +99,14 @@ function libV3Conflicts_(){
 function libV3StatePut_(c,record){
  const key=record[0]+'|'+record[1],old=c.index.states.get(key);
  if(old&&old[2]==='RECHECK_REQUIRED'&&old[7]==='human_or_other_writer_changed_cell'){record=record.slice();record[2]=old[2];record[7]=old[7];}
+ if(old&&['reserved_before_cell_write','unresolved_write_reservation','reserved_spotify_write'].includes(old[7])&&record[2]!=='VERIFIED'){record=record.slice();record[2]='HOLD';record[7]=old[7];record[9]=old[9];record[6]=old[6];}
  if(old&&[2,3,4,5,6,7,9].every(i=>String(old[i])===String(record[i])))return;
  const existing=c.recordRows.has(key)?c.recordRows.get(key):-1;
  let packed=c.packed.get(record[0]);if(!packed){packed={row:c.packed.size+2,fields:{}};c.packed.set(record[0],packed);}
  packed.fields[record[1]]=record.slice(2);const serialized=JSON.stringify(packed.fields);if(serialized.length>45000)throw Error('Bounded per-EP state exceeded');
  c.state.getRange(packed.row,1,1,3).setValues([[libV3Safe_(record[0]),serialized,new Date().toISOString()]]);
  if(existing<0){c.recordRows.set(key,c.records.length);c.records.push(record);}else c.records[existing]=record;
- c.index.states.set(key,record);if(record[3]&&!String(record[0]).startsWith('NEW:'))c.index.registry.add(record[3]);
+ c.index.states.set(key,record);if(record[3]&&(!String(record[0]).startsWith('NEW:')||record[1]==='rssInspection'))c.index.registry.add(record[3]);
 }
 function libV3Safe_(v){return typeof v==='string'&&/^[=+\-@]/.test(v)?"'"+v:v;}
 function libV3Record_(p,f,r,hash){return [p.id,f.name,f.state,p.guid,libV3Hash_(r),hash,libV3Hash_(r[f.col-1]??''),f.reason,new Date().toISOString(),JSON.stringify({candidate:f.candidate,candidateHash:f.candidate?libV3Hash_(f.value):''})];}
@@ -140,7 +143,7 @@ function registerLibraryV3BaselineAfterApproval(){
 }
 function previewLibraryV3(){return libV3Run_(false);}
 function runLibraryV3AfterApproval(){return libV3Run_(true);}
-function scheduledLibraryV3(){return libV3Run_(true);}
+function scheduledLibraryV3(){return typeof libV3AutoTick_==='function'?libV3AutoTick_():libV3Run_(true);}
 function libV3NewDecision_(it,feed,c,config,baseline){
  const reasons=[];
  if(!baseline.complete)reasons.push('baseline_not_registered');
@@ -162,6 +165,7 @@ function libV3Append_(c,it,feed,config,baseline){
  const id='EP-'+String(max+1).padStart(5,'0');props.setProperty('LIB_V3_LAST_ID',String(max+1));
  // Reserve identity BEFORE append. Crash leaves a hold, never resurrection/duplicate.
  libV3StatePut_(live,[id,'identity','HOLD',it.guid,'','','','reserved_before_append',new Date().toISOString(),it.guid]);
+ if(typeof libV3AutoCleanEvidence_==='function'&&libV3AutoCleanEvidence_(it.description||'').hold)throw Error('New description requires review');
  const r=Array(51).fill('');r[0]=id;r[1]=feed.show;r[2]=it.title;r[3]=new Date(it.published);r[4]='音声';r[5]='公式RSS';r[6]=it.guid;r[8]=/^https:\/\//.test(it.link||'')?it.link:'';
  r[14]=/^https:\/\//.test(it.audio||'')?it.audio:'';r[21]=it.description||'';r[22]=libV3Clean_(r[21]);r[23]=it.cast||'';r[44]=feed.url;r[17]=r[14]?'記載あり':'未確認';r[18]='未確認';r[38]='未指定';r[35]='V3 exact RSS; audio not playback verified';r[37]=r[22]?'V3-mechanical-1':'';
  live.sh.getRange(live.sh.getLastRow()+1,1,1,51).setValues([r.map(libV3Safe_)]);SpreadsheetApp.flush();
@@ -178,18 +182,21 @@ function libV3Run_(write){
  try{
   if(write&&(libV3Conflicts_().length||ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='scheduledLibraryV3').length>1))throw Error('Conflicting library triggers');
   const c=libV3Context_(write);context=c;if(!c.feeds.length)throw Error('No feeds');
-  state=JSON.parse(props.getProperty(key)||'{}');const feed=c.feeds.find(f=>f.url===state.url)||c.feeds[0];m.feed=feed.url;
-  if(state.url!==feed.url)state={url:feed.url,offset:0,hash:'',feeds:state.feeds||{}};
+  state=JSON.parse(props.getProperty(key)||'{}');let feed=c.feeds.find(f=>f.url===state.url)||c.feeds[0];
+  if(config.autonomous){const startFeed=c.feeds.indexOf(feed);feed=Array.from({length:c.feeds.length},(_,i)=>c.feeds[(startFeed+i)%c.feeds.length]).find(f=>!(state.feeds?.[f.url]?.nextPollAt>Date.now())&&!(state.feeds?.[f.url]?.retry?.stopped)&&!(state.feeds?.[f.url]?.retry?.at>Date.now()));if(!feed){m.status='IDLE_UNTIL_NEXT_POLL';return m;}}
+  m.feed=feed.url;
+  if(config.autonomous){state={url:feed.url,...(state.feeds?.[feed.url]||{offset:0,hash:''}),feeds:state.feeds||{}};}
+  else if(state.url!==feed.url)state={url:feed.url,offset:0,hash:'',feeds:state.feeds||{}};
   else if(state.feeds?.[feed.url])state={url:feed.url,...state.feeds[feed.url],feeds:state.feeds};
   const save=rotate=>{
    const per={};for(const f of c.feeds)if(state.feeds?.[f.url])per[f.url]=state.feeds[f.url];
-   per[feed.url]={offset:state.offset||0,hash:state.hash||'',...(state.retry?{retry:state.retry}:{})};
+   per[feed.url]={offset:state.offset||0,hash:state.hash||'',...(state.retry?{retry:state.retry}:{}),...(config.autonomous?{pass:state.pass||'priority',nextPollAt:state.nextPollAt||0,completedAt:state.completedAt||0}:{})};
    const next=rotate?c.feeds[(c.feeds.indexOf(feed)+1)%c.feeds.length].url:feed.url;
    state={url:next,...(per[next]||{offset:0,hash:''}),feeds:per};const encoded=JSON.stringify(state);if(encoded.length>8000)throw Error('Feed checkpoint property budget exceeded');props.setProperty(key,encoded);
   };
-  const before=Date.now(),snap=libV2CpSnapshot_(feed.url,write,state,m,{prefix:'LV3CP',chunkSize:22000,timeoutSeconds:45,parse:t=>libV2CpParse_(t,true)});
+  const before=Date.now(),snap=libV2CpSnapshot_(feed.url,write,state,m,{prefix:config.autonomous?'LV3AUTO':'LV3CP',chunkSize:22000,timeoutSeconds:45,maxAgeMs:config.autonomous?30*60000:0,parse:t=>{const list=libV2CpParse_(t,true);return config.autonomous?list.sort((a,b)=>(Date.parse(b.published)||0)-(Date.parse(a.published)||0)||String(a.guid).localeCompare(String(b.guid))):list;}});
   if(snap.status){if(!state.retry?.stopped&&!(state.retry?.at>before))m.apiCalls++;m.status=snap.status;m.retry=snap.retry;state.retry=snap.retry;if(write)save(snap.status==='RETRY_WAIT');return m;}
-  delete state.retry;if(state.hash!==snap.hash){state.hash=snap.hash;state.offset=0;}
+  delete state.retry;if(state.hash!==snap.hash){state.hash=snap.hash;state.offset=0;state.pass='priority';state.nextPollAt=0;}
   if(snap.fetched&&write){save(false);m.status='SNAPSHOT_READY';return m;}
   const counts=new Map();snap.items.forEach(it=>counts.set(it.guid,(counts.get(it.guid)||0)+1));
   const baseline=JSON.parse(props.getProperty('LIB_V3_BASELINE')||'{}');
@@ -197,6 +204,7 @@ function libV3Run_(write){
   while(offset<snap.items.length&&m.inspected<config.maxItems&&touched<config.maxEpisodes&&Date.now()<deadline-15000){
    const it=snap.items[offset];m.inspected++;
    if(!it.guid||counts.get(it.guid)!==1){m.holds++;if(write)libV3StatePut_(c,['NEW:'+(it.guid||'blank'),'discovery','HOLD',it.guid||'','',libV3Hash_(it),'','blank_or_duplicate_rss_guid',new Date().toISOString(),'']);offset++;continue;}
+   if(config.autonomous&&typeof libV3AutoInspectDue_==='function'&&!libV3AutoInspectDue_(it,feed,c,state.pass||'priority')){offset++;continue;}
    const plan=libV3Plan_(it,feed,c.rows,c.index);
    if(!plan.id){
     m.holds++;const nd=libV3NewDecision_(it,feed,c,config,baseline);
@@ -206,6 +214,7 @@ function libV3Run_(write){
      for(const i of plan.matches){const r=c.rows[i];for(const [col,name] of libV3Schema_().fields)libV3StatePut_(c,[r[0],name,'HOLD',it.guid,libV3Hash_(r),libV3Hash_(it),libV3Hash_(r[col-1]??''),plan.reasons.join('|'),new Date().toISOString(),'']);}
     }
     if(write&&plan.reasons.length===1&&plan.reasons[0]==='no_identity_match'&&nd.eligible){const added=libV3Append_(c,it,feed,config,baseline);m.newIds.push(added.id);m.writtenCells+=added.writtenCells;touched++;}
+    if(write&&config.autonomous)libV3AutoInspected_(it,feed,c,plan);
     offset++;continue;
    }
    const r=c.rows[plan.i];let deferred=false;
@@ -224,6 +233,7 @@ function libV3Run_(write){
       const tomb=libV3Index_([],c.ex.getDataRange().getValues().slice(1),[]).tomb;
       if(libV3Hash_(latest)!==libV3Hash_(r)||libV2CpRowReasons_(it,feed.show,latest,c.index.ids,tomb).length)throw Error('Row changed before write '+plan.id);
       const cell=c.sh.getRange(plan.i+2,f.col);if(cell.getFormula()||libV3Text_(cell.getValue()))throw Error('Destination changed');
+      libV3StatePut_(c,libV3Record_(plan,{...f,state:'HOLD',reason:'reserved_before_cell_write'},r,plan.sourceHash));
       cell.setValue(libV3Safe_(f.value));SpreadsheetApp.flush();if(String(cell.getValue())!==String(f.value))throw Error('Cell verification failed');
       r[f.col-1]=f.value;m.writtenCells++;f.state='VERIFIED';f.reason='blank_only_verified_write';if(!m.updatedIds.includes(plan.id))m.updatedIds.push(plan.id);
      }
@@ -233,12 +243,15 @@ function libV3Run_(write){
     if(write)libV3StatePut_(c,libV3Record_(plan,f,r,plan.sourceHash));
    }
    if(m.samples.length<10&&plan.fields.some(f=>f.candidate))m.samples.push({id:plan.id,fields:plan.fields.filter(f=>f.candidate).map(f=>f.name)});
-   if(deferred)break;offset++;
+   if(deferred)break;
+   if(write&&plan.cleanEvidence)libV3AutoRecordClean_(c,plan,r);
+   if(write&&config.autonomous)libV3AutoInspected_(it,feed,c,plan);
+   offset++;
   }
   m.nextOffset=offset;m.completeFeed=offset===snap.items.length;
   if(write){
    c.history.appendRow([new Date(),'V3_CHECKPOINT',m.updatedIds.length+m.newIds.length,m.writtenCells,m.holds,[...m.updatedIds,...m.newIds].join(','),feed.url,'',Math.round((Date.now()-start)/1000),JSON.stringify({offset,apiCalls:m.apiCalls,cacheHits:m.cacheHits,fetchedItems:m.fetchedItems,newIds:m.newIds})]);
-   state.offset=offset;if(m.completeFeed){state.offset=0;state.hash='';}
+   state.offset=offset;if(m.completeFeed){state.offset=0;if(config.autonomous){if((state.pass||'priority')==='priority'){state.pass='review';m.completeFeed=false;}else{state.pass='priority';state.completedAt=Date.now();state.nextPollAt=Date.now()+30*60000;}}else state.hash='';}
    save(true);props.setProperty('LIB_V3_FAILURES','0');
   }
   m.status=write?'CHECKPOINTED':'READ_ONLY';return m;
@@ -301,12 +314,14 @@ function libV3AudioRequest_(url){
 function recordLibraryV3AudioEvidenceAfterApproval(evidence){
  if(!Array.isArray(evidence)||evidence.length>5||new Set(evidence.map(e=>e.id)).size!==evidence.length)throw Error('Up to five unique evidence records');
  const lock=LockService.getScriptLock();if(!lock.tryLock(1000))throw Error('Busy');try{
-  const c=libV3Context_(true),allowed=['HEAD_REACHABLE','AUDIO_PREFIX_OBSERVED','REDIRECT_NOT_FOLLOWED','INCONCLUSIVE_HTTP','HTTP_NOT_FOUND_AT_CHECK_TIME','RANGE_IGNORED','NON_AUDIO_RESPONSE','FETCH_ERROR'];
-  for(const e of evidence){
+  const c=libV3Context_(true),allowed=['HEAD_REACHABLE','AUDIO_PREFIX_OBSERVED','REDIRECT_NOT_FOLLOWED','INCONCLUSIVE_HTTP','HTTP_NOT_FOUND_AT_CHECK_TIME','RANGE_IGNORED','NON_AUDIO_RESPONSE','FETCH_ERROR','HTTP_FORBIDDEN','HTTP_RATE_LIMITED','HTTP_UNAVAILABLE','HTTP_GONE','HTTP_NOT_FOUND'];
+  for(let e of evidence){
    const match=c.index.ids.get(e.id)||[];if(match.length!==1)throw Error('Unknown/duplicate EP-ID');const r=c.rows[match[0]];
    if(e.url!==r[14]||libV2CpBlocked_(r[38])||c.index.tomb.is.has(e.id)||c.index.tomb.gs.has(libV2CpGuid_(r[6])))throw Error('Audio identity/exclusion changed');
    if(!allowed.includes(e.verdict)||!Number.isFinite(Date.parse(e.checkedAt))||Date.parse(e.checkedAt)>Date.now()+60000||Date.now()-Date.parse(e.checkedAt)>86400000||e.playbackVerified!==false)throw Error('Invalid/stale evidence');
-   libV3StatePut_(c,[e.id,'audioHttp',e.verdict==='AUDIO_PREFIX_OBSERVED'?'VERIFIED':'RECHECK_REQUIRED',libV2CpGuid_(r[6]),libV3Hash_(r),'',libV3Hash_(r[14]),'external_probe_not_playback',e.checkedAt,JSON.stringify({http:e.http,verdict:e.verdict,bytes:e.bytes||0,playbackVerified:false})]);
+   if(!Number.isInteger(e.bytes||0)||(e.bytes||0)<0||(e.bytes||0)>1024||e.nextCheckAt&&(!Number.isFinite(Date.parse(e.nextCheckAt))||Date.parse(e.nextCheckAt)<Date.parse(e.checkedAt)))throw Error('Invalid audio bounds');
+   if(typeof libV3AutoAudioSchedule_==='function')e={...e,nextCheckAt:libV3AutoAudioSchedule_(e)};
+   libV3StatePut_(c,[e.id,'audioHttp',e.verdict==='AUDIO_PREFIX_OBSERVED'?'VERIFIED':'RECHECK_REQUIRED',libV2CpGuid_(r[6]),libV3Hash_(r),'',libV3Hash_(r[14]),'external_probe_not_playback',e.checkedAt,JSON.stringify({http:e.http,verdict:e.verdict,bytes:e.bytes||0,playbackVerified:false,nextCheckAt:e.nextCheckAt||new Date(Date.parse(e.checkedAt)+86400000).toISOString(),observations:(e.observations||[]).slice(0,6).map(o=>({method:o.method,http:o.http,contentType:o.contentType,bytes:o.bytes,retryAfter:o.retryAfter,errorType:o.errorType,host:o.host}))})]);
   }return {status:'AUDIO_EVIDENCE_RECORDED',count:evidence.length,ledgerWrites:0};
  }finally{lock.releaseLock();}
 }

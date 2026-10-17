@@ -31,4 +31,23 @@ class ProjectionTests(unittest.TestCase):
    for zone in ['UTC','Asia/Tokyo']:
     subprocess.run(['python','scripts/project-library-v3-inputs.py',str(p/'ledger.json'),str(p/'manifest.json'),str(p/'out')],env={**os.environ,'TZ':zone},check=True,capture_output=True)
     item=json.loads((p/'out.rss.json').read_text())[0]['items'][0];self.assertEqual(item['date'],'2026-10-16');self.assertEqual(item['published'],'2026-10-15T19:00:00+00:00')
+
+class AudioScheduleTests(unittest.TestCase):
+ def test_numeric_and_date_retry_after_are_not_shortened(self):
+  import datetime,email.utils
+  now=datetime.datetime(2026,10,17,tzinfo=datetime.timezone.utc)
+  for header in ['172800',email.utils.format_datetime(now+datetime.timedelta(days=2))]:
+   r=audio.schedule({'http':429,'verdict':'HTTP_RATE_LIMITED','observations':[{'retryAfter':header}]},now)
+   self.assertGreaterEqual(datetime.datetime.fromisoformat(r['nextCheckAt']),now+datetime.timedelta(days=2))
+ def test_per_url_checkpoint_skips_deferred_and_stopped_without_calls(self):
+  import hashlib
+  item={'id':'EP-1','url':'https://traffic.omny.fm/a'};key=hashlib.sha256((item['id']+'|'+item['url']).encode()).hexdigest()
+  for state in [{key:{'stopped':True}},{key:{'nextCheckAt':'2099-01-01T00:00:00+00:00'}}]:
+   with mock.patch.object(audio,'probe') as p:self.assertEqual(audio.batch([item],state),[]);p.assert_not_called()
+ def test_five_transient_attempts_stop_only_the_url_and_classification_is_explicit(self):
+  r=audio.schedule({'http':503,'verdict':'HTTP_UNAVAILABLE','observations':[]},attempt=5);self.assertTrue(r['stopped']);self.assertFalse(audio.schedule({'http':200,'verdict':'AUDIO_PREFIX_OBSERVED','observations':[]}).get('playbackVerified',False))
+  for code,verdict in [(403,'HTTP_FORBIDDEN'),(404,'HTTP_NOT_FOUND'),(410,'HTTP_GONE'),(429,'HTTP_RATE_LIMITED'),(503,'HTTP_UNAVAILABLE')]:
+   opener=mock.Mock();opener.open.return_value=Response(code)
+   with mock.patch.object(audio.urllib.request,'build_opener',return_value=opener):self.assertEqual(audio.probe({'id':'EP-1','url':'https://traffic.omny.fm/a'})['verdict'],verdict)
+
 if __name__=='__main__':unittest.main()

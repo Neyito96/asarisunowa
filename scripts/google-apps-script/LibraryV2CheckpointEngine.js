@@ -113,7 +113,7 @@ function libV2CpSnapshot_(url, write, state, metrics, options) {
     for(let i=0;i<meta.parts;i++) { const p=cache.get(key+':'+meta.hash+':'+i); if(p===null){meta=null;break;} text+=p; }
     if(meta && libV2CpHash_(text)!==meta.hash)meta=null;
   }
-  if(meta && ((state.hash===meta.hash && state.offset>0) || now-meta.at<15*60*1000)){metrics.cacheHits++;return {items:JSON.parse(text),hash:meta.hash};}
+  if(meta && (options.maxAgeMs ? now-meta.at<options.maxAgeMs : ((state.hash===meta.hash && state.offset>0) || now-meta.at<15*60*1000))){metrics.cacheHits++;return {items:JSON.parse(text),hash:meta.hash};}
   const headers={Accept:'application/rss+xml, application/xml, text/xml'};
   if(meta?.etag)headers['If-None-Match']=meta.etag;
   if(meta?.modified)headers['If-Modified-Since']=meta.modified;
@@ -222,9 +222,9 @@ function libV2CheckpointRun_(write) {
  * not advance its boundary until VERIFIED. Never accepts search/fuzzy results.
  * A token is supplied by the caller; no token refresh or credential logging here.
  */
-function libV2CpSpotifyRead_(id, accessToken, retry) {
+function libV2CpSpotifyRead_(id, accessToken, retry, timeoutSeconds) {
   if(!/^[A-Za-z0-9]{22}$/.test(String(id))||!accessToken)throw Error('Spotify exact ID/token required');
-  const http=libV2CpHttp_('https://api.spotify.com/v1/episodes/'+id+'?market=JP',{Authorization:'Bearer '+accessToken},retry,Date.now());
+  const http=libV2CpHttp_('https://api.spotify.com/v1/episodes/'+id+'?market=JP',{Authorization:'Bearer '+accessToken},retry,Date.now(),timeoutSeconds);
   if(http.status!=='OK')return {status:http.status,http:http.http,retry:http.retry};
   if(http.http!==200)throw Error('Spotify expected HTTP 200');
   const data=JSON.parse(http.res.getContentText());
