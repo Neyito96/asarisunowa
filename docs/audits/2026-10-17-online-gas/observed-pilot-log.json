@@ -1,0 +1,106 @@
+{
+  "mode": "WRITE_PILOT",
+  "show": "MEDIA TALK",
+  "expectedIds": [
+    "EP-05585",
+    "EP-05584",
+    "EP-05583",
+    "EP-05582",
+    "EP-05581",
+    "EP-05580",
+    "EP-05579",
+    "EP-05578",
+    "EP-05577",
+    "EP-05576"
+  ],
+  "proposedCells": 20,
+  "writtenCells": 20,
+  "updatedIds": [
+    "EP-05585",
+    "EP-05584",
+    "EP-05583",
+    "EP-05582",
+    "EP-05581",
+    "EP-05580",
+    "EP-05579",
+    "EP-05578",
+    "EP-05577",
+    "EP-05576"
+  ],
+  "checkpointChanged": false,
+  "triggerChanged": false,
+  "samples": [
+    {
+      "id": "EP-05585",
+      "columns": [
+        7,
+        15
+      ]
+    },
+    {
+      "id": "EP-05584",
+      "columns": [
+        7,
+        15
+      ]
+    },
+    {
+      "id": "EP-05583",
+      "columns": [
+        7,
+        15
+      ]
+    },
+    {
+      "id": "EP-05582",
+      "columns": [
+        7,
+        15
+      ]
+    },
+    {
+      "id": "EP-05581",
+      "columns": [
+        7,
+        15
+      ]
+    },
+    {
+      "id": "EP-05580",
+      "columns": [
+        7,
+        15
+      ]
+    },
+    {
+      "id": "EP-05579",
+      "columns": [
+        7,
+        15
+      ]
+    },
+    {
+      "id": "EP-05578",
+      "columns": [
+        7,
+        15
+      ]
+    },
+    {
+      "id": "EP-05577",
+      "columns": [
+        7,
+        15
+      ]
+    },
+    {
+      "id": "EP-05576",
+      "columns": [
+        7,
+        15
+      ]
+    }
+  ],
+  "status": "PILOT_WRITTEN",
+  "elapsedMs": 98700
+}

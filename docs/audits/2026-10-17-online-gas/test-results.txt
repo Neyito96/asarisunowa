@@ -1,0 +1,97 @@
+{
+  "onlineFiles": 33,
+  "onlineGs": 32,
+  "individualCompile": "PASS",
+  "combinedCompile": "PASS",
+  "proposedGs": 33,
+  "proposedCompile": "PASS",
+  "newV3Functions": 30,
+  "v3NameCollisions": 0,
+  "sheetIdDeclarations": 1,
+  "onlineCheckpointEquals": "922f16e",
+  "codeExecuted": false,
+  "externalApiCalls": 0,
+  "realSheetWrites": 0
+}
+✔ human delete supports requests that have no runtime rule yet (1.005774ms)
+✔ request lookup chooses the latest matching playlist row (0.196227ms)
+✔ human-deleted tombstone still blocks ordinary reactivation (0.123297ms)
+✔ manual stop/delete/resume lifecycle is defined (1.017221ms)
+✔ daily runtime sync excludes disabled and human-deleted rules (0.295177ms)
+✔ pending submissions do not silently resurrect a human-deleted playlist (0.29043ms)
+{"fixtureRows":6591,"network":"mock","fetchedItems":6591,"inspected":20,"writtenCells":80,"updatedEpisodes":20,"apiCalls":1,"xmlProjections":1,"elapsedMs":252}
+✔ READ_ONLY: zero property/cache/sheet/history mutations (10.837708ms)
+✔ fetch stage, 10-row pilot, resume, replay with no duplicates (6.320374ms)
+✔ cache eviction safely replays without overwrites (4.084828ms)
+✔ partial write failure resumes same item without overwrites (4.801804ms)
+✔ protect exclusion history, AM, changed title/show/date, duplicate ID/GUID/clip (20.757165ms)
+✔ existing cells and formula blanks are preserved (2.864809ms)
+✔ lock blocks overlapping runs (1.152806ms)
+✔ 403 stops; 429/503 defer without cursor advance or shortened Retry-After (2.857599ms)
+✔ expired retry recovers; repeated 503 eventually stops (3.159847ms)
+✔ 304 reuses complete cache; lost chunk triggers unconditional fetch (1.761629ms)
+✔ 6,591-row local fixture measurement (267.055219ms)
+✔ Spotify exact-ID adapter: 403/429/503 never count as verified (3.336475ms)
+✔ Spotify invalid ID, missing token and 304 fail closed (1.088379ms)
+✔ evidence conflicts hold a row; duplicate Spotify proposals are suppressed (3.502006ms)
+✔ real RSS projection accepts only explicit host/guest and episode links (2.249948ms)
+✔ unified scheduler preserves retry/stop results and releases lease (2.800422ms)
+✔ known GUID cannot hide another ledger row with the same clip (1.540543ms)
+✔ GUID and a single contradictory clip must hold (1.440262ms)
+✔ clip parser rejects query-injected IDs and malformed UUIDs (0.758589ms)
+✔ formula-protected blanks do not pin the checkpoint forever (1.32649ms)
+✔ official Asahi itemid supplies exact GUID evidence without an Omny page (1.312288ms)
+✔ official itemid rejects wrong host/path, repeated and malformed IDs (0.683695ms)
+✔ official itemid conflict and collision with known GUID are held (2.299754ms)
+✔ read-only diagnostic shares identity protection and identifies unsupported gaps (1.587956ms)
+✔ diagnostic reserves Spotify proposals and inventories official identity gaps (1.853387ms)
+✔ V3 is disabled by default; preview is read-only including cache/properties/history (18.389989ms)
+✔ V3 fetch is a separate stage; max ten EP; resume and idempotent replay (30.180219ms)
+✔ already written MEDIA TALK pilot ten retain GUID/audio on rerun (14.687991ms)
+✔ conflicting GUID/audio/show/date/title, exclusions and duplicate EP-ID hold (36.235443ms)
+✔ formula protected blank does not pin progress and blank formulas are visible in preview (3.60441ms)
+✔ human-cleared cells remain RECHECK_REQUIRED through repeated replay (5.154819ms)
+✔ partial writes and lost cache resume without overwriting; RSS errors preserve cursor (6.459335ms)
+✔ 429/503 persist long Retry-After without offset advance; 403 stops config (9.743966ms)
+✔ changed RSS snapshot replays from zero and protected current fields survive (5.114328ms)
+✔ baseline is bounded; reserved/deleted identity blocks automatic resurrection (27.302184ms)
+✔ new ingestion requires explicit flag, baseline and time boundary; one append per GUID (8.446406ms)
+✔ reissue same title/date or audio across shows is held; opaque new item not appended by default (1.9607ms)
+✔ script lock and conflicting triggers block writers; installer is idempotent and stop keeps old triggers (2.546117ms)
+✔ mechanical clean preserves URLs/names; changed existing clean is never overwritten (5.445158ms)
+✔ field NO_INFORMATION differs from full completion; progress does not mutate legacy dashboard (8.458745ms)
+✔ audio evidence is bound to exact URL and never marks playback verified (3.119896ms)
+✔ cast slots require explicit host/guest source and cannot mix into existing human slots (14.387716ms)
+✔ cleaning retains URL hidden behind a label and never mislabels human clean version (8.706659ms)
+✔ all-column inventory covers 51 columns; new fields require exact headers (1.857304ms)
+✔ RSS parse exception preserves existing cursor and two failures stop scheduler without removing any trigger (2.179071ms)
+✔ new row reservation survives append failure and holds retry instead of double appending (3.467814ms)
+✔ source-proven info is not conflated with playback and wrong-show feed cannot fill (3.5049ms)
+✔ extended V2 XML projection supplies V3 fields and parses RFC -0000 as UTC (2.597164ms)
+✔ V3 sets documented RSS timeout and transport errors defer without advancing; V2 unchanged (2.169687ms)
+✔ human-clear protection survives an intervening wrong-show feed hold (7.394661ms)
+✔ time-budget deferral leaves current item resumable after verified partial writes (4.662875ms)
+✔ per-feed round robin does not starve another show while a large feed is incomplete (51.453937ms)
+✔ cache chunks retain Unicode surrogate pairs and reassemble to the same hash (2.735304ms)
+✔ snapshot and retry attempts are audited independently of ledger writes (3.960089ms)
+✔ keeps submitted themes stopped until explicit review approval (9.054066ms)
+ℹ tests 61
+ℹ suites 0
+ℹ pass 61
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 514.525367
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.085s
+
+OK
+testRssPreviewKeys_: PASS (4 assertions)
+testRssPreviewNormalization_: PASS (4 assertions)
+testRssPreviewMigrationFixture_: PASS (4 assertions)
+testRssLibraryExcludedHistory_: PASS (4 assertions)
+testRssPreviewTitleDateIsolation_: PASS (2 assertions)
+testRssLibrarySummaryPartial_: PASS (5 assertions)
+TOTAL: 23 assertions PASS
