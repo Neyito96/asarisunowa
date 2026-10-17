@@ -1,7 +1,7 @@
 /**
  * READ-ONLY, bounded audio URL availability probe.
- * Does NOT download media bodies: HEAD only, max 5 URLs, no redirects followed.
- * HTTP 200/206 is a reachable signal, not proof of full playable audio.
+ * Does NOT download media bodies: No native network call: GAS has no documented HEAD support. Max 5 URLs.
+ * Use library-v3-audio-probe.py for bounded external HEAD / ranged streaming.
  * HTTP 403/405/429/503 and redirect are INCONCLUSIVE, never auto-delete.
  * Uses existing ledger, no checkpoint, properties, triggers or sheet mutations.
  */
@@ -38,16 +38,10 @@ function libV2AudioAuditByIds_(ids) {
     if(!['traffic.omny.fm','omny.fm','www.omny.fm','www.omnycontent.com','omnycontent.com'].includes(host)){
       results.push({id,status:'UNSUPPORTED_HOST',host});continue;
     }
-    try {
-      const response=UrlFetchApp.fetch(url,{method:'head',muteHttpExceptions:true,
-        followRedirects:false,headers:{'User-Agent':'Asarisu-Library-AudioAudit/1.0'}});
-      const http=response.getResponseCode();
-      results.push({id,http,status:[200,206].includes(http)?'HEAD_REACHABLE':
-        [301,302,303,307,308].includes(http)?'REDIRECT_NOT_FOLLOWED':
-        [403,405,429,503].includes(http)?'INCONCLUSIVE_HTTP':'HTTP_'+http});
-    }catch(e){results.push({id,status:'FETCH_ERROR',detail:String(e).slice(0,120)});}
+    // UrlFetchApp documents no HEAD method. Do not silently GET a whole audio file.
+    results.push({id,status:'EXTERNAL_BOUNDED_TRANSPORT_REQUIRED',http:null,playbackVerified:false});
   }
-  const report={mode:'READ_ONLY_AUDIO_HEAD',sampleCount:ids.length,results,
+  const report={mode:'READ_ONLY_AUDIO_TRANSPORT_PREFLIGHT',sampleCount:ids.length,results,
     writtenCells:0,elapsedMs:Date.now()-started};
   Logger.log(JSON.stringify(report));
   return report;

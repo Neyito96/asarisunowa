@@ -59,7 +59,7 @@ function libV2CpFields_(it,r,spotifyOwners) {
     .filter(([c,v])=>v&&!String(r[c-1]||'').trim()&&(c!==12||!spotifyOwners.has(v)));
 }
 function libV2CpHash_(s) { return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,s)); }
-function libV2CpParse_(text) {
+function libV2CpParse_(text, extended) {
   const ch=XmlService.parse(text).getRootElement().getChild('channel');
   if(!ch)throw Error('RSS channel missing');
   return ch.getChildren('item').map(item=>{
@@ -69,18 +69,35 @@ function libV2CpParse_(text) {
     const cast=person.filter(n=>['host','guest'].includes(String(n.getAttribute('role')?.getValue()||'').toLowerCase())).map(n=>libV2CpNorm_(n.getText())).filter(Boolean);
     const links=[item.getChildText('link'),...item.getChildren().filter(n=>n.getName()==='episode' && n.getNamespace().getURI()==='https://www.spotify.com/ns/rss').map(n=>n.getText())];
     const spotify=[...new Set(links.filter(x=>/^https:\/\/open\.spotify\.com\/episode\/[A-Za-z0-9]{22}$/.test(String(x||''))))];
-    return {guid:libV2CpGuid_(item.getChildText('guid')),title:libV2CpNorm_(item.getChildText('title')),
+    const result={guid:libV2CpGuid_(item.getChildText('guid')),title:libV2CpNorm_(item.getChildText('title')),
       date:isNaN(d.getTime())?'':Utilities.formatDate(d,'Asia/Tokyo','yyyy-MM-dd'),
       audio:item.getChild('enclosure')?.getAttribute('url')?.getValue()||'',
       description:String(item.getChildText('description')||'').trim().replace(/\r\n?|\n/g,'\\n'),
       cast:[...new Set(cast)].join('、'),spotify:spotify.length===1?spotify[0]:''};
+    if(extended){
+      const duration=item.getChildren().find(n=>n.getName()==='duration' && n.getNamespace().getURI()==='http://www.itunes.com/dtds/podcast-1.0.dtd');
+      const image=item.getChildren().find(n=>n.getName()==='image' && n.getNamespace().getURI()==='http://www.itunes.com/dtds/podcast-1.0.dtd');
+      const raw=String(duration?.getText()||'').trim();
+      result.duration=/^\d+(?::\d{2}){0,2}$/.test(raw)?raw.split(':').map(Number).reduce((a,b)=>a*60+b,0):'';
+      result.image=image?.getAttribute('href')?.getValue()||'';
+      result.link=String(item.getChildText('link')||'');result.published=isNaN(d.getTime())?'':d.toISOString();
+    }
+    return result;
   });
 }
 /** A failed HTTP request never advances a cursor. No blocking sleep / shortened Retry-After. */
-function libV2CpHttp_(url, headers, retry, now) {
+function libV2CpHttp_(url, headers, retry, now, timeoutSeconds) {
   if(retry?.stopped)return {status:'STOPPED_HTTP',http:retry.http,retry};
   if(retry?.at>now)return {status:'RETRY_WAIT',retry};
-  const res=UrlFetchApp.fetch(url,{muteHttpExceptions:true,headers:headers||{}}), code=res.getResponseCode();
+  const options={muteHttpExceptions:true,headers:headers||{}};
+  if(timeoutSeconds)options.timeoutSeconds=timeoutSeconds;
+  let res;
+  try {res=UrlFetchApp.fetch(url,options);}catch(e){
+    if(!timeoutSeconds)throw e; // Preserve legacy V2 caller behavior.
+    const attempt=(retry?.attempt||0)+1,stopped=attempt>=5;
+    return {status:stopped?'STOPPED_HTTP':'RETRY_WAIT',http:null,retry:{http:null,attempt,stopped,errorType:'TRANSPORT',at:now+Math.min(3600000,60000*Math.pow(2,attempt-1))}};
+  }
+  const code=res.getResponseCode();
   if(code===200||code===304)return {status:'OK',res,http:code};
   const h=res.getAllHeaders(), k=Object.keys(h).find(k=>k.toLowerCase()==='retry-after'), raw=k?String(h[k]):'';
   const attempt=(retry?.attempt||0)+1;
@@ -88,8 +105,9 @@ function libV2CpHttp_(url, headers, retry, now) {
   const stopped=![429,503].includes(code)||attempt>=5;
   return {status:stopped?'STOPPED_HTTP':'RETRY_WAIT',http:code,retry:{http:code,attempt,stopped,at:now+Math.max(delay,Math.min(3600000,60000*Math.pow(2,attempt-1)))}};
 }
-function libV2CpSnapshot_(url, write, state, metrics) {
-  const cache=CacheService.getScriptCache(), key='LV2CP:'+libV2CpHash_(url), now=Date.now();
+function libV2CpSnapshot_(url, write, state, metrics, options) {
+  options=options||{};
+  const cache=CacheService.getScriptCache(), key=(options.prefix||'LV2CP')+':'+libV2CpHash_(url), now=Date.now();
   let meta=JSON.parse(cache.get(key)||'null'), text='';
   if(meta) {
     for(let i=0;i<meta.parts;i++) { const p=cache.get(key+':'+meta.hash+':'+i); if(p===null){meta=null;break;} text+=p; }
@@ -100,18 +118,26 @@ function libV2CpSnapshot_(url, write, state, metrics) {
   if(meta?.etag)headers['If-None-Match']=meta.etag;
   if(meta?.modified)headers['If-Modified-Since']=meta.modified;
   // Retry state is tied to the feed URL by the caller.
-  const http=libV2CpHttp_(url,headers,state.retry,now);
+  const http=libV2CpHttp_(url,headers,state.retry,now,options.timeoutSeconds);
   if(http.status!=='OK')return http;
   metrics.apiCalls++; // Network attempts including failures are counted by caller adjustment below.
   if(http.http===304&&!meta)throw Error('304 without complete cached snapshot');
-  const items=http.http===304?JSON.parse(text):libV2CpParse_(http.res.getContentText('UTF-8'));
+  const items=http.http===304?JSON.parse(text):(options.parse||libV2CpParse_)(http.res.getContentText('UTF-8'));
   const serialized=JSON.stringify(items),hash=libV2CpHash_(serialized);
   metrics.fetchedItems=http.http===200?items.length:0;
   if(write) {
     const h=http.res.getAllHeaders(),get=n=>{const k=Object.keys(h).find(k=>k.toLowerCase()===n);return k?String(h[k]):'';};
-    const parts=Math.ceil(serialized.length/18000);
+    const size=options.chunkSize||18000,chunks=[];
+    if(!Number.isInteger(size)||size<2||size>22000)throw Error('Invalid cache chunk size');
+    for(let pos=0;pos<serialized.length;){
+      let end=Math.min(serialized.length,pos+size);
+      // Keep a UTF-16 surrogate pair in one value; a cache transport may encode UTF-8.
+      if(end<serialized.length&&/[\uD800-\uDBFF]/.test(serialized[end-1]))end--;
+      chunks.push(serialized.slice(pos,end));pos=end;
+    }
+    const parts=chunks.length;
     if(parts>800)throw Error('RSS snapshot exceeds bounded cache budget');
-    for(let i=0;i<parts;i++)cache.put(key+':'+hash+':'+i,serialized.slice(i*18000,(i+1)*18000),21600);
+    for(let i=0;i<parts;i++)cache.put(key+':'+hash+':'+i,chunks[i],21600);
     // Publish manifest last. Missing/evicted parts always cause refetch + safe replay.
     cache.put(key,JSON.stringify({hash,parts,at:now,etag:get('etag')||meta?.etag||'',modified:get('last-modified')||meta?.modified||''}),21600);
   }
