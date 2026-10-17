@@ -1,0 +1,11 @@
+{
+  "baseline": "saved-v71-not-live-reverified",
+  "productionDeployed": false,
+  "syntaxFiles": 94,
+  "changedHashes": {
+    "SpotifyNordicV3.js": "5fdb5f5baa49b9f44a2e12374daef80b3378ba6159196e2f0ff16e5e040f803c",
+    "ThemeRuntimeV2.js": "1efb6a39560497daec39b1976562e4b071e572fe63b34052e5dd3bdabb1748ef",
+    "SpotifyAccessV3.js": "9c984a8ef574426f8639d30cb2a39af2abc60ed91430f480afe053119084848a"
+  },
+  "note": "Full baseline hash table is preserved in the original uploaded candidate artifact; this implementation branch carries the runnable candidate tree plus safe adapter patch."
+}
