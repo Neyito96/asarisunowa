@@ -60,3 +60,14 @@ User ran `diagnoseLibraryV2Feed6` in isolated GAS, `READ_ONLY_FEED_DIAGNOSTIC`, 
 - MEDIA TALK + ニュースの現場から: **3,797 episodes / 7,640 cells**; 7,640 / 7,664 = 99.69% of previous offline audit candidate cells. Remaining previous candidate count: 12 episodes / 24 cells in こどもそうだんしつ.
 - Timing: MEDIA TALK ~60.9 seconds, ニュースの現場から ~78.3 seconds in isolated GAS; performance observations do not imply safe mass writes.
 - READ ONLY, no write authorization; actual prewrite guards and batch sizes remain unverified in live GAS.
+
+
+## 10:10 JST: こどもそうだんしつ live diagnostic — three-show reconciliation complete
+User ran `diagnoseLibraryV2Feed7` in isolated GAS, `READ_ONLY_FEED_DIAGNOSTIC`, feedIndex 7, `show: こどもそうだんしつ`, 34 RSS items, 6,591 ledger rows, elapsedMs 5,758.
+- guidMatched 20; clipMatched 0; officialItemMatched 12; noMatch 2; ambiguous 0; duplicateRssGuid 0; blockedOrConflicting 0; metadataMismatch 0.
+- **eligibleEpisodes 12 / eligibleCells 24**: GUID 12, audio 12; other fields 0. Exactly matches prior offline audit.
+- 20 matched with no supported fill; `matchedComplete` is legacy alias.
+- Candidate sample IDs EP-06588 through EP-06579, columns [7,15] (G GUID, O audio).
+- Unmatched RSS entries dated 2026-10-14: `【もっと話そう】数えて比べて 楽しむ骨` and `ほねは、どうやってつくられたの? #16`. Do not auto-insert.
+- **All 3,809 episodes / 7,664 cells** in the prior offline audit have now been independently reproduced as candidate counts in isolated live GAS diagnostics across MEDIA TALK, ニュースの現場から, and こどもそうだんしつ.
+- This confirms candidate-count consistency, **not** write readiness. Live prewrite revalidation, formula/ownership/exclusion checks, performance with write batches, and production environment remain unverified. Zero sheet writes authorized.
