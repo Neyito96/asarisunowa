@@ -1,0 +1,72 @@
+--- a/scripts/google-apps-script/PlaylistAutoRules.js
++++ b/scripts/google-apps-script/PlaylistAutoRules.js
+@@ -82,7 +82,7 @@
+     showIds: ["0341I5UOUrJgm7KEvNGInZ"],
+     playlistId: "4FBXSFf2nLjLb3qaRoSdoD",
+     keyword: "（ノーミライ #",
+-    matchStrategy: "no-mirai-title-prefix",
++    matchStrategy: "no-mirai-title-keywords",
+     fetchAllPages: true,
+     addIndividually: true,
+     updateLatestDateOnAdd: true,
+@@ -216,6 +216,13 @@
+ }
+ 
+ function matchesAutoPlaylistRule_(episode, rule) {
++  if (String(rule && rule.matchStrategy || "") === "no-mirai-title-keywords") {
++    const title = String(episode && episode.name || "").normalize("NFKC").toUpperCase();
++    return ["ノーミライ", "農MUSIC", "猟LIFE"].some(function(keyword) {
++      return title.indexOf(keyword) >= 0;
++    });
++  }
++
+   if (String(rule && rule.matchStrategy ? rule.matchStrategy : "") === "no-mirai-title-prefix") {
+     return extractNoMiraiEpisodeNumber_(episode && episode.name) !== null;
+   }
+--- a/scripts/google-apps-script/AutoUpdateAutomationV1.js
++++ b/scripts/google-apps-script/AutoUpdateAutomationV1.js
+@@ -213,7 +213,12 @@
+   const episodesById = {};
+   getAutoPlaylistShowIds_(rule).forEach(function(showId) {
+     const cacheKey = String(showId);
++    const cacheHit = !!episodeCache[cacheKey];
+     const page = episodeCache[cacheKey] || fetchAutoUpdateShowFirstPageV1_(showId, token);
++    Logger.log(JSON.stringify({ event: "managed_show_fetch", route: "fixed_daily",
++      observedAt: new Date().toISOString(), key: rule.key, showId: showId,
++      cacheHit: cacheHit, count: page.items.length,
++      ids: page.items.map(function(ep) { return ep && ep.id || null; }) }));
+     episodeCache[cacheKey] = page;
+     page.items.forEach(function(episode) {
+       if (episode && episode.id && matchesAutoPlaylistRule_(episode, rule)) {
+@@ -240,9 +245,17 @@
+   if (missing.length > AUTO_UPDATE_V1_MAX_ADDITIONS_PER_RUN_) {
+     throw new Error("朝の追加候補が上限を超えました: " + missing.length);
+   }
++  Logger.log(JSON.stringify({ event: "managed_diff", route: "fixed_daily",
++    observedAt: new Date().toISOString(), key: rule.key, playlistId: rule.playlistId,
++    matchedIds: Object.keys(episodesById), existingUriCount: existingUris.size,
++    missingIds: missing.map(function(ep) { return ep.id; }),
++    decision: missing.length ? "candidate" : "no_missing" }));
+   if (!missing.length) return { addedCount: 0, failedCount: 0 };
+   assertAutoPlaylistSheetLinkBeforeWrite_(rule);
+   const result = addAutoPlaylistEpisodesIndividually_(rule, token, missing);
++  Logger.log(JSON.stringify({ event: "managed_add_result", route: "fixed_daily",
++    key: rule.key, playlistId: rule.playlistId,
++    addedCount: result.addedCount, failedCount: result.failedCount }));
+   if (result.failedCount > 0) throw new Error("Spotify追加に一部失敗しました");
+   if (result.addedCount > 0 && rule.updateLatestDateOnAdd === true) {
+     updatePlaylistLatestDate_(rule.playlistId, getLatestReleaseDate_(result.addedEpisodes));
+@@ -1168,9 +1181,12 @@
+     headers: { Authorization: "Bearer " + token, Accept: "application/json" }
+   });
+   const status = response.getResponseCode();
++  Logger.log(JSON.stringify({ event: "show_first_page_http", showId: showId,
++    market: "JP", limit: AUTO_UPDATE_V1_RECENT_EPISODES_PER_SHOW_, status: status }));
+   if (status !== 200) throw new Error("Show取得に失敗しました: " + showId + " status=" + status);
+   const data = JSON.parse(response.getContentText());
+-  return { items: Array.isArray(data.items) ? data.items : [] };
++  if (!Array.isArray(data.items)) throw new Error("Show応答にitems配列がありません: " + showId);
++  return { items: data.items };
+ }
+ 
+ function fetchPlayableAutoUpdateEpisodesV1_(episodeIds, token) {
