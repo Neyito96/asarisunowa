@@ -1,0 +1,187 @@
+{
+  "capturedAt": "2026-10-17T03:54:28.844Z",
+  "triggersBeforeZero": true,
+  "triggersAfterZero": true,
+  "sourceChanged": [
+    "LibraryV2CheckpointEngine.gs",
+    "LibraryV3.gs"
+  ],
+  "sourceUnexpected": [],
+  "executedFunctions": [
+    "previewLibraryV3AllColumns",
+    "previewLibraryV3Progress",
+    "previewLibraryV3"
+  ],
+  "baseline_commit": "549a6124f79cea70bd61a178bd814d469ce57078",
+  "before_capture_utc": "2026-10-17T03:46:41.095Z",
+  "saved_head_capture_utc": "2026-10-17T03:51:36.510Z",
+  "backup_files_byte_equal": 33,
+  "unchanged_sources": 32,
+  "source_files_after": 34,
+  "execution_history": [
+    {
+      "handler": "previewLibraryV3",
+      "started_jst": "2026/10/17 12:52:57",
+      "duration_seconds": 37.378,
+      "status": "完了"
+    },
+    {
+      "handler": "previewLibraryV3Progress",
+      "started_jst": "2026/10/17 12:52:32",
+      "duration_seconds": 9.446,
+      "status": "完了"
+    },
+    {
+      "handler": "previewLibraryV3AllColumns",
+      "started_jst": "2026/10/17 12:51:59",
+      "duration_seconds": 10.965,
+      "status": "完了"
+    }
+  ],
+  "run_summaries": {
+    "previewLibraryV3AllColumns": {
+      "mode": "READ_ONLY_V3_ALL_COLUMNS",
+      "rows": 6591,
+      "columns": 51,
+      "groups": 510,
+      "writes": 0
+    },
+    "previewLibraryV3Progress": {
+      "mode": "READ_ONLY_V3_PROGRESS",
+      "rows": 6591,
+      "groups": 170,
+      "config": {
+        "enabled": false,
+        "allowEnrich": false,
+        "allowNew": false,
+        "newAfter": "",
+        "maxEpisodes": 10,
+        "maxItems": 200
+      },
+      "conflictingTriggers": [],
+      "writes": 0
+    },
+    "previewLibraryV3": {
+      "mode": "READ_ONLY_V3",
+      "status": "READ_ONLY",
+      "apiCalls": 1,
+      "cacheHits": 0,
+      "fetchedItems": 488,
+      "inspected": 18,
+      "proposedCells": 14,
+      "writtenCells": 0,
+      "updatedIds": [],
+      "newIds": [],
+      "holds": 3,
+      "fieldStates": {
+        "VERIFIED": 84,
+        "UNINSPECTED": 26,
+        "NO_INFORMATION": 128,
+        "RECHECK_REQUIRED": 17
+      },
+      "samples": [
+        {
+          "guid": "cfdd6178-c3bc-11f1-a625-db6a01e1862b",
+          "reasons": [
+            "no_identity_match"
+          ],
+          "newDecision": {
+            "eligible": false,
+            "reasons": [
+              "baseline_not_registered",
+              "new_registration_not_enabled",
+              "historical_or_invalid_publication"
+            ]
+          }
+        },
+        {
+          "guid": "c7880fd2-b011-11f1-85c7-13f4dad77055",
+          "reasons": [
+            "no_identity_match"
+          ],
+          "newDecision": {
+            "eligible": false,
+            "reasons": [
+              "baseline_not_registered",
+              "new_registration_not_enabled",
+              "historical_or_invalid_publication"
+            ]
+          }
+        },
+        {
+          "guid": "31fe02ee-c6e3-11f1-bce1-e76c16114bcf",
+          "reasons": [
+            "no_identity_match"
+          ],
+          "newDecision": {
+            "eligible": false,
+            "reasons": [
+              "baseline_not_registered",
+              "new_registration_not_enabled",
+              "historical_or_invalid_publication"
+            ]
+          }
+        },
+        {
+          "id": "EP-00408",
+          "fields": [
+            "clean",
+            "cleanVersion"
+          ]
+        },
+        {
+          "id": "EP-00081",
+          "fields": [
+            "clean",
+            "cleanVersion"
+          ]
+        },
+        {
+          "id": "EP-00082",
+          "fields": [
+            "clean",
+            "cleanVersion"
+          ]
+        },
+        {
+          "id": "EP-00086",
+          "fields": [
+            "cleanVersion"
+          ]
+        },
+        {
+          "id": "EP-00089",
+          "fields": [
+            "cleanVersion"
+          ]
+        },
+        {
+          "id": "EP-00090",
+          "fields": [
+            "cleanVersion"
+          ]
+        },
+        {
+          "id": "EP-00091",
+          "fields": [
+            "cleanVersion"
+          ]
+        }
+      ],
+      "feed": "https://feeds.megaphone.fm/TASC5851398719",
+      "nextOffset": 18,
+      "completeFeed": false,
+      "elapsedMs": 36143
+    }
+  },
+  "rss_http_calls_total": 1,
+  "spotify_api_calls_total": 0,
+  "actual_writes_per_run": [
+    0,
+    0,
+    0
+  ],
+  "preview_progress_detail_log_truncated": true,
+  "properties_full_before_after_compared": false,
+  "stage_b_started": false
+}
