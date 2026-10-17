@@ -110,8 +110,13 @@ function libV2MediaTalkPilot10_(write) {
     // Use per-cell rechecks because another human editor is not protected by script lock.
     for(const p of planned) {
       const s=p.s, latest=sh.getRange(s.i+2,1,1,39).getValues()[0];
-      if([0,1,2,3,6,8,9,11,14,21,23,32,38].some(c=>String(latest[c])!==String(s.row[c])))
-        throw Error('Row changed during write '+s.id);
+      if([0,1,2,3,8,9,11,21,23,32,38].some(c=>String(latest[c])!==String(s.row[c])))
+        throw Error('Immutable identity changed during write '+s.id);
+      // GUID/audio may now contain values already written by this pilot.
+      // Their only permitted nonblank values are the exact RSS values.
+      if((latest[6]&&libV2CpGuid_(latest[6])!==s.it.guid)||
+         (latest[14]&&String(latest[14])!==s.it.audio))
+        throw Error('GUID/audio drift during write '+s.id);
       const dt={gs:new Set(),is:new Set()};
       ex.getDataRange().getValues().slice(1).forEach(r=>{
         dt.gs.add(libV2CpGuid_(r[0]));dt.is.add(String(r[1]||'').trim());
