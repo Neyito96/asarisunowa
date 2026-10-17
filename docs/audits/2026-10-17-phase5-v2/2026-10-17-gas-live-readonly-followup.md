@@ -71,3 +71,10 @@ User ran `diagnoseLibraryV2Feed7` in isolated GAS, `READ_ONLY_FEED_DIAGNOSTIC`, 
 - Unmatched RSS entries dated 2026-10-14: `【もっと話そう】数えて比べて 楽しむ骨` and `ほねは、どうやってつくられたの? #16`. Do not auto-insert.
 - **All 3,809 episodes / 7,664 cells** in the prior offline audit have now been independently reproduced as candidate counts in isolated live GAS diagnostics across MEDIA TALK, ニュースの現場から, and こどもそうだんしつ.
 - This confirms candidate-count consistency, **not** write readiness. Live prewrite revalidation, formula/ownership/exclusion checks, performance with write batches, and production environment remain unverified. Zero sheet writes authorized.
+
+
+## 10:13–10:21 JST: checkpoint pilot mode clarified and read-only preview confirmed
+- 10:13 user ran **`writeLibraryV2CheckpointPilot10`** (not preview): `status:SNAPSHOT_READY`, fetchedItems 25, inspected 0, writtenCells 0. This is expected for the write-mode snapshot-fetch stage; it can persist checkpoint script property and cache, but did not write episode cells.
+- 10:21 user explicitly ran **`previewLibraryV2Checkpoint`**: `status:READ_ONLY`, apiCalls 0, cacheHits 1, fetchedItems 0, inspected 25, proposedCells 0, writtenCells 0, holds 13, nextOffset 25, completeFeed true, elapsedMs 6268.
+- Feed URL: `https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/29a60fdd-4069-48cf-a604-ad25009874be/podcast.rss` (25-item feed, likely AJW; verify from feed registry if needed).
+- This validates read-only execution and cache hit but **does not validate the 7,664-cell prewrite path**, since no candidates in this feed. 13 holds need reason breakdown. Read-only preview does not advance durable checkpoint; repeated runs may scan same feed. Do not invoke write pilot without explicit authorization.
