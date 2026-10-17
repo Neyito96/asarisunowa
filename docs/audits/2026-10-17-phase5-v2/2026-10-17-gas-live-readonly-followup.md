@@ -104,3 +104,11 @@ User executed `previewLibraryV2Kids` in isolated GAS:
 - Aggregate three sampled previews: 108 RSS items inspected; 30 eligible episodes; 60 candidate cells; 20 hold reasons (MEDIA TALK 4 no_ledger_match; News Scene 7 no_ledger_match + 7 title_mismatch; Kids 2 no_ledger_match). No sheet writes in any run. Combined elapsed 159564 ms.
 - Important: 20 holds are reason-counts from logs, not necessarily 20 distinct episodes in arbitrary future runs. The preview inspects first 200 RSS items or 10 eligible episodes; it does not test write-time revalidation, restart, checkpoint advance, or end-to-end throughput. Do not enable production writes or triggers.
 - Recommended next: review risks in GitHub code and inspect hold samples without mutating production; distinguish old SDGs archive from Kids current feed.
+
+
+## 10:35–10:37 JST: MEDIA TALK strict 10-episode pilot write — verified from connected Sheets
+- Isolated GAS `previewMediaTalkPilot10Preflight`: `PREFLIGHT_PASS`, 10 exact EP IDs EP-05585..EP-05576, 20 G/O cells, 0 written, 65132ms.
+- User executed `writeMediaTalkPilot10Once`: `PILOT_WRITTEN`, 20 written cells, 10 updated IDs, 98700ms, checkpointChanged false, triggerChanged false (reported code flags).
+- Independently read connected Google Sheet `エピソード台帳` rows 5577–5586: **all 10** EP-05576..EP-05585 have nonempty UUID-format GUID in G and Omny traffic audio URL in O; audio clip UUID equals the GUID for every row by inspection. Adjacent EP-05586 row 5587 has blank G in returned data, consistent with pilot scope.
+- Independently searched connected `自動補完・実行履歴`: row 93 timestamp 2026/10/17 10:37:47, status `V2_MT_PILOT10`, 10 episodes, 20 cells, 0 holds, all exact target IDs, elapsed 98 sec.
+- No full-ledger rollout authorized. Stop the pilot function; a repeat will abort due to nonblank cells. Next verify RSS-value identity if needed, audit execution time and remaining feeds including スポンジ/ドーナツ before any broader write.
