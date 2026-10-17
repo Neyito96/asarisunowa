@@ -1697,12 +1697,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                       <h3>{p.title}</h3>
                       <p>by {p.maker}</p>
                       {p.url?.includes("/playlist/4FBXSFf2nLjLb3qaRoSdoD") && (
-                        <div style={{ margin: "10px 0", padding: "10px 12px", borderRadius: 12, background: "#f3f8ef", border: "1px solid #cbdcbe", color: "#304b29", fontSize: "0.85rem", lineHeight: 1.6 }}>
-                          <span style={{ display: "block", fontWeight: 700 }}>🎵 ノーミライで紹介された楽曲</span>
-                          <a href="https://open.spotify.com/playlist/5JCSyeMy3LNJNR86b72Ag1" target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", marginTop: 4, fontWeight: 700, color: "#286c46", textDecoration: "underline" }}>
-                            Spotifyで聴く↗inoさん作プレイリスト
-                          </a>
-                        </div>
+                        <a href="https://open.spotify.com/playlist/5JCSyeMy3LNJNR86b72Ag1" target="_blank" rel="noopener noreferrer" aria-label="inoさん作のノーミライ紹介楽曲プレイリストをSpotifyで聴く" style={{ display: "inline-flex", alignItems: "center", alignSelf: "flex-start", maxWidth: "100%", margin: "4px 0", padding: "3px 8px", borderRadius: 999, background: "#f3f8ef", border: "1px solid #cbdcbe", color: "#286c46", fontSize: "0.78rem", fontWeight: 700, lineHeight: 1.3, textDecoration: "none", whiteSpace: "nowrap" }}>
+                          🎵 紹介楽曲 by ino ↗
+                        </a>
                       )}
                       <div className="actions">
                         <button
