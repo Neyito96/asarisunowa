@@ -1,0 +1,152 @@
+{
+  "captured_at_utc": "2026-10-17T12:41:07.869661+00:00",
+  "base_commit": "500e5e775b5d875a6763ff0696780e4d608629bf",
+  "live_GAS_compared": false,
+  "spotify_authenticated_latest20_verified": false,
+  "unauthenticated_show_api_status": 401,
+  "spotify_public_release_metadata": [
+    {
+      "number": 7,
+      "title": "（ノーミライ #7）異彩を超えてもはや異常や、というお話",
+      "spotify_music_release_date": "2026-10-02T19:00:00Z"
+    },
+    {
+      "number": 8,
+      "title": "（ノーミライ #8）怒ることもあるけど許してな、というお話",
+      "spotify_music_release_date": "2026-10-09T19:00:00Z"
+    },
+    {
+      "number": 9,
+      "title": "（ノーミライ #9）ひとりでやっとるチキンレースにライバル登場？というお話",
+      "spotify_music_release_date": "2026-10-16T21:35:00Z"
+    }
+  ],
+  "official_rss": {
+    "url": "https://omny.fm/shows/asahi/playlists/donut.rss",
+    "status": 200,
+    "count": 63,
+    "episodes": [
+      {
+        "rss_position": 1,
+        "title": "（ノーミライ #9）ひとりでやっとるチキンレースにライバル登場？というお話",
+        "pubDate": "Fri, 16 Oct 2026 21:35:00 +0000",
+        "guid": "ee4ddbac-dfb7-45c0-b343-b4e5008a65b0",
+        "link": "https://omny.fm/shows/asahi/music-life-vol-9"
+      },
+      {
+        "rss_position": 7,
+        "title": "（ノーミライ #8）怒ることもあるけど許してな、というお話",
+        "pubDate": "Fri, 09 Oct 2026 19:00:00 +0000",
+        "guid": "9dcf4636-e6a3-4318-b47e-b47c00bb2095",
+        "link": "https://omny.fm/shows/asahi/music-life-vol-8"
+      },
+      {
+        "rss_position": 12,
+        "title": "（ノーミライ #7）異彩を超えてもはや異常や、というお話",
+        "pubDate": "Fri, 02 Oct 2026 19:00:00 +0000",
+        "guid": "38450472-01c5-48ae-8163-b47c00bb1a68",
+        "link": "https://omny.fm/shows/asahi/music-life-vol-7"
+      }
+    ]
+  },
+  "spotify_show_embed": {
+    "id": "13zpJygdFNMMi6WtHbkocV",
+    "uri": "spotify:episode:13zpJygdFNMMi6WtHbkocV",
+    "relatedEntityUri": "spotify:show:0341I5UOUrJgm7KEvNGInZ",
+    "releaseDate": {
+      "isoString": "2026-10-16T21:35:00Z"
+    },
+    "isPlayable": true
+  },
+  "spotify_playlist_embed": {
+    "id": "4FBXSFf2nLjLb3qaRoSdoD",
+    "count_in_response": 8,
+    "episodes": [
+      {
+        "uri": "spotify:episode:7I05i5sIMfIjh0lROAcCuF",
+        "title": "（ノーミライ #1）犬がキャンと鳴いた、というお話"
+      },
+      {
+        "uri": "spotify:episode:3LZbwhWvkVd6dZuuENFR8d",
+        "title": "（ノーミライ #2）うじうじしてたらあかんのかい、というお話"
+      },
+      {
+        "uri": "spotify:episode:0fAJQmKQ9iyhXOOdPsbhB4",
+        "title": "（ノーミライ #3）気が付けば周りの女子は大体ひどい、というお話"
+      },
+      {
+        "uri": "spotify:episode:09b4vCwnmef1W3SHNfkM99",
+        "title": "（ノーミライ #4）べっちょないですまへん時もある、というお話"
+      },
+      {
+        "uri": "spotify:episode:328DfoR16K9ZSroYwMNTEd",
+        "title": "（ノーミライ #5）着替えとる場合ちゃう 逃げるんや、というお話"
+      },
+      {
+        "uri": "spotify:episode:5dYVN3uoZhTK8OQsPIOaOh",
+        "title": "（ノーミライ #6）言い間違いに勘違い　案外あっとる？　というお話"
+      },
+      {
+        "uri": "spotify:episode:3EO4BNLcuH1d6JIdotrsaV",
+        "title": "（ノーミライ #7）異彩を超えてもはや異常や、というお話"
+      },
+      {
+        "uri": "spotify:episode:2koQwBtOvldqPsA8XxZPsr",
+        "title": "（ノーミライ #8）怒ることもあるけど許してな、というお話"
+      }
+    ]
+  },
+  "live_public_sheet_rows": [
+    {
+      "id": "1",
+      "title": "一緒に新聞をめくろう！",
+      "latestDate": "2026-10-04",
+      "autoManaged": true
+    },
+    {
+      "id": "53",
+      "title": "#きのどう「木下君、あの動画みた？」",
+      "latestDate": "2026-09-29",
+      "autoManaged": true
+    },
+    {
+      "id": "66",
+      "title": "農MUSIC 猟ライフ（ノーミライ）",
+      "latestDate": "2026-10-09",
+      "autoManaged": true
+    },
+    {
+      "id": "67",
+      "title": "ポリレビ",
+      "latestDate": "2026-10-16",
+      "autoManaged": true
+    }
+  ],
+  "repository_sha256": {
+    "AutoUpdateAutomationV1.js": "74aba1ebacd9a36d8c2898cb6fd270da078b2e97c7047d24a3eb41ed20ba2294",
+    "PlaylistAutoRules.js": "8af682a46245bdc536a4af0fa00892ab8dc08c6daad7903ba75bc166d11ebdfa",
+    "PlaylistAutoSpotify.js": "08efd67861b5b9901505adc39447fc0264eb426d93454d49b64471f3da0bc336",
+    "PlaylistAutoWrite.js": "f298b87b214845bd9450a96b6f31460651423f3674111b25a8cea5ff4126177c",
+    "appsscript.json": "7991faa2f7a936987fddefb6782b137d2a8178f236df9eaa3f7658be23bc34ae"
+  },
+  "other_title_series_audit": {
+    "polirebi": {
+      "rss_latest_title": "（ポリレビ #15）簗大臣の更迭、問題の本質はここだ／米国がロシアに肩入れし問われる日本外交",
+      "pubDate": "Fri, 16 Oct 2026 19:00:00 +0000",
+      "link": "https://omny.fm/shows/asahi/polirebi15",
+      "latest_episode_present_in_embed": true
+    },
+    "issho-shinbun": {
+      "rss_latest_title": "（めくろう #201）一寸の虫にも百円の魂 　ぼーっと？没頭？なにが最良",
+      "pubDate": "Sun, 04 Oct 2026 19:00:00 +0000",
+      "link": "https://omny.fm/shows/asahi/mekuro201",
+      "playlist_check": "incomplete: embed returns first 100 historical entries only"
+    },
+    "kino-douga": {
+      "rss_latest_title": "（動画見た？#50）ひたすらお便りに答えます　ドキュメンタリーの話も久しぶりに",
+      "pubDate": "Tue, 29 Sep 2026 19:00:00 +0000",
+      "link": "https://omny.fm/shows/asahi/kinodou50",
+      "latest_episode_present_in_embed": true
+    }
+  }
+}
