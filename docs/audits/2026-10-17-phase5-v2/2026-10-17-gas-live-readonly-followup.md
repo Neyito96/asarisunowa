@@ -35,3 +35,15 @@ Read `エピソード台帳!A6570:L6579` in spreadsheet `1lLgLzgDNkLN_8ok967u9lu
 - Next: inspect representative RSS-to-ledger pairs across the June/July rename boundary, verify identity via exact official itemid, normalized title, and JST date; separately analyze 8 ambiguous candidates and 5 title mismatches. Consider a narrow **reviewed feed-to-ledger alias** only for verified identities, never broad unchecked replacement.
 - Verify `旧SDGsアーカイブ` identity mapping and whether old feed is intended to remain active before altering feed list.
 - Continue READ_ONLY. No pilot writes, properties, triggers, merge, or production deployment without explicit approval.
+
+
+## 10:05–10:06 JST: MEDIA TALK live diagnostic
+User ran `diagnoseLibraryV2Feed5` in isolated GAS, `READ_ONLY_FEED_DIAGNOSTIC`, feedIndex 5, `show: MEDIA TALK`, 1,754 RSS items, 6,591 ledger rows, elapsedMs 60,929.
+- guidMatched 117; clipMatched 9; officialItemMatched 1,623; noMatch 5; ambiguous 14; metadataMismatch 7; duplicateRssGuid 0; blockedOrConflicting 0.
+- **eligibleEpisodes 1,635 / eligibleCells 3,260**: GUID 1,625; audio 1,635; description/cast/Spotify 0. This **exactly matches** the previous offline audit's MEDIA TALK candidate count.
+- 93 matched rows had no supported fill; unsupported cast 3 / Spotify 3. `matchedComplete` is only a legacy alias.
+- reasons: title_mismatch 6; date_mismatch 2 (may overlap).
+- Example candidate IDs: EP-05585 through EP-05576, columns [7,15] (G GUID, O audio).
+- Five unmatched include three Oct 13–14 2026 new episodes, Oct 12 `(MT)なんでも話せる場所はどこにある`, and a 2020-08-06 episode. Not automatically insertable.
+- 14 multiple-ledger matches include examples `(さんぽ)`, `(右往左往)`, `(朝レキ)`; keep held pending individual review.
+- Diagnostic does **not** authorize any actual sheet writes. Live prewrite checks, formula protection, and exclusions still required. No triggers/properties/production modifications.
