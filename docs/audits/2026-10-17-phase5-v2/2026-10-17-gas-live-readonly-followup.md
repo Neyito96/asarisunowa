@@ -95,3 +95,12 @@ User executed `previewLibraryV2NewsScene` in isolated GAS:
 - Ten candidates, each columns 7 GUID and 15 audio: EP-03855, EP-03854, EP-03851, EP-03850, EP-03849, EP-03848, EP-03846, EP-03845, EP-03842, EP-03841.
 - 7 title mismatches are held, not auto-fixed. This is a 10-episode sampled preflight only; no write permission or full-ledger validation.
 - Next: `previewLibraryV2Kids` for こどもそうだんしつ. Do not write to GAS or sheets.
+
+
+## 10:29 JST: targeted こどもそうだんしつ read-only preview and three-show summary
+User executed `previewLibraryV2Kids` in isolated GAS:
+- status READ_ONLY_TARGETED; rssItems 34; inspected 32; eligibleEpisodes 10; proposedCells 20; formulaProtected 0; nonblankProtected 0; holds 2 (`no_ledger_match`); writtenCells 0; propertiesChanged false (reported flag); elapsedMs 5583.
+- Ten candidates each for columns 7 GUID and 15 audio: EP-06588 through EP-06579.
+- Aggregate three sampled previews: 108 RSS items inspected; 30 eligible episodes; 60 candidate cells; 20 hold reasons (MEDIA TALK 4 no_ledger_match; News Scene 7 no_ledger_match + 7 title_mismatch; Kids 2 no_ledger_match). No sheet writes in any run. Combined elapsed 159564 ms.
+- Important: 20 holds are reason-counts from logs, not necessarily 20 distinct episodes in arbitrary future runs. The preview inspects first 200 RSS items or 10 eligible episodes; it does not test write-time revalidation, restart, checkpoint advance, or end-to-end throughput. Do not enable production writes or triggers.
+- Recommended next: review risks in GitHub code and inspect hold samples without mutating production; distinguish old SDGs archive from Kids current feed.
