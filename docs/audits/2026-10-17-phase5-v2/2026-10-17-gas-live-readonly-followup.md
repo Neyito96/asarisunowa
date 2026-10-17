@@ -47,3 +47,16 @@ User ran `diagnoseLibraryV2Feed5` in isolated GAS, `READ_ONLY_FEED_DIAGNOSTIC`, 
 - Five unmatched include three Oct 13–14 2026 new episodes, Oct 12 `(MT)なんでも話せる場所はどこにある`, and a 2020-08-06 episode. Not automatically insertable.
 - 14 multiple-ledger matches include examples `(さんぽ)`, `(右往左往)`, `(朝レキ)`; keep held pending individual review.
 - Diagnostic does **not** authorize any actual sheet writes. Live prewrite checks, formula protection, and exclusions still required. No triggers/properties/production modifications.
+
+
+## 10:07–10:09 JST: ニュースの現場から live diagnostic
+User ran `diagnoseLibraryV2Feed6` in isolated GAS, `READ_ONLY_FEED_DIAGNOSTIC`, feedIndex 6, `show: ニュースの現場から`, 2,648 RSS items, 6,591 ledger rows, elapsedMs 78,331.
+- guidMatched 395; clipMatched 0; officialItemMatched 2,226; noMatch 27; ambiguous 268; metadataMismatch 66; duplicateRssGuid 0; blockedOrConflicting 0.
+- **eligibleEpisodes 2,162 / eligibleCells 4,380**: GUID 2,162; audio 2,162; description 56; cast/Spotify 0. This **exactly matches** the previous offline audit.
+- 125 matched rows had no supported fill; unsupported cast 3 / Spotify 3. `matchedComplete` is only a legacy alias.
+- `reasons.title_mismatch:66`. Example candidate IDs EP-03855, EP-03854, EP-03851, EP-03850, EP-03849, EP-03848, EP-03846, EP-03845, EP-03842, EP-03841 (columns [7,15]).
+- 27 unmatched include new 2026-10-11–17 episodes and old 2020 London episodes; not safe to auto-insert.
+- 268 multiple-ledger matches include an episode about moving to `スポンジ Sports Lounge`; keep held. Title mismatch held examples include EP-00006, EP-00014, EP-03853.
+- MEDIA TALK + ニュースの現場から: **3,797 episodes / 7,640 cells**; 7,640 / 7,664 = 99.69% of previous offline audit candidate cells. Remaining previous candidate count: 12 episodes / 24 cells in こどもそうだんしつ.
+- Timing: MEDIA TALK ~60.9 seconds, ニュースの現場から ~78.3 seconds in isolated GAS; performance observations do not imply safe mass writes.
+- READ ONLY, no write authorization; actual prewrite guards and batch sizes remain unverified in live GAS.
