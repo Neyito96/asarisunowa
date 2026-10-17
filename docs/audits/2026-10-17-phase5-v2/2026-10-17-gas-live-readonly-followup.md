@@ -78,3 +78,12 @@ User ran `diagnoseLibraryV2Feed7` in isolated GAS, `READ_ONLY_FEED_DIAGNOSTIC`, 
 - 10:21 user explicitly ran **`previewLibraryV2Checkpoint`**: `status:READ_ONLY`, apiCalls 0, cacheHits 1, fetchedItems 0, inspected 25, proposedCells 0, writtenCells 0, holds 13, nextOffset 25, completeFeed true, elapsedMs 6268.
 - Feed URL: `https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/29a60fdd-4069-48cf-a604-ad25009874be/podcast.rss` (25-item feed, likely AJW; verify from feed registry if needed).
 - This validates read-only execution and cache hit but **does not validate the 7,664-cell prewrite path**, since no candidates in this feed. 13 holds need reason breakdown. Read-only preview does not advance durable checkpoint; repeated runs may scan same feed. Do not invoke write pilot without explicit authorization.
+
+
+## 10:24–10:25 JST: targeted MEDIA TALK read-only prewrite preview
+User installed the new `LibraryV2TargetedReadOnlyPreview.js` in isolated GAS and executed `previewLibraryV2MediaTalk`.
+- status `READ_ONLY_TARGETED`, show MEDIA TALK, rssItems 1754, inspected 34, eligibleEpisodes 10, proposedCells 20, writtenCells 0, propertiesChanged false, elapsedMs 66157.
+- formulaProtected 0; nonblankProtected 0; holds 4, all `no_ledger_match`.
+- EP-05585 through EP-05576 each proposed columns 7 (guid) and 15 (audio).
+- This is a successful *sampled* blank/formula preflight for ten episodes. No actual write or write-time race/lock/formula/exclusion guarantee established for 7,664 candidate cells. The helper's `propertiesChanged:false` is a declared flag, not an independently measured property diff.
+- Next: independently sample ニュースの現場から and こどもそうだんしつ with `previewLibraryV2NewsScene` and `previewLibraryV2Kids`; do not run write pilot or install triggers.
