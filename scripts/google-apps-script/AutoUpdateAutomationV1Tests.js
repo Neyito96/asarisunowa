@@ -138,6 +138,21 @@ function testAutoUpdateAutomationV1Pure() {
     throw new Error("起点日より後の回だけを初回補完候補にできません");
   }
 
+  const fullBootstrapState = createAutoPlaylistScopedShowState_(rule, "show-full", "full-bootstrap", "");
+  const fullPage1 = applyAutoUpdateFullBootstrapPageV1_(fullBootstrapState, [
+    { id: "new", name: "佐藤陽 新しい回", release_date: "2026-01-02" },
+    { id: "other", name: "別の出演者", release_date: "2025-06-01" }
+  ], rule, "next-url");
+  if (fullPage1.complete || fullPage1.candidateIds.join(",") !== "new") {
+    throw new Error("起点なし初回補完で条件一致回だけを候補化できません");
+  }
+  const fullPage2 = applyAutoUpdateFullBootstrapPageV1_(fullPage1, [
+    { id: "old", name: "佐藤陽 古い回", release_date: "2024-01-02" }
+  ], rule, "");
+  if (!fullPage2.complete || fullPage2.candidateIds.join(",") !== "new,old") {
+    throw new Error("起点なし初回補完で全期間を最後まで走査できません");
+  }
+
   const backstageRequest = {
     updateType: "series",
     title: "新聞社員の「楽屋裏」",
