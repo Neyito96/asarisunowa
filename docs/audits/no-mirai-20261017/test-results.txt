@@ -1,0 +1,33 @@
+✔ observed #7, #8, #9 titles pass existing numbered strategy (5.348956ms)
+✔ proposed OR: （ノーミライ #9）ひとりでやっとるチキンレースにライバル登場？というお話 (2.957877ms)
+✔ proposed OR: ノーミライ 番外編 (1.688718ms)
+✔ proposed OR: 農MUSICを語る (1.797034ms)
+✔ proposed OR: 猟LIFE の日常 (1.932615ms)
+✔ proposed OR: 今夜は農music (3.59741ms)
+✔ proposed OR: 特集：猟ｌｉｆｅ (1.780243ms)
+✔ proposed OR: ドーナツ通常回 (2.263972ms)
+✔ proposed OR: ノー ミライ (2.250126ms)
+✔ proposed OR: <empty> (2.058127ms)
+✔ description-only keyword cannot match proposed title rule (1.562314ms)
+✔ unchanged daily path sees zero candidates before #9 is returned (1.900735ms)
+✔ actual daily + actual addition helper POST exactly #9 once when returned (2.986449ms)
+✔ existing #9 URI produces zero POSTs and no date update (1.6789ms)
+✔ show HTTP failure raises rather than successful zero (1.697567ms)
+✔ HTTP 200 without items is silently classified as successful zero (diagnostic gap) (1.502062ms)
+✔ addition failure raises and cannot update latestDate (2.377395ms)
+✔ proposed matching preserves original show scope; response embedded show is not a scope guard (2.950828ms)
+✔ unrelated episode returned by same show is excluded (2.451392ms)
+✔ daily fixed path does not fetch a second page even when rule.fetchAllPages is true (1.640554ms)
+✔ shared show cache is fetched once within one managed pass (3.053028ms)
+✔ kino existing matcher misses observed 見た title spelling (separate risk) (1.094278ms)
+✔ publication cutoff explains #7/#8 vs #9; UTC date alone loses scheduling detail (13.253667ms)
+✔ actual proposed diagnostics identify fetch, diff and addition without token logging (2.842264ms)
+✔ actual proposed code rejects malformed 200 rather than silently succeeding (1.052614ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 165.830456
