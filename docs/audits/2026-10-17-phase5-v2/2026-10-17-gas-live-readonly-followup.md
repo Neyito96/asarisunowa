@@ -87,3 +87,11 @@ User installed the new `LibraryV2TargetedReadOnlyPreview.js` in isolated GAS and
 - EP-05585 through EP-05576 each proposed columns 7 (guid) and 15 (audio).
 - This is a successful *sampled* blank/formula preflight for ten episodes. No actual write or write-time race/lock/formula/exclusion guarantee established for 7,664 candidate cells. The helper's `propertiesChanged:false` is a declared flag, not an independently measured property diff.
 - Next: independently sample ニュースの現場から and こどもそうだんしつ with `previewLibraryV2NewsScene` and `previewLibraryV2Kids`; do not run write pilot or install triggers.
+
+
+## 10:27–10:28 JST: targeted ニュースの現場から read-only preview
+User executed `previewLibraryV2NewsScene` in isolated GAS:
+- status READ_ONLY_TARGETED; rssItems 2648; inspected 42; eligibleEpisodes 10; proposedCells 20; formulaProtected 0; nonblankProtected 0; holds 14; holdReasons no_ledger_match 7, title_mismatch 7; writtenCells 0; propertiesChanged false (reported flag); elapsedMs 87824.
+- Ten candidates, each columns 7 GUID and 15 audio: EP-03855, EP-03854, EP-03851, EP-03850, EP-03849, EP-03848, EP-03846, EP-03845, EP-03842, EP-03841.
+- 7 title mismatches are held, not auto-fixed. This is a 10-episode sampled preflight only; no write permission or full-ledger validation.
+- Next: `previewLibraryV2Kids` for こどもそうだんしつ. Do not write to GAS or sheets.
