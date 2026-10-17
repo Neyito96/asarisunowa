@@ -266,6 +266,7 @@ function previewLibraryV3Progress(){
   const state=!record?'UNINSPECTED':record[6]!==libV3Hash_(r[col-1]??'')?'RECHECK_REQUIRED':record[2];s.states[state]=(s.states[state]||0)+1;
  }
  const result={mode:'READ_ONLY_V3_PROGRESS',rows:c.rows.length,byShowField:[...stats.values()],config:libV3Config_(),conflictingTriggers:libV3Conflicts_(),audio:'external bounded transport required; HTTP evidence is not playback'};
+ Logger.log(JSON.stringify({mode:result.mode,rows:result.rows,groups:result.byShowField.length,config:result.config,conflictingTriggers:result.conflictingTriggers,writes:0}));
  Logger.log(JSON.stringify(result));return result;
 }
 function stopLibraryV3AfterApproval(){
@@ -319,5 +320,6 @@ function previewLibraryV3AllColumns(){
   present?g.present++:g.missing++;
   const state=prior?(prior[6]===libV3Hash_(r[col]??'')?prior[2]:'RECHECK_REQUIRED'):'UNINSPECTED';g.states[state]=(g.states[state]||0)+1;
  }
- return {mode:'READ_ONLY_V3_ALL_COLUMNS',rows:c.rows.length,columns:c.headers.length,byShowField:[...groups.values()],writes:0};
+ const result={mode:'READ_ONLY_V3_ALL_COLUMNS',rows:c.rows.length,columns:c.headers.length,byShowField:[...groups.values()],writes:0};
+ Logger.log(JSON.stringify({mode:result.mode,rows:result.rows,columns:result.columns,groups:result.byShowField.length,writes:result.writes}));return result;
 }
