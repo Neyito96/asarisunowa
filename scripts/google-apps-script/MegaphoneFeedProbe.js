@@ -32,7 +32,7 @@ function runMegaphoneFeedProbe() {
         const contentTags=it.getChildren().filter(e=>/video|content|transcript/i.test(e.getName())).map(e=>({name:e.getName(),namespace:e.getNamespace().getURI()})).slice(0,8);
         return {guid:value(it,'guid'),title:value(it,'title'),pubDate:value(it,'pubDate'),link:value(it,'link'),
           descriptionChars:description.length,descriptionPreview:description.slice(0,120),
-          enclosureType:attrs.type,enclosureHost:attrs.url?attrs.url.match(/^https?:\\/\\/([^/]+)/)?.[1]||'':'',
+          enclosureType:attrs.type,enclosureHost:attrs.url?attrs.url.split('/')[2]||'':'',
           enclosureHttps:attrs.url.startsWith('https://'),videoOrTranscriptTags:contentTags};
       });
       rec.status='OK';
