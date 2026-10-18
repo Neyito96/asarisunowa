@@ -285,3 +285,29 @@ function previewLibraryV3Phase6IsolatedCopy(){
  const result={mode:'READ_ONLY_PHASE6',status:'NO_APPROVABLE_CANDIDATE',copySheetId,scannedFeeds:reports.length,reports,writes:0,propertyWrites:0,spotifyPosts:0};
  Logger.log(JSON.stringify(result));return result;
 }
+
+
+/** Phase 6 minimum viable archive: RSS-only, no Spotify and no historical enrichment.
+ * Deployment/activation is a separate, explicitly approved action. This function
+ * only previews readiness and never installs a trigger or changes Properties.
+ */
+function previewLibraryV3MinimumArchiveReadiness(){
+ const p=PropertiesService.getScriptProperties();
+ const baseline=JSON.parse(p.getProperty('LIB_V3_BASELINE')||'{}');
+ const config=libV3Config_(),morning=libV3MorningConfig_();
+ const c=libV3Context_(false);
+ const triggers=ScriptApp.getProjectTriggers().map(t=>t.getHandlerFunction());
+ const checks={
+  baselineComplete:baseline.complete===true&&baseline.offset===c.rows.length,
+  officialRssFeedsPresent:c.feeds.length>0,
+  singleMorningScheduler:triggers.filter(t=>t==='scheduledLibraryV3Morning').length<=1,
+  noCompetingV3Scheduler:!triggers.some(t=>['scheduledLibraryV3','scheduledLibraryV3BaselineOnly'].includes(t)),
+  rssOnly:morning.spotify===false,
+  noHistoricalEnrichment:config.allowEnrich===false,
+  nonAutonomous:config.autonomous===false,
+  configEnabled:config.enabled===true,
+  morningEnabled:morning.enabled===true
+ };
+ const report={mode:'READ_ONLY_MINIMUM_ARCHIVE',status:Object.values(checks).every(Boolean)?'READY_FOR_FIRST_MORNING_RUN':'NOT_READY',checks,ledgerRows:c.rows.length,officialRssFeeds:c.feeds.length,triggerNames:triggers,writes:0,propertyWrites:0,spotifyPosts:0};
+ Logger.log(JSON.stringify(report));return report;
+}
