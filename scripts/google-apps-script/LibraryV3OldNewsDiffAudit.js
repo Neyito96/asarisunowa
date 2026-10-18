@@ -4,7 +4,7 @@ function previewLibraryV3OldNewsDiffAudit(){
  const norm=s=>String(s==null?'':s).replace(/\s+/g,' ').trim();
  const links=s=>(String(s||'').match(/https?:\/\/[^\s<>"']+/g)||[]).map(x=>x.replace(/[),.;]+$/,''));
  const tag=s=>/<\/?[a-z][^>]*>/i.test(String(s||''));
- const key=s=>norm(s).replace(/[\s\u3000\u00a0]/g,'').replace(/[「」『』。、・：:！!？?（）()［］\[\]～〜―ー－-]/g,'');
+ const key=s=>norm(s).replace(/[\s\u3000\u00a0]/g,'').replace(/[「」『』。、,.・：:！!？?（）()［］\[\]～〜―ー－-]/g,'');
  for(const r of c.rows){
   if(r[1]!=='ニュースの現場から'||!/^202[01]-/.test(libV2CpDate_(r[3])))continue;
   const raw=String(r[21]||''),clean=String(r[22]||''), expected=libV3Clean_(raw);
