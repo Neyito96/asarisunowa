@@ -15,6 +15,9 @@ function run({items=[],copyRows=['A','B'],sourceRows=['A','B'],baseline={complet
   libV2CpSnapshot_:()=>feedError?{status:feedError}:{items},
   libV2CpParse_:()=>{},libV3AutoCleanEvidence_:()=>({hold:false}),
   libV3NewDecision_:()=>({reasons:[]}),
+  libV3Config_:()=>({enabled:true,autonomous:false,allowEnrich:false}),
+  libV3MorningConfig_:()=>({enabled:true,spotify:false}),
+  ScriptApp:{getProjectTriggers:()=>[{getHandlerFunction:()=> 'scheduledLibraryV3Morning'}]},
   libV2CpMatches_:()=>[],
   previewLibraryV3CopyPilot:({guid})=>({status:'READY_FOR_COPY_APPROVAL',planHash:'hash-'+guid,sourceRows:2,copyRows:2}),
  };
@@ -46,4 +49,10 @@ test('single-command preview returns plan hash but never writes',()=>{
 test('RSS failure yields no approvable candidate',()=>{
  const c=run({feedError:'HTTP_503'});const r=c.previewLibraryV3Phase6IsolatedCopy();
  assert.equal(r.status,'NO_APPROVABLE_CANDIDATE');assert.equal(r.writes,0);
+});
+
+test('minimum archive readiness is RSS-only and does not write',()=>{
+ const c=run();const r=c.previewLibraryV3MinimumArchiveReadiness();
+ assert.equal(r.status,'READY_FOR_FIRST_MORNING_RUN');assert.equal(r.checks.rssOnly,true);
+ assert.equal(r.checks.noHistoricalEnrichment,true);assert.equal(r.writes,0);assert.equal(r.propertyWrites,0);
 });
