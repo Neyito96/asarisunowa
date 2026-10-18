@@ -1,0 +1,30 @@
+name: Issue 231 performer playlist safety tests
+on:
+  pull_request:
+    paths:
+      - 'scripts/library-v3-performer-playlist-batch.mjs'
+      - 'scripts/library-v3-playlist-subscription-commands.mjs'
+      - 'tests/library-v3-performer-playlist-batch.test.mjs'
+      - 'tests/library-v3-playlist-subscription-commands.test.mjs'
+      - '.github/workflows/performer-playlist-tests.yml'
+  push:
+    branches:
+      - 'feature/performer-playlist-shared-engine-231'
+    paths:
+      - 'scripts/library-v3-performer-playlist-batch.mjs'
+      - 'scripts/library-v3-playlist-subscription-commands.mjs'
+      - 'tests/library-v3-performer-playlist-batch.test.mjs'
+      - 'tests/library-v3-playlist-subscription-commands.test.mjs'
+      - '.github/workflows/performer-playlist-tests.yml'
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node tests/library-v3-performer-playlist-batch.test.mjs
+      - run: node tests/library-v3-playlist-subscription-commands.test.mjs
