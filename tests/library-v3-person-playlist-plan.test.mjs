@@ -1,0 +1,10 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {planPersonPlaylist} from '../scripts/library-v3-person-playlist-plan.mjs';
+const id='0123456789ABCDEFGHIJKL',url='https://open.spotify.com/episode/'+id;
+const ep=(x={})=>({epId:'EP-1',identityStatus:'EXACT',people:[{name:'小林友花',role:'出演',evidenceStatus:'VERIFIED',source:'RSS'}],spotifyUrl:url,spotifyEvidenceStatus:'VERIFIED',...x});
+test('verified performer and Spotify ID are proposal-only',()=>{const p=planPersonPlaylist({personName:'小林友花',episodes:[ep()],approvedPlaylist:true,playlistId:'test'});assert.equal(p.candidates.length,1);assert.equal(p.spotifyAddCalls,0);});
+test('mere description mention cannot create cast hit',()=>assert.equal(planPersonPlaylist({personName:'小林友花',episodes:[ep({people:[],description:'小林友花'})]}).candidates.length,0));
+test('missing Spotify verification is held',()=>assert.equal(planPersonPlaylist({personName:'小林友花',episodes:[ep({spotifyEvidenceStatus:'UNVERIFIED'})]}).holds[0].reason,'SPOTIFY_URL_NOT_VERIFIED'));
+test('playlist-existing entry is not proposed for another append',()=>assert.equal(planPersonPlaylist({personName:'小林友花',episodes:[ep()],playlistEpisodeUrls:[url]}).candidates[0].status,'ALREADY_IN_PLAYLIST'));
+test('exclude and ambiguous are protected',()=>assert.equal(planPersonPlaylist({personName:'小林友花',episodes:[ep({excluded:true})]}).holds.length,1));
+test('duplicate Spotify ids held',()=>assert.equal(planPersonPlaylist({personName:'小林友花',episodes:[ep(),ep({epId:'EP-2'})]}).holds[0].reason,'DUPLICATE_SPOTIFY_ID_IN_LIBRARY'));
