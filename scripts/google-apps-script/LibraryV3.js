@@ -482,6 +482,8 @@ function libV3RelatedArticleCandidates_(raw){
   const u=lines[i].trim().match(/^(https?:\/\/\S+)$/),title=lines[i-1].trim();
   if(u&&title&&title.length<=180&&!/^(?:関連記事|参考資料|リンク集)$/.test(title))add(u[1],title,'preceding_line');
  }
+ for(const m of text.matchAll(/https?:\/\/(?:www\.)?asahi\.com\/articles\/[^\s<>()（）]+/g))
+  add(m[0],null,'asahi_article_url_review');
  return result;
 }
 
