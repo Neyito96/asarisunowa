@@ -33,3 +33,9 @@ test('refuses pre-existing stage output and never overwrites',async()=>{
  const f=await fixture();await mkdir(f.out);await writeFile(join(f.out,'preserve'),'KEEP');
  assert.notEqual(run(f).status,0);assert.equal(await readFile(join(f.out,'preserve'),'utf8'),'KEEP');
 });
+
+test('refuses syntactically broken GAS candidate before staging',async()=>{
+ const f=await fixture();
+ await writeFile(f.candidate,'function previewLibraryV3MacHandoff(){}\nfunction libV3RelatedArticleCandidates_(){');
+ assert.notEqual(run(f).status,0);
+});
