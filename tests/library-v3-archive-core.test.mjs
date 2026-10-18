@@ -35,3 +35,10 @@ test('missing original or source is held',()=>{
  assert.equal(planArchive({...input,raw:''}).records.length,0);
  assert.equal(planArchive({...input,sourceUrl:'http://insecure.example'}).records.length,0);
 });
+
+test('a generic 関連記事 label is not a verified article title',()=>{
+ const l=parseRelatedLinks('関連記事：https://example.org/a');
+ assert.equal(l.length,1);
+ assert.equal(l[0].title,null);
+ assert.equal(l[0].titleVerified,false);
+});
