@@ -42,3 +42,10 @@ test('a generic 関連記事 label is not a verified article title',()=>{
  assert.equal(l[0].title,null);
  assert.equal(l[0].titleVerified,false);
 });
+
+test('two-line Asahi article heading and URL retain title as unverified candidate',()=>{
+ const links=parseRelatedLinks('ビール大手4社が価格調整の疑い、公取委が家宅捜索\nhttps://www.asahi.com/articles/ASVB64JYCVB6UTIL024M.html?iref=omny');
+ assert.equal(links.length,1);
+ assert.equal(links[0].titleCandidate,'ビール大手4社が価格調整の疑い、公取委が家宅捜索');
+ assert.equal(links[0].titleVerified,false);
+});
