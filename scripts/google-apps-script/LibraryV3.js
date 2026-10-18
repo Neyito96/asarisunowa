@@ -454,7 +454,11 @@ function libV3ContentClean_(raw,show){
  });
  const unsupported=/<(?:script|style|img|iframe)\b|\b(?:hidden|display\s*:\s*none)\b/i.test(String(raw));
  if(unsupported)review.push({reason:'unsupported_markup_original_preserved'});
- const text=kept.join('\n').replace(/\n{3,}/g,'\n\n').trim();
+ // 1007 legacy: exact cross-promotion may share a line with the recorded date.
+ const joined=kept.join('\n');
+ const promo=/朝日新聞ポッドキャスト（\s*https?:\/\/www\.asahi\.com\/special\/podcasts\/?(?:\?iref=omny)?\s*）では他にも様々な番組を配信(?:しています|、テキストでも読めます|しているほか、関連記事も読んでいただけます)[。.]?/g;
+ const withoutPromo=joined.replace(promo,(part,pos)=>{removed.push({line:null,text:part,rule:'legacy1007_cross_promo',reason:'exact_legacy_verified_text',offset:pos});return '';});
+ const text=withoutPromo.replace(/\n{3,}/g,'\n\n').trim();
  return {text,ruleVersion:'V3-rss-content-1',rawHash:libV3Hash_(raw),cleanHash:libV3Hash_(text),removed,review,hold:unsupported,reason:unsupported?'unsupported_markup':'exact_rules_only',originalPreserved:true};
 }
 
