@@ -8,7 +8,7 @@ function run({items=[],copyRows=['A','B'],sourceRows=['A','B'],baseline={complet
  const feed={url:'https://example.org/official.rss',show:'ニュースの現場から'};
  const context={
   Logger:{log(){}},Date,Map,JSON,
-  libV3CopyPilotId_:o=>{if(o.copySheetId!=='COPY_TEST_12345678901234567890')throw Error('bad copy');return o.copySheetId;},
+  libV3CopyPilotId_:o=>{if(!['COPY_TEST_12345678901234567890','19Dv6cgM33NYbrMGLofuVvxM4-WHiuPqxmivZUuwoBqc'].includes(o.copySheetId))throw Error('bad copy');return o.copySheetId;},
   libV3Context_:(isCopy)=>({rows:isCopy?copyRows:sourceRows,feeds:[feed],index:{guid:new Map(),anchor:new Map()}}),
   PropertiesService:{getScriptProperties:()=>({getProperty:()=>JSON.stringify(baseline)})},
   libV3Hash_:v=>JSON.stringify(v),
