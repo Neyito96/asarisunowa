@@ -457,6 +457,30 @@ function libV3ContentClean_(raw,show){
  const text=kept.join('\n').replace(/\n{3,}/g,'\n\n').trim();
  return {text,ruleVersion:'V3-rss-content-1',rawHash:libV3Hash_(raw),cleanHash:libV3Hash_(text),removed,review,hold:unsupported,reason:unsupported?'unsupported_markup':'exact_rules_only',originalPreserved:true};
 }
+
+/** 1007-compatible related title/URL candidates. READ_ONLY, never verify a title by inference. */
+function libV3RelatedArticleCandidates_(raw){
+ const text=String(raw||'').replace(/\\r\\n|\\n|\\r|\r\n?/g,'\n'),result=[],seen=new Set();
+ const add=(url,title,source)=>{
+  const u=String(url||'').replace(/[）)\]。、,，；;]+$/g,'');
+  if(!/^https?:\/\/[^\s<>]+$/i.test(u)||/\/special\/podcasts\/?(?:\?|$)/.test(u)||seen.has(u))return;
+  seen.add(u);result.push({url:u,titleCandidate:String(title||'').trim()||null,titleVerified:false,source,status:'REVIEW'});
+ };
+ for(const m of text.matchAll(/【関連記事】([\s\S]*?)(?=\n\s*【[^】]+】|\n\s*朝日新聞ポッドキャスト|$)/g)){
+  for(const chunk of m[1].split(/\s*▽\s*|\n(?=\S)/)){
+   const part=chunk.split(/\s+朝日新聞ポッドキャスト（/)[0];
+   for(const link of part.matchAll(/https?:\/\/[^\s（）()<>]+/g))
+    add(link[0],part.slice(0,link.index).replace(/[（(\s]+$/g,''),'related_heading');
+  }
+ }
+ const lines=text.split('\n');
+ for(let i=1;i<lines.length;i++){
+  const u=lines[i].trim().match(/^(https?:\/\/\S+)$/),title=lines[i-1].trim();
+  if(u&&title&&title.length<=180&&!/^(?:関連記事|参考資料|リンク集)$/.test(title))add(u[1],title,'preceding_line');
+ }
+ return result;
+}
+
 /** Audit-only parser: preserve RSS description text (HTML retained), not V2's escaped newlines.
  * Existing ingestion/writing parsers are intentionally unchanged. */
 function libV3CandidateParse_(text){
@@ -549,7 +573,7 @@ function previewLibraryV3RssCandidates(options){
    const ep={id:p.id||'',show,guid:it.guid,title:it.title,date:it.date,published:it.published||'',feed:feed.url,
     match:{method:p.id?(libV2CpGuid_(row[6])===it.guid?'GUID':libV2CpOfficialItem_(row[9])===it.guid?'ASAHI_ITEM_ID':'OMNY_CLIP_ID'):'NONE',confidence:p.id&&!reasons.length?'EXACT_IDENTITY_METADATA_VALIDATED':'HELD'},
     reasons,sourceHash:p.sourceHash||libV3Hash_(it),people:evidence.people,descriptionRaw:it.description||'',descriptionSource:feed.url,descriptionTag:it.descriptionTag||'description',descriptionVariants:it.descriptionVariants||{description:it.description||''},
-    content,cleanExisting:row?row[22]:'',cleanPresent:!!(row&&libV3Text_(row[22])),audioUrl:it.audio||'',httpVerified:false,playbackVerified:false,fields:[]};
+    content,relatedArticles:libV3RelatedArticleCandidates_(it.description||''),cleanExisting:row?row[22]:'',cleanPresent:!!(row&&libV3Text_(row[22])),audioUrl:it.audio||'',httpVerified:false,playbackVerified:false,fields:[]};
    for(const r of evidence.reviews)m.review.push({id:ep.id,guid:it.guid,...r});
    const selected=p.fields.filter(f=>['audio','description','clean','cleanVersion','cast','cast1','cast2','cast3','cast4','cast5','castEvidence'].includes(f.name));
    const proposed=[],rowFormulas=p.id?c.sh.getRange(p.i+2,1,1,51).getFormulas()[0]:[];
