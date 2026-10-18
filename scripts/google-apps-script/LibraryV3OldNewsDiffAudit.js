@@ -9,7 +9,7 @@ function previewLibraryV3OldNewsDiffAudit(){
   if(r[1]!=='ニュースの現場から'||!/^202[01]-/.test(libV2CpDate_(r[3])))continue;
   const raw=String(r[21]||''),clean=String(r[22]||''), expected=libV3Clean_(raw);
   let reason;
-  if(!norm(raw))reason='RAW_MISSING';
+  if(!norm(raw))reason=/^https:\/\/www\.asahi\.com\/special\/podcasts\/item\/\?itemid=[a-f0-9-]{36}$/i.test(String(r[9]||''))&&/^https:\/\/omny\.fm\/shows\//.test(String(r[8]||''))?'RAW_MISSING_ANCHORED_REVIEW':'RAW_MISSING_UNANCHORED_REVIEW';
   else if(!norm(clean))reason='CLEAN_MISSING';
   else if(expected===clean)reason='MECHANICAL_EQUAL';
   else if(expected.replace(/\s+/g,'')===clean.replace(/\s+/g,''))reason='UNICODE_WHITESPACE_ONLY';
