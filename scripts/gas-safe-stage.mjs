@@ -9,6 +9,7 @@
 import {readdir,readFile,mkdir,copyFile,writeFile,stat} from 'node:fs/promises';
 import {resolve,join,dirname,sep} from 'node:path';
 import {createHash} from 'node:crypto';
+import {Script} from 'node:vm';
 const args=process.argv.slice(2),opt={};
 for(let i=0;i<args.length;i+=2){if(!/^--[\w-]+$/.test(args[i])||!args[i+1])throw Error('Invalid arguments');opt[args[i].slice(2)]=args[i+1];}
 const required=['online-dir','candidate','out-dir','script-id'];
@@ -34,6 +35,7 @@ if(gasTargets.length!==1)throw Error('Expected exactly one LibraryV3 target, got
 const candidateCode=await readFile(candidate,'utf8');
 if(!candidateCode.includes('function previewLibraryV3MacHandoff()')||!candidateCode.includes('function libV3RelatedArticleCandidates_'))throw Error('Candidate lacks expected Phase6 READ_ONLY functions');
 if(/^\s*(?:import|export)\s/m.test(candidateCode))throw Error('GAS candidate contains unsupported module syntax');
+try{new Script(candidateCode,{filename:'LibraryV3.gs'});}catch(e){throw Error('STOP: invalid candidate GAS JavaScript syntax: '+e.message);}
 const target=gasTargets[0],oldCode=await readFile(join(src,target),'utf8');
 const declared=(code)=>[...code.matchAll(/^\s*function\s+([A-Za-z_$][\w$]*)\s*\(/gm)].map(m=>m[1]);
 for(const [kind,code] of [['candidate',candidateCode],['online',oldCode]]){
