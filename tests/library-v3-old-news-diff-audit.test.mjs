@@ -8,7 +8,7 @@ function run(rows){
  const ctx={
   libV3Context_:()=>({rows}),
   libV2CpDate_:v=>v,
-  libV3Clean_:s=>String(s).replace(/<[^>]*>/g,' ').replace(/\\s+/g,' ').trim(),
+  libV3Clean_:s=>String(s).replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim(),
   Logger:{log:s=>logs.push(JSON.parse(s))}
  };
  vm.createContext(ctx);vm.runInContext(source,ctx);
