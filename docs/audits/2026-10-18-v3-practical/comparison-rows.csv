@@ -1,0 +1,575 @@
+comparison,status,ledger_id_if_source,show,source_row,reasons
+copyToLedger,held,,ニュースの現場から,2626,title_mismatch
+copyToLedger,held,,ニュースの現場から,2628,title_mismatch
+copyToLedger,held,,MEDIA TALK,541,title_mismatch
+copyToLedger,held,,MEDIA TALK,568,title_mismatch
+copyToLedger,held,,MEDIA TALK,672,title_mismatch
+copyToLedger,held,,MEDIA TALK,691,title_mismatch
+copyToLedger,held,,MEDIA TALK,1744,title_mismatch
+copyToLedger,held,,ドーナツ,22,title_mismatch
+copyToLedger,held,,ドーナツ,27,title_mismatch
+copyToLedger,held,,ドーナツ,32,title_mismatch
+copyToLedger,held,,ドーナツ,48,title_mismatch
+copyToLedger,held,,こどもそうだんしつ,1115,title_mismatch
+copyToLedger,held,,こどもそうだんしつ,1123,title_mismatch
+copyToLedger,held,,報談,125,title_mismatch
+copyToLedger,held,,報談,150,title_mismatch
+copyToLedger,held,,報談,153,title_mismatch
+copyToLedger,held,,報談,165,title_mismatch
+copyToLedger,held,,報談,177,title_mismatch
+copyToLedger,held,,ニュースの学校,17,title_mismatch
+copyToLedger,held,,ニュースの学校,18,title_mismatch
+copyToLedger,held,,ニュースの学校,29,title_mismatch
+copyToLedger,held,,ニュースの学校,56,title_mismatch
+copyToLedger,held,,ニュースの学校,59,title_mismatch
+copyToLedger,held,,ニュースの学校,63,title_mismatch
+copyToLedger,held,,ニュースの学校,283,title_mismatch
+copyToLedger,held,,ニュースの学校,297,title_mismatch
+copyToLedger,held,,ニュースの学校,355,title_mismatch
+sharedToLedger,held,,ニュースの現場から,2626,title_mismatch
+sharedToLedger,held,,ニュースの現場から,2628,title_mismatch
+sharedToLedger,held,,MEDIA TALK,541,title_mismatch
+sharedToLedger,held,,MEDIA TALK,568,title_mismatch
+sharedToLedger,held,,MEDIA TALK,672,title_mismatch
+sharedToLedger,held,,MEDIA TALK,691,title_mismatch
+sharedToLedger,held,,MEDIA TALK,918,title_mismatch
+sharedToLedger,held,,MEDIA TALK,923,title_mismatch
+sharedToLedger,held,,MEDIA TALK,941,title_mismatch
+sharedToLedger,held,,MEDIA TALK,942,title_mismatch
+sharedToLedger,held,,MEDIA TALK,956,title_mismatch
+sharedToLedger,held,,MEDIA TALK,977,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1003,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1017,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1152,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1157,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1184,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1242,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1256,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1258,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1292,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1452,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1549,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1569,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1574,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1604,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1623,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1662,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1663,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1667,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1675,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1677,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1680,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1684,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1690,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1721,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1744,title_mismatch
+sharedToLedger,held,,MEDIA TALK,1750,title_mismatch
+sharedToLedger,held,,ドーナツ,22,title_mismatch
+sharedToLedger,held,,ドーナツ,27,title_mismatch
+sharedToLedger,held,,ドーナツ,32,title_mismatch
+sharedToLedger,held,,ドーナツ,48,title_mismatch
+sharedToLedger,held,,こどもそうだんしつ,51,title_mismatch
+sharedToLedger,held,,こどもそうだんしつ,319,title_mismatch
+sharedToLedger,held,,こどもそうだんしつ,591,title_mismatch
+sharedToLedger,held,,こどもそうだんしつ,688,title_mismatch
+sharedToLedger,held,,こどもそうだんしつ,689,title_mismatch
+sharedToLedger,held,,こどもそうだんしつ,716,title_mismatch
+sharedToLedger,held,,こどもそうだんしつ,717,title_mismatch
+sharedToLedger,held,,こどもそうだんしつ,728,title_mismatch
+sharedToLedger,held,,こどもそうだんしつ,729,title_mismatch
+sharedToLedger,held,,こどもそうだんしつ,813,title_mismatch
+sharedToLedger,held,,こどもそうだんしつ,827,title_mismatch
+sharedToLedger,held,,こどもそうだんしつ,905,title_mismatch
+sharedToLedger,held,,こどもそうだんしつ,906,title_mismatch
+sharedToLedger,held,,こどもそうだんしつ,973,title_mismatch
+sharedToLedger,held,,こどもそうだんしつ,1115,title_mismatch
+sharedToLedger,held,,こどもそうだんしつ,1123,title_mismatch
+sharedToLedger,held,,報談,125,title_mismatch
+sharedToLedger,held,,報談,150,title_mismatch
+sharedToLedger,held,,報談,153,title_mismatch
+sharedToLedger,held,,報談,165,title_mismatch
+sharedToLedger,held,,報談,177,title_mismatch
+sharedToLedger,held,,ニュースの学校,17,title_mismatch
+sharedToLedger,held,,ニュースの学校,18,title_mismatch
+sharedToLedger,held,,ニュースの学校,29,title_mismatch
+sharedToLedger,held,,ニュースの学校,56,title_mismatch
+sharedToLedger,held,,ニュースの学校,59,title_mismatch
+sharedToLedger,held,,ニュースの学校,63,title_mismatch
+sharedToLedger,held,,ニュースの学校,283,title_mismatch
+sharedToLedger,held,,ニュースの学校,297,title_mismatch
+sharedToLedger,held,,ニュースの学校,355,title_mismatch
+sharedToLedger,unmatched,,ニュースの現場から,2644,no_exact_identifier
+sharedToLedger,unmatched,,ニュースの現場から,2645,no_exact_identifier
+sharedToLedger,unmatched,,ニュースの現場から,2646,no_exact_identifier
+sharedToLedger,unmatched,,ニュースの現場から,2647,no_exact_identifier
+sharedToLedger,unmatched,,ニュースの現場から,2648,no_exact_identifier
+sharedToLedger,unmatched,,ニュースの現場から,2649,no_exact_identifier
+sharedToLedger,unmatched,,ニュースの現場から,2650,no_exact_identifier
+sharedToLedger,unmatched,,ニュースの現場から,2651,no_exact_identifier
+sharedToLedger,unmatched,,MEDIA TALK,1753,no_exact_identifier
+sharedToLedger,unmatched,,MEDIA TALK,1754,no_exact_identifier
+sharedToLedger,unmatched,,MEDIA TALK,1755,no_exact_identifier
+sharedToLedger,unmatched,,MEDIA TALK,1756,no_exact_identifier
+sharedToLedger,unmatched,,ドーナツ,63,no_exact_identifier
+sharedToLedger,unmatched,,ドーナツ,64,no_exact_identifier
+sharedToLedger,unmatched,,ドーナツ,65,no_exact_identifier
+sharedToLedger,unmatched,,ドーナツ,66,no_exact_identifier
+sharedToLedger,unmatched,,スポンジ,176,no_exact_identifier
+sharedToLedger,unmatched,,スポンジ,177,no_exact_identifier
+sharedToLedger,unmatched,,スポンジ,178,no_exact_identifier
+sharedToLedger,unmatched,,こどもそうだんしつ,1126,no_exact_identifier
+sharedToLedger,unmatched,,こどもそうだんしつ,1127,no_exact_identifier
+sharedToLedger,unmatched,,報談,218,no_exact_identifier
+sharedToLedger,unmatched,,報談,219,no_exact_identifier
+sharedToLedger,unmatched,,ニュースの学校,485,no_exact_identifier
+sharedToLedger,unmatched,,ニュースの学校,486,no_exact_identifier
+sharedToLedger,unmatched,,ニュースの学校,487,no_exact_identifier
+sharedToLedger,unmatched,,ニュースの学校,488,no_exact_identifier
+sharedToLedger,unmatched,,ニュースの学校,489,no_exact_identifier
+sharedToLedger,unmatched,,ニュースの学校,490,no_exact_identifier
+copyToShared,held,,MEDIA TALK,541,title_mismatch
+copyToShared,held,,MEDIA TALK,568,title_mismatch
+copyToShared,held,,MEDIA TALK,672,title_mismatch
+copyToShared,held,,MEDIA TALK,691,title_mismatch
+copyToShared,held,,MEDIA TALK,918,title_mismatch
+copyToShared,held,,MEDIA TALK,923,title_mismatch
+copyToShared,held,,MEDIA TALK,941,title_mismatch
+copyToShared,held,,MEDIA TALK,942,title_mismatch
+copyToShared,held,,MEDIA TALK,956,title_mismatch
+copyToShared,held,,MEDIA TALK,977,title_mismatch
+copyToShared,held,,MEDIA TALK,1003,title_mismatch
+copyToShared,held,,MEDIA TALK,1017,title_mismatch
+copyToShared,held,,MEDIA TALK,1152,title_mismatch
+copyToShared,held,,MEDIA TALK,1157,title_mismatch
+copyToShared,held,,MEDIA TALK,1184,title_mismatch
+copyToShared,held,,MEDIA TALK,1242,title_mismatch
+copyToShared,held,,MEDIA TALK,1256,title_mismatch
+copyToShared,held,,MEDIA TALK,1258,title_mismatch
+copyToShared,held,,MEDIA TALK,1292,title_mismatch
+copyToShared,held,,MEDIA TALK,1452,title_mismatch
+copyToShared,held,,MEDIA TALK,1549,title_mismatch
+copyToShared,held,,MEDIA TALK,1569,title_mismatch
+copyToShared,held,,MEDIA TALK,1574,title_mismatch
+copyToShared,held,,MEDIA TALK,1604,title_mismatch
+copyToShared,held,,MEDIA TALK,1623,title_mismatch
+copyToShared,held,,MEDIA TALK,1662,title_mismatch
+copyToShared,held,,MEDIA TALK,1663,title_mismatch
+copyToShared,held,,MEDIA TALK,1667,title_mismatch
+copyToShared,held,,MEDIA TALK,1675,title_mismatch
+copyToShared,held,,MEDIA TALK,1677,title_mismatch
+copyToShared,held,,MEDIA TALK,1680,title_mismatch
+copyToShared,held,,MEDIA TALK,1684,title_mismatch
+copyToShared,held,,MEDIA TALK,1690,title_mismatch
+copyToShared,held,,MEDIA TALK,1721,title_mismatch
+copyToShared,held,,こどもそうだんしつ,51,title_mismatch
+copyToShared,held,,こどもそうだんしつ,319,title_mismatch
+copyToShared,held,,こどもそうだんしつ,591,title_mismatch
+copyToShared,held,,こどもそうだんしつ,688,title_mismatch
+copyToShared,held,,こどもそうだんしつ,689,title_mismatch
+copyToShared,held,,こどもそうだんしつ,716,title_mismatch
+copyToShared,held,,こどもそうだんしつ,717,title_mismatch
+copyToShared,held,,こどもそうだんしつ,728,title_mismatch
+copyToShared,held,,こどもそうだんしつ,729,title_mismatch
+copyToShared,held,,こどもそうだんしつ,813,title_mismatch
+copyToShared,held,,こどもそうだんしつ,827,title_mismatch
+copyToShared,held,,こどもそうだんしつ,905,title_mismatch
+copyToShared,held,,こどもそうだんしつ,906,title_mismatch
+copyToShared,held,,こどもそうだんしつ,973,title_mismatch
+copyToShared,held,,朝ポキTV,61,multiple_identity_matches
+copyToShared,held,,朝ポキTV,62,multiple_identity_matches
+copyToShared,held,,朝ポキTV,63,multiple_identity_matches
+copyToShared,held,,朝ポキTV,64,multiple_identity_matches
+copyToShared,held,,朝ポキTV,65,multiple_identity_matches
+copyToShared,held,,朝ポキTV,66,multiple_identity_matches
+copyToShared,held,,朝ポキTV,67,multiple_identity_matches
+copyToShared,held,,朝ポキTV,68,multiple_identity_matches
+copyToShared,held,,朝ポキTV,161,multiple_identity_matches
+copyToShared,held,,朝ポキTV,162,multiple_identity_matches
+copyToShared,held,,朝ポキTV,163,multiple_identity_matches
+copyToShared,held,,朝ポキTV,164,multiple_identity_matches
+copyToShared,held,,朝ポキTV,165,multiple_identity_matches
+copyToShared,held,,朝ポキTV,166,multiple_identity_matches
+copyToShared,held,,朝ポキTV,167,multiple_identity_matches
+copyToShared,held,,朝ポキTV,168,multiple_identity_matches
+copyToShared,held,,朝ポキTV,314,multiple_identity_matches
+copyToShared,held,,朝ポキTV,315,multiple_identity_matches
+ledgerToShared,held,EP-00016,ニュースの現場から,17,title_mismatch
+ledgerToShared,held,EP-00018,ニュースの現場から,19,title_mismatch
+ledgerToShared,held,EP-00023,MEDIA TALK,24,title_mismatch
+ledgerToShared,held,EP-00029,MEDIA TALK,30,title_mismatch
+ledgerToShared,held,EP-00043,こどもそうだんしつ,44,title_mismatch
+ledgerToShared,held,EP-00051,こどもそうだんしつ,52,title_mismatch
+ledgerToShared,held,EP-00112,ドーナツ,113,title_mismatch
+ledgerToShared,held,EP-00294,ドーナツ,295,title_mismatch
+ledgerToShared,held,EP-00297,ドーナツ,298,title_mismatch
+ledgerToShared,held,EP-00299,ドーナツ,300,title_mismatch
+ledgerToShared,held,EP-00356,こどもそうだんしつ,357,title_mismatch
+ledgerToShared,held,EP-00520,ニュースの学校,521,title_mismatch
+ledgerToShared,held,EP-00578,ニュースの学校,579,title_mismatch
+ledgerToShared,held,EP-00592,ニュースの学校,593,title_mismatch
+ledgerToShared,held,EP-00812,ニュースの学校,813,title_mismatch
+ledgerToShared,held,EP-00816,ニュースの学校,817,title_mismatch
+ledgerToShared,held,EP-00819,ニュースの学校,820,title_mismatch
+ledgerToShared,held,EP-00846,ニュースの学校,847,title_mismatch
+ledgerToShared,held,EP-00857,ニュースの学校,858,title_mismatch
+ledgerToShared,held,EP-00858,ニュースの学校,859,title_mismatch
+ledgerToShared,held,EP-00894,報談,895,title_mismatch
+ledgerToShared,held,EP-00906,報談,907,title_mismatch
+ledgerToShared,held,EP-00918,報談,919,title_mismatch
+ledgerToShared,held,EP-00921,報談,922,title_mismatch
+ledgerToShared,held,EP-00945,報談,946,title_mismatch
+ledgerToShared,held,EP-04394,MEDIA TALK,4395,title_mismatch
+ledgerToShared,held,EP-04421,MEDIA TALK,4422,title_mismatch
+ledgerToShared,held,EP-04525,MEDIA TALK,4526,title_mismatch
+ledgerToShared,held,EP-04544,MEDIA TALK,4545,title_mismatch
+ledgerToShared,held,EP-04771,MEDIA TALK,4772,title_mismatch
+ledgerToShared,held,EP-04776,MEDIA TALK,4777,title_mismatch
+ledgerToShared,held,EP-04794,MEDIA TALK,4795,title_mismatch
+ledgerToShared,held,EP-04795,MEDIA TALK,4796,title_mismatch
+ledgerToShared,held,EP-04809,MEDIA TALK,4810,title_mismatch
+ledgerToShared,held,EP-04830,MEDIA TALK,4831,title_mismatch
+ledgerToShared,held,EP-04856,MEDIA TALK,4857,title_mismatch
+ledgerToShared,held,EP-04870,MEDIA TALK,4871,title_mismatch
+ledgerToShared,held,EP-05005,MEDIA TALK,5006,title_mismatch
+ledgerToShared,held,EP-05010,MEDIA TALK,5011,title_mismatch
+ledgerToShared,held,EP-05037,MEDIA TALK,5038,title_mismatch
+ledgerToShared,held,EP-05095,MEDIA TALK,5096,title_mismatch
+ledgerToShared,held,EP-05109,MEDIA TALK,5110,title_mismatch
+ledgerToShared,held,EP-05111,MEDIA TALK,5112,title_mismatch
+ledgerToShared,held,EP-05145,MEDIA TALK,5146,title_mismatch
+ledgerToShared,held,EP-05305,MEDIA TALK,5306,title_mismatch
+ledgerToShared,held,EP-05402,MEDIA TALK,5403,title_mismatch
+ledgerToShared,held,EP-05422,MEDIA TALK,5423,title_mismatch
+ledgerToShared,held,EP-05427,MEDIA TALK,5428,title_mismatch
+ledgerToShared,held,EP-05457,MEDIA TALK,5458,title_mismatch
+ledgerToShared,held,EP-05476,MEDIA TALK,5477,title_mismatch
+ledgerToShared,held,EP-05515,MEDIA TALK,5516,title_mismatch
+ledgerToShared,held,EP-05516,MEDIA TALK,5517,title_mismatch
+ledgerToShared,held,EP-05520,MEDIA TALK,5521,title_mismatch
+ledgerToShared,held,EP-05528,MEDIA TALK,5529,title_mismatch
+ledgerToShared,held,EP-05530,MEDIA TALK,5531,title_mismatch
+ledgerToShared,held,EP-05533,MEDIA TALK,5534,title_mismatch
+ledgerToShared,held,EP-05537,MEDIA TALK,5538,title_mismatch
+ledgerToShared,held,EP-05543,MEDIA TALK,5544,title_mismatch
+ledgerToShared,held,EP-05574,MEDIA TALK,5575,title_mismatch
+ledgerToShared,held,EP-05802,こどもそうだんしつ,5803,title_mismatch
+ledgerToShared,held,EP-06074,こどもそうだんしつ,6075,title_mismatch
+ledgerToShared,held,EP-06171,こどもそうだんしつ,6172,title_mismatch
+ledgerToShared,held,EP-06172,こどもそうだんしつ,6173,title_mismatch
+ledgerToShared,held,EP-06199,こどもそうだんしつ,6200,title_mismatch
+ledgerToShared,held,EP-06200,こどもそうだんしつ,6201,title_mismatch
+ledgerToShared,held,EP-06211,こどもそうだんしつ,6212,title_mismatch
+ledgerToShared,held,EP-06212,こどもそうだんしつ,6213,title_mismatch
+ledgerToShared,held,EP-06296,こどもそうだんしつ,6297,title_mismatch
+ledgerToShared,held,EP-06310,こどもそうだんしつ,6311,title_mismatch
+ledgerToShared,held,EP-06388,こどもそうだんしつ,6389,title_mismatch
+ledgerToShared,held,EP-06389,こどもそうだんしつ,6390,title_mismatch
+ledgerToShared,held,EP-06456,こどもそうだんしつ,6457,title_mismatch
+ledgerToShared,unmatched,EP-00081,ニュースの学校,82,no_exact_identifier
+ledgerToShared,unmatched,EP-00082,ニュースの学校,83,no_exact_identifier
+ledgerToShared,unmatched,EP-00121,報談,122,no_exact_identifier
+ledgerToShared,unmatched,EP-00128,報談,129,no_exact_identifier
+ledgerToShared,unmatched,EP-00130,報談,131,no_exact_identifier
+ledgerToShared,unmatched,EP-00141,アルキキ,142,no_exact_identifier
+ledgerToShared,unmatched,EP-00142,アルキキ,143,no_exact_identifier
+ledgerToShared,unmatched,EP-00143,アルキキ,144,no_exact_identifier
+ledgerToShared,unmatched,EP-00144,アルキキ,145,no_exact_identifier
+ledgerToShared,unmatched,EP-00145,アルキキ,146,no_exact_identifier
+ledgerToShared,unmatched,EP-00146,アルキキ,147,no_exact_identifier
+ledgerToShared,unmatched,EP-00147,アルキキ,148,no_exact_identifier
+ledgerToShared,unmatched,EP-00148,アルキキ,149,no_exact_identifier
+ledgerToShared,unmatched,EP-00149,アルキキ,150,no_exact_identifier
+ledgerToShared,unmatched,EP-00150,アルキキ,151,no_exact_identifier
+ledgerToShared,unmatched,EP-00151,アルキキ,152,no_exact_identifier
+ledgerToShared,unmatched,EP-00152,アルキキ,153,no_exact_identifier
+ledgerToShared,unmatched,EP-00153,アルキキ,154,no_exact_identifier
+ledgerToShared,unmatched,EP-00154,アルキキ,155,no_exact_identifier
+ledgerToShared,unmatched,EP-00155,アルキキ,156,no_exact_identifier
+ledgerToShared,unmatched,EP-00156,アルキキ,157,no_exact_identifier
+ledgerToShared,unmatched,EP-00157,アルキキ,158,no_exact_identifier
+ledgerToShared,unmatched,EP-00158,アルキキ,159,no_exact_identifier
+ledgerToShared,unmatched,EP-00159,アルキキ,160,no_exact_identifier
+ledgerToShared,unmatched,EP-00160,AJW,161,no_exact_identifier
+ledgerToShared,unmatched,EP-00161,AJW,162,no_exact_identifier
+ledgerToShared,unmatched,EP-00162,AJW,163,no_exact_identifier
+ledgerToShared,unmatched,EP-00163,AJW,164,no_exact_identifier
+ledgerToShared,unmatched,EP-00164,AJW,165,no_exact_identifier
+ledgerToShared,unmatched,EP-00165,AJW,166,no_exact_identifier
+ledgerToShared,unmatched,EP-00166,AJW,167,no_exact_identifier
+ledgerToShared,unmatched,EP-00167,AJW,168,no_exact_identifier
+ledgerToShared,unmatched,EP-00168,AJW,169,no_exact_identifier
+ledgerToShared,unmatched,EP-00169,AJW,170,no_exact_identifier
+ledgerToShared,unmatched,EP-00170,AJW,171,no_exact_identifier
+ledgerToShared,unmatched,EP-00171,AJW,172,no_exact_identifier
+ledgerToShared,unmatched,EP-00172,AJW,173,no_exact_identifier
+ledgerToShared,unmatched,EP-00173,AJW,174,no_exact_identifier
+ledgerToShared,unmatched,EP-00174,AJW,175,no_exact_identifier
+ledgerToShared,unmatched,EP-00175,AJW,176,no_exact_identifier
+ledgerToShared,unmatched,EP-00176,AJW,177,no_exact_identifier
+ledgerToShared,unmatched,EP-00177,AJW,178,no_exact_identifier
+ledgerToShared,unmatched,EP-00178,AJW,179,no_exact_identifier
+ledgerToShared,unmatched,EP-00179,AJW,180,no_exact_identifier
+ledgerToShared,unmatched,EP-00180,AJW,181,no_exact_identifier
+ledgerToShared,unmatched,EP-00181,AJW,182,no_exact_identifier
+ledgerToShared,unmatched,EP-00182,AJW,183,no_exact_identifier
+ledgerToShared,unmatched,EP-00183,アルキキ,184,no_exact_identifier
+ledgerToShared,unmatched,EP-00184,アルキキ,185,no_exact_identifier
+ledgerToShared,unmatched,EP-00185,アルキキ,186,no_exact_identifier
+ledgerToShared,unmatched,EP-00186,アルキキ,187,no_exact_identifier
+ledgerToShared,unmatched,EP-00187,アルキキ,188,no_exact_identifier
+ledgerToShared,unmatched,EP-00188,アルキキ,189,no_exact_identifier
+ledgerToShared,unmatched,EP-00189,アルキキ,190,no_exact_identifier
+ledgerToShared,unmatched,EP-00190,アルキキ,191,no_exact_identifier
+ledgerToShared,unmatched,EP-00191,アルキキ,192,no_exact_identifier
+ledgerToShared,unmatched,EP-00192,アルキキ,193,no_exact_identifier
+ledgerToShared,unmatched,EP-00193,アルキキ,194,no_exact_identifier
+ledgerToShared,unmatched,EP-00194,アルキキ,195,no_exact_identifier
+ledgerToShared,unmatched,EP-00195,アルキキ,196,no_exact_identifier
+ledgerToShared,unmatched,EP-00196,アルキキ,197,no_exact_identifier
+ledgerToShared,unmatched,EP-00197,アルキキ,198,no_exact_identifier
+ledgerToShared,unmatched,EP-00198,アルキキ,199,no_exact_identifier
+ledgerToShared,unmatched,EP-00199,アルキキ,200,no_exact_identifier
+ledgerToShared,unmatched,EP-00200,アルキキ,201,no_exact_identifier
+ledgerToShared,unmatched,EP-00201,アルキキ,202,no_exact_identifier
+ledgerToShared,unmatched,EP-00202,アルキキ,203,no_exact_identifier
+ledgerToShared,unmatched,EP-00203,アルキキ,204,no_exact_identifier
+ledgerToShared,unmatched,EP-00204,アルキキ,205,no_exact_identifier
+ledgerToShared,unmatched,EP-00205,アルキキ,206,no_exact_identifier
+ledgerToShared,unmatched,EP-00206,アルキキ,207,no_exact_identifier
+ledgerToShared,unmatched,EP-00207,アルキキ,208,no_exact_identifier
+ledgerToShared,unmatched,EP-00208,アルキキ,209,no_exact_identifier
+ledgerToShared,unmatched,EP-00209,アルキキ,210,no_exact_identifier
+ledgerToShared,unmatched,EP-00210,アルキキ,211,no_exact_identifier
+ledgerToShared,unmatched,EP-00211,アルキキ,212,no_exact_identifier
+ledgerToShared,unmatched,EP-00212,アルキキ,213,no_exact_identifier
+ledgerToShared,unmatched,EP-00213,アルキキ,214,no_exact_identifier
+ledgerToShared,unmatched,EP-00214,アルキキ,215,no_exact_identifier
+ledgerToShared,unmatched,EP-00215,アルキキ,216,no_exact_identifier
+ledgerToShared,unmatched,EP-00216,アルキキ,217,no_exact_identifier
+ledgerToShared,unmatched,EP-00217,アルキキ,218,no_exact_identifier
+ledgerToShared,unmatched,EP-00218,アルキキ,219,no_exact_identifier
+ledgerToShared,unmatched,EP-00219,アルキキ,220,no_exact_identifier
+ledgerToShared,unmatched,EP-00220,アルキキ,221,no_exact_identifier
+ledgerToShared,unmatched,EP-00221,アルキキ,222,no_exact_identifier
+ledgerToShared,unmatched,EP-00222,アルキキ,223,no_exact_identifier
+ledgerToShared,unmatched,EP-00223,アルキキ,224,no_exact_identifier
+ledgerToShared,unmatched,EP-00224,アルキキ,225,no_exact_identifier
+ledgerToShared,unmatched,EP-00225,アルキキ,226,no_exact_identifier
+ledgerToShared,unmatched,EP-00226,アルキキ,227,no_exact_identifier
+ledgerToShared,unmatched,EP-00227,アルキキ,228,no_exact_identifier
+ledgerToShared,unmatched,EP-00228,アルキキ,229,no_exact_identifier
+ledgerToShared,unmatched,EP-00229,アルキキ,230,no_exact_identifier
+ledgerToShared,unmatched,EP-00230,アルキキ,231,no_exact_identifier
+ledgerToShared,unmatched,EP-00231,アルキキ,232,no_exact_identifier
+ledgerToShared,unmatched,EP-00232,アルキキ,233,no_exact_identifier
+ledgerToShared,unmatched,EP-00233,アルキキ,234,no_exact_identifier
+ledgerToShared,unmatched,EP-00234,アルキキ,235,no_exact_identifier
+ledgerToShared,unmatched,EP-00235,アルキキ,236,no_exact_identifier
+ledgerToShared,unmatched,EP-00236,アルキキ,237,no_exact_identifier
+ledgerToShared,unmatched,EP-00237,アルキキ,238,no_exact_identifier
+ledgerToShared,unmatched,EP-00238,アルキキ,239,no_exact_identifier
+ledgerToShared,unmatched,EP-00239,アルキキ,240,no_exact_identifier
+ledgerToShared,unmatched,EP-00240,アルキキ,241,no_exact_identifier
+ledgerToShared,unmatched,EP-00241,アルキキ,242,no_exact_identifier
+ledgerToShared,unmatched,EP-00242,アルキキ,243,no_exact_identifier
+ledgerToShared,unmatched,EP-00243,アルキキ,244,no_exact_identifier
+ledgerToShared,unmatched,EP-00244,アルキキ,245,no_exact_identifier
+ledgerToShared,unmatched,EP-00245,アルキキ,246,no_exact_identifier
+ledgerToShared,unmatched,EP-00246,アルキキ,247,no_exact_identifier
+ledgerToShared,unmatched,EP-00247,アルキキ,248,no_exact_identifier
+ledgerToShared,unmatched,EP-00248,アルキキ,249,no_exact_identifier
+ledgerToShared,unmatched,EP-00249,アルキキ,250,no_exact_identifier
+ledgerToShared,unmatched,EP-00250,アルキキ,251,no_exact_identifier
+ledgerToShared,unmatched,EP-00251,アルキキ,252,no_exact_identifier
+ledgerToShared,unmatched,EP-00252,アルキキ,253,no_exact_identifier
+ledgerToShared,unmatched,EP-00253,アルキキ,254,no_exact_identifier
+ledgerToShared,unmatched,EP-00254,アルキキ,255,no_exact_identifier
+ledgerToShared,unmatched,EP-00255,アルキキ,256,no_exact_identifier
+ledgerToShared,unmatched,EP-00256,アルキキ,257,no_exact_identifier
+ledgerToShared,unmatched,EP-00257,アルキキ,258,no_exact_identifier
+ledgerToShared,unmatched,EP-00258,アルキキ,259,no_exact_identifier
+ledgerToShared,unmatched,EP-00259,アルキキ,260,no_exact_identifier
+ledgerToShared,unmatched,EP-00260,アルキキ,261,no_exact_identifier
+ledgerToShared,unmatched,EP-00261,アルキキ,262,no_exact_identifier
+ledgerToShared,unmatched,EP-00262,アルキキ,263,no_exact_identifier
+ledgerToShared,unmatched,EP-00263,アルキキ,264,no_exact_identifier
+ledgerToShared,unmatched,EP-00264,AJW,265,no_exact_identifier
+ledgerToShared,unmatched,EP-00265,AJW,266,no_exact_identifier
+ledgerToShared,unmatched,EP-00408,ニュースの学校,409,no_exact_identifier
+ledgerToShared,unmatched,EP-00418,ニュースの学校,419,no_exact_identifier
+ledgerToCopy,held,EP-00016,ニュースの現場から,17,title_mismatch
+ledgerToCopy,held,EP-00018,ニュースの現場から,19,title_mismatch
+ledgerToCopy,held,EP-00029,MEDIA TALK,30,title_mismatch
+ledgerToCopy,held,EP-00043,こどもそうだんしつ,44,title_mismatch
+ledgerToCopy,held,EP-00051,こどもそうだんしつ,52,title_mismatch
+ledgerToCopy,held,EP-00112,ドーナツ,113,title_mismatch
+ledgerToCopy,held,EP-00294,ドーナツ,295,title_mismatch
+ledgerToCopy,held,EP-00297,ドーナツ,298,title_mismatch
+ledgerToCopy,held,EP-00299,ドーナツ,300,title_mismatch
+ledgerToCopy,held,EP-00520,ニュースの学校,521,title_mismatch
+ledgerToCopy,held,EP-00578,ニュースの学校,579,title_mismatch
+ledgerToCopy,held,EP-00592,ニュースの学校,593,title_mismatch
+ledgerToCopy,held,EP-00812,ニュースの学校,813,title_mismatch
+ledgerToCopy,held,EP-00816,ニュースの学校,817,title_mismatch
+ledgerToCopy,held,EP-00819,ニュースの学校,820,title_mismatch
+ledgerToCopy,held,EP-00846,ニュースの学校,847,title_mismatch
+ledgerToCopy,held,EP-00857,ニュースの学校,858,title_mismatch
+ledgerToCopy,held,EP-00858,ニュースの学校,859,title_mismatch
+ledgerToCopy,held,EP-00894,報談,895,title_mismatch
+ledgerToCopy,held,EP-00906,報談,907,title_mismatch
+ledgerToCopy,held,EP-00918,報談,919,title_mismatch
+ledgerToCopy,held,EP-00921,報談,922,title_mismatch
+ledgerToCopy,held,EP-00945,報談,946,title_mismatch
+ledgerToCopy,held,EP-04394,MEDIA TALK,4395,title_mismatch
+ledgerToCopy,held,EP-04421,MEDIA TALK,4422,title_mismatch
+ledgerToCopy,held,EP-04525,MEDIA TALK,4526,title_mismatch
+ledgerToCopy,held,EP-04544,MEDIA TALK,4545,title_mismatch
+ledgerToCopy,unmatched,EP-00001,ニュースの現場から,2,no_exact_identifier
+ledgerToCopy,unmatched,EP-00002,ニュースの現場から,3,no_exact_identifier
+ledgerToCopy,unmatched,EP-00003,ニュースの現場から,4,no_exact_identifier
+ledgerToCopy,unmatched,EP-00021,MEDIA TALK,22,no_exact_identifier
+ledgerToCopy,unmatched,EP-00022,MEDIA TALK,23,no_exact_identifier
+ledgerToCopy,unmatched,EP-00023,MEDIA TALK,24,no_exact_identifier
+ledgerToCopy,unmatched,EP-00061,スポンジ,62,no_exact_identifier
+ledgerToCopy,unmatched,EP-00081,ニュースの学校,82,no_exact_identifier
+ledgerToCopy,unmatched,EP-00082,ニュースの学校,83,no_exact_identifier
+ledgerToCopy,unmatched,EP-00101,ドーナツ,102,no_exact_identifier
+ledgerToCopy,unmatched,EP-00102,ドーナツ,103,no_exact_identifier
+ledgerToCopy,unmatched,EP-00103,ドーナツ,104,no_exact_identifier
+ledgerToCopy,unmatched,EP-00121,報談,122,no_exact_identifier
+ledgerToCopy,unmatched,EP-00128,報談,129,no_exact_identifier
+ledgerToCopy,unmatched,EP-00130,報談,131,no_exact_identifier
+ledgerToCopy,unmatched,EP-00141,アルキキ,142,no_exact_identifier
+ledgerToCopy,unmatched,EP-00142,アルキキ,143,no_exact_identifier
+ledgerToCopy,unmatched,EP-00143,アルキキ,144,no_exact_identifier
+ledgerToCopy,unmatched,EP-00144,アルキキ,145,no_exact_identifier
+ledgerToCopy,unmatched,EP-00145,アルキキ,146,no_exact_identifier
+ledgerToCopy,unmatched,EP-00146,アルキキ,147,no_exact_identifier
+ledgerToCopy,unmatched,EP-00147,アルキキ,148,no_exact_identifier
+ledgerToCopy,unmatched,EP-00148,アルキキ,149,no_exact_identifier
+ledgerToCopy,unmatched,EP-00149,アルキキ,150,no_exact_identifier
+ledgerToCopy,unmatched,EP-00150,アルキキ,151,no_exact_identifier
+ledgerToCopy,unmatched,EP-00151,アルキキ,152,no_exact_identifier
+ledgerToCopy,unmatched,EP-00152,アルキキ,153,no_exact_identifier
+ledgerToCopy,unmatched,EP-00153,アルキキ,154,no_exact_identifier
+ledgerToCopy,unmatched,EP-00154,アルキキ,155,no_exact_identifier
+ledgerToCopy,unmatched,EP-00155,アルキキ,156,no_exact_identifier
+ledgerToCopy,unmatched,EP-00156,アルキキ,157,no_exact_identifier
+ledgerToCopy,unmatched,EP-00157,アルキキ,158,no_exact_identifier
+ledgerToCopy,unmatched,EP-00158,アルキキ,159,no_exact_identifier
+ledgerToCopy,unmatched,EP-00159,アルキキ,160,no_exact_identifier
+ledgerToCopy,unmatched,EP-00160,AJW,161,no_exact_identifier
+ledgerToCopy,unmatched,EP-00161,AJW,162,no_exact_identifier
+ledgerToCopy,unmatched,EP-00162,AJW,163,no_exact_identifier
+ledgerToCopy,unmatched,EP-00163,AJW,164,no_exact_identifier
+ledgerToCopy,unmatched,EP-00164,AJW,165,no_exact_identifier
+ledgerToCopy,unmatched,EP-00165,AJW,166,no_exact_identifier
+ledgerToCopy,unmatched,EP-00166,AJW,167,no_exact_identifier
+ledgerToCopy,unmatched,EP-00167,AJW,168,no_exact_identifier
+ledgerToCopy,unmatched,EP-00168,AJW,169,no_exact_identifier
+ledgerToCopy,unmatched,EP-00169,AJW,170,no_exact_identifier
+ledgerToCopy,unmatched,EP-00170,AJW,171,no_exact_identifier
+ledgerToCopy,unmatched,EP-00171,AJW,172,no_exact_identifier
+ledgerToCopy,unmatched,EP-00172,AJW,173,no_exact_identifier
+ledgerToCopy,unmatched,EP-00173,AJW,174,no_exact_identifier
+ledgerToCopy,unmatched,EP-00174,AJW,175,no_exact_identifier
+ledgerToCopy,unmatched,EP-00175,AJW,176,no_exact_identifier
+ledgerToCopy,unmatched,EP-00176,AJW,177,no_exact_identifier
+ledgerToCopy,unmatched,EP-00177,AJW,178,no_exact_identifier
+ledgerToCopy,unmatched,EP-00178,AJW,179,no_exact_identifier
+ledgerToCopy,unmatched,EP-00179,AJW,180,no_exact_identifier
+ledgerToCopy,unmatched,EP-00180,AJW,181,no_exact_identifier
+ledgerToCopy,unmatched,EP-00181,AJW,182,no_exact_identifier
+ledgerToCopy,unmatched,EP-00182,AJW,183,no_exact_identifier
+ledgerToCopy,unmatched,EP-00183,アルキキ,184,no_exact_identifier
+ledgerToCopy,unmatched,EP-00184,アルキキ,185,no_exact_identifier
+ledgerToCopy,unmatched,EP-00185,アルキキ,186,no_exact_identifier
+ledgerToCopy,unmatched,EP-00186,アルキキ,187,no_exact_identifier
+ledgerToCopy,unmatched,EP-00187,アルキキ,188,no_exact_identifier
+ledgerToCopy,unmatched,EP-00188,アルキキ,189,no_exact_identifier
+ledgerToCopy,unmatched,EP-00189,アルキキ,190,no_exact_identifier
+ledgerToCopy,unmatched,EP-00190,アルキキ,191,no_exact_identifier
+ledgerToCopy,unmatched,EP-00191,アルキキ,192,no_exact_identifier
+ledgerToCopy,unmatched,EP-00192,アルキキ,193,no_exact_identifier
+ledgerToCopy,unmatched,EP-00193,アルキキ,194,no_exact_identifier
+ledgerToCopy,unmatched,EP-00194,アルキキ,195,no_exact_identifier
+ledgerToCopy,unmatched,EP-00195,アルキキ,196,no_exact_identifier
+ledgerToCopy,unmatched,EP-00196,アルキキ,197,no_exact_identifier
+ledgerToCopy,unmatched,EP-00197,アルキキ,198,no_exact_identifier
+ledgerToCopy,unmatched,EP-00198,アルキキ,199,no_exact_identifier
+ledgerToCopy,unmatched,EP-00199,アルキキ,200,no_exact_identifier
+ledgerToCopy,unmatched,EP-00200,アルキキ,201,no_exact_identifier
+ledgerToCopy,unmatched,EP-00201,アルキキ,202,no_exact_identifier
+ledgerToCopy,unmatched,EP-00202,アルキキ,203,no_exact_identifier
+ledgerToCopy,unmatched,EP-00203,アルキキ,204,no_exact_identifier
+ledgerToCopy,unmatched,EP-00204,アルキキ,205,no_exact_identifier
+ledgerToCopy,unmatched,EP-00205,アルキキ,206,no_exact_identifier
+ledgerToCopy,unmatched,EP-00206,アルキキ,207,no_exact_identifier
+ledgerToCopy,unmatched,EP-00207,アルキキ,208,no_exact_identifier
+ledgerToCopy,unmatched,EP-00208,アルキキ,209,no_exact_identifier
+ledgerToCopy,unmatched,EP-00209,アルキキ,210,no_exact_identifier
+ledgerToCopy,unmatched,EP-00210,アルキキ,211,no_exact_identifier
+ledgerToCopy,unmatched,EP-00211,アルキキ,212,no_exact_identifier
+ledgerToCopy,unmatched,EP-00212,アルキキ,213,no_exact_identifier
+ledgerToCopy,unmatched,EP-00213,アルキキ,214,no_exact_identifier
+ledgerToCopy,unmatched,EP-00214,アルキキ,215,no_exact_identifier
+ledgerToCopy,unmatched,EP-00215,アルキキ,216,no_exact_identifier
+ledgerToCopy,unmatched,EP-00216,アルキキ,217,no_exact_identifier
+ledgerToCopy,unmatched,EP-00217,アルキキ,218,no_exact_identifier
+ledgerToCopy,unmatched,EP-00218,アルキキ,219,no_exact_identifier
+ledgerToCopy,unmatched,EP-00219,アルキキ,220,no_exact_identifier
+ledgerToCopy,unmatched,EP-00220,アルキキ,221,no_exact_identifier
+ledgerToCopy,unmatched,EP-00221,アルキキ,222,no_exact_identifier
+ledgerToCopy,unmatched,EP-00222,アルキキ,223,no_exact_identifier
+ledgerToCopy,unmatched,EP-00223,アルキキ,224,no_exact_identifier
+ledgerToCopy,unmatched,EP-00224,アルキキ,225,no_exact_identifier
+ledgerToCopy,unmatched,EP-00225,アルキキ,226,no_exact_identifier
+ledgerToCopy,unmatched,EP-00226,アルキキ,227,no_exact_identifier
+ledgerToCopy,unmatched,EP-00227,アルキキ,228,no_exact_identifier
+ledgerToCopy,unmatched,EP-00228,アルキキ,229,no_exact_identifier
+ledgerToCopy,unmatched,EP-00229,アルキキ,230,no_exact_identifier
+ledgerToCopy,unmatched,EP-00230,アルキキ,231,no_exact_identifier
+ledgerToCopy,unmatched,EP-00231,アルキキ,232,no_exact_identifier
+ledgerToCopy,unmatched,EP-00232,アルキキ,233,no_exact_identifier
+ledgerToCopy,unmatched,EP-00233,アルキキ,234,no_exact_identifier
+ledgerToCopy,unmatched,EP-00234,アルキキ,235,no_exact_identifier
+ledgerToCopy,unmatched,EP-00235,アルキキ,236,no_exact_identifier
+ledgerToCopy,unmatched,EP-00236,アルキキ,237,no_exact_identifier
+ledgerToCopy,unmatched,EP-00237,アルキキ,238,no_exact_identifier
+ledgerToCopy,unmatched,EP-00238,アルキキ,239,no_exact_identifier
+ledgerToCopy,unmatched,EP-00239,アルキキ,240,no_exact_identifier
+ledgerToCopy,unmatched,EP-00240,アルキキ,241,no_exact_identifier
+ledgerToCopy,unmatched,EP-00241,アルキキ,242,no_exact_identifier
+ledgerToCopy,unmatched,EP-00242,アルキキ,243,no_exact_identifier
+ledgerToCopy,unmatched,EP-00243,アルキキ,244,no_exact_identifier
+ledgerToCopy,unmatched,EP-00244,アルキキ,245,no_exact_identifier
+ledgerToCopy,unmatched,EP-00245,アルキキ,246,no_exact_identifier
+ledgerToCopy,unmatched,EP-00246,アルキキ,247,no_exact_identifier
+ledgerToCopy,unmatched,EP-00247,アルキキ,248,no_exact_identifier
+ledgerToCopy,unmatched,EP-00248,アルキキ,249,no_exact_identifier
+ledgerToCopy,unmatched,EP-00249,アルキキ,250,no_exact_identifier
+ledgerToCopy,unmatched,EP-00250,アルキキ,251,no_exact_identifier
+ledgerToCopy,unmatched,EP-00251,アルキキ,252,no_exact_identifier
+ledgerToCopy,unmatched,EP-00252,アルキキ,253,no_exact_identifier
+ledgerToCopy,unmatched,EP-00253,アルキキ,254,no_exact_identifier
+ledgerToCopy,unmatched,EP-00254,アルキキ,255,no_exact_identifier
+ledgerToCopy,unmatched,EP-00255,アルキキ,256,no_exact_identifier
+ledgerToCopy,unmatched,EP-00256,アルキキ,257,no_exact_identifier
+ledgerToCopy,unmatched,EP-00257,アルキキ,258,no_exact_identifier
+ledgerToCopy,unmatched,EP-00258,アルキキ,259,no_exact_identifier
+ledgerToCopy,unmatched,EP-00259,アルキキ,260,no_exact_identifier
+ledgerToCopy,unmatched,EP-00260,アルキキ,261,no_exact_identifier
+ledgerToCopy,unmatched,EP-00261,アルキキ,262,no_exact_identifier
+ledgerToCopy,unmatched,EP-00262,アルキキ,263,no_exact_identifier
+ledgerToCopy,unmatched,EP-00263,アルキキ,264,no_exact_identifier
+ledgerToCopy,unmatched,EP-00264,AJW,265,no_exact_identifier
+ledgerToCopy,unmatched,EP-00265,AJW,266,no_exact_identifier
+ledgerToCopy,unmatched,EP-00266,朝ポキTV,267,no_exact_identifier
+ledgerToCopy,unmatched,EP-00267,朝ポキTV,268,no_exact_identifier
+ledgerToCopy,unmatched,EP-00268,朝ポキTV,269,no_exact_identifier
+ledgerToCopy,unmatched,EP-00282,ドーナツ,283,no_exact_identifier
+ledgerToCopy,unmatched,EP-00408,ニュースの学校,409,no_exact_identifier
+ledgerToCopy,unmatched,EP-00418,ニュースの学校,419,no_exact_identifier
+ledgerToCopy,unmatched,EP-01069,スポンジ,1070,no_exact_identifier
+ledgerToCopy,unmatched,EP-01222,ドーナツ,1223,no_exact_identifier
+ledgerToCopy,unmatched,EP-01223,ドーナツ,1224,no_exact_identifier

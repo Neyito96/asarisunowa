@@ -1,0 +1,739 @@
+{
+  "readAt": "2026-10-18T01:40:10.909Z",
+  "reads": 33,
+  "inputSha256": "5fa7e60e0222a542755c50799cf97dbd97d47a7cf39fe1fb12ecf44755ac25d8",
+  "missing": {
+    "mode": "READ_ONLY_V3_MISSING",
+    "rows": 6591,
+    "excluded": 0,
+    "missing": {
+      "guid": 5257,
+      "spotify": 166,
+      "audio": 5365,
+      "cast": 639,
+      "description": 371
+    },
+    "blankIds": [],
+    "samplesByField": {
+      "guid": [
+        {
+          "id": "EP-00308",
+          "row": 309,
+          "show": "こどもそうだんしつ"
+        },
+        {
+          "id": "EP-00309",
+          "row": 310,
+          "show": "こどもそうだんしつ"
+        },
+        {
+          "id": "EP-00310",
+          "row": 311,
+          "show": "こどもそうだんしつ"
+        },
+        {
+          "id": "EP-00311",
+          "row": 312,
+          "show": "こどもそうだんしつ"
+        },
+        {
+          "id": "EP-00312",
+          "row": 313,
+          "show": "こどもそうだんしつ"
+        },
+        {
+          "id": "EP-00313",
+          "row": 314,
+          "show": "こどもそうだんしつ"
+        },
+        {
+          "id": "EP-00314",
+          "row": 315,
+          "show": "こどもそうだんしつ"
+        },
+        {
+          "id": "EP-00315",
+          "row": 316,
+          "show": "こどもそうだんしつ"
+        },
+        {
+          "id": "EP-00316",
+          "row": 317,
+          "show": "こどもそうだんしつ"
+        },
+        {
+          "id": "EP-00317",
+          "row": 318,
+          "show": "こどもそうだんしつ"
+        }
+      ],
+      "spotify": [
+        {
+          "id": "EP-00001",
+          "row": 2,
+          "show": "ニュースの現場から"
+        },
+        {
+          "id": "EP-00002",
+          "row": 3,
+          "show": "ニュースの現場から"
+        },
+        {
+          "id": "EP-00003",
+          "row": 4,
+          "show": "ニュースの現場から"
+        },
+        {
+          "id": "EP-00021",
+          "row": 22,
+          "show": "MEDIA TALK"
+        },
+        {
+          "id": "EP-00022",
+          "row": 23,
+          "show": "MEDIA TALK"
+        },
+        {
+          "id": "EP-00023",
+          "row": 24,
+          "show": "MEDIA TALK"
+        },
+        {
+          "id": "EP-00061",
+          "row": 62,
+          "show": "スポンジ"
+        },
+        {
+          "id": "EP-00062",
+          "row": 63,
+          "show": "スポンジ"
+        },
+        {
+          "id": "EP-00081",
+          "row": 82,
+          "show": "ニュースの学校"
+        },
+        {
+          "id": "EP-00082",
+          "row": 83,
+          "show": "ニュースの学校"
+        }
+      ],
+      "audio": [
+        {
+          "id": "EP-00183",
+          "row": 184,
+          "show": "アルキキ"
+        },
+        {
+          "id": "EP-00184",
+          "row": 185,
+          "show": "アルキキ"
+        },
+        {
+          "id": "EP-00185",
+          "row": 186,
+          "show": "アルキキ"
+        },
+        {
+          "id": "EP-00186",
+          "row": 187,
+          "show": "アルキキ"
+        },
+        {
+          "id": "EP-00187",
+          "row": 188,
+          "show": "アルキキ"
+        },
+        {
+          "id": "EP-00188",
+          "row": 189,
+          "show": "アルキキ"
+        },
+        {
+          "id": "EP-00189",
+          "row": 190,
+          "show": "アルキキ"
+        },
+        {
+          "id": "EP-00190",
+          "row": 191,
+          "show": "アルキキ"
+        },
+        {
+          "id": "EP-00191",
+          "row": 192,
+          "show": "アルキキ"
+        },
+        {
+          "id": "EP-00192",
+          "row": 193,
+          "show": "アルキキ"
+        }
+      ],
+      "cast": [
+        {
+          "id": "EP-00001",
+          "row": 2,
+          "show": "ニュースの現場から"
+        },
+        {
+          "id": "EP-00002",
+          "row": 3,
+          "show": "ニュースの現場から"
+        },
+        {
+          "id": "EP-00003",
+          "row": 4,
+          "show": "ニュースの現場から"
+        },
+        {
+          "id": "EP-00021",
+          "row": 22,
+          "show": "MEDIA TALK"
+        },
+        {
+          "id": "EP-00022",
+          "row": 23,
+          "show": "MEDIA TALK"
+        },
+        {
+          "id": "EP-00023",
+          "row": 24,
+          "show": "MEDIA TALK"
+        },
+        {
+          "id": "EP-00061",
+          "row": 62,
+          "show": "スポンジ"
+        },
+        {
+          "id": "EP-00081",
+          "row": 82,
+          "show": "ニュースの学校"
+        },
+        {
+          "id": "EP-00082",
+          "row": 83,
+          "show": "ニュースの学校"
+        },
+        {
+          "id": "EP-00083",
+          "row": 84,
+          "show": "ニュースの学校"
+        }
+      ],
+      "description": [
+        {
+          "id": "EP-00141",
+          "row": 142,
+          "show": "アルキキ"
+        },
+        {
+          "id": "EP-00142",
+          "row": 143,
+          "show": "アルキキ"
+        },
+        {
+          "id": "EP-00143",
+          "row": 144,
+          "show": "アルキキ"
+        },
+        {
+          "id": "EP-00144",
+          "row": 145,
+          "show": "アルキキ"
+        },
+        {
+          "id": "EP-00145",
+          "row": 146,
+          "show": "アルキキ"
+        },
+        {
+          "id": "EP-00146",
+          "row": 147,
+          "show": "アルキキ"
+        },
+        {
+          "id": "EP-00147",
+          "row": 148,
+          "show": "アルキキ"
+        },
+        {
+          "id": "EP-00148",
+          "row": 149,
+          "show": "アルキキ"
+        },
+        {
+          "id": "EP-00149",
+          "row": 150,
+          "show": "アルキキ"
+        },
+        {
+          "id": "EP-00150",
+          "row": 151,
+          "show": "アルキキ"
+        }
+      ]
+    },
+    "byShow": [
+      {
+        "show": "ニュースの現場から",
+        "rows": 2641,
+        "excluded": 0,
+        "missing": {
+          "guid": 2514,
+          "spotify": 3,
+          "audio": 2514,
+          "cast": 3,
+          "description": 243
+        }
+      },
+      {
+        "show": "MEDIA TALK",
+        "rows": 1750,
+        "excluded": 0,
+        "missing": {
+          "guid": 1637,
+          "spotify": 3,
+          "audio": 1647,
+          "cast": 3,
+          "description": 0
+        }
+      },
+      {
+        "show": "こどもそうだんしつ",
+        "rows": 1123,
+        "excluded": 0,
+        "missing": {
+          "guid": 1103,
+          "spotify": 0,
+          "audio": 1103,
+          "cast": 0,
+          "description": 1
+        }
+      },
+      {
+        "show": "スポンジ",
+        "rows": 173,
+        "excluded": 0,
+        "missing": {
+          "guid": 0,
+          "spotify": 3,
+          "audio": 0,
+          "cast": 2,
+          "description": 0
+        }
+      },
+      {
+        "show": "ニュースの学校",
+        "rows": 486,
+        "excluded": 0,
+        "missing": {
+          "guid": 1,
+          "spotify": 8,
+          "audio": 1,
+          "cast": 486,
+          "description": 1
+        }
+      },
+      {
+        "show": "ドーナツ",
+        "rows": 60,
+        "excluded": 0,
+        "missing": {
+          "guid": 0,
+          "spotify": 6,
+          "audio": 0,
+          "cast": 2,
+          "description": 0
+        }
+      },
+      {
+        "show": "報談",
+        "rows": 218,
+        "excluded": 0,
+        "missing": {
+          "guid": 2,
+          "spotify": 3,
+          "audio": 2,
+          "cast": 3,
+          "description": 0
+        }
+      },
+      {
+        "show": "アルキキ",
+        "rows": 100,
+        "excluded": 0,
+        "missing": {
+          "guid": 0,
+          "spotify": 100,
+          "audio": 81,
+          "cast": 100,
+          "description": 100
+        }
+      },
+      {
+        "show": "AJW",
+        "rows": 25,
+        "excluded": 0,
+        "missing": {
+          "guid": 0,
+          "spotify": 25,
+          "audio": 2,
+          "cast": 25,
+          "description": 11
+        }
+      },
+      {
+        "show": "朝ポキTV",
+        "rows": 15,
+        "excluded": 0,
+        "missing": {
+          "guid": 0,
+          "spotify": 15,
+          "audio": 15,
+          "cast": 15,
+          "description": 15
+        }
+      }
+    ],
+    "duplicateIds": [],
+    "writes": 0,
+    "apiCalls": 0
+  },
+  "populations": {
+    "1CvRyWLQb7YyonGyRSNKtc_liRrgtiWE5yDGI3R48Xfk": {
+      "rows": 7665,
+      "byShow": {
+        "ニュースの現場から": 2649,
+        "MEDIA TALK": 1754,
+        "ドーナツ": 64,
+        "スポンジ": 176,
+        "こどもそうだんしつ": 1125,
+        "報談": 217,
+        "朝ポキTV": 1192,
+        "ニュースの学校": 488
+      }
+    },
+    "1lJF11Xpx9cz9RLuuJsvl0zV9E5Fpg7I7XreB2R6wS7o": {
+      "rows": 7611,
+      "byShow": {
+        "ニュースの現場から": 2638,
+        "MEDIA TALK": 1747,
+        "ドーナツ": 54,
+        "スポンジ": 171,
+        "こどもそうだんしつ": 1123,
+        "報談": 215,
+        "朝ポキTV": 1181,
+        "ニュースの学校": 482
+      }
+    }
+  },
+  "copyToLedger": {
+    "sourceRows": 6430,
+    "targetRows": 6591,
+    "matched": 6403,
+    "unmatched": 0,
+    "held": 27,
+    "byShow": {
+      "ニュースの現場から": {
+        "rows": 2638,
+        "matched": 2636,
+        "unmatched": 0,
+        "held": 2
+      },
+      "MEDIA TALK": {
+        "rows": 1747,
+        "matched": 1742,
+        "unmatched": 0,
+        "held": 5
+      },
+      "ドーナツ": {
+        "rows": 54,
+        "matched": 50,
+        "unmatched": 0,
+        "held": 4
+      },
+      "スポンジ": {
+        "rows": 171,
+        "matched": 171,
+        "unmatched": 0,
+        "held": 0
+      },
+      "こどもそうだんしつ": {
+        "rows": 1123,
+        "matched": 1121,
+        "unmatched": 0,
+        "held": 2
+      },
+      "報談": {
+        "rows": 215,
+        "matched": 210,
+        "unmatched": 0,
+        "held": 5
+      },
+      "ニュースの学校": {
+        "rows": 482,
+        "matched": 473,
+        "unmatched": 0,
+        "held": 9
+      }
+    }
+  },
+  "sharedToLedger": {
+    "sourceRows": 6473,
+    "targetRows": 6591,
+    "matched": 6372,
+    "unmatched": 29,
+    "held": 72,
+    "byShow": {
+      "ニュースの現場から": {
+        "rows": 2649,
+        "matched": 2639,
+        "unmatched": 8,
+        "held": 2
+      },
+      "MEDIA TALK": {
+        "rows": 1754,
+        "matched": 1714,
+        "unmatched": 4,
+        "held": 36
+      },
+      "ドーナツ": {
+        "rows": 64,
+        "matched": 56,
+        "unmatched": 4,
+        "held": 4
+      },
+      "スポンジ": {
+        "rows": 176,
+        "matched": 173,
+        "unmatched": 3,
+        "held": 0
+      },
+      "こどもそうだんしつ": {
+        "rows": 1125,
+        "matched": 1107,
+        "unmatched": 2,
+        "held": 16
+      },
+      "報談": {
+        "rows": 217,
+        "matched": 210,
+        "unmatched": 2,
+        "held": 5
+      },
+      "ニュースの学校": {
+        "rows": 488,
+        "matched": 473,
+        "unmatched": 6,
+        "held": 9
+      }
+    }
+  },
+  "copyToShared": {
+    "sourceRows": 7611,
+    "targetRows": 7665,
+    "matched": 7545,
+    "unmatched": 0,
+    "held": 66,
+    "byShow": {
+      "ニュースの現場から": {
+        "rows": 2638,
+        "matched": 2638,
+        "unmatched": 0,
+        "held": 0
+      },
+      "MEDIA TALK": {
+        "rows": 1747,
+        "matched": 1713,
+        "unmatched": 0,
+        "held": 34
+      },
+      "ドーナツ": {
+        "rows": 54,
+        "matched": 54,
+        "unmatched": 0,
+        "held": 0
+      },
+      "スポンジ": {
+        "rows": 171,
+        "matched": 171,
+        "unmatched": 0,
+        "held": 0
+      },
+      "こどもそうだんしつ": {
+        "rows": 1123,
+        "matched": 1109,
+        "unmatched": 0,
+        "held": 14
+      },
+      "報談": {
+        "rows": 215,
+        "matched": 215,
+        "unmatched": 0,
+        "held": 0
+      },
+      "朝ポキTV": {
+        "rows": 1181,
+        "matched": 1163,
+        "unmatched": 0,
+        "held": 18
+      },
+      "ニュースの学校": {
+        "rows": 482,
+        "matched": 482,
+        "unmatched": 0,
+        "held": 0
+      }
+    }
+  },
+  "ledgerToShared": {
+    "sourceRows": 6591,
+    "targetRows": 7665,
+    "matched": 6387,
+    "unmatched": 132,
+    "held": 72,
+    "byShow": {
+      "ニュースの現場から": {
+        "rows": 2641,
+        "matched": 2639,
+        "unmatched": 0,
+        "held": 2
+      },
+      "MEDIA TALK": {
+        "rows": 1750,
+        "matched": 1714,
+        "unmatched": 0,
+        "held": 36
+      },
+      "こどもそうだんしつ": {
+        "rows": 1123,
+        "matched": 1107,
+        "unmatched": 0,
+        "held": 16
+      },
+      "スポンジ": {
+        "rows": 173,
+        "matched": 173,
+        "unmatched": 0,
+        "held": 0
+      },
+      "ニュースの学校": {
+        "rows": 486,
+        "matched": 473,
+        "unmatched": 4,
+        "held": 9
+      },
+      "ドーナツ": {
+        "rows": 60,
+        "matched": 56,
+        "unmatched": 0,
+        "held": 4
+      },
+      "報談": {
+        "rows": 218,
+        "matched": 210,
+        "unmatched": 3,
+        "held": 5
+      },
+      "アルキキ": {
+        "rows": 100,
+        "matched": 0,
+        "unmatched": 100,
+        "held": 0
+      },
+      "AJW": {
+        "rows": 25,
+        "matched": 0,
+        "unmatched": 25,
+        "held": 0
+      },
+      "朝ポキTV": {
+        "rows": 15,
+        "matched": 15,
+        "unmatched": 0,
+        "held": 0
+      }
+    }
+  },
+  "ledgerToCopy": {
+    "sourceRows": 6591,
+    "targetRows": 7611,
+    "matched": 6415,
+    "unmatched": 149,
+    "held": 27,
+    "byShow": {
+      "ニュースの現場から": {
+        "rows": 2641,
+        "matched": 2636,
+        "unmatched": 3,
+        "held": 2
+      },
+      "MEDIA TALK": {
+        "rows": 1750,
+        "matched": 1742,
+        "unmatched": 3,
+        "held": 5
+      },
+      "こどもそうだんしつ": {
+        "rows": 1123,
+        "matched": 1121,
+        "unmatched": 0,
+        "held": 2
+      },
+      "スポンジ": {
+        "rows": 173,
+        "matched": 171,
+        "unmatched": 2,
+        "held": 0
+      },
+      "ニュースの学校": {
+        "rows": 486,
+        "matched": 473,
+        "unmatched": 4,
+        "held": 9
+      },
+      "ドーナツ": {
+        "rows": 60,
+        "matched": 50,
+        "unmatched": 6,
+        "held": 4
+      },
+      "報談": {
+        "rows": 218,
+        "matched": 210,
+        "unmatched": 3,
+        "held": 5
+      },
+      "アルキキ": {
+        "rows": 100,
+        "matched": 0,
+        "unmatched": 100,
+        "held": 0
+      },
+      "AJW": {
+        "rows": 25,
+        "matched": 0,
+        "unmatched": 25,
+        "held": 0
+      },
+      "朝ポキTV": {
+        "rows": 15,
+        "matched": 12,
+        "unmatched": 3,
+        "held": 0
+      }
+    }
+  },
+  "reportedSearchCount": {
+    "value": 5439,
+    "verified": false,
+    "arithmeticDifference": 1152,
+    "reason": "Search UI count is not an identified row set; cannot attribute 1152 without its filter and capture."
+  },
+  "localReplayElapsedMs": 1116,
+  "writes": 0,
+  "rowDetails": "comparison-rows.csv"
+}

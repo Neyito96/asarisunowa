@@ -94,7 +94,7 @@ function libV3Config_(){
 }
 function libV3Conflicts_(){
  // Enumerate installed handlers, not a partial list of known scheduler names.
- return ScriptApp.getProjectTriggers().map(t=>t.getHandlerFunction()).filter(n=>n!=='scheduledLibraryV3'&&/(?:[Ll]ibrary|[Oo]fficialRss|[Bb]ackfill)/.test(n));
+ return ScriptApp.getProjectTriggers().map(t=>t.getHandlerFunction()).filter(n=>!['scheduledLibraryV3','scheduledLibraryV3BaselineOnly','scheduledLibraryV3Morning'].includes(n)&&/(?:[Ll]ibrary|[Oo]fficialRss|[Bb]ackfill)/.test(n));
 }
 function libV3StatePut_(c,record){
  const key=record[0]+'|'+record[1],old=c.index.states.get(key);
@@ -173,12 +173,14 @@ function libV3Append_(c,it,feed,config,baseline){
  libV3StatePut_(live,[id,'identity','VERIFIED',it.guid,libV3Hash_(r),'',libV3Hash_(id),'RSS_registered',new Date().toISOString(),it.guid]);
  c.rows.push(r);c.records=live.records;c.recordRows=live.recordRows;c.packed=live.packed;c.index=libV3Index_(c.rows,c.ex.getDataRange().getValues().slice(1),c.records);return {id,writtenCells:51};
 }
-function libV3Run_(write){
+function libV3Run_(write,options){
+ options=options||{};
  const start=Date.now(),deadline=start+110000,lock=LockService.getScriptLock(),config=libV3Config_();
+ if(options.morning){config.autonomous=false;config.allowEnrich=false;config.maxEpisodes=5;}
  const m={mode:write?'WRITE_V3':'READ_ONLY_V3',status:'',apiCalls:0,cacheHits:0,fetchedItems:0,inspected:0,proposedCells:0,writtenCells:0,updatedIds:[],newIds:[],holds:0,fieldStates:{},samples:[]};
  if(write&&!config.enabled)return {...m,status:'DISABLED'};
  if(!lock.tryLock(1000))return {...m,status:'SKIPPED_ALREADY_RUNNING'};
- const props=PropertiesService.getScriptProperties(),key='LIB_V3_CURSOR';let state,context;
+ const props=PropertiesService.getScriptProperties(),key=options.morning?'LIB_V3_MORNING_CURSOR':'LIB_V3_CURSOR';let state,context;
  try{
   if(write&&(libV3Conflicts_().length||ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='scheduledLibraryV3').length>1))throw Error('Conflicting library triggers');
   const c=libV3Context_(write);context=c;if(!c.feeds.length)throw Error('No feeds');
@@ -194,7 +196,7 @@ function libV3Run_(write){
    const next=rotate?c.feeds[(c.feeds.indexOf(feed)+1)%c.feeds.length].url:feed.url;
    state={url:next,...(per[next]||{offset:0,hash:''}),feeds:per};const encoded=JSON.stringify(state);if(encoded.length>8000)throw Error('Feed checkpoint property budget exceeded');props.setProperty(key,encoded);
   };
-  const before=Date.now(),snap=libV2CpSnapshot_(feed.url,write,state,m,{prefix:config.autonomous?'LV3AUTO':'LV3CP',chunkSize:22000,timeoutSeconds:45,maxAgeMs:config.autonomous?30*60000:0,parse:t=>{const list=libV2CpParse_(t,true);return config.autonomous?list.sort((a,b)=>(Date.parse(b.published)||0)-(Date.parse(a.published)||0)||String(a.guid).localeCompare(String(b.guid))):list;}});
+  const before=Date.now(),snap=libV2CpSnapshot_(feed.url,write,state,m,{prefix:options.morning?'LV3MORN':config.autonomous?'LV3AUTO':'LV3CP',chunkSize:22000,timeoutSeconds:45,maxAgeMs:(options.morning||config.autonomous)?30*60000:0,parse:t=>{const list=libV2CpParse_(t,true);return (options.morning||config.autonomous)?list.sort((a,b)=>(Date.parse(b.published)||0)-(Date.parse(a.published)||0)||String(a.guid).localeCompare(String(b.guid))):list;}});
   if(snap.status){if(!state.retry?.stopped&&!(state.retry?.at>before))m.apiCalls++;m.status=snap.status;m.retry=snap.retry;state.retry=snap.retry;if(write)save(snap.status==='RETRY_WAIT');return m;}
   delete state.retry;if(state.hash!==snap.hash){state.hash=snap.hash;state.offset=0;state.pass='priority';state.nextPollAt=0;}
   if(snap.fetched&&write){save(false);m.status='SNAPSHOT_READY';return m;}
@@ -203,6 +205,7 @@ function libV3Run_(write){
   let offset=state.offset||0,touched=0;
   while(offset<snap.items.length&&m.inspected<config.maxItems&&touched<config.maxEpisodes&&Date.now()<deadline-15000){
    const it=snap.items[offset];m.inspected++;
+   if(options.morning){const at=Date.parse(it.published);if(!Number.isFinite(at)||at>Date.now()+60000){offset++;continue;}if(at<Number(options.since)){offset=snap.items.length;break;}}
    if(!it.guid||counts.get(it.guid)!==1){m.holds++;if(write)libV3StatePut_(c,['NEW:'+(it.guid||'blank'),'discovery','HOLD',it.guid||'','',libV3Hash_(it),'','blank_or_duplicate_rss_guid',new Date().toISOString(),'']);offset++;continue;}
    if(config.autonomous&&typeof libV3AutoInspectDue_==='function'&&!libV3AutoInspectDue_(it,feed,c,state.pass||'priority')){offset++;continue;}
    const plan=libV3Plan_(it,feed,c.rows,c.index);
@@ -338,3 +341,20 @@ function previewLibraryV3AllColumns(){
  const result={mode:'READ_ONLY_V3_ALL_COLUMNS',rows:c.rows.length,columns:c.headers.length,byShowField:[...groups.values()],writes:0};
  Logger.log(JSON.stringify({mode:result.mode,rows:result.rows,columns:result.columns,groups:result.byShowField.length,writes:result.writes}));return result;
 }
+
+/** Repeatable five-field inventory. Presence is not source verification. No writes. */
+function libV3MissingAudit_(headers,rows,exclusions){
+ libV3CheckHeaders_(headers);
+ const fields={guid:6,spotify:11,audio:14,cast:23,description:21},groups=new Map(),idx=libV3Index_(rows,exclusions||[],[]);
+ const duplicateIds=[...idx.ids].filter(([,v])=>v.length>1).map(([id,v])=>({id,rows:v.map(i=>i+2)}));
+ const total={rows:0,excluded:0,missing:{guid:0,spotify:0,audio:0,cast:0,description:0},blankIds:[],samplesByField:{guid:[],spotify:[],audio:[],cast:[],description:[]}};
+ for(let i=0;i<rows.length;i++){
+  const r=rows[i];if(!r.some(v=>libV3Text_(v)))continue;
+  const show=libV3Text_(r[1])||'(blank show)';if(!groups.has(show))groups.set(show,{show,rows:0,excluded:0,missing:{guid:0,spotify:0,audio:0,cast:0,description:0}});
+  const g=groups.get(show);g.rows++;total.rows++;if(!libV3Text_(r[0]))total.blankIds.push(i+2);
+  if(libV2CpBlocked_(r[38])||idx.tomb.is.has(String(r[0]))||libV3Identity_(r).some(x=>idx.tomb.gs.has(x))){g.excluded++;total.excluded++;}
+  for(const [field,col] of Object.entries(fields))if(!libV3Text_(r[col])){g.missing[field]++;total.missing[field]++;if(total.samplesByField[field].length<10)total.samplesByField[field].push({id:String(r[0]),row:i+2,show});}
+ }
+ return {mode:'READ_ONLY_V3_MISSING',...total,byShow:[...groups.values()],duplicateIds,writes:0,apiCalls:0};
+}
+function previewLibraryV3MissingAudit(){const c=libV3Context_(false),r=libV3MissingAudit_(c.headers,c.rows,c.ex.getDataRange().getValues().slice(1));Logger.log(JSON.stringify(r));return r;}
