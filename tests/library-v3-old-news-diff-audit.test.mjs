@@ -22,14 +22,16 @@ test('classifies missing, matching, punctuation, links, summary and excludes oth
  const {result}=run([
   row('EP-1','','text'),row('EP-2','raw',''),row('EP-3','hello','hello'),
   row('EP-4','Hello, world!','Hello world'),
+  row('EP-4b','Hello world','Hello\u00a0world'),
   row('EP-5','visit https://example.com','visit https://elsewhere.com'),
   row('EP-6','This is a rather long episode description with many words','Short'),
   row('EP-7','content','content', '2022-01-01'),
   row('EP-8','content','content','2020-01-01','MEDIA TALK')
  ]);
  console.log('COUNTS',JSON.stringify(result.counts));
- assert.equal(result.rows,6);assert.equal(result.writes,0);assert.equal(result.apiCalls,0);
- for(const reason of ['RAW_MISSING','CLEAN_MISSING','MECHANICAL_EQUAL','PUNCTUATION_OR_SPACING_ONLY','URL_DIFFERENCE_REVIEW','POSSIBLE_SUMMARY_OR_TRUNCATION_REVIEW'])assert.equal(result.counts[reason],1);
+ assert.equal(result.rows,7);assert.equal(result.writes,0);assert.equal(result.apiCalls,0);
+ for(const reason of ['RAW_MISSING','CLEAN_MISSING','MECHANICAL_EQUAL','PUNCTUATION_ONLY','URL_DIFFERENCE_REVIEW','POSSIBLE_SUMMARY_OR_TRUNCATION_REVIEW'])assert.equal(result.counts[reason],1);
+ assert.equal(result.counts.UNICODE_WHITESPACE_ONLY,1);
 });
 test('does not expose descriptions in logs or results',()=>{
  const secret='unpublished description secret';const {result,logs}=run([row('EP-X',secret,'short')]);
