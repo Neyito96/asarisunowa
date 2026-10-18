@@ -4,6 +4,8 @@ on:
     paths:
       - 'scripts/google-apps-script/LibraryV3OldNewsDiffAudit.js'
       - 'tests/library-v3-old-news-diff-audit.test.mjs'
+      - 'tests/library-v3-phase6-copy-discovery.test.mjs'
+      - 'scripts/google-apps-script/LibraryV3Morning.js'
       - '.github/workflows/library-v3-old-news-diff-audit.yml'
   push:
     branches:
@@ -16,4 +18,4 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test tests/library-v3-old-news-diff-audit.test.mjs
+      - run: node --test tests/library-v3-old-news-diff-audit.test.mjs tests/library-v3-phase6-copy-discovery.test.mjs
