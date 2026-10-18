@@ -94,7 +94,7 @@ function libV3Config_(){
 }
 function libV3Conflicts_(){
  // Enumerate installed handlers, not a partial list of known scheduler names.
- return ScriptApp.getProjectTriggers().map(t=>t.getHandlerFunction()).filter(n=>!['scheduledLibraryV3','scheduledLibraryV3BaselineOnly','scheduledLibraryV3Morning'].includes(n)&&/(?:[Ll]ibrary|[Oo]fficialRss|[Bb]ackfill)/.test(n));
+ return ScriptApp.getProjectTriggers().map(t=>t.getHandlerFunction()).filter(n=>!['scheduledLibraryV3','scheduledLibraryV3BaselineOnly','scheduledLibraryV3Morning','continueLibraryV3Morning'].includes(n)&&/(?:[Ll]ibrary|[Oo]fficialRss|[Bb]ackfill)/.test(n));
 }
 function libV3StatePut_(c,record){
  const key=record[0]+'|'+record[1],old=c.index.states.get(key);

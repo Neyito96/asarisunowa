@@ -74,7 +74,7 @@ node scripts/compare-library-snapshots.cjs reads.json report.json exclusions.jso
 
 ## テスト・変更範囲
 
-Node **110/110 PASS**。既存V2/V3/自動制御/V1手動停止・削除保護に、朝ブリッジの28試験を追加した。新着RSS→台帳1件→実APIから得たSpotify URL→プレイリストPOST1回→再実行0追加の結合試験はモックで実施。POST403/429/503/不確実な通信、途中ページから再開、同時起動、既存値/数式/識別子衝突、人間削除の復活防止、OAuth補助障害時のRSS継続を確認。RSS既存試験23 assertions PASS。変更4 GASファイルの構文確認、新規15関数のGitHub全ソースおよび前回全文オンラインsnapshotとの名前衝突0。[実行ログ](test-results.txt)。
+最初の実装時はNode **110/110 PASS**（その時点の記録）。最終仕上げは **125/125 PASS**、[最新判定](launch-readiness.md) / [最新ログ](launch-test-results.txt)。既存V2/V3/自動制御/V1手動停止・削除保護に、朝ブリッジの28試験を追加した。新着RSS→台帳1件→実APIから得たSpotify URL→プレイリストPOST1回→再実行0追加の結合試験はモックで実施。POST403/429/503/不確実な通信、途中ページから再開、同時起動、既存値/数式/識別子衝突、人間削除の復活防止、OAuth補助障害時のRSS継続を確認。RSS既存試験23 assertions PASS。変更4 GASファイルの構文確認、当初の新規15関数のGitHub全ソースおよび前回全文オンラインsnapshotとの名前衝突0。[実行ログ](test-results.txt)。
 
 - LibraryV3.js: 既存入口の挙動を維持する任意morningオプション、別cache/cursor、朝だけ最大5新着/回、欠損監査。初期登録offsetは変更しない。
 - LibraryV3Morning.js: 6時台制御・単一lease・RSS/Spotify交代、既存V1認証/ルール/シートリンク確認を利用する橋渡し。
@@ -83,6 +83,11 @@ Node **110/110 PASS**。既存V2/V3/自動制御/V1手動停止・削除保護�
 
 ## 残る条件
 
-現行オンライン全文差分の確定、実GASでの新コードREAD_ONLY、少量書込とSpotify1件反映、実API認証・playabilityの確認、6時台に一巡できる実時間は未検証。GAS時刻トリガーは厳密な分刻み配信保証ではなく、フィード/API障害や処理量次第で翌日に再開する。保留・音源HTTP/再生検査・古い清掃は別工程。
+現行オンライン全文差分の確定、実GASでの新コードREAD_ONLY（旧配置の制御プレビューは今回成功）、少量書込とSpotify1件反映、実API認証・playabilityの確認、6時台に一巡できる実時間は未検証。GAS時刻トリガーは厳密な分刻み配信保証ではなく、フィード/API障害や処理量次第で翌日に再開する。保留・音源HTTP/再生検査・古い清掃は別工程。
 
 [導入・停止・復旧と承認対象](operations.md)。上記条件を解消し、ユーザーがまとめて承認するまでオンラインに反映しない。
+
+
+## PR #230 最終仕上げ
+
+[合否・現行GASのREAD_ONLY実測・一括エクスポート・次の承認](launch-readiness.md)。毎分起動を日次＋必要時だけの5分後再開へ変更。日をまたぐ未完了位置を保持し、失敗通知は既存V1を再利用。初期登録や実台帳は変更していない。5,439件比較と古い清掃は運転開始の条件に含めない。

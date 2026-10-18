@@ -1,0 +1,84 @@
+{
+  "date": "2026-10-18",
+  "overall": "NOT_READY_FOR_PRODUCTION",
+  "onlineProject": "朝リスの田_Phase2_隔離検証",
+  "onlineFileNames": {
+    "scripts": 35,
+    "manifest": 1,
+    "fullBodiesObtained": false,
+    "reason": "Browser credential protection refused clipboard read; editor observations are incomplete. Stopped full-export retry."
+  },
+  "readOnly": {
+    "function": "previewLibraryV3Autonomy",
+    "displayedStart": "11:12:20",
+    "displayedEnd": "11:12:21",
+    "status": "COMPLETED",
+    "durationExactSeconds": null,
+    "durationEvidence": "Log timestamps have one-second precision; execution-details read was blocked.",
+    "result": {
+      "mode": "READ_ONLY_AUTONOMY",
+      "config": {
+        "enabled": false,
+        "allowEnrich": false,
+        "allowNew": false,
+        "newAfter": "",
+        "maxEpisodes": 10,
+        "maxItems": 200,
+        "autonomous": true
+      },
+      "baseline": {
+        "offset": 6591,
+        "hash": "LXnoxqSs9ho_DADwugyj53SivsJ524doaV-rt5BfXAo=",
+        "complete": true
+      },
+      "control": {
+        "tick": 0,
+        "failures": 0,
+        "spotify": {},
+        "audio": {
+          "offset": 0
+        }
+      },
+      "feeds": [],
+      "conflictingTriggers": [],
+      "triggers": 0,
+      "writes": 0
+    },
+    "newPR230MorningCodeTestedOnline": false,
+    "apiCalls": {
+      "rss": 0,
+      "spotify": 0,
+      "basis": "Static read-only call path, not network instrumentation"
+    }
+  },
+  "local": {
+    "nodeTests": 125,
+    "passed": 125,
+    "rssAssertions": 23,
+    "morningFunctions": 21,
+    "repositoryFunctionCollisions": 0,
+    "previousFullOnlineSnapshotFunctionCollisions": []
+  },
+  "actualPilot": {
+    "copyLedgerNewRows": 0,
+    "spotifyPosts": 0,
+    "performed": false,
+    "reason": "Requires explicit write approval; approved copy destination, episode and test playlist ID not fixed."
+  },
+  "onlineChanges": {
+    "code": 0,
+    "properties": 0,
+    "triggers": 0,
+    "deployments": 0
+  },
+  "changedGasThisFollowup": [
+    {
+      "path": "scripts/google-apps-script/LibraryV3.js",
+      "sha256": "213f5e41f08d18385adf49415b5e8826965f1ccfb860fe91c548ae1387e44e99"
+    },
+    {
+      "path": "scripts/google-apps-script/LibraryV3Morning.js",
+      "sha256": "b3444eee2651e469a3e64176f69831c40b77351f67bb7aa272af932f266cd2d2"
+    }
+  ]
+}
