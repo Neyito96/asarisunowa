@@ -12,7 +12,8 @@ function previewLibraryV3OldNewsDiffAudit(){
   if(!norm(raw))reason='RAW_MISSING';
   else if(!norm(clean))reason='CLEAN_MISSING';
   else if(expected===clean)reason='MECHANICAL_EQUAL';
-  else if(key(expected)===key(clean))reason='PUNCTUATION_OR_SPACING_ONLY';
+  else if(expected.replace(/\s+/g,'')===clean.replace(/\s+/g,''))reason='UNICODE_WHITESPACE_ONLY';
+  else if(key(expected)===key(clean))reason='PUNCTUATION_ONLY';
   else if(links(expected).join('|')!==links(clean).join('|'))reason='URL_DIFFERENCE_REVIEW';
   else if(tag(raw))reason='HTML_RENDER_OR_CONTENT_REVIEW';
   else if(clean.length<expected.length*.75)reason='POSSIBLE_SUMMARY_OR_TRUNCATION_REVIEW';
