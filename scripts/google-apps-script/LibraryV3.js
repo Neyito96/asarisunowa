@@ -336,8 +336,8 @@ function recordLibraryV3AudioEvidenceAfterApproval(evidence){
 }
 /** All 51 ledger columns are inventoried. Unsupported source fields remain explicit;
  * no generic scrape/guess fallback, and no claim that present means verified. */
-function previewLibraryV3AllColumns(){
- const c=libV3Context_(false),groups=new Map(),auto=new Map(libV3Schema_().fields.map(([col,name])=>[col-1,name]));
+function previewLibraryV3AllColumns(context){
+ const c=context||libV3Context_(false),groups=new Map(),auto=new Map(libV3Schema_().fields.map(([col,name])=>[col-1,name]));
  for(const r of c.rows)for(let col=0;col<c.headers.length;col++){
   const key=r[1]+'|'+col;if(!groups.has(key))groups.set(key,{show:r[1],column:col+1,label:c.headers[col],missing:0,present:0,states:{}});
   const g=groups.get(key),present=!!libV3Text_(r[col]),field=auto.get(col),prior=field&&c.index.states.get(r[0]+'|'+field);
@@ -364,3 +364,33 @@ function libV3MissingAudit_(headers,rows,exclusions){
  return {mode:'READ_ONLY_V3_MISSING',...total,byShow:[...groups.values()],duplicateIds,writes:0,apiCalls:0};
 }
 function previewLibraryV3MissingAudit(){const c=libV3Context_(false),r=libV3MissingAudit_(c.headers,c.rows,c.ex.getDataRange().getValues().slice(1));Logger.log(JSON.stringify(r));return r;}
+
+/** P0-A compact evidence inventory. No HTTP, property, cache or sheet mutations.
+ * Existing text and playback labels are observations, never inferred verification.
+ */
+function previewLibraryV3QualityAudit(){
+ const c=libV3Context_(false),all=previewLibraryV3AllColumns(c),ex=c.ex.getDataRange().getValues().slice(1);
+ const missing=libV3MissingAudit_(c.headers,c.rows,ex),oldNews=[],audio={urlPresent:0,httpEvidenceCurrent:0,httpEvidenceStale:0,playbackLabelPresent:0};
+ for(const r of c.rows){
+  const url=libV3Text_(r[14]),http=c.index.states.get(r[0]+'|audioHttp');
+  if(url)audio.urlPresent++;
+  if(libV3Text_(r[18]))audio.playbackLabelPresent++;
+  if(http){if(url&&http[6]===libV3Hash_(r[14]))audio.httpEvidenceCurrent++;else audio.httpEvidenceStale++;}
+  const date=libV2CpDate_(r[3]);
+  if(r[1]==='ニュースの現場から'&&/^202[01]-/.test(date)){
+   const raw=libV3Text_(r[21]),clean=libV3Text_(r[22]);
+   oldNews.push({id:String(r[0]),date,rawPresent:!!raw,cleanPresent:!!clean,
+    cleanRelation:!raw?'RAW_MISSING':!clean?'CLEAN_MISSING':libV3Clean_(raw)===clean?'MECHANICAL_EQUAL':'DIFFERENT_REVIEW_NOT_OVERWRITE',
+    audioUrlPresent:!!url,guidPresent:!!libV3Text_(r[6])});
+  }
+ }
+ const duplicateGuids=[...c.index.guid].filter(([,v])=>v.length>1).map(([guid,v])=>({guid,ids:v.map(i=>String(c.rows[i][0]))}));
+ const result={mode:'READ_ONLY_V3_QUALITY',rows:c.rows.length,columns:c.headers.length,byShowField:all.byShowField,
+  missing,duplicateGuids,exclusionHistoryRows:ex.filter(r=>r.some(v=>libV3Text_(v))).length,audio,oldNews,
+  writes:0,apiCalls:0,playbackVerifiedByThisAudit:false};
+ // One bounded show/column log per group; return all detail without raw descriptions.
+ Logger.log(JSON.stringify({mode:result.mode,rows:result.rows,columns:result.columns,audio,duplicateGuids,exclusionHistoryRows:result.exclusionHistoryRows,writes:0,apiCalls:0}));
+ for(const show of [...new Set(c.rows.map(r=>r[1]))])Logger.log(JSON.stringify({mode:'READ_ONLY_V3_QUALITY_SHOW',show,fields:all.byShowField.filter(g=>g.show===show)}));
+ for(let i=0;i<oldNews.length;i+=25)Logger.log(JSON.stringify({mode:'READ_ONLY_V3_OLD_NEWS',offset:i,rows:oldNews.slice(i,i+25)}));
+ return result;
+}

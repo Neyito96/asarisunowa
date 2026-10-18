@@ -39,7 +39,7 @@
   ],
   "gates": {
     "currentGasFullSourceCompared": true,
-    "newPR230ReadOnlyPassedOnline": false,
+    "newPR230ReadOnlyPassedOnline": true,
     "copyOnlyWriterRouteVerified": true,
     "propertyFreePilotReservationVerified": true,
     "episodeAndAuthenticationPresented": false,
@@ -57,5 +57,5 @@
     "sheetCells": 0,
     "spotifyPlaylistPosts": 0
   },
-  "verificationScope": "Route/Properties invariants verified by local strict mocks; real GAS and real copy write remain untested"
+  "verificationScope": "Specified three READ_ONLY checks passed online (Morning per Issue222, missing/RSS measured 13:30-13:32 JST). Copy writer verified by mocks only; actual copy and Spotify writes pending."
 }
