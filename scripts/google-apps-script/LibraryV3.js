@@ -394,3 +394,53 @@ function previewLibraryV3QualityAudit(){
  for(let i=0;i<oldNews.length;i+=25)Logger.log(JSON.stringify({mode:'READ_ONLY_V3_OLD_NEWS',offset:i,rows:oldNews.slice(i,i+25)}));
  return result;
 }
+
+/** Stateless, one-feed candidate audit. Never persist cursor/cache/properties or cells.
+ * A future approved scheduler must store the returned cursor in a separate audit store.
+ */
+function previewLibraryV3SchoolCandidates(){return previewLibraryV3RssCandidates({show:'ニュースの学校'});}
+function previewLibraryV3RssCandidates(options){
+ const o=options||{},shows=['ニュースの学校','ニュースの現場から','MEDIA TALK','こどもそうだんしつ','スポンジ','ドーナツ','報談'];
+ const show=o.show||shows[0],offset=o.cursor?.offset||0;
+ if(!shows.includes(show)||!Number.isInteger(offset)||offset<0||offset>100000)throw Error('Invalid audit selection');
+ if(o.cursor&&(o.cursor.show!==show||!o.cursor.hash))throw Error('Cursor identity required');
+ const started=Date.now(),deadline=started+90000,lock=LockService.getScriptLock();
+ const m={mode:'READ_ONLY_V3_RSS_CANDIDATES',show,status:'',inspected:0,apiCalls:0,cacheHits:0,fetchedItems:0,candidates:[],review:[],holds:[],writes:0,propertyWrites:0,playbackVerified:false};
+ if(!lock.tryLock(1000))return {...m,status:'SKIPPED_ALREADY_RUNNING'};
+ try{
+  const c=libV3Context_(false),feeds=c.feeds.filter(f=>f.show===show);
+  if(feeds.length!==1)throw Error('Expected exactly one configured feed for show');
+  const feed=feeds[0];m.feed=feed.url;
+  if(o.cursor&&o.cursor.url!==feed.url)throw Error('Cursor feed changed');
+  if(Date.now()>deadline-45000){m.status='TIME_BUDGET';return m;}
+  const state={offset,hash:o.cursor?.hash||'',retry:o.cursor?.retry};
+  const snap=libV2CpSnapshot_(feed.url,false,state,m,{prefix:'LV3CP',timeoutSeconds:45,parse:t=>libV2CpParse_(t,true)});
+  if(snap.status){if(!state.retry?.stopped&&!(state.retry?.at>started))m.apiCalls++;m.status=snap.status;m.retry=snap.retry;return m;}
+  if(o.cursor&&snap.hash!==o.cursor.hash){m.status='SOURCE_CHANGED_RESTART_REQUIRED';return m;}
+  if(offset>snap.items.length)throw Error('Cursor exceeds snapshot');
+  const counts=new Map();snap.items.forEach(it=>counts.set(it.guid,(counts.get(it.guid)||0)+1));
+  let next=offset;
+  while(next<snap.items.length&&m.inspected<50&&Date.now()<deadline-15000){
+   const it=snap.items[next++];m.inspected++;
+   if(!it.guid||counts.get(it.guid)!==1){m.holds.push({guid:it.guid||'',reason:'blank_or_duplicate_rss_guid'});continue;}
+   const p=libV3Plan_(it,feed,c.rows,c.index);
+   if(!p.id||p.reasons.length){m.holds.push({guid:it.guid,id:p.id||'',reasons:p.reasons});continue;}
+   // A conflict in either identity-bearing audio or cast holds the whole proposal.
+   const selected=p.fields.filter(f=>['audio','cast','cast1','cast2','cast3','cast4','cast5','castEvidence'].includes(f.name));
+   if(selected.some(f=>['HOLD','RECHECK_REQUIRED'].includes(f.state))){m.holds.push({id:p.id,reason:'existing_value_or_state_conflict'});continue;}
+   const proposed=[];
+   for(const f of selected.filter(f=>f.candidate)){
+    if(c.sh.getRange(p.i+2,f.col).getFormula()){m.holds.push({id:p.id,field:f.name,reason:'formula_protected'});continue;}
+    proposed.push({field:f.name,column:f.col,value:f.value});
+   }
+   if(proposed.length)m.candidates.push({id:p.id,guid:it.guid,title:it.title,date:it.date,feed:feed.url,sourceHash:p.sourceHash,rowHash:p.rowHash,key:libV3Hash_([show,p.id,p.sourceHash,proposed]),fields:proposed});
+   // A name in description may be a producer or announcement: never infer a speaker.
+   if(!it.cast&&/神田\s*大介/.test(libV3Clean_(it.description||''))){
+    const plain=libV3Clean_(it.description),at=plain.search(/神田\s*大介/);
+    m.review.push({id:p.id,guid:it.guid,person:'神田大介',reason:'description_mention_role_unverified',evidence:plain.slice(Math.max(0,at-50),at+100)});
+   }
+  }
+  m.completeFeed=next===snap.items.length;m.nextCursor={show,url:feed.url,hash:snap.hash,offset:next};m.status='READ_ONLY';return m;
+ }catch(e){m.status='FAILED';m.errorType=e.name||'Error';return m;}
+ finally{m.elapsedMs=Date.now()-started;lock.releaseLock();Logger.log(JSON.stringify({...m,candidates:undefined,review:undefined,holds:undefined,candidateEpisodes:m.candidates.length,reviewEpisodes:m.review.length,heldEpisodes:m.holds.length}));for(const kind of ['candidates','review','holds'])for(const row of m[kind])Logger.log(JSON.stringify({mode:m.mode,kind,...row}));}
+}
