@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "purpose": "PR230_SINGLE_EPISODE_ISOLATED_PILOT",
+  "specifiedByUser": "2026-10-18T11:26:28+09:00",
+  "runtimeConfig": false,
+  "status": "BLOCKED_BEFORE_ANY_WRITE",
+  "spotify": {
+    "playlistName": "リス田 自動更新テスト",
+    "allowedPlaylistIds": [
+      "4FiVIwysKDtLqEXfkfhu2O"
+    ],
+    "playlistWriteApproved": false,
+    "maxPlaylistPostRequests": 1,
+    "maxEpisodeUris": 1,
+    "episodeId": null,
+    "episodeUri": null,
+    "allowReplace": false,
+    "allowReorder": false,
+    "allowDelete": false,
+    "allowMetadataChange": false,
+    "retryUncertainPost": false,
+    "authentication": "Existing V1 getSpotifyUserAccessToken; authenticated user/scopes/test-list permissions not yet verified; no new credentials or scopes"
+  },
+  "copyLedger": {
+    "writeApproved": false,
+    "copySpreadsheetId": null,
+    "selectedGuid": null,
+    "maxNewEpisodeRows": 1,
+    "preserveOriginalAndBackup": true,
+    "stateAndHistoryMustUseCopy": true
+  },
+  "forbiddenChanges": [
+    "production ledger",
+    "existing public playlists",
+    "all Script Properties",
+    "all triggers",
+    "deployments",
+    "merge"
+  ],
+  "gates": {
+    "currentGasFullSourceCompared": false,
+    "newPR230ReadOnlyPassedOnline": false,
+    "copyOnlyWriterRouteVerified": false,
+    "propertyFreePilotReservationVerified": false,
+    "episodeAndAuthenticationPresented": false,
+    "explicitPlaylistWriteApproval": false
+  },
+  "existingCodeBlockers": [
+    "libV3Append_ reopens libV3Context_(true), whose spreadsheet target is LIB_V2_SHEET_ID; swapping caller context does not isolate writes",
+    "libV3Append_ updates LIB_V3_LAST_ID; outer libV3Run_ also updates cursor/failure/config Properties",
+    "libV3MorningSpotify_ uses default libV3Context_(true), can write Spotify URL and packed states on the real sheet; root morning runner persists Properties and manages triggers"
+  ],
+  "onlineChangesThisStep": {
+    "code": 0,
+    "properties": 0,
+    "triggers": 0,
+    "sheetCells": 0,
+    "spotifyPlaylistPosts": 0
+  }
+}
