@@ -5,8 +5,9 @@
   "onlineFileNames": {
     "scripts": 35,
     "manifest": 1,
-    "fullBodiesObtained": false,
-    "reason": "Browser credential protection refused clipboard read; editor observations are incomplete. Stopped full-export retry."
+    "fullBodiesObtained": true,
+    "source": "user-attached asarisu-gas-export-fixed(2).zip",
+    "zipSha256": "521b4082fe46c02daaa0b451e2f9714a0b6727a169aaea2055fc61c467335035"
   },
   "readOnly": {
     "function": "previewLibraryV3Autonomy",
@@ -52,10 +53,10 @@
     }
   },
   "local": {
-    "nodeTests": 125,
-    "passed": 125,
+    "nodeTests": 138,
+    "passed": 138,
     "rssAssertions": 23,
-    "morningFunctions": 21,
+    "morningFunctions": 25,
     "repositoryFunctionCollisions": 0,
     "previousFullOnlineSnapshotFunctionCollisions": []
   },
@@ -74,11 +75,18 @@
   "changedGasThisFollowup": [
     {
       "path": "scripts/google-apps-script/LibraryV3.js",
-      "sha256": "213f5e41f08d18385adf49415b5e8826965f1ccfb860fe91c548ae1387e44e99"
+      "sha256": "b8a6bc30c54baa8281657a221e7a947302b97bdce13afa66041146a91ed0958a"
     },
     {
       "path": "scripts/google-apps-script/LibraryV3Morning.js",
-      "sha256": "b3444eee2651e469a3e64176f69831c40b77351f67bb7aa272af932f266cd2d2"
+      "sha256": "ceccc460538c231f0433e13f186b0fbf8fa79e53d44a0a86e380fbc1c7247981"
     }
-  ]
+  ],
+  "copyPilot": {
+    "codePrepared": true,
+    "localTestsPassed": 13,
+    "actualWritePerformed": false,
+    "propertyWritesAllowed": false
+  },
+  "sourceComparison": "zip-source-verification.json"
 }

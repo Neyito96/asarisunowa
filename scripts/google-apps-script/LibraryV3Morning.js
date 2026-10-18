@@ -174,3 +174,54 @@ function libV3MorningOwnsPlaylist_(playlistId){
 }
 
 function resumeLibraryV3MorningSpotifyAfterApproval(){const l=LockService.getScriptLock();if(!l.tryLock(1000))throw Error('Busy');try{const s=libV3MorningState_();if(s.lease)throw Error('Reconcile lease first');delete s.retry;s.spotifyPaused=false;s.spotifyFailures=0;libV3MorningSave_(s);return {status:'SPOTIFY_RETRY_RESET_RESERVED_POSTS_STILL_HELD'};}finally{l.releaseLock();}}
+
+
+/** No top-level service calls. These copy-only pilots NEVER call the scheduler,
+ * enable V3, mutate Properties, create a copy, or send anything to Spotify.
+ * The selected copy ID/GUID/plan hash must be separately reviewed before save.
+ */
+function libV3CopyPilotId_(o){
+ const protectedIds=[LIB_V2_SHEET_ID,'1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4','1CPHnvQd9JAYLACZqeSOJAy6IQ5ZLMbd8-FU6G6ugvaI'];
+ if(!o||typeof o.copySheetId!=='string'||!/^[A-Za-z0-9_-]{20,}$/.test(o.copySheetId)||protectedIds.includes(o.copySheetId)||!o.guid||libV2CpGuid_(o.guid)!==o.guid||!/^https:\/\//.test(o.feedUrl||''))throw Error('Explicit non-production copy ID, normalized GUID and official feed required');
+ return o.copySheetId;
+}
+function libV3CopyPilotPlan_(o){
+ libV3CopyPilotId_(o);
+ const source=libV3Context_(false),c=libV3Context_(true,o),baseline=JSON.parse(PropertiesService.getScriptProperties().getProperty('LIB_V3_BASELINE')||'{}');
+ if(baseline.complete!==true||baseline.offset!==source.rows.length)throw Error('Source baseline incomplete or changed');
+ const feed=source.feeds.find(f=>f.url===o.feedUrl);
+ if(!feed||!c.feeds.some(f=>f.url===feed.url&&f.show===feed.show))throw Error('Feed must match source and copy');
+ const metrics={cacheHits:0},snap=libV2CpSnapshot_(feed.url,false,{},metrics,{prefix:'LV3PILOT_READONLY',chunkSize:22000,parse:t=>libV2CpParse_(t,true)});
+ if(snap.status)throw Error('RSS unavailable: '+snap.status);
+ const hits=snap.items.filter(it=>it.guid===o.guid);if(hits.length!==1)throw Error('RSS GUID missing or duplicated');
+ const it=hits[0];if(!Number.isFinite(Date.parse(it.published))||Date.parse(it.published)>Date.now()+60000)throw Error('Publication invalid');
+ if(typeof libV3AutoCleanEvidence_==='function'&&libV3AutoCleanEvidence_(it.description||'').hold)throw Error('New description requires review');
+ const config={allowNew:true,newAfter:new Date(Date.parse(it.published)-1).toISOString()};
+ const sd=libV3NewDecision_(it,feed,source,config,baseline);
+ if(!sd.eligible||libV2CpMatches_(it.guid,source.index.guid,source.index.anchor).length)throw Error('Not a new source candidate or excluded');
+ const matches=libV2CpMatches_(it.guid,c.index.guid,c.index.anchor);
+ let status='READY_FOR_COPY_APPROVAL',existingId='';
+ if(matches.length){
+  if(matches.length!==1)throw Error('Duplicate copy identity');
+  const row=c.rows[matches[0]],prior=c.index.states.get(row[0]+'|identity');
+  if(!prior||prior[2]!=='VERIFIED'||prior[3]!==it.guid||prior[4]!==libV3Hash_(row)||prior[7]!=='RSS_registered')throw Error('Copy identity requires review');
+  if(c.history.getDataRange().getValues().filter(r=>r[1]==='V3_COPY_PILOT'&&String(r[5])===String(row[0])).length!==1)throw Error('Copy history requires review');
+  status='ALREADY_PRESENT';existingId=row[0];
+ }else if(libV3Hash_(source.rows)!==libV3Hash_(c.rows)||!libV3NewDecision_(it,feed,c,config,baseline).eligible)throw Error('Copy diverged, reserved or excluded');
+ const planHash=libV3Hash_([o.copySheetId,o.guid,feed,baseline,source.rows,c.rows,c.records,it]);
+ return {source,c,baseline,feed,it,config,report:{mode:'READ_ONLY_COPY_PILOT',status,planHash,sourceRows:source.rows.length,copyRows:c.rows.length,copySheetId:o.copySheetId,guid:it.guid,title:it.title,published:it.published,existingId,proposedRows:existingId?0:1,writes:0,propertyWrites:0,spotifyPosts:0,spotifyTestPlaylistId:'4FiVIwysKDtLqEXfkfhu2O'}};
+}
+function previewLibraryV3CopyPilot(options){const r=libV3CopyPilotPlan_(options).report;Logger.log(JSON.stringify(r));return r;}
+function saveLibraryV3CopyPilotAfterApproval(options){
+ // No editor default arguments: cannot start without a specific approved plan.
+ if(!options?.approvedPlanHash)throw Error('Explicit approval plan hash required');
+ const lock=LockService.getScriptLock();if(!lock.tryLock(1000))return {status:'BUSY',writtenRows:0,propertyWrites:0};
+ try{
+  const started=Date.now(),p=libV3CopyPilotPlan_(options);
+  if(p.report.status==='ALREADY_PRESENT')return {...p.report,writtenRows:0};
+  if(p.report.planHash!==options.approvedPlanHash||Date.now()-started>90000)throw Error('Plan changed or time budget reached: preview again');
+  const added=libV3Append_(p.c,p.it,p.feed,p.config,p.baseline,options);
+  p.c.history.appendRow([new Date(),'V3_COPY_PILOT',1,added.writtenCells,0,added.id,p.feed.url,'',Math.round((Date.now()-started)/1000),'approved single GUID; Properties unchanged']);
+  const r={status:'COPY_SAVED',id:added.id,copySheetId:options.copySheetId,guid:options.guid,writtenRows:1,writtenCells:added.writtenCells,propertyWrites:0,spotifyPosts:0};Logger.log(JSON.stringify(r));return r;
+ }finally{lock.releaseLock();}
+}

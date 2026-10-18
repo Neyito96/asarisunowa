@@ -72,8 +72,9 @@ function libV3Feeds_(sourceRows){
   if(!show)throw Error('Feed show missing');if(map.has(url)&&map.get(url)!==show)throw Error('Feed show conflict');map.set(url,show);
  }});return [...map].sort((a,b)=>a[0].localeCompare(b[0])).map(([url,show])=>({url,show}));
 }
-function libV3Context_(requireState){
- const ss=SpreadsheetApp.openById(LIB_V2_SHEET_ID),get=name=>{const sh=ss.getSheetByName(name);if(!sh)throw Error('Missing '+name);return sh;};
+function libV3Context_(requireState,copyPilot){
+ const targetSheetId=copyPilot?libV3CopyPilotId_(copyPilot):LIB_V2_SHEET_ID;
+ const ss=SpreadsheetApp.openById(targetSheetId),get=name=>{const sh=ss.getSheetByName(name);if(!sh)throw Error('Missing '+name);return sh;};
  const sh=get('エピソード台帳'),data=sh.getDataRange().getValues(),headers=data.shift();libV3CheckHeaders_(headers);
  const ex=get('削除・除外履歴'),history=get('自動補完・実行履歴');
  const expected=['実行日時','状態','対象EP数','書込セル数','保留件数','更新EP-ID','開始フィード','次フィード','処理秒数','備考'];
@@ -84,7 +85,7 @@ function libV3Context_(requireState){
  if(state&&libV3Hash_(stored.shift())!==libV3Hash_(libV3Schema_().state))throw Error('V3 state schema mismatch');
  stored.forEach((r,i)=>{if(packed.has(r[0]))throw Error('Duplicate state EP-ID');const fields=JSON.parse(r[1]||'{}');if(!fields||Array.isArray(fields)||typeof fields!=='object')throw Error('Invalid packed state');packed.set(r[0],{row:i+2,fields});Object.entries(fields).forEach(([name,value])=>{if(!Array.isArray(value)||value.length!==8)throw Error('Invalid field state');records.push([r[0],name,...value]);});});
  const recordRows=new Map(records.map((r,i)=>[r[0]+'|'+r[1],i]));
- return {ss,sh,rows:data,headers,ex,history,state,records,recordRows,packed,feeds:libV3Feeds_(get('取得元一覧').getDataRange().getValues().slice(1)),index:libV3Index_(data,ex.getDataRange().getValues().slice(1),records)};
+ return {ss,targetSheetId,sh,rows:data,headers,ex,history,state,records,recordRows,packed,feeds:libV3Feeds_(get('取得元一覧').getDataRange().getValues().slice(1)),index:libV3Index_(data,ex.getDataRange().getValues().slice(1),records)};
 }
 function libV3Config_(){
  const raw=PropertiesService.getScriptProperties().getProperty('LIB_V3_CONFIG');
@@ -155,14 +156,19 @@ function libV3NewDecision_(it,feed,c,config,baseline){
  if(c.index.metadata.has(it.title+'|'+it.date)||c.index.audio.has(it.audio))reasons.push('possible_reissue_or_migration');
  return {eligible:!reasons.length,reasons};
 }
-function libV3Append_(c,it,feed,config,baseline){
+/** Copy pilot stays in the explicitly selected copy, including the fresh re-read.
+ * Its persistent identity reservation supplies monotonic IDs without Properties.
+ * Default production behavior and counter are unchanged.
+ */
+function libV3Append_(c,it,feed,config,baseline,copyPilot){
  // Full latest ledger and exclusion re-read; no stale append/cell overwrite.
- const live=libV3Context_(true),d=libV3NewDecision_(it,feed,live,config,baseline);
+ if(copyPilot&&(c.targetSheetId!==libV3CopyPilotId_(copyPilot)||it.guid!==copyPilot.guid||feed.url!==copyPilot.feedUrl))throw Error('Copy pilot scope changed');
+ const live=libV3Context_(true,copyPilot),d=libV3NewDecision_(it,feed,live,config,baseline);
  if(libV2CpMatches_(it.guid,live.index.guid,live.index.anchor).length||!d.eligible)throw Error('New item changed or held');
  const props=PropertiesService.getScriptProperties();
  const lastId=Number(props.getProperty('LIB_V3_LAST_ID')||0);if(!Number.isSafeInteger(lastId)||lastId<0)throw Error('Invalid ID counter');
  const max=[...live.rows,...live.records].reduce((n,r)=>Math.max(n,Number(String(r[0]).match(/^EP-(\d+)$/)?.[1]||0)),lastId);
- const id='EP-'+String(max+1).padStart(5,'0');props.setProperty('LIB_V3_LAST_ID',String(max+1));
+ const id='EP-'+String(max+1).padStart(5,'0');if(!copyPilot)props.setProperty('LIB_V3_LAST_ID',String(max+1));
  // Reserve identity BEFORE append. Crash leaves a hold, never resurrection/duplicate.
  libV3StatePut_(live,[id,'identity','HOLD',it.guid,'','','','reserved_before_append',new Date().toISOString(),it.guid]);
  if(typeof libV3AutoCleanEvidence_==='function'&&libV3AutoCleanEvidence_(it.description||'').hold)throw Error('New description requires review');

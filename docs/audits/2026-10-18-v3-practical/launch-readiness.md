@@ -1,3 +1,5 @@
+> **ZIP受領後の現在の検証・承認対象は[こちら](zip-final-validation.md)。** 古い項目の未取得理由は履歴であり、再取得依頼ではない。
+
 # PR #230 最終仕上げ：実運転は未合格
 
 2026-10-18。PR #230の実装を再利用。今回のGASコード差分はLibraryV3Morning.jsとLibraryV3.jsのみ。33/35ファイルの全面機能監査、母集団比較、古い概要清掃は再実施していない。オンラインコード保存・Properties変更・トリガー操作・シート書込・Spotify投稿・デプロイ・マージはすべて0。
@@ -6,9 +8,9 @@
 
 |検証|結果|根拠|
 |---|---|---|
-|既存V2/V3・V1保護・朝ブリッジのローカル試験|合格|125/125、既存RSS 23 assertions。最新ログ参照|
+|既存V2/V3・V1保護・朝ブリッジ・コピー試験のローカル検証|合格|138/138、既存RSS 23 assertions。zip-pilot-test-results.txt参照|
 |現行隔離GASの既存READ_ONLY制御確認|合格|previewLibraryV3Autonomy：実行開始11:12:20、完了11:12:21（画面表示、秒精度）。offset=6591/complete=true、enabled=false、writes=0|
-|現行35スクリプト＋manifestの全文差分|未合格|一覧36件は確認。全文clipboard読み取りは資格情報保護で拒否。省略された本文を全文・ハッシュ一致と扱っていない|
+|現行35スクリプト＋manifestの全文差分|合格|添付ZIP36ファイルを全文照合。全hash・対応表・反映候補差分を記録|
 |PR #230新コードの実GAS READ_ONLY|未合格|LibraryV3Morning.gsが現行一覧にない。承認なしに反映していない|
 |コピー台帳への新着1件保存／再実行0件|未合格|実書込承認前。モックでは合格。試験先と1件のGUIDを確定してから実施|
 |承認されたSpotify試験リストへの1件投稿／再実行0件|未合格|試験リストIDは4FiVIwysKDtLqEXfkfhu2Oに確定。対象EP・認証・書込承認は未確定。実APIの権限・playabilityは未検証|
@@ -16,22 +18,13 @@
 
 [実測JSON](launch-readiness.json) / [テスト結果](launch-test-results.txt) / [運用・復旧](operations.md)。実行詳細画面の読み取りも保護で止まったため、正確な小数秒の実行時間は未確認。RSS/Spotify呼出0は制御プレビューの静的呼出経路による確認であり、ネットワーク計測値ではない。ログのtriggers=0はscheduledLibraryV3の件数であり、プロジェクト全トリガー件数ではない。
 
-## 全文取得の代替はこの一つだけ
+## 現行全文の取得・照合完了（ZIP受領後の更新）
 
-Google公式claspで**現行Headを一括ダウンロード**する。Node.js 20以上のPCで、必要ならGoogleの[Apps Script API設定](https://script.google.com/home/usersettings)を本人が有効にし、次を実行する。新しい空フォルダーを使い、push/deploy/runは行わない。
+ユーザー添付 `asarisu-gas-export-fixed(2).zip` の35スクリプト＋manifest、合計36ファイルを全文照合した。ZIP SHA-256は `521b4082fe46c02daaa0b451e2f9714a0b6727a169aaea2055fc61c467335035`。再エクスポートは不要。
 
-```sh
-npm install -g @google/clasp
-clasp login
-mkdir asarisu-gas-export-20261018
-cd asarisu-gas-export-20261018
-clasp clone-script 1eLqB-k1XIQz5qqOxamvUlinqld7jwSDO6AkWLx9Zg0ePGsuU7pE4rec-
-zip -r ../asarisu-gas-export-20261018.zip . -i '*.js' '*.gs' '*.html' '*appsscript.json'
-```
+PR #230の72fdaa0との比較は完全一致2・改行/外側空白のみ20・本文差7・隔離側のみ7。前回全文バックアップの35ファイルに対して34は完全一致、LibraryV3の初期登録トリガー除外だけ変更、BaselineTriggerが1ファイル追加。既知の初期登録用変更と一致し、無関係な本文変更は検出していない。
 
-35ファイルの個別コピーは不要。このZIPだけを非公開で受け渡す。`.clasprc.json`等の認証ファイル、Propertiesのsecretを含めず、ZIPを公開GitHubへ置かない。コードに既存secretがある場合も公開しない。取得後はファイル名とUTF-8本文SHA-256をバックアップ・GitHubと突合し、想定外の差分なら反映を中断する。claspのダウンロード自体はオンラインコード・Properties・トリガーを変更しないが、認証許可/API設定は本人の操作となる。
-
-公式: [Google clasp guide](https://developers.google.com/apps-script/guides/clasp) / [現行CLIのclone-script](https://github.com/google/clasp#clone)。既存ローカル認証情報は今回の環境には渡されておらず、WORKから代わりにcloneできたとは報告しない。
+[36ファイルの対応・全文hash](zip-full-source-map.csv) / [依存・差分集計](zip-source-verification.json) / [反映候補2ファイルの差分](proposed-readonly-two-files.diff) / [37ファイルの反映後予定hash](proposed-readonly-file-hashes.csv)。ZIPにはPropertiesが含まれず、6,591件の状態は前回11:12のREAD_ONLY実測を引き継ぐ。今回新たにPropertiesを書き換えたり初期登録を実行したりしていない。
 
 ## V1とV3の最短接続と保護
 
@@ -45,7 +38,7 @@ zip -r ../asarisu-gas-export-20261018.zip . -i '*.js' '*.gs' '*.html' '*appsscri
 |isAutoUpdatePlaylistHumanDeletedV1_|AutoUpdateAutomationV1.js（既存削除Propertiesを読む）|
 |notifyAutoUpdateFailureSafely_|AutoUpdateNotification.js（既存宛先・6時間重複抑止を再利用）|
 
-ルールのspeaker/no-mirai等の間接依存も同じプロジェクトに必要。今回、直接依存確認から漏れていたgetAutoPlaylistShowIds_を追加し、READ_ONLYプレビューに不足名・通知helper有無を返す。関数の存在確認だけで認証・ルール・間接依存の実機合格とはしない。隔離35ファイル一覧にこれらV1主要ファイルはなく、既存全文snapshotにも直接依存はなかった。現在の部分本文から追加の埋め込み定義がないとは断定しない。
+ルールのspeaker/no-mirai等の間接依存も同じプロジェクトに必要。今回、直接依存確認から漏れていたgetAutoPlaylistShowIds_を追加し、READ_ONLYプレビューに不足名・通知helper有無を返す。関数の存在確認だけで認証・ルール・間接依存の実機合格とはしない。隔離35ファイル一覧にこれらV1主要ファイルはなく、既存全文snapshotにも直接依存はなかった。今回の全文ZIPと重ね合わせVMで、直接依存6関数・通知関数の不在を確認した。
 
 運用先の候補は、既存V1が動くプロジェクトへV3の4モジュール（CheckpointEngine / LibraryV3 / LibraryV3Autonomy / LibraryV3Morning）と既存V1の2箇所のファイル差分（AutoUpdateAutomationV1 / PlaylistAutoWrite）を選択反映する経路。既に一致するモジュールは反映不要。実際の対象ファイル集合は現行本文照合後に固定する。隔離へV1ファイルを無差別にコピーする案は採らない。本番側のLIB_V2_SHEET_ID定義、対象シート、既存Propertiesとのキー衝突、V3状態シートは反映前に検証する。6,591件のbaseline/採番/削除除外・既存OAuthはリセットしない。既存baselineキーの置き換えも包括承認に含めない。
 
@@ -64,13 +57,13 @@ V1の委譲フック4箇所はPR #230既存実装のまま維持。委譲リス�
 
 ## 次の承認を一括で行うための順番
 
-1. 上の一括ZIPを取得し全文差分を確定。本文未取得のまま本番反映へ進まない。5,439件比較や古い清掃はこのゲートに含めない。
+1. 一括ZIPの取得・全文照合は完了。オンライン反映の直前にも36ファイルのhashが今回のZIPと一致することを確認し、想定外差分なら止める。5,439件比較や古い清掃はこのゲートに含めない。
 2. **コード反映の承認:** 隔離のLibraryV3.gs更新＋LibraryV3Morning.gs追加。反映前後で全ファイル名/本文ハッシュを比較し、許可した2ファイル以外の変化なら中断。V1依存は無断追加せず、不足表示を確認する。新コードREAD_ONLYはpreviewLibraryV3MissingAudit / previewLibraryV3Morning、既存previewLibraryV3も1フィードだけ。Propertiesやトリガーを触らない。
 3. **保存試験の承認:** 元台帳・既存バックアップを保持し、試験専用の新しいコピーを作り、選定済みGUIDの新着1件だけを既存Append経路で保存。試験用GAS/コピー先定数を固定し、元台帳を指すまま実行しない。採番予約・項目状態・履歴等の付随書込もコピーに限定する。試験用Propertiesと元の運用Propertiesを混同しない。再実行0追加、値と数式の前後差分を確認して終了。承認前に汎用朝schedulerを起動して1件試験の代用にしない（最大5候補を処理するため）。
 4. **Spotify試験の別承認:** 試験リストURL、既存ルールキー、1件のEP/URIを指定する。台帳保存試験とは別実行。既存V1認証を使える承認済み実行先で、既存ページ検査→予約→1POSTを実行する。付随する試験状態保存と必要なOAuth token更新/cacheの範囲も明記する。本番リスト、他のEP、新着全体への書込は含めない。再実行0投稿を確認し、不確実ならHOLDのまま終了する。
 5. **本番起動の承認:** 実機ゲート合格後、照合済み対象ファイル・実行先・新着開始日時・許可ルールを固定。変更するキーをLIB_V3_CONFIG / LIB_V3_MORNING_CONFIGおよび新しい朝state/cursorに限定してレビュー。baseline等の移行が必要なら別途値・不存在確認を示す。configureLibraryV3MorningAfterApprovalで有効化し、installLibraryV3MorningTriggerAfterApprovalで日次＋一時再開の運用を許可する。V1既存トリガー、OAuth設定、main/Webデプロイは変更しない。
 
-2026-10-18 11:26 JST、Spotify試験先だけは「リス田 自動更新テスト」`4FiVIwysKDtLqEXfkfhu2O`に確定（投稿承認ではない）。試験用コピーID・試験対象1件・実行認証の確認は未完了。[限定試験の準備と制約](pilot-test-plan.md)。したがって「次の承認だけで直ちに本番起動できる」という状態にはまだ達していない。コードの追加開発よりも全文ZIPとこの試験対象の確定が残る作業。
+2026-10-18 11:26 JST、Spotify試験先だけは「リス田 自動更新テスト」`4FiVIwysKDtLqEXfkfhu2O`に確定（投稿承認ではない）。試験用コピーID・試験対象1件・実行認証の確認は未完了。[限定試験の準備と制約](pilot-test-plan.md)。したがって「次の承認だけで直ちに本番起動できる」という状態にはまだ達していない。コードの追加開発よりも実機反映の承認・READ_ONLY実測と試験対象の確定が残る作業。
 
 ## ロールバック
 

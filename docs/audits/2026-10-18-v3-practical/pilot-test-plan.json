@@ -38,17 +38,17 @@
     "merge"
   ],
   "gates": {
-    "currentGasFullSourceCompared": false,
+    "currentGasFullSourceCompared": true,
     "newPR230ReadOnlyPassedOnline": false,
-    "copyOnlyWriterRouteVerified": false,
-    "propertyFreePilotReservationVerified": false,
+    "copyOnlyWriterRouteVerified": true,
+    "propertyFreePilotReservationVerified": true,
     "episodeAndAuthenticationPresented": false,
     "explicitPlaylistWriteApproval": false
   },
   "existingCodeBlockers": [
-    "libV3Append_ reopens libV3Context_(true), whose spreadsheet target is LIB_V2_SHEET_ID; swapping caller context does not isolate writes",
-    "libV3Append_ updates LIB_V3_LAST_ID; outer libV3Run_ also updates cursor/failure/config Properties",
-    "libV3MorningSpotify_ uses default libV3Context_(true), can write Spotify URL and packed states on the real sheet; root morning runner persists Properties and manages triggers"
+    "Unmodified production Append uses original target and LAST_ID, as intended; opt-in copy pilot now routes all fresh re-reads to selected copy and reserves ID in copy only",
+    "Generic morning scheduler/Spotify writer remain forbidden for this pilot; no production flags/cursors/trigger functions invoked",
+    "Real copy ID, selected GUID and reviewed planHash are still required"
   ],
   "onlineChangesThisStep": {
     "code": 0,
@@ -56,5 +56,6 @@
     "triggers": 0,
     "sheetCells": 0,
     "spotifyPlaylistPosts": 0
-  }
+  },
+  "verificationScope": "Route/Properties invariants verified by local strict mocks; real GAS and real copy write remain untested"
 }

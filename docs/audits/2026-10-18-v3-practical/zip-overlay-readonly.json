@@ -1,0 +1,21 @@
+{
+  "mode": "LOCAL_36_SCRIPT_OVERLAY_NOT_REAL_GAS",
+  "scriptsLoaded": 36,
+  "existingScriptBodies": 34,
+  "replacedScripts": 1,
+  "addedScripts": 1,
+  "startupAndPreviewWriteAttempts": 0,
+  "readonlyMode": "READ_ONLY_MORNING",
+  "spotifyDependencies": false,
+  "missingDependencies": [
+    "getAutoPlaylistRuleByKey_",
+    "getAutoPlaylistShowIds_",
+    "matchesAutoPlaylistRule_",
+    "getSpotifyUserAccessToken",
+    "assertAutoPlaylistSheetLinkBeforeWrite_",
+    "isAutoUpdatePlaylistHumanDeletedV1_"
+  ],
+  "notificationAvailable": false,
+  "baselineSource": "SIMULATED_FIXTURE",
+  "propertiesChanged": false
+}
