@@ -22,7 +22,20 @@ function parseRelatedLinks(raw){
   const m=line.match(/^\s*(?:関連記事|関連リンク|参考記事|参考資料)?\s*[：:　 ]?\s*(.{1,160}?)\s*[：:：]\s*(https?:\/\/[^\s<>]+)/);
   if(m){const generic=/^(?:関連記事|関連リンク|参考記事|参考資料)$/u.test(m[1].trim());add(m[2],generic?null:m[1],'labelled_line');}
  }
- for(const m of text.matchAll(/https?:\/\/[^\s<>"'）)\]}]+/g))add(m[0],null,'plain_url');
+ // Preserve nearby explicit printed article headings as unverified candidates.
+ // A URL on its own line preceded by a short heading is not proof that heading is a formal article title.
+ const lines=text.replace(/\\r\\n|\\n/g,'\n').split('\n');
+ for(let i=1;i<lines.length;i++){
+  const url=lines[i].trim().match(/^https?:\\/\\/[^\\s<>]+$/);
+  if(!url)continue;
+  const title=lines[i-1].trim();
+  if(!title||title.length>160||/^https?:\\/\\//.test(title)||/^(?:関連記事|関連リンク|参考資料|参考記事|お知らせ|広告|配信情報)[：:]?$/.test(title))continue;
+  if(/[。！？]$/.test(title))continue;
+  add(url[0],null,'plain_url');
+  const record=out.find(x=>x.url===url[0].replace(/[)\\]。、，,;；]+$/g,''));
+  if(record&&!record.title){record.titleCandidate=title;record.titleCandidateSource='preceding_line';record.titleVerified=false;}
+ }
+ for(const m of text.matchAll(/https?:\\/\\/[^\\s<>"'）)\\]}]+/g))add(m[0],null,'plain_url');
  return out;
 }
 function planArchive(input){
