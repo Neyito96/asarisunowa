@@ -4,7 +4,7 @@
  * Reports timing per stage so slow RSS vs. slow spreadsheet reads are distinguishable.
  */
 function runLibraryV3SingleFeedProbe() {
-  const copySheetId = '19Dv6cgM33NYbrMGLofuVvxM4-WHiuPqxmivZUuwoBqc';
+  const copySheetId = '1EgS5KSn8kiQUM1avaeB09aLy-NWZ0azMYnxX1g_0t_8';
   const start = Date.now();
   const report = {mode:'READ_ONLY_SINGLE_FEED', copySheetId, writes:0, stages:[]};
   const step = (name, fn) => {
