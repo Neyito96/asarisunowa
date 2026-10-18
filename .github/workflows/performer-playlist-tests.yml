@@ -28,3 +28,4 @@ jobs:
           node-version: '22'
       - run: node tests/library-v3-performer-playlist-batch.test.mjs
       - run: node tests/library-v3-playlist-subscription-commands.test.mjs
+      - run: node tests/library-v3-spotify-playlist-client.test.mjs
