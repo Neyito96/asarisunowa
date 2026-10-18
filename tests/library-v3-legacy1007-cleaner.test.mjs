@@ -13,7 +13,7 @@ test('1007 O format extracts paired article titles and URLs, not podcast landing
 test('O historical cleaned text is not promoted to V raw',()=>{
  const x=legacy1007Crosswalk({legacyO:media,legacyK:'いーむ／ネジロボ（朝日新聞公式配信概要抽出・整理）',identityConfirmed:true,sourceUrl:'https://feeds.example/rss',sourceKind:'OFFICIAL_RSS',rssRaw:''});
  assert.equal(x.rawVProposal,null);assert.equal(x.cleanWProposal,null);
- assert.equal(x.preserve1007.K,'いーむ／ネジロボ（朝日新聞公式配信概要抽出・整理）');
+ assert.equal(x.legacy.K,'いーむ／ネジロボ（朝日新聞公式配信概要抽出・整理）');
 });
 test('RSS canonical raw can propose V/W only if existing V matches or blank',()=>{
  const x=legacy1007Crosswalk({legacyO:media,legacyK:'AI',rssRaw:'公式概要',sourceKind:'OFFICIAL_RSS',sourceUrl:'https://feeds.example/rss',identityConfirmed:true});
