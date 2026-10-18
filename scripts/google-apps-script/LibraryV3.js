@@ -395,6 +395,27 @@ function previewLibraryV3QualityAudit(){
  return result;
 }
 
+/** Comparison-only representation. Never use this text as a stored original/clean value.
+ * Conservative HTML allowlist: unknown tags/attributes remain reviewable, not erased.
+ */
+function libV3DescriptionNormalize_(raw){
+ let supported=true;
+ const decode=s=>s.replace(/&(?:amp|lt|gt|quot|apos|nbsp);/g,x=>({'&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"','&apos;':"'",'&nbsp;':' '})[x]).replace(/&#(x[0-9a-f]+|[0-9]+);/gi,(x,n)=>{const cp=n[0].toLowerCase()==='x'?parseInt(n.slice(1),16):Number(n);return cp>0&&cp<=0x10ffff?String.fromCodePoint(cp):x;});
+ let text=String(raw==null?'':raw).replace(/\\r\\n|\\n|\\r/g,'\n');
+ text=text.replace(/<a\s+href\s*=\s*(["'])(https?:\/\/[^"']+)\1\s*>([^<]*)<\/a\s*>/gi,(_,q,url,label)=>decode(label)===decode(url)?label:label+' '+url);
+ text=text.replace(/<[^>]*>/g,tag=>{
+  if(/^<\/?(?:p|div|li)\s*>$|^<br\s*\/?\s*>$/i.test(tag))return ' ';
+  if(/^<\/?(?:b|strong|em|i|span)\s*>$/i.test(tag))return '';
+  supported=false;return tag;
+ });
+ // Decode after HTML handling so escaped literal tags do not become removable markup.
+ return {text:decode(text).replace(/\s+/g,' ').trim(),supported};
+}
+function libV3DescriptionCompare_(existing,rss){
+ const a=String(existing==null?'':existing),b=String(rss==null?'':rss),left=libV3DescriptionNormalize_(a),right=libV3DescriptionNormalize_(b);
+ const kind=a===b?'EXACT_EQUAL':left.supported&&right.supported&&left.text===right.text?'FORMAT_EQUIVALENT':!left.supported||!right.supported?'UNSUPPORTED_FORMAT_REVIEW':'CONTENT_DIFFERENCE';
+ return {kind,ruleVersion:'description-compare-1',existingNormalized:left.text,rssNormalized:right.text,existingHash:libV3Hash_(a),rssHash:libV3Hash_(b),overwriteAllowed:false};
+}
 /** Audit-only parser: preserve RSS description text (HTML retained), not V2's escaped newlines.
  * Existing ingestion/writing parsers are intentionally unchanged. */
 function libV3CandidateParse_(text){
@@ -461,16 +482,19 @@ function previewLibraryV3RssCandidates(options){
    const audioConflict=selected.some(f=>f.name==='audio'&&(['HOLD','RECHECK_REQUIRED'].includes(f.state)||rowFormulas[f.col-1]));
    for(const f of selected){
     const formula=!!rowFormulas[f.col-1];
+    const comparison=f.name==='description'?libV3DescriptionCompare_(row[f.col-1],f.value):null;
     let category=f.candidate?'CANDIDATE':f.state==='VERIFIED'?'EXISTING_EQUAL':f.state==='NO_INFORMATION'?'SOURCE_MISSING':'EXISTING_VALUE';
     if(f.name.startsWith('cast')&&!it.cast&&!libV3Text_(row[f.col-1]))category=evidence.reviews.length?'INSUFFICIENT_CAST_EVIDENCE':'SOURCE_MISSING';
     if(['HOLD','RECHECK_REQUIRED'].includes(f.state))category=/human|formula|reservation/.test(f.reason)?'PROTECTED':'CONFLICT';
     if(f.name.startsWith('cast')&&it.cast&&!f.value&&!f.candidate&&(row.slice(45,50).some(libV3Text_)||(libV3Text_(row[23])&&String(row[23])!==it.cast)))category='PROTECTED';
+    if(comparison&&f.reason==='existing_value_differs'&&comparison.kind==='FORMAT_EQUIVALENT')category='FORMAT_EQUIVALENT';
     if(formula)category='PROTECTED';
     if(reasons.length)category=/human|excluded/.test(reasons.join('|'))?'PROTECTED':'IDENTITY_HOLD';
     else if(audioConflict&&category==='CANDIDATE')category='CONFLICT';
     const field={field:f.name,column:f.col,category,reason:formula?'formula_protected':audioConflict&&f.candidate?'audio_conflict_blocks_proposal':f.reason,existing:row[f.col-1],value:f.value};
     // Evidence text must reflect description roles as well as podcast:person.
     if(f.name==='castEvidence'&&f.candidate)field.value='RSS explicit role evidence: '+JSON.stringify(evidence.people)+' '+feed.url;
+    if(comparison){field.comparison=comparison;if(category==='FORMAT_EQUIVALENT')field.reason='comparison_only_format_equivalent';}
     ep.fields.push(field);
     const key=f.name+':'+category;m.fieldCounts[key]=(m.fieldCounts[key]||0)+1;
     if(category==='CANDIDATE')proposed.push({field:f.name,column:f.col,value:field.value});
