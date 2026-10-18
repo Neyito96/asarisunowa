@@ -7,7 +7,7 @@
  * The subsequent clasp push, if authorized, is a separate manually gated operation.
  */
 import {readdir,readFile,mkdir,copyFile,writeFile,stat} from 'node:fs/promises';
-import {resolve,relative,join,basename} from 'node:path';
+import {resolve,join,dirname,sep} from 'node:path';
 import {createHash} from 'node:crypto';
 const args=process.argv.slice(2),opt={};
 for(let i=0;i<args.length;i+=2){if(!/^--[\w-]+$/.test(args[i])||!args[i+1])throw Error('Invalid arguments');opt[args[i].slice(2)]=args[i+1];}
@@ -15,8 +15,8 @@ const required=['online-dir','candidate','out-dir','script-id'];
 for(const k of required)if(!opt[k])throw Error('Missing --'+k);
 const src=resolve(opt['online-dir']),dest=resolve(opt['out-dir']),candidate=resolve(opt.candidate),id=opt['script-id'];
 if(!/^[A-Za-z0-9_-]{25,}$/.test(id))throw Error('Script ID format invalid');
-if([src,dest,candidate].some(p=>p===dest&&p!==dest))throw Error('Bad paths');
-if(src===dest||dest.startsWith(src+'/')||src.startsWith(dest+'/'))throw Error('Refuse overlapping directories');
+if(candidate===dest||candidate===src||candidate.startsWith(dest+sep))throw Error('Candidate overlaps staging destination');
+if(src===dest||dest.startsWith(src+sep)||src.startsWith(dest+sep))throw Error('Refuse overlapping directories');
 const fileInfo=await stat(src);if(!fileInfo.isDirectory())throw Error('online-dir must exist');
 try{await stat(dest);throw Error('Output directory already exists: refusing overwrite');}catch(e){if(e.code!=='ENOENT')throw e;}
 async function files(dir,base=''){let list=[];for(const d of await readdir(join(dir,base),{withFileTypes:true})){
@@ -43,7 +43,7 @@ for(const [kind,code] of [['candidate',candidateCode],['online',oldCode]]){
 const sha=s=>createHash('sha256').update(s).digest('hex');
 const originals={};for(const f of originalFiles)originals[f]=sha(await readFile(join(src,f)));
 await mkdir(dest,{recursive:false});
-for(const f of originalFiles){const targetPath=join(dest,f);const parent=targetPath.slice(0,targetPath.length-basename(targetPath).length);await mkdir(parent,{recursive:true});await copyFile(join(src,f),targetPath);}
+for(const f of originalFiles){const targetPath=join(dest,f);await mkdir(dirname(targetPath),{recursive:true});await copyFile(join(src,f),targetPath);}
 await writeFile(join(dest,target),candidateCode);
 const staged=await files(dest);
 if(JSON.stringify(staged)!==JSON.stringify(originalFiles))throw Error('Staged file set changed');
