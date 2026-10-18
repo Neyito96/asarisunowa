@@ -590,3 +590,51 @@ function previewLibraryV3RssCandidates(options){
   // Chunk raw/field values to avoid Apps Script's per-entry truncation.
   for(const ep of m.episodes){const payload=JSON.stringify(ep),parts=Math.ceil(payload.length/1500);for(let part=0;part<parts;part++)Logger.log(JSON.stringify({mode:m.mode,kind:'episode_chunk',id:ep.id,guid:ep.guid,part,parts,data:payload.slice(part*1500,(part+1)*1500)}));}}
 }
+
+
+/** Phase 6 Mac handoff: one READ_ONLY invocation, no sheet or property writes.
+ * Integrates V3 official RSS parser, content cleaner and role evidence already used by
+ * previewLibraryV3RssCandidates; proposes one copy-pilot example, NOT a writer.
+ * Run only after online code/hash verification and explicit user approval.
+ */
+function libV3MacHandoffPlan_(report){
+ const out={mode:'READ_ONLY_MAC_HANDOFF',status:report&&report.status||'FAILED',
+  inspected:report?.inspected||0,matched:0,held:0,
+  fieldCounts:report?.fieldCounts||{},candidateCells:report?.candidateCells||0,
+  selected:null,writes:0,propertyWrites:0,previewOnly:true};
+ if(!report||!['READ_ONLY','TIME_BUDGET'].includes(report.status))return out;
+ const eps=report.episodes||[];
+ out.matched=eps.filter(ep=>ep.id&&ep.match?.confidence==='EXACT_IDENTITY_METADATA_VALIDATED').length;
+ out.held=eps.length-out.matched;
+ for(const ep of eps){
+  if(!ep.id||ep.match?.confidence!=='EXACT_IDENTITY_METADATA_VALIDATED'||!ep.descriptionRaw)continue;
+  const original=(ep.fields||[]).find(f=>f.field==='description');
+  const cleaned=(ep.fields||[]).find(f=>f.field==='clean');
+  const sourceChanged=original&&original.category==='CONFLICT';
+  const linkMatches=[...String(ep.descriptionRaw).matchAll(/https?:\/\/[^\s<>"'）)\]}]+/g)];
+  const links=[...new Set(linkMatches.map(m=>m[0].replace(/[。、，,;；]+$/g,'')))];
+  const existingV=original?String(original.existing??''):'';
+  const existingW=cleaned?String(cleaned.existing??''):'';
+  out.selected={
+   epId:ep.id,guid:ep.guid,show:ep.show,source:ep.feed,sourceHash:ep.sourceHash,
+   originalLength:ep.descriptionRaw.length,rawInV:!!existingV,
+   originalRelation:existingV===ep.descriptionRaw?'EQUAL':existingV?'ALTERNATE_VERSION_REVIEW':'BLANK',
+   cleanVersion:ep.content?.ruleVersion||null,cleanLength:(ep.content?.text||'').length,
+   cleanedInW:!!existingW,
+   cleanCandidateSafe:!existingW&&!existingV&&!ep.content?.hold,
+   relatedLinkUrls:links,
+   castNames:(ep.people||[]).filter(p=>['出演','聞き手','司会','MC','ゲスト','host','guest'].includes(p.role)).map(p=>p.name),
+   requiresManualApproval:true,
+   note:sourceChanged?'Existing V differs; do not overwrite V/W.':'Proposals only; no archival storage has been performed.'
+  };
+  break;
+ }
+ return out;
+}
+/** Hand-off function shown in GAS dropdown after future authorized code deployment. */
+function previewLibraryV3MacHandoff(){
+ const report=previewLibraryV3SchoolCandidates();
+ const handoff=libV3MacHandoffPlan_(report);
+ Logger.log(JSON.stringify(handoff));
+ return handoff;
+}
