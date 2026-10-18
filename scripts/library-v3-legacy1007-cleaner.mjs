@@ -36,6 +36,9 @@ function legacy1007ArticleLinks(raw){
   if(title&&title.length<=180&&!/^(?:関連記事|お知らせ|リンク集|おたよりフォーム)$/.test(title))
    add(url[1],title,'preceding_line');
  }
+ // A 2020-style description may reference the related article in prose without 【関連記事】.
+ for(const m of src.matchAll(/https?:\/\/(?:www\.)?asahi\.com\/articles\/[^\s<>()（）]+/g))
+  add(m[0],null,'asahi_article_url_review');
  return out;
 }
 const EXACT_NOTICES=[
