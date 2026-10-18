@@ -30,8 +30,16 @@ test('classifies missing, matching, punctuation, links, summary and excludes oth
  ]);
  console.log('COUNTS',JSON.stringify(result.counts));
  assert.equal(result.rows,7);assert.equal(result.writes,0);assert.equal(result.apiCalls,0);
- for(const reason of ['RAW_MISSING','CLEAN_MISSING','MECHANICAL_EQUAL','PUNCTUATION_ONLY','URL_DIFFERENCE_REVIEW','POSSIBLE_SUMMARY_OR_TRUNCATION_REVIEW'])assert.equal(result.counts[reason],1);
+ for(const reason of ['RAW_MISSING_UNANCHORED_REVIEW','CLEAN_MISSING','MECHANICAL_EQUAL','PUNCTUATION_ONLY','URL_DIFFERENCE_REVIEW','POSSIBLE_SUMMARY_OR_TRUNCATION_REVIEW'])assert.equal(result.counts[reason],1);
  assert.equal(result.counts.UNICODE_WHITESPACE_ONLY,1);
+});
+test('missing raw with official and Omny anchors remains review-only',()=>{
+ const r=row('EP-anchored','','');
+ r[8]='https://omny.fm/shows/asahi/193';
+ r[9]='https://www.asahi.com/special/podcasts/item/?itemid=3bace6f2-9e08-41ff-b8b5-acea01805c7b';
+ const {result}=run([r]);
+ assert.equal(result.counts.RAW_MISSING_ANCHORED_REVIEW,1);
+ assert.equal(result.writes,0);
 });
 test('does not expose descriptions in logs or results',()=>{
  const secret='unpublished description secret';const {result,logs}=run([row('EP-X',secret,'short')]);
