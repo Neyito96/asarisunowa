@@ -9,7 +9,7 @@ function legacy1007ArticleLinks(raw){
  const src=legacy1007Normalize(raw),out=[],seen=new Set();
  const add=(url,title,source)=>{
   const u=str(url).trim().replace(/[）)\]。、,，；;]+$/g,'');
-  if(!/^https?:\/\/[^\s<>()]+$/i.test(u)||seen.has(u))return;
+  if(!/^https?:\/\/[^\s<>()]+$/i.test(u)||seen.has(u)||/\/special\/podcasts\/?(?:\?|$)/.test(u))return;
   seen.add(u);out.push({url:u,titleCandidate:str(title).trim()||null,titleVerified:false,
    source,status:'REVIEW',relatedType:source==='explicit_related_section'?'ARTICLE_CANDIDATE':'LINK_CANDIDATE'});
  };
@@ -17,7 +17,7 @@ function legacy1007ArticleLinks(raw){
  const sections=[...src.matchAll(/【関連記事】([\s\S]*?)(?=\n\s*【[^】]+】|\n\s*朝日新聞ポッドキャスト|$)/g)];
  for(const section of sections){
   for(const piece of section[1].split(/\s*▽\s*|\n(?=\S)/).filter(Boolean)){
-   for(const m of piece.matchAll(/(https?:\/\/[^\s（）()<>]+)/g)){
+   for(const m of piece.split(/\s+朝日新聞ポッドキャスト（/)[0].matchAll(/(https?:\/\/[^\s（）()<>]+)/g)){
     const title=piece.slice(0,m.index).replace(/[（(\s]+$/g,'').trim();
     add(m[1],title,'explicit_related_section');
    }
@@ -48,7 +48,8 @@ const EXACT_NOTICES=[
 const SHORT_PROMO=/朝日新聞ポッドキャスト（\s*https?:\/\/www\.asahi\.com\/special\/podcasts\/?(?:\?iref=omny)?\s*）では他にも様々な番組を配信(?:しています|、テキストでも読めます|しているほか、関連記事も読んでいただけます)[。.]?/g;
 function legacy1007Clean(raw){
  const original=str(raw), removed=[],reviews=[], kept=[];
- const normalized=legacy1007Normalize(original).replace(SHORT_PROMO,m=>{removed.push({reason:'EXACT_SHARED_PROMO',text:m});return '';});
+ const normalized=legacy1007Normalize(original).replace(SHORT_PROMO,m=>{removed.push({reason:'EXACT_SHARED_PROMO',text:m});return '';})
+ .replace(/朝日新聞ポッドキャスト（\s*https?:\/\/omny\.fm\/shows\/asahi\/playlists\s*）では、?他にも様々な番組を配信(?:していきます|しています)[。.]?/g,m=>{removed.push({reason:'EXACT_SHARED_OMNY_PROMO',text:m});return '';});
  for(const [lineIndex,line] of normalized.split('\n').entries()){
   const t=line.trim();
   if(EXACT_NOTICES.some(re=>re.test(t))){removed.push({line:lineIndex,reason:'EXACT_SHARED_NOTICE',text:line});continue;}
