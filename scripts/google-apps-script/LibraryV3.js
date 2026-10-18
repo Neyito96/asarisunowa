@@ -416,30 +416,94 @@ function libV3DescriptionCompare_(existing,rss){
  const kind=a===b?'EXACT_EQUAL':left.supported&&right.supported&&left.text===right.text?'FORMAT_EQUIVALENT':!left.supported||!right.supported?'UNSUPPORTED_FORMAT_REVIEW':'CONTENT_DIFFERENCE';
  return {kind,ruleVersion:'description-compare-1',existingNormalized:left.text,rssNormalized:right.text,existingHash:libV3Hash_(a),rssHash:libV3Hash_(b),overwriteAllowed:false};
 }
+/** Comparison/extraction rendering only. The original RSS string never passes through this. */
+function libV3ContentLines_(raw){
+ return String(raw||'').replace(/\\r\\n|\\n|\\r|\r\n?/g,'\n').replace(/<br\b[^>]*>|<\/(?:p|div|li)>/gi,'\n').split('\n').map(libV3Clean_);
+}
+/** Versioned, exact whole-line rules. Unknown/event prose is retained for review. */
+function libV3ContentRules_(show){
+ const common=[
+  ['adchoices',/^Learn more about your ad choices\. Visit (?:https?:\/\/)?megaphone\.fm\/adchoices\.?$/],
+  ['omny_privacy',/^See (?:https?:\/\/)?omnystudio\.com\/listener for privacy information\.$/],
+  ['discord',/^(?:ご意見・感想・リクエスト|交流はdiscord) https:\/\/bit\.ly\/asapoki_discord$/],
+  ['other_programs',/^ほかにも多彩な番組を配信中！ ?http:\/\/t\.asahi\.com\/womy$/],
+  ['app',/^アプリで記者と対話 http:\/\/t\.asahi\.com\/won1$/],
+  ['letter',/^おたよりフォーム https:\/\/bit\.ly\/asapoki_otayori$/],
+  ['newsletter',/^メルマガ https:\/\/bit\.ly\/asapoki_newsletter$/],
+  ['advertiser',/^広告ご検討の企業様は http:\/\/t\.asahi\.com\/asapokiguide$/],
+  ['search',/^番組検索ツール https:\/\/bit\.ly\/asapoki_cast$/],
+  ['social',/^最新情報はX https:\/\/bit\.ly\/asapoki_twitter$/],
+  ['calendar',/^番組カレンダー https:\/\/bit\.ly\/asapki_calendar$/],
+  ['website',/^全話あります公式サイト https:\/\/bit\.ly\/asapoki_lp$/]
+ ];
+ const byShow={
+  'ニュースの学校':[], 'ニュースの現場から':[], 'MEDIA TALK':[],
+  'こどもそうだんしつ':[], 'スポンジ':[], 'ドーナツ':[],
+  '報談':[['houdan_discord',/^※「報談」専用のdiscordもぜひどうぞ ?https:\/\/discord\.gg\/d7sAbSRQvq$/]]
+ };
+ if(!Object.prototype.hasOwnProperty.call(byShow,show))throw Error('Unsupported content show');
+ return common.concat(byShow[show]);
+}
+function libV3ContentClean_(raw,show){
+ const rules=libV3ContentRules_(show),lines=libV3ContentLines_(raw),removed=[],review=[],kept=[];
+ lines.forEach((text,line)=>{
+  const rule=rules.find(r=>r[1].test(text));
+  if(rule){removed.push({line,text,rule:rule[0],reason:'exact_official_boilerplate_line'});return;}
+  if(/イベント|申し込み|申込|募集|お知らせ|広告|読み放題|番組フォロー/.test(text))review.push({line,text,reason:'episode_specific_or_unregistered_notice_preserved'});
+  kept.push(text);
+ });
+ const unsupported=/<(?:script|style|img|iframe)\b|\b(?:hidden|display\s*:\s*none)\b/i.test(String(raw));
+ if(unsupported)review.push({reason:'unsupported_markup_original_preserved'});
+ const text=kept.join('\n').replace(/\n{3,}/g,'\n\n').trim();
+ return {text,ruleVersion:'V3-rss-content-1',rawHash:libV3Hash_(raw),cleanHash:libV3Hash_(text),removed,review,hold:unsupported,reason:unsupported?'unsupported_markup':'exact_rules_only',originalPreserved:true};
+}
 /** Audit-only parser: preserve RSS description text (HTML retained), not V2's escaped newlines.
  * Existing ingestion/writing parsers are intentionally unchanged. */
 function libV3CandidateParse_(text){
  const items=libV2CpParse_(text,true),nodes=XmlService.parse(text).getRootElement().getChild('channel').getChildren('item');
- return items.map((it,i)=>({...it,description:String(nodes[i].getChildText('description')||''),
-  people:nodes[i].getChildren().filter(n=>n.getName()==='person'&&n.getNamespace().getURI()==='https://podcastindex.org/namespace/1.0').map(n=>({name:libV2CpNorm_(n.getText()),role:String(n.getAttribute('role')?.getValue()||'').toLowerCase(),source:'podcast:person'}))}));
+ return items.map((it,i)=>{const node=nodes[i],encoded=node.getChildren().find(n=>n.getName()==='encoded'&&n.getNamespace().getURI()==='http://purl.org/rss/1.0/modules/content/'),description=String(node.getChildText('description')||''),full=encoded?String(encoded.getText()):'';return {...it,description:description||full,descriptionTag:description?'description':full?'content:encoded':'missing',descriptionVariants:{description,contentEncoded:full},
+  people:nodes[i].getChildren().filter(n=>n.getName()==='person'&&n.getNamespace().getURI()==='https://podcastindex.org/namespace/1.0').map(n=>({name:libV2CpNorm_(n.getText()),role:String(n.getAttribute('role')?.getValue()||'').toLowerCase(),source:'podcast:person'}))};});
 }
 /** Only explicit labelled name lists; ambiguous prose stays review, never attribution. */
 function libV3CandidatePeople_(it){
- const people=(it.people||[]).slice(),text=String(it.description||'').replace(/<br\s*\/?\s*>|<\/(?:p|div|li)>/gi,'\n').replace(/\\n/g,'\n');
- const reviews=[];
- for(const line of text.split(/\r?\n/)){
-  const m=libV3Clean_(line).match(/^(?:【(出演|聞き手|ゲスト|制作|編集)】|(出演|聞き手|ゲスト|制作|編集)[：:])\s*(.+)$/);
-  if(!m)continue;
-  const role=m[1]||m[2],names=m[3].split(/[、,／/]/).map(x=>x.trim());
-  if(names.length>5||names.some(x=>! /^[一-龠々ぁ-んァ-ヶー]{2,8}(?:[ 　][一-龠々ぁ-んァ-ヶー]{1,8})?$/.test(x))){reviews.push({reason:'ambiguous_role_line',evidence:line});continue;}
-  names.forEach(name=>people.push({name,role,source:'description_role_line',evidence:line}));
+ const people=(it.people||[]).map(p=>({...p})),reviews=[],lines=libV3ContentLines_(it.description),namePattern=/^[一-龠々ぁ-んァ-ヶー]{2,8}(?:[ 　][一-龠々ぁ-んァ-ヶー]{1,8})?$/;
+ const roles='出演|聞き手|司会|ゲスト|MC|取材|制作|音源編集|編集';
+ const rolePrefix=new RegExp('^('+roles+')(?:[・／/]('+roles+'))*[：:・ 　]+(.+)$');
+ let section='';
+ const add=(name,role,evidence,source)=>{
+  if(!namePattern.test(name)){reviews.push({reason:'ambiguous_role_line',evidence});return;}
+  people.push({name,role,evidence,source});
+ };
+ for(const line of lines){
+  if(!line){section='';continue;}
+  const heading=line.match(/^【([^】]+)】(.*)$/);
+  let text=line;
+  if(heading){section=heading[1];text=heading[2].trim();if(!text)continue;}
+  if(/イベント|お知らせ|告知|次回|関連記事|関連リンク|過去回|キャンペーン|募集|朝ポキ情報/.test(section)){if(/神田|MC|ゲスト|出演/.test(text))reviews.push({reason:'announcement_not_current_appearance',evidence:line});continue;}
+  const labelled=text.match(rolePrefix);
+  let role=labelled?text.slice(0,text.length-labelled[3].length).replace(/[：:・ 　]+$/,''):section;
+  let names=labelled?labelled[3]:text;
+  const suffix=names.match(/^(.+?)[（(]((?:MC|司会|聞き手|出演|ゲスト|取材|制作|音源編集|編集)(?:[・／/](?:MC|司会|聞き手|出演|ゲスト|取材|制作|音源編集|編集))*)[）)]/);
+  if(suffix){role=suffix[2];names=suffix[1];}
+  if(!labelled&&!suffix&&!/^(?:出演|聞き手|司会|ゲスト|MC|取材|制作|編集|出演・スタッフ)$/.test(section)){
+   // Strict affirmative prose only; article subjects, questions and negation never become cast.
+   const prose=text.match(/^(?:今回は)?([一-龠々ぁ-んァ-ヶー]{2,8})さん(?:にお話を聞きました|をゲストに迎えました)[。！]?$/);
+   if(prose)add(prose[1],'ゲスト',line,'description_explicit_prose');
+   continue;
+  }
+  names=names.replace(/https?:\/\/\S+/g,'').replace(/[（(][^）)]*[）)]/g,'').trim();
+  const list=names.split(/[、,／/]/).map(n=>n.trim().replace(/(?:さん|氏)$/,''));
+  if(role==='出演・スタッフ'){reviews.push({reason:'mixed_cast_staff_role_unknown',names:list,evidence:line});continue;}
+  if(list.length>5){reviews.push({reason:'ambiguous_role_line',evidence:line});continue;}
+  list.forEach(name=>role.split(/[・／/]/).forEach(r=>add(name,r,line,'description_role_line')));
  }
- const speakers=[...new Set(people.filter(p=>['host','guest','出演','聞き手','ゲスト'].includes(p.role)).map(p=>p.name))];
- // Legacy parser's cast is itself restricted to explicit host/guest.
- if(!people.length&&it.cast)speakers.push(...it.cast.split('、').filter(Boolean));
+ const unique=[...new Map(people.map(p=>[p.name+'|'+p.role,p])).values()];
+ const speakers=[...new Set(unique.filter(p=>['host','guest','出演','聞き手','司会','MC','ゲスト'].includes(p.role)).map(p=>p.name))];
+ if(!unique.length&&it.cast)speakers.push(...it.cast.split('、').filter(Boolean));
  const plain=libV3Clean_(it.description||'');
+ for(const match of plain.matchAll(/([一-龠々]{2,8})さん/g)){if(!unique.some(p=>p.name===match[1]))reviews.push({person:match[1],reason:'name_mention_role_unverified',evidence:match[0]});}
  if(/神田\s*大介/.test(plain)&&!speakers.some(x=>/神田\s*大介/.test(x)))reviews.push({person:'神田大介',reason:'description_mention_role_unverified',evidence:plain.slice(Math.max(0,plain.search(/神田\s*大介/)-50),plain.search(/神田\s*大介/)+100)});
- return {people,speakers:[...new Set(speakers)],reviews};
+ return {people:unique,speakers:[...new Set(speakers)],reviews};
 }
 /** Stateless, one-feed candidate audit. Never persist cursor/cache/properties or cells.
  * A future approved scheduler must store the returned cursor in a separate audit store.
@@ -469,14 +533,25 @@ function previewLibraryV3RssCandidates(options){
   while(next<snap.items.length&&m.inspected<50&&Date.now()<deadline-15000){
    const original=snap.items[next++];m.inspected++;
    const evidence=libV3CandidatePeople_(original),it={...original,cast:evidence.speakers.join('、')};
-   const p=libV3Plan_(it,feed,c.rows,c.index),row=p.id?c.rows[p.i]:null;
+   const p=libV3Plan_(it,feed,c.rows,c.index),row=p.id?c.rows[p.i]:null,content=libV3ContentClean_(it.description||'',show);
+   for(const f of p.fields.filter(f=>['clean','cleanVersion'].includes(f.name))){
+    f.value=f.name==='clean'?content.text:content.text?content.ruleVersion:'';
+    if(content.hold){f.candidate=false;f.state='HOLD';f.reason=content.reason;}
+    else if(row&&libV3Text_(row[f.col-1])){f.candidate=false;if(!['HOLD','RECHECK_REQUIRED'].includes(f.state)||f.reason==='existing_value_differs'){f.state=String(row[f.col-1])===f.value?'VERIFIED':'RECHECK_REQUIRED';f.reason=f.state==='VERIFIED'?'source_equal':'existing_clean_preserved';}}
+    // Never pair W derived from different RSS text with a different stored V.
+    if(row&&libV3Text_(row[21])&&String(row[21])!==String(it.description||'')){f.candidate=false;f.state='HOLD';f.reason='rss_original_differs_from_stored_v';}
+   }
    const reasons=(!it.guid||counts.get(it.guid)!==1)?['blank_or_duplicate_rss_guid']:p.reasons;
+   const originalField=p.fields.find(f=>f.name==='description'),cleanField=p.fields.find(f=>f.name==='clean');
+   if(originalField&&['HOLD','RECHECK_REQUIRED'].includes(originalField.state))for(const f of p.fields.filter(f=>['clean','cleanVersion'].includes(f.name))){f.candidate=false;f.state='HOLD';f.reason='original_protected_or_different';}
+   const versionField=p.fields.find(f=>f.name==='cleanVersion');
+   if(versionField&&cleanField&&!cleanField.candidate&&!(row&&String(row[22])===content.text&&cleanField.state==='VERIFIED')){versionField.candidate=false;versionField.state='HOLD';versionField.reason='clean_not_verified';}
    const ep={id:p.id||'',show,guid:it.guid,title:it.title,date:it.date,published:it.published||'',feed:feed.url,
     match:{method:p.id?(libV2CpGuid_(row[6])===it.guid?'GUID':libV2CpOfficialItem_(row[9])===it.guid?'ASAHI_ITEM_ID':'OMNY_CLIP_ID'):'NONE',confidence:p.id&&!reasons.length?'EXACT_IDENTITY_METADATA_VALIDATED':'HELD'},
-    reasons,sourceHash:p.sourceHash||libV3Hash_(it),people:evidence.people,descriptionRaw:it.description||'',descriptionSource:feed.url,
-    cleanPresent:!!(row&&libV3Text_(row[22])),audioUrl:it.audio||'',httpVerified:false,playbackVerified:false,fields:[]};
+    reasons,sourceHash:p.sourceHash||libV3Hash_(it),people:evidence.people,descriptionRaw:it.description||'',descriptionSource:feed.url,descriptionTag:it.descriptionTag||'description',descriptionVariants:it.descriptionVariants||{description:it.description||''},
+    content,cleanExisting:row?row[22]:'',cleanPresent:!!(row&&libV3Text_(row[22])),audioUrl:it.audio||'',httpVerified:false,playbackVerified:false,fields:[]};
    for(const r of evidence.reviews)m.review.push({id:ep.id,guid:it.guid,...r});
-   const selected=p.fields.filter(f=>['audio','description','cast','cast1','cast2','cast3','cast4','cast5','castEvidence'].includes(f.name));
+   const selected=p.fields.filter(f=>['audio','description','clean','cleanVersion','cast','cast1','cast2','cast3','cast4','cast5','castEvidence'].includes(f.name));
    const proposed=[],rowFormulas=p.id?c.sh.getRange(p.i+2,1,1,51).getFormulas()[0]:[];
    // Audio identity conflict holds all proposals; an existing equal audio value does not.
    const audioConflict=selected.some(f=>f.name==='audio'&&(['HOLD','RECHECK_REQUIRED'].includes(f.state)||rowFormulas[f.col-1]));
@@ -488,6 +563,7 @@ function previewLibraryV3RssCandidates(options){
     if(['HOLD','RECHECK_REQUIRED'].includes(f.state))category=/human|formula|reservation/.test(f.reason)?'PROTECTED':'CONFLICT';
     if(f.name.startsWith('cast')&&it.cast&&!f.value&&!f.candidate&&(row.slice(45,50).some(libV3Text_)||(libV3Text_(row[23])&&String(row[23])!==it.cast)))category='PROTECTED';
     if(comparison&&f.reason==='existing_value_differs'&&comparison.kind==='FORMAT_EQUIVALENT')category='FORMAT_EQUIVALENT';
+    if(f.name==='cleanVersion'&&rowFormulas[22])category='PROTECTED';
     if(formula)category='PROTECTED';
     if(reasons.length)category=/human|excluded/.test(reasons.join('|'))?'PROTECTED':'IDENTITY_HOLD';
     else if(audioConflict&&category==='CANDIDATE')category='CONFLICT';
