@@ -20,7 +20,7 @@ function parseRelatedLinks(raw){
  for(const m of text.matchAll(/<a\b([^>]*?)href\s*=\s*["'](https?:\/\/[^"']+)["']([^>]*)>([\s\S]*?)<\/a>/gi))add(m[2],m[4],'html');
  for(const line of text.split(/\r?\n/)){
   const m=line.match(/^\s*(?:関連記事|関連リンク|参考記事|参考資料)?\s*[：:　 ]?\s*(.{1,160}?)\s*[：:：]\s*(https?:\/\/[^\s<>]+)/);
-  if(m)add(m[2],m[1],'labelled_line');
+  if(m){const generic=/^(?:関連記事|関連リンク|参考記事|参考資料)$/u.test(m[1].trim());add(m[2],generic?null:m[1],'labelled_line');}
  }
  for(const m of text.matchAll(/https?:\/\/[^\s<>"'）)\]}]+/g))add(m[0],null,'plain_url');
  return out;
