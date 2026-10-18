@@ -27,6 +27,7 @@ test('classifies missing, matching, punctuation, links, summary and excludes oth
   row('EP-7','content','content', '2022-01-01'),
   row('EP-8','content','content','2020-01-01','MEDIA TALK')
  ]);
+ console.log('COUNTS',JSON.stringify(result.counts));
  assert.equal(result.rows,6);assert.equal(result.writes,0);assert.equal(result.apiCalls,0);
  for(const reason of ['RAW_MISSING','CLEAN_MISSING','MECHANICAL_EQUAL','PUNCTUATION_OR_SPACING_ONLY','URL_DIFFERENCE_REVIEW','POSSIBLE_SUMMARY_OR_TRUNCATION_REVIEW'])assert.equal(result.counts[reason],1);
 });
