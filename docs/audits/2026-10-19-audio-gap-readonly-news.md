@@ -54,3 +54,11 @@ RSSスナップショット利用可、作成から8.1時間経過。 `networkPr
 - すべての候補はURLに埋め込まれたUUIDの重なりによる **候補**。タイトル・公開日・除外履歴・source/copyの差分・RSSエピソードGUIDの同一性は未確認。音声URLの書き込み承認を意味しない。
 - `writes=0`、`sourceWrites=0`、`propertyWrites=0`、`triggerChanges=0`、`networkProbes=0`、`spotifyPosts=0`。
 - 次段階: 一意候補288件をメタデータ・状態保護・行同一性で精査する READ ONLY 監査。合格件数を確認してから少数件の隔離コピーへの書き込みを別途承認する。
+
+## 21:31 JST UUID安全審査
+- `previewLibraryV3AudioUuidSafety`、`READ_ONLY_COMPLETE`、29,962ms。RSS 2,650件、ステージング8.8時間。
+- `examined=288`、`passedAllCheckedGuards=139`、`metadataHold=149`。
+- 理由別カウンタ: `reason_identifier_conflict=40`、`reason_title_mismatch=258`、`reason_date_mismatch=2`。source/copy両方で理由を計上するため、件数の合計は行数と一致しない。
+- 通過例: EP-01934 (1935行), EP-01972 (1973行), EP-02000 (2001行)。保留例: EP-01235 (1236行)。
+- 全書き込み、トリガー変更、ネットワーク照会、Spotify投稿0。
+- **139件は書き込み許可ではない**。既存の自動収蔵と競合しないよう、後続の書き込み処理では最新の行状態・除外・メタデータ・コピー差分を再確認する必要がある。149件の保留理由を精査するまでは強制書き込みしない。
