@@ -53,10 +53,6 @@ function libV3ExistingAudioSafety_(show){
       candidates.set(id,{id,guid:it.guid,host:String(it.audio).split('/')[2]||'',
         rowHash:libV3Hash_(r),sourceHash:libV3Hash_(it)});
     }
-    // A candidate EP-ID must occur exactly once across the entire source snapshot.
-    // Quarantine every repeated ID, including the first occurrence.
-    const candidateOwners=new Map();
-    for(const [id,v] of candidates){candidateOwners.set(id,(candidateOwners.get(id)||0)+1);}
     stats.uniqueCandidateEpisodes=candidates.size;
     samples.safe=[...candidates.values()].slice(0,15);
     m.stats=stats;m.holdReasons=holdReasons;m.samples=samples;
