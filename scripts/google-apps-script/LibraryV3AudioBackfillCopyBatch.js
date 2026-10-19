@@ -44,6 +44,7 @@ function libV3AudioBackfillCopyBatch_(o){
     const snap=libV3AudioCachedSnapshot_(feed.url,metrics);
     m.rssMs=Date.now()-tRss;
     m.rssCacheHit=!!snap.cacheHit;
+    if(snap.compressedChunks)m.compressedChunks=snap.compressedChunks;
     if(snap.cachePrepared){m.status='RSS_CACHE_PREPARED';return m;}
     if(snap.status)throw Error('RSS unavailable: '+snap.status);
     m.sourceSnapshotHash=snap.hash||'';m.feedItems=snap.items.length;
@@ -107,39 +108,49 @@ function libV3AudioBackfillCopyBatch_(o){
  */
 function libV3AudioCachedSnapshot_(feedUrl,metrics){
   const cache=CacheService.getScriptCache();
-  const key='LV3A_'+libV3Hash_(feedUrl).slice(0,30);
+  // New key/version invalidates the oversized uncompressed cache attempt.
+  const key='LV3AZ2_'+libV3Hash_(feedUrl).slice(0,28);
   const metaText=cache.get(key+'_meta');
   if(metaText){
     try{
       const meta=JSON.parse(metaText);
-      const keys=Array.from({length:meta.chunks},(_,i)=>key+'_'+i);
-      const blobs=cache.getAll(keys);
-      if(keys.every(k=>typeof blobs[k]==='string')){
-        const items=JSON.parse(keys.map(k=>blobs[k]).join(''));
-        if(items.length===meta.count)return {items,hash:meta.hash,cacheHit:true};
+      if(meta.v===2&&meta.chunks>0&&meta.chunks<=80){
+        const keys=Array.from({length:meta.chunks},(_,i)=>key+'_'+i);
+        const blobs=cache.getAll(keys);
+        if(keys.every(k=>typeof blobs[k]==='string')){
+          const base64=keys.map(k=>blobs[k]).join('');
+          const compressed=Utilities.base64Decode(base64);
+          const json=Utilities.ungzip(Utilities.newBlob(compressed)).getDataAsString('UTF-8');
+          if(libV3Hash_(json)===meta.dataHash){
+            const items=JSON.parse(json);
+            if(items.length===meta.count)
+              return {items,hash:meta.hash,cacheHit:true};
+          }
+        }
       }
-    }catch(e){/* cache miss, fetch again */}
+    }catch(e){/* cache eviction or corruption: safely fetch again */}
   }
   const snap=libV2CpSnapshot_(feedUrl,false,{offset:0,hash:''},metrics,
     {prefix:'LV3CP',timeoutSeconds:45,parse:t=>libV2CpParse_(t,true)});
   if(snap.status)return snap;
-  // Persist the minimal RSS identity/metadata fields only. Do not log audio URLs.
-  const data=JSON.stringify(snap.items);
-  const chunks=[];
-  // JS strings may contain multi-byte chars; keep chunks < 70KB UTF-8.
-  let current='',bytes=0;
-  for(const ch of data){
-    const n=encodeURIComponent(ch).replace(/%[0-9A-F]{2}/g,'x').length;
-    if(bytes+n>60000&&current){chunks.push(current);current='';bytes=0;}
-    current+=ch;bytes+=n;
-  }
-  if(current)chunks.push(current);
-  if(chunks.length>80)throw Error('RSS snapshot too large for cache');
+  // Compress UTF-8 JSON in one operation. The previous per-character
+  // encodeURIComponent loop was quadratic-like and hit the time budget.
+  const json=JSON.stringify(snap.items);
+  const gzip=Utilities.gzip(Utilities.newBlob(json,'application/json','rss.json'));
+  const base64=Utilities.base64Encode(gzip.getBytes());
+  // Base64 is ASCII: safe fixed-size slicing, well below 100KB per cache item.
+  const chunkSize=50000, count=Math.ceil(base64.length/chunkSize);
+  if(count<1||count>80)throw Error('Compressed RSS still too large for cache: '+count+' chunks');
   const entries={};
-  chunks.forEach((c,i)=>entries[key+'_'+i]=c);
+  for(let i=0;i<count;i++)entries[key+'_'+i]=base64.slice(i*chunkSize,(i+1)*chunkSize);
   cache.putAll(entries,21600);
-  cache.put(key+'_meta',JSON.stringify({chunks:chunks.length,count:snap.items.length,hash:snap.hash||''}),21600);
-  return {cachePrepared:true,items:[],hash:snap.hash||'',cacheHit:false};
+  // Publish metadata last; partial caches are ignored and rebuilt.
+  cache.put(key+'_meta',JSON.stringify({
+    v:2,chunks:count,count:snap.items.length,
+    hash:snap.hash||'',dataHash:libV3Hash_(json)
+  }),21600);
+  return {cachePrepared:true,items:[],hash:snap.hash||'',cacheHit:false,
+    compressedChunks:count};
 }
 /**
  * Install ONLY this handler in the isolated GAS project.
