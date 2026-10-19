@@ -46,11 +46,10 @@ function libV3AudioGapInvestigator_(o){
         stagingAgeHours=Math.round((Date.now()-pack.createdAt)/360000)/10;
       }
     }
-    const guidMap=new Map(),guidCounts=new Map();
+    const guidCounts=new Map();
     if(rss)rss.forEach(it=>{
       if(!it.guid)return;
       guidCounts.set(it.guid,(guidCounts.get(it.guid)||0)+1);
-      guidMap.set(it.guid,it);
     });
     m.rssSnapshotAvailable=!!rss;
     m.rssStagingAgeHours=stagingAgeHours;
@@ -77,16 +76,7 @@ function libV3AudioGapInvestigator_(o){
       }else{
         inc('noOmnyPageCandidate');sample('noOmnyPageCandidate',detail);
       }
-      // Check all known GUID/anchor matches rather than guessing identity.
-      const matchedGuids=[];
-      if(rss){
-        // Avoid O(rows*RSS) scans: use index's identity references.
-        // Existing GUID may be stored in index, while row column layouts vary.
-        // A candidate from the RSS is accepted only if identity uniquely matches.
-        // This pass classifies; it never writes an audio URL.
-      }
-      if(!rss){inc('rssSnapshotUnavailable');continue;}
-      // Index match of each RSS item is built once, below.
+      if(!rss)inc('rssSnapshotUnavailable');
     }
     if(rss){
       const classified=new Map();
@@ -100,6 +90,13 @@ function libV3AudioGapInvestigator_(o){
         a.push(it);
         classified.set(i,a);
       }
+      const rssMatchedRows=new Set(classified.keys());
+      for(let i=0;i<copy.rows.length;i++){
+        const r=copy.rows[i];
+        if(r[1]!==o.show||libV3Text_(r[14])||rssMatchedRows.has(i))continue;
+        inc('noUniqueRssMatch');
+        sample('noUniqueRssMatch',{id:String(r[0]),row:i+2});
+      }
       for(const [i,hits] of classified){
         const r=copy.rows[i],id=String(r[0]),detail={id,row:i+2};
         if(hits.length!==1){inc('rssMultipleCandidates');sample('rssMultipleCandidates',detail);continue;}
@@ -112,7 +109,7 @@ function libV3AudioGapInvestigator_(o){
       }
     }
     m.status='READ_ONLY_COMPLETE';
-    m.note='Categories are diagnostic and may overlap. No Omny link was fetched or played.';
+    m.note='Categories are diagnostic and may overlap; noUniqueRssMatch means no unique RSS GUID/anchor match, not proof audio is unavailable. No Omny link was fetched or played.';
     return m;
   }catch(e){m.status='FAILED';m.error=String(e).slice(0,400);return m;}
   finally{m.elapsedMs=Date.now()-t;Logger.log(JSON.stringify(m));}
