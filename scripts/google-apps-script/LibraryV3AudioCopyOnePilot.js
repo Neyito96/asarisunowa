@@ -94,3 +94,19 @@ function saveLibraryV3AudioCopyOneAfterApproval(options){
     Logger.log(JSON.stringify(out));return out;
   }finally{lock.releaseLock();}
 }
+
+/**
+ * Explicitly approved by owner on 2026-10-19 after preview:
+ * EP-03855, isolated copy only, exactly one audio URL cell.
+ * Run manually once; never install this as a trigger.
+ */
+function runApprovedLibraryV3AudioCopyOne(){
+  return saveLibraryV3AudioCopyOneAfterApproval({
+    approved:true,
+    approvedPlanHash:'tUwWl0FYgtkySh6JpseafpyVRaLp8Cm6vo6scZN7074=',
+    copySheetId:'19Dv6cgM33NYbrMGLofuVvxM4-WHiuPqxmivZUuwoBqc',
+    show:'ニュースの現場から',
+    id:'EP-03855',
+    guid:'ea1b3919-ed31-4b8f-b059-b4c500465fb6'
+  });
+}
