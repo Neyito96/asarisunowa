@@ -470,6 +470,40 @@ const guideQuestions: Record<GuideStep, { question: string; choice: GuideChoice 
 
 const officialPrograms: OfficialProgram[] = [
   {
+    name: "ドーナツ～このポッドキャストはSNSです",
+    mark: "NEW",
+    schedule:
+            "日：日曜版／月：さんぽ、対話、1on1／火：ポすすめ／木：親モヤ／第一木：スナックよりみ知／隔週金：アラサーかいわい／土：農MUSIC 猟ライフ（ノーミライ）",
+    spotify: "https://open.spotify.com/show/0341I5UOUrJgm7KEvNGInZ",
+    links: [
+      ["Spotify", "https://open.spotify.com/show/0341I5UOUrJgm7KEvNGInZ"],
+      ["Apple Podcasts", "https://podcasts.apple.com/jp/podcast/%E3%83%89%E3%83%BC%E3%83%8A%E3%83%84-%E3%81%93%E3%81%AE%E3%83%9D%E3%83%83%E3%83%89%E3%82%AD%E3%83%A3%E3%82%B9%E3%83%88%E3%81%AFsns%E3%81%A7%E3%81%99/id6798131655"],
+      ["Amazon Music", "https://music.amazon.com/podcasts/edb44df6-5b86-4b52-88cf-cb270180b9f4"],
+      ["Pocket Casts", "https://pocketcasts.com/podcast/%E3%83%89%E3%83%BC%E3%83%8A%E3%83%84-%E3%81%93%E3%81%AE%E3%83%9D%E3%83%83%E3%83%89%E3%82%AD%E3%83%A3%E3%82%B9%E3%83%88%E3%81%AFsns%E3%81%A7%E3%81%99/eac35880-7806-013f-17c3-0affc24a29f5"],
+      ["LISTEN", "https://listen.style/p/swt65jwj"]
+    ],
+    official: "https://omny.fm/shows/asahi/playlists/donut",
+    pody: "https://pody.jp/player/to04ABW3puiCBtAvp6Wx",
+    discord: "https://discord.gg/TU8c9qtzvw",
+  },
+  {
+    name: "スポンジ Sports Lounge",
+    mark: "NEW",
+    detail:
+      "ポキフト、バスクラ、フィギュアスケートストーリー、お相撲ちゃんねる、球談",
+    spotify: "https://open.spotify.com/show/7euH6hzudIdp61JRSi9E8w",
+    links: [
+      ["Spotify", "https://open.spotify.com/show/7euH6hzudIdp61JRSi9E8w"],
+      ["Apple Podcasts", "https://podcasts.apple.com/jp/podcast/%E3%82%B9%E3%83%9D%E3%83%B3%E3%82%B8-sports-lounge/id6803013072"],
+      ["Amazon Music", "https://music.amazon.co.jp/podcasts/827f3a0a-e2c9-4913-88cf-329697329ec0/%E3%82%B9%E3%83%9D%E3%83%B3%E3%82%B8-sports-lounge-%E3%82%B9%E3%83%9D%E3%83%BC%E3%83%84%E3%83%A9%E3%82%A6%E3%83%B3%E3%82%B8"],
+      ["Pocket Casts", "https://buff.ly/F933Yg0"],
+    ],
+    official: "https://omny.fm/shows/asahi/playlists/sponge",
+    pody: "https://pody.jp/player/SLYemnwXxXWVj4z0zqt0",
+    youtube: false,    discord: "https://discord.gg/6zBhm97F9",
+
+  },
+  {
     name: "MEDIA TALK",
     detail:
       "推し記事、吹奏楽・高校編、MEDIA TALK、木下くんあの動画見た？、いちおしウニュ！、読書会、楽屋裏、サステナブルHUBスタジオ、制作会議、天声人語、ニュース4U、記者サロンTALK、編集マニア、朝ポキシネマ、web編集の教科書",
@@ -503,40 +537,6 @@ const officialPrograms: OfficialProgram[] = [
     pody: "https://pody.jp/player/4UD5sHilP15gqAc0clXN",
     discord: "https://discord.gg/6zBhm97F9",
 
-  },
-  {
-    name: "スポンジ Sports Lounge",
-    mark: "NEW",
-    detail:
-      "ポキフト、バスクラ、フィギュアスケートストーリー、お相撲ちゃんねる、球談",
-    spotify: "https://open.spotify.com/show/7euH6hzudIdp61JRSi9E8w",
-    links: [
-      ["Spotify", "https://open.spotify.com/show/7euH6hzudIdp61JRSi9E8w"],
-      ["Apple Podcasts", "https://podcasts.apple.com/jp/podcast/%E3%82%B9%E3%83%9D%E3%83%B3%E3%82%B8-sports-lounge/id6803013072"],
-      ["Amazon Music", "https://music.amazon.co.jp/podcasts/827f3a0a-e2c9-4913-88cf-329697329ec0/%E3%82%B9%E3%83%9D%E3%83%B3%E3%82%B8-sports-lounge-%E3%82%B9%E3%83%9D%E3%83%BC%E3%83%84%E3%83%A9%E3%82%A6%E3%83%B3%E3%82%B8"],
-      ["Pocket Casts", "https://buff.ly/F933Yg0"],
-    ],
-    official: "https://omny.fm/shows/asahi/playlists/sponge",
-    pody: "https://pody.jp/player/SLYemnwXxXWVj4z0zqt0",
-    youtube: false,    discord: "https://discord.gg/6zBhm97F9",
-
-  },
-  {
-    name: "ドーナツ～このポッドキャストはSNSです",
-    mark: "NEW",
-    schedule:
-            "日：日曜版／月：さんぽ、対話、1on1／火：ポすすめ／木：親モヤ／第一木：スナックよりみ知／隔週金：アラサーかいわい／土：農MUSIC 猟ライフ（ノーミライ）",
-    spotify: "https://open.spotify.com/show/0341I5UOUrJgm7KEvNGInZ",
-    links: [
-      ["Spotify", "https://open.spotify.com/show/0341I5UOUrJgm7KEvNGInZ"],
-      ["Apple Podcasts", "https://podcasts.apple.com/jp/podcast/%E3%83%89%E3%83%BC%E3%83%8A%E3%83%84-%E3%81%93%E3%81%AE%E3%83%9D%E3%83%83%E3%83%89%E3%82%AD%E3%83%A3%E3%82%B9%E3%83%88%E3%81%AFsns%E3%81%A7%E3%81%99/id6798131655"],
-      ["Amazon Music", "https://music.amazon.com/podcasts/edb44df6-5b86-4b52-88cf-cb270180b9f4"],
-      ["Pocket Casts", "https://pocketcasts.com/podcast/%E3%83%89%E3%83%BC%E3%83%8A%E3%83%84-%E3%81%93%E3%81%AE%E3%83%9D%E3%83%83%E3%83%89%E3%82%AD%E3%83%A3%E3%82%B9%E3%83%88%E3%81%AFsns%E3%81%A7%E3%81%99/eac35880-7806-013f-17c3-0affc24a29f5"],
-      ["LISTEN", "https://listen.style/p/swt65jwj"]
-    ],
-    official: "https://omny.fm/shows/asahi/playlists/donut",
-    pody: "https://pody.jp/player/to04ABW3puiCBtAvp6Wx",
-    discord: "https://discord.gg/TU8c9qtzvw",
   },
   {
     name: "報談【HOU-DAN】",
