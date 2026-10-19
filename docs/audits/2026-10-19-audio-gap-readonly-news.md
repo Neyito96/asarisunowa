@@ -47,3 +47,10 @@ RSSスナップショット利用可、作成から8.1時間経過。 `networkPr
 - 列名の修正反映を確認: `AP=288`、`AU=3`、`AV=3`（ほか I/J/L 各288、V/W各158、X=3）。
 - `omny.fm=323` はURLの出現回数であり、288件の個別エピソードに対する一致数ではない。
 - 書き込み、トリガー変更、ネットワーク照合、Spotify投稿はすべて0。
+
+## 21:20 JST UUID-RSSクロスチェック
+- 関数 `previewLibraryV3AudioUuidCrosscheck`、`READ_ONLY_COMPLETE`、21,178ms、RSS 2,650件。
+- `unmatchedRows=288`、`hasRowUniqueUuid=288`、`oneUniqueUuidRssCandidate=288`。同診断で複数候補・候補なしの計上なし。
+- すべての候補はURLに埋め込まれたUUIDの重なりによる **候補**。タイトル・公開日・除外履歴・source/copyの差分・RSSエピソードGUIDの同一性は未確認。音声URLの書き込み承認を意味しない。
+- `writes=0`、`sourceWrites=0`、`propertyWrites=0`、`triggerChanges=0`、`networkProbes=0`、`spotifyPosts=0`。
+- 次段階: 一意候補288件をメタデータ・状態保護・行同一性で精査する READ ONLY 監査。合格件数を確認してから少数件の隔離コピーへの書き込みを別途承認する。
