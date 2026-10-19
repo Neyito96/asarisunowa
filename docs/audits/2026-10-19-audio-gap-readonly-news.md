@@ -36,3 +36,8 @@ RSSスナップショット利用可、作成から8.1時間経過。 `networkPr
 - 列の報告 `I,J,L,V,W,j,X,o,p` のうち、`j,o,p` は旧診断コードの26列超の列名変換バグによる誤表記。補正が必要。
 - `writes=0`、`sourceWrites=0`、`propertyWrites=0`、`triggerChanges=0`、`networkProbes=0`、`spotifyPosts=0`。
 - UUIDは番組IDなどの可能性があり、個別エピソードの音声と一致したとはまだ判定しない。
+
+## 21:01 JST 再実行
+- `READ_ONLY_COMPLETE`、41,988ms。`unmatchedTotal=288`、`hasSomeUrlInLedger=288`、`embeddedUuidCandidate=288`、全書き込み・トリガー変更・ネットワーク検証ゼロ。
+- 列名に `j/o/p` が引き続き出現。修正コミット `240ac99` が隔離GASにまだ反映されていない可能性。旧式の文字コード変換による表示を正すと `j→AJ`、`o→AO`、`p→AP`。
+- 20:57と主要件数は一致。これは同じロジックの再実行であり、新たなRSS照合成功や音声確認を示さない。
