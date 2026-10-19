@@ -44,7 +44,7 @@ function libV3AudioBackfillCopyBatch_(o){
     const snap=libV3AudioCachedSnapshot_(feed.url,metrics);
     m.rssMs=Date.now()-tRss;
     m.rssCacheHit=!!snap.cacheHit;
-    if(snap.compressedChunks)m.compressedChunks=snap.compressedChunks;
+    if(snap.stagingFileId)m.stagingFileId=snap.stagingFileId;
     if(snap.cachePrepared){m.status='RSS_CACHE_PREPARED';return m;}
     if(snap.status)throw Error('RSS unavailable: '+snap.status);
     m.sourceSnapshotHash=snap.hash||'';m.feedItems=snap.items.length;
@@ -107,50 +107,34 @@ function libV3AudioBackfillCopyBatch_(o){
  * This avoids coupling slow 2,650-item Omny retrieval to write time.
  */
 function libV3AudioCachedSnapshot_(feedUrl,metrics){
-  const cache=CacheService.getScriptCache();
-  // New key/version invalidates the oversized uncompressed cache attempt.
-  const key='LV3AZ2_'+libV3Hash_(feedUrl).slice(0,28);
-  const metaText=cache.get(key+'_meta');
-  if(metaText){
+  // CacheService is best-effort and evicts large multi-key snapshots.
+  // Drive file in the isolated project's own account is the durable staging store.
+  // It never touches the production or copy spreadsheet.
+  const props=PropertiesService.getScriptProperties();
+  const key='LV3A_DRIVE_SNAPSHOT_FILE_ID';
+  const known=props.getProperty(key);
+  if(known){
     try{
-      const meta=JSON.parse(metaText);
-      if(meta.v===2&&meta.chunks>0&&meta.chunks<=80){
-        const keys=Array.from({length:meta.chunks},(_,i)=>key+'_'+i);
-        const blobs=cache.getAll(keys);
-        if(keys.every(k=>typeof blobs[k]==='string')){
-          const base64=keys.map(k=>blobs[k]).join('');
-          const compressed=Utilities.base64Decode(base64);
-          const json=Utilities.ungzip(Utilities.newBlob(compressed)).getDataAsString('UTF-8');
-          if(libV3Hash_(json)===meta.dataHash){
-            const items=JSON.parse(json);
-            if(items.length===meta.count)
-              return {items,hash:meta.hash,cacheHit:true};
-          }
-        }
+      const file=DriveApp.getFileById(known);
+      const pack=JSON.parse(Utilities.ungzip(file.getBlob()).getDataAsString('UTF-8'));
+      if(pack.v===3&&pack.feedUrl===feedUrl&&Array.isArray(pack.items)&&
+         pack.items.length>0&&pack.createdAt&&
+         Date.now()-pack.createdAt<24*60*60*1000){
+        return {items:pack.items,hash:pack.hash||'',cacheHit:true};
       }
-    }catch(e){/* cache eviction or corruption: safely fetch again */}
+    }catch(e){Logger.log('RSS staging read unavailable: '+String(e).slice(0,120));}
   }
   const snap=libV2CpSnapshot_(feedUrl,false,{offset:0,hash:''},metrics,
     {prefix:'LV3CP',timeoutSeconds:45,parse:t=>libV2CpParse_(t,true)});
   if(snap.status)return snap;
-  // Compress UTF-8 JSON in one operation. The previous per-character
-  // encodeURIComponent loop was quadratic-like and hit the time budget.
-  const json=JSON.stringify(snap.items);
-  const gzip=Utilities.gzip(Utilities.newBlob(json,'application/json','rss.json'));
-  const base64=Utilities.base64Encode(gzip.getBytes());
-  // Base64 is ASCII: safe fixed-size slicing, well below 100KB per cache item.
-  const chunkSize=50000, count=Math.ceil(base64.length/chunkSize);
-  if(count<1||count>80)throw Error('Compressed RSS still too large for cache: '+count+' chunks');
-  const entries={};
-  for(let i=0;i<count;i++)entries[key+'_'+i]=base64.slice(i*chunkSize,(i+1)*chunkSize);
-  cache.putAll(entries,21600);
-  // Publish metadata last; partial caches are ignored and rebuilt.
-  cache.put(key+'_meta',JSON.stringify({
-    v:2,chunks:count,count:snap.items.length,
-    hash:snap.hash||'',dataHash:libV3Hash_(json)
-  }),21600);
+  const pack={v:3,feedUrl,hash:snap.hash||'',createdAt:Date.now(),items:snap.items};
+  const blob=Utilities.gzip(Utilities.newBlob(JSON.stringify(pack),'application/json','rss.json'));
+  blob.setName('LV3A-isolated-audio-rss-staging.json.gz');
+  // Create only; don't overwrite arbitrary Drive files.
+  const file=DriveApp.createFile(blob);
+  props.setProperty(key,file.getId());
   return {cachePrepared:true,items:[],hash:snap.hash||'',cacheHit:false,
-    compressedChunks:count};
+    stagingFileId:file.getId()};
 }
 /**
  * Install ONLY this handler in the isolated GAS project.
