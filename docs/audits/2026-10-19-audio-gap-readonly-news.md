@@ -81,3 +81,8 @@ RSSスナップショット利用可、作成から8.1時間経過。 `networkPr
 - `runApprovedLibraryV3AudioUuidBatch25`: `status=BUSY`, `writes=0`, `pilotVerified=0`, `maxWrites=25`。実行開始21:51:53、終了21:51:55。
 - スクリプトロックを取得できず安全に終了。原因となる並行実行の特定は未実施。コードの書き込みループには入っていない。
 - 次: GAS「実行数」で重複実行を確認し、他処理が終了した後に手動で1回だけ再試行。繰り返しBUSYの場合はロック競合を調査。トリガーは変更しない。
+
+## 22:12 JST UUID 25件バッチ再試行
+- 22:12:49開始、22:12:51終了。`APPROVED_COPY_ONLY_UUID_BATCH25` は再び `BUSY`、`writes=0`、`pilotVerified=0`。
+- 21:51のBUSYから約21分後にも再現。原因未特定。ロック競合・並行実行の確認を優先し、連続再試行は避ける。
+- GAS「実行数」で22:12前後の実行中/時間主導処理、`runLibraryV3AudioBackfillCopyBatchScheduled` の実行状況を確認する。トリガー削除や本番変更は未承認。
