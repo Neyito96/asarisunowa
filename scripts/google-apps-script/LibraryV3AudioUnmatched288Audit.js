@@ -47,6 +47,7 @@ function previewLibraryV3AudioUnmatched288(){
       matched.set(i,(matched.get(i)||0)+1);
     }
     const columnCounts={},hosts={};
+    const columnName=j=>{let n=j+1,name='';while(n>0){n--;name=String.fromCharCode(65+n%26)+name;n=Math.floor(n/26);}return name;};
     for(let i=0;i<copy.rows.length;i++){
       const r=copy.rows[i],sr=source.rows[i],id=String(r[0]||'');
       if(r[1]!==show||libV3Text_(r[14])||matched.has(i))continue;
@@ -66,7 +67,7 @@ function previewLibraryV3AudioUnmatched288(){
       r.forEach((v,j)=>{
         const str=String(v||'');
         if(!/https?:\/\//i.test(str))return;
-        const col=String.fromCharCode(65+j);
+        const col=columnName(j);
         linkColumns.push(col);
         columnCounts[col]=(columnCounts[col]||0)+1;
         const matches=str.match(/https?:\/\/[^\s\"'<>]+/gi)||[];
