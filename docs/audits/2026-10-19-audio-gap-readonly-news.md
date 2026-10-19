@@ -86,3 +86,9 @@ RSSスナップショット利用可、作成から8.1時間経過。 `networkPr
 - 22:12:49開始、22:12:51終了。`APPROVED_COPY_ONLY_UUID_BATCH25` は再び `BUSY`、`writes=0`、`pilotVerified=0`。
 - 21:51のBUSYから約21分後にも再現。原因未特定。ロック競合・並行実行の確認を優先し、連続再試行は避ける。
 - GAS「実行数」で22:12前後の実行中/時間主導処理、`runLibraryV3AudioBackfillCopyBatchScheduled` の実行状況を確認する。トリガー削除や本番変更は未承認。
+
+## 22:19 JST UUID 25件バッチ成功
+- 22:17:29開始、22:19:23終了。`APPROVED_COPY_ONLY_UUID_BATCH25`、`COPY_BATCH25_SAVED`、`writes=25`、`pilotVerified=3`、`elapsedMs=112076`。
+- 対象EP-ID: EP-02045, EP-02089, EP-02132, EP-02177, EP-02211, EP-02220, EP-02247, EP-02290, EP-02325, EP-02369, EP-02404, EP-02446, EP-02447, EP-02448, EP-02449, EP-02497, EP-02498, EP-02499, EP-02500, EP-02530, EP-02540, EP-02548, EP-02558, EP-02566, EP-02577。
+- メタデータ保留によるスキップ46件。`sourceWrites=0`、`propertyWrites=0`、`triggerChanges=0`、`spotifyPosts=0`、`networkProbes=0`。
+- UUID方式による隔離コピー保存累計28件（先行3件と今回25件）。音声URLのHTTP疎通確認は未実施。本番台帳への反映は未実施。
