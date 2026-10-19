@@ -6,13 +6,13 @@
 function runLibraryV3AudioBackfillCopyBatch(){
   return libV3AudioBackfillCopyBatch_({
     copySheetId:'19Dv6cgM33NYbrMGLofuVvxM4-WHiuPqxmivZUuwoBqc',
-    show:'ニュースの現場から',maxWrites:60,approved:true
+    show:'ニュースの現場から',maxWrites:25,approved:true
   });
 }
 function libV3AudioBackfillCopyBatch_(o){
   if(!o||o.approved!==true||o.show!=='ニュースの現場から'||
-     !Number.isInteger(o.maxWrites)||o.maxWrites<1||o.maxWrites>60)
-    throw Error('Explicit copy-only approval and maxWrites 1..60 required');
+     !Number.isInteger(o.maxWrites)||o.maxWrites<1||o.maxWrites>25)
+    throw Error('Explicit copy-only approval and maxWrites 1..25 required');
   const started=Date.now(),lock=LockService.getScriptLock();
   if(!lock.tryLock(1000))return {status:'BUSY',writes:0};
   const m={mode:'COPY_ONLY_AUDIO_BACKFILL_BATCH',status:'',writes:0,
@@ -22,27 +22,36 @@ function libV3AudioBackfillCopyBatch_(o){
   const skip=(reason)=>{m.skipped[reason]=(m.skipped[reason]||0)+1;};
   try{
     // libV3CopyPilotId_ is the established production/copy guard.
+    const tContext=Date.now();
     const source=libV3Context_(false),feeds=source.feeds.filter(f=>f.show===o.show);
+    m.sourceContextMs=Date.now()-tContext;
     if(feeds.length!==1)throw Error('Official feed not unique');
     const feed=feeds[0];
     libV3CopyPilotId_({copySheetId:o.copySheetId,guid:'ea1b3919-ed31-4b8f-b059-b4c500465fb6',feedUrl:feed.url});
+    const tCopy=Date.now();
     const copy=libV3Context_(false,{copySheetId:o.copySheetId,
       guid:'ea1b3919-ed31-4b8f-b059-b4c500465fb6',feedUrl:feed.url});
+    m.copyContextMs=Date.now()-tCopy;
     if(source.ss.getId()===copy.ss.getId()||copy.ss.getId()!==o.copySheetId)
       throw Error('Copy ID not isolated');
     if(source.rows.length!==copy.rows.length)throw Error('Copy/source row counts differ');
     // Batch-read formulas once (not per candidate).
+    const tFormula=Date.now();
     const formulas=copy.sh.getRange(2,15,copy.rows.length,1).getFormulas();
+    m.formulaReadMs=Date.now()-tFormula;
     const metrics={apiCalls:0};
-    const snap=libV2CpSnapshot_(feed.url,false,{offset:0,hash:''},metrics,
-      {prefix:'LV3CP',timeoutSeconds:45,parse:t=>libV2CpParse_(t,true)});
+    const tRss=Date.now();
+    const snap=libV3AudioCachedSnapshot_(feed.url,metrics);
+    m.rssMs=Date.now()-tRss;
+    m.rssCacheHit=!!snap.cacheHit;
+    if(snap.cachePrepared){m.status='RSS_CACHE_PREPARED';return m;}
     if(snap.status)throw Error('RSS unavailable: '+snap.status);
     m.sourceSnapshotHash=snap.hash||'';m.feedItems=snap.items.length;
     const guidCounts=new Map();
     snap.items.forEach(it=>{if(it.guid)guidCounts.set(it.guid,(guidCounts.get(it.guid)||0)+1);});
-    const plans=[],seenIds=new Set();
+    const plans=[],seenIds=new Set(),tMatch=Date.now();
     for(const it of snap.items){
-      if(Date.now()-started>245000){m.status='TIME_BUDGET';break;}
+      if(Date.now()-started>215000){m.status='TIME_BUDGET';break;}
       if(!it.guid||guidCounts.get(it.guid)!==1){skip('rss_guid_duplicate');continue;}
       const src=libV2CpMatches_(it.guid,source.index.guid,source.index.anchor);
       const dst=libV2CpMatches_(it.guid,copy.index.guid,copy.index.anchor);
@@ -69,10 +78,11 @@ function libV3AudioBackfillCopyBatch_(o){
       plans.push({id,ci,si,guid:it.guid,audio:it.audio});
       if(plans.length>=o.maxWrites)break;
     }
+    m.matchMs=Date.now()-tMatch;
     // Revalidate cell contents and ID immediately before each write.
     // No sheet rows are inserted, deleted or reordered.
     for(const p of plans){
-      if(Date.now()-started>270000){m.status='TIME_BUDGET';break;}
+      if(Date.now()-started>240000){m.status='TIME_BUDGET';break;}
       const row=p.ci+2,cell=copy.sh.getRange(row,15);
       if(cell.getFormula()||libV3Text_(cell.getValue())||
          String(copy.sh.getRange(row,1).getValue())!==p.id){
@@ -83,9 +93,103 @@ function libV3AudioBackfillCopyBatch_(o){
       m.writes++;
       if(m.samples.length<10)m.samples.push({id:p.id,row});
     }
-    if(!m.status)m.status='COPY_BATCH_DONE';
+    if(!m.status)m.status=m.writes?'COPY_BATCH_DONE':'NO_ELIGIBLE_CANDIDATES';
     m.remainingEstimate='not_computed';
     return m;
   }catch(e){m.status='FAILED';m.error=String(e).slice(0,500);return m;}
   finally{m.elapsedMs=Date.now()-started;lock.releaseLock();Logger.log(JSON.stringify(m));}
+}
+
+/**
+ * Short-lived RSS cache, split into chunks because CacheService has a 100KB/item limit.
+ * First call on a cold cache ONLY warms cache and returns without any cell writes.
+ * This avoids coupling slow 2,650-item Omny retrieval to write time.
+ */
+function libV3AudioCachedSnapshot_(feedUrl,metrics){
+  const cache=CacheService.getScriptCache();
+  const key='LV3A_'+libV3Hash_(feedUrl).slice(0,30);
+  const metaText=cache.get(key+'_meta');
+  if(metaText){
+    try{
+      const meta=JSON.parse(metaText);
+      const keys=Array.from({length:meta.chunks},(_,i)=>key+'_'+i);
+      const blobs=cache.getAll(keys);
+      if(keys.every(k=>typeof blobs[k]==='string')){
+        const items=JSON.parse(keys.map(k=>blobs[k]).join(''));
+        if(items.length===meta.count)return {items,hash:meta.hash,cacheHit:true};
+      }
+    }catch(e){/* cache miss, fetch again */}
+  }
+  const snap=libV2CpSnapshot_(feedUrl,false,{offset:0,hash:''},metrics,
+    {prefix:'LV3CP',timeoutSeconds:45,parse:t=>libV2CpParse_(t,true)});
+  if(snap.status)return snap;
+  // Persist the minimal RSS identity/metadata fields only. Do not log audio URLs.
+  const data=JSON.stringify(snap.items);
+  const chunks=[];
+  // JS strings may contain multi-byte chars; keep chunks < 70KB UTF-8.
+  let current='',bytes=0;
+  for(const ch of data){
+    const n=encodeURIComponent(ch).replace(/%[0-9A-F]{2}/g,'x').length;
+    if(bytes+n>60000&&current){chunks.push(current);current='';bytes=0;}
+    current+=ch;bytes+=n;
+  }
+  if(current)chunks.push(current);
+  if(chunks.length>80)throw Error('RSS snapshot too large for cache');
+  const entries={};
+  chunks.forEach((c,i)=>entries[key+'_'+i]=c);
+  cache.putAll(entries,21600);
+  cache.put(key+'_meta',JSON.stringify({chunks:chunks.length,count:snap.items.length,hash:snap.hash||''}),21600);
+  return {cachePrepared:true,items:[],hash:snap.hash||'',cacheHit:false};
+}
+/**
+ * Install ONLY this handler in the isolated GAS project.
+ * Manual first-batch verification is required before invoking.
+ * Never call in production GAS.
+ */
+function installLibraryV3AudioBackfillEvery10Min(){
+  const o={copySheetId:'19Dv6cgM33NYbrMGLofuVvxM4-WHiuPqxmivZUuwoBqc',
+    show:'ニュースの現場から',maxWrites:25,approved:true};
+  const source=libV3Context_(false);
+  const feeds=source.feeds.filter(f=>f.show===o.show);
+  if(feeds.length!==1)throw Error('Feed config invalid');
+  libV3CopyPilotId_({copySheetId:o.copySheetId,
+    guid:'ea1b3919-ed31-4b8f-b059-b4c500465fb6',feedUrl:feeds[0].url});
+  const copy=libV3Context_(false,{copySheetId:o.copySheetId,
+    guid:'ea1b3919-ed31-4b8f-b059-b4c500465fb6',feedUrl:feeds[0].url});
+  if(source.ss.getId()===copy.ss.getId())throw Error('Production target prohibited');
+  const handler='runLibraryV3AudioBackfillCopyBatchScheduled';
+  const existing=ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()===handler);
+  if(existing.length>1)throw Error('Duplicate backfill triggers: stop and review');
+  if(existing.length===1)return {status:'ALREADY_INSTALLED',triggers:1};
+  PropertiesService.getScriptProperties().setProperty('LV3A_BACKFILL_FAILURES','0');
+  ScriptApp.newTrigger(handler).timeBased().everyMinutes(10).create();
+  return {status:'INSTALLED_COPY_ONLY',intervalMinutes:10,maxWrites:25,triggers:1};
+}
+function runLibraryV3AudioBackfillCopyBatchScheduled(){
+  const props=PropertiesService.getScriptProperties();
+  const r=runLibraryV3AudioBackfillCopyBatch();
+  const n=Number(props.getProperty('LV3A_BACKFILL_FAILURES')||0);
+  const failed=['FAILED','TIME_BUDGET','NO_ELIGIBLE_CANDIDATES'].includes(r.status);
+  const next=failed?n+1:0;
+  props.setProperty('LV3A_BACKFILL_FAILURES',String(next));
+  if(next>=3){
+    stopLibraryV3AudioBackfillTimer();
+    r.timerStopped='THREE_CONSECUTIVE_NO_PROGRESS_OR_ERRORS';
+  }
+  Logger.log(JSON.stringify({scheduled:true,status:r.status,writes:r.writes,
+    consecutiveFailures:next,timerStopped:r.timerStopped||false}));
+  return r;
+}
+function stopLibraryV3AudioBackfillTimer(){
+  const handler='runLibraryV3AudioBackfillCopyBatchScheduled';
+  const ts=ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()===handler);
+  ts.forEach(t=>ScriptApp.deleteTrigger(t));
+  return {status:'STOPPED',deletedTriggers:ts.length};
+}
+function statusLibraryV3AudioBackfillTimer(){
+  const handler='runLibraryV3AudioBackfillCopyBatchScheduled';
+  return {mode:'READ_ONLY_TIMER_STATUS',
+    triggers:ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()===handler).length,
+    failures:Number(PropertiesService.getScriptProperties().getProperty('LV3A_BACKFILL_FAILURES')||0),
+    copyOnly:true};
 }
