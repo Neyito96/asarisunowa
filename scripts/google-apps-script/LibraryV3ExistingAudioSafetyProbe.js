@@ -2,6 +2,7 @@
  * P0-A: audio URL candidate safety audit for EXISTING ledger rows.
  * READ ONLY: no sheet writes, properties, triggers or Spotify calls.
  * The full Omny RSS snapshot may take ~3 minutes. Run one show at a time.
+ * Audio-column formulas are fetched in ONE range read, not one call per candidate.
  * No audio URL is logged; only the source host and EP-ID.
  */
 function previewLibraryV3ExistingAudioSafety(){
@@ -20,7 +21,9 @@ function libV3ExistingAudioSafety_(show){
     const snap=libV2CpSnapshot_(feed.url,false,{offset:0,hash:''},metrics,{prefix:'LV3CP',timeoutSeconds:45,parse:t=>libV2CpParse_(t,true)});
     m.apiCalls=metrics.apiCalls||1;
     if(snap.status){m.status=snap.status;m.retry=snap.retry;return m;}
-    const counts=new Map(),ownerCounts=new Map();
+    // One Spreadsheet service call instead of ~2,162 calls. Header row excluded.
+    const audioFormulas=c.sh.getRange(2,15,c.rows.length,1).getFormulas();
+    const counts=new Map();
     snap.items.forEach(it=>{if(it.guid)counts.set(it.guid,(counts.get(it.guid)||0)+1);});
     const stats={feedItems:snap.items.length,identityMatched:0,uniqueCandidateEpisodes:0,duplicateEpisodeCandidates:0,
       formulaProtected:0,existingAudio:0,missingSourceAudio:0,identityAmbiguous:0,identityMissing:0,
@@ -40,7 +43,7 @@ function libV3ExistingAudioSafety_(show){
       if(libV3Text_(r[14])){stats.existingAudio++;continue;}
       if(!/^https:\/\//.test(it.audio||'')){stats.missingSourceAudio++;hold('source_audio_not_https',id,it.guid);continue;}
       // Spreadsheet row number: header is row 1. audio is r[14] = column 15.
-      if(c.sh.getRange(i+2,15).getFormula()){stats.formulaProtected++;hold('formula_protected',id,it.guid);continue;}
+      if(audioFormulas[i][0]){stats.formulaProtected++;hold('formula_protected',id,it.guid);continue;}
       const prior=c.index.states.get(id+'|audio');
       if(prior&&(['HOLD','RECHECK_REQUIRED'].includes(prior[2])||
           (prior[6]&&prior[6]!==libV3Hash_(r[14]||'')))){
@@ -50,10 +53,14 @@ function libV3ExistingAudioSafety_(show){
       candidates.set(id,{id,guid:it.guid,host:String(it.audio).split('/')[2]||'',
         rowHash:libV3Hash_(r),sourceHash:libV3Hash_(it)});
     }
+    // A candidate EP-ID must occur exactly once across the entire source snapshot.
+    // Quarantine every repeated ID, including the first occurrence.
+    const candidateOwners=new Map();
+    for(const [id,v] of candidates){candidateOwners.set(id,(candidateOwners.get(id)||0)+1);}
     stats.uniqueCandidateEpisodes=candidates.size;
     samples.safe=[...candidates.values()].slice(0,15);
     m.stats=stats;m.holdReasons=holdReasons;m.samples=samples;
-    m.sourceSnapshotHash=snap.hash||'';m.status='READ_ONLY';
+    m.sourceSnapshotHash=snap.hash||'';m.formulaReadMode='BULK_ONCE';m.status='READ_ONLY';
     return m;
   }catch(e){m.status='FAILED';m.error=String(e).slice(0,400);return m;}
   finally{m.elapsedMs=Date.now()-start;lock.releaseLock();Logger.log(JSON.stringify(m));}
