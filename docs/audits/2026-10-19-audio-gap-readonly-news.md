@@ -68,3 +68,11 @@ RSSスナップショット利用可、作成から8.1時間経過。 `networkPr
 - 選定: EP-01934（1935行）、EP-01972（1973行）、EP-02000（2001行）。3件ともsource/copyの音声URLは空欄。
 - 直前の安全審査は `READ_ONLY_COMPLETE`、examined 288、passed 139、metadataHold 149、33,780ms。
 - **まだ書き込みは行っていない**。次はユーザーの明示承認を得て、実行時にロック・一意UUID/RSS候補・メタデータ・状態・行同一性を再検証する隔離コピー専用3件パイロットを実装する。
+
+## 21:47 JST 承認済み隔離コピー3件パイロット実測
+- 実行関数: `runApprovedLibraryV3AudioUuidThreePilot`（ユーザー承認後、隔離GASで手動1回）
+- ログ: `mode=APPROVED_COPY_ONLY_UUID_THREE_PILOT`, `status=COPY_THREE_SAVED`, `writes=3`, `elapsedMs=30153`
+- 対象: `EP-01934` O1935、`EP-01972` O1973、`EP-02000` O2001。
+- `sourceWrites=0`, `propertyWrites=0`, `triggerChanges=0`, `spotifyPosts=0`, `networkProbes=0`。
+- これはGAS実行ログに基づく成功報告。独立したシート再読込・音声URLの実HTTP疎通確認は未実施。
+- 次段階: コピー上で3セルの再読込監査と既存自動収蔵の進捗・競合を確認後、保留149件は触らず、通過139件のうち残りを小バッチで段階拡大する。**本番変更は別途承認が必要**。
