@@ -76,3 +76,8 @@ RSSスナップショット利用可、作成から8.1時間経過。 `networkPr
 - `sourceWrites=0`, `propertyWrites=0`, `triggerChanges=0`, `spotifyPosts=0`, `networkProbes=0`。
 - これはGAS実行ログに基づく成功報告。独立したシート再読込・音声URLの実HTTP疎通確認は未実施。
 - 次段階: コピー上で3セルの再読込監査と既存自動収蔵の進捗・競合を確認後、保留149件は触らず、通過139件のうち残りを小バッチで段階拡大する。**本番変更は別途承認が必要**。
+
+## 21:51 JST UUID 25件バッチ初回実行
+- `runApprovedLibraryV3AudioUuidBatch25`: `status=BUSY`, `writes=0`, `pilotVerified=0`, `maxWrites=25`。実行開始21:51:53、終了21:51:55。
+- スクリプトロックを取得できず安全に終了。原因となる並行実行の特定は未実施。コードの書き込みループには入っていない。
+- 次: GAS「実行数」で重複実行を確認し、他処理が終了した後に手動で1回だけ再試行。繰り返しBUSYの場合はロック競合を調査。トリガーは変更しない。
