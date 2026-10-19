@@ -27,3 +27,12 @@ RSSスナップショット利用可、作成から8.1時間経過。 `networkPr
 1. 未照合288件を、台帳行の列別リンク所在・GUID候補・RSS側の曖昧照合件数で分類する。
 2. 追加取得は読み取り専用。URLやタイトルのみから音源同一性を断定しない。
 3. 既存の自動保存と同じコピーに並列書き込みしない。
+
+## 20:57 JST 追加診断（ユーザー提供のGAS実行ログ）
+- `previewLibraryV3AudioUnmatched288`: `READ_ONLY_COMPLETE`, 25,557ms。
+- `unmatchedTotal=288`、`hasSomeUrlInLedger=288`、`embeddedUuidCandidate=288`。
+- RSSステージング8.3時間経過、2,650件。
+- URLホスト出現数: `www.asahi.com=1031`、`omny.fm=323`、`open.spotify.com=290`、`pca.st=288`。ホスト数はエピソード数でなくURL出現回数。
+- 列の報告 `I,J,L,V,W,j,X,o,p` のうち、`j,o,p` は旧診断コードの26列超の列名変換バグによる誤表記。補正が必要。
+- `writes=0`、`sourceWrites=0`、`propertyWrites=0`、`triggerChanges=0`、`networkProbes=0`、`spotifyPosts=0`。
+- UUIDは番組IDなどの可能性があり、個別エピソードの音声と一致したとはまだ判定しない。
