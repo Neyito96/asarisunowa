@@ -1,7 +1,7 @@
 /**
  * Historical AUDIO URL backfill, isolated COPY only.
- * One manual run processes at most 60 cells; rerun for the next 60.
- * NO trigger installation and NO production writes. Explicit opt-in only.
+ * Each run writes up to 25 eligible cells to the isolated copy. Partial progress is valid.
+ * Production writes prohibited. Trigger installation is a separate explicit action.
  */
 function runLibraryV3AudioBackfillCopyBatch(){
   return libV3AudioBackfillCopyBatch_({
@@ -52,7 +52,7 @@ function libV3AudioBackfillCopyBatch_(o){
     snap.items.forEach(it=>{if(it.guid)guidCounts.set(it.guid,(guidCounts.get(it.guid)||0)+1);});
     const plans=[],seenIds=new Set(),tMatch=Date.now();
     for(const it of snap.items){
-      if(Date.now()-started>215000){m.status='TIME_BUDGET';break;}
+      if(Date.now()-started>145000){m.status='TIME_BUDGET';break;}
       if(!it.guid||guidCounts.get(it.guid)!==1){skip('rss_guid_duplicate');continue;}
       const src=libV2CpMatches_(it.guid,source.index.guid,source.index.anchor);
       const dst=libV2CpMatches_(it.guid,copy.index.guid,copy.index.anchor);
@@ -83,7 +83,7 @@ function libV3AudioBackfillCopyBatch_(o){
     // Revalidate cell contents and ID immediately before each write.
     // No sheet rows are inserted, deleted or reordered.
     for(const p of plans){
-      if(Date.now()-started>240000){m.status='TIME_BUDGET';break;}
+      if(Date.now()-started>165000){m.status='TIME_BUDGET';break;}
       const row=p.ci+2,cell=copy.sh.getRange(row,15);
       if(cell.getFormula()||libV3Text_(cell.getValue())||
          String(copy.sh.getRange(row,1).getValue())!==p.id){
@@ -94,6 +94,7 @@ function libV3AudioBackfillCopyBatch_(o){
       m.writes++;
       if(m.samples.length<10)m.samples.push({id:p.id,row});
     }
+    if(m.status==='TIME_BUDGET'&&m.writes>0)m.status='COPY_BATCH_PARTIAL';
     if(!m.status)m.status=m.writes?'COPY_BATCH_DONE':'NO_ELIGIBLE_CANDIDATES';
     m.remainingEstimate='not_computed';
     return m;
@@ -102,9 +103,9 @@ function libV3AudioBackfillCopyBatch_(o){
 }
 
 /**
- * Short-lived RSS cache, split into chunks because CacheService has a 100KB/item limit.
- * First call on a cold cache ONLY warms cache and returns without any cell writes.
- * This avoids coupling slow 2,650-item Omny retrieval to write time.
+ * Durable, compressed RSS staging in isolated account Drive.
+ * Cold/expired staging runs only refresh the snapshot and write no cells.
+ * A later run reuses it, avoiding slow RSS retrieval during writes.
  */
 function libV3AudioCachedSnapshot_(feedUrl,metrics){
   // CacheService is best-effort and evicts large multi-key snapshots.
@@ -164,7 +165,9 @@ function runLibraryV3AudioBackfillCopyBatchScheduled(){
   const props=PropertiesService.getScriptProperties();
   const r=runLibraryV3AudioBackfillCopyBatch();
   const n=Number(props.getProperty('LV3A_BACKFILL_FAILURES')||0);
-  const failed=['FAILED','TIME_BUDGET','NO_ELIGIBLE_CANDIDATES'].includes(r.status);
+  // BUSY is an overlapping execution, not a completed batch.
+  // RSS_CACHE_PREPARED is useful progress, not an error.
+  const failed=['FAILED','TIME_BUDGET','NO_ELIGIBLE_CANDIDATES','BUSY'].includes(r.status);
   const next=failed?n+1:0;
   props.setProperty('LV3A_BACKFILL_FAILURES',String(next));
   if(next>=3){
