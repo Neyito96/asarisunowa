@@ -107,3 +107,63 @@ function SDGS_auditAllPagesReadOnly() {
   Logger.log(JSON.stringify(summary));
   return summary;
 }
+
+/**
+ * Read-only comparison against the user's 1007 COPY, not the original shared sheet.
+ * Matches only explicit trailing episode numbers (#123) in the sheet's C column
+ * against official JSON titles. Ambiguous or missing numbers are HELD.
+ * A:R (and all other cells) remain unchanged.
+ */
+function SDGS_auditAgainst1007CopyReadOnly() {
+  var copyId = '1lJF11Xpx9cz9RLuuJsvl0zV9E5Fpg7I7XreB2R6wS7o';
+  var sheet = SpreadsheetApp.openById(copyId).getSheetByName('SDGs');
+  if (!sheet) throw new Error('1007 copy SDGs tab missing');
+  var values = sheet.getRange(3,1,sheet.getLastRow()-2,19).getDisplayValues();
+  var byEpisode = {}, ambiguous = [];
+  values.forEach(function(row,i) {
+    var title = row[2], match = title.match(/#([0-9]+)\s*$/);
+    if (!match) { if (title) ambiguous.push({row:i+3,reason:'NO_TRAILING_NUMBER'}); return; }
+    var number = Number(match[1]);
+    if (!byEpisode[number]) byEpisode[number]=[];
+    byEpisode[number].push({row:i+3,title:title,existingUrl:row[12],pilotUuid:row[18]});
+  });
+  var results = [], uuidSeen = {}, counts = {};
+  function add(status,info) {counts[status]=(counts[status]||0)+1;results.push(Object.assign({status:status},info));}
+  for (var page=1;page<=20;page++) {
+    var source = SDGS_fetchPageReadOnly_(page);
+    if (source.httpStatus!==200) {
+      if (page===1) throw new Error('First page failed: '+source.httpStatus);
+      break;
+    }
+    if (!source.records.length) break;
+    source.records.forEach(function(record) {
+      var numberMatch = record.title.match(/#([0-9]+)\s*$/);
+      if (!SDGS_GAS_UUID.test(record.uuid)) {add('BAD_JSON_UUID',{page:page,title:record.title});return;}
+      if (uuidSeen[record.uuid]) {add('DUPLICATE_JSON_UUID',{page:page,uuid:record.uuid});return;}
+      uuidSeen[record.uuid]=true;
+      if (!numberMatch) {add('HOLD_JSON_TITLE_NO_NUMBER',{page:page,title:record.title,uuid:record.uuid});return;}
+      var number=Number(numberMatch[1]), rows=byEpisode[number]||[];
+      if (rows.length!==1) {add(rows.length?'HOLD_MULTIPLE_SHEET_ROWS':'HOLD_NO_SHEET_ROW',{episode:number,page:page,rows:rows.map(function(r){return r.row;})});return;}
+      var row=rows[0], oldId=String(row.existingUrl||'').match(/[?&]itemid=([0-9a-f-]{36})(?:&|$)/i);
+      var status;
+      if (!row.existingUrl) status='CANDIDATE_EMPTY_OFFICIAL_URL';
+      else if (!oldId) status='HOLD_UNRECOGNIZED_EXISTING_URL';
+      else if (oldId[1].toLowerCase()===record.uuid) status='MATCHED_UUID';
+      else status='HOLD_UUID_CHANGED';
+      // Compare title after removing #N; mismatch is always a hold, never an overwrite.
+      var normalized=function(s){return String(s||'').replace(/\s*#[0-9]+\s*$/,'').replace(/\s+/g,' ').trim();};
+      if (normalized(row.title)!==normalized(record.title)) status='HOLD_TITLE_DIFFERENCE';
+      add(status,{episode:number,sheetRow:row.row,page:page,
+        oldUrl:row.existingUrl,newUrl:record.officialUrl,
+        sheetTitle:row.title,jsonTitle:record.title});
+    });
+    Utilities.sleep(250);
+  }
+  var summary={mode:'READ_ONLY',target:'1007_COPY_SDGS',jsonUnique:Object.keys(uuidSeen).length,
+    statuses:counts,ambiguousSheetRows:ambiguous.length,
+    examples:results.filter(function(r){return r.status!=='MATCHED_UUID';}).slice(0,30),
+    totalCompared:results.length,writes:0,
+    warning:'Episode-number/title comparison only. No automated overwrite authorized.'};
+  Logger.log(JSON.stringify(summary));
+  return summary;
+}
