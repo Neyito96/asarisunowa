@@ -64,3 +64,46 @@ function SDGS_compareOfficialUrlReadOnly(existingUrl, incomingUuid) {
   return {status:match[1].toLowerCase()===uuid?'ALREADY_MATCHED':'HOLD_CONFLICT',
     proposedUrl:proposed,existingUrl:String(existingUrl)};
 }
+
+/**
+ * Full archive audit in one READ-ONLY invocation. Max 20 pages (1200 items at 60/page).
+ * Stops at empty page, non-200 response, schema error or page limit.
+ * No persistent checkpoint, no Sheet writes, no trigger changes.
+ */
+function SDGS_auditAllPagesReadOnly() {
+  var maxPages = 20, seen = {}, issues = [], pages = [], scanned = 0;
+  var stopReason = 'PAGE_LIMIT_REACHED';
+  for (var page = 1; page <= maxPages; page++) {
+    var result;
+    try { result = SDGS_fetchPageReadOnly_(page); }
+    catch (error) {
+      stopReason = 'FETCH_OR_PARSE_ERROR';
+      pages.push({page:page,error:String(error)});
+      break;
+    }
+    pages.push({page:page,status:result.httpStatus,count:result.records.length});
+    if (result.httpStatus !== 200) {
+      stopReason = 'HTTP_' + result.httpStatus;
+      break;
+    }
+    if (result.records.length === 0) {
+      stopReason = 'EMPTY_PAGE';
+      break;
+    }
+    result.records.forEach(function(r) {
+      scanned++;
+      if (!SDGS_GAS_UUID.test(r.uuid)) {
+        issues.push({page:page,uuid:r.uuid,reason:'INVALID_UUID'});
+      } else if (seen[r.uuid]) {
+        issues.push({page:page,uuid:r.uuid,reason:'DUPLICATE_UUID',firstPage:seen[r.uuid]});
+      } else seen[r.uuid] = page;
+    });
+    // Last page can contain fewer than 60; still check next page rather than assuming termination.
+    Utilities.sleep(250);
+  }
+  var summary = {mode:'READ_ONLY',scanned:scanned,uniqueUuids:Object.keys(seen).length,
+    issuesCount:issues.length,issueSamples:issues.slice(0,20),pages:pages,
+    stopReason:stopReason,writes:0,individualPageHttpVerified:false};
+  Logger.log(JSON.stringify(summary));
+  return summary;
+}
