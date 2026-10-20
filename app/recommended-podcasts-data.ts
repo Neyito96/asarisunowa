@@ -8,7 +8,7 @@ export const recommendedPodcastSnapshot = [
     "comment": "朝リス課外活動の座談会で知りました！",
     "artwork": "https://i.scdn.co/image/ab6765630000ba8a6078864d3b77f9633584e48f",
     "host": "AERA",
-    "genre": "ニュース",
+    "genre": "ニュース・時事",
     "youtube": "",
     "spotify": "https://open.spotify.com/show/3NdPcDtxhkuHCvDTQ1MmwQ?si=390703b62b454254",
     "amazon": "",
@@ -123,6 +123,24 @@ export const recommendedPodcastSnapshot = [
     "apple": "https://podcasts.apple.com/jp/podcast/%E8%81%B7%E6%A5%AD-%E4%B8%BB%E5%A9%A6%E3%81%A7%E3%81%99-%E8%BF%AB%E7%9C%9F%E3%81%AE%E3%82%A4%E3%83%89%E3%83%90%E3%82%BF%E7%95%AA%E7%B5%84/id1633630784?uo=4",
     "pocketcasts": "",
     "listen": "https://listen.style/p/piupod",
+    "standfm": "",
+    "pody": ""
+  },
+  {
+    "id": "8",
+    "url": "https://open.spotify.com/show/0Hf3oS5qxyudE2cjcYMKsk",
+    "title": "ホンマのホンネ　～わたしたちのモヤモヤニュース会議～",
+    "maker": "壁耳",
+    "comment": "冨名腰さんゲスト#106神田さんゲスト#24,#26",
+    "artwork": "",
+    "host": "TV ASAHI",
+    "genre": "その他",
+    "youtube": "",
+    "spotify": "https://open.spotify.com/show/0Hf3oS5qxyudE2cjcYMKsk",
+    "amazon": "",
+    "apple": "",
+    "pocketcasts": "",
+    "listen": "",
     "standfm": "",
     "pody": ""
   }
