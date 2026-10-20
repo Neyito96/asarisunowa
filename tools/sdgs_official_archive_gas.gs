@@ -167,3 +167,54 @@ function SDGS_auditAgainst1007CopyReadOnly() {
   Logger.log(JSON.stringify(summary));
   return summary;
 }
+
+/**
+ * Persist the 1,092 official records into a NEW raw-source tab in the independent
+ * library workbook. Does not touch the master episode ledger or EP IDs.
+ * Explicit manual execution only; repeat runs update only the same source tab.
+ */
+function SDGS_save1092OfficialRecords() {
+  var libraryId='1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4';
+  var tabName='SDGs公式JSON_1092件原本';
+  var all=[],seen={},pages=[];
+  for(var page=1;page<=20;page++){
+    var response=UrlFetchApp.fetch(SDGS_GAS_JSON_ROOT+SDGS_GAS_ARCHIVE_ID+'_'+page+'.json',
+      {muteHttpExceptions:true,followRedirects:true});
+    var code=response.getResponseCode();
+    if(code!==200){pages.push({page:page,status:code});break;}
+    var items=SDGS_parseJsonEntries_(JSON.parse(response.getContentText('UTF-8')));
+    pages.push({page:page,status:200,count:items.length});
+    if(!items.length)break;
+    items.forEach(function(item){
+      var uuid=String(item.id||'').toLowerCase();
+      if(!SDGS_GAS_UUID.test(uuid)||seen[uuid])throw new Error('Bad/duplicate UUID: '+uuid);
+      seen[uuid]=true;
+      all.push([uuid,String(item.title||''),String(item.date||''),
+        SDGS_GAS_ITEM_ROOT+encodeURIComponent(uuid),String(item.onsei||''),
+        String(item.description||''),String(item.body||''),
+        SDGS_GAS_JSON_ROOT+SDGS_GAS_ARCHIVE_ID+'_'+page+'.json',
+        'Omny埋め込みURL（MP3ではない）','公式個別URL未HTTP検証']);
+    });
+    Utilities.sleep(200);
+  }
+  if(all.length!==1092||Object.keys(seen).length!==1092)
+    throw new Error('Expected 1092 unique entries; got '+all.length+'; no writes made');
+  var book=SpreadsheetApp.openById(libraryId);
+  var sheet=book.getSheetByName(tabName);
+  if(!sheet)sheet=book.insertSheet(tabName);
+  var headers=['公式JSON UUID','タイトル','公開日時（公式原文）','朝日新聞公式個別URL',
+    'Omny埋め込みURL','公式description原文','公式body原文','取得元JSON',
+    '音声URLの種類','個別ページ検証'];
+  var matrix=[headers].concat(all);
+  if(sheet.getMaxRows()<matrix.length)sheet.insertRowsAfter(sheet.getMaxRows(),matrix.length-sheet.getMaxRows());
+  if(sheet.getMaxColumns()<headers.length)sheet.insertColumnsAfter(sheet.getMaxColumns(),headers.length-sheet.getMaxColumns());
+  // Only this dedicated raw archive tab is modified.
+  sheet.getRange(1,1,matrix.length,headers.length).setValues(matrix);
+  sheet.setFrozenRows(1);
+  sheet.getRange(1,1,1,headers.length).setFontWeight('bold');
+  sheet.getRange(2,1,all.length,headers.length).setFontColor('#b42318');
+  var summary={status:'SAVED',tab:tabName,records:all.length,uniqueUuids:Object.keys(seen).length,
+    pages:pages,masterLedgerWrites:0,existingEpisodeIdsChanged:0,
+    urlType:'Omny embed, not MP3'};
+  Logger.log(JSON.stringify(summary));return summary;
+}
