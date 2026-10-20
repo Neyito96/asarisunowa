@@ -1,0 +1,13 @@
+const assert = require('node:assert/strict');
+const t = require('./sdgs_official_archive.js');
+const id = '56afb9a7-0cb1-440b-b2f8-b4aa00a7a875';
+assert.equal(t.sdgsOfficialUrl(id),'https://www.asahi.com/special/podcasts/item/?itemid='+id);
+assert.equal(t.sdgsExtractItemId('https://www.asahi.com/special/podcasts/item/?itemid='+id+'&page=4'),id);
+const fetched=t.sdgsFetchPage(3,()=>({status:200,body:JSON.stringify([{id,title:'#911',onsei:'https://omny.fm/shows/arukiki-ajw/911/embed'}])}));
+assert.equal(fetched.entries[0].officialUrl,t.sdgsOfficialUrl(id));
+assert.equal(fetched.entries[0].pageStatus,'URL_GENERATED_NOT_HTTP_VERIFIED');
+assert.equal(t.sdgsReconcile({officialUrl:''},fetched.entries[0]).status,'CANDIDATE_OFFICIAL_URL');
+assert.equal(t.sdgsReconcile({officialUrl:t.sdgsOfficialUrl(id)},fetched.entries[0]).status,'ALREADY_MATCHED');
+assert.equal(t.sdgsReconcile({officialUrl:t.sdgsOfficialUrl('82a7bd68-0c21-46d1-997c-b4aa00a0698f')},fetched.entries[0]).status,'HOLD_CONFLICT');
+assert.throws(()=>t.sdgsGetEntries({unexpected:1}));
+console.log('SDGs official archive read-only tests PASS');
