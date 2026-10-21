@@ -57,7 +57,7 @@ function RISU_enrichApple_(apply) {
         const res=UrlFetchApp.fetch(url,{muteHttpExceptions:true,followRedirects:true});
         if(res.getResponseCode()!==200)throw Error('HTTP '+res.getResponseCode());
         items=JSON.parse(res.getContentText()).results||[];
-      }catch(e){log.requestsFailed++;console.log('RISU_APPLE_ERROR '+JSON.stringify({row:i+1,error:String(e)}));continue;}
+      }catch(e){log.requestsFailed++;items=[];console.log('RISU_APPLE_ERROR '+JSON.stringify({row:i+1,error:String(e)}));}
       const matches=items.filter(x=>normalizeFeed(x.feedUrl)===feed);
       if(matches.length===0)log.unmatched++;
       if(matches.length>1)log.ambiguous++;
