@@ -1,0 +1,188 @@
+{
+  "observedAt": "2026-10-21T05:01:59.800Z",
+  "mainBaseline": "4a5d69cff2596b92ce40d51e49b0df06c28ca507",
+  "openPullRequests": [
+    {
+      "number": 236,
+      "title": "SDGs公式JSONから公式個別URLを照合する読み取り専用試作",
+      "head": "feature/sdgs-official-json-readonly-20261020",
+      "sha": "7723a6f2e5254a226fbee89c924a47fb658e85ec"
+    },
+    {
+      "number": 234,
+      "title": "Phase 6 / PR #230: 旧ニュース561件の原文・清掃版差分監査（READ_ONLY）",
+      "head": "audit/library-v3-old-news-on-pr230-20261018",
+      "sha": "c7cedec4d2b21b3bc964a142900c1aade20bdf6e"
+    },
+    {
+      "number": 232,
+      "title": "Issue #231: 出演者別プレイリスト共通処理と自動登録復帰（読み取り専用）",
+      "head": "feature/performer-playlist-shared-engine-231",
+      "sha": "0fd7c0061cd95b3dd2239ed91591a45a33162963"
+    },
+    {
+      "number": 230,
+      "title": "V3実用化: 6時台の新着→Spotify接続と再実行可能な欠損監査",
+      "head": "feat/library-v3-morning-practical-20261018",
+      "sha": "9ba926081b97641d0d348050e25cc383501d4bf5"
+    },
+    {
+      "number": 226,
+      "title": "図書館V3: 自動制御・根拠照合・安全な補完と移行準備",
+      "head": "fix/library-v2-checkpoint-cache",
+      "sha": "245f5164ae450adede33cd5096495cc79cc93b86"
+    },
+    {
+      "number": 225,
+      "title": "公式RSS差分取得の読み取り専用プレビュー",
+      "head": "feature/rss-library-delta-readonly",
+      "sha": "7f1e4bba4b52b8a2bde0405cdfcd44ee9e812707"
+    },
+    {
+      "number": 214,
+      "title": "AUTO新規申請を起点エピソード不要にする",
+      "head": "fix/seedless-auto-bootstrap",
+      "sha": "9c0f6d8f558394b6a554ee81b650726034619f80"
+    },
+    {
+      "number": 210,
+      "title": "AUTO申請にSpotifyプレイリスト読み込みを追加",
+      "head": "feat/playlist-load-preview",
+      "sha": "6160c361b9d36a1428f27ad20b61d0968b0c094d"
+    },
+    {
+      "number": 201,
+      "title": "Draft: Theme V2 single-sheet cleanup for 中南米 / 北欧",
+      "head": "theme-v2-single-sheet-20261005",
+      "sha": "7b175bbf010da70e00f0e738d56c0208386c997d"
+    },
+    {
+      "number": 200,
+      "title": "Draft: Spotify Access V3 candidate with safe domain adapter",
+      "head": "v3-implementation-20261005",
+      "sha": "d470e2d9b93deae163c4802a983f9f6100b8ac52"
+    },
+    {
+      "number": 199,
+      "title": "Review: Spotify Access V3 safe adapter boundary",
+      "head": "v3-safe-adapter-20261005",
+      "sha": "ca2feeaeaf9f1f0acef13e895538d388a1307a49"
+    },
+    {
+      "number": 198,
+      "title": "画像同期後のPages公開を接続し、取得失敗時に既存画像を保持",
+      "head": "fix/playlist-artwork-publish-20261004",
+      "sha": "42706a21eda3d9a83326808479b497546c2821da"
+    },
+    {
+      "number": 170,
+      "title": "WIP: preserve latest episode release dates without regression",
+      "head": "fix/series-latest-release-date-20260921",
+      "sha": "8639f2a7b5b225d9576447e8a2f6cef4e31fa392"
+    },
+    {
+      "number": 129,
+      "title": "連載プレイリストの親番組をdry-runで自動判定",
+      "head": "feature/series-source-detection",
+      "sha": "0549733c784c6a0e1eb3ef9d89dad7384ac3c3fc"
+    },
+    {
+      "number": 123,
+      "title": "出演者プレイリスト共通安全判定V2",
+      "head": "v2-speaker-safe",
+      "sha": "5f6fd08ec20dc9e4ca24df9b42f8d5169fff3a08"
+    }
+  ],
+  "v3Reuse": {
+    "pull": 230,
+    "commit": "580523aa299a897fe9bcaeb91df6b5bf8004ff9e",
+    "morningTests": 47,
+    "v3RegressionTests": 123,
+    "deployed": false
+  },
+  "onlineGas": {
+    "publicStatus": "Two existing endpoint GET status responses HTTP 200/ok; see gas-http-status.json",
+    "sourceVerified": false,
+    "triggersVerified": false,
+    "spotifyTokenVerified": false,
+    "triggerChanges": 0,
+    "propertyChanges": 0
+  },
+  "history": {
+    "rows": 92,
+    "last": [
+      46312.44290447916,
+      "V2_MT_PILOT10",
+      10,
+      20,
+      0
+    ],
+    "interpretation": "Last recorded historical V2 row, not proof of current ALIB trigger or completion."
+  },
+  "humanThemes": {
+    "southAmerica": {
+      "adopted": 40,
+      "excluded": 24,
+      "unreviewed": 9
+    },
+    "nordic": {
+      "adopted": 15,
+      "excluded": 7,
+      "unreviewed": 7
+    },
+    "history": {
+      "adopted": 40,
+      "excluded": 24
+    },
+    "prototypeExclusions": {
+      "southAmerica": 24,
+      "nordic": 7
+    }
+  },
+  "publication": {
+    "connectedToV3": false,
+    "existingWorkflow": "sync-playlists.yml",
+    "cronUTC": "17,47 * * * *",
+    "observedScheduledRuns": [
+      {
+        "id": 39524508155,
+        "createdAt": "2026-10-21T00:58:15Z",
+        "conclusion": "success"
+      },
+      {
+        "id": 39509754467,
+        "createdAt": "2026-10-20T22:40:00Z",
+        "conclusion": "success"
+      },
+      {
+        "id": 39484702646,
+        "createdAt": "2026-10-20T19:35:06Z",
+        "conclusion": "success"
+      },
+      {
+        "id": 39447764526,
+        "createdAt": "2026-10-20T15:22:17Z",
+        "conclusion": "success"
+      },
+      {
+        "id": 39407816757,
+        "createdAt": "2026-10-20T10:25:19Z",
+        "conclusion": "success"
+      }
+    ],
+    "decision": "Reuse existing V3/Morning and sync jobs. No new timers. Reserve 06 JST ingestion plus bounded pending continuation only after live trigger/baseline verification; a 15 JST catch-up requires separate scoped rollout, not another collector."
+  },
+  "submissionMetrics": {
+    "completeEndToEndSamples": 0,
+    "medianMs": null,
+    "p90Ms": null,
+    "failureRate": null,
+    "reason": "Existing receipt cache only confirms acceptance; persistent end-to-end timestamps/site readback are not connected."
+  },
+  "writes": {
+    "productionLedger": 0,
+    "spotify": 0,
+    "mailSent": 0,
+    "triggers": 0
+  }
+}

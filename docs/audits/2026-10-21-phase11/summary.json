@@ -1,0 +1,19 @@
+{
+  "mode": "READ_ONLY",
+  "planHash": "f1871e531ab063b2c7e4de59b91b6ffe43f3b6e3050fa1c361cface71fa8c5ff",
+  "counts": {
+    "ids": 542,
+    "rawMissing": 54,
+    "cleanMissing": 56,
+    "existingContactResidue": 482,
+    "existingRelatedMixed": 442,
+    "held": 0,
+    "ready": 542,
+    "rawFills": 54,
+    "updateEpisodes": 542,
+    "updateCells": 1658,
+    "relatedArticles": 1553
+  },
+  "holds": [],
+  "productionWrites": 0
+}

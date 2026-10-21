@@ -57,7 +57,11 @@ async function openDetail(id,fromUrl=false) {
  if(e.audio){const audio=document.createElement('audio');audio.controls=true;audio.preload='none';audio.hidden=true;const play=node('button','▶ この回を聴く');play.type='button';play.addEventListener('click',()=>{audio.hidden=false;audio.src=e.audio;play.hidden=true;audio.play().catch(()=>{note.textContent='プレーヤーの再生ボタン、または配信先リンクからお聴きください。';});});const note=node('p','配信元の音声です。再生ボタンを押すと読み込みます。','audio-note');audio.addEventListener('error',()=>{note.textContent='音声を読み込めませんでした。配信先リンクからお聴きください。';});body.append(play,audio,note);}
  else body.append(node('p','この回は配信先リンクからお聴きください。','audio-note'));
  const links=node('div',undefined,'detail-links');addLinks(links,e.links);if(!links.children.length)addLinks(links,['https://www.asahi.com/special/podcasts/']);body.append(links,node('p',e.description || '概要欄は未収録です。公式ページをご確認ください。','description'));
- if(e.related.length){body.append(node('h3','関連記事'));const related=node('div',undefined,'detail-links');addLinks(related,e.related);body.append(related);}
+ if(e.staffDetails?.length){body.append(node('h3','出演・スタッフ'));for(const line of e.staffDetails)body.append(node('p',line));}
+ if(e.recording?.length)body.append(node('p',e.recording.join(' '),'detail-meta'));
+ if(e.related.length){body.append(node('h3','関連記事'));const related=node('div',undefined,'detail-links');
+  if(e.relatedArticles?.length){for(const article of e.relatedArticles){const url=safeUrl(article.url);if(!url)continue;const a=node('a',article.title+' ↗');a.href=url;a.target='_blank';a.rel='noopener noreferrer';related.append(a);related.append(node('small',article.linkStatus==='HTTP_OK_NOT_CONTENT_VERIFIED'?'接続確認済み（本文未確認）':article.linkStatus==='HTTP_UNAVAILABLE'?'現在の接続は未確認':'リンク未確認'));}}
+  else addLinks(related,e.related);body.append(related);}
  const share=node('button','この回のリンクをコピー','quiet');share.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(location.href);share.textContent='コピーしました';}catch{share.textContent='アドレス欄からリンクをコピーできます';}});body.append(share);
  if(!fromUrl){const url=new URL(location.href);url.searchParams.set('ep',id);history.replaceState({},'',url);}
  }catch{if(run===activeDetail)body.replaceChildren(node('h2','詳細を読み込めませんでした'),node('p','一覧に戻り、もう一度お試しください。'));}
