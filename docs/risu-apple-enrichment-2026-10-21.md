@@ -41,3 +41,13 @@ Apple Search APIに収録されない番組やRSS表記差異は保留。Apple�
 - AppleはApple Search APIの `feedUrl` 一致を根拠にする。Spotify、Amazon Music、YouTube、Pocket Casts、LISTEN、stand.fm、PodyはRSSチャンネルの明示的URLのみ採用。推測検索結果やエピソード内リンクは採用しない。複数候補は保留。
 - RSSに明示的リンクがないプラットフォームは空欄が残る。全サービスのディレクトリ検索やサイトスクレイピングを実装したわけではない。補完済み列は上書きしないが、別の空欄が残る番組は日次照会の対象。
 - 既存GAS未配備・トリガー未登録。実行前に `RISU_previewAllPlatforms` のログを確認すること。既存のApple専用トリガーがある場合は重複を避けること。
+
+## 2026-10-22 追加依頼・トップページ修正と日次RSS巡回の引き継ぎ
+- PR #245: 未精査の独立エピソード図書館へのトップページリンクを削除しmainにマージ。図書館URLそのものは非公開化していない。
+- PR #246: 「リス推し／おすすめPodcast」のアートワークを全画面幅で正方形に固定し、日次トリガー停止関数の対象を実ハンドラ `RISU_applyAllPlatforms` に修正。mainにマージ。画像URL自体の恒久補完・表示速度の実機検証は未完。
+- 新規登録された番組も含め、「おすすめPodcast」シートの全有効行を**毎日1回**巡回する。各行のRSSを一次的な番組同一性の根拠として、Apple Podcasts、Amazon Music、LISTEN、Pocket Casts、Spotify、YouTube、stand.fm、Pody、番組公式サイトなどのURLと、ジャンル・配信者・アートワークの空欄を安全に補完する。ユーザー発話の「Podcastandhem」はサービス名の確認が必要で、推測で別サービスに置換しない。
+- 現行実装 `scripts/google-apps-script-risu-apple-enrichment.gs` はApple Search APIでfeedUrl一致、他サービスはRSSチャンネルに**明示されたURLのみ**採用する。外部ディレクトリを網羅検索する機能ではなく、RSSにリンクがない場合は未補完のまま。各プラットフォームを見つけたふりをしない。
+- 新規投稿のRSSが欠損する場合、同名検索だけでURLや画像を確定しない。既存セルは上書きせず、競合・複数候補・不一致は保留。新規登録行も翌日以降に検出できるよう全行走査する。
+- **本番未確認:** GitHubの補完GASとA:R列返却修正が稼働GASへ配備されたか、日次トリガーが存在するか、Apple・Amazon・LISTEN・Pocket Casts等の補完が実行されたかは未確認。今の時点で「毎日巡回中」とは報告しない。
+- 次回Macで実GASのソース/実行履歴/トリガーをREAD_ONLY照合し、`RISU_previewAllPlatforms` の結果とシート空欄を確認。既存の同名/旧Apple専用トリガーの有無も確認し、二重実行を防ぐ。承認後に既存GASへ差分を適用して1日1回のトリガーを設定し、実シート→公開API→iPhone表示の一連の検証を行う。
+- 「ホンマのホンネ」はRSS `https://feeds.megaphone.fm/TAC5984069945` を台帳に持ち、Apple URL・ジャンルが未登録と以前の監査で判明。Apple側の番組ID/リンクはRSS一致の実照合が済むまで書き込まない。画像の遅延はブラウザ側の補完検索に依存している可能性があるため、F列の恒久保存とAPI返却を優先。
