@@ -53,3 +53,9 @@
 - 後継番組の調査原票31件を独立に照合。旧Omny URLとJST日時が31/31一意一致。うちタイトル完全一致29件、残り2件は「もっと話そう」の表記差で、台帳のRSS由来タイトルを保持する。
 - 公式ページの検証結果は、canonicalのitemidが公式UUIDと完全一致することも適用前に再確認する。検証フラグだけで自動採用しない。
 - モバイル受け入れCI run 39542200772はChromium/WebKitともSUCCESS。SDGs検索・公式URL先頭・Omny外部リンク・後継31件の分離・既存再生導線を確認。追加のcanonical厳密性テストを含む最終コミットでも再実行する。
+
+## 最終検証・承認待ち
+- 実装コミット `84802364867431c0da603d67ccab64ac1817d465`：Pages PRビルド run [39542488932](https://github.com/Neyito96/asarisunowa/actions/runs/39542488932) SUCCESS、モバイルCI run [39542488886](https://github.com/Neyito96/asarisunowa/actions/runs/39542488886) Chromium/WebKitともSUCCESS。
+- 最終READ_ONLYの再計算でも準備バッチと同じplanHash `49d727a19eef8a7100600f51a7463dcd4bbaaaeacfcdcb9513df092d97cb2a39` を確認。
+- Draft PR #238にコード・全件差分・リンク検証・書込/復旧バッチ・候補JSON・試験結果を保存。Issue #222へ集約。
+- **本番書込0、マージ0、公開反映0。** 承認対象は既存1092 EP/3331セル、追加0、番号/UUID保留1。承認後にライブID/セル値/式/入力規則を再確認し、局所更新→読戻し→JSON再生成→公開の順に進める。
