@@ -744,6 +744,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
   const [livePlaylists, setLivePlaylists] = useState<Playlist[]>(() => playlists.filter(isVisiblePlaylist));
   const [recommendedPodcasts, setRecommendedPodcasts] = useState<RecommendedPodcast[]>(() => [...recommendedPodcastSnapshot].map(recommendedPodcastFromSnapshot).reverse());
   const [recommendedPodcastStatus, setRecommendedPodcastStatus] = useState<"loading" | "ready" | "error">("ready");
+  const [recommendedPodcastRefreshKey, setRecommendedPodcastRefreshKey] = useState(0);
   const [liveListenerPodcasts, setLiveListenerPodcasts] = useState<ListenerPodcast[]>(LISTENER_PODCAST_BACKUP);
   const [listenerPodcastStatus, setListenerPodcastStatus] = useState<"loading" | "ready" | "error">("loading");
   const [listenerPodcastReloadKey, setListenerPodcastReloadKey] = useState(0);
@@ -913,13 +914,13 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       }
     }
 
-    // A fresh snapshot is rendered immediately. Refresh only when it has aged,
-    // so quiet periods do not make every visitor wait on GAS.
-    if (!snapshot.length || !isRecommendedPodcastSnapshotFresh()) {
+    // Only the リス推し view refreshes on entry or after its own submission.
+    // Keep the cached snapshot visible while fetching; other views do no polling.
+    if (view === "podcasts") {
       refreshRecommendedPodcasts();
     }
     return () => { cancelled = true; };
-  }, []);
+  }, [view, recommendedPodcastRefreshKey]);
 
   useEffect(() => {
     let cancelled = false;
@@ -1440,6 +1441,11 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           website: submitWebsite,
         }),
       });
+      // The POST uses no-cors, so delivery cannot be confirmed from this response.
+      // Request a targeted リス推し refresh after a short persistence grace period.
+      if (postedKind === "podcast") {
+        window.setTimeout(() => setRecommendedPodcastRefreshKey((n) => n + 1), 2500);
+      }
       setSubmitStatus("success");
       setSubmitMessage(
         postedKind === "listenerPodcast"
