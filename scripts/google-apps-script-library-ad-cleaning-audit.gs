@@ -8,7 +8,7 @@ const RISU_AD_AUDIT = Object.freeze({
   spreadsheetId:'1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4',
   sheet:'エピソード台帳',
   maxSamples:5,
-  version:'SAFE_PREVIEW_V4_20261021',
+  version:'SAFE_PREVIEW_V5_20261021',
   focus:['EP-03365','EP-05247']
 });
 function RISU_adSections_(value) {
@@ -32,17 +32,17 @@ function RISU_adSections_(value) {
     pos=end;
   }
   if(pos<text.length)chunks.push({header:'',body:text.slice(pos)});
-  const isAd=h=>/朝ポキ情報|イベント|上映会|お知らせ|キャンペーン|プレゼント|広告|おたより|お便り|募集|応募|フォーム|記者サロン|会員登録|メルマガ|番組検索ツール/.test(h);
+  const isAd=h=>/朝ポキ情報|イベント|上映会|お知らせ|キャンペーン|プレゼント|広告|おたより|お便り|募集|応募|フォーム|記者サロン|スマホ撮影のコツを動画で紹介|会員登録|メルマガ|番組検索ツール/.test(h);
   const isProtected=h=>/関連記事|関連リンク|関連動画|出演|スタッフ|エピソード|内容|今回のテーマ/.test(h);
   const kept=[],removed=[],related=[],held=[];
   for(const part of chunks){
     const section=(part.header+part.body).trim();
     if(!section)continue;
-    if(part.header && isProtected(part.header)){
+    if(part.header && isAd(part.header)){
+      removed.push(section);
+    }else if(part.header && isProtected(part.header)){
       kept.push(section);
       if(/関連記事|関連リンク/.test(part.header))related.push(section);
-    }else if(part.header && isAd(part.header)){
-      removed.push(section);
     }else{
       // Inline promotions in otherwise unmarked text require review.
       if(/(?:おたよりフォーム|お便りフォーム|応募フォーム|朝日ID会員の登録)/.test(part.body)){
