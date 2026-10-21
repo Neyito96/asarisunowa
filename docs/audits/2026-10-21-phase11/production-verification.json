@@ -1,0 +1,112 @@
+{
+  "status": "PUBLISHED_VERIFIED",
+  "verifiedAt": "2026-10-21T05:28:32.458682+00:00",
+  "approvedPlanHash": "f1871e531ab063b2c7e4de59b91b6ffe43f3b6e3050fa1c361cface71fa8c5ff",
+  "updatedEpisodes": 542,
+  "updatedCells": 1658,
+  "batchesReadBackPassed": 8,
+  "rawEmptyFills": 54,
+  "existingRawOverwrites": 0,
+  "newEpIds": 0,
+  "epIdGuidAudioChanges": 0,
+  "unexpectedStoredValueDifferences": 0,
+  "backupSpreadsheetId": "19rxdyHUi3jAV6JCDFJNlm9nW7rcFdGQ6_3DDTJTgnkM",
+  "pr": 240,
+  "testedCommit": "6efd14190a3d0fc736880af2d6ef876c908321c8",
+  "mergeCommit": "60aca6784e748cc1363e5e0d2ccb4454808f862b",
+  "actions": {
+    "pagesPr": {
+      "id": 39549096937,
+      "conclusion": "success"
+    },
+    "mobile": {
+      "id": 39549096946,
+      "conclusion": "success"
+    },
+    "deployment": {
+      "id": 39549270730,
+      "conclusion": "success",
+      "updatedAt": "2026-10-21T05:24:14Z"
+    }
+  },
+  "tests": {
+    "nodePassed": 38,
+    "nodeFailed": 0,
+    "v3RegressionPassed": 123,
+    "v3MorningPassed": 47,
+    "mobileEngines": [
+      "chromium",
+      "webkit"
+    ],
+    "mobileViewport": "iPhone 13",
+    "mobileErrors": [],
+    "physicalIphoneTested": false
+  },
+  "publicHttp": {
+    "manifest": {
+      "version": "1df7cb5d103cfbfc",
+      "total": 6466,
+      "shows": [
+        "ニュースの学校",
+        "ドーナツ",
+        "スポンジ",
+        "ニュースの現場から",
+        "MEDIA TALK",
+        "朝ポキTV",
+        "報談",
+        "こどもそうだんしつ",
+        "SDGsを話そう"
+      ]
+    },
+    "episode": {
+      "id": "EP-01443",
+      "description": "（28分）2年ぶりに春の選抜高校野球大会が開催されます。2003年夏の選手権で優勝した常総学院のメンバーで現在は朝日新聞スポーツ部の井上翔太記者と、当時は主将だった松林康徳部長に、コロナが球児たちに与えた影響を聴きました。",
+      "articles": 3
+    },
+    "scriptSha256": "0c9b2d4bbfbd499767c4b479f67318bcad9610652aab60b5f8fe27d23411f7bd",
+    "editor": "HTTP200_LOCAL_DRAFT_PROTOTYPE",
+    "themes": [
+      {
+        "name": "中南米",
+        "total": 70
+      },
+      {
+        "name": "北欧",
+        "total": 47
+      }
+    ]
+  },
+  "liveBrowser": {
+    "libraryUrl": "https://neyito96.github.io/asarisunowa/library/",
+    "editorUrl": "https://neyito96.github.io/asarisunowa/library/editor.html",
+    "relatedHeadlineSearch": "木内マジック",
+    "resultId": "EP-01443",
+    "cleanDescriptionVerified": true,
+    "relatedArticleLinks": 3,
+    "recordingDateAndCastPreserved": true,
+    "officialOmnySpotifyLinksVisible": true,
+    "editorLocalDraftOnlyDisclaimerVisible": true,
+    "liveTestDraftSubmitted": false,
+    "newAudioPlaybackTestPerformed": false
+  },
+  "publicPolicy": {
+    "sourceEpisodes": 6591,
+    "publicEpisodes": 6466,
+    "sourceDeletion": 0,
+    "excludedArukiki": 100,
+    "excludedAjw": 25,
+    "staleUnreferencedJsonFilesRemoved": 191
+  },
+  "recovery": {
+    "sheet": "Use approved reverse batches only after checking current values equal applied after-values; backup is retained. Do not overwrite the whole workbook.",
+    "public": "Revert publication changes and redeploy; preserve concurrent main changes.",
+    "rollbackExecuted": false
+  },
+  "remaining": [
+    "Live GAS source/trigger/OAuth state is unverified; no GAS deployment or trigger changes performed.",
+    "Existing PR #230 V3 changes are saved and tested but not deployed.",
+    "RSS incremental collection through scheduled public export is not connected end-to-end.",
+    "Listener lifecycle persistence, administrator receipt delivery and Spotify writes are not connected. Editor is local draft only.",
+    "Latency sample count is zero; median/p90/failure rate are not measured."
+  ]
+}

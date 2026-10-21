@@ -1,3 +1,19 @@
+# Phase 11 本番公開完了 — 2026-10-21（JST）
+
+PR #240を6efd1419から60aca678へマージ。Pages PR CI39549096937・モバイル39549096946・本番Pages39549270730は全てSUCCESS。本番配信は2026-10-21 14:24:14 JST時点で完了を確認。mainに並行追加された広告監査V5（8e2ba0c）のファイルも保持した。
+
+承認済みplanHash f1871e531ab063b2c7e4de59b91b6ffe43f3b6e3050fa1c361cface71fa8c5ffの既存542件・1,658セルを適用済み。8/8バッチの全セル読み戻しPASS。原文空欄54件を補完、既存原文上書き0、新規ID0、全6,591件のEP-ID/GUID/音声変更0、全31タブの承認対象外保存値変更0。実行前ライブ差分・数式等検査と全体バックアップ、コピー側対象1,658セル照合を実施した。
+
+公開URL: https://neyito96.github.io/asarisunowa/library/ 。実本番台帳から再生成したversion1df7cb5d103cfbfc・公開6,466件をHTTPとブラウザーで確認。原本6,591件は保持しアルキキ100/AJW25だけ公開対象外。未参照の旧版JSON191ファイルを配信ツリーから除去。公開library.mjsは実装とSHA256一致。木内マジック（関連記事見出し）でEP-01443を検索し、清掃済み内容・出演者・収録日・関連記事3件の見出し/URL/接続確認状態・公式/Omny/Spotify導線を実画面で確認。記事本文の確認や今回の新たな音声実再生試験はしていない。
+
+Node38/38、既存V3回帰123/123（Morning47/47）、Pages準備の終了コード0。モバイルCIはiPhone 13相当Chromium/WebKitで検索/詳細/番組/ページ境界/公式リンク/音声preloadなし/表示除外/XSS/横はみ出し/下書き保存・再読込・送信なしをPASS、errors=[]。物理iPhone未試験。ローカルPages準備の一時同期フォルダ消失は直前節の訂正と最小修正により解決した。
+
+編集室試作: https://neyito96.github.io/asarisunowa/library/editor.html 。中南米70/北欧47候補、既存人間除外を保持。端末の下書きだけを保存し、受付送信・管理者通知・Spotify追加は行わない旨を本番画面でも確認。テスト用投稿は本番に送信していない。
+
+復旧材料: 更新直前バックアップ https://docs.google.com/spreadsheets/d/19rxdyHUi3jAV6JCDFJNlm9nW7rcFdGQ6_3DDTJTgnkM/edit と承認済みdescription-write-batches.jsonの逆方向8バッチ。復旧時は現値が適用後値と一致することを再確認して対象セルだけ戻す。全体コピーの一括上書きはしない。公開は該当変更をrevertして再配信可能。復旧操作は未実行。
+
+未完: 現行GASソース/既存トリガー/OAuth状態は未確認で、GAS配備・トリガー/Properties操作・Spotify書き込み・メール送信なし。PR #230のV3改修は保存・試験済みで未配備。RSS増分→台帳→定期公開の接続、投稿処理状態の永続APIと通知は未接続。所要時間の実測標本0。次は稼働プロジェクトとトリガーのREAD_ONLY確認から既存V3の接続を進める。証跡はproduction-verification.json/production-mobile-test-results.txtと既存production-*に保存、Issue #222へ集約する。
+
 # Phase 8 — 公開図書館MVP（2026-10-21）
 
 ## 実測
