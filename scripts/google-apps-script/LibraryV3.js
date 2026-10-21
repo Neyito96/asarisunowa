@@ -227,6 +227,8 @@ function libV3Run_(write,options){
     offset++;continue;
    }
    const r=c.rows[plan.i];let deferred=false;
+   const registration=c.index.states.get(plan.id+'|identity');
+   const refreshRegistration=registration&&registration[2]==='VERIFIED'&&registration[7]==='RSS_registered'&&registration[4]===libV3Hash_(r);
    if(plan.reasons.length)m.holds++;
    if(plan.fields.some(f=>f.candidate)){touched++;}
    for(const f of plan.fields){
@@ -245,6 +247,12 @@ function libV3Run_(write,options){
       libV3StatePut_(c,libV3Record_(plan,{...f,state:'HOLD',reason:'reserved_before_cell_write'},r,plan.sourceHash));
       cell.setValue(libV3Safe_(f.value));SpreadsheetApp.flush();if(String(cell.getValue())!==String(f.value))throw Error('Cell verification failed');
       r[f.col-1]=f.value;m.writtenCells++;f.state='VERIFIED';f.reason='blank_only_verified_write';if(!m.updatedIds.includes(plan.id))m.updatedIds.push(plan.id);
+      // Keep the original registration time; refresh proof ONLY after the exact
+      // expected full row is read back. Never bless human/other-writer changes.
+      if(refreshRegistration){
+       if(libV3Hash_(c.sh.getRange(plan.i+2,1,1,51).getValues()[0])!==libV3Hash_(r))throw Error('Registration proof readback conflict');
+       const proof=registration.slice();proof[4]=libV3Hash_(r);libV3StatePut_(c,proof);
+      }
      }
      if(f.name==='spotify')c.index.spotify.set(f.value,[plan.i]);
     }
