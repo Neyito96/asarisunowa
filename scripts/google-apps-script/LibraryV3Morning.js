@@ -237,3 +237,89 @@ function saveLibraryV3CopyPilotAfterApproval(options){
   const r={status:'COPY_SAVED',id:added.id,copySheetId:options.copySheetId,guid:options.guid,writtenRows:1,writtenCells:added.writtenCells,propertyWrites:0,spotifyPosts:0};Logger.log(JSON.stringify(r));return r;
  }finally{lock.releaseLock();}
 }
+
+
+/** Read-only discovery for an exact one-row V3 copy pilot.
+ * Does not approve or write. Choose a GUID from this report, then call
+ * previewLibraryV3CopyPilot({copySheetId,guid,feedUrl}) for its planHash.
+ */
+function previewLibraryV3CopyPilotCandidates(options){
+ if(!options||typeof options.copySheetId!=='string'||typeof options.feedUrl!=='string')throw Error('Explicit copySheetId and feedUrl required');
+ // Reuse the existing strict copy-ID guard with a temporary syntactically valid GUID.
+ libV3CopyPilotId_({copySheetId:options.copySheetId,guid:'00000000-0000-4000-8000-000000000001',feedUrl:options.feedUrl});
+ const source=libV3Context_(false),copy=libV3Context_(true,{copySheetId:options.copySheetId,guid:'00000000-0000-4000-8000-000000000001',feedUrl:options.feedUrl});
+ const baseline=JSON.parse(PropertiesService.getScriptProperties().getProperty('LIB_V3_BASELINE')||'{}');
+ if(baseline.complete!==true||baseline.offset!==source.rows.length)throw Error('Source baseline incomplete or changed');
+ if(libV3Hash_(source.rows)!==libV3Hash_(copy.rows))throw Error('Copy diverged from source');
+ const feed=source.feeds.find(f=>f.url===options.feedUrl);
+ if(!feed||!copy.feeds.some(f=>f.url===feed.url&&f.show===feed.show))throw Error('Official feed not configured on source and copy');
+ const metrics={cacheHits:0},snap=libV2CpSnapshot_(feed.url,false,{},metrics,{prefix:'LV3PILOT_READONLY',chunkSize:22000,parse:t=>libV2CpParse_(t,true)});
+ if(snap.status)return {mode:'READ_ONLY_COPY_CANDIDATES',status:snap.status,writes:0,propertyWrites:0,spotifyPosts:0};
+ const counts=new Map();snap.items.forEach(it=>counts.set(it.guid,(counts.get(it.guid)||0)+1));
+ const candidates=[],holds={};
+ for(const it of snap.items){
+  if(candidates.length>=5)break;
+  const reasons=[];
+  if(!it.guid||counts.get(it.guid)!==1)reasons.push('rss_guid_blank_or_duplicate');
+  if(!Number.isFinite(Date.parse(it.published))||Date.parse(it.published)>Date.now()+60000)reasons.push('publication_invalid');
+  if(typeof libV3AutoCleanEvidence_==='function'&&libV3AutoCleanEvidence_(it.description||'').hold)reasons.push('description_requires_review');
+  const cfg={allowNew:true,newAfter:new Date((Date.parse(it.published)||0)-1).toISOString()};
+  if(!reasons.length)reasons.push(...libV3NewDecision_(it,feed,source,cfg,baseline).reasons,...libV3NewDecision_(it,feed,copy,cfg,baseline).reasons);
+  if(!reasons.length&&libV2CpMatches_(it.guid,source.index.guid,source.index.anchor).length)reasons.push('already_in_source');
+  if(!reasons.length&&libV2CpMatches_(it.guid,copy.index.guid,copy.index.anchor).length)reasons.push('already_in_copy');
+  if(reasons.length){reasons.forEach(x=>holds[x]=(holds[x]||0)+1);continue;}
+  candidates.push({guid:it.guid,title:it.title,published:it.published,feedUrl:feed.url});
+ }
+ const result={mode:'READ_ONLY_COPY_CANDIDATES',status:candidates.length?'CANDIDATES_FOUND':'NO_ELIGIBLE_CANDIDATES',copySheetId:options.copySheetId,feedUrl:feed.url,sourceRows:source.rows.length,copyRows:copy.rows.length,fetchedItems:snap.items.length,candidates,holds,writes:0,propertyWrites:0,spotifyPosts:0};
+ Logger.log(JSON.stringify(result));return result;
+}
+
+
+/** One-time, explicitly invoked isolated-copy dry run.
+ * Reads real RSS and the exact V3 source/copy. No writes or trigger installation.
+ * This entry point needs no editor arguments; it never approves a save.
+ */
+function previewLibraryV3Phase6IsolatedCopy(){
+ const copySheetId='19Dv6cgM33NYbrMGLofuVvxM4-WHiuPqxmivZUuwoBqc';
+ const source=libV3Context_(false);
+ const reports=[];
+ for(const feed of source.feeds.slice(0,10)){
+  try{
+   const r=previewLibraryV3CopyPilotCandidates({copySheetId,feedUrl:feed.url});
+   reports.push({show:feed.show,feedUrl:feed.url,status:r.status,candidates:r.candidates||[],holds:r.holds||{}});
+   if(r.candidates?.length){
+    const c=r.candidates[0],p=previewLibraryV3CopyPilot({copySheetId,guid:c.guid,feedUrl:feed.url});
+    const result={mode:'READ_ONLY_PHASE6',status:p.status,copySheetId,selected:{show:feed.show,guid:c.guid,title:c.title,published:c.published,feedUrl:feed.url},planHash:p.planHash,sourceRows:p.sourceRows,copyRows:p.copyRows,scannedFeeds:reports.length,reports,writes:0,propertyWrites:0,spotifyPosts:0};
+    Logger.log(JSON.stringify(result));return result;
+   }
+  }catch(e){reports.push({show:feed.show,feedUrl:feed.url,status:'HOLD',reason:String(e?.message||e).slice(0,180)});}
+ }
+ const result={mode:'READ_ONLY_PHASE6',status:'NO_APPROVABLE_CANDIDATE',copySheetId,scannedFeeds:reports.length,reports,writes:0,propertyWrites:0,spotifyPosts:0};
+ Logger.log(JSON.stringify(result));return result;
+}
+
+
+/** Phase 6 minimum viable archive: RSS-only, no Spotify and no historical enrichment.
+ * Deployment/activation is a separate, explicitly approved action. This function
+ * only previews readiness and never installs a trigger or changes Properties.
+ */
+function previewLibraryV3MinimumArchiveReadiness(){
+ const p=PropertiesService.getScriptProperties();
+ const baseline=JSON.parse(p.getProperty('LIB_V3_BASELINE')||'{}');
+ const config=libV3Config_(),morning=libV3MorningConfig_();
+ const c=libV3Context_(false);
+ const triggers=ScriptApp.getProjectTriggers().map(t=>t.getHandlerFunction());
+ const checks={
+  baselineComplete:baseline.complete===true&&baseline.offset===c.rows.length,
+  officialRssFeedsPresent:c.feeds.length>0,
+  singleMorningScheduler:triggers.filter(t=>t==='scheduledLibraryV3Morning').length<=1,
+  noCompetingV3Scheduler:!triggers.some(t=>['scheduledLibraryV3','scheduledLibraryV3BaselineOnly'].includes(t)),
+  rssOnly:morning.spotify===false,
+  noHistoricalEnrichment:config.allowEnrich===false,
+  nonAutonomous:config.autonomous===false,
+  configEnabled:config.enabled===true,
+  morningEnabled:morning.enabled===true
+ };
+ const report={mode:'READ_ONLY_MINIMUM_ARCHIVE',status:Object.values(checks).every(Boolean)?'READY_FOR_FIRST_MORNING_RUN':'NOT_READY',checks,ledgerRows:c.rows.length,officialRssFeeds:c.feeds.length,triggerNames:triggers,writes:0,propertyWrites:0,spotifyPosts:0};
+ Logger.log(JSON.stringify(report));return report;
+}

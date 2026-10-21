@@ -1,0 +1,21 @@
+name: Library V3 old-news diff audit
+on:
+  pull_request:
+    paths:
+      - 'scripts/google-apps-script/LibraryV3OldNewsDiffAudit.js'
+      - 'tests/library-v3-old-news-diff-audit.test.mjs'
+      - 'tests/library-v3-phase6-copy-discovery.test.mjs'
+      - 'scripts/google-apps-script/LibraryV3Morning.js'
+      - '.github/workflows/library-v3-old-news-diff-audit.yml'
+  push:
+    branches:
+      - audit/library-v3-old-news-diff-20261018
+jobs:
+  read-only-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/library-v3-old-news-diff-audit.test.mjs tests/library-v3-phase6-copy-discovery.test.mjs
