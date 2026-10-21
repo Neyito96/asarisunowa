@@ -54,6 +54,14 @@
 本番書き込み・マージ・公開は、ユーザー指定の大量更新承認を待つ。8バッチの更新/ロールバック、公開候補JSON、回帰試験を準備。詳細: `docs/phase9-sdgs-integration-2026-10-21.md`。計画だけではなく実行可能なセル差分と公開候補を保存する。
 
 Phase 9最終コミット8480236でPages PRビルド39542488932・モバイル39542488886（Chromium/WebKit）ともSUCCESS。後継原票31件もOmny URL/JST日時で31/31一意一致、タイトル表記差2件はRSS由来の台帳を保持。planHash49d727a1は準備済み8バッチと一致。Draft PR #238、Issue #222へ保存済み。本番3331セルの更新と公開はユーザー承認待ちで未実行。
+# Phase 9 本番公開完了 — 2026-10-21
+
+PR #238を3fa1cf64から6a7535e5へマージ。PR CI: Pages 39544331732 SUCCESS、モバイル39544331733 SUCCESS（iPhone 13相当Chromium/WebKit、errors=[]）。本番Pages配信39544470982もSUCCESS、04:32:37 UTCに配信完了。
+
+公開URL: https://neyito96.github.io/asarisunowa/library/ 。HTTP取得したmanifestはversion487812122aeeab13・6,591件・旧SDGs1,092件・後継31件で一致。配信library.mjsのSHA256もマージ済みコードと一致。実ブラウザーで旧SDGsを選択しEP-00308を検索、1件の結果と概要・日時・新しい公式URL優先・Omny埋め込み外部リンクを確認。既存EP-00281の明示再生はcurrentTime=4.548164、paused=false、readyState=4、duration=8670、確認後は詳細を閉じpaused=true/srcなし/currentTime=0に停止。全編試聴・物理iPhone検証ではない。
+
+完了証跡: production-verification.json、production-mobile-test-results.txt。Google Sheetsブラウザーはログアウト状態のため画面表示未検証。値・数式・入力規則・読み戻し・バックアップ比較は接続APIとXLSXで検証し、見た目や幅は変更していない。残件は公式#1045/#1048の対応1件のみ。EP-06532は分類以外保持。新規採番・GAS実装/配備・自動更新トリガー操作なし。復旧材料は下記バックアップと逆方向バッチ。公開側はマージコミットをrevertして再配信可能（今回は復旧操作なし）。Issue #222に最終結果を集約。
+
 # Phase 9 本番台帳適用 — 2026-10-21 04:25 UTC
 
 ユーザーがPR #238とplanHash `49d727a19eef8a7100600f51a7463dcd4bbaaaeacfcdcb9513df092d97cb2a39` を明示承認。実行直前のライブ3,331セル・EP-ID・数式・入力規則・チップの照合は競合0。Google Driveに本番全体の更新直前コピー `1M25qQT4y5iKWOGHvQZObz3Vrx4oqw-IguwvfOjXxT0k` を作り、コピーの対象3,331セルも検証した。

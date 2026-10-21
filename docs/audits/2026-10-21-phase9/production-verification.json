@@ -1,0 +1,64 @@
+{
+  "verifiedAt": "2026-10-21T04:35:03.733Z",
+  "status": "PUBLISHED_VERIFIED",
+  "planHash": "49d727a19eef8a7100600f51a7463dcd4bbaaaeacfcdcb9513df092d97cb2a39",
+  "pr": 238,
+  "implementationCommit": "3fa1cf64e9174ba9c8f2dc2af72f481288b406a7",
+  "mergeCommit": "6a7535e5eb1f7fdf71021fa0c45a09b9baaac05c",
+  "publicUrl": "https://neyito96.github.io/asarisunowa/library/",
+  "publicVersion": "487812122aeeab13",
+  "total": 6591,
+  "sdgs": 1092,
+  "successor": 31,
+  "updatedEpisodes": 1092,
+  "updatedCells": 3331,
+  "newEpisodes": 0,
+  "unresolvedOfficialMapping": 1,
+  "heldId": "EP-06532",
+  "heldChange": "B classification only",
+  "protectedChanges": 0,
+  "preimageConflicts": 0,
+  "readbackBatches": 8,
+  "nodeTests": {
+    "passed": 27,
+    "failed": 0
+  },
+  "prCI": [
+    {
+      "id": 39544331732,
+      "name": "Check GitHub Pages Build",
+      "conclusion": "success"
+    },
+    {
+      "id": 39544331733,
+      "name": "Library mobile acceptance",
+      "conclusion": "success"
+    }
+  ],
+  "pages": {
+    "run": 39544470982,
+    "conclusion": "success"
+  },
+  "liveChecks": {
+    "manifest": "matches regenerated production export",
+    "scriptSha256": "1d60b311babbccfe39f321d57f65bfaaf957b307f477ae8b6415a4a337d0ba17",
+    "sdgsSearch": "EP-00308: exactly one result",
+    "officialFirstLink": "https://www.asahi.com/special/podcasts/item/?itemid=b8642140-af20-49ac-8e90-b4aa01075682",
+    "omnyExternalEmbed": "https://omny.fm/shows/arukiki-ajw/sdgs-11-1-0/embed",
+    "audio": {
+      "id": "EP-00281",
+      "currentTime": 4.548164,
+      "paused": false,
+      "readyState": 4,
+      "duration": 8670,
+      "stoppedAfterCheck": true
+    },
+    "physicalIphone": "not tested"
+  },
+  "backupId": "1M25qQT4y5iKWOGHvQZObz3Vrx4oqw-IguwvfOjXxT0k",
+  "rollback": "Use approved inverse 8 sparse batches only after checking current postimages; do not overwrite unrelated live edits.",
+  "limitations": [
+    "One official mapping remains unresolved; no guessed UUID, EP-ID or audio.",
+    "Google Sheets browser was signed out; stored values and native QUERY formulas verified through connector and exports. No style or layout edits."
+  ]
+}
