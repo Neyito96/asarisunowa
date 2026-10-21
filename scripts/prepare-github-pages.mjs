@@ -9,6 +9,9 @@ async function collectFiles(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
   const files = [];
   for (const entry of entries) {
+    // Workspace synchronization can create/discard these while we enumerate.
+    // They are transient transfer files, never site content.
+    if (entry.name === ".rsync-tmp") continue;
     const path = join(directory, entry.name);
     if (entry.isDirectory()) files.push(...(await collectFiles(path)));
     else files.push(path);

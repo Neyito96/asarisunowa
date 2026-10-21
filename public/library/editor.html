@@ -1,0 +1,7 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>みんなで選ぶ｜朝リスの田</title><link rel="stylesheet" href="./library.css"><link rel="stylesheet" href="./editor.css"></head><body>
+<header><div class="wrap top"><a class="brand" href="./">朝リスの田｜図書館</a><span>リスナー編集室・試作</span></div></header>
+<main class="wrap"><nav><a href="./">← 図書館へ</a></nav><section class="intro"><div><p class="eyebrow">次の一本を、一緒に。</p><h1>みんなで選ぶ</h1><p>テーマに合う回を見つけ、推薦理由を書いてみましょう。</p></div></section>
+<p class="note">この試作で保存するのは、この端末の下書きだけです。管理者への送信やSpotifyへの追加は行いません。</p>
+<label>テーマ<select id="theme"></select></label><p id="count" role="status"></p><section id="candidates" aria-label="テーマ候補"></section>
+<form id="recommendation"><h2>推薦・テーマ変更の提案</h2><label>エピソードID<input id="episode-id" required pattern="EP-[0-9]{5}" placeholder="EP-01443"></label><label>提案<select id="suggestion"><option>このテーマに合うと思う</option><option>別のテーマが適切</option></select></label><label>推薦理由<textarea id="reason" required maxlength="1000" rows="4"></textarea></label><button type="submit">この端末に下書きを保存</button></form>
+<h2>自分の下書き</h2><section id="drafts" aria-live="polite"></section><p>受付から公開までの時間：未計測。受付・公開の実績がそろうまで中央値や90パーセンタイルは表示しません。</p><p id="editor-error" role="alert"></p></main><script type="module" src="./editor.mjs"></script></body></html>

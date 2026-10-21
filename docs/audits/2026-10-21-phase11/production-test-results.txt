@@ -1,0 +1,46 @@
+✔ human delete supports requests that have no runtime rule yet (0.994856ms)
+✔ request lookup chooses the latest matching playlist row (0.190781ms)
+✔ human-deleted tombstone still blocks ordinary reactivation (0.29205ms)
+✔ manual stop/delete/resume lifecycle is defined (1.176945ms)
+✔ daily runtime sync excludes disabled and human-deleted rules (0.484675ms)
+✔ pending submissions do not silently resurrect a human-deleted playlist (0.207736ms)
+✔ keeps submitted themes stopped until explicit review approval (7.735831ms)
+✔ section edit preserves real story, separate titled original links and recording date (5.833868ms)
+✔ announcement cannot consume a later explicit content section; empty content is held (0.683177ms)
+✔ multiline article headings, duplicate links and correction notes remain accurate (0.978663ms)
+✔ 542 real proposals retain IDs/GUID/audio/raw, clean content and all source article URLs (586.106353ms)
+✔ representative 20 and article-title search are present without initial bulk download (20.376713ms)
+✔ receipt, Spotify readback, site proof, monotonic time and idempotent retries are distinct (0.929911ms)
+✔ latency metrics do not fabricate deadlines or unmeasured completed timestamps (0.526235ms)
+✔ successful retry clears the displayed failure while preserving its historical timestamp (0.247165ms)
+✔ library-first proposals include article titles but never override human exclusion (0.460779ms)
+✔ a malformed publication source fails without replacing last good public data (75.793191ms)
+✔ Phase8 diagnostic only reads both ledgers and current-account triggers (6.251975ms)
+✔ human exclusions fail closed and unspecified values remain usable (0.999814ms)
+✔ URL validation rejects script, HTTP and embedded credentials (0.196089ms)
+✔ mechanical rendering preserves words and article URLs without executable markup (0.730367ms)
+✔ raw and clean values are kept distinct; MP3 presence is not verification (1.280287ms)
+✔ NFKC, full description keyword and multiple terms work with date and programme filters (7.240261ms)
+✔ real snapshot preserves stable unique IDs, explicit exclusions and bounded initial pages (120.578979ms)
+✔ Pages preparation ignores transient rsync files while still rewriting and validating real content (95.120207ms)
+✔ renders development preview metadata (94.98421ms)
+✔ official UUID updates metadata without touching EP-ID, audio, full original or clean text (5.086116ms)
+✔ working UUID plus unique old Omny URL/title/JST datetime bridges migrated IDs (0.681955ms)
+✔ same date and base title with changed episode number is held and never duplicated (0.703026ms)
+✔ publication conflicts, unknown human exclusions and unverified pages are held (1.152609ms)
+✔ a truly absent record is only a V3 append candidate; no ID is invented (0.471155ms)
+✔ embed and MP3 namespaces cannot be interchanged (0.419037ms)
+✔ source mutation after preview aborts before any application (0.819988ms)
+✔ candidate contains 1091 verified mappings, one hold and unchanged 6591 EP-IDs (40.850199ms)
+✔ emits the catalog's animation and scrolling utilities (40.958328ms)
+✔ forwards progress semantics to the primitive (559.896002ms)
+✔ emits chart themes for the starter's media dark mode (185.06823ms)
+✔ renders sidebar skeletons deterministically (152.863183ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1389.778525

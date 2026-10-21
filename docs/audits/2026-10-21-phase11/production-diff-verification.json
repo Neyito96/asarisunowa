@@ -1,0 +1,11 @@
+{
+  "planHash": "f1871e531ab063b2c7e4de59b91b6ffe43f3b6e3050fa1c361cface71fa8c5ff",
+  "updatedEpisodes": 542,
+  "updatedCells": 1658,
+  "rawEmptyFills": 54,
+  "existingRawOverwrites": 0,
+  "protectedChanges": 0,
+  "unexpectedStoredValueDifferences": 0,
+  "workbookTabsCompared": 31,
+  "newsViewVerification": "full native stored-value comparison; QUERY spill/cache differs as expected"
+}

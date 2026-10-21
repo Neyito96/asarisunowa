@@ -60,11 +60,27 @@ const { chromium, webkit, devices } = require(process.env.LIBRARY_PLAYWRIGHT || 
       await page.locator('#clear-filters').click();
       await page.waitForFunction(() => document.querySelectorAll('.episode').length === 40);
     }
+    if(await page.locator('a[href="./editor.html"]').count()){
+      assert.equal(await page.locator('#show option[value="アルキキ"]').count(),0);
+      assert.equal(await page.locator('#show option[value="AJW"]').count(),0);
+      await page.locator('#show').selectOption('ニュースの現場から');await page.locator('#query').fill('木内マジック');await page.locator('#query').press('Enter');
+      await page.waitForFunction(()=>document.querySelector('#results').getAttribute('aria-busy')==='false'&&document.querySelectorAll('.episode').length>0);
+      const story=page.locator('.episode-title').filter({hasText:'センバツ'});await story.click();await page.locator('#detail-title').waitFor();
+      assert.ok(!(await page.locator('.description').innerText()).includes('@asahi.com'));
+      assert.ok((await page.locator('#detail a').allTextContents()).some(t=>t.includes('木内マジック')));
+      await page.locator('#close-detail').click();
+      await page.goto(new URL('editor.html',base).href);await page.waitForFunction(()=>document.querySelectorAll('#candidates .episode').length>0);
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+      await page.getByRole('button',{name:'この回を提案する',exact:true}).first().click();await page.locator('#reason').fill('<script>下書きテスト</script>');
+      await page.getByRole('button',{name:'この端末に下書きを保存',exact:true}).click();
+      assert.ok((await page.locator('#drafts').innerText()).includes('未送信'));assert.equal(await page.locator('#drafts script').count(),0);
+      await page.reload();await page.waitForFunction(()=>document.querySelector('#drafts').textContent.includes('下書きテスト'));
+    }
     assert.deepEqual(errors, []);
     if (process.env.LIBRARY_SCREENSHOT_DIR) {
       await page.screenshot({ path: `${process.env.LIBRARY_SCREENSHOT_DIR}/library-${name}-mobile.png`, fullPage: true });
     }
-    console.log(JSON.stringify({ engine: name, viewport: 'iPhone 13', initialPageRequests: 1, initialSearchRequests: 0, initialDetailRequests: 0, checks: 'pagination, oldest boundary, programme, speaker search, details, official links, no audio preload, empty, XSS, mobile overflow', errors }));
+    console.log(JSON.stringify({ engine: name, viewport: 'iPhone 13', initialPageRequests: 1, initialSearchRequests: 0, initialDetailRequests: 0, checks: 'pagination, oldest boundary, programme, speaker/article-title search, details, official links, no audio preload, empty, XSS, mobile overflow, policy exclusions, editor local draft/reload/no-send', errors }));
     await browser.close();
   }
 })().catch(e => { console.error(e); process.exit(1); });

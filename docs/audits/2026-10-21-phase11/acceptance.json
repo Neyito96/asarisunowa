@@ -1,0 +1,55 @@
+{
+  "status": "PREPARED_VERIFIED_AWAITING_PRODUCTION_APPROVAL",
+  "pr": 240,
+  "codeCommit": "c606903e14681e0f557596e3e0340f3d7eafe4a6",
+  "planHash": "f1871e531ab063b2c7e4de59b91b6ffe43f3b6e3050fa1c361cface71fa8c5ff",
+  "productionLedgerWrites": 0,
+  "spotifyWrites": 0,
+  "mailSent": 0,
+  "triggerChanges": 0,
+  "gasDeployment": false,
+  "publicDeployment": false,
+  "requestedEpisodes": 542,
+  "plannedCells": 1658,
+  "batches": 8,
+  "requests": 96,
+  "rawFills": 54,
+  "structuredArticleReferences": 1553,
+  "previewPublicTotal": 6466,
+  "sourceTotal": 6591,
+  "nodeTests": {
+    "pass": 37,
+    "fail": 0
+  },
+  "existingV3Tests": {
+    "pass": 123,
+    "fail": 0,
+    "commit": "580523aa299a897fe9bcaeb91df6b5bf8004ff9e",
+    "pull": 230
+  },
+  "workflows": [
+    {
+      "id": 39547804719,
+      "name": "Check GitHub Pages Build",
+      "conclusion": "success"
+    },
+    {
+      "id": 39547804726,
+      "name": "Library mobile acceptance",
+      "conclusion": "success"
+    }
+  ],
+  "mobileEngines": [
+    "chromium",
+    "webkit"
+  ],
+  "physicalIphoneTested": false,
+  "remaining": [
+    "Approved exact sparse ledger write with fresh preflight, backup, ALIB coordination and per-batch readback",
+    "Regenerate from actual updated ledger and publish PR240 after approval",
+    "Live V3/GAS source, baseline, trigger and OAuth verification before rollout",
+    "Connect existing V3/Morning to publication without a duplicate timer",
+    "Persist submission lifecycle and administrator delay/failure view; editor currently local drafts only"
+  ],
+  "recordedAt": "2026-10-21T05:09:35.337Z"
+}
