@@ -1,5 +1,14 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';import {createRequire} from 'node:module';import {harness,headers,guid,item} from './library-v3-harness.mjs';
 const require=createRequire(import.meta.url),{run,compare,runtime,day}=require('../scripts/compare-library-snapshots.cjs');
+test('ALIB audio transfer blocks V3 and Morning before RSS/Spotify writers',()=>{
+ const h=load(harness());h.triggers.push('ALIB_AUTO_tick');
+ assert.ok(h.ctx.libV3Conflicts_().includes('ALIB_AUTO_tick'));
+ assert.throws(()=>h.ctx.installLibraryV3MorningTriggerAfterApproval(),/schedulers/);
+ h.props.set('LIB_V3_BASELINE','{"complete":true}');h.props.set('LIB_V3_CONFIG','{"enabled":true,"autonomous":false}');
+ h.props.set('LIB_V3_MORNING_CONFIG',JSON.stringify({enabled:true,spotify:false,since:'2026-10-17T00:00:00Z',ruleKeys:[]}));
+ let invoked=0;h.ctx.libV3Run_=()=>{invoked++;return {status:'WRITER_SHOULD_NOT_RUN'};};
+ h.ctx.libV3MorningRun_();assert.equal(invoked,0);assert.equal(h.calls,0);
+});
 const load=h=>{h.schedules=[];h.ctx.ScriptApp={getProjectTriggers:()=>h.triggers.map(n=>({getHandlerFunction:()=>n,getUniqueId:()=>n})),deleteTrigger:t=>{const i=h.triggers.indexOf(t.getHandlerFunction());if(i>=0)h.triggers.splice(i,1);},newTrigger:n=>{const spec={handler:n};const b={timeBased:()=>b,atHour:v=>(spec.hour=v,b),everyDays:v=>(spec.days=v,b),inTimezone:v=>(spec.zone=v,b),after:v=>(spec.after=v,b),create:()=>{h.triggers.push(n);h.schedules.push(spec);}};return b;}};vm.runInContext(fs.readFileSync('scripts/google-apps-script/LibraryV3Morning.js','utf8'),h.ctx);return h;};
 const json=x=>JSON.parse(JSON.stringify(x));
 test('five-field missing audit is repeatable, excludes empty rows, reports duplicate IDs without writes',()=>{const h=load(harness(2));h.rows[0][6]=guid(0);h.rows[0][14]='audio';h.rows[1][0]=h.rows[0][0];const before=JSON.stringify(h.table),p=[...h.props];const a=h.ctx.libV3MissingAudit_(headers,h.rows.concat([Array(51).fill('')]),[]),b=h.ctx.libV3MissingAudit_(headers,h.rows.concat([Array(51).fill('')]),[]);assert.deepEqual(json(a),json(b));assert.equal(a.rows,2);assert.equal(a.missing.guid,1);assert.equal(a.duplicateIds.length,1);assert.equal(JSON.stringify(h.table),before);assert.deepEqual([...h.props],p);});
