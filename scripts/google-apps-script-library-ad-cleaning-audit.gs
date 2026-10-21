@@ -15,11 +15,11 @@ function RISU_adSections_(value) {
   // Conservative: only remove from explicit standalone marker to the next
   // standalone protected section. Never match an arbitrary line containing
   // both the episode introduction and a later promotion.
-  const text=String(value||'').replace(/<br\\s*\\/?\\s*>/gi,'\\n')
-    .replace(/<\\/(?:p|div|li|h[1-6])\\s*>/gi,'\\n')
+  const text=String(value||'').replace(/<br\s*\/?\s*>/gi,'\n')
+    .replace(/<\/(?:p|div|li|h[1-6])\s*>/gi,'\n')
     .replace(/<[^>]*>/g,' ').replace(/&nbsp;|&#160;/gi,' ')
-    .replace(/&amp;/gi,'&').replace(/\\r/g,'');
-  const lines=text.split(/\\n+/).map(s=>s.trim()).filter(Boolean);
+    .replace(/&amp;/gi,'&').replace(/\r/g,'');
+  const lines=text.split(/\n+/).map(s=>s.trim()).filter(Boolean);
   const kept=[],removed=[];
   let skip=false,ambiguous=false;
   const start=/^(?:【(?:朝ポキ情報|イベント情報|お知らせ|告知|キャンペーン|プレゼント|祝[^】]*イベント[^】]*)】|(?:おたより|お便り|応募|フォーム|購読案内|会員登録)[:：])/i;
@@ -33,7 +33,7 @@ function RISU_adSections_(value) {
   // Also refuse changes that would erase the entire description.
   if(!kept.length && removed.length)ambiguous=true;
   if(ambiguous)return {cleaned:text,removed:'',held:true};
-  return {cleaned:kept.join('\\n'),removed:removed.join('\\n'),held:false};
+  return {cleaned:kept.join('\n'),removed:removed.join('\n'),held:false};
 }
 function RISU_auditAdContamination() {
   const cfg=RISU_AD_AUDIT, sh=SpreadsheetApp.openById(cfg.spreadsheetId).getSheetByName(cfg.sheet);
