@@ -1,0 +1,70 @@
+{
+  "mode": "READ_ONLY_AND_LOCAL_ONLY",
+  "canonicalPopulation": null,
+  "stages": [
+    {
+      "stage": "official_rss",
+      "status": "LIVE_SUCCESS",
+      "at": "2026-10-21T05:50:06.978062+00:00",
+      "itemsObserved": 2652,
+      "scope": "news feed only"
+    },
+    {
+      "stage": "new_and_duplicate_detection",
+      "status": "READ_ONLY_CANDIDATES_AND_HOLDS",
+      "existing": 2353,
+      "held": 288,
+      "newCandidates": 11,
+      "proof": "Existing V3 input diagnostic; candidates are not registrations"
+    },
+    {
+      "stage": "stable_ep_id_allocation",
+      "status": "NOT_EXECUTED_PRODUCTION",
+      "allocatedIds": 0,
+      "codeEvidence": "Existing PR #230 V3; local regression124/124 with added ALIB guard PR #243"
+    },
+    {
+      "stage": "ledger_registration",
+      "status": "LIVE_EXECUTION_UNVERIFIED",
+      "lastStoredHistoryAtJst": "2026-10-17 10:37:46.947000",
+      "source": "ledger-execution-history.json",
+      "note": "Stored history is not evidence of current execution or trigger shutdown"
+    },
+    {
+      "stage": "description_and_related_render",
+      "status": "LOCAL_SUCCESS_EXISTING_APPROVED_METADATA_PRESERVED",
+      "at": "2026-10-21T05:56:13.262Z",
+      "newLedgerRowsObserved": 0
+    },
+    {
+      "stage": "public_json_export",
+      "status": "LOCAL_SUCCESS_NO_CONTENT_CHANGE",
+      "version": "1df7cb5d103cfbfc",
+      "allDetailFilesIdenticalToMain": true
+    },
+    {
+      "stage": "pages_publication",
+      "status": "PREEXISTING_PUBLIC_VERSION_VERIFIED_NO_PHASE12_DEPLOY",
+      "publicVersion": "1df7cb5d103cfbfc",
+      "searchFilesVerified": 69
+    },
+    {
+      "stage": "new_rss_end_to_end",
+      "status": "NOT_CONNECTED_IN_PRODUCTION",
+      "blockers": [
+        "Live GAS source, triggers and V3 configuration unavailable",
+        "V3/Morning and ALIB conflict fix remain unmerged/unconfigured",
+        "Authenticated publication identity/environment not configured; no OAuth changes authorized",
+        "Publication bridge flags remain unset/disabled",
+        "Population audit pending; no production cutover authorized"
+      ]
+    }
+  ],
+  "productionWrites": 0,
+  "gasDeployments": 0,
+  "triggerChanges": 0,
+  "spotifyWrites": 0,
+  "emailsSent": 0,
+  "merges": 0,
+  "productionPublications": 0
+}

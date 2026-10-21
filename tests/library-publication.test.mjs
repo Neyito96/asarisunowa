@@ -1,0 +1,22 @@
+import test from'node:test';import assert from'node:assert/strict';import{readFile}from'node:fs/promises';import{createHash}from'node:crypto';
+import{preparePublication,v3RegisteredRowHash}from'../scripts/prepare-library-publication.mjs';import{verifyPublicSnapshot}from'../scripts/verify-library-publication.mjs';
+const blank=()=>({headers:[],rows:[],exclusions:[['GUID','固定ID']]}),options=()=>({archivePlan:{records:[],archivePending:{},invalidUrls:[]},descriptionPlan:{records:[]},previousIds:new Set()});
+const row=()=>{const r=Array(55).fill('');Object.assign(r,{0:'EP-00001',1:'ニュース',2:'Title',3:'2026-10-21 06:00',6:'unique-guid',21:'内容を説明します。\n【関連記事】参考記事 https://www.asahi.com/articles/abc.html',22:'既存V3の清掃版'});return r;};
+test('bridge consumes V3-assigned ID, cleans new content, and never reassigns or mutates ledger',()=>{
+ const source=blank(),r=row();source.rows=[r];source.v3FieldStates=[[r[0],JSON.stringify({identity:['VERIFIED',r[6],v3RegisteredRowHash(r),'','','RSS_registered','2026-10-21T00:00:00Z',r[6]]})]];const before=JSON.stringify(source),prepared=preparePublication(source,options());assert.equal(JSON.stringify(source),before);assert.equal(prepared.source.rows[0][0],'EP-00001');assert.equal(prepared.report.allocatedIds,0);assert.equal(prepared.report.newLedgerRowsObserved,1);assert.equal(prepared.source.descriptionEdits['EP-00001'].description,'内容を説明します。');assert.equal(prepared.source.descriptionEdits['EP-00001'].relatedArticles.length,1);assert.equal(prepared.source.operations.registrationAt,'2026-10-21T00:00:00Z');assert.equal(prepared.source.operations.publicationVerifiedAt,null);
+ r[2]='human edit after registration';assert.throws(()=>preparePublication(source,options()),/readback/);
+});
+test('new ambiguous/empty content fails closed and human/tombstone exclusion is respected',()=>{
+ const source=blank(),r=row();r[21]='【お知らせ】広告だけ';source.rows=[r];assert.throws(()=>preparePublication(source,options()),/readback/);source.v3FieldStates=[[r[0],JSON.stringify({identity:['VERIFIED',r[6],v3RegisteredRowHash(r),'','','RSS_registered','2026-10-21T00:00:00Z',r[6]]})]];assert.throws(()=>preparePublication(source,options()),/review/);r[38]='除外';assert.equal(preparePublication(source,options()).report.newLedgerRowsObserved,0);r[38]='';source.exclusions.push([r[6],r[0]]);assert.equal(preparePublication(source,options()).report.newLedgerRowsObserved,0);
+});
+test('reviewed metadata is retained only against unchanged live evidence; conflicts stop',()=>{
+ const source=blank(),r=row();source.rows=[r];const o=options();o.previousIds.add(r[0]);r[9]='https://www.asahi.com/official';
+ o.archivePlan.records=[{id:r[0],status:'MATCHED',metadata:{officialUrl:r[9],body:'公式本文'}}];
+ o.descriptionPlan.records=[{id:r[0],guid:r[6],show:r[1],rawHash:createHash('sha256').update(JSON.stringify(r[21])).digest('hex'),description:r[22]}];
+ assert.equal(preparePublication(source,o).source.officialArchive[r[0]].body,'公式本文');r[22]='他の編集者の更新';assert.throws(()=>preparePublication(source,o),/changed/);r[9]='https://www.asahi.com/different';assert.throws(()=>preparePublication(source,o),/provenance/);
+});
+test('replaying an already-public ledger produces no new-ID event',()=>{const source=blank(),r=row();source.rows=[r];const o=options();o.previousIds.add(r[0]);assert.equal(preparePublication(source,o).report.newLedgerRowsObserved,0);assert.deepEqual(preparePublication(source,o).source.descriptionEdits,{});});
+test('Pages success alone cannot satisfy actual public snapshot proof',()=>{const m={version:'good',total:1,shows:[{name:'News',count:1}]};assert.throws(()=>verifyPublicSnapshot(m,{...m,version:'old'}));assert.throws(()=>verifyPublicSnapshot(m,{...m,total:0}));assert.equal(verifyPublicSnapshot(m,structuredClone(m)).status,'SUCCESS');});
+test('publication workflow stays dormant and reuses existing timer, with explicit separate auto-publication gate',async()=>{
+ const y=await readFile(new URL('../.github/workflows/library-publication.yml',import.meta.url),'utf8');assert.ok(y.includes("vars.LIBRARY_PUBLICATION_ENABLED == 'true'"));assert.ok(y.includes('library-publication-approved'));assert.ok(y.includes('LIBRARY_AUTO_PUBLISH_APPROVED'));assert.ok(y.includes('workflow_run:'));assert.ok(!y.includes('schedule:'));assert.ok(y.includes('gh run watch "$runid" --exit-status'));assert.ok(y.includes('verify-library-publication.mjs'));assert.ok(!y.includes('clasp push'));
+});

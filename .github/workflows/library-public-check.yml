@@ -7,6 +7,16 @@ on:
       - 'scripts/*library*'
       - 'tests/library-public*'
       - 'tests/library-phase11*'
+      - 'tests/library-phase12*'
+      - 'tests/library-publication*'
+      - 'tests/universe*'
+      - 'experiments/universe-v0.1/**'
+      - 'lib/listener-inbox-mock.mjs'
+      - 'scripts/audit-description-ads.mjs'
+      - 'scripts/fetch-library-source.py'
+      - 'scripts/prepare-library-publication.mjs'
+      - 'scripts/verify-library-publication.mjs'
+      - '.github/workflows/library-publication.yml'
       - 'tests/sdgs-integration*'
       - 'tools/sdgs*'
       - '.github/workflows/library-public-check.yml'
@@ -22,7 +32,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node --test tests/library-public.test.mjs tests/sdgs-integration.test.mjs tests/library-phase11.test.mjs tests/pages-preparation.test.mjs
+      - run: node --test tests/library-public.test.mjs tests/sdgs-integration.test.mjs tests/library-phase11.test.mjs tests/library-phase12.test.mjs tests/library-publication.test.mjs tests/pages-preparation.test.mjs tests/library-phase8-readonly-status.test.mjs
+      - run: python -m unittest discover -s tests -p test_fetch_library_source.py -v
       - name: Install isolated browser test tooling
         run: |
           npm install --prefix /tmp/library-browser --package-lock=false playwright@1.62.1
@@ -34,7 +45,9 @@ jobs:
         run: |
           mkdir -p /tmp/library-screenshots
           python -m http.server 4173 --directory public >/tmp/library-http.log 2>&1 &
+          python -m http.server 4174 --directory experiments >/tmp/universe-http.log 2>&1 &
           node tests/library-public-browser.cjs
+          node tests/universe-browser.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

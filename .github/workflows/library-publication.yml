@@ -1,0 +1,101 @@
+name: Library ledger publication bridge
+# Reuse the existing timer's completion, not another GAS/RSS collection timer.
+# Dormant until separate approval, Google read-only identity and environment setup.
+on:
+  workflow_run:
+    workflows: ['Sync listener playlists']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: library-ledger-publication
+  cancel-in-progress: false
+jobs:
+  prepare:
+    if: vars.LIBRARY_PUBLICATION_ENABLED == 'true' && (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success')
+    environment: library-publication-approved
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Refuse parallel pending publication PRs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pending=$(gh pr list --state open --json headRefName --jq '[.[] | select(.headRefName | startswith("automation/library-publication-"))] | length')
+          test "$pending" = 0 || { echo 'Existing publication PR requires reconciliation'; exit 1; }
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.LIBRARY_WIF_PROVIDER }}
+          service_account: ${{ vars.LIBRARY_READONLY_SERVICE_ACCOUNT }}
+          create_credentials_file: true
+      - name: Read stable live ledger and prepare public metadata
+        run: |
+          python -m pip install google-auth requests
+          mkdir -p "$RUNNER_TEMP/library-proof"
+          python scripts/fetch-library-source.py "$RUNNER_TEMP/library-source.json" > "$RUNNER_TEMP/library-proof/ledger-read.json"
+          node scripts/prepare-library-publication.mjs "$RUNNER_TEMP/library-source.json" "$RUNNER_TEMP/library-public-source.json" "$RUNNER_TEMP/library-proof/preparation.json"
+          cp public/library/data/manifest.json "$RUNNER_TEMP/library-before.json"
+          node scripts/export-library-public.mjs "$RUNNER_TEMP/library-public-source.json" public/library/data docs/audits/2026-10-21-phase8/audio-evidence.json > "$RUNNER_TEMP/library-proof/export.json"
+          node --test tests/library-public.test.mjs tests/library-publication.test.mjs
+          npm ci
+          npm run build:pages
+      - name: Create one reviewable snapshot PR, optionally publish after separate rollout approval
+        id: snapshot
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AUTO_PUBLISH_APPROVED: ${{ vars.LIBRARY_AUTO_PUBLISH_APPROVED }}
+        run: |
+          before=$(node -p 'require(process.env.RUNNER_TEMP+"/library-before.json").version')
+          after=$(node -p 'require("./public/library/data/manifest.json").version')
+          if [ "$before" = "$after" ]; then
+            echo 'Episode content unchanged; no commit, PR or deployment'
+            exit 0
+          fi
+          node -e 'require("fs").writeFileSync(process.env.RUNNER_TEMP+"/library-proof/expected-manifest.json",JSON.stringify(require("./public/library/data/manifest.json")))'
+          branch="automation/library-publication-$GITHUB_RUN_ID"
+          git switch -c "$branch"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/library/data
+          git commit -m 'library: publish verified V3 ledger snapshot'
+          git push origin "$branch"
+          cat > "$RUNNER_TEMP/library-pr.md" <<'BODY'
+          Existing V3 ledger → stable read → reviewed metadata preservation → staged public export.
+          No ID allocation, GAS/trigger changes, Google writes or Spotify writes.
+          BODY
+          pr=$(gh pr create --base main --head "$branch" --title 'library: verified ledger snapshot' --body-file "$RUNNER_TEMP/library-pr.md")
+          if [ "$AUTO_PUBLISH_APPROVED" != true ]; then
+            echo 'Snapshot PR prepared; automatic merge/publication is not approved'
+            exit 0
+          fi
+          gh pr merge "$pr" --squash --match-head-commit "$(git rev-parse HEAD)"
+          sha=$(gh api repos/"$GITHUB_REPOSITORY"/commits/main --jq .sha)
+          gh workflow run pages.yml --ref main
+          runid=''
+          for attempt in 1 2 3 4 5 6; do
+            runid=$(gh run list --workflow pages.yml --commit "$sha" --event workflow_dispatch --limit 5 --json databaseId --jq '.[0].databaseId // empty')
+            if [ -n "$runid" ]; then break; fi
+            sleep 10
+          done
+          test -n "$runid"
+          gh run watch "$runid" --exit-status
+          node scripts/verify-library-publication.mjs "$RUNNER_TEMP/library-proof/expected-manifest.json" "$RUNNER_TEMP/library-proof/public-readback.json"
+      - name: Save sanitized stage evidence only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: library-publication-proof
+          path: ${{ runner.temp }}/library-proof

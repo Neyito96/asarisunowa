@@ -40,3 +40,34 @@ function inspectPhase8LibraryTransferReadOnly() {
   console.log(JSON.stringify(result));
   return result;
 }
+
+/** Phase 12: extend the existing diagnostic, never call an engine/token helper.
+ * Output is allowlisted metadata only. This file is NOT deployed by a git PR.
+ * Run only in the actual project/account after source review; visibility is per owner.
+ */
+function inspectPhase12RuntimeReadOnly() {
+  const props = PropertiesService.getScriptProperties();
+  function object(key) { try { return JSON.parse(props.getProperty(key) || '{}'); } catch (_) { return {}; } }
+  function flag(value) { return typeof value === 'boolean' ? value : null; }
+  function count(value) { return Number.isSafeInteger(value) && value >= 0 ? value : null; }
+  function instant(value) { return typeof value === 'string' && /^\d{4}-\d\d-\d\dT/.test(value) && Number.isFinite(Date.parse(value)) ? new Date(value).toISOString() : null; }
+  const config = object('LIB_V3_CONFIG'), morning = object('LIB_V3_MORNING_CONFIG');
+  const baseline = object('LIB_V3_BASELINE'), state = object('LIB_V3_MORNING_STATE');
+  const allowedHandlers = ['ALIB_AUTO_tick','scheduledLibraryV3','scheduledLibraryV3BaselineOnly','scheduledLibraryV3Morning','continueLibraryV3Morning','runLibraryV3AudioBackfillCopyBatchScheduled','runAutoUpdateAutomationV1','runAutoUpdateAutomationSoonV1','runAutoUpdateBackfillHourlyV1'];
+  const counts = {}; let otherTriggers = 0;
+  ScriptApp.getProjectTriggers().forEach(function(t) { const h=t.getHandlerFunction(); if(allowedHandlers.indexOf(h)>=0) counts[h]=(counts[h]||0)+1; else otherTriggers++; });
+  const result = {
+    mode:'READ_ONLY_RUNTIME_METADATA', checkedAt:new Date().toISOString(),
+    functions:{alib:typeof ALIB_AUTO_tick==='function',v3:typeof libV3Run_==='function',morning:typeof scheduledLibraryV3Morning==='function'},
+    triggerCountsVisibleToCurrentAccount:counts, otherTriggerCount:otherTriggers,
+    duplicateHandlers:allowedHandlers.filter(function(h){return counts[h]>1;}),
+    v3:{enabled:flag(config.enabled),autonomous:flag(config.autonomous),allowNew:flag(config.allowNew),allowEnrich:flag(config.allowEnrich)},
+    baseline:{complete:flag(baseline.complete),offset:count(baseline.offset)},
+    morning:{enabled:flag(morning.enabled),spotify:flag(morning.spotify),complete:flag(state.complete),lastAt:instant(state.last&&state.last.at),hasLease:!!state.lease,hasRetry:!!state.retry},
+    credentialPresence:{clientId:!!props.getProperty('SPOTIFY_CLIENT_ID'),clientSecret:!!props.getProperty('SPOTIFY_CLIENT_SECRET'),refreshToken:!!props.getProperty('SPOTIFY_USER_REFRESH_TOKEN')},
+    oauthValidity:'NOT_VERIFIED_NO_TOKEN_REFRESH_OR_API_CALL',executionHistory:'NOT_AVAILABLE_IN_THIS_DIAGNOSTIC',
+    schedule:'Actual trigger times/owners require Apps Script dashboard; handler counts do not prove cadence.',
+    writes:0,propertyWrites:0,triggerChanges:0,networkCalls:0
+  };
+  console.log(JSON.stringify(result)); return result;
+}

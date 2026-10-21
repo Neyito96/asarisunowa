@@ -1,0 +1,119 @@
+{
+  "mode": "READ_ONLY_EXISTING_V5_REAUDIT",
+  "observedRows": 6591,
+  "selectedCleanFallback": {
+    "proposed": 303,
+    "held": 961,
+    "overlap": 60,
+    "rawNameHits": 120,
+    "cleanNameHits": 118
+  },
+  "rawBoundaryDiagnostic": {
+    "proposed": 350,
+    "held": 968,
+    "overlap": 64,
+    "articleUrlLoss": 0
+  },
+  "focus": [
+    {
+      "id": "EP-00036",
+      "title": "（GOODLIFEフェア）桃鉄コラボやアフリカ料理、衣食住と盛りだくさん　25日は朝ポキ公開収録も",
+      "selected": {
+        "proposed": false,
+        "held": false
+      },
+      "raw": {
+        "proposed": false,
+        "held": false,
+        "relatedUrlCount": 0,
+        "lostRelatedUrls": 0,
+        "bodyNonempty": true,
+        "sectionHolds": []
+      },
+      "public": {
+        "descriptionNames": [],
+        "castNames": [],
+        "titleNames": []
+      }
+    },
+    {
+      "id": "EP-00068",
+      "title": "（バスケ #49  自己紹介②）高校生Bリーガーだった河村勇輝　田臥勇太との初々しい対談裏話",
+      "selected": {
+        "proposed": false,
+        "held": false
+      },
+      "raw": {
+        "proposed": false,
+        "held": false,
+        "relatedUrlCount": 3,
+        "lostRelatedUrls": 0,
+        "bodyNonempty": true,
+        "sectionHolds": []
+      },
+      "public": {
+        "descriptionNames": [],
+        "castNames": [],
+        "titleNames": []
+      }
+    },
+    {
+      "id": "EP-03365",
+      "title": "中学生の英語、過酷すぎませんか　学習塾に中1どっと増えてます #1918",
+      "selected": {
+        "proposed": true,
+        "held": true
+      },
+      "raw": {
+        "proposed": true,
+        "held": true,
+        "relatedUrlCount": 3,
+        "lostRelatedUrls": 0,
+        "bodyNonempty": true,
+        "sectionHolds": []
+      },
+      "public": {
+        "descriptionNames": [
+          "寺下真理加",
+          "太田匡彦",
+          "佐藤陽",
+          "斎藤健一郎"
+        ],
+        "castNames": [],
+        "titleNames": []
+      }
+    },
+    {
+      "id": "EP-05247",
+      "title": "トイレにさえ行けない過酷な現場も…　フォトグラファーと語る「あの写真見た？」　 #50-473",
+      "selected": {
+        "proposed": true,
+        "held": false
+      },
+      "raw": {
+        "proposed": true,
+        "held": false,
+        "relatedUrlCount": 3,
+        "lostRelatedUrls": 0,
+        "bodyNonempty": true,
+        "sectionHolds": [
+          "RELATED_TEXT_WITHOUT_URL_REVIEW"
+        ]
+      },
+      "public": {
+        "descriptionNames": [
+          "寺下真理加",
+          "太田匡彦",
+          "佐藤陽",
+          "斎藤健一郎"
+        ],
+        "castNames": [],
+        "titleNames": []
+      }
+    }
+  ],
+  "sourceHash": "96122553151c76deb42a8c32ace5d4cf8473c741d1d238f7b690f84b1638e1df",
+  "interpretation": "Proposed and held overlap. Raw diagnostics are not approved replacements. Counts describe this snapshot, not a canonical population.",
+  "writes": 0,
+  "publicVersion": "1df7cb5d103cfbfc"
+}

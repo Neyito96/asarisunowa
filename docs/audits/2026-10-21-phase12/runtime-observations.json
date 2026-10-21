@@ -1,0 +1,101 @@
+{
+  "checkedAt": "2026-10-21T05:56:32.783Z",
+  "main": "25dc3a6ad2b3592aadf960762eeff8fa54f6cfa2",
+  "gasManagement": {
+    "status": "UNVERIFIED",
+    "observedRedirect": "https://developers.google.com/apps-script?hl=ja",
+    "claspInstalled": false,
+    "claspCredentialsPresent": false,
+    "driveScriptSearchResults": 0,
+    "source": null,
+    "deployments": null,
+    "triggers": null,
+    "scriptProperties": null,
+    "oauthValidity": null
+  },
+  "actions": {
+    "configuredCron": "17,47 * * * *",
+    "observedScheduleRuns": [
+      {
+        "id": 39524508155,
+        "createdAt": "2026-10-21T00:58:15Z",
+        "conclusion": "success"
+      },
+      {
+        "id": 39509754467,
+        "createdAt": "2026-10-20T22:40:00Z",
+        "conclusion": "success"
+      },
+      {
+        "id": 39484702646,
+        "createdAt": "2026-10-20T19:35:06Z",
+        "conclusion": "success"
+      },
+      {
+        "id": 39447764526,
+        "createdAt": "2026-10-20T15:22:17Z",
+        "conclusion": "success"
+      },
+      {
+        "id": 39407816757,
+        "createdAt": "2026-10-20T10:25:19Z",
+        "conclusion": "success"
+      },
+      {
+        "id": 39374297956,
+        "createdAt": "2026-10-20T05:19:44Z",
+        "conclusion": "success"
+      },
+      {
+        "id": 39349102607,
+        "createdAt": "2026-10-20T00:41:10Z",
+        "conclusion": "success"
+      },
+      {
+        "id": 39329850278,
+        "createdAt": "2026-10-19T21:44:31Z",
+        "conclusion": "success"
+      },
+      {
+        "id": 39294775480,
+        "createdAt": "2026-10-19T17:30:59Z",
+        "conclusion": "success"
+      },
+      {
+        "id": 39243440018,
+        "createdAt": "2026-10-19T11:16:21Z",
+        "conclusion": "success"
+      }
+    ],
+    "observedGapMinutes": [
+      374.6333333333333,
+      253.53333333333333,
+      176.65,
+      278.56666666666666,
+      305.5833333333333,
+      296.96666666666664,
+      252.81666666666666,
+      184.9,
+      138.25
+    ],
+    "minimumGapMinutes": 138.25,
+    "maximumGapMinutes": 374.6333333333333,
+    "lastSync": {
+      "id": 39524508155,
+      "jobId": 118975899811,
+      "playlistRows": 74,
+      "recommendedPodcastRows": 8,
+      "outputFiles": [
+        "app/data.ts",
+        "app/recommended-podcasts-data.ts"
+      ],
+      "pagesDispatchRun": 39524543233,
+      "librarySnapshotExportInJob": false
+    }
+  },
+  "productionWrites": 0,
+  "triggerChanges": 0,
+  "spotifyWrites": 0,
+  "mailSent": 0,
+  "canonicalPopulation": null
+}
