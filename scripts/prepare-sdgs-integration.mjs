@@ -1,0 +1,14 @@
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { join } from 'node:path';
+import { reconcile, applyPlanToSnapshot } from '../tools/sdgs-integration.mjs';
+const [privateDir,outDir='docs/audits/2026-10-21-phase9']=process.argv.slice(2);
+if(!privateDir)throw Error('Private source directory required');
+const load=async file=>JSON.parse(await readFile(join(privateDir,file),'utf8'));
+const tabs=await load('tabs.json'),official=await load('official-all.json');
+const http=await load('verified-http.json');
+const plan=reconcile(tabs,official,http);
+await mkdir(outDir,{recursive:true});
+await writeFile(join(outDir,'integration-plan.json'),JSON.stringify(plan,null,2)+'\n');
+await writeFile(join(privateDir,'candidate-source.json'),JSON.stringify(applyPlanToSnapshot(tabs,plan))+'\n');
+await writeFile(join(outDir,'summary.json'),JSON.stringify({mode:plan.mode,planHash:plan.planHash,sourceRows:plan.sourceRows,officialRows:plan.officialRows,rawRows:plan.rawRows,workRows:plan.workRows,...plan.counts,audioWrites:plan.audioWrites,epIdChanges:plan.epIdChanges},null,2)+'\n');
+console.log(JSON.stringify(plan.counts,null,2));

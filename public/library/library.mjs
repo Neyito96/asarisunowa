@@ -45,13 +45,14 @@ async function update(reset=true) {
  }catch(e){if(run===generation){$('status').textContent='読み込みを完了できませんでした';error(e.message==='DATE_RANGE'?'配信日の開始日を終了日以前にしてください。':'通信に失敗しました。条件を変えずに再試行できます。');}}
  finally{if(run===generation)$('results').setAttribute('aria-busy','false');}
 }
-function linkLabel(url){const host=new URL(url).hostname;if(host.includes('spotify'))return 'Spotifyで聴く ↗';if(host.includes('apple'))return 'Apple Podcasts ↗';if(host.includes('asahi'))return '朝日新聞 公式ページ ↗';if(host.includes('youtube'))return 'YouTube ↗';if(host.includes('listen.style'))return 'LISTEN ↗';return '公式配信ページ ↗';}
+function linkLabel(url){const host=new URL(url).hostname;if(host.includes('spotify'))return 'Spotifyで聴く ↗';if(host.includes('apple'))return 'Apple Podcasts ↗';if(host.includes('asahi'))return '朝日新聞 公式ページ ↗';if(host.includes('youtube'))return 'YouTube ↗';if(host.includes('listen.style'))return 'LISTEN ↗';if(host==='omny.fm'&&new URL(url).pathname.endsWith('/embed'))return 'Omnyで聴く ↗';return '公式配信ページ ↗';}
 function addLinks(parent,urls){for(const raw of [...new Set(urls)]){const url=safeUrl(raw);if(!url)continue;const a=node('a',linkLabel(url));a.href=url;a.target='_blank';a.rel='noopener noreferrer';parent.append(a);}}
 async function openDetail(id,fromUrl=false) {
  if(!/^EP-\d{5}$/.test(id))return;
  const run=++activeDetail,body=$('detail-content');body.replaceChildren(node('h2','読み込んでいます…'));if(!$('detail').open)$('detail').showModal();
  try{const rows=await json(`details/${Math.floor(Number(id.slice(3))/manifest.detailBucketSize)}.json`),e=rows.find(x=>x.id===id);if(run!==activeDetail)return;if(!e)throw Error('missing');
  const h=node('h2',e.title);h.id='detail-title';body.replaceChildren(node('p',`${label(e.show)} / ${e.id}`,'detail-meta'),h,node('p',`${e.date.replace('T',' ').slice(0,16)}（日本時間）${e.duration?' · '+Math.round(e.duration/60)+'分':''}`,'detail-meta'));
+ if(e.archiveWarning)body.append(node('p',e.archiveWarning,'audio-note'));
  if(e.cast)body.append(node('p',e.cast,'detail-meta'));
  if(e.audio){const audio=document.createElement('audio');audio.controls=true;audio.preload='none';audio.hidden=true;const play=node('button','▶ この回を聴く');play.type='button';play.addEventListener('click',()=>{audio.hidden=false;audio.src=e.audio;play.hidden=true;audio.play().catch(()=>{note.textContent='プレーヤーの再生ボタン、または配信先リンクからお聴きください。';});});const note=node('p','配信元の音声です。再生ボタンを押すと読み込みます。','audio-note');audio.addEventListener('error',()=>{note.textContent='音声を読み込めませんでした。配信先リンクからお聴きください。';});body.append(play,audio,note);}
  else body.append(node('p','この回は配信先リンクからお聴きください。','audio-note'));

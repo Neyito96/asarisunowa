@@ -17,7 +17,18 @@ for(const row of source.rows) {
  ids.add(row[0]);
  if(blocked(row[38]) || excludedIds.has(row[0]) || excludedGuids.has(String(row[6] || '').toLowerCase())) {counts.excluded++;continue;}
  if(!row[1] || !row[2] || !row[3]) {counts.held++;continue;}
- const e=publicEpisode(row,verified); if(!e.date) {counts.held++;continue;} episodes.push(e);
+ const e=publicEpisode(row,verified);
+ const archive=source.officialArchive?.[e.id];
+ if(archive){
+   e.description=archive.body || e.description;e.descriptionSource=archive.body?'official-page':e.descriptionSource;
+   e.archive={uuid:archive.uuid,sourceJsonUrl:archive.sourceJsonUrl,checkedAt:archive.checkedAt,previousOfficialUrl:archive.oldOfficialUrl,previousOfficialStatus:archive.oldOfficialStatus};
+   e.tags=archive.tags || [];
+   // Embed links stay external links. Never assign one to audio or construct an MP3.
+   e.links=[...new Set([archive.officialUrl,archive.embedUrl,...[row[11],row[12],row[10]].filter(Boolean)])];
+ }
+ e.links=e.links.filter(url=>!(source.invalidUrls||[]).includes(url));
+ if(source.archivePending?.[e.id])e.archiveWarning=source.archivePending[e.id].reason;
+ if(!e.date) {counts.held++;continue;} episodes.push(e);
 }
 if(episodes.length < 6000) throw Error('Unexpected record loss; keep previous public snapshot');
 const sorted=filterEpisodes(episodes);
@@ -35,8 +46,8 @@ for(const [i,show] of groups.entries()) {
  for(let n=0;n<rows.length;n+=40) {const file=`pages/show-${i}-${n/40}.json`;await write(file,rows.slice(n,n+40).map(summary));pages.push(file);}
  // Full description belongs only in the on-demand search index, never the initial payload.
  const search=[];
- for(let n=0;n<rows.length;n+=100){const file=`search/show-${i}-${n/100}.json`;await write(file,rows.slice(n,n+100).map(e=>({...summary(e),keywords:e.description})));search.push(file);}
- shows.push({name:show,label:show==='こどもそうだんしつ'?'SDGsを話そう・こどもそうだんしつ':show,count:rows.length,audioPresent:rows.filter(e=>e.audioAvailable).length,playable:rows.filter(e=>e.audio).length,pages,search});
+ for(let n=0;n<rows.length;n+=100){const file=`search/show-${i}-${n/100}.json`;await write(file,rows.slice(n,n+100).map(e=>({...summary(e),keywords:e.description+' '+(e.tags||[]).join(' ')})));search.push(file);}
+ shows.push({name:show,label:show==='こどもそうだんしつ'&&!groups.includes('SDGsを話そう')?'SDGsを話そう・こどもそうだんしつ':show,count:rows.length,audioPresent:rows.filter(e=>e.audioAvailable).length,playable:rows.filter(e=>e.audio).length,pages,search});
 }
 // IDs remain stable; bounded 50-record detail bundles avoid thousands of requests/files.
 const details={};for(const e of episodes) {const bucket=Math.floor(Number(e.id.slice(3))/50);(details[bucket]??=[]).push(e);}

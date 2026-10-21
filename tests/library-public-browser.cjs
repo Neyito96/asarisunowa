@@ -46,6 +46,20 @@ const { chromium, webkit, devices } = require(process.env.LIBRARY_PLAYWRIGHT || 
     assert.equal(await page.locator('#results script').count(), 0);
     await page.locator('#clear-filters').click();
     await page.waitForFunction(() => document.querySelectorAll('.episode').length === 40);
+    if (await page.locator('#show option[value="SDGsを話そう"]').count()) {
+      await page.locator('#show').selectOption('SDGsを話そう');
+      await page.locator('#query').fill('EP-00308'); await page.locator('#query').press('Enter');
+      await page.waitForFunction(() => document.querySelectorAll('.episode').length === 1 && document.querySelector('#results').getAttribute('aria-busy') === 'false');
+      await page.locator('.episode-title').click(); await page.locator('#detail-title').waitFor();
+      assert.ok((await page.locator('#detail .detail-links a').first().getAttribute('href')).includes('b8642140-af20-49ac-8e90-b4aa01075682'));
+      assert.ok((await page.getByRole('link', {name:'Omnyで聴く ↗',exact:true}).getAttribute('href')).endsWith('/embed'));
+      assert.equal(await page.locator('#detail audio[src*="/embed"]').count(),0);
+      await page.locator('#close-detail').click();
+      await page.locator('#query').fill(''); await page.locator('#show').selectOption('こどもそうだんしつ');
+      await page.waitForFunction(() => document.querySelectorAll('.episode').length === 31 && document.querySelector('#results').getAttribute('aria-busy') === 'false');
+      await page.locator('#clear-filters').click();
+      await page.waitForFunction(() => document.querySelectorAll('.episode').length === 40);
+    }
     assert.deepEqual(errors, []);
     if (process.env.LIBRARY_SCREENSHOT_DIR) {
       await page.screenshot({ path: `${process.env.LIBRARY_SCREENSHOT_DIR}/library-${name}-mobile.png`, fullPage: true });
