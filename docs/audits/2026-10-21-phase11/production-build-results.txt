@@ -21,28 +21,28 @@ Running bounded vinext build...
 /asarisunowa/asarisu-message-sea-illustration.png referenced in /asarisunowa/asarisu-message-sea-illustration.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
 ✓ 136 modules transformed.
 rendering chunks...
-✓ built in 766ms
+✓ built in 670ms
 [2/5] analyze server references...
 [2Ktransforming...✓ 55 modules transformed.
 rendering chunks...
-✓ built in 114ms
+✓ built in 74ms
 [3/5] build rsc environment...
 [2Ktransforming...✓ 142 modules transformed.
 rendering chunks...
 computing gzip size...
-✓ built in 551ms
+✓ built in 445ms
 [4/5] build client environment...
 [2Ktransforming...✓ 64 modules transformed.
 rendering chunks...
 computing gzip size...
-✓ built in 244ms
+✓ built in 226ms
 [5/5] build ssr environment...
 [2Ktransforming...✓ 61 modules transformed.
 rendering chunks...
 computing gzip size...
-✓ built in 271ms
+✓ built in 301ms
 [0m  Pre-rendering all routes (output: 'export')...
-[vinext] Production server for prerendering running at http://127.0.0.1:37367
+[vinext] Production server for prerendering running at http://127.0.0.1:37177
   Prerendered 2 routes (0 skipped).
 [0m
   Route (app)
@@ -52,18 +52,4 @@ computing gzip size...
 
   Build complete. Run `vinext start` to start the production server.
 
-node:internal/fs/promises:697
-  return new FileHandle(await PromisePrototypeThen(
-                        ^
-
-Error: ENOENT: no such file or directory, open 'dist/client/library/data/pages/.rsync-tmp/all-162.json'
-    at async open (node:internal/fs/promises:697:25)
-    at async readFile (node:internal/fs/promises:1348:14)
-    at async file:///workspace/scratch/71ced1420f57/asarisunowa/scripts/prepare-github-pages.mjs:21:18 {
-  errno: -2,
-  code: 'ENOENT',
-  syscall: 'open',
-  path: 'dist/client/library/data/pages/.rsync-tmp/all-162.json'
-}
-
-Node.js v24.19.0
+GitHub Pages files prepared in dist/client

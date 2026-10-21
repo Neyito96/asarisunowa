@@ -104,6 +104,6 @@
     "Full 31-tab comparison passed; native stored-value comparison used for recalculated news QUERY spill.",
     "Actual updated ledger regenerated public version 1df7cb5d103cfbfc, matching approved candidate content.",
     "Stale unreferenced JSON files from the previous export are removed from the publication tree; only current manifest files remain.",
-    "One local Pages preparation attempt encountered a transient .rsync-tmp file disappearing; retry completed successfully. No spreadsheet discrepancy occurred."
+    "Correction: the first two local Pages preparation attempts failed on transient .rsync-tmp file enumeration. An earlier retry-success note was inaccurate. The walker now ignores only this transient directory, its regression test passes, and the post-fix build completed successfully. No spreadsheet discrepancy occurred."
   ]
 }

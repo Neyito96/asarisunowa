@@ -22,7 +22,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node --test tests/library-public.test.mjs tests/sdgs-integration.test.mjs tests/library-phase11.test.mjs
+      - run: node --test tests/library-public.test.mjs tests/sdgs-integration.test.mjs tests/library-phase11.test.mjs tests/pages-preparation.test.mjs
       - name: Install isolated browser test tooling
         run: |
           npm install --prefix /tmp/library-browser --package-lock=false playwright@1.62.1
