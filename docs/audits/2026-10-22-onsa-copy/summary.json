@@ -1,0 +1,408 @@
+{
+  "mode": "READ_ONLY",
+  "generatedAt": "2026-10-21T23:54:43.076Z",
+  "sources": {
+    "observedAt": "2026-10-21T23:50:28.705Z",
+    "copy": {
+      "id": "10P8dR7c8x5vu0XaP44cmdzBhv1r-8yXSFCeYs7EBcnc",
+      "title": "作業台コピー1022",
+      "url": "https://docs.google.com/spreadsheets/d/10P8dR7c8x5vu0XaP44cmdzBhv1r-8yXSFCeYs7EBcnc/edit?usp=drivesdk",
+      "modifiedAt": "2026-10-21T23:41:43.819Z",
+      "workbookSha256": "3500c42a333f20dff3863e2b9f8b4406a4849f2c7b55ebeeefa8876b4dcac5d4"
+    },
+    "ledger": {
+      "id": "1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4",
+      "title": "朝リスの田｜独立エピソード図書館・調査台帳 2026-10-10",
+      "url": "https://docs.google.com/spreadsheets/d/1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4/edit?usp=drivesdk",
+      "modifiedAt": "2026-10-21T05:15:23.147Z",
+      "workbookSha256": "20f504f1d6b9bc926c85cf9a7b5d8dcdae56bc2638e0c4216090981881b2068f"
+    },
+    "method": "Authenticated native XLSX streaming fetch; openpyxl read_only/data_only; no source writes; private workbook/extract retained outside git."
+  },
+  "sourceJsonHashes": {
+    "copy": "b2992a65ddd0be32c7f29aaccc52e74fd640b16bb80a33dcfb1e1c810d60920b",
+    "ledger": "3526cbd384736bb33baff0cc60ab5fd4b8679065ae7d58d50b602b9febb71d6d"
+  },
+  "sourceRows": 7687,
+  "ledgerRows": 6591,
+  "statuses": {
+    "MATCH": 5778,
+    "HOLD": 1909
+  },
+  "reasons": {
+    "UUID_AND_METADATA": 4659,
+    "IDENTITY_CONFLICT_OR_MULTIPLE": 583,
+    "DATETIME_REVIEW": 41,
+    "TITLE_REVIEW": 61,
+    "EXTERNAL_ONLY_CANDIDATE": 44,
+    "EXACT_EPISODE_LINK_AND_METADATA": 1064,
+    "MIGRATED_ID_AND_METADATA": 55,
+    "YOUTUBE_SCOPE_REVIEW": 1180
+  },
+  "matchedUniqueEpIds": 5778,
+  "identityLinkedRows": 5880,
+  "identityLinkedUniqueEpIds": 5880,
+  "proposedCells": 57,
+  "proposedEpisodes": 21,
+  "proposedFields": {
+    "Spotify個別URL": 20,
+    "公式個別URL": 16,
+    "Pocket Casts個別URL": 21
+  },
+  "urlReviewReasons": {
+    "ALREADY_PRESENT": 16154,
+    "EXISTING_NONEMPTY_CONFLICT": 1068,
+    "WRONG_LEVEL_OR_UNVERIFIED_FORMAT": 55
+  },
+  "libraryUnmatchedReasons": {
+    "IDENTITY_OR_METADATA_REVIEW": 673,
+    "LIBRARY_POLICY_SCOPE": 125,
+    "YOUTUBE_SCOPE_REVIEW": 15
+  },
+  "collidingLedgerKeys": 1107,
+  "population": {
+    "copySheets": 12,
+    "copyAudioRows": 6492,
+    "copyAudioDistinctSourceUrls": 6202,
+    "copyYoutubeRows": 1195,
+    "copyYoutubeDistinctUrls": 1186,
+    "copyAudioSharedUrlGroups": 290,
+    "copyYoutubeDuplicateGroups": 9,
+    "ledgerStoredRows": 6591,
+    "ledgerAudioScopeRows": 6451,
+    "ledgerAlukikiRows": 100,
+    "ledgerAjwRows": 25,
+    "ledgerYoutubeRows": 15
+  },
+  "sheets": [
+    {
+      "sheet": "ニュースの現場から",
+      "role": "episode",
+      "physicalRows": 2655,
+      "records": 2653,
+      "headers": 1,
+      "explanations": 1,
+      "blankRows": 0,
+      "otherRows": [],
+      "missingDates": 0,
+      "duplicateSourceUrlRows": 0
+    },
+    {
+      "sheet": "メディアトーク",
+      "role": "episode",
+      "physicalRows": 1759,
+      "records": 1757,
+      "headers": 1,
+      "explanations": 1,
+      "blankRows": 0,
+      "otherRows": [],
+      "missingDates": 0,
+      "duplicateSourceUrlRows": 0
+    },
+    {
+      "sheet": "ドーナツ",
+      "role": "episode",
+      "physicalRows": 69,
+      "records": 67,
+      "headers": 1,
+      "explanations": 1,
+      "blankRows": 0,
+      "otherRows": [],
+      "missingDates": 0,
+      "duplicateSourceUrlRows": 0
+    },
+    {
+      "sheet": "スポンジ",
+      "role": "episode",
+      "physicalRows": 180,
+      "records": 178,
+      "headers": 1,
+      "explanations": 1,
+      "blankRows": 0,
+      "otherRows": [],
+      "missingDates": 0,
+      "duplicateSourceUrlRows": 0
+    },
+    {
+      "sheet": "SDGs",
+      "role": "episode",
+      "physicalRows": 1129,
+      "records": 1127,
+      "headers": 1,
+      "explanations": 1,
+      "blankRows": 0,
+      "otherRows": [],
+      "missingDates": 0,
+      "duplicateSourceUrlRows": 0
+    },
+    {
+      "sheet": "報談",
+      "role": "episode",
+      "physicalRows": 220,
+      "records": 218,
+      "headers": 1,
+      "explanations": 1,
+      "blankRows": 0,
+      "otherRows": [],
+      "missingDates": 0,
+      "duplicateSourceUrlRows": 0
+    },
+    {
+      "sheet": "YouTube",
+      "role": "episode",
+      "physicalRows": 1197,
+      "records": 1195,
+      "headers": 1,
+      "explanations": 1,
+      "blankRows": 0,
+      "otherRows": [],
+      "missingDates": 0,
+      "duplicateSourceUrlRows": 9
+    },
+    {
+      "sheet": "ニュースの学校",
+      "role": "episode",
+      "physicalRows": 494,
+      "records": 492,
+      "headers": 1,
+      "explanations": 1,
+      "blankRows": 0,
+      "otherRows": [],
+      "missingDates": 0,
+      "duplicateSourceUrlRows": 0
+    },
+    {
+      "sheet": "出演者",
+      "role": "auxiliary",
+      "physicalRows": 1516,
+      "records": 1514,
+      "headers": 1,
+      "explanations": 1,
+      "blankRows": 0,
+      "otherRows": [],
+      "missingDates": 0,
+      "duplicateSourceUrlRows": 0
+    },
+    {
+      "sheet": "記者ページ",
+      "role": "auxiliary",
+      "physicalRows": 907,
+      "records": 905,
+      "headers": 1,
+      "explanations": 1,
+      "blankRows": 0,
+      "otherRows": [],
+      "missingDates": 0,
+      "duplicateSourceUrlRows": 0
+    },
+    {
+      "sheet": "プレイリスト",
+      "role": "auxiliary",
+      "physicalRows": 67,
+      "records": 64,
+      "headers": 1,
+      "explanations": 0,
+      "blankRows": 1,
+      "otherRows": [
+        9
+      ],
+      "missingDates": 0,
+      "duplicateSourceUrlRows": 0
+    },
+    {
+      "sheet": "朝ポキメンバー",
+      "role": "auxiliary",
+      "physicalRows": 36,
+      "records": 33,
+      "headers": 1,
+      "explanations": 1,
+      "blankRows": 1,
+      "otherRows": [],
+      "missingDates": 0,
+      "duplicateSourceUrlRows": 0
+    }
+  ],
+  "programmes": [
+    {
+      "sheet": "ニュースの現場から",
+      "copyDataRows": 2653,
+      "libraryShows": "ニュースの現場から",
+      "libraryRows": 2641,
+      "rawRowDelta": 12,
+      "matchedRows": 2360,
+      "heldRows": 293,
+      "firstDate": "2020-08-06T02:06:00+00:00",
+      "lastDate": "2026-10-21T19:00:00+00:00",
+      "definition": "Raw rows, not finalized unique episode population"
+    },
+    {
+      "sheet": "メディアトーク",
+      "copyDataRows": 1757,
+      "libraryShows": "MEDIA TALK",
+      "libraryRows": 1750,
+      "rawRowDelta": 7,
+      "matchedRows": 1706,
+      "heldRows": 51,
+      "firstDate": "2020-08-06T02:47:00+00:00",
+      "lastDate": "2026-10-20T19:00:00+00:00",
+      "definition": "Raw rows, not finalized unique episode population"
+    },
+    {
+      "sheet": "ドーナツ",
+      "copyDataRows": 67,
+      "libraryShows": "ドーナツ",
+      "libraryRows": 60,
+      "rawRowDelta": 7,
+      "matchedRows": 37,
+      "heldRows": 30,
+      "firstDate": "2023-08-18T19:00:00+00:00",
+      "lastDate": "2026-10-21T19:00:00+00:00",
+      "definition": "Raw rows, not finalized unique episode population"
+    },
+    {
+      "sheet": "スポンジ",
+      "copyDataRows": 178,
+      "libraryShows": "スポンジ",
+      "libraryRows": 173,
+      "rawRowDelta": 5,
+      "matchedRows": 22,
+      "heldRows": 156,
+      "firstDate": "2021-03-15T21:00:00+00:00",
+      "lastDate": "2026-10-21T19:00:00+00:00",
+      "definition": "Raw rows, not finalized unique episode population"
+    },
+    {
+      "sheet": "SDGs",
+      "copyDataRows": 1127,
+      "libraryShows": "SDGsを話そう + こどもそうだんしつ",
+      "libraryRows": 1123,
+      "rawRowDelta": 4,
+      "matchedRows": 1098,
+      "heldRows": 29,
+      "firstDate": "2021-10-24T19:00:00+00:00",
+      "lastDate": "2026-10-20T19:05:00+00:00",
+      "definition": "Raw rows, not finalized unique episode population"
+    },
+    {
+      "sheet": "報談",
+      "copyDataRows": 218,
+      "libraryShows": "報談",
+      "libraryRows": 218,
+      "rawRowDelta": 0,
+      "matchedRows": 84,
+      "heldRows": 134,
+      "firstDate": "2022-04-02T07:55:00+00:00",
+      "lastDate": "2026-10-18T19:00:00+00:00",
+      "definition": "Raw rows, not finalized unique episode population"
+    },
+    {
+      "sheet": "YouTube",
+      "copyDataRows": 1195,
+      "libraryShows": "朝ポキTV",
+      "libraryRows": 15,
+      "rawRowDelta": 1180,
+      "matchedRows": 0,
+      "heldRows": 1195,
+      "firstDate": "2022-11-16T08:00:32+00:00",
+      "lastDate": "2026-10-21T08:00:33+00:00",
+      "definition": "Raw rows, not finalized unique episode population"
+    },
+    {
+      "sheet": "ニュースの学校",
+      "copyDataRows": 492,
+      "libraryShows": "ニュースの学校",
+      "libraryRows": 486,
+      "rawRowDelta": 6,
+      "matchedRows": 471,
+      "heldRows": 21,
+      "firstDate": "2024-10-21T04:07:21+00:00",
+      "lastDate": "2026-10-21T19:00:00+00:00",
+      "definition": "Raw rows, not finalized unique episode population"
+    }
+  ],
+  "identityConflictGroups": 293,
+  "identityConflictGroupTypes": {
+    "SAME_PRIMARY_URL": 290,
+    "DIFFERENT_OR_MISSING_PRIMARY_URL": 3
+  },
+  "matchingBySheet": {
+    "ニュースの現場から": {
+      "UUID_AND_METADATA": 2360,
+      "IDENTITY_CONFLICT_OR_MULTIPLE": 268,
+      "DATETIME_REVIEW": 11,
+      "TITLE_REVIEW": 2,
+      "EXTERNAL_ONLY_CANDIDATE": 12
+    },
+    "メディアトーク": {
+      "UUID_AND_METADATA": 1706,
+      "TITLE_REVIEW": 29,
+      "IDENTITY_CONFLICT_OR_MULTIPLE": 14,
+      "DATETIME_REVIEW": 1,
+      "EXTERNAL_ONLY_CANDIDATE": 7
+    },
+    "ドーナツ": {
+      "IDENTITY_CONFLICT_OR_MULTIPLE": 18,
+      "UUID_AND_METADATA": 37,
+      "TITLE_REVIEW": 4,
+      "DATETIME_REVIEW": 1,
+      "EXTERNAL_ONLY_CANDIDATE": 7
+    },
+    "スポンジ": {
+      "IDENTITY_CONFLICT_OR_MULTIPLE": 151,
+      "UUID_AND_METADATA": 22,
+      "EXTERNAL_ONLY_CANDIDATE": 5
+    },
+    "SDGs": {
+      "EXACT_EPISODE_LINK_AND_METADATA": 1064,
+      "UUID_AND_METADATA": 34,
+      "DATETIME_REVIEW": 5,
+      "IDENTITY_CONFLICT_OR_MULTIPLE": 8,
+      "TITLE_REVIEW": 12,
+      "EXTERNAL_ONLY_CANDIDATE": 4
+    },
+    "報談": {
+      "IDENTITY_CONFLICT_OR_MULTIPLE": 123,
+      "DATETIME_REVIEW": 4,
+      "UUID_AND_METADATA": 72,
+      "TITLE_REVIEW": 5,
+      "MIGRATED_ID_AND_METADATA": 12,
+      "EXTERNAL_ONLY_CANDIDATE": 2
+    },
+    "YouTube": {
+      "YOUTUBE_SCOPE_REVIEW": 1180,
+      "DATETIME_REVIEW": 15
+    },
+    "ニュースの学校": {
+      "DATETIME_REVIEW": 4,
+      "UUID_AND_METADATA": 428,
+      "TITLE_REVIEW": 9,
+      "MIGRATED_ID_AND_METADATA": 43,
+      "IDENTITY_CONFLICT_OR_MULTIPLE": 1,
+      "EXTERNAL_ONLY_CANDIDATE": 7
+    }
+  },
+  "protectedFields": [
+    "EP-ID",
+    "GUID",
+    "音声URL",
+    "人間除外",
+    "原文・清掃済み概要"
+  ],
+  "writes": {
+    "sourceWorkbook": 0,
+    "libraryWorkbook": 0,
+    "gas": 0,
+    "spotify": 0,
+    "pages": 0
+  },
+  "caveats": [
+    "Copy sheet counts do not prove the public search tool uses exactly the same population/filter/cache.",
+    "Row delta is not an unregistered episode count; shared references and update cutoffs differ.",
+    "SDGs tab contains successor episodes: paired only with exact identity and metadata.",
+    "Title-only matches never confirmed; date precision differences are held.",
+    "Candidate links have not been HTTP checked; community copy is a secondary source.",
+    "Nonempty destination values never replaced; conflicting IDs/URLs held.",
+    "No raw comments/contributor names/descriptions, speaker directory or private source workbook published.",
+    "Shared-reference groups are review evidence, not authorization to merge/delete EP-IDs."
+  ]
+}

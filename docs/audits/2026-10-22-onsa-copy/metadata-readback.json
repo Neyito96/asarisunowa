@@ -1,0 +1,14 @@
+{
+  "checkedAt": "2026-10-21T23:56:23.612Z",
+  "copy": {
+    "id": "10P8dR7c8x5vu0XaP44cmdzBhv1r-8yXSFCeYs7EBcnc",
+    "beforeModifiedAt": "2026-10-21T23:41:43.819Z",
+    "afterModifiedAt": "2026-10-21T23:41:43.819Z"
+  },
+  "ledger": {
+    "id": "1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4",
+    "beforeModifiedAt": "2026-10-21T05:15:23.147Z",
+    "afterModifiedAt": "2026-10-21T05:15:23.147Z"
+  },
+  "sourceWrites": 0
+}
