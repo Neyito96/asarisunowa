@@ -49,7 +49,7 @@ export function reconcile(tabs,official,http={},options={}) {
   if(record.reasons.length){result.holds.push(record);result.records.push(record);continue;}
   const proof=http[record.officialUrl];
   const pageTitle=normal(proof?.title).replace(/[\"'“”‘’]/g,'"'),jsonTitle=title.replace(/[\"'“”‘’]/g,'"');
-  if(!proof?.identityVerified||pageTitle.indexOf(jsonTitle)!==0||proof.embed!==item.onsei){record.reasons.push('OFFICIAL_PAGE_NOT_IDENTITY_VERIFIED');result.holds.push(record);result.records.push(record);continue;}
+  if(!proof?.identityVerified||proof.status!==200||sdgsExtractItemId(proof.canonical)!==uuid||pageTitle.indexOf(jsonTitle)!==0||proof.embed!==item.onsei){record.reasons.push('OFFICIAL_PAGE_NOT_IDENTITY_VERIFIED');result.holds.push(record);result.records.push(record);continue;}
   record.status='MATCHED';
   function patch(column,value,reason){const before=row[column-1]??'';if(String(before)!==String(value))result.patches.push({id:row[0],row:index+2,column,before,after:value,reason,uuid});}
   patch(2,'SDGsを話そう','OFFICIAL_ARCHIVE_PLAYLIST');patch(3,officialTitle,'OFFICIAL_JSON_TITLE');
