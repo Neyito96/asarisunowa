@@ -1,0 +1,14 @@
+✔ human exclusions fail closed and unspecified values remain usable (1.145259ms)
+✔ URL validation rejects script, HTTP and embedded credentials (0.349505ms)
+✔ mechanical rendering preserves words and article URLs without executable markup (0.858557ms)
+✔ raw and clean values are kept distinct; MP3 presence is not verification (0.763506ms)
+✔ NFKC, full description keyword and multiple terms work with date and programme filters (7.069584ms)
+✔ real snapshot preserves 6591 unique IDs, valid references and bounded initial page (53.35275ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 152.252615

@@ -1497,6 +1497,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           </a>
         </div>
       </header>
+      <div className="wrap" style={{ padding: "10px 0", textAlign: "right" }}><a href="/asarisunowa/library/">📚 エピソード図書館で探す →</a></div>
       <div className="wrap compactNotice">
         <span>非公式・リスナー制作｜情報は最新・正確でない場合があります</span>
         <button type="button" onClick={() => setView("discord")}>
