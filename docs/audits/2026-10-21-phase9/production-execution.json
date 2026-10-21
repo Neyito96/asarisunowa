@@ -1,0 +1,99 @@
+{
+  "status": "APPLIED_VERIFIED",
+  "spreadsheetId": "1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4",
+  "planHash": "49d727a19eef8a7100600f51a7463dcd4bbaaaeacfcdcb9513df092d97cb2a39",
+  "backup": {
+    "success": true,
+    "id": "1M25qQT4y5iKWOGHvQZObz3Vrx4oqw-IguwvfOjXxT0k",
+    "title": "朝リスの田_Phase9本番更新直前_BACKUP_20261021_plan49d727a1",
+    "mimeType": "application/vnd.google-apps.spreadsheet",
+    "url": "https://docs.google.com/spreadsheets/d/1M25qQT4y5iKWOGHvQZObz3Vrx4oqw-IguwvfOjXxT0k/edit?usp=drivesdk",
+    "made_private": false
+  },
+  "batches": [
+    {
+      "batch": 1,
+      "cells": 500,
+      "requests": 10,
+      "startedAt": "2026-10-21T04:25:07.434Z",
+      "verifiedAt": "2026-10-21T04:25:10.153Z",
+      "preimage": "PASS",
+      "readback": "PASS"
+    },
+    {
+      "batch": 2,
+      "cells": 500,
+      "requests": 10,
+      "startedAt": "2026-10-21T04:25:15.644Z",
+      "verifiedAt": "2026-10-21T04:25:18.909Z",
+      "preimage": "PASS",
+      "readback": "PASS"
+    },
+    {
+      "batch": 3,
+      "cells": 453,
+      "requests": 18,
+      "startedAt": "2026-10-21T04:25:21.102Z",
+      "verifiedAt": "2026-10-21T04:25:23.971Z",
+      "preimage": "PASS",
+      "readback": "PASS"
+    },
+    {
+      "batch": 4,
+      "cells": 500,
+      "requests": 10,
+      "startedAt": "2026-10-21T04:25:26.005Z",
+      "verifiedAt": "2026-10-21T04:25:28.776Z",
+      "preimage": "PASS",
+      "readback": "PASS"
+    },
+    {
+      "batch": 5,
+      "cells": 491,
+      "requests": 10,
+      "startedAt": "2026-10-21T04:25:30.803Z",
+      "verifiedAt": "2026-10-21T04:25:33.454Z",
+      "preimage": "PASS",
+      "readback": "PASS"
+    },
+    {
+      "batch": 6,
+      "cells": 500,
+      "requests": 10,
+      "startedAt": "2026-10-21T04:25:35.377Z",
+      "verifiedAt": "2026-10-21T04:25:38.151Z",
+      "preimage": "PASS",
+      "readback": "PASS"
+    },
+    {
+      "batch": 7,
+      "cells": 360,
+      "requests": 20,
+      "startedAt": "2026-10-21T04:25:40.007Z",
+      "verifiedAt": "2026-10-21T04:25:42.947Z",
+      "preimage": "PASS",
+      "readback": "PASS"
+    },
+    {
+      "batch": 8,
+      "cells": 27,
+      "requests": 17,
+      "startedAt": "2026-10-21T04:25:44.928Z",
+      "verifiedAt": "2026-10-21T04:25:47.040Z",
+      "preimage": "PASS",
+      "readback": "PASS"
+    }
+  ],
+  "updatedCells": 3331,
+  "updatedEpisodes": 1092,
+  "newEpisodes": 0,
+  "protectedColumnsChanged": 0,
+  "successorUserEnteredChanges": 0,
+  "publicVersion": "487812122aeeab13",
+  "notes": [
+    "Fresh preimage/formula/validation/chip/EP-ID checks passed before every batch.",
+    "All 8 batches read back exactly.",
+    "Whole-workbook backup diff: only approved 3331 stored ledger values changed. Successor QUERY spill recalculated; full native userEnteredValue comparison passed.",
+    "Regenerated public JSON from downloaded actual updated production ledger; content matches approved candidate; manifest generatedAt refreshed."
+  ]
+}

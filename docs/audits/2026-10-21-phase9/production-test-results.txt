@@ -1,0 +1,35 @@
+✔ human delete supports requests that have no runtime rule yet (0.7868ms)
+✔ request lookup chooses the latest matching playlist row (0.200686ms)
+✔ human-deleted tombstone still blocks ordinary reactivation (0.165013ms)
+✔ manual stop/delete/resume lifecycle is defined (1.22095ms)
+✔ daily runtime sync excludes disabled and human-deleted rules (0.263789ms)
+✔ pending submissions do not silently resurrect a human-deleted playlist (0.191532ms)
+✔ keeps submitted themes stopped until explicit review approval (5.909013ms)
+✔ Phase8 diagnostic only reads both ledgers and current-account triggers (10.212088ms)
+✔ human exclusions fail closed and unspecified values remain usable (1.301939ms)
+✔ URL validation rejects script, HTTP and embedded credentials (0.256438ms)
+✔ mechanical rendering preserves words and article URLs without executable markup (1.772423ms)
+✔ raw and clean values are kept distinct; MP3 presence is not verification (1.81115ms)
+✔ NFKC, full description keyword and multiple terms work with date and programme filters (9.689076ms)
+✔ real snapshot preserves 6591 unique IDs, valid references and bounded initial page (110.093031ms)
+✔ renders development preview metadata (106.90177ms)
+✔ official UUID updates metadata without touching EP-ID, audio, full original or clean text (6.039915ms)
+✔ working UUID plus unique old Omny URL/title/JST datetime bridges migrated IDs (0.780321ms)
+✔ same date and base title with changed episode number is held and never duplicated (0.587697ms)
+✔ publication conflicts, unknown human exclusions and unverified pages are held (1.843218ms)
+✔ a truly absent record is only a V3 append candidate; no ID is invented (0.322165ms)
+✔ embed and MP3 namespaces cannot be interchanged (0.336566ms)
+✔ source mutation after preview aborts before any application (0.646103ms)
+✔ candidate contains 1091 verified mappings, one hold and unchanged 6591 EP-IDs (43.704036ms)
+✔ emits the catalog's animation and scrolling utilities (18.213296ms)
+✔ forwards progress semantics to the primitive (518.373125ms)
+✔ emits chart themes for the starter's media dark mode (193.117097ms)
+✔ renders sidebar skeletons deterministically (163.037503ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1372.259803
