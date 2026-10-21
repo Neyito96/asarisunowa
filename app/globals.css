@@ -3253,3 +3253,20 @@ footer {
 .officialGuideButtons button{min-height:34px!important;padding:5px 12px!important}
 .officialGuideTop h3{font-size:1rem!important}
 @media(max-width:640px){.officialGuide{padding:8px!important}.officialGuideQuestion{padding:8px!important}}
+
+/* リス推し: keep artwork square at every viewport, regardless of card layout. */
+.listenerPodcastCard .podcastCover{
+  width:100%;
+  height:auto;
+  min-height:0;
+  aspect-ratio:1 / 1;
+  align-self:start;
+  overflow:hidden;
+}
+.listenerPodcastCard .podcastCover img{
+  display:block;
+  width:100%;
+  height:100%;
+  aspect-ratio:1 / 1;
+  object-fit:cover;
+}
