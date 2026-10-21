@@ -34,3 +34,10 @@ Apple Search APIに収録されない番組やRSS表記差異は保留。Apple�
 
 ## 運用方針の変更（2026-10-21）
 ユーザー判断により1時間巡回を取りやめ、**1日1回**の空欄補完へ変更。コードの登録関数は `RISU_installDailyEnrichment`、停止関数は `RISU_stopDailyEnrichment`。毎日4時台（GASプロジェクトのタイムゾーン基準）に実行する設計。空欄がない番組はAPI照会しない。Apple照合はApple関連の4列に限定され、他プラットフォームの空欄は現状まだ補完しない。GAS実環境へのデプロイ・トリガー登録は未実施。前版の1時間トリガーが万一登録されている場合は別途停止確認が必要。
+
+## 全プラットフォーム統合（2026-10-21）
+- ユーザー指示によりApple以外の巡回も先送りせず同一の1日1回補完処理に統合（commit 6518558、修正 b4a2c84）。
+- `RISU_previewAllPlatforms` / `RISU_applyAllPlatforms` を追加し、専用日次トリガーのハンドラを `RISU_applyAllPlatforms` に変更。
+- AppleはApple Search APIの `feedUrl` 一致を根拠にする。Spotify、Amazon Music、YouTube、Pocket Casts、LISTEN、stand.fm、PodyはRSSチャンネルの明示的URLのみ採用。推測検索結果やエピソード内リンクは採用しない。複数候補は保留。
+- RSSに明示的リンクがないプラットフォームは空欄が残る。全サービスのディレクトリ検索やサイトスクレイピングを実装したわけではない。補完済み列は上書きしないが、別の空欄が残る番組は日次照会の対象。
+- 既存GAS未配備・トリガー未登録。実行前に `RISU_previewAllPlatforms` のログを確認すること。既存のApple専用トリガーがある場合は重複を避けること。
