@@ -24,13 +24,13 @@ function configureLibraryV3MorningAfterApproval(options){
  if(options.spotify&&(!options.ruleKeys.length||!libV3MorningDependencies_()))throw Error('V1 dependencies and explicit rules required in this GAS project');
  if(options.enabled&&typeof notifyAutoUpdateFailureSafely_!=='function')throw Error('V1 failure notification dependency missing');
  for(const key of options.ruleKeys){const r=getAutoPlaylistRuleByKey_(key);if(!r||r.enabled===false||r.productionWriteAllowed===false||r.reviewRequired===true||!/^[A-Za-z0-9]{22}$/.test(r.playlistId))throw Error('Rule not approved for unattended updates');}
- const lock=LockService.getScriptLock();if(!lock.tryLock(1000))throw Error('Busy');try{if(libV3MorningState_().lease)throw Error('Reconcile active lease first');if(options.enabled){const p=PropertiesService.getScriptProperties();if(!JSON.parse(p.getProperty('LIB_V3_BASELINE')||'{}').complete||ScriptApp.getProjectTriggers().some(t=>['scheduledLibraryV3','scheduledLibraryV3BaselineOnly'].includes(t.getHandlerFunction())))throw Error('Baseline must be complete and other V3 schedulers stopped');const v=JSON.parse(p.getProperty('LIB_V3_CONFIG')||'{}');Object.assign(v,{enabled:true,autonomous:false,allowEnrich:false,allowNew:true,newAfter:new Date(options.since).toISOString()});p.setProperty('LIB_V3_CONFIG',JSON.stringify(v));}PropertiesService.getScriptProperties().setProperty('LIB_V3_MORNING_CONFIG',JSON.stringify({enabled:options.enabled,spotify:options.spotify,ruleKeys:options.ruleKeys,since:new Date(options.since).toISOString()}));}finally{lock.releaseLock();}
+ const lock=LockService.getScriptLock();if(!lock.tryLock(1000))throw Error('Busy');try{if(libV3MorningState_().lease)throw Error('Reconcile active lease first');if(options.enabled){const p=PropertiesService.getScriptProperties();if(!JSON.parse(p.getProperty('LIB_V3_BASELINE')||'{}').complete||ScriptApp.getProjectTriggers().some(t=>['ALIB_AUTO_tick','scheduledLibraryV3','scheduledLibraryV3BaselineOnly'].includes(t.getHandlerFunction())))throw Error('Baseline must be complete and other V3 schedulers stopped');const v=JSON.parse(p.getProperty('LIB_V3_CONFIG')||'{}');Object.assign(v,{enabled:true,autonomous:false,allowEnrich:false,allowNew:true,newAfter:new Date(options.since).toISOString()});p.setProperty('LIB_V3_CONFIG',JSON.stringify(v));}PropertiesService.getScriptProperties().setProperty('LIB_V3_MORNING_CONFIG',JSON.stringify({enabled:options.enabled,spotify:options.spotify,ruleKeys:options.ruleKeys,since:new Date(options.since).toISOString()}));}finally{lock.releaseLock();}
  return {status:'CONFIGURED_NO_TRIGGER'};
 }
 function installLibraryV3MorningTriggerAfterApproval(){
  const lock=LockService.getScriptLock();if(!lock.tryLock(1000))throw Error('Busy');try{
  const all=ScriptApp.getProjectTriggers().map(t=>t.getHandlerFunction());
- if(all.some(n=>['scheduledLibraryV3','scheduledLibraryV3BaselineOnly'].includes(n)))throw Error('Stop/reconcile other V3 schedulers first');
+ if(all.some(n=>['ALIB_AUTO_tick','scheduledLibraryV3','scheduledLibraryV3BaselineOnly'].includes(n)))throw Error('Stop/reconcile other V3 schedulers first');
  const own=all.filter(n=>n==='scheduledLibraryV3Morning');if(own.length>1)throw Error('Duplicate morning triggers');if(own.length)return {status:'ALREADY_INSTALLED'};
  ScriptApp.newTrigger('scheduledLibraryV3Morning').timeBased().atHour(6).everyDays(1).inTimezone('Asia/Tokyo').create();return {status:'INSTALLED_DISABLED_UNLESS_CONFIGURED',window:'06:00-08:59 Asia/Tokyo',continuationMinutes:5};
  }finally{lock.releaseLock();}
@@ -75,7 +75,7 @@ function libV3MorningRun_(){
   s.budget.ms+=6*60000;token=String(now)+'-'+String(Math.random());s.lease={token,at:now};libV3MorningSave_(s);}finally{lock.releaseLock();}
  let result;
  try{
-  const all=ScriptApp.getProjectTriggers().map(t=>t.getHandlerFunction());if(all.filter(n=>n==='scheduledLibraryV3Morning').length>1||all.some(n=>['scheduledLibraryV3','scheduledLibraryV3BaselineOnly'].includes(n)))throw Error('Conflicting V3 schedulers');
+  const all=ScriptApp.getProjectTriggers().map(t=>t.getHandlerFunction());if(all.filter(n=>n==='scheduledLibraryV3Morning').length>1||all.some(n=>['ALIB_AUTO_tick','scheduledLibraryV3','scheduledLibraryV3BaselineOnly'].includes(n)))throw Error('Conflicting V3 schedulers');
   const base=JSON.parse(PropertiesService.getScriptProperties().getProperty('LIB_V3_BASELINE')||'{}');if(base.complete!==true)return {status:'BASELINE_REQUIRED'};
   const v3=libV3Config_();if(!v3.enabled||v3.autonomous)throw Error('V3 must be enabled in morning-only mode (autonomous=false)');
   const day=Utilities.formatDate(new Date(now),'Asia/Tokyo','yyyy-MM-dd');
