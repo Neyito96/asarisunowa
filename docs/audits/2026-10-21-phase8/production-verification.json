@@ -1,0 +1,12 @@
+{
+  "url": "https://neyito96.github.io/asarisunowa/library/",
+  "httpStatus": 200,
+  "deploymentRun": 39538150815,
+  "deploymentConclusion": "success",
+  "mobileRun": 39537971397,
+  "mobileConclusion": "success",
+  "liveSearch": {"show": "ドーナツ", "query": "寺下真理加", "results": 1},
+  "livePlayback": {"id": "EP-00281", "currentTime": 7.406427, "paused": false, "readyState": 4, "duration": 8670, "fullEpisodeListened": false},
+  "physicalIPhoneTested": false,
+  "alibTriggerStatus": "UNVERIFIED"
+}

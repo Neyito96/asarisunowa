@@ -31,3 +31,16 @@
 
 - 第2回CIはChromium全項目PASS。WebKitがpreload=noneでも音声URLへ通信することを検出し、明示再生ボタン押下までsrcを設定しない方式へ変更。第3回で再検証する。
 - ALIB実行プロジェクトへ同期せずに、現在アカウントの対象トリガーと本台帳/コピーの音声列を一度で確認できるREAD_ONLY診断を追加。実行済みではない。Properties読み書きなし、トリガー変更なし。
+
+## 受け入れ確認・マージ結果
+- PR #237: https://github.com/Neyito96/asarisunowa/pull/237 をmainへマージ。実装コミット59ba307、マージb70d232。
+- モバイル受け入れ: https://github.com/Neyito96/asarisunowa/actions/runs/39537971397 SUCCESS。Chromium/WebKit、iPhone 13相当で検索・番組選択・新旧順/ページ境界・詳細・公式リンク・明示再生前の音声通信0・クリア・空結果・横はみ出しなし・JSエラー0を確認。
+- Pages PRビルド: https://github.com/Neyito96/asarisunowa/actions/runs/39537971446 SUCCESS。
+- 全Node回帰19/19 PASS。物理iPhoneでの試験は未実施。
+- ALIBトリガー状態/実行成功履歴、新着RSS→公開用JSONの定期接続、音声URL残り全件の検証は未完了。本台帳の音声URL記入3292件と直接再生用にHTTP先頭確認した10件は区別する。
+
+## 本番公開・実再生確認
+- 公開URL: https://neyito96.github.io/asarisunowa/library/ （HTTP 200、ブラウザ表示/検索/詳細を確認）
+- Pages公開: https://github.com/Neyito96/asarisunowa/actions/runs/39538150815 SUCCESS。既存トップの図書館リンクから利用可能。
+- 本番でドーナツ×寺下真理加検索→EP-00281詳細→明示再生を確認。audio.currentTime=7.406427、paused=false、readyState=4、duration=8670。再生開始と時間進行の確認で、全編試聴ではない。確認後は詳細を閉じて停止。
+- 日付入り開発ログと試験結果をGitHubに保存し、Issue #222へ公開結果を集約。新着RSSの定期公開とALIBトリガー停止確認は依然未完了。
