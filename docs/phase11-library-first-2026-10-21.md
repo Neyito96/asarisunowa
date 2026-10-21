@@ -50,4 +50,6 @@ commit `580523aa299a897fe9bcaeb91df6b5bf8004ff9e` を既存MorningのPR #230に�
 
 Node回帰37/37、Pages build PASS。Chromium/WebKitのiPhone13相当で既存回帰＋記事見出し検索＋清掃詳細＋表示除外＋編集室の下書き/XSS/再読込/横はみ出しをCI検証する。物理iPhone未検証。公開は本番台帳の差分承認・適用と実データ再生成後に行う。承認前の候補データを本番台帳適用済みと呼ばない。
 
+最終コードc606903のPages PR CI39547804719とモバイルCI39547804726はSUCCESS。Chromium/WebKitともエラー0。PR #240はDraft、main2f7e01eとの競合なし。承認前のため候補は未公開。
+
 証跡は `docs/audits/2026-10-21-phase11/`。実装と実測を優先し、稼働GASが見えない点は未確認として残した。
