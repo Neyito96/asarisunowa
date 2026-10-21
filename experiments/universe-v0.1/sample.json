@@ -1,0 +1,581 @@
+{
+  "schema": "universe-strata/0.1",
+  "populationStatus": "AUDIT_PENDING",
+  "canonicalTotal": null,
+  "source": {
+    "version": "1df7cb5d103cfbfc",
+    "snapshotDate": "2026-10-21",
+    "fields": [
+      "id",
+      "title",
+      "show",
+      "date"
+    ],
+    "scope": "Illustrative sample only; not a population decision"
+  },
+  "episodes": [
+    {
+      "id": "EP-03856",
+      "title": "#1 東京オリンピック、本当に開催できる？　「普通に考えたら…」",
+      "show": "MEDIA TALK",
+      "date": "2020-08-06T11:47:00+09:00",
+      "month": "2020-08",
+      "topics": [
+        {
+          "topic": "文化",
+          "word": "本",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-03856"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-01257",
+      "title": "#22 武漢①　1000万人PCR、本当に意味があるのか　武漢の答え",
+      "show": "ニュースの現場から",
+      "date": "2020-09-03T07:00:00+09:00",
+      "month": "2020-09",
+      "topics": [
+        {
+          "topic": "文化",
+          "word": "本",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-01257"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-03875",
+      "title": "#4-3 「ムーラン」が悪いのか　映画が向き合うコロナ禍、中国",
+      "show": "MEDIA TALK",
+      "date": "2020-10-12T06:00:00+09:00",
+      "month": "2020-10",
+      "topics": [
+        {
+          "topic": "世界",
+          "word": "中国",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-03875"
+        },
+        {
+          "topic": "文化",
+          "word": "映画",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-03875"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-01307",
+      "title": "#71 取材の感じ、まるで4年前　本当にトランプ氏再選ない？",
+      "show": "ニュースの現場から",
+      "date": "2020-11-02T06:00:00+09:00",
+      "month": "2020-11",
+      "topics": [
+        {
+          "topic": "文化",
+          "word": "本",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-01307"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-01375",
+      "title": "#133 中国、コロナを「歴史」扱い　日本に導入求めたアプリ",
+      "show": "ニュースの現場から",
+      "date": "2021-01-07T06:00:00+09:00",
+      "month": "2021-01",
+      "topics": [
+        {
+          "topic": "世界",
+          "word": "中国",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-01375"
+        },
+        {
+          "topic": "文化",
+          "word": "本",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-01375"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-01410",
+      "title": "#163 テスラ超え、43万円の電気自動車　つくったのは中国「五菱」",
+      "show": "ニュースの現場から",
+      "date": "2021-02-10T06:00:00+09:00",
+      "month": "2021-02",
+      "topics": [
+        {
+          "topic": "世界",
+          "word": "中国",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-01410"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-01429",
+      "title": "#179 中絶は、本当に罪なのか　アルゼンチンを変えた女性たち",
+      "show": "ニュースの現場から",
+      "date": "2021-03-01T06:00:00+09:00",
+      "month": "2021-03",
+      "topics": [
+        {
+          "topic": "文化",
+          "word": "本",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-01429"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-01461",
+      "title": "#209 アブない企業、どう見分ける　ふわふわポエムに気をつけて",
+      "show": "ニュースの現場から",
+      "date": "2021-04-02T06:00:00+09:00",
+      "month": "2021-04",
+      "topics": [
+        {
+          "topic": "仕事",
+          "word": "企業",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-01461"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-01796",
+      "title": "#504 イランの正月、日本に似てる？　十二支もあるけど一つだけ違います（楽屋裏）",
+      "show": "ニュースの現場から",
+      "date": "2022-01-01T04:00:00+09:00",
+      "month": "2022-01",
+      "topics": [
+        {
+          "topic": "文化",
+          "word": "本",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-01796"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-01843",
+      "title": "戦後日本外交の、歴史的できごとの裏で　沖縄と日本を考える #547",
+      "show": "ニュースの現場から",
+      "date": "2022-02-01T04:00:00+09:00",
+      "month": "2022-02",
+      "topics": [
+        {
+          "topic": "文化",
+          "word": "本",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-01843"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-00391",
+      "title": "両親が別姓だと「子どもはかわいそう」？　当事者に聞いてみたら…（後編） #83",
+      "show": "SDGsを話そう",
+      "date": "2022-03-04T04:00:00+09:00",
+      "month": "2022-03",
+      "topics": [
+        {
+          "topic": "暮らし",
+          "word": "子ども",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-00391"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-01931",
+      "title": "奇妙を撮る、村から空から宇宙から　世界の普通ってなんだろう #627",
+      "show": "ニュースの現場から",
+      "date": "2022-04-01T11:55:00+09:00",
+      "month": "2022-04",
+      "topics": [
+        {
+          "topic": "世界",
+          "word": "世界",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-01931"
+        },
+        {
+          "topic": "科学",
+          "word": "宇宙",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-01931"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-02295",
+      "title": "どうして戦争はなくならない？　ウクライナ侵攻から伝えたい反戦の思い #965",
+      "show": "ニュースの現場から",
+      "date": "2023-01-02T04:00:00+09:00",
+      "month": "2023-01",
+      "topics": [
+        {
+          "topic": "世界",
+          "word": "戦争",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-02295"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-05795",
+      "title": "（再）ビジネス＝人権の時代　社会の不平等、不公正を変えるのは誰だ #308",
+      "show": "SDGsを話そう",
+      "date": "2023-02-02T04:00:00+09:00",
+      "month": "2023-02",
+      "topics": [
+        {
+          "topic": "社会",
+          "word": "社会",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-05795"
+        },
+        {
+          "topic": "社会",
+          "word": "人権",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-05795"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-05815",
+      "title": "企業や地域と考えるSDGs　「ミライテラス」で海外中継も #328",
+      "show": "SDGsを話そう",
+      "date": "2023-03-02T04:00:00+09:00",
+      "month": "2023-03",
+      "topics": [
+        {
+          "topic": "仕事",
+          "word": "企業",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-05815"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-02408",
+      "title": "科学者はなぜ、日本から中国へ？　激しさを増すアカデミアのサバイバル #1058",
+      "show": "ニュースの現場から",
+      "date": "2023-04-03T04:00:00+09:00",
+      "month": "2023-04",
+      "topics": [
+        {
+          "topic": "世界",
+          "word": "中国",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-02408"
+        },
+        {
+          "topic": "文化",
+          "word": "本",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-02408"
+        },
+        {
+          "topic": "科学",
+          "word": "科学",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-02408"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-02757",
+      "title": "迎春！1年で最も新聞が分厚い日　みんなで新年別刷りをめくろう #1373",
+      "show": "ニュースの現場から",
+      "date": "2024-01-01T04:00:00+09:00",
+      "month": "2024-01",
+      "topics": [
+        {
+          "topic": "仕事",
+          "word": "新聞",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-02757"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-04864",
+      "title": "アイデア・発想力に編集者も驚き　取り組んでくれた中学校・学習塾を取材しました（後編） #42-35",
+      "show": "MEDIA TALK",
+      "date": "2024-02-01T04:00:00+09:00",
+      "month": "2024-02",
+      "topics": [
+        {
+          "topic": "暮らし",
+          "word": "学校",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-04864"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-04886",
+      "title": "念願の業界担当、心躍った初フライト　あの虫にビックリした企業取材③ #52-211",
+      "show": "MEDIA TALK",
+      "date": "2024-03-02T04:00:00+09:00",
+      "month": "2024-03",
+      "topics": [
+        {
+          "topic": "仕事",
+          "word": "企業",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-04886"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-02862",
+      "title": "新たな春　留学も給食も妻の役割も　脱・無理強いの世界へはばたこう #1465",
+      "show": "ニュースの現場から",
+      "date": "2024-04-01T04:00:00+09:00",
+      "month": "2024-04",
+      "topics": [
+        {
+          "topic": "世界",
+          "word": "世界",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-02862"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-03178",
+      "title": "元日は分厚い新聞にワクワク　新年別刷り、多彩なメンバーとめくろう！ #1743",
+      "show": "ニュースの現場から",
+      "date": "2025-01-01T04:00:00+09:00",
+      "month": "2025-01",
+      "topics": [
+        {
+          "topic": "仕事",
+          "word": "新聞",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-03178"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-03213",
+      "title": "政党政治が民衆に見限られるとき、民主主義があおる戦争　100年をたどる旅⑤ #1775",
+      "show": "ニュースの現場から",
+      "date": "2025-02-02T04:00:00+09:00",
+      "month": "2025-02",
+      "topics": [
+        {
+          "topic": "世界",
+          "word": "戦争",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-03213"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-05176",
+      "title": "映像のテレビ局と活字の新聞社が、なぜ音声を？　テレビ朝日「ホンマのホンネ」コラボ #50-438",
+      "show": "MEDIA TALK",
+      "date": "2025-03-01T04:00:00+09:00",
+      "month": "2025-03",
+      "topics": [
+        {
+          "topic": "文化",
+          "word": "映像",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-05176"
+        },
+        {
+          "topic": "仕事",
+          "word": "新聞",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-05176"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-03280",
+      "title": "笑い飯哲夫のしんぶん教室126 阿蘇支局長のお仕事",
+      "show": "ニュースの現場から",
+      "date": "2025-04-01T16:55:00+09:00",
+      "month": "2025-04",
+      "topics": [
+        {
+          "topic": "仕事",
+          "word": "仕事",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-03280"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-03555",
+      "title": "めくり始め、しませんか？　新聞が最も分厚い日　新年別刷りをめくろう！ #2109",
+      "show": "ニュースの現場から",
+      "date": "2026-01-01T04:00:00+09:00",
+      "month": "2026-01",
+      "topics": [
+        {
+          "topic": "仕事",
+          "word": "新聞",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-03555"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-03586",
+      "title": "外国人政策の規制強化は、日本人のためになるの？共生の現場から考えてみた #2140",
+      "show": "ニュースの現場から",
+      "date": "2026-02-01T04:00:00+09:00",
+      "month": "2026-02",
+      "topics": [
+        {
+          "topic": "文化",
+          "word": "本",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-03586"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-03614",
+      "title": "森にも団地にも生かされてきた　戦争にも巻き込みながら　100年をたどる旅⑳ #2168",
+      "show": "ニュースの現場から",
+      "date": "2026-03-01T04:00:00+09:00",
+      "month": "2026-03",
+      "topics": [
+        {
+          "topic": "世界",
+          "word": "戦争",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-03614"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    },
+    {
+      "id": "EP-06541",
+      "title": "ポケモンもマリオも、三国志すら日本から世界へ　ゲームの魅力をもっと伝えたい #1054",
+      "show": "SDGsを話そう",
+      "date": "2026-04-02T04:00:00+09:00",
+      "month": "2026-04",
+      "topics": [
+        {
+          "topic": "世界",
+          "word": "世界",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-06541"
+        },
+        {
+          "topic": "文化",
+          "word": "本",
+          "field": "title",
+          "confidence": "candidate",
+          "sourceId": "EP-06541"
+        }
+      ],
+      "peopleStatus": "UNVERIFIED_NOT_DERIVED",
+      "relatedStatus": "NOT_IMPORTED_IN_TITLE_SAMPLE"
+    }
+  ],
+  "people": [],
+  "coappearances": [],
+  "relatedArticles": []
+}

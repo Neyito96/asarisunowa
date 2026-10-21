@@ -1,0 +1,50 @@
+{
+  "checkedAt": "2026-10-21T06:10:18.344Z",
+  "status": "BRANCH_TESTED_PRODUCTION_NOT_ENABLED",
+  "pr": 244,
+  "v3GuardPr": 243,
+  "testedCommit": "3068f382d2557094ac07fb86c88d30f1f2020cd1",
+  "ci": [
+    {
+      "id": 39553448163,
+      "name": "Pages PR build",
+      "conclusion": "success"
+    },
+    {
+      "id": 39553448183,
+      "name": "Library and universe mobile",
+      "conclusion": "success"
+    }
+  ],
+  "tests": {
+    "node": 49,
+    "reader": 2,
+    "v3": 124,
+    "engines": [
+      "chromium",
+      "webkit"
+    ],
+    "viewport": "iPhone 13",
+    "browserErrors": 0,
+    "physicalIphone": false
+  },
+  "production": {
+    "sheetWrites": 0,
+    "gasDeployments": 0,
+    "triggerChanges": 0,
+    "oauthChanges": 0,
+    "spotifyWrites": 0,
+    "emailSent": 0,
+    "merges": 0,
+    "deployments": 0
+  },
+  "unverified": [
+    "Live GAS source/version/trigger owners and execution logs",
+    "Current ScriptProperties and V3 baseline/morning enabled state",
+    "OAuth/Spotify token validity",
+    "WIF identity/environment/rollout variables configuration",
+    "End-to-end live new RSS registration and publication"
+  ],
+  "populationDecision": null,
+  "scope": "Existing V3/Morning retained, publication adapter code and tests prepared; no claim of production automatic ingest completion"
+}

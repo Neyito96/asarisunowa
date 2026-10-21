@@ -1,0 +1,62 @@
+{
+  "source": "authenticated workbook export",
+  "proofLimit": "Stored historical entries, not Apps Script live Executions or trigger state",
+  "lastEntries": [
+    [
+      "2026-10-16 20:34:45",
+      "V2_SUCCESS",
+      20.0,
+      40.0,
+      4.0
+    ],
+    [
+      "2026-10-16 20:46:57.726000",
+      "V2_GUID_OMNY_VERIFIED_PILOT",
+      10.0,
+      10.0,
+      0.0
+    ],
+    [
+      "2026-10-17 06:31:29.899000",
+      "V2_CHECKPOINT",
+      0.0,
+      0.0,
+      3.0
+    ],
+    [
+      "2026-10-17 06:33:30.598000",
+      "V2_CHECKPOINT",
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      "2026-10-17 06:36:53.082000",
+      "V2_CHECKPOINT",
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      "2026-10-17 06:41:14.627000",
+      "V2_CHECKPOINT",
+      0.0,
+      0.0,
+      1.0
+    ],
+    [
+      "2026-10-17 06:41:52.894000",
+      "V2_CHECKPOINT",
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      "2026-10-17 10:37:46.947000",
+      "V2_MT_PILOT10",
+      10.0,
+      20.0,
+      0.0
+    ]
+  ]
+}
