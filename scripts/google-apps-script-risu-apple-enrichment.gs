@@ -102,7 +102,7 @@ function RISU_installDailyEnrichment() {
   console.log(JSON.stringify(result));return result;
 }
 function RISU_stopDailyEnrichment() {
-  const handler='RISU_applyAppleEnrichment';
+  const handler='RISU_applyAllPlatforms';
   let deleted=0;
   ScriptApp.getProjectTriggers().forEach(t=>{
     if(t.getHandlerFunction()===handler){ScriptApp.deleteTrigger(t);deleted++;}
