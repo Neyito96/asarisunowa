@@ -21,5 +21,55 @@
     "lastStoredExecutionAtJst": "2026-10-17 10:37:46.947000"
   },
   "canonicalPopulation": null,
-  "sourceModifiedAt": "2026-10-21T05:15:23.147Z"
+  "sourceModifiedAt": "2026-10-21T05:15:23.147Z",
+  "stages": [
+    {
+      "stage": "official_rss_fetch",
+      "status": "READ_ONLY_SUCCESS",
+      "at": "2026-10-21T23:07:23.618184+00:00",
+      "items": 2653
+    },
+    {
+      "stage": "new_detection_guid_exclusion_match",
+      "status": "READ_ONLY_SUCCESS_WITH_HOLDS",
+      "at": "2026-10-21T23:07:23.618184+00:00",
+      "existing": 2353,
+      "held": 288,
+      "newCandidates": 12
+    },
+    {
+      "stage": "stable_ep_id_assignment",
+      "status": "NOT_EXECUTED",
+      "assigned": 0,
+      "reason": "No production approval/configuration proof for V3 allowNew/baseline/ALIB"
+    },
+    {
+      "stage": "ledger_append_readback",
+      "status": "NOT_EXECUTED",
+      "registered": 0
+    },
+    {
+      "stage": "new_episode_description_cleaning",
+      "status": "LOCAL_INTEGRATION_PASS_ONLY",
+      "reason": "No new production rows yet"
+    },
+    {
+      "stage": "public_json_generation",
+      "status": "LOCAL_EXISTING_SNAPSHOT_PASS",
+      "version": "1df7cb5d103cfbfc",
+      "at": "2026-10-21T23:11:03.101121+00:00"
+    },
+    {
+      "stage": "pages_confirmation",
+      "status": "EXISTING_PUBLIC_SNAPSHOT_HTTP200",
+      "proof": "live-pages.json",
+      "reason": "New candidates not registered or deployed"
+    },
+    {
+      "stage": "v3_to_pages_test",
+      "status": "MOCK_PASS",
+      "tests": 13,
+      "productionWrites": 0
+    }
+  ]
 }

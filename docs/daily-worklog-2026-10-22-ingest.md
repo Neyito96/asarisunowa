@@ -26,3 +26,9 @@ Apps Script管理画面は今回も未認証のdevelopers案内へ転送され�
 稼働GASの読取アクセスまたは安全な診断結果（プロジェクト/配備版・所有者別トリガー・直近Executions・baseline/allowNew/ALIBの状態）が必要。値そのものの秘密情報は不要。確認後に対象プロジェクトと差分、V3基準登録/切替時刻、既存トリガーの扱い、公開用読取identity/保護環境、試験対象GUIDを具体化して承認を求める。現段階で有効化/mergeはしない。
 
 復旧: 適用前GASソース/設定・対象台帳のバックアップを取得し、検証失敗時は既存停止手順でV3を無効化する承認済み操作だけを行う。他所有者やALIBのトリガーを勝手に削除しない。公開JSONは既存の段階生成で前回正常データを保持。公開後の復旧は対象スナップショット差分のrevertとPages再配信を別途承認する。母集団/配信先共通化は独立PRで扱う。
+
+## CI・公開読戻し追記
+
+PR #248 commit033daa0 の既存V3統合CI [39692041465](https://github.com/Neyito96/asarisunowa/actions/runs/39692041465) と mobile Chromium/WebKit CI [39692041391](https://github.com/Neyito96/asarisunowa/actions/runs/39692041391) が両方success。既存公開manifestは10/22 08:23:01 JSTにHTTP200、version1df7cb5d103cfbfcを確認（`live-pages.json`）。新着12候補を公開した意味ではない。
+
+mainの`Sync listener playlists`はcron17,47 * * * *。最新取得run39692488390（10/22 08:17:52 JST開始）はsuccess。ただし処理は既存公開CSVからplaylist/おすすめPodcast snapshotを更新してPagesをdispatchするもので、公式RSS→独立図書館の収蔵・JSON生成ではない。ライブラリ公開ブリッジworkflowは#244未マージであり、mainの既存定期ActionだけではP0は未接続。所有者別GAS状態は引き続き未確認。段階別結果はlive-stages.json、CI証拠はci.jsonへ保存。
