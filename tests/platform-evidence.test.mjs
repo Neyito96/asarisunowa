@@ -90,3 +90,4 @@ test('existing submission contracts retain 17/18 columns and accept posts when e
  d.ctx.appendPostRow_(sheet,'listenerPodcast','https://open.spotify.com/show/abc','Other title','Maker','',rss,'2026-10-21','Other comment','','');
  assert.equal(saved[1].length,17);assert.equal(saved[1][5],'https://open.spotify.com/show/abc');assert.equal(saved[1][3],'2026-10-21');assert.equal(saved[1][4],'Other comment');
 });
+test('a request deferred before execution does not advance its continuation position',()=>{const d=daily(3);d.ctx.resolvePodcastPlatformsByEvidence_=()=>({resolved:{},evidence:{state:'DEFERRED',reason:'RUN_BUDGET'}});const r=d.ctx.RISU_applyAllPlatforms();assert.equal(r.deferred,3);assert.equal(d.properties.RISU_ENRICH_NEXT_ROW,'2');assert.equal(d.stats().requests,0);});

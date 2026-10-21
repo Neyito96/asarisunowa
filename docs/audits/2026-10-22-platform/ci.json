@@ -1,0 +1,44 @@
+{
+  "testedCommit": "b017e2fb2014e361a9c2b02a8cfe2f6c4bc9f71c",
+  "checkedAt": "2026-10-21T23:29:12.276Z",
+  "checks": [
+    {
+      "id": 39693473098,
+      "name": "Shared podcast evidence regression",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Neyito96/asarisunowa/actions/runs/39693473098"
+    },
+    {
+      "id": 39693472965,
+      "name": "Check GitHub Pages Build",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Neyito96/asarisunowa/actions/runs/39693472965"
+    },
+    {
+      "id": 39693472985,
+      "name": "Library mobile acceptance",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Neyito96/asarisunowa/actions/runs/39693472985"
+    }
+  ],
+  "p0Checks": [
+    {
+      "id": 39693530613,
+      "name": "Existing V3 ingest to publication integration",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Neyito96/asarisunowa/actions/runs/39693530613"
+    },
+    {
+      "id": 39693530620,
+      "name": "Library mobile acceptance",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Neyito96/asarisunowa/actions/runs/39693530620"
+    }
+  ],
+  "note": "Subsequent shared change only retains cursor on a deferred request, adds its regression and the population comparison CSV; local full suite 78/78."
+}

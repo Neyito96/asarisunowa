@@ -72,10 +72,10 @@ function RISU_enrichApple_(apply) {
       if(!feed && !(source.provider==='apple' && source.level==='programme')){log.withoutRss++;continue;}
       if(Date.now()-started>=cfg.runBudgetMs || rateLimited){log.deferred++;continue;}
       const result=resolvePodcastPlatformsByEvidence_(title,String(row[0]||''),String(row[cols.rss]||''),requestApple);
-      nextIndex=i===data.length-1?1:i+1;
       const rssLinks=result.resolved;
       const m={collectionViewUrl:rssLinks.apple,primaryGenreName:rssLinks.genre,artworkUrl600:rssLinks.artwork,artistName:rssLinks.host};
       if(result.evidence.state==='DEFERRED'){log.deferred++;continue;}
+      nextIndex=i===data.length-1?1:i+1;
       if(result.evidence.state==='MATCH')log.matched++;
       else if(result.evidence.state==='FAILED')log.requestsFailed++;
       else if(result.evidence.reason==='MULTIPLE_CANDIDATES')log.ambiguous++;

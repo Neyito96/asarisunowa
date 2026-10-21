@@ -14,6 +14,6 @@ P0 PR #247/#248を先に保存し、main58a9977から別ブランチで実装。
 
 詳細は[配信先照合と運用手順](platform-evidence-2026-10-22.md)。純粋ルール1正本→GAS生成、旧構造RSS解析再利用、安全なApple照合、番組/個別/取り込みURL区別、既存整列順維持、リス推し閲覧時の画像検索廃止、日次全行/新投稿/空欄/競合読戻し/429/続行cursorを実装。P0には依存させない。
 
-`npm run build:pages`成功、`node --test tests/*.test.mjs`77/77 PASS（新規39+既存38）。生成GASの一致とNode構文確認、git diff --check成功。full tscは既存Cloudflare環境型3件（cloudflare:workers/Fetcher/D1Database）で停止し、今回の変更ファイル由来の診断はない。Pages buildは成功している。GAS実環境/実Spotify/メール送信のテストは実行していない。
+`npm run build:pages`成功、`node --test tests/*.test.mjs`78/78 PASS（新規40+既存38）。生成GASの一致とNode構文確認、git diff --check成功。full tscは既存Cloudflare環境型3件（cloudflare:workers/Fetcher/D1Database）で停止し、今回の変更ファイル由来の診断はない。Pages buildは成功している。GAS実環境/実Spotify/メール送信のテストは実行していない。
 
 残件: GASの現行ソース/トリガー/配備設定を確認し、具体的なPREVIEW値とセル差分/バックアップを提示して配備・適用・日次設定の承認を得る。未知サービスの公開検索API/URL階層を確認する。P0本番接続に必要なbaseline/allowNew/ALIB状態の確認を最優先のまま維持する。
