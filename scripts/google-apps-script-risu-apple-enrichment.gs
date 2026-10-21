@@ -8,7 +8,8 @@
 const RISU_ENRICH_CONFIG = Object.freeze({
   spreadsheetId: '1KSzoIkOsjUagNBLt3IbKIvgWEmez4f0XISQ-jkUjmwQ',
   sheetName: 'おすすめPodcast',
-  maxRows: 100,
+  runBudgetMs: 240000,
+  appleIntervalMs: 3100,
   maxResults: 25,
   timeoutMs: 12000
 });
@@ -32,38 +33,55 @@ function RISU_enrichApple_(apply) {
     pody:ix('Pody'),website:ix('番組HP'),
     genre:ix('ジャンル'),art:ix('アートワーク'),host:ix('配信者 / Host')
   };
-  const normalizeFeed = value => {
-    try {
-      const u=new URL(String(value||'').trim());
-      return (u.protocol+'//'+u.hostname.toLowerCase()+u.pathname.replace(/\/$/,'')).toLowerCase();
-    } catch (_) { return ''; }
+  const normalizeFeed = PodcastPlatformEvidence.publicUrl;
+  const started=Date.now();let lastAppleAt=0,rateLimited=false;
+  const memo={};
+  const requestApple=url=>{
+    if(rateLimited)throw Error('APPLE_HTTP_429');
+    if(memo[url])return memo[url];
+    const pause=Math.max(0,cfg.appleIntervalMs-(Date.now()-lastAppleAt));
+    if(Date.now()-started+pause>=cfg.runBudgetMs)throw Error('RUN_DEFERRED');
+    if(pause)Utilities.sleep(pause);
+    lastAppleAt=Date.now();
+    const res=UrlFetchApp.fetch(url,{muteHttpExceptions:true,followRedirects:true});
+    if(res.getResponseCode()===429){rateLimited=true;throw Error('APPLE_HTTP_429');}
+    if(res.getResponseCode()!==200)throw Error('APPLE_HTTP_'+res.getResponseCode());
+    return memo[url]=JSON.parse(res.getContentText());
   };
-  const log={mode:apply?'APPLY':'PREVIEW',inspected:0,matched:0,unmatched:0,ambiguous:0,withoutRss:0,requestsFailed:0,writes:0,proposals:[]};
+  const progress=apply?PropertiesService.getScriptProperties():null;
+  const saved=progress?Number(progress.getProperty('RISU_ENRICH_NEXT_ROW')||2)-1:1;
+  const startIndex=saved>=1&&saved<data.length?saved:1;
+  const order=Array.from({length:Math.max(0,data.length-1)},(_,n)=>1+(startIndex-1+n)%(data.length-1));
+  let nextIndex=startIndex;
+  const log={mode:apply?'APPLY':'PREVIEW',startedAt:new Date(started).toISOString(),activeRows:0,inspected:0,matched:0,unmatched:0,ambiguous:0,withoutRss:0,requestsFailed:0,deferred:0,excluded:0,writes:0,verifiedCells:[],proposals:[]};
   const lock=LockService.getScriptLock();
   if(apply && !lock.tryLock(10000)) throw Error('同時実行のため中止');
   try {
-    for(let i=1;i<data.length && log.inspected<cfg.maxRows;i++){
+    for(const i of order){
       const row=data[i], title=String(row[cols.title]||'').trim();
       if(!title) continue;
-      const needs=[cols.apple,cols.genre,cols.art,cols.host,cols.youtube,cols.spotify,cols.amazon,cols.pocketcasts,cols.listen,cols.standfm,cols.pody,cols.website].some(j=>!String(row[j]||'').trim());
+      const statusIndex=h.indexOf('巡回状態');
+      if(statusIndex>=0 && /^(除外|無効|停止|inactive|excluded)$/i.test(String(row[statusIndex]||'').trim())){log.excluded++;continue;}
+
+      log.activeRows++;
+      const needs=[cols.rss,cols.apple,cols.genre,cols.art,cols.host,cols.youtube,cols.spotify,cols.amazon,cols.pocketcasts,cols.listen,cols.standfm,cols.pody,cols.website].some(j=>!String(row[j]||'').trim());
       if(!needs) continue;
       log.inspected++;
       const feed=normalizeFeed(row[cols.rss]);
-      if(!feed){log.withoutRss++;continue;}
-      const rssLinks=RISU_discoverRssPlatformLinks_(String(row[cols.rss]||''));
-      let items;
-      try{
-        const url='https://itunes.apple.com/search?media=podcast&entity=podcast&country=JP&limit='+cfg.maxResults+'&term='+encodeURIComponent(title);
-        const res=UrlFetchApp.fetch(url,{muteHttpExceptions:true,followRedirects:true});
-        if(res.getResponseCode()!==200)throw Error('HTTP '+res.getResponseCode());
-        items=JSON.parse(res.getContentText()).results||[];
-      }catch(e){log.requestsFailed++;items=[];console.log('RISU_APPLE_ERROR '+JSON.stringify({row:i+1,error:String(e)}));}
-      const matches=items.filter(x=>normalizeFeed(x.feedUrl)===feed);
-      if(matches.length===0)log.unmatched++;
-      if(matches.length>1)log.ambiguous++;
-      const m=matches.length===1?matches[0]:{};
-      if(matches.length===1)log.matched++;
+      const source=PodcastPlatformEvidence.classifyPlatformUrl(row[0]);
+      if(!feed && !(source.provider==='apple' && source.level==='programme')){log.withoutRss++;continue;}
+      if(Date.now()-started>=cfg.runBudgetMs || rateLimited){log.deferred++;continue;}
+      const result=resolvePodcastPlatformsByEvidence_(title,String(row[0]||''),String(row[cols.rss]||''),requestApple);
+      nextIndex=i===data.length-1?1:i+1;
+      const rssLinks=result.resolved;
+      const m={collectionViewUrl:rssLinks.apple,primaryGenreName:rssLinks.genre,artworkUrl600:rssLinks.artwork,artistName:rssLinks.host};
+      if(result.evidence.state==='DEFERRED'){log.deferred++;continue;}
+      if(result.evidence.state==='MATCH')log.matched++;
+      else if(result.evidence.state==='FAILED')log.requestsFailed++;
+      else if(result.evidence.reason==='MULTIPLE_CANDIDATES')log.ambiguous++;
+      else log.unmatched++;
       const candidates=[
+        [cols.rss,rssLinks.rss||''],
         [cols.apple,String(m.collectionViewUrl||'')],
         [cols.genre,String(m.primaryGenreName||'')],
         [cols.art,String(m.artworkUrl600||m.artworkUrl100||'')],
@@ -72,30 +90,39 @@ function RISU_enrichApple_(apply) {
         [cols.amazon,rssLinks.amazon||''],[cols.pocketcasts,rssLinks.pocketcasts||''],
         [cols.listen,rssLinks.listen||''],[cols.standfm,rssLinks.standfm||''],
         [cols.pody,rssLinks.pody||''],[cols.website,rssLinks.website||'']
-      ].filter(([j,v])=>v && !String(row[j]||'').trim());
-      const proposal={row:i+1,title,appleId:m.collectionId,fields:candidates.map(([j])=>h[j])};
+      ].filter(([j,v])=>v && !/^=/.test(v.trimStart()) && !String(row[j]||'').trim());
+      const proposal={row:i+1,title,state:result.evidence.state,reason:result.evidence.reason,fields:candidates.map(([j])=>h[j])};
       log.proposals.push(proposal);
       if(!apply)continue;
       // 書き込み直前に番組・RSS・対象セルを再検証。
       const current=sh.getRange(i+1,1,1,h.length).getValues()[0];
       if(String(current[cols.title]||'').trim()!==title ||
-         normalizeFeed(current[cols.rss])!==feed)continue;
+         normalizeFeed(current[cols.rss])!==feed || String(current[0]||'')!==String(row[0]||''))throw Error('ROW_CONFLICT row '+(i+1));
+      for(const [j] of candidates){const cell=sh.getRange(i+1,j+1);if(cell.getFormula()||String(cell.getValue()||'').trim())throw Error('CELL_CONFLICT row '+(i+1)+' col '+(j+1));}
       for(const [j,v] of candidates){
-        if(!String(sh.getRange(i+1,j+1).getValue()||'').trim()){
-          sh.getRange(i+1,j+1).setValue(v);
-          log.writes++;
-        }
+        const cell=sh.getRange(i+1,j+1);
+        if(cell.getFormula() || String(cell.getValue()||'').trim())throw Error('CELL_CONFLICT row '+(i+1)+' col '+(j+1));
+        console.log('RISU_CELL_ATTEMPT '+JSON.stringify({row:i+1,column:j+1}));
+        cell.setValue(v);
+        if(String(cell.getValue())!==v)throw Error('READBACK_FAILED row '+(i+1)+' col '+(j+1));
+        log.writes++;log.verifiedCells.push({row:i+1,column:j+1});
+
       }
     }
+    if(progress)progress.setProperty('RISU_ENRICH_NEXT_ROW',String(nextIndex+1));
+    log.nextRow=nextIndex+1;
+    log.finishedAt=new Date().toISOString();
     console.log('RISU_APPLE_ENRICH '+JSON.stringify(log));
     return log;
-  } finally {if(apply)lock.releaseLock();}
+  } catch(error) {log.failedAt=new Date().toISOString();console.log('RISU_ENRICH_FAILED '+JSON.stringify(log));throw error;} finally {if(apply)lock.releaseLock();}
 }
 
 /** Daily trigger, dedicated to リス推し. Call only after preview validation. */
 function RISU_installDailyEnrichment() {
   const handler='RISU_applyAllPlatforms';
-  const existing=ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()===handler);
+  const all=ScriptApp.getProjectTriggers();
+  if(all.some(t=>/^(RISU_applyAppleEnrichment|syncRecommendedPodcastPlatforms|syncAllPodcastPlatforms)$/.test(t.getHandlerFunction())))throw Error('旧巡回と競合します。実トリガーの確認が必要です');
+  const existing=all.filter(t=>t.getHandlerFunction()===handler);
   if(existing.length>1) throw Error('同名トリガーが複数あります。手動確認してください');
   if(!existing.length) ScriptApp.newTrigger(handler).timeBased().everyDays(1).atHour(4).create();
   const result={mode:'RISU_DAILY_INSTALLED',handler,triggers:ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()===handler).length};
@@ -116,41 +143,5 @@ function RISU_stopDailyEnrichment() {
  * This intentionally leaves platforms blank when the publisher gives no proof.
  */
 function RISU_discoverRssPlatformLinks_(feedUrl) {
-  const result={};
-  try {
-    const res=UrlFetchApp.fetch(feedUrl,{muteHttpExceptions:true,followRedirects:true});
-    if(res.getResponseCode()!==200)return result;
-    const xml=res.getContentText();
-    const channel=xml.split(/<item(?:\s|>)/i)[0].slice(0,100000);
-    const candidates=[];
-    const matches=channel.match(/https?:\/\/[^\s"'<>]+/gi)||[];
-    for(const raw of matches) {
-      const clean=raw.replace(/&amp;/g,'&').replace(/[),.;]+$/,'');
-      try { const u=new URL(clean); if(u.protocol==='https:')candidates.push(u.href); }catch(e){}
-    }
-    const domains={
-      youtube:/(^|\.)youtube\.com$|(^|\.)youtu\.be$/,
-      spotify:/(^|\.)open\.spotify\.com$/,
-      amazon:/(^|\.)music\.amazon\.[a-z.]+$/,
-      pocketcasts:/(^|\.)pca\.st$|(^|\.)pocketcasts\.com$/,
-      listen:/(^|\.)listen\.style$/,
-      standfm:/(^|\.)stand\.fm$/,
-      pody:/(^|\.)pody\.jp$/
-    };
-    for(const [key,domain] of Object.entries(domains)){
-      const found=[...new Set(candidates.filter(url=>{
-        const u=new URL(url);
-        if(!domain.test(u.hostname))return false;
-        if(key==='spotify')return /^\/show\//.test(u.pathname);
-        if(key==='youtube')return /^\/(channel|@|playlist)/.test(u.pathname);
-        if(key==='amazon')return /\/podcasts\//.test(u.pathname);
-        if(key==='listen')return /\/(p|podcast)\//.test(u.pathname);
-        if(key==='standfm')return /^\/channels\//.test(u.pathname);
-        return true;
-      }).map(url=>url.split('?')[0]))];
-      if(found.length===1)result[key]=found[0];
-    }
-    // Do not infer the podcast homepage from episode links.
-  } catch(e) { console.log('RISU_RSS_DISCOVERY_ERROR '+String(e)); }
-  return result;
+  return PodcastPlatformEvidence.confirmedProgrammeLinks(readPodcastFeedLinks_(feedUrl)).links;
 }
