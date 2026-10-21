@@ -97,5 +97,16 @@
   "triggerChanges": 0,
   "spotifyWrites": 0,
   "mailSent": 0,
-  "canonicalPopulation": null
+  "canonicalPopulation": null,
+  "followupObservation": {
+    "scheduleRun": 39552863750,
+    "createdAt": "2026-10-21T06:01:07Z",
+    "conclusion": "success",
+    "resultingMain": "9488a2cfb0b46ab860b4dc696e11e949d7b985d5",
+    "changedFiles": [
+      "app/data.ts",
+      "app/recommended-podcasts-data.ts"
+    ],
+    "note": "Observed after initial 10-run sample. No library JSON changes; main was advanced by existing bot, not Phase12 deployment."
+  }
 }

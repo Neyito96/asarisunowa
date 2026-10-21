@@ -1,3 +1,11 @@
+# Phase 12 PR・受入確認 — 2026-10-21（JST）
+
+本体Draft PR #244（実装3068f382）、既存PR #230へのALIB競合修正Draft PR #243（68ceb176）を作成。Node49/49・Google読取アダプター2/2・V3/Morning124/124、Pages build成功。PR #244のPages39553448163とモバイル39553448183がSUCCESS。iPhone13相当Chromium/WebKitで既存図書館/編集室と宇宙試作を検証し全errors=[]。宇宙は実験HTTPサーバーだけで、既存Pagesへは含めない。物理iPhone未試験。
+
+実データの新着11候補を既存V3NewDecision関数でローカル評価。baseline完了/allowNew有効という明示的仮定では11候補が残り、未設定前提では全件保留。稼働GASの設定は取得していない。採番・収蔵は0。v3-new-decision.jsonに仮定を明示。15:01:07 JSTの既存同期Actions39552863750もSUCCESS、main9488a2cへ2つのプレイリスト用データだけを更新。Phase12による本番配信ではなく、図書館JSONは同じ。初回10実行の統計とこの追観測は分けて保存。
+
+最終受入はaudits/2026-10-21-phase12/acceptance.jsonとmobile-test-results.txtに保存。マージ・台帳書込・GAS/トリガー/認証/Spotify/メール・本番公開は全て未実行。Issue #241/#222へ集約する。
+
 # Phase 12 READ_ONLY実測・未接続ブリッジ実装 — 2026-10-21（JST）
 
 指示書ceae9930を全文確認、main25dc3a6・関連Issue/未マージ16PRを照合。Phase11本番清掃は再実行せず、台帳/公開データ/稼働GAS/設定/トリガー/OAuth/Spotify/メールは変更0、マージ・公開0。別チャットの母集団/除外監査を確定しない。

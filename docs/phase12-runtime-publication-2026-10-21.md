@@ -54,3 +54,9 @@ EP-03365/05247の公開本文・検索索引に寺下真理加/太田匡彦/佐�
 承認後設定が必要なもの: WIF providerと読取専用サービスアカウント（対象台帳閲覧のみ）、`library-publication-approved`環境の承認保護、`LIBRARY_PUBLICATION_ENABLED`。自動マージ/配信はさらに`LIBRARY_AUTO_PUBLISH_APPROVED`を別承認で有効化する。現時点では全て未設定/未有効化として扱い、実設定値は確認できていない。設定作成や認証変更は実行していない。
 
 失敗時は新しいPR/配信へ進まず、既存公開スナップショットを保持。前回の公開へ戻す場合は対象データ変更をrevertし既存Pagesを再配信する（実行は承認後）。V3は既存stop関数で無効化する変更計画を別途提示し、ALIBなど他所有者のトリガーを削除しない。公開ブリッジは有効化変数をfalseへ戻して停止できるが、既に動く実行は明示確認が必要。台帳への復旧書き込みは本PRの処理に含めない。
+
+## 最終受入
+
+Draft PR #244（main向け）と #243（既存PR #230向け）を作成。Node49/49、読取アダプター2/2、V3/Morning124/124、Pages build成功。実装3068f382のPages CI39553448163・モバイル39553448183はSUCCESS。図書館/編集室と宇宙V0.1をiPhone13相当Chromium/WebKitで試験しerrors=[]。物理iPhone未試験。既存V3判定関数の実データローカル評価では、baseline完了/新規登録有効を仮定した場合だけ11候補が残る。稼働設定取得や本番登録ではない。
+
+初回観測後に既存同期Actions39552863750（15:01:07 JST）が成功し、main9488a2cはapp/data.ts等2ファイルだけ更新した。Phase12が公開したものではない。公開図書館JSONの変更はない。証跡はacceptance.json、mobile-test-results.txt、v3-new-decision.json、runtime-observations.jsonの追観測に保存。
