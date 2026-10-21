@@ -1,0 +1,2366 @@
+{
+  "mode": "READ_ONLY_EXISTING_V3_INPUT_DIAGNOSTIC",
+  "feed": {
+    "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/684015f9-2396-4ac4-bc1f-ac0f0033d08c/podcast.rss",
+    "fetchedAt": "2026-10-21T23:07:23.618184+00:00",
+    "status": 200,
+    "items": 2653,
+    "sha256": "ceecac50481a0b343ee7dd7e127d716c88dec40d2ed03e52cd8da30a8aeab0ec"
+  },
+  "existing": 2353,
+  "excluded": 0,
+  "held": [
+    {
+      "guid": "a6e571c0-68a8-4bc2-928a-b4ad0062d47b",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01071",
+        "EP-03828"
+      ]
+    },
+    {
+      "guid": "13491b76-bc61-4c02-8f98-b49f0015819f",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01072",
+        "EP-03796"
+      ]
+    },
+    {
+      "guid": "55a49b7b-8f3f-4247-ace5-b48d006de94d",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01073",
+        "EP-03775"
+      ]
+    },
+    {
+      "guid": "aeaf3348-4b52-46d3-83d2-b48800a291d6",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01074",
+        "EP-03771"
+      ]
+    },
+    {
+      "guid": "822a4b75-8d22-445d-a717-b4880037f1f6",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01075",
+        "EP-03770"
+      ]
+    },
+    {
+      "guid": "dff66132-fb56-40e1-8a07-b48100208cb6",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01076",
+        "EP-03761"
+      ]
+    },
+    {
+      "guid": "2ae7766b-4f3e-4ecc-b9ed-b46900185401",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01077",
+        "EP-03751"
+      ]
+    },
+    {
+      "guid": "520448ab-9996-4e47-8af0-b47500e937ac",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01078",
+        "EP-03747"
+      ]
+    },
+    {
+      "guid": "298f85bd-8f59-40aa-87ec-b45c0047b743",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01079",
+        "EP-03742"
+      ]
+    },
+    {
+      "guid": "db24179f-3b65-4173-a311-b46e007a3b67",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01080",
+        "EP-03740"
+      ]
+    },
+    {
+      "guid": "eaf40c2a-2cde-492a-9401-b45c00432a6a",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01081",
+        "EP-03737"
+      ]
+    },
+    {
+      "guid": "51ed4cd9-75df-41a2-86c4-b45c00413aa0",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01082",
+        "EP-03727"
+      ]
+    },
+    {
+      "guid": "77636355-cc52-4f88-95b2-b45e00321829",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01083",
+        "EP-03717"
+      ]
+    },
+    {
+      "guid": "933b2548-5e9b-45ae-88b4-b45e008235d4",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01084",
+        "EP-03715"
+      ]
+    },
+    {
+      "guid": "6f3750b7-4d25-4143-b4c0-b43300548b32",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01085",
+        "EP-03711"
+      ]
+    },
+    {
+      "guid": "c3700289-e391-400d-9419-b45700273f95",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01086",
+        "EP-03708"
+      ]
+    },
+    {
+      "guid": "54965a7b-d898-4125-8588-b452004d6ff0",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01087",
+        "EP-03700"
+      ]
+    },
+    {
+      "guid": "420dd0d4-3645-499a-a136-b44900573fca",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01088",
+        "EP-03691"
+      ]
+    },
+    {
+      "guid": "65ac66f4-e20e-44f5-aa0b-b4330048476b",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01089",
+        "EP-03677"
+      ]
+    },
+    {
+      "guid": "3101cca0-0fd6-41ea-ae75-b43300548bea",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01090",
+        "EP-03676"
+      ]
+    },
+    {
+      "guid": "1c9b3aae-6db6-4615-9845-b43100b1a20e",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01091",
+        "EP-03669"
+      ]
+    },
+    {
+      "guid": "d3426b7e-8c13-44a5-b9d7-b42e004bc7c4",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01092",
+        "EP-03662"
+      ]
+    },
+    {
+      "guid": "31eddb26-023c-46e1-b7ab-b4110083426b",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01093",
+        "EP-03641"
+      ]
+    },
+    {
+      "guid": "18d844c7-380c-4eab-b42a-b413006ad723",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01094",
+        "EP-03635"
+      ]
+    },
+    {
+      "guid": "a77839f5-d218-4381-af8c-b40300772892",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01095",
+        "EP-03634"
+      ]
+    },
+    {
+      "guid": "41807a9d-993c-4295-90f6-b409003ed327",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01096",
+        "EP-03628"
+      ]
+    },
+    {
+      "guid": "8901053d-2c24-41d9-87ac-b4070023bed2",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01097",
+        "EP-03627"
+      ]
+    },
+    {
+      "guid": "fb3d9333-f247-495e-b620-b3fd0024a90c",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01098",
+        "EP-03620"
+      ]
+    },
+    {
+      "guid": "f1127676-a46d-418f-8f6a-b3e9004473f6",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01099",
+        "EP-03606"
+      ]
+    },
+    {
+      "guid": "25604fcd-3527-4b09-86f6-b3d10057e1f1",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01100",
+        "EP-03585"
+      ]
+    },
+    {
+      "guid": "b50230b6-809b-45dd-9589-b3d400ba8d37",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01102",
+        "EP-03578"
+      ]
+    },
+    {
+      "guid": "c7ac3a79-7905-440f-af03-b3af0015ca0f",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01105",
+        "EP-03557"
+      ]
+    },
+    {
+      "guid": "5f02be72-62e5-434e-98f6-b3b60138e101",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01106",
+        "EP-03546"
+      ]
+    },
+    {
+      "guid": "c6c7cb8f-0e63-40a6-bcea-b3a9002166a3",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01107",
+        "EP-03529"
+      ]
+    },
+    {
+      "guid": "a05e32e1-16cd-4dfd-8e5c-b3a200b9a08b",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01108",
+        "EP-03523"
+      ]
+    },
+    {
+      "guid": "b6fc5263-8c35-4d19-8e8f-b38d009b73b2",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01109",
+        "EP-03508"
+      ]
+    },
+    {
+      "guid": "0beb799f-4c8a-4531-a93c-b372001b888b",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01110",
+        "EP-03494"
+      ]
+    },
+    {
+      "guid": "3c1d60f8-7325-43f3-98c9-b37c00587277",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01111",
+        "EP-03487"
+      ]
+    },
+    {
+      "guid": "0a0b7584-871d-43f0-ab01-b376007154b1",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01112",
+        "EP-03480"
+      ]
+    },
+    {
+      "guid": "83642077-ebbb-465f-b240-b368001326b6",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01113",
+        "EP-03466"
+      ]
+    },
+    {
+      "guid": "cd53637e-77c3-48c2-8997-b3370069b529",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01114",
+        "EP-03445"
+      ]
+    },
+    {
+      "guid": "f5182d2a-5bce-4aac-b618-b32c005bc953",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01115",
+        "EP-03438"
+      ]
+    },
+    {
+      "guid": "fb485f12-5a42-4ecd-8699-b347004327c1",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01116",
+        "EP-03432"
+      ]
+    },
+    {
+      "guid": "b1b1162b-ebc5-4dc9-b6e7-b33900b85179",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01228",
+        "EP-03425"
+      ]
+    },
+    {
+      "guid": "7d6d8ae1-674f-48af-8a2a-b33800a2a453",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01117",
+        "EP-03424"
+      ]
+    },
+    {
+      "guid": "142a9873-e700-4bae-bdb5-b32200482802",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01118",
+        "EP-03396"
+      ]
+    },
+    {
+      "guid": "0b4b5e09-8b30-4fac-a1fa-b30700107bd4",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01119",
+        "EP-03375"
+      ]
+    },
+    {
+      "guid": "c5db95bf-57df-4233-85e7-b30700aea7af",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01120",
+        "EP-03368"
+      ]
+    },
+    {
+      "guid": "85c75f16-4186-4980-a213-b30500602a46",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00946",
+        "EP-03367"
+      ]
+    },
+    {
+      "guid": "4c98f990-9fa4-40e8-a8d6-b2fe0041b827",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00949",
+        "EP-03360"
+      ]
+    },
+    {
+      "guid": "269308ba-d973-48d3-934e-b2f400a780de",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01123",
+        "EP-03354"
+      ]
+    },
+    {
+      "guid": "a6a645a5-e1a6-41a1-91fa-b2f7002d0e0f",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00950",
+        "EP-03353"
+      ]
+    },
+    {
+      "guid": "cb256562-01e1-4d4f-9214-b2f300bb87c3",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01124",
+        "EP-03347"
+      ]
+    },
+    {
+      "guid": "801ddcd8-c389-47b7-847d-b2e90024ef2e",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00951",
+        "EP-03346"
+      ]
+    },
+    {
+      "guid": "e3b85ebe-dfe5-4a35-84a1-b2db005cdf63",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00952",
+        "EP-03332"
+      ]
+    },
+    {
+      "guid": "5bd69a53-bea9-4d89-b0a4-b2db005cdb23",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00953",
+        "EP-03325"
+      ]
+    },
+    {
+      "guid": "a8c2f303-ce10-4f55-ad53-b2d200756dd4",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01125",
+        "EP-03319"
+      ]
+    },
+    {
+      "guid": "ba4b9afd-e328-4415-95d8-b2cd002fd6a6",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00954",
+        "EP-03318"
+      ]
+    },
+    {
+      "guid": "eb566b49-2666-4161-bc85-b2bf005d36f9",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00288",
+        "EP-03315"
+      ]
+    },
+    {
+      "guid": "ef5ddec9-33ca-4db2-b0cc-b2bf005d31fa",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01229",
+        "EP-03314"
+      ]
+    },
+    {
+      "guid": "023a0a30-c494-4db5-9747-b2bf005d2e70",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00289",
+        "EP-03313"
+      ]
+    },
+    {
+      "guid": "c4bf1249-d1a5-4fb3-9efe-b2ca0089f956",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00955",
+        "EP-03311"
+      ]
+    },
+    {
+      "guid": "9ccdb4bd-c029-45da-967f-b2c6001bacea",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01126",
+        "EP-03308"
+      ]
+    },
+    {
+      "guid": "3360108b-91bf-4a6c-bdfe-b2c500100835",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01127",
+        "EP-03305"
+      ]
+    },
+    {
+      "guid": "3facd7b0-9df6-4f8c-94e8-b2bf005d2a8a",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00956",
+        "EP-03304"
+      ]
+    },
+    {
+      "guid": "d5edeaa2-4ce5-4455-afbf-b2a700db6fd9",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01128",
+        "EP-03298"
+      ]
+    },
+    {
+      "guid": "3e10a3b9-c70c-44a8-b50f-b2bf005be504",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00957",
+        "EP-03297"
+      ]
+    },
+    {
+      "guid": "cfeef6c2-24ec-4f6f-a684-b2b8002d5a4d",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00958",
+        "EP-03291"
+      ]
+    },
+    {
+      "guid": "464846c0-33eb-4072-bcdf-b2ac0094029d",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01129",
+        "EP-03284"
+      ]
+    },
+    {
+      "guid": "5e4020f9-cf65-46c5-9dcb-b2aa0059175d",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00959",
+        "EP-03283"
+      ]
+    },
+    {
+      "guid": "c65bd0b1-3a42-43f4-856a-b2a3005d2ea3",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00960",
+        "EP-03275"
+      ]
+    },
+    {
+      "guid": "48d2ec7c-5f47-4bb1-904b-b29200712eb3",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01130",
+        "EP-03268"
+      ]
+    },
+    {
+      "guid": "1908eeb3-3f68-4637-b44d-b2a3005d22fa",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00961",
+        "EP-03267"
+      ]
+    },
+    {
+      "guid": "cb3eeafe-d33b-4167-b614-b28700a6b0d3",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01131",
+        "EP-03260"
+      ]
+    },
+    {
+      "guid": "0d5b3753-46cc-4c90-b5e0-b293018213e5",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00962",
+        "EP-03259"
+      ]
+    },
+    {
+      "guid": "409af96c-23bc-4b43-af41-b29301820f15",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00963",
+        "EP-03251"
+      ]
+    },
+    {
+      "guid": "910706d9-708a-46c0-a8fa-b27a005e76fd",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01132",
+        "EP-03244"
+      ]
+    },
+    {
+      "guid": "b20b2cce-6cae-4d0f-882c-b287005ad2d0",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00964",
+        "EP-03243"
+      ]
+    },
+    {
+      "guid": "c9d60574-fbd1-4e07-b8df-b287004a7d46",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00965",
+        "EP-03235"
+      ]
+    },
+    {
+      "guid": "bb703373-855c-427f-9d05-b25100e7e63a",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01133",
+        "EP-03229"
+      ]
+    },
+    {
+      "guid": "21ac2254-0bc7-4b88-b7ef-b27d0095edd3",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01134",
+        "EP-03228"
+      ]
+    },
+    {
+      "guid": "b5ff2da2-11ae-4044-987e-b27900324982",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00966",
+        "EP-03227"
+      ]
+    },
+    {
+      "guid": "ff4c9b84-c3a3-4510-99b8-b27900325192",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00967",
+        "EP-03219"
+      ]
+    },
+    {
+      "guid": "44ed5b4d-fb3b-496c-941b-b26b00339e6c",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01135",
+        "EP-03212"
+      ]
+    },
+    {
+      "guid": "e9c620f2-2e62-4748-a965-b26b000750a6",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00968",
+        "EP-03211"
+      ]
+    },
+    {
+      "guid": "04c2e468-63f0-48c0-8143-b2660045aea4",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01137",
+        "EP-03205"
+      ]
+    },
+    {
+      "guid": "943b07d7-59e5-43ce-8f38-b26b0007496a",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00969",
+        "EP-03204"
+      ]
+    },
+    {
+      "guid": "48d0bab3-06ae-4eb3-b601-b25100df26e2",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01138",
+        "EP-03197"
+      ]
+    },
+    {
+      "guid": "8b32ef4b-cb3d-469e-820c-b25d003c4e84",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00970",
+        "EP-03196"
+      ]
+    },
+    {
+      "guid": "6af3e740-bfc7-4f76-b33b-b260000b59c6",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01139",
+        "EP-03189"
+      ]
+    },
+    {
+      "guid": "5803b2de-d55b-4032-a0bc-b25d00345814",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00971",
+        "EP-03188"
+      ]
+    },
+    {
+      "guid": "b860d878-4517-40ea-94ba-b24f0181f13e",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01140",
+        "EP-03173"
+      ]
+    },
+    {
+      "guid": "23cbf948-9950-44d9-9ad6-b248002b5e51",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00972",
+        "EP-03172"
+      ]
+    },
+    {
+      "guid": "01f03518-53dd-4a17-9be8-b23700d2686e",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01141",
+        "EP-03165"
+      ]
+    },
+    {
+      "guid": "bceb0a4d-c04e-44e9-9531-b248002a011d",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00973",
+        "EP-03164"
+      ]
+    },
+    {
+      "guid": "9709229a-bad5-4d50-82e4-b24800bba785",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01142",
+        "EP-03157"
+      ]
+    },
+    {
+      "guid": "ccb694d0-b526-4ba9-be79-b23a0077aef2",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00974",
+        "EP-03156"
+      ]
+    },
+    {
+      "guid": "b6ddfdd3-a46f-4b81-9b01-b23b00674485",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01144",
+        "EP-03149"
+      ]
+    },
+    {
+      "guid": "c1cf6c8b-24d1-4352-bf32-b23a006d3e02",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00975",
+        "EP-03148"
+      ]
+    },
+    {
+      "guid": "e35a4109-c95d-485a-a267-b230008c693c",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00976",
+        "EP-03140"
+      ]
+    },
+    {
+      "guid": "78673b11-3a55-48f0-bc74-b22e00764279",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01146",
+        "EP-03133"
+      ]
+    },
+    {
+      "guid": "fe88c19e-3479-4bd9-9e32-b22c000dad80",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00977",
+        "EP-03132"
+      ]
+    },
+    {
+      "guid": "28ffb3ed-7851-46cc-b076-b22500538f14",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00978",
+        "EP-03123"
+      ]
+    },
+    {
+      "guid": "a704f211-8e33-452c-9bfc-b21f005b7a37",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01147",
+        "EP-03117"
+      ]
+    },
+    {
+      "guid": "9ced90a3-5859-4ce3-84f0-b21000501de5",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00979",
+        "EP-03116"
+      ]
+    },
+    {
+      "guid": "5fef27e2-3b3b-4269-9087-b21800ae4725",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01148",
+        "EP-03109"
+      ]
+    },
+    {
+      "guid": "477b50a8-c2a2-4674-a614-b21800b4fbd9",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00980",
+        "EP-03108"
+      ]
+    },
+    {
+      "guid": "931640ed-1e48-4921-a990-b210004a7da0",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00981",
+        "EP-03101"
+      ]
+    },
+    {
+      "guid": "d14cda36-bef1-4d05-9b0b-b20200435c84",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00982",
+        "EP-03093"
+      ]
+    },
+    {
+      "guid": "d6947948-5400-457f-8d1f-b2030041cbc3",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01149",
+        "EP-03089"
+      ]
+    },
+    {
+      "guid": "6c913bc0-63f3-49dc-b3e2-b1f80089e419",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01150",
+        "EP-03086"
+      ]
+    },
+    {
+      "guid": "271945c9-cbbd-45be-a8fc-b20200365f35",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00983",
+        "EP-03085"
+      ]
+    },
+    {
+      "guid": "886b2456-818e-48df-bcc9-b1fb0071d627",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01151",
+        "EP-03084"
+      ]
+    },
+    {
+      "guid": "3a45f9af-7b5c-4be2-b60e-b1fe001d5d4a",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01152",
+        "EP-03078"
+      ]
+    },
+    {
+      "guid": "37111e56-004e-4240-9348-b1e600301e56",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00984",
+        "EP-03077"
+      ]
+    },
+    {
+      "guid": "8f3de775-ee8d-4f4b-b7e0-b1e600453f4d",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00985",
+        "EP-03069"
+      ]
+    },
+    {
+      "guid": "a4e62c19-622f-4568-9231-b1e2016858f8",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00986",
+        "EP-03061"
+      ]
+    },
+    {
+      "guid": "8dc5d238-89d4-452d-8d74-b1db00a6a3aa",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01154",
+        "EP-03054"
+      ]
+    },
+    {
+      "guid": "a8949127-f4a7-4402-925e-b1e20166fde4",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00987",
+        "EP-03053"
+      ]
+    },
+    {
+      "guid": "aa87ba34-6d0f-4a94-bc05-b1d500195741",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01155",
+        "EP-03047"
+      ]
+    },
+    {
+      "guid": "40d47d5b-3e7a-47e9-96d1-b1d600cbea82",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01156",
+        "EP-03046"
+      ]
+    },
+    {
+      "guid": "f968099b-a355-4977-9a30-b1d700b41ee2",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00988",
+        "EP-03045"
+      ]
+    },
+    {
+      "guid": "a45fe9d7-01d5-4ab3-8f99-b1d700b287cb",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00989",
+        "EP-03037"
+      ]
+    },
+    {
+      "guid": "dcdf20b7-5d5f-43fa-a5d4-b1be0091dea3",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01230",
+        "EP-03029"
+      ]
+    },
+    {
+      "guid": "d5ea77ac-57b2-405a-a855-b1be008a4f3d",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01231",
+        "EP-03028"
+      ]
+    },
+    {
+      "guid": "6aca5d98-61e4-4f66-9f08-b1a200713abb",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01158",
+        "EP-03023"
+      ]
+    },
+    {
+      "guid": "c5284037-fc84-491f-b2d3-b1c0007db4ec",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00990",
+        "EP-03022"
+      ]
+    },
+    {
+      "guid": "d5606c59-b049-40b7-8154-b1c0007781c1",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00991",
+        "EP-03014"
+      ]
+    },
+    {
+      "guid": "48ef1b7a-a643-4224-9492-b1b40178b7d5",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00992",
+        "EP-03006"
+      ]
+    },
+    {
+      "guid": "57c65027-6083-4045-9b63-b1bc00975747",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01159",
+        "EP-03005"
+      ]
+    },
+    {
+      "guid": "1aac7329-93d7-4413-af57-b1b401782146",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00993",
+        "EP-02998"
+      ]
+    },
+    {
+      "guid": "67acbd98-b0f6-40b8-be8b-b1ab00cb39f9",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01160",
+        "EP-02991"
+      ]
+    },
+    {
+      "guid": "9a3e2187-6c0c-4d74-9fca-b1a700288916",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00994",
+        "EP-02990"
+      ]
+    },
+    {
+      "guid": "7404affa-fd2c-4dba-99d6-b1a70022b114",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00995",
+        "EP-02982"
+      ]
+    },
+    {
+      "guid": "a292447e-2b6e-4cdb-961d-b19f018a45a4",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01161",
+        "EP-02981"
+      ]
+    },
+    {
+      "guid": "7c93ba89-155f-4858-b798-b19e00a323c8",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01162",
+        "EP-02975"
+      ]
+    },
+    {
+      "guid": "1b6c94d5-e26e-4d48-ba35-b19900211d35",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00996",
+        "EP-02974"
+      ]
+    },
+    {
+      "guid": "d7b99fdf-6c8e-4c9f-a796-b19a004a232e",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01163",
+        "EP-02967"
+      ]
+    },
+    {
+      "guid": "a306c785-8a2b-44a8-8af7-b1990020d150",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00997",
+        "EP-02966"
+      ]
+    },
+    {
+      "guid": "208f46bd-10ed-451a-aa38-b18800857254",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01164",
+        "EP-02959"
+      ]
+    },
+    {
+      "guid": "2810baed-8444-4bc0-9fb3-b18a007d798d",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00998",
+        "EP-02958"
+      ]
+    },
+    {
+      "guid": "f5927ac0-67e6-41eb-9942-b18800813789",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01165",
+        "EP-02951"
+      ]
+    },
+    {
+      "guid": "a30dacf5-c429-498f-a8c0-b18a007a7a05",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-00999",
+        "EP-02950"
+      ]
+    },
+    {
+      "guid": "46da6d49-622c-4288-8fc3-b18301835bc7",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01166",
+        "EP-02943"
+      ]
+    },
+    {
+      "guid": "f68d9df5-a2c8-48ea-8e47-b17e0039e9c6",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01000",
+        "EP-02942"
+      ]
+    },
+    {
+      "guid": "62643e3f-09c4-4967-9275-b176008f36fd",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01167",
+        "EP-02938"
+      ]
+    },
+    {
+      "guid": "691d8139-1b22-4024-b39c-b17e002d3f56",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01001",
+        "EP-02934"
+      ]
+    },
+    {
+      "guid": "495bec3a-8be2-4497-8e65-b16f0038bc2e",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01002",
+        "EP-02926"
+      ]
+    },
+    {
+      "guid": "f9d1bb7f-ccc9-4fc1-92d3-b16f003096f0",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01003",
+        "EP-02918"
+      ]
+    },
+    {
+      "guid": "64b67490-9beb-439b-a3a1-b15e008e3df0",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01168",
+        "EP-02917"
+      ]
+    },
+    {
+      "guid": "ebc6a148-6a6a-4619-8c67-b15d00b3c0f1",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01169",
+        "EP-02912"
+      ]
+    },
+    {
+      "guid": "0feff340-bd01-4b58-825a-b16200183a70",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01004",
+        "EP-02909"
+      ]
+    },
+    {
+      "guid": "7933626a-731a-437d-b6a3-b1640035505a",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01170",
+        "EP-02906"
+      ]
+    },
+    {
+      "guid": "d32a16f6-7a33-4de4-bc90-b15a002ea229",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01005",
+        "EP-02901"
+      ]
+    },
+    {
+      "guid": "58d05ab8-d988-4b12-81b3-b15a002a0858",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01006",
+        "EP-02893"
+      ]
+    },
+    {
+      "guid": "555e21dc-4379-44d7-bae3-b150007a9c28",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01007",
+        "EP-02885"
+      ]
+    },
+    {
+      "guid": "e202aa20-d1ed-4a13-b459-b150006196e1",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01171",
+        "EP-02882"
+      ]
+    },
+    {
+      "guid": "2431cdc7-ac52-4604-b586-b145009fca1f",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01172",
+        "EP-02876"
+      ]
+    },
+    {
+      "guid": "4b7bdfe9-7487-42a2-a8ef-b1450028373f",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01008",
+        "EP-02875"
+      ]
+    },
+    {
+      "guid": "bf8f3c4a-ca04-4a73-bb83-b1450023058f",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01009",
+        "EP-02868"
+      ]
+    },
+    {
+      "guid": "f8369f4f-2545-42a9-9eec-b124010a7cc7",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01173",
+        "EP-02867"
+      ]
+    },
+    {
+      "guid": "407af9e8-fb6c-4f14-b03b-b14200a58318",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01174",
+        "EP-02866"
+      ]
+    },
+    {
+      "guid": "75bd7412-e063-494f-a21b-b13700449cee",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01010",
+        "EP-02859"
+      ]
+    },
+    {
+      "guid": "867f28a9-7361-424c-bfc6-b137003b0658",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01011",
+        "EP-02851"
+      ]
+    },
+    {
+      "guid": "3302b9d2-6a9c-46e4-a7a1-b11e00ade9b4",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01175",
+        "EP-02847"
+      ]
+    },
+    {
+      "guid": "2b53e6d0-f84a-4eb3-a65c-b126004bf4b2",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01012",
+        "EP-02843"
+      ]
+    },
+    {
+      "guid": "59261319-cef8-42e6-92b2-b1260044404c",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01013",
+        "EP-02835"
+      ]
+    },
+    {
+      "guid": "a759808b-c803-4ec1-9f4b-b12400d24f1f",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01176",
+        "EP-02829"
+      ]
+    },
+    {
+      "guid": "3636aec5-257c-4d30-8680-b11a017fe47d",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01014",
+        "EP-02827"
+      ]
+    },
+    {
+      "guid": "1b57d504-60e3-4d4c-a225-b11c006581b4",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01177",
+        "EP-02826"
+      ]
+    },
+    {
+      "guid": "cf41352e-ee62-47b1-90c8-b115007ebf51",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01178",
+        "EP-02823"
+      ]
+    },
+    {
+      "guid": "8066af8f-0e3f-445a-9775-b11a017eb20a",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01015",
+        "EP-02819"
+      ]
+    },
+    {
+      "guid": "7cc45675-0608-40eb-ad9d-b10d005b4000",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01016",
+        "EP-02811"
+      ]
+    },
+    {
+      "guid": "22e8011f-8afd-45bb-86e6-b10500ece575",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01179",
+        "EP-02810"
+      ]
+    },
+    {
+      "guid": "90f98848-fe18-441c-896a-b10d00545ac7",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01017",
+        "EP-02803"
+      ]
+    },
+    {
+      "guid": "2fba4a7e-1aee-4017-bf89-b0f801637dd1",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01018",
+        "EP-02795"
+      ]
+    },
+    {
+      "guid": "8284d008-7f00-48d9-9905-b0f801635f19",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01019",
+        "EP-02787"
+      ]
+    },
+    {
+      "guid": "02d7d546-4a7a-420f-8a6a-b0f80162ff39",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01020",
+        "EP-02779"
+      ]
+    },
+    {
+      "guid": "bb825600-6ca5-4b79-a7d8-b0f20188c7c5",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01180",
+        "EP-02768"
+      ]
+    },
+    {
+      "guid": "385dad3f-8ed1-40cc-87da-b0e4006c61b9",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01181",
+        "EP-02766"
+      ]
+    },
+    {
+      "guid": "a7eee9e2-4c9b-47bd-8471-b0dc007e7cfe",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01021",
+        "EP-02754"
+      ]
+    },
+    {
+      "guid": "39640f93-4437-48bf-87f3-b0db0167f686",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01022",
+        "EP-02746"
+      ]
+    },
+    {
+      "guid": "cf87f54f-8134-475d-aab7-b0ce00ae2d26",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01023",
+        "EP-02738"
+      ]
+    },
+    {
+      "guid": "72f351d8-8688-432e-bbca-b0d50073e9fc",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01182",
+        "EP-02737"
+      ]
+    },
+    {
+      "guid": "a2836c96-cc1b-494c-a5b8-b0ce00a72727",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01024",
+        "EP-02730"
+      ]
+    },
+    {
+      "guid": "bf76e51f-092a-4102-b80f-b0c80055bf9e",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01183",
+        "EP-02729"
+      ]
+    },
+    {
+      "guid": "60ed15b8-a715-42c3-8d58-b0c0005888f0",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01025",
+        "EP-02722"
+      ]
+    },
+    {
+      "guid": "28fab249-d3e1-4c70-ace1-b0c0005bcd4a",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01026",
+        "EP-02714"
+      ]
+    },
+    {
+      "guid": "4239891a-a0fe-4923-9235-b0ba002679ab",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01184",
+        "EP-02707"
+      ]
+    },
+    {
+      "guid": "37c54a3b-d98d-4744-9fe3-b0ae00949eb6",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01186",
+        "EP-02705"
+      ]
+    },
+    {
+      "guid": "42cbe29e-fc10-43d4-aeba-b0b2003e5ef5",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01027",
+        "EP-02698"
+      ]
+    },
+    {
+      "guid": "edbe54aa-f070-43a9-867f-b0af0098c642",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01187",
+        "EP-02694"
+      ]
+    },
+    {
+      "guid": "d4f82fca-d832-4eb3-aa06-b0a4008e02f7",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01028",
+        "EP-02690"
+      ]
+    },
+    {
+      "guid": "84942557-edc2-4a48-ac70-b0a4004b085e",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01029",
+        "EP-02682"
+      ]
+    },
+    {
+      "guid": "721b0513-89f6-4c7b-8109-b091008dc8d6",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01030",
+        "EP-02674"
+      ]
+    },
+    {
+      "guid": "d7f6bbc6-4ab0-4e05-a6a2-b091008d28a6",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01031",
+        "EP-02666"
+      ]
+    },
+    {
+      "guid": "808f06c9-7717-41ff-8be9-b09200e5a858",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01188",
+        "EP-02665"
+      ]
+    },
+    {
+      "guid": "b70fda2d-7460-417a-9936-b08c007eb253",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01189",
+        "EP-02662"
+      ]
+    },
+    {
+      "guid": "c2dc9c56-0be6-404a-a087-b09200045c4b",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01032",
+        "EP-02656"
+      ]
+    },
+    {
+      "guid": "ad5e7ddd-cb96-4064-a8a3-b083006dca05",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01033",
+        "EP-02648"
+      ]
+    },
+    {
+      "guid": "11997918-926a-4583-a2ed-b0830055d363",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01034",
+        "EP-02638"
+      ]
+    },
+    {
+      "guid": "4bc900fa-9192-491d-a798-b07c011fde30",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01190",
+        "EP-02637"
+      ]
+    },
+    {
+      "guid": "bf146a11-a0e4-4c27-bf06-b077008a4277",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01191",
+        "EP-02633"
+      ]
+    },
+    {
+      "guid": "8cb0bd3a-a21e-49a5-9134-b07a006ac1a8",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01035",
+        "EP-02632"
+      ]
+    },
+    {
+      "guid": "9fc78f90-5c85-4cd1-8e0e-b06e000bfa44",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01036",
+        "EP-02621"
+      ]
+    },
+    {
+      "guid": "6eb99fb0-452e-49bf-8e58-b06c0075da0d",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01037",
+        "EP-02613"
+      ]
+    },
+    {
+      "guid": "45e024b4-ac30-4957-9453-b0650009c8bc",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01038",
+        "EP-02603"
+      ]
+    },
+    {
+      "guid": "28de54ac-7779-4351-ad88-b05e002b1b35",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01192",
+        "EP-02602"
+      ]
+    },
+    {
+      "guid": "4f6b1504-e313-4425-829b-b060003269cf",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01193",
+        "EP-02601"
+      ]
+    },
+    {
+      "guid": "fed42bba-03c1-4d72-a981-b05f009646b8",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01232",
+        "EP-02598"
+      ]
+    },
+    {
+      "guid": "12166bd0-ffe1-46e9-a9ac-b05c01097cf7",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01233",
+        "EP-02597"
+      ]
+    },
+    {
+      "guid": "3f958242-f91f-4fef-9555-b05c01035461",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01234",
+        "EP-02596"
+      ]
+    },
+    {
+      "guid": "aa794672-3289-416f-a7db-b0580025f030",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01039",
+        "EP-02594"
+      ]
+    },
+    {
+      "guid": "529649ef-79c4-4c44-84a2-b05400383fa9",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01040",
+        "EP-02585"
+      ]
+    },
+    {
+      "guid": "0b04dee6-e11e-453c-9b0b-b04a0078d410",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01041",
+        "EP-02577"
+      ]
+    },
+    {
+      "guid": "ea1352fe-5748-492b-bfd1-b0490086a639",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01042",
+        "EP-02566"
+      ]
+    },
+    {
+      "guid": "283266be-e706-4155-9ca9-b037008511dd",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01043",
+        "EP-02558"
+      ]
+    },
+    {
+      "guid": "794eff42-4694-4f36-bd16-b03700e14aa3",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01044",
+        "EP-02548"
+      ]
+    },
+    {
+      "guid": "9f6eec22-3ee3-4fbf-9ac4-b034009d9477",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01045",
+        "EP-02540"
+      ]
+    },
+    {
+      "guid": "67353269-9cc4-45e3-88f9-b02e0027e3a1",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01046",
+        "EP-02530"
+      ]
+    },
+    {
+      "guid": "845a44ea-e7ab-41dc-a396-b0180065f72b",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01194",
+        "EP-02504"
+      ]
+    },
+    {
+      "guid": "b956f582-8f6c-4e34-a593-b01800872da4",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01047",
+        "EP-02500"
+      ]
+    },
+    {
+      "guid": "c56154c9-d0d1-481a-9d99-b01a00e11048",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01048",
+        "EP-02499"
+      ]
+    },
+    {
+      "guid": "6b1ff1fc-881f-40bb-85eb-b01a00f978b2",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01049",
+        "EP-02498"
+      ]
+    },
+    {
+      "guid": "c63d48f8-eccb-45ac-aca2-b0180065b8a9",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01050",
+        "EP-02497"
+      ]
+    },
+    {
+      "guid": "9398347a-b544-429b-820f-b00000569913",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01195",
+        "EP-02462"
+      ]
+    },
+    {
+      "guid": "1670e075-23a8-4379-9727-aff2005c329b",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01051",
+        "EP-02449"
+      ]
+    },
+    {
+      "guid": "f3a0f08c-fbb0-43b8-9d56-aff200576741",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01052",
+        "EP-02448"
+      ]
+    },
+    {
+      "guid": "9a9cbe78-18b0-4a25-9e8d-aff200af05e6",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01053",
+        "EP-02447"
+      ]
+    },
+    {
+      "guid": "5d13052b-333a-4e6e-b44d-aff200add807",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01054",
+        "EP-02446"
+      ]
+    },
+    {
+      "guid": "c891418e-be57-46d5-ae86-afc500a19d09",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01196",
+        "EP-02421"
+      ]
+    },
+    {
+      "guid": "7edfa29a-e506-4539-8599-afc5009eb8b7",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01197",
+        "EP-02413"
+      ]
+    },
+    {
+      "guid": "48f8c72c-ae6b-4928-a07d-afd4001e5ec0",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01055",
+        "EP-02404"
+      ]
+    },
+    {
+      "guid": "d0a6b985-f6d6-4d1a-842c-afb6003ec2a7",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01056",
+        "EP-02369"
+      ]
+    },
+    {
+      "guid": "7f5bc822-e3d0-40b6-b993-af94007db3c0",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01200",
+        "EP-02334"
+      ]
+    },
+    {
+      "guid": "c9d1a91a-0d14-4899-a273-af9400718502",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01201",
+        "EP-02330"
+      ]
+    },
+    {
+      "guid": "26669a44-6ed1-447a-a1f4-af9500ec6c3c",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01057",
+        "EP-02325"
+      ]
+    },
+    {
+      "guid": "2465cea1-1f51-415e-8e1d-af780062ac1d",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01058",
+        "EP-02290"
+      ]
+    },
+    {
+      "guid": "0c8a39d3-6d05-4d84-a26d-af6801878cb8",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01202",
+        "EP-02282"
+      ]
+    },
+    {
+      "guid": "63950ab8-b7a3-4791-b933-af6b00ed6de1",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01203",
+        "EP-02273"
+      ]
+    },
+    {
+      "guid": "346fdc2b-c525-4165-962f-af54010bb4c7",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01059",
+        "EP-02247"
+      ]
+    },
+    {
+      "guid": "32e8cde9-2aa3-4e78-b8bb-af3f000a68b2",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01060",
+        "EP-02220"
+      ]
+    },
+    {
+      "guid": "5dd2d0f0-a9a3-4e98-a95c-af3b009d2643",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01061",
+        "EP-02211"
+      ]
+    },
+    {
+      "guid": "83c1d4ba-ea60-4e6b-909c-af3200bab27d",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01204",
+        "EP-02202"
+      ]
+    },
+    {
+      "guid": "32744eac-aac9-4e11-9ce5-af3200b83c72",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01205",
+        "EP-02201"
+      ]
+    },
+    {
+      "guid": "9a732f74-4efc-459c-aac7-af2800e276c4",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01206",
+        "EP-02197"
+      ]
+    },
+    {
+      "guid": "f79ba366-915d-4a70-879a-af1f00a30f34",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01062",
+        "EP-02177"
+      ]
+    },
+    {
+      "guid": "a3d5f689-fbd0-44e0-a512-aefc0062fd48",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01063",
+        "EP-02132"
+      ]
+    },
+    {
+      "guid": "d05e3080-67a7-427b-a95f-aeef006785c9",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01207",
+        "EP-02127"
+      ]
+    },
+    {
+      "guid": "21bbd68e-cad2-4b1d-a08b-aeda00dfbd70",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01064",
+        "EP-02089"
+      ]
+    },
+    {
+      "guid": "08e008ed-595d-439f-9a32-aebd00e61030",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01065",
+        "EP-02045"
+      ]
+    },
+    {
+      "guid": "2203cece-8d31-4f39-8c6d-ae99001d980f",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01066",
+        "EP-02000"
+      ]
+    },
+    {
+      "guid": "3a08e309-c103-4507-a0a6-ae8d0076b7ad",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01208",
+        "EP-01986"
+      ]
+    },
+    {
+      "guid": "eceb2f66-eeda-4dc5-af40-ae85009b8ae1",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01067",
+        "EP-01972"
+      ]
+    },
+    {
+      "guid": "33feec60-a57c-4445-9a9d-ae6b002c38cb",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01068",
+        "EP-01934"
+      ]
+    },
+    {
+      "guid": "bed40611-b721-45fa-9b9b-ae5300e87184",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01209",
+        "EP-01905"
+      ]
+    },
+    {
+      "guid": "a5dd773d-7ea4-4442-9579-ae5300e5326d",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01210",
+        "EP-01904"
+      ]
+    },
+    {
+      "guid": "eb2142c1-2994-4f96-8e75-adde004fa015",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01211",
+        "EP-01753"
+      ]
+    },
+    {
+      "guid": "d2e9b0fe-805e-4dda-bc66-addd00887ce0",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01212",
+        "EP-01731"
+      ]
+    },
+    {
+      "guid": "9b25aab1-26e7-40db-acd3-addc0184d0a9",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01213",
+        "EP-01721"
+      ]
+    },
+    {
+      "guid": "430ce39f-57d1-4a21-8890-adbc000c27cd",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01214",
+        "EP-01668"
+      ]
+    },
+    {
+      "guid": "1eebcad5-a406-4764-8e9d-adbc0004f046",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01215",
+        "EP-01667"
+      ]
+    },
+    {
+      "guid": "432be203-b448-4dd9-8be3-ada000cb9632",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01216",
+        "EP-01646"
+      ]
+    },
+    {
+      "guid": "cca869b5-6afb-4a8d-90ed-ada000c1d4ff",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01217",
+        "EP-01637"
+      ]
+    },
+    {
+      "guid": "89ee407c-ff87-494c-9079-ad9d00a4cc45",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01218",
+        "EP-01624"
+      ]
+    },
+    {
+      "guid": "9fb1c802-4147-43a8-92af-acf30042af43",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01219",
+        "EP-01455"
+      ]
+    },
+    {
+      "guid": "d4c4e0f8-da70-4cd2-b2c4-acea01805ca6",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01220",
+        "EP-01445"
+      ]
+    },
+    {
+      "guid": "3bace6f2-9e08-41ff-b8b5-acea01805c7b",
+      "reason": "DUPLICATE_IDENTITY",
+      "ids": [
+        "EP-01221",
+        "EP-01444"
+      ]
+    },
+    {
+      "guid": "75340ca1-e310-4eec-8819-ac0c002b08a2",
+      "title": "#38 ロンドン③　逆境コロナ、英王室に絶賛　メーガン妃にはブーイングも",
+      "reason": "HISTORICAL_UNANCHORED_BEFORE_BASELINE",
+      "id": null
+    },
+    {
+      "guid": "6c90c1b4-aed3-43c5-86bf-ac0c002afde1",
+      "title": "#37 ロンドン②　スキャンダル、相次いでいた英国　教授「パンツダウン」",
+      "reason": "HISTORICAL_UNANCHORED_BEFORE_BASELINE",
+      "id": null
+    },
+    {
+      "guid": "82f7650c-83f5-4f9a-96fd-ac0c002af1b8",
+      "title": "#36 ロンドン①　消えたダイソンの人工呼吸器　イギリス、ちぐはぐコロナ対応",
+      "reason": "HISTORICAL_UNANCHORED_BEFORE_BASELINE",
+      "id": null
+    },
+    {
+      "guid": "658db861-9677-460b-8793-ac0c0013f841",
+      "title": "#29 内戦下の国、コロナ禍でどうなるか　シリアの意外な現状",
+      "reason": "HISTORICAL_UNANCHORED_BEFORE_BASELINE",
+      "id": null
+    },
+    {
+      "guid": "6eef3553-2a29-4828-9b02-ac0c0013ef02",
+      "title": "#28 イスタンブール　コロナ拡大、でも経済止めない　トルコで何が起こったか",
+      "reason": "HISTORICAL_UNANCHORED_BEFORE_BASELINE",
+      "id": null
+    },
+    {
+      "guid": "95097d6f-107c-4db8-867b-ac0c00138ab3",
+      "title": "#24 武漢③　コロナ拡大、止められなかった世界　中国に責任はあるか",
+      "reason": "HISTORICAL_UNANCHORED_BEFORE_BASELINE",
+      "id": null
+    },
+    {
+      "guid": "d3cee321-1503-40a6-a11a-ac0c00138231",
+      "title": "#23 武漢②　戻った日常、戻らない笑顔　コロナ後の中国に残った差別",
+      "reason": "HISTORICAL_UNANCHORED_BEFORE_BASELINE",
+      "id": null
+    },
+    {
+      "guid": "8d019177-eddf-4de2-bf75-ac0c0013781c",
+      "title": "#22 武漢①　1000万人PCR、本当に意味があるのか　武漢の答え",
+      "reason": "HISTORICAL_UNANCHORED_BEFORE_BASELINE",
+      "id": null
+    },
+    {
+      "guid": "faf5a0f3-7934-4481-8d25-ac0c002193e7",
+      "title": "#13 あのベネズエラ、コロナでどうなった　水さえ出ない病院",
+      "reason": "HISTORICAL_UNANCHORED_BEFORE_BASELINE",
+      "id": null
+    },
+    {
+      "guid": "a6c27fd6-1db6-4319-bae8-ac0c00212567",
+      "title": "#12 サンパウロ②　暴走「トロピカル・トランプ」　見え隠れする福音派の影",
+      "reason": "HISTORICAL_UNANCHORED_BEFORE_BASELINE",
+      "id": null
+    },
+    {
+      "guid": "1d7138cc-c265-44db-a36b-ac0c00211100",
+      "title": "#11 サンパウロ①　感染爆発ブラジル　スラムで見た「超濃厚接触」の不可避",
+      "reason": "HISTORICAL_UNANCHORED_BEFORE_BASELINE",
+      "id": null
+    },
+    {
+      "guid": "2f186b55-223e-422b-be02-ac0c000c9a56",
+      "title": "#10 ヨハネスブルク　禁酒、コロナに効果あり？　南アフリカで驚きのデータ",
+      "reason": "HISTORICAL_UNANCHORED_BEFORE_BASELINE",
+      "id": null
+    },
+    {
+      "guid": "a8a0f043-e32b-4d5e-9475-ac0c000c8c6b",
+      "title": "#8 シンガポール③　状況いいのに評価は…　外から見た日本「もったいない」",
+      "reason": "HISTORICAL_UNANCHORED_BEFORE_BASELINE",
+      "id": null
+    },
+    {
+      "guid": "07a19f19-2a39-44c5-af87-ac0c000c8415",
+      "title": "#7 シンガポール②　沈黙の飯場、コロナを拡散　政府はSIMカードを配った",
+      "reason": "HISTORICAL_UNANCHORED_BEFORE_BASELINE",
+      "id": null
+    },
+    {
+      "guid": "4be2cbc8-ccbc-46a9-b0b1-ac0c000c38f9",
+      "title": "#6 シンガポール①　ロボット犬がにらんでる　「管理社会」の理詰めコロナ策",
+      "reason": "HISTORICAL_UNANCHORED_BEFORE_BASELINE",
+      "id": null
+    },
+    {
+      "guid": "5313a716-deef-4706-877b-ac0c000916a4",
+      "title": "#5 モスクワ③　実は欧米より制限ゆるかったロシア　日本を見て驚いた",
+      "reason": "HISTORICAL_UNANCHORED_BEFORE_BASELINE",
+      "id": null
+    },
+    {
+      "guid": "83f5b3e6-80f9-434f-a682-ac0c0008c3b9",
+      "title": "#4 モスクワ②　緊急事態宣言、出さないプーチン大統領　抗議もバーチャル",
+      "reason": "HISTORICAL_UNANCHORED_BEFORE_BASELINE",
+      "id": null
+    },
+    {
+      "guid": "44b1a5bb-0c09-4cbf-aad0-ac0c0007f613",
+      "title": "#3 モスクワ①　医師が事実を訴えると、警察くるロシア　プーチン氏は…",
+      "reason": "HISTORICAL_UNANCHORED_BEFORE_BASELINE",
+      "id": null
+    },
+    {
+      "guid": "4803d410-8e07-4fbc-9728-ac0c0079d5c8",
+      "title": "#2 ローマ　奔放イタリア、コロナで見せた従順　マフィアのボスも…",
+      "reason": "HISTORICAL_UNANCHORED_BEFORE_BASELINE",
+      "id": null
+    },
+    {
+      "guid": "96338404-1d8b-48d4-a015-ac0c00045cce",
+      "title": "#1 ニューヨーク　感染爆発、でも9割が対応支持　NY覆う「戦時の空気」",
+      "reason": "HISTORICAL_UNANCHORED_BEFORE_BASELINE",
+      "id": null
+    }
+  ],
+  "newCandidates": [
+    {
+      "guid": "8fe3c32f-056a-4223-9ed1-b4e500c559ea",
+      "title": "（ON GOING）子どもの学習にAI、どこまでOK？　認知科学者・今井むつみさんと考えた",
+      "publishedAt": "Wed, 21 Oct 2026 19:00:00 +0000",
+      "id": null,
+      "status": "V3_CUTOVER_BASELINE_APPROVAL_REQUIRED"
+    },
+    {
+      "guid": "45786cb6-5abc-4b29-9051-b4e500648a62",
+      "title": "（World Insight #6）ネパールを襲った巨大土石流　「山津波」が押し寄せた現場は",
+      "publishedAt": "Tue, 20 Oct 2026 19:00:00 +0000",
+      "id": null,
+      "status": "V3_CUTOVER_BASELINE_APPROVAL_REQUIRED"
+    },
+    {
+      "guid": "d9226a5c-88fe-4f3a-8063-b4e400829390",
+      "title": "【朗読スペシャル】 泉ピン子さん　初めて「本気の演技」をした日（人生の贈りもの）",
+      "publishedAt": "Mon, 19 Oct 2026 19:00:00 +0000",
+      "id": null,
+      "status": "V3_CUTOVER_BASELINE_APPROVAL_REQUIRED"
+    },
+    {
+      "guid": "a7a7e53b-4657-46ec-af31-b4e20033184f",
+      "title": "（めくろう #202）さん付け徐々に　ドパガキ急激に　キャンピングカーは憧れに",
+      "publishedAt": "Sun, 18 Oct 2026 19:00:00 +0000",
+      "id": null,
+      "status": "V3_CUTOVER_BASELINE_APPROVAL_REQUIRED"
+    },
+    {
+      "guid": "e82dff62-ad36-41d3-9609-b4e300473821",
+      "title": "（大阪目線 #7）「いびきがうるさい」から婚約破棄まで…裁判沙汰の末に　司法記者がみた人間ドラマ",
+      "publishedAt": "Sat, 17 Oct 2026 19:00:00 +0000",
+      "id": null,
+      "status": "V3_CUTOVER_BASELINE_APPROVAL_REQUIRED"
+    },
+    {
+      "guid": "73527408-d0df-4554-9feb-b4e50083852a",
+      "title": " （ポリレビ #15）簗大臣の更迭、問題の本質はここだ／米国がロシアに肩入れし問われる日本外交",
+      "publishedAt": "Fri, 16 Oct 2026 19:00:00 +0000",
+      "id": null,
+      "status": "V3_CUTOVER_BASELINE_APPROVAL_REQUIRED"
+    },
+    {
+      "guid": "e58f2557-8e1f-4c74-adca-b4e400526584",
+      "title": "（ゆるっと経済 #21）きょうは「ぐびっと」経済？変わるビール市場徹底解説　残業45時間規制についても考えます",
+      "publishedAt": "Thu, 15 Oct 2026 19:00:00 +0000",
+      "id": null,
+      "status": "V3_CUTOVER_BASELINE_APPROVAL_REQUIRED"
+    },
+    {
+      "guid": "13a36195-331b-4f82-bcc2-b4c100868f97",
+      "title": "（ON GOING）東京は無償だけど、千葉では「けっこうな額」　保育料格差に悩む親たち",
+      "publishedAt": "Wed, 14 Oct 2026 19:00:00 +0000",
+      "id": null,
+      "status": "V3_CUTOVER_BASELINE_APPROVAL_REQUIRED"
+    },
+    {
+      "guid": "2562ccc6-8430-4bdd-b1fd-b4d60079aa38",
+      "title": "（GLOBE）たたかう図書館　本を守り、記憶をつなぎ、街をつくる",
+      "publishedAt": "Tue, 13 Oct 2026 19:00:00 +0000",
+      "id": null,
+      "status": "V3_CUTOVER_BASELINE_APPROVAL_REQUIRED"
+    },
+    {
+      "guid": "bd59457d-fd7e-4393-9611-b4d2002509ae",
+      "title": "（地球会議 #2）認知症1千万人の時代…超高齢化社会の日本　AIの登場でどう変化？",
+      "publishedAt": "Mon, 12 Oct 2026 19:00:00 +0000",
+      "id": null,
+      "status": "V3_CUTOVER_BASELINE_APPROVAL_REQUIRED"
+    },
+    {
+      "guid": "4531520c-d23d-40ca-bf7d-b4db0074560d",
+      "title": "その見た目、小型ねぶたと呼ばれ…還暦超え男性記者のヘアドネ挑戦記",
+      "publishedAt": "Sun, 11 Oct 2026 19:00:00 +0000",
+      "id": null,
+      "status": "V3_CUTOVER_BASELINE_APPROVAL_REQUIRED"
+    },
+    {
+      "guid": "38da5e5a-96ce-4113-9c7e-b4db000e82d2",
+      "title": "（大阪目線#6）共産が支援する町長がかじをとる町は　 「天王山」の地、二分する選挙",
+      "publishedAt": "Sat, 10 Oct 2026 19:00:00 +0000",
+      "id": null,
+      "status": "V3_CUTOVER_BASELINE_APPROVAL_REQUIRED"
+    }
+  ],
+  "writes": 0,
+  "assignedIds": 0
+}

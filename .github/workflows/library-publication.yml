@@ -92,7 +92,7 @@ jobs:
           done
           test -n "$runid"
           gh run watch "$runid" --exit-status
-          node scripts/verify-library-publication.mjs "$RUNNER_TEMP/library-proof/expected-manifest.json" "$RUNNER_TEMP/library-proof/public-readback.json"
+          node scripts/verify-library-publication.mjs "$RUNNER_TEMP/library-proof/expected-manifest.json" "$RUNNER_TEMP/library-proof/public-readback.json" public/library/data "$RUNNER_TEMP/library-proof/preparation.json"
       - name: Save sanitized stage evidence only
         if: always()
         uses: actions/upload-artifact@v4

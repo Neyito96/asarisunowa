@@ -1,0 +1,29 @@
+name: Existing V3 ingest to publication integration
+on:
+  pull_request:
+    paths:
+      - 'scripts/prepare-library-publication.mjs'
+      - 'scripts/verify-library-publication.mjs'
+      - 'tests/library-ingest-e2e.test.mjs'
+      - '.github/workflows/library-ingest-e2e.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: e661e6c1e753c7ba6955a1d523cb5234e77f45c4
+          path: .v3-test-dependency
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Existing engine with in-memory GAS services only
+        env:
+          LIBRARY_V3_ROOT: ${{ github.workspace }}/.v3-test-dependency
+        run: node --test tests/library-publication.test.mjs tests/library-ingest-e2e.test.mjs

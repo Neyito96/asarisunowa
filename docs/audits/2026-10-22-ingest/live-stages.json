@@ -1,0 +1,25 @@
+{
+  "mode": "READ_ONLY",
+  "observedAt": "2026-10-21T23:07:23.618184+00:00",
+  "rssItems": 2653,
+  "existing": 2353,
+  "held": 288,
+  "newCandidates": 12,
+  "priorCandidatesRetained": 11,
+  "newSincePrior": 1,
+  "priorNoLongerCandidate": 0,
+  "registered": 0,
+  "assignedIds": 0,
+  "runtime": {
+    "gasManagement": "UNAUTHENTICATED_REDIRECT_TO_DEVELOPERS",
+    "liveSource": null,
+    "triggers": null,
+    "properties": null,
+    "baseline": null,
+    "allowNew": null,
+    "ALIBConflict": null,
+    "lastStoredExecutionAtJst": "2026-10-17 10:37:46.947000"
+  },
+  "canonicalPopulation": null,
+  "sourceModifiedAt": "2026-10-21T05:15:23.147Z"
+}

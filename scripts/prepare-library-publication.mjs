@@ -30,7 +30,11 @@ export function preparePublication(source,{archivePlan,descriptionPlan,previousI
  const newRows=result.rows.filter(r=>!previousIds.has(r[0])&&!['アルキキ','AJW'].includes(r[1])&&!excludedIds.has(r[0])&&!excludedGuids.has(String(r[6]||'').toLowerCase())&&!blocked(r[38]));
  const states=new Map();for(const state of source.v3FieldStates||[]){if(states.has(state[0]))throw Error('Duplicate V3 state ID');states.set(state[0],JSON.parse(state[1]));}
  const registered=[];
- for(const row of newRows){
+ // Re-render ALL V3-registered rows on every export, not only newly visible IDs.
+ // Otherwise a second poll loses structured descriptions, or changes evidence time
+ // on every pass and causes an endless stream of publication PRs.
+ const managed=result.rows.filter(r=>!result.descriptionEdits[r[0]]&&!['アルキキ','AJW'].includes(r[1])&&!excludedIds.has(r[0])&&!excludedGuids.has(String(r[6]||'').toLowerCase())&&!blocked(r[38])&&(newRows.includes(r)||states.get(r[0])?.identity?.[5]==='RSS_registered'));
+ for(const row of managed){
   // V3 supplies identity/EP-ID; here we only render the newly registered content.
   if(!row[6]||!row[21]||!row[22])throw Error('New row lacks V3 identity/raw/clean evidence: '+row[0]);
   const identity=states.get(row[0])?.identity;
@@ -38,10 +42,10 @@ export function preparePublication(source,{archivePlan,descriptionPlan,previousI
   if(result.rows.filter(r=>String(r[6]||'').toLowerCase()===String(row[6]).toLowerCase()).length!==1)throw Error('New GUID collision: '+row[0]);
   registered.push({show:row[1],at:identity[6]});
   const edit=editDescription(row[21]);if(edit.holds.length)throw Error('New description requires review: '+row[0]);
-  result.descriptionEdits[row[0]]={...edit,sourceUrl:row[32]||row[8]||'',fetchedAt:null,snapshotAt:checkedAt,rawHash:digest(String(row[21]))};
+  result.descriptionEdits[row[0]]={...edit,sourceUrl:row[32]||row[44]||row[8]||'',fetchedAt:null,snapshotAt:identity[6],rawHash:digest(String(row[21]))};
  }
  result.operations={mode:'V3_LEDGER_TO_PUBLIC',ledgerReadAt:checkedAt,registrationAt:registered.map(r=>r.at).sort().at(-1)||null,publicationVerifiedAt:null,registrationEvidence:'Only V3 identity VERIFIED/RSS_registered with matching row hash counts as registration; read time is separate.',shows:[...new Set(result.rows.map(r=>r[1]))].filter(s=>!['アルキキ','AJW'].includes(s)).map(show=>({show,ledgerReadAt:checkedAt,lastRssSuccessAt:null,lastRegisteredAt:registered.filter(r=>r.show===show).map(r=>r.at).sort().at(-1)||null,lastPublishedAt:null,lastErrorAt:null,nextRetryAt:null}))};
- return {source:result,report:{status:'PREPARED_NOT_PUBLISHED',checkedAt,newLedgerRowsObserved:newRows.length,allocatedIds:0,googleWrites:0,sourceHash:digest(source),registrationAt:result.operations.registrationAt,publicationVerifiedAt:null}};
+ return {source:result,report:{status:'PREPARED_NOT_PUBLISHED',checkedAt,newLedgerRowsObserved:newRows.length,newIds:newRows.map(r=>r[0]),managedRendered:managed.length,allocatedIds:0,googleWrites:0,sourceHash:digest(source),registrationAt:result.operations.registrationAt,publicationVerifiedAt:null}};
 }
 if(process.argv[1]&&resolve(process.argv[1])===new URL(import.meta.url).pathname){
  const [input,output,reportPath]=process.argv.slice(2);if(!reportPath)throw Error('Usage: PRIVATE_INPUT PRIVATE_OUTPUT REPORT');
