@@ -33,9 +33,12 @@ const { chromium, webkit, devices } = require(process.env.LIBRARY_PLAYWRIGHT || 
     assert.ok(await page.locator('#detail a').count() > 0);
     await page.locator('#close-detail').click();
     await page.goto(base + '?ep=EP-00281');
-    await page.locator('#detail audio').waitFor();
+    await page.locator('#detail audio').waitFor({ state: 'attached' });
     assert.equal(await page.locator('audio').getAttribute('preload'), 'none');
     assert.equal(requests.filter(x => x.includes('audio.mp3')).length, 0);
+    assert.equal(await page.locator('audio').getAttribute('src'), null);
+    await page.getByRole('button', { name: '▶ この回を聴く' }).click();
+    assert.ok((await page.locator('audio').getAttribute('src')).startsWith('https://'));
     await page.locator('#close-detail').click();
     await page.locator('#query').fill('<script>bad</script>');
     await page.locator('#query').press('Enter');
