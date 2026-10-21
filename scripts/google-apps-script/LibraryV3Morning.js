@@ -114,7 +114,7 @@ function libV3MorningEpisode_(r,c,rule,since){
  const show=String(source?.[9]||'').match(/^https:\/\/open\.spotify\.com\/show\/([A-Za-z0-9]{22})(?:[?#]|$)/)?.[1];
  if(!show||!getAutoPlaylistShowIds_(rule).includes(show))return null;
  const sid=String(r[11]).match(/^https:\/\/open\.spotify\.com\/episode\/([A-Za-z0-9]{22})(?:[?#]|$)/)?.[1]||'';
- const ep={id:sid,uri:sid?'spotify:episode:'+sid:'',name:String(r[2]),description:String(r[23]||'')+'\n'+String(r[21]||''),html_description:String(r[21]||''),release_date:libV2CpDate_(r[3])};
+ const ep={id:sid,uri:sid?'spotify:episode:'+sid:'',name:String(r[2]),description:String(r[23]||'')+'\n'+String(r[22]||r[21]||''),html_description:String(r[22]||r[21]||''),release_date:libV2CpDate_(r[3])};
  if(!matchesAutoPlaylistRule_(ep,rule))return null;return {epId:id,guid,show,hash:libV3Hash_(r),ep};
 }
 function libV3MorningGet_(path,token,s,deadline){if(deadline&&Date.now()>deadline)return {status:'TIME_BUDGET_DEFERRED'};const r=libV2CpHttp_('https://api.spotify.com/v1/'+path,{Authorization:'Bearer '+token,Accept:'application/json'},s.retry,Date.now());if(r.status!=='OK'){s.retry=r.retry;return {status:r.status};}delete s.retry;return {data:JSON.parse(r.res.getContentText()),status:'OK'};}
@@ -161,8 +161,20 @@ function libV3MorningSpotify_(cfg,s,since){
  // Durable reservation BEFORE one POST. Any uncertainty is held for review; no blind retry.
  record('HOLD','reserved_playlist_post');libV3MorningSave_(s);
  let res;try{res=UrlFetchApp.fetch('https://api.spotify.com/v1/playlists/'+rule.playlistId+'/items',{method:'post',muteHttpExceptions:true,contentType:'application/json',headers:{Authorization:'Bearer '+token},payload:JSON.stringify({uris:[candidate.ep.uri]})});}catch(e){return done('POST_UNCERTAIN_HELD');}
- const code=res.getResponseCode();if(code!==200&&code!==201){if([403,429,503].includes(code))s.retry={stopped:code===403,http:code,at:Date.now()+libV3MorningRetryDelay_(res)};return done('POST_REJECTED_HELD');}
- record('VERIFIED','playlist_added_never_readd');m.spotifyPosts=1;return done('ADDED');
+ const code=res.getResponseCode();if(code!==200&&code!==201){if([403,429,503].includes(code))s.retry={stopped:code===403,http:code,at:Date.now()+libV3MorningRetryDelay_(res)};return {...done('POST_REJECTED_HELD'),httpStatus:code,errorType:code===401?'AUTH_EXPIRED':code===403?'PERMISSION_DENIED':code===429?'RATE_LIMITED':code>=500?'PROVIDER_UNAVAILABLE':'FETCH_FAILED'};}
+ // A successful POST alone is not evidence of playlist membership. The durable
+ // reservation above prevents a second POST when the readback is uncertain.
+ let posted;try{posted=JSON.parse(res.getContentText()||'{}');}catch(e){return done('POST_UNCERTAIN_HELD');}
+ if(!posted.snapshot_id)return done('POST_UNCERTAIN_HELD');
+ let offset=q.offset||0,verified=false;
+ for(let attempt=0;attempt<2;attempt++){
+  const readback=libV3MorningGet_('playlists/'+rule.playlistId+'/items?market=JP&limit=100&offset='+offset,token,s,started+90000);
+  if(!readback.data||!Array.isArray(readback.data.items))return done('POST_READBACK_UNCERTAIN_HELD');
+  if(readback.data.items.some(x=>(x.item||x.track)?.uri===candidate.ep.uri)){verified=true;break;}
+  if(!readback.data.next||!readback.data.items.length)break;offset+=readback.data.items.length;
+ }
+ if(!verified)return done('POST_READBACK_UNCERTAIN_HELD');
+ record('VERIFIED','playlist_added_readback_verified_never_readd');m.spotifyPosts=1;return done('ADDED');
  }finally{lock.releaseLock();}
 }
 function libV3MorningRetryDelay_(res){const h=res.getAllHeaders(),k=Object.keys(h).find(k=>k.toLowerCase()==='retry-after'),raw=k?String(h[k]):'';return Math.max(60000,/^\d+$/.test(raw)?Number(raw)*1000:Date.parse(raw)-Date.now()||0);}
