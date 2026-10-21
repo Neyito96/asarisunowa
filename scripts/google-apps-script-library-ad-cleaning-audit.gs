@@ -7,29 +7,32 @@
 const RISU_AD_AUDIT = Object.freeze({
   spreadsheetId:'1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4',
   sheet:'エピソード台帳',
-  maxSamples:30,
+  maxSamples:8,
   focus:['EP-03365','EP-05247']
 });
 function RISU_adSections_(value) {
-  const text=String(value||'')
-    .replace(/<br\s*\/?\s*>/gi,'\n')
-    .replace(/<\/(?:p|div|li|h[1-6])\s*>/gi,'\n')
-    .replace(/<[^>]*>/g,' ')
-    .replace(/&nbsp;|&#160;/gi,' ')
-    .replace(/&amp;/gi,'&')
-    .replace(/\r/g,'');
-  const lines=text.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+  // Conservative: only remove from explicit standalone marker to the next
+  // standalone protected section. Never match an arbitrary line containing
+  // both the episode introduction and a later promotion.
+  const text=String(value||'').replace(/<br\\s*\\/?\\s*>/gi,'\\n')
+    .replace(/<\\/(?:p|div|li|h[1-6])\\s*>/gi,'\\n')
+    .replace(/<[^>]*>/g,' ').replace(/&nbsp;|&#160;/gi,' ')
+    .replace(/&amp;/gi,'&').replace(/\\r/g,'');
+  const lines=text.split(/\\n+/).map(s=>s.trim()).filter(Boolean);
   const kept=[],removed=[];
-  let skip=false;
+  let skip=false,ambiguous=false;
+  const start=/^(?:【(?:朝ポキ情報|イベント情報|お知らせ|告知|キャンペーン|プレゼント|祝[^】]*イベント[^】]*)】|(?:おたより|お便り|応募|フォーム|購読案内|会員登録)[:：])/i;
+  const section=/^【(?:関連記事|関連リンク|出演(?:者)?(?:・スタッフ)?|スタッフ|エピソード|内容|今回のテーマ)】/i;
   for(const line of lines) {
-    const start=/^(?:[【\[]\s*)?(?:お知らせ|イベント|告知|キャンペーン|おたより|お便り|応募|フォーム|朝ポキ情報|購読案内|会員登録|プレゼント)(?:\s*[】\]]|\s*[:：])/i.test(line) ||
-      /(?:イベント|参加申し込み|参加申込|おたよりフォーム|お便りフォーム|応募フォーム|初月無料|チケット販売|キャンペーン).*https?:\/\//i.test(line);
-    const section=/^(?:[【\[]\s*)?(?:関連記事|関連リンク|出演|出演者|スタッフ|エピソード|内容|今回のテーマ)(?:\s*[】\]]|\s*[:：])/i.test(line);
-    if(section)skip=false;
-    if(start)skip=true;
-    if(skip)removed.push(line); else kept.push(line);
+    if(section.test(line))skip=false;
+    if(start.test(line))skip=true;
+    if(skip)removed.push(line);else kept.push(line);
   }
-  return {cleaned:kept.join('\n'),removed:removed.join('\n')};
+  // If the original is a single combined line, do not delete it.
+  // Also refuse changes that would erase the entire description.
+  if(!kept.length && removed.length)ambiguous=true;
+  if(ambiguous)return {cleaned:text,removed:'',held:true};
+  return {cleaned:kept.join('\\n'),removed:removed.join('\\n'),held:false};
 }
 function RISU_auditAdContamination() {
   const cfg=RISU_AD_AUDIT, sh=SpreadsheetApp.openById(cfg.spreadsheetId).getSheetByName(cfg.sheet);
@@ -48,7 +51,7 @@ function RISU_auditAdContamination() {
     if(after.removed && after.cleaned!==before){
       result.proposedChanges++;
       const entry={row:i+2,id:String(row[id]),show:String(row[show]),title:String(row[title]),names:matched,
-        removedPreview:after.removed.slice(0,280),retainedLength:after.cleaned.length,
+        removedPreview:after.removed.slice(0,160),retainedLength:after.cleaned.length,
         retainedNames:names.filter(n=>after.cleaned.includes(n))};
       if(cfg.focus.includes(entry.id))result.focus.push(entry);
       else if(result.samples.length<cfg.maxSamples)result.samples.push(entry);
