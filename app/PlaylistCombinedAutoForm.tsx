@@ -188,7 +188,7 @@ export default function PlaylistCombinedAutoForm() {
   return (
     <form className="autoUpdateForm" onSubmit={submit}>
       <h3>登録＋自動更新（楽育ち）を申し込む</h3>
-      <p>{updateType === "theme" ? "Spotifyでテーマ用のプレイリストを作り、この画面から申請してください。共同編集の確認後、候補を自動判定して初稿を作ります。" : "まずSpotifyで新しいプレイリストを作り、起点となる一番古いエピソードを1本入れてください。その後、この画面から申請してください。"}</p>
+      <p>{updateType === "theme" ? "Spotifyでテーマ用のプレイリストを作り、この画面から申請してください。共同編集の確認後、候補を自動判定して初稿を作ります。" : "Spotifyで新しい空のプレイリストを作り、この画面から申請してください。条件に合う既存回を自動で探し、古い回から追加します。"}</p>
 
       <label>
         <span>SpotifyプレイリストURL</span>
@@ -223,7 +223,7 @@ export default function PlaylistCombinedAutoForm() {
       </label>
       <div className="autoUpdateCommonRule">
         <b>自動更新（楽育ち）について</b>
-        <p>最初に入れた1本を目印に、そこから最新回までを古い順に追加します。準備が終わった後は、毎朝、新しい回がないか確認します。</p>
+        <p>申請した条件に合う既存回を自動で探し、古い順に追加します。準備が終わった後は、毎朝、新しい回がないか確認します。</p>
       </div>
       <div className="autoUpdateAfterSubmit">
         <strong className="autoUpdateGuideTitle">連載と朝リスト</strong>
