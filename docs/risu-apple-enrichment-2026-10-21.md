@@ -22,3 +22,12 @@ GASの本番配備・実行・トリガー登録は未実施。コードをGitHu
 
 ## 制約
 Apple Search APIに収録されない番組やRSS表記差異は保留。Appleカテゴリーは原語で記録される場合がある。Spotify以外の配信先は未対応。既存の他ページの更新ポリシーは維持。
+
+## 2026-10-21 11時台の追加監査・改修
+- 実シート見出しA:Rを確認。F=アートワーク、H=RSS、L=Apple Podcasts、R=ジャンル。新着投稿のRSSは登録済み。
+- 重要な不具合を発見: `scripts/google-apps-script-playlist-submit.gs` の `readPodcastSheet` はA:Eしか読み込まず、保存済みのアートワーク、RSS、Apple、ジャンル、他プラットフォームを公開APIに返していなかった。
+- 同関数をA:Rの18列返却に修正（commit 02db2ab）。GAS実運用へのデプロイは未実施。
+- Apple RSS一致照合の補完GASに専用1時間トリガー登録 `RISU_installHourlyEnrichment` と停止 `RISU_stopHourlyEnrichment` を追加（commit 44e377c）。未配備、未起動。
+- リス推しの画像遅延は、閲覧ブラウザーが空欄画像をAppleから取得してもシートへ永続化しないことが一因。F列をバックエンドで補完し、公開APIから返す方式が必要。
+- LISTEN / Amazon Music / stand.fm / Pody 等の空欄を正確に自動探索する実装は未完成。推測URLの書き込みはしない。
+- 次の必須作業: 実GASの現行コードと比較してA:R返却を反映・デプロイし、Apple補完GASのPREVIEWログを確認、問題なければ手動補完、最後に1時間トリガー登録。別GASプロジェクトに誤適用しない。
