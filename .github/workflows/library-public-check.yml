@@ -6,6 +6,8 @@ on:
       - 'lib/library*'
       - 'scripts/*library*'
       - 'tests/library-public*'
+      - 'tests/sdgs-integration*'
+      - 'tools/sdgs*'
       - '.github/workflows/library-public-check.yml'
   workflow_dispatch:
 permissions:
@@ -19,7 +21,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node --test tests/library-public.test.mjs
+      - run: node --test tests/library-public.test.mjs tests/sdgs-integration.test.mjs
       - name: Install isolated browser test tooling
         run: |
           npm install --prefix /tmp/library-browser --package-lock=false playwright@1.62.1

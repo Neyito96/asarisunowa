@@ -1,0 +1,380 @@
+{
+  "total": 31,
+  "uniqueUrlDateMatches": 31,
+  "exactTitles": 29,
+  "titleVariants": 2,
+  "records": [
+    {
+      "researchRow": 3,
+      "title": "「こどもそうだんしつ」1分のトレーラー",
+      "ids": [
+        "EP-06578"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "「こどもそうだんしつ」1分のトレーラー"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 4,
+      "title": "ゆうれいって、いるのかな？ #1",
+      "ids": [
+        "EP-06579"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "ゆうれいって、いるのかな？ #1"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 5,
+      "title": "【もっと話そう】幽霊タクシー",
+      "ids": [
+        "EP-06580"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "【もっと話そう】幽霊タクシー"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 6,
+      "title": "おんせんはなぜ、きもちいいの #2",
+      "ids": [
+        "EP-06581"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "おんせんはなぜ、きもちいいの #2"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 7,
+      "title": "【もっと話そう】地獄温泉",
+      "ids": [
+        "EP-06582"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "【もっと話そう】地獄温泉"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 8,
+      "title": "どうしてあしたはくるの？ #3",
+      "ids": [
+        "EP-06583"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "どうしてあしたはくるの？ #3"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 9,
+      "title": "【もっと話そう】年金の未来",
+      "ids": [
+        "EP-06584"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "【もっと話そう】年金の未来"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 10,
+      "title": "おこづかいをふやすには #4",
+      "ids": [
+        "EP-06585"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "おこづかいをふやすには #4"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 11,
+      "title": "【もっと話そう】社説ができるまで",
+      "ids": [
+        "EP-06586"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "【もっと話そう】社説ができるまで"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 12,
+      "title": "リスはおててでごはんをたべるよね。なんで？ #5",
+      "ids": [
+        "EP-06587"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "リスはおててでごはんをたべるよね。なんで？ #5"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 13,
+      "title": "【もっと話そう】温かみを感じるAIペット",
+      "ids": [
+        "EP-06588"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "【もっと話そう】温かみを感じるAIペット"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 14,
+      "title": "なんで、ねんねしないとあかんの？もっとあそびたいよ #6",
+      "ids": [
+        "EP-00060"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "なんで、ねんねしないとあかんの？もっとあそびたいよ #6"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 15,
+      "title": "【もっと話そう】どうやったら眠れるかな？わたしも手探り",
+      "ids": [
+        "EP-00059"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "【もっと話そう】どうやったら眠れるかな？わたしも手探り"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 16,
+      "title": "なんでひこうきは、そらをとぶの？ #7",
+      "ids": [
+        "EP-00058"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "なんでひこうきは、そらをとぶの？ #7"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 17,
+      "title": "【もっと話そう】空の旅へ　トリプルセブン",
+      "ids": [
+        "EP-00057"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "【もっと話そう】空の旅へ　トリプルセブン"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 18,
+      "title": "悪口は、どうしてこの世界にあるの？ #8",
+      "ids": [
+        "EP-00056"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "悪口は、どうしてこの世界にあるの？ #8"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 19,
+      "title": "【もっと話そう】ことばと気持ちは、つながっているね",
+      "ids": [
+        "EP-00055"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "【もっと話そう】ことばと気持ちは、つながっているね"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 20,
+      "title": "あんまり世の中で使わないことも、学校で勉強するのはなんで？ #9",
+      "ids": [
+        "EP-00054"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "あんまり世の中で使わないことも、学校で勉強するのはなんで？ #9"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 21,
+      "title": "【もっと話そう】勉強しておけばよかったなあって、いまは思う",
+      "ids": [
+        "EP-00053"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "【もっと話そう】勉強しておけばよかったなあって、いまは思う"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 22,
+      "title": "なんでオオスズメバチは「きけんせいぶつ」っていわれるの？ひどいよ！ #10",
+      "ids": [
+        "EP-00052"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "なんでオオスズメバチは「きけんせいぶつ」っていわれるの？ひどいよ！ #10"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 23,
+      "title": "（もっと話そう #10 ）毒って、こんなにおもしろい",
+      "ids": [
+        "EP-00051"
+      ],
+      "titleMatch": false,
+      "ledgerTitles": [
+        "【もっと話そう】毒って、こんなにおもしろい"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 24,
+      "title": "先生ってえらそうだけど、えらいの？ #11",
+      "ids": [
+        "EP-00050"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "先生ってえらそうだけど、えらいの？ #11"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 25,
+      "title": "【もっと話そう】えらそうな先生は好きじゃなかった　思い出に残る先生は",
+      "ids": [
+        "EP-00049"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "【もっと話そう】えらそうな先生は好きじゃなかった　思い出に残る先生は"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 26,
+      "title": "（朝日小学生新聞とコラボ！）国の借金がこんなに多くなったのは、なぜ？ #12",
+      "ids": [
+        "EP-00048"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "（朝日小学生新聞とコラボ！）国の借金がこんなに多くなったのは、なぜ？ #12"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 27,
+      "title": "【もっと話そう】編集長になる前は、ロボットの設計をしていた　人生を変えたニュース",
+      "ids": [
+        "EP-00047"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "【もっと話そう】編集長になる前は、ロボットの設計をしていた　人生を変えたニュース"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 28,
+      "title": "ニャンニャンとワンちゃんって　なんで、にてるの？ #13",
+      "ids": [
+        "EP-00046"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "ニャンニャンとワンちゃんって　なんで、にてるの？ #13"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 29,
+      "title": "【もっと話そう】ポップコーンの香りがする動物ってなーんだ",
+      "ids": [
+        "EP-00045"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "【もっと話そう】ポップコーンの香りがする動物ってなーんだ"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 30,
+      "title": "「お」と「を」は、どうちがうの？ #14",
+      "ids": [
+        "EP-00044"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "「お」と「を」は、どうちがうの？ #14"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 31,
+      "title": "【もっとはなそう】消えては生まれ、あるいは残り続けることばたち",
+      "ids": [
+        "EP-00043"
+      ],
+      "titleMatch": false,
+      "ledgerTitles": [
+        "【もっと話そう】消えては生まれ、あるいは残り続けることばたち"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 32,
+      "title": "コンビニの人って、いつねてるの？ #15",
+      "ids": [
+        "EP-00042"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "コンビニの人って、いつねてるの？ #15"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    },
+    {
+      "researchRow": 33,
+      "title": "【もっと話そう】近所のコンビニに大行列、私も並びました",
+      "ids": [
+        "EP-00041"
+      ],
+      "titleMatch": true,
+      "ledgerTitles": [
+        "【もっと話そう】近所のコンビニに大行列、私も並びました"
+      ],
+      "method": "EXACT_OMNY_URL_AND_JST_DATETIME_PRESERVE_RSS_TITLE"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "mode": "READ_ONLY",
+  "planHash": "49d727a19eef8a7100600f51a7463dcd4bbaaaeacfcdcb9513df092d97cb2a39",
+  "sourceRows": 6591,
+  "officialRows": 1092,
+  "rawRows": 1092,
+  "workRows": 1093,
+  "matched": 1091,
+  "uuidMatched": 1080,
+  "legacyMatched": 11,
+  "updateEpisodes": 1092,
+  "updateCells": 3331,
+  "newCandidates": 0,
+  "holds": 1,
+  "workIssues": 1,
+  "classificationOnly": 1,
+  "byColumn": {
+    "番組名": 1092,
+    "公式個別URL": 1091,
+    "ページ状態": 1091,
+    "公式JSON UUID（2026-10-20）": 11,
+    "公式JSON個別URL（未疎通確認）": 11,
+    "公式JSON Omny埋込URL（MP3ではない）": 11,
+    "公式JSON取得元URL": 11,
+    "タイトル": 11,
+    "概要原文": 1,
+    "概要清掃済み": 1
+  },
+  "audioWrites": 0,
+  "epIdChanges": 0
+}

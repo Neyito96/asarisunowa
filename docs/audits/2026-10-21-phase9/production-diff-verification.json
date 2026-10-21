@@ -1,0 +1,15 @@
+{
+  "planHash": "49d727a19eef8a7100600f51a7463dcd4bbaaaeacfcdcb9513df092d97cb2a39",
+  "updatedEpisodes": 1092,
+  "updatedCells": 3331,
+  "newEpisodes": 0,
+  "allWorkbookTabsCompared": 31,
+  "unexpectedDifferences": 0,
+  "protectedColumnsChanged": 0,
+  "heldEpisodeChanges": [
+    {
+      "id": "EP-06532",
+      "column": 2
+    }
+  ]
+}
