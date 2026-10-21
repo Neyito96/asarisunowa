@@ -53,7 +53,7 @@ async function openDetail(id,fromUrl=false) {
  try{const rows=await json(`details/${Math.floor(Number(id.slice(3))/manifest.detailBucketSize)}.json`),e=rows.find(x=>x.id===id);if(run!==activeDetail)return;if(!e)throw Error('missing');
  const h=node('h2',e.title);h.id='detail-title';body.replaceChildren(node('p',`${label(e.show)} / ${e.id}`,'detail-meta'),h,node('p',`${e.date.replace('T',' ').slice(0,16)}（日本時間）${e.duration?' · '+Math.round(e.duration/60)+'分':''}`,'detail-meta'));
  if(e.cast)body.append(node('p',e.cast,'detail-meta'));
- if(e.audio){const audio=document.createElement('audio');audio.controls=true;audio.preload='none';audio.src=e.audio;audio.addEventListener('error',()=>{body.querySelector('.audio-note').textContent='音声を読み込めませんでした。配信先リンクからお聴きください。';});body.append(audio,node('p','配信元の音声です。再生ボタンを押すと読み込みます。','audio-note'));}
+ if(e.audio){const audio=document.createElement('audio');audio.controls=true;audio.preload='none';audio.src=e.audio;const note=node('p','配信元の音声です。再生ボタンを押すと読み込みます。','audio-note');audio.addEventListener('error',()=>{note.textContent='音声を読み込めませんでした。配信先リンクからお聴きください。';});body.append(audio,note);}
  else body.append(node('p','この回は配信先リンクからお聴きください。','audio-note'));
  const links=node('div',undefined,'detail-links');addLinks(links,e.links);if(!links.children.length)addLinks(links,['https://www.asahi.com/special/podcasts/']);body.append(links,node('p',e.description || '概要欄は未収録です。公式ページをご確認ください。','description'));
  if(e.related.length){body.append(node('h3','関連記事'));const related=node('div',undefined,'detail-links');addLinks(related,e.related);body.append(related);}
@@ -65,7 +65,7 @@ $('close-detail').addEventListener('click',()=>$('detail').close());
 $('detail').addEventListener('close',()=>{activeDetail++;$('detail').querySelector('audio')?.pause();const u=new URL(location.href);u.searchParams.delete('ep');history.replaceState({},'',u);});
 $('search-form').addEventListener('submit',e=>{e.preventDefault();update();});
 for(const id of ['show','order','from','to'])$(id).addEventListener('change',()=>update());
-$('reset').addEventListener('click',()=>{$('search-form').reset();update();});
+$('clear-filters').addEventListener('click',()=>{$('search-form').reset();update();});
 $('prev').addEventListener('click',()=>{if(page>0){page--;update(false);}});$('next').addEventListener('click',()=>{page++;update(false);});
 $('retry').addEventListener('click',()=>manifest?update(false):init());
 async function init(){try{manifest=await json('manifest.json');$('snapshot').textContent=`収録 ${manifest.total.toLocaleString()}件 · ${manifest.snapshotDate}更新`;for(const s of manifest.shows){const option=node('option',s.label);option.value=s.name;$('show').append(option);const button=node('button',`${s.label} ${s.count.toLocaleString()}`);button.type='button';button.dataset.show=s.name;button.addEventListener('click',()=>{$('show').value=$('show').value===s.name?'':s.name;update();});$('shows').append(button);}const params=new URL(location.href).searchParams;for(const [id,param] of [['query','q'],['show','show'],['order','order'],['from','from'],['to','to']])if(params.get(param))$(id).value=params.get(param);if(!$('order').value)$('order').value='newest';await update();if(params.get('ep'))await openDetail(params.get('ep'),true);}catch{error('図書館を読み込めませんでした。時間をおいて再試行してください。');$('status').textContent='通信エラー';}}

@@ -41,7 +41,7 @@ const { chromium, webkit, devices } = require(process.env.LIBRARY_PLAYWRIGHT || 
     await page.locator('#query').press('Enter');
     await page.waitForFunction(() => document.querySelector('.empty'));
     assert.equal(await page.locator('#results script').count(), 0);
-    await page.locator('#reset').click();
+    await page.locator('#clear-filters').click();
     await page.waitForFunction(() => document.querySelectorAll('.episode').length === 40);
     assert.deepEqual(errors, []);
     if (process.env.LIBRARY_SCREENSHOT_DIR) {
