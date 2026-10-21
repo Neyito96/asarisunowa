@@ -1,0 +1,69 @@
+{
+  "version": "b72e776158336e7b",
+  "total": 6591,
+  "source": 6591,
+  "excluded": 0,
+  "held": 0,
+  "shows": [
+    {
+      "name": "ニュースの学校",
+      "count": 486,
+      "audioPresent": 485,
+      "playable": 1
+    },
+    {
+      "name": "ドーナツ",
+      "count": 60,
+      "audioPresent": 60,
+      "playable": 3
+    },
+    {
+      "name": "スポンジ",
+      "count": 173,
+      "audioPresent": 173,
+      "playable": 1
+    },
+    {
+      "name": "アルキキ",
+      "count": 100,
+      "audioPresent": 19,
+      "playable": 1
+    },
+    {
+      "name": "AJW",
+      "count": 25,
+      "audioPresent": 23,
+      "playable": 0
+    },
+    {
+      "name": "ニュースの現場から",
+      "count": 2641,
+      "audioPresent": 2193,
+      "playable": 1
+    },
+    {
+      "name": "MEDIA TALK",
+      "count": 1750,
+      "audioPresent": 103,
+      "playable": 1
+    },
+    {
+      "name": "朝ポキTV",
+      "count": 15,
+      "audioPresent": 0,
+      "playable": 0
+    },
+    {
+      "name": "報談",
+      "count": 218,
+      "audioPresent": 216,
+      "playable": 1
+    },
+    {
+      "name": "こどもそうだんしつ",
+      "count": 1123,
+      "audioPresent": 20,
+      "playable": 1
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "EP-00281": {
+    "url": "https://traffic.omny.fm/d/clips/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/c65ce403-244c-4d09-9ee5-b4a400b460b0/audio.mp3?utm_source=Podcast&in_playlist=c373aac9-fb6a-4172-8a8f-b498003d9389",
+    "status": 206,
+    "contentType": "audio/mpeg",
+    "bytesRead": 1024,
+    "checkedAt": "2026-10-21T03:05:19.181335+00:00",
+    "valid": true,
+    "scope": "HTTP audio prefix only; full playback not verified"
+  },
+  "EP-00282": {
+    "url": "https://traffic.omny.fm/d/clips/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/01542fba-13c6-4231-9c49-b4de008f14fd/audio.mp3?utm_source=Podcast&in_playlist=c373aac9-fb6a-4172-8a8f-b498003d9389",
+    "status": 206,
+    "contentType": "audio/mpeg",
+    "bytesRead": 1024,
+    "checkedAt": "2026-10-21T03:05:19.054602+00:00",
+    "valid": true,
+    "scope": "HTTP audio prefix only; full playback not verified"
+  },
+  "EP-00001": {
+    "url": "https://traffic.omny.fm/d/clips/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/71fc3de6-0be4-4cb3-b916-b4de005fb256/audio.mp3?utm_source=Podcast&in_playlist=684015f9-2396-4ac4-bc1f-ac0f0033d08c",
+    "status": 206,
+    "contentType": "audio/mpeg",
+    "bytesRead": 1024,
+    "checkedAt": "2026-10-21T03:05:18.936869+00:00",
+    "valid": true,
+    "scope": "HTTP audio prefix only; full playback not verified"
+  },
+  "EP-00021": {
+    "url": "https://traffic.omny.fm/d/clips/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/a27d92eb-0a6f-408d-baf9-b4dc0086f04a/audio.mp3?utm_source=Podcast&in_playlist=07a1de49-67cf-4714-8581-ac1000059302",
+    "status": 206,
+    "contentType": "audio/mpeg",
+    "bytesRead": 1024,
+    "checkedAt": "2026-10-21T03:05:19.203830+00:00",
+    "valid": true,
+    "scope": "HTTP audio prefix only; full playback not verified"
+  },
+  "EP-00041": {
+    "url": "https://traffic.omny.fm/d/clips/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/cc23eede-5ac4-489e-82d6-b4da008977ca/audio.mp3?utm_source=Podcast&in_playlist=693cfdd6-f5a9-4308-9025-adb10164b5b1",
+    "status": 206,
+    "contentType": "audio/mpeg",
+    "bytesRead": 1024,
+    "checkedAt": "2026-10-21T03:05:30.369413+00:00",
+    "valid": true,
+    "scope": "HTTP audio prefix only; full playback not verified"
+  },
+  "EP-00061": {
+    "url": "https://traffic.omny.fm/d/clips/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/210c535a-1b6e-41d0-9a5e-b4da00b98000/audio.mp3?utm_source=Podcast&in_playlist=8ceab8ef-af5f-44e9-9545-b4ab0024434b",
+    "status": 206,
+    "contentType": "audio/mpeg",
+    "bytesRead": 1024,
+    "checkedAt": "2026-10-21T03:05:30.424732+00:00",
+    "valid": true,
+    "scope": "HTTP audio prefix only; full playback not verified"
+  },
+  "EP-00081": {
+    "url": "https://pdst.fm/e/traffic.megaphone.fm/TASC3901369213.mp3",
+    "status": 206,
+    "contentType": "audio/mpeg",
+    "bytesRead": 1024,
+    "checkedAt": "2026-10-21T03:05:32.824835+00:00",
+    "valid": true,
+    "scope": "HTTP audio prefix only; full playback not verified"
+  },
+  "EP-00101": {
+    "url": "https://traffic.omny.fm/d/clips/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/9dcf4636-e6a3-4318-b47e-b47c00bb2095/audio.mp3?utm_source=Podcast&in_playlist=c373aac9-fb6a-4172-8a8f-b498003d9389",
+    "status": 206,
+    "contentType": "audio/mpeg",
+    "bytesRead": 1024,
+    "checkedAt": "2026-10-21T03:05:30.404478+00:00",
+    "valid": true,
+    "scope": "HTTP audio prefix only; full playback not verified"
+  },
+  "EP-00121": {
+    "url": "https://pdst.fm/e/traffic.megaphone.fm/TASC9935399347.mp3",
+    "status": 206,
+    "contentType": "audio/mpeg",
+    "bytesRead": 1024,
+    "checkedAt": "2026-10-21T03:05:46.876444+00:00",
+    "valid": true,
+    "scope": "HTTP audio prefix only; full playback not verified"
+  },
+  "EP-00141": {
+    "url": "https://traffic.omny.fm/d/clips/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/e1c29e86-9dee-4642-a0a9-b4df002132af/audio.mp3?utm_source=Podcast&in_playlist=ee64c498-786d-4155-962a-acc4009cef3e",
+    "status": 206,
+    "contentType": "audio/mpeg",
+    "bytesRead": 1024,
+    "checkedAt": "2026-10-21T03:05:43.335455+00:00",
+    "valid": true,
+    "scope": "HTTP audio prefix only; full playback not verified"
+  }
+}

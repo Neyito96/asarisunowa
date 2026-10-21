@@ -1,0 +1,19 @@
+{
+  "measuredDateJST": "2026-10-21",
+  "ledgerRows": 6591,
+  "audioUrlPresent": 3292,
+  "audioUrlMissing": 3299,
+  "duplicateEpIds": 0,
+  "guidPresent": 1334,
+  "guidMissing": 5257,
+  "duplicateNonemptyGuidKeys": 0,
+  "copyAudioColumnDifferences": 0,
+  "copyAudioMissingInSource": 0,
+  "sdgsOfficialUuidCount": 1092,
+  "sdgsUuidUniqueMatches": 1080,
+  "sdgsUuidUnmatched": 12,
+  "sdgsUuidMultipleMatches": 0,
+  "alibTriggerStatus": "UNVERIFIED",
+  "ledgerWorkbookSha256": "e4caa74f8cbd71db5709fe6a6ee012cfebcb9e9b6036bcbd5c366704e3a07c68",
+  "copyWorkbookSha256": "c54435b3bb4e42f61847c0a10224a353475fbbed9b4adad89777609443d849c6"
+}

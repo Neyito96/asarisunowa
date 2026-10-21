@@ -1,0 +1,27 @@
+✔ human delete supports requests that have no runtime rule yet (1.054285ms)
+✔ request lookup chooses the latest matching playlist row (0.29184ms)
+✔ human-deleted tombstone still blocks ordinary reactivation (0.175839ms)
+✔ manual stop/delete/resume lifecycle is defined (0.88831ms)
+✔ daily runtime sync excludes disabled and human-deleted rules (0.161859ms)
+✔ pending submissions do not silently resurrect a human-deleted playlist (0.124033ms)
+✔ keeps submitted themes stopped until explicit review approval (6.067597ms)
+✔ Phase8 diagnostic only reads both ledgers and current-account triggers (6.344225ms)
+✔ human exclusions fail closed and unspecified values remain usable (1.138709ms)
+✔ URL validation rejects script, HTTP and embedded credentials (0.300984ms)
+✔ mechanical rendering preserves words and article URLs without executable markup (0.720823ms)
+✔ raw and clean values are kept distinct; MP3 presence is not verification (0.530382ms)
+✔ NFKC, full description keyword and multiple terms work with date and programme filters (6.622725ms)
+✔ real snapshot preserves 6591 unique IDs, valid references and bounded initial page (59.00245ms)
+✔ renders development preview metadata (97.621434ms)
+✔ emits the catalog's animation and scrolling utilities (16.952847ms)
+✔ forwards progress semantics to the primitive (404.366101ms)
+✔ emits chart themes for the starter's media dark mode (200.217141ms)
+✔ renders sidebar skeletons deterministically (152.551498ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1120.565293
