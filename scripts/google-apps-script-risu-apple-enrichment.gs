@@ -1,7 +1,7 @@
 /**
  * リス推し: Apple Podcasts 補完（独立GASモジュール）
  * 手動: RISU_previewAppleEnrichment() -> RISU_applyAppleEnrichment()
- * プレビュー確認後に RISU_installHourlyEnrichment() で専用トリガーを登録。
+ * プレビュー確認後に RISU_installDailyEnrichment() で専用トリガーを登録。
  * Appleの検索結果は RSS feedUrl 完全一致の場合だけ採用。
  * 同名タイトルのみの一致は採用しない。既存値は上書きしない。
  */
@@ -81,20 +81,20 @@ function RISU_enrichApple_(apply) {
   } finally {if(apply)lock.releaseLock();}
 }
 
-/** One-hour trigger, dedicated to リス推し. Call only after preview validation. */
-function RISU_installHourlyEnrichment() {
+/** Daily trigger, dedicated to リス推し. Call only after preview validation. */
+function RISU_installDailyEnrichment() {
   const handler='RISU_applyAppleEnrichment';
   const existing=ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()===handler);
   if(existing.length>1) throw Error('同名トリガーが複数あります。手動確認してください');
-  if(!existing.length) ScriptApp.newTrigger(handler).timeBased().everyHours(1).create();
-  const result={mode:'RISU_HOURLY_INSTALLED',handler,triggers:ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()===handler).length};
+  if(!existing.length) ScriptApp.newTrigger(handler).timeBased().everyDays(1).atHour(4).create();
+  const result={mode:'RISU_DAILY_INSTALLED',handler,triggers:ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()===handler).length};
   console.log(JSON.stringify(result));return result;
 }
-function RISU_stopHourlyEnrichment() {
+function RISU_stopDailyEnrichment() {
   const handler='RISU_applyAppleEnrichment';
   let deleted=0;
   ScriptApp.getProjectTriggers().forEach(t=>{
     if(t.getHandlerFunction()===handler){ScriptApp.deleteTrigger(t);deleted++;}
   });
-  console.log('RISU_HOURLY_STOP '+JSON.stringify({deleted}));
+  console.log('RISU_DAILY_STOP '+JSON.stringify({deleted}));
 }
