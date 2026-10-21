@@ -1,0 +1,27 @@
+// Read-only local replay of captured connector values. Source rows are never edited.
+const fs=require('node:fs'),vm=require('node:vm'),crypto=require('node:crypto');
+function runtime(){const c=vm.createContext({Date,Utilities:{DigestAlgorithm:{SHA_256:'sha256'},computeDigest:(_,s)=>crypto.createHash('sha256').update(s).digest(),base64EncodeWebSafe:b=>Buffer.from(b).toString('base64url'),formatDate:d=>new Date(d.getTime()+9*3600000).toISOString().slice(0,10)}});for(const f of ['LibraryV2CheckpointEngine','LibraryV3'])vm.runInContext(fs.readFileSync(__dirname+'/google-apps-script/'+f+'.js','utf8'),c);return c;}
+function day(v){if(typeof v==='number')return new Date(Math.round((v-25569)*86400000)).toISOString().slice(0,10);const d=new Date(String(v||'').replace(/-0000$/,'+0000'));return Number.isFinite(+d)?new Date(+d+9*3600000).toISOString().slice(0,10):'';}
+function normalize(capture){const mapping={'メディアトーク':'MEDIA TALK','SDGs':'こどもそうだんしつ','YouTube':'朝ポキTV'};return capture.values.slice(2).map((r,i)=>({show:mapping[capture.job.tab]||capture.job.tab,title:String(r[2]||'').normalize('NFKC').replace(/\s+/g,' ').trim(),date:day(r[1]),page:String(r[0]||''),spotify:String(r[11]||''),official:String(r[12]||''),sourceRow:i+3})).filter(r=>r.title&&/^https:\/\//.test(r.page));}
+function pageKey(v){const yt=String(v).match(/^https:\/\/(?:www\.)?youtube\.com\/watch\?(?:[^#]*&)?v=([A-Za-z0-9_-]+)(?:&|$)/);return yt?'youtube:'+yt[1]:String(v).replace(/[?#].*$/,'').replace(/\/$/,'');}
+function compare(source,target,c){
+ const idx=new Map(),keys=r=>[r.guid||'',c.libV2CpOfficialItem_(r.official),c.libV2CpClip_(r.page)].filter(Boolean).map(x=>'id:'+x).concat(r.page?['page:'+pageKey(r.page)]:[],/^https:\/\/open\.spotify\.com\/episode\/[A-Za-z0-9]{22}(?:[?#]|$)/.test(r.spotify)?['spotify:'+r.spotify.replace(/[?#].*$/,'')]:[]);
+ target.forEach((r,i)=>keys(r).forEach(k=>{const key=r.show+'|'+k;if(!idx.has(key))idx.set(key,new Set());idx.get(key).add(i);}));
+ const out={sourceRows:source.length,targetRows:target.length,matched:0,unmatched:0,held:0,byShow:{},unmatchedSourceRows:[],heldSourceRows:[]};
+ source.forEach(r=>{
+  const g=out.byShow[r.show]??={rows:0,matched:0,unmatched:0,held:0};g.rows++;
+  const hit=new Set(keys(r).flatMap(k=>[...(idx.get(r.show+'|'+k)||[])]));let reasons=[];
+  if(hit.size===1){
+   const t=target[[...hit][0]],sp1=r.spotify.replace(/[?#].*$/,''),sp2=t.spotify.replace(/[?#].*$/,'');
+   const a=keys(r).filter(k=>k.startsWith('id:')),b=keys(t).filter(k=>k.startsWith('id:'));
+   if(r.title!==t.title)reasons.push('title_mismatch');
+   if(!r.date||r.date!==t.date)reasons.push('date_mismatch');
+   if(sp1&&sp2&&sp1!==sp2)reasons.push('spotify_conflict');
+   if(a.length&&b.length&&![...a,...b].every(x=>x===a[0]))reasons.push('identifier_conflict');
+  }else reasons.push(hit.size?'multiple_identity_matches':'no_exact_identifier');
+  const status=hit.size===0?'unmatched':reasons.length?'held':'matched';out[status]++;g[status]++;
+  if(status!=='matched')out[status==='held'?'heldSourceRows':'unmatchedSourceRows'].push({id:r.id||'',show:r.show,row:r.sourceRow,reasons});
+ });return out;
+}
+function run(reads,exclusions=[]){const started=performance.now(),c=runtime(),ledgerReads=reads.filter(x=>x.job.tab==='エピソード台帳').sort((a,b)=>Number(a.job.range.match(/\d+/)[0])-Number(b.job.range.match(/\d+/)[0])),data=ledgerReads.flatMap(x=>x.values),headers=data.shift();const rows=data.map(r=>Array.from({length:51},(_,i)=>r[i]??''));rows.forEach(r=>r[3]=day(r[3]));const ledger=rows.map((r,i)=>({id:r[0],show:r[1],guid:c.libV2CpGuid_(r[6]),title:c.libV2CpNorm_(r[2]),date:r[3],page:r[8],spotify:r[11],official:r[9],sourceRow:i+2}));const groups={};for(const x of reads.filter(x=>x.job.tab!=='エピソード台帳'))(groups[x.job.id]??=[]).push(...normalize(x));const ids=Object.keys(groups),shared=groups[ids.find(x=>x.startsWith('1Cv'))],copy=groups[ids.find(x=>x.startsWith('1lJF'))];return {readAt:reads.map(x=>x.readAt).sort().at(-1),reads:reads.length,inputSha256:crypto.createHash('sha256').update(JSON.stringify(reads)).digest('hex'),missing:c.libV3MissingAudit_(headers,rows,exclusions),populations:Object.fromEntries(Object.entries(groups).map(([id,rs])=>[id,{rows:rs.length,byShow:rs.reduce((a,r)=>(a[r.show]=(a[r.show]||0)+1,a),{})}])),copyToLedger:compare(copy.filter(r=>r.show!=='朝ポキTV'),ledger,c),sharedToLedger:compare(shared.filter(r=>r.show!=='朝ポキTV'),ledger,c),copyToShared:compare(copy,shared,c),ledgerToShared:compare(ledger,shared,c),ledgerToCopy:compare(ledger,copy,c),reportedSearchCount:{value:5439,verified:false,arithmeticDifference:rows.length-5439,reason:'Search UI count is not an identified row set; cannot attribute 1152 without its filter and capture.'},localReplayElapsedMs:Math.round(performance.now()-started),writes:0};}
+module.exports={runtime,day,normalize,compare,run};if(require.main===module){const [input,output,exclusions]=process.argv.slice(2);if(!output)throw Error('Usage: node scripts/compare-library-snapshots.cjs reads.json report.json');const r=run(JSON.parse(fs.readFileSync(input)),exclusions?JSON.parse(fs.readFileSync(exclusions)).slice(1):[]);fs.writeFileSync(output,JSON.stringify(r,null,2)+'\n');console.log(JSON.stringify({rows:r.missing.rows,missing:r.missing.missing,populations:r.populations,comparison:{copyToLedger:{matched:r.copyToLedger.matched,held:r.copyToLedger.held,unmatched:r.copyToLedger.unmatched},sharedToLedger:{matched:r.sharedToLedger.matched,held:r.sharedToLedger.held,unmatched:r.sharedToLedger.unmatched}}}));}

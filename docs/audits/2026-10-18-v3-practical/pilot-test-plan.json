@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "purpose": "PR230_SINGLE_EPISODE_ISOLATED_PILOT",
+  "specifiedByUser": "2026-10-18T11:26:28+09:00",
+  "runtimeConfig": false,
+  "status": "BLOCKED_BEFORE_ANY_WRITE",
+  "spotify": {
+    "playlistName": "リス田 自動更新テスト",
+    "allowedPlaylistIds": [
+      "4FiVIwysKDtLqEXfkfhu2O"
+    ],
+    "playlistWriteApproved": false,
+    "maxPlaylistPostRequests": 1,
+    "maxEpisodeUris": 1,
+    "episodeId": null,
+    "episodeUri": null,
+    "allowReplace": false,
+    "allowReorder": false,
+    "allowDelete": false,
+    "allowMetadataChange": false,
+    "retryUncertainPost": false,
+    "authentication": "Existing V1 getSpotifyUserAccessToken; authenticated user/scopes/test-list permissions not yet verified; no new credentials or scopes"
+  },
+  "copyLedger": {
+    "writeApproved": false,
+    "copySpreadsheetId": null,
+    "selectedGuid": null,
+    "maxNewEpisodeRows": 1,
+    "preserveOriginalAndBackup": true,
+    "stateAndHistoryMustUseCopy": true
+  },
+  "forbiddenChanges": [
+    "production ledger",
+    "existing public playlists",
+    "all Script Properties",
+    "all triggers",
+    "deployments",
+    "merge"
+  ],
+  "gates": {
+    "currentGasFullSourceCompared": true,
+    "newPR230ReadOnlyPassedOnline": true,
+    "copyOnlyWriterRouteVerified": true,
+    "propertyFreePilotReservationVerified": true,
+    "episodeAndAuthenticationPresented": false,
+    "explicitPlaylistWriteApproval": false
+  },
+  "existingCodeBlockers": [
+    "Unmodified production Append uses original target and LAST_ID, as intended; opt-in copy pilot now routes all fresh re-reads to selected copy and reserves ID in copy only",
+    "Generic morning scheduler/Spotify writer remain forbidden for this pilot; no production flags/cursors/trigger functions invoked",
+    "Real copy ID, selected GUID and reviewed planHash are still required"
+  ],
+  "onlineChangesThisStep": {
+    "code": 0,
+    "properties": 0,
+    "triggers": 0,
+    "sheetCells": 0,
+    "spotifyPlaylistPosts": 0
+  },
+  "verificationScope": "Specified three READ_ONLY checks passed online (Morning per Issue222, missing/RSS measured 13:30-13:32 JST). Copy writer verified by mocks only; actual copy and Spotify writes pending."
+}

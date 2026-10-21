@@ -72,8 +72,9 @@ function libV3Feeds_(sourceRows){
   if(!show)throw Error('Feed show missing');if(map.has(url)&&map.get(url)!==show)throw Error('Feed show conflict');map.set(url,show);
  }});return [...map].sort((a,b)=>a[0].localeCompare(b[0])).map(([url,show])=>({url,show}));
 }
-function libV3Context_(requireState){
- const ss=SpreadsheetApp.openById(LIB_V2_SHEET_ID),get=name=>{const sh=ss.getSheetByName(name);if(!sh)throw Error('Missing '+name);return sh;};
+function libV3Context_(requireState,copyPilot){
+ const targetSheetId=copyPilot?libV3CopyPilotId_(copyPilot):LIB_V2_SHEET_ID;
+ const ss=SpreadsheetApp.openById(targetSheetId),get=name=>{const sh=ss.getSheetByName(name);if(!sh)throw Error('Missing '+name);return sh;};
  const sh=get('エピソード台帳'),data=sh.getDataRange().getValues(),headers=data.shift();libV3CheckHeaders_(headers);
  const ex=get('削除・除外履歴'),history=get('自動補完・実行履歴');
  const expected=['実行日時','状態','対象EP数','書込セル数','保留件数','更新EP-ID','開始フィード','次フィード','処理秒数','備考'];
@@ -84,7 +85,7 @@ function libV3Context_(requireState){
  if(state&&libV3Hash_(stored.shift())!==libV3Hash_(libV3Schema_().state))throw Error('V3 state schema mismatch');
  stored.forEach((r,i)=>{if(packed.has(r[0]))throw Error('Duplicate state EP-ID');const fields=JSON.parse(r[1]||'{}');if(!fields||Array.isArray(fields)||typeof fields!=='object')throw Error('Invalid packed state');packed.set(r[0],{row:i+2,fields});Object.entries(fields).forEach(([name,value])=>{if(!Array.isArray(value)||value.length!==8)throw Error('Invalid field state');records.push([r[0],name,...value]);});});
  const recordRows=new Map(records.map((r,i)=>[r[0]+'|'+r[1],i]));
- return {ss,sh,rows:data,headers,ex,history,state,records,recordRows,packed,feeds:libV3Feeds_(get('取得元一覧').getDataRange().getValues().slice(1)),index:libV3Index_(data,ex.getDataRange().getValues().slice(1),records)};
+ return {ss,targetSheetId,sh,rows:data,headers,ex,history,state,records,recordRows,packed,feeds:libV3Feeds_(get('取得元一覧').getDataRange().getValues().slice(1)),index:libV3Index_(data,ex.getDataRange().getValues().slice(1),records)};
 }
 function libV3Config_(){
  const raw=PropertiesService.getScriptProperties().getProperty('LIB_V3_CONFIG');
@@ -94,7 +95,7 @@ function libV3Config_(){
 }
 function libV3Conflicts_(){
  // Enumerate installed handlers, not a partial list of known scheduler names.
- return ScriptApp.getProjectTriggers().map(t=>t.getHandlerFunction()).filter(n=>n!=='scheduledLibraryV3'&&/(?:[Ll]ibrary|[Oo]fficialRss|[Bb]ackfill)/.test(n));
+ return ScriptApp.getProjectTriggers().map(t=>t.getHandlerFunction()).filter(n=>!['scheduledLibraryV3','scheduledLibraryV3BaselineOnly','scheduledLibraryV3Morning','continueLibraryV3Morning'].includes(n)&&/(?:[Ll]ibrary|[Oo]fficialRss|[Bb]ackfill)/.test(n));
 }
 function libV3StatePut_(c,record){
  const key=record[0]+'|'+record[1],old=c.index.states.get(key);
@@ -155,14 +156,19 @@ function libV3NewDecision_(it,feed,c,config,baseline){
  if(c.index.metadata.has(it.title+'|'+it.date)||c.index.audio.has(it.audio))reasons.push('possible_reissue_or_migration');
  return {eligible:!reasons.length,reasons};
 }
-function libV3Append_(c,it,feed,config,baseline){
+/** Copy pilot stays in the explicitly selected copy, including the fresh re-read.
+ * Its persistent identity reservation supplies monotonic IDs without Properties.
+ * Default production behavior and counter are unchanged.
+ */
+function libV3Append_(c,it,feed,config,baseline,copyPilot){
  // Full latest ledger and exclusion re-read; no stale append/cell overwrite.
- const live=libV3Context_(true),d=libV3NewDecision_(it,feed,live,config,baseline);
+ if(copyPilot&&(c.targetSheetId!==libV3CopyPilotId_(copyPilot)||it.guid!==copyPilot.guid||feed.url!==copyPilot.feedUrl))throw Error('Copy pilot scope changed');
+ const live=libV3Context_(true,copyPilot),d=libV3NewDecision_(it,feed,live,config,baseline);
  if(libV2CpMatches_(it.guid,live.index.guid,live.index.anchor).length||!d.eligible)throw Error('New item changed or held');
  const props=PropertiesService.getScriptProperties();
  const lastId=Number(props.getProperty('LIB_V3_LAST_ID')||0);if(!Number.isSafeInteger(lastId)||lastId<0)throw Error('Invalid ID counter');
  const max=[...live.rows,...live.records].reduce((n,r)=>Math.max(n,Number(String(r[0]).match(/^EP-(\d+)$/)?.[1]||0)),lastId);
- const id='EP-'+String(max+1).padStart(5,'0');props.setProperty('LIB_V3_LAST_ID',String(max+1));
+ const id='EP-'+String(max+1).padStart(5,'0');if(!copyPilot)props.setProperty('LIB_V3_LAST_ID',String(max+1));
  // Reserve identity BEFORE append. Crash leaves a hold, never resurrection/duplicate.
  libV3StatePut_(live,[id,'identity','HOLD',it.guid,'','','','reserved_before_append',new Date().toISOString(),it.guid]);
  if(typeof libV3AutoCleanEvidence_==='function'&&libV3AutoCleanEvidence_(it.description||'').hold)throw Error('New description requires review');
@@ -173,12 +179,14 @@ function libV3Append_(c,it,feed,config,baseline){
  libV3StatePut_(live,[id,'identity','VERIFIED',it.guid,libV3Hash_(r),'',libV3Hash_(id),'RSS_registered',new Date().toISOString(),it.guid]);
  c.rows.push(r);c.records=live.records;c.recordRows=live.recordRows;c.packed=live.packed;c.index=libV3Index_(c.rows,c.ex.getDataRange().getValues().slice(1),c.records);return {id,writtenCells:51};
 }
-function libV3Run_(write){
+function libV3Run_(write,options){
+ options=options||{};
  const start=Date.now(),deadline=start+110000,lock=LockService.getScriptLock(),config=libV3Config_();
+ if(options.morning){config.autonomous=false;config.allowEnrich=false;config.maxEpisodes=5;}
  const m={mode:write?'WRITE_V3':'READ_ONLY_V3',status:'',apiCalls:0,cacheHits:0,fetchedItems:0,inspected:0,proposedCells:0,writtenCells:0,updatedIds:[],newIds:[],holds:0,fieldStates:{},samples:[]};
  if(write&&!config.enabled)return {...m,status:'DISABLED'};
  if(!lock.tryLock(1000))return {...m,status:'SKIPPED_ALREADY_RUNNING'};
- const props=PropertiesService.getScriptProperties(),key='LIB_V3_CURSOR';let state,context;
+ const props=PropertiesService.getScriptProperties(),key=options.morning?'LIB_V3_MORNING_CURSOR':'LIB_V3_CURSOR';let state,context;
  try{
   if(write&&(libV3Conflicts_().length||ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='scheduledLibraryV3').length>1))throw Error('Conflicting library triggers');
   const c=libV3Context_(write);context=c;if(!c.feeds.length)throw Error('No feeds');
@@ -194,7 +202,7 @@ function libV3Run_(write){
    const next=rotate?c.feeds[(c.feeds.indexOf(feed)+1)%c.feeds.length].url:feed.url;
    state={url:next,...(per[next]||{offset:0,hash:''}),feeds:per};const encoded=JSON.stringify(state);if(encoded.length>8000)throw Error('Feed checkpoint property budget exceeded');props.setProperty(key,encoded);
   };
-  const before=Date.now(),snap=libV2CpSnapshot_(feed.url,write,state,m,{prefix:config.autonomous?'LV3AUTO':'LV3CP',chunkSize:22000,timeoutSeconds:45,maxAgeMs:config.autonomous?30*60000:0,parse:t=>{const list=libV2CpParse_(t,true);return config.autonomous?list.sort((a,b)=>(Date.parse(b.published)||0)-(Date.parse(a.published)||0)||String(a.guid).localeCompare(String(b.guid))):list;}});
+  const before=Date.now(),snap=libV2CpSnapshot_(feed.url,write,state,m,{prefix:options.morning?'LV3MORN':config.autonomous?'LV3AUTO':'LV3CP',chunkSize:22000,timeoutSeconds:45,maxAgeMs:(options.morning||config.autonomous)?30*60000:0,parse:t=>{const list=libV2CpParse_(t,true);return (options.morning||config.autonomous)?list.sort((a,b)=>(Date.parse(b.published)||0)-(Date.parse(a.published)||0)||String(a.guid).localeCompare(String(b.guid))):list;}});
   if(snap.status){if(!state.retry?.stopped&&!(state.retry?.at>before))m.apiCalls++;m.status=snap.status;m.retry=snap.retry;state.retry=snap.retry;if(write)save(snap.status==='RETRY_WAIT');return m;}
   delete state.retry;if(state.hash!==snap.hash){state.hash=snap.hash;state.offset=0;state.pass='priority';state.nextPollAt=0;}
   if(snap.fetched&&write){save(false);m.status='SNAPSHOT_READY';return m;}
@@ -203,6 +211,7 @@ function libV3Run_(write){
   let offset=state.offset||0,touched=0;
   while(offset<snap.items.length&&m.inspected<config.maxItems&&touched<config.maxEpisodes&&Date.now()<deadline-15000){
    const it=snap.items[offset];m.inspected++;
+   if(options.morning){const at=Date.parse(it.published);if(!Number.isFinite(at)||at>Date.now()+60000){offset++;continue;}if(at<Number(options.since)){offset=snap.items.length;break;}}
    if(!it.guid||counts.get(it.guid)!==1){m.holds++;if(write)libV3StatePut_(c,['NEW:'+(it.guid||'blank'),'discovery','HOLD',it.guid||'','',libV3Hash_(it),'','blank_or_duplicate_rss_guid',new Date().toISOString(),'']);offset++;continue;}
    if(config.autonomous&&typeof libV3AutoInspectDue_==='function'&&!libV3AutoInspectDue_(it,feed,c,state.pass||'priority')){offset++;continue;}
    const plan=libV3Plan_(it,feed,c.rows,c.index);
@@ -327,8 +336,8 @@ function recordLibraryV3AudioEvidenceAfterApproval(evidence){
 }
 /** All 51 ledger columns are inventoried. Unsupported source fields remain explicit;
  * no generic scrape/guess fallback, and no claim that present means verified. */
-function previewLibraryV3AllColumns(){
- const c=libV3Context_(false),groups=new Map(),auto=new Map(libV3Schema_().fields.map(([col,name])=>[col-1,name]));
+function previewLibraryV3AllColumns(context){
+ const c=context||libV3Context_(false),groups=new Map(),auto=new Map(libV3Schema_().fields.map(([col,name])=>[col-1,name]));
  for(const r of c.rows)for(let col=0;col<c.headers.length;col++){
   const key=r[1]+'|'+col;if(!groups.has(key))groups.set(key,{show:r[1],column:col+1,label:c.headers[col],missing:0,present:0,states:{}});
   const g=groups.get(key),present=!!libV3Text_(r[col]),field=auto.get(col),prior=field&&c.index.states.get(r[0]+'|'+field);
@@ -337,4 +346,101 @@ function previewLibraryV3AllColumns(){
  }
  const result={mode:'READ_ONLY_V3_ALL_COLUMNS',rows:c.rows.length,columns:c.headers.length,byShowField:[...groups.values()],writes:0};
  Logger.log(JSON.stringify({mode:result.mode,rows:result.rows,columns:result.columns,groups:result.byShowField.length,writes:result.writes}));return result;
+}
+
+/** Repeatable five-field inventory. Presence is not source verification. No writes. */
+function libV3MissingAudit_(headers,rows,exclusions){
+ libV3CheckHeaders_(headers);
+ const fields={guid:6,spotify:11,audio:14,cast:23,description:21},groups=new Map(),idx=libV3Index_(rows,exclusions||[],[]);
+ const duplicateIds=[...idx.ids].filter(([,v])=>v.length>1).map(([id,v])=>({id,rows:v.map(i=>i+2)}));
+ const total={rows:0,excluded:0,missing:{guid:0,spotify:0,audio:0,cast:0,description:0},blankIds:[],samplesByField:{guid:[],spotify:[],audio:[],cast:[],description:[]}};
+ for(let i=0;i<rows.length;i++){
+  const r=rows[i];if(!r.some(v=>libV3Text_(v)))continue;
+  const show=libV3Text_(r[1])||'(blank show)';if(!groups.has(show))groups.set(show,{show,rows:0,excluded:0,missing:{guid:0,spotify:0,audio:0,cast:0,description:0}});
+  const g=groups.get(show);g.rows++;total.rows++;if(!libV3Text_(r[0]))total.blankIds.push(i+2);
+  if(libV2CpBlocked_(r[38])||idx.tomb.is.has(String(r[0]))||libV3Identity_(r).some(x=>idx.tomb.gs.has(x))){g.excluded++;total.excluded++;}
+  for(const [field,col] of Object.entries(fields))if(!libV3Text_(r[col])){g.missing[field]++;total.missing[field]++;if(total.samplesByField[field].length<10)total.samplesByField[field].push({id:String(r[0]),row:i+2,show});}
+ }
+ return {mode:'READ_ONLY_V3_MISSING',...total,byShow:[...groups.values()],duplicateIds,writes:0,apiCalls:0};
+}
+function previewLibraryV3MissingAudit(){const c=libV3Context_(false),r=libV3MissingAudit_(c.headers,c.rows,c.ex.getDataRange().getValues().slice(1));Logger.log(JSON.stringify(r));return r;}
+
+/** P0-A compact evidence inventory. No HTTP, property, cache or sheet mutations.
+ * Existing text and playback labels are observations, never inferred verification.
+ */
+function previewLibraryV3QualityAudit(){
+ const c=libV3Context_(false),all=previewLibraryV3AllColumns(c),ex=c.ex.getDataRange().getValues().slice(1);
+ const missing=libV3MissingAudit_(c.headers,c.rows,ex),oldNews=[],audio={urlPresent:0,httpEvidenceCurrent:0,httpEvidenceStale:0,playbackLabelPresent:0};
+ for(const r of c.rows){
+  const url=libV3Text_(r[14]),http=c.index.states.get(r[0]+'|audioHttp');
+  if(url)audio.urlPresent++;
+  if(libV3Text_(r[18]))audio.playbackLabelPresent++;
+  if(http){if(url&&http[6]===libV3Hash_(r[14]))audio.httpEvidenceCurrent++;else audio.httpEvidenceStale++;}
+  const date=libV2CpDate_(r[3]);
+  if(r[1]==='ニュースの現場から'&&/^202[01]-/.test(date)){
+   const raw=libV3Text_(r[21]),clean=libV3Text_(r[22]);
+   oldNews.push({id:String(r[0]),date,rawPresent:!!raw,cleanPresent:!!clean,
+    cleanRelation:!raw?'RAW_MISSING':!clean?'CLEAN_MISSING':libV3Clean_(raw)===clean?'MECHANICAL_EQUAL':'DIFFERENT_REVIEW_NOT_OVERWRITE',
+    audioUrlPresent:!!url,guidPresent:!!libV3Text_(r[6])});
+  }
+ }
+ const duplicateGuids=[...c.index.guid].filter(([,v])=>v.length>1).map(([guid,v])=>({guid,ids:v.map(i=>String(c.rows[i][0]))}));
+ const result={mode:'READ_ONLY_V3_QUALITY',rows:c.rows.length,columns:c.headers.length,byShowField:all.byShowField,
+  missing,duplicateGuids,exclusionHistoryRows:ex.filter(r=>r.some(v=>libV3Text_(v))).length,audio,oldNews,
+  writes:0,apiCalls:0,playbackVerifiedByThisAudit:false};
+ // One bounded show/column log per group; return all detail without raw descriptions.
+ Logger.log(JSON.stringify({mode:result.mode,rows:result.rows,columns:result.columns,audio,duplicateGuids,exclusionHistoryRows:result.exclusionHistoryRows,writes:0,apiCalls:0}));
+ for(const show of [...new Set(c.rows.map(r=>r[1]))])Logger.log(JSON.stringify({mode:'READ_ONLY_V3_QUALITY_SHOW',show,fields:all.byShowField.filter(g=>g.show===show)}));
+ for(let i=0;i<oldNews.length;i+=25)Logger.log(JSON.stringify({mode:'READ_ONLY_V3_OLD_NEWS',offset:i,rows:oldNews.slice(i,i+25)}));
+ return result;
+}
+
+/** Stateless, one-feed candidate audit. Never persist cursor/cache/properties or cells.
+ * A future approved scheduler must store the returned cursor in a separate audit store.
+ */
+function previewLibraryV3SchoolCandidates(){return previewLibraryV3RssCandidates({show:'ニュースの学校'});}
+function previewLibraryV3RssCandidates(options){
+ const o=options||{},shows=['ニュースの学校','ニュースの現場から','MEDIA TALK','こどもそうだんしつ','スポンジ','ドーナツ','報談'];
+ const show=o.show||shows[0],offset=o.cursor?.offset||0;
+ if(!shows.includes(show)||!Number.isInteger(offset)||offset<0||offset>100000)throw Error('Invalid audit selection');
+ if(o.cursor&&(o.cursor.show!==show||!o.cursor.hash))throw Error('Cursor identity required');
+ const started=Date.now(),deadline=started+90000,lock=LockService.getScriptLock();
+ const m={mode:'READ_ONLY_V3_RSS_CANDIDATES',show,status:'',inspected:0,apiCalls:0,cacheHits:0,fetchedItems:0,candidates:[],review:[],holds:[],writes:0,propertyWrites:0,playbackVerified:false};
+ if(!lock.tryLock(1000))return {...m,status:'SKIPPED_ALREADY_RUNNING'};
+ try{
+  const c=libV3Context_(false),feeds=c.feeds.filter(f=>f.show===show);
+  if(feeds.length!==1)throw Error('Expected exactly one configured feed for show');
+  const feed=feeds[0];m.feed=feed.url;
+  if(o.cursor&&o.cursor.url!==feed.url)throw Error('Cursor feed changed');
+  if(Date.now()>deadline-45000){m.status='TIME_BUDGET';return m;}
+  const state={offset,hash:o.cursor?.hash||'',retry:o.cursor?.retry};
+  const snap=libV2CpSnapshot_(feed.url,false,state,m,{prefix:'LV3CP',timeoutSeconds:45,parse:t=>libV2CpParse_(t,true)});
+  if(snap.status){if(!state.retry?.stopped&&!(state.retry?.at>started))m.apiCalls++;m.status=snap.status;m.retry=snap.retry;return m;}
+  if(o.cursor&&snap.hash!==o.cursor.hash){m.status='SOURCE_CHANGED_RESTART_REQUIRED';return m;}
+  if(offset>snap.items.length)throw Error('Cursor exceeds snapshot');
+  const counts=new Map();snap.items.forEach(it=>counts.set(it.guid,(counts.get(it.guid)||0)+1));
+  let next=offset;
+  while(next<snap.items.length&&m.inspected<50&&Date.now()<deadline-15000){
+   const it=snap.items[next++];m.inspected++;
+   if(!it.guid||counts.get(it.guid)!==1){m.holds.push({guid:it.guid||'',reason:'blank_or_duplicate_rss_guid'});continue;}
+   const p=libV3Plan_(it,feed,c.rows,c.index);
+   if(!p.id||p.reasons.length){m.holds.push({guid:it.guid,id:p.id||'',reasons:p.reasons});continue;}
+   // A conflict in either identity-bearing audio or cast holds the whole proposal.
+   const selected=p.fields.filter(f=>['audio','cast','cast1','cast2','cast3','cast4','cast5','castEvidence'].includes(f.name));
+   if(selected.some(f=>['HOLD','RECHECK_REQUIRED'].includes(f.state))){m.holds.push({id:p.id,reason:'existing_value_or_state_conflict'});continue;}
+   const proposed=[];
+   for(const f of selected.filter(f=>f.candidate)){
+    if(c.sh.getRange(p.i+2,f.col).getFormula()){m.holds.push({id:p.id,field:f.name,reason:'formula_protected'});continue;}
+    proposed.push({field:f.name,column:f.col,value:f.value});
+   }
+   if(proposed.length)m.candidates.push({id:p.id,guid:it.guid,title:it.title,date:it.date,feed:feed.url,sourceHash:p.sourceHash,rowHash:p.rowHash,key:libV3Hash_([show,p.id,p.sourceHash,proposed]),fields:proposed});
+   // A name in description may be a producer or announcement: never infer a speaker.
+   if(!it.cast&&/神田\s*大介/.test(libV3Clean_(it.description||''))){
+    const plain=libV3Clean_(it.description),at=plain.search(/神田\s*大介/);
+    m.review.push({id:p.id,guid:it.guid,person:'神田大介',reason:'description_mention_role_unverified',evidence:plain.slice(Math.max(0,at-50),at+100)});
+   }
+  }
+  m.completeFeed=next===snap.items.length;m.nextCursor={show,url:feed.url,hash:snap.hash,offset:next};m.status='READ_ONLY';return m;
+ }catch(e){m.status='FAILED';m.errorType=e.name||'Error';return m;}
+ finally{m.elapsedMs=Date.now()-started;lock.releaseLock();Logger.log(JSON.stringify({...m,candidates:undefined,review:undefined,holds:undefined,candidateEpisodes:m.candidates.length,reviewEpisodes:m.review.length,heldEpisodes:m.holds.length}));for(const kind of ['candidates','review','holds'])for(const row of m[kind])Logger.log(JSON.stringify({mode:m.mode,kind,...row}));}
 }

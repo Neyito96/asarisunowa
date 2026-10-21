@@ -209,6 +209,7 @@ function syncDailyManagedAutoPlaylistsV1_() {
 // 毎朝の巡回は各Showの最新20件だけを見る。
 // 全件走査と初回補完は1時間ごとの別処理へ分離し、朝のAPI負荷を抑える。
 function syncRecentManagedAutoPlaylistV1_(rule, token, episodeCache) {
+  if (typeof libV3MorningOwnsPlaylist_ === "function" && libV3MorningOwnsPlaylist_(rule && rule.playlistId)) return { skipped: true, reason: "v3-morning-owned", addedCount: 0 };
   if (!rule || rule.enabled === false) throw new Error("有効な固定ルールがありません");
   const episodesById = {};
   getAutoPlaylistShowIds_(rule).forEach(function(showId) {
@@ -614,6 +615,7 @@ function ensureAutoUpdateSeedBootstrapProgressV1_(rule) {
 }
 
 function syncOneApprovedAutoUpdateRequestV1_(rule, token, bootstrapMaxAdditions) {
+  if (typeof libV3MorningOwnsPlaylist_ === "function" && libV3MorningOwnsPlaylist_(rule && rule.playlistId)) return { skipped: true, reason: "v3-morning-owned", addedCount: 0 };
   const validation = validateAutoPlaylistRule_(rule);
   if (!validation.valid) return pauseAutoUpdateRuleV1_(rule, "ルール検証失敗: " + validation.errors.join(" / "));
 
