@@ -7,7 +7,8 @@
 const RISU_AD_AUDIT = Object.freeze({
   spreadsheetId:'1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4',
   sheet:'エピソード台帳',
-  maxSamples:8,
+  maxSamples:5,
+  version:'SAFE_PREVIEW_V3_20261021',
   focus:['EP-03365','EP-05247']
 });
 function RISU_adSections_(value) {
@@ -41,11 +42,12 @@ function RISU_auditAdContamination() {
   const header=data.shift().map(String), col=x=>{const i=header.indexOf(x);if(i<0)throw Error('列なし '+x);return i;};
   const id=col('台帳ID'),show=col('番組名'),title=col('タイトル'),raw=col('概要原文'),clean=col('概要清掃済み');
   const names=['寺下真理加','太田匡彦','佐藤陽','高橋健一郎','斎藤健一郎'];
-  const result={mode:'READ_ONLY',total:data.length,rawHits:0,cleanHits:0,proposedChanges:0,focus:[],samples:[],writes:0};
+  const result={mode:'READ_ONLY',version:cfg.version,total:data.length,rawHits:0,cleanHits:0,proposedChanges:0,held:0,focus:[],samples:[],writes:0};
   data.forEach((row,i)=>{
     const before=String(row[clean]||row[raw]||'');
     const after=RISU_adSections_(before);
     const matched=names.filter(n=>before.includes(n));
+    if(after.held)result.held++;
     if(matched.length)result.cleanHits++;
     if(names.some(n=>String(row[raw]||'').includes(n)))result.rawHits++;
     if(after.removed && after.cleaned!==before){
@@ -57,7 +59,7 @@ function RISU_auditAdContamination() {
       else if(result.samples.length<cfg.maxSamples)result.samples.push(entry);
     }
   });
-  console.log('RISU_AD_AUDIT '+JSON.stringify(result));
+  console.log('RISU_AD_AUDIT '+JSON.stringify({mode:result.mode,version:result.version,total:result.total,rawHits:result.rawHits,cleanHits:result.cleanHits,proposedChanges:result.proposedChanges,held:result.held,focus:result.focus,samples:result.samples.map(x=>({id:x.id,retainedLength:x.retainedLength,removedPreview:x.removedPreview.slice(0,70)})),writes:0}));
   return result;
 }
 function RISU_previewAdCleaning(episodeId) {
@@ -67,6 +69,6 @@ function RISU_previewAdCleaning(episodeId) {
   const row=rows.find(r=>String(r[id])===String(episodeId));
   if(!row)throw Error('EP-ID not found: '+episodeId);
   const before=String(row[clean]||row[raw]||''),preview=RISU_adSections_(before);
-  const out={mode:'READ_ONLY',id:episodeId,before:before.slice(0,1500),after:preview.cleaned.slice(0,1500),removed:preview.removed.slice(0,1500),writes:0};
+  const out={mode:'READ_ONLY',version:cfg.version,held:preview.held,id:episodeId,before:before.slice(0,1500),after:preview.cleaned.slice(0,1500),removed:preview.removed.slice(0,1500),writes:0};
   console.log(JSON.stringify(out));return out;
 }
