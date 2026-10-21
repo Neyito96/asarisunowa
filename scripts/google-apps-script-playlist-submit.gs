@@ -345,10 +345,17 @@ function readListenerPodcastSheet(sheet) {
 function readPodcastSheet(sheet) {
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return { ok: true, type: "podcast", count: 0, items: [] };
-  const values = sheet.getRange(2, 1, lastRow - 1, 5).getDisplayValues();
+  // Keep the complete enrichment metadata in the live API. Column positions
+  // match the おすすめPodcast sheet (A:R); never trigger external lookups here.
+  const values = sheet.getRange(2, 1, lastRow - 1, 18).getDisplayValues();
   const items = values.filter(r => r[0] || r[1]).map((r, i) => ({
     id: String(i + 1), url: r[0] || "", title: r[1] || "", maker: r[2] || "",
-    receivedAt: r[3] || "", comment: r[4] || ""
+    receivedAt: r[3] || "", comment: r[4] || "",
+    artwork: r[5] || "", host: r[6] || "", rss: r[7] || "",
+    youtube: r[8] || "", spotify: r[9] || "", amazon: r[10] || "",
+    apple: r[11] || "", pocketcasts: r[12] || "", listen: r[13] || "",
+    standfm: r[14] || "", pody: r[15] || "", website: r[16] || "",
+    genre: r[17] || ""
   }));
   return { ok: true, type: "podcast", count: items.length, items: items };
 }
