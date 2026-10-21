@@ -64,7 +64,7 @@ main4a5d69cと未マージ15PR、台帳6,591件、関連プレイリスト/テ�
 
 既存PR #230のMorningをcommit580523aaに改修保存。清掃版優先、Spotify追加後のmembership読戻し（ページ境界込み）、不明HOLD/再POST防止、401/403/429/5xx区分。Morning47/47、V3回帰123/123 PASS。新エンジン/採番/トリガーなし、GAS未配備。
 
-Phase11本体Node36/36とPages build PASS。既存同期schedule直近5回SUCCESSだが30分実行保証不可。RSS差分診断は既存2,353、競合268＋旧未アンカー20保留、新着候補11、採番/追加0。現行GASソース・トリガー・Spotify認証は直接未確認。投稿から公開の永続タイムスタンプAPIと自動RSS→公開接続は未完。所要時間標本0、median/p90/failureRate=null。詳細・全実測はphase11-library-first-2026-10-21.mdとaudits/2026-10-21-phase11に保存。
+Phase11本体Node37/37とPages build PASS。既存同期schedule直近5回SUCCESSだが30分実行保証不可。RSS差分診断は既存2,353、競合268＋旧未アンカー20保留、新着候補11、採番/追加0。現行GASソース・トリガー・Spotify認証は直接未確認。投稿から公開の永続タイムスタンプAPIと自動RSS→公開接続は未完。所要時間標本0、median/p90/failureRate=null。詳細・全実測はphase11-library-first-2026-10-21.mdとaudits/2026-10-21-phase11に保存。
 
 # Phase 9 本番公開完了 — 2026-10-21
 

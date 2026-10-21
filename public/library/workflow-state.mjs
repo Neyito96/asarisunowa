@@ -3,7 +3,8 @@
 import {normal} from './library-core.mjs';
 export const stages=['received_at','validated_at','library_matched_at','spotify_updated_at','site_published_at'];
 export function statusLabel(record) {
- if(record.failed_at||record.hold_reason)return '要確認';
+ const latestSuccess=Math.max(...stages.map(k=>Date.parse(record[k])||0));
+ if(record.hold_reason||record.failed_at&&(!Number.isFinite(Date.parse(record.failed_at))||Date.parse(record.failed_at)>=latestSuccess))return '要確認';
  if(record.site_published_at)return 'サイト反映済み';
  if(record.spotify_updated_at)return 'Spotify反映済み';
  if(record.validated_at||record.library_matched_at)return '確認中';
@@ -17,7 +18,7 @@ export function advance(record,stage,at,evidence={}) {
  if(stage==='library_matched_at'&&!record.validated_at)throw Error('Validation required');
  if(stage==='spotify_updated_at'&&(!record.library_matched_at||!evidence.apiSuccess||!evidence.membershipReadback))throw Error('Spotify API success and membership readback required');
  if(stage==='site_published_at'&&(!record.validated_at||!evidence.publicReadback||record.kind==='new-episode'&&!record.spotify_updated_at))throw Error('Actual public evidence required');
- const last=Object.entries(record).filter(([k,v])=>stages.includes(k)&&v).map(([,v])=>Date.parse(v));
+ const last=Object.entries(record).filter(([k,v])=>(stages.includes(k)||k==='failed_at')&&v).map(([,v])=>Date.parse(v));
  if(last.some(t=>t>Date.parse(at)))throw Error('Time regression');
  return {...record,[stage]:at};
 }
