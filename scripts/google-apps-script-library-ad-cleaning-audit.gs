@@ -8,32 +8,54 @@ const RISU_AD_AUDIT = Object.freeze({
   spreadsheetId:'1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4',
   sheet:'エピソード台帳',
   maxSamples:5,
-  version:'SAFE_PREVIEW_V3_20261021',
+  version:'SAFE_PREVIEW_V4_20261021',
   focus:['EP-03365','EP-05247']
 });
 function RISU_adSections_(value) {
-  // Conservative: only remove from explicit standalone marker to the next
-  // standalone protected section. Never match an arbitrary line containing
-  // both the episode introduction and a later promotion.
-  const text=String(value||'').replace(/<br\s*\/?\s*>/gi,'\n')
+  // V4: parse section boundaries from original multiline text. Fail closed.
+  // Literal "\\n" occurs in some ledger cells; normalize it first.
+  const text=String(value||'').replace(/\\n/g,'\n')
+    .replace(/<br\s*\/?\s*>/gi,'\n')
     .replace(/<\/(?:p|div|li|h[1-6])\s*>/gi,'\n')
-    .replace(/<[^>]*>/g,' ').replace(/&nbsp;|&#160;/gi,' ')
+    .replace(/<[^>]*>/g,' ')
+    .replace(/&nbsp;|&#160;/gi,' ')
     .replace(/&amp;/gi,'&').replace(/\r/g,'');
-  const lines=text.split(/\n+/).map(s=>s.trim()).filter(Boolean);
-  const kept=[],removed=[];
-  let skip=false,ambiguous=false;
-  const start=/^(?:【(?:朝ポキ情報|イベント情報|お知らせ|告知|キャンペーン|プレゼント|祝[^】]*イベント[^】]*)】|(?:おたより|お便り|応募|フォーム|購読案内|会員登録)[:：])/i;
-  const section=/^【(?:関連記事|関連リンク|出演(?:者)?(?:・スタッフ)?|スタッフ|エピソード|内容|今回のテーマ)】/i;
-  for(const line of lines) {
-    if(section.test(line))skip=false;
-    if(start.test(line))skip=true;
-    if(skip)removed.push(line);else kept.push(line);
+  const marker=/【[^】]{1,90}】/g;
+  const marks=[];let m;
+  while((m=marker.exec(text))!==null) marks.push({at:m.index,end:marker.lastIndex,name:m[0]});
+  const chunks=[];let pos=0;
+  for(let i=0;i<marks.length;i++){
+    const k=marks[i];
+    if(k.at>pos)chunks.push({header:'',body:text.slice(pos,k.at)});
+    const end=i+1<marks.length?marks[i+1].at:text.length;
+    chunks.push({header:k.name,body:text.slice(k.end,end)});
+    pos=end;
   }
-  // If the original is a single combined line, do not delete it.
-  // Also refuse changes that would erase the entire description.
-  if(!kept.length && removed.length)ambiguous=true;
-  if(ambiguous)return {cleaned:text,removed:'',held:true};
-  return {cleaned:kept.join('\n'),removed:removed.join('\n'),held:false};
+  if(pos<text.length)chunks.push({header:'',body:text.slice(pos)});
+  const isAd=h=>/朝ポキ情報|イベント|上映会|お知らせ|キャンペーン|プレゼント|広告|おたより|お便り|募集|応募|フォーム|記者サロン|会員登録|メルマガ|番組検索ツール/.test(h);
+  const isProtected=h=>/関連記事|関連リンク|関連動画|出演|スタッフ|エピソード|内容|今回のテーマ/.test(h);
+  const kept=[],removed=[],related=[],held=[];
+  for(const part of chunks){
+    const section=(part.header+part.body).trim();
+    if(!section)continue;
+    if(part.header && isProtected(part.header)){
+      kept.push(section);
+      if(/関連記事|関連リンク/.test(part.header))related.push(section);
+    }else if(part.header && isAd(part.header)){
+      removed.push(section);
+    }else{
+      // Inline promotions in otherwise unmarked text require review.
+      if(/(?:おたよりフォーム|お便りフォーム|応募フォーム|朝日ID会員の登録)/.test(part.body)){
+        held.push(part.header||'unmarked');
+      }
+      kept.push(section);
+    }
+  }
+  const cleaned=kept.join('\n\n').trim();
+  if(!cleaned || cleaned.length<Math.min(35,Math.floor(text.length*0.08))){
+    return {cleaned:text,removed:'',related:[],held:true,reason:'would_erase_content'};
+  }
+  return {cleaned:cleaned,removed:removed.join('\n\n'),related:related,held:held.length>0,reason:held.length?'inline_promotion_needs_review':''};
 }
 function RISU_auditAdContamination() {
   const cfg=RISU_AD_AUDIT, sh=SpreadsheetApp.openById(cfg.spreadsheetId).getSheetByName(cfg.sheet);
@@ -54,7 +76,7 @@ function RISU_auditAdContamination() {
       result.proposedChanges++;
       const entry={row:i+2,id:String(row[id]),show:String(row[show]),title:String(row[title]),names:matched,
         removedPreview:after.removed.slice(0,160),retainedLength:after.cleaned.length,
-        retainedNames:names.filter(n=>after.cleaned.includes(n))};
+        retainedNames:names.filter(n=>after.cleaned.includes(n)),relatedSections:after.related.length,held:after.held};
       if(cfg.focus.includes(entry.id))result.focus.push(entry);
       else if(result.samples.length<cfg.maxSamples)result.samples.push(entry);
     }
@@ -69,6 +91,6 @@ function RISU_previewAdCleaning(episodeId) {
   const row=rows.find(r=>String(r[id])===String(episodeId));
   if(!row)throw Error('EP-ID not found: '+episodeId);
   const before=String(row[clean]||row[raw]||''),preview=RISU_adSections_(before);
-  const out={mode:'READ_ONLY',version:cfg.version,held:preview.held,id:episodeId,before:before.slice(0,1500),after:preview.cleaned.slice(0,1500),removed:preview.removed.slice(0,1500),writes:0};
+  const out={mode:'READ_ONLY',version:cfg.version,held:preview.held,reason:preview.reason,relatedSections:preview.related.length,id:episodeId,before:before.slice(0,1500),after:preview.cleaned.slice(0,1500),removed:preview.removed.slice(0,1500),writes:0};
   console.log(JSON.stringify(out));return out;
 }
