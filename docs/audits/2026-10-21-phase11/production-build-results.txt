@@ -1,0 +1,69 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> site-creator-vinext-starter@0.1.0 build:pages
+> npm run build && node scripts/prepare-github-pages.mjs
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> site-creator-vinext-starter@0.1.0 build
+> bash scripts/build-verified.sh
+
+/usr/bin/timeout
+Running bounded vinext build...
+
+  vinext build  (Vite 8.0.13)
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+[1/5] analyze client references...
+[2Ktransforming...
+/asarisunowa/asarisu-message-sea-illustration.png referenced in /asarisunowa/asarisu-message-sea-illustration.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+✓ 136 modules transformed.
+rendering chunks...
+✓ built in 766ms
+[2/5] analyze server references...
+[2Ktransforming...✓ 55 modules transformed.
+rendering chunks...
+✓ built in 114ms
+[3/5] build rsc environment...
+[2Ktransforming...✓ 142 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 551ms
+[4/5] build client environment...
+[2Ktransforming...✓ 64 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 244ms
+[5/5] build ssr environment...
+[2Ktransforming...✓ 61 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 271ms
+[0m  Pre-rendering all routes (output: 'export')...
+[vinext] Production server for prerendering running at http://127.0.0.1:37367
+  Prerendered 2 routes (0 skipped).
+[0m
+  Route (app)
+  ─ ○ /
+
+  ○ Static
+
+  Build complete. Run `vinext start` to start the production server.
+
+node:internal/fs/promises:697
+  return new FileHandle(await PromisePrototypeThen(
+                        ^
+
+Error: ENOENT: no such file or directory, open 'dist/client/library/data/pages/.rsync-tmp/all-162.json'
+    at async open (node:internal/fs/promises:697:25)
+    at async readFile (node:internal/fs/promises:1348:14)
+    at async file:///workspace/scratch/71ced1420f57/asarisunowa/scripts/prepare-github-pages.mjs:21:18 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'dist/client/library/data/pages/.rsync-tmp/all-162.json'
+}
+
+Node.js v24.19.0

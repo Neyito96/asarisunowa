@@ -1,0 +1,109 @@
+{
+  "status": "APPLIED_VERIFIED_PENDING_PUBLICATION",
+  "approvedPlanHash": "f1871e531ab063b2c7e4de59b91b6ffe43f3b6e3050fa1c361cface71fa8c5ff",
+  "spreadsheetId": "1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4",
+  "backup": {
+    "success": true,
+    "id": "19rxdyHUi3jAV6JCDFJNlm9nW7rcFdGQ6_3DDTJTgnkM",
+    "title": "朝リスの田_Phase11本番更新直前_BACKUP_20261021_planf1871e53",
+    "mimeType": "application/vnd.google-apps.spreadsheet",
+    "url": "https://docs.google.com/spreadsheets/d/19rxdyHUi3jAV6JCDFJNlm9nW7rcFdGQ6_3DDTJTgnkM/edit?usp=drivesdk",
+    "made_private": false
+  },
+  "backupCellsVerified": 1658,
+  "preflightConflicts": 0,
+  "updatedEpisodes": 542,
+  "updatedCells": 1658,
+  "rawEmptyFills": 54,
+  "existingRawOverwrites": 0,
+  "protectedColumnsChanged": 0,
+  "newsDependentStoredValuesChanged": 0,
+  "batches": [
+    {
+      "batch": 1,
+      "cells": 22,
+      "requests": 15,
+      "startedAt": "2026-10-21T05:14:48.237Z",
+      "verifiedAt": "2026-10-21T05:14:50.788Z",
+      "preimage": "PASS",
+      "readback": "PASS"
+    },
+    {
+      "batch": 2,
+      "cells": 22,
+      "requests": 15,
+      "startedAt": "2026-10-21T05:14:58.483Z",
+      "verifiedAt": "2026-10-21T05:15:00.993Z",
+      "preimage": "PASS",
+      "readback": "PASS"
+    },
+    {
+      "batch": 3,
+      "cells": 280,
+      "requests": 11,
+      "startedAt": "2026-10-21T05:15:02.709Z",
+      "verifiedAt": "2026-10-21T05:15:05.381Z",
+      "preimage": "PASS",
+      "readback": "PASS"
+    },
+    {
+      "batch": 4,
+      "cells": 272,
+      "requests": 10,
+      "startedAt": "2026-10-21T05:15:06.987Z",
+      "verifiedAt": "2026-10-21T05:15:09.360Z",
+      "preimage": "PASS",
+      "readback": "PASS"
+    },
+    {
+      "batch": 5,
+      "cells": 298,
+      "requests": 13,
+      "startedAt": "2026-10-21T05:15:10.896Z",
+      "verifiedAt": "2026-10-21T05:15:13.068Z",
+      "preimage": "PASS",
+      "readback": "PASS"
+    },
+    {
+      "batch": 6,
+      "cells": 282,
+      "requests": 15,
+      "startedAt": "2026-10-21T05:15:14.908Z",
+      "verifiedAt": "2026-10-21T05:15:17.093Z",
+      "preimage": "PASS",
+      "readback": "PASS"
+    },
+    {
+      "batch": 7,
+      "cells": 300,
+      "requests": 10,
+      "startedAt": "2026-10-21T05:15:18.691Z",
+      "verifiedAt": "2026-10-21T05:15:20.871Z",
+      "preimage": "PASS",
+      "readback": "PASS"
+    },
+    {
+      "batch": 8,
+      "cells": 182,
+      "requests": 7,
+      "startedAt": "2026-10-21T05:15:22.636Z",
+      "verifiedAt": "2026-10-21T05:15:24.677Z",
+      "preimage": "PASS",
+      "readback": "PASS"
+    }
+  ],
+  "newIds": 0,
+  "triggerChanges": 0,
+  "propertyChanges": 0,
+  "spotifyWrites": 0,
+  "gasDeployment": false,
+  "notes": [
+    "Target preimages, formulas, validation, chips, EP-ID/GUID/show/date/audio/exclusion were verified before every batch.",
+    "Excel serial dates were rounded to seconds to avoid floating-point conversion artifacts; original dates were unchanged.",
+    "Audio-transfer O column was never written; all ledger A/G/O cells were compared before and after and unchanged. Trigger state itself remains unverified; no trigger operation was performed.",
+    "Full 31-tab comparison passed; native stored-value comparison used for recalculated news QUERY spill.",
+    "Actual updated ledger regenerated public version 1df7cb5d103cfbfc, matching approved candidate content.",
+    "Stale unreferenced JSON files from the previous export are removed from the publication tree; only current manifest files remain.",
+    "One local Pages preparation attempt encountered a transient .rsync-tmp file disappearing; retry completed successfully. No spreadsheet discrepancy occurred."
+  ]
+}
