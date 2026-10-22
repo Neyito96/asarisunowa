@@ -96,3 +96,24 @@ shasum -a 256 SpotifyAuth.js Spotify.js PlaylistAutoSpotify.js PlaylistAutoV2Pro
 返却するのは8ファイルのSHA結果のみ。拡張子が.gsの場合はその実在ファイル名を使う。認証失敗なら秘密を含まないエラー種別のみ返し、勝手に再認証しない。実ソースのSHAが異なれば、その時点で最新ソースとの差を確認する。ScriptPropertiesやclasp認証ファイルの内容は返さない。
 
 実試験の承認自体は有効。GAS内に現在の承認対象だけを実行する安全な入口がなければ、NodeからGASのtokenを取り出して代用しない。既存同期関数を流用して範囲を拡大することもしない。必要なGASの追加関数と予約receiptの範囲を準備して、GASコード反映について別承認を求める（今回その反映は行っていない）。
+
+## READ_ONLY実API接続の最小反映案（未承認・未配備）
+
+ユーザーから届いたSpotifyAuth.jsを、repo版へ3箇所のログ差分だけ戻して再構成。SHAは実機報告の13d28dc8595182f44a9ce5bd301e448f5b95aad08c20d19ed842153e746a1bccと完全一致し、認証フロー/要求scopeの差分なしを確認できた。他の不一致5ファイルは今回の診断では呼ばない。ALIBは一切呼ばない・変更しない。
+
+実機からのトークン直返し、Macへの秘密値転送、既存の全playlist同期は使わない。既存のgetSpotifyUserAccessTokenをGAS内部で呼び、診断結果のみ返す。これには本番GAS保存内容の変更が生じるため、従来の本番GAS反映の事前承認条件に従い、次の2点だけの反映承認を求める。Spotify1件試験の承認を取り直すものではない。
+
+|変更|対象と内容|復旧|
+|---|---|---|
+|既存1ファイルのログ1ブロック修正|SpotifyAuth.jsのrefresh失敗時だけ、getContentText出力をHTTPステータス出力へ置換。scripts/manual/SpotifyAuth.refresh-log-only.patch。関数/認証設定/scope/redirect/成功時処理不変。修正後SHA630f1db8fe78360582074285c03207e51b5058e7665f84c62e94fb078212bbcb|既取得の実機バックアップから同ファイルだけ復元し元SHA13d28dc…を確認|
+|診断ファイル1つ追加|scripts/manual/SpotifyApprovedPilotReadOnly.gs。公開関数inspectApprovedSpotifyConnection20261022。正しいScript IDでだけ動作。GET /me→固定test playlist metadata→全ページitems(limit50)→metadata再確認→固定episode GET。各非200/403/401/429/通信断は即停止。token/生応答/ユーザーIDは非出力|この新規ファイルだけ除去。既存99ファイル/trigger/台帳/playlistは触らない|
+
+新規関数名が実機99ファイル内にないことを確認してから追加。manifest/OAuth/認証情報/既存trigger/ALIBに触れない。99ファイルのclasp pushや丸ごと置換は実施しない。GASエディタで承認済みの既存1ブロックと新規1ファイルだけ保存し、新しいweb app deploymentや公開設定変更をしない。通常の既存token refreshはGAS内の既存cache更新のみ。新規ScriptPropertiesを作らない。既存OAuth開始/callbackは呼ばず、その2関数内の旧ログは今回の変更範囲外で実行しない。
+
+診断はSpotifyリソースへのGETだけ。認証cacheがなければ既存認証関数の通常refresh POST(accounts.spotify.com/api/token)が発生し得る。正常取得tokenは既存cache内のみ、返り値/ログへ出さない。refresh失敗は既存関数がHTTPのみログ出力し、空tokenで診断停止。勝手な再認証/再試行なし。
+
+成功してもREAD_ONLYで実付与modify scopeを証明したとは記録しない。GETでユーザー認証/所有/全件閲覧/既存登録は確認できるが、実付与scopeは既存実装で保存されていないためUNVERIFIEDと出す。必要write scopeはplaylist.publicから示す。POST権限の実証は承認済みの後続1件試験で行い、その403は成功にしない。診断自体にはplaylist POST処理なし。診断成功だけで既存syncを呼ばない。
+
+GET403時はstatus STOP_403、失敗endpoint/HTTP/時刻を保存し後続request0。根本原因は応答だけで特定不能ならFORBIDDEN_ROOT_CAUSE_UNCONFIRMED。401/429/ネットワークと区別する。全件snapshot不完全/編集競合/null itemは保留。トークン返却や所有者ID出力なし。
+
+検証：tests/library-playlist-gas-connection.test.mjsの12/12 PASS（無通信VMモック、403の発生段階ごとの即停止、401/429、秘密値非出力、未修正ログ検知、snapshot競合、既登録/他所有/null itemを含む）。実API0/POST0。ALIB/本番台帳/本番playlist/既存trigger/公開site変更0。承認後、Mac操作は1コマンドずつ案内し、次の出力を確認してから進める。

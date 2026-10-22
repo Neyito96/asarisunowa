@@ -1,0 +1,20 @@
+✔ user connection/owner/full snapshot and target absent verified without writes (3.290417ms)
+✔ existing target is observed, never appended (1.065539ms)
+✔ 403 at /me stops all subsequent requests (1.104087ms)
+✔ 403 at /4FiVIwysKDtLqEXfkfhu2O stops all subsequent requests (1.132309ms)
+✔ 403 at /items stops all subsequent requests (1.291419ms)
+✔ 401 is distinct and never retried (1.165599ms)
+✔ 429 is distinct and never retried (1.129845ms)
+✔ unpatched raw-error auth helper is not invoked (1.22576ms)
+✔ snapshot change holds complete count (1.599314ms)
+✔ network error is sanitized and stops without retry (2.393033ms)
+✔ accessible playlist owned by another user keeps writing held (1.356548ms)
+✔ unavailable playlist item is held, not counted as absent (1.646335ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 154.838703

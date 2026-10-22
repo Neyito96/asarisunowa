@@ -29,3 +29,9 @@ EP00004/spotify:episode:6opJ4Ig4s7CTY9fRqGEHd2を実試験候補に固定。公�
 ユーザー指定「朝リスの輪 プレイリスト投稿受付」のScript ID/過去Mac取得先を受領。repo0841c7cの関連8ファイルをREAD_ONLY確認しSHA保存。ユーザーtoken(cache/refresh)とアプリtoken(client_credentials)を区別。全件helper limit100、個別writerの403後forEach継続、readbackなし、V2のstate/一覧表更新副作用を確認。この経路を承認済み1件へ無条件流用しない。実GASのsecret/cache/scope/sourceは未取得。
 
 cloud browserは指定編集URLからGoogle Developers紹介/ログインへ転送、DriveのApps Script MIME検索も該当なし。Macファイルにはアクセス不能。実API0/POST0、前後件数/読戻し/replay/403有無は未測定。既存25モック証拠を再利用し、実試験と区別。Macの既取得先を上書きしないclasp clone→8 SHA取得のREAD_ONLY手順を既存pilot文書へ追記。GAS配備/設定/trigger/Spotify/台帳/site変更0。
+
+## 既存認証でのREAD_ONLY接続試験の準備
+
+ユーザー提供SpotifyAuth.jsは既存repoから3ログ差分だけで実機SHA13d28dc…に完全一致。追加の認証方式差なし。refresh失敗時の本文ログだけをHTTPログに置換する最小patchと、GAS内で既存getSpotifyUserAccessTokenを再利用する固定READ_ONLY入口を準備（scripts/manual、未配備）。SpotifyへのGETのみ、403/401/429即停止、full snapshot、owner、EP00004、秘密非出力。正常token refresh時の既存cache更新以外のproperty操作なし。ALIB完全除外。
+
+新規診断12/12無通信モックPASS、ソース/修正後/診断SHAとテスト結果を保存。実API0/投稿0、実機認証/権限/前後件数/readback/replayは未測定。反映には「Authログ1ブロック修正＋新規診断1ファイル」のGAS保存承認が必要。既存のSpotify1件承認は保持し再承認不要。未配備/未merge、本番への書込0。Macは1コマンドずつ進める。
