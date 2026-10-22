@@ -47,6 +47,16 @@ jobs:
           node -e "(async()=>{for(let i=0;i<50;i++){try{const r=await fetch('http://127.0.0.1:4173/library/');if(r.ok)return}catch{}await new Promise(r=>setTimeout(r,100))}process.exit(1)})()"
           node tests/library-public-browser.cjs
           node tests/library-publication-browser.cjs
+      - name: Verify deployed GitHub Pages in mobile Chromium and WebKit
+        env:
+          LIBRARY_PLAYWRIGHT: /tmp/library-browser/node_modules/playwright
+          LIBRARY_SCREENSHOT_DIR: /tmp/library-screenshots/live
+          LIBRARY_LIVE: '1'
+          LIBRARY_TEST_URL: https://neyito96.github.io/asarisunowa/library/
+          UNIVERSE_TEST_URL: https://neyito96.github.io/asarisu-universe/
+        run: |
+          mkdir -p /tmp/library-screenshots/live
+          node tests/library-publication-browser.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
