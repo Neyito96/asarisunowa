@@ -75,7 +75,10 @@ function libV3Feeds_(sourceRows){
 function libV3Context_(requireState,copyPilot){
  const targetSheetId=copyPilot?libV3CopyPilotId_(copyPilot):LIB_V2_SHEET_ID;
  const ss=SpreadsheetApp.openById(targetSheetId),get=name=>{const sh=ss.getSheetByName(name);if(!sh)throw Error('Missing '+name);return sh;};
- const sh=get('エピソード台帳'),data=sh.getDataRange().getValues(),headers=data.shift();libV3CheckHeaders_(headers);
+ const sh=get('エピソード台帳'),raw=sh.getDataRange().getValues(),headers=raw.shift();libV3CheckHeaders_(headers);
+ // V3 owns A:AY. Official archive columns AZ+ stay untouched and do not
+ // change the registration hash when getDataRange widens after an import.
+ const data=raw.map(r=>r.slice(0,51));
  const ex=get('削除・除外履歴'),history=get('自動補完・実行履歴');
  const expected=['実行日時','状態','対象EP数','書込セル数','保留件数','更新EP-ID','開始フィード','次フィード','処理秒数','備考'];
  if(history.getRange(1,1,1,10).getValues()[0].some((v,i)=>v!==expected[i]))throw Error('History schema mismatch');
@@ -189,7 +192,7 @@ function libV3Run_(write,options){
  const props=PropertiesService.getScriptProperties(),key=options.morning?'LIB_V3_MORNING_CURSOR':'LIB_V3_CURSOR';let state,context;
  try{
   if(write&&(libV3Conflicts_().length||ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='scheduledLibraryV3').length>1))throw Error('Conflicting library triggers');
-  const c=libV3Context_(write);context=c;if(!c.feeds.length)throw Error('No feeds');
+  const c=libV3Context_(write);context=c;if(options.morning&&typeof libV3MorningFeeds_==='function')c.feeds=libV3MorningFeeds_(c.feeds);if(!c.feeds.length)throw Error('No feeds');
   state=JSON.parse(props.getProperty(key)||'{}');let feed=c.feeds.find(f=>f.url===state.url)||c.feeds[0];
   if(config.autonomous){const startFeed=c.feeds.indexOf(feed);feed=Array.from({length:c.feeds.length},(_,i)=>c.feeds[(startFeed+i)%c.feeds.length]).find(f=>!(state.feeds?.[f.url]?.nextPollAt>Date.now())&&!(state.feeds?.[f.url]?.retry?.stopped)&&!(state.feeds?.[f.url]?.retry?.at>Date.now()));if(!feed){m.status='IDLE_UNTIL_NEXT_POLL';return m;}}
   m.feed=feed.url;
@@ -227,6 +230,8 @@ function libV3Run_(write,options){
     offset++;continue;
    }
    const r=c.rows[plan.i];let deferred=false;
+   const registration=c.index.states.get(plan.id+'|identity');
+   const refreshRegistration=registration&&registration[2]==='VERIFIED'&&registration[7]==='RSS_registered'&&registration[4]===libV3Hash_(r);
    if(plan.reasons.length)m.holds++;
    if(plan.fields.some(f=>f.candidate)){touched++;}
    for(const f of plan.fields){
@@ -245,6 +250,12 @@ function libV3Run_(write,options){
       libV3StatePut_(c,libV3Record_(plan,{...f,state:'HOLD',reason:'reserved_before_cell_write'},r,plan.sourceHash));
       cell.setValue(libV3Safe_(f.value));SpreadsheetApp.flush();if(String(cell.getValue())!==String(f.value))throw Error('Cell verification failed');
       r[f.col-1]=f.value;m.writtenCells++;f.state='VERIFIED';f.reason='blank_only_verified_write';if(!m.updatedIds.includes(plan.id))m.updatedIds.push(plan.id);
+      // Keep the original registration time; refresh proof ONLY after the exact
+      // expected full row is read back. Never bless human/other-writer changes.
+      if(refreshRegistration){
+       if(libV3Hash_(c.sh.getRange(plan.i+2,1,1,51).getValues()[0])!==libV3Hash_(r))throw Error('Registration proof readback conflict');
+       const proof=registration.slice();proof[4]=libV3Hash_(r);libV3StatePut_(c,proof);
+      }
      }
      if(f.name==='spotify')c.index.spotify.set(f.value,[plan.i]);
     }

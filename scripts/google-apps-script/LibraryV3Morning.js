@@ -2,6 +2,8 @@
  * authentication/rules/sheet-link helpers. No changes to existing V1 schedulers.
  * Old description cleaning and historical enrichment stay in separate V3 jobs.
  */
+// RSS-only new-arrival rounds leave archived/excluded sources in the original ledger.
+function libV3MorningFeeds_(feeds){return libV3MorningConfig_().rssOnly===true?feeds.filter(f=>!['アルキキ','AJW','旧SDGsアーカイブ'].includes(f.show)):feeds;}
 function libV3MorningConfig_(){return JSON.parse(PropertiesService.getScriptProperties().getProperty('LIB_V3_MORNING_CONFIG')||'{}');}
 function libV3MorningState_(){return JSON.parse(PropertiesService.getScriptProperties().getProperty('LIB_V3_MORNING_STATE')||'{}');}
 function libV3MorningSave_(s){const v=JSON.stringify(s);if(v.length>8000)throw Error('Morning checkpoint budget');PropertiesService.getScriptProperties().setProperty('LIB_V3_MORNING_STATE',v);}
@@ -11,8 +13,9 @@ function libV3MorningMissingDependencies_(){return [
  ['assertAutoPlaylistSheetLinkBeforeWrite_',typeof assertAutoPlaylistSheetLinkBeforeWrite_],['isAutoUpdatePlaylistHumanDeletedV1_',typeof isAutoUpdatePlaylistHumanDeletedV1_]
  ].filter(x=>x[1]!=='function').map(x=>x[0]);}
 function libV3MorningDependencies_(){return libV3MorningMissingDependencies_().length===0;}
-function previewLibraryV3Morning(){const r={mode:'READ_ONLY_MORNING',config:libV3MorningConfig_(),state:libV3MorningState_(),baseline:JSON.parse(PropertiesService.getScriptProperties().getProperty('LIB_V3_BASELINE')||'{}'),spotifyDependencies:libV3MorningDependencies_(),missingDependencies:libV3MorningMissingDependencies_(),notificationAvailable:typeof notifyAutoUpdateFailureSafely_==='function',schedule:'daily 06 JST; pending-only 5-minute continuation until 09 JST; 20-minute reserved runtime/day',triggers:ScriptApp.getProjectTriggers().map(t=>t.getHandlerFunction()),writes:0};Logger.log(JSON.stringify(r));return r;}
+function previewLibraryV3Morning(){const r={mode:'READ_ONLY_MORNING',config:libV3MorningConfig_(),state:libV3MorningState_(),baseline:JSON.parse(PropertiesService.getScriptProperties().getProperty('LIB_V3_BASELINE')||'{}'),spotifyDependencies:libV3MorningDependencies_(),missingDependencies:libV3MorningMissingDependencies_(),notificationAvailable:typeof notifyAutoUpdateFailureSafely_==='function',schedule:libV3MorningConfig_().rssOnly===true?'daily approximately 05:15 JST; RSS-only 05:00-05:59; no mail/Spotify':'daily 06 JST; pending-only 5-minute continuation until 09 JST; 20-minute reserved runtime/day',triggers:ScriptApp.getProjectTriggers().map(t=>t.getHandlerFunction()),writes:0};Logger.log(JSON.stringify(r));return r;}
 function libV3MorningAlert_(s,stage){
+ if(libV3MorningConfig_().rssOnly===true){s.notification={sent:false,mode:'LOG_ONLY',stage};Logger.log(JSON.stringify({mode:'RSS_ONLY_ALERT',stage,status:s.last?.status||stage}));return;}
  // Reuse V1's six-hour deduplicated administrator notification. No credentials/error payload.
  try{s.notification=typeof notifyAutoUpdateFailureSafely_==='function'?notifyAutoUpdateFailureSafely_({target:'V3 morning',stage,error:s.last?.errorType||s.last?.status||stage}):{sent:false,unavailable:true};}
  catch(e){s.notification={sent:false,notificationError:true};}
@@ -22,9 +25,10 @@ function configureLibraryV3MorningAfterApproval(options){
  if(!options||typeof options.enabled!=='boolean'||typeof options.spotify!=='boolean'||!Array.isArray(options.ruleKeys)||options.ruleKeys.length>10||new Set(options.ruleKeys).size!==options.ruleKeys.length||!Number.isFinite(Date.parse(options.since)))throw Error('Explicit flags, unique rule keys and cutover ISO time required');
  if(options.enabled&&Date.parse(options.since)<Date.now()-1000)throw Error('Choose current/future cutover; never backfill old deleted playlist items');
  if(options.spotify&&(!options.ruleKeys.length||!libV3MorningDependencies_()))throw Error('V1 dependencies and explicit rules required in this GAS project');
- if(options.enabled&&typeof notifyAutoUpdateFailureSafely_!=='function')throw Error('V1 failure notification dependency missing');
+ if(options.rssOnly===true&&(options.spotify||options.ruleKeys.length))throw Error('RSS-only mode forbids Spotify and playlist rules');
+ if(options.enabled&&options.rssOnly!==true&&typeof notifyAutoUpdateFailureSafely_!=='function')throw Error('V1 failure notification dependency missing');
  for(const key of options.ruleKeys){const r=getAutoPlaylistRuleByKey_(key);if(!r||r.enabled===false||r.productionWriteAllowed===false||r.reviewRequired===true||!/^[A-Za-z0-9]{22}$/.test(r.playlistId))throw Error('Rule not approved for unattended updates');}
- const lock=LockService.getScriptLock();if(!lock.tryLock(1000))throw Error('Busy');try{if(libV3MorningState_().lease)throw Error('Reconcile active lease first');if(options.enabled){const p=PropertiesService.getScriptProperties();if(!JSON.parse(p.getProperty('LIB_V3_BASELINE')||'{}').complete||ScriptApp.getProjectTriggers().some(t=>['ALIB_AUTO_tick','scheduledLibraryV3','scheduledLibraryV3BaselineOnly'].includes(t.getHandlerFunction())))throw Error('Baseline must be complete and other V3 schedulers stopped');const v=JSON.parse(p.getProperty('LIB_V3_CONFIG')||'{}');Object.assign(v,{enabled:true,autonomous:false,allowEnrich:false,allowNew:true,newAfter:new Date(options.since).toISOString()});p.setProperty('LIB_V3_CONFIG',JSON.stringify(v));}PropertiesService.getScriptProperties().setProperty('LIB_V3_MORNING_CONFIG',JSON.stringify({enabled:options.enabled,spotify:options.spotify,ruleKeys:options.ruleKeys,since:new Date(options.since).toISOString()}));}finally{lock.releaseLock();}
+ const lock=LockService.getScriptLock();if(!lock.tryLock(1000))throw Error('Busy');try{if(libV3MorningState_().lease)throw Error('Reconcile active lease first');if(options.enabled){const p=PropertiesService.getScriptProperties();if(!JSON.parse(p.getProperty('LIB_V3_BASELINE')||'{}').complete||ScriptApp.getProjectTriggers().some(t=>['ALIB_AUTO_tick','scheduledLibraryV3','scheduledLibraryV3BaselineOnly'].includes(t.getHandlerFunction())))throw Error('Baseline must be complete and other V3 schedulers stopped');const v=JSON.parse(p.getProperty('LIB_V3_CONFIG')||'{}');Object.assign(v,{enabled:true,autonomous:false,allowEnrich:false,allowNew:true,newAfter:new Date(options.since).toISOString()});p.setProperty('LIB_V3_CONFIG',JSON.stringify(v));}PropertiesService.getScriptProperties().setProperty('LIB_V3_MORNING_CONFIG',JSON.stringify({enabled:options.enabled,spotify:options.spotify,ruleKeys:options.ruleKeys,since:new Date(options.since).toISOString(),...(options.rssOnly===true?{rssOnly:true}:{})}));}finally{lock.releaseLock();}
  return {status:'CONFIGURED_NO_TRIGGER'};
 }
 function installLibraryV3MorningTriggerAfterApproval(){
@@ -32,7 +36,7 @@ function installLibraryV3MorningTriggerAfterApproval(){
  const all=ScriptApp.getProjectTriggers().map(t=>t.getHandlerFunction());
  if(all.some(n=>['ALIB_AUTO_tick','scheduledLibraryV3','scheduledLibraryV3BaselineOnly'].includes(n)))throw Error('Stop/reconcile other V3 schedulers first');
  const own=all.filter(n=>n==='scheduledLibraryV3Morning');if(own.length>1)throw Error('Duplicate morning triggers');if(own.length)return {status:'ALREADY_INSTALLED'};
- ScriptApp.newTrigger('scheduledLibraryV3Morning').timeBased().atHour(6).everyDays(1).inTimezone('Asia/Tokyo').create();return {status:'INSTALLED_DISABLED_UNLESS_CONFIGURED',window:'06:00-08:59 Asia/Tokyo',continuationMinutes:5};
+ const rssOnly=libV3MorningConfig_().rssOnly===true;let timer=ScriptApp.newTrigger('scheduledLibraryV3Morning').timeBased().atHour(rssOnly?5:6);if(rssOnly)timer=timer.nearMinute(15);timer.everyDays(1).inTimezone('Asia/Tokyo').create();return {status:'INSTALLED_DISABLED_UNLESS_CONFIGURED',window:rssOnly?'05:00-05:59 Asia/Tokyo':'06:00-08:59 Asia/Tokyo',continuationMinutes:rssOnly?1:5};
  }finally{lock.releaseLock();}
 }
 function stopLibraryV3MorningAfterApproval(){const lock=LockService.getScriptLock();if(!lock.tryLock(1000))throw Error('Busy');try{const c=libV3MorningConfig_();c.enabled=false;PropertiesService.getScriptProperties().setProperty('LIB_V3_MORNING_CONFIG',JSON.stringify(c));return {status:'STOPPED',triggersChanged:0};}finally{lock.releaseLock();}}
@@ -45,7 +49,7 @@ function libV3MorningContinuation_(event,cancel){
   const all=ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='continueLibraryV3Morning');
   if(all.length>1)throw Error('Duplicate continuation triggers');
   for(const t of all)if(cancel||event?.triggerUid===t.getUniqueId())ScriptApp.deleteTrigger(t);
-  if(!cancel&&(!all.length||event?.triggerUid===all[0].getUniqueId()))ScriptApp.newTrigger('continueLibraryV3Morning').timeBased().after(5*60000).create();
+  if(!cancel&&(!all.length||event?.triggerUid===all[0].getUniqueId()))ScriptApp.newTrigger('continueLibraryV3Morning').timeBased().after((libV3MorningConfig_().rssOnly===true?1:5)*60000).create();
  }finally{lock.releaseLock();}
 }
 function scheduledLibraryV3Morning(event){return libV3MorningDispatch_(event);}
@@ -53,7 +57,7 @@ function continueLibraryV3Morning(event){return libV3MorningDispatch_(event);}
 function libV3MorningDispatch_(event){
  const cfg=libV3MorningConfig_(),hour=Number(Utilities.formatDate(new Date(),'Asia/Tokyo','HH'));
  if(cfg.enabled!==true){if(event?.triggerUid)libV3MorningContinuation_(event,true);return {status:'DISABLED'};}
- if(hour<6||hour>=9){libV3MorningContinuation_(event,true);return {status:'OUTSIDE_MORNING_WINDOW'};}
+ if(cfg.rssOnly===true?hour!==5:(hour<6||hour>=9)){libV3MorningContinuation_(event,true);return {status:'OUTSIDE_MORNING_WINDOW'};}
  try{
   libV3MorningContinuation_(event,false);
   const r=libV3MorningRun_();
@@ -68,7 +72,7 @@ function libV3MorningDispatch_(event){
 }
 function libV3MorningRun_(){
  const cfg=libV3MorningConfig_(),now=Date.now();if(cfg.enabled!==true)return {status:'DISABLED'};
- const hour=Number(Utilities.formatDate(new Date(now),'Asia/Tokyo','HH'));if(hour<6||hour>=9)return {status:'OUTSIDE_MORNING_WINDOW'};
+ const hour=Number(Utilities.formatDate(new Date(now),'Asia/Tokyo','HH'));if(cfg.rssOnly===true?hour!==5:(hour<6||hour>=9))return {status:'OUTSIDE_MORNING_WINDOW'};
  const lock=LockService.getScriptLock();if(!lock.tryLock(1000))return {status:'BUSY'};let s,token;
  try{s=libV3MorningState_();if(s.lease&&now-s.lease.at<8*60000)return {status:'BUSY'};const day=Utilities.formatDate(new Date(now),'Asia/Tokyo','yyyy-MM-dd');if(s.budget?.day!==day)s.budget={day,ms:0};if(s.budget.ms+6*60000>20*60000)return {status:'DAILY_BUDGET_REACHED'};
   // Reserve the full GAS execution ceiling; a killed execution leaves this charge.
@@ -82,7 +86,7 @@ function libV3MorningRun_(){
   // Freeze the cutoff until this round finishes. A backlog must never age out at 72h.
   if(!s.day||(s.day!==day&&s.complete)){s.day=day;s.feeds={};s.idleRules={};s.tick=0;s.complete=false;s.cycleSince=Math.max(Date.parse(cfg.since)||Infinity,now-72*3600000);}
   if(!Number.isFinite(s.cycleSince))s.cycleSince=Date.parse(cfg.since);if(!Number.isFinite(s.cycleSince))throw Error('Invalid frozen cutover');
-  const c=libV3Context_(false),since=s.cycleSince;
+  const c=libV3Context_(false),since=s.cycleSince;c.feeds=libV3MorningFeeds_(c.feeds);
   if(!c.feeds.length)return {status:'NO_FEEDS'};
   const feedDone=c.feeds.every(f=>s.feeds?.[f.url]);
   if(feedDone&&(!cfg.spotify||s.spotifyPaused||s.retry?.stopped||(!s.playlist&&(cfg.ruleKeys||[]).every(k=>s.idleRules?.[k])))){s.complete=true;return {status:s.day===day?'MORNING_COMPLETE':'BACKLOG_COMPLETE',spotifyPaused:!!s.spotifyPaused,spotifyStopped:!!s.retry?.stopped};}
@@ -229,6 +233,9 @@ function saveLibraryV3CopyPilotAfterApproval(options){
  if(!options?.approvedPlanHash)throw Error('Explicit approval plan hash required');
  const lock=LockService.getScriptLock();if(!lock.tryLock(1000))return {status:'BUSY',writtenRows:0,propertyWrites:0};
  try{
+  // Even an isolated copy pilot requires a quiet source and one writer.
+  const writers=ScriptApp.getProjectTriggers().map(t=>t.getHandlerFunction());
+  if(libV3Conflicts_().length||writers.some(n=>['scheduledLibraryV3','scheduledLibraryV3BaselineOnly','scheduledLibraryV3Morning','continueLibraryV3Morning'].includes(n)))throw Error('Conflicting library writer: copy pilot requires stopped schedulers');
   const started=Date.now(),p=libV3CopyPilotPlan_(options);
   if(p.report.status==='ALREADY_PRESENT')return {...p.report,writtenRows:0};
   if(p.report.planHash!==options.approvedPlanHash||Date.now()-started>90000)throw Error('Plan changed or time budget reached: preview again');

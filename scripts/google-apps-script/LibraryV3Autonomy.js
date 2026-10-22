@@ -234,7 +234,9 @@ function libV3AutoAudio_(write){
 }
 function previewLibraryV3Autonomy(){
  const p=PropertiesService.getScriptProperties(),baseline=JSON.parse(p.getProperty('LIB_V3_BASELINE')||'{}'),cursor=JSON.parse(p.getProperty('LIB_V3_CURSOR')||'{}'),s=libV3AutoState_();
- const r={mode:'READ_ONLY_AUTONOMY',config:libV3Config_(),baseline,control:s,feeds:Object.entries(cursor.feeds||{}).map(([url,v])=>({url,offset:v.offset,pass:v.pass||'priority',nextPollAt:v.nextPollAt||0,completedAt:v.completedAt||0,retry:v.retry||null})),conflictingTriggers:libV3Conflicts_(),triggers:ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='scheduledLibraryV3').length,audioExecution:'external choice required; GAS never downloads audio bodies',writes:0};
+ const configuredFeeds=libV3Context_(false).feeds;
+ // feeds is legacy cursor history, not the configured RSS inventory.
+ const r={mode:'READ_ONLY_AUTONOMY',configuredFeeds,configuredFeedCount:configuredFeeds.length,feedHistoryMeaning:'feeds contains LIB_V3_CURSOR.feeds history, not source configuration',config:libV3Config_(),baseline,control:s,feeds:Object.entries(cursor.feeds||{}).map(([url,v])=>({url,offset:v.offset,pass:v.pass||'priority',nextPollAt:v.nextPollAt||0,completedAt:v.completedAt||0,retry:v.retry||null})),conflictingTriggers:libV3Conflicts_(),triggers:ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='scheduledLibraryV3').length,audioExecution:'external choice required; GAS never downloads audio bodies',writes:0};
  Logger.log(JSON.stringify(r));return r;
 }
 
