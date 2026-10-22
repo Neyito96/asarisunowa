@@ -75,7 +75,10 @@ function libV3Feeds_(sourceRows){
 function libV3Context_(requireState,copyPilot){
  const targetSheetId=copyPilot?libV3CopyPilotId_(copyPilot):LIB_V2_SHEET_ID;
  const ss=SpreadsheetApp.openById(targetSheetId),get=name=>{const sh=ss.getSheetByName(name);if(!sh)throw Error('Missing '+name);return sh;};
- const sh=get('エピソード台帳'),data=sh.getDataRange().getValues(),headers=data.shift();libV3CheckHeaders_(headers);
+ const sh=get('エピソード台帳'),raw=sh.getDataRange().getValues(),headers=raw.shift();libV3CheckHeaders_(headers);
+ // V3 owns A:AY. Official archive columns AZ+ stay untouched and do not
+ // change the registration hash when getDataRange widens after an import.
+ const data=raw.map(r=>r.slice(0,51));
  const ex=get('削除・除外履歴'),history=get('自動補完・実行履歴');
  const expected=['実行日時','状態','対象EP数','書込セル数','保留件数','更新EP-ID','開始フィード','次フィード','処理秒数','備考'];
  if(history.getRange(1,1,1,10).getValues()[0].some((v,i)=>v!==expected[i]))throw Error('History schema mismatch');

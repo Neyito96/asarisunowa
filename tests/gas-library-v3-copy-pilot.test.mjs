@@ -70,3 +70,12 @@ test('another writer holding lock prevents copy access and POST',()=>{const f=fi
 
 test('ambiguous cleaning evidence is rejected in preview before identity reservation',()=>{const f=fixture(),before=JSON.stringify(f.copy.table);f.h.ctx.libV3AutoCleanEvidence_=()=>({hold:true});assert.throws(()=>f.h.ctx.previewLibraryV3CopyPilot(f.options),/description requires review/);assert.equal(JSON.stringify(f.copy.table),before);});
 test('history failure after append holds replay without a second row or hidden repair',()=>{const f=fixture(),p=f.h.ctx.previewLibraryV3CopyPilot(f.options);f.copySs.getSheetByName('自動補完・実行履歴').appendRow=()=>{throw Error('history unavailable');};assert.throws(()=>f.h.ctx.saveLibraryV3CopyPilotAfterApproval({...f.options,approvedPlanHash:p.planHash}),/history unavailable/);assert.equal(f.copy.data.length,3);assert.throws(()=>f.h.ctx.saveLibraryV3CopyPilotAfterApproval({...f.options,approvedPlanHash:p.planHash}),/history requires review/);assert.equal(f.copy.data.length,3);});
+
+test('a live 55-column ledger preserves archive extensions and replays with zero rows',()=>{
+ const f=fixture();for(const table of [f.h.data,f.copy.data])for(const row of table)while(row.length<55)row.push(row.length===51?'archive extension':'');
+ const before=f.copy.data[1].slice(51),get=f.copySs.getSheetByName('エピソード台帳').getDataRange;
+ f.copySs.getSheetByName('エピソード台帳').getDataRange=()=>({getValues:()=>get().getValues().map(r=>Array.from({length:55},(_,i)=>r[i]??''))});
+ const p=f.h.ctx.previewLibraryV3CopyPilot(f.options),o={...f.options,approvedPlanHash:p.planHash};
+ assert.equal(f.h.ctx.saveLibraryV3CopyPilotAfterApproval(o).writtenRows,1);assert.equal(f.h.ctx.saveLibraryV3CopyPilotAfterApproval(o).writtenRows,0);
+ assert.deepEqual(f.copy.data[1].slice(51),before);assert.equal(f.copy.data.length,3);
+});
