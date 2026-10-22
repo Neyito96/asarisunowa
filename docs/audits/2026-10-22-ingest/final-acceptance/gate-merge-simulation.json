@@ -1,0 +1,16 @@
+{
+  "main": "43b9023d7a0202a8bede056227e23b41693713e6",
+  "v3": "02ad30f5153665b0edd86a169d86c8b7339ae697",
+  "publication": "9864e915b7a17257b5eb3f2a601a4e31da813e85",
+  "remoteWrites": 0,
+  "branchChanges": 0,
+  "method": "git merge-tree; synthetic commit object only",
+  "v3OntoMain": {
+    "exit": 0,
+    "output": "14f4c06d7ec5d468ebcb8ea64c2c54a83709af99\n"
+  },
+  "publicationAfterV3": {
+    "exit": 0,
+    "output": "08ab022642c39c86b352a9bc0dbc78eae3c29e7c\n"
+  }
+}

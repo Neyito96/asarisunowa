@@ -6,6 +6,8 @@ on:
       - 'scripts/verify-library-publication.mjs'
       - 'tests/library-ingest-e2e.test.mjs'
       - 'tests/library-activation-readonly.test.mjs'
+      - 'tests/library-release-check.test.mjs'
+      - 'scripts/check-library-release.mjs'
       - '.github/workflows/library-ingest-e2e.yml'
   workflow_dispatch:
 permissions:
@@ -18,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
         with:
-          ref: 7a4e126dcba4b9bf5888fe1b68919ba9f7748c16
+          ref: 02ad30f5153665b0edd86a169d86c8b7339ae697
           path: .v3-test-dependency
           persist-credentials: false
       - uses: actions/setup-node@v4
@@ -27,4 +29,4 @@ jobs:
       - name: Existing engine with in-memory GAS services only
         env:
           LIBRARY_V3_ROOT: ${{ github.workspace }}/.v3-test-dependency
-        run: node --test tests/library-publication.test.mjs tests/library-ingest-e2e.test.mjs tests/library-activation-readonly.test.mjs
+        run: node --test tests/library-publication.test.mjs tests/library-ingest-e2e.test.mjs tests/library-activation-readonly.test.mjs tests/library-release-check.test.mjs

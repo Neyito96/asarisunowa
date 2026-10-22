@@ -72,3 +72,10 @@ baseline.complete=true/offset6591、設定は無効、Morning未設定・通知�
 元本を再取得し取得元13行/A-H列対応を直接確認。V3選択10本=主要7+アルキキ/AJW2+旧SDGs1。YouTube1は除外、LISTEN2はH空。全10本HTTP200/RSS確認。旧SDGs1092と後継36を別々に記録し母集団確定数には使わない。
 
 最新ニュースRSS2653×最新元本6591で12候補再照合。既存対応/削除/再配信警告/清掃HOLD0、設定込み保留12。Drive更新時刻前後一致、対象5タブ値は前回スナップショットと同一。READ_ONLY auditモード・証拠・CSVを既存#248に追記。通知実装元AutoUpdateNotification.jsを確認し、既存本文builderの無送信/秘密値マスク試験追加。関連15/15 PASS。本番/公開/メール/Spotify書込0。
+
+
+## 本番移行・最終受入G1〜G7
+
+Issue241 comment6331185808を全文確認。総合HOLD：G1実機全文/manifest・BaselineTrigger内容未取得、G2通知未接続、G4永続復旧バックアップ未確認、G5今回承認前。G3候補保全/ G6公開分離は記録・設計範囲PASS。現在main43b9023へ#247→#248のローカルmerge-tree競合0（main/枝/remote mergeなし）。
+
+コピーwriter入口のALIB/他schedulerチェック不足を既存#247へ修正（02ad30f）。追加6試験は修正前FAIL→修正後PASS、V3回帰158/158。#248へoffline source SHA/関数比較とテスト、URL付き12候補保全、受入表、具体的承認申請を保存。関連19/19 PASS。実機ソースは比較できていないためHOLDを明記。C1は全タブnative検証コピー作成のみ、実ID/hash確定後に1件writeを別承認。今回copy/本番書込・GAS・設定/トリガー・メール・Spotify・merge・公開0。

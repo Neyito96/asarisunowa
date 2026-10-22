@@ -1,0 +1,56 @@
+{
+  "at": "2026-10-22T02:30:28.802Z",
+  "gateDefinition": "https://github.com/Neyito96/asarisunowa/issues/241#issuecomment-6331185808",
+  "overall": "HOLD",
+  "checks": [
+    {
+      "gate": "G1",
+      "status": "HOLD",
+      "reason": "PR SHAs/functions fixed; merge simulation clean; live source/manifest and BaselineTrigger content missing"
+    },
+    {
+      "gate": "G2",
+      "status": "HOLD",
+      "reason": "Reported disabled settings and local guards PASS; live notification disconnected and all-owner executions unverified"
+    },
+    {
+      "gate": "G3",
+      "status": "PASS",
+      "reason": "12 GUID/URL/programme/date candidates preserved at documented snapshot; registration not authorized"
+    },
+    {
+      "gate": "G4",
+      "status": "HOLD",
+      "reason": "Rollback designed and local snapshots exist; verified durable live GAS/Properties backup missing"
+    },
+    {
+      "gate": "G5",
+      "status": "HOLD",
+      "reason": "Historical connector copy proof retained; current live GAS pilot and any new copy write await explicit approval"
+    },
+    {
+      "gate": "G6",
+      "status": "PASS",
+      "reason": "Separate approval gates implemented; deployment/publication not executed"
+    },
+    {
+      "gate": "G7",
+      "status": "HOLD",
+      "reason": "Evidence matrix complete; production acceptance blocked by G1/G2/G4/G5"
+    }
+  ],
+  "newProductionWrites": 0,
+  "newCopyWrites": 0,
+  "deployments": 0,
+  "merges": 0,
+  "mailSent": 0,
+  "spotifyPosts": 0,
+  "ownerOfOperationalApproval": "根津修平",
+  "reviewOwner": "WORK",
+  "liveSourceCapture": "NOT_PROVIDED",
+  "testPass": {
+    "v3": 158,
+    "related": 19
+  },
+  "historicalCopyProof": "docs/audits/2026-10-22-ingest/copy-pilot/"
+}
