@@ -58,3 +58,10 @@ P0優先のためspeakers2 5,452件との差分確定は未着手のまま保持
 ユーザー実機報告：V3関連4ファイルあり、確認アカウントのトリガー0、ALIB 10/21 04:38 writes0/remaining0/stoppedtrue、baseline.offset6591、V3 enabledfalse/allowNewfalse。既存コードと照合し新着無効を確認。offsetだけではcomplete未確認。全所有者の競合は未確認。既知候補は前回11→12を維持し、設定込みでは全件本番保留。未来cutoverでは既知候補が対象外になるため、遡及一括登録を有効化に混ぜない。
 
 手順 docs/phase12-gas-activation-2026-10-22.md、12件の設定込み保留表activation-candidates.csv、既存V3設定回帰3/3成功。既存#248へ保存し新規PRなし。本番設定・書込・配備・トリガー・メール・Spotify・merge・公開0。
+
+
+## 10/22 追加実機診断の反映
+
+baseline.complete=true/offset6591、設定は無効、Morning未設定・通知依存なしをユーザー実機出力で確認。feeds=[]はLIB_V3_CURSORの履歴でRSS設定一覧ではなかった。既存#247のREAD_ONLY previewにconfiguredFeeds/Countを追加し、旧feeds互換維持。保存済み台帳には取得元10本。Spotify6依存なしでも既存コアRSS登録/再実行0の試験成功。一方Morningは通知関数不足で設定前停止を維持。
+
+既知12件は保存済みRSS/台帳で再照合し識別上コピー候補のまま、実設定では全件本番保留（allowNew=false/newAfter空）。最新実機報告後の本番データ再取得は未実施。新たな書込なし。V3回帰152/152、関連統合13/13 PASS。既存#247/#248へ保存。詳細はphase12-gas-activation-2026-10-22.md追記。

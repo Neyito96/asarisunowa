@@ -59,3 +59,35 @@ F. **Pages**：最初は当該スナップショットのmerge/Pages実行を別
 既存V3を使用するREAD_ONLY設定回帰3/3 PASS：disabledの無変更、offsetだけでは不十分、未来cutoverによる既知候補除外。前回の回帰152/152、実コピー1件・再実行0件・失敗復旧、ローカルJSON詳細/検索の証拠は既存ログを再利用。実GASやPagesを実行した試験ではない。
 
 次の承認前に必要：実機previewの2出力（秘密値不要）、baseline.complete、実ソース差分、全所有者の競合確認、通知依存、GitHub公開環境/WIF/gateの実設定。上記A〜Fを一括実行せず、具体的差分・復旧対象が確定した段階ごとに承認を得る。今回の本番書込/設定/トリガー/配備/merge/公開/メール/Spotifyは0。
+
+
+## 追加実機診断（10/22、上記の未確認事項を更新）
+
+ユーザーのREAD_ONLY実機報告でbaseline.complete=true、offset6591、conflictingTriggers=[]、writes0を確認。Morning config/state={}、Spotify依存6件なし、notificationAvailable=false、確認所有者のtriggers=[]。本節が上記のbaseline.complete未確認記述を更新する。配備ソース全体のコミット対応と他所有者は引き続き未確認。
+
+### feeds=[]の原因
+
+既存 previewLibraryV3Autonomy のfeedsはLIB_V3_CURSOR.feedsから作る**巡回履歴**。設定済みRSS一覧ではない。未巡回/未初期化なら空で正常。既存 libV3Context_ は取得元一覧H列のHTTPS URLとA列番組名から別にRSSを読む。保存済み09時台のネイティブ台帳スナップショットでは10本（アルキキ/AJW/旧SDGsの原本管理用も含む）が存在。実機現在の10本を直接読んだとは主張しない。
+
+診断の誤解を防ぐ最小修正を既存#247に保存：従来feedsは互換維持し、configuredFeeds/configuredFeedCount/feedHistoryMeaningを追加。設定・台帳・巡回・通信を変更しない。#248のテストがこの#247を固定参照する。配備前はローカルのみ。実機診断をやり直す前に承認なしで新コードを貼らない。既存ソースの取得元一覧タブA/H列をREAD_ONLYで確認してもよい。
+
+### RSSだけの最小構成と不足関数
+
+6関数はSpotify経路専用。spotify:false、ruleKeys:[]ではconfigureのSpotify依存判定とMorning Spotify処理には入らない。既存コア runLibraryV3AfterApproval → libV3Run_(true) → libV3Append_ はこの6関数と通知関数を呼ばず、RSS→GUID→採番→51セル読戻しを実施できることをインメモリー試験で確認。これは**承認後の単発writer候補**であり、今は実行しない。
+
+一方、Morning configureはenabled:trueで通知関数を必須にしており、実機のnotificationAvailable=falseではSpotifyなしでも設定前に停止する。ダミー通知や無検証のガード撤去はしない。Morning自動化は、既存 AutoUpdateNotification.js の依存・送信先・6時間抑止・MailApp権限をREAD_ONLYで照合し、コード反映と失敗メール送信を別途承認してから進める。未導入のV1エンジンやSpotify認証を丸ごと入れる必要はない。
+
+### 12候補の再判定と試験
+
+保存済みの公式RSS（09:13 JST）・元本6,591行・除外履歴で既存V3照合を再実行。12件はGUID既存対応0、RSSメタデータ差分0、既存の重複/再配信ガードによる理由0、清掃HOLD0。既存の判定範囲を超えた同一話の断定はしない。本番設定を適用すると全12件がallowNew:false/newAfter空のため保留、baseline不足の理由は今回解消。候補別CSVを更新。コピーだけに登録した1件はコピーでALREADY_PRESENT、追加0。今回新たなSheets書込は0。
+
+この再判定は保存済み実データを使用したローカルREAD_ONLY試験。実機診断報告後の最新RSS/本番台帳の再取得は未実施であり、本番適用直前の再取得・差分確認が残る。既知候補の遡及登録と未来cutoverは別承認のまま。
+
+今回の試験：V3回帰152/152、公開・収蔵・設定統合13/13 PASS（設定回帰6件を含む）。追加テストは空履歴と設定RSSを区別、6関数なしのコア新規登録と再実行0件、Morning通知依存不足時の無変更停止。fixtureの設定変更はインメモリーのみで本番操作なし。
+
+### 承認前の次の一手
+
+1. 現在の取得元一覧と実ソースの内容対応をREAD_ONLY確認し、既存#247/#248の反映予定差分・バックアップを確定。
+2. RSS単発実行とMorningタイマーを別段階にする。単発もenabled/allowNew/newAfter変更を伴うため未承認で実行しない。既知12件を過去cutoverの抜け道で流さない。
+3. Morningは既存通知helperの最小依存・メール動作を確認した後に配備/通知/設定/タイマーを承認申請。Spotify6関数の追加をRSS収蔵の前提にしない。
+4. 公開は既存#244/#248のreview用snapshot PRまでと、merge/Pagesを分ける。本番gate/認証/公開の変更は承認後のみ。
