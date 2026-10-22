@@ -11,3 +11,9 @@ Google Sheets READ_ONLY実測: ledger6591/unique6591/maxEP06591、Spotify episod
 AND/OR、番組/期間/公式出演者、関連記事、選択除外、保留、指定試験ID/最大1のhash承認、durable予約/lock、全件snapshot/投稿後読戻し/再実行0、新規非公開作成の別承認を実装。GAS READ_ONLY previewは同一検索coreから生成、既存libV3Context(false)を再利用し未配備。生成再現/副作用0含む49/49 PASS。CIを既存workflowへ追加。台帳・Spotify・認証・GAS・trigger・merge・公開の変更0。
 
 ファイル入力の未公開Web試作を追加。ブラウザー配布取得が不完全でPlaywright起動できずスマホUIはHOLD。実Spotify試験は認証経路なし/確定候補なしで未実行。新規管理3タブは設計のみ、元本に作成しない。推奨はWeb投稿UI＋非公開管理タブ。詳細・試験結果・本番切替/停止/1URI復旧方針をdocs/library-first-playlists-2026-10-22.mdへ保存。
+
+## 次段階：判定実反映・Spotify1話承認対象固定
+
+PR250側で新設判定tab6591行/65910セルを27バッチ反映・全読戻し一致。他32tab値/数式不変。対象5848/対象外377/保留366、学校485対象＋1タイトル差分HOLD。出演者慎重4名は採用0、佐藤陽22候補HOLD。
+
+EP00004/spotify:episode:6opJ4Ig4s7CTY9fRqGEHd2を実試験候補に固定。公式RSSとSpotify公開embedで題名/番組/UTC公開時刻完全一致・音声長差0.44秒を確認。指定testplaylist公開embedHTTP200、タイトルとID一致。認証APIの全件snapshot/権限とは区別する。planHash e147bc8ee91e390960baa3f74acb28b81f27c0c118777bd1d3af8ed4f441f2fe、最大1。実POST/再実行とも未実行、個別承認待ち。Spotify接続探索は該当なし、WORKに認証済み実行経路なし。RSS本番稼働・403根因は最新認証ログ未取得で未確定。承認対象・停止/復旧条件をdocs/spotify-one-episode-pilot-2026-10-22.mdへ保存。
