@@ -1,4 +1,6 @@
-# 掲載件数の修正 — 2026-10-22・公開承認待ち
+# 掲載件数の修正 — 2026-10-22・掲載基準承認済み／公開未承認
+
+ユーザーは5,219＋113＋31＋485＝5,848件を正式な掲載基準として承認。「おんさ完全一致5,848件」とは表記しない。本番公開は最終試験後の別途承認が必要。
 
 ## 実測
 
@@ -23,7 +25,7 @@ C列「おんさ比較対象」とD列「宇宙検索対象」は異なる母集
 |ニュースの学校（C列比較外、D列採用）|485|
 |D列の採用合計|5848|
 
-厳密に「C列対象＋学校」だけなら5704件であり、5848件との差144件は上記113＋31。今回の公開案は既に確認済みのD列採用5848件を用いる。この144件を隠して「おんさ採用5500件」と説明しない。
+厳密に「C列対象＋学校」だけなら5704件であり、5848件との差144件は上記113＋31。今回の掲載基準はユーザー承認によりD列採用5848件を用いる。この144件を隠して「おんさ採用5500件」と説明しない。
 
 |番組|掲載対象|
 |---|---:|
@@ -49,7 +51,7 @@ main cd8250584ea1a938b29db97ac6c813dfb4d04ad0 の `public/library/data/manifest.
 
 プレビューで5848件を再生成。追加EP-ID0、残る5848件の公開エピソードオブジェクトの変更0（タイトル/日時/出演者/概要/関連記事/links/audioを含む完全一致）。旧公開sourceから再構成する経路と、既存の台帳exporterが共通writerを再利用する。既存の9再生可能話のうち掲載対象に残る8話は音声URLを完全保持。外れる1話も元台帳からは削除しない。
 
-表示案は **「掲載対象 5,848件 · 2026-10-22掲載判定」**。元データのsnapshotDate2026-10-21は維持し、RSSを22日に更新したという表示に置き換えない。新しい公開生成時刻generatedAtと掲載判定日も別にする。
+表示案は **「掲載対象5,848件・2026年10月22日掲載判定」**。元データのsnapshotDate2026-10-21は維持し、RSSを22日に更新したという表示に置き換えない。新しい公開生成時刻generatedAtと掲載判定日も別にする。
 
 ## 自動集計と宇宙との整合
 
@@ -57,7 +59,7 @@ main cd8250584ea1a938b29db97ac6c813dfb4d04ad0 の `public/library/data/manifest.
 - `public/library/publication-scope.mjs` が採用集合と集計を生成。5848を実装に固定しない。未確認の対象/重複ID/対象エピソード欠損/番組件数不一致を検出すると生成失敗し、前回公開データを維持する。
 - 既存exporterへ判定snapshotを接続。4番目のCLI引数で新しいsnapshotを指定可能。台帳入力にpublicationDecisionsがあればそれを使う。台帳に増えた未判定IDはunreviewedで非掲載に留め、勝手に採用しない。RSSの収蔵処理/採番/trigger自体は変更しない。
 - manifestは軽量な集計を持ち、別のscope.jsonに採用EP-ID集合/番組件数/判定versionを持つ。図書館初期表示で全5848IDを追加取得しない。
-- 宇宙は別repo `Neyito96/asarisu-universe`。調査中にmainがV0.10.2からV0.10.5へ進んだため、最新7debd65913f7273d0f3145e0ec31aafc917ddf38を取り込み、地理機能などの並行更新を保全した差分に更新。
+- 宇宙は別repo `Neyito96/asarisu-universe`。調査中にmainがV0.10.2からV0.10.5へ進んだため、最新V0.10.6 ed61100853214c3d685242018ea3c507b58d0648を取り込み、地理機能などの並行更新を保全した差分に更新。
 - 現行宇宙ソースは番組除外＋タイトルの再配信/再放送/アンコールで別集計する。旧公開JSONを同じ処理で再計算すると6448件で、D列採用より余分601/不足1。不足1はEP04305「アンコールの舞台…」で、再配信ではない採用話。
 - `universe-scope.patch` は独自のタイトル/番組除外を外し、図書館のscope.jsonと同じ公開moduleを使用。manifest/scopeのversion一致・全採用ID取得を検証して5848件と表示する。候補星/関連記事実例にも非掲載IDを混ぜない。
 
@@ -69,7 +71,7 @@ node scripts/stage-library-publication-preview.mjs public/library/data /tmp/libr
 LIBRARY_DATA_URL=/tmp/library-publication-preview-data/ node --test tests/library-public.test.mjs tests/sdgs-integration.test.mjs tests/library-phase11.test.mjs tests/pages-preparation.test.mjs
 ```
 
-追加8/8、再生成プレビュー既存回帰25/25 PASS。旧公開snapshotの既存回帰24/24もPASS。全採用5848件の内容不変/全検索ページと詳細のID一致/学校485/除外と保留が非掲載/アンコールの誤除外防止/生成失敗時の旧manifest維持を確認。CIは公開snapshotを変更せず/tmpでプレビューを再生成し、ChromiumとWebKitのiPhone検索/詳細/再生導線、図書館と宇宙の5848件一致を試験する。CIの結果はPRに集約し、実行前からPASSとは記録しない。
+追加8/8、再生成プレビュー既存回帰25/25 PASS。旧公開snapshotの既存回帰24/24もPASS。全採用5848件の内容不変/全検索ページと詳細のID一致/学校485/除外と保留が非掲載/アンコールの誤除外防止/生成失敗時の旧manifest維持を確認。CIは公開snapshotを変更せず/tmpでプレビューを再生成し、ChromiumとWebKitのiPhone検索/詳細/再生導線、図書館と宇宙の5848件一致を試験する。最終CI 39772297498でChromium/WebKitの両方がPASS。宇宙のrows・エピソードの星の全EP-IDも同じ集合に一致。証拠ログ・6枚の画面は `docs/library-publication-mobile-acceptance-2026-10-22.md` に記録。実機iPhoneの手動試験ではなく、iPhone 13相当のエミュレーションである。
 
 ## 承認を求める公開内容・復旧
 
