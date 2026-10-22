@@ -1,6 +1,6 @@
 --- a/index.html
 +++ b/index.html
-@@ -152,8 +152,7 @@
+@@ -155,8 +155,7 @@
  ["北海道",43.1,141.35,"japan","北海道|札幌"],["青森県",40.82,140.74,"japan","青森"],["岩手県",39.7,141.15,"japan","岩手|盛岡"],["宮城県",38.27,140.87,"japan","宮城|仙台"],["秋田県",39.72,140.1,"japan","秋田"],["山形県",38.25,140.36,"japan","山形"],["福島県",37.75,140.47,"japan","福島"],["茨城県",36.37,140.47,"japan","茨城|水戸"],["栃木県",36.56,139.88,"japan","栃木|宇都宮"],["群馬県",36.39,139.06,"japan","群馬|前橋"],["埼玉県",35.86,139.65,"japan","埼玉"],["千葉県",35.61,140.12,"japan","千葉"],["東京都",35.68,139.69,"japan","東京|都内|新宿|渋谷"],["神奈川県",35.45,139.64,"japan","神奈川|横浜|川崎"],["新潟県",37.9,139.02,"japan","新潟"],["富山県",36.7,137.21,"japan","富山"],["石川県",36.59,136.63,"japan","石川|金沢"],["福井県",36.06,136.22,"japan","福井"],["山梨県",35.66,138.57,"japan","山梨|甲府"],["長野県",36.65,138.18,"japan","長野|松本|上伊那"],["岐阜県",35.42,136.76,"japan","岐阜"],["静岡県",34.98,138.38,"japan","静岡"],["愛知県",35.18,136.91,"japan","愛知|名古屋"],["三重県",34.73,136.51,"japan","三重"],["滋賀県",35,135.87,"japan","滋賀|大津"],["京都府",35.02,135.76,"japan","京都"],["大阪府",34.69,135.5,"japan","大阪"],["兵庫県",34.69,135.18,"japan","兵庫|神戸"],["奈良県",34.69,135.83,"japan","奈良"],["和歌山県",34.23,135.17,"japan","和歌山"],["鳥取県",35.5,134.24,"japan","鳥取"],["島根県",35.47,133.05,"japan","島根|松江"],["岡山県",34.66,133.93,"japan","岡山"],["広島県",34.4,132.46,"japan","広島"],["山口県",34.18,131.47,"japan","山口"],["徳島県",34.07,134.56,"japan","徳島"],["香川県",34.34,134.04,"japan","香川|高松"],["愛媛県",33.84,132.77,"japan","愛媛|松山"],["高知県",33.56,133.53,"japan","高知"],["福岡県",33.59,130.4,"japan","福岡|北九州"],["佐賀県",33.25,130.3,"japan","佐賀"],["長崎県",32.75,129.87,"japan","長崎"],["熊本県",32.8,130.71,"japan","熊本"],["大分県",33.24,131.61,"japan","大分"],["宮崎県",31.91,131.42,"japan","宮崎"],["鹿児島県",31.6,130.56,"japan","鹿児島"],["沖縄県",26.21,127.68,"japan","沖縄|那覇"]
  ];
  let geoScope="world",geoMap=null,geoLayer=null,geoIndex=[];
@@ -10,7 +10,7 @@
  const hash=s=>{let h=2166136261;for(const c of s){h=Math.imul(h^c.charCodeAt(0),16777619)}return h>>>0};
  const rnd=(s,n)=>((hash(s+":"+n)%100000)/100000);
  const json=async path=>{const r=await fetch(base+path,{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);return r.json()};
-@@ -296,7 +295,7 @@
+@@ -300,7 +299,7 @@
  function geoMatches(r){const title=cleanTopicText(r.title),body=topicSections(descriptionOf(r)).body.slice(0,1800);return geoPlaces.filter(p=>new RegExp(p[4]).test(title)||new RegExp(p[4]).test(body)).map(p=>p[0])}
  async function ensureGeoMap(){if(geoMap)return;const css=document.createElement("link");css.rel="stylesheet";css.href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";document.head.append(css);await new Promise((resolve,reject)=>{const script=document.createElement("script");script.src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";script.onload=resolve;script.onerror=reject;document.head.append(script)});geoMap=L.map("geoMap",{worldCopyJump:true}).setView([20,20],2);L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:12,attribution:"&copy; OpenStreetMap contributors"}).addTo(geoMap);geoLayer=L.layerGroup().addTo(geoMap)}
  function drawGeo(){if(!geoMap)return;geoLayer.clearLayers();let visible=0;for(const p of geoPlaces.filter(p=>p[3]===geoScope)){const eps=geoIndex.filter(x=>x.places.includes(p[0])).map(x=>x.row);if(!eps.length)continue;visible++;const circle=L.circleMarker([p[1],p[2]],{radius:Math.min(24,5+Math.sqrt(eps.length)*1.8),color:"#9cdcff",fillColor:"#5b8bea",fillOpacity:.65,weight:1.5}).addTo(geoLayer);const btn=document.createElement("button");btn.type="button";btn.textContent=p[0]+"｜"+eps.length+"件を表示";btn.addEventListener("click",()=>{showEpisodes(p[0],eps);$("#resultTitle").scrollIntoView({behavior:"smooth",block:"start"})});const holder=document.createElement("div");holder.append(btn);circle.bindPopup(holder)}$("#geoSummary").textContent=(geoScope==="world"?"世界":"日本")+"｜地名が見つかった "+visible+"地域";if(geoScope==="japan")geoMap.setView([36.5,137.8],5);else geoMap.setView([18,15],2);setTimeout(()=>geoMap.invalidateSize(),120)}
@@ -19,7 +19,7 @@
  $("#geoWorld").addEventListener("click",()=>{geoScope="world";drawGeo()});$("#geoJapan").addEventListener("click",()=>{geoScope="japan";drawGeo()});
  function showArticleConnections(s){
   const panel=$("#articleConnections"),list=$("#articleConnectionList");panel.hidden=true;list.replaceChildren();
-@@ -322,9 +321,15 @@
+@@ -326,9 +325,15 @@
  canvas.addEventListener("pointercancel",e=>{pointers.delete(e.pointerId);beginGesture()});
  canvas.addEventListener("lostpointercapture",e=>{if(pointers.delete(e.pointerId))beginGesture()});
  canvas.addEventListener("wheel",e=>{e.preventDefault();zoomAt(e.deltaY<0?1.12:.89,localPoint(e));draw()},{passive:false});
