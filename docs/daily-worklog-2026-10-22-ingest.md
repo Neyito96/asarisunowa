@@ -51,3 +51,10 @@ mainの`Sync listener playlists`はcron17,47 * * * *。最新取得run3969248839
 GAS管理画面は公式説明ページへ転送され、稼働ソース/実行履歴/トリガー/baseline/allowNew/ALIB競合は未確認。次に必要なのは実プロジェクトURLとREAD_ONLY状態出力、トリガー一覧、直近実行結果（秘密値は不要）。それを確認後に既存#247/#248の統合・配備対象、停止/復旧、公開切替を具体化して事前承認を求める。自動運転完了とは判定しない。
 
 P0優先のためspeakers2 5,452件との差分確定は未着手のまま保持し、既存#250へ続ける。
+
+
+## 10/22 実機調査の引き継ぎ・READ_ONLY有効化設計
+
+ユーザー実機報告：V3関連4ファイルあり、確認アカウントのトリガー0、ALIB 10/21 04:38 writes0/remaining0/stoppedtrue、baseline.offset6591、V3 enabledfalse/allowNewfalse。既存コードと照合し新着無効を確認。offsetだけではcomplete未確認。全所有者の競合は未確認。既知候補は前回11→12を維持し、設定込みでは全件本番保留。未来cutoverでは既知候補が対象外になるため、遡及一括登録を有効化に混ぜない。
+
+手順 docs/phase12-gas-activation-2026-10-22.md、12件の設定込み保留表activation-candidates.csv、既存V3設定回帰3/3成功。既存#248へ保存し新規PRなし。本番設定・書込・配備・トリガー・メール・Spotify・merge・公開0。

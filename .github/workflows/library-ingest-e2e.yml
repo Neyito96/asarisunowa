@@ -5,6 +5,7 @@ on:
       - 'scripts/prepare-library-publication.mjs'
       - 'scripts/verify-library-publication.mjs'
       - 'tests/library-ingest-e2e.test.mjs'
+      - 'tests/library-activation-readonly.test.mjs'
       - '.github/workflows/library-ingest-e2e.yml'
   workflow_dispatch:
 permissions:
@@ -26,4 +27,4 @@ jobs:
       - name: Existing engine with in-memory GAS services only
         env:
           LIBRARY_V3_ROOT: ${{ github.workspace }}/.v3-test-dependency
-        run: node --test tests/library-publication.test.mjs tests/library-ingest-e2e.test.mjs
+        run: node --test tests/library-publication.test.mjs tests/library-ingest-e2e.test.mjs tests/library-activation-readonly.test.mjs
