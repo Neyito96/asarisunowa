@@ -1,0 +1,26 @@
+{
+  "寺下まりか": {
+    "ledgerCandidateRows": 0,
+    "officialDescriptionMentions": 0,
+    "adoptedRows": 0,
+    "decision": "HOLD_PERSON_IDENTITY_NO_GUESSING"
+  },
+  "太田昌彦": {
+    "ledgerCandidateRows": 0,
+    "officialDescriptionMentions": 0,
+    "adoptedRows": 0,
+    "decision": "HOLD_PERSON_IDENTITY_NO_GUESSING"
+  },
+  "佐藤陽": {
+    "ledgerCandidateRows": 22,
+    "officialDescriptionMentions": 95,
+    "adoptedRows": 0,
+    "decision": "HOLD_PERSON_IDENTITY_NO_GUESSING"
+  },
+  "高橋健一郎": {
+    "ledgerCandidateRows": 0,
+    "officialDescriptionMentions": 0,
+    "adoptedRows": 0,
+    "decision": "HOLD_PERSON_IDENTITY_NO_GUESSING"
+  }
+}

@@ -43,3 +43,7 @@ next-env.d.ts
 
 # Local Google Apps Script config
 scripts/google-apps-script/.clasp.json
+
+# Python audit/test caches
+__pycache__/
+*.py[cod]

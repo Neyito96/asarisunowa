@@ -1,0 +1,54 @@
+{
+  "source-shared-urls.csv": {
+    "bytes": 153093,
+    "sha256": "bfcc540e36417fb1eb3f5f70a6d5652fb63aca950599c42b598cc721d29fa243"
+  },
+  "episode-matches.csv.gz": {
+    "bytes": 1114098,
+    "sha256": "e9a78c89bd2a7b85f480f978e8146fff895ea273d64c416fccad1f8b840aeed6"
+  },
+  "metadata-readback.json": {
+    "bytes": 423,
+    "sha256": "1fd6d1f86623e5fbbde12c513bfd9939ac03394277ff3b28c48a1131768d45fa"
+  },
+  "programme-counts.csv": {
+    "bytes": 1521,
+    "sha256": "f897279f2c7e93fb3cb48a5876626cdc70c772b707e64a2dc9158d463129c1bc"
+  },
+  "tests-node.txt": {
+    "bytes": 4818,
+    "sha256": "aaf370b7336b0be958380263a1eb4a910f007bc3f012ad1d224a9e0a522a4412"
+  },
+  "external-only-candidates.csv": {
+    "bytes": 16539,
+    "sha256": "0fde196c86e000846dd2daedf1de7a807672a560d3337ecc477596b5d886df7f"
+  },
+  "identity-conflict-groups.csv": {
+    "bytes": 233097,
+    "sha256": "e1fb1ca0bcb8bcb28c753e9d3ae6465f16dfda651a0aec0452daa3b5a82653a4"
+  },
+  "url-differences.csv": {
+    "bytes": 376556,
+    "sha256": "fe7e420041f0021127532497887292bb0979fa666df35f766d45867b6da1329c"
+  },
+  "library-unmatched-review.csv": {
+    "bytes": 154534,
+    "sha256": "4c7724e89c3e46da428d9ab009738325c70e84fd28f3381dbeeb909acc4bb14a"
+  },
+  "summary.json": {
+    "bytes": 11733,
+    "sha256": "0cb76b70b9ab38700150b41102d77d71cde44dbd4881d03bc97fe012f1ae2e71"
+  },
+  "url-fill-candidates.csv": {
+    "bytes": 17684,
+    "sha256": "9aef4373ae8b7ea226751429c1438958dce063e032d7852949707682345976ee"
+  },
+  "tests-reader.txt": {
+    "bytes": 456,
+    "sha256": "92850bcc1bd06b8f8336cfdb2648e76ae1306f1ebc098f4a35313b55e8274c51"
+  },
+  "p0-news-crosscheck.json": {
+    "bytes": 9707,
+    "sha256": "aac603729e9e7f3961edd1d8483c62751e884b10df6303673823d70eec3bf588"
+  }
+}

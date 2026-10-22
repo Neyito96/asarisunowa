@@ -1,0 +1,233 @@
+{
+  "mode": "READ_ONLY",
+  "previousMeasurement": {
+    "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/684015f9-2396-4ac4-bc1f-ac0f0033d08c/podcast.rss",
+    "fetchedAt": "2026-10-21T23:07:23.618184+00:00",
+    "status": 200,
+    "items": 2653,
+    "sha256": "ceecac50481a0b343ee7dd7e127d716c88dec40d2ed03e52cd8da30a8aeab0ec"
+  },
+  "previousCandidates": 12,
+  "copyNewsExternalOnly": 12,
+  "rows": [
+    {
+      "sheet": "ニュースの現場から",
+      "row": 2644,
+      "title": "（大阪目線#6）共産が支援する町長がかじをとる町は　 「天王山」の地、二分する選挙",
+      "sourceKeys": [
+        "omny_url:/shows/asahi/oosaka6",
+        "spotify_episode:4NTqv6Dgv53t9hSFYSJW0y",
+        "omny_uuid:38da5e5a-96ce-4113-9c7e-b4db000e82d2",
+        "pocket_episode:c53a60c4-4914-486b-baa4-78e41005e249"
+      ],
+      "rssMatches": [
+        {
+          "guid": "38da5e5a-96ce-4113-9c7e-b4db000e82d2",
+          "title": "（大阪目線#6）共産が支援する町長がかじをとる町は　 「天王山」の地、二分する選挙",
+          "publishedAt": "Sat, 10 Oct 2026 19:00:00 +0000"
+        }
+      ]
+    },
+    {
+      "sheet": "ニュースの現場から",
+      "row": 2645,
+      "title": "その見た目、小型ねぶたと呼ばれ…還暦超え男性記者のヘアドネ挑戦記",
+      "sourceKeys": [
+        "omny_url:/shows/asahi/hairdonation1012",
+        "spotify_episode:6tL67fOeSnledxGupA0PnQ",
+        "omny_uuid:4531520c-d23d-40ca-bf7d-b4db0074560d",
+        "pocket_episode:6051f85c-9904-40e8-be84-7002072972fe"
+      ],
+      "rssMatches": [
+        {
+          "guid": "4531520c-d23d-40ca-bf7d-b4db0074560d",
+          "title": "その見た目、小型ねぶたと呼ばれ…還暦超え男性記者のヘアドネ挑戦記",
+          "publishedAt": "Sun, 11 Oct 2026 19:00:00 +0000"
+        }
+      ]
+    },
+    {
+      "sheet": "ニュースの現場から",
+      "row": 2646,
+      "title": "（地球会議 #2）認知症1千万人の時代…超高齢化社会の日本　AIの登場でどう変化？",
+      "sourceKeys": [
+        "omny_url:/shows/asahi/worldforum2",
+        "spotify_episode:3CiyJP1SJGtxCYA3Q8tawn",
+        "omny_uuid:bd59457d-fd7e-4393-9611-b4d2002509ae",
+        "pocket_episode:65a73863-ba69-4ff9-9ddc-037b98792c65"
+      ],
+      "rssMatches": [
+        {
+          "guid": "bd59457d-fd7e-4393-9611-b4d2002509ae",
+          "title": "（地球会議 #2）認知症1千万人の時代…超高齢化社会の日本　AIの登場でどう変化？",
+          "publishedAt": "Mon, 12 Oct 2026 19:00:00 +0000"
+        }
+      ]
+    },
+    {
+      "sheet": "ニュースの現場から",
+      "row": 2647,
+      "title": "（GLOBE）たたかう図書館　本を守り、記憶をつなぎ、街をつくる",
+      "sourceKeys": [
+        "omny_url:/shows/asahi/gcast154",
+        "spotify_episode:0s5PL1M5UgV2i8otfmx8ul",
+        "omny_uuid:2562ccc6-8430-4bdd-b1fd-b4d60079aa38",
+        "pocket_episode:ef280b67-ba3b-49c5-ab82-72e224375425"
+      ],
+      "rssMatches": [
+        {
+          "guid": "2562ccc6-8430-4bdd-b1fd-b4d60079aa38",
+          "title": "（GLOBE）たたかう図書館　本を守り、記憶をつなぎ、街をつくる",
+          "publishedAt": "Tue, 13 Oct 2026 19:00:00 +0000"
+        }
+      ]
+    },
+    {
+      "sheet": "ニュースの現場から",
+      "row": 2648,
+      "title": "（ON GOING）東京は無償だけど、千葉では「けっこうな額」　保育料格差に悩む親たち",
+      "sourceKeys": [
+        "omny_url:/shows/asahi/childcarefee1015",
+        "spotify_episode:3efx4psot6vBGhmS150U71",
+        "omny_uuid:13a36195-331b-4f82-bcc2-b4c100868f97",
+        "pocket_episode:3cf76250-e170-4a90-9c07-4a52d8bcf62a"
+      ],
+      "rssMatches": [
+        {
+          "guid": "13a36195-331b-4f82-bcc2-b4c100868f97",
+          "title": "（ON GOING）東京は無償だけど、千葉では「けっこうな額」　保育料格差に悩む親たち",
+          "publishedAt": "Wed, 14 Oct 2026 19:00:00 +0000"
+        }
+      ]
+    },
+    {
+      "sheet": "ニュースの現場から",
+      "row": 2649,
+      "title": "（ゆるっと経済 #21）きょうは「ぐびっと」経済？変わるビール市場徹底解説　残業45時間規制についても考えます",
+      "sourceKeys": [
+        "omny_url:/shows/asahi/yurukei21",
+        "spotify_episode:3Fh2vv0yFQh2QXtlRC9GW2",
+        "omny_uuid:e58f2557-8e1f-4c74-adca-b4e400526584",
+        "pocket_episode:24a710d1-6dd5-4e01-ab99-c043de67d8a9"
+      ],
+      "rssMatches": [
+        {
+          "guid": "e58f2557-8e1f-4c74-adca-b4e400526584",
+          "title": "（ゆるっと経済 #21）きょうは「ぐびっと」経済？変わるビール市場徹底解説　残業45時間規制についても考えます",
+          "publishedAt": "Thu, 15 Oct 2026 19:00:00 +0000"
+        }
+      ]
+    },
+    {
+      "sheet": "ニュースの現場から",
+      "row": 2650,
+      "title": "（ポリレビ #15）簗大臣の更迭、問題の本質はここだ／米国がロシアに肩入れし問われる日本外交",
+      "sourceKeys": [
+        "omny_url:/shows/asahi/polirebi15",
+        "spotify_episode:5QuET06pTf7Hmsq6dnotvh",
+        "omny_uuid:73527408-d0df-4554-9feb-b4e50083852a",
+        "pocket_episode:6ba1cb13-c586-465c-b4c4-7d0747cddc73"
+      ],
+      "rssMatches": [
+        {
+          "guid": "73527408-d0df-4554-9feb-b4e50083852a",
+          "title": " （ポリレビ #15）簗大臣の更迭、問題の本質はここだ／米国がロシアに肩入れし問われる日本外交",
+          "publishedAt": "Fri, 16 Oct 2026 19:00:00 +0000"
+        }
+      ]
+    },
+    {
+      "sheet": "ニュースの現場から",
+      "row": 2651,
+      "title": "（大阪目線 #7）「いびきがうるさい」から婚約破棄まで…裁判沙汰の末に　司法記者がみた人間ドラマ",
+      "sourceKeys": [
+        "omny_url:/shows/asahi/oosaka7",
+        "spotify_episode:64t8ucA5D0O1v1ylB38O1l",
+        "omny_uuid:e82dff62-ad36-41d3-9609-b4e300473821",
+        "pocket_episode:06b7c654-c6ce-467f-a4df-e15b1c9d1f85"
+      ],
+      "rssMatches": [
+        {
+          "guid": "e82dff62-ad36-41d3-9609-b4e300473821",
+          "title": "（大阪目線 #7）「いびきがうるさい」から婚約破棄まで…裁判沙汰の末に　司法記者がみた人間ドラマ",
+          "publishedAt": "Sat, 17 Oct 2026 19:00:00 +0000"
+        }
+      ]
+    },
+    {
+      "sheet": "ニュースの現場から",
+      "row": 2652,
+      "title": "（めくろう #202）さん付け徐々に　ドパガキ急激に　キャンピングカーは憧れに",
+      "sourceKeys": [
+        "omny_url:/shows/asahi/mekuro202",
+        "spotify_episode:3mhjwGaQygFyOi8ApZSPOB",
+        "omny_uuid:a7a7e53b-4657-46ec-af31-b4e20033184f",
+        "pocket_episode:1132095c-a384-4f77-9b03-3e9ec2b5fd92"
+      ],
+      "rssMatches": [
+        {
+          "guid": "a7a7e53b-4657-46ec-af31-b4e20033184f",
+          "title": "（めくろう #202）さん付け徐々に　ドパガキ急激に　キャンピングカーは憧れに",
+          "publishedAt": "Sun, 18 Oct 2026 19:00:00 +0000"
+        }
+      ]
+    },
+    {
+      "sheet": "ニュースの現場から",
+      "row": 2653,
+      "title": "【朗読スペシャル】 泉ピン子さん　初めて「本気の演技」をした日（人生の贈りもの）",
+      "sourceKeys": [
+        "omny_url:/shows/asahi/okurimono-ip1",
+        "spotify_episode:5MybPtMGFKI2Saq2Txs9MU",
+        "omny_uuid:d9226a5c-88fe-4f3a-8063-b4e400829390",
+        "pocket_episode:abc3559b-4f95-4665-ad1d-dcdec79fecd5"
+      ],
+      "rssMatches": [
+        {
+          "guid": "d9226a5c-88fe-4f3a-8063-b4e400829390",
+          "title": "【朗読スペシャル】 泉ピン子さん　初めて「本気の演技」をした日（人生の贈りもの）",
+          "publishedAt": "Mon, 19 Oct 2026 19:00:00 +0000"
+        }
+      ]
+    },
+    {
+      "sheet": "ニュースの現場から",
+      "row": 2654,
+      "title": "（World Insight #6）ネパールを襲った巨大土石流　「山津波」が押し寄せた現場は",
+      "sourceKeys": [
+        "omny_url:/shows/asahi/worldinsight6",
+        "spotify_episode:1QsyeG1CCwoGCpY0IYPwDa",
+        "omny_uuid:45786cb6-5abc-4b29-9051-b4e500648a62",
+        "pocket_episode:8b48f53e-541d-424a-ba33-e7959f36cf2d"
+      ],
+      "rssMatches": [
+        {
+          "guid": "45786cb6-5abc-4b29-9051-b4e500648a62",
+          "title": "（World Insight #6）ネパールを襲った巨大土石流　「山津波」が押し寄せた現場は",
+          "publishedAt": "Tue, 20 Oct 2026 19:00:00 +0000"
+        }
+      ]
+    },
+    {
+      "sheet": "ニュースの現場から",
+      "row": 2655,
+      "title": "（ON GOING）子どもの学習にAI、どこまでOK？　認知科学者・今井むつみさんと考えた",
+      "sourceKeys": [
+        "omny_url:/shows/asahi/ongoing1022",
+        "spotify_episode:6tpaVGWVfDRUHSKWWymCCX",
+        "omny_uuid:8fe3c32f-056a-4223-9ed1-b4e500c559ea",
+        "pocket_episode:147cc147-8b0d-46fe-92ad-5194aa52183e"
+      ],
+      "rssMatches": [
+        {
+          "guid": "8fe3c32f-056a-4223-9ed1-b4e500c559ea",
+          "title": "（ON GOING）子どもの学習にAI、どこまでOK？　認知科学者・今井むつみさんと考えた",
+          "publishedAt": "Wed, 21 Oct 2026 19:00:00 +0000"
+        }
+      ]
+    }
+  ],
+  "writes": 0,
+  "assignedIds": 0,
+  "confirmedByGuid": 12
+}

@@ -1,0 +1,61 @@
+{
+  "version": "134ffef496d755de",
+  "total": 5848,
+  "source": 6591,
+  "excluded": 0,
+  "held": 0,
+  "scopeExcluded": 377,
+  "scopeHeld": 366,
+  "unreviewed": 0,
+  "policyExcluded": 0,
+  "shows": [
+    {
+      "name": "ニュースの学校",
+      "count": 485,
+      "audioPresent": 485,
+      "playable": 1
+    },
+    {
+      "name": "ドーナツ",
+      "count": 60,
+      "audioPresent": 60,
+      "playable": 3
+    },
+    {
+      "name": "スポンジ",
+      "count": 172,
+      "audioPresent": 172,
+      "playable": 0
+    },
+    {
+      "name": "ニュースの現場から",
+      "count": 2388,
+      "audioPresent": 2166,
+      "playable": 1
+    },
+    {
+      "name": "MEDIA TALK",
+      "count": 1719,
+      "audioPresent": 103,
+      "playable": 1
+    },
+    {
+      "name": "報談",
+      "count": 95,
+      "audioPresent": 95,
+      "playable": 1
+    },
+    {
+      "name": "こどもそうだんしつ",
+      "count": 31,
+      "audioPresent": 20,
+      "playable": 1
+    },
+    {
+      "name": "SDGsを話そう",
+      "count": 898,
+      "audioPresent": 0,
+      "playable": 0
+    }
+  ]
+}

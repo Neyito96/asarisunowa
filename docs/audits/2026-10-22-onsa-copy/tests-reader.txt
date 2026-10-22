@@ -1,0 +1,8 @@
+test_auxiliary_rows_are_not_episodes (test_onsa_reader.ReaderTests.test_auxiliary_rows_are_not_episodes) ... ok
+test_excludes_header_notes_blank_and_keeps_migrated_audio (test_onsa_reader.ReaderTests.test_excludes_header_notes_blank_and_keeps_migrated_audio) ... ok
+test_rfc_utc_and_iso_dates (test_onsa_reader.ReaderTests.test_rfc_utc_and_iso_dates) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.013s
+
+OK
