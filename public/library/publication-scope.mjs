@@ -35,5 +35,5 @@ export function publicationLabel(manifest){
  const scope=manifest.publicationScope;
  if(!scope)return `収録 ${manifest.total.toLocaleString()}件 · ${manifest.snapshotDate}更新`;
  if(manifest.total!==scope.adopted||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(scope.decisionDate||''))throw Error('PUBLICATION_MANIFEST_MISMATCH');
- return `掲載対象 ${manifest.total.toLocaleString()}件 · ${scope.decisionDate}掲載判定`;
+ return `掲載対象${manifest.total.toLocaleString()}件・${Number(scope.decisionDate.slice(0,4))}年${Number(scope.decisionDate.slice(5,7))}月${Number(scope.decisionDate.slice(8,10))}日掲載判定`;
 }
