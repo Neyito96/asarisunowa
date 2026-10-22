@@ -32,3 +32,22 @@ Apps Script管理画面は今回も未認証のdevelopers案内へ転送され�
 PR #248 commit033daa0 の既存V3統合CI [39692041465](https://github.com/Neyito96/asarisunowa/actions/runs/39692041465) と mobile Chromium/WebKit CI [39692041391](https://github.com/Neyito96/asarisunowa/actions/runs/39692041391) が両方success。既存公開manifestは10/22 08:23:01 JSTにHTTP200、version1df7cb5d103cfbfcを確認（`live-pages.json`）。新着12候補を公開した意味ではない。
 
 mainの`Sync listener playlists`はcron17,47 * * * *。最新取得run39692488390（10/22 08:17:52 JST開始）はsuccess。ただし処理は既存公開CSVからplaylist/おすすめPodcast snapshotを更新してPagesをdispatchするもので、公式RSS→独立図書館の収蔵・JSON生成ではない。ライブラリ公開ブリッジworkflowは#244未マージであり、mainの既存定期ActionだけではP0は未接続。所有者別GAS状態は引き続き未確認。段階別結果はlive-stages.json、CI証拠はci.jsonへ保存。
+
+
+## 2026-10-22 09:44 JST 中断からの再開・コピー実証
+
+既存PR #247/#248を継続し、新規PRは作成しない。中断時のローカル修正を保持。#247追加修正はV3管理列A:AY（51列）だけで登録ハッシュを計算し、実台帳の公式アーカイブ追加列AZ:BCを保持する。回帰152/152 PASS。
+
+公式ニュースRSS 2,653項目と元本6,591行で既知12候補を再評価し、12件はコピー試験候補。これは本番登録承認・稼働allowNew確認を意味しない。
+
+専用ネイティブコピー `1EFY00C1IyZfIW6LdCAiK0MTXpVGRIQvoc4aLzRnUruI` に1件だけ実書込：EP-06592、GUID `38da5e5a-96ce-4113-9c7e-b4db000e82d2`。台帳A6593:AY6593、状態A6593:C6593、履歴A94:J94。既存V3をローカルVMで実行し、その限定outboxを認証済みSheets操作でコピーに適用した。実GAS実行ではない。
+
+予約だけ書いた失敗注入では再実行が書込0で停止し、予約3セルを一致確認後に復旧。成功後は全51台帳セルと状態3セルを読戻し確認。コピーを再取得して既存6,591行全55列の不変を照合し、既存V3再実行はALREADY_PRESENT・追加0・outbox0。
+
+実コピーから既存公開ブリッジでローカルJSON生成：6,467行、version ee22a0e3bea83550。EP-06592の詳細・概要・関連記事・配信先・検索索引の既存検証関数が成功（2ファイル読取）。この件数はコピーの出力であり公開サイトの件数変更ではない。Pages未公開。
+
+原本/GAS配備/Properties/トリガー/Spotify/メール/mainマージ/本番公開は0。元本before、コピーbefore/afterの非公開XLSXバックアップあり。コピー復旧は対象EP-ID/GUID/値一致を再確認し上記自分の3範囲だけをclearする。元本をコピーで置換しない。
+
+GAS管理画面は公式説明ページへ転送され、稼働ソース/実行履歴/トリガー/baseline/allowNew/ALIB競合は未確認。次に必要なのは実プロジェクトURLとREAD_ONLY状態出力、トリガー一覧、直近実行結果（秘密値は不要）。それを確認後に既存#247/#248の統合・配備対象、停止/復旧、公開切替を具体化して事前承認を求める。自動運転完了とは判定しない。
+
+P0優先のためspeakers2 5,452件との差分確定は未着手のまま保持し、既存#250へ続ける。

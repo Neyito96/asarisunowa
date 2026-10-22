@@ -1,0 +1,68 @@
+{
+  "at": "2026-10-22T00:19:12.563Z",
+  "mode": "LOCAL_EXISTING_V3_WITH_NATIVE_SHEET_SNAPSHOTS",
+  "phase": "plan",
+  "sourceId": "1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4",
+  "copyId": "1EFY00C1IyZfIW6LdCAiK0MTXpVGRIQvoc4aLzRnUruI",
+  "baselineScope": "LOCAL_ONLY_NOT_LIVE_PROPERTIES",
+  "preview": {
+    "mode": "READ_ONLY_COPY_PILOT",
+    "status": "READY_FOR_COPY_APPROVAL",
+    "planHash": "5w2pPMvlfTDQhcp81QTUX4vaw8cbRVryzzSMHAJHlF4",
+    "sourceRows": 6591,
+    "copyRows": 6591,
+    "copySheetId": "1EFY00C1IyZfIW6LdCAiK0MTXpVGRIQvoc4aLzRnUruI",
+    "guid": "38da5e5a-96ce-4113-9c7e-b4db000e82d2",
+    "title": "(大阪目線#6)共産が支援する町長がかじをとる町は 「天王山」の地、二分する選挙",
+    "published": "2026-10-10T19:00:00.000Z",
+    "existingId": "",
+    "proposedRows": 1,
+    "writes": 0,
+    "propertyWrites": 0,
+    "spotifyPosts": 0,
+    "spotifyTestPlaylistId": "4FiVIwysKDtLqEXfkfhu2O"
+  },
+  "receipt": {
+    "status": "COPY_SAVED",
+    "id": "EP-06592",
+    "copySheetId": "1EFY00C1IyZfIW6LdCAiK0MTXpVGRIQvoc4aLzRnUruI",
+    "guid": "38da5e5a-96ce-4113-9c7e-b4db000e82d2",
+    "writtenRows": 1,
+    "writtenCells": 51,
+    "propertyWrites": 0,
+    "spotifyPosts": 0
+  },
+  "outbox": [
+    {
+      "sheet": "図書館V3・項目状態",
+      "row": 6593,
+      "column": 1,
+      "rows": 1,
+      "columns": 3
+    },
+    {
+      "sheet": "エピソード台帳",
+      "row": 6593,
+      "column": 1,
+      "rows": 1,
+      "columns": 51
+    },
+    {
+      "sheet": "図書館V3・項目状態",
+      "row": 6593,
+      "column": 1,
+      "rows": 1,
+      "columns": 3
+    },
+    {
+      "sheet": "自動補完・実行履歴",
+      "row": 94,
+      "column": 1,
+      "rows": 1,
+      "columns": 10
+    }
+  ],
+  "sourceChanged": false,
+  "googleWritesFromRunner": 0,
+  "gasDeployment": false
+}
