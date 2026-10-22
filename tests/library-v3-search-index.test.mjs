@@ -32,5 +32,6 @@ test('invalid theme relationship is held, not written',()=>{
 });
 test('duplicate EP-ID is held',()=>{
  const idx=buildLibrarySearchIndex({...source,episodes:[source.episodes[0],source.episodes[0]]});
- assert.equal(idx.holds.length,1);
+ assert.equal(idx.holds.filter(h=>h.reason==='MISSING_OR_DUPLICATE_EP_ID').length,1);
+ assert.equal(idx.episodes.length,0);
 });

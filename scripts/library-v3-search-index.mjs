@@ -5,10 +5,11 @@ const norm=s=>String(s??'').normalize('NFKC').toLocaleLowerCase('ja').trim();
 const unique=a=>[...new Set((a||[]).map(x=>String(x||'').trim()).filter(Boolean))];
 function buildLibrarySearchIndex({episodes=[],series=[],themes=[],episodeThemes=[]}={}){
  const themeMap=new Map(themes.map(t=>[String(t.themeId),t]));
- const byEpisode=new Map(),seenIds=new Set(),holds=[];
+ const byEpisode=new Map(),seenIds=new Set(),holds=[],idCounts=new Map();
+ for(const e of episodes)idCounts.set(String(e.epId||''),(idCounts.get(String(e.epId||''))||0)+1);
  for(const e of episodes){
   const id=String(e.epId||'');
-  if(!/^EP-\d+$/.test(id)||seenIds.has(id)){holds.push({id,reason:'MISSING_OR_DUPLICATE_EP_ID'});continue;}
+  if(!/^EP-\d+$/.test(id)||idCounts.get(id)!==1){if(!seenIds.has(id))holds.push({id,reason:'MISSING_OR_DUPLICATE_EP_ID'});seenIds.add(id);continue;}
   seenIds.add(id);
   if(e.excluded===true||e.deleted===true)continue;
   byEpisode.set(id,{...e,epId:id,cast:unique(e.cast),seriesIds:unique(e.seriesIds),searchText:norm([e.title,e.cleanDescription,e.show,...(e.cast||[])].join(' ')),themeIds:[]});
