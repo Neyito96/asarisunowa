@@ -9,7 +9,7 @@ test('ALIB audio transfer blocks V3 and Morning before RSS/Spotify writers',()=>
  let invoked=0;h.ctx.libV3Run_=()=>{invoked++;return {status:'WRITER_SHOULD_NOT_RUN'};};
  h.ctx.libV3MorningRun_();assert.equal(invoked,0);assert.equal(h.calls,0);
 });
-const load=h=>{h.schedules=[];h.ctx.ScriptApp={getProjectTriggers:()=>h.triggers.map(n=>({getHandlerFunction:()=>n,getUniqueId:()=>n})),deleteTrigger:t=>{const i=h.triggers.indexOf(t.getHandlerFunction());if(i>=0)h.triggers.splice(i,1);},newTrigger:n=>{const spec={handler:n};const b={timeBased:()=>b,atHour:v=>(spec.hour=v,b),everyDays:v=>(spec.days=v,b),inTimezone:v=>(spec.zone=v,b),after:v=>(spec.after=v,b),create:()=>{h.triggers.push(n);h.schedules.push(spec);}};return b;}};vm.runInContext(fs.readFileSync('scripts/google-apps-script/LibraryV3Morning.js','utf8'),h.ctx);return h;};
+const load=h=>{h.schedules=[];h.ctx.ScriptApp={getProjectTriggers:()=>h.triggers.map(n=>({getHandlerFunction:()=>n,getUniqueId:()=>n})),deleteTrigger:t=>{const i=h.triggers.indexOf(t.getHandlerFunction());if(i>=0)h.triggers.splice(i,1);},newTrigger:n=>{const spec={handler:n};const b={timeBased:()=>b,atHour:v=>(spec.hour=v,b),nearMinute:v=>(spec.minute=v,b),everyDays:v=>(spec.days=v,b),inTimezone:v=>(spec.zone=v,b),after:v=>(spec.after=v,b),create:()=>{h.triggers.push(n);h.schedules.push(spec);}};return b;}};vm.runInContext(fs.readFileSync('scripts/google-apps-script/LibraryV3Morning.js','utf8'),h.ctx);return h;};
 const json=x=>JSON.parse(JSON.stringify(x));
 test('five-field missing audit is repeatable, excludes empty rows, reports duplicate IDs without writes',()=>{const h=load(harness(2));h.rows[0][6]=guid(0);h.rows[0][14]='audio';h.rows[1][0]=h.rows[0][0];const before=JSON.stringify(h.table),p=[...h.props];const a=h.ctx.libV3MissingAudit_(headers,h.rows.concat([Array(51).fill('')]),[]),b=h.ctx.libV3MissingAudit_(headers,h.rows.concat([Array(51).fill('')]),[]);assert.deepEqual(json(a),json(b));assert.equal(a.rows,2);assert.equal(a.missing.guid,1);assert.equal(a.duplicateIds.length,1);assert.equal(JSON.stringify(h.table),before);assert.deepEqual([...h.props],p);});
 test('exclusions and blank IDs appear in inventory; presence is not verified',()=>{const h=load(harness(2));h.rows[0][38]='人間除外';h.rows[1][0]='';const a=h.ctx.libV3MissingAudit_(headers,h.rows,[]);assert.equal(a.excluded,1);assert.equal(a.blankIds.length,1);assert.equal(a.writes,0);});
@@ -67,3 +67,33 @@ test('actual V1 notification helper deduplicates failures and never re-enables a
 test('successful POST without observed membership stays held and is never posted twice',()=>{const f=spotify(),original=f.h.ctx.UrlFetchApp.fetch,since=Date.now()-86400000;f.h.ctx.UrlFetchApp.fetch=(url,o)=>url.includes('/items')&&f.posts>0?{getResponseCode:()=>200,getContentText:()=>'{"items":[],"next":null}',getAllHeaders:()=>({})}:original(url,o);assert.equal(f.h.ctx.libV3MorningSpotify_(f.cfg,f.state,since).status,'PAGING');assert.equal(f.h.ctx.libV3MorningSpotify_(f.cfg,f.state,since).status,'POST_READBACK_UNCERTAIN_HELD');assert.equal(f.posts,1);assert.equal(f.h.ctx.libV3MorningSpotify_(f.cfg,f.state,since).status,'NO_RECENT_CANDIDATE');assert.equal(f.posts,1);});
 test('append crossing a page boundary verifies the next page before success',()=>{const f=spotify(),original=f.h.ctx.UrlFetchApp.fetch,since=Date.now()-86400000;let readbacks=0;f.h.ctx.UrlFetchApp.fetch=(url,o)=>{if(url.includes('/items')&&f.posts>0){readbacks++;return {getResponseCode:()=>200,getContentText:()=>JSON.stringify(readbacks===1?{items:Array(100).fill({item:{uri:'other'}}),next:'next'}:{items:[{item:{uri:'spotify:episode:'+'a'.repeat(22)}}],next:null}),getAllHeaders:()=>({})};}return original(url,o);};f.h.ctx.libV3MorningSpotify_(f.cfg,f.state,since);assert.equal(f.h.ctx.libV3MorningSpotify_(f.cfg,f.state,since).status,'ADDED');assert.equal(readbacks,2);assert.equal(f.posts,1);});
 test('library candidate matching uses saved clean description before raw notices',()=>{const f=spotify(),h=f.h;h.rows[0][21]='宣伝のキーワード';h.rows[0][22]='本編の内容';h.ctx.matchesAutoPlaylistRule_=e=>{assert.ok(e.description.includes('本編の内容'));assert.ok(!e.description.includes('宣伝のキーワード'));return true;};assert.ok(h.ctx.libV3MorningEpisode_(h.rows[0],h.ctx.libV3Context_(true),h.ctx.getAutoPlaylistRuleByKey_(),Date.now()-86400000));});
+
+test('explicit RSS-only morning enables without mail or six Spotify helpers and installs one 05:15 timer',()=>{
+ const h=load(harness(1));h.setup();h.ctx.registerLibraryV3BaselineAfterApproval();
+ h.ctx.configureLibraryV3MorningAfterApproval({enabled:true,rssOnly:true,spotify:false,ruleKeys:[],since:new Date(Date.now()+60000).toISOString()});
+ assert.equal(JSON.parse(h.props.get('LIB_V3_MORNING_CONFIG')).rssOnly,true);assert.equal(JSON.parse(h.props.get('LIB_V3_CONFIG')).allowNew,true);
+ assert.equal(h.ctx.installLibraryV3MorningTriggerAfterApproval().window,'05:00-05:59 Asia/Tokyo');h.ctx.installLibraryV3MorningTriggerAfterApproval();assert.equal(h.schedules.length,1);assert.equal(h.schedules[0].hour,5);assert.equal(h.schedules[0].minute,15);
+});
+test('RSS-only rejects playlist settings, logs failures without mail and stops after two failures',()=>{
+ const h=load(harness(1)),since=new Date(Date.now()+60000).toISOString();
+ assert.throws(()=>h.ctx.configureLibraryV3MorningAfterApproval({enabled:true,rssOnly:true,spotify:true,ruleKeys:[],since}));
+ h.setup();h.ctx.registerLibraryV3BaselineAfterApproval();h.ctx.configureLibraryV3MorningAfterApproval({enabled:true,rssOnly:true,spotify:false,ruleKeys:[],since});
+ h.ctx.Utilities.formatDate=(_,z,f)=>f==='HH'?'05':'2026-10-22';let mail=0;h.ctx.notifyAutoUpdateFailureSafely_=()=>{mail++;throw Error('MAIL_FORBIDDEN');};h.ctx.libV3Run_=()=>{throw Error('RSS failed');};
+ h.ctx.scheduledLibraryV3Morning();h.ctx.scheduledLibraryV3Morning();assert.equal(mail,0);assert.equal(JSON.parse(h.props.get('LIB_V3_MORNING_CONFIG')).enabled,false);assert.equal(JSON.parse(h.props.get('LIB_V3_MORNING_STATE')).notification.mode,'LOG_ONLY');
+});
+test('RSS-only runs existing writer at 05, keeps future cutoff and refuses 06/17 without writes',()=>{
+ const h=load(harness(1));h.setup();h.ctx.registerLibraryV3BaselineAfterApproval();const since=new Date(Date.now()+60000).toISOString();h.ctx.configureLibraryV3MorningAfterApproval({enabled:true,rssOnly:true,spotify:false,ruleKeys:[],since});
+ let hour='05',calls=0;h.ctx.Utilities.formatDate=(_,z,f)=>f==='HH'?hour:'2026-10-22';h.ctx.libV3Run_=()=>{calls++;return {status:'SNAPSHOT_READY'};};
+ h.ctx.libV3MorningRun_();assert.equal(calls,1);assert.equal(JSON.parse(h.props.get('LIB_V3_CONFIG')).newAfter,since);
+ for(hour of ['04','06','17'])assert.equal(h.ctx.libV3MorningRun_().status,'OUTSIDE_MORNING_WINDOW');assert.equal(calls,1);
+});
+test('RSS-only 05 JST uses real V3 append/readback and replay zero without email or Spotify',()=>{
+ const h=load(harness(1));h.setup();h.ctx.registerLibraryV3BaselineAfterApproval();const cut=Date.now()+60000,pub=cut+60000;
+ h.ctx.configureLibraryV3MorningAfterApproval({enabled:true,rssOnly:true,spotify:false,ruleKeys:[],since:new Date(cut).toISOString()});h.advance=180000;
+ const format=h.ctx.Utilities.formatDate;h.ctx.Utilities.formatDate=(d,z,f)=>f==='HH'?'05':format(d,z,f);
+ const fresh={...item(1),published:new Date(pub).toISOString(),date:format(new Date(pub),'Asia/Tokyo','yyyy-MM-dd')};h.items=[fresh];
+ h.ctx.notifyAutoUpdateFailureSafely_=()=>{throw Error('MAIL_FORBIDDEN');};
+ assert.equal(h.ctx.libV3MorningRun_().status,'SNAPSHOT_READY');const added=h.ctx.libV3MorningRun_();assert.equal(added.newIds.length,1);assert.equal(h.data.at(-1)[6],fresh.guid);
+ assert.equal(JSON.parse(h.table['図書館V3・項目状態'].find(r=>r[0]===added.newIds[0])[1]).identity[0],'VERIFIED');
+ h.ctx.libV3MorningRun_();assert.equal(h.data.length,3);assert.equal(JSON.parse(h.props.get('LIB_V3_CONFIG')).allowEnrich,false);
+});
