@@ -192,7 +192,7 @@ function libV3Run_(write,options){
  const props=PropertiesService.getScriptProperties(),key=options.morning?'LIB_V3_MORNING_CURSOR':'LIB_V3_CURSOR';let state,context;
  try{
   if(write&&(libV3Conflicts_().length||ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='scheduledLibraryV3').length>1))throw Error('Conflicting library triggers');
-  const c=libV3Context_(write);context=c;if(!c.feeds.length)throw Error('No feeds');
+  const c=libV3Context_(write);context=c;if(options.morning&&typeof libV3MorningFeeds_==='function')c.feeds=libV3MorningFeeds_(c.feeds);if(!c.feeds.length)throw Error('No feeds');
   state=JSON.parse(props.getProperty(key)||'{}');let feed=c.feeds.find(f=>f.url===state.url)||c.feeds[0];
   if(config.autonomous){const startFeed=c.feeds.indexOf(feed);feed=Array.from({length:c.feeds.length},(_,i)=>c.feeds[(startFeed+i)%c.feeds.length]).find(f=>!(state.feeds?.[f.url]?.nextPollAt>Date.now())&&!(state.feeds?.[f.url]?.retry?.stopped)&&!(state.feeds?.[f.url]?.retry?.at>Date.now()));if(!feed){m.status='IDLE_UNTIL_NEXT_POLL';return m;}}
   m.feed=feed.url;

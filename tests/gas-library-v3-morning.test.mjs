@@ -97,3 +97,9 @@ test('RSS-only 05 JST uses real V3 append/readback and replay zero without email
  assert.equal(JSON.parse(h.table['図書館V3・項目状態'].find(r=>r[0]===added.newIds[0])[1]).identity[0],'VERIFIED');
  h.ctx.libV3MorningRun_();assert.equal(h.data.length,3);assert.equal(JSON.parse(h.props.get('LIB_V3_CONFIG')).allowEnrich,false);
 });
+
+test('RSS-only round skips archived/excluded sources and schedules one-minute pending continuation',()=>{
+ const h=load(harness(1));h.setup();h.ctx.registerLibraryV3BaselineAfterApproval();h.ctx.configureLibraryV3MorningAfterApproval({enabled:true,rssOnly:true,spotify:false,ruleKeys:[],since:new Date(Date.now()+60000).toISOString()});
+ const filtered=h.ctx.libV3MorningFeeds_([{show:'ニュースの現場から'},{show:'アルキキ'},{show:'AJW'},{show:'旧SDGsアーカイブ'}]);assert.equal(filtered.length,1);
+ h.ctx.Utilities.formatDate=(_,z,f)=>f==='HH'?'05':'2026-10-22';h.ctx.libV3Run_=()=>({status:'SNAPSHOT_READY'});h.ctx.scheduledLibraryV3Morning();assert.equal(h.schedules[0].handler,'continueLibraryV3Morning');assert.equal(h.schedules[0].after,60000);
+});

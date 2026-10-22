@@ -2,6 +2,8 @@
  * authentication/rules/sheet-link helpers. No changes to existing V1 schedulers.
  * Old description cleaning and historical enrichment stay in separate V3 jobs.
  */
+// RSS-only new-arrival rounds leave archived/excluded sources in the original ledger.
+function libV3MorningFeeds_(feeds){return libV3MorningConfig_().rssOnly===true?feeds.filter(f=>!['アルキキ','AJW','旧SDGsアーカイブ'].includes(f.show)):feeds;}
 function libV3MorningConfig_(){return JSON.parse(PropertiesService.getScriptProperties().getProperty('LIB_V3_MORNING_CONFIG')||'{}');}
 function libV3MorningState_(){return JSON.parse(PropertiesService.getScriptProperties().getProperty('LIB_V3_MORNING_STATE')||'{}');}
 function libV3MorningSave_(s){const v=JSON.stringify(s);if(v.length>8000)throw Error('Morning checkpoint budget');PropertiesService.getScriptProperties().setProperty('LIB_V3_MORNING_STATE',v);}
@@ -34,7 +36,7 @@ function installLibraryV3MorningTriggerAfterApproval(){
  const all=ScriptApp.getProjectTriggers().map(t=>t.getHandlerFunction());
  if(all.some(n=>['ALIB_AUTO_tick','scheduledLibraryV3','scheduledLibraryV3BaselineOnly'].includes(n)))throw Error('Stop/reconcile other V3 schedulers first');
  const own=all.filter(n=>n==='scheduledLibraryV3Morning');if(own.length>1)throw Error('Duplicate morning triggers');if(own.length)return {status:'ALREADY_INSTALLED'};
- const rssOnly=libV3MorningConfig_().rssOnly===true;let timer=ScriptApp.newTrigger('scheduledLibraryV3Morning').timeBased().atHour(rssOnly?5:6);if(rssOnly)timer=timer.nearMinute(15);timer.everyDays(1).inTimezone('Asia/Tokyo').create();return {status:'INSTALLED_DISABLED_UNLESS_CONFIGURED',window:rssOnly?'05:00-05:59 Asia/Tokyo':'06:00-08:59 Asia/Tokyo',continuationMinutes:5};
+ const rssOnly=libV3MorningConfig_().rssOnly===true;let timer=ScriptApp.newTrigger('scheduledLibraryV3Morning').timeBased().atHour(rssOnly?5:6);if(rssOnly)timer=timer.nearMinute(15);timer.everyDays(1).inTimezone('Asia/Tokyo').create();return {status:'INSTALLED_DISABLED_UNLESS_CONFIGURED',window:rssOnly?'05:00-05:59 Asia/Tokyo':'06:00-08:59 Asia/Tokyo',continuationMinutes:rssOnly?1:5};
  }finally{lock.releaseLock();}
 }
 function stopLibraryV3MorningAfterApproval(){const lock=LockService.getScriptLock();if(!lock.tryLock(1000))throw Error('Busy');try{const c=libV3MorningConfig_();c.enabled=false;PropertiesService.getScriptProperties().setProperty('LIB_V3_MORNING_CONFIG',JSON.stringify(c));return {status:'STOPPED',triggersChanged:0};}finally{lock.releaseLock();}}
@@ -47,7 +49,7 @@ function libV3MorningContinuation_(event,cancel){
   const all=ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='continueLibraryV3Morning');
   if(all.length>1)throw Error('Duplicate continuation triggers');
   for(const t of all)if(cancel||event?.triggerUid===t.getUniqueId())ScriptApp.deleteTrigger(t);
-  if(!cancel&&(!all.length||event?.triggerUid===all[0].getUniqueId()))ScriptApp.newTrigger('continueLibraryV3Morning').timeBased().after(5*60000).create();
+  if(!cancel&&(!all.length||event?.triggerUid===all[0].getUniqueId()))ScriptApp.newTrigger('continueLibraryV3Morning').timeBased().after((libV3MorningConfig_().rssOnly===true?1:5)*60000).create();
  }finally{lock.releaseLock();}
 }
 function scheduledLibraryV3Morning(event){return libV3MorningDispatch_(event);}
@@ -84,7 +86,7 @@ function libV3MorningRun_(){
   // Freeze the cutoff until this round finishes. A backlog must never age out at 72h.
   if(!s.day||(s.day!==day&&s.complete)){s.day=day;s.feeds={};s.idleRules={};s.tick=0;s.complete=false;s.cycleSince=Math.max(Date.parse(cfg.since)||Infinity,now-72*3600000);}
   if(!Number.isFinite(s.cycleSince))s.cycleSince=Date.parse(cfg.since);if(!Number.isFinite(s.cycleSince))throw Error('Invalid frozen cutover');
-  const c=libV3Context_(false),since=s.cycleSince;
+  const c=libV3Context_(false),since=s.cycleSince;c.feeds=libV3MorningFeeds_(c.feeds);
   if(!c.feeds.length)return {status:'NO_FEEDS'};
   const feedDone=c.feeds.every(f=>s.feeds?.[f.url]);
   if(feedDone&&(!cfg.spotify||s.spotifyPaused||s.retry?.stopped||(!s.playlist&&(cfg.ruleKeys||[]).every(k=>s.idleRules?.[k])))){s.complete=true;return {status:s.day===day?'MORNING_COMPLETE':'BACKLOG_COMPLETE',spotifyPaused:!!s.spotifyPaused,spotifyStopped:!!s.retry?.stopped};}
