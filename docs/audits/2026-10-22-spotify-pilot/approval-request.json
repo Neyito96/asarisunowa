@@ -10,6 +10,8 @@
   "publicMappingConfirmed": true,
   "authenticatedPermissionsVerified": false,
   "fullPlaylistSnapshotVerified": false,
-  "approvalReceived": false,
-  "spotifyWrites": 0
+  "approvalReceived": true,
+  "spotifyWrites": 0,
+  "approvalSource": "2026-10-22 user: EP-00004 / exact URI / リス田｜自動更新テスト / maximum 1; stop on 403; no auth changes",
+  "executionStatus": "AUTH_ROUTE_UNAVAILABLE"
 }

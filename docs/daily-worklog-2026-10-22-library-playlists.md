@@ -17,3 +17,9 @@ AND/OR、番組/期間/公式出演者、関連記事、選択除外、保留、
 PR250側で新設判定tab6591行/65910セルを27バッチ反映・全読戻し一致。他32tab値/数式不変。対象5848/対象外377/保留366、学校485対象＋1タイトル差分HOLD。出演者慎重4名は採用0、佐藤陽22候補HOLD。
 
 EP00004/spotify:episode:6opJ4Ig4s7CTY9fRqGEHd2を実試験候補に固定。公式RSSとSpotify公開embedで題名/番組/UTC公開時刻完全一致・音声長差0.44秒を確認。指定testplaylist公開embedHTTP200、タイトルとID一致。認証APIの全件snapshot/権限とは区別する。planHash e147bc8ee91e390960baa3f74acb28b81f27c0c118777bd1d3af8ed4f441f2fe、最大1。実POST/再実行とも未実行、個別承認待ち。Spotify接続探索は該当なし、WORKに認証済み実行経路なし。RSS本番稼働・403根因は最新認証ログ未取得で未確定。承認対象・停止/復旧条件をdocs/spotify-one-episode-pilot-2026-10-22.mdへ保存。
+
+## 1件投稿承認受領・Mac認証接続待ち
+
+ユーザーがEP00004/固定URI/指定test先/最大1を明示承認。plan/hashは不変、承認receiptを更新。WORKからMacの既存認証は利用不能。09:50:08ZのローカルpreflightはAUTH_ROUTE_UNAVAILABLE、API0、POST0、実測件数/読戻し/replay/403はnull。認証の変更・token送付は依頼しない。
+
+既存executor/client/永続journalを再利用する固定対象Mac入口library-v3-playlist-pilot.mjsを追加。所有/実scope確認、全件snapshot、HTTP時刻、非2xx直後停止、403成功禁止、最大POST1、読戻し後replay0、結果不明時再送禁止。新規12試験＋既存executor13試験=25/25 PASS（無通信）。実API試験は未実行。接続に必要な非秘密情報は、既存Spotify認証が動くMacファイルまたはGASプロジェクトの特定。新PR/merge/GAS/trigger/台帳/公開/Spotify実変更0。
