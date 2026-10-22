@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>朝リスの宇宙 | 実データの地層 V0.2</title>
+<style>
+:root{color-scheme:dark}body{background:#101827;color:#eef3fc;font:15px/1.6 system-ui,sans-serif;margin:0;padding:clamp(16px,4vw,48px)}
+h1{font-size:clamp(28px,4vw,48px);margin:0}h2{font-size:19px;margin:24px 0 8px}
+p,.muted{color:#aabbd2}a{color:#9bd7ff}button{background:#273a57;color:white;border:1px solid #5e7290;border-radius:8px;padding:8px 12px;cursor:pointer}
+#chart{overflow-x:auto;background:#172438;border-radius:14px;padding:18px;min-height:300px}
+#chart svg{color:#dbe8fa;max-width:100%;height:auto}#status{margin:12px 0}.stats{display:flex;flex-wrap:wrap;gap:12px}.stats span{background:#20314a;border-radius:8px;padding:8px 12px}
+</style>
+</head>
+<body>
+<header><h1>朝リスの宇宙</h1><p>話題の地層 V0.2 — 実エピソードの月別・番組別分布（話題分類前）</p></header>
+<div class="stats" id="stats"></div>
+<p id="status" role="status">図書館の公開JSONを読み込み中…</p>
+<button id="reload" type="button">最新データを再読み込み</button>
+<h2>番組の地層</h2><div id="chart"></div>
+<p class="muted">アルキキ・AJW・朝ポキTVと明示的な再配信表記を除外。除外は表示上のみで図書館データを変更しません。タイトル表記だけでは判断できない再配信は今後の監査対象です。</p>
+<script type="module">
+import * as Plot from "@observablehq/plot";
+const base="https://neyito96.github.io/asarisunowa/library/data/";
+const omitted=new Set(["アルキキ","AJW","朝ポキTV"]);
+const replay=/(?:再配信|再放送|アンコール)/u;
+const $=id=>document.getElementById(id);
+async function getJson(url){const r=await fetch(url,{cache:"no-store"});if(!r.ok)throw new Error(`HTTP ${r.status}: ${url}`);return r.json();}
+function monthOf(value){if(typeof value!=="string"||!/^\d{4}-\d{2}/.test(value))return null;const date=new Date(value);return Number.isNaN(+date)?null:value.slice(0,7);}
+async function refresh(){
+  $("status").textContent="最新の公開JSONを取得中…";$("reload").disabled=true;
+  try{
+    const manifest=await getJson(base+"manifest.json");
+    if(!Array.isArray(manifest.pages))throw new Error("manifest.pages がありません");
+    const rows=[];
+    for(let i=0;i<manifest.pages.length;i+=12){
+      const batch=await Promise.all(manifest.pages.slice(i,i+12).map(p=>getJson(base+p)));
+      for(const page of batch){if(!Array.isArray(page))throw new Error("ページ形式が不正");rows.push(...page);}
+      $("status").textContent=`読込中 ${Math.min(i+12,manifest.pages.length)}/${manifest.pages.length} ページ`;
+    }
+    if(rows.length!==manifest.total)throw new Error(`件数不一致: manifest ${manifest.total} / pages ${rows.length}`);
+    const ids=new Set(),buckets=new Map(),shows=new Set();
+    let excludedShow=0,excludedReplay=0,invalidDate=0,duplicates=0;
+    for(const row of rows){
+      if(ids.has(row.id)){duplicates++;continue;}ids.add(row.id);
+      if(omitted.has(row.show)){excludedShow++;continue;}
+      if(replay.test(row.title||"")){excludedReplay++;continue;}
+      const month=monthOf(row.date);if(!month){invalidDate++;continue;}
+      shows.add(row.show);const key=month+"|"+row.show;
+      buckets.set(key,(buckets.get(key)||0)+1);
+    }
+    const months=[...new Set([...buckets.keys()].map(x=>x.split("|")[0]))].sort();
+    const data=[];
+    for(const month of months)for(const show of [...shows].sort())data.push({month:new Date(month+"-01T00:00:00Z"),show,count:buckets.get(month+"|"+show)||0});
+    if(!data.length)throw new Error("グラフ化できる有効なデータがありません");
+    const chart=Plot.plot({width:1100,height:520,marginBottom:55,
+      x:{label:"配信年月",tickFormat:d=>String(d.getUTCFullYear())},
+      y:{label:"エピソード件数",grid:true},
+      color:{legend:true},
+      marks:[Plot.areaY(data,Plot.stackY({x:"month",y:"count",fill:"show",curve:"linear"})),Plot.ruleY([0]) ]});
+    $("chart").replaceChildren(chart);
+    const used=[...buckets.values()].reduce((a,b)=>a+b,0);
+    $("stats").replaceChildren(...[
+      `公開版 ${manifest.snapshotDate||manifest.generatedAt||"日付不明"}`,
+      `公開図書館 ${rows.length.toLocaleString()}件`,
+      `グラフ対象 ${used.toLocaleString()}件`,
+      `対象外番組 ${excludedShow}件`,
+      `再配信表記 ${excludedReplay}件`,
+      `日付不明 ${invalidDate}件`,
+      `重複ID ${duplicates}件`
+    ].map(t=>{const el=document.createElement("span");el.textContent=t;return el;}));
+    $("status").textContent=`読み込み完了。公開JSONのバージョン: ${manifest.version||"不明"}`;
+  }catch(e){$("status").textContent="読み込みに失敗しました: "+e.message;console.error(e);}
+  finally{$("reload").disabled=false;}
+}
+$("reload").addEventListener("click",refresh);
+refresh();
+</script>
+</body></html>
