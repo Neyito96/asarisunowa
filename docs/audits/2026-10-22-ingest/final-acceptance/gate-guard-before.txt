@@ -1,0 +1,22 @@
+Regression reproduction before fix; simulated local copy only.
+✖ copy write refuses competing ALIB_AUTO_tick before any sheet, RSS or Properties access (5.901957ms)
+✖ copy write refuses competing scheduledLibraryV3 before any sheet, RSS or Properties access (6.365394ms)
+✖ copy write refuses competing scheduledLibraryV3BaselineOnly before any sheet, RSS or Properties access (4.694392ms)
+✖ copy write refuses competing scheduledLibraryV3Morning before any sheet, RSS or Properties access (3.290664ms)
+✖ copy write refuses competing continueLibraryV3Morning before any sheet, RSS or Properties access (5.021854ms)
+✖ copy write refuses competing runOfficialRssBackfill before any sheet, RSS or Properties access (5.00615ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 14
+ℹ fail 6
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 281.628341
+✖ failing tests:
+✖ copy write refuses competing ALIB_AUTO_tick before any sheet, RSS or Properties access (5.901957ms)
+✖ copy write refuses competing scheduledLibraryV3 before any sheet, RSS or Properties access (6.365394ms)
+✖ copy write refuses competing scheduledLibraryV3BaselineOnly before any sheet, RSS or Properties access (4.694392ms)
+✖ copy write refuses competing scheduledLibraryV3Morning before any sheet, RSS or Properties access (3.290664ms)
+✖ copy write refuses competing continueLibraryV3Morning before any sheet, RSS or Properties access (5.021854ms)
+✖ copy write refuses competing runOfficialRssBackfill before any sheet, RSS or Properties access (5.00615ms)

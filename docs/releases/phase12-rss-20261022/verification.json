@@ -1,0 +1,31 @@
+{
+  "at": "2026-10-22T03:24:30.854327+00:00",
+  "sourceZipSha256": "c2917d243539c8bb3e2c8c128c048b4c048777723482a8d09b55d61d4b3ea97b",
+  "sourceFilesVerified": 54,
+  "minimalFiles": 2,
+  "untouchedFiles": 52,
+  "liveOnlyFunctionsPreserved": 7,
+  "changedOrAddedBindingsUnique": 12,
+  "compileLive": "PASS",
+  "compileProposed": "PASS",
+  "newDuplicateFunctions": 0,
+  "existingDuplicateGroups": 22,
+  "overlayLocalTests": {
+    "pass": 28,
+    "fail": 0
+  },
+  "reusedCanonicalRegression": {
+    "pass": 163,
+    "rerun": false
+  },
+  "preparationShaGuard": "PASS",
+  "preparationOutputMatchesVerifiedOverlay": "PASS",
+  "changedInputStopsBeforeOutput": "PASS",
+  "productionDeployments": 0,
+  "propertiesWrites": 0,
+  "triggerWrites": 0,
+  "sheetWrites": 0,
+  "spotifyPosts": 0,
+  "mailSent": 0,
+  "releaseBasisPr247": "6a54f2459ee90e93c8f1d82a7f4ee238c4526fb2"
+}

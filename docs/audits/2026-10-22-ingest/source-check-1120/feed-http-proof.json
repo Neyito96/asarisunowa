@@ -1,0 +1,122 @@
+[
+  {
+    "url": "https://feeds.megaphone.fm/TASC5851398719",
+    "show": "ニュースの学校",
+    "checkedAt": "2026-10-22T02:19:42.542973+00:00",
+    "status": 200,
+    "finalUrl": "https://feeds.megaphone.fm/TASC5851398719",
+    "bytes": 1890784,
+    "sha256": "77b18ee128d84c5b765850145b6e22266cc8d5d42d5f1546c3a01da4bba7c63a",
+    "root": "rss",
+    "rssItems": 492,
+    "validRss": true
+  },
+  {
+    "url": "https://feeds.megaphone.fm/TASC9421488254",
+    "show": "報談",
+    "checkedAt": "2026-10-22T02:19:42.544947+00:00",
+    "status": 200,
+    "finalUrl": "https://feeds.megaphone.fm/TASC9421488254",
+    "bytes": 2031520,
+    "sha256": "9372b5a7444c2744245e377982f83f2b60221a24b6e4eb21430ec2a66c3b58bd",
+    "root": "rss",
+    "rssItems": 218,
+    "validRss": true
+  },
+  {
+    "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/29a60fdd-4069-48cf-a604-ad25009874be/podcast.rss",
+    "show": "AJW",
+    "checkedAt": "2026-10-22T02:19:42.545473+00:00",
+    "status": 200,
+    "finalUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/29a60fdd-4069-48cf-a604-ad25009874be/podcast.rss",
+    "bytes": 145211,
+    "sha256": "0ddbf5ae3ad5b450e1a712438280ac1cf4ad772655d36992f0273462d9d2c456",
+    "root": "rss",
+    "rssItems": 23,
+    "validRss": true
+  },
+  {
+    "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/91b696fe-c723-4bd1-95ed-b4aa00909997/podcast.rss",
+    "show": "旧SDGsアーカイブ",
+    "checkedAt": "2026-10-22T02:19:49.000078+00:00",
+    "status": 200,
+    "finalUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/91b696fe-c723-4bd1-95ed-b4aa00909997/podcast.rss",
+    "bytes": 9563077,
+    "sha256": "444856f7763aa1701f462ff83f00e1068638277a4af190cd97e34d5fb064316f",
+    "root": "rss",
+    "rssItems": 1092,
+    "validRss": true
+  },
+  {
+    "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/ee64c498-786d-4155-962a-acc4009cef3e/podcast.rss",
+    "show": "アルキキ",
+    "checkedAt": "2026-10-22T02:19:49.212426+00:00",
+    "status": 200,
+    "finalUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/ee64c498-786d-4155-962a-acc4009cef3e/podcast.rss",
+    "bytes": 230080,
+    "sha256": "60270472558b5890ed0acbb3a1a23b562c619924104aba9dc470550804bb15d2",
+    "root": "rss",
+    "rssItems": 19,
+    "validRss": true
+  },
+  {
+    "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/07a1de49-67cf-4714-8581-ac1000059302/podcast.rss",
+    "show": "MEDIA TALK",
+    "checkedAt": "2026-10-22T02:19:52.105889+00:00",
+    "status": 200,
+    "finalUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/07a1de49-67cf-4714-8581-ac1000059302/podcast.rss",
+    "bytes": 14134384,
+    "sha256": "974defd3b59859658fda4756f4baede00ae690edd0cd0ee8d5480ec39d5d8660",
+    "root": "rss",
+    "rssItems": 1757,
+    "validRss": true
+  },
+  {
+    "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/684015f9-2396-4ac4-bc1f-ac0f0033d08c/podcast.rss",
+    "show": "ニュースの現場から",
+    "checkedAt": "2026-10-22T02:19:55.404999+00:00",
+    "status": 200,
+    "finalUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/684015f9-2396-4ac4-bc1f-ac0f0033d08c/podcast.rss",
+    "bytes": 20357575,
+    "sha256": "9067a152435b637aeb72dafc27b77036e9b362a51cd51a4a4c4e05ff2e0e3240",
+    "root": "rss",
+    "rssItems": 2653,
+    "validRss": true
+  },
+  {
+    "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/693cfdd6-f5a9-4308-9025-adb10164b5b1/podcast.rss",
+    "show": "こどもそうだんしつ",
+    "checkedAt": "2026-10-22T02:19:56.379969+00:00",
+    "status": 200,
+    "finalUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/693cfdd6-f5a9-4308-9025-adb10164b5b1/podcast.rss",
+    "bytes": 282601,
+    "sha256": "126d4f035e28ebc2a6c2d9bab8ed1aba23c5ec388294b209241812c0e9afe6f1",
+    "root": "rss",
+    "rssItems": 36,
+    "validRss": true
+  },
+  {
+    "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/8ceab8ef-af5f-44e9-9545-b4ab0024434b/podcast.rss",
+    "show": "スポンジ",
+    "checkedAt": "2026-10-22T02:19:56.873041+00:00",
+    "status": 200,
+    "finalUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/8ceab8ef-af5f-44e9-9545-b4ab0024434b/podcast.rss",
+    "bytes": 1635088,
+    "sha256": "f7f355d0a271320643b81c1da991ae88122936764fe4c102ad01d5603944219b",
+    "root": "rss",
+    "rssItems": 178,
+    "validRss": true
+  },
+  {
+    "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/c373aac9-fb6a-4172-8a8f-b498003d9389/podcast.rss",
+    "show": "ドーナツ",
+    "checkedAt": "2026-10-22T02:20:02.393099+00:00",
+    "status": 200,
+    "finalUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/c373aac9-fb6a-4172-8a8f-b498003d9389/podcast.rss",
+    "bytes": 631223,
+    "sha256": "126a3b57cfc7d7ee3d971d449b13109df04cb9e0150fe44f6bff09003da3205e",
+    "root": "rss",
+    "rssItems": 67,
+    "validRss": true
+  }
+]

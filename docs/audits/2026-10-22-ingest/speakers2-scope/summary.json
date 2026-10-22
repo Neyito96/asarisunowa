@@ -1,0 +1,63 @@
+{
+  "mode": "READ_ONLY_NOT_FINAL_POPULATION",
+  "at": "2026-10-22T02:48:28.494419+00:00",
+  "benchmark": {
+    "episodes": 5452,
+    "durationSeconds": 15016080,
+    "durationLabel": "173日19時間8分",
+    "source": "USER_OBSERVED_SPEAKERS2_20261022"
+  },
+  "cutoffTimezone": "Asia/Tokyo",
+  "library": {
+    "rawRows": 6591,
+    "adjustments": {
+      "SUCCESSOR_OUTSIDE_OLD_SDGS_CUTOFF": 31,
+      "NOT_IN_SPEAKERS2_SIX_CATEGORIES": 486,
+      "OUTSIDE_AUDIO_PROGRAMMES": 140,
+      "SPEAKERS2_ZERO_DURATION_MARKER": 225
+    },
+    "rowsInScope": 5709,
+    "extraExactSourceUrlRows": 290,
+    "provisionalSourceUrlGroups": 5419,
+    "missingSourceUrls": 3,
+    "missingDurationRows": 51,
+    "groupsWithoutDuration": 51,
+    "groupsWithConflictingDuration": 37,
+    "knownDurationMinSeconds": 14827549.0,
+    "knownDurationMaxSeconds": 14831963.0,
+    "finalUniqueEpisodes": null,
+    "finalDurationSeconds": null
+  },
+  "copy1022": {
+    "rawRows": 7687,
+    "adjustments": {
+      "SPEAKERS2_ZERO_DURATION_MARKER": 225,
+      "SUCCESSOR_OUTSIDE_OLD_SDGS_CUTOFF": 35,
+      "OUTSIDE_AUDIO_PROGRAMMES": 1195,
+      "NOT_IN_SPEAKERS2_SIX_CATEGORIES": 492
+    },
+    "rowsInScope": 5740,
+    "extraExactSourceUrlRows": 290,
+    "provisionalSourceUrlGroups": 5450,
+    "missingSourceUrls": 0,
+    "missingDurationRows": 0,
+    "groupsWithoutDuration": 0,
+    "groupsWithConflictingDuration": 125,
+    "knownDurationMinSeconds": 15005754.0,
+    "knownDurationMaxSeconds": 15022017.0,
+    "finalUniqueEpisodes": null,
+    "finalDurationSeconds": null
+  },
+  "libraryProvisionalCountDelta": -33,
+  "copyProvisionalCountDelta": -2,
+  "exactSourceUrlDifferenceIsNotFinalEpisodeDifference": true,
+  "externalRuntimeDataUnavailable": true,
+  "overlapWithPR250": "Reuse snapshots/extracted rows and source URL group evidence; no new identity engine",
+  "inputSha256": {
+    "library.json": "3526cbd384736bb33baff0cc60ab5fd4b8679065ae7d58d50b602b9febb71d6d",
+    "onsa.xlsx": "3500c42a333f20dff3863e2b9f8b4406a4849f2c7b55ebeeefa8876b4dcac5d4",
+    "onsa.json": "b2992a65ddd0be32c7f29aaccc52e74fd640b16bb80a33dcfb1e1c810d60920b"
+  },
+  "publicCountChanged": false,
+  "writesToSheets": 0
+}

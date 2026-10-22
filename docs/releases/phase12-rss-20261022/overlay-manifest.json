@@ -1,0 +1,46 @@
+{
+  "sourceZipSha256": "c2917d243539c8bb3e2c8c128c048b4c048777723482a8d09b55d61d4b3ea97b",
+  "files": [
+    {
+      "file": "LibraryV3.js",
+      "beforeSha256": "35883c8de601dd21c545198b9eccf5d7c859d359885bfc5919d7202e182abe92",
+      "afterSha256": "b06150b80e595581173d7a9415de0150e4bf42ebf02ef1f72cb08eb7492aee99",
+      "functions": [
+        "libV3Context_",
+        "libV3Conflicts_",
+        "libV3Run_"
+      ],
+      "preservedLiveOnly": [
+        "libV3CandidateParse_",
+        "libV3CandidatePeople_",
+        "libV3DescriptionCompare_",
+        "libV3DescriptionNormalize_"
+      ]
+    },
+    {
+      "file": "LibraryV3Morning.js",
+      "beforeSha256": "0d3a8654aa01075a2f9162a3b442602beed9528670a7ca2f1a618de9ca77c775",
+      "afterSha256": "d93a43258ca8e88d458d801c150a0eb3b7e594c465d45a846b4fc0a3d3b73015",
+      "functions": [
+        "libV3MorningFeeds_",
+        "previewLibraryV3Morning",
+        "libV3MorningAlert_",
+        "configureLibraryV3MorningAfterApproval",
+        "installLibraryV3MorningTriggerAfterApproval",
+        "libV3MorningContinuation_",
+        "libV3MorningDispatch_",
+        "libV3MorningRun_",
+        "saveLibraryV3CopyPilotAfterApproval"
+      ],
+      "preservedLiveOnly": [
+        "previewLibraryV3CopyPilotCandidates",
+        "previewLibraryV3MinimumArchiveReadiness",
+        "previewLibraryV3Phase6IsolatedCopy"
+      ]
+    }
+  ],
+  "untouchedFiles": 52,
+  "manifestChanged": false,
+  "propertiesChanged": false,
+  "triggerChanges": 0
+}

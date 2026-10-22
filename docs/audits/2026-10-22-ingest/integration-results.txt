@@ -1,0 +1,22 @@
+{"mode":"LOCAL_EXISTING_V3_IN_MEMORY_ONLY","stages":["RSS_FETCH","NEW_DETECTION","GUID_CHECK","ID_ALLOCATE","LEDGER_APPEND","READBACK","CLEAN","JSON_EXPORT","PUBLIC_DATA_PROOF","IDEMPOTENT_REPLAY"],"newIds":["EP-00002"],"at":"2026-10-21T23:11:04.702Z","publicVersion":"d1552f63a8b41a0f","productionWrites":0,"realPagesDeployment":false}
+✔ existing V3 RSS → stable ID → ledger readback → clean export → public proof → replay (1502.712826ms)
+✔ human exclusions fail closed and unspecified values remain usable (1.156444ms)
+✔ URL validation rejects script, HTTP and embedded credentials (0.237288ms)
+✔ mechanical rendering preserves words and article URLs without executable markup (0.973449ms)
+✔ raw and clean values are kept distinct; MP3 presence is not verification (0.747778ms)
+✔ NFKC, full description keyword and multiple terms work with date and programme filters (9.736179ms)
+✔ real snapshot preserves stable unique IDs, explicit exclusions and bounded initial pages (65.022256ms)
+✔ bridge consumes V3-assigned ID, cleans new content, and never reassigns or mutates ledger (4.967324ms)
+✔ new ambiguous/empty content fails closed and human/tombstone exclusion is respected (0.802821ms)
+✔ reviewed metadata is retained only against unchanged live evidence; conflicts stop (0.514086ms)
+✔ replaying an already-public ledger produces no new-ID event (0.991466ms)
+✔ Pages success alone cannot satisfy actual public snapshot proof (0.322116ms)
+✔ publication workflow stays dormant and reuses existing timer, with explicit separate auto-publication gate (7.723572ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1583.790179

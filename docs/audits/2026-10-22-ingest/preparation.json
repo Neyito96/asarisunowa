@@ -1,0 +1,12 @@
+{
+  "status": "PREPARED_NOT_PUBLISHED",
+  "checkedAt": "2026-10-21T23:10:31.608Z",
+  "newLedgerRowsObserved": 0,
+  "newIds": [],
+  "managedRendered": 0,
+  "allocatedIds": 0,
+  "googleWrites": 0,
+  "sourceHash": "9186e8bac2e69c05bd97e1fb4769bbd7a067291a2991de7ba05d7b2a61d3e6f1",
+  "registrationAt": null,
+  "publicationVerifiedAt": null
+}

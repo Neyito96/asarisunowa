@@ -1,0 +1,14 @@
+sheetRow,programme,sourceUrlH,pageUrlG,v3Selected,reason,managementClass,httpStatus,rssItems
+2,ニュースの現場から,https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/684015f9-2396-4ac4-bc1f-ac0f0033d08c/podcast.rss,https://omny.fm/shows/asahi/playlists/podcast,True,HTTPS_H_COLUMN,PRIMARY_AUDIO,200,2653
+3,MEDIA TALK,https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/07a1de49-67cf-4714-8581-ac1000059302/podcast.rss,https://omny.fm/shows/asahi/playlists/playlist-2,True,HTTPS_H_COLUMN,PRIMARY_AUDIO,200,1757
+4,こどもそうだんしつ,https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/693cfdd6-f5a9-4308-9025-adb10164b5b1/podcast.rss,https://omny.fm/shows/asahi/playlists/sdgs,True,HTTPS_H_COLUMN,PRIMARY_AUDIO,200,36
+5,スポンジ,https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/8ceab8ef-af5f-44e9-9545-b4ab0024434b/podcast.rss,https://omny.fm/shows/asahi/playlists/sponge,True,HTTPS_H_COLUMN,PRIMARY_AUDIO,200,178
+6,ニュースの学校,https://feeds.megaphone.fm/TASC5851398719,https://omny.fm/shows/asahi/playlists/playlist-3,True,HTTPS_H_COLUMN,PRIMARY_AUDIO,200,492
+7,ドーナツ,https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/c373aac9-fb6a-4172-8a8f-b498003d9389/podcast.rss,https://omny.fm/shows/asahi/playlists/donut,True,HTTPS_H_COLUMN,PRIMARY_AUDIO,200,67
+8,報談,https://feeds.megaphone.fm/TASC9421488254,https://omny.fm/shows/asahi/playlists/playlist-1,True,HTTPS_H_COLUMN,PRIMARY_AUDIO,200,218
+9,アルキキ,https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/ee64c498-786d-4155-962a-acc4009cef3e/podcast.rss,https://omny.fm/shows/arukiki-ajw/playlists/arukiki,True,HTTPS_H_COLUMN,PUBLIC_LIBRARY_EXCLUDED_RAW_PRESERVED,200,19
+10,AJW,https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/29a60fdd-4069-48cf-a604-ad25009874be/podcast.rss,https://omny.fm/shows/arukiki-ajw/playlists/ajw,True,HTTPS_H_COLUMN,PUBLIC_LIBRARY_EXCLUDED_RAW_PRESERVED,200,23
+11,旧SDGsアーカイブ,https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/91b696fe-c723-4bd1-95ed-b4aa00909997/podcast.rss,https://omny.fm/shows/arukiki-ajw/playlists/sdgs-2021-10-25-2026-6-19,True,HTTPS_H_COLUMN,ARCHIVE_SEPARATE_FROM_CHILD,200,1092
+12,朝ポキTV,https://www.youtube.com/feeds/videos.xml?channel_id=UCKVbZJqMER7ojStVG87vblg,https://www.youtube.com/@asapoki_official,False,YOUTUBE_URL_EXCLUDED,YOUTUBE_NOT_RSS_ENGINE,,
+13,ニュースの現場から（LISTEN）,,https://listen.style/p/tvzppbdm,False,EMPTY_H_COLUMN,LISTEN_PAGE_ONLY,,
+14,MEDIA TALK（LISTEN）,,https://listen.style/p/vbc86ror,False,EMPTY_H_COLUMN,LISTEN_PAGE_ONLY,,

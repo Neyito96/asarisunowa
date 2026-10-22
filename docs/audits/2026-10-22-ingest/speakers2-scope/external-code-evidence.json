@@ -1,0 +1,22 @@
+{
+  "url": "https://yoshimotomasahir.github.io/asapoki_vis/speakers3.js",
+  "readDateJst": "2026-10-22",
+  "sha256": "3a26e24b18fee2e69465dbe060f9e6eb2b2a4ec4bec47e5f7304e99cae613925",
+  "categories": [
+    "genba",
+    "media",
+    "sdgs",
+    "houdan",
+    "donuts",
+    "sports"
+  ],
+  "sdgsUpperExclusiveJst": "2026-06-30T00:00:00+09:00",
+  "zeroDurationMarkers": [
+    "（再）",
+    "（ふりかえり）",
+    "（深掘り）",
+    "contains 再放送です"
+  ],
+  "runtimeDataNotFetched": true,
+  "benchmarkSource": "USER_OBSERVATION"
+}

@@ -1,0 +1,65 @@
+{
+  "checkedAt": "2026-10-21T23:25:31.323Z",
+  "commit": "033daa0dfe8a2b99c103adba18567b760ba81b23",
+  "checks": [
+    {
+      "id": 39692041465,
+      "name": "Existing V3 ingest to publication integration",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Neyito96/asarisunowa/actions/runs/39692041465"
+    },
+    {
+      "id": 39692041391,
+      "name": "Library mobile acceptance",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Neyito96/asarisunowa/actions/runs/39692041391"
+    }
+  ],
+  "scheduledMain": [
+    {
+      "name": "Sync listener playlists",
+      "id": 39692488390,
+      "status": "completed",
+      "conclusion": "success",
+      "createdAt": "2026-10-21T23:17:52Z",
+      "url": "https://github.com/Neyito96/asarisunowa/actions/runs/39692488390"
+    },
+    {
+      "name": "Sync listener playlists",
+      "id": 39667811131,
+      "status": "completed",
+      "conclusion": "success",
+      "createdAt": "2026-10-21T20:09:14Z",
+      "url": "https://github.com/Neyito96/asarisunowa/actions/runs/39667811131"
+    },
+    {
+      "name": "Sync listener playlists",
+      "id": 39631966738,
+      "status": "completed",
+      "conclusion": "success",
+      "createdAt": "2026-10-21T16:07:45Z",
+      "url": "https://github.com/Neyito96/asarisunowa/actions/runs/39631966738"
+    },
+    {
+      "name": "Sync listener playlists",
+      "id": 39594508473,
+      "status": "completed",
+      "conclusion": "success",
+      "createdAt": "2026-10-21T11:46:59Z",
+      "url": "https://github.com/Neyito96/asarisunowa/actions/runs/39594508473"
+    },
+    {
+      "name": "Sync listener playlists",
+      "id": 39552863750,
+      "status": "completed",
+      "conclusion": "success",
+      "createdAt": "2026-10-21T06:01:07Z",
+      "url": "https://github.com/Neyito96/asarisunowa/actions/runs/39552863750"
+    }
+  ],
+  "configuredSchedule": "17,47 * * * *",
+  "scheduledWorkflowScope": "sync-playlists.py and sync-recommended-podcasts.py from public Sheets CSV; dispatch pages.yml; no library RSS ingestion",
+  "productionLibraryPublication": "NOT_EXECUTED"
+}

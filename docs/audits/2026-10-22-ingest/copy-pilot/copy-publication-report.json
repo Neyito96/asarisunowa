@@ -1,0 +1,14 @@
+{
+  "status": "PREPARED_NOT_PUBLISHED",
+  "checkedAt": "2026-10-22T00:43:52.849Z",
+  "newLedgerRowsObserved": 1,
+  "newIds": [
+    "EP-06592"
+  ],
+  "managedRendered": 1,
+  "allocatedIds": 0,
+  "googleWrites": 0,
+  "sourceHash": "fd85b6e162b798f6641fbdcb7bf8459dd877d6910fb008dae4cfa244602815a0",
+  "registrationAt": "2026-10-22T00:19:12.316Z",
+  "publicationVerifiedAt": null
+}
