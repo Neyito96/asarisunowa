@@ -23,3 +23,9 @@ EP00004/spotify:episode:6opJ4Ig4s7CTY9fRqGEHd2を実試験候補に固定。公�
 ユーザーがEP00004/固定URI/指定test先/最大1を明示承認。plan/hashは不変、承認receiptを更新。WORKからMacの既存認証は利用不能。09:50:08ZのローカルpreflightはAUTH_ROUTE_UNAVAILABLE、API0、POST0、実測件数/読戻し/replay/403はnull。認証の変更・token送付は依頼しない。
 
 既存executor/client/永続journalを再利用する固定対象Mac入口library-v3-playlist-pilot.mjsを追加。所有/実scope確認、全件snapshot、HTTP時刻、非2xx直後停止、403成功禁止、最大POST1、読戻し後replay0、結果不明時再送禁止。新規12試験＋既存executor13試験=25/25 PASS（無通信）。実API試験は未実行。接続に必要な非秘密情報は、既存Spotify認証が動くMacファイルまたはGASプロジェクトの特定。新PR/merge/GAS/trigger/台帳/公開/Spotify実変更0。
+
+## 本番の既存Spotify認証元を特定後の確認
+
+ユーザー指定「朝リスの輪 プレイリスト投稿受付」のScript ID/過去Mac取得先を受領。repo0841c7cの関連8ファイルをREAD_ONLY確認しSHA保存。ユーザーtoken(cache/refresh)とアプリtoken(client_credentials)を区別。全件helper limit100、個別writerの403後forEach継続、readbackなし、V2のstate/一覧表更新副作用を確認。この経路を承認済み1件へ無条件流用しない。実GASのsecret/cache/scope/sourceは未取得。
+
+cloud browserは指定編集URLからGoogle Developers紹介/ログインへ転送、DriveのApps Script MIME検索も該当なし。Macファイルにはアクセス不能。実API0/POST0、前後件数/読戻し/replay/403有無は未測定。既存25モック証拠を再利用し、実試験と区別。Macの既取得先を上書きしないclasp clone→8 SHA取得のREAD_ONLY手順を既存pilot文書へ追記。GAS配備/設定/trigger/Spotify/台帳/site変更0。

@@ -59,3 +59,40 @@ node scripts/library-v3-playlist-pilot.mjs --execute-approved /absolute/path/to/
 2つ目は今回の承認だけを使用し、成功時は内部で再実行0まで検証する。ログはMacの `~/asarisunowa-spotify-pilot-EP-00004/result-日時.json`、永続予約は同ディレクトリのjournal。各runログは別名で保全し、journalを削除して再実行しない。403/結果不明/読戻し失敗は停止、確認できない件数はnull。実行したMacから無秘密のresultを返却して、実試験結果を確定する。成功後の削除/全置換は今回の承認外。
 
 今回の追加試験はすべて無通信モック。API実投稿・OAuth変更・GAS配備・元台帳/本番playlist/公開siteの変更0。
+
+## 本番GASの特定後のREAD_ONLY確認
+
+ユーザーが認証元を「朝リスの輪 プレイリスト投稿受付」、Macの既取得先を `~/Desktop/asarisu-gas-audit-20261012` と特定。プロジェクト名/Script IDを把握したことと、WORKからソース・関数を実行可能なことを区別する。WORKからMacのパスは参照できない。
+
+GitHubの0841c7c時点のコードをREAD_ONLY確認（8ファイルSHAはproduction-auth-route.json）。
+
+|経路|確認した挙動|試験での扱い|
+|---|---|---|
+|SpotifyAuth.js / getSpotifyUserAccessToken|ユーザーaccess tokenのcacheを参照。なければScriptPropertiesの既存refresh tokenでaccounts.spotify.com/api/tokenへrefresh_token grant。取得tokenはcache内のみ|既存GAS内で再利用可能な設計。現在の秘密値の存在/有効性は未確認。関数の返り値をログやclasp run応答に出さない|
+|Spotify.js / getSpotifyAccessToken|client_credentials grantのアプリ用token|ユーザーplaylistへの投稿認証として流用しない|
+|startSpotifyUserAuth / callback|OAuth state生成、認可・refresh token保存|今回呼び出さない。要求scope3種が記載されていても現在の実付与scopeとは判定しない|
+|PlaylistAuto.js|getSpotifyUserAccessTokenから同期へ渡す|全playlist同期は実行しない|
+|PlaylistAutoSpotify.js|items?market=JP&limit=100、nextをたどる全件取得|新しい固定対象clientのlimit50/前後snapshotとは異なる。実機へ勝手に修正しない|
+|PlaylistAutoEpisodes.js|GET429時にRetry-Afterを最大60秒へ短縮し2回再試行|今回の即停止試験には使わない。今回の403原因をこれと断定しない|
+|PlaylistAutoWrite.js|個別/一括POST /items。2xx時のmembership読戻しはこのhelperにはない。個別forEachは403を記録後に次要素へ継続|そのまま試験しない。固定対象、最大1、最初の異常後の停止・読戻し・予約が必要|
+|PlaylistAutoV2Production.js|repoではenabled=false。候補全体処理、scoped state保存、場合により一覧表の日付更新|実機の設定とは断定しない。今回の承認範囲を越えるため同期関数を実行しない|
+|AutoUpdateAutomationV1.js / inspectAutoUpdatePlaylistAccessV1_|GET /me とplaylist owner/collaborativeを確認。失敗はprofile/playlistの粗いreasonにする|この診断だけでHTTP403根因/実付与scopeは確認できない。pending全体診断も今回実行しない|
+
+認証の既存実装は再利用候補として確認できたが、現在の実機との一致と有効な権限はHOLD。403が以前発生した理由は、対象request/当時のtoken種別/HTTP証拠なしのため未確定。
+
+追加の実アクセス確認：指定GAS編集URLをcloud browserで開いたがGoogle DevelopersのApps Script紹介・ログインページへ転送され、編集ソースは取得できなかった。接続済みDriveでもApps Script MIME/朝リスの名前に該当する取得可能なプロジェクトなし。既存Google Drive/Sheetsへのアクセス権はGAS Execution APIのアクセス権ではない。Spotify APIリクエスト0であり、403無しとも解消とも記録しない。
+
+### Macで次に取得する証拠（読取のみ）
+
+既存99ファイル取得先を上書きせず、新しい一時フォルダーへ現在のソースを取得し、まずSHAだけ返す。既存clasp認証が利用できるMacで実行。`clasp clone` はダウンロードのみ。push/deploy/run/loginや秘密値の出力は含めない。
+
+```sh
+spotify_audit_dir="$(mktemp -d "$HOME/Desktop/asarisu-spotify-readonly.XXXXXX")"
+cd "$spotify_audit_dir"
+clasp clone 1HpZNp96TQ7S1ilmfyItKI2IxYgdk8ufCsWXSVNEaGkh7_uQRXkr6k1I9
+shasum -a 256 SpotifyAuth.js Spotify.js PlaylistAutoSpotify.js PlaylistAutoV2Production.js AutoUpdateAutomationV1.js PlaylistAutoWrite.js PlaylistAutoEpisodes.js PlaylistAuto.js
+```
+
+返却するのは8ファイルのSHA結果のみ。拡張子が.gsの場合はその実在ファイル名を使う。認証失敗なら秘密を含まないエラー種別のみ返し、勝手に再認証しない。実ソースのSHAが異なれば、その時点で最新ソースとの差を確認する。ScriptPropertiesやclasp認証ファイルの内容は返さない。
+
+実試験の承認自体は有効。GAS内に現在の承認対象だけを実行する安全な入口がなければ、NodeからGASのtokenを取り出して代用しない。既存同期関数を流用して範囲を拡大することもしない。必要なGASの追加関数と予約receiptの範囲を準備して、GASコード反映について別承認を求める（今回その反映は行っていない）。
