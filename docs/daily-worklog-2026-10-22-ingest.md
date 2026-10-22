@@ -95,3 +95,7 @@ P1は既存#250/作業台コピー再利用、現行speakers3.jsの6番組・学
 添付inventoryと保存済みZIP c2917d243539c8bb3e2c8c128c048b4c048777723482a8d09b55d61d4b3ea97b の54ファイルSHAが全一致。実機固有7関数があり、GitHubファイル全体置換は不適切と判断。LibraryV3.jsの3関数とMorning.jsの9関数だけ#247最新版6a54f24から取り込み、7関数と他52ファイル/manifest/OAuth/BaselineTrigger/Spotify処理を保全。Checkpointは完全一致、Autonomy差は診断表示だけなので反映対象外。
 
 実機全体/合成版53JSの構文PASS、既存重複22群は増加なし、変更12binding一意。実機合成版のローカル絞込み28/28 PASS。既存163回帰は再利用。実入力SHA不一致時停止と準備出力2ファイルSHA一致を検証。docs/releases/phase12-rss-20261022/ に最小patch/manifest/証拠/承認表、scripts/prepare-phase12-rss-overlay.pyにローカル準備を保存。実機反映は未実行。Aコード2ファイル、B RSS専用設定、C朝timer/continuationを個別承認。P1の5419/5450仮群根拠は維持し朝の有効化を阻害条件にしない。
+
+## A/B/C実行承認受領・Mac操作への引継ぎ
+
+ユーザーが2ファイル反映、10/23 00:00 JST切替のRSS専用設定、05:15頃daily1件とpending継続および将来新着本番登録を明示承認。03:55 UTC時点で切替未来、合成版SHA一致。WORKには認証済み実機書込経路がないためA/B/C未実行、本番変更0。Mac手順MAC-EXECUTION.mdを既存PR248へ追加。設定関数の引数を通常エディタ実行で渡せない点を明示し、追加コード/manifest変更を避ける2設定UI編集の代替を記載（無稼働/無競合/無lease確認必須、関数実行と混同しない）。実行前後SHA/backup/設定/競合/読戻し、期限超過停止、作成ID限定復旧を固定。既存163+合成28試験を再利用、新しい実機成功を主張しない。
