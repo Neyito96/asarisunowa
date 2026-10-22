@@ -1,0 +1,58 @@
+{
+  "live": {
+    "compile": "PASS",
+    "files": 53,
+    "duplicates": [
+      "previewLibraryV2UnifiedFast",
+      "installLibraryV2UnifiedFast",
+      "stopLibraryV2UnifiedFast",
+      "libV2AcquireLease_",
+      "libV2ReleaseLease_",
+      "scheduledLibraryV2UnifiedFast",
+      "testEncodeLineBreaks",
+      "runHoudanRssPreview",
+      "runNewsSchoolRssPreview",
+      "runMigratedRssPreviews",
+      "rssLibrarySummarizePreviews_",
+      "rssLibraryExcludedHistory_",
+      "runDonutBackfillPreview",
+      "runSpongeBackfillPreview",
+      "runHoudanBackfillPreview",
+      "runNewsSchoolBackfillPreview",
+      "previewLibraryRssForShow_",
+      "SDGS_parseJsonEntries_",
+      "SDGS_fetchPageReadOnly_",
+      "SDGS_previewOfficialArchive",
+      "SDGS_compareOfficialUrlReadOnly",
+      "SDGS_auditAllPagesReadOnly"
+    ]
+  },
+  "proposed": {
+    "compile": "PASS",
+    "files": 53,
+    "duplicates": [
+      "previewLibraryV2UnifiedFast",
+      "installLibraryV2UnifiedFast",
+      "stopLibraryV2UnifiedFast",
+      "libV2AcquireLease_",
+      "libV2ReleaseLease_",
+      "scheduledLibraryV2UnifiedFast",
+      "testEncodeLineBreaks",
+      "runHoudanRssPreview",
+      "runNewsSchoolRssPreview",
+      "runMigratedRssPreviews",
+      "rssLibrarySummarizePreviews_",
+      "rssLibraryExcludedHistory_",
+      "runDonutBackfillPreview",
+      "runSpongeBackfillPreview",
+      "runHoudanBackfillPreview",
+      "runNewsSchoolBackfillPreview",
+      "previewLibraryRssForShow_",
+      "SDGS_parseJsonEntries_",
+      "SDGS_fetchPageReadOnly_",
+      "SDGS_previewOfficialArchive",
+      "SDGS_compareOfficialUrlReadOnly",
+      "SDGS_auditAllPagesReadOnly"
+    ]
+  }
+}

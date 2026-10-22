@@ -88,3 +88,10 @@ Issue241 comment6331185808を全文確認。総合HOLD：G1実機全文/manifest
 承認C1でnative copy190KQDxD7LCl-apSVU59etgMvSEzMCjf2-3fuV0m38L0作成。31タブ全使用値が元本snapshotと一致、元本modifiedTime変化なし、セル書込0。C2新規1件writeは未承認・未実行。
 
 P1は既存#250/作業台コピー再利用、現行speakers3.jsの6番組・学校対象外・SDGs6/30以降除外・再配信等ゼロ加算を確認。元本は6591-140-486-31-225-290=5419仮URL群（3URL不明含む）、コピーは5450群、申告5452との差33/2。同一URL時間不一致と欠損により最終ユニーク/総時間は保留。母集団監査の結論/公開フィルタは変更せずEP-ID別理由表とURL差分候補を保存。
+
+
+## 実機54ファイル受領後：朝RSS最小適用を固定
+
+添付inventoryと保存済みZIP c2917d243539c8bb3e2c8c128c048b4c048777723482a8d09b55d61d4b3ea97b の54ファイルSHAが全一致。実機固有7関数があり、GitHubファイル全体置換は不適切と判断。LibraryV3.jsの3関数とMorning.jsの9関数だけ#247最新版6a54f24から取り込み、7関数と他52ファイル/manifest/OAuth/BaselineTrigger/Spotify処理を保全。Checkpointは完全一致、Autonomy差は診断表示だけなので反映対象外。
+
+実機全体/合成版53JSの構文PASS、既存重複22群は増加なし、変更12binding一意。実機合成版のローカル絞込み28/28 PASS。既存163回帰は再利用。実入力SHA不一致時停止と準備出力2ファイルSHA一致を検証。docs/releases/phase12-rss-20261022/ に最小patch/manifest/証拠/承認表、scripts/prepare-phase12-rss-overlay.pyにローカル準備を保存。実機反映は未実行。Aコード2ファイル、B RSS専用設定、C朝timer/continuationを個別承認。P1の5419/5450仮群根拠は維持し朝の有効化を阻害条件にしない。
