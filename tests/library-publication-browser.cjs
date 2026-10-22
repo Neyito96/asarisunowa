@@ -12,10 +12,15 @@ const {chromium,webkit,devices}=require(process.env.LIBRARY_PLAYWRIGHT||'playwri
  if(process.env.LIBRARY_SCREENSHOT_DIR)await page.screenshot({path:path.join(process.env.LIBRARY_SCREENSHOT_DIR,'scope-library-'+name+'.png')});
  const root=process.env.LIBRARY_PREVIEW_ROOT||'/tmp/library-publication-preview';
  await page.route('https://neyito96.github.io/asarisunowa/library/**',async route=>{const u=new URL(route.request().url());const relative=u.pathname.replace('/asarisunowa/library/','');if(relative.includes('..'))throw Error('invalid preview route');await route.fulfill({path:path.join(root,'library',relative),contentType:relative.endsWith('.mjs')?'text/javascript':'application/json',headers:{'Access-Control-Allow-Origin':'*'}});});
+ // Test-only inspection of module state; the hook is never saved in the shipped HTML.
+ await page.route('http://127.0.0.1:4173/universe/index.html',async route=>{const html=await fs.readFile(path.join(root,'universe/index.html'),'utf8');await route.fulfill({contentType:'text/html',body:html.replace('window.addEventListener("resize",resize);init();','window.__scopeAcceptance=()=>({ids:rows.map(r=>r.id),starIds:stars.flatMap(s=>s.episodes.map(r=>r.id))});window.addEventListener("resize",resize);init();')});});
  await page.goto('http://127.0.0.1:4173/universe/index.html');await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('掲載対象5,848件'),{},{timeout:60000});
  assert.match(await page.locator('#status').innerText(),/2026年10月22日掲載判定/);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
  assert.ok(await page.locator('#space').isVisible());
  await page.locator('[data-mode=episodes]').click();await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('5,848個の星'));
+ const expected=JSON.parse(await fs.readFile(path.join(root,'library/data/scope.json'),'utf8')).publishedIds;
+ const universe=await page.evaluate(()=>window.__scopeAcceptance());
+ assert.deepEqual(universe.ids.sort(),expected);assert.deepEqual(universe.starIds.sort(),expected);
  assert.match(await page.locator('#status').innerText(),/掲載対象5,848件・2026年10月22日掲載判定/);assert.deepEqual(errors,[]);
  if(process.env.LIBRARY_SCREENSHOT_DIR)await page.screenshot({path:path.join(process.env.LIBRARY_SCREENSHOT_DIR,'scope-universe-'+name+'.png')});
  console.log(JSON.stringify({browser:name,library:5848,universe:5848,school:485,heldExcludedFromSearch:true,adoptedEncorePreserved:true,errors}));
