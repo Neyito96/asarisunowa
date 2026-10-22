@@ -5,6 +5,8 @@ on:
       - 'tools/onsa/**'
       - 'scripts/read-onsa-workbook.py'
       - 'scripts/audit-onsa-copy.mjs'
+      - 'scripts/prepare-library-search-scope.mjs'
+      - 'tests/library-search-scope.test.mjs'
       - 'tests/onsa-reconciliation.test.mjs'
       - 'tests/test_onsa_reader.py'
       - '.github/workflows/onsa-readonly-audit.yml'
@@ -23,5 +25,5 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install openpyxl==3.1.5
-      - run: node --test tests/onsa-reconciliation.test.mjs tests/platform-evidence.test.mjs
+      - run: node --test tests/onsa-reconciliation.test.mjs tests/platform-evidence.test.mjs tests/library-search-scope.test.mjs
       - run: python -m unittest discover -s tests -p 'test_onsa_reader.py' -v

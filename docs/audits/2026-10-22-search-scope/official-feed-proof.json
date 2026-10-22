@@ -1,0 +1,74 @@
+[
+  {
+    "show": "ニュースの現場から",
+    "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/684015f9-2396-4ac4-bc1f-ac0f0033d08c/podcast.rss",
+    "checkedAt": "2026-10-22T08:35:23.653892+00:00",
+    "http": 200,
+    "items": 2653,
+    "sha256": "9067a152435b637aeb72dafc27b77036e9b362a51cd51a4a4c4e05ff2e0e3240",
+    "bytes": 20357575
+  },
+  {
+    "show": "MEDIA TALK",
+    "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/07a1de49-67cf-4714-8581-ac1000059302/podcast.rss",
+    "checkedAt": "2026-10-22T08:35:23.654553+00:00",
+    "http": 200,
+    "items": 1757,
+    "sha256": "974defd3b59859658fda4756f4baede00ae690edd0cd0ee8d5480ec39d5d8660",
+    "bytes": 14134384
+  },
+  {
+    "show": "こどもそうだんしつ",
+    "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/693cfdd6-f5a9-4308-9025-adb10164b5b1/podcast.rss",
+    "checkedAt": "2026-10-22T08:35:23.655104+00:00",
+    "http": 200,
+    "items": 36,
+    "sha256": "126d4f035e28ebc2a6c2d9bab8ed1aba23c5ec388294b209241812c0e9afe6f1",
+    "bytes": 282601
+  },
+  {
+    "show": "スポンジ",
+    "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/8ceab8ef-af5f-44e9-9545-b4ab0024434b/podcast.rss",
+    "checkedAt": "2026-10-22T08:35:29.619536+00:00",
+    "http": 200,
+    "items": 178,
+    "sha256": "f7f355d0a271320643b81c1da991ae88122936764fe4c102ad01d5603944219b",
+    "bytes": 1635088
+  },
+  {
+    "show": "ニュースの学校",
+    "url": "https://feeds.megaphone.fm/TASC5851398719",
+    "checkedAt": "2026-10-22T08:35:30.131053+00:00",
+    "http": 200,
+    "items": 492,
+    "sha256": "77b18ee128d84c5b765850145b6e22266cc8d5d42d5f1546c3a01da4bba7c63a",
+    "bytes": 1890784
+  },
+  {
+    "show": "ドーナツ",
+    "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/c373aac9-fb6a-4172-8a8f-b498003d9389/podcast.rss",
+    "checkedAt": "2026-10-22T08:35:30.395082+00:00",
+    "http": 200,
+    "items": 67,
+    "sha256": "126a3b57cfc7d7ee3d971d449b13109df04cb9e0150fe44f6bff09003da3205e",
+    "bytes": 631223
+  },
+  {
+    "show": "報談",
+    "url": "https://feeds.megaphone.fm/TASC9421488254",
+    "checkedAt": "2026-10-22T08:35:33.967311+00:00",
+    "http": 200,
+    "items": 218,
+    "sha256": "9372b5a7444c2744245e377982f83f2b60221a24b6e4eb21430ec2a66c3b58bd",
+    "bytes": 2031520
+  },
+  {
+    "show": "SDGsを話そう",
+    "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/91b696fe-c723-4bd1-95ed-b4aa00909997/podcast.rss",
+    "checkedAt": "2026-10-22T08:35:36.058912+00:00",
+    "http": 200,
+    "items": 1092,
+    "sha256": "444856f7763aa1701f462ff83f00e1068638277a4af190cd97e34d5fb064316f",
+    "bytes": 9563077
+  }
+]

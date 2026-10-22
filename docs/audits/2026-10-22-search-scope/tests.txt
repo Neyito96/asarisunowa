@@ -1,0 +1,16 @@
+✔ official identity/title/time supports school inclusion (3.390199ms)
+✔ date change held for comparison but not reason to drop regular episode (0.648332ms)
+✔ title only never identifies an episode; title difference retained on hold (0.627734ms)
+✔ same GUID across programme feeds is deduped without renumber/delete (0.558825ms)
+✔ rerun title marker alone holds; explicit episode replay evidence excludes (0.456526ms)
+✔ human removal always wins, no matter official match (0.260514ms)
+✔ cautious person not adopted despite official appearance; episode remains (1.407396ms)
+✔ non-cautious cast needs official appearance evidence, not legacy claim (0.564684ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 127.090648

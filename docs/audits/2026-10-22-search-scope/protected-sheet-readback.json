@@ -1,0 +1,202 @@
+{
+  "at": "2026-10-22T08:49:17.200597+00:00",
+  "protectedSheetsUnchanged": [
+    {
+      "sheet": "図書館・進捗ダッシュボード",
+      "equal": true,
+      "beforeHash": "e7999f3096f31d710b3fae484da7b7586eaa7c38b391d8d5cd8b4df6ae406059",
+      "afterHash": "e7999f3096f31d710b3fae484da7b7586eaa7c38b391d8d5cd8b4df6ae406059"
+    },
+    {
+      "sheet": "SDGs公式JSON_1092件原本",
+      "equal": true,
+      "beforeHash": "e2b6c0a9b004fcbed7e74c20921c700c4dc44200eed7d75dc977644bc8f0c28c",
+      "afterHash": "e2b6c0a9b004fcbed7e74c20921c700c4dc44200eed7d75dc977644bc8f0c28c"
+    },
+    {
+      "sheet": "図書館V3・項目状態",
+      "equal": true,
+      "beforeHash": "7695c9f8328498cc75348eb6eab16a613f46798ea45ee18e7d5d6cfa3c85e412",
+      "afterHash": "7695c9f8328498cc75348eb6eab16a613f46798ea45ee18e7d5d6cfa3c85e412"
+    },
+    {
+      "sheet": "図書館V3・進捗",
+      "equal": true,
+      "beforeHash": "b4cf1b84459c683b7e0e1de7632daa2a1e2367b46dc55b4bca16c9d803b8c847",
+      "afterHash": "b4cf1b84459c683b7e0e1de7632daa2a1e2367b46dc55b4bca16c9d803b8c847"
+    },
+    {
+      "sheet": "案内",
+      "equal": true,
+      "beforeHash": "0f4728c7cda0843450993b9b09b7aabbec2a6d5a461b5654418c3cf9dc25651b",
+      "afterHash": "0f4728c7cda0843450993b9b09b7aabbec2a6d5a461b5654418c3cf9dc25651b"
+    },
+    {
+      "sheet": "固定ID採番履歴",
+      "equal": true,
+      "beforeHash": "17afe0b5e84de3f8e9d46d5093baf666139ae51dcd2a15bd7bddfb1561f76568",
+      "afterHash": "17afe0b5e84de3f8e9d46d5093baf666139ae51dcd2a15bd7bddfb1561f76568"
+    },
+    {
+      "sheet": "BACKUP_AL_20261010_230738_926",
+      "equal": true,
+      "beforeHash": "32364c79f5e8f4b0930705ba782ecce63d8f549554c45503b32b1eb796dbc824",
+      "afterHash": "32364c79f5e8f4b0930705ba782ecce63d8f549554c45503b32b1eb796dbc824"
+    },
+    {
+      "sheet": "削除・除外履歴",
+      "equal": true,
+      "beforeHash": "de641c5c2808be3d1949fd93dec32626608e7142e4b4477ce473db6ce55bc352",
+      "afterHash": "de641c5c2808be3d1949fd93dec32626608e7142e4b4477ce473db6ce55bc352"
+    },
+    {
+      "sheet": "BACKUP_NOTES_20261010_205700_83",
+      "equal": true,
+      "beforeHash": "8515c272ca9d3ad2cfe4d6c67b30343d6a73af456341c0bc03fb1d936211915f",
+      "afterHash": "8515c272ca9d3ad2cfe4d6c67b30343d6a73af456341c0bc03fb1d936211915f"
+    },
+    {
+      "sheet": "BACKUP_DONUT_20261010_205233_68",
+      "equal": true,
+      "beforeHash": "0475af6ec8f91de3075f26f797732f54a3a5bbefb26166eded587bc7570a2dee",
+      "afterHash": "0475af6ec8f91de3075f26f797732f54a3a5bbefb26166eded587bc7570a2dee"
+    },
+    {
+      "sheet": "取得元一覧",
+      "equal": true,
+      "beforeHash": "32e9a2f54eac42fa02048cc0b3c98b6f69f422c762d2d9432cf504226daaeddd",
+      "afterHash": "32e9a2f54eac42fa02048cc0b3c98b6f69f422c762d2d9432cf504226daaeddd"
+    },
+    {
+      "sheet": "エピソード台帳",
+      "equal": true,
+      "beforeHash": "0815d53882eeb6971f5db0a41281baeb2b610567d29d8d2f1711a243ae980fab",
+      "afterHash": "0815d53882eeb6971f5db0a41281baeb2b610567d29d8d2f1711a243ae980fab"
+    },
+    {
+      "sheet": "LISTEN・確認待ち",
+      "equal": true,
+      "beforeHash": "e7d88286c0872273a9befc810c0c1ebc2a6a3b00bbaee91c9ae27b1eeb0c63fb",
+      "afterHash": "e7d88286c0872273a9befc810c0c1ebc2a6a3b00bbaee91c9ae27b1eeb0c63fb"
+    },
+    {
+      "sheet": "項目定義",
+      "equal": true,
+      "beforeHash": "78b9d4adf2728ee01fa9f59ecdb314d98e9a3de5ddf22d5776ced2b9f62c3554",
+      "afterHash": "78b9d4adf2728ee01fa9f59ecdb314d98e9a3de5ddf22d5776ced2b9f62c3554"
+    },
+    {
+      "sheet": "配信先URL",
+      "equal": true,
+      "beforeHash": "d40878ee895a0b85cd667cd68aea19d395a30859740421e8d7e2cc0af5a11f64",
+      "afterHash": "d40878ee895a0b85cd667cd68aea19d395a30859740421e8d7e2cc0af5a11f64"
+    },
+    {
+      "sheet": "ニュースの現場から",
+      "equal": true,
+      "beforeHash": "8aeff84a24f55ec854d0b4faecfe8cb0aa8123cfa9fff77bd48e25b81508af42",
+      "afterHash": "8aeff84a24f55ec854d0b4faecfe8cb0aa8123cfa9fff77bd48e25b81508af42"
+    },
+    {
+      "sheet": "MEDIA TALK",
+      "equal": true,
+      "beforeHash": "bbf57a46c13cb3ba6b45c4e9341ba7e487ea40ba804c871df2c89768ab765f1e",
+      "afterHash": "bbf57a46c13cb3ba6b45c4e9341ba7e487ea40ba804c871df2c89768ab765f1e"
+    },
+    {
+      "sheet": "こどもそうだんしつ",
+      "equal": true,
+      "beforeHash": "d67e5e11b030c1f458f821d3d89c4eaf9a3278bfe4d116476450deece5f3f66a",
+      "afterHash": "d67e5e11b030c1f458f821d3d89c4eaf9a3278bfe4d116476450deece5f3f66a"
+    },
+    {
+      "sheet": "スポンジ",
+      "equal": true,
+      "beforeHash": "575fffaf2265cbe158389cc983d435bdff92576e9a12e5b2d5d35f696cbdb063",
+      "afterHash": "575fffaf2265cbe158389cc983d435bdff92576e9a12e5b2d5d35f696cbdb063"
+    },
+    {
+      "sheet": "ニュースの学校",
+      "equal": true,
+      "beforeHash": "3427007d09d237743672f0030c9cf337889fbd827484858cd5a3b49874e025bc",
+      "afterHash": "3427007d09d237743672f0030c9cf337889fbd827484858cd5a3b49874e025bc"
+    },
+    {
+      "sheet": "ドーナツ",
+      "equal": true,
+      "beforeHash": "75292e0887151bb35a56833112e1b2881c180480bab487d67323124309c972c6",
+      "afterHash": "75292e0887151bb35a56833112e1b2881c180480bab487d67323124309c972c6"
+    },
+    {
+      "sheet": "報談",
+      "equal": true,
+      "beforeHash": "cd36db6bb84112e52e704ab31344ca266f4c3f79b7ef56a2dc494f955d7033ed",
+      "afterHash": "cd36db6bb84112e52e704ab31344ca266f4c3f79b7ef56a2dc494f955d7033ed"
+    },
+    {
+      "sheet": "アルキキ",
+      "equal": true,
+      "beforeHash": "5b227862ddff4e251d69edfcfaf01ee624c6e8d3b4dc409c49cace6a1c38fbfe",
+      "afterHash": "5b227862ddff4e251d69edfcfaf01ee624c6e8d3b4dc409c49cace6a1c38fbfe"
+    },
+    {
+      "sheet": "AJW",
+      "equal": true,
+      "beforeHash": "12662e1b6136a31b8024502c7bdc713e351a22b938f0a14cd624c414048a08e1",
+      "afterHash": "12662e1b6136a31b8024502c7bdc713e351a22b938f0a14cd624c414048a08e1"
+    },
+    {
+      "sheet": "朝ポキTV",
+      "equal": true,
+      "beforeHash": "283646ed25b78048f171fc9ac6851ebefe147f89f2f7923a1020c70b4097f951",
+      "afterHash": "283646ed25b78048f171fc9ac6851ebefe147f89f2f7923a1020c70b4097f951"
+    },
+    {
+      "sheet": "IMPORT_1007_STAGING",
+      "equal": true,
+      "beforeHash": "6f9f4863147d59277ad2ca40bd1e294a0c5fee2ced5b5f328f3cdc341fb64768",
+      "afterHash": "6f9f4863147d59277ad2ca40bd1e294a0c5fee2ced5b5f328f3cdc341fb64768"
+    },
+    {
+      "sheet": "1007_重複照合",
+      "equal": true,
+      "beforeHash": "03cc4f83dd41a90e1f97a282ca20b16233b37c15a2545d5080526126ff3ca112",
+      "afterHash": "03cc4f83dd41a90e1f97a282ca20b16233b37c15a2545d5080526126ff3ca112"
+    },
+    {
+      "sheet": "自動補完・実行履歴",
+      "equal": true,
+      "beforeHash": "3c729e3ddcd351f923d85023c91920f3da729503c5b33bacbb4c833e105476fd",
+      "afterHash": "3c729e3ddcd351f923d85023c91920f3da729503c5b33bacbb4c833e105476fd"
+    },
+    {
+      "sheet": "SDGs公式JSON_受入管理",
+      "equal": true,
+      "beforeHash": "e4a9c5e6b4c8d42086b708e6190609f7d01a6bfc5924776db23fb833d9ad995a",
+      "afterHash": "e4a9c5e6b4c8d42086b708e6190609f7d01a6bfc5924776db23fb833d9ad995a"
+    },
+    {
+      "sheet": "SDGs1095",
+      "equal": true,
+      "beforeHash": "df38147cf2f3916d91a681e08c5c3379ebca3d66b6857d670542190cb21e5cab",
+      "afterHash": "df38147cf2f3916d91a681e08c5c3379ebca3d66b6857d670542190cb21e5cab"
+    },
+    {
+      "sheet": "こどもそうだんしつ_調査原票",
+      "equal": true,
+      "beforeHash": "c7c9dc471318f2718e61d6287c868fbf73fcceda6878a3a5f2835a4a136e0f7e",
+      "afterHash": "c7c9dc471318f2718e61d6287c868fbf73fcceda6878a3a5f2835a4a136e0f7e"
+    },
+    {
+      "sheet": "検索対象・判定ルール",
+      "equal": true,
+      "beforeHash": "4a38777415c6f2914d3a98518aa3a38e46f653539b83a84ab782ca3228626ae6",
+      "afterHash": "4a38777415c6f2914d3a98518aa3a38e46f653539b83a84ab782ca3228626ae6"
+    }
+  ],
+  "verifiedDecisionRows": 6591,
+  "maxEpId": "EP-06591",
+  "beforeXlsxSha256": "2f34623ce56849c3d59aad8b4e342075238c4f0f4f4f4e36601ab8717eda48d7",
+  "afterXlsxSha256": "cb7e08f2a02ceddab67f9edc356b0ca98ecca2569c333f7db01817c1fba469a6",
+  "allDecisionValuesMatch": true
+}
