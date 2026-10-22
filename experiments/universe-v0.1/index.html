@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>朝リスの宇宙 | 話題の地層 V0.1</title>
+  <style>
+    body { background:#101827; color:white; font-family:sans-serif; margin:40px; }
+    #chart { max-width:1000px; overflow-x:auto; }
+    svg { color:white; }
+  </style>
+</head>
+<body>
+  <h1>朝リスの宇宙</h1>
+  <p>話題の地層 V0.1 — 最初の実験（架空データ）</p>
+  <div id="chart"></div>
+  <script type="module">
+    import * as Plot from "@observablehq/plot";
+    const data = [
+      {year:2020,topic:"政治",count:20},{year:2021,topic:"政治",count:30},
+      {year:2022,topic:"政治",count:40},{year:2023,topic:"政治",count:35},
+      {year:2024,topic:"政治",count:60},{year:2025,topic:"政治",count:70},
+      {year:2026,topic:"政治",count:80},
+      {year:2020,topic:"AI",count:5},{year:2021,topic:"AI",count:8},
+      {year:2022,topic:"AI",count:15},{year:2023,topic:"AI",count:40},
+      {year:2024,topic:"AI",count:65},{year:2025,topic:"AI",count:90},
+      {year:2026,topic:"AI",count:120}
+    ];
+    const chart = Plot.plot({
+      width:950,height:480,
+      color:{legend:true},
+      marks:[
+        Plot.areaY(data,Plot.stackY({x:"year",y:"count",fill:"topic",curve:"catmull-rom"})),
+        Plot.ruleY([0])
+      ]
+    });
+    document.getElementById("chart").append(chart);
+  </script>
+</body>
+</html>
