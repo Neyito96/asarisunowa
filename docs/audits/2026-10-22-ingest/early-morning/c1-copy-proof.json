@@ -1,0 +1,447 @@
+{
+  "sourceId": "1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4",
+  "copyId": "190KQDxD7LCl-apSVU59etgMvSEzMCjf2-3fuV0m38L0",
+  "copyUrl": "https://docs.google.com/spreadsheets/d/190KQDxD7LCl-apSVU59etgMvSEzMCjf2-3fuV0m38L0/edit?usp=drivesdk",
+  "at": "2026-10-22T02:45:44.992651+00:00",
+  "tabs": 31,
+  "equalTabs": 31,
+  "results": [
+    {
+      "tab": "図書館・進捗ダッシュボード",
+      "source": {
+        "hash": "7aa96a61a5bf4f73405ed51a1269bf17a37075de0c71a0d32834716b3db7a6cf",
+        "nonemptyRows": 47,
+        "lastNonemptyRow": 50
+      },
+      "copy": {
+        "hash": "7aa96a61a5bf4f73405ed51a1269bf17a37075de0c71a0d32834716b3db7a6cf",
+        "nonemptyRows": 47,
+        "lastNonemptyRow": 50
+      },
+      "equal": true
+    },
+    {
+      "tab": "SDGs公式JSON_1092件原本",
+      "source": {
+        "hash": "89b2f773d26dcf032fbd8f676cf37898a6d764f9e8165d0be755ee2123e4b816",
+        "nonemptyRows": 1093,
+        "lastNonemptyRow": 1093
+      },
+      "copy": {
+        "hash": "89b2f773d26dcf032fbd8f676cf37898a6d764f9e8165d0be755ee2123e4b816",
+        "nonemptyRows": 1093,
+        "lastNonemptyRow": 1093
+      },
+      "equal": true
+    },
+    {
+      "tab": "図書館V3・項目状態",
+      "source": {
+        "hash": "a821356c577fefde3980c4260d47d883f781ea778db51b40e4a79371b8b7be35",
+        "nonemptyRows": 6592,
+        "lastNonemptyRow": 6592
+      },
+      "copy": {
+        "hash": "a821356c577fefde3980c4260d47d883f781ea778db51b40e4a79371b8b7be35",
+        "nonemptyRows": 6592,
+        "lastNonemptyRow": 6592
+      },
+      "equal": true
+    },
+    {
+      "tab": "図書館V3・進捗",
+      "source": {
+        "hash": "5925c31608f132912b411f07625eae9b38694c72b71c66639c15d2e56b221085",
+        "nonemptyRows": 1,
+        "lastNonemptyRow": 1
+      },
+      "copy": {
+        "hash": "5925c31608f132912b411f07625eae9b38694c72b71c66639c15d2e56b221085",
+        "nonemptyRows": 1,
+        "lastNonemptyRow": 1
+      },
+      "equal": true
+    },
+    {
+      "tab": "案内",
+      "source": {
+        "hash": "a958991fd4fd46ab5969aff773a58efac2e95217e34d7548dee71d71d2348d58",
+        "nonemptyRows": 25,
+        "lastNonemptyRow": 25
+      },
+      "copy": {
+        "hash": "a958991fd4fd46ab5969aff773a58efac2e95217e34d7548dee71d71d2348d58",
+        "nonemptyRows": 25,
+        "lastNonemptyRow": 25
+      },
+      "equal": true
+    },
+    {
+      "tab": "固定ID採番履歴",
+      "source": {
+        "hash": "87b7f877b2e153ad95e06c5c486ceee0b97f85c43f99e5bc4925127785e6ad7b",
+        "nonemptyRows": 28,
+        "lastNonemptyRow": 28
+      },
+      "copy": {
+        "hash": "87b7f877b2e153ad95e06c5c486ceee0b97f85c43f99e5bc4925127785e6ad7b",
+        "nonemptyRows": 28,
+        "lastNonemptyRow": 28
+      },
+      "equal": true
+    },
+    {
+      "tab": "BACKUP_AL_20261010_230738_926",
+      "source": {
+        "hash": "cd34b8f6f3f1caa994be5208d95ca7c915bc1a8652532781cf2ec1df19f41fe8",
+        "nonemptyRows": 3,
+        "lastNonemptyRow": 3
+      },
+      "copy": {
+        "hash": "cd34b8f6f3f1caa994be5208d95ca7c915bc1a8652532781cf2ec1df19f41fe8",
+        "nonemptyRows": 3,
+        "lastNonemptyRow": 3
+      },
+      "equal": true
+    },
+    {
+      "tab": "削除・除外履歴",
+      "source": {
+        "hash": "657d7cd5b193870c77ba54fcac8c3d28914586d91c54378af6009eeabf0025ba",
+        "nonemptyRows": 1,
+        "lastNonemptyRow": 1
+      },
+      "copy": {
+        "hash": "657d7cd5b193870c77ba54fcac8c3d28914586d91c54378af6009eeabf0025ba",
+        "nonemptyRows": 1,
+        "lastNonemptyRow": 1
+      },
+      "equal": true
+    },
+    {
+      "tab": "BACKUP_NOTES_20261010_205700_83",
+      "source": {
+        "hash": "e3b224eeec04f5f485658ce5db4f86d9ec78e04d285ccad0fe100ebd132a1e33",
+        "nonemptyRows": 3,
+        "lastNonemptyRow": 3
+      },
+      "copy": {
+        "hash": "e3b224eeec04f5f485658ce5db4f86d9ec78e04d285ccad0fe100ebd132a1e33",
+        "nonemptyRows": 3,
+        "lastNonemptyRow": 3
+      },
+      "equal": true
+    },
+    {
+      "tab": "BACKUP_DONUT_20261010_205233_68",
+      "source": {
+        "hash": "40b7e439a0c28fa55354eefc5dc298db43b1a9b15ceb9d6485e1b6781294ba43",
+        "nonemptyRows": 3,
+        "lastNonemptyRow": 3
+      },
+      "copy": {
+        "hash": "40b7e439a0c28fa55354eefc5dc298db43b1a9b15ceb9d6485e1b6781294ba43",
+        "nonemptyRows": 3,
+        "lastNonemptyRow": 3
+      },
+      "equal": true
+    },
+    {
+      "tab": "取得元一覧",
+      "source": {
+        "hash": "ff54c230ccb5fec59427f7873ec499b4b6d04610399262c7cb7367856b8ba86e",
+        "nonemptyRows": 14,
+        "lastNonemptyRow": 14
+      },
+      "copy": {
+        "hash": "ff54c230ccb5fec59427f7873ec499b4b6d04610399262c7cb7367856b8ba86e",
+        "nonemptyRows": 14,
+        "lastNonemptyRow": 14
+      },
+      "equal": true
+    },
+    {
+      "tab": "エピソード台帳",
+      "source": {
+        "hash": "e07f934aae33c5c5b876c3b12d766262938bd23c41a164cb7821e6c69847b675",
+        "nonemptyRows": 6592,
+        "lastNonemptyRow": 6592
+      },
+      "copy": {
+        "hash": "e07f934aae33c5c5b876c3b12d766262938bd23c41a164cb7821e6c69847b675",
+        "nonemptyRows": 6592,
+        "lastNonemptyRow": 6592
+      },
+      "equal": true
+    },
+    {
+      "tab": "LISTEN・確認待ち",
+      "source": {
+        "hash": "c88ca39980385b38c9eed6fe1ce7cb138bfa73690214d0f70b74a18ddebbddaf",
+        "nonemptyRows": 11,
+        "lastNonemptyRow": 11
+      },
+      "copy": {
+        "hash": "c88ca39980385b38c9eed6fe1ce7cb138bfa73690214d0f70b74a18ddebbddaf",
+        "nonemptyRows": 11,
+        "lastNonemptyRow": 11
+      },
+      "equal": true
+    },
+    {
+      "tab": "項目定義",
+      "source": {
+        "hash": "5055cb338105aadf09df8d6513ab7fc2772c134cd23fb767e6529f2abe2fb15f",
+        "nonemptyRows": 52,
+        "lastNonemptyRow": 52
+      },
+      "copy": {
+        "hash": "5055cb338105aadf09df8d6513ab7fc2772c134cd23fb767e6529f2abe2fb15f",
+        "nonemptyRows": 52,
+        "lastNonemptyRow": 52
+      },
+      "equal": true
+    },
+    {
+      "tab": "配信先URL",
+      "source": {
+        "hash": "ffee2a1f77c9f37ddff0e96d1edaa95c3f672899016b5b76ee30087574a432b2",
+        "nonemptyRows": 94,
+        "lastNonemptyRow": 94
+      },
+      "copy": {
+        "hash": "ffee2a1f77c9f37ddff0e96d1edaa95c3f672899016b5b76ee30087574a432b2",
+        "nonemptyRows": 94,
+        "lastNonemptyRow": 94
+      },
+      "equal": true
+    },
+    {
+      "tab": "ニュースの現場から",
+      "source": {
+        "hash": "f59beac35dff2d1b21d872e063383ac3b3195e0932d00dc984b2724db49b36f3",
+        "nonemptyRows": 2645,
+        "lastNonemptyRow": 2645
+      },
+      "copy": {
+        "hash": "f59beac35dff2d1b21d872e063383ac3b3195e0932d00dc984b2724db49b36f3",
+        "nonemptyRows": 2645,
+        "lastNonemptyRow": 2645
+      },
+      "equal": true
+    },
+    {
+      "tab": "MEDIA TALK",
+      "source": {
+        "hash": "5c94cab1fb3b222fb6b56c8ddd016d26d7905403a347e147bf472f95501b10a8",
+        "nonemptyRows": 1754,
+        "lastNonemptyRow": 1754
+      },
+      "copy": {
+        "hash": "5c94cab1fb3b222fb6b56c8ddd016d26d7905403a347e147bf472f95501b10a8",
+        "nonemptyRows": 1754,
+        "lastNonemptyRow": 1754
+      },
+      "equal": true
+    },
+    {
+      "tab": "こどもそうだんしつ",
+      "source": {
+        "hash": "ead5bb190b4f28f42cb3761e36e588a4087fa3c2894112073216cb63c2f0fd06",
+        "nonemptyRows": 1004,
+        "lastNonemptyRow": 1004
+      },
+      "copy": {
+        "hash": "ead5bb190b4f28f42cb3761e36e588a4087fa3c2894112073216cb63c2f0fd06",
+        "nonemptyRows": 1004,
+        "lastNonemptyRow": 1004
+      },
+      "equal": true
+    },
+    {
+      "tab": "スポンジ",
+      "source": {
+        "hash": "374b0b0aa899ca9e4f5ffaf3d71481ca7340da99039ba1ca4748255c75accd3d",
+        "nonemptyRows": 1004,
+        "lastNonemptyRow": 1004
+      },
+      "copy": {
+        "hash": "374b0b0aa899ca9e4f5ffaf3d71481ca7340da99039ba1ca4748255c75accd3d",
+        "nonemptyRows": 1004,
+        "lastNonemptyRow": 1004
+      },
+      "equal": true
+    },
+    {
+      "tab": "ニュースの学校",
+      "source": {
+        "hash": "df194ada8ae026ea426fc2d05fe571d869cce59dc4e545d079e7475e02daa130",
+        "nonemptyRows": 1004,
+        "lastNonemptyRow": 1004
+      },
+      "copy": {
+        "hash": "df194ada8ae026ea426fc2d05fe571d869cce59dc4e545d079e7475e02daa130",
+        "nonemptyRows": 1004,
+        "lastNonemptyRow": 1004
+      },
+      "equal": true
+    },
+    {
+      "tab": "ドーナツ",
+      "source": {
+        "hash": "19362c45f4d7f32827d32b3ec2d150069470f0c6d816997dd38b0f63f4ac0768",
+        "nonemptyRows": 1004,
+        "lastNonemptyRow": 1004
+      },
+      "copy": {
+        "hash": "19362c45f4d7f32827d32b3ec2d150069470f0c6d816997dd38b0f63f4ac0768",
+        "nonemptyRows": 1004,
+        "lastNonemptyRow": 1004
+      },
+      "equal": true
+    },
+    {
+      "tab": "報談",
+      "source": {
+        "hash": "cf8b34f046a18ed47bb124279e5889ee90fe9ab5afa9b3d15a6f57c4c67af17a",
+        "nonemptyRows": 1004,
+        "lastNonemptyRow": 1004
+      },
+      "copy": {
+        "hash": "cf8b34f046a18ed47bb124279e5889ee90fe9ab5afa9b3d15a6f57c4c67af17a",
+        "nonemptyRows": 1004,
+        "lastNonemptyRow": 1004
+      },
+      "equal": true
+    },
+    {
+      "tab": "アルキキ",
+      "source": {
+        "hash": "072be626789c73ab464afde405986326319891dff76793d480e3c59de3207840",
+        "nonemptyRows": 1004,
+        "lastNonemptyRow": 1004
+      },
+      "copy": {
+        "hash": "072be626789c73ab464afde405986326319891dff76793d480e3c59de3207840",
+        "nonemptyRows": 1004,
+        "lastNonemptyRow": 1004
+      },
+      "equal": true
+    },
+    {
+      "tab": "AJW",
+      "source": {
+        "hash": "b96043a88c1933f62a2db49c1f7aac5ed3e6c12e08ba086af237cb77890557e1",
+        "nonemptyRows": 1004,
+        "lastNonemptyRow": 1004
+      },
+      "copy": {
+        "hash": "b96043a88c1933f62a2db49c1f7aac5ed3e6c12e08ba086af237cb77890557e1",
+        "nonemptyRows": 1004,
+        "lastNonemptyRow": 1004
+      },
+      "equal": true
+    },
+    {
+      "tab": "朝ポキTV",
+      "source": {
+        "hash": "ec9ea79190ed85fb847b5e3e1499a41e81c806ed562206a2652f2531aac05be1",
+        "nonemptyRows": 1004,
+        "lastNonemptyRow": 1004
+      },
+      "copy": {
+        "hash": "ec9ea79190ed85fb847b5e3e1499a41e81c806ed562206a2652f2531aac05be1",
+        "nonemptyRows": 1004,
+        "lastNonemptyRow": 1004
+      },
+      "equal": true
+    },
+    {
+      "tab": "IMPORT_1007_STAGING",
+      "source": {
+        "hash": "8c2df6751eae759a70d732f21068d8e95ae95b64aa30d2c662b767729dc60543",
+        "nonemptyRows": 6431,
+        "lastNonemptyRow": 6431
+      },
+      "copy": {
+        "hash": "8c2df6751eae759a70d732f21068d8e95ae95b64aa30d2c662b767729dc60543",
+        "nonemptyRows": 6431,
+        "lastNonemptyRow": 6431
+      },
+      "equal": true
+    },
+    {
+      "tab": "1007_重複照合",
+      "source": {
+        "hash": "bf665e94c0ccf7cbf8117a59ae027883241901a9752aa9dcaffb4a4b1ce14530",
+        "nonemptyRows": 422,
+        "lastNonemptyRow": 422
+      },
+      "copy": {
+        "hash": "bf665e94c0ccf7cbf8117a59ae027883241901a9752aa9dcaffb4a4b1ce14530",
+        "nonemptyRows": 422,
+        "lastNonemptyRow": 422
+      },
+      "equal": true
+    },
+    {
+      "tab": "自動補完・実行履歴",
+      "source": {
+        "hash": "a7990406bed51752870898067f518c6c1220df6d91aedc1fdd04b0326f6e7798",
+        "nonemptyRows": 93,
+        "lastNonemptyRow": 93
+      },
+      "copy": {
+        "hash": "a7990406bed51752870898067f518c6c1220df6d91aedc1fdd04b0326f6e7798",
+        "nonemptyRows": 93,
+        "lastNonemptyRow": 93
+      },
+      "equal": true
+    },
+    {
+      "tab": "SDGs公式JSON_受入管理",
+      "source": {
+        "hash": "08ba82ba491ab4b3ce74bd25d2c44385dc9ee7de4644f8fefa7e76bd6d732b56",
+        "nonemptyRows": 7,
+        "lastNonemptyRow": 7
+      },
+      "copy": {
+        "hash": "08ba82ba491ab4b3ce74bd25d2c44385dc9ee7de4644f8fefa7e76bd6d732b56",
+        "nonemptyRows": 7,
+        "lastNonemptyRow": 7
+      },
+      "equal": true
+    },
+    {
+      "tab": "SDGs1095",
+      "source": {
+        "hash": "4dc698e073826dce65a2f164021ce40b3fbc055882756aeb177829f9c6325745",
+        "nonemptyRows": 1095,
+        "lastNonemptyRow": 1095
+      },
+      "copy": {
+        "hash": "4dc698e073826dce65a2f164021ce40b3fbc055882756aeb177829f9c6325745",
+        "nonemptyRows": 1095,
+        "lastNonemptyRow": 1095
+      },
+      "equal": true
+    },
+    {
+      "tab": "こどもそうだんしつ_調査原票",
+      "source": {
+        "hash": "d4db174597df719ec396abfb71fc8676ae93d0078da6d423874f5fad969af9b3",
+        "nonemptyRows": 33,
+        "lastNonemptyRow": 33
+      },
+      "copy": {
+        "hash": "d4db174597df719ec396abfb71fc8676ae93d0078da6d423874f5fad969af9b3",
+        "nonemptyRows": 33,
+        "lastNonemptyRow": 33
+      },
+      "equal": true
+    }
+  ],
+  "copyXlsxSha256": "cfa38003bc71dfd658f5340b07f172baa0cd41ed920ccdc769d873a85f846b70",
+  "cellWrites": 0,
+  "operation": "AUTHORIZED_C1_NATIVE_COPY_AND_READ_ONLY_COMPARE"
+}

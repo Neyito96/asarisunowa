@@ -1,0 +1,9 @@
+✔ snapshot and retry attempts are audited independently of ledger writes (2.286666ms)
+ℹ tests 163
+ℹ suites 0
+ℹ pass 163
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 491.662716

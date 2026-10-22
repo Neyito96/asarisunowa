@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
         with:
-          ref: 02ad30f5153665b0edd86a169d86c8b7339ae697
+          ref: 6a54f2459ee90e93c8f1d82a7f4ee238c4526fb2
           path: .v3-test-dependency
           persist-credentials: false
       - uses: actions/setup-node@v4

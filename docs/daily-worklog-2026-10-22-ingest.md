@@ -79,3 +79,12 @@ baseline.complete=true/offset6591、設定は無効、Morning未設定・通知�
 Issue241 comment6331185808を全文確認。総合HOLD：G1実機全文/manifest・BaselineTrigger内容未取得、G2通知未接続、G4永続復旧バックアップ未確認、G5今回承認前。G3候補保全/ G6公開分離は記録・設計範囲PASS。現在main43b9023へ#247→#248のローカルmerge-tree競合0（main/枝/remote mergeなし）。
 
 コピーwriter入口のALIB/他schedulerチェック不足を既存#247へ修正（02ad30f）。追加6試験は修正前FAIL→修正後PASS、V3回帰158/158。#248へoffline source SHA/関数比較とテスト、URL付き12候補保全、受入表、具体的承認申請を保存。関連19/19 PASS。実機ソースは比較できていないためHOLDを明記。C1は全タブnative検証コピー作成のみ、実ID/hash確定後に1件writeを別承認。今回copy/本番書込・GAS・設定/トリガー・メール・Spotify・merge・公開0。
+
+
+## 優先変更：RSS専用05時台・C1実施・比較条件の発見
+
+最新司令塔comment6331380893を受け既存Morningに明示rssOnlyモードを追加。Spotifyfalse/規則なし、メールなしログ監視、05:15頃±15分、05時台のみ、pending継続1分、既存排他/予算/読戻し/二重登録/2失敗停止を維持。旧モードの通知条件と06〜09時動作は維持。RSS専用ではアルキキ/AJW/旧アーカイブを新着巡回から除外し原本は保持。#247 da418ca→6a54f24、V3回帰163/163 PASS（新モード実append/readback/replay含む）。本番未配備。
+
+承認C1でnative copy190KQDxD7LCl-apSVU59etgMvSEzMCjf2-3fuV0m38L0作成。31タブ全使用値が元本snapshotと一致、元本modifiedTime変化なし、セル書込0。C2新規1件writeは未承認・未実行。
+
+P1は既存#250/作業台コピー再利用、現行speakers3.jsの6番組・学校対象外・SDGs6/30以降除外・再配信等ゼロ加算を確認。元本は6591-140-486-31-225-290=5419仮URL群（3URL不明含む）、コピーは5450群、申告5452との差33/2。同一URL時間不一致と欠損により最終ユニーク/総時間は保留。母集団監査の結論/公開フィルタは変更せずEP-ID別理由表とURL差分候補を保存。
