@@ -1,0 +1,16 @@
+✔ live 6591 decisions yield 5848 adopted, 377 excluded, 366 held; school is counted once (0.864745ms)
+✔ changing an actual reviewed decision changes the computed count; no fixed 5848 in builder (18.658695ms)
+✔ unreviewed and duplicate decisions stop publication (8.276654ms)
+✔ title words do not override reviewed adoption; EP04305アンコール remains included (73.175706ms)
+✔ missing or duplicate public episode cannot be silently counted as complete (59.566669ms)
+✔ library label uses decision date without relabeling the old RSS snapshot date (11.780382ms)
+✔ shared writer stages exact adopted IDs across manifest, pages, indexes and details without altering episode content (486.933191ms)
+✔ universe patch removes independent title/show heuristics and imports the same reviewed scope (1.415226ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 774.739215

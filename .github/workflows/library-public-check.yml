@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'public/library/**'
+      - 'docs/audits/2026-10-22-publication-scope/**'
       - 'lib/library*'
       - 'scripts/*library*'
       - 'tests/library-public*'
@@ -22,7 +23,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node --test tests/library-public.test.mjs tests/sdgs-integration.test.mjs tests/library-phase11.test.mjs tests/pages-preparation.test.mjs
+      - run: node --test tests/library-publication-scope.test.mjs
+      - name: Stage adopted publication without changing repository snapshot
+        run: |
+          cp -R public /tmp/library-publication-preview
+          node scripts/stage-library-publication-preview.mjs public/library/data /tmp/library-publication-preview/library/data
+          node --input-type=module -e "import fs from 'node:fs';import {gunzipSync} from 'node:zlib';fs.mkdirSync('/tmp/library-publication-preview/universe',{recursive:true});fs.writeFileSync('/tmp/library-publication-preview/universe/index.html',gunzipSync(fs.readFileSync('docs/audits/2026-10-22-publication-scope/universe-preview.html.gz')));"
+      - env:
+          LIBRARY_DATA_URL: /tmp/library-publication-preview/library/data/
+        run: node --test tests/library-public.test.mjs tests/sdgs-integration.test.mjs tests/library-phase11.test.mjs tests/pages-preparation.test.mjs
       - name: Install isolated browser test tooling
         run: |
           npm install --prefix /tmp/library-browser --package-lock=false playwright@1.62.1
@@ -33,8 +42,9 @@ jobs:
           LIBRARY_SCREENSHOT_DIR: /tmp/library-screenshots
         run: |
           mkdir -p /tmp/library-screenshots
-          python -m http.server 4173 --directory public >/tmp/library-http.log 2>&1 &
+          python -m http.server 4173 --directory /tmp/library-publication-preview >/tmp/library-http.log 2>&1 &
           node tests/library-public-browser.cjs
+          node tests/library-publication-browser.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

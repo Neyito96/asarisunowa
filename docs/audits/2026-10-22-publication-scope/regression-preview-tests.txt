@@ -1,0 +1,33 @@
+✔ section edit preserves real story, separate titled original links and recording date (4.810033ms)
+✔ announcement cannot consume a later explicit content section; empty content is held (0.621559ms)
+✔ multiline article headings, duplicate links and correction notes remain accurate (0.790433ms)
+✔ 542 real proposals retain IDs/GUID/audio/raw, clean content and all source article URLs (460.384895ms)
+✔ representative 20 and article-title search are present without initial bulk download (10.351571ms)
+✔ receipt, Spotify readback, site proof, monotonic time and idempotent retries are distinct (0.863404ms)
+✔ latency metrics do not fabricate deadlines or unmeasured completed timestamps (0.31136ms)
+✔ successful retry clears the displayed failure while preserving its historical timestamp (0.144298ms)
+✔ library-first proposals include article titles but never override human exclusion (0.469479ms)
+✔ a malformed publication source fails without replacing last good public data (103.469658ms)
+✔ human exclusions fail closed and unspecified values remain usable (1.330148ms)
+✔ URL validation rejects script, HTTP and embedded credentials (0.243798ms)
+✔ mechanical rendering preserves words and article URLs without executable markup (0.980801ms)
+✔ raw and clean values are kept distinct; MP3 presence is not verification (0.808921ms)
+✔ NFKC, full description keyword and multiple terms work with date and programme filters (8.502649ms)
+✔ real snapshot preserves stable unique IDs, explicit exclusions and bounded initial pages (149.170186ms)
+✔ Pages preparation ignores transient rsync files while still rewriting and validating real content (88.191868ms)
+✔ official UUID updates metadata without touching EP-ID, audio, full original or clean text (3.924776ms)
+✔ working UUID plus unique old Omny URL/title/JST datetime bridges migrated IDs (0.460825ms)
+✔ same date and base title with changed episode number is held and never duplicated (0.52315ms)
+✔ publication conflicts, unknown human exclusions and unverified pages are held (0.916113ms)
+✔ a truly absent record is only a V3 append candidate; no ID is invented (0.292001ms)
+✔ embed and MP3 namespaces cannot be interchanged (0.302147ms)
+✔ source mutation after preview aborts before any application (0.728831ms)
+✔ candidate contains 1091 verified mappings, one hold and unchanged 6591 EP-IDs (33.474867ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 684.094029
