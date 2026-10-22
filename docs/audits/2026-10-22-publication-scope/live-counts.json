@@ -1,0 +1,120 @@
+{
+  "rows": 6591,
+  "counts": {
+    "対象": 5848,
+    "保留": 366,
+    "対象外": 377
+  },
+  "shows": {
+    "ニュースの現場から": {
+      "total": 2641,
+      "adopted": 2388,
+      "onsa": 2379,
+      "both": 2379,
+      "held": 233,
+      "excluded": 20
+    },
+    "MEDIA TALK": {
+      "total": 1750,
+      "adopted": 1719,
+      "onsa": 1717,
+      "both": 1717,
+      "held": 17,
+      "excluded": 14
+    },
+    "こどもそうだんしつ": {
+      "total": 31,
+      "adopted": 31,
+      "onsa": 0,
+      "both": 0,
+      "held": 0,
+      "excluded": 0
+    },
+    "スポンジ": {
+      "total": 173,
+      "adopted": 172,
+      "onsa": 169,
+      "both": 169,
+      "held": 1,
+      "excluded": 0
+    },
+    "ニュースの学校": {
+      "total": 486,
+      "adopted": 485,
+      "onsa": 0,
+      "both": 0,
+      "held": 1,
+      "excluded": 0
+    },
+    "ドーナツ": {
+      "total": 60,
+      "adopted": 60,
+      "onsa": 60,
+      "both": 60,
+      "held": 0,
+      "excluded": 0
+    },
+    "報談": {
+      "total": 218,
+      "adopted": 95,
+      "onsa": 0,
+      "both": 0,
+      "held": 4,
+      "excluded": 119
+    },
+    "アルキキ": {
+      "total": 100,
+      "adopted": 0,
+      "onsa": 0,
+      "both": 0,
+      "held": 0,
+      "excluded": 100
+    },
+    "AJW": {
+      "total": 25,
+      "adopted": 0,
+      "onsa": 0,
+      "both": 0,
+      "held": 0,
+      "excluded": 25
+    },
+    "朝ポキTV": {
+      "total": 15,
+      "adopted": 0,
+      "onsa": 0,
+      "both": 0,
+      "held": 0,
+      "excluded": 15
+    },
+    "SDGsを話そう": {
+      "total": 1092,
+      "adopted": 898,
+      "onsa": 894,
+      "both": 894,
+      "held": 110,
+      "excluded": 84
+    }
+  },
+  "cross": {
+    "対象/対象": 5219,
+    "対象外/対象": 516,
+    "保留/保留": 365,
+    "保留/対象": 113,
+    "対象外/対象外": 377,
+    "対象外/保留": 1
+  },
+  "nonOnsaAdoptedClassification": {
+    "通常": 31,
+    "日時差分": 598
+  },
+  "main": "cd8250584ea1a938b29db97ac6c813dfb4d04ad0",
+  "universe": "7debd65913f7273d0f3145e0ec31aafc917ddf38",
+  "source": {
+    "spreadsheetId": "1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4",
+    "sheetId": 1926102291,
+    "sheet": "図書館・宇宙 検索対象判定",
+    "range": "A2:J6592",
+    "decisionColumn": "D",
+    "readAt": "2026-10-22T11:03:39.707Z"
+  }
+}
