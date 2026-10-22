@@ -65,3 +65,10 @@ P0優先のためspeakers2 5,452件との差分確定は未着手のまま保持
 baseline.complete=true/offset6591、設定は無効、Morning未設定・通知依存なしをユーザー実機出力で確認。feeds=[]はLIB_V3_CURSORの履歴でRSS設定一覧ではなかった。既存#247のREAD_ONLY previewにconfiguredFeeds/Countを追加し、旧feeds互換維持。保存済み台帳には取得元10本。Spotify6依存なしでも既存コアRSS登録/再実行0の試験成功。一方Morningは通知関数不足で設定前停止を維持。
 
 既知12件は保存済みRSS/台帳で再照合し識別上コピー候補のまま、実設定では全件本番保留（allowNew=false/newAfter空）。最新実機報告後の本番データ再取得は未実施。新たな書込なし。V3回帰152/152、関連統合13/13 PASS。既存#247/#248へ保存。詳細はphase12-gas-activation-2026-10-22.md追記。
+
+
+## 11:20 JST 最新取得元・RSS再照合
+
+元本を再取得し取得元13行/A-H列対応を直接確認。V3選択10本=主要7+アルキキ/AJW2+旧SDGs1。YouTube1は除外、LISTEN2はH空。全10本HTTP200/RSS確認。旧SDGs1092と後継36を別々に記録し母集団確定数には使わない。
+
+最新ニュースRSS2653×最新元本6591で12候補再照合。既存対応/削除/再配信警告/清掃HOLD0、設定込み保留12。Drive更新時刻前後一致、対象5タブ値は前回スナップショットと同一。READ_ONLY auditモード・証拠・CSVを既存#248に追記。通知実装元AutoUpdateNotification.jsを確認し、既存本文builderの無送信/秘密値マスク試験追加。関連15/15 PASS。本番/公開/メール/Spotify書込0。

@@ -44,3 +44,15 @@ test('Morning activation without Spotify is blocked by notification, not six Spo
  const {h}=await fixture(),before=JSON.stringify([...h.props]);
  assert.throws(()=>h.ctx.configureLibraryV3MorningAfterApproval({enabled:true,spotify:false,ruleKeys:[],since:new Date(Date.now()+60000).toISOString()}),/notification dependency missing/);assert.equal(JSON.stringify([...h.props]),before);
 });
+
+test('feed selection uses A/H only, excludes YouTube and blank LISTEN, retains old SDGs RSS',{skip:!root},async()=>{
+ const {h}=await fixture(),row=(name,url)=>{const r=Array(13).fill('');r[0]=name;r[6]='https://listen.style/p/page';r[7]=url;return r;};
+ const feeds=h.ctx.libV3Feeds_([row('ニュース','https://rss.example/news.xml'),row('朝ポキTV','https://www.youtube.com/feeds/videos.xml?channel_id=x'),row('LISTEN',''),row('旧SDGsアーカイブ','https://rss.example/old.xml')]);
+ assert.deepEqual(Array.from(feeds,f=>f.show).sort(),['ニュース','旧SDGsアーカイブ']);
+});
+test('existing notification builder can be previewed without mail, cache, Properties or Spotify',{skip:!root},async()=>{
+ const {h}=await fixture();vm.runInContext(await readFile(new URL('../scripts/google-apps-script/AutoUpdateNotification.js',import.meta.url),'utf8'),h.ctx);
+ h.ctx.MailApp={sendEmail:()=>{throw Error('MAIL_FORBIDDEN');}};h.ctx.CacheService={getScriptCache:()=>{throw Error('CACHE_FORBIDDEN');}};
+ const before=JSON.stringify([...h.props]),calls=h.calls;const mail=h.ctx.buildAutoUpdateFailureNotificationMail_({target:'V3 morning',stage:'READ_ONLY_CHECK',error:'Bearer fake-secret access_token=fake-token'});
+ assert.ok(mail.subject.includes('V3 morning'));assert.ok(!mail.body.includes('fake-secret'));assert.ok(!mail.body.includes('fake-token'));assert.equal(JSON.stringify([...h.props]),before);assert.equal(h.calls,calls);
+});

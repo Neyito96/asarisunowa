@@ -3,13 +3,13 @@
 // may materialize the bounded outbox through Sheets, then run it on readback.
 import fs from 'node:fs';import vm from 'node:vm';import {createHash} from 'node:crypto';import {pathToFileURL}from'node:url';import path from'node:path';
 const [privateDir,v3Root,copyId,phase='plan']=process.argv.slice(2);
-if(!privateDir||!v3Root||!copyId)throw Error('PRIVATE_DIR V3_ROOT COPY_ID [plan|replay|failure]');
+if(!privateDir||!v3Root||!copyId)throw Error('PRIVATE_DIR V3_ROOT COPY_ID [plan|replay|failure|audit]');
 const sourceId='1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4';if(copyId===sourceId)throw Error('Production forbidden');
 const read=name=>JSON.parse(fs.readFileSync(path.join(privateDir,name),'utf8'));
 const {harness}=await import(pathToFileURL(path.join(v3Root,'tests/library-v3-harness.mjs')));
 const originalCwd=process.cwd();let h,copy;try{process.chdir(v3Root);h=harness(0);copy=harness(0);}finally{process.chdir(originalCwd);}
 const revive=x=>{if(x&&typeof x==='object'&&!Array.isArray(x)&&x.$date)return new h.ctx.Date(x.$date);if(Array.isArray(x))return x.map(revive);if(x&&typeof x==='object')return Object.fromEntries(Object.entries(x).map(([k,v])=>[k,revive(v)]));return x;};
-const source=revive(read('source-tables.json')),target=revive(read(phase==='plan'?'copy-tables.json':'copy-readback-tables.json'));
+const source=revive(read('source-tables.json')),target=phase==='audit'?source:revive(read(phase==='plan'?'copy-tables.json':'copy-readback-tables.json'));
 const load=(box,tables)=>{const ss=box.ctx.SpreadsheetApp.openById();for(const [name,rows]of Object.entries(tables)){let sh=ss.getSheetByName(name);if(!sh)sh=ss.insertSheet(name);box.table[name].splice(0,box.table[name].length,...rows);}return ss;};
 const sourceSs=load(h,source),copySs=load(copy,target),outbox=[];
 const protect=(ss,writable)=>({getSheetByName:name=>{const sh=ss.getSheetByName(name);if(!sh)return null;return {...sh,getRange:(r,c,n=1,m=1)=>{const cell=sh.getRange(r,c,n,m);return {...cell,setValue:v=>{if(!writable)throw Error('SOURCE_WRITE_FORBIDDEN');outbox.push({sheet:name,row:r,column:c,values:[[v]]});return cell.setValue(v);},setValues:values=>{if(!writable)throw Error('SOURCE_WRITE_FORBIDDEN');outbox.push({sheet:name,row:r,column:c,values});return cell.setValues(values);}};},appendRow:values=>{if(!writable)throw Error('SOURCE_WRITE_FORBIDDEN');outbox.push({sheet:name,row:sh.getLastRow()+1,column:1,values:[values]});return sh.appendRow(values);}};}});
@@ -27,6 +27,12 @@ h.ctx.ScriptApp.newTrigger=()=>{throw Error('TRIGGER_WRITE_FORBIDDEN');};
 const feed=read('rss-source.json'),items=h.ctx.libV2CpParse_(xml,true),c=h.ctx.libV3Context_(false),previous=JSON.parse(fs.readFileSync(path.join(originalCwd,'docs/audits/2026-10-22-ingest/rss-delta.json'))).newCandidates;
 const decisions=previous.map(prior=>{const hits=items.filter(x=>x.guid===prior.guid);if(hits.length!==1)return {...prior,status:'HOLD',reason:'RSS_MISSING_OR_DUPLICATED'};const it=hits[0],matches=h.ctx.libV2CpMatches_(it.guid,c.index.guid,c.index.anchor),d=h.ctx.libV3NewDecision_(it,{show:'ニュースの現場から',url:feed.url},c,{allowNew:true,newAfter:new Date(Date.parse(it.published)-1).toISOString()},baseline),clean=h.ctx.libV3AutoCleanEvidence_(it.description);return {guid:it.guid,title:it.title,publishedAt:it.published,priorTitle:prior.title,priorPublishedAt:prior.publishedAt,rssMetadataChanged:it.title!==h.ctx.libV2CpNorm_(prior.title)||Date.parse(it.published)!==Date.parse(prior.publishedAt),existingIds:Array.from(matches,i=>c.rows[i][0]),duplicateOrReissue:d.reasons.filter(x=>/seen|reissue|ledger_id/.test(x)),status:!matches.length&&d.eligible&&!clean.hold?'ELIGIBLE_FOR_COPY':'HOLD',reasons:[...d.reasons,...(matches.length?['EXISTING_ID']:[]),...(clean.hold?[clean.reason]:[])],cleaningHold:clean.hold};});
 fs.writeFileSync(path.join(privateDir,'decisions.json'),JSON.stringify({at:new Date().toISOString(),feed,items:items.length,sourceRows:c.rows.length,liveBaselineVerified:false,decisions},null,2));
+if(phase==='audit'){
+ const reported=read('diagnostic-config.json');
+ const current=decisions.map(d=>{const it=items.find(x=>x.guid===d.guid);if(!it)return {...d,currentStatus:'HOLD',currentReasons:['RSS_MISSING_OR_DUPLICATED']};const nd=h.ctx.libV3NewDecision_(it,{show:'ニュースの現場から',url:feed.url},c,reported.config,reported.baseline);return {...d,currentStatus:d.existingIds.length?'EXISTING':(!reported.config.enabled||!nd.eligible?'HOLD':'ELIGIBLE'),currentReasons:[...(!reported.config.enabled?['runner_disabled']:[]),...nd.reasons]};});
+ const proof={mode:'READ_ONLY_FRESH_RSS_AND_NATIVE_LEDGER',at:new Date().toISOString(),feed,sourceRows:c.rows.length,configuredFeeds:c.feeds,sourceHeaders:source['取得元一覧'][0],configurationSource:'USER_REPORTED_LIVE_READ_ONLY_DIAGNOSTIC',reported,decisions:current,googleWrites:0,propertyWrites:0,outbox:outbox.length};
+ if(outbox.length)throw Error('Audit unexpectedly wrote');fs.writeFileSync(path.join(privateDir,'audit-proof.json'),JSON.stringify(proof,null,2));console.log(JSON.stringify({sourceRows:c.rows.length,rssItems:items.length,candidates:current.length,copyEligible:current.filter(x=>x.status==='ELIGIBLE_FOR_COPY').length,currentEligible:current.filter(x=>x.currentStatus==='ELIGIBLE').length,feeds:c.feeds.length,writes:0}));process.exit(0);
+}
 const selected=phase==='plan'?decisions.filter(x=>x.status==='ELIGIBLE_FOR_COPY').sort((a,b)=>a.publishedAt.localeCompare(b.publishedAt))[0]:read('selected.json');
 if(!selected){console.log(JSON.stringify({status:'NO_ELIGIBLE_COPY_CANDIDATE',decisions},null,2));process.exit(2);}
 const options={copySheetId:copyId,guid:selected.guid,feedUrl:feed.url};

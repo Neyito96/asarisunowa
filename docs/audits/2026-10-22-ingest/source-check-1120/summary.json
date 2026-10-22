@@ -1,0 +1,22 @@
+{
+  "checkedAt": "2026-10-22T02:19:07.199Z",
+  "sourceModifiedTimeBefore": "2026-10-22T01:48:15.286Z",
+  "sourceModifiedTimeAfter": "2026-10-22T01:48:15.286Z",
+  "sourceWorkbookSha256": "267c440e8f9ede5ef18354f65b992f4a9243fb29201e0f12e62bdce2d9b03fba",
+  "ledgerRows": 6591,
+  "sourceRows": 13,
+  "selectedFeeds": 10,
+  "validHttp200Rss": 10,
+  "newsRssItems": 2653,
+  "knownCandidates": 12,
+  "existingIds": 0,
+  "identityEligible": 12,
+  "currentProductionEligible": 0,
+  "writes": 0,
+  "tests": {
+    "relatedPass": 15,
+    "fail": 0
+  },
+  "nativeExportKeptPrivate": true,
+  "currentConfigProvenance": "USER_REPORTED_READ_ONLY_DIAGNOSTICS"
+}

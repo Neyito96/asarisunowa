@@ -1,0 +1,317 @@
+{
+  "mode": "READ_ONLY_FRESH_RSS_AND_NATIVE_LEDGER",
+  "at": "2026-10-22T02:19:07.199Z",
+  "feed": {
+    "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/684015f9-2396-4ac4-bc1f-ac0f0033d08c/podcast.rss",
+    "status": 200,
+    "fetchedAt": "2026-10-22T02:18:09.669293+00:00",
+    "sha256": "9067a152435b637aeb72dafc27b77036e9b362a51cd51a4a4c4e05ff2e0e3240",
+    "bytes": 20357575
+  },
+  "sourceRows": 6591,
+  "configuredFeeds": [
+    {
+      "url": "https://feeds.megaphone.fm/TASC5851398719",
+      "show": "ニュースの学校"
+    },
+    {
+      "url": "https://feeds.megaphone.fm/TASC9421488254",
+      "show": "報談"
+    },
+    {
+      "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/29a60fdd-4069-48cf-a604-ad25009874be/podcast.rss",
+      "show": "AJW"
+    },
+    {
+      "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/91b696fe-c723-4bd1-95ed-b4aa00909997/podcast.rss",
+      "show": "旧SDGsアーカイブ"
+    },
+    {
+      "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/ee64c498-786d-4155-962a-acc4009cef3e/podcast.rss",
+      "show": "アルキキ"
+    },
+    {
+      "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/07a1de49-67cf-4714-8581-ac1000059302/podcast.rss",
+      "show": "MEDIA TALK"
+    },
+    {
+      "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/684015f9-2396-4ac4-bc1f-ac0f0033d08c/podcast.rss",
+      "show": "ニュースの現場から"
+    },
+    {
+      "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/693cfdd6-f5a9-4308-9025-adb10164b5b1/podcast.rss",
+      "show": "こどもそうだんしつ"
+    },
+    {
+      "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/8ceab8ef-af5f-44e9-9545-b4ab0024434b/podcast.rss",
+      "show": "スポンジ"
+    },
+    {
+      "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/c373aac9-fb6a-4172-8a8f-b498003d9389/podcast.rss",
+      "show": "ドーナツ"
+    }
+  ],
+  "sourceHeaders": [
+    "番組・取得先",
+    "配信元",
+    "RSS等の確認件数",
+    "公式索引表示件数",
+    "取得可能な情報",
+    "遡及・欠損",
+    "配信ページURL",
+    "RSS・取得URL",
+    "Apple番組URL",
+    "Spotify番組URL",
+    "根拠・規約URL",
+    "根拠区分",
+    "留意事項"
+  ],
+  "configurationSource": "USER_REPORTED_LIVE_READ_ONLY_DIAGNOSTIC",
+  "reported": {
+    "baseline": {
+      "complete": true,
+      "offset": 6591
+    },
+    "config": {
+      "enabled": false,
+      "autonomous": true,
+      "allowNew": false,
+      "allowEnrich": false,
+      "newAfter": "",
+      "spotifyApi": false
+    }
+  },
+  "decisions": [
+    {
+      "guid": "8fe3c32f-056a-4223-9ed1-b4e500c559ea",
+      "title": "(ON GOING)子どもの学習にAI、どこまでOK? 認知科学者・今井むつみさんと考えた",
+      "publishedAt": "2026-10-21T19:00:00.000Z",
+      "priorTitle": "（ON GOING）子どもの学習にAI、どこまでOK？　認知科学者・今井むつみさんと考えた",
+      "priorPublishedAt": "Wed, 21 Oct 2026 19:00:00 +0000",
+      "rssMetadataChanged": false,
+      "existingIds": [],
+      "duplicateOrReissue": [],
+      "status": "ELIGIBLE_FOR_COPY",
+      "reasons": [],
+      "cleaningHold": false,
+      "currentStatus": "HOLD",
+      "currentReasons": [
+        "runner_disabled",
+        "new_registration_not_enabled",
+        "historical_or_invalid_publication"
+      ]
+    },
+    {
+      "guid": "45786cb6-5abc-4b29-9051-b4e500648a62",
+      "title": "(World Insight #6)ネパールを襲った巨大土石流 「山津波」が押し寄せた現場は",
+      "publishedAt": "2026-10-20T19:00:00.000Z",
+      "priorTitle": "（World Insight #6）ネパールを襲った巨大土石流　「山津波」が押し寄せた現場は",
+      "priorPublishedAt": "Tue, 20 Oct 2026 19:00:00 +0000",
+      "rssMetadataChanged": false,
+      "existingIds": [],
+      "duplicateOrReissue": [],
+      "status": "ELIGIBLE_FOR_COPY",
+      "reasons": [],
+      "cleaningHold": false,
+      "currentStatus": "HOLD",
+      "currentReasons": [
+        "runner_disabled",
+        "new_registration_not_enabled",
+        "historical_or_invalid_publication"
+      ]
+    },
+    {
+      "guid": "d9226a5c-88fe-4f3a-8063-b4e400829390",
+      "title": "【朗読スペシャル】 泉ピン子さん 初めて「本気の演技」をした日(人生の贈りもの)",
+      "publishedAt": "2026-10-19T19:00:00.000Z",
+      "priorTitle": "【朗読スペシャル】 泉ピン子さん　初めて「本気の演技」をした日（人生の贈りもの）",
+      "priorPublishedAt": "Mon, 19 Oct 2026 19:00:00 +0000",
+      "rssMetadataChanged": false,
+      "existingIds": [],
+      "duplicateOrReissue": [],
+      "status": "ELIGIBLE_FOR_COPY",
+      "reasons": [],
+      "cleaningHold": false,
+      "currentStatus": "HOLD",
+      "currentReasons": [
+        "runner_disabled",
+        "new_registration_not_enabled",
+        "historical_or_invalid_publication"
+      ]
+    },
+    {
+      "guid": "a7a7e53b-4657-46ec-af31-b4e20033184f",
+      "title": "(めくろう #202)さん付け徐々に ドパガキ急激に キャンピングカーは憧れに",
+      "publishedAt": "2026-10-18T19:00:00.000Z",
+      "priorTitle": "（めくろう #202）さん付け徐々に　ドパガキ急激に　キャンピングカーは憧れに",
+      "priorPublishedAt": "Sun, 18 Oct 2026 19:00:00 +0000",
+      "rssMetadataChanged": false,
+      "existingIds": [],
+      "duplicateOrReissue": [],
+      "status": "ELIGIBLE_FOR_COPY",
+      "reasons": [],
+      "cleaningHold": false,
+      "currentStatus": "HOLD",
+      "currentReasons": [
+        "runner_disabled",
+        "new_registration_not_enabled",
+        "historical_or_invalid_publication"
+      ]
+    },
+    {
+      "guid": "e82dff62-ad36-41d3-9609-b4e300473821",
+      "title": "(大阪目線 #7)「いびきがうるさい」から婚約破棄まで...裁判沙汰の末に 司法記者がみた人間ドラマ",
+      "publishedAt": "2026-10-17T19:00:00.000Z",
+      "priorTitle": "（大阪目線 #7）「いびきがうるさい」から婚約破棄まで…裁判沙汰の末に　司法記者がみた人間ドラマ",
+      "priorPublishedAt": "Sat, 17 Oct 2026 19:00:00 +0000",
+      "rssMetadataChanged": false,
+      "existingIds": [],
+      "duplicateOrReissue": [],
+      "status": "ELIGIBLE_FOR_COPY",
+      "reasons": [],
+      "cleaningHold": false,
+      "currentStatus": "HOLD",
+      "currentReasons": [
+        "runner_disabled",
+        "new_registration_not_enabled",
+        "historical_or_invalid_publication"
+      ]
+    },
+    {
+      "guid": "73527408-d0df-4554-9feb-b4e50083852a",
+      "title": "(ポリレビ #15)簗大臣の更迭、問題の本質はここだ/米国がロシアに肩入れし問われる日本外交",
+      "publishedAt": "2026-10-16T19:00:00.000Z",
+      "priorTitle": " （ポリレビ #15）簗大臣の更迭、問題の本質はここだ／米国がロシアに肩入れし問われる日本外交",
+      "priorPublishedAt": "Fri, 16 Oct 2026 19:00:00 +0000",
+      "rssMetadataChanged": false,
+      "existingIds": [],
+      "duplicateOrReissue": [],
+      "status": "ELIGIBLE_FOR_COPY",
+      "reasons": [],
+      "cleaningHold": false,
+      "currentStatus": "HOLD",
+      "currentReasons": [
+        "runner_disabled",
+        "new_registration_not_enabled",
+        "historical_or_invalid_publication"
+      ]
+    },
+    {
+      "guid": "e58f2557-8e1f-4c74-adca-b4e400526584",
+      "title": "(ゆるっと経済 #21)きょうは「ぐびっと」経済?変わるビール市場徹底解説 残業45時間規制についても考えます",
+      "publishedAt": "2026-10-15T19:00:00.000Z",
+      "priorTitle": "（ゆるっと経済 #21）きょうは「ぐびっと」経済？変わるビール市場徹底解説　残業45時間規制についても考えます",
+      "priorPublishedAt": "Thu, 15 Oct 2026 19:00:00 +0000",
+      "rssMetadataChanged": false,
+      "existingIds": [],
+      "duplicateOrReissue": [],
+      "status": "ELIGIBLE_FOR_COPY",
+      "reasons": [],
+      "cleaningHold": false,
+      "currentStatus": "HOLD",
+      "currentReasons": [
+        "runner_disabled",
+        "new_registration_not_enabled",
+        "historical_or_invalid_publication"
+      ]
+    },
+    {
+      "guid": "13a36195-331b-4f82-bcc2-b4c100868f97",
+      "title": "(ON GOING)東京は無償だけど、千葉では「けっこうな額」 保育料格差に悩む親たち",
+      "publishedAt": "2026-10-14T19:00:00.000Z",
+      "priorTitle": "（ON GOING）東京は無償だけど、千葉では「けっこうな額」　保育料格差に悩む親たち",
+      "priorPublishedAt": "Wed, 14 Oct 2026 19:00:00 +0000",
+      "rssMetadataChanged": false,
+      "existingIds": [],
+      "duplicateOrReissue": [],
+      "status": "ELIGIBLE_FOR_COPY",
+      "reasons": [],
+      "cleaningHold": false,
+      "currentStatus": "HOLD",
+      "currentReasons": [
+        "runner_disabled",
+        "new_registration_not_enabled",
+        "historical_or_invalid_publication"
+      ]
+    },
+    {
+      "guid": "2562ccc6-8430-4bdd-b1fd-b4d60079aa38",
+      "title": "(GLOBE)たたかう図書館 本を守り、記憶をつなぎ、街をつくる",
+      "publishedAt": "2026-10-13T19:00:00.000Z",
+      "priorTitle": "（GLOBE）たたかう図書館　本を守り、記憶をつなぎ、街をつくる",
+      "priorPublishedAt": "Tue, 13 Oct 2026 19:00:00 +0000",
+      "rssMetadataChanged": false,
+      "existingIds": [],
+      "duplicateOrReissue": [],
+      "status": "ELIGIBLE_FOR_COPY",
+      "reasons": [],
+      "cleaningHold": false,
+      "currentStatus": "HOLD",
+      "currentReasons": [
+        "runner_disabled",
+        "new_registration_not_enabled",
+        "historical_or_invalid_publication"
+      ]
+    },
+    {
+      "guid": "bd59457d-fd7e-4393-9611-b4d2002509ae",
+      "title": "(地球会議 #2)認知症1千万人の時代...超高齢化社会の日本 AIの登場でどう変化?",
+      "publishedAt": "2026-10-12T19:00:00.000Z",
+      "priorTitle": "（地球会議 #2）認知症1千万人の時代…超高齢化社会の日本　AIの登場でどう変化？",
+      "priorPublishedAt": "Mon, 12 Oct 2026 19:00:00 +0000",
+      "rssMetadataChanged": false,
+      "existingIds": [],
+      "duplicateOrReissue": [],
+      "status": "ELIGIBLE_FOR_COPY",
+      "reasons": [],
+      "cleaningHold": false,
+      "currentStatus": "HOLD",
+      "currentReasons": [
+        "runner_disabled",
+        "new_registration_not_enabled",
+        "historical_or_invalid_publication"
+      ]
+    },
+    {
+      "guid": "4531520c-d23d-40ca-bf7d-b4db0074560d",
+      "title": "その見た目、小型ねぶたと呼ばれ...還暦超え男性記者のヘアドネ挑戦記",
+      "publishedAt": "2026-10-11T19:00:00.000Z",
+      "priorTitle": "その見た目、小型ねぶたと呼ばれ…還暦超え男性記者のヘアドネ挑戦記",
+      "priorPublishedAt": "Sun, 11 Oct 2026 19:00:00 +0000",
+      "rssMetadataChanged": false,
+      "existingIds": [],
+      "duplicateOrReissue": [],
+      "status": "ELIGIBLE_FOR_COPY",
+      "reasons": [],
+      "cleaningHold": false,
+      "currentStatus": "HOLD",
+      "currentReasons": [
+        "runner_disabled",
+        "new_registration_not_enabled",
+        "historical_or_invalid_publication"
+      ]
+    },
+    {
+      "guid": "38da5e5a-96ce-4113-9c7e-b4db000e82d2",
+      "title": "(大阪目線#6)共産が支援する町長がかじをとる町は 「天王山」の地、二分する選挙",
+      "publishedAt": "2026-10-10T19:00:00.000Z",
+      "priorTitle": "（大阪目線#6）共産が支援する町長がかじをとる町は　 「天王山」の地、二分する選挙",
+      "priorPublishedAt": "Sat, 10 Oct 2026 19:00:00 +0000",
+      "rssMetadataChanged": false,
+      "existingIds": [],
+      "duplicateOrReissue": [],
+      "status": "ELIGIBLE_FOR_COPY",
+      "reasons": [],
+      "cleaningHold": false,
+      "currentStatus": "HOLD",
+      "currentReasons": [
+        "runner_disabled",
+        "new_registration_not_enabled",
+        "historical_or_invalid_publication"
+      ]
+    }
+  ],
+  "googleWrites": 0,
+  "propertyWrites": 0,
+  "outbox": 0
+}
