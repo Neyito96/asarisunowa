@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>朝リスの宇宙 | 話題の地層 V0.3</title>
+<style>:root{color-scheme:dark}body{background:#101827;color:#eef3fc;font:15px/1.6 system-ui,sans-serif;margin:0;padding:clamp(16px,4vw,48px)}h1{font-size:clamp(28px,4vw,46px);margin:0}p,.muted{color:#aabbd2}button,select{background:#273a57;color:white;border:1px solid #5e7290;border-radius:8px;padding:8px 12px;cursor:pointer}#chart{overflow:auto;background:#172438;border-radius:14px;padding:18px;min-height:350px}#chart svg{color:#dbe8fa;max-width:100%;height:auto}.stats{display:flex;gap:10px;flex-wrap:wrap}.stats span{background:#20314a;padding:7px 11px;border-radius:8px}a{color:#9bd7ff}li{margin:5px 0}#episodes{max-height:300px;overflow:auto}</style></head>
+<body><h1>朝リスの宇宙</h1><p>話題の地層 V0.3 — 図書館のタイトル・概要から自動分類（実験版）</p>
+<div class="stats" id="stats"></div><p id="status" role="status">読み込み準備中</p><button id="reload">最新の図書館を再読み込み</button>
+<h2>話題の地層</h2><div id="chart"></div>
+<p>話題を選ぶ： <select id="topic"><option value="">すべて</option></select>　配信月： <select id="month"><option value="">すべて</option></select></p>
+<p id="selected"></p><ol id="episodes"></ol>
+<p class="muted">分類はルールベースの暫定推定です。各エピソードを主分類1つに計上し、未分類も表示します。タイトル・概要の共通宣伝文や複数話題による誤分類が残る可能性があります。図書館本体への書き込みは行いません。</p>
+<script type="module">
+import * as Plot from "@observablehq/plot";
+import {classifyEpisode,RULES_VERSION} from "./topic-classifier.mjs";
+const base="https://neyito96.github.io/asarisunowa/library/data/";
+const omitted=new Set(["アルキキ","AJW","朝ポキTV"]);
+const replay=/(?:再配信|再放送|アンコール)/u;
+const $=id=>document.getElementById(id);
+const get=async u=>{const r=await fetch(u,{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status+" "+u);return r.json()};
+let entries=[];
+function renderSelection(){
+ const t=$("topic").value,m=$("month").value;
+ const subset=entries.filter(e=>(!t||e.topic===t)&&(!m||e.month===m));
+ $("selected").textContent=`該当 ${subset.length.toLocaleString()}件（先頭100件を表示）`;
+ $("episodes").replaceChildren(...subset.slice(0,100).map(e=>{const li=document.createElement("li");li.textContent=`${e.month}｜${e.show}｜${e.title}［${e.topic}・${e.evidence}］ ${e.id}`;return li}));
+}
+async function refresh(){
+ $("reload").disabled=true;$("status").textContent="図書館を読み込み中…";
+ try{
+ const manifest=await get(base+"manifest.json");
+ const files=manifest.shows.filter(s=>!omitted.has(s.name)).flatMap(s=>s.search||[]);
+ if(!files.length)throw Error("検索用JSONのファイル一覧がありません");
+ const rows=[];
+ for(let i=0;i<files.length;i+=8){
+   const pages=await Promise.all(files.slice(i,i+8).map(f=>get(base+f)));
+   pages.forEach(page=>{if(!Array.isArray(page))throw Error("検索用JSON形式不正");rows.push(...page)});
+   $("status").textContent=`検索用JSONを取得中 ${Math.min(i+8,files.length)}/${files.length}`;
+ }
+ const ids=new Set(),valid=[];let duplicates=0,replays=0,badDates=0;
+ for(const r of rows){
+  if(omitted.has(r.show))continue;
+  if(ids.has(r.id)){duplicates++;continue;}ids.add(r.id);
+  if(replay.test(r.title||"")){replays++;continue}
+  if(!/^\d{4}-(0[1-9]|1[0-2])/.test(r.date||"")){badDates++;continue}
+  const c=classifyEpisode(r);
+  valid.push({...c,title:r.title,show:r.show,month:r.date.slice(0,7)});
+ }
+ entries=valid;
+ const topics=[...new Set(valid.map(e=>e.topic))].sort();
+ const months=[...new Set(valid.map(e=>e.month))].sort();
+ const counts=new Map();
+ for(const e of valid){const key=e.month+"|"+e.topic;counts.set(key,(counts.get(key)||0)+1)}
+ const chartData=months.flatMap(m=>topics.map(t=>({month:new Date(m+"-01T00:00:00Z"),topic:t,count:counts.get(m+"|"+t)||0})));
+ const chart=Plot.plot({width:1100,height:520,marginBottom:45,
+ x:{label:"配信年月",tickFormat:d=>String(d.getUTCFullYear())},
+ y:{label:"エピソード件数",grid:true},color:{legend:true},
+ marks:[Plot.areaY(chartData,Plot.stackY({x:"month",y:"count",fill:"topic",curve:"linear"})),Plot.ruleY([0])]});
+ $("chart").replaceChildren(chart);
+ for(const [id,values] of [["topic",topics],["month",months]]){
+  const select=$(id);select.replaceChildren(new Option("すべて",""),...values.map(v=>new Option(v,v)));
+ }
+ $("stats").replaceChildren(...[`公開版 ${manifest.snapshotDate||"不明"}`,`分類対象 ${valid.length.toLocaleString()}件`,`再配信表記 ${replays}件`,`重複ID ${duplicates}件`,`日付不正 ${badDates}件`,`分類ルール ${RULES_VERSION}`].map(t=>{const el=document.createElement("span");el.textContent=t;return el}));
+ $("status").textContent=`取得完了｜図書館バージョン ${manifest.version||"不明"}｜検索用JSON ${files.length}ファイル`;
+ renderSelection();
+ }catch(e){$("status").textContent="読み込み失敗: "+e.message;console.error(e)}
+ finally{$("reload").disabled=false}
+}
+$("reload").addEventListener("click",refresh);$("topic").addEventListener("change",renderSelection);$("month").addEventListener("change",renderSelection);refresh();
+</script></body></html>
