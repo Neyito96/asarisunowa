@@ -79,3 +79,9 @@ test('a live 55-column ledger preserves archive extensions and replays with zero
  assert.equal(f.h.ctx.saveLibraryV3CopyPilotAfterApproval(o).writtenRows,1);assert.equal(f.h.ctx.saveLibraryV3CopyPilotAfterApproval(o).writtenRows,0);
  assert.deepEqual(f.copy.data[1].slice(51),before);assert.equal(f.copy.data.length,3);
 });
+
+for(const handler of ['ALIB_AUTO_tick','scheduledLibraryV3','scheduledLibraryV3BaselineOnly','scheduledLibraryV3Morning','continueLibraryV3Morning','runOfficialRssBackfill'])test('copy write refuses competing '+handler+' before any sheet, RSS or Properties access',()=>{
+ const f=fixture(),before=JSON.stringify([f.h.table,f.copy.table,[...f.h.props]]);f.h.triggers.push(handler);
+ assert.throws(()=>f.h.ctx.saveLibraryV3CopyPilotAfterApproval({...f.options,approvedPlanHash:'reviewed'}),/Conflicting library writer/);
+ assert.equal(f.opened.length,0);assert.equal(f.h.calls,0);assert.equal(JSON.stringify([f.h.table,f.copy.table,[...f.h.props]]),before);
+});

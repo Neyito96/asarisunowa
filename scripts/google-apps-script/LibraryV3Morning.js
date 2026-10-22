@@ -229,6 +229,9 @@ function saveLibraryV3CopyPilotAfterApproval(options){
  if(!options?.approvedPlanHash)throw Error('Explicit approval plan hash required');
  const lock=LockService.getScriptLock();if(!lock.tryLock(1000))return {status:'BUSY',writtenRows:0,propertyWrites:0};
  try{
+  // Even an isolated copy pilot requires a quiet source and one writer.
+  const writers=ScriptApp.getProjectTriggers().map(t=>t.getHandlerFunction());
+  if(libV3Conflicts_().length||writers.some(n=>['scheduledLibraryV3','scheduledLibraryV3BaselineOnly','scheduledLibraryV3Morning','continueLibraryV3Morning'].includes(n)))throw Error('Conflicting library writer: copy pilot requires stopped schedulers');
   const started=Date.now(),p=libV3CopyPilotPlan_(options);
   if(p.report.status==='ALREADY_PRESENT')return {...p.report,writtenRows:0};
   if(p.report.planHash!==options.approvedPlanHash||Date.now()-started>90000)throw Error('Plan changed or time budget reached: preview again');
