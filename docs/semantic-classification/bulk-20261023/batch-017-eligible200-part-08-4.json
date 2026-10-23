@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-02186",
+      "main_theme": "僧侶漫画家の恩師と創作",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-02187",
+      "main_theme": "被爆前写真のカラー化と記憶",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-02188",
+      "main_theme": "沖縄知事選の選挙情勢",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-02189",
+      "main_theme": "玉城デニー再選と沖縄政治",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-02190",
+      "main_theme": "世界の小国の社会と暮らし",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    }
+  ]
+}
