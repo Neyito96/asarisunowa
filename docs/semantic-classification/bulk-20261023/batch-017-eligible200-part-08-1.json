@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-02171",
+      "main_theme": "子どもの育ちと芸人の教育観",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-02172",
+      "main_theme": "宝塚歌劇とEXILEの舞台コラボ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-02173",
+      "main_theme": "名古屋の結婚式と地域文化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-02174",
+      "main_theme": "名古屋のご当地ソング",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-02175",
+      "main_theme": "給食センターの仕組み",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    }
+  ]
+}
