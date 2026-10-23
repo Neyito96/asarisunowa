@@ -146,7 +146,11 @@ var LibraryOfficialNative = (function(){
   try{
    const c=config();must(c.enabled===true,'DISABLED');const report={engine:'native-new',status:'REGISTRATION_BLOCKED_NONATOMIC',rssItems:0,jsonFetched:0,held:0,added:0};
    const deadline=Date.now()+120000;
-   for(const feed of c.feeds||[]){try{const items=LibraryOfficialEngine.rss(feed);report.rssItems+=items.length;for(const item of items){if(Date.now()>=deadline||report.jsonFetched>=20)break;if(c.newAfter){const since=Date.parse(c.newAfter),published=Date.parse(item.pubDate);must(Number.isFinite(since),'NEW_AFTER_INVALID');if(!Number.isFinite(published)||published<=since)continue;}try{const ev=LibraryOfficialEngine.official(item);report.jsonFetched++;LibraryOfficialEngine.material(item,ev.clip,ev.url);}catch(e){report.held++;console.log(JSON.stringify({guid:item.guid,reason:String(e.message)}));}}}catch(e){report.held++;console.log(JSON.stringify({reason:String(e.message)}));}if(Date.now()>=deadline)break;}
+   const allowedShows=new Set(['ニュースの現場から','MEDIA TALK','スポンジ','ドーナツ','報談','ニュースの学校','こどもそうだんしつ']);
+   for(const feed of c.feeds||[]){
+    must(allowedShows.has(String(feed.show||'').trim()),'NEW_FEED_NOT_APPROVED:'+String(feed.show||''));
+    must(/^https:\/\//.test(String(feed.url||'')),'NEW_FEED_URL_INVALID');
+    try{const items=LibraryOfficialEngine.rss(feed);report.rssItems+=items.length;for(const item of items){if(Date.now()>=deadline||report.jsonFetched>=20)break;if(c.newAfter){const since=Date.parse(c.newAfter),published=Date.parse(item.pubDate);must(Number.isFinite(since),'NEW_AFTER_INVALID');if(!Number.isFinite(published)||published<=since)continue;}try{const ev=LibraryOfficialEngine.official(item);report.jsonFetched++;LibraryOfficialEngine.material(item,ev.clip,ev.url);}catch(e){report.held++;console.log(JSON.stringify({guid:item.guid,reason:String(e.message)}));}}}catch(e){report.held++;console.log(JSON.stringify({reason:String(e.message)}));}if(Date.now()>=deadline)break;}
    // No allocation, history or ledger writes until a cross-sheet protocol is validated.
    console.log(JSON.stringify(report));return report;
   }finally{lock.releaseLock();}
