@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-05120",
+      "main_theme": "映画侍タイムスリッパーと映画愛",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05121",
+      "main_theme": "ガザ取材と読者の推し記事",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05122",
+      "main_theme": "大河光る君への最終回",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05123",
+      "main_theme": "藤原道長の望月の歌の解釈",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05124",
+      "main_theme": "Facebook投稿と自己演出",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05125",
+      "main_theme": "桃山商事との悩み相談ライブ",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05126",
+      "main_theme": "ラジオ放送百年と音声メディア",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05127",
+      "main_theme": "FMヨコハマとラジオ局の仕事",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05128",
+      "main_theme": "臨場感のある見出し",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05129",
+      "main_theme": "2024年の消費と社会の振り返り",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    }
+  ]
+}
