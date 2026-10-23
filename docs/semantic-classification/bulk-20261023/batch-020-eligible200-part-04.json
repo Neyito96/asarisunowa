@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-02721",
+      "main_theme": "給食制度と学校選択",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02722",
+      "main_theme": "創価学会と公明党の関係",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02723",
+      "main_theme": "徳川家康と関ケ原合戦",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02724",
+      "main_theme": "中学受験の失敗と進学",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02725",
+      "main_theme": "ホスト問題と信仰の強制",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02726",
+      "main_theme": "名古屋港へのサイバー攻撃",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02727",
+      "main_theme": "西之島の火山活動と研究",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02728",
+      "main_theme": "メガネスーパーの経営人事",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02730",
+      "main_theme": "派閥の政治資金と裏金疑惑",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02731",
+      "main_theme": "関ケ原合戦の武将の葛藤",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02732",
+      "main_theme": "被爆写真の身元調査",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02733",
+      "main_theme": "アパレル販売の自爆営業",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02734",
+      "main_theme": "病院へのランサムウェア攻撃",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02735",
+      "main_theme": "栗のイガの生態",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02736",
+      "main_theme": "戦間期の政党政治",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02738",
+      "main_theme": "性別表現と歴史資料",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02739",
+      "main_theme": "大坂の陣と徳川家康",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02740",
+      "main_theme": "被爆写真と家族の記憶",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02741",
+      "main_theme": "大相撲の座布団投げ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02742",
+      "main_theme": "パスワード再利用と情報漏洩",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    }
+  ]
+}
