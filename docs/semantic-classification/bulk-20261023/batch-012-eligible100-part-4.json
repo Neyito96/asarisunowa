@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-01362",
+      "main_theme": "菅首相の政治運営と孤立",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01363",
+      "main_theme": "Twitterトレンドの変化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01364",
+      "main_theme": "子どもの性暴力被害と司法",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01365",
+      "main_theme": "ベトナム人実習生の搾取構造",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01366",
+      "main_theme": "外国人技能実習制度の問題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01367",
+      "main_theme": "ベトナム人女性実習生の妊娠と権利",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01368",
+      "main_theme": "安倍政権退陣後の政治",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01372",
+      "main_theme": "菅首相の規制改革と政権運営",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01373",
+      "main_theme": "菅首相の国会答弁",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01374",
+      "main_theme": "米中関係とファーウェイ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01375",
+      "main_theme": "中国のコロナ対策と歴史認識",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01376",
+      "main_theme": "コロナ感染者への職場差別",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01377",
+      "main_theme": "社会起業家と政治の未来",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01379",
+      "main_theme": "デジタルトランスフォーメーション",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01380",
+      "main_theme": "高レベル放射性廃棄物の最終処分",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01381",
+      "main_theme": "核のごみ処分地選定の政治過程",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01382",
+      "main_theme": "香港民主派への弾圧",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01383",
+      "main_theme": "香港国家安全維持法と民主派",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01384",
+      "main_theme": "男性育休の取得障壁",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01385",
+      "main_theme": "Twitterと報道者の距離感",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01387",
+      "main_theme": "菅首相の衆院解散判断",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01388",
+      "main_theme": "バイデン大統領就任式の警備",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01389",
+      "main_theme": "バイデン政権の外交課題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01390",
+      "main_theme": "菅首相の記者会見と報道",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01391",
+      "main_theme": "転勤制度と仕事家庭の両立",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    }
+  ]
+}
