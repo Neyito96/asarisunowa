@@ -96,3 +96,44 @@ The next work is split into two independently testable tracks. **No live trigger
 ### Acceptance and handoff
 
 Report independently: (a) each of ten hash diagnoses, with exact serialized input and root cause or HOLD; (b) real GAS execution logs and copy test; (c) production 1-record smoke eligibility. Keep PR #254 draft until gates are passed. Historical records remain blank-only; all existing nonempty values, EP-ID/GUID, exclusion/decision, allocation and V3 proof are protected.
+
+## Issue #255: online V3 comparison and copy GAS attempt (2026-10-23)
+
+Online source was inspected in the original GAS editor, without editing or executing its writer functions:
+
+- `libV3Context_`: `getDataRange().getValues()` (entire native row).
+- `libV3Hash_(v)`: `libV2CpHash_(JSON.stringify(v))`.
+- `libV2CpHash_(s)`: SHA-256 followed by `Utilities.base64EncodeWebSafe`.
+- Baseline identity stores `libV3Hash_(r)` without trimming or date conversion.
+
+The Phase 14 implementation differed in three concrete ways: always 51 columns, REST numeric serial dates instead of native GAS cell values, and unconditional date/type/blank normalization. Fixed `rowHash` to hash exactly the supplied native full-width row. The writer now obtains that row through SpreadsheetApp before checking the proof. It no longer replaces `state.identity[2]`; a separate versioned receipt records only verified subsequent blank-fill transitions, bound to the original immutable baseline. A mismatched initial baseline still stops writes.
+
+Dates in native arrays JSON-serialize as ISO strings; a Sheets REST serial number does not. Empty strings, nulls, booleans and numbers also remain distinct. Both implementations use web-safe Base64 with padding; changing Base64 or removing padding was not a demonstrated cause. No baseline values were changed and no rebaseline was run.
+
+**These code-level defects are confirmed, but they do not yet explain every saved hash for EP-00141–EP-00150.** Local variants did not reproduce the saved proofs. The native runtime diagnostic must determine actual types/widths and whether historical cell changes are involved. Do not interpret passing local tests as proof that those 10 stored hashes now match.
+
+### Online observations
+
+- Original GAS: current trigger list contains 0 entries.
+- Execution history includes earlier `ALIB_AUTO_tick` time-driven executions on October 21. Therefore “0 current triggers” does not mean no historical automation.
+- Observed Morning READ_ONLY log, UI timestamp `2026/10/22 22:41:44`: config `{}`, state `{}`, baseline offset 6591 / complete true, triggers `[]`, writes 0. This is a dated log, not a fresh configuration read.
+- New standalone project created: `朝リスの田_Phase14_COPY_20261023`.
+- Copy GAS editor: https://script.google.com/home/projects/1roni6h_C9vKxtP_2I6jGgXKE2KJ1yRRhE3ZD1JsZ6XXRnT5RcndqyfJo/edit
+- A READ_ONLY diagnostic was saved in its default code file. It reads the 10 specified copy and original rows, computes native full/first-51 hashes, reports matching widths/types/date ISO values and saved hashes. It has no sheet setters or trigger creators.
+- Execution was attempted. It stopped at initial OAuth authorization / “Google hasn't verified this app”. No execution-success log was produced. User action is required for granting new app access.
+- The complete parser/engine modules have **not yet been installed in the copy GAS**; only the diagnostic is present. The checked-in `inspectLibraryOfficialCopyHashesReadOnly()` carries the same diagnosis for subsequent installation.
+
+### Actual results in this follow-up
+
+- Local tests: 46 passed (21 engine + 25 regression); parser regeneration succeeded.
+- Copy GAS successful executions: 0 (authorization pending).
+- Copy ledger new fills: 0 episodes / 0 cells; nonempty overwrites: 0.
+- Runtime replay: not executed; local replay test passes.
+- RSS/JSON fetch from GAS: not executed.
+- Copy timer creation/execution: not executed; no test triggers to remove.
+- Production writes / saved-proof changes: 0.
+- PR remains Draft; main unchanged.
+
+Previous copy-sheet connector verification of 70 cells must not be counted as GAS execution evidence. Those existing nonempty cells must not be cleared to manufacture a new test.
+
+Resume after authorization: run native diagnostic, resolve all initial hash conflicts (or hold those rows), then install the complete modules and validate READ_ONLY RSS/JSON acquisition. Only after a verified copy manual fill and zero-change replay may copy time-driven tests start. Delete all test triggers after observation. Production is not ready for activation.

@@ -21,3 +21,24 @@ test('incomplete baseline, cutoff, invalid counter stop',()=>{assert.throws(deci
 test('disabled production entry never writes',()=>{let release=0;const c=engine({LockService:{getScriptLock:()=>({tryLock:()=>true,releaseLock:()=>release++})},PropertiesService:{getScriptProperties:()=>({getProperty:()=>JSON.stringify({sheetId:'copy',feeds:[{}]})})}});assert.throws(()=>c.scheduledLibraryOfficialBackfill(),/NOT_VALIDATED/);assert.equal(release,1);});
 test('optional platform proof requires matching GUID and host',()=>{const e=engine().LibraryOfficialEngine;const proof={platform:'apple',guid,url:'https://podcasts.apple.com/jp/podcast/example/id1?i=2',verified:true};assert.equal(e.material({...item,platformEvidence:[proof]},clip,'api').values[12],proof.url);assert.equal(e.material({...item,platformEvidence:[{...proof,guid:'other'}]},clip,'api').values[12],undefined);});
 test('Apple fetch failure does not block episode',()=>{const e=engine({UrlFetchApp:{fetch:()=>{throw Error('offline');}}}).LibraryOfficialEngine;assert.equal(e.platforms(item,{applePodcastId:'123'}).length,0);});
+test('native V3 hash uses complete row and unmodified JSON serialization',()=>{
+ const e=engine().LibraryOfficialEngine,row=Array(55).fill('');row[0]='EP-00141';row[3]=new Date('2026-10-10T02:00:23.000Z');row[31]=new Date('2026-10-10T02:19:00.410Z');row[54]='evidence';
+ const expected=crypto.createHash('sha256').update(JSON.stringify(row)).digest('base64url')+'=';
+ assert.equal(e.rowHash(row),expected);assert.notEqual(e.rowHash(row.slice(0,51)),expected);
+});
+test('REST serial dates cannot masquerade as native Date proof',()=>{
+ const e=engine().LibraryOfficialEngine,a=['EP',new Date('2026-10-10T02:00:23Z')],b=['EP',46305.458599537036];
+ assert.notEqual(e.rowHash(a),e.rowHash(b));assert.notEqual(e.rowHash(['',0,false]),e.rowHash([null,'0','false']));
+});
+test('baseline proof is immutable and mismatch fails closed',()=>{
+ const e=engine().LibraryOfficialEngine,row=['EP-00141',''];const state={identity:['VERIFIED','guid',e.rowHash(row)]},saved=JSON.stringify(state);
+ assert.equal(e.verifyRowProof(row,state),state.identity[2]);assert.equal(JSON.stringify(state),saved);
+ assert.throws(()=>e.verifyRowProof(['EP-00141','changed'],state),/STATE_HASH_CONFLICT/);
+});
+test('transition receipt is bound to original baseline and full current hash',()=>{
+ const e=engine().LibraryOfficialEngine,before=['EP-00141',''],after=['EP-00141','official'];const state={identity:['VERIFIED','guid',e.rowHash(before)],officialBackfill:{schema:'official-native-row-v1',baselineHash:e.rowHash(before),afterHash:e.rowHash(after)}};
+ assert.equal(e.verifyRowProof(after,state),e.rowHash(after));state.officialBackfill.baselineHash='other';assert.throws(()=>e.verifyRowProof(after,state),/STATE_HASH_CONFLICT/);
+});
+test('writer does not assign to original identity hash',()=>{
+ const source=fs.readFileSync(new URL('../scripts/google-apps-script/LibraryOfficialRssEngine.gs',import.meta.url),'utf8');assert.doesNotMatch(source,/state\.identity\[2\]\s*=/);assert.match(source,/getLastColumn\(\)\)\.getValues\(\)\[0\]/);
+});

@@ -10,7 +10,16 @@ var LibraryOfficialEngine = (function () {
  function must(ok,msg){if(!ok)throw Error(msg);}
  function hash(x){return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,JSON.stringify(x),Utilities.Charset.UTF_8));}
  function utc(x){if(typeof x==='number')return new Date(Math.round((x-25569)*86400000)-32400000).toISOString();if(x instanceof Date)return x.toISOString();return new Date(/(?:Z|[+-]\d\d:\d\d)$/.test(String(x))?x:String(x).replace(/\//g,'-').replace(' ','T')+'+09:00').toISOString();}
- function rowHash(row){const a=Array.from({length:51},(_,i)=>row[i]??'');a[3]=utc(a[3]);for(const i of [31,33,34])if(typeof a[i]==='number')a[i]=utc(a[i]);return hash(a);}
+ // Exact V3 contract: native getValues() row, entire data-range width.
+ // Do not pass REST serial dates, truncate columns, or normalize blanks/types.
+ function rowHash(row){return hash(row);}
+ function verifyRowProof(row,state){
+  must(state.identity?.[0]==='VERIFIED','STATE_NOT_VERIFIED');
+  const actual=rowHash(row),baseline=state.identity[2],receipt=state.officialBackfill;
+  if(actual===baseline)return actual;
+  must(receipt?.schema==='official-native-row-v1'&&receipt.baselineHash===baseline&&receipt.afterHash===actual,'STATE_HASH_CONFLICT');
+  return actual;
+ }
  function jst(x){return new Date(Date.parse(x)+32400000).toISOString().slice(0,19).replace(/-/g,'/').replace('T',' ');}
  function clipUuid(audio){return (String(audio).match(/\/clips\/[^/]+\/[^/]+\/([0-9a-f-]{36})\//i)||[])[1]||'';}
  function verify(item,clip){
@@ -113,9 +122,14 @@ var LibraryOfficialEngine = (function () {
   must(plan.changes.every(ch=>blank(value(current[ch.col]))&&!current[ch.col]?.userEnteredValue?.formulaValue&&!current[ch.col]?.dataValidation&&!current[ch.col]?.chipRuns?.length),'TARGET_STRUCTURE_CHANGED');
   const stateIndex=ctx.states.findIndex(r=>r[0]===plan.id);must(stateIndex>=0,'STATE_MISSING');
   const state=JSON.parse(ctx.states[stateIndex][1]);must(state.identity?.[0]==='VERIFIED','STATE_NOT_VERIFIED');
-  const before=Array.from({length:55},(_,i)=>value(current[i]));must(rowHash(before).replace(/=+$/,'')===String(state.identity[2]).replace(/=+$/,''),'STATE_HASH_CONFLICT');
+  const sheet=SpreadsheetApp.openById(c.sheetId).getSheetByName('エピソード台帳');
+  const before=sheet.getRange(rowIndex+1,1,1,sheet.getLastColumn()).getValues()[0];
+  must(before[0]===plan.id&&before[6]===plan.guid,'NATIVE_IDENTITY_CONFLICT');
+  verifyRowProof(before,state);
+  must(plan.changes.every(ch=>blank(before[ch.col])),'NATIVE_TARGET_NOT_BLANK');
   const after=before.slice(),requests=plan.changes.map(ch=>{after[ch.col]=ch.next;return update(ledger.sheetId,rowIndex,ch.col,ch.cell);});
-  state.identity[2]=rowHash(after);state.officialBackfill=['VERIFIED',plan.guid,rowHash(before),'','','official_rss_blank_fill',new Date().toISOString(),JSON.stringify({columns:plan.changes.map(x=>x.col),source:'official-rss'})];
+  // Preserve the original V3 identity proof. A separate receipt records this transition.
+  state.officialBackfill={schema:'official-native-row-v1',baselineHash:state.identity[2],beforeHash:rowHash(before),afterHash:rowHash(after),columns:plan.changes.map(x=>x.col),at:new Date().toISOString()};
   requests.push(update(stateTab.sheetId,stateIndex+1,1,cell(JSON.stringify(state))));
   requests.push(update(stateTab.sheetId,stateIndex+1,2,cell(new Date().toISOString())));
   // Notes retain per-cell old/new/evidence; state transition and fills commit atomically.
@@ -147,9 +161,9 @@ var LibraryOfficialEngine = (function () {
    props.setProperty('LIB_OFFICIAL_LAST_REPORT',JSON.stringify({processed,changed,holds:holds.slice(0,20),held:holds.length}));return {processed,changed,holds};
   }finally{lock.releaseLock();}
  }
- return {inspect,plan,material,verify,fromJson,newDecision,identityTokens,rowHash,runBackfill,readJson,rss,official,platforms,config,context,cell,update,api,PROD};
+ return {inspect,plan,material,verify,fromJson,newDecision,identityTokens,rowHash,verifyRowProof,runBackfill,readJson,rss,official,platforms,config,context,cell,update,api,PROD};
 })();
-function inspectLibraryOfficialReadOnly(){return LibraryOfficialEngine.inspect();}
+function inspectLibraryOfficialReadOnly(){const report=LibraryOfficialEngine.inspect();console.log(JSON.stringify(report));return report;}
 function scheduledLibraryOfficialBackfill(){return LibraryOfficialEngine.runBackfill();}
 /** New records have an atomic history reservation, so an interrupted retry cannot allocate again. */
 function scheduledLibraryOfficialNew(){
@@ -209,4 +223,21 @@ function installLibraryOfficialTriggersAfterValidation(){
   added.push(ScriptApp.newTrigger('scheduledLibraryOfficialBackfill').timeBased().everyHours(2).create());
  }catch(e){added.forEach(t=>ScriptApp.deleteTrigger(t));throw e;}
  return E.inspect();
+}
+/** READ_ONLY native GAS diagnosis. Does not change any saved proof or cell. */
+function inspectLibraryOfficialCopyHashesReadOnly(){
+ const ids=['1IhnYURLqhM8i3ACrkNbDujplXRtyI41rR19qGnwZlMY',LibraryOfficialEngine.PROD];
+ const out={mode:'READ_ONLY',scriptId:ScriptApp.getScriptId(),books:[]};
+ ids.forEach(id=>{
+  const ss=SpreadsheetApp.openById(id),sh=ss.getSheetByName('エピソード台帳');
+  const rows=sh.getRange(142,1,10,sh.getLastColumn()).getValues();
+  const states=ss.getSheetByName('図書館V3・項目状態').getDataRange().getValues();
+  const book={id,timezone:ss.getSpreadsheetTimeZone(),width:sh.getLastColumn(),rows:[]};
+  rows.forEach(row=>{
+   const savedRow=states.find(r=>r[0]===row[0]);if(!savedRow)throw Error('STATE_MISSING');
+   const state=JSON.parse(savedRow[1]),saved=state.identity[2],matchingWidths=[];
+   for(let w=1;w<=row.length;w++)if(LibraryOfficialEngine.rowHash(row.slice(0,w))===saved)matchingWidths.push(w);
+   book.rows.push({id:row[0],saved,full:LibraryOfficialEngine.rowHash(row),first51:LibraryOfficialEngine.rowHash(row.slice(0,51)),matchingWidths,types:row.map(v=>v instanceof Date?'Date':typeof v),dates:row.map((v,i)=>v instanceof Date?{col:i+1,iso:v.toISOString()}:null).filter(Boolean)});
+  });out.books.push(book);
+ });console.log(JSON.stringify(out));return out;
 }
