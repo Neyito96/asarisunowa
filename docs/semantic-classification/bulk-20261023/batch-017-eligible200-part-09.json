@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-02191",
+      "main_theme": "首相はココナッツを手にして、ひょっこり庭から現れた 小国に生きる②",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02192",
+      "main_theme": "国って？ 疑問が深まった 世界は小さい国でできている 小国に生きる③",
+      "topic_category": "国際・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02193",
+      "main_theme": "公衆電話を守り続ける喫茶店主 征平さんが振り返る27年前",
+      "topic_category": "暮らし・地域",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02194",
+      "main_theme": "戊辰戦争後に「有朋」に変名したわけは？ いま知る山県有朋（後編）",
+      "topic_category": "国際・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02195",
+      "main_theme": "仕事に疲れた人に効く仏教 瞑想もヨガも無理！なあなたへ",
+      "topic_category": "文化・芸術",
+      "status": "provisional",
+      "review_basis": "title_only",
+      "review_note": "概要欄が空欄のためタイトルのみから暫定ラベル化。要再確認。"
+    },
+    {
+      "ep_id": "EP-02196",
+      "main_theme": "極端な発言が「商品価値」になっている アメリカも、辺野古も",
+      "topic_category": "その他・複合話題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02198",
+      "main_theme": "笑い飯哲夫のしんぶん教室①ブラックサンダーのカカオ切り替えから考える児童労働",
+      "topic_category": "社会・福祉",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02199",
+      "main_theme": "狙いは小惑星、日本の「お家芸」 「はやぶさ2」生命起源に迫る①",
+      "topic_category": "その他・複合話題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02200",
+      "main_theme": "スクープと情報解禁の裏事情 「はやぶさ2」生命起源に迫る②",
+      "topic_category": "その他・複合話題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02203",
+      "main_theme": "20代で新聞社の主筆、岩手出身だけど大阪と深い縁 いま知る原敬（前編）",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02204",
+      "main_theme": "私はこうしてムスリムになった 厳格？いえ「性弱説」なんです",
+      "topic_category": "国際・外交",
+      "status": "provisional",
+      "review_basis": "title_only",
+      "review_note": "概要欄が空欄のためタイトルのみから暫定ラベル化。要再確認。"
+    },
+    {
+      "ep_id": "EP-02205",
+      "main_theme": "一族が牛耳るスリランカで 大統領は辞任し、国外脱出も",
+      "topic_category": "国際・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02206",
+      "main_theme": "「あの時出会えていなかったら…」かまいたち・濱家隆一と久保先生の物語",
+      "topic_category": "その他・複合話題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02207",
+      "main_theme": "笑い飯哲夫の新聞教室②景品表示法違反って何？ キリンビバレッジに措置命令",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02208",
+      "main_theme": "高知がつかんだ日本酒の頂点（前編）約30年ぶりに戻った初任地、うまい酒が増えた",
+      "topic_category": "暮らし・地域",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02209",
+      "main_theme": "高知がつかんだ日本酒の頂点（後編）背景に「高知方式」、土佐の仲間が力を合わせる",
+      "topic_category": "暮らし・地域",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02210",
+      "main_theme": "2万円のTシャツも 少子化ニッポン、子ども服の競争が激しくなっていた",
+      "topic_category": "その他・複合話題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02211",
+      "main_theme": "側近で固められた指導部、胡錦濤氏の退出騒動 中国共産党大会を読む",
+      "topic_category": "国際・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02212",
+      "main_theme": "岡本太郎って何者？ この人気両親を超えたね",
+      "topic_category": "文化・芸術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02213",
+      "main_theme": "めちゃくちゃワーカホリック、社長なのに「働き過ぎ」 いま知る原敬（後編）",
+      "topic_category": "歴史・平和",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    }
+  ]
+}
