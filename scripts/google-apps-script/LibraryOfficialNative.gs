@@ -141,7 +141,7 @@ var LibraryOfficialNative = (function(){
    const cp=JSON.parse(p.getProperty(cursorKey)||'{}');
    must(!cp.target||cp.target===target,'CURSOR_TARGET_CONFLICT');
    const total=sh.getLastRow()-1;
-   if(scope){must(sh.getLastRow()-1>=6591,'LEDGER_BASELINE_TRUNCATED');const ids=sh.getRange(2,1,total,1).getValues().map(r=>String(r[0]||'').trim()),seen=new Set();for(const id of ids){must(!seen.has(id)&&scope.has(id),'LEDGER_SCOPE_MISMATCH');seen.add(id);}must(seen.size===scope.size,'LEDGER_SCOPE_COUNT_MISMATCH');}
+   if(scope){must(sh.getLastRow()-1>=6591,'LEDGER_BASELINE_TRUNCATED');const ids=sh.getRange(2,1,total,1).getValues().map(r=>String(r[0]||'').trim()),seen=new Set();for(const id of ids){must(!seen.has(id),'LEDGER_ID_DUPLICATE');if(seen.size<6591)must(scope.has(id),'LEDGER_BASELINE_SCOPE_MISMATCH');else must(!scope.has(id),'LEDGER_NEW_ID_IN_FROZEN_SCOPE');seen.add(id);}must([...scope.keys()].every(id=>seen.has(id)),'LEDGER_SCOPE_COUNT_MISMATCH');}
    const start=Date.now(),deadline=start+Math.max(5000,Math.min(c.budgetMs||120000,240000));
    const failures=[],metrics={jsonFetched:0,planned:0,writes:0,scopeAdopted:0,scopeExcluded:0,scopeHeld:0,scopeNewUnclassified:0,mode:write?'COPY_SANDBOX_WRITE':'READ_ONLY'};
    const report=sweep(total,cp.offset||0,Math.max(1,Math.min(c.batchSize||50,200)),deadline,Date.now,i=>{
