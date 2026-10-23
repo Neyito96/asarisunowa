@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-05151",
+      "main_theme": "心に響く新聞見出し",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05152",
+      "main_theme": "親との関係の悩み相談",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05153",
+      "main_theme": "朝ポキの紙面アプリ検索への展開",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05154",
+      "main_theme": "未完成の見出しを形にする",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05155",
+      "main_theme": "写真撮影のポージング",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05156",
+      "main_theme": "スマホ時代に写真を残す意味",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05157",
+      "main_theme": "浪曲師玉川奈々福と芸能",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05158",
+      "main_theme": "マスコミ就活と新任管理職の悩み",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05159",
+      "main_theme": "ニュースレターとサブスクの未来",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05160",
+      "main_theme": "メキシコ留学の体験談",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    }
+  ]
+}
