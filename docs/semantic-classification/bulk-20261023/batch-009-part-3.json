@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-00901",
+      "main_theme": "国会審議と多数決",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00902",
+      "main_theme": "AI業界の専門用語",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00903",
+      "main_theme": "日米首脳会談とイラン戦争",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00904",
+      "main_theme": "AI軍事利用と米国宗教政治",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00905",
+      "main_theme": "食品消費税と社会保障国民会議",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00906",
+      "main_theme": "イラン戦争と日米同盟",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00907",
+      "main_theme": "中国の外交・台湾問題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00908",
+      "main_theme": "戦争とリベラリズム",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00909",
+      "main_theme": "小選挙区制度と選挙結果",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00910",
+      "main_theme": "衆院選の情勢調査",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00911",
+      "main_theme": "政党公約と日本社会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00912",
+      "main_theme": "ベネズエラの格差と貧困",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00913",
+      "main_theme": "衆院解散と政治報道",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00914",
+      "main_theme": "高市首相をめぐる政治座談",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00915",
+      "main_theme": "新年の番組挨拶",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00916",
+      "main_theme": "政治家発言とオフレコ報道",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00917",
+      "main_theme": "米国国家安全保障戦略と日中米",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00918",
+      "main_theme": "東京23区と地方自治",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00919",
+      "main_theme": "新聞報道の伝え方",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00920",
+      "main_theme": "報道と雑談の形式",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    }
+  ]
+}
