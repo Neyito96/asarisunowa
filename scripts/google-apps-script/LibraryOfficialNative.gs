@@ -68,7 +68,7 @@ var LibraryOfficialNative = (function(){
   const data=sh.getRange(2,1,Math.max(1,sh.getLastRow()-1),4).getValues(),out=new Map();
   for(const r of data){
    const id=String(r[0]||'').trim(),decision=String(r[3]||'').trim();
-   must(/^EP-\\d{5}$/.test(id)&&!out.has(id),'SCOPE_ID_INVALID_OR_DUPLICATE');
+   must(/^EP-\d{5}$/.test(id)&&!out.has(id),'SCOPE_ID_INVALID_OR_DUPLICATE');
    must(['対象・確認済み','対象外','保留'].includes(decision),'SCOPE_DECISION_INVALID');
    out.set(id,decision);
   }
@@ -90,7 +90,9 @@ var LibraryOfficialNative = (function(){
    const scope=scopeMap(ss,c,c.ledger||'エピソード台帳');
    const states=st.getDataRange().getValues(),map=new Map();states.slice(1).forEach((r,i)=>{must(!map.has(r[0]),'DUPLICATE_STATE');map.set(r[0],{state:JSON.parse(r[1]),row:i+2});});
    const cp=JSON.parse(p.getProperty(CP)||'{}'),target=c.sheetId+'/'+sh.getSheetId();must(!cp.target||cp.target===target,'CURSOR_TARGET_CONFLICT');
-   const total=sh.getLastRow()-1,start=Date.now(),deadline=start+Math.max(5000,Math.min(c.budgetMs||120000,240000));
+   const total=sh.getLastRow()-1;
+   if(scope){must(total===6591,'LEDGER_COUNT_NOT_6591');const ids=sh.getRange(2,1,total,1).getValues().map(r=>String(r[0]||'').trim()),seen=new Set();for(const id of ids){must(!seen.has(id)&&scope.has(id),'LEDGER_SCOPE_MISMATCH');seen.add(id);}must(seen.size===scope.size,'LEDGER_SCOPE_COUNT_MISMATCH');}
+   const start=Date.now(),deadline=start+Math.max(5000,Math.min(c.budgetMs||120000,240000));
    const failures=[],metrics={jsonFetched:0,planned:0,writes:0,scopeAdopted:0,scopeExcluded:0,scopeHeld:0,mode:write?'COPY_SANDBOX_WRITE':'READ_ONLY'};
    const report=sweep(total,cp.offset||0,Math.max(1,Math.min(c.batchSize||50,200)),deadline,Date.now,i=>{
     const range=sh.getRange(i+2,1,1,55),row=range.getValues()[0];
