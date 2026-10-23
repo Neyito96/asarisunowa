@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-02697",
+      "main_theme": "英国地方社会とパブ文化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02698",
+      "main_theme": "李克強前首相と中国政治",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02699",
+      "main_theme": "阪神日本一と岡田監督の指導",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02700",
+      "main_theme": "オリックスと阪神のファン文化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02701",
+      "main_theme": "中東情勢の新聞紙面デザイン",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02702",
+      "main_theme": "記者会見の役割と報道",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02703",
+      "main_theme": "リスナーとの対話",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02704",
+      "main_theme": "家事負担と専業主婦の自立",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02706",
+      "main_theme": "流行語と政治社会の変化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02709",
+      "main_theme": "新聞の図版レイアウト",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02710",
+      "main_theme": "百貨店ストライキと労働組合",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02711",
+      "main_theme": "宇宙の成り立ちと天文学",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02712",
+      "main_theme": "ママ友とのSNSコミュニケーション",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02713",
+      "main_theme": "隣国への理解と対話",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02714",
+      "main_theme": "APECと米中日外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02715",
+      "main_theme": "国会議員の海外視察費用",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02717",
+      "main_theme": "米の食文化とデータ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02718",
+      "main_theme": "イスラエル・パレスチナの戦闘休止",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02719",
+      "main_theme": "学校給食の運営危機",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02720",
+      "main_theme": "国税査察と政治家の脱税捜査",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    }
+  ]
+}
