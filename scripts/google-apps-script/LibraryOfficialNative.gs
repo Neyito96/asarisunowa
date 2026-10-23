@@ -79,6 +79,28 @@ var LibraryOfficialNative = (function(){
   must(counts['対象']===5848&&counts['対象外']===377&&counts['保留']===366,'SCOPE_TOTALS_MISMATCH');
   return out;
  }
+ // Fast, no-JSON preflight. Verifies all 6591 ledger IDs and decisions before any sweep.
+ function preflight(){
+  const c=config(),ss=SpreadsheetApp.openById(c.sheetId),sh=ss.getSheetByName(c.ledger||'エピソード台帳');
+  must(sh,'LEDGER_MISSING');
+  const scope=scopeMap(ss,c,c.ledger||'エピソード台帳');
+  must(scope,'SCOPE_REQUIRED');
+  must(sh.getLastRow()-1===6591,'LEDGER_COUNT_NOT_6591');
+  const ids=sh.getRange(2,1,6591,1).getValues(),seen=new Set(),counts={adopted:0,excluded:0,held:0};
+  for(const [raw] of ids){
+   const id=String(raw||'').trim();
+   must(!seen.has(id)&&scope.has(id),'LEDGER_SCOPE_MISMATCH');
+   seen.add(id);
+   const d=scope.get(id);
+   if(d==='対象')counts.adopted++;
+   else if(d==='対象外')counts.excluded++;
+   else counts.held++;
+  }
+  must(seen.size===scope.size,'LEDGER_SCOPE_COUNT_MISMATCH');
+  must(counts.adopted===5848&&counts.excluded===377&&counts.held===366,'LEDGER_SCOPE_TOTALS_MISMATCH');
+  const result={mode:'SCOPE_PREFLIGHT_READ_ONLY',rows:seen.size,...counts,writes:0,officialFetches:0};
+  console.log(JSON.stringify(result));return result;
+ }
  function backfill(){
   const lock=LockService.getScriptLock();if(!lock.tryLock(1000))return {status:'BUSY'};
   try{
@@ -124,8 +146,9 @@ var LibraryOfficialNative = (function(){
    console.log(JSON.stringify(report));return report;
   }finally{lock.releaseLock();}
  }
- return {backfill,newScan,sweep,guardedCell,fill,recover,finish,cells,COPY};
+ return {backfill,newScan,preflight,sweep,guardedCell,fill,recover,finish,cells,COPY};
 })();
+function verifyLibraryOfficialNativeScopeReadOnly(){return LibraryOfficialNative.preflight();}
 function scheduledLibraryOfficialNativeBackfill(){return LibraryOfficialNative.backfill();}
 function scheduledLibraryOfficialNativeNew(){return LibraryOfficialNative.newScan();}
 /** Explicit operator action: fresh tabs only; original copy tabs never modified.
