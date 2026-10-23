@@ -162,3 +162,15 @@ test('native link writer accepts formatting reset runs between URLs',()=>{
  const src=fs.readFileSync(new URL('../scripts/google-apps-script/LibraryOfficialNative.gs',import.meta.url),'utf8');
  assert.match(src,/if\(!uri\)continue/);
 });
+
+test('compact presentation helper is copy-only and never edits episode cell values',()=>{
+ const src=fs.readFileSync(new URL('../scripts/google-apps-script/LibraryCompactViewCopy.gs',import.meta.url),'utf8');
+ assert.match(src,/function previewLibraryCompactRowsCopyOnly\(/);
+ assert.match(src,/function applyLibraryCompactRowsCopyOnly\(/);
+ assert.match(src,/1IhnYURLqhM8i3ACrkNbDujplXRtyI41rR19qGnwZlMY/);
+ assert.doesNotMatch(src,/1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4/);
+ assert.match(src,/\[22,23,24,29\]/);
+ assert.match(src,/setWrapStrategy\(SpreadsheetApp\.WrapStrategy\.CLIP\)/);
+ assert.match(src,/setRowHeights\(2,n,44\)/);
+ assert.doesNotMatch(src,/\.setValue\(|\.setValues\(|\.clearContent\(|\.newTrigger\(/);
+});
