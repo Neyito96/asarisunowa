@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-02629",
+      "main_theme": "新聞教室：漫才発表会「朝学賞」受賞者出演",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02630",
+      "main_theme": "ラジオ体操、現在は何代目？戦争に翻弄された過去も",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02631",
+      "main_theme": "八冠なるか？ 藤井聡太名人、対局データを調べてみたらすごかった",
+      "topic_category": "科学・技術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02632",
+      "main_theme": "銅が世界で奪い合いに EVだと1台につき80キロ超必要",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02634",
+      "main_theme": "少子高齢化に教会離れ…それでも福音は求められている",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02635",
+      "main_theme": "ようこそ！エコハウス見学ツアーへ 光熱費0円、空き家の変身術を伝授します",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02636",
+      "main_theme": "新聞教室：漫才発表会「吉本賞」受賞者出演",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02638",
+      "main_theme": "そもそも解説、内閣改造って何のため 岸田首相は何をしたいの？",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02639",
+      "main_theme": "「能力主義」刷り込まれていたかも 子どもにゲームやらせる？ 考え方変わった（月刊朝ポキ9月号）",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02640",
+      "main_theme": "阪神優勝に学ぶマネジメント術 65歳の岡田監督、若トラをどう導いた ホンマにアレしてもうた①",
+      "topic_category": "スポーツ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02641",
+      "main_theme": "狂乱の道頓堀、歩いて考えた なぜ関西人は阪神にばかり過熱する ホンマにアレしてもうた②",
+      "topic_category": "スポーツ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02642",
+      "main_theme": "海外旅行の入門書 愛があればどこでも歩ける",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02643",
+      "main_theme": "ジャニーズ問題の社会の反応 違った根深さも見えてきた",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02644",
+      "main_theme": "あま～い果実 安けりゃいいってもんじゃない？",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02645",
+      "main_theme": "サムライ映画好きからサイバー研究者に 「ガラパゴス」日本は終わった",
+      "topic_category": "科学・技術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02646",
+      "main_theme": "ミスド、復活のきざし 安売りセールの罠、コンビニの攻勢を超えて",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02648",
+      "main_theme": "芸術の秋ですね ところで、ジャニーズ事務所の会見どう思った？",
+      "topic_category": "歴史・文化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02650",
+      "main_theme": "柚香さんから星風さんに贈ったピアス 退団会見で感じた花組トップコンビの絆",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02651",
+      "main_theme": "群馬・大泉が模索する共生 外国人だからって、遠慮するのは違うよね",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02652",
+      "main_theme": "「野茂」目指す、社会学のメジャーリーグで アメリカから研究する日本のいま",
+      "topic_category": "科学・技術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    }
+  ]
+}
