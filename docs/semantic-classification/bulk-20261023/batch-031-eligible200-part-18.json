@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-05211",
+      "main_theme": "生成AIによる医療文章の平易化",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05212",
+      "main_theme": "中年期から見た二十歳の自分",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05213",
+      "main_theme": "宅配企業の協業と訴訟",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05214",
+      "main_theme": "青春映画と別れと出発",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05215",
+      "main_theme": "大人の恋愛映画の別れ",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05216",
+      "main_theme": "恋愛映画から考える人生",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05217",
+      "main_theme": "新聞へのゲーミフィケーション導入",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05218",
+      "main_theme": "朝ポキ一億ダウンロードへの期待",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05219",
+      "main_theme": "夕刊の題字と紙面デザイン改革",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05220",
+      "main_theme": "声欄のダミー紙面と編集技術",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    }
+  ]
+}
