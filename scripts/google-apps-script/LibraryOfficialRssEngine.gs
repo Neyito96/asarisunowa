@@ -56,6 +56,16 @@ var LibraryOfficialEngine = (function () {
   must(utc(row[3])===utc(clip.PublishedUtc),'HISTORICAL_JSON_DATE');
   return {guid:clip.Id,title:clip.Title,pubDate:clip.PublishedUtc,description:clip.DescriptionHtml||clip.Description||'',link:clip.PublishedUrl,audio:clip.AudioUrl,duration:clip.DurationSeconds,image:clip.ImageUrl,feedUrl:row[44]||row[32]||'',sourceUrl:apiUrl,sourceType:'official-json'};
  }
+ function articleLinkRuns(links){
+  const runs=[];let offset=0;
+  for(const url of links){
+   runs.push({startIndex:offset,format:{link:{uri:url}}});
+   offset+=url.length;
+   runs.push({startIndex:offset,format:{}});
+   offset++;
+  }
+  return runs;
+ }
  function cell(v){return {userEnteredValue:typeof v==='number'?{numberValue:v}:{stringValue:String(v)}};}
  function plan(cells,item,clip,apiUrl){
   must(value(cells[6])===item.guid,'ROW_GUID_CONFLICT');
@@ -68,7 +78,7 @@ var LibraryOfficialEngine = (function () {
    if(c.userEnteredValue?.formulaValue||c.chipRuns?.length||c.dataValidation){conflicts.push({col,reason:'STRUCTURE_PROTECTED'});continue;}
    if(!blank(old)){if(String(old)!==String(next))conflicts.push({col,reason:'NONEMPTY_PRESERVED'});continue;}
    const out=cell(next);out.note=JSON.stringify({engine:'official-rss-v1',guid:item.guid,source:item.sourceUrl||item.feedUrl,sourceType:item.sourceType||'official-rss',json:apiUrl,old:'',new:next});
-   if(col===28){let offset=0;out.textFormatRuns=m.links.map(url=>{const run={startIndex:offset,format:{link:{uri:url}}};offset+=url.length+1;return run;});}
+   if(col===28)out.textFormatRuns=articleLinkRuns(m.links);
    changes.push({col,old:'',next,cell:out});
   }
   return {id:value(cells[0]),guid:item.guid,changes,conflicts,warnings:m.warnings};
@@ -206,7 +216,7 @@ function scheduledLibraryOfficialNew(){
     for(const [tab,index]of positions)if(index>=tab.gridProperties.rowCount)requests.push({appendDimension:{sheetId:tab.sheetId,dimension:'ROWS',length:index-tab.gridProperties.rowCount+1}});
     // Copy only format and validation; no values, hyperlinks or row-specific chips.
     for(const pasteType of ['PASTE_FORMAT','PASTE_DATA_VALIDATION'])requests.push({copyPaste:{source:{sheetId:ledger.sheetId,startRowIndex:1,endRowIndex:2,startColumnIndex:0,endColumnIndex:55},destination:{sheetId:ledger.sheetId,startRowIndex:ctx.rows.length+1,endRowIndex:ctx.rows.length+2,startColumnIndex:0,endColumnIndex:55},pasteType}});
-    row.forEach((v,col)=>{const data=E.cell(v);if(col===28&&v){let off=0;data.textFormatRuns=m.links.map(uri=>{const r={startIndex:off,format:{link:{uri}}};off+=uri.length+1;return r;});}if(col===21)data.note=JSON.stringify({source:item.feedUrl,guid:item.guid,raw:true});requests.push(E.update(ledger.sheetId,ctx.rows.length+1,col,data));});
+    row.forEach((v,col)=>{const data=E.cell(v);if(col===28&&v)data.textFormatRuns=E.articleLinkRuns(m.links);if(col===21)data.note=JSON.stringify({source:item.feedUrl,guid:item.guid,raw:true});requests.push(E.update(ledger.sheetId,ctx.rows.length+1,col,data));});
     [item.guid,id,item.show,item.title,'登録完了',now].forEach((v,col)=>requests.push(E.update(history.sheetId,ctx.history.length+1,col,E.cell(v))));
     [id,JSON.stringify(state),now].forEach((v,col)=>requests.push(E.update(states.sheetId,ctx.stateLength,col,E.cell(v))));
     E.api(c,':batchUpdate',{requests});
