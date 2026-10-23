@@ -277,6 +277,21 @@ function inspectLibraryOfficialCopyNetworkReadOnly(){
 }
 
 
+/** RSS inventory parser only; Megaphone IDs are not assumed to be Omny UUIDs. */
+function libraryOfficialAuditFeedReadOnly(feed){
+ const url=String(feed.url||'');
+ if(!/^https:\/\/(?:www\.omnycontent\.com\/d\/playlist\/1e3bd144-9b57-451a-93cf-ac0e00e74446\/|feeds\.megaphone\.fm\/TASC)/.test(url))throw Error('UNAPPROVED_RSS_HOST');
+ const response=UrlFetchApp.fetch(url,{muteHttpExceptions:true});
+ if(response.getResponseCode()!==200)throw Error('RSS_HTTP_'+response.getResponseCode());
+ const channel=XmlService.parse(response.getContentText()).getRootElement().getChild('channel');
+ if(!channel)throw Error('RSS_CHANNEL_MISSING');
+ return channel.getChildren('item').map(x=>({
+  guid:String(x.getChildText('guid')||'').trim(),title:x.getChildText('title')||'',
+  pubDate:x.getChildText('pubDate')||'',link:x.getChildText('link')||'',
+  show:feed.show,feedUrl:url
+ }));
+}
+
 /** Phase 14: last-seven-days official RSS inventory; strictly READ_ONLY.
  * Execute manually in the approved GAS copy project after UrlFetch OAuth approval.
  * Never registers IDs, writes Sheets, properties, triggers, Pages, or Spotify.
@@ -290,14 +305,14 @@ function inspectLibraryOfficialLastSevenDaysReadOnly(){
  const found=new Map();
  for(const feed of c.feeds){
   try{
-   const items=E.rss(feed);let recent=0;
+   const items=libraryOfficialAuditFeedReadOnly(feed);let recent=0;
    for(const item of items){
     const time=Date.parse(item.pubDate);
     if(!Number.isFinite(time)||time<since.getTime()||time>now.getTime())continue;
     recent++;
     const guid=String(item.guid||'').toLowerCase();
     const entry={show:item.show,guid,title:item.title,published:item.pubDate,feed:feed.url};
-    if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item.guid||'')){report.held.push({...entry,reason:'INVALID_GUID'});continue;}
+    if(!guid){report.held.push({...entry,reason:'INVALID_GUID'});continue;}
     if(found.has(guid)){report.held.push({...entry,reason:'DUPLICATE_IN_FEEDS'});found.get(guid).duplicate=true;continue;}
     found.set(guid,{entry,duplicate:false});
    }
