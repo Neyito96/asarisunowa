@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-04957",
+      "main_theme": "親の就職承諾確認と企業採用",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しに基づく中心話題の暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04958",
+      "main_theme": "オヤカクと企業への就職不安",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しに基づく中心話題の暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04959",
+      "main_theme": "リーダーの役割と企画推進力",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しに基づく中心話題の暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04960",
+      "main_theme": "朝ポキSTREET大阪の参加募集",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しに基づく中心話題の暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04961",
+      "main_theme": "地震国日本の暮らしと人口減少",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しに基づく中心話題の暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04962",
+      "main_theme": "生成AIによる動画制作と雇用",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しに基づく中心話題の暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04963",
+      "main_theme": "新聞社の多様な職種と採用",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しに基づく中心話題の暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04964",
+      "main_theme": "新卒社員とのカラオケ選曲",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しに基づく中心話題の暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04965",
+      "main_theme": "読者を引きつける見出しの距離感",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しに基づく中心話題の暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04966",
+      "main_theme": "人種による職務質問と差別",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しに基づく中心話題の暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04967",
+      "main_theme": "レイシャルプロファイリングの調査",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しに基づく中心話題の暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04968",
+      "main_theme": "好きな仕事と若手落語家の生き方",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しに基づく中心話題の暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04969",
+      "main_theme": "新聞業界の将来と経営",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しに基づく中心話題の暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04970",
+      "main_theme": "朝ポキSTREET大阪と歴史の話",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しに基づく中心話題の暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04971",
+      "main_theme": "警察官の証言と人種的職務質問",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しに基づく中心話題の暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04972",
+      "main_theme": "人種差別的職務質問への市民の対応",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しに基づく中心話題の暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04973",
+      "main_theme": "ビクトルエリセ監督と新作映画",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しに基づく中心話題の暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04974",
+      "main_theme": "旧作映画の修復と文化継承",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しに基づく中心話題の暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04975",
+      "main_theme": "運動部と男性らしさの固定観念",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しに基づく中心話題の暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04976",
+      "main_theme": "テレビ塔と内藤多仲の建築",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しに基づく中心話題の暫定分類。概要本文の精読は未実施。"
+    }
+  ]
+}
