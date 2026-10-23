@@ -119,3 +119,17 @@ test('read-only progress cannot skip a future write-mode sweep',()=>{
  const src=fs.readFileSync(new URL('../scripts/google-apps-script/LibraryOfficialNative.gs',import.meta.url),'utf8');
  assert.match(src,/\(write\?'_WRITE':'_READ_ONLY'\)/);
 });
+
+test('new-episode path reuses official atomic registration, not native non-atomic writer',()=>{
+ const official=fs.readFileSync(new URL('../scripts/google-apps-script/LibraryOfficialRssEngine.gs',import.meta.url),'utf8');
+ const native=fs.readFileSync(new URL('../scripts/google-apps-script/LibraryOfficialNative.gs',import.meta.url),'utf8');
+ const start=official.indexOf('function scheduledLibraryOfficialNew()');
+ const end=official.indexOf('function installLibraryOfficialTriggersAfterValidation()',start);
+ assert.ok(start>=0&&end>start);
+ const registration=official.slice(start,end);
+ for(const required of ['E.newDecision(', 'E.material(', 'E.api(c,\':batchUpdate\',{requests})', 'REGISTRATION_READBACK_FAILED', 'LockService.getScriptLock()', 'E.context(c)'])
+  assert.ok(registration.includes(required),required);
+ assert.match(registration,/engineValidation!=='P14_RUNTIME_VERIFIED'/);
+ assert.match(registration,/otherWritersPaused!==true/);
+ assert.match(native,/REGISTRATION_BLOCKED_NONATOMIC/);
+});
