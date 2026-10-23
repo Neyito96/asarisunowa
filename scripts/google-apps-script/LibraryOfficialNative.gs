@@ -56,6 +56,27 @@ var LibraryOfficialNative = (function(){
   else {must(hash===p.beforeHash,'PARTIAL_WRITE_CONFLICT');delete state.nativePending;}
   stateSheet.getRange(stateRow,2).setValue(JSON.stringify(state));SpreadsheetApp.flush();
  }
+ // Scope sheet is a verified EP-ID decision table (A=EP-ID, D=publication decision).
+ // Never infer eligibility from a playlist or an approximate count.
+ function scopeMap(ss,c,ledger){
+  if(!c.scopeSheet){
+   must(ledger==='P14_NATIVE_FIXTURE','SCOPE_SHEET_REQUIRED_FOR_LEDGER');
+   return null;
+  }
+  const sh=ss.getSheetByName(c.scopeSheet);
+  must(sh&&sh.getLastColumn()>=4,'SCOPE_SHEET_MISSING');
+  const data=sh.getRange(2,1,Math.max(1,sh.getLastRow()-1),4).getValues(),out=new Map();
+  for(const r of data){
+   const id=String(r[0]||'').trim(),decision=String(r[3]||'').trim();
+   must(/^EP-\\d{5}$/.test(id)&&!out.has(id),'SCOPE_ID_INVALID_OR_DUPLICATE');
+   must(['対象・確認済み','対象外','保留'].includes(decision),'SCOPE_DECISION_INVALID');
+   out.set(id,decision);
+  }
+  must(out.size===6591,'SCOPE_COUNT_NOT_6591');
+  const counts={};for(const v of out.values())counts[v]=(counts[v]||0)+1;
+  must(counts['対象・確認済み']===5848&&counts['対象外']===377&&counts['保留']===366,'SCOPE_TOTALS_MISMATCH');
+  return out;
+ }
  function backfill(){
   const lock=LockService.getScriptLock();if(!lock.tryLock(1000))return {status:'BUSY'};
   try{
@@ -66,12 +87,15 @@ var LibraryOfficialNative = (function(){
    if(write)must(c.sandboxToken===p.getProperty('LIB_OFFICIAL_NATIVE_SANDBOX')&&c.sandboxToken&&c.ledger==='P14_NATIVE_FIXTURE'&&c.states==='P14_NATIVE_STATE'&&c.otherWritersPaused===true,'STRUCTURE_PROOF_REQUIRED');
    const sh=ss.getSheetByName(c.ledger||'エピソード台帳'),st=ss.getSheetByName(c.states||'図書館V3・項目状態');
    must(sh&&st&&sh.getLastColumn()===55,'SCHEMA_CONFLICT');
+   const scope=scopeMap(ss,c,c.ledger||'エピソード台帳');
    const states=st.getDataRange().getValues(),map=new Map();states.slice(1).forEach((r,i)=>{must(!map.has(r[0]),'DUPLICATE_STATE');map.set(r[0],{state:JSON.parse(r[1]),row:i+2});});
    const cp=JSON.parse(p.getProperty(CP)||'{}'),target=c.sheetId+'/'+sh.getSheetId();must(!cp.target||cp.target===target,'CURSOR_TARGET_CONFLICT');
    const total=sh.getLastRow()-1,start=Date.now(),deadline=start+Math.max(5000,Math.min(c.budgetMs||120000,240000));
-   const failures=[],metrics={jsonFetched:0,planned:0,writes:0,mode:write?'COPY_SANDBOX_WRITE':'READ_ONLY'};
+   const failures=[],metrics={jsonFetched:0,planned:0,writes:0,scopeAdopted:0,scopeExcluded:0,scopeHeld:0,mode:write?'COPY_SANDBOX_WRITE':'READ_ONLY'};
    const report=sweep(total,cp.offset||0,Math.max(1,Math.min(c.batchSize||50,200)),deadline,Date.now,i=>{
-    const range=sh.getRange(i+2,1,1,55),row=range.getValues()[0],entry=map.get(row[0]);must(entry,'STATE_MISSING');
+    const range=sh.getRange(i+2,1,1,55),row=range.getValues()[0];
+    if(scope){const decision=scope.get(row[0]);must(decision,'SCOPE_EP_ID_MISSING');if(decision==='対象外'){metrics.scopeExcluded++;return 0;}if(decision==='保留'){metrics.scopeHeld++;return 0;}metrics.scopeAdopted++;}
+    const entry=map.get(row[0]);must(entry,'STATE_MISSING');
     if(write)recover(sh,st,i+2,entry.row,entry.state);
     E.verifyRowProof(range.getValues()[0],entry.state);
     const ev=E.official({guid:row[6]});metrics.jsonFetched++;
@@ -91,7 +115,7 @@ var LibraryOfficialNative = (function(){
   try{
    const c=config();must(c.enabled===true,'DISABLED');const report={engine:'native-new',status:'REGISTRATION_BLOCKED_NONATOMIC',rssItems:0,jsonFetched:0,held:0,added:0};
    const deadline=Date.now()+120000;
-   for(const feed of c.feeds||[]){try{const items=LibraryOfficialEngine.rss(feed);report.rssItems+=items.length;for(const item of items){if(Date.now()>=deadline||report.jsonFetched>=20)break;if(!(Date.parse(item.pubDate)>Date.parse(c.newAfter)))continue;try{const ev=LibraryOfficialEngine.official(item);report.jsonFetched++;LibraryOfficialEngine.material(item,ev.clip,ev.url);}catch(e){report.held++;console.log(JSON.stringify({guid:item.guid,reason:String(e.message)}));}}}catch(e){report.held++;console.log(JSON.stringify({reason:String(e.message)}));}if(Date.now()>=deadline)break;}
+   for(const feed of c.feeds||[]){try{const items=LibraryOfficialEngine.rss(feed);report.rssItems+=items.length;for(const item of items){if(Date.now()>=deadline||report.jsonFetched>=20)break;if(c.newAfter){const since=Date.parse(c.newAfter),published=Date.parse(item.pubDate);must(Number.isFinite(since),'NEW_AFTER_INVALID');if(!Number.isFinite(published)||published<=since)continue;}try{const ev=LibraryOfficialEngine.official(item);report.jsonFetched++;LibraryOfficialEngine.material(item,ev.clip,ev.url);}catch(e){report.held++;console.log(JSON.stringify({guid:item.guid,reason:String(e.message)}));}}}catch(e){report.held++;console.log(JSON.stringify({reason:String(e.message)}));}if(Date.now()>=deadline)break;}
    // No allocation, history or ledger writes until a cross-sheet protocol is validated.
    console.log(JSON.stringify(report));return report;
   }finally{lock.releaseLock();}
