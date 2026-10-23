@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-04776",
+      "main_theme": "映画バービーと炎上社会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04777",
+      "main_theme": "ニュースの要点と記事の読みやすさ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04778",
+      "main_theme": "解説記事とメディアの価値判断",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04779",
+      "main_theme": "叙情的な文章と見出し",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04780",
+      "main_theme": "朝ポキ忘年会の企画募集",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04781",
+      "main_theme": "体験価値としての新聞",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04782",
+      "main_theme": "個性的な公共トイレの建築",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04783",
+      "main_theme": "部活動の賞と達成感",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04784",
+      "main_theme": "推し活と愛情の向け方",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04785",
+      "main_theme": "鹿児島の生活文化と火山",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04786",
+      "main_theme": "報道が扱う優先順位の判断",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04787",
+      "main_theme": "骨髄バンクの登録者減少",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04788",
+      "main_theme": "骨髄提供者への仕事と生活の支援",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04789",
+      "main_theme": "骨髄ドナーの提供動機",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04790",
+      "main_theme": "朝リス参加型番組カレンダー",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04791",
+      "main_theme": "新聞購読の意義と知的習慣",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04792",
+      "main_theme": "ドキュメンタリーの映像技法",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04793",
+      "main_theme": "画質の変化と映像の世代差",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04794",
+      "main_theme": "善意の言葉が傷つける理由",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04795",
+      "main_theme": "性被害後の人生と回復",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    }
+  ]
+}
