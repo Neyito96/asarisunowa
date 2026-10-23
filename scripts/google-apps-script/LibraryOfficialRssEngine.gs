@@ -339,3 +339,50 @@ function inspectLibraryOfficialLastSevenDaysReadOnly(){
  report.summary={feeds:report.feeds.length,missing:report.missing.length,existing:report.existing.length,held:report.held.length,complete:report.complete};
  console.log(JSON.stringify(report));return report;
 }
+
+
+/** Copy-only, read-only: audit whether new RSS items have registration metadata.
+ * This is a registration DRY RUN, NOT an EP-ID reservation or sheet write.
+ */
+function inspectSevenFeedRegistrationReadinessReadOnly(){
+ const id='1IhnYURLqhM8i3ACrkNbDujplXRtyI41rR19qGnwZlMY';
+ const ss=SpreadsheetApp.openById(id),source=ss.getSheetByName('取得元一覧'),ledger=ss.getSheetByName('エピソード台帳');
+ if(!source||!ledger)throw Error('COPY_SHEETS_MISSING');
+ const feeds=source.getRange(2,1,7,8).getValues().map(r=>({show:String(r[0]||''),url:String(r[7]||'')}));
+ if(feeds.length!==7||new Set(feeds.map(f=>f.show)).size!==7)throw Error('FEED_LIST_INVALID');
+ const rows=ledger.getDataRange().getValues().slice(1),known=new Set();
+ rows.forEach(r=>{[6,8,9,10,11,12,44,45,46,47,48,49,50].forEach(i=>{if(r[i])known.add(String(r[i]).trim().toLowerCase());});});
+ const since=Date.now()-7*86400000,items=[],errors=[],seen=new Set();
+ for(const feed of feeds){
+  try{
+   if(!/^https:\/\/(?:www\.omnycontent\.com\/d\/playlist\/1e3bd144-9b57-451a-93cf-ac0e00e74446\/|feeds\.megaphone\.fm\/TASC)/.test(feed.url))throw Error('RSS_HOST_REJECTED');
+   const res=UrlFetchApp.fetch(feed.url,{muteHttpExceptions:true});
+   if(res.getResponseCode()!==200)throw Error('RSS_HTTP_'+res.getResponseCode());
+   const channel=XmlService.parse(res.getContentText()).getRootElement().getChild('channel');
+   if(!channel)throw Error('CHANNEL_MISSING');
+   for(const node of channel.getChildren('item')){
+    const guid=String(node.getChildText('guid')||'').trim(),title=node.getChildText('title')||'',date=node.getChildText('pubDate')||'';
+    const time=Date.parse(date);if(!Number.isFinite(time)||time<since||time>Date.now())continue;
+    const key=guid.toLowerCase();
+    if(known.has(key))continue;
+    const enclosure=node.getChild('enclosure'),audio=enclosure?.getAttribute('url')?.getValue()||'';
+    const link=node.getChildText('link')||'';
+    const platform=feed.url.includes('megaphone.fm')?'Megaphone':'Omny';
+    const issues=[];
+    if(!guid)issues.push('GUID_MISSING');
+    if(!title)issues.push('TITLE_MISSING');
+    if(!audio)issues.push('AUDIO_MISSING');
+    if(!link)issues.push('LINK_MISSING');
+    if(seen.has(key))issues.push('GUID_DUPLICATE_IN_FEEDS');
+    seen.add(key);
+    items.push({show:feed.show,platform,guid,title,published:new Date(time).toISOString(),audio:!!audio,link:!!link,issues});
+   }
+  }catch(e){errors.push({show:feed.show,error:String(e.message)});}
+ }
+ items.sort((a,b)=>a.published.localeCompare(b.published)||a.show.localeCompare(b.show)||a.guid.localeCompare(b.guid));
+ const summary={mode:'COPY_READ_ONLY',feedCount:feeds.length,feedErrors:errors.length,candidates:items.length,metadataReady:items.filter(x=>!x.issues.length).length,held:items.filter(x=>x.issues.length).length,omny:items.filter(x=>x.platform==='Omny').length,megaphone:items.filter(x=>x.platform==='Megaphone').length,writes:0,triggerChanges:0};
+ console.log('READINESS_SUMMARY '+JSON.stringify(summary));
+ errors.forEach(e=>console.log('FEED_ERROR '+JSON.stringify(e)));
+ items.forEach((item,i)=>console.log('CANDIDATE '+JSON.stringify({order:i+1,...item})));
+ return summary;
+}
