@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-02420",
+      "main_theme": "アフリカ経済と再生可能エネルギー",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02422",
+      "main_theme": "平等院の文化財",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02423",
+      "main_theme": "京都の秘境寺院",
+      "status": "provisional",
+      "review_basis": "title_only",
+      "review_note": "概要未取得。タイトルから暫定分類し、後日人間が確認。"
+    },
+    {
+      "ep_id": "EP-02424",
+      "main_theme": "体内埋め込み鍵と認証技術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02425",
+      "main_theme": "暗証番号と個人認証",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02426",
+      "main_theme": "サルと観光施設の歴史",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02427",
+      "main_theme": "AIとケア労働の未来",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02428",
+      "main_theme": "女性の声と社会変革",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02429",
+      "main_theme": "知床遊覧船事故の検証",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02430",
+      "main_theme": "平等院の国宝と歴史",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02431",
+      "main_theme": "平安絵画の修復保存",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02432",
+      "main_theme": "芸能事務所の性被害と責任",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02433",
+      "main_theme": "旧民主党系の政治対立",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02434",
+      "main_theme": "ビジネス用語の世代差",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02435",
+      "main_theme": "子育て支援と労働観",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02436",
+      "main_theme": "マッチングアプリでの結婚",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02437",
+      "main_theme": "韓国の反フェミニズム",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02438",
+      "main_theme": "車いす利用者への支援",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02439",
+      "main_theme": "平等院の博物館機能",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02440",
+      "main_theme": "文化庁京都移転の影響",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    }
+  ]
+}
