@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-01337",
+      "main_theme": "ナゴルノ・カラバフ紛争",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01338",
+      "main_theme": "コーカサス紛争の国際関係",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01339",
+      "main_theme": "北海道の新型コロナ感染拡大",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01340",
+      "main_theme": "知事公用車の費用と調査",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01341",
+      "main_theme": "知事公用車と公金の使途",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01342",
+      "main_theme": "ハリウッドの女性監督と多様性",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01343",
+      "main_theme": "追悼文とメディアの役割",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01344",
+      "main_theme": "デジタルメディアの収益モデル",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01345",
+      "main_theme": "はやぶさ2と小惑星探査",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01346",
+      "main_theme": "ギグワーカーの報酬保障",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01347",
+      "main_theme": "選択的夫婦別姓と自民党内対立",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01348",
+      "main_theme": "夫婦別姓の政治的対立",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01349",
+      "main_theme": "ネット媒体の編集責任",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01350",
+      "main_theme": "子どもの性暴力被害と回復",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01351",
+      "main_theme": "中国と豪州の外交摩擦",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01352",
+      "main_theme": "豪州への中国の政治的影響",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01353",
+      "main_theme": "フランスのコロナ規制と生活",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01354",
+      "main_theme": "コロナ専門病院の職員退職",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01355",
+      "main_theme": "コロナ専門病院化と行政の説明責任",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01356",
+      "main_theme": "ギグワークの労働条件",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01357",
+      "main_theme": "子どもの性暴力と被害防止",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01358",
+      "main_theme": "ベトナム人技能実習生の虐待",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01359",
+      "main_theme": "M-1グランプリと漫才評価",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01360",
+      "main_theme": "ベトナム人留学生の困窮",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01361",
+      "main_theme": "菅内閣支持率の低下",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    }
+  ]
+}
