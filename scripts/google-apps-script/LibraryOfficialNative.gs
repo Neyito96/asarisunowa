@@ -140,14 +140,14 @@ var LibraryOfficialNative = (function(){
    const cursorKey=c.ledger==='P14_NATIVE_FIXTURE'?CP:CP+'_LEDGER_'+sh.getSheetId();
    const cp=JSON.parse(p.getProperty(cursorKey)||'{}');
    must(!cp.target||cp.target===target,'CURSOR_TARGET_CONFLICT');
-   const total=scope?6591:sh.getLastRow()-1;
+   const total=sh.getLastRow()-1;
    if(scope){must(sh.getLastRow()-1>=6591,'LEDGER_BASELINE_TRUNCATED');const ids=sh.getRange(2,1,total,1).getValues().map(r=>String(r[0]||'').trim()),seen=new Set();for(const id of ids){must(!seen.has(id)&&scope.has(id),'LEDGER_SCOPE_MISMATCH');seen.add(id);}must(seen.size===scope.size,'LEDGER_SCOPE_COUNT_MISMATCH');}
    const start=Date.now(),deadline=start+Math.max(5000,Math.min(c.budgetMs||120000,240000));
-   const failures=[],metrics={jsonFetched:0,planned:0,writes:0,scopeAdopted:0,scopeExcluded:0,scopeHeld:0,mode:write?'COPY_SANDBOX_WRITE':'READ_ONLY'};
+   const failures=[],metrics={jsonFetched:0,planned:0,writes:0,scopeAdopted:0,scopeExcluded:0,scopeHeld:0,scopeNewUnclassified:0,mode:write?'COPY_SANDBOX_WRITE':'READ_ONLY'};
    const report=sweep(total,cp.offset||0,Math.max(1,Math.min(c.batchSize||50,200)),deadline,Date.now,i=>{
     const range=sh.getRange(i+2,1,1,55),row=range.getValues()[0];
     // Publication eligibility is NOT an archival backfill filter. Preserve all 6591 baseline EPs.
-    if(scope){const decision=scope.get(row[0]);must(decision,'SCOPE_EP_ID_MISSING');if(decision==='対象外')metrics.scopeExcluded++;else if(decision==='保留')metrics.scopeHeld++;else metrics.scopeAdopted++;}
+    if(scope){const decision=scope.get(row[0]);if(i<6591)must(decision,'SCOPE_BASELINE_EP_ID_MISSING');else must(!decision,'SCOPE_NEW_EP_UNEXPECTEDLY_CLASSIFIED');if(!decision)metrics.scopeNewUnclassified++;else if(decision==='対象外')metrics.scopeExcluded++;else if(decision==='保留')metrics.scopeHeld++;else metrics.scopeAdopted++;}
     const entry=map.get(row[0]);must(entry,'STATE_MISSING');
     if(write)recover(sh,st,i+2,entry.row,entry.state);
     E.verifyRowProof(range.getValues()[0],entry.state);
