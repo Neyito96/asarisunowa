@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-01617",
+      "main_theme": "たくさんのご意見ありがとうございました！ 朝日新聞音声チームより感謝をこめて",
+      "topic_category": "社会・人権",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01618",
+      "main_theme": "ビジネス＝人権の時代 社会の不平等、不公正を変えるのは誰だ",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01619",
+      "main_theme": "コロナにかかると何が起きるのか 感染経験者による座談会（前編）",
+      "topic_category": "医療・健康",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01620",
+      "main_theme": "コロナの不安と、どう向き合えるのか 感染経験者による座談会（後編）",
+      "topic_category": "医療・健康",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01621",
+      "main_theme": "ひとりじゃないから大丈夫、じゃない 「ローラー作戦」と福祉のプロ",
+      "topic_category": "社会・人権",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01622",
+      "main_theme": "労働組合の「組織内候補」 矢田稚子さん、組織の外も見えてますか？",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01623",
+      "main_theme": "あの衝撃から20年 9.11同時多発テロとアメリカのいまを考える",
+      "topic_category": "国際・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01625",
+      "main_theme": "なぜ金メダルをかじってしまうのか 東京オリンピックを振り返る②",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01626",
+      "main_theme": "「大事だから」を超えていくには 平和報道を続けるにあたって",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01627",
+      "main_theme": "アメリカのテレビ局と東京五輪（前編） 「早朝競技」望んでなかった？",
+      "topic_category": "国際・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01628",
+      "main_theme": "アメリカのテレビ局と東京五輪（後編） 視聴率は激減、でも多額の放映権料は払う",
+      "topic_category": "国際・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01629",
+      "main_theme": "ツイッターは、なぜ生き残れたのか 津田大介さん登場（前編）",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01630",
+      "main_theme": "表現が、ツイッターの仕様にあわせていないか 津田大介さん登場（中編）",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01631",
+      "main_theme": "価値観が同じひとにしか、表現は届けられないのか 津田大介さん登場（後編）",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01632",
+      "main_theme": "マスクを外して、また着けて ワクチン先進国アメリカのいま",
+      "topic_category": "国際・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01633",
+      "main_theme": "テーマは「安倍晋三・前首相」だった 自民党総裁選がはじまる",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01634",
+      "main_theme": "「アマゾンボタン」なかったのは、そんたく？ テレビの主戦場はリモコンだった",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01635",
+      "main_theme": "メディアは今の伝え方でいいのか 東京オリンピックを振り返る③",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01636",
+      "main_theme": "人気の高級時計が、ぜんぜん店頭に並ばない いったいどこに消えている？",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01638",
+      "main_theme": "香港はいま（前編） 表向きの平穏と、根底から激変した社会",
+      "topic_category": "国際・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    }
+  ]
+}
