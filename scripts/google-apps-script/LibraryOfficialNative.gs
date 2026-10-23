@@ -93,7 +93,7 @@ var LibraryOfficialNative = (function(){
   must(sh.getRange(1,1).getValue()==='台帳ID','LEDGER_HEADER_MISMATCH');
   const scope=scopeMap(ss,c,c.ledger||'エピソード台帳');
   must(scope,'SCOPE_REQUIRED');
-  must(sh.getLastRow()-1===6591,'LEDGER_COUNT_NOT_6591');
+  must(sh.getLastRow()-1>=6591,'LEDGER_BASELINE_TRUNCATED');
   const ids=sh.getRange(2,1,6591,1).getValues(),seen=new Set(),counts={adopted:0,excluded:0,held:0};
   for(const [raw] of ids){
    const id=String(raw||'').trim();
@@ -112,12 +112,12 @@ var LibraryOfficialNative = (function(){
   const stateIds=new Set();
   for(const row of stateRows){
    const id=String(row[0]||'').trim();
-   must(id&&!stateIds.has(id)&&seen.has(id),'STATE_ID_MISMATCH_OR_DUPLICATE');
+   must(id&&!stateIds.has(id),'STATE_ID_MISMATCH_OR_DUPLICATE');
    const state=JSON.parse(row[1]);
    must(state.identity&&state.identity[0]==='VERIFIED','STATE_IDENTITY_NOT_VERIFIED');
    stateIds.add(id);
   }
-  must(stateIds.size===seen.size,'STATE_COUNT_MISMATCH');
+  must([...seen].every(id=>stateIds.has(id)),'STATE_BASELINE_MISSING');
   const result={mode:'SCOPE_PREFLIGHT_READ_ONLY',rows:seen.size,stateRows:stateIds.size,...counts,writes:0,officialFetches:0};
   console.log(JSON.stringify(result));return result;
  }
@@ -140,8 +140,8 @@ var LibraryOfficialNative = (function(){
    const cursorKey=c.ledger==='P14_NATIVE_FIXTURE'?CP:CP+'_LEDGER_'+sh.getSheetId();
    const cp=JSON.parse(p.getProperty(cursorKey)||'{}');
    must(!cp.target||cp.target===target,'CURSOR_TARGET_CONFLICT');
-   const total=sh.getLastRow()-1;
-   if(scope){must(total===6591,'LEDGER_COUNT_NOT_6591');const ids=sh.getRange(2,1,total,1).getValues().map(r=>String(r[0]||'').trim()),seen=new Set();for(const id of ids){must(!seen.has(id)&&scope.has(id),'LEDGER_SCOPE_MISMATCH');seen.add(id);}must(seen.size===scope.size,'LEDGER_SCOPE_COUNT_MISMATCH');}
+   const total=scope?6591:sh.getLastRow()-1;
+   if(scope){must(sh.getLastRow()-1>=6591,'LEDGER_BASELINE_TRUNCATED');const ids=sh.getRange(2,1,total,1).getValues().map(r=>String(r[0]||'').trim()),seen=new Set();for(const id of ids){must(!seen.has(id)&&scope.has(id),'LEDGER_SCOPE_MISMATCH');seen.add(id);}must(seen.size===scope.size,'LEDGER_SCOPE_COUNT_MISMATCH');}
    const start=Date.now(),deadline=start+Math.max(5000,Math.min(c.budgetMs||120000,240000));
    const failures=[],metrics={jsonFetched:0,planned:0,writes:0,scopeAdopted:0,scopeExcluded:0,scopeHeld:0,mode:write?'COPY_SANDBOX_WRITE':'READ_ONLY'};
    const report=sweep(total,cp.offset||0,Math.max(1,Math.min(c.batchSize||50,200)),deadline,Date.now,i=>{
