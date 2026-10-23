@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-02379",
+      "main_theme": "福島原発事故と地域の友人",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02380",
+      "main_theme": "原発事故と町の未来",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02381",
+      "main_theme": "震災復興と商店街",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02382",
+      "main_theme": "原発事故被害者の訴訟",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02383",
+      "main_theme": "シシャモ資源の減少",
+      "status": "provisional",
+      "review_basis": "title_only",
+      "review_note": "概要未取得。タイトルから暫定分類し、後日人間が確認。"
+    },
+    {
+      "ep_id": "EP-02384",
+      "main_theme": "徴用工問題とリスナー対話",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02385",
+      "main_theme": "仕事と子育ての両立",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02386",
+      "main_theme": "放送法の行政文書問題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02387",
+      "main_theme": "被災地取材の倫理と葛藤",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02388",
+      "main_theme": "震災後の僧侶の傾聴",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02389",
+      "main_theme": "平城宮の復元事業",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02390",
+      "main_theme": "編集長引き継ぎと仏教",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02391",
+      "main_theme": "独身地主の遺産相続",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02392",
+      "main_theme": "ラオス鉄道と中国の債務",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02393",
+      "main_theme": "沖縄での新聞記者の仕事",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02394",
+      "main_theme": "在日コリアンの街ウトロ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02395",
+      "main_theme": "ミャンマー軍政と治安悪化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02396",
+      "main_theme": "宝塚作品と原作出版",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02397",
+      "main_theme": "平城宮復元と市民参加",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02398",
+      "main_theme": "仏教の現代的な伝え方",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    }
+  ]
+}
