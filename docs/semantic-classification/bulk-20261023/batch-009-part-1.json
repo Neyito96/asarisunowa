@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-00861",
+      "main_theme": "首相指名選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00862",
+      "main_theme": "パレスチナとガザの歴史",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00863",
+      "main_theme": "為替相場と円安",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00864",
+      "main_theme": "日米地位協定",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00865",
+      "main_theme": "米国大統領選挙制度",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00866",
+      "main_theme": "台風と熱帯低気圧",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00867",
+      "main_theme": "政治資金と裏金事件",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00868",
+      "main_theme": "ロシア・北朝鮮関係",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00869",
+      "main_theme": "原子力発電所の老朽化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00870",
+      "main_theme": "ドジャースの球団史",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00871",
+      "main_theme": "公職選挙法",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00872",
+      "main_theme": "番組紹介・ニュース学習",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00873",
+      "main_theme": "中国の軍事・日中外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00874",
+      "main_theme": "衆院定数削減",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00875",
+      "main_theme": "国会審議と政局",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00876",
+      "main_theme": "報道の量と受け止め方",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00877",
+      "main_theme": "個人情報保護法改正",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00878",
+      "main_theme": "ナフサ供給と石油化学",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00879",
+      "main_theme": "国旗損壊罪と表現",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00880",
+      "main_theme": "国会議員の報酬と政治資金",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    }
+  ]
+}
