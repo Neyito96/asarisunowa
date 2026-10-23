@@ -137,7 +137,7 @@ var LibraryOfficialNative = (function(){
    // Keep the legacy fixture cursor untouched. A real-ledger read-only sweep
    // has its own cursor, and a different target can never inherit its offset.
    const target=c.sheetId+'/'+sh.getSheetId();
-   const cursorKey=c.ledger==='P14_NATIVE_FIXTURE'?CP:CP+'_LEDGER_'+sh.getSheetId();
+   const cursorKey=(c.ledger==='P14_NATIVE_FIXTURE'?CP:CP+'_LEDGER_'+sh.getSheetId())+(write?'_WRITE':'_READ_ONLY');
    const cp=JSON.parse(p.getProperty(cursorKey)||'{}');
    must(!cp.target||cp.target===target,'CURSOR_TARGET_CONFLICT');
    const total=sh.getLastRow()-1;
