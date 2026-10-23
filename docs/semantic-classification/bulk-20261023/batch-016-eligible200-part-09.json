@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-01988",
+      "main_theme": "Qアノンの発信者取材",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01989",
+      "main_theme": "日本のQアノンと陰謀論",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01990",
+      "main_theme": "ロシアルーブルと経済制裁",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01991",
+      "main_theme": "宝塚歌劇の衣装文化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01992",
+      "main_theme": "源頼朝と北条義時の関係",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01993",
+      "main_theme": "新聞紙面と編集技術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01994",
+      "main_theme": "異世界転生と現代仏教",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01995",
+      "main_theme": "沖縄返還と写真記録",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01996",
+      "main_theme": "沖縄返還と地域の記憶",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01997",
+      "main_theme": "沖縄のステーキ文化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01998",
+      "main_theme": "上海ロックダウンの生活",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01999",
+      "main_theme": "上海ロックダウンと市民の抗議",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02001",
+      "main_theme": "古墳の形状と考古学",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02002",
+      "main_theme": "異世界転生と仏教の変容",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02003",
+      "main_theme": "ボーイング737MAXの事故",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02004",
+      "main_theme": "航空機の設計と安全",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02005",
+      "main_theme": "米国企業の自社株買い",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02006",
+      "main_theme": "ボーイングの経営改革",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02007",
+      "main_theme": "ボーイング事故と企業責任",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-02008",
+      "main_theme": "鉄の技術史とアジア",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    }
+  ]
+}
