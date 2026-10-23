@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-00849",
+      "main_theme": "日経平均株価",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00850",
+      "main_theme": "物流2024年問題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00851",
+      "main_theme": "ヒズボラ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00852",
+      "main_theme": "辺野古移設",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00853",
+      "main_theme": "フリーランス法",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00854",
+      "main_theme": "税制改正",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00855",
+      "main_theme": "ロシアのウクライナ侵攻",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00856",
+      "main_theme": "首相の外遊",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00857",
+      "main_theme": "GDP",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00858",
+      "main_theme": "国連気候変動会議",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00859",
+      "main_theme": "社会保険の年収の壁",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00860",
+      "main_theme": "所得税103万円の壁",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    }
+  ]
+}
