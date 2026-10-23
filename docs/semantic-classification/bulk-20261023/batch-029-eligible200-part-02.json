@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-04656",
+      "main_theme": "プロフェッショナルの定義",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04657",
+      "main_theme": "新聞社労働組合の専従活動",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04658",
+      "main_theme": "記者の働き方と労働法制",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04659",
+      "main_theme": "朝日新聞阪神支局襲撃事件",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04660",
+      "main_theme": "言論の自由と新聞襲撃事件",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04661",
+      "main_theme": "昼寝と職場の休息文化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04662",
+      "main_theme": "リスナーが薦めるご当地菓子",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04663",
+      "main_theme": "沖縄のレモンケーキとシークヮーサー",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04664",
+      "main_theme": "北海道と北陸の郷土菓子",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04665",
+      "main_theme": "大阪音声チームの存在意義",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04666",
+      "main_theme": "離島の食堂を描くドキュメンタリー",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04667",
+      "main_theme": "新聞社の新規事業と収益化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04668",
+      "main_theme": "ドラマ鑑賞と本の探し方",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04669",
+      "main_theme": "歌詞を生かした見出し表現",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04670",
+      "main_theme": "世界のモバイルアプリ市場",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04671",
+      "main_theme": "ゲームアプリ市場とコロナ特需",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04672",
+      "main_theme": "旅行アプリとコロナ後の回復",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04673",
+      "main_theme": "新聞の社説と論説主幹",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04674",
+      "main_theme": "吹奏楽の個人練習支援",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04675",
+      "main_theme": "吹奏楽指導と卒業後の音楽",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    }
+  ]
+}
