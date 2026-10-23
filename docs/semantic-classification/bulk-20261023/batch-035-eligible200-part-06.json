@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-06016",
+      "main_theme": "映画を語り、酒を酌み交わした仲間たち　みんな特攻で死んでいった　語りつぐ戦争②",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06017",
+      "main_theme": "正直わかるよ、ニュース離れ　足りないものを見つめよう",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06018",
+      "main_theme": "SDGsが目指す「質の高い教育」公立校でも受けられますか？　浜学園トップと考える（前編）",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06019",
+      "main_theme": "「質の高い教育」新聞やポッドキャストもお役に立てますか？　浜学園トップと考える（後編）",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06020",
+      "main_theme": "「愛のムチ」が正当化されてきたスポーツ指導の現場　暴力を根絶する鍵は「人権」",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06021",
+      "main_theme": "聴いてみて、とっておきの裏話　「SDGsを話そう」ベスト盤①",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06022",
+      "main_theme": "笑いも悲しみも分かち合おう　年を重ねても　「SDGsを話そう」ベスト盤②",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06023",
+      "main_theme": "市民の手で、予算をつくろう　ピザを食べつつカジュアルに　民主主義のつくり方①",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06024",
+      "main_theme": "女性が増えれば、政治は変わる　スウェーデンの裏庭交渉はいま　民主主義のつくり方②",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06025",
+      "main_theme": "3人親が認められるアメリカ　密着取材して見えた、多様な家族のかたち（前編）",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06026",
+      "main_theme": "ボランティアの大人が子どもの「バディー」に　社会ではぐくむオランダ （後編）",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06028",
+      "main_theme": "それぞれが見直した防災　気づかないうちに心がすり減ってしまった時は",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06029",
+      "main_theme": "自然に還るプラスチックは環境問題の救世主か　車の部品、Wi-Fiルーターも試作中（生分解性プラを探る①）",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06030",
+      "main_theme": "植物由来のプラスチックは自然界で分解される？　実際、そうとも限りません（生分解性プラを探る②）",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06031",
+      "main_theme": "海で分解されるプラスチック　開発に挑むのはラップで有名なあの会社（生分解性プラを探る③）",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06032",
+      "main_theme": "世界の10人に1人が苦しむ飢餓　栄養治療食で子どもたちを救う",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06033",
+      "main_theme": "その広告、見せかけかも　「環境にやさしい」「エコ」の表示に要注意（生分解性プラを探る④）",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06034",
+      "main_theme": "答えの出ない事態に耐える　「ネガティブ・ケイパビリティ」鍛える番組、目指してみよう",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06037",
+      "main_theme": "親も知らない妊娠、AIにバラされるなんて　デジタル立憲主義（前編）",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06038",
+      "main_theme": "国家は憲法が縛る、巨大IT企業はどうする　デジタル立憲主義（後編）",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    }
+  ]
+}
