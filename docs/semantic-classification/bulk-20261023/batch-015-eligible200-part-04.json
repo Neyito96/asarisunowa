@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-01682",
+      "main_theme": "衆院選きょう公示（前編） 就任いきなり解散、岸田首相の理想と現実",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01683",
+      "main_theme": "衆院選きょう公示（後編） 公約バラ色、それ本当に実現できるの",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01684",
+      "main_theme": "熱海土石流（前編）週末を襲った大量の土砂 難航する捜索、憔悴する家族",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01685",
+      "main_theme": "熱海土石流（後編）違法な残土、なぜそこに 人災と言わざるを得ないわけ",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01686",
+      "main_theme": "日本の平均賃金が、30年ほぼ同じな件 韓国にも2015年に抜かれて",
+      "topic_category": "国際・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01687",
+      "main_theme": "「MINAMATAに出る」ジョニー・デップは迷わなかった この悪夢は昔話じゃない",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01688",
+      "main_theme": "転職したのに、わたしの年収…低すぎ？ 成長産業は人手不足なのに",
+      "topic_category": "医療・健康",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01689",
+      "main_theme": "カッコつけてなんぼ タカラヅカ、めくるめくレビューの世界",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01690",
+      "main_theme": "危機の大相撲、支えた白鵬「その恩を横審は考えへんのかいな」",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01691",
+      "main_theme": "明治になっても、政治史に実は「徳川」の名前 19代・家広さんが語る①",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01692",
+      "main_theme": "心を無にしようと思うな 先々不安なコロナ下にこそ「座禅」のススメ",
+      "topic_category": "医療・健康",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01693",
+      "main_theme": "なり手1人に、求人48件 介護の現場は崩壊してしまうのか",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01694",
+      "main_theme": "オリックス、なぜ強くなった 4番バッターだけ集めてもダメ",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01695",
+      "main_theme": "アメリカで「素数ゼミ」を食べてみた で、素数ゼミってなんですか？",
+      "topic_category": "国際・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01696",
+      "main_theme": "野原ひろしがうらやましい？ 給料増えず、でも貯金は増えた「怪」",
+      "topic_category": "社会・人権",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01697",
+      "main_theme": "石戸諭さんと語るニュースの未来① 背中では伝わらない基本",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01698",
+      "main_theme": "あれはダイソー、いや無印？ 「日本風中華企業」にみる経済関係",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01699",
+      "main_theme": "「親ガチャ」を救えない政策 聖域の教育費、そびえる学歴社会",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01700",
+      "main_theme": "アメリカで落ちた五輪視聴率「朝から辛抱して見とったのに」",
+      "topic_category": "国際・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01701",
+      "main_theme": "徳川慶喜、政権返しても「実権握るはずだった」 19代・家広さんが語る②",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    }
+  ]
+}
