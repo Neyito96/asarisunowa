@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-02543",
+      "main_theme": "電事連、知られざる電力業界のオキテ 会長人事をひもといた",
+      "topic_category": "経済・産業",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02544",
+      "main_theme": "「結婚式にお金払いたくない」 インドの豪華挙式に思うこと",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02545",
+      "main_theme": "新聞教室：壁面にピザの祖先？ ポンペイ",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02546",
+      "main_theme": "死を選ぶ権利、欧州で広がる 親友が見届けたゴダール監督の選択",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02547",
+      "main_theme": "パチンコを大衆娯楽に変えた「天釘」 かつての30兆円産業はいま",
+      "topic_category": "経済・産業",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02548",
+      "main_theme": "有利だから解散・総選挙、それでいいの？ 6月の騒動はなんだったのか",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02549",
+      "main_theme": "皇后も溺れたアヘン 日本の中国支配を支えた禁断の資金源",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02550",
+      "main_theme": "全国初の「恐竜学部」福井県立大に開設へ 浪人してでも入りたい？",
+      "topic_category": "科学・技術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02551",
+      "main_theme": "絵と言葉が一体感をもって 紙面とデジタル、それぞれの表現で味わう",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02552",
+      "main_theme": "宗教や推しにすがりたい気持ち 銃撃事件1年に思うこと",
+      "topic_category": "福祉・社会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02553",
+      "main_theme": "互いに妥協するって大事だよね 相手を知って自分から歩み寄る",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02554",
+      "main_theme": "衆院解散は「首相の専権事項」なの？ 勝手に土俵をつくられてるかも",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02555",
+      "main_theme": "新聞教室：なにわ筋線、『道頓堀』に挑む",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02556",
+      "main_theme": "マイナンバー問題の深層（前編） 高木浩光氏「AコースとBコースがあります」",
+      "topic_category": "科学・技術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02557",
+      "main_theme": "マイナンバー問題の深層（後編） 利用拡大に潜む懸念、その情報は関係ありますか",
+      "topic_category": "科学・技術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02558",
+      "main_theme": "男同士でジェンダー格差を語ろう、結婚生活の難しさも リスナーさんの質問に答えます",
+      "topic_category": "福祉・社会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02559",
+      "main_theme": "ロックに歌うフランス革命 「1789」を再演、胸が熱くなった星組の歌の力",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02560",
+      "main_theme": "激レア恐竜化石のリアル 国立科学博物館・真鍋さんに聞く進化のサバイバル・前編",
+      "topic_category": "科学・技術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02561",
+      "main_theme": "もしいま有事が起きたら、私はどこに避難すれば 沖縄戦が残した教訓",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02562",
+      "main_theme": "「捏造ですね」と捜査員は証言した 警視庁公安部、つくられた冤罪事件",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    }
+  ]
+}
