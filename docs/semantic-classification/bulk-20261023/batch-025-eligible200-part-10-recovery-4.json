@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-04016",
+      "main_theme": "真っ暗な石室に極彩色壁画の意味",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルを基にした暫定分類。後日再精査。"
+    },
+    {
+      "ep_id": "EP-04017",
+      "main_theme": "「極楽浄土を再現したい」〝女王様〟の依頼、住職は悩んだ末に",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルを基にした暫定分類。後日再精査。"
+    },
+    {
+      "ep_id": "EP-04018",
+      "main_theme": "常総学院×東北",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルを基にした暫定分類。後日再精査。"
+    },
+    {
+      "ep_id": "EP-04019",
+      "main_theme": "カメラマンだから、特派員だから、伝えられる世界",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルを基にした暫定分類。後日再精査。"
+    },
+    {
+      "ep_id": "EP-04020",
+      "main_theme": "新聞にラテ欄は必要か",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルを基にした暫定分類。後日再精査。"
+    }
+  ]
+}
