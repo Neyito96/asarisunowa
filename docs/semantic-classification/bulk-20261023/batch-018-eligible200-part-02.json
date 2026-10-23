@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-02254",
+      "main_theme": "W杯のサッカー戦術分析",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02255",
+      "main_theme": "小惑星探査機はやぶさの危機",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02256",
+      "main_theme": "はやぶさ探査機の撮影成功",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02257",
+      "main_theme": "ポッドキャストと地域課題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02259",
+      "main_theme": "仏具職人と仏像カプセルトイ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02260",
+      "main_theme": "OSINTと市民調査",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02261",
+      "main_theme": "ギフテッド児と周囲の理解",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02262",
+      "main_theme": "ユニクロの欧州事業",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02263",
+      "main_theme": "ギフテッド成人の生きづらさ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02264",
+      "main_theme": "ギフテッド教育と公的支援",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02265",
+      "main_theme": "和牛品評会と畜産",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02266",
+      "main_theme": "あんこ産業と和菓子",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02267",
+      "main_theme": "甲子園球場の大鉄傘",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02268",
+      "main_theme": "宗教リテラシーとカルト対策",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02269",
+      "main_theme": "保育士配置と保育予算",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02270",
+      "main_theme": "食品用ラップの歴史",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02271",
+      "main_theme": "楽器材料の国際取引規制",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02272",
+      "main_theme": "アルテミス計画と宇宙開発",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02274",
+      "main_theme": "ウクライナのバレエ団来日",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02275",
+      "main_theme": "甲子園球場の建築史",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    }
+  ]
+}
