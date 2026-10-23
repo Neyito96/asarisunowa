@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-01702",
+      "main_theme": "歌舞伎、発信への情熱 低迷期を打ち破ったチャレンジ精神",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01703",
+      "main_theme": "なぜ維新の会は、大きく議席を伸ばせたのか 2021年衆院選を振り返る（前編）",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01704",
+      "main_theme": "なぜ立憲民主は、議席を伸ばせなかったのか 2021年衆院選を振り返る（後編）",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01705",
+      "main_theme": "障害児に生きる喜びを ケニアを支える公文和子さん、次は私たちが支えよう",
+      "topic_category": "社会・人権",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01706",
+      "main_theme": "SDGsって、きれいごと？ ハフポスト前編集長の竹下隆一郎さんと話した（前編）",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01707",
+      "main_theme": "きっかけは「フチ子さん」 ガチャガチャ、おとながハマっている",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01708",
+      "main_theme": "デキサメタゾン、早すぎ投与は症状悪化も コロナ対策の飲み薬",
+      "topic_category": "医療・健康",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01709",
+      "main_theme": "SDGs、大企業がいいように使ってない？ 竹下隆一郎さんと話した（中編）",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01710",
+      "main_theme": "「えーまだファクス使ってんのww」と、切り捨てられない事情もあるんです",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01711",
+      "main_theme": "介護職員不足「母も特養入っとったけど、あの仕事は大変や」",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01712",
+      "main_theme": "そこにフロンティアがあったから 江戸時代が260年続いたワケ 19代・家広さんが語る③",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01713",
+      "main_theme": "同じ乱世を生きた蓮如と一休、実は仲良しだった？ 子孫が語る真相",
+      "topic_category": "医療・健康",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01714",
+      "main_theme": "維新の躍進、理由あり（前編） 「1区戦略」で比例票ごっそり",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01715",
+      "main_theme": "維新の躍進、理由あり（後編） 自民も驚くドブ板戦術の徹底",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01716",
+      "main_theme": "サイバー事件簿① ランサムウェア攻撃、狙われたVPN機器",
+      "topic_category": "国際・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01717",
+      "main_theme": "料理は科学だ（前編） あえて「映えない写真」を撮っています",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01718",
+      "main_theme": "料理は科学だ（後編） マグロのうまさ、塩溶性たんぱく質と浸透圧で",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01719",
+      "main_theme": "宅配便は空を飛ぶ時代です ドローン物流、しかけるベンチャー",
+      "topic_category": "医療・健康",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01720",
+      "main_theme": "アタマのなか、脳科学でお見通し ブレインテックの時代がきた",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01722",
+      "main_theme": "知られざる徳川慶喜「一番大変な時。国がどうなるか分からん、と」",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    }
+  ]
+}
