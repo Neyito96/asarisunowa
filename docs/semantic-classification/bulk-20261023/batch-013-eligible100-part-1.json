@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-01392",
+      "main_theme": "天安門事件と日本外交文書",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01394",
+      "main_theme": "コロナ禍の病床と医療体制",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01395",
+      "main_theme": "生理用品と政治",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01396",
+      "main_theme": "コロナ陰謀論とSNS",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01397",
+      "main_theme": "東京五輪の開催判断",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01398",
+      "main_theme": "東京五輪とIOCの準備",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01399",
+      "main_theme": "SNSアカウント停止と表現の自由",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01400",
+      "main_theme": "宗教者による子どもへの性暴力",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01401",
+      "main_theme": "節分の日付と天文学",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01402",
+      "main_theme": "コロナ禍の不動産価格",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01403",
+      "main_theme": "ブラジル政権のコロナ対応",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01404",
+      "main_theme": "立憲民主党の支持低迷",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01405",
+      "main_theme": "野党共闘と政権交代",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01406",
+      "main_theme": "こたつ記事とネット報道",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01407",
+      "main_theme": "家族内の子どもへの性暴力",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01408",
+      "main_theme": "メキシコ麻薬組織と政治腐敗",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01409",
+      "main_theme": "ミャンマー軍事クーデター",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01410",
+      "main_theme": "中国の低価格電気自動車",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01411",
+      "main_theme": "種苗法改正と農業政策",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01412",
+      "main_theme": "ゲームストップ株と個人投資家",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01413",
+      "main_theme": "フランスの風刺画と表現の自由",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01414",
+      "main_theme": "音声配信ビジネスの現状",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01415",
+      "main_theme": "カナリア諸島の移民と観光",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01416",
+      "main_theme": "習近平の長期政権",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01417",
+      "main_theme": "トヨタの実証都市と自動運転",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    }
+  ]
+}
