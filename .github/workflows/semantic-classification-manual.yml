@@ -1,0 +1,22 @@
+name: Semantic classification manual safety checks
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_read_only:
+        description: "Type READ_ONLY to run safety checks (no classification or publishing)"
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  verify-runner:
+    if: ${{ github.event.inputs.confirm_read_only == 'READ_ONLY' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Run isolated safety tests
+        run: python3 -m unittest discover -s docs/semantic-classification/bulk-20261023 -p 'test_*.py' -v
+      - name: Confirm no publishing
+        run: echo "Read-only verification complete; classification and publishing were not run."
