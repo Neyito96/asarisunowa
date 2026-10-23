@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-04006",
+      "main_theme": "今こそ「おしゃべり」、しませんか？",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルを基にした暫定分類。後日再精査。"
+    },
+    {
+      "ep_id": "EP-04007",
+      "main_theme": "育児のモヤモヤ、父親が語る意味って",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルを基にした暫定分類。後日再精査。"
+    },
+    {
+      "ep_id": "EP-04008",
+      "main_theme": "「会いに行ける」のはずなのに…コロナ下のNMB、試練の新入生が探る新境地",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルを基にした暫定分類。後日再精査。"
+    },
+    {
+      "ep_id": "EP-04009",
+      "main_theme": "さよならを思う、トップになったその日から",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルを基にした暫定分類。後日再精査。"
+    },
+    {
+      "ep_id": "EP-04010",
+      "main_theme": "ポッドキャストにライバル現る？",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルを基にした暫定分類。後日再精査。"
+    }
+  ]
+}
