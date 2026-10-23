@@ -57,10 +57,29 @@ test('legacy V3 default ASCII differs from explicit UTF-8 for Japanese',()=>{
 });
 
 function native(extra={}){const c=engine(extra);vm.runInContext(fs.readFileSync(new URL('../scripts/google-apps-script/LibraryOfficialNative.gs',import.meta.url),'utf8'),c);return c;}
-test('native sweep resumes 6592 rows without skipping failures or manual batches',()=>{
- const n=native().LibraryOfficialNative;let cp=0,calls=0,held=0;const seen=[];
- while(calls++<200){const r=n.sweep(6592,cp,50,100,()=>0,i=>{seen.push(i);if(i%100===0)throw Error('retry next sweep');return 0;},e=>{if(e.offset!==undefined)cp=e.offset;});held+=r.held;if(r.complete)break;}
- assert.equal(cp,6592);assert.equal(seen.length,6592);assert.equal(new Set(seen).size,6592);assert.equal(held,66);assert.equal(calls,132);
+test('native sweep retries failed row without skipping it',()=>{
+ const n=native().LibraryOfficialNative;let cp=0,calls=0,held=0;const seen=[],failedOnce=new Set();
+ while(calls++<300){
+  const r=n.sweep(6592,cp,50,100,()=>0,i=>{
+   seen.push(i);
+   if(i%100===0&&!failedOnce.has(i)){failedOnce.add(i);throw Error('transient');}
+   return 0;
+  },e=>{if(e.offset!==undefined)cp=e.offset;});
+  held+=r.held;if(r.complete)break;
+ }
+ assert.equal(cp,6592);
+ assert.equal(new Set(seen).size,6592);
+ assert.equal(seen.length,6592+66);
+ assert.equal(held,66);
+ assert.ok(calls<300);
+});
+test('native sweep never skips a permanently failing row',()=>{
+ const n=native().LibraryOfficialNative;let cp=0,failures=0;
+ for(let run=0;run<3;run++){
+  const r=n.sweep(100,cp,50,100,()=>0,i=>{if(i===4)throw Error('permanent');},e=>{if(e.offset!==undefined)cp=e.offset;else failures++;});
+  assert.equal(cp,4);assert.equal(r.complete,false);assert.equal(r.held,1);
+ }
+ assert.equal(failures,3);
 });
 test('deadline checkpoint stops before visiting another row',()=>{let time=0,saved=0;const r=native().LibraryOfficialNative.sweep(100,0,50,3,()=>time++,()=>1,e=>saved=e.offset);assert.equal(r.scanned,3);assert.equal(saved,3);assert.equal(r.remaining,97);});
 test('native protected targets reject formulas validations merges notes and nonempty',()=>{const n=native().LibraryOfficialNative,base={isBlank:()=>true,getFormula:()=>'',getDataValidation:()=>null,isPartOfMerge:()=>false,getNote:()=>''};for(const [key,val]of [['isBlank',false],['getFormula','=""'],['getDataValidation',{}],['isPartOfMerge',true],['getNote','keep']])assert.throws(()=>n.guardedCell({...base,[key]:()=>val}));});
