@@ -1,11 +1,11 @@
-// Registration evidence is necessary but never substitutes for publication review.
+// Registration evidence plus an explicit publication decision; decisions may be policy-verified.
 import {createHash} from 'node:crypto';
 import {blocked} from '../lib/library-public.mjs';
 import {buildPublicationScope} from '../public/library/publication-scope.mjs';
 export const decisionVersion = decisions => createHash('sha256').update(JSON.stringify(decisions)).digest('hex');
 export function v3RegisteredRowHash(row) {
  const values=row.slice(0,51).map(v=>v??'');
- const date=String(values[3]).replace(' ','T');
+ const date=String(values[3]).replaceAll('/','-').replace(' ','T');
  values[3]=new Date(/(?:Z|[+-]\d\d:\d\d)$/.test(date)?date:date+'+09:00').toISOString();
  return createHash('sha256').update(JSON.stringify(values)).digest('base64url');
 }
@@ -31,9 +31,9 @@ export function admitNewEpisodes(source,base,admissions={schema:1,entries:[]}){
  for(const entry of admissions.entries){
   const row=rows.get(entry.id),identity=states.get(entry.id)?.identity;
   if(baseline.has(entry.id)||seen.has(entry.id))throw Error('Admission changes baseline/duplicates ID: '+entry.id);seen.add(entry.id);
-  if(!row||!identity||identity[0]!=='VERIFIED'||identity[5]!=='RSS_registered'||!row[6]||!row[21]||!row[22]||identity[1]!==row[6]||String(identity[2]).replace(/=+$/,'')!==v3RegisteredRowHash(row)||!Number.isFinite(Date.parse(identity[6])))throw Error('Unverified registration: '+entry.id);
+  if(!row||!identity||identity[0]!=='VERIFIED'||identity[5]!=='RSS_registered'||!row[6]||identity[1]!==row[6]||String(identity[2]).replace(/=+$/,'')!==v3RegisteredRowHash(row)||!Number.isFinite(Date.parse(identity[6])))throw Error('Unverified registration: '+entry.id);
   if(entry.guid!==row[6]||entry.rowHash!==v3RegisteredRowHash(row)||entry.registeredAt!==identity[6]||entry.show!==row[1]||entry.review!=='確認済み'||entry.publication!=='対象'||!Number.isFinite(Date.parse(entry.decidedAt))||Date.parse(entry.decidedAt)<Date.parse(identity[6]))throw Error('Admission evidence mismatch: '+entry.id);
-  if(Date.parse(identity[6])<Date.parse(admissions.newAfter)||Date.parse(String(row[3]).replace(' ','T')+(/(?:Z|[+-]\d\d:\d\d)$/.test(row[3])?'':'+09:00'))<Date.parse(admissions.newAfter))throw Error('Admission predates cutoff: '+entry.id);
+  if(Date.parse(identity[6])<Date.parse(admissions.newAfter)||Date.parse(String(row[3]).replaceAll('/','-').replace(' ','T')+(/(?:Z|[+-]\d\d:\d\d)$/.test(row[3])?'':'+09:00'))<Date.parse(admissions.newAfter))throw Error('Admission predates cutoff: '+entry.id);
   if(blocked(row[38])||excludedIds.has(row[0])||excludedGuids.has(normal(row[6]))||['アルキキ','AJW'].includes(row[1]))throw Error('Admission is excluded: '+entry.id);
   const clips=clipIds(row);
   if(source.rows.some(other=>other[0]!==row[0]&&(normal(other[6])===normal(row[6])||[...clipIds(other)].some(id=>clips.has(id)))))throw Error('GUID/official UUID collision: '+entry.id);
