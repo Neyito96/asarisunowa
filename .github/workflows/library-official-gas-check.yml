@@ -1,0 +1,20 @@
+name: Official RSS GAS port checks
+on:
+  pull_request:
+    paths:
+      - 'scripts/google-apps-script/LibraryOfficial*.gs'
+      - 'scripts/phase14/**'
+      - 'tests/library-official-gas.test.mjs'
+      - '.github/workflows/library-official-gas-check.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/phase14/build-parser.mjs && git diff --exit-code -- scripts/google-apps-script/LibraryOfficialParser.gs
+      - run: node --test tests/library-official-gas.test.mjs tests/library-public.test.mjs tests/sdgs-integration.test.mjs tests/library-phase11.test.mjs tests/pages-preparation.test.mjs
