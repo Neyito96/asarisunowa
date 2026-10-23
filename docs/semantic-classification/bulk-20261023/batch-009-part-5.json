@@ -21,6 +21,20 @@
       "status": "provisional",
       "review_basis": "title_and_description",
       "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00947",
+      "main_theme": "ポッドキャストの実験配信",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00948",
+      "main_theme": "ポッドキャストの制作史",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
     }
   ]
 }
