@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-01734",
+      "main_theme": "瀬戸内寂聴の文学と生涯",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01735",
+      "main_theme": "僧侶の法話と念仏",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01736",
+      "main_theme": "台湾の半導体産業",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01737",
+      "main_theme": "衆院選の選挙予測手法",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01738",
+      "main_theme": "国際ロマンス詐欺とサイバー犯罪",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    }
+  ]
+}
