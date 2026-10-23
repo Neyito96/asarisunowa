@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-00786",
+      "main_theme": "ドイツAfD",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00787",
+      "main_theme": "ミャンマーの詐欺拠点",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00788",
+      "main_theme": "ミャンマー内戦",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00789",
+      "main_theme": "ガソリン税トリガー条項",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00790",
+      "main_theme": "伝統的酒造り",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00791",
+      "main_theme": "タリバン",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00792",
+      "main_theme": "選定療養費",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00793",
+      "main_theme": "コンゴ民主共和国の紛争",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00794",
+      "main_theme": "2ナノ半導体",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00795",
+      "main_theme": "放置空き家",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00796",
+      "main_theme": "フェンタニルとオピオイド",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00797",
+      "main_theme": "医薬品の過剰摂取",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00798",
+      "main_theme": "備蓄米と米価",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00799",
+      "main_theme": "JPCZによる豪雪",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00800",
+      "main_theme": "ファクトチェック",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00801",
+      "main_theme": "施政方針演説",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00802",
+      "main_theme": "予算委員会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00803",
+      "main_theme": "米国大統領令",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00804",
+      "main_theme": "節分と暦",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00805",
+      "main_theme": "銀行の貸金庫",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00806",
+      "main_theme": "青果の価格高騰",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00807",
+      "main_theme": "第三者委員会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00808",
+      "main_theme": "USスチール買収",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00809",
+      "main_theme": "ロサンゼルス山火事",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00810",
+      "main_theme": "春闘",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    }
+  ]
+}
