@@ -8,6 +8,7 @@ on:
       - 'scripts/*library*'
       - 'tests/library-public*'
       - 'tests/library-new-admissions*'
+      - 'tests/library-official-rss-auto-policy*'
       - 'tests/library-phase11*'
       - 'tests/sdgs-integration*'
       - 'tools/sdgs*'
@@ -25,7 +26,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node --test tests/library-publication-scope.test.mjs tests/library-new-admissions.test.mjs
+      - run: node --test tests/library-publication-scope.test.mjs tests/library-new-admissions.test.mjs tests/library-official-rss-auto-policy.test.mjs
       - name: Stage adopted publication without changing repository snapshot
         run: |
           cp -R public /tmp/library-publication-preview
