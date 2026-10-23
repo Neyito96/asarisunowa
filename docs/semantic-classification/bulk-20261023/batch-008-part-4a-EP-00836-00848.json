@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-00836",
+      "main_theme": "企業・団体献金",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00837",
+      "main_theme": "オスプレイ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00838",
+      "main_theme": "核兵器",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00839",
+      "main_theme": "ノーベル平和賞",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00840",
+      "main_theme": "シリア内戦",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00841",
+      "main_theme": "韓国の戒厳令",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00842",
+      "main_theme": "国民負担率",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00843",
+      "main_theme": "尹錫悦大統領",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00844",
+      "main_theme": "身元保証人",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00845",
+      "main_theme": "猟友会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00846",
+      "main_theme": "PFAS",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00847",
+      "main_theme": "マイナ保険証",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-00848",
+      "main_theme": "マイナンバー制度",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定分類。"
+    }
+  ]
+}
