@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-02482",
+      "main_theme": "ispace袴田代表が語る、「失敗」と言わない哲学 月に向かって日進月歩",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02483",
+      "main_theme": "自民党の家庭観、現実とズレていませんか 教育学で博士課程・石原正敬さん",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02484",
+      "main_theme": "新聞教室：高まる気温 スキー場の雪不足、世界的懸念",
+      "topic_category": "スポーツ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02485",
+      "main_theme": "沖縄に来た誰もが見ているはずの那覇軍港 50年ごしに動いた返還計画",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02486",
+      "main_theme": "船への投資、盛り上がってます 「タイのイーロン・マスク」も乗り出した",
+      "topic_category": "経済・産業",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02487",
+      "main_theme": "ウォーホル「3億円の箱」はお買い得？ 税金で買うアートに賛否",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02488",
+      "main_theme": "書き言葉伝来ルーツを探せ 土器がダメなら硯がある？ 弥生時代の文字（前編）",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02489",
+      "main_theme": "甲子園のブラバン演奏は、なぜ人を魅了するのか 「研究家」が断言するその 理由",
+      "topic_category": "科学・技術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02490",
+      "main_theme": "G7首脳に届いたか ゲンが、被爆者が訴えた「核兵器とは共存できない」",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02491",
+      "main_theme": "研究者が次々と雇い止めされている 働くって、大学ってなんだろう",
+      "topic_category": "科学・技術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02492",
+      "main_theme": "薄れつつある政治への風刺 覚悟を持って言論と向き合いたい",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02493",
+      "main_theme": "憲法9条は生きていますか、現実とズレてませんか その価値は今どこに",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02494",
+      "main_theme": "新聞教室：ご長寿日本一、秘訣は坂道？",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02495",
+      "main_theme": "「保育」が必修科目になればいいのに 主婦の地位、家事労働を考える",
+      "topic_category": "福祉・社会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02496",
+      "main_theme": "会見拒否する馳浩知事、裏に山積みの論点 地方メディアはどこへ行く",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02497",
+      "main_theme": "7年ぶりの日本生活 コンビニ楽しい、手続き多すぎ、通勤しんどい",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02498",
+      "main_theme": "首相公邸で記念撮影、する？ しない？ 政治部時代の私は…",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02499",
+      "main_theme": "自民 vs. 公明？ 東京選挙区で何が すれ違いの原因は岸田政権に",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02500",
+      "main_theme": "日本に足りない「したたかさ」 投票行ったら、お好み焼き屋へ",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02501",
+      "main_theme": "古代の「硯」どうやって証明？ そこに墨が 弥生時代の文字（後編）",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    }
+  ]
+}
