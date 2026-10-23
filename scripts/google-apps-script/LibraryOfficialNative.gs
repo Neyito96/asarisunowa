@@ -146,7 +146,8 @@ var LibraryOfficialNative = (function(){
    const failures=[],metrics={jsonFetched:0,planned:0,writes:0,scopeAdopted:0,scopeExcluded:0,scopeHeld:0,mode:write?'COPY_SANDBOX_WRITE':'READ_ONLY'};
    const report=sweep(total,cp.offset||0,Math.max(1,Math.min(c.batchSize||50,200)),deadline,Date.now,i=>{
     const range=sh.getRange(i+2,1,1,55),row=range.getValues()[0];
-    if(scope){const decision=scope.get(row[0]);must(decision,'SCOPE_EP_ID_MISSING');if(decision==='対象外'){metrics.scopeExcluded++;return 0;}if(decision==='保留'){metrics.scopeHeld++;return 0;}metrics.scopeAdopted++;}
+    // Publication eligibility is NOT an archival backfill filter. Preserve all 6591 baseline EPs.
+    if(scope){const decision=scope.get(row[0]);must(decision,'SCOPE_EP_ID_MISSING');if(decision==='対象外')metrics.scopeExcluded++;else if(decision==='保留')metrics.scopeHeld++;else metrics.scopeAdopted++;}
     const entry=map.get(row[0]);must(entry,'STATE_MISSING');
     if(write)recover(sh,st,i+2,entry.row,entry.state);
     E.verifyRowProof(range.getValues()[0],entry.state);
