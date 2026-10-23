@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-02049",
+      "main_theme": "「地元目線」が足りなくないか 常見陽平さんの街頭演説ウォッチ①",
+      "topic_category": "その他・複合話題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02050",
+      "main_theme": "岸田政権、野党は攻めあぐね？ 常見陽平さんの街頭演説ウォッチ②",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02051",
+      "main_theme": "ソロ活のススメ 同性婚、夫婦別姓いつになったら実現する？",
+      "topic_category": "社会・福祉",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02052",
+      "main_theme": "公金横領の「ダメ男」…トップスターが演じると？ 文楽×タカラヅカの化学反応",
+      "topic_category": "文化・芸術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02053",
+      "main_theme": "叩くのは簡単、でも褒めるのは国語力がいる？ SNS時代の匿名性って",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02054",
+      "main_theme": "京都画壇のスター・山元春挙ってどんなひと？",
+      "topic_category": "文化・芸術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02055",
+      "main_theme": "去年も「遺跡」が世界遺産で、今年は不利になってしまう？ 彦根城VS飛鳥・藤原（後編）",
+      "topic_category": "文化・芸術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02056",
+      "main_theme": "パリピ僧侶、道を間違える 「犠牲になり合う世界」脱するには",
+      "topic_category": "文化・芸術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02057",
+      "main_theme": "ビッグマックから見える「安い日本」 慢性デフレと急性インフレ",
+      "topic_category": "その他・複合話題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02058",
+      "main_theme": "新築マンション、ついにバブル期超えました 住宅ローンが重すぎる",
+      "topic_category": "経済・産業",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02059",
+      "main_theme": "NISAにiDeCo、でも貯蓄→投資が進まない 資産はホントに倍増するの？",
+      "topic_category": "経済・産業",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02060",
+      "main_theme": "認知症介護、年12兆円かかっている 家族が担う「隠れたコスト」",
+      "topic_category": "社会・福祉",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02061",
+      "main_theme": "夏も冬も節電要請、料金は1年で3割増も あやういニッポン電力事情",
+      "topic_category": "経済・産業",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02062",
+      "main_theme": "大坂城天守閣の中って博物館みたい？ いや、館長もいる博物館なんです",
+      "topic_category": "文化・芸術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02063",
+      "main_theme": "「▶はい」か「▶いいえ」か、コマンドが出ない人生 選択する自分を誇ろう",
+      "topic_category": "その他・複合話題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02064",
+      "main_theme": "お寺初心者上等！ パリピ僧侶「ふつうの人担当」に徹する",
+      "topic_category": "文化・芸術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02065",
+      "main_theme": "開票と同時に報じられた与党勝利、自民が1人区で圧勝 参院選2022（前編）",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02066",
+      "main_theme": "安倍晋三元首相の死は、選挙に何をもたらしたのか 参院選2022（後編）",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02067",
+      "main_theme": "「1人5役」で大編成バンド、トランペットがいなくても 吹奏楽の舞台裏①",
+      "topic_category": "その他・複合話題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02068",
+      "main_theme": "寝起きの楽器、起こして鳴らして慣らして… 吹奏楽の舞台裏②",
+      "topic_category": "その他・複合話題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    }
+  ]
+}
