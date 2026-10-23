@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-03539",
+      "main_theme": "家庭の防災備蓄",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03540",
+      "main_theme": "子どもの大学進学と学習意欲",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03541",
+      "main_theme": "映画『国宝』と『教皇選挙』",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03542",
+      "main_theme": "証拠開示と刑事裁判の不公正",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03543",
+      "main_theme": "秋篠宮家と愛子さまの活動",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03545",
+      "main_theme": "旧姓通称使用と選択的夫婦別姓",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03547",
+      "main_theme": "帰省と家族の関係",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03548",
+      "main_theme": "読書会『宝島』と当事者性",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03549",
+      "main_theme": "日産の経営危機と自動車産業",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03550",
+      "main_theme": "大規模火災と延焼防止",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03551",
+      "main_theme": "日本被団協と核廃絶の現状",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03552",
+      "main_theme": "ガンダム作品の解釈と沖縄",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03553",
+      "main_theme": "ガザの若者と戦争下の希望",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03554",
+      "main_theme": "2025年の万博と2026年の展望",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03555",
+      "main_theme": "元日の新聞別刷りを読む",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03556",
+      "main_theme": "暮らしから南極までの話題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03559",
+      "main_theme": "リモコンと酒場と靖国参拝",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03561",
+      "main_theme": "保育所の持ち物と謎ルール",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03562",
+      "main_theme": "M-1漫才の多面的な批評",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03563",
+      "main_theme": "教員の性暴力と教室の監視",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    }
+  ]
+}
