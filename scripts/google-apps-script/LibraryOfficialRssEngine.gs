@@ -297,16 +297,19 @@ function libraryOfficialAuditFeedReadOnly(feed){
  * Never registers IDs, writes Sheets, properties, triggers, Pages, or Spotify.
  */
 function inspectLibraryOfficialLastSevenDaysReadOnly(){
- const E=LibraryOfficialEngine,c=E.config(),now=new Date(),since=new Date(now.getTime()-7*86400000);
- const ctx=E.context(c),known=new Set();
- const sourceSheet=SpreadsheetApp.openById(c.sheetId).getSheetByName('取得元一覧');
+ const now=new Date(),since=new Date(now.getTime()-7*86400000);
+ const ss=SpreadsheetApp.openById('1IhnYURLqhM8i3ACrkNbDujplXRtyI41rR19qGnwZlMY');
+ const ledger=ss.getSheetByName('エピソード台帳'),history=ss.getSheetByName('固定ID採番履歴');
+ if(!ledger||!history)throw Error('COPY_LEDGER_OR_HISTORY_MISSING');
+ const rows=ledger.getDataRange().getValues().slice(1),historyRows=history.getDataRange().getValues().slice(1),known=new Set();
+ const sourceSheet=ss.getSheetByName('取得元一覧');
  if(!sourceSheet)throw Error('SOURCE_LIST_MISSING');
  const feeds=sourceSheet.getRange(2,1,7,8).getValues().map(r=>({show:String(r[0]||''),url:String(r[7]||'')}));
  if(feeds.length!==7||feeds.some(f=>!f.show||!f.url)||new Set(feeds.map(f=>f.show)).size!==7)throw Error('SEVEN_FEEDS_INCOMPLETE');
  const canonical=x=>String(x||'').trim().toLowerCase();
- ctx.rows.forEach(r=>E.identityTokens(r).forEach(token=>{if(token)known.add(canonical(token));}));
- ctx.history.forEach(r=>{if(r[0])known.add(canonical(r[0]));});
- const report={mode:'READ_ONLY',since:since.toISOString(),until:now.toISOString(),ledgerRows:ctx.rows.length,feeds:[],missing:[],existing:[],held:[],writes:0,triggerChanges:0};
+ rows.forEach(r=>{for(const col of [6,8,9,10,11,12,44,45,46,47,48,49,50]){const v=r[col];if(v)known.add(canonical(v));}});
+ historyRows.forEach(r=>{if(r[0])known.add(canonical(r[0]));});
+ const report={mode:'READ_ONLY',since:since.toISOString(),until:now.toISOString(),ledgerRows:rows.length,feeds:[],missing:[],existing:[],held:[],writes:0,triggerChanges:0};
  const found=new Map();
  for(const feed of feeds){
   try{
