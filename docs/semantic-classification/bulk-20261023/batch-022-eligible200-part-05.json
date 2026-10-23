@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-03192",
+      "main_theme": "子どもに、社会に、何が残せるかとか考えちゃいませんか",
+      "topic_category": "ジェンダー・福祉",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03193",
+      "main_theme": "哲夫先生が生まれた日の新聞を見てみよう",
+      "topic_category": "文化・歴史",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03194",
+      "main_theme": "よその子とつい比べてしまう",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03195",
+      "main_theme": "ノーベル賞スピーチから考えた",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03196",
+      "main_theme": "震災30年と戦後80年の記憶",
+      "topic_category": "文化・歴史",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03198",
+      "main_theme": "ねじ切られた高速道路、家族奪った地滑り",
+      "topic_category": "ジェンダー・福祉",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03199",
+      "main_theme": "「世界の社会面」に驚きがあふれている",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03200",
+      "main_theme": "悩みや弱み、打ち明けられる人はいる？ ニコニコしたおじさん・おばさんになるために",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03201",
+      "main_theme": "家畜を襲う野犬、被害深刻化",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03202",
+      "main_theme": "主婦になるのがいちばん難しい時代",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03203",
+      "main_theme": "報道ポッドキャストと批評文化",
+      "topic_category": "文化・歴史",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03204",
+      "main_theme": "アナウンサーとテレビ報道、",
+      "topic_category": "政治・国際",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03206",
+      "main_theme": "万博のPRがチケット販売につながらない問題",
+      "topic_category": "経済・労働",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03207",
+      "main_theme": "1995年を振り返ってみる",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03208",
+      "main_theme": "『虎に翼』から陰謀論まで",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03209",
+      "main_theme": "投票所で焼くソーセージ、順位をつけて投票",
+      "topic_category": "政治・国際",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03210",
+      "main_theme": "時を巻き戻してもいいですか",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03211",
+      "main_theme": "デジタル版の新聞に「勝ち筋」ありますか？",
+      "topic_category": "科学・技術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03213",
+      "main_theme": "戦間期の政党政治と戦争",
+      "topic_category": "政治・国際",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03214",
+      "main_theme": "フジテレビ問題、トランプ発言…揺れ動く夕刊",
+      "topic_category": "政治・国際",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    }
+  ]
+}
