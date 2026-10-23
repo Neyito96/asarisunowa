@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-04011",
+      "main_theme": "霞が関とNPOは、社会を支える仲間だった",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルを基にした暫定分類。後日再精査。"
+    },
+    {
+      "ep_id": "EP-04012",
+      "main_theme": "あなたの知らない？新聞記事",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルを基にした暫定分類。後日再精査。"
+    },
+    {
+      "ep_id": "EP-04013",
+      "main_theme": "生きるヒント、風雲児たちが知っている",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルを基にした暫定分類。後日再精査。"
+    },
+    {
+      "ep_id": "EP-04014",
+      "main_theme": "明治時代の記者も怒られたんだろうな",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルを基にした暫定分類。後日再精査。"
+    },
+    {
+      "ep_id": "EP-04015",
+      "main_theme": "新聞のデジタル化が、部数減を補えていない件",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルを基にした暫定分類。後日再精査。"
+    }
+  ]
+}
