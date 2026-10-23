@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-03258",
+      "main_theme": "福島第一原発の燃料デブリ取り出し",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03259",
+      "main_theme": "記者の「取材力」を考える",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03261",
+      "main_theme": "人手不足53万人の未来とその根本",
+      "topic_category": "政治・国際",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03262",
+      "main_theme": "ミモザ色の新聞をめくろう",
+      "topic_category": "文化・歴史",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03263",
+      "main_theme": "不登校、子どもだけでなく支える親も悩み苦しんでいます",
+      "topic_category": "ジェンダー・福祉",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03264",
+      "main_theme": "漫才ワークショップ「朝日賞」受賞者出演",
+      "topic_category": "文化・歴史",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03265",
+      "main_theme": "わたしもう電池切れ、でも家事は残ってる",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03266",
+      "main_theme": "アイロン落ちて、愛深まる",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03267",
+      "main_theme": "石破首相の商品券問題",
+      "topic_category": "政治・国際",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03269",
+      "main_theme": "最期を看取ること、それは選択の連続でした",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03270",
+      "main_theme": "東日本大震災から14年、思いを込めた特設紙面",
+      "topic_category": "文化・歴史",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03271",
+      "main_theme": "ソマリランドの民主主義",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03272",
+      "main_theme": "漫才ワークショップ「朝学賞」受賞者出演",
+      "topic_category": "文化・歴史",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03273",
+      "main_theme": "子どもへの性教育、みんなどうしてる？",
+      "topic_category": "ジェンダー・福祉",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03274",
+      "main_theme": "米軍の都市無差別爆撃の歴史",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03275",
+      "main_theme": "イラン核開発と安全保障",
+      "topic_category": "政治・国際",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03276",
+      "main_theme": "フードロス、気を付けてはいるけれど…",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03277",
+      "main_theme": "大国の外交と法の支配",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03278",
+      "main_theme": "寄り添ってうれしいファシリティドッグ",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03279",
+      "main_theme": "開港20年を迎えた中部国際空港",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    }
+  ]
+}
