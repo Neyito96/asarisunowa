@@ -67,6 +67,9 @@ var LibraryOfficialNative = (function(){
   const scopeBook=c.scopeSourceSheetId?(must(c.scopeSourceSheetId==='1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4','SCOPE_SOURCE_NOT_APPROVED'),SpreadsheetApp.openById(c.scopeSourceSheetId)):ss;
   const sh=scopeBook.getSheetByName(c.scopeSheet);
   must(sh&&sh.getLastColumn()>=4,'SCOPE_SHEET_MISSING');
+  const headers=sh.getRange(1,1,1,4).getValues()[0];
+  must(headers[0]==='EP-ID'&&headers[3]==='宇宙検索対象','SCOPE_HEADERS_MISMATCH');
+  must(sh.getLastRow()===6592,'SCOPE_LAST_ROW_MISMATCH');
   const data=sh.getRange(2,1,Math.max(1,sh.getLastRow()-1),4).getValues(),out=new Map();
   for(const r of data){
    const id=String(r[0]||'').trim(),decision=String(r[3]||'').trim();
@@ -83,6 +86,7 @@ var LibraryOfficialNative = (function(){
  function preflight(){
   const c=config(),ss=SpreadsheetApp.openById(c.sheetId),sh=ss.getSheetByName(c.ledger||'エピソード台帳');
   must(sh,'LEDGER_MISSING');
+  must(sh.getRange(1,1).getValue()==='台帳ID','LEDGER_HEADER_MISMATCH');
   const scope=scopeMap(ss,c,c.ledger||'エピソード台帳');
   must(scope,'SCOPE_REQUIRED');
   must(sh.getLastRow()-1===6591,'LEDGER_COUNT_NOT_6591');
@@ -111,6 +115,7 @@ var LibraryOfficialNative = (function(){
    if(write)must(c.sandboxToken===p.getProperty('LIB_OFFICIAL_NATIVE_SANDBOX')&&c.sandboxToken&&c.ledger==='P14_NATIVE_FIXTURE'&&c.states==='P14_NATIVE_STATE'&&c.otherWritersPaused===true,'STRUCTURE_PROOF_REQUIRED');
    const sh=ss.getSheetByName(c.ledger||'エピソード台帳'),st=ss.getSheetByName(c.states||'図書館V3・項目状態');
    must(sh&&st&&sh.getLastColumn()===55,'SCHEMA_CONFLICT');
+   must(sh.getRange(1,1).getValue()==='台帳ID','LEDGER_HEADER_MISMATCH');
    const scope=scopeMap(ss,c,c.ledger||'エピソード台帳');
    const states=st.getDataRange().getValues(),map=new Map();states.slice(1).forEach((r,i)=>{must(!map.has(r[0]),'DUPLICATE_STATE');map.set(r[0],{state:JSON.parse(r[1]),row:i+2});});
    const cp=JSON.parse(p.getProperty(CP)||'{}'),target=c.sheetId+'/'+sh.getSheetId();must(!cp.target||cp.target===target,'CURSOR_TARGET_CONFLICT');
