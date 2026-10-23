@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-01921",
+      "main_theme": "韓国大統領選の結果",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01922",
+      "main_theme": "北方領土と日ロ関係",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01923",
+      "main_theme": "インドの日本人仏教寺院",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01924",
+      "main_theme": "ウクライナ侵攻の軍事情勢",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01925",
+      "main_theme": "ウクライナ侵攻と世界秩序",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    }
+  ]
+}
