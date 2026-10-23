@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-03146",
+      "main_theme": "AIで解明するナスカ地上絵",
+      "topic_category": "科学・技術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03147",
+      "main_theme": "アニータさんを尋ね記者はチリへ渡った",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03148",
+      "main_theme": "財務省とアベノミクス",
+      "topic_category": "経済・労働",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03150",
+      "main_theme": "万博チケットなぜ売れない",
+      "topic_category": "経済・労働",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03151",
+      "main_theme": "新聞広告をめくろう",
+      "topic_category": "文化・歴史",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03152",
+      "main_theme": "日本被団協と核廃絶",
+      "topic_category": "政治・国際",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03153",
+      "main_theme": "元号の町、山口市にずらり",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03154",
+      "main_theme": "民間ロケット・カイロス2号",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03155",
+      "main_theme": "名古屋の河村たかし氏とは何者なのか",
+      "topic_category": "政治・国際",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03156",
+      "main_theme": "え、来年また衆院選？",
+      "topic_category": "政治・国際",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03158",
+      "main_theme": "ミャクミャクと行った北京、政治と異なる日中の景色",
+      "topic_category": "政治・国際",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03159",
+      "main_theme": "遠く、強く、切り開いた五輪面",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03160",
+      "main_theme": "英国の偽情報暴動と治安対応",
+      "topic_category": "政治・国際",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03161",
+      "main_theme": "今年の秋、最も暑かった",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03162",
+      "main_theme": "今年の担当記者はNSC出身",
+      "topic_category": "文化・歴史",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03164",
+      "main_theme": "年の瀬、激動の国際社会",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03166",
+      "main_theme": "根に持つって悪いこと？",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03167",
+      "main_theme": "SNSやスマホ、子どもに必要？",
+      "topic_category": "ジェンダー・福祉",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03168",
+      "main_theme": "M-1令和ロマンの連覇",
+      "topic_category": "文化・歴史",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03169",
+      "main_theme": "消費と賞味、二つの期限の違いは",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    }
+  ]
+}
