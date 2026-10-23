@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-04796",
+      "main_theme": "ヤフーと新聞社の取引関係",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04797",
+      "main_theme": "伝統人形師の修業と継承",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04798",
+      "main_theme": "伝統工芸展と作家の競争",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04799",
+      "main_theme": "赤坂のカプセルホテル建築",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04800",
+      "main_theme": "ポキーワングランプリ忘年会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04801",
+      "main_theme": "学校の役割と居場所",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04802",
+      "main_theme": "ABCラジオのポッドキャスト投資",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04803",
+      "main_theme": "ポッドキャストの収益モデル",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04804",
+      "main_theme": "ラジオ局と新聞社の音声連携",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04805",
+      "main_theme": "老後を自分事にする見出し",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04806",
+      "main_theme": "仏像の本質と鑑賞の視点",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04807",
+      "main_theme": "若手記者の留学と地域取材",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04808",
+      "main_theme": "朝リスとの交流と広告営業",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04810",
+      "main_theme": "朝ポキキャラクターとグッズ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04811",
+      "main_theme": "ヘラルボニーと障害者アート",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04812",
+      "main_theme": "障害児の育児と仕事の両立",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04813",
+      "main_theme": "医療的ケア児家庭の職場理解",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04814",
+      "main_theme": "絵本記者の仕事と転職観",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04815",
+      "main_theme": "絵本による自己受容",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04816",
+      "main_theme": "読書内容を覚える工夫",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    }
+  ]
+}
