@@ -63,7 +63,9 @@ var LibraryOfficialNative = (function(){
    must(ledger==='P14_NATIVE_FIXTURE','SCOPE_SHEET_REQUIRED_FOR_LEDGER');
    return null;
   }
-  const sh=ss.getSheetByName(c.scopeSheet);
+  // A verified decision sheet may be read directly from the production workbook; never written.
+  const scopeBook=c.scopeSourceSheetId?(must(c.scopeSourceSheetId==='1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4','SCOPE_SOURCE_NOT_APPROVED'),SpreadsheetApp.openById(c.scopeSourceSheetId)):ss;
+  const sh=scopeBook.getSheetByName(c.scopeSheet);
   must(sh&&sh.getLastColumn()>=4,'SCOPE_SHEET_MISSING');
   const data=sh.getRange(2,1,Math.max(1,sh.getLastRow()-1),4).getValues(),out=new Map();
   for(const r of data){
