@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-06039",
+      "main_theme": "1分1秒もったいないと感じるのはなんでだろう　いいんですよ、ゆっくりで。",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06042",
+      "main_theme": "人生後半を生きるヒント、分かち合おう　山登りも終活もご一緒に　Reライフ",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06044",
+      "main_theme": "天才ってどんな存在？　大事なのは「好き」という気持ちなのかも",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06045",
+      "main_theme": "横浜の銭湯、ルーツは能登半島にあり　現役バリバリの90歳にも会いました",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06046",
+      "main_theme": "アートな処方箋が健康のカギに　介護を終えた娘がみつけた居場所　老いとアート①",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06047",
+      "main_theme": "看板俳優「おかじい」は97歳　演じることと介護は相性がいい　老いとアート②",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06049",
+      "main_theme": "カタカナ語について考える　言い換えられるときもあるけど、そうじゃないときも",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06050",
+      "main_theme": "「スポーツの世界に閉じこもるのは危険」元阪神・マートンの言葉の意味　大学スポーツと薬物問題（前編）",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06051",
+      "main_theme": "「逮捕された新入生にセカンドチャンスを！」訴えた米大学のコーチ　大学スポーツと薬物問題（後編）",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06053",
+      "main_theme": "2週間後の年賀状、1時間限定の「居酒屋」･･･ 能登半島地震で気になった記事",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06054",
+      "main_theme": "労働組合は組合員だけのものじゃない　学校を拠点に地域を潤す、シカゴの教職員組合",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06055",
+      "main_theme": "グーグル労組、下請け企業からも参加OK　会社との交渉権より大事なこと",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06056",
+      "main_theme": "障がい児を育てながら働く　「発達が遅れています」医師から告げられ（前編）",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06057",
+      "main_theme": "卒業おめでとう、で片付けられない　障がい児を育てて思い知る手薄な両立支援（後編）",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06058",
+      "main_theme": "ゲームと勉強は両立可能？大学受験の思い出　「今しかできないこと」とは",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06059",
+      "main_theme": "女性管理職、増えてほしいけど「私はなりたくない」　矛盾を越えるには",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06061",
+      "main_theme": "日本の寒い家、健康にダメージ　交通事故より、家のお風呂で死ぬ人が多い　断熱（前編）",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06062",
+      "main_theme": "寒さ暑さをガマンするのは美徳じゃない　将来トクする断熱（後編）",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06063",
+      "main_theme": "緑を介したゆるいつながり、何もしない大切さ　カタカナ語ですが紹介させてください",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    },
+    {
+      "ep_id": "EP-06064",
+      "main_theme": "地震で崩れた木造家屋、うちは大丈夫？耐震化のいま　京大防災研で聞いてみた①",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "タイトルを整えた仮テーマ。意味分類・概要精読は未実施、要再分類。"
+    }
+  ]
+}
