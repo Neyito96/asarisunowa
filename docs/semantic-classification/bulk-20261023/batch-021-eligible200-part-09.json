@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-03056",
+      "main_theme": "前向きな新聞記事と気分転換",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03057",
+      "main_theme": "クラウドストライクの世界的障害",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03058",
+      "main_theme": "飛鳥時代の九九の記録",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03059",
+      "main_theme": "長時間労働と仕事への依存",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03060",
+      "main_theme": "海外ワーホリと日本人の生活困窮",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03061",
+      "main_theme": "江戸幕府史と政府見解",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03062",
+      "main_theme": "才能と自信をめぐる言葉",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03063",
+      "main_theme": "維新の大阪での支持低下",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03064",
+      "main_theme": "災害対策の盲点",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03066",
+      "main_theme": "新聞教室の漫才ワークショップ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03069",
+      "main_theme": "中国の事件と日中外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03070",
+      "main_theme": "徴用船と戦争体験",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03071",
+      "main_theme": "日立KDDIと未来都市",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03072",
+      "main_theme": "ひとり時間と食生活",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03073",
+      "main_theme": "アニサキスと食の安全",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03074",
+      "main_theme": "新聞教室の漫才ワークショップ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03075",
+      "main_theme": "PTAの解散と組織改革",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03076",
+      "main_theme": "着床前検査と生殖倫理",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03077",
+      "main_theme": "弱者男性とジェンダー",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03079",
+      "main_theme": "戦間期と現代国際情勢の比較",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    }
+  ]
+}
