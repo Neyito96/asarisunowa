@@ -137,3 +137,27 @@ Dates in native arrays JSON-serialize as ISO strings; a Sheets REST serial numbe
 Previous copy-sheet connector verification of 70 cells must not be counted as GAS execution evidence. Those existing nonempty cells must not be cleared to manufacture a new test.
 
 Resume after authorization: run native diagnostic, resolve all initial hash conflicts (or hold those rows), then install the complete modules and validate READ_ONLY RSS/JSON acquisition. Only after a verified copy manual fill and zero-change replay may copy time-driven tests start. Delete all test triggers after observation. Production is not ready for activation.
+
+## Runtime result after user authorization — supersedes earlier hash hypothesis
+
+Native GAS execution **completed** at 14:59:24; bounded per-row logging completed at 15:01:24 (editor-displayed times, October 23). A further run compared explicit UTF-8 and US-ASCII. Evidence: `native-hash-runtime-20261023.json`.
+
+**Root cause is now reproduced, not inferred:**
+
+1. The original V3 two-argument `Utilities.computeDigest(SHA_256, string)` produced exactly the explicit **US_ASCII** result in this runtime. Phase 14 supplied **UTF_8**. All ten production rows match the saved baseline under the legacy call and US_ASCII; none matches UTF_8.
+2. The baseline covers **51 columns (A:AY)**. Today's ledger is 55 columns after AZ:BC extension. All ten production rows match at width 51; not width 55. The preceding follow-up's claim that simply switching to the current full width fixed compatibility was incomplete and is corrected here.
+3. D and AF are actual GAS Date cells. Their native JSON ISO values are now measured. REST serial dates must not be hashed as if they were these native arrays.
+4. The copy's prior 70-cell blank fill changed J/V/W/AZ:BC without a matching receipt, so its current hashes legitimately differ. All ten copy rows remain held; no saved baseline was changed and no filled value was cleared.
+5. Base64 is web-safe with padding in both implementations; it was not the mismatch source.
+
+Example EP-00141: saved/legacy-51/ASCII-51 = `RTU8ld2NFcT89eD0UWkyu_tuyFalP7lPF_yt8avHo4Q=`; UTF8-51 = `4ejnzNQwHaJXC-FTOWgKkpuZ4ANzuWj_BePvSP6qGiY=`. Native D = `2026-10-10T02:00:23.000Z`; AF = `2026-10-10T02:19:00.410Z`.
+
+Correction: separate `v3RowHash` for legacy proof compatibility from UTF-8 full-width `rowHash` for new receipts. The original identity remains immutable. Receipts use V3's required eight-element packed-field array; an object field would break its existing state reader. Once a receipt exists, its full UTF-8 proof must match; the writer must not fall back to the weaker legacy ASCII proof. Legacy ASCII cannot distinguish every equal-length Japanese edit, so it must never be described as a strong Unicode integrity check. Blank-only and identity checks remain mandatory.
+
+### Copy GAS placement and next boundary
+
+Both complete modules were pasted into the standalone copy GAS and read back byte-for-byte against local code. Default enabled/config flags remain unset. A copy-only network probe `inspectLibraryOfficialCopyNetworkReadOnly()` was added: current official RSS parsing, latest item's RSS/JSON consistency, ten exact historical JSON identities, blank-only planning and a report, with no cell/property/trigger writes.
+
+Attempting the formal inspector after adding UrlFetch-backed code produced an additional Google authorization prompt. The initial native hash diagnostic had no external-request dependency. User approval of the initial diagnostic is confirmed by its successful execution; the new authorization must be completed separately by the user before continuing.
+
+Results in this continuation: native hash diagnosis succeeded; production 10/10 legacy matches; copy 0/10 matches as expected after prior edits; local tests 48 passed. Copy fill 0 cells, nonempty overwrite 0, production writes 0. Network probe, write/replay and timer tests remain unexecuted. No triggers installed. Do not clear previous copy values to manufacture a successful write test: preserve those tabs and use a newly copied baseline-matching test surface within the authorized copy environment, or keep the affected rows held. No production eligibility yet.

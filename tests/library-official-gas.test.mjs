@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';import crypto from 'node:crypto';
-function engine(extra={}){const c=vm.createContext({Utilities:{DigestAlgorithm:{SHA_256:'sha256'},Charset:{UTF_8:'utf8'},computeDigest:(a,s)=>[...crypto.createHash('sha256').update(s).digest()],base64EncodeWebSafe:b=>Buffer.from(b).toString('base64url')+'='},...extra});for(const f of ['LibraryOfficialParser.gs','LibraryOfficialRssEngine.gs'])vm.runInContext(fs.readFileSync(new URL('../scripts/google-apps-script/'+f,import.meta.url),'utf8'),c);return c;}
+function engine(extra={}){const c=vm.createContext({Utilities:{DigestAlgorithm:{SHA_256:'sha256'},Charset:{UTF_8:'utf8'},computeDigest:(a,s,charset)=>[...crypto.createHash('sha256').update(charset==='utf8'?s:s.replace(/[^\x00-\x7f]/g,'?')).digest()],base64EncodeWebSafe:b=>Buffer.from(b).toString('base64url')+'='},...extra});for(const f of ['LibraryOfficialParser.gs','LibraryOfficialRssEngine.gs'])vm.runInContext(fs.readFileSync(new URL('../scripts/google-apps-script/'+f,import.meta.url),'utf8'),c);return c;}
 const guid='11111111-2222-4333-8444-555555555555';
 const item={guid,title:'番組',pubDate:'2026-10-22T19:00:00Z',audio:`https://traffic.omny.fm/d/clips/org/show/${guid}/audio.mp3`,link:'https://omny.fm/shows/asahi/example',duration:'53:35',feedUrl:'https://www.omnycontent.com/feed.rss',description:'<p>本文全文です。</p><p>【関連記事】<br>記事<a href="https://www.asahi.com/articles/ABC.html?iref=omny">記事</a><br><a href="https://digital.asahi.com/articles/DEF.html">別記事</a></p><p>【出演】<br>記者一（編集委員）<br>MC 記者二</p><p>【朝ポキ情報】<br>宣伝情報</p>'};
 const clip={Id:guid,Title:item.title,PublishedUtc:item.pubDate,PublishedUrl:item.link,AudioUrl:item.audio,DurationSeconds:3214.755,DescriptionHtml:item.description,EmbedUrl:item.link+'/embed'};
@@ -36,9 +36,22 @@ test('baseline proof is immutable and mismatch fails closed',()=>{
  assert.throws(()=>e.verifyRowProof(['EP-00141','changed'],state),/STATE_HASH_CONFLICT/);
 });
 test('transition receipt is bound to original baseline and full current hash',()=>{
- const e=engine().LibraryOfficialEngine,before=['EP-00141',''],after=['EP-00141','official'];const state={identity:['VERIFIED','guid',e.rowHash(before)],officialBackfill:{schema:'official-native-row-v1',baselineHash:e.rowHash(before),afterHash:e.rowHash(after)}};
- assert.equal(e.verifyRowProof(after,state),e.rowHash(after));state.officialBackfill.baselineHash='other';assert.throws(()=>e.verifyRowProof(after,state),/STATE_HASH_CONFLICT/);
+ const e=engine().LibraryOfficialEngine,before=['EP-00141',''],after=['EP-00141','official'];const state={identity:['VERIFIED','guid',e.rowHash(before)],officialBackfill:['VERIFIED',guid,e.rowHash(before),'',e.rowHash(after),'official_blank_fill','now',JSON.stringify({schema:'official-native-row-v1',baselineHash:e.rowHash(before),afterHash:e.rowHash(after)})]};
+ assert.equal(e.verifyRowProof(after,state),e.rowHash(after));state.officialBackfill[7]=JSON.stringify({schema:'official-native-row-v1',baselineHash:'other',afterHash:e.rowHash(after)});assert.throws(()=>e.verifyRowProof(after,state),/STATE_HASH_CONFLICT/);
 });
 test('writer does not assign to original identity hash',()=>{
  const source=fs.readFileSync(new URL('../scripts/google-apps-script/LibraryOfficialRssEngine.gs',import.meta.url),'utf8');assert.doesNotMatch(source,/state\.identity\[2\]\s*=/);assert.match(source,/getLastColumn\(\)\)\.getValues\(\)\[0\]/);
+});
+
+test('legacy 51-column baseline remains immutable after AZ:BC schema extension',()=>{
+ const e=engine().LibraryOfficialEngine,row=Array(55).fill('');row[0]='EP-00141';row[2]='日本語';row[3]=new Date('2026-10-10T02:00:23Z');
+ const state={identity:['VERIFIED',guid,e.v3RowHash(row.slice(0,51)),'','','baseline','now','']},saved=JSON.stringify(state);
+ assert.equal(e.verifyRowProof(row,state),e.rowHash(row));assert.equal(JSON.stringify(state),saved);
+ row[21]='unreceipted edit';assert.throws(()=>e.verifyRowProof(row,state),/STATE_HASH_CONFLICT/);
+});
+
+test('legacy V3 default ASCII differs from explicit UTF-8 for Japanese',()=>{
+ const e=engine().LibraryOfficialEngine,row=['日本語'];
+ const legacy=crypto.createHash('sha256').update('["???"]').digest('base64url')+'=';
+ assert.equal(e.v3RowHash(row),legacy);assert.notEqual(e.rowHash(row),legacy);
 });

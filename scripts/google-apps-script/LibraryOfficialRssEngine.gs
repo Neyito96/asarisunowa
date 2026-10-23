@@ -13,11 +13,18 @@ var LibraryOfficialEngine = (function () {
  // Exact V3 contract: native getValues() row, entire data-range width.
  // Do not pass REST serial dates, truncate columns, or normalize blanks/types.
  function rowHash(row){return hash(row);}
+ function v3RowHash(row){return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,JSON.stringify(row)));}
  function verifyRowProof(row,state){
   must(state.identity?.[0]==='VERIFIED','STATE_NOT_VERIFIED');
-  const actual=rowHash(row),baseline=state.identity[2],receipt=state.officialBackfill;
-  if(actual===baseline)return actual;
-  must(receipt?.schema==='official-native-row-v1'&&receipt.baselineHash===baseline&&receipt.afterHash===actual,'STATE_HASH_CONFLICT');
+  const actual=rowHash(row),baseline=state.identity[2],packed=state.officialBackfill;
+  const receipt=Array.isArray(packed)&&packed.length===8&&packed[0]==='VERIFIED'?JSON.parse(packed[7]||'{}'):null;
+  if(packed){
+   must(receipt?.schema==='official-native-row-v1'&&receipt.baselineHash===baseline&&receipt.afterHash===actual,'STATE_HASH_CONFLICT');
+   return actual;
+  }
+  if(actual===baseline||v3RowHash(row)===baseline)return actual;
+  // Proven online for EP-00141..150: V3 baseline predates AZ:BC extension.
+  must(state.identity[5]==='baseline'&&row.length===55&&v3RowHash(row.slice(0,51))===baseline,'STATE_HASH_CONFLICT');
   return actual;
  }
  function jst(x){return new Date(Date.parse(x)+32400000).toISOString().slice(0,19).replace(/-/g,'/').replace('T',' ');}
@@ -129,7 +136,7 @@ var LibraryOfficialEngine = (function () {
   must(plan.changes.every(ch=>blank(before[ch.col])),'NATIVE_TARGET_NOT_BLANK');
   const after=before.slice(),requests=plan.changes.map(ch=>{after[ch.col]=ch.next;return update(ledger.sheetId,rowIndex,ch.col,ch.cell);});
   // Preserve the original V3 identity proof. A separate receipt records this transition.
-  state.officialBackfill={schema:'official-native-row-v1',baselineHash:state.identity[2],beforeHash:rowHash(before),afterHash:rowHash(after),columns:plan.changes.map(x=>x.col),at:new Date().toISOString()};
+  state.officialBackfill=['VERIFIED',plan.guid,rowHash(before),'',rowHash(after),'official_blank_fill',new Date().toISOString(),JSON.stringify({schema:'official-native-row-v1',baselineHash:state.identity[2],beforeHash:rowHash(before),afterHash:rowHash(after),columns:plan.changes.map(x=>x.col)})];
   requests.push(update(stateTab.sheetId,stateIndex+1,1,cell(JSON.stringify(state))));
   requests.push(update(stateTab.sheetId,stateIndex+1,2,cell(new Date().toISOString())));
   // Notes retain per-cell old/new/evidence; state transition and fills commit atomically.
@@ -161,7 +168,7 @@ var LibraryOfficialEngine = (function () {
    props.setProperty('LIB_OFFICIAL_LAST_REPORT',JSON.stringify({processed,changed,holds:holds.slice(0,20),held:holds.length}));return {processed,changed,holds};
   }finally{lock.releaseLock();}
  }
- return {inspect,plan,material,verify,fromJson,newDecision,identityTokens,rowHash,verifyRowProof,runBackfill,readJson,rss,official,platforms,config,context,cell,update,api,PROD};
+ return {inspect,plan,material,verify,fromJson,newDecision,identityTokens,rowHash,v3RowHash,verifyRowProof,runBackfill,readJson,rss,official,platforms,config,context,cell,update,api,PROD};
 })();
 function inspectLibraryOfficialReadOnly(){const report=LibraryOfficialEngine.inspect();console.log(JSON.stringify(report));return report;}
 function scheduledLibraryOfficialBackfill(){return LibraryOfficialEngine.runBackfill();}
@@ -236,8 +243,25 @@ function inspectLibraryOfficialCopyHashesReadOnly(){
   rows.forEach(row=>{
    const savedRow=states.find(r=>r[0]===row[0]);if(!savedRow)throw Error('STATE_MISSING');
    const state=JSON.parse(savedRow[1]),saved=state.identity[2],matchingWidths=[];
-   for(let w=1;w<=row.length;w++)if(LibraryOfficialEngine.rowHash(row.slice(0,w))===saved)matchingWidths.push(w);
-   book.rows.push({id:row[0],saved,full:LibraryOfficialEngine.rowHash(row),first51:LibraryOfficialEngine.rowHash(row.slice(0,51)),matchingWidths,types:row.map(v=>v instanceof Date?'Date':typeof v),dates:row.map((v,i)=>v instanceof Date?{col:i+1,iso:v.toISOString()}:null).filter(Boolean)});
+   for(let w=1;w<=row.length;w++)if(LibraryOfficialEngine.v3RowHash(row.slice(0,w))===saved)matchingWidths.push(w);
+   book.rows.push({id:row[0],saved,full:LibraryOfficialEngine.v3RowHash(row),first51:LibraryOfficialEngine.v3RowHash(row.slice(0,51)),utf8:LibraryOfficialEngine.rowHash(row.slice(0,51)),matchingWidths,types:row.map(v=>v instanceof Date?'Date':typeof v),dates:row.map((v,i)=>v instanceof Date?{col:i+1,iso:v.toISOString()}:null).filter(Boolean)});
   });out.books.push(book);
- });console.log(JSON.stringify(out));return out;
+ });out.books.forEach(b=>{console.log(JSON.stringify({id:b.id,width:b.width,timezone:b.timezone}));b.rows.forEach(r=>console.log(JSON.stringify(r)));});return out;
+}
+
+/** Copy-only network/parser probe. No cell, property or trigger writes. */
+function inspectLibraryOfficialCopyNetworkReadOnly(){
+ const E=LibraryOfficialEngine,c={sheetId:'1IhnYURLqhM8i3ACrkNbDujplXRtyI41rR19qGnwZlMY'};
+ const ss=SpreadsheetApp.openById(c.sheetId),rows=ss.getSheetByName('エピソード台帳').getRange(142,1,10,55).getValues();
+ const feed={url:rows[0][44],show:rows[0][1]},items=E.rss(feed);
+ const report={mode:'COPY_READ_ONLY',rssItems:items.length,rssParsed:0,jsonVerified:0,copyPlannedCells:0,writes:0,rows:[]};
+ if(items.length){const ev=E.official(items[0]);E.material(items[0],ev.clip,ev.url);report.rssParsed=1;}
+ for(let i=0;i<rows.length;i++){
+  const r=rows[i],ev=E.official({guid:r[6]}),item=E.fromJson(r,ev.clip,ev.url);
+  const range="'エピソード台帳'!A"+(142+i)+':BC'+(142+i);
+  const cells=E.api(c,'?includeGridData=true&ranges='+encodeURIComponent(range)).sheets[0].data[0].rowData[0].values;
+  const p=E.plan(cells,item,ev.clip,ev.url);report.jsonVerified++;report.copyPlannedCells+=p.changes.length;
+  report.rows.push({id:r[0],guid:r[6],rawLength:item.description.length,changes:p.changes.map(x=>x.col+1),preserved:p.conflicts.length});
+ }
+ console.log(JSON.stringify(report));return report;
 }
