@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-04716",
+      "main_theme": "朝日小学生新聞と家族の会話",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04717",
+      "main_theme": "朝日小学生新聞と地域学習",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04718",
+      "main_theme": "音声番組の新CM制作",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04719",
+      "main_theme": "朝ポキおたよりのCMと新メンバー",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04720",
+      "main_theme": "YouTuberと新聞社の発信競争",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04721",
+      "main_theme": "坂本龍一の音楽と思想",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04722",
+      "main_theme": "坂本龍一の晩年の音楽観",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04723",
+      "main_theme": "坂本龍一と環境問題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04724",
+      "main_theme": "戦争と映画を伝える建築",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04725",
+      "main_theme": "ライターの仕事と現場取材",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04726",
+      "main_theme": "脚本家と現代ドラマの主人公",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04727",
+      "main_theme": "機能性表示食品の健康情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04728",
+      "main_theme": "BMI指標の限界と肥満判定",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04729",
+      "main_theme": "満州のアヘン史とデジタル表現",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04730",
+      "main_theme": "満州アヘン取材とAIの限界",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04731",
+      "main_theme": "論破文化と対話のあり方",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04732",
+      "main_theme": "2023年上半期の人気音声回",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04733",
+      "main_theme": "金沢の禅文化と建築",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04734",
+      "main_theme": "企業ポッドキャストの広がり",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04735",
+      "main_theme": "企業音声番組とブランド価値",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    }
+  ]
+}
