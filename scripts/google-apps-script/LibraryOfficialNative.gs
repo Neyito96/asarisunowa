@@ -71,12 +71,12 @@ var LibraryOfficialNative = (function(){
   for(const r of data){
    const id=String(r[0]||'').trim(),decision=String(r[3]||'').trim();
    must(/^EP-\d{5}$/.test(id)&&!out.has(id),'SCOPE_ID_INVALID_OR_DUPLICATE');
-   must(['対象・確認済み','対象外','保留'].includes(decision),'SCOPE_DECISION_INVALID');
+   must(['対象','対象外','保留'].includes(decision),'SCOPE_DECISION_INVALID');
    out.set(id,decision);
   }
   must(out.size===6591,'SCOPE_COUNT_NOT_6591');
   const counts={};for(const v of out.values())counts[v]=(counts[v]||0)+1;
-  must(counts['対象・確認済み']===5848&&counts['対象外']===377&&counts['保留']===366,'SCOPE_TOTALS_MISMATCH');
+  must(counts['対象']===5848&&counts['対象外']===377&&counts['保留']===366,'SCOPE_TOTALS_MISMATCH');
   return out;
  }
  function backfill(){
