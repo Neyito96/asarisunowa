@@ -302,31 +302,37 @@ function inspectLibraryOfficialLastSevenDaysReadOnly(){
  const sourceSheet=SpreadsheetApp.openById(c.sheetId).getSheetByName('取得元一覧');
  if(!sourceSheet)throw Error('SOURCE_LIST_MISSING');
  const feeds=sourceSheet.getRange(2,1,7,8).getValues().map(r=>({show:String(r[0]||''),url:String(r[7]||'')}));
- if(feeds.length!==7||feeds.some(f=>!f.show||!f.url))throw Error('SEVEN_FEEDS_INCOMPLETE');
- ctx.rows.forEach(r=>E.identityTokens(r).forEach(token=>known.add(String(token).toLowerCase())));
- ctx.history.forEach(r=>{if(r[0])known.add(String(r[0]).toLowerCase());});
+ if(feeds.length!==7||feeds.some(f=>!f.show||!f.url)||new Set(feeds.map(f=>f.show)).size!==7)throw Error('SEVEN_FEEDS_INCOMPLETE');
+ const canonical=x=>String(x||'').trim().toLowerCase();
+ ctx.rows.forEach(r=>E.identityTokens(r).forEach(token=>{if(token)known.add(canonical(token));}));
+ ctx.history.forEach(r=>{if(r[0])known.add(canonical(r[0]));});
  const report={mode:'READ_ONLY',since:since.toISOString(),until:now.toISOString(),ledgerRows:ctx.rows.length,feeds:[],missing:[],existing:[],held:[],writes:0,triggerChanges:0};
  const found=new Map();
  for(const feed of feeds){
   try{
-   const items=libraryOfficialAuditFeedReadOnly(feed);let recent=0;
+   const items=libraryOfficialAuditFeedReadOnly(feed),dates=items.map(i=>Date.parse(i.pubDate)).filter(Number.isFinite);
+   const oldest=dates.length?new Date(Math.min(...dates)).toISOString():null;
+   const coverage=oldest&&Date.parse(oldest)<=since.getTime()?'SEVEN_DAYS_COVERED':'POSSIBLY_TRUNCATED';
+   let recent=0;
    for(const item of items){
     const time=Date.parse(item.pubDate);
-    if(!Number.isFinite(time)||time<since.getTime()||time>now.getTime())continue;
+    if(!Number.isFinite(time)){report.held.push({show:feed.show,title:item.title,guid:item.guid,reason:'INVALID_PUBLISHED_DATE'});continue;}
+    if(time<since.getTime()||time>now.getTime())continue;
     recent++;
-    const guid=String(item.guid||'').toLowerCase();
-    const entry={show:item.show,guid,title:item.title,published:item.pubDate,feed:feed.url};
-    if(!guid){report.held.push({...entry,reason:'INVALID_GUID'});continue;}
+    const guid=canonical(item.guid),entry={show:item.show,guid,title:item.title,published:item.pubDate,feed:feed.url};
+    if(!guid){report.held.push({...entry,reason:'MISSING_GUID'});continue;}
+    // Distinct shows may share identifiers during migrations; never silently deduplicate.
     if(found.has(guid)){report.held.push({...entry,reason:'DUPLICATE_IN_FEEDS'});found.get(guid).duplicate=true;continue;}
     found.set(guid,{entry,duplicate:false});
    }
-   report.feeds.push({show:feed.show,recent,returned:items.length,status:'OK'});
+   report.feeds.push({show:feed.show,recent,returned:items.length,oldest,coverage,status:'OK'});
   }catch(err){report.feeds.push({show:feed.show,status:'ERROR',reason:String(err.message)});}
  }
  for(const {entry,duplicate} of found.values()){
   if(duplicate)continue;
   (known.has(entry.guid)?report.existing:report.missing).push(entry);
  }
- report.complete=report.feeds.every(f=>f.status==='OK');
+ report.complete=report.feeds.every(f=>f.status==='OK'&&f.coverage==='SEVEN_DAYS_COVERED');
+ report.summary={feeds:report.feeds.length,missing:report.missing.length,existing:report.existing.length,held:report.held.length,complete:report.complete};
  console.log(JSON.stringify(report));return report;
 }
