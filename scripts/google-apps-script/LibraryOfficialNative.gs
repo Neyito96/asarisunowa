@@ -106,7 +106,19 @@ var LibraryOfficialNative = (function(){
   }
   must(seen.size===scope.size,'LEDGER_SCOPE_COUNT_MISMATCH');
   must(counts.adopted===5848&&counts.excluded===377&&counts.held===366,'LEDGER_SCOPE_TOTALS_MISMATCH');
-  const result={mode:'SCOPE_PREFLIGHT_READ_ONLY',rows:seen.size,...counts,writes:0,officialFetches:0};
+  const stateSheet=ss.getSheetByName(c.states||'図書館V3・項目状態');
+  must(stateSheet,'STATE_SHEET_MISSING');
+  const stateRows=stateSheet.getRange(2,1,Math.max(1,stateSheet.getLastRow()-1),2).getValues();
+  const stateIds=new Set();
+  for(const row of stateRows){
+   const id=String(row[0]||'').trim();
+   must(id&&!stateIds.has(id)&&seen.has(id),'STATE_ID_MISMATCH_OR_DUPLICATE');
+   const state=JSON.parse(row[1]);
+   must(state.identity&&state.identity[0]==='VERIFIED','STATE_IDENTITY_NOT_VERIFIED');
+   stateIds.add(id);
+  }
+  must(stateIds.size===seen.size,'STATE_COUNT_MISMATCH');
+  const result={mode:'SCOPE_PREFLIGHT_READ_ONLY',rows:seen.size,stateRows:stateIds.size,...counts,writes:0,officialFetches:0};
   console.log(JSON.stringify(result));return result;
  }
  function backfill(){
