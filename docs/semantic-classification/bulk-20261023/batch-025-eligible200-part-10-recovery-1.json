@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-04001",
+      "main_theme": "ポッドキャスト、検索自在に？",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルを基にした暫定分類。後日再精査。"
+    },
+    {
+      "ep_id": "EP-04002",
+      "main_theme": "なぜ日本は難民に冷たいのか",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルを基にした暫定分類。後日再精査。"
+    },
+    {
+      "ep_id": "EP-04003",
+      "main_theme": "えっ、後輩に「ダメ出し」させるの？",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルを基にした暫定分類。後日再精査。"
+    },
+    {
+      "ep_id": "EP-04004",
+      "main_theme": "父の日に読みたい「ひととき」",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルを基にした暫定分類。後日再精査。"
+    },
+    {
+      "ep_id": "EP-04005",
+      "main_theme": "「父になる」ということ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルを基にした暫定分類。後日再精査。"
+    }
+  ]
+}
