@@ -1,0 +1,20 @@
+✔ quality audit reports all columns and old news without modifying values or properties (8.19ms)
+✔ duplicate GUID, tombstone and stale HTTP evidence remain distinct (4.635021ms)
+✔ issue 227 observed no-mirai #9 matches existing title rule; root cause must not be presumed (1.918948ms)
+✔ school audit produces exact blank candidates without properties/cache/ledger writes (11.782801ms)
+✔ description mention is review only, not cast attribution (4.279001ms)
+✔ 50 item bounded cursor resumes and changed source refuses offset reuse (22.268867ms)
+✔ formula, deletion, duplicate GUID and cross-show remain protected (2.946327ms)
+✔ existing audio collision holds proposal; repeat candidate keys are stable (3.298161ms)
+✔ HTTP 403 is not successful audit (2.583686ms)
+✔ HTTP 429 is not successful audit (1.711966ms)
+✔ HTTP 503 is not successful audit (1.562734ms)
+✔ held lock performs no fetch (2.503394ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 182.233505

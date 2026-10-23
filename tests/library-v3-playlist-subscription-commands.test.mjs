@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import {planSubscriptionCommand} from '../scripts/library-v3-playlist-subscription-commands.mjs';
+const base={playlistId:'3dcdCnYyyDuWxSCgNuCKmd',personName:'小林友花',status:'人間削除',
+ exclusionHistory:['EP-00023'],manualRemovals:['EP-00298'],tombstones:['EP-00099']};
+const a=planSubscriptionCommand({command:'/自動登録復帰',subscription:base});
+assert.equal(a.proposedStatus,'復帰申請中');
+assert.equal(a.writes,0);
+assert.deepEqual(a.proposedRecord.manualRemovals,['EP-00298']);
+assert.equal(base.status,'人間削除');
+const denied=planSubscriptionCommand({command:'/自動登録確認',subscription:a.proposedRecord});
+assert.equal(denied.status,'HOLD_CHECKS_INCOMPLETE');
+const checks={explicitOwnerApproval:true,spotifyPermissionVerified:true,playlistSnapshotVerified:true,manualRemovalHistoryPreserved:true,episodeIdentityVerified:true};
+const b=planSubscriptionCommand({command:'/自動登録確認',subscription:a.proposedRecord,checks});
+assert.equal(b.proposedStatus,'増分自動更新');
+assert.equal(b.spotifyWrites,0);
+assert.deepEqual(b.proposedRecord.exclusionHistory,base.exclusionHistory);
+const c=planSubscriptionCommand({command:'/自動登録停止',subscription:b.proposedRecord});
+assert.equal(c.proposedStatus,'停止');
+assert.equal(planSubscriptionCommand({command:'/自動登録復帰',subscription:{...base,playlistId:'invalid'}}).status,'HOLD_INVALID_PLAYLIST');
+console.log('PASS: safe subscription command transition smoke checks');

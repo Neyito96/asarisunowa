@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import {makeSpotifyPlaylistClient} from '../scripts/library-v3-spotify-playlist-client.mjs';
+const playlistId='3dcdCnYyyDuWxSCgNuCKmd', ep='6UObP374ZcIUjoZVaHqvY3';
+const calls=[];
+const fetchImpl=async(url,options)=>{
+ calls.push({url,method:options.method||'GET',body:options.body});
+ if(options.method==='POST')return {ok:true,status:201,json:async()=>({snapshot_id:'test-snapshot'})};
+ return {ok:true,status:200,json:async()=>({total:1,items:[{item:{type:'episode',id:ep}}]})};
+};
+const c=makeSpotifyPlaylistClient({fetchImpl,accessToken:'fake-token'});
+const s=await c.snapshot(playlistId);
+assert.equal(s.status,'COMPLETE_VERIFIED');
+assert.deepEqual(s.episodeUrls,['https://open.spotify.com/episode/'+ep]);
+const hold=await c.addVerifiedItems({playlistId,spotifyIds:[ep]});
+assert.equal(hold.status,'HOLD_NOT_APPROVED');
+assert.equal(calls.length,1);
+const added=await c.addVerifiedItems({playlistId,spotifyIds:[ep],explicitApproval:true,verifiedSnapshot:true});
+assert.equal(added.status,'SUBMITTED');
+assert.equal(calls[1].method,'POST');
+assert.deepEqual(JSON.parse(calls[1].body),{uris:['spotify:episode:'+ep]});
+const denied=makeSpotifyPlaylistClient({fetchImpl:async()=>({status:403,ok:false}),accessToken:'fake-token'});
+assert.equal((await denied.snapshot(playlistId)).status,'FORBIDDEN');
+console.log('PASS: playlist adapter fake-network smoke tests');

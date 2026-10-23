@@ -1,0 +1,20 @@
+{
+  "baseCommit": "e9de5f049a2fe5d8fe683ed80496e8ef4d875b07",
+  "baselineCommit": "b3f950ff08df2bc9c4335d97e2142f7eed19e10d",
+  "beforeCapturedAt": "2026-10-17T04:41:31.585Z",
+  "afterCapturedAt": "2026-10-17T04:44:50.990Z",
+  "beforeFiles": 34,
+  "afterFiles": 35,
+  "baselineEqual": true,
+  "proposedEqual": true,
+  "unchangedFiles": 32,
+  "updated": [
+    "LibraryV2CheckpointEngine.gs",
+    "LibraryV3.gs"
+  ],
+  "added": [
+    "LibraryV3Autonomy.gs"
+  ],
+  "removed": [],
+  "manifestUnchanged": true
+}

@@ -1,0 +1,120 @@
+✔ human delete supports requests that have no runtime rule yet (2.200127ms)
+✔ request lookup chooses the latest matching playlist row (0.536412ms)
+✔ human-deleted tombstone still blocks ordinary reactivation (0.250611ms)
+✔ manual stop/delete/resume lifecycle is defined (1.359889ms)
+✔ daily runtime sync excludes disabled and human-deleted rules (0.268316ms)
+✔ pending submissions do not silently resurrect a human-deleted playlist (0.193955ms)
+{"fixtureRows":6591,"network":"mock","fetchedItems":6591,"inspected":20,"writtenCells":80,"updatedEpisodes":20,"apiCalls":1,"xmlProjections":1,"elapsedMs":189}
+✔ READ_ONLY: zero property/cache/sheet/history mutations (8.761183ms)
+✔ fetch stage, 10-row pilot, resume, replay with no duplicates (6.763721ms)
+✔ cache eviction safely replays without overwrites (3.480692ms)
+✔ partial write failure resumes same item without overwrites (4.987367ms)
+✔ protect exclusion history, AM, changed title/show/date, duplicate ID/GUID/clip (23.772862ms)
+✔ existing cells and formula blanks are preserved (4.130967ms)
+✔ lock blocks overlapping runs (1.140298ms)
+✔ 403 stops; 429/503 defer without cursor advance or shortened Retry-After (3.650794ms)
+✔ expired retry recovers; repeated 503 eventually stops (3.44961ms)
+✔ 304 reuses complete cache; lost chunk triggers unconditional fetch (1.819272ms)
+✔ 6,591-row local fixture measurement (200.218161ms)
+✔ Spotify exact-ID adapter: 403/429/503 never count as verified (1.923738ms)
+✔ Spotify invalid ID, missing token and 304 fail closed (0.802817ms)
+✔ evidence conflicts hold a row; duplicate Spotify proposals are suppressed (2.835312ms)
+✔ real RSS projection accepts only explicit host/guest and episode links (1.621026ms)
+✔ unified scheduler preserves retry/stop results and releases lease (2.997649ms)
+✔ known GUID cannot hide another ledger row with the same clip (1.182ms)
+✔ GUID and a single contradictory clip must hold (1.16104ms)
+✔ clip parser rejects query-injected IDs and malformed UUIDs (0.6849ms)
+✔ formula-protected blanks do not pin the checkpoint forever (1.168035ms)
+✔ official Asahi itemid supplies exact GUID evidence without an Omny page (1.361892ms)
+✔ official itemid rejects wrong host/path, repeated and malformed IDs (0.824915ms)
+✔ official itemid conflict and collision with known GUID are held (2.236261ms)
+✔ read-only diagnostic shares identity protection and identifies unsupported gaps (1.683243ms)
+✔ diagnostic reserves Spotify proposals and inventories official identity gaps (1.886081ms)
+✔ autonomy is inert without enable; all auxiliary previews leave properties/cache/sheets unchanged (12.499518ms)
+✔ scheduler registers 201 original IDs over two ticks, resumes and then runs RSS without installing a trigger (48.837077ms)
+✔ eight-minute lease blocks concurrent scheduler, stop changes only V3 flag (4.610491ms)
+✔ priority and review passes preserve offsets, complete cycle sleeps, then conditional refresh is bounded (11.53005ms)
+✔ RSS parse is sorted newest-first only for autonomy, unchanged inspected fields are skipped (7.902767ms)
+✔ Spotify exact GUID/title/show/date evidence fills once; rerun and human clearing cannot refill (4.273689ms)
+✔ 1007 exact page/show/title/JST date is usable; missing identifier and conflicts stay held (2.964949ms)
+✔ Spotify formulas/exclusions/duplicate GUID/date/title/show/evidence conflicts all hold (24.757747ms)
+✔ API 403 stops Spotify only; 429/503 persist Retry-After; RSS remains enabled (8.145076ms)
+✔ API requires exact returned show/title/day; token absence makes no API call (3.534727ms)
+✔ malformed Spotify API responses are isolated auxiliary failures and next tick still runs RSS (3.139293ms)
+✔ audio queue never calls URL Fetch; evidence binds URL, schedules retries and never verifies playback (6.195251ms)
+✔ 2020-era clean preserves original, cast and URLs, stores recipe; ambiguous announcements hold (10.45774ms)
+✔ 200-row scan cursors resume sparse Spotify/audio work rather than pinning at the first complete rows (33.847705ms)
+✔ auxiliary HTTP retry cannot be shortened by reconfiguration and transport timeout is 15 seconds (2.98038ms)
+✔ repeated auxiliary failure pauses only that job; baseline integrity failure stops control after two attempts (5.413668ms)
+✔ UTC staging date becomes JST day; same Spotify URL cannot be proposed for two ledger identities (2.931912ms)
+✔ write-ahead reservations survive interruption and an intervening wrong-show hold (9.839634ms)
+✔ all existing read-only previews remain mutation-free with autonomy loaded (5.637282ms)
+✔ six auxiliary slots give RSS three turns and no job starves (6.594436ms)
+✔ future additions require a separate enabled baseline-approved operation; no past backfill (2.541167ms)
+✔ previously observed unknown RSS identities are reserved rather than resurrected by later enablement (3.036085ms)
+✔ V3 is disabled by default; preview is read-only including cache/properties/history (12.423538ms)
+✔ V3 fetch is a separate stage; max ten EP; resume and idempotent replay (34.68142ms)
+✔ already written MEDIA TALK pilot ten retain GUID/audio on rerun (13.209468ms)
+✔ conflicting GUID/audio/show/date/title, exclusions and duplicate EP-ID hold (41.60354ms)
+✔ formula protected blank does not pin progress and blank formulas are visible in preview (7.160396ms)
+✔ human-cleared cells remain RECHECK_REQUIRED through repeated replay (7.312756ms)
+✔ partial writes and lost cache resume without overwriting; RSS errors preserve cursor (6.726807ms)
+✔ 429/503 persist long Retry-After without offset advance; 403 stops config (5.491544ms)
+✔ changed RSS snapshot replays from zero and protected current fields survive (6.239705ms)
+✔ baseline is bounded; reserved/deleted identity blocks automatic resurrection (20.617054ms)
+✔ new ingestion requires explicit flag, baseline and time boundary; one append per GUID (7.280231ms)
+✔ reissue same title/date or audio across shows is held; opaque new item not appended by default (2.039333ms)
+✔ script lock and conflicting triggers block writers; installer is idempotent and stop keeps old triggers (2.016856ms)
+✔ mechanical clean preserves URLs/names; changed existing clean is never overwritten (4.199744ms)
+✔ field NO_INFORMATION differs from full completion; progress does not mutate legacy dashboard (7.126991ms)
+✔ audio evidence is bound to exact URL and never marks playback verified (1.931683ms)
+✔ cast slots require explicit host/guest source and cannot mix into existing human slots (15.96637ms)
+✔ cleaning retains URL hidden behind a label and never mislabels human clean version (11.268036ms)
+✔ all-column inventory covers 51 columns; new fields require exact headers (2.27767ms)
+✔ RSS parse exception preserves existing cursor and two failures stop scheduler without removing any trigger (2.576248ms)
+✔ new row reservation survives append failure and holds retry instead of double appending (3.004632ms)
+✔ source-proven info is not conflated with playback and wrong-show feed cannot fill (2.285787ms)
+✔ extended V2 XML projection supplies V3 fields and parses RFC -0000 as UTC (1.667359ms)
+✔ V3 sets documented RSS timeout and transport errors defer without advancing; V2 unchanged (1.640776ms)
+✔ human-clear protection survives an intervening wrong-show feed hold (5.377846ms)
+✔ time-budget deferral leaves current item resumable after verified partial writes (4.283859ms)
+✔ per-feed round robin does not starve another show while a large feed is incomplete (45.445348ms)
+✔ cache chunks retain Unicode surrogate pairs and reassemble to the same hash (1.78948ms)
+✔ snapshot and retry attempts are audited independently of ledger writes (2.631215ms)
+✔ keeps submitted themes stopped until explicit review approval (5.505094ms)
+ℹ tests 83
+ℹ suites 0
+ℹ pass 83
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 411.670175
+.........
+----------------------------------------------------------------------
+Ran 9 tests in 0.088s
+
+OK
+{
+  "onlineFiles": 34,
+  "onlineGs": 33,
+  "individualCompile": "PASS",
+  "combinedCompile": "PASS",
+  "proposedGs": 34,
+  "proposedCompile": "PASS",
+  "newV3Functions": 30,
+  "newAutonomyFunctions": 26,
+  "v3NameCollisions": 0,
+  "sheetIdDeclarations": 1,
+  "onlineCheckpointEquals": "b3f950f",
+  "codeExecuted": false,
+  "externalApiCalls": 0,
+  "realSheetWrites": 0
+}
+testRssPreviewKeys_: PASS (4 assertions)
+testRssPreviewNormalization_: PASS (4 assertions)
+testRssPreviewMigrationFixture_: PASS (4 assertions)
+testRssLibraryExcludedHistory_: PASS (4 assertions)
+testRssPreviewTitleDateIsolation_: PASS (2 assertions)
+testRssLibrarySummaryPartial_: PASS (5 assertions)
+TOTAL: 23 assertions PASS

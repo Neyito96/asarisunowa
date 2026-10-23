@@ -1,0 +1,15 @@
+{
+  "url": "https://neyito96.github.io/asarisunowa/library/data/manifest.json",
+  "http": 200,
+  "fetchedAt": "2026-10-22T07:52:58.540445+00:00",
+  "sha256": "0bf7aed9dd6b8ead49b9deb9ad644a43d3dc52ac61c846a8bb2862384a4ff703",
+  "version": "1df7cb5d103cfbfc",
+  "generatedAt": "2026-10-21T05:17:19.664Z",
+  "counts": {
+    "source": 6591,
+    "excluded": 0,
+    "held": 0,
+    "policyExcluded": 125
+  },
+  "total": 6466
+}

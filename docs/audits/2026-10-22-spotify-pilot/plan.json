@@ -1,0 +1,34 @@
+{
+  "status": "PREVIEW_REQUIRES_APPROVAL",
+  "action": "ADD_EXISTING",
+  "newPlaylistName": "",
+  "playlistId": "4FiVIwysKDtLqEXfkfhu2O",
+  "query": {},
+  "ready": [
+    {
+      "epId": "EP-00004",
+      "show": "ニュースの現場から",
+      "title": "（World Insight #5）停戦から1年、それでも終わらないガザ",
+      "publishedAt": "2026-10-07T04:00:00+09:00",
+      "guid": "af085854-b81e-4578-b871-b4d7005c0188",
+      "sourceUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/684015f9-2396-4ac4-bc1f-ac0f0033d08c/podcast.rss",
+      "identityStatus": "EXACT",
+      "spotifyUrl": "https://open.spotify.com/episode/6opJ4Ig4s7CTY9fRqGEHd2",
+      "spotifyShowId": "392h0MYfvMTndEVzf2cOvC",
+      "spotifyEvidenceStatus": "VERIFIED",
+      "spotifyMappingEvidence": "PUBLIC_SPOTIFY_EMBED_AND_OFFICIAL_RSS_UUID_TITLE_TIMESTAMP_DURATION",
+      "people": [],
+      "cast": [],
+      "seriesIds": [],
+      "cleanDescription": "",
+      "selectionStatus": "REVIEWED",
+      "searchText": "(world insight #5)停戦から1年、それでも終わらないガザ  ニュースの現場から",
+      "themeIds": [],
+      "spotifyId": "6opJ4Ig4s7CTY9fRqGEHd2",
+      "uri": "spotify:episode:6opJ4Ig4s7CTY9fRqGEHd2"
+    }
+  ],
+  "holds": [],
+  "writes": 0,
+  "spotifyApiCalls": 0
+}

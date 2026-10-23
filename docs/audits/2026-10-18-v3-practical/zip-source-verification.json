@@ -1,0 +1,129 @@
+{
+  "zip_sha256": "521b4082fe46c02daaa0b451e2f9714a0b6727a169aaea2055fc61c467335035",
+  "files": 36,
+  "scripts": 35,
+  "manifest": 1,
+  "compared_pr_head": "72fdaa0b0b987c6368aca6319e35a2b7edf42bdc",
+  "github_status": {
+    "online_only": 7,
+    "different": 7,
+    "normalized_equal": 20,
+    "exact": 2
+  },
+  "backup_status": {
+    "exact": 34,
+    "changed_since_backup": 1,
+    "added_since_backup": 1
+  },
+  "missing_spotify_dependencies": [
+    "getAutoPlaylistRuleByKey_",
+    "getAutoPlaylistShowIds_",
+    "matchesAutoPlaylistRule_",
+    "getSpotifyUserAccessToken",
+    "assertAutoPlaylistSheetLinkBeforeWrite_",
+    "isAutoUpdatePlaylistHumanDeletedV1_",
+    "notifyAutoUpdateFailureSafely_"
+  ],
+  "duplicate_function_names": {
+    "previewLibraryV2UnifiedFast": [
+      "AP2_Engine.js",
+      "LibraryV2UnifiedFastAutomation.js"
+    ],
+    "installLibraryV2UnifiedFast": [
+      "AP2_Engine.js",
+      "LibraryV2UnifiedFastAutomation.js"
+    ],
+    "stopLibraryV2UnifiedFast": [
+      "AP2_Engine.js",
+      "LibraryV2UnifiedFastAutomation.js"
+    ],
+    "libV2AcquireLease_": [
+      "AP2_Engine.js",
+      "LibraryV2UnifiedFastAutomation.js"
+    ],
+    "libV2ReleaseLease_": [
+      "AP2_Engine.js",
+      "LibraryV2UnifiedFastAutomation.js"
+    ],
+    "scheduledLibraryV2UnifiedFast": [
+      "AP2_Engine.js",
+      "LibraryV2UnifiedFastAutomation.js"
+    ],
+    "testEncodeLineBreaks": [
+      "LibraryMetadataBackfillV1.js",
+      "LibraryMetadataBackfillV1.js"
+    ],
+    "runHoudanRssPreview": [
+      "OfficialRssLibraryPreview.js",
+      "runHoudanBackfillPreview.js"
+    ],
+    "runNewsSchoolRssPreview": [
+      "OfficialRssLibraryPreview.js",
+      "runHoudanBackfillPreview.js"
+    ],
+    "runMigratedRssPreviews": [
+      "OfficialRssLibraryPreview.js",
+      "runHoudanBackfillPreview.js"
+    ],
+    "rssLibrarySummarizePreviews_": [
+      "OfficialRssLibraryPreview.js",
+      "runHoudanBackfillPreview.js"
+    ],
+    "rssLibraryExcludedHistory_": [
+      "OfficialRssLibraryPreview.js",
+      "runHoudanBackfillPreview.js"
+    ],
+    "runDonutBackfillPreview": [
+      "OfficialRssLibraryPreview.js",
+      "runHoudanBackfillPreview.js"
+    ],
+    "runSpongeBackfillPreview": [
+      "OfficialRssLibraryPreview.js",
+      "runHoudanBackfillPreview.js"
+    ],
+    "runHoudanBackfillPreview": [
+      "OfficialRssLibraryPreview.js",
+      "runHoudanBackfillPreview.js"
+    ],
+    "runNewsSchoolBackfillPreview": [
+      "OfficialRssLibraryPreview.js",
+      "runHoudanBackfillPreview.js"
+    ],
+    "previewLibraryRssForShow_": [
+      "OfficialRssLibraryPreview.js",
+      "runHoudanBackfillPreview.js"
+    ]
+  },
+  "baseline_handler_count": 1,
+  "notes": [
+    "Raw bytes hashed; normalization only CRLF/LF and outer whitespace",
+    "ZIP contains no Script Properties; previous live baseline state not remeasured",
+    "Online-only files preserved; source export not committed"
+  ],
+  "verified_known_changes": {
+    "LibraryV3.js": "Only libV3Conflicts_: excludes scheduledLibraryV3BaselineOnly",
+    "LibraryV3BaselineTrigger.js": "One definition of scheduledLibraryV3BaselineOnly; no top-level invocation"
+  },
+  "proposed_reflection": [
+    {
+      "file": "LibraryV3.js",
+      "action": "update",
+      "before_sha256": "60f21c0d8e6a620b84e0af9555685985788635a7c1cef64cd52d023d112d8bee",
+      "after_sha256": "b8a6bc30c54baa8281657a221e7a947302b97bdce13afa66041146a91ed0958a"
+    },
+    {
+      "file": "LibraryV3Morning.js",
+      "action": "add",
+      "before_sha256": "",
+      "after_sha256": "ceccc460538c231f0433e13f186b0fbf8fa79e53d44a0a86e380fbc1c7247981"
+    }
+  ],
+  "new_function_collisions_in_current_zip": [],
+  "preserved_files": 35,
+  "after_file_count": 37,
+  "local_tests": {
+    "passed": 138,
+    "total": 138,
+    "rss_assertions_passed": 23
+  }
+}
