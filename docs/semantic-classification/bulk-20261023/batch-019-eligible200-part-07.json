@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-02563",
+      "main_theme": "新聞教室：小学校、屋上農園は『大豊作』",
+      "topic_category": "福祉・社会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02564",
+      "main_theme": "子育てを経験して身についたスキル 共感力は仕事でもいかせる",
+      "topic_category": "福祉・社会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02565",
+      "main_theme": "人口350人の村、なり手のいない議員 地方議会は存続できるのか",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02566",
+      "main_theme": "分割配信 ワンピースではなく、こち亀スタイルでいこうじゃないか",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02567",
+      "main_theme": "定例会見が必要な理由、言えますか？ 取材現場の違和感と向き合う（月刊朝ポキ7月号）",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02568",
+      "main_theme": "徳川家当主が語るシン家康像①「初恋」の築山殿・殺害の真相",
+      "topic_category": "歴史・文化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02569",
+      "main_theme": "現代は「第6の絶滅期」？ 恐竜展に秘めた真鍋さんのメッセージ・後編",
+      "topic_category": "科学・技術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02570",
+      "main_theme": "救急車を呼ぶか迷ったら 「#7119」がオススメです",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02571",
+      "main_theme": "トランス女性へのトイレ制限訴訟、最高裁のメッセージは",
+      "topic_category": "福祉・社会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02572",
+      "main_theme": "東京のみなさん、お疲れさまです どうぞコメダでくつろいで",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02573",
+      "main_theme": "ペット業者、なぜ自治体は指導できないのか 地域によって大きなばらつき",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02574",
+      "main_theme": "新聞教室：増える落雷、避難は屋内に",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02575",
+      "main_theme": "「世間の目」って、自分の思い込みかも 育児中の外からの評価を考えよう",
+      "topic_category": "福祉・社会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02576",
+      "main_theme": "夏の甲子園、もっと楽しむ2023 地方大会を取材した記者が語る",
+      "topic_category": "スポーツ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02577",
+      "main_theme": "総理番、新入りが受ける洗礼と駆け引き 政治部あるある言いたい",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02578",
+      "main_theme": "1945年を生きた10代、「あの日」の前の日常と希望 原爆が奪ったもの（前編）",
+      "topic_category": "歴史・文化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02579",
+      "main_theme": "アメリカは着々と、そして大切な妹はいつものように 原爆が奪ったもの（後編）",
+      "topic_category": "歴史・文化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02580",
+      "main_theme": "シンガポールで日本旅行が大人気 でも、それだけじゃない両国の歴史",
+      "topic_category": "歴史・文化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02581",
+      "main_theme": "大阪弁は標準語より愛情深い？ 日本語に魅せられ、アメリカで研究",
+      "topic_category": "科学・技術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02582",
+      "main_theme": "新聞教室：白いシャチ、続々目撃の謎",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    }
+  ]
+}
