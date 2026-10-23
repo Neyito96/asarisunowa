@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-01004",
+      "main_theme": "衆院補選と岸田政権",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01066",
+      "main_theme": "中国のゼロコロナと政治取材",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01069",
+      "main_theme": "大谷翔平の二刀流",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01070",
+      "main_theme": "フィギュア選手の夏季練習",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01071",
+      "main_theme": "フィギュア番組の移行",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01072",
+      "main_theme": "スポーツ番組のプレイリスト移行",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01073",
+      "main_theme": "サッカーW杯スペイン優勝",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01074",
+      "main_theme": "フィギュア衣装と女性選手",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01075",
+      "main_theme": "サッカーW杯決勝とFIFA規則",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01076",
+      "main_theme": "男子バスケW杯アジア予選",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01077",
+      "main_theme": "若隆景の復活優勝",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01078",
+      "main_theme": "サッカーW杯日本対ブラジル",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01079",
+      "main_theme": "サッカーW杯日本対スウェーデン",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01080",
+      "main_theme": "フィギュア入門と選手の経験",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01081",
+      "main_theme": "サッカーW杯日本対チュニジア",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01082",
+      "main_theme": "サッカーW杯日本対オランダ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01083",
+      "main_theme": "Bリーグ長崎優勝",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01084",
+      "main_theme": "フィギュアのアイスダンス",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01085",
+      "main_theme": "サッカー日本代表の左サイド",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01086",
+      "main_theme": "フィギュア選手の人権と行動",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01087",
+      "main_theme": "フィギュアペアと引退",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01088",
+      "main_theme": "BリーグCS準々決勝",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01089",
+      "main_theme": "霧島の大関復帰",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01090",
+      "main_theme": "サッカーW杯日本代表選考",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01091",
+      "main_theme": "坂本花織の世界選手権",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    }
+  ]
+}
