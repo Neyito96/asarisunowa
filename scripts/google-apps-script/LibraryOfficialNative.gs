@@ -43,7 +43,7 @@ var LibraryOfficialNative = (function(){
    const pending={schema:'native-cell-v1',id:plan.id,row:rowNumber,col:ch.col,beforeHash:E.rowHash(current),afterHash:E.rowHash(after),next:ch.next,cell:ch.cell,baseline:state.identity[2]};
    // Journal and receipt are stored in the isolated sandbox state, never V3 identity.
    state.nativePending=pending;stateSheet.getRange(stateRow,2).setValue(JSON.stringify(state));SpreadsheetApp.flush();
-   if(ch.col===28){let builder=SpreadsheetApp.newRichTextValue().setText(String(ch.next));for(const run of ch.cell.textFormatRuns||[]){const uri=run.format.link.uri;builder=builder.setLinkUrl(run.startIndex,run.startIndex+uri.length,uri);}target.setRichTextValue(builder.build());}
+   if(ch.col===28){let builder=SpreadsheetApp.newRichTextValue().setText(String(ch.next));for(const run of ch.cell.textFormatRuns||[]){const uri=run.format&&run.format.link&&run.format.link.uri;if(!uri)continue;builder=builder.setLinkUrl(run.startIndex,run.startIndex+uri.length,uri);}target.setRichTextValue(builder.build());}
    else {must(typeof ch.next!=='string'||!ch.next.startsWith('='),'FORMULA_INPUT');target.setValue(ch.next);}
    target.setNote(ch.cell.note||'');SpreadsheetApp.flush();
    must(E.rowHash(range.getValues()[0])===pending.afterHash,'READBACK_CONFLICT');
