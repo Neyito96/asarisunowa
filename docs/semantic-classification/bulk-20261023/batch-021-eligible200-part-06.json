@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-02987",
+      "main_theme": "イラン大統領選と生活苦",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-02988",
+      "main_theme": "NHKのネット配信と放送法",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-02989",
+      "main_theme": "中南米選挙と政治的暴力",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-02990",
+      "main_theme": "海自接待疑惑など政治経済",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-02992",
+      "main_theme": "現金のメリットと新紙幣",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-02993",
+      "main_theme": "微生物の観察と研究",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-02994",
+      "main_theme": "五輪メダルと人口動態",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-02995",
+      "main_theme": "クロマグロ漁獲枠",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-02996",
+      "main_theme": "学校の図工教育の価値",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-02997",
+      "main_theme": "ルワンダのジェンダー平等",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-02998",
+      "main_theme": "中国の三中全会と不動産不況",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-02999",
+      "main_theme": "落語家の言葉と学び",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03000",
+      "main_theme": "ゲーム機とeスポーツ産業",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03001",
+      "main_theme": "地方条例と公共施設命名権",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03002",
+      "main_theme": "女性器切除と文化相対主義",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03003",
+      "main_theme": "法隆寺古材の文化財指定",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03004",
+      "main_theme": "教師から見る中学受験",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03006",
+      "main_theme": "携帯電話とロック音楽",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03007",
+      "main_theme": "静岡さわやかの経営理念",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03008",
+      "main_theme": "リカちゃん人形の文化史",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    }
+  ]
+}
