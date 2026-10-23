@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-05038",
+      "main_theme": "ゲーム音楽とプログラミングに親しんだ記者",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05039",
+      "main_theme": "エンジニアから取材記者への転身",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05040",
+      "main_theme": "ドラマ地面師たちとコンテンツ",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05041",
+      "main_theme": "PODCAST WEEKEND出展",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05042",
+      "main_theme": "タワーマンションとニュータウンの衰退",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05043",
+      "main_theme": "俳句との出会いと記者の取材",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05044",
+      "main_theme": "子どものイヤイヤ期と育児",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05045",
+      "main_theme": "正義と無謬性をめぐる議論",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05046",
+      "main_theme": "新聞一面の題字と歴史",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05047",
+      "main_theme": "GOOD LIFEフェアの企画",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    }
+  ]
+}
