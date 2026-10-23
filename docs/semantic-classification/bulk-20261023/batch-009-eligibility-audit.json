@@ -1,0 +1,24 @@
+{
+  "range": "EP-00861..EP-00960",
+  "eligible_classified": 85,
+  "held_not_classified": [
+    "EP-00932",
+    "EP-00937"
+  ],
+  "excluded_not_classified": [
+    "EP-00946",
+    "EP-00949",
+    "EP-00950",
+    "EP-00951",
+    "EP-00952",
+    "EP-00953",
+    "EP-00954",
+    "EP-00955",
+    "EP-00956",
+    "EP-00957",
+    "EP-00958",
+    "EP-00959",
+    "EP-00960"
+  ],
+  "note": "Do not classify excluded or held episodes; the next 100 eligible episodes require scanning beyond EP-00960."
+}
