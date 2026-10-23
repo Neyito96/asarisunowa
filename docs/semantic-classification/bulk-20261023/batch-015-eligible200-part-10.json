@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-01805",
+      "main_theme": "阪神タイガースを変えた「神宮のヤジ」 ABCアナが語る星野監督の素顔",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01806",
+      "main_theme": "零下の森に潜み、越境した先に ポーランドへ押し寄せる移民・難民",
+      "topic_category": "国際・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01807",
+      "main_theme": "語り継ぐ戦争「いけよ進めよの時代、出征の征がむちゃくちゃ多い」",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01808",
+      "main_theme": "桑原征平さんと阪神大震災（前編）真っ暗の国道を5時間、たどり着いた自宅は…",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01809",
+      "main_theme": "露の団姫さん③ 夫はクリスチャン 夫婦で朝のおつとめする夢が……",
+      "topic_category": "医療・健康",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01810",
+      "main_theme": "近鉄バファローズ、伝説の「10・19」 ABC局内はカオスと化した",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01811",
+      "main_theme": "連合とは（前編） 春闘でおなじみ、政治に影響力 でもどんな組織だっけ",
+      "topic_category": "社会・人権",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01812",
+      "main_theme": "連合とは（後編） トヨタ労組は、なぜリーダー役を降りるのか",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01813",
+      "main_theme": "あのボクサーも登場 フィリピン大統領選、混戦すぎて目が離せない",
+      "topic_category": "国際・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01814",
+      "main_theme": "北新地でビル火災の一報 「これは大きな火事になる」記者たちは動いた",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01815",
+      "main_theme": "北新地放火殺人から元消防士は考えた 雑居ビル火災から身を守るために",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01816",
+      "main_theme": "訪問診療医が見たリアル①第5波で感じた絶望 「先生の決断、責めたりしない」",
+      "topic_category": "医療・健康",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01817",
+      "main_theme": "訪問診療医がみたリアル②情熱だけじゃ、次は動けないかも 第6波に生かせる教訓",
+      "topic_category": "医療・健康",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01818",
+      "main_theme": "露の団姫さん登場「昔から落語と仏教って、ものすごい密接やんな」",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01819",
+      "main_theme": "桑原征平さんと阪神大震災（後編）身にしみた人の恩、優しさにいまも涙",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01820",
+      "main_theme": "露の団姫さん④ 理想のお寺、自分でつくる 原点はレゴブロック",
+      "topic_category": "医療・健康",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01821",
+      "main_theme": "午前5時46分、突如途切れた声 阪神大震災、ラジオが伝えたその瞬間（前編）",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01822",
+      "main_theme": "「息子、死んでると思う」 震災直後の火災現場、リポーターは言葉を失った（中編）",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01823",
+      "main_theme": "揺れてから69時間 「1･17」を伝え続けた使命、僕たちがつなぐ（後編）",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    },
+    {
+      "ep_id": "EP-01824",
+      "main_theme": "ミャンマーは、いま①戻るにぎわい 人々の心の奥で、何かが押し殺されている",
+      "topic_category": "国際・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を参照した暫定話題ラベル。見出し由来のため、意味分類の精査・統合が必要。"
+    }
+  ]
+}
