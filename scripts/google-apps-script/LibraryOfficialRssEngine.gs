@@ -275,3 +275,39 @@ function inspectLibraryOfficialCopyNetworkReadOnly(){
  }
  console.log(JSON.stringify(report));return report;
 }
+
+
+/** Phase 14: last-seven-days official RSS inventory; strictly READ_ONLY.
+ * Execute manually in the approved GAS copy project after UrlFetch OAuth approval.
+ * Never registers IDs, writes Sheets, properties, triggers, Pages, or Spotify.
+ */
+function inspectLibraryOfficialLastSevenDaysReadOnly(){
+ const E=LibraryOfficialEngine,c=E.config(),now=new Date(),since=new Date(now.getTime()-7*86400000);
+ const ctx=E.context(c),known=new Set();
+ ctx.rows.forEach(r=>E.identityTokens(r).forEach(token=>known.add(String(token).toLowerCase())));
+ ctx.history.forEach(r=>{if(r[0])known.add(String(r[0]).toLowerCase());});
+ const report={mode:'READ_ONLY',since:since.toISOString(),until:now.toISOString(),ledgerRows:ctx.rows.length,feeds:[],missing:[],existing:[],held:[],writes:0,triggerChanges:0};
+ const found=new Map();
+ for(const feed of c.feeds){
+  try{
+   const items=E.rss(feed);let recent=0;
+   for(const item of items){
+    const time=Date.parse(item.pubDate);
+    if(!Number.isFinite(time)||time<since.getTime()||time>now.getTime())continue;
+    recent++;
+    const guid=String(item.guid||'').toLowerCase();
+    const entry={show:item.show,guid,title:item.title,published:item.pubDate,feed:feed.url};
+    if(!E.UUID.test(item.guid)){report.held.push({...entry,reason:'INVALID_GUID'});continue;}
+    if(found.has(guid)){report.held.push({...entry,reason:'DUPLICATE_IN_FEEDS'});found.get(guid).duplicate=true;continue;}
+    found.set(guid,{entry,duplicate:false});
+   }
+   report.feeds.push({show:feed.show,recent,returned:items.length,status:'OK'});
+  }catch(err){report.feeds.push({show:feed.show,status:'ERROR',reason:String(err.message)});}
+ }
+ for(const {entry,duplicate} of found.values()){
+  if(duplicate)continue;
+  (known.has(entry.guid)?report.existing:report.missing).push(entry);
+ }
+ report.complete=report.feeds.every(f=>f.status==='OK');
+ console.log(JSON.stringify(report));return report;
+}
