@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-01967",
+      "main_theme": "外国からの選挙偽情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01968",
+      "main_theme": "だし巻き卵の調理",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01969",
+      "main_theme": "卵価格と生産システム",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01970",
+      "main_theme": "夜間中学と学び直し",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01971",
+      "main_theme": "夜間中学の存続問題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01972",
+      "main_theme": "北京のゼロコロナ政策",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01973",
+      "main_theme": "鎌倉幕府成立年代の研究",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01974",
+      "main_theme": "京都の宗教行事",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01975",
+      "main_theme": "アフガン政権崩壊と避難",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01976",
+      "main_theme": "ポッドキャスト紹介音声",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01977",
+      "main_theme": "タリバン進攻と政権崩壊",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01978",
+      "main_theme": "アフガン女性の教育と権利",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01979",
+      "main_theme": "アフガン人道危機と支援",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01980",
+      "main_theme": "不登校からの学び直し",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01981",
+      "main_theme": "京都宗教記者会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01982",
+      "main_theme": "承久の乱と鎌倉幕府",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01983",
+      "main_theme": "漫画広告とジェンダー表現",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01984",
+      "main_theme": "異世界転生と仏教の輪廻",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01985",
+      "main_theme": "Qアノンと匿名掲示板",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    },
+    {
+      "ep_id": "EP-01987",
+      "main_theme": "Qアノンの支持層と陰謀論",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出した暫定分類。"
+    }
+  ]
+}
