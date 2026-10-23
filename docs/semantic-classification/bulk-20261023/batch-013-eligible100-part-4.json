@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-01474",
+      "main_theme": "広島カープと地域経済",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01475",
+      "main_theme": "岡山の学生服文化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01476",
+      "main_theme": "沖縄の地域文化と競争意識",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01478",
+      "main_theme": "沖縄の自衛隊駐留史",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01479",
+      "main_theme": "選択的夫婦別姓と自民党内議論",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01480",
+      "main_theme": "生理用品の技術と社会変化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01481",
+      "main_theme": "培養肉の技術と食品産業",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01482",
+      "main_theme": "ウェブメディアの収益化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01483",
+      "main_theme": "ライターの働き方と読者層",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01485",
+      "main_theme": "自動運転レベル3の実用化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01486",
+      "main_theme": "健康食品とコロナ禍の消費",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01487",
+      "main_theme": "インドの感染拡大と変異株",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01488",
+      "main_theme": "皇室取材の現場",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01489",
+      "main_theme": "ジャーナリズムと偽情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01491",
+      "main_theme": "空間除菌商品の科学的根拠",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01492",
+      "main_theme": "森友問題の調査報道",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01493",
+      "main_theme": "財務省公文書改ざんの発覚",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01494",
+      "main_theme": "森友問題と財務省幹部への取材",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01495",
+      "main_theme": "野田聖子と自民党改革",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01496",
+      "main_theme": "蓮舫と野党連立の可能性",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01497",
+      "main_theme": "手洗いと感染対策の合理性",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01499",
+      "main_theme": "憲法改正と世論調査",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01500",
+      "main_theme": "世論調査の質問設計",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01501",
+      "main_theme": "女性研究者と育児負担",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01502",
+      "main_theme": "女性研究者のキャリア選択",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を参照して中心話題を暫定分類。分類体系との整合確認前。"
+    }
+  ]
+}
