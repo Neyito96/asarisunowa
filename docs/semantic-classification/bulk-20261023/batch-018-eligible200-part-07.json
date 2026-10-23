@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-02359",
+      "main_theme": "栃木の文化と観光",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02360",
+      "main_theme": "オリックスのチーム改革",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02361",
+      "main_theme": "ウクライナ侵攻一年の検証",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02362",
+      "main_theme": "検閲フィルムの復元調査",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02363",
+      "main_theme": "編集長交代と組織継承",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02364",
+      "main_theme": "マイナンバーカードと保険証",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02365",
+      "main_theme": "ブラジルの電子決済PIX",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02366",
+      "main_theme": "日本の島の数え直し",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02367",
+      "main_theme": "ロックバンドの音楽観",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02368",
+      "main_theme": "岡山のお笑い文化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02369",
+      "main_theme": "中国偵察気球と米中関係",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02370",
+      "main_theme": "全盲ユーチューバーの活動",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02371",
+      "main_theme": "真珠湾攻撃の写真史料",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02372",
+      "main_theme": "編集長の燃え尽きと回復",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02373",
+      "main_theme": "保護犬猫と動物愛護団体",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02374",
+      "main_theme": "同性婚と人権の区別",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02375",
+      "main_theme": "卒業式のマスク方針",
+      "status": "provisional",
+      "review_basis": "title_only",
+      "review_note": "概要未取得。タイトルから暫定分類し、後日人間が確認。"
+    },
+    {
+      "ep_id": "EP-02376",
+      "main_theme": "流産死産と刑事処罰",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02377",
+      "main_theme": "桃太郎伝説と地域PR",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    },
+    {
+      "ep_id": "EP-02378",
+      "main_theme": "ボクシングとスポーツビジネス",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。分類体系の整合確認前。"
+    }
+  ]
+}
