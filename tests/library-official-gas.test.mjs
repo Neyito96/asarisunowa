@@ -13,6 +13,17 @@ test('official JSON fallback checks ledger date',()=>{const e=engine().LibraryOf
 test('more than five staff retained in X',()=>{const e=engine().LibraryOfficialEngine,i={...item,description:'本文\n【出演・スタッフ】\n'+Array.from({length:7},(_,i)=>'記者'+i+'（役割）').join('\n')};const p=e.plan(cells(),i,clip,'api');assert.match(p.changes.find(c=>c.col===23).next,/記者6/);assert.equal(p.changes.filter(c=>c.col>=45&&c.col<=49).length,5);});
 function decision(over={}){const e=engine().LibraryOfficialEngine;return ()=>e.newDecision({...item,pubDate:'2020-01-02T00:00:00Z'},over.rows||[],over.history||[],over.excluded||[],over.decisions||[],{allowNew:true,newAfter:'2020-01-01T00:00:00Z',...over.config},{complete:true,...over.baseline},over.counter||'6592');}
 test('next ID reserves ledger, history and all decision IDs',()=>assert.equal(decision({decisions:[['EP-07000','保留']]})(),'EP-07001'));
+test('EP-06592 already registered: next unique official GUID receives EP-06593',()=>{
+ const prior=Array(55).fill('');prior[0]='EP-06592';prior[6]='aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee';
+ assert.equal(decision({rows:[prior],counter:'6591'})(),'EP-06593');
+});
+test('EP-06592 duplicate GUID is rejected even when new publication decision is absent',()=>{
+ const prior=Array(55).fill('');prior[0]='EP-06592';prior[6]=guid;
+ assert.throws(decision({rows:[prior],counter:'6592'}),/SEEN_OR_EXCLUDED/);
+});
+test('interrupted EP-06593 reservation cannot be reassigned',()=>{
+ assert.throws(decision({history:[[guid,'EP-06593','ニュースの現場から','','予約中']],counter:'6592'}),/SEEN_OR_EXCLUDED/);
+});
 test('GUID duplicate blocked regardless publication',()=>{const r=Array(55).fill('');r[0]='EP-00001';r[6]=guid;assert.throws(decision({rows:[r]}),/SEEN/);});
 test('official UUID collision blocked',()=>{const r=Array(55).fill('');r[0]='EP-00001';r[51]=guid;assert.throws(decision({rows:[r]}),/SEEN/);});
 test('history reservation blocks interrupted retry',()=>assert.throws(decision({history:[[guid,'EP-06593']]}),/SEEN/));
