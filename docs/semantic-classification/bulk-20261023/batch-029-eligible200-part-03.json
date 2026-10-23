@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-04676",
+      "main_theme": "容姿への評価とルッキズム",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04677",
+      "main_theme": "脱マスクへの不安と自己像",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04678",
+      "main_theme": "新聞原稿の無害化と編集",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04679",
+      "main_theme": "山奥の建築とコンビニ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04680",
+      "main_theme": "寝台列車と阪急電車への愛着",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04681",
+      "main_theme": "海外鉄道と線路幅への関心",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04682",
+      "main_theme": "メタバースイベントとAI",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04683",
+      "main_theme": "記事閲覧を超えたメディアの役割",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04684",
+      "main_theme": "小説と街の電器店の物語",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04685",
+      "main_theme": "趣味別ニュースレターの編集",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04686",
+      "main_theme": "ニュースレターと読者の時間",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04687",
+      "main_theme": "大阪メンバーのおすすめ漫画",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04688",
+      "main_theme": "漫画を通じた学びと感情",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04689",
+      "main_theme": "新聞社のファンとの関係",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04690",
+      "main_theme": "喪失を経た母子の対話",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04691",
+      "main_theme": "核心を隠す見出しの技術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04692",
+      "main_theme": "森のような図書館建築",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04693",
+      "main_theme": "週刊朝日創刊と百年の歴史",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04694",
+      "main_theme": "週刊朝日の休刊と週刊誌文化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-04695",
+      "main_theme": "映画デートと価値観の違い",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しから中心話題を推定した暫定分類。概要本文の精読は未実施。"
+    }
+  ]
+}
