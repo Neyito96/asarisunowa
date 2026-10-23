@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-03818",
+      "main_theme": "新聞雑談と裏方の評価",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03819",
+      "main_theme": "嫌な人との距離の取り方",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03820",
+      "main_theme": "海外取材の費用対効果",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03821",
+      "main_theme": "不登校経験と人生の回復",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03822",
+      "main_theme": "子どものスマホ利用開始",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03823",
+      "main_theme": "体型へのからかいと自己肯定感",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03824",
+      "main_theme": "公式動画と報道の検証",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03825",
+      "main_theme": "自分に合う環境と生きづらさ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03826",
+      "main_theme": "経済番組一年の振り返り",
+      "status": "provisional",
+      "review_basis": "title_only",
+      "review_note": "概要未取得につきタイトルに基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-03827",
+      "main_theme": "中道勢力の政策対立",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03829",
+      "main_theme": "大阪都構想の区割りと政党",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03830",
+      "main_theme": "観光と働く年齢の新聞雑談",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03831",
+      "main_theme": "新スポーツ番組の紹介",
+      "status": "provisional",
+      "review_basis": "title_only",
+      "review_note": "概要未取得につきタイトルに基づく暫定分類。"
+    },
+    {
+      "ep_id": "EP-03832",
+      "main_theme": "寄生アリの巣乗っ取り行動",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03833",
+      "main_theme": "ベネズエラの地震と米軍攻撃",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03834",
+      "main_theme": "フィギュア選手の夏季練習",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03835",
+      "main_theme": "日本最古のトイレと寄生虫",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03836",
+      "main_theme": "小児希少がんと家族の活動",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03837",
+      "main_theme": "Bリーグ審判への暴言",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03838",
+      "main_theme": "高市内閣改造と後継戦略",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    }
+  ]
+}
