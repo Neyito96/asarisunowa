@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import type { Playlist } from "./data";
+import { classifyPlatformUrl, matchAppleProgramme, providerLabel, orderPlatformLinks } from "../lib/podcast-platform-evidence.mjs";
 import { recommendedPodcastSnapshot } from "./recommended-podcasts-data";
 import {
   isSpotifyCollaborativeInviteUrl,
@@ -61,33 +62,8 @@ type RecommendedPodcast = {
   links: PodcastPlatformLink[];
 };
 
-const PODCAST_PLATFORM_ORDER = [
-  "YouTube",
-  "Spotify",
-  "Amazon Music",
-  "Apple Podcasts",
-  "Pocket Casts",
-  "LISTEN",
-  "stand.fm",
-  "Pody",
-] as const;
-
 function sortPodcastLinks(links: PodcastPlatformLink[]) {
-  const rank = (label: string) => {
-    const index = PODCAST_PLATFORM_ORDER.indexOf(
-      label as typeof PODCAST_PLATFORM_ORDER[number]
-    );
-    return index < 0 ? 99 : index;
-  };
-  const seenProviders = new Set<string>();
-  return [...links]
-    .sort((a, b) => rank(a.label) - rank(b.label))
-    .filter((link) => {
-      const provider = link.label.trim().toLowerCase();
-      if (seenProviders.has(provider)) return false;
-      seenProviders.add(provider);
-      return true;
-    });
+  return orderPlatformLinks(links);
 }
 
 function PlatformIcon({ label }: { label: string }) {
@@ -290,46 +266,18 @@ function isPublishablePlaylistSource(source: { url?: string | null; title?: stri
 async function discoverPodcastArtwork(title: string, url: string | null): Promise<string | null> {
   const preset = recommendedPodcastArtwork[title];
   if (preset) return preset;
-
+  // Legacy listener view: an explicit Apple programme ID is sufficient proof.
+  // Title-only catalogue results remain unconfirmed; daily GAS persists Risu artwork.
+  const source = classifyPlatformUrl(url);
+  if (source.provider !== "apple" || source.level !== "programme") return null;
   try {
-    // If the confirmed destination itself is Apple Podcasts, use its podcast ID.
-    // This is more reliable than title search and avoids a similarly named show.
-    const appleId = String(url || "").match(/podcasts\.apple\.com\/[^/]+\/podcast\/[^/]+\/id(\d+)/i)?.[1];
-    if (appleId) {
-      const lookup = await fetch(
-        "https://itunes.apple.com/lookup?id=" + encodeURIComponent(appleId) + "&entity=podcast",
-        { cache: "no-store" }
-      );
-      if (lookup.ok) {
-        const lookupData = await lookup.json() as {
-          results?: Array<{ artworkUrl600?: string; artworkUrl100?: string }>;
-        };
-        const item = Array.isArray(lookupData.results) ? lookupData.results[0] : undefined;
-        const image = item?.artworkUrl600 ?? item?.artworkUrl100;
-        if (image) return image;
-      }
-    }
-
-    // Otherwise use Apple's podcast catalogue by exact programme title.
-    // This also works when the confirmed destination is Spotify/YouTube/Amazon.
-    const endpoint =
-      "https://itunes.apple.com/search?media=podcast&entity=podcast&limit=8&country=JP&term=" +
-      encodeURIComponent(title);
-    const response = await fetch(endpoint, { cache: "no-store" });
+    const response = await fetch("https://itunes.apple.com/lookup?id=" + encodeURIComponent(source.id || "") + "&entity=podcast");
     if (!response.ok) return null;
-    const data = await response.json() as {
-      results?: Array<{ collectionName?: string; artworkUrl600?: string; artworkUrl100?: string }>;
-    };
-    const normalize = (value: string) =>
-      value.toLowerCase().replace(/[\s　・･\-—–_()（）「」『』【】!！?？:：]/g, "");
-    const wanted = normalize(title);
-    const results = Array.isArray(data.results) ? data.results : [];
-    const exact = results.find((item) => normalize(String(item.collectionName || "")) === wanted);
-    if (!exact) return null;
-    return exact.artworkUrl600 ?? exact.artworkUrl100 ?? null;
-  } catch {
-    return null;
-  }
+    const data = await response.json();
+    const result = matchAppleProgramme({ url: url || "" }, data.results || []);
+    const image = result.item?.artworkUrl600 || result.item?.artworkUrl100;
+    return result.state === "MATCH" && typeof image === "string" ? image : null;
+  } catch { return null; }
 }
 
 function parseCsv(text: string) {
@@ -402,17 +350,7 @@ function normalizeUrl(value: string) {
   }
 }
 
-function podcastProviderLabel(url: string) {
-  if (/spotify\.com/i.test(url)) return "Spotify";
-  if (/podcasts\.apple\.com/i.test(url)) return "Apple Podcasts";
-  if (/listen\.style/i.test(url)) return "LISTEN";
-  if (/stand\.fm/i.test(url)) return "stand.fm";
-  if (/amazon\./i.test(url)) return "Amazon Music";
-  if (/pocketcasts\.com|pca\.st/i.test(url)) return "Pocket Casts";
-  if (/pody\.jp/i.test(url)) return "Pody";
-  if (/youtube\.com|youtu\.be/i.test(url)) return "YouTube";
-  return "番組HP";
-}
+function podcastProviderLabel(url: string) { return providerLabel(url); }
 
 function parsePodcastLinks(memo: string, primaryUrl: string) {
   const links: { label: string; url: string }[] = [];
@@ -892,22 +830,14 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           .filter((item) => item.title)
           .reverse();
 
-        // Show newest submitted podcasts first, then fill artwork as each lookup completes.
+        // Show newest submitted podcasts first using persisted artwork.
         if (!cancelled) {
           setRecommendedPodcasts(base);
           setRecommendedPodcastStatus("ready");
           writeRecommendedPodcastSnapshot(base);
         }
-        await Promise.all(
-          base.map(async (item) => {
-            if (item.artwork) return;
-            const artwork = await discoverPodcastArtwork(item.title, item.url);
-            if (!artwork || cancelled) return;
-            setRecommendedPodcasts((current) =>
-              current.map((p) => p.id === item.id ? { ...p, artwork } : p)
-            );
-          })
-        );
+        // Artwork is persisted by the daily backend; viewers do not search catalogues.
+
       } catch {
         // Keep the last known-good snapshot visible if refresh fails.
         if (!cancelled && !snapshot.length) setRecommendedPodcastStatus("error");
@@ -1190,7 +1120,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           }
         }
 
-        const appleId = url.match(/\/id(\d+)/i)?.[1];
+        const appleDestination = classifyPlatformUrl(url);
+        const appleId = appleDestination.provider === "apple" && appleDestination.level === "programme" ? appleDestination.id : undefined;
         if (appleId) {
           try {
             const appleResponse = await fetch(
@@ -1203,6 +1134,10 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             const apple = await appleResponse.json() as {
               resultCount?: number;
               results?: Array<{
+                collectionId?: number;
+                collectionViewUrl?: string;
+                trackViewUrl?: string;
+                feedUrl?: string;
                 collectionName?: string;
                 trackName?: string;
                 artistName?: string;
@@ -1211,7 +1146,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 artworkUrl100?: string;
               }>;
             };
-            const item = Array.isArray(apple?.results) ? apple.results[0] : undefined;
+            const match = matchAppleProgramme({ url }, apple.results || []);
+            const item = match.item;
             const appleTitle = String(item?.collectionName || item?.trackName || "").trim();
             const appleMaker = String(item?.artistName || item?.collectionArtistName || "").trim();
             const appleArtwork = String(item?.artworkUrl600 || item?.artworkUrl100 || "").trim();
@@ -1240,6 +1176,10 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             const appleSearch = await loadJsonp<{
               resultCount?: number;
               results?: Array<{
+                collectionId?: number;
+                collectionViewUrl?: string;
+                trackViewUrl?: string;
+                feedUrl?: string;
                 collectionName?: string;
                 trackName?: string;
                 artistName?: string;
@@ -1251,14 +1191,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               "https://itunes.apple.com/search?media=podcast&entity=podcast&country=JP&limit=12&term=" +
                 encodeURIComponent(appleTerm)
             );
-            const normalizeName = (value: string) =>
-              value.toLowerCase().replace(/[\s　・･\-—–_()（）「」『』【】!！?？:：]/g, "");
-            const wanted = normalizeName(appleTerm);
-            const results = Array.isArray(appleSearch?.results) ? appleSearch.results : [];
-            const item =
-              results.find((candidate) =>
-                normalizeName(String(candidate.collectionName || candidate.trackName || "")) === wanted
-              ) ?? results[0];
+            const match = matchAppleProgramme({ url }, appleSearch.results || []);
+            const item = match.item;
 
             const appleTitle = String(item?.collectionName || item?.trackName || "").trim();
             const appleMaker = String(item?.artistName || item?.collectionArtistName || "").trim();

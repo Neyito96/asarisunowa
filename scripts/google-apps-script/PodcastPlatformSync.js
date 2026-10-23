@@ -238,77 +238,8 @@ function queuePodcastGenreUpdate_(updates, row, column, currentValue, candidateV
 }
 
 function resolveListenerPodcastPlatforms_(title, maker, sourceUrl, explicitRss) {
-  const resolved = {
-    spotify: "",
-    apple: "",
-    pocketcasts: "",
-    listen: "",
-    standfm: "",
-    amazon: "",
-    youtube: "",
-    pody: "",
-    website: "",
-    artwork: "",
-    rss: "",
-    genre: ""
-  };
-
-  applyKnownPodcastUrl_(resolved, sourceUrl);
-
-  const manualRss = String(explicitRss || "").trim();
-  if (/^https?:\/\//i.test(manualRss)) {
-    resolved.rss = manualRss;
-  }
-
-  const listenSlug = String(sourceUrl || "").match(/^https?:\/\/listen\.style\/p\/([^/?#]+)/i);
-  if (!resolved.rss && listenSlug && listenSlug[1]) {
-    resolved.rss = "https://rss.listen.style/p/" + listenSlug[1] + "/rss";
-  }
-
-  if (!resolved.spotify && typeof findSpotifyShowByTitle_ === "function") {
-    const spotifyUrl = findSpotifyShowByTitle_(title);
-    if (spotifyUrl) resolved.spotify = spotifyUrl;
-  }
-
-  const apple = findExactApplePodcast_(title, maker);
-  if (!apple) {
-    if (resolved.rss) {
-      const rssLinks = readPodcastFeedLinks_(resolved.rss);
-      rssLinks.forEach(function(url) {
-        applyKnownPodcastUrl_(resolved, url);
-      });
-      if (isSafePublicPodcastRss_(resolved.rss)) {
-        resolved.pocketcasts = pocketCastsFollowUrl_(resolved.rss);
-      }
-      const rssMeta = readPodcastFeedMetadata_(resolved.rss);
-      if (rssMeta) {
-        if (!resolved.artwork) resolved.artwork = rssMeta.artwork || "";
-        if (!resolved.genre) resolved.genre = rssMeta.genre || "";
-      }
-    }
-    return resolved;
-  }
-
-  resolved.apple = String(apple.collectionViewUrl || apple.trackViewUrl || "").trim();
-  resolved.artwork = String(apple.artworkUrl600 || apple.artworkUrl100 || "").trim();
-  resolved.genre = normalizePodcastGenre_(
-    Array.isArray(apple.genres) ? apple.genres : [],
-    apple.primaryGenreName || ""
-  );
-
-  const feedUrl = String(apple.feedUrl || resolved.rss || "").trim();
-  if (feedUrl) {
-    resolved.rss = feedUrl;
-    const rssLinks = readPodcastFeedLinks_(feedUrl);
-    rssLinks.forEach(function(url) {
-      applyKnownPodcastUrl_(resolved, url);
-    });
-    if (isSafePublicPodcastRss_(feedUrl)) {
-      resolved.pocketcasts = pocketCastsFollowUrl_(feedUrl);
-    }
-  }
-
-  return resolved;
+  // Same resolver for old ポすすめ and current リス推し. Missing identity stays blank.
+  return resolvePodcastPlatformsByEvidence_(title, sourceUrl, explicitRss).resolved;
 }
 
 function findExactApplePodcast_(title, maker) {
@@ -377,6 +308,8 @@ function readPodcastFeedLinks_(feedUrl) {
     const atom = XmlService.getNamespace("atom", "http://www.w3.org/2005/Atom");
     const atomLinks = channel.getChildren("link", atom);
     atomLinks.forEach(function(element) {
+      const rel = element.getAttribute("rel");
+      if (rel && rel.getValue() !== "alternate") return;
       const href = String(element.getAttribute("href") ? element.getAttribute("href").getValue() : "").trim();
       if (/^https?:\/\//i.test(href)) out.push(href);
     });
@@ -388,52 +321,9 @@ function readPodcastFeedLinks_(feedUrl) {
 }
 
 function applyKnownPodcastUrl_(resolved, value) {
-  const url = String(value || "").trim();
-  if (!/^https?:\/\//i.test(url)) return;
-
-  if (/open\.spotify\.com\/show\//i.test(url)) {
-    resolved.spotify = resolved.spotify || canonicalPodcastUrl_(url);
-    return;
-  }
-
-  if (/podcasts\.apple\.com\//i.test(url)) {
-    resolved.apple = resolved.apple || canonicalPodcastUrl_(url);
-    return;
-  }
-
-  if (/listen\.style\//i.test(url)) {
-    resolved.listen = resolved.listen || canonicalPodcastUrl_(url);
-    return;
-  }
-
-  if (/stand\.fm\//i.test(url)) {
-    resolved.standfm = resolved.standfm || canonicalPodcastUrl_(url);
-    return;
-  }
-
-  if (/music\.amazon\.|amazon\.[^/]+\/podcasts/i.test(url)) {
-    resolved.amazon = resolved.amazon || canonicalPodcastUrl_(url);
-    return;
-  }
-
-  if (/youtube\.com\/|youtu\.be\//i.test(url)) {
-    resolved.youtube = resolved.youtube || canonicalPodcastUrl_(url);
-    return;
-  }
-
-  if (/pocketcasts\.com\//i.test(url)) {
-    resolved.pocketcasts = resolved.pocketcasts || canonicalPodcastUrl_(url);
-    return;
-  }
-
-  if (/pody\.jp\//i.test(url)) {
-    resolved.pody = resolved.pody || canonicalPodcastUrl_(url);
-    return;
-  }
-
-  if (!/itunes\.apple\.com|spotify\.com|googleusercontent\.com|google\.com/i.test(url)) {
-    resolved.website = resolved.website || canonicalPodcastUrl_(url);
-  }
+  const item=PodcastPlatformEvidence.classifyPlatformUrl(value);
+  if(item.level !== "programme" && item.level !== "website") return;
+  resolved[item.provider]=resolved[item.provider] || item.url;
 }
 
 function canonicalPodcastUrl_(value) {
