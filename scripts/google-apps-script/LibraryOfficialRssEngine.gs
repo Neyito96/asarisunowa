@@ -299,11 +299,15 @@ function libraryOfficialAuditFeedReadOnly(feed){
 function inspectLibraryOfficialLastSevenDaysReadOnly(){
  const E=LibraryOfficialEngine,c=E.config(),now=new Date(),since=new Date(now.getTime()-7*86400000);
  const ctx=E.context(c),known=new Set();
+ const sourceSheet=SpreadsheetApp.openById(c.sheetId).getSheetByName('取得元一覧');
+ if(!sourceSheet)throw Error('SOURCE_LIST_MISSING');
+ const feeds=sourceSheet.getRange(2,1,7,8).getValues().map(r=>({show:String(r[0]||''),url:String(r[7]||'')}));
+ if(feeds.length!==7||feeds.some(f=>!f.show||!f.url))throw Error('SEVEN_FEEDS_INCOMPLETE');
  ctx.rows.forEach(r=>E.identityTokens(r).forEach(token=>known.add(String(token).toLowerCase())));
  ctx.history.forEach(r=>{if(r[0])known.add(String(r[0]).toLowerCase());});
  const report={mode:'READ_ONLY',since:since.toISOString(),until:now.toISOString(),ledgerRows:ctx.rows.length,feeds:[],missing:[],existing:[],held:[],writes:0,triggerChanges:0};
  const found=new Map();
- for(const feed of c.feeds){
+ for(const feed of feeds){
   try{
    const items=libraryOfficialAuditFeedReadOnly(feed);let recent=0;
    for(const item of items){
