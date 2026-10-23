@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-00601",
+      "main_theme": "安全保障",
+      "subtheme": "国家安全保障戦略・防衛計画",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を照合。既存分類語彙体系との最終整合確認前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 図書館・宇宙 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00602",
+      "main_theme": "核政策",
+      "subtheme": "非核三原則・核兵器政策",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を照合。既存分類語彙体系との最終整合確認前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 図書館・宇宙 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00603",
+      "main_theme": "障害者スポーツ",
+      "subtheme": "デフリンピック・聴覚障害",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を照合。既存分類語彙体系との最終整合確認前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 図書館・宇宙 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00604",
+      "main_theme": "政党政治",
+      "subtheme": "参政党・政党運営",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を照合。既存分類語彙体系との最終整合確認前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 図書館・宇宙 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00605",
+      "main_theme": "公衆衛生",
+      "subtheme": "妊娠前の健康支援",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を照合。既存分類語彙体系との最終整合確認前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 図書館・宇宙 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00606",
+      "main_theme": "米国政治",
+      "subtheme": "中間選挙・連邦議会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を照合。既存分類語彙体系との最終整合確認前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 図書館・宇宙 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00607",
+      "main_theme": "安全保障",
+      "subtheme": "台湾有事・存立危機事態",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を照合。既存分類語彙体系との最終整合確認前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 図書館・宇宙 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00608",
+      "main_theme": "税制",
+      "subtheme": "ガソリン税・旧暫定税率",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を照合。既存分類語彙体系との最終整合確認前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 図書館・宇宙 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00609",
+      "main_theme": "現代史",
+      "subtheme": "東西ドイツ統一",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を照合。既存分類語彙体系との最終整合確認前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 図書館・宇宙 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00610",
+      "main_theme": "金融犯罪",
+      "subtheme": "ポンジスキーム・投資詐欺",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を照合。既存分類語彙体系との最終整合確認前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 図書館・宇宙 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00611",
+      "main_theme": "国会制度",
+      "subtheme": "代表質問・予算委員会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を照合。既存分類語彙体系との最終整合確認前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 図書館・宇宙 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00612",
+      "main_theme": "刑法",
+      "subtheme": "名誉毀損罪・表現と法",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を照合。既存分類語彙体系との最終整合確認前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 図書館・宇宙 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00613",
+      "main_theme": "人権",
+      "subtheme": "人身取引・強制労働",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を照合。既存分類語彙体系との最終整合確認前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 図書館・宇宙 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00614",
+      "main_theme": "スポーツビジネス",
+      "subtheme": "中継権・配信権",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を照合。既存分類語彙体系との最終整合確認前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 図書館・宇宙 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00615",
+      "main_theme": "国際紛争",
+      "subtheme": "タイ・カンボジア国境紛争",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を照合。既存分類語彙体系との最終整合確認前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 図書館・宇宙 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00616",
+      "main_theme": "観光政策",
+      "subtheme": "特区民泊・規制緩和",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を照合。既存分類語彙体系との最終整合確認前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 図書館・宇宙 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00617",
+      "main_theme": "安全保障",
+      "subtheme": "安保法制・集団的自衛権",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を照合。既存分類語彙体系との最終整合確認前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 図書館・宇宙 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00618",
+      "main_theme": "労働法",
+      "subtheme": "転勤命令・人事権",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を照合。既存分類語彙体系との最終整合確認前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 図書館・宇宙 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00619",
+      "main_theme": "野生動物",
+      "subtheme": "クマ被害・人と野生動物",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を照合。既存分類語彙体系との最終整合確認前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 図書館・宇宙 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00620",
+      "main_theme": "医療",
+      "subtheme": "脳卒中・早期治療",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要を照合。既存分類語彙体系との最終整合確認前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 図書館・宇宙 検索対象判定 D",
+      "date": "2026-10-23"
+    }
+  ]
+}
