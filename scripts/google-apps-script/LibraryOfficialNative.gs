@@ -134,7 +134,12 @@ var LibraryOfficialNative = (function(){
    must(sh.getRange(1,1).getValue()==='台帳ID','LEDGER_HEADER_MISMATCH');
    const scope=scopeMap(ss,c,c.ledger||'エピソード台帳');
    const states=st.getDataRange().getValues(),map=new Map();states.slice(1).forEach((r,i)=>{must(!map.has(r[0]),'DUPLICATE_STATE');map.set(r[0],{state:JSON.parse(r[1]),row:i+2});});
-   const cp=JSON.parse(p.getProperty(CP)||'{}'),target=c.sheetId+'/'+sh.getSheetId();must(!cp.target||cp.target===target,'CURSOR_TARGET_CONFLICT');
+   // Keep the legacy fixture cursor untouched. A real-ledger read-only sweep
+   // has its own cursor, and a different target can never inherit its offset.
+   const target=c.sheetId+'/'+sh.getSheetId();
+   const cursorKey=c.ledger==='P14_NATIVE_FIXTURE'?CP:CP+'_LEDGER_'+sh.getSheetId();
+   const cp=JSON.parse(p.getProperty(cursorKey)||'{}');
+   must(!cp.target||cp.target===target,'CURSOR_TARGET_CONFLICT');
    const total=sh.getLastRow()-1;
    if(scope){must(total===6591,'LEDGER_COUNT_NOT_6591');const ids=sh.getRange(2,1,total,1).getValues().map(r=>String(r[0]||'').trim()),seen=new Set();for(const id of ids){must(!seen.has(id)&&scope.has(id),'LEDGER_SCOPE_MISMATCH');seen.add(id);}must(seen.size===scope.size,'LEDGER_SCOPE_COUNT_MISMATCH');}
    const start=Date.now(),deadline=start+Math.max(5000,Math.min(c.budgetMs||120000,240000));
@@ -151,9 +156,9 @@ var LibraryOfficialNative = (function(){
     const count=fill(sh,st,i+2,entry.row,entry.state,plan);metrics.writes+=count;return count;
    },event=>{
     if(event.failure){failures.push(event.failure);console.log(JSON.stringify({engine:'native-backfill',...event.failure}));}
-    else p.setProperty(CP,JSON.stringify({target,offset:event.offset,total,at:new Date().toISOString()}));
+    else p.setProperty(cursorKey,JSON.stringify({target,offset:event.offset,total,at:new Date().toISOString()}));
    });
-   if(report.complete)p.setProperty(CP,JSON.stringify({target,offset:0,total,completedAt:new Date().toISOString()}));
+   if(report.complete)p.setProperty(cursorKey,JSON.stringify({target,offset:0,total,completedAt:new Date().toISOString()}));
    const out={...report,...metrics,failures:failures.slice(0,10),elapsedMs:Date.now()-start};p.setProperty('LIB_OFFICIAL_NATIVE_REPORT',JSON.stringify(out));console.log(JSON.stringify(out));return out;
   }finally{lock.releaseLock();}
  }
