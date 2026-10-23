@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-02029",
+      "main_theme": "パリピ僧侶、ブラックロック砂漠のフェス「バーニングマン」へ行く",
+      "topic_category": "文化・芸術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02030",
+      "main_theme": "独自取材で警察も動いた、交通事故データの死角 みえない交差点（前編）",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02031",
+      "main_theme": "データの海を泳いで見えた、身近に潜む危険 みえない交差点（後編）",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02032",
+      "main_theme": "保育園選びが「ガチャ」になっている 日本の子育て、ここがおかしい",
+      "topic_category": "社会・福祉",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02033",
+      "main_theme": "ピザもガソリンも値上がって アメリカの物価高、日本に影響は？",
+      "topic_category": "経済・産業",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02034",
+      "main_theme": "もうすぐ参院選、どんな人が議員になるべき？ 若者の質問に政治部長が答えた（前編）",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02035",
+      "main_theme": "芸能人が参院選に立候補するのはなぜ？ 若者の質問に政治部長が答えた（後編）",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02036",
+      "main_theme": "世界遺産へ関西対決、この夏が山場 彦根城VS飛鳥・藤原（前編）",
+      "topic_category": "文化・芸術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02037",
+      "main_theme": "AIに管理される仕事、非婚化の現実 新聞をめくり、未来を探ろう",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02038",
+      "main_theme": "砂漠のフェスでDJプレイ パリピ僧侶「手放す」を知る",
+      "topic_category": "文化・芸術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02039",
+      "main_theme": "わした島うちなー① しまんちゅは考える、沖縄の本土復帰とは何だったのか",
+      "topic_category": "国際・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02040",
+      "main_theme": "わした島うちなー② 盛り上がりのない「復帰の日」、見当たらない50年前の熱気",
+      "topic_category": "その他・複合話題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02041",
+      "main_theme": "わした島うちなー③ ハンストの男性を囲む人垣、わたしはその場にいられなかった",
+      "topic_category": "その他・複合話題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02042",
+      "main_theme": "わした島うちなー④ 根付いてしまった米軍基地、シュプレヒコールと観光地化と",
+      "topic_category": "国際・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02043",
+      "main_theme": "わした島うちなー⑤ 沖縄戦で亡くなった幼なじみ、ショベルで遺骨を探した",
+      "topic_category": "国際・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02044",
+      "main_theme": "わした島うちなー⑥ 「うちなーんちゅの心とは」、自分なりの解を探して",
+      "topic_category": "その他・複合話題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02045",
+      "main_theme": "名前は沖縄ルーツ、でも僕は大阪育ち ルポに感じた同じ迷い",
+      "topic_category": "国際・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02046",
+      "main_theme": "わした島うちなー⑦ かみ合わない取材、落としどころのないリアル 制作班が振り返る",
+      "topic_category": "その他・複合話題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02047",
+      "main_theme": "他者への想像力、足りてる？ 声を知り、スタンダードの幅を広げよう 月刊朝ポキ6月号",
+      "topic_category": "メディア・情報",
+      "status": "provisional",
+      "review_basis": "title_only",
+      "review_note": "概要欄が空欄のためタイトルのみから暫定ラベル化。要再確認。"
+    },
+    {
+      "ep_id": "EP-02048",
+      "main_theme": "参院選の「見どころ」チェック 業界、タレント、そして政局？",
+      "topic_category": "政治・選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく暫定話題ラベル。見出し由来のため意味分類の精査が必要。"
+    }
+  ]
+}
