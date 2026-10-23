@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-00811",
+      "main_theme": "米国の移民",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00812",
+      "main_theme": "トランプ関税",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00813",
+      "main_theme": "韓国大統領逮捕",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00814",
+      "main_theme": "災害時の心のケア",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00815",
+      "main_theme": "阪神淡路大震災",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00816",
+      "main_theme": "DEI",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00817",
+      "main_theme": "女性の大学進学",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00818",
+      "main_theme": "子育て支援金",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00819",
+      "main_theme": "ASEAN",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00820",
+      "main_theme": "デジタル赤字",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00821",
+      "main_theme": "運輸安全委員会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00822",
+      "main_theme": "iPS細胞",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00823",
+      "main_theme": "感染症の5類移行",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00824",
+      "main_theme": "機能性表示食品",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00825",
+      "main_theme": "生活保護",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00826",
+      "main_theme": "基地騒音訴訟",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00827",
+      "main_theme": "韓国大統領弾劾",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00828",
+      "main_theme": "悪質ホストクラブ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00829",
+      "main_theme": "自動車型式指定",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00830",
+      "main_theme": "自動車業界再編",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00831",
+      "main_theme": "日本版DBS",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00832",
+      "main_theme": "検索連動型広告",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00833",
+      "main_theme": "人口減少",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00834",
+      "main_theme": "南海トラフ地震",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    },
+    {
+      "ep_id": "EP-00835",
+      "main_theme": "子どもの権利条約",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心テーマを抽出。分類体系との整合確認前の暫定分類。"
+    }
+  ]
+}
