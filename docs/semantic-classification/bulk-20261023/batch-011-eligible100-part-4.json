@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-01254",
+      "main_theme": "アベノマスク追加配布の調査報道",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01255",
+      "main_theme": "アベノマスク契約の透明性",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01256",
+      "main_theme": "アベノマスク追加配布中止",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01260",
+      "main_theme": "調査報道の取材手法",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01261",
+      "main_theme": "菅義偉と創価学会の選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01262",
+      "main_theme": "菅義偉の政治手法",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01265",
+      "main_theme": "安倍首相辞任と官邸取材",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01266",
+      "main_theme": "コロナ感染者への偏見",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01267",
+      "main_theme": "安倍首相と官邸記者",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01268",
+      "main_theme": "首相会見と記者クラブ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01269",
+      "main_theme": "菅政権と官僚人事",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01270",
+      "main_theme": "未婚ひとり親の税制と政治",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01271",
+      "main_theme": "菅政権の党内人事",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01275",
+      "main_theme": "ベトナムへの生産移転",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01276",
+      "main_theme": "ベトナムのコロナ隔離政策",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01277",
+      "main_theme": "技能実習生と労働環境",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01278",
+      "main_theme": "ドイツの感染対策抗議",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01279",
+      "main_theme": "ドイツの消費減税",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01280",
+      "main_theme": "メルケル退任とドイツ政治",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01281",
+      "main_theme": "自民党の派閥政治",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01282",
+      "main_theme": "立憲民主党と野党再編",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01283",
+      "main_theme": "ひとり親支援と女性議員",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01284",
+      "main_theme": "元記者の首相補佐官起用",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01285",
+      "main_theme": "自民党総務会の意思決定",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01286",
+      "main_theme": "吉村大阪府知事の政治手法",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    }
+  ]
+}
