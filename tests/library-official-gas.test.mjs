@@ -107,3 +107,15 @@ test('native recovery rejects unrelated edits without changing cells or proof',(
  const state={identity:['VERIFIED',guid,'original'],nativePending:{schema:'native-cell-v1',id:row[0],row:2,baseline:'original',beforeHash:'before',afterHash:'after'}};
  assert.throws(()=>N.recover({getRange:()=>({getValues:()=>[row]})},{},2,2,state),/PARTIAL_WRITE_CONFLICT/);assert.equal(state.identity[2],'original');
 });
+
+test('frozen publication scope is not extended to EP-06592 during archival sweep',()=>{
+ const src=fs.readFileSync(new URL('../scripts/google-apps-script/LibraryOfficialNative.gs',import.meta.url),'utf8');
+ assert.match(src,/if\(seen\.size<6591\)must\(scope\.has\(id\)/);
+ assert.match(src,/else must\(!scope\.has\(id\)/);
+ assert.match(src,/scopeNewUnclassified/);
+ assert.match(src,/const total=sh\.getLastRow\(\)-1/);
+});
+test('read-only progress cannot skip a future write-mode sweep',()=>{
+ const src=fs.readFileSync(new URL('../scripts/google-apps-script/LibraryOfficialNative.gs',import.meta.url),'utf8');
+ assert.match(src,/\(write\?'_WRITE':'_READ_ONLY'\)/);
+});
