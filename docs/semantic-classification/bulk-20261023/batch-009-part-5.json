@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-00943",
+      "main_theme": "参院選情勢調査",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00944",
+      "main_theme": "イスラエル・イラン交戦",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    },
+    {
+      "ep_id": "EP-00945",
+      "main_theme": "新聞記事の文章表現",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要を確認した暫定的な中心話題。"
+    }
+  ]
+}
