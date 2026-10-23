@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-03280",
+      "main_theme": "阿蘇支局長のお仕事",
+      "topic_category": "経済・労働",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03281",
+      "main_theme": "わたし、娘に厳しくしてる？",
+      "topic_category": "ジェンダー・福祉",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03282",
+      "main_theme": "タイのカジノ合法化と民意",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03283",
+      "main_theme": "年度の初めはなぜ4月？",
+      "topic_category": "政治・国際",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03285",
+      "main_theme": "戦前財政と軍事政策の教訓",
+      "topic_category": "経済・労働",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03286",
+      "main_theme": "新紙面が始まる春です",
+      "topic_category": "ジェンダー・福祉",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03287",
+      "main_theme": "SHEINの中国生産拠点と米国関税",
+      "topic_category": "政治・国際",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03288",
+      "main_theme": "熊本城の復興について",
+      "topic_category": "環境・防災",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03289",
+      "main_theme": "「おごってもらって当たり前」",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03290",
+      "main_theme": "小惑星衝突リスクと地球防衛",
+      "topic_category": "科学・技術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03291",
+      "main_theme": "韓国のYouTuber、ターゲットは中国",
+      "topic_category": "政治・国際",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03292",
+      "main_theme": "夢洲で考えたガスのリスクと万博本来の価値",
+      "topic_category": "経済・労働",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03293",
+      "main_theme": "スーツを着るのはどんな時？在宅勤務だと怠けるって本当？",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03295",
+      "main_theme": "日本初のスクランブル交差点は熊本に",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03296",
+      "main_theme": "豪州の子ども向けSNS規制",
+      "topic_category": "科学・技術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03297",
+      "main_theme": "フジテレビ第三者委員会と経営責任",
+      "topic_category": "経済・労働",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03299",
+      "main_theme": "ミナミの「魔窟」に魅せられた記者、昭和レトロ・味園ビルに最後の別れ",
+      "topic_category": "文化・歴史",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03300",
+      "main_theme": "トランプ関税、まじめに向き合わなくていいかも",
+      "topic_category": "政治・国際",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03301",
+      "main_theme": "変わる二輪車の交通ルール",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03302",
+      "main_theme": "駅の電光掲示板、多言語案内は親切？煩雑？",
+      "topic_category": "ジェンダー・福祉",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    }
+  ]
+}
