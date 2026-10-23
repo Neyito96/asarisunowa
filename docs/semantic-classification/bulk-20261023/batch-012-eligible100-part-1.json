@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-01287",
+      "main_theme": "大阪都構想の住民投票",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01288",
+      "main_theme": "菅政権と大阪維新の関係",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01289",
+      "main_theme": "スマホ決済の不正引き出し",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01290",
+      "main_theme": "ノーベル平和賞の報道",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01291",
+      "main_theme": "石破茂の総裁選と政治姿勢",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01292",
+      "main_theme": "石破茂の人物像と党内支持",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01293",
+      "main_theme": "岸田文雄の総裁選",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01294",
+      "main_theme": "岸田文雄の人物像",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01295",
+      "main_theme": "米大統領選と開票後の争い",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01296",
+      "main_theme": "コロナ禍の米国経済と格差",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01297",
+      "main_theme": "BLM運動と大坂なおみ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01298",
+      "main_theme": "コロナ禍の海外駐在員",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01299",
+      "main_theme": "インドネシアの感染対策と遠隔教育",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01300",
+      "main_theme": "ジョー・バイデンの人物像",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01301",
+      "main_theme": "菅首相と国会代表質問",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01302",
+      "main_theme": "米国の新型コロナ感染拡大",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01303",
+      "main_theme": "菅首相の人事と政権運営",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01304",
+      "main_theme": "ハリウッドと米大統領選",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01305",
+      "main_theme": "首相取材と菅政権の報道対応",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01306",
+      "main_theme": "SNS炎上の実態",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01307",
+      "main_theme": "トランプ支持者と大統領選",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01308",
+      "main_theme": "大阪都構想否決と公明支持層",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01309",
+      "main_theme": "大阪都構想否決と地域意識",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01310",
+      "main_theme": "トルコ地震の現地救助",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    },
+    {
+      "ep_id": "EP-01311",
+      "main_theme": "米大統領選と世論調査の誤差",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトル・概要から中心話題を抽出。分類体系の整合検査前。"
+    }
+  ]
+}
