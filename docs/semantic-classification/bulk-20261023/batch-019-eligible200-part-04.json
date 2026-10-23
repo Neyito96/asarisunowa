@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-02502",
+      "main_theme": "G7の結束と被爆者の怒りと 広島はかくして「貸し舞台」に",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02503",
+      "main_theme": "マスク着用、論文が教えてくれること 個人判断のヒント",
+      "topic_category": "健康・医療",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02505",
+      "main_theme": "ワクチン接種、自分で考えるために 白黒つけられない難しさ",
+      "topic_category": "健康・医療",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02506",
+      "main_theme": "新聞教室：時間栄養学 食事の時刻・質で体調整う",
+      "topic_category": "健康・医療",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02507",
+      "main_theme": "異色の存在だった「はだしのゲン」が名作になるまで 削除問題、どう思いますか",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02508",
+      "main_theme": "子育てのハッピーニュース、マウントみたい？ 息子から「草生えた」ってLINE",
+      "topic_category": "福祉・社会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02509",
+      "main_theme": "子どもや妊婦さんに冷たかった私 誰しも助けが必要になるのに",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02510",
+      "main_theme": "「あったか～い」が共存できるってミラクル（月刊朝ポキ6月号）",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02511",
+      "main_theme": "風切って巡ろう世界遺産 楽しみ方色々 百舌鳥・古市古墳群自転車ツアー",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02512",
+      "main_theme": "なぜ人はカルトに惹かれるの？ 元信者のお坊さんが語る壮絶体験",
+      "topic_category": "福祉・社会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02513",
+      "main_theme": "上げ馬神事、闘犬、サラブレッド…「残酷」の線引きはどこに",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02514",
+      "main_theme": "なんやねんこの社会 ドライバーの働き方、夫婦別姓 闇は深い",
+      "topic_category": "福祉・社会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02515",
+      "main_theme": "隣の人が臭ったら、指摘する？ なにが正しい対応なのか難しい",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02516",
+      "main_theme": "大きな地震、最近多くないですか 京都大防災研で聞いてみた",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02517",
+      "main_theme": "新聞教室：とれたて野菜 電車で運ぶ「旬」",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02518",
+      "main_theme": "部屋が当たるともうかる？ 2億円超えのマンション、記者クラブもざわついた",
+      "topic_category": "経済・産業",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02519",
+      "main_theme": "日本一高いビル、相次ぎオープン 麻布台ヒルズ、トーチタワー 変わりゆく東京",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02520",
+      "main_theme": "フランス外交はどこへ向かう？ アメリカと中国のはざまで「独自路線」貫く伝統とは",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02521",
+      "main_theme": "月700円の歴史ある学生寮が廃止 大学の経営重視、人ごとではない姿",
+      "topic_category": "歴史・文化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02522",
+      "main_theme": "佐々木朗希は「会社員でも一流」 大谷翔平にいたずらした中野拓夢 いま熱い阪神とロッテ",
+      "topic_category": "スポーツ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    }
+  ]
+}
