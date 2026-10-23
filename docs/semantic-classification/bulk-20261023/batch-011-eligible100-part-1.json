@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-01167",
+      "main_theme": "サッカーのオフサイドと審判",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01168",
+      "main_theme": "長谷部誠のリーダーシップ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01169",
+      "main_theme": "女子バスケ富士通優勝",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01170",
+      "main_theme": "尊富士の新入幕優勝",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01171",
+      "main_theme": "フィギュア世界選手権の記録",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01172",
+      "main_theme": "サッカー観戦の基礎",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01173",
+      "main_theme": "アジアカップと日本代表",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01174",
+      "main_theme": "パリ五輪バスケ代表展望",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01175",
+      "main_theme": "Bリーグ地区別戦況",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01176",
+      "main_theme": "フィギュア選手の試合準備",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01177",
+      "main_theme": "女子バスケの五輪出場",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01178",
+      "main_theme": "照ノ富士の優勝と大関昇進",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01179",
+      "main_theme": "Jリーグのクラブ数改革",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01180",
+      "main_theme": "宇野昌磨とジャンプ判定",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01181",
+      "main_theme": "大相撲の横綱昇進争い",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01182",
+      "main_theme": "Jリーグ30年と地域スポーツ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01183",
+      "main_theme": "高校バスケ大会展望",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01184",
+      "main_theme": "フィギュア若手選手の成長",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01185",
+      "main_theme": "Bリーグ人気と観客動員",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01186",
+      "main_theme": "バスケ代表招集の規定",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01187",
+      "main_theme": "AI判定とスポーツ審判",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01188",
+      "main_theme": "イニエスタ移籍とサッカー経済",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01189",
+      "main_theme": "男子バスケの五輪出場",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01190",
+      "main_theme": "女子サッカーW杯と競技環境",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-01191",
+      "main_theme": "フィギュア選手の日常",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく中心話題の暫定分類。"
+    }
+  ]
+}
