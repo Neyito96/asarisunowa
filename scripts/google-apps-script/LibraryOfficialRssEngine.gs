@@ -297,7 +297,7 @@ function inspectLibraryOfficialLastSevenDaysReadOnly(){
     recent++;
     const guid=String(item.guid||'').toLowerCase();
     const entry={show:item.show,guid,title:item.title,published:item.pubDate,feed:feed.url};
-    if(!E.UUID.test(item.guid)){report.held.push({...entry,reason:'INVALID_GUID'});continue;}
+    if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item.guid||'')){report.held.push({...entry,reason:'INVALID_GUID'});continue;}
     if(found.has(guid)){report.held.push({...entry,reason:'DUPLICATE_IN_FEEDS'});found.get(guid).duplicate=true;continue;}
     found.set(guid,{entry,duplicate:false});
    }
