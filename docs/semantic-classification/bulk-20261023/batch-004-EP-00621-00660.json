@@ -1,0 +1,405 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-00621",
+      "main_theme": "株式市場",
+      "subtheme": "値がさ株・日経平均の算出",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00622",
+      "main_theme": "防災制度",
+      "subtheme": "災害救助法・被災者支援",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00623",
+      "main_theme": "葬送文化",
+      "subtheme": "墓じまい・改葬",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00624",
+      "main_theme": "軍事技術",
+      "subtheme": "巡航ミサイル・トマホーク",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00625",
+      "main_theme": "国土政策",
+      "subtheme": "副首都・首都機能分散",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00626",
+      "main_theme": "クラシック音楽",
+      "subtheme": "ショパン国際ピアノコンクール",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00627",
+      "main_theme": "原子力政策",
+      "subtheme": "柏崎刈羽原発・再稼働",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00628",
+      "main_theme": "統計制度",
+      "subtheme": "国勢調査・人口把握",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00629",
+      "main_theme": "中東和平",
+      "subtheme": "ガザ停戦・人質解放",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00630",
+      "main_theme": "税務",
+      "subtheme": "脱税・所得隠し・申告漏れ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00631",
+      "main_theme": "選挙と情報",
+      "subtheme": "個人情報流用・世論操作",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00632",
+      "main_theme": "スポーツと賭博",
+      "subtheme": "スポーツベッティング",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00633",
+      "main_theme": "司法制度",
+      "subtheme": "再審請求・冤罪救済",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00634",
+      "main_theme": "科学捜査",
+      "subtheme": "DNA鑑定不正・証拠の信頼性",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00635",
+      "main_theme": "災害医療",
+      "subtheme": "DMAT・被災地医療",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00636",
+      "main_theme": "投資商品",
+      "subtheme": "不動産クラウドファンディング",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00637",
+      "main_theme": "政治と行政",
+      "subtheme": "森友学園・国有地売却",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00638",
+      "main_theme": "国際テロ",
+      "subtheme": "イスラム国・過激派組織",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00639",
+      "main_theme": "中東和平",
+      "subtheme": "オスロ合意・二国家解決",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00640",
+      "main_theme": "中東政治",
+      "subtheme": "サウジアラビア・経済改革",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00641",
+      "main_theme": "民族と人権",
+      "subtheme": "ロヒンギャ・迫害",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00642",
+      "main_theme": "北朝鮮政治",
+      "subtheme": "指導者後継問題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00643",
+      "main_theme": "野生動物",
+      "subtheme": "カラス・都市の生態",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00644",
+      "main_theme": "国際法",
+      "subtheme": "国家承認・外交関係",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00645",
+      "main_theme": "投資商品",
+      "subtheme": "ETF・上場投資信託",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00646",
+      "main_theme": "企業統治",
+      "subtheme": "保険会社の情報持ち出し",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00647",
+      "main_theme": "陸上競技",
+      "subtheme": "世界陸上・国際大会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00648",
+      "main_theme": "産業競争力",
+      "subtheme": "日本の家電産業の衰退",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00649",
+      "main_theme": "AI技術",
+      "subtheme": "生成AI検索・RAG",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00650",
+      "main_theme": "政党政治",
+      "subtheme": "自民党総裁選の制度",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00651",
+      "main_theme": "市民運動",
+      "subtheme": "ネパールのSNS規制抗議",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00652",
+      "main_theme": "中国政治",
+      "subtheme": "軍事パレード・歴史記念",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00653",
+      "main_theme": "海洋環境",
+      "subtheme": "黒潮大蛇行・海流変動",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00654",
+      "main_theme": "医薬品政策",
+      "subtheme": "CBD・医療利用と規制",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00655",
+      "main_theme": "地方政治",
+      "subtheme": "伊東市長の学歴詐称問題",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00656",
+      "main_theme": "国際交通",
+      "subtheme": "インド高速鉄道・新幹線",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00657",
+      "main_theme": "医療制度",
+      "subtheme": "薬価・公的保険",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00658",
+      "main_theme": "学校教育",
+      "subtheme": "性教育・はどめ規定",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00659",
+      "main_theme": "教育政策",
+      "subtheme": "学校給食・献立の変化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00660",
+      "main_theme": "学校と保護者",
+      "subtheme": "PTA・任意加入",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要に基づく意味分類。分類体系との整合検査前につき暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    }
+  ]
+}
