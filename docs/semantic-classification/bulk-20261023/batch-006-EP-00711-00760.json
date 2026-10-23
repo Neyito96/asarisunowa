@@ -1,0 +1,505 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-00711",
+      "main_theme": "農業統計",
+      "subtheme": "コメの作況指数",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00712",
+      "main_theme": "核技術と外交",
+      "subtheme": "ウラン濃縮・イラン核施設",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00713",
+      "main_theme": "中東国際関係",
+      "subtheme": "イスラエルとイランの対立",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00714",
+      "main_theme": "プロ野球史",
+      "subtheme": "長嶋茂雄の功績",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00715",
+      "main_theme": "刑事司法",
+      "subtheme": "拘禁刑・刑罰制度改革",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00716",
+      "main_theme": "韓国政治",
+      "subtheme": "李在明大統領の経歴",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00717",
+      "main_theme": "大学と政治",
+      "subtheme": "ハーバード大学と政権の対立",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00718",
+      "main_theme": "議会制度",
+      "subtheme": "内閣不信任案",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00719",
+      "main_theme": "宇宙探査",
+      "subtheme": "月面着陸と探査計画",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00720",
+      "main_theme": "難民と移民",
+      "subtheme": "欧州難民危機",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00721",
+      "main_theme": "人権と優生政策",
+      "subtheme": "旧優生保護法・強制不妊",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00722",
+      "main_theme": "認知症医療",
+      "subtheme": "レカネマブ・アルツハイマー病",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00723",
+      "main_theme": "海洋環境",
+      "subtheme": "ゴーストギアと海洋生物被害",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00724",
+      "main_theme": "畜産と食品",
+      "subtheme": "和牛の格付け制度",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00725",
+      "main_theme": "出産支援",
+      "subtheme": "出産費用・一時金制度",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00726",
+      "main_theme": "周産期医療",
+      "subtheme": "無痛分娩と麻酔",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00727",
+      "main_theme": "公的年金",
+      "subtheme": "年金給付と制度改革",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00728",
+      "main_theme": "公共調達",
+      "subtheme": "随意契約と透明性",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00729",
+      "main_theme": "スポーツ組織",
+      "subtheme": "JOCとオリンピック運動",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00730",
+      "main_theme": "寄付と相続",
+      "subtheme": "遺贈寄付の仕組み",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00731",
+      "main_theme": "広告とプラットフォーム",
+      "subtheme": "ネット広告の性的表現と配信責任",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00732",
+      "main_theme": "サイバー犯罪",
+      "subtheme": "ランサムウェア被害",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00733",
+      "main_theme": "サイバー安全保障",
+      "subtheme": "能動的サイバー防御",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00734",
+      "main_theme": "組織犯罪",
+      "subtheme": "匿名・流動型犯罪グループ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00735",
+      "main_theme": "カトリック教会",
+      "subtheme": "レオ14世と教皇職",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00736",
+      "main_theme": "アフリカ紛争",
+      "subtheme": "スーダン内戦と避難民",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00737",
+      "main_theme": "社会保障財政",
+      "subtheme": "社会保障と税の一体改革",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00738",
+      "main_theme": "民族と人権",
+      "subtheme": "クルド人の歴史と境遇",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00739",
+      "main_theme": "南アジア紛争",
+      "subtheme": "カシミールをめぐる印パ対立",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00740",
+      "main_theme": "ウクライナとロシア",
+      "subtheme": "クリミア半島の歴史と占領",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00741",
+      "main_theme": "金融サイバー犯罪",
+      "subtheme": "証券口座乗っ取りと不正売買",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00742",
+      "main_theme": "金融市場",
+      "subtheme": "先物取引と価格形成",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00743",
+      "main_theme": "賭博と法規制",
+      "subtheme": "オンラインカジノの違法性",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00744",
+      "main_theme": "メディア保存",
+      "subtheme": "磁気テープの劣化とデジタル化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00745",
+      "main_theme": "宗教制度",
+      "subtheme": "コンクラーベ・教皇選挙",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00746",
+      "main_theme": "鉄道事故",
+      "subtheme": "JR宝塚線脱線事故と安全",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00747",
+      "main_theme": "スポーツと育児",
+      "subtheme": "MLB父親休暇制度",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00748",
+      "main_theme": "米国金融政策",
+      "subtheme": "FRB・中央銀行制度",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00749",
+      "main_theme": "カトリック教会",
+      "subtheme": "フランシスコ教皇の歩み",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00750",
+      "main_theme": "米中経済関係",
+      "subtheme": "米中貿易摩擦と関税",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00751",
+      "main_theme": "学術と政策",
+      "subtheme": "日本学術会議の独立性",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00752",
+      "main_theme": "通商政策",
+      "subtheme": "日米貿易協定と自動車関税",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00753",
+      "main_theme": "感染症医療",
+      "subtheme": "敗血症の危険性",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00754",
+      "main_theme": "AIガバナンス",
+      "subtheme": "AI法案とリスク対応",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00755",
+      "main_theme": "国際博覧会",
+      "subtheme": "大阪・関西万博",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00756",
+      "main_theme": "地震災害",
+      "subtheme": "ミャンマー地震と断層",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00757",
+      "main_theme": "宗教と法律",
+      "subtheme": "宗教法人の解散命令",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00758",
+      "main_theme": "自動車産業",
+      "subtheme": "米国車の日本市場と貿易摩擦",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00759",
+      "main_theme": "交通インフラ",
+      "subtheme": "ETC障害と高速道路料金",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    },
+    {
+      "ep_id": "EP-00760",
+      "main_theme": "米国通商政策",
+      "subtheme": "相互関税の導入",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要の中心論点を照合。分類体系との整合検査前のため暫定。",
+      "source": "エピソード台帳 A,C,V / 検索対象判定 D",
+      "date": "2026-10-23"
+    }
+  ]
+}
