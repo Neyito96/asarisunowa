@@ -17,7 +17,11 @@ var LibraryOfficialNative = (function(){
   must(Number.isInteger(cp)&&cp>=0&&cp<=total,'CURSOR_INVALID');
   let n=cp,scanned=0,changed=0,held=0;
   while(n<total&&scanned<limit&&now()<deadline){
-   try{changed+=visit(n)||0;}catch(e){held++;save({failure:{offset:n,reason:String(e.message)}});}
+   try{changed+=visit(n)||0;}catch(e){
+    held++;save({failure:{offset:n,reason:String(e.message)}});
+    // Do not advance past a failed row: it must be resolved or explicitly held.
+    break;
+   }
    n++;scanned++;save({offset:n});
   }
   return {scanned,changed,held,remaining:total-n,offset:n,complete:n===total};
