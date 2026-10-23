@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-03215",
+      "main_theme": "ウクライナのような状況になったら、どうする？",
+      "topic_category": "政治・国際",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03216",
+      "main_theme": "イチロー氏、米殿堂",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03217",
+      "main_theme": "マッチョな声で、ファンシーを売る",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03218",
+      "main_theme": "「ネガティブな気持ちで撮影していませんか？」",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03219",
+      "main_theme": "フジテレビ問題と企業統治",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03220",
+      "main_theme": "プロ野球・オリンピック・父親",
+      "topic_category": "ジェンダー・福祉",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03221",
+      "main_theme": "高校授業料無償化と維新の政治",
+      "topic_category": "政治・国際",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03222",
+      "main_theme": "ふだんは紙の新聞推しだけど",
+      "topic_category": "文化・歴史",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03223",
+      "main_theme": "悪質ホストクラブの高額請求",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03224",
+      "main_theme": "哲学の道、どう整備する？",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03225",
+      "main_theme": "不妊治療 続けますか、やめますか",
+      "topic_category": "健康・医療",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03226",
+      "main_theme": "他人の目が気になるけれど",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03227",
+      "main_theme": "選択的夫婦別姓と旧姓通称使用",
+      "topic_category": "ジェンダー・福祉",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03230",
+      "main_theme": "ビデオテープの危機、消えゆくMD",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03231",
+      "main_theme": "「世論データベース」公開",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03232",
+      "main_theme": "小中学生用PC、思わぬ故障防げ",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03233",
+      "main_theme": "自己肯定感のモヤモヤ",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03234",
+      "main_theme": "子どもの脱毛、何歳からだったらいい？",
+      "topic_category": "ジェンダー・福祉",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出しを基にした暫定ラベル。意味分類の再精査が必要。"
+    },
+    {
+      "ep_id": "EP-03235",
+      "main_theme": "中国DeepSeekとAI競争",
+      "topic_category": "政治・国際",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    },
+    {
+      "ep_id": "EP-03236",
+      "main_theme": "猫の繁殖ビジネスと動物福祉",
+      "topic_category": "健康・医療",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "中心話題の暫定分類。"
+    }
+  ]
+}
