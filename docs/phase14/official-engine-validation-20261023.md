@@ -68,3 +68,31 @@ The verifier consumes private native CellData captures and JSON evidence; produc
 7. Port remaining platform enrichment separately, retaining exact identity evidence. Keep Pages/publication and playlists outside this rollout.
 
 Production writes in this phase: **0**. New registrations: **0**. All 6,592 existing rows, allocation history, held/excluded decisions, public sites and playlists remain unchanged.
+
+
+## 2026-10-23 follow-up: Issue #255 execution plan (not yet a runtime result)
+
+The next work is split into two independently testable tracks. **No live trigger should be installed as a substitute for either.**
+
+### Track A — diagnose the ten V3 state hashes (read-only)
+
+1. Retrieve the exact *online* V3 hash implementation and the original `identity[2]` creation code, not a reimplementation inferred from this PR.
+2. On EP-00141–EP-00150, capture the original V3 state, current native `CellData` A:AY and V3 creation evidence without changing any cell or proof.
+3. Compare byte-for-byte serialized hash inputs, including column count/order, spreadsheet date serial versus JST timestamp, empty strings versus null, numeric versus string cells, Unicode, JSON serialization, and base64url padding. Record the first differing index for each row.
+4. Distinguish serialization differences from real edits made after the baseline. If baseline provenance cannot be proven, mark the row **HOLD**, not `VERIFIED`. Never replace the saved hash or bypass `STATE_HASH_CONFLICT`.
+5. Re-run the ten-copy test with the exact V3-compatible algorithm only after evidence proves compatibility; verify zero nonempty overwrites and zero replay changes.
+
+**Code review lead:** `LibraryOfficialEngine.rowHash` currently canonicalizes column D through `utc()`, and numeric AF/AH/AI indices (31/33/34) through `utc()`, then uses `Utilities.base64EncodeWebSafe(SHA256(JSON.stringify(a)))`. The original V3 implementation must be compared directly. This is a hypothesis to investigate, **not a proven root cause**.
+
+### Track B — online copy GAS test (does not require production approval)
+
+1. Inspect the current Apps Script project source, properties, OAuth scopes, triggers and recent executions in read-only mode. The GitHub `.gs` files alone are not proof of deployment.
+2. Install the two isolated `.gs` files in a **separate copy GAS project** pointing only to copy workbook `1IhnYURLqhM8i3ACrkNbDujplXRtyI41rR19qGnwZlMY`. Do not change the production project.
+3. Run `inspectLibraryOfficialReadOnly()` and record the actual project ID, target spreadsheet ID and triggers. Verify the script has the correct Sheets API scopes and no competing writer.
+4. Exercise RSS and official JSON fetches and the blank-only planner on copy rows; test formula/chip/validation protections and failure paths. Do not set `engineValidation='P14_RUNTIME_VERIFIED'` merely to bypass a gate.
+5. Test a copy write/replay only after a valid V3 hash is independently established for that copy. Verify row and state readback; keep the original evidence immutable.
+6. Test a **copy-only** time trigger after the manual execution succeeds. Remove it afterward and record run logs and actual effects. Production remains disabled.
+
+### Acceptance and handoff
+
+Report independently: (a) each of ten hash diagnoses, with exact serialized input and root cause or HOLD; (b) real GAS execution logs and copy test; (c) production 1-record smoke eligibility. Keep PR #254 draft until gates are passed. Historical records remain blank-only; all existing nonempty values, EP-ID/GUID, exclusion/decision, allocation and V3 proof are protected.
