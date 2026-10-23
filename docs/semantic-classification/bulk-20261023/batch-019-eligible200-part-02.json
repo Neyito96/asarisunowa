@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-02461",
+      "main_theme": "朝日新聞社の歴史（番外編④） テロの連鎖、重なる大正と令和",
+      "topic_category": "歴史・文化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02463",
+      "main_theme": "ソーリ、やりたいことが見えません 岸田文雄政権は「政治じゃない、単なる行政」なのか",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02464",
+      "main_theme": "岸田官邸の舞台裏 黒子役の秘書官、そして「拒否権」を持つ側近",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02465",
+      "main_theme": "新聞教室：新聞読み方講座",
+      "topic_category": "歴史・文化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02466",
+      "main_theme": "次の首相は誰だ 自民党内の力学をみる 最大派閥・安倍派の現状は",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02467",
+      "main_theme": "「岸田ビジョン」を読んでみた 見えない本音と浮かぶしたたかさ",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02468",
+      "main_theme": "加藤登紀子さんが語る「百万本のバラ」が持つ力 広島G7を「貸し舞台」にしないために",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02469",
+      "main_theme": "オバマ氏がハグした被爆者、生涯をかけた調査と信念 広島G7を前に",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02470",
+      "main_theme": "朝日新聞社の歴史（番外編⑤） 普通選挙と治安維持法、そして弾圧の時代へ",
+      "topic_category": "政治・外交",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02471",
+      "main_theme": "半壊した店舗から命がけでハンコを救出 28年前の銀行員たちの物語",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02472",
+      "main_theme": "明け方の緊急地震速報、とっさに動けなかった 教訓にして備える",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02473",
+      "main_theme": "中日ドラゴンズと「亡命」のリアル そんなに単純な話じゃない",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02474",
+      "main_theme": "LGBT法案は骨抜きになったか 社会の理解は進み、もう後戻りしない",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02475",
+      "main_theme": "米山隆一さん、あのツイートでいいんですか？ 立憲は「風紀委員に見えてはいけない」",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02476",
+      "main_theme": "新聞教室：コロナ対応『平時』へ",
+      "topic_category": "暮らし・その他",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02477",
+      "main_theme": "リスキリングに駆られる派？ 楽しむ派？ 子育てと仕事のはざまで",
+      "topic_category": "福祉・社会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02478",
+      "main_theme": "いまさら聞けない「AIって？」 なんで世界がザワつくのか、これ1本でわかります",
+      "topic_category": "科学・技術",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02479",
+      "main_theme": "トップスターが異例の休養宣言 タカラジェンヌの働き方どうなる",
+      "topic_category": "福祉・社会",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02480",
+      "main_theme": "朝日新聞社の歴史（番外編⑥）「襲われすぎ」の戦争前夜、テロ犯はまるでヒーローにも",
+      "topic_category": "歴史・文化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    },
+    {
+      "ep_id": "EP-02481",
+      "main_theme": "羽生・藤井対決の舞台 大阪・高槻なぜ棋士の聖地に？ 関西将棋会館高槻移転",
+      "topic_category": "歴史・文化",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "見出し由来の暫定ラベル。意味分類の精査が必要。"
+    }
+  ]
+}
