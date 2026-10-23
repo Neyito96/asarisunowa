@@ -1,0 +1,13 @@
+# PUERTA #25 live registration — 2026-10-23
+
+The user explicitly authorized production ledger registration/correction. Row 6593 was a provisional entry without an EP-ID or GUID. It is now EP-06592. Existing IDs and the 2026-10-22 publication decisions were not changed.
+
+Official RSS GUID and Omny JSON ID agree: `5218b5c5-7f21-4089-a5c7-b4ea00cf1bd3`. Publication: 2026-10-23 04:00 JST. RSS duration: 3,215 seconds (JSON precision 3,214.755, retained in the cell note). Column V contains the complete 3,150-character RSS description. Staff: three, with all original role/affiliation lines retained in X and structured evidence in its note. AT:AX are an index of the first five names; overflow is retained in X and V, never discarded. AC contains three individually linked URLs using native textFormatRuns.
+
+Native Sheets batch updates modified 31 ledger cells for registration/correction, added one allocation-history record and one V3 packed state row. Subsequent exact-identity enrichment filled K (LISTEN, original audio clip UUID) and M (Apple, episodeGuid). Mutable row verification was updated atomically with those fills; immutable registration evidence was preserved. All 55 cells of the final row, the rich links, allocation record and V3 state were re-read. Total ledger cells changed: 33. Source ledger and allocation-history tabs were backed up as hidden `BACKUP_P13_LEDGER_20261023` and `BACKUP_P13_IDS_20261023` before the first write.
+
+Official page HTTP 200 and audio HTTP 206 were checked; playback was not tested. Spotify has an exact-title candidate but no verified GUID mapping; L remains empty. Amazon, Pocket Casts, Pody and YouTube episode URLs remain unconfirmed. No URLs were constructed from guessed identifiers. Official Omny JSON reports no published transcript; this does not assert that no transcript exists on any other service.
+
+Local regression: 58 tests pass, including eight repair/enrichment tests. A local export from the actual re-read target row plus the preserved baseline snapshot generates 5,849 matching scope/list/search/detail IDs, including Apple and LISTEN links. This is not a Pages deployment. Production GAS code, trigger configuration, playlist contents, main branches and public Pages were not changed. The daily execution connection is still pending; this commit must not be described as enabled production automation.
+
+Recovery: use the two preserved tabs and the per-registration evidence to review the single affected row/history/state. Do not rewind the global counter or reuse EP-06592. Subsequent changes must compare the current hash and preserve existing exclusions, formulas and nonblank platform values.
