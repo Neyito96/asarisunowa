@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-05068",
+      "main_theme": "イベント号外の色と文字の編集",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05069",
+      "main_theme": "麦わら帽子型のパン屋建築",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05070",
+      "main_theme": "幹事役の負担と職場の人間関係",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05071",
+      "main_theme": "パリ五輪のAI映像技術",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05072",
+      "main_theme": "選挙の当選確実報道の仕組み",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05073",
+      "main_theme": "選挙のリモート集票",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05074",
+      "main_theme": "新聞社でのキャリア形成",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05075",
+      "main_theme": "新聞社のエンジニア採用",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05076",
+      "main_theme": "他者への関心と自己成長",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    },
+    {
+      "ep_id": "EP-05077",
+      "main_theme": "ニュースの学校の新番組開始",
+      "status": "provisional",
+      "review_basis": "title_based",
+      "review_note": "見出しに基づく暫定分類。概要本文の精読は未実施。"
+    }
+  ]
+}
