@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "branch": "work/semantic-classification-bulk-20261023",
+  "eligible_count": 5848,
+  "batch_size": 500,
+  "checkpoint_size": 100,
+  "next_ep_id": "EP-00601",
+  "source_requirements": [
+    "EP-ID",
+    "title",
+    "description",
+    "eligible"
+  ],
+  "classification_modes": [
+    "confirmed",
+    "provisional",
+    "held"
+  ],
+  "protected_statuses": [
+    "user_approved"
+  ],
+  "production_write": false,
+  "automation_enabled": false
+}
