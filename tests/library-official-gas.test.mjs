@@ -144,3 +144,21 @@ test('new-episode path reuses official atomic registration, not native non-atomi
  assert.match(registration,/otherWritersPaused!==true/);
  assert.match(native,/REGISTRATION_BLOCKED_NONATOMIC/);
 });
+
+test('related article URLs retain newline boundaries without link bleed',()=>{
+ const e=engine().LibraryOfficialEngine;
+ const urls=['https://www.asahi.com/articles/ABC','https://digital.asahi.com/articles/DEF'];
+ const runs=e.articleLinkRuns(urls);
+ assert.equal(runs.length,4);
+ assert.equal(runs[0].startIndex,0);
+ assert.equal(runs[1].startIndex,urls[0].length);
+ assert.deepEqual(JSON.parse(JSON.stringify(runs[1].format)),{});
+ assert.equal(runs[2].startIndex,urls[0].length+1);
+ assert.equal(runs[3].startIndex,urls[0].length+1+urls[1].length);
+ assert.equal(runs[0].format.link.uri,urls[0]);
+ assert.equal(runs[2].format.link.uri,urls[1]);
+});
+test('native link writer accepts formatting reset runs between URLs',()=>{
+ const src=fs.readFileSync(new URL('../scripts/google-apps-script/LibraryOfficialNative.gs',import.meta.url),'utf8');
+ assert.match(src,/if\(!uri\)continue/);
+});
