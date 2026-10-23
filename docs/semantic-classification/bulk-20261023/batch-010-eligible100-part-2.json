@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "ep_id": "EP-01092",
+      "main_theme": "Wリーグデンソー初優勝",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01093",
+      "main_theme": "新体操の指導と選手の声",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01094",
+      "main_theme": "WBCの国際化と放映",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01095",
+      "main_theme": "バスケ男子代表新体制",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01096",
+      "main_theme": "冬季五輪フィギュア日本勢",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01097",
+      "main_theme": "Jリーグ特別大会とPK戦",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01098",
+      "main_theme": "大相撲横綱昇進争い",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01099",
+      "main_theme": "Bリーグ初ドラフト",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01100",
+      "main_theme": "冬季五輪フィギュア団体戦",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01101",
+      "main_theme": "高校バスケ男子ウインターカップ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01102",
+      "main_theme": "高校バスケ女子ウインターカップ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01103",
+      "main_theme": "聴覚障害者の職場と手話",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01104",
+      "main_theme": "デフリンピックと当事者参加",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01105",
+      "main_theme": "安青錦の大関昇進",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01106",
+      "main_theme": "サッカーW杯組み合わせとFIFA",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01107",
+      "main_theme": "高校バスケ大会展望",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01108",
+      "main_theme": "フィギュアGPファイナル",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01109",
+      "main_theme": "Wリーグ外国籍枠と男子代表",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01110",
+      "main_theme": "大相撲横綱の優勝決定戦",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01111",
+      "main_theme": "サッカー日本代表のブラジル戦",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01112",
+      "main_theme": "Bリーグ地区制とアリーナ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01113",
+      "main_theme": "フィギュア指導者と選手",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01114",
+      "main_theme": "河村勇輝とNBAサマーリーグ",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01115",
+      "main_theme": "琴勝峰の大相撲優勝",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    },
+    {
+      "ep_id": "EP-01116",
+      "main_theme": "高校野球甲子園と監督",
+      "status": "provisional",
+      "review_basis": "title_and_description",
+      "review_note": "タイトルと概要から中心話題を抽出。分類体系との整合確認前。"
+    }
+  ]
+}
