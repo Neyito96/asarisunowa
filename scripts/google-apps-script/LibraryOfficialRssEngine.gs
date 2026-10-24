@@ -19,6 +19,11 @@ var LibraryOfficialEngine = (function () {
   if(state.identity?.[0]==='PENDING_REVIEW'&&reviewed?.status==='REVIEWED_CURRENT_SNAPSHOT'){
    must(reviewed.guid===state.identity[1]&&reviewed.currentRowHash===rowHash(row),'REVIEWED_SNAPSHOT_CHANGED');
    must(reviewed.originalRegistrationHash===null&&reviewed.originalRegistrationHashMissing===true,'REVIEWED_PROVENANCE_CONFLICT');
+   must(reviewed.titleAndAudioMatched===true&&reviewed.historyMatched===true&&reviewed.source==='official_megaphone_rss','REVIEWED_EVIDENCE_INCOMPLETE');
+   const receipt=state.officialBackfill;
+   if(receipt){
+    must(Array.isArray(receipt)&&receipt[0]==='VERIFIED'&&JSON.parse(receipt[7]||'{}').afterHash===reviewed.currentRowHash,'REVIEWED_BACKFILL_RECEIPT_CONFLICT');
+   }
    return reviewed.currentRowHash;
   }
   must(state.identity?.[0]==='VERIFIED','STATE_NOT_VERIFIED');
