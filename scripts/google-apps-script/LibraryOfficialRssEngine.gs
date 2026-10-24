@@ -251,6 +251,25 @@ var LibraryOfficialEngine = (function () {
  }
  return {inspect,plan,material,materialMegaphone,articleLinkRuns,verify,fromJson,newDecision,identityTokens,rowHash,v3RowHash,verifyRowProof,runBackfill,readJson,rss,official,platforms,config,context,cell,update,api,PROD};
 })();
+/** Copy-only acceptance audit. Reads sheets; does not modify properties, triggers or cells. */
+function phase14CopyAcceptanceReadOnly(){
+ const copyId='1IhnYURLqhM8i3ACrkNbDujplXRtyI41rR19qGnwZlMY';
+ const book=SpreadsheetApp.openById(copyId);
+ const ledger=book.getSheetByName('エピソード台帳');
+ const history=book.getSheetByName('固定ID採番履歴');
+ const states=book.getSheetByName('図書館V3・項目状態');
+ if(!ledger||!history||!states)throw Error('COPY_REQUIRED_TABS_MISSING');
+ const rows=ledger.getDataRange().getValues();
+ const ids=rows.slice(1).map(r=>String(r[0]||'')).filter(Boolean);
+ const guid='2b3d2f6a-cdfb-11f1-8f31-abebc4a650c5';
+ const matches=rows.slice(1).filter(r=>String(r[6]).toLowerCase()===guid);
+ const h=history.getDataRange().getValues().slice(1).filter(r=>String(r[0]).toLowerCase()===guid);
+ const st=states.getDataRange().getValues().slice(1).filter(r=>String(r[0])==='EP-06594');
+ let identityStatus='UNREADABLE';
+ try{identityStatus=JSON.parse(String(st[0]?.[1]||'{}')).identity?.[0]||'MISSING';}catch(e){}
+ const result={mode:'PHASE14_COPY_ACCEPTANCE_READ_ONLY',copyId,ledgerCount:ids.length,duplicateIds:ids.length-new Set(ids).size,targetGuid:guid,targetRows:matches.length,targetId:matches[0]?.[0]||null,historyRows:h.length,historyStatus:h[0]?.[4]||null,v3Rows:st.length,v3IdentityStatus:identityStatus,readyForBackfill:matches.length===1&&h.length===1&&st.length===1&&identityStatus==='VERIFIED',writes:0,propertyWrites:0,triggerChanges:0};
+ console.log(JSON.stringify(result));return result;
+}
 function inspectLibraryOfficialReadOnly(){const report=LibraryOfficialEngine.inspect();console.log(JSON.stringify(report));return report;}
 function scheduledLibraryOfficialBackfill(){return LibraryOfficialEngine.runBackfill();}
 /** New records have an atomic history reservation, so an interrupted retry cannot allocate again. */
