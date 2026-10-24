@@ -167,7 +167,7 @@ var LibraryOfficialEngine = (function () {
    const stage=cp.stage||0,priority=[[21],[15],[28],[23,45,50],[9,13,14],[10,11,12,40,41,42]];
    let next=cp.offset||0,processed=0,changed=0;const holds=[];
    for(;next<ctx.rows.length&&processed<Math.min(c.batchSize||10,10)&&Date.now()<deadline;next++){
-    const row=ctx.rows[next];if(!priority[stage].some(col=>blank(row[col])))continue;let item=index.get(row[6]);
+    const row=ctx.rows[next];if(['アルキキ','AJW','朝ポキTV'].includes(String(row[1]||'').trim()))continue;if(!priority[stage].some(col=>blank(row[col])))continue;let item=index.get(row[6]);
     processed++;
     try{const range="'エピソード台帳'!A"+(next+2)+':BC'+(next+2);const cells=api(c,'?includeGridData=true&ranges='+encodeURIComponent(range)).sheets[0].data[0].rowData[0].values;const evidence=official(item||{guid:row[6]});if(!item)item=fromJson(row,evidence.clip,evidence.url);item.platformEvidence=platforms(item,c.feeds.find(f=>f.url===item.feedUrl)||{});const p=plan(cells,item,evidence.clip,evidence.url);changed+=writePlan(c,ctx,next+1,cells,p);}
     catch(e){holds.push({id:row[0],reason:String(e.message)});}
@@ -193,7 +193,7 @@ function scheduledLibraryOfficialNew(){
   if(inspection.v3Config&&(inspection.v3Config.enabled||inspection.v3Config.allowNew||inspection.v3Config.allowEnrich))throw Error('V3_WRITER_ENABLED');
   if(!inspection.baseline?.complete)throw Error('BASELINE_NOT_READY');
   if(c.sheetId===E.PROD&&inspection.sheetId!==E.PROD)throw Error('V3_TARGET_CONFLICT');
-  const all=[];for(const feed of c.feeds)all.push(...E.rss(feed));
+  const all=[];for(const feed of c.feeds){if(['アルキキ','AJW','朝ポキTV'].includes(String(feed.show||'').trim()))continue;all.push(...E.rss(feed));}
   const frequencies=new Map();all.forEach(it=>frequencies.set(it.guid,(frequencies.get(it.guid)||0)+1));
   const candidates=all.filter(it=>frequencies.get(it.guid)===1&&Date.parse(it.pubDate)>Date.parse(c.newAfter)).sort((a,b)=>Date.parse(a.pubDate)-Date.parse(b.pubDate));
   const report={added:[],held:[...frequencies].filter(([,n])=>n>1).map(([guid])=>({guid,reason:'AMBIGUOUS_FEED_IDENTITY'})),existing:0},deadline=Date.now()+180000;
