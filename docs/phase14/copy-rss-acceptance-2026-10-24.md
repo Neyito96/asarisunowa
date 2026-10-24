@@ -43,3 +43,18 @@
 - Source: `scripts/google-apps-script/LibraryOfficialRssEngine.gs`
 - V18 commit: `e4dbc6dc61741754ff5488363ef1102a4093bbd1`
 - V19 commit: `f3a05e50c75fccae292aadf922801fc0a0d5a558`
+
+
+## 2026-10-24 20:39〜20:45 JST｜V19実機試験と時間トリガー設置
+
+ユーザー提供のCOPY GAS実行ログにより、以下を確認。
+
+1. 20:39:06 `phase14CopyMorningTriggerStatusV19` 実行完了：`{"mode":"PHASE14_COPY_TRIGGER_STATUS_V19","count":0,"handlers":[],"triggerChanges":0}`。設置前のV19トリガーは0本。
+2. 20:40:12〜20:42:00 `phase14CopyMorningRunnerV19` 手動実行完了。内部V18ログは `feedCount:8`, `added:[]`, `held:[]`, `existing:29`, `propertyWrites:0`, `triggerChanges:0`, `productionWrites:0`, `outOfWindow:6472`。V19ログは `status:"OK"`, `added:0`, `existing:29`, `held:[]`, `productionWrites:0`, `triggerChanges:0`。開始 `2026-10-24T11:40:13.204Z`、終了 `2026-10-24T11:42:00.349Z`（約107秒）。
+3. 20:45:17〜20:45:21 `phase14CopyInstallMorningTriggersV19` 手動実行完了：`{"mode":"PHASE14_COPY_TRIGGERS_INSTALLED_V19","count":2,"timezone":"Asia/Tokyo","hours":[5,6],"productionWrites":0}`。COPY専用の時間トリガー2本の設置が報告された。予定は毎朝05:15頃、06:15頃（GAS時刻は概算）。
+
+**未確認**：設置後の `phase14CopyMorningTriggerStatusV19` 再実行（`count:2` の読み戻し）、翌2026-10-25朝の自動起動と実際の収蔵結果。設置成功ログを無人実行成功と取り違えない。
+
+**本番への変更**：ユーザー提供ログ上は `productionWrites:0`。本番台帳への反映・公開・Spotify更新・Engine Bの空欄補完は実施していない。
+
+**次回確認**：設置後のトリガー数2本、翌朝の「実行数」画面とログ、COPY台帳の新着追加数・保留数、二重登録の有無。問題時は `phase14CopyRemoveMorningTriggersV19` によるV19トリガーのみの解除を検討。
