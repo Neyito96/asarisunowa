@@ -117,11 +117,19 @@ var LibraryOfficialEngine = (function () {
  }
  function readJson(url,options){const r=UrlFetchApp.fetch(url,Object.assign({muteHttpExceptions:true,followRedirects:false},options||{}));must(r.getResponseCode()===200,'HTTP_'+r.getResponseCode());return JSON.parse(r.getContentText());}
  function api(c,path,body){return readJson('https://sheets.googleapis.com/v4/spreadsheets/'+c.sheetId+path,{method:body?'post':'get',contentType:'application/json',headers:{Authorization:'Bearer '+ScriptApp.getOAuthToken()},...(body?{payload:JSON.stringify(body)}:{})});}
- function table(c,name){return api(c,'/values/'+encodeURIComponent("'"+name+"'!A1:BC10000")+'?valueRenderOption=UNFORMATTED_VALUE').values||[];}
+ function table(c,name){
+  const sh=SpreadsheetApp.openById(c.sheetId).getSheetByName(name);
+  if(!sh)return [];
+  const last=sh.getLastRow();
+  return last?sh.getRange(1,1,last,Math.min(sh.getLastColumn(),55)).getValues().map(r=>r.map(v=>v instanceof Date?v.toISOString():v)):[];
+ }
  function context(c){
-  const meta=api(c,'?fields=sheets.properties'),tabs={};meta.sheets.forEach(s=>tabs[s.properties.title]=s.properties);
+  must(c.sheetId&&c.sheetId!==PROD||c.enabled===true,'TARGET_NOT_CONFIGURED');
+  const book=SpreadsheetApp.openById(c.sheetId),tabs={};
+  book.getSheets().forEach(sh=>tabs[sh.getName()]={sheetId:sh.getSheetId(),title:sh.getName(),gridProperties:{rowCount:sh.getMaxRows(),columnCount:sh.getMaxColumns()}});
   const rows=table(c,'エピソード台帳'),history=table(c,'固定ID採番履歴'),excluded=table(c,'削除・除外履歴'),decisions=table(c,'図書館・宇宙 検索対象判定'),states=table(c,'図書館V3・項目状態');
-  must(rows[0][0]==='台帳ID'&&rows[0][21]==='概要原文'&&rows[0].length>=55,'HEADER_CONFLICT');
+  must(rows[0]&&rows[0][0]==='台帳ID'&&rows[0][21]==='概要原文'&&rows[0].length>=55,'HEADER_CONFLICT');
+  must(tabs['固定ID採番履歴']&&tabs['図書館V3・項目状態'],'REQUIRED_TAB_MISSING');
   return {tabs,rows:rows.slice(1),history:history.slice(1),excluded:excluded.slice(1),decisions:decisions.slice(1),states:states.slice(1),stateLength:states.length};
  }
  function rss(feed){
