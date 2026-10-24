@@ -195,7 +195,7 @@ function scheduledLibraryOfficialNew(){
   if(c.sheetId===E.PROD&&inspection.sheetId!==E.PROD)throw Error('V3_TARGET_CONFLICT');
   const all=[];for(const feed of c.feeds){if(['アルキキ','AJW','朝ポキTV'].includes(String(feed.show||'').trim()))continue;all.push(...E.rss(feed));}
   const frequencies=new Map();all.forEach(it=>frequencies.set(it.guid,(frequencies.get(it.guid)||0)+1));
-  const candidates=all.filter(it=>frequencies.get(it.guid)===1&&Date.parse(it.pubDate)>Date.parse(c.newAfter)).sort((a,b)=>Date.parse(a.pubDate)-Date.parse(b.pubDate));
+  const candidates=all.filter(it=>!['アルキキ','AJW','朝ポキTV'].includes(String(it.show||'').trim())&&frequencies.get(it.guid)===1&&Date.parse(it.pubDate)>Date.parse(c.newAfter)).sort((a,b)=>Date.parse(a.pubDate)-Date.parse(b.pubDate));
   const report={added:[],held:[...frequencies].filter(([,n])=>n>1).map(([guid])=>({guid,reason:'AMBIGUOUS_FEED_IDENTITY'})),existing:0},deadline=Date.now()+180000;
   for(const item of candidates){
    if(Date.now()>deadline||report.added.length>=Math.min(c.newBatchSize||1,10))break;
