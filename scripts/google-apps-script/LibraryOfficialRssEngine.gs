@@ -44,10 +44,10 @@ var LibraryOfficialEngine = (function () {
   must(!item.link||/^https:\/\//.test(item.link),'MEGAPHONE_LINK_INVALID');
   const parsed=LibraryOfficialParser.parse(item.description||'');
   const raw=String(item.description||'');
-  const clean=raw.replace(/&nbsp;/g,' ').replace(/<[^>]+>/g,' ').replace(/\\s+/g,' ').trim();
-  const articleUrls=[...new Set(Array.from(raw.matchAll(/https?:\\/\\/(?:www\\.|digital\\.)?asahi\\.com\\/articles\\/[A-Za-z0-9]+(?:\\?[^\\s<>"']*)?/g),m=>m[0].replace(/&(?:amp|nbsp);.*$/,'').split('?')[0]))];
+  const clean=raw.replace(/&nbsp;/g,' ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+  const articleUrls=[...new Set(Array.from(raw.matchAll(/https?:\/\/(?:www\.|digital\.)?asahi\.com\/articles\/[A-Za-z0-9]+(?:\?[^\s<>"']*)?/g),m=>m[0].replace(/&(?:amp|nbsp);.*$/,'').split('?')[0]))];
   const parsedText=String(parsed.description||'').trim();
-  const r={9:item.link||'',14:item.audio,17:'記載あり',18:'未確認（未再生）',21:raw,22:parsedText||clean,27:'ja',28:articleUrls.join('\\n'),32:item.feedUrl,35:'公式Megaphone RSSのGUID・タイトル・公開日時・音声URLを確認。音声実再生・出演者は未確認。',36:'未確認',38:'未指定',39:'出演者・スタッフは公式RSS概要に明示がない限り未確認。V3検証前の登録。',44:item.feedUrl,50:'公式Megaphone RSS概要に出演者の明示なし（未確認）'};
+  const r={9:item.link||'',14:item.audio,17:'記載あり',18:'未確認（未再生）',21:raw,22:parsedText||clean,27:'ja',28:articleUrls.join('\n'),32:item.feedUrl,35:'公式Megaphone RSSのGUID・タイトル・公開日時・音声URLを確認。音声実再生・出演者は未確認。',36:'未確認',38:'未指定',39:'出演者・スタッフは公式RSS概要に明示がない限り未確認。V3検証前の登録。',44:item.feedUrl,50:'公式Megaphone RSS概要に出演者の明示なし（未確認）'};
   return {values:r,people:[],links:articleUrls,warnings:parsed.holds||[]};
  }
  function material(item,clip,apiUrl){
