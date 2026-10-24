@@ -278,7 +278,28 @@ function scheduledLibraryOfficialNew(){
     row.forEach((v,col)=>{const data=E.cell(v);if(col===28&&v)data.textFormatRuns=E.articleLinkRuns(m.links);if(col===21)data.note=JSON.stringify({source:item.feedUrl,guid:item.guid,raw:true});requests.push(E.update(ledger.sheetId,ctx.rows.length+1,col,data));});
     [item.guid,id,item.show,item.title,'登録完了',now].forEach((v,col)=>requests.push(E.update(history.sheetId,ctx.history.length+1,col,E.cell(v))));
     [id,JSON.stringify(state),now].forEach((v,col)=>requests.push(E.update(states.sheetId,ctx.stateLength,col,E.cell(v))));
-    E.api(c,':batchUpdate',{requests});
+    // Native Sheets writes: reserve GUID first; never retry an incomplete reservation automatically.
+    if(c.sheetId===E.PROD)throw Error('PRODUCTION_NATIVE_WRITER_NOT_APPROVED');
+    const book=SpreadsheetApp.openById(c.sheetId);
+    const h=book.getSheetByName('固定ID採番履歴'),l=book.getSheetByName('エピソード台帳'),st=book.getSheetByName('図書館V3・項目状態');
+    if(!h||!l||!st)throw Error('REQUIRED_TAB_MISSING');
+    const targetLedger=ctx.rows.length+2,targetHistory=ctx.history.length+2,targetState=ctx.stateLength+1;
+    const vacant=sh=>sh.getRange(sh===l?targetLedger:sh===h?targetHistory:targetState,1).isBlank();
+    if(!vacant(l)||!vacant(h)||!vacant(st))throw Error('TARGET_ROW_OCCUPIED');
+    const ensure=(sh,n)=>{if(sh.getMaxRows()<n)sh.insertRowsAfter(sh.getMaxRows(),n-sh.getMaxRows());};
+    ensure(h,targetHistory);ensure(l,targetLedger);ensure(st,targetState);
+    h.getRange(targetHistory,1,1,9).setValues([[item.guid,id,item.show,item.title,'RESERVED',now,'',targetLedger,'Pending ledger/state readback']]);
+    SpreadsheetApp.flush();
+    const historyProof=h.getRange(targetHistory,1,1,2).getValues()[0];
+    if(historyProof[0]!==item.guid||historyProof[1]!==id)throw Error('RESERVATION_READBACK_FAILED');
+    l.getRange(targetLedger,1,1,55).setValues([row]);
+    st.getRange(targetState,1,1,3).setValues([[id,JSON.stringify(state),now]]);
+    SpreadsheetApp.flush();
+    if(l.getRange(targetLedger,1).getValue()!==id||l.getRange(targetLedger,7).getValue()!==item.guid||st.getRange(targetState,1).getValue()!==id)throw Error('NATIVE_REGISTRATION_READBACK_FAILED');
+    h.getRange(targetHistory,5).setValue('登録完了');
+    h.getRange(targetHistory,7).setValue(new Date().toISOString());
+    h.getRange(targetHistory,9).setValue('Native registration verified; V3 proof review pending');
+    SpreadsheetApp.flush();
     const check=E.context(c);if(check.rows.filter(r=>r[0]===id&&r[6]===item.guid).length!==1||check.history.filter(r=>r[0]===item.guid&&r[1]===id).length!==1)throw Error('REGISTRATION_READBACK_FAILED');
     props.setProperty('LIB_V3_LAST_ID',String(Number(id.slice(3))));report.added.push(id);
    }catch(e){report.held.push({guid:item.guid,reason:String(e.message)});}
