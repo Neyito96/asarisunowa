@@ -37,6 +37,15 @@ var LibraryOfficialEngine = (function () {
   const seconds=String(item.duration||'').split(':').reduce((s,x)=>s*60+Number(x),0);
   must(Number.isFinite(seconds)&&seconds>0,'DURATION_INVALID');return seconds;
  }
+ function materialMegaphone(item){
+  must(/^https:\/\/feeds\.megaphone\.fm\/TASC/.test(item.feedUrl),'MEGAPHONE_FEED');
+  must(UUID.test(item.guid)&&item.title&&Number.isFinite(Date.parse(item.pubDate)),'MEGAPHONE_IDENTITY');
+  must(/^https:\/\/pdst\.fm\/e\/traffic\.megaphone\.fm\/TASC\d+\.mp3(?:\?.*)?$/.test(item.audio||''),'MEGAPHONE_AUDIO_HOST');
+  must(!item.link||/^https:\/\//.test(item.link),'MEGAPHONE_LINK_INVALID');
+  const parsed=LibraryOfficialParser.parse(item.description||'');
+  const r={9:item.link||'',14:item.audio,21:item.description||'',22:parsed.description||'',32:item.feedUrl,44:item.feedUrl};
+  return {values:r,people:[],links:[],warnings:parsed.holds||[]};
+ }
  function material(item,clip,apiUrl){
   const duration=verify(item,clip),parsed=LibraryOfficialParser.parse(item.description||'');
   const stop=parsed.staff.findIndex(s=>/^【/.test(s));const staff=parsed.staff.slice(0,stop<0?undefined:stop);
@@ -112,13 +121,13 @@ var LibraryOfficialEngine = (function () {
   return {tabs,rows:rows.slice(1),history:history.slice(1),excluded:excluded.slice(1),decisions:decisions.slice(1),states:states.slice(1),stateLength:states.length};
  }
  function rss(feed){
-  must(/^https:\/\/www\.omnycontent\.com\/d\/playlist\/1e3bd144-9b57-451a-93cf-ac0e00e74446\//.test(feed.url),'FEED_NOT_OFFICIAL');
+  must(/^https:\/\/(?:www\.omnycontent\.com\/d\/playlist\/1e3bd144-9b57-451a-93cf-ac0e00e74446\/|feeds\.megaphone\.fm\/TASC)/.test(feed.url),'FEED_NOT_OFFICIAL');
   const r=UrlFetchApp.fetch(feed.url,{muteHttpExceptions:true});must(r.getResponseCode()===200,'RSS_HTTP');
   const root=XmlService.parse(r.getContentText()).getRootElement().getChild('channel');must(root,'RSS_CHANNEL');
   const ns=XmlService.getNamespace('http://www.itunes.com/dtds/podcast-1.0.dtd');
   return root.getChildren('item').map(x=>({guid:x.getChildText('guid'),title:x.getChildText('title'),pubDate:x.getChildText('pubDate'),description:x.getChildText('description')||'',link:x.getChildText('link'),audio:x.getChild('enclosure')?.getAttribute('url')?.getValue(),duration:x.getChildText('duration',ns),image:x.getChild('image',ns)?.getAttribute('href')?.getValue()||'',feedUrl:feed.url,show:feed.show}));
  }
- function official(item){must(UUID.test(item.guid),'GUID_INVALID');const url='https://api.omny.fm/orgs/1e3bd144-9b57-451a-93cf-ac0e00e74446/clips/'+item.guid;return {clip:readJson(url),url};}
+ function official(item){must(UUID.test(item.guid),'GUID_INVALID');if(/^https:\/\/feeds\.megaphone\.fm\/TASC/.test(item.feedUrl)){must(/^https:\/\/pdst\.fm\/e\/traffic\.megaphone\.fm\/TASC\d+\.mp3(?:\?.*)?$/.test(item.audio||''),'MEGAPHONE_AUDIO_HOST');must(Number.isFinite(Date.parse(item.pubDate))&&Date.parse(item.pubDate)<=Date.now(),'MEGAPHONE_DATE');must(item.title&&item.guid,'MEGAPHONE_IDENTITY');return {clip:null,url:item.feedUrl,provider:'MEGAPHONE'};}const url='https://api.omny.fm/orgs/1e3bd144-9b57-451a-93cf-ac0e00e74446/clips/'+item.guid;return {clip:readJson(url),url};}
  function platforms(item,feed){
   const out=[];
   // Reuses Phase 13 exact episodeGuid + feedUrl evidence. No guessed platform URLs.
@@ -241,14 +250,14 @@ function scheduledLibraryOfficialNew(){
     let ctx=E.context(c);
     if(ctx.rows.some(r=>E.identityTokens(r).includes(item.guid.toLowerCase()))||ctx.history.some(r=>r[0]===item.guid)){report.existing++;continue;}
     if(c.onlyGuid&&c.onlyGuid!==item.guid)continue;
-    const evidence=E.official(item);item.platformEvidence=E.platforms(item,c.feeds.find(f=>f.url===item.feedUrl)||{});const m=E.material(item,evidence.clip,evidence.url);
+    const evidence=E.official(item);item.platformEvidence=E.platforms(item,c.feeds.find(f=>f.url===item.feedUrl)||{});const m=evidence.provider==='MEGAPHONE'?E.materialMegaphone(item):E.material(item,evidence.clip,evidence.url);
     // Re-read all identity stores after the network fetch, before reserving any ID.
     ctx=E.context(c);
     const reservations=ctx.states.map(r=>{const identity=JSON.parse(r[1]||'{}').identity;return [identity?.[1]||'',r[0]];});
     const id=E.newDecision(item,ctx.rows,ctx.history.concat(reservations),ctx.excluded,ctx.decisions,c,inspection.baseline,props.getProperty('LIB_V3_LAST_ID'));
     const row=Array(55).fill('');Object.entries(m.values).forEach(([k,v])=>row[Number(k)]=v);
-    Object.assign(row,{0:id,1:item.show,2:item.title,3:new Date(Date.parse(item.pubDate)+32400000).toISOString().slice(0,19).replace(/-/g,'/').replace('T',' '),4:'音声',5:'朝日新聞ポッドキャスト公式RSS（Omny Studio）',6:item.guid,8:item.link,18:'未確認（未再生）',38:'未指定'});
-    const now=new Date().toISOString(),state={identity:['VERIFIED',item.guid,E.rowHash(row),'','','RSS_registered',now,item.guid],registrationEvidence:['VERIFIED',item.guid,E.rowHash(row),'','','official_rss_plus_json',now,JSON.stringify({source:item.feedUrl,json:evidence.url,pubDate:item.pubDate})]};
+    Object.assign(row,{0:id,1:item.show,2:item.title,3:new Date(Date.parse(item.pubDate)+32400000).toISOString().slice(0,19).replace(/-/g,'/').replace('T',' '),4:'音声',5:evidence.provider==='MEGAPHONE'?'朝日新聞ポッドキャスト公式RSS（Megaphone）':'朝日新聞ポッドキャスト公式RSS（Omny Studio）',6:item.guid,8:item.link,18:'未確認（未再生）',38:'未指定'});
+    const now=new Date().toISOString(),state={identity:['VERIFIED',item.guid,E.rowHash(row),'','','RSS_registered',now,item.guid],registrationEvidence:['VERIFIED',item.guid,E.rowHash(row),'','',evidence.provider==='MEGAPHONE'?'official_megaphone_rss':'official_rss_plus_json',now,JSON.stringify({source:item.feedUrl,json:evidence.provider==='MEGAPHONE'?null:evidence.url,pubDate:item.pubDate})]};
     const ledger=ctx.tabs['エピソード台帳'],history=ctx.tabs['固定ID採番履歴'],states=ctx.tabs['図書館V3・項目状態'],requests=[];
     const positions=[[ledger,ctx.rows.length+1],[history,ctx.history.length+1],[states,ctx.stateLength]];
     for(const [tab,index]of positions)if(index>=tab.gridProperties.rowCount)requests.push({appendDimension:{sheetId:tab.sheetId,dimension:'ROWS',length:index-tab.gridProperties.rowCount+1}});
