@@ -275,6 +275,72 @@ var LibraryOfficialEngine = (function () {
  }
  return {inspect,plan,material,materialMegaphone,articleLinkRuns,verify,fromJson,newDecision,identityTokens,rowHash,v3RowHash,verifyRowProof,runBackfill,readJson,rss,official,platforms,config,context,cell,update,api,PROD};
 })();
+/**
+ * Phase14 COPY-only new-episode batch (maximum three per invocation).
+ * Explicit user-approved COPY trial; never touches production, script properties, or triggers.
+ * No dependency on LIB_OFFICIAL_CONFIG or LIB_V3_BASELINE.
+ * Requires the existing LibraryOfficialEngine and LibraryOfficialParser in the COPY GAS project.
+ */
+function phase14CopyIngestThreeV16(){
+ const COPY='1IhnYURLqhM8i3ACrkNbDujplXRtyI41rR19qGnwZlMY';
+ const E=LibraryOfficialEngine,lock=LockService.getScriptLock();
+ if(!lock.tryLock(1000))return {status:'BUSY'};
+ try{
+  const ss=SpreadsheetApp.openById(COPY),ledger=ss.getSheetByName('エピソード台帳'),history=ss.getSheetByName('固定ID採番履歴'),states=ss.getSheetByName('図書館V3・項目状態'),source=ss.getSheetByName('取得元一覧');
+  if(!ledger||!history||!states||!source)throw Error('COPY_TABS_MISSING');
+  if(ledger.getSheetId()!==806280644)throw Error('COPY_LEDGER_SHEET_ID_CHANGED');
+  const header=ledger.getRange(1,1,1,55).getValues()[0];
+  if(header[0]!=='台帳ID'||header[6]!=='外部ID'||header[54]!=='公式JSON取得元URL')throw Error('COPY_HEADER_CONFLICT');
+  const excluded=new Set(['アルキキ','AJW','朝ポキTV']);
+  const feeds=source.getRange(2,1,source.getLastRow()-1,8).getValues().map(r=>({show:String(r[0]||'').trim(),url:String(r[7]||'').trim()})).filter(f=>f.url&&!excluded.has(f.show)&&/^https:\/\/(?:www\.omnycontent\.com\/d\/playlist\/1e3bd144-9b57-451a-93cf-ac0e00e74446\/|feeds\.megaphone\.fm\/TASC)/.test(f.url));
+  const report={mode:'PHASE14_COPY_INGEST_THREE_V16',feedCount:feeds.length,added:[],held:[],existing:0,propertyWrites:0,triggerChanges:0,productionWrites:0};
+  const all=[];for(const feed of feeds){try{for(const item of E.rss(feed))all.push(item);}catch(e){report.held.push({show:feed.show,reason:'FEED_'+String(e.message)});}}
+  const freq=new Map();all.forEach(x=>freq.set(String(x.guid).toLowerCase(),(freq.get(String(x.guid).toLowerCase())||0)+1));
+  all.sort((a,b)=>Date.parse(a.pubDate)-Date.parse(b.pubDate)||String(a.guid).localeCompare(String(b.guid)));
+  const seen=new Set();
+  const deadline=Date.now()+180000;
+  for(const item of all){
+   if(report.added.length>=3||Date.now()>deadline)break;
+   const guid=String(item.guid||'').toLowerCase();
+   if(seen.has(guid))continue;seen.add(guid);
+   if(freq.get(guid)!==1){report.held.push({guid,reason:'DUPLICATE_FEED_GUID'});continue;}
+   const rows=ledger.getDataRange().getValues().slice(1),hist=history.getDataRange().getValues().slice(1),stateRows=states.getDataRange().getValues().slice(1);
+   if(rows.some(row=>E.identityTokens(row).includes(guid))||hist.some(row=>String(row[0]).toLowerCase()===guid)||stateRows.some(row=>{try{return JSON.parse(String(row[1]||'{}')).identity?.[1]===guid;}catch(e){return false;}})){report.existing++;continue;}
+   if(rows.some(row=>row[14]===item.audio||(row[2]===item.title&&Date.parse(String(row[3]).replace(/\//g,'-').replace(' ','T')+'+09:00')===Date.parse(item.pubDate)))){report.held.push({guid,reason:'POSSIBLE_DUPLICATE_AUDIO_OR_TITLE_DATE'});continue;}
+   try{
+    const evidence=E.official(item),material=evidence.provider==='MEGAPHONE'?E.materialMegaphone(item):E.material(item,evidence.clip,evidence.url);
+    const latest=ledger.getDataRange().getValues().slice(1),latestHist=history.getDataRange().getValues().slice(1);
+    if(latest.some(row=>E.identityTokens(row).includes(guid))||latestHist.some(row=>String(row[0]).toLowerCase()===guid))throw Error('RACE_GUID_RESERVED');
+    const ids=latest.map(row=>String(row[0]||'')).filter(Boolean);
+    if(ids.some(id=>!/^EP-\d{5}$/.test(id))||new Set(ids).size!==ids.length)throw Error('LEDGER_ID_INVALID');
+    const reserved=ids.concat(latestHist.map(row=>String(row[1]||'')),stateRows.map(row=>String(row[0]||''))).filter(id=>/^EP-\d{5}$/.test(id));
+    const next=Math.max(0,...reserved.map(id=>Number(id.slice(3))))+1;
+    if(next>99999)throw Error('ID_EXHAUSTED');
+    const id='EP-'+String(next).padStart(5,'0'),row=Array(55).fill('');
+    Object.entries(material.values).forEach(([col,v])=>row[Number(col)]=v);
+    const now=new Date().toISOString();
+    Object.assign(row,{0:id,1:item.show,2:item.title,3:new Date(Date.parse(item.pubDate)+32400000).toISOString().slice(0,19).replace(/-/g,'/').replace('T',' '),4:'音声',5:evidence.provider==='MEGAPHONE'?'朝日新聞ポッドキャスト公式RSS（Megaphone）':'朝日新聞ポッドキャスト公式RSS（Omny Studio）',6:item.guid,8:item.link||'',18:'未確認（未再生）',38:'未指定'});
+    const lRow=ledger.getLastRow()+1,hRow=history.getLastRow()+1,sRow=states.getLastRow()+1;
+    if(!ledger.getRange(lRow,1).isBlank()||!history.getRange(hRow,1).isBlank()||!states.getRange(sRow,1).isBlank())throw Error('TARGET_NOT_BLANK');
+    for(const [sh,n] of [[ledger,lRow],[history,hRow],[states,sRow]])if(sh.getMaxRows()<n)sh.insertRowsAfter(sh.getMaxRows(),n-sh.getMaxRows());
+    history.getRange(hRow,1,1,9).setValues([[item.guid,id,item.show,item.title,'RESERVED',now,'',lRow,'COPY V16: awaiting native proof']]);
+    SpreadsheetApp.flush();
+    if(String(history.getRange(hRow,1).getValue()).toLowerCase()!==guid)throw Error('RESERVATION_FAILED');
+    ledger.getRange(lRow,1,1,55).setValues([row]);SpreadsheetApp.flush();
+    const actual=ledger.getRange(lRow,1,1,55).getValues()[0];
+    if(actual[0]!==id||String(actual[6]).toLowerCase()!==guid||actual[2]!==item.title||actual[14]!==item.audio)throw Error('LEDGER_READBACK_FAILED');
+    const proof=E.rowHash(actual);
+    const state={identity:['VERIFIED',item.guid,proof,'','','RSS_registered',now,item.guid],registrationEvidence:['VERIFIED',item.guid,proof,'','',evidence.provider==='MEGAPHONE'?'official_megaphone_rss':'official_rss_plus_json',now,JSON.stringify({source:item.feedUrl,json:evidence.provider==='MEGAPHONE'?null:evidence.url,pubDate:item.pubDate})]};
+    states.getRange(sRow,1,1,3).setValues([[id,JSON.stringify(state),now]]);SpreadsheetApp.flush();
+    const stateRead=JSON.parse(String(states.getRange(sRow,2).getValue()||'{}'));
+    if(stateRead.identity?.[2]!==E.rowHash(ledger.getRange(lRow,1,1,55).getValues()[0]))throw Error('STATE_PROOF_READBACK_FAILED');
+    history.getRange(hRow,5,1,5).setValues([['登録完了',now,now,lRow,'COPY V16 native hash verified']]);
+    report.added.push({id,guid,show:item.show,ledgerRow:lRow,hashVerified:true});
+   }catch(e){report.held.push({guid,show:item.show,reason:String(e.message)});if(/RESERVATION|READBACK|STATE_PROOF/.test(String(e.message)))break;}
+  }
+  console.log(JSON.stringify(report));return report;
+ }finally{lock.releaseLock();}
+}
 /** Copy-only acceptance audit. Reads sheets; does not modify properties, triggers or cells. */
 function phase14CopyAcceptanceReadOnly(){
  const copyId='1IhnYURLqhM8i3ACrkNbDujplXRtyI41rR19qGnwZlMY';
