@@ -424,3 +424,27 @@ function inspectSevenFeedRegistrationReadinessReadOnly(){
  items.forEach((item,i)=>console.log('CANDIDATE '+JSON.stringify({order:i+1,...item})));
  return summary;
 }
+
+
+/** Phase14 v0.9: inspect official RSS provider compatibility on COPY, no writes. */
+function inspectLibraryOfficialProviderReadinessV09ReadOnly(){
+ const ss=SpreadsheetApp.openById('1IhnYURLqhM8i3ACrkNbDujplXRtyI41rR19qGnwZlMY');
+ const source=ss.getSheetByName('取得元一覧');
+ if(!source)throw Error('COPY_SOURCE_LIST_MISSING');
+ const rows=source.getRange(2,1,source.getLastRow()-1,8).getValues();
+ const excluded=new Set(['アルキキ','AJW','朝ポキTV']);
+ const report={mode:'COPY_READ_ONLY',version:'0.9',feeds:[],writes:0,propertyWrites:0,triggerChanges:0};
+ for(const row of rows){
+  const show=String(row[0]||'').trim(),url=String(row[7]||'').trim();
+  if(!show||!url||excluded.has(show))continue;
+  const provider=/^https:\/\/www\.omnycontent\.com\/d\/playlist\/1e3bd144-9b57-451a-93cf-ac0e00e74446\//.test(url)?'OMNY':
+   /^https:\/\/feeds\.megaphone\.fm\/TASC/.test(url)?'MEGAPHONE':'UNAPPROVED';
+  const engineACompatible=provider==='OMNY';
+  report.feeds.push({show,provider,engineACompatible,
+   status:engineACompatible?'RSS_AND_OMNY_JSON_PATH_AVAILABLE':'REGISTRATION_ADAPTER_REQUIRED'});
+ }
+ report.summary={feeds:report.feeds.length,compatible:report.feeds.filter(x=>x.engineACompatible).length,
+  blocked:report.feeds.filter(x=>!x.engineACompatible).length};
+ console.log('PHASE14_PROVIDER_V09 '+JSON.stringify(report));
+ return report;
+}
