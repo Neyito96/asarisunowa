@@ -84,7 +84,7 @@ var LibraryOfficialEngine = (function () {
   must(value(cells[6])===item.guid,'ROW_GUID_CONFLICT');
   must(blank(value(cells[51]))||value(cells[51])===item.guid,'ROW_UUID_CONFLICT');
   must(value(cells[2])===item.title,'ROW_TITLE_CONFLICT');
-  const m=material(item,clip,apiUrl),changes=[],conflicts=[];
+  const m=/^https:\/\/feeds\.megaphone\.fm\/TASC/.test(item.feedUrl||'')?materialMegaphone(item):material(item,clip,apiUrl),changes=[],conflicts=[];
   for(const key of Object.keys(m.values)){
    const col=Number(key),old=value(cells[col]),next=m.values[col],c=cells[col]||{};
    if(blank(next))continue;
@@ -211,10 +211,11 @@ var LibraryOfficialEngine = (function () {
     processed++;
     try{
      const range="'エピソード台帳'!A"+(rowIndex+2)+':BC'+(rowIndex+2);
-     const cells=api(c,'?includeGridData=true&ranges='+encodeURIComponent(range)).sheets[0].data[0].rowData[0].values;
+     const native=SpreadsheetApp.openById(c.sheetId).getSheetByName('エピソード台帳').getRange(rowIndex+2,1,1,55).getValues()[0];
+     const cells=native.map(v=>({formattedValue:v,userEnteredValue:{stringValue:String(v??'')}}));
      let item=index.get(row[6]);
-     const evidence=official(item||{guid:row[6]});
-     if(!item)item=fromJson(row,evidence.clip,evidence.url);
+     if(!item)throw Error('OFFICIAL_RSS_ITEM_NOT_IN_CURRENT_FEED');
+     const evidence=official(item);
      item.platformEvidence=platforms(item,c.feeds.find(f=>f.url===item.feedUrl)||{});
      const p=plan(cells,item,evidence.clip,evidence.url);
      changed+=writePlan(c,ctx,rowIndex+1,cells,p);
