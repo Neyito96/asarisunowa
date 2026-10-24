@@ -288,6 +288,32 @@ function phase14CopyV3ProofReadOnly(){
  const result={mode:'PHASE14_COPY_V3_PROOF_READ_ONLY',id,guid,identityStatus:original[0]||null,identityGuid:original[1]||null,originalHash:original[2]||null,currentHash:digest,hashMatches:original[2]===digest,registrationEvidenceStatus:state.registrationEvidence?.[0]||null,registrationEvidenceGuid:state.registrationEvidence?.[1]||null,ledgerRowWidth:rows[0].length,historyStatus:h[0][4],safeToAutoVerify:false,writes:0,propertyWrites:0,triggerChanges:0};
  console.log(JSON.stringify(result));return result;
 }
+/** COPY ONLY: evidence audit for the v1.5 registration. No writes. */
+function phase14CopyV3EvidenceAuditReadOnly(){
+ const id='EP-06594',guid='2b3d2f6a-cdfb-11f1-8f31-abebc4a650c5';
+ const copyId='1IhnYURLqhM8i3ACrkNbDujplXRtyI41rR19qGnwZlMY';
+ const book=SpreadsheetApp.openById(copyId);
+ const sheet=book.getSheetByName('エピソード台帳');
+ const history=book.getSheetByName('固定ID採番履歴');
+ const states=book.getSheetByName('図書館V3・項目状態');
+ const row=sheet.getRange(6595,1,1,55).getValues()[0];
+ const h=history.getRange(31,1,1,9).getValues()[0];
+ const st=states.getRange(6595,1,1,3).getValues()[0];
+ const state=JSON.parse(String(st[1]||'{}'));
+ const hash=Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,JSON.stringify(row),Utilities.Charset.UTF_8));
+ const feed='https://feeds.megaphone.fm/TASC5851398719';
+ const response=UrlFetchApp.fetch(feed,{muteHttpExceptions:true});
+ if(response.getResponseCode()!==200)throw Error('OFFICIAL_RSS_HTTP_'+response.getResponseCode());
+ const channel=XmlService.parse(response.getContentText()).getRootElement().getChild('channel');
+ const item=channel.getChildren('item').find(x=>String(x.getChildText('guid')).toLowerCase()===guid);
+ const found=!!item;
+ const title=found?item.getChildText('title'):null;
+ const audio=found?item.getChild('enclosure')?.getAttribute('url')?.getValue():null;
+ const identityOk=row[0]===id&&String(row[6]).toLowerCase()===guid&&h[0]===guid&&h[1]===id&&h[4]==='登録完了'&&st[0]===id&&state.identity?.[1]===guid;
+ const rssOk=found&&title===row[2]&&audio===row[14];
+ const report={mode:'PHASE14_COPY_V3_EVIDENCE_AUDIT_READ_ONLY',id,guid,identityOk,rssOk,feedItemFound:found,rssTitleMatches:found&&title===row[2],rssAudioMatches:found&&audio===row[14],currentHash:hash,originalHash:state.identity?.[2]||null,originalProofMissing:!state.identity?.[2],registrationEvidenceMissing:!state.registrationEvidence,eligibleForReviewedRepair:identityOk&&rssOk&&state.identity?.[0]==='PENDING_REVIEW',autoVerified:false,writes:0,propertyWrites:0,triggerChanges:0};
+ console.log(JSON.stringify(report));return report;
+}
 function inspectLibraryOfficialReadOnly(){const report=LibraryOfficialEngine.inspect();console.log(JSON.stringify(report));return report;}
 function scheduledLibraryOfficialBackfill(){return LibraryOfficialEngine.runBackfill();}
 /** New records have an atomic history reservation, so an interrupted retry cannot allocate again. */
