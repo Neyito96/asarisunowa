@@ -165,17 +165,55 @@ var LibraryOfficialEngine = (function () {
    const ctx=context(c),cp=JSON.parse(props.getProperty('LIB_OFFICIAL_CHECKPOINT')||'{}');must(!cp.sheetId||cp.sheetId===c.sheetId,'CHECKPOINT_TARGET_CONFLICT');
    const deadline=Date.now()+180000,items=[];c.feeds.forEach(f=>items.push(...rss(f)));const index=new Map();for(const i of items){if(index.has(i.guid))index.set(i.guid,null);else index.set(i.guid,i);}
    const stage=cp.stage||0,priority=[[21],[15],[28],[23,45,50],[9,13,14],[10,11,12,40,41,42]];
+   const excluded=new Set(['アルキキ','AJW','朝ポキTV']);
+   const retryKey='LIB_OFFICIAL_BACKFILL_RETRY';
+   const retry=JSON.parse(props.getProperty(retryKey)||'[]');
+   must(Array.isArray(retry)&&retry.length<=1000,'RETRY_QUEUE_INVALID');
+   const batchLimit=Math.min(c.batchSize||10,10);
    let next=cp.offset||0,processed=0,changed=0;const holds=[];
-   for(;next<ctx.rows.length&&processed<Math.min(c.batchSize||10,10)&&Date.now()<deadline;next++){
-    const row=ctx.rows[next];if(['アルキキ','AJW','朝ポキTV'].includes(String(row[1]||'').trim()))continue;if(!priority[stage].some(col=>blank(row[col])))continue;let item=index.get(row[6]);
+   function saveRetry(){props.setProperty(retryKey,JSON.stringify(retry));}
+   function attempt(rowIndex,pass){
+    const row=ctx.rows[rowIndex];
+    if(!row||excluded.has(String(row[1]||'').trim()))return true;
+    if(!priority[pass].some(col=>blank(row[col])))return true;
     processed++;
-    try{const range="'エピソード台帳'!A"+(next+2)+':BC'+(next+2);const cells=api(c,'?includeGridData=true&ranges='+encodeURIComponent(range)).sheets[0].data[0].rowData[0].values;const evidence=official(item||{guid:row[6]});if(!item)item=fromJson(row,evidence.clip,evidence.url);item.platformEvidence=platforms(item,c.feeds.find(f=>f.url===item.feedUrl)||{});const p=plan(cells,item,evidence.clip,evidence.url);changed+=writePlan(c,ctx,next+1,cells,p);}
-    catch(e){holds.push({id:row[0],reason:String(e.message)});}
+    try{
+     const range="'エピソード台帳'!A"+(rowIndex+2)+':BC'+(rowIndex+2);
+     const cells=api(c,'?includeGridData=true&ranges='+encodeURIComponent(range)).sheets[0].data[0].rowData[0].values;
+     let item=index.get(row[6]);
+     const evidence=official(item||{guid:row[6]});
+     if(!item)item=fromJson(row,evidence.clip,evidence.url);
+     item.platformEvidence=platforms(item,c.feeds.find(f=>f.url===item.feedUrl)||{});
+     const p=plan(cells,item,evidence.clip,evidence.url);
+     changed+=writePlan(c,ctx,rowIndex+1,cells,p);
+     return true;
+    }catch(e){
+     holds.push({id:row[0],stage:pass,reason:String(e.message)});
+     return false;
+    }
+   }
+   // Retry previously failed identities first, without blocking unrelated rows.
+   // Keep failures durable across runs, and never use the read-only v0.7 cursor here.
+   for(let i=0;i<retry.length&&processed<batchLimit&&Date.now()<deadline;){
+    const job=retry[i],idx=ctx.rows.findIndex(r=>r[0]===job.id);
+    if(idx<0){holds.push({id:job.id,stage:job.stage,reason:'RETRY_ID_MISSING'});i++;continue;}
+    if(attempt(idx,job.stage)){retry.splice(i,1);saveRetry();}else{i++;}
+   }
+   for(;next<ctx.rows.length&&processed<batchLimit&&Date.now()<deadline;next++){
+    const row=ctx.rows[next];
+    if(excluded.has(String(row[1]||'').trim()))continue;
+    if(!priority[stage].some(col=>blank(row[col])))continue;
+    if(retry.some(j=>j.id===row[0]&&j.stage===stage))continue;
+    if(retry.length>=1000)throw Error('RETRY_QUEUE_FULL_HOLD_CURSOR');
+    if(!attempt(next,stage)){
+     retry.push({id:row[0],stage:stage});
+     saveRetry();
+    }
     props.setProperty('LIB_OFFICIAL_CHECKPOINT',JSON.stringify({sheetId:c.sheetId,stage,offset:next+1,updatedAt:new Date().toISOString()}));
    }
    props.setProperty('LIB_OFFICIAL_CHECKPOINT',JSON.stringify({sheetId:c.sheetId,stage:next>=ctx.rows.length?(stage+1)%priority.length:stage,offset:next>=ctx.rows.length?0:next,updatedAt:new Date().toISOString()}));
-   // Bounded summary; failed rows are revisited on subsequent sweeps, no silent permanent skip.
-   props.setProperty('LIB_OFFICIAL_LAST_REPORT',JSON.stringify({processed,changed,holds:holds.slice(0,20),held:holds.length}));return {processed,changed,holds};
+   props.setProperty('LIB_OFFICIAL_LAST_REPORT',JSON.stringify({processed,changed,holds:holds.slice(0,20),held:holds.length,retryPending:retry.length}));
+   return {processed,changed,holds,retryPending:retry.length};
   }finally{lock.releaseLock();}
  }
  return {inspect,plan,material,articleLinkRuns,verify,fromJson,newDecision,identityTokens,rowHash,v3RowHash,verifyRowProof,runBackfill,readJson,rss,official,platforms,config,context,cell,update,api,PROD};
