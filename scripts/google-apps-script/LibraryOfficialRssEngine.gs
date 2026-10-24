@@ -15,6 +15,12 @@ var LibraryOfficialEngine = (function () {
  function rowHash(row){return hash(row);}
  function v3RowHash(row){return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,JSON.stringify(row)));}
  function verifyRowProof(row,state){
+  const reviewed=state.reviewedRegistrationEvidence;
+  if(state.identity?.[0]==='PENDING_REVIEW'&&reviewed?.status==='REVIEWED_CURRENT_SNAPSHOT'){
+   must(reviewed.guid===state.identity[1]&&reviewed.currentRowHash===rowHash(row),'REVIEWED_SNAPSHOT_CHANGED');
+   must(reviewed.originalRegistrationHash===null&&reviewed.originalRegistrationHashMissing===true,'REVIEWED_PROVENANCE_CONFLICT');
+   return reviewed.currentRowHash;
+  }
   must(state.identity?.[0]==='VERIFIED','STATE_NOT_VERIFIED');
   const actual=rowHash(row),baseline=state.identity[2],packed=state.officialBackfill;
   const receipt=Array.isArray(packed)&&packed.length===8&&packed[0]==='VERIFIED'?JSON.parse(packed[7]||'{}'):null;
@@ -161,7 +167,7 @@ var LibraryOfficialEngine = (function () {
   const stateIndex=ctx.states.findIndex(r=>r[0]===plan.id);
   must(stateIndex>=0,'STATE_MISSING');
   const state=JSON.parse(ctx.states[stateIndex][1]);
-  must(state.identity?.[0]==='VERIFIED','STATE_NOT_VERIFIED');
+  must(state.identity?.[0]==='VERIFIED'||(state.identity?.[0]==='PENDING_REVIEW'&&state.reviewedRegistrationEvidence?.status==='REVIEWED_CURRENT_SNAPSHOT'),'STATE_NOT_REVIEWED');
   const current=sheet.getRange(rowIndex+1,1,1,55).getValues()[0];
   must(current[0]===plan.id&&current[6]===plan.guid,'NATIVE_IDENTITY_CONFLICT');
   verifyRowProof(current,state);
@@ -182,6 +188,10 @@ var LibraryOfficialEngine = (function () {
   must(plan.changes.every(ch=>String(verified[ch.col])===String(ch.next)),'READBACK_FAILED');
   const now=new Date().toISOString();
   state.officialBackfill=['VERIFIED',plan.guid,beforeHash,'',rowHash(verified),'official_blank_fill',now,JSON.stringify({schema:'official-native-row-v1',baselineHash:state.identity[2],beforeHash,afterHash:rowHash(verified),columns:plan.changes.map(ch=>ch.col)})];
+  if(state.reviewedRegistrationEvidence?.status==='REVIEWED_CURRENT_SNAPSHOT'){
+   state.reviewedRegistrationEvidence.currentRowHash=rowHash(verified);
+   state.reviewedRegistrationEvidence.lastBackfillAt=now;
+  }
   stateSheet.getRange(stateIndex+2,2,1,2).setValues([[JSON.stringify(state),now]]);
   SpreadsheetApp.flush();
   return plan.changes.length;
