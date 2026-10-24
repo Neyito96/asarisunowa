@@ -815,3 +815,63 @@ function inspectLibraryOfficialProviderReadinessV09ReadOnly(){
  console.log('PHASE14_PROVIDER_V09 '+JSON.stringify(report));
  return report;
 }
+
+
+/**
+ * Phase 14 COPY-only scheduled runner (V19).
+ * Deliberately does not create triggers when the file is loaded.
+ * Manual opt-in: run phase14CopyInstallMorningTriggersV19 once, only in the COPY GAS project.
+ * Schedule: around 05:15 and 06:15 Asia/Tokyo (Apps Script scheduling is approximate).
+ * Each invocation processes up to 10 recent items using the proven V18 writer.
+ */
+function phase14CopyMorningRunnerV19(){
+ const started=new Date().toISOString();
+ try{
+  const report=phase14CopyIngestRecentTenV18();
+  const outcome={mode:'PHASE14_COPY_MORNING_V19',started,finished:new Date().toISOString(),status:report&&report.status==='BUSY'?'BUSY':report&&report.held&&report.held.length?'REVIEW_REQUIRED':'OK',added:report&&report.added?report.added.length:0,existing:report&&report.existing||0,held:report&&report.held||[],productionWrites:0,triggerChanges:0};
+  console.log(JSON.stringify(outcome));
+  return outcome;
+ }catch(e){
+  console.error(JSON.stringify({mode:'PHASE14_COPY_MORNING_V19',started,status:'FAILED',error:String(e&&e.stack||e),productionWrites:0,triggerChanges:0}));
+  throw e;
+ }
+}
+/** READ-ONLY: inspect scheduled runner triggers, without adding or removing anything. */
+function phase14CopyMorningTriggerStatusV19(){
+ const handlers=['phase14CopyMorningRunnerV19'];
+ const matches=ScriptApp.getProjectTriggers().filter(t=>handlers.includes(t.getHandlerFunction()));
+ const result={mode:'PHASE14_COPY_TRIGGER_STATUS_V19',count:matches.length,handlers:matches.map(t=>t.getHandlerFunction()),triggerChanges:0};
+ console.log(JSON.stringify(result));return result;
+}
+/**
+ * Explicit manual opt-in only. Installs TWO COPY runner triggers (not production).
+ * Must run in the COPY GAS project after one successful manual V19 runner test.
+ * Does not modify any existing unrelated trigger.
+ */
+function phase14CopyInstallMorningTriggersV19(){
+ const scriptId=ScriptApp.getScriptId();
+ if(scriptId!=='1roni6h_C9vKxtP_2I6jGgXKE2KJ1yRRhE3ZD1JsZ6XXRnT5RcndqyfJo')throw Error('NOT_APPROVED_COPY_GAS_PROJECT');
+ const handler='phase14CopyMorningRunnerV19';
+ const existing=ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()===handler);
+ if(existing.length)throw Error('COPY_V19_TRIGGERS_ALREADY_EXIST_INSPECT_BEFORE_CHANGING');
+ const created=[];
+ try{
+  for(const hour of [5,6]){
+   const trigger=ScriptApp.newTrigger(handler).timeBased().atHour(hour).nearMinute(15).everyDays(1).inTimezone('Asia/Tokyo').create();
+   created.push(trigger);
+  }
+ }catch(e){
+  created.forEach(t=>ScriptApp.deleteTrigger(t));
+  throw e;
+ }
+ const result={mode:'PHASE14_COPY_TRIGGERS_INSTALLED_V19',count:created.length,timezone:'Asia/Tokyo',hours:[5,6],productionWrites:0};
+ console.log(JSON.stringify(result));return result;
+}
+/** Manual opt-out: removes only V19 runner triggers in the approved COPY project. */
+function phase14CopyRemoveMorningTriggersV19(){
+ if(ScriptApp.getScriptId()!=='1roni6h_C9vKxtP_2I6jGgXKE2KJ1yRRhE3ZD1JsZ6XXRnT5RcndqyfJo')throw Error('NOT_APPROVED_COPY_GAS_PROJECT');
+ const matches=ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='phase14CopyMorningRunnerV19');
+ matches.forEach(t=>ScriptApp.deleteTrigger(t));
+ const result={mode:'PHASE14_COPY_TRIGGERS_REMOVED_V19',removed:matches.length};
+ console.log(JSON.stringify(result));return result;
+}
