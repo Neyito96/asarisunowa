@@ -321,8 +321,8 @@ function phase14CopyIngestThreeV16(){
     const now=new Date().toISOString();
     Object.assign(row,{0:id,1:item.show,2:item.title,3:new Date(Date.parse(item.pubDate)+32400000).toISOString().slice(0,19).replace(/-/g,'/').replace('T',' '),4:'音声',5:evidence.provider==='MEGAPHONE'?'朝日新聞ポッドキャスト公式RSS（Megaphone）':'朝日新聞ポッドキャスト公式RSS（Omny Studio）',6:item.guid,8:item.link||'',18:'未確認（未再生）',38:'未指定'});
     const lRow=ledger.getLastRow()+1,hRow=history.getLastRow()+1,sRow=states.getLastRow()+1;
-    if(!ledger.getRange(lRow,1).isBlank()||!history.getRange(hRow,1).isBlank()||!states.getRange(sRow,1).isBlank())throw Error('TARGET_NOT_BLANK');
     for(const [sh,n] of [[ledger,lRow],[history,hRow],[states,sRow]])if(sh.getMaxRows()<n)sh.insertRowsAfter(sh.getMaxRows(),n-sh.getMaxRows());
+    if(!ledger.getRange(lRow,1).isBlank()||!history.getRange(hRow,1).isBlank()||!states.getRange(sRow,1).isBlank())throw Error('TARGET_NOT_BLANK');
     history.getRange(hRow,1,1,9).setValues([[item.guid,id,item.show,item.title,'RESERVED',now,'',lRow,'COPY V16: awaiting native proof']]);
     SpreadsheetApp.flush();
     if(String(history.getRange(hRow,1).getValue()).toLowerCase()!==guid)throw Error('RESERVATION_FAILED');
