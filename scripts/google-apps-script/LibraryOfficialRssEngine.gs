@@ -357,6 +357,32 @@ function phase14CopyV3AttachReviewedEvidence(){
   console.log(JSON.stringify(result));return result;
  }finally{lock.releaseLock();}
 }
+/** COPY-only recovery diagnosis. Never resumes or writes an interrupted backfill. */
+function phase14CopyPendingBackfillAuditReadOnly(){
+ const copyId='1IhnYURLqhM8i3ACrkNbDujplXRtyI41rR19qGnwZlMY';
+ const ss=SpreadsheetApp.openById(copyId);
+ const states=ss.getSheetByName('図書館V3・項目状態');
+ const ledger=ss.getSheetByName('エピソード台帳');
+ if(!states||!ledger)throw Error('COPY_REQUIRED_TABS_MISSING');
+ const stateRows=states.getDataRange().getValues();
+ const ledgerRows=ledger.getDataRange().getValues();
+ const byId=new Map(ledgerRows.slice(1).map((r,i)=>[String(r[0]),{row:r,number:i+2}]));
+ const pending=[];
+ for(let i=1;i<stateRows.length;i++){
+  if(!stateRows[i][0]||!stateRows[i][1])continue;
+  let state;try{state=JSON.parse(String(stateRows[i][1]));}catch(e){pending.push({id:stateRows[i][0],reason:'STATE_JSON_INVALID'});continue;}
+  const p=state.officialBackfillPending;if(!p)continue;
+  const match=byId.get(String(stateRows[i][0]));
+  if(!match){pending.push({id:stateRows[i][0],reason:'LEDGER_ROW_MISSING'});continue;}
+  const currentHash=LibraryOfficialEngine.rowHash(match.row);
+  const cols=Array.isArray(p.columns)?p.columns:[];
+  const values=Array.isArray(p.values)?p.values:[];
+  const statuses=cols.map((col,j)=>({col,condition:String(match.row[col]??'')===String(values[j]??'')?'TARGET_VALUE':(match.row[col]===''?'BLANK':'CONFLICT')}));
+  pending.push({id:stateRows[i][0],ledgerRow:match.number,guidMatches:match.row[6]===p.guid,beforeHashMatches:currentHash===p.beforeHash,currentHash,startedAt:p.startedAt,columns:statuses,reason:'MANUAL_REVIEW_REQUIRED'});
+ }
+ const report={mode:'PHASE14_COPY_PENDING_BACKFILL_AUDIT_READ_ONLY',pendingCount:pending.length,pending:pending.slice(0,30),writes:0,propertyWrites:0,triggerChanges:0};
+ console.log(JSON.stringify(report));return report;
+}
 function inspectLibraryOfficialReadOnly(){const report=LibraryOfficialEngine.inspect();console.log(JSON.stringify(report));return report;}
 function scheduledLibraryOfficialBackfill(){return LibraryOfficialEngine.runBackfill();}
 /** New records reserve GUID in history before non-atomic native writes; incomplete reservations require manual recovery. */
