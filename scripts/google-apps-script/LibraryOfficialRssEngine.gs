@@ -153,29 +153,40 @@ var LibraryOfficialEngine = (function () {
  function update(sheetId,row,col,cellData){return {updateCells:{range:{sheetId,startRowIndex:row,endRowIndex:row+1,startColumnIndex:col,endColumnIndex:col+1},rows:[{values:[cellData]}],fields:'userEnteredValue,note,textFormatRuns'}};}
  function writePlan(c,ctx,rowIndex,original,plan){
   if(!plan.changes.length)return 0;
-  const ledger=ctx.tabs['エピソード台帳'],stateTab=ctx.tabs['図書館V3・項目状態'];
-  const range="'エピソード台帳'!A"+(rowIndex+1)+':BC'+(rowIndex+1);
-  const current=api(c,'?includeGridData=true&ranges='+encodeURIComponent(range)).sheets[0].data[0].rowData[0].values;
-  must(JSON.stringify(current.map(value))===JSON.stringify(original.map(value)),'CONCURRENT_ROW_CHANGE');
-  must(plan.changes.every(ch=>blank(value(current[ch.col]))&&!current[ch.col]?.userEnteredValue?.formulaValue&&!current[ch.col]?.dataValidation&&!current[ch.col]?.chipRuns?.length),'TARGET_STRUCTURE_CHANGED');
-  const stateIndex=ctx.states.findIndex(r=>r[0]===plan.id);must(stateIndex>=0,'STATE_MISSING');
-  const state=JSON.parse(ctx.states[stateIndex][1]);must(state.identity?.[0]==='VERIFIED','STATE_NOT_VERIFIED');
-  const sheet=SpreadsheetApp.openById(c.sheetId).getSheetByName('エピソード台帳');
-  const before=sheet.getRange(rowIndex+1,1,1,sheet.getLastColumn()).getValues()[0];
-  must(before[0]===plan.id&&before[6]===plan.guid,'NATIVE_IDENTITY_CONFLICT');
-  verifyRowProof(before,state);
-  must(plan.changes.every(ch=>blank(before[ch.col])),'NATIVE_TARGET_NOT_BLANK');
-  const after=before.slice(),requests=plan.changes.map(ch=>{after[ch.col]=ch.next;return update(ledger.sheetId,rowIndex,ch.col,ch.cell);});
-  // Preserve the original V3 identity proof. A separate receipt records this transition.
-  state.officialBackfill=['VERIFIED',plan.guid,rowHash(before),'',rowHash(after),'official_blank_fill',new Date().toISOString(),JSON.stringify({schema:'official-native-row-v1',baselineHash:state.identity[2],beforeHash:rowHash(before),afterHash:rowHash(after),columns:plan.changes.map(x=>x.col)})];
-  requests.push(update(stateTab.sheetId,stateIndex+1,1,cell(JSON.stringify(state))));
-  requests.push(update(stateTab.sheetId,stateIndex+1,2,cell(new Date().toISOString())));
-  // Notes retain per-cell old/new/evidence; state transition and fills commit atomically.
-  api(c,':batchUpdate',{requests});
-  const reread=api(c,'/values/'+encodeURIComponent(range)+'?valueRenderOption=FORMATTED_VALUE').values[0];
-  must(plan.changes.every(ch=>String(reread[ch.col])===String(ch.next)),'READBACK_FAILED');return plan.changes.length;
+  must(c.sheetId!==PROD,'PRODUCTION_BACKFILL_NOT_APPROVED');
+  const book=SpreadsheetApp.openById(c.sheetId);
+  const sheet=book.getSheetByName('エピソード台帳');
+  const stateSheet=book.getSheetByName('図書館V3・項目状態');
+  must(sheet&&stateSheet,'REQUIRED_TAB_MISSING');
+  const stateIndex=ctx.states.findIndex(r=>r[0]===plan.id);
+  must(stateIndex>=0,'STATE_MISSING');
+  const state=JSON.parse(ctx.states[stateIndex][1]);
+  must(state.identity?.[0]==='VERIFIED','STATE_NOT_VERIFIED');
+  const current=sheet.getRange(rowIndex+1,1,1,55).getValues()[0];
+  must(current[0]===plan.id&&current[6]===plan.guid,'NATIVE_IDENTITY_CONFLICT');
+  verifyRowProof(current,state);
+  for(const ch of plan.changes){
+   const target=sheet.getRange(rowIndex+1,ch.col+1);
+   must(blank(current[ch.col])&&target.isBlank()&&!target.getFormula(),'NATIVE_TARGET_NOT_BLANK');
+  }
+  const beforeHash=rowHash(current),after=current.slice();
+  for(const ch of plan.changes)after[ch.col]=ch.next;
+  // Write only empty cells. If interrupted, the next run halts on proof mismatch.
+  for(const ch of plan.changes){
+   const target=sheet.getRange(rowIndex+1,ch.col+1);
+   target.setValue(ch.next);
+   target.setNote(JSON.stringify({engine:'official-rss-v1',guid:plan.guid,beforeHash,column:ch.col}));
+  }
+  SpreadsheetApp.flush();
+  const verified=sheet.getRange(rowIndex+1,1,1,55).getValues()[0];
+  must(plan.changes.every(ch=>String(verified[ch.col])===String(ch.next)),'READBACK_FAILED');
+  const now=new Date().toISOString();
+  state.officialBackfill=['VERIFIED',plan.guid,beforeHash,'',rowHash(verified),'official_blank_fill',now,JSON.stringify({schema:'official-native-row-v1',baselineHash:state.identity[2],beforeHash,afterHash:rowHash(verified),columns:plan.changes.map(ch=>ch.col)})];
+  stateSheet.getRange(stateIndex+2,2,1,2).setValues([[JSON.stringify(state),now]]);
+  SpreadsheetApp.flush();
+  return plan.changes.length;
  }
- function runBackfill(){
+  function runBackfill(){
   const lock=LockService.getScriptLock();if(!lock.tryLock(1000))return {status:'BUSY'};
   try{
    const c=config();must(c.engineValidation==='P14_RUNTIME_VERIFIED','ENGINE_NOT_VALIDATED');must(c.enabled===true&&c.allowBackfill===true,'BACKFILL_DISABLED');
