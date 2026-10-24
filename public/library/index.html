@@ -1,17 +1,17 @@
 <!doctype html>
 <html lang="ja">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#f8f5ed"><title>エピソード図書館｜朝リスの田</title><meta name="description" content="朝日新聞ポッドキャストを番組・タイトル・出演者・キーワードから探せる、リスナー制作のエピソード図書館。"><link rel="stylesheet" href="./library.css"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#302e2a"><title>朝ポキの蔵｜朝日新聞ポッドキャストのエピソードを探す</title><meta name="description" content="朝日新聞ポッドキャストを番組・タイトル・出演者・キーワードから探せる、リスナー制作の「朝ポキの蔵」。"><link rel="stylesheet" href="./library.css"></head>
 <body>
 <header><div class="wrap top"><a href="../" class="brand">朝日新聞ポッドキャスト案内所<br><b>「朝リスの田」</b></a><a href="https://www.asahi.com/special/podcasts/" target="_blank" rel="noreferrer">公式・全番組 ↗</a></div></header>
 <main class="wrap">
-<nav aria-label="サイト内"><a href="../">← 朝リスの田へ</a><span>エピソード図書館</span><a href="./editor.html">みんなで選ぶ（試作）</a></nav>
-<section class="intro"><div><p class="eyebrow">声の記憶を、もう一度。</p><h1>エピソード図書館</h1><p>あの話、あの人。聴きたい一本を探そう。</p></div><span class="seal" aria-hidden="true">田<br>LIBRARY</span></section>
+<nav aria-label="サイト内"><a href="../">← 朝リスの田へ</a><span>朝ポキの蔵</span><a href="./editor.html">みんなで選ぶ（試作）</a></nav>
+<section class="intro"><div><p class="eyebrow">ASAPOKI ARCHIVES ・ 声の蔵</p><h1>朝ポキの<span class="kura-emphasis">蔵</span></h1><p class="intro-lead">声をしまう。記憶をひらく。</p><p class="intro-sub">あの話、あの人。聴きたい一本を、蔵から探そう。</p></div><span class="seal" aria-hidden="true"><strong>蔵</strong><small>ASAPOKI</small></span></section>
 <p class="note">非公式・リスナー制作。各番組の配信情報を案内しています。</p>
 <form id="search-form" role="search">
 <label for="query">タイトル・出演者・キーワード</label><div class="searchline"><input id="query" name="q" type="search" autocomplete="off" placeholder="例：寺下真理加、キューバ、ジェンダー"><button type="submit">探す</button></div>
 <div class="filters"><label>番組<select id="show" name="show"><option value="">すべての番組</option></select></label><label>並び順<select id="order"><option value="newest">新しい順</option><option value="oldest">古い順</option></select></label><label>配信日から<input type="date" id="from"></label><label>配信日まで<input type="date" id="to"></label><button class="quiet" type="button" id="clear-filters">条件をクリア</button></div>
 </form>
-<div class="catalog-meta"><p id="status" role="status" aria-live="polite">図書館を開いています…</p><span id="snapshot"></span></div>
+<div class="catalog-meta"><p id="status" role="status" aria-live="polite">蔵の扉を開いています…</p><span id="snapshot"></span></div>
 <section id="shows" aria-label="番組一覧" class="show-list"></section>
 <div id="error" role="alert" hidden><p></p><button id="retry" type="button">もう一度読み込む</button></div>
 <section id="results" aria-label="エピソード一覧" aria-busy="true"></section>
