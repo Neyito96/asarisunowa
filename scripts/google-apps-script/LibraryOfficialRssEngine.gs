@@ -1,5 +1,5 @@
 /** Phase 14. Independent, disabled by default. No Pages or Spotify writes.
- * Uses Sheets REST atomic batches (ledger + state + history + audit).
+ * Uses guarded native SpreadsheetApp writes; multi-sheet writes are NOT atomic.
  * Install ONLY alongside the inspected live V3 files, never replace that project.
  */
 var LibraryOfficialEngine = (function () {
@@ -239,7 +239,7 @@ var LibraryOfficialEngine = (function () {
    // Keep failures durable across runs, and never use the read-only v0.7 cursor here.
    for(let i=0;i<retry.length&&processed<batchLimit&&Date.now()<deadline;){
     const job=retry[i],idx=ctx.rows.findIndex(r=>r[0]===job.id);
-    if(idx<0){holds.push({id:job.id,stage:job.stage,reason:'RETRY_ID_MISSING'});i++;continue;}
+    if(idx<0){holds.push({id:job.id,stage:job.stage,reason:'RETRY_ID_MISSING'});retry.splice(i,1);saveRetry();continue;}
     if(attempt(idx,job.stage)){retry.splice(i,1);saveRetry();}else{i++;}
    }
    for(;next<ctx.rows.length&&processed<batchLimit&&Date.now()<deadline;next++){
@@ -345,7 +345,7 @@ function phase14CopyV3AttachReviewedEvidence(){
 }
 function inspectLibraryOfficialReadOnly(){const report=LibraryOfficialEngine.inspect();console.log(JSON.stringify(report));return report;}
 function scheduledLibraryOfficialBackfill(){return LibraryOfficialEngine.runBackfill();}
-/** New records have an atomic history reservation, so an interrupted retry cannot allocate again. */
+/** New records reserve GUID in history before non-atomic native writes; incomplete reservations require manual recovery. */
 function scheduledLibraryOfficialNew(){
  const E=LibraryOfficialEngine,lock=LockService.getScriptLock();if(!lock.tryLock(1000))return {status:'BUSY'};
  try{
@@ -372,7 +372,7 @@ function scheduledLibraryOfficialNew(){
     const reservations=ctx.states.map(r=>{const identity=JSON.parse(r[1]||'{}').identity;return [identity?.[1]||'',r[0]];});
     const id=E.newDecision(item,ctx.rows,ctx.history.concat(reservations),ctx.excluded,ctx.decisions,c,inspection.baseline,props.getProperty('LIB_V3_LAST_ID'));
     const row=Array(55).fill('');Object.entries(m.values).forEach(([k,v])=>row[Number(k)]=v);
-    Object.assign(row,{0:id,1:item.show,2:item.title,3:new Date(Date.parse(item.pubDate)+32400000).toISOString().slice(0,19).replace(/-/g,'/').replace('T',' '),4:'音声',5:evidence.provider==='MEGAPHONE'?'朝日新聞ポッドキャスト公式RSS（Megaphone）':'朝日新聞ポッドキャスト公式RSS（Omny Studio）',6:item.guid,8:item.link,18:'未確認（未再生）',38:'未指定'});
+    Object.assign(row,{0:id,1:item.show,2:item.title,3:new Date(Date.parse(item.pubDate)+32400000).toISOString().slice(0,19).replace(/-/g,'/').replace('T',' '),4:'音声',5:evidence.provider==='MEGAPHONE'?'朝日新聞ポッドキャスト公式RSS（Megaphone）':'朝日新聞ポッドキャスト公式RSS（Omny Studio）',6:item.guid,8:item.link||'',18:'未確認（未再生）',38:'未指定'});
     const now=new Date().toISOString(),state={identity:['VERIFIED',item.guid,E.rowHash(row),'','','RSS_registered',now,item.guid],registrationEvidence:['VERIFIED',item.guid,E.rowHash(row),'','',evidence.provider==='MEGAPHONE'?'official_megaphone_rss':'official_rss_plus_json',now,JSON.stringify({source:item.feedUrl,json:evidence.provider==='MEGAPHONE'?null:evidence.url,pubDate:item.pubDate})]};
     const ledger=ctx.tabs['エピソード台帳'],history=ctx.tabs['固定ID採番履歴'],states=ctx.tabs['図書館V3・項目状態'],requests=[];
     const positions=[[ledger,ctx.rows.length+1],[history,ctx.history.length+1],[states,ctx.stateLength]];
@@ -397,9 +397,17 @@ function scheduledLibraryOfficialNew(){
     const historyProof=h.getRange(targetHistory,1,1,2).getValues()[0];
     if(historyProof[0]!==item.guid||historyProof[1]!==id)throw Error('RESERVATION_READBACK_FAILED');
     l.getRange(targetLedger,1,1,55).setValues([row]);
+    SpreadsheetApp.flush();
+    const registered=l.getRange(targetLedger,1,1,55).getValues()[0];
+    if(registered[0]!==id||registered[6]!==item.guid||registered[2]!==item.title||registered[14]!==item.audio)throw Error('NATIVE_REGISTRATION_READBACK_FAILED');
+    const nativeHash=E.rowHash(registered);
+    state.identity[2]=nativeHash;
+    state.registrationEvidence[2]=nativeHash;
+    state.registrationEvidence[7]=JSON.stringify({source:item.feedUrl,json:evidence.provider==='MEGAPHONE'?null:evidence.url,pubDate:item.pubDate,proof:'native_readback',ledgerRow:targetLedger});
     st.getRange(targetState,1,1,3).setValues([[id,JSON.stringify(state),now]]);
     SpreadsheetApp.flush();
-    if(l.getRange(targetLedger,1).getValue()!==id||l.getRange(targetLedger,7).getValue()!==item.guid||st.getRange(targetState,1).getValue()!==id)throw Error('NATIVE_REGISTRATION_READBACK_FAILED');
+    const stored=JSON.parse(String(st.getRange(targetState,2).getValue()||'{}'));
+    if(st.getRange(targetState,1).getValue()!==id||stored.identity?.[2]!==nativeHash||stored.registrationEvidence?.[2]!==nativeHash)throw Error('V3_REGISTRATION_PROOF_READBACK_FAILED');
     h.getRange(targetHistory,5).setValue('登録完了');
     h.getRange(targetHistory,7).setValue(new Date().toISOString());
     h.getRange(targetHistory,9).setValue('Native registration verified; V3 proof review pending');
