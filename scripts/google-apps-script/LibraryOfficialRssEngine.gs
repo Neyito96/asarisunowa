@@ -171,7 +171,8 @@ var LibraryOfficialEngine = (function () {
   must(sheet&&stateSheet,'REQUIRED_TAB_MISSING');
   const stateIndex=ctx.states.findIndex(r=>r[0]===plan.id);
   must(stateIndex>=0,'STATE_MISSING');
-  const state=JSON.parse(ctx.states[stateIndex][1]);
+  const state=JSON.parse(String(stateSheet.getRange(stateIndex+2,2).getValue()||'{}'));
+  must(!state.officialBackfillPending,'BACKFILL_PENDING_REQUIRES_RECOVERY');
   must(state.identity?.[0]==='VERIFIED'||(state.identity?.[0]==='PENDING_REVIEW'&&state.reviewedRegistrationEvidence?.status==='REVIEWED_CURRENT_SNAPSHOT'),'STATE_NOT_REVIEWED');
   const current=sheet.getRange(rowIndex+1,1,1,55).getValues()[0];
   must(current[0]===plan.id&&current[6]===plan.guid,'NATIVE_IDENTITY_CONFLICT');
@@ -182,7 +183,14 @@ var LibraryOfficialEngine = (function () {
   }
   const beforeHash=rowHash(current),after=current.slice();
   for(const ch of plan.changes)after[ch.col]=ch.next;
-  // Write only empty cells. If interrupted, the next run halts on proof mismatch.
+  // Durable pre-write receipt: a crash cannot silently turn a partial batch into a verified one.
+  const nowStarted=new Date().toISOString();
+  state.officialBackfillPending={schema:'official-native-pending-v1',guid:plan.guid,beforeHash,columns:plan.changes.map(ch=>ch.col),values:plan.changes.map(ch=>String(ch.next)),startedAt:nowStarted};
+  stateSheet.getRange(stateIndex+2,2,1,2).setValues([[JSON.stringify(state),nowStarted]]);
+  SpreadsheetApp.flush();
+  const pending=JSON.parse(String(stateSheet.getRange(stateIndex+2,2).getValue()||'{}')).officialBackfillPending;
+  must(pending?.beforeHash===beforeHash&&pending?.guid===plan.guid,'PENDING_RECEIPT_READBACK_FAILED');
+  // Write only empty cells. An interruption leaves a pending receipt for deliberate recovery.
   for(const ch of plan.changes){
    const target=sheet.getRange(rowIndex+1,ch.col+1);
    target.setValue(ch.next);
@@ -193,6 +201,7 @@ var LibraryOfficialEngine = (function () {
   must(plan.changes.every(ch=>String(verified[ch.col])===String(ch.next)),'READBACK_FAILED');
   const now=new Date().toISOString();
   state.officialBackfill=['VERIFIED',plan.guid,beforeHash,'',rowHash(verified),'official_blank_fill',now,JSON.stringify({schema:'official-native-row-v1',baselineHash:state.identity[2],beforeHash,afterHash:rowHash(verified),columns:plan.changes.map(ch=>ch.col)})];
+  delete state.officialBackfillPending;
   if(state.reviewedRegistrationEvidence?.status==='REVIEWED_CURRENT_SNAPSHOT'){
    state.reviewedRegistrationEvidence.currentRowHash=rowHash(verified);
    state.reviewedRegistrationEvidence.lastBackfillAt=now;
