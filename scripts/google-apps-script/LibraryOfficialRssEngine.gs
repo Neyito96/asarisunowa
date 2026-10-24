@@ -270,6 +270,24 @@ function phase14CopyAcceptanceReadOnly(){
  const result={mode:'PHASE14_COPY_ACCEPTANCE_READ_ONLY',copyId,ledgerCount:ids.length,duplicateIds:ids.length-new Set(ids).size,targetGuid:guid,targetRows:matches.length,targetId:matches[0]?.[0]||null,historyRows:h.length,historyStatus:h[0]?.[4]||null,v3Rows:st.length,v3IdentityStatus:identityStatus,readyForBackfill:matches.length===1&&h.length===1&&st.length===1&&identityStatus==='VERIFIED',writes:0,propertyWrites:0,triggerChanges:0};
  console.log(JSON.stringify(result));return result;
 }
+/** Read-only V3 proof preparation. Never changes PENDING_REVIEW to VERIFIED. */
+function phase14CopyV3ProofReadOnly(){
+ const copyId='1IhnYURLqhM8i3ACrkNbDujplXRtyI41rR19qGnwZlMY';
+ const id='EP-06594',guid='2b3d2f6a-cdfb-11f1-8f31-abebc4a650c5';
+ const book=SpreadsheetApp.openById(copyId);
+ const ledger=book.getSheetByName('エピソード台帳').getDataRange().getValues();
+ const history=book.getSheetByName('固定ID採番履歴').getDataRange().getValues();
+ const states=book.getSheetByName('図書館V3・項目状態').getDataRange().getValues();
+ const rows=ledger.slice(1).filter(r=>r[0]===id&&String(r[6]).toLowerCase()===guid);
+ const h=history.slice(1).filter(r=>String(r[0]).toLowerCase()===guid&&r[1]===id&&r[4]==='登録完了');
+ const st=states.slice(1).filter(r=>r[0]===id);
+ if(rows.length!==1||h.length!==1||st.length!==1)throw Error('COPY_PROOF_IDENTITY_MISMATCH');
+ const state=JSON.parse(String(st[0][1]||'{}'));
+ const digest=Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,JSON.stringify(rows[0]),Utilities.Charset.UTF_8));
+ const original=state.identity||[];
+ const result={mode:'PHASE14_COPY_V3_PROOF_READ_ONLY',id,guid,identityStatus:original[0]||null,identityGuid:original[1]||null,originalHash:original[2]||null,currentHash:digest,hashMatches:original[2]===digest,registrationEvidenceStatus:state.registrationEvidence?.[0]||null,registrationEvidenceGuid:state.registrationEvidence?.[1]||null,ledgerRowWidth:rows[0].length,historyStatus:h[0][4],safeToAutoVerify:false,writes:0,propertyWrites:0,triggerChanges:0};
+ console.log(JSON.stringify(result));return result;
+}
 function inspectLibraryOfficialReadOnly(){const report=LibraryOfficialEngine.inspect();console.log(JSON.stringify(report));return report;}
 function scheduledLibraryOfficialBackfill(){return LibraryOfficialEngine.runBackfill();}
 /** New records have an atomic history reservation, so an interrupted retry cannot allocate again. */
