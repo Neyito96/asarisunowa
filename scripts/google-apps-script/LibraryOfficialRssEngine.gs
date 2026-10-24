@@ -225,7 +225,7 @@ var LibraryOfficialEngine = (function () {
    return {processed,changed,holds,retryPending:retry.length};
   }finally{lock.releaseLock();}
  }
- return {inspect,plan,material,articleLinkRuns,verify,fromJson,newDecision,identityTokens,rowHash,v3RowHash,verifyRowProof,runBackfill,readJson,rss,official,platforms,config,context,cell,update,api,PROD};
+ return {inspect,plan,material,materialMegaphone,articleLinkRuns,verify,fromJson,newDecision,identityTokens,rowHash,v3RowHash,verifyRowProof,runBackfill,readJson,rss,official,platforms,config,context,cell,update,api,PROD};
 })();
 function inspectLibraryOfficialReadOnly(){const report=LibraryOfficialEngine.inspect();console.log(JSON.stringify(report));return report;}
 function scheduledLibraryOfficialBackfill(){return LibraryOfficialEngine.runBackfill();}
