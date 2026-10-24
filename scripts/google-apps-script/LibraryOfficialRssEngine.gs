@@ -314,6 +314,25 @@ function phase14CopyV3EvidenceAuditReadOnly(){
  const report={mode:'PHASE14_COPY_V3_EVIDENCE_AUDIT_READ_ONLY',id,guid,identityOk,rssOk,feedItemFound:found,rssTitleMatches:found&&title===row[2],rssAudioMatches:found&&audio===row[14],currentHash:hash,originalHash:state.identity?.[2]||null,originalProofMissing:!state.identity?.[2],registrationEvidenceMissing:!state.registrationEvidence,eligibleForReviewedRepair:identityOk&&rssOk&&state.identity?.[0]==='PENDING_REVIEW',autoVerified:false,writes:0,propertyWrites:0,triggerChanges:0};
  console.log(JSON.stringify(report));return report;
 }
+/** COPY ONLY: attach reviewed evidence, preserve original PENDING_REVIEW and missing registration hash. */
+function phase14CopyV3AttachReviewedEvidence(){
+ const lock=LockService.getScriptLock();if(!lock.tryLock(10000))throw Error('BUSY');
+ try{
+  const report=phase14CopyV3EvidenceAuditReadOnly();
+  if(!report.eligibleForReviewedRepair||!report.identityOk||!report.rssOk)throw Error('EVIDENCE_AUDIT_FAILED');
+  const book=SpreadsheetApp.openById('1IhnYURLqhM8i3ACrkNbDujplXRtyI41rR19qGnwZlMY');
+  const sh=book.getSheetByName('図書館V3・項目状態');
+  const cell=sh.getRange(6595,2),state=JSON.parse(String(cell.getValue()||'{}'));
+  if(state.identity?.[0]!=='PENDING_REVIEW'||state.identity?.[1]!==report.guid||state.identity?.[2])throw Error('STATE_CHANGED_HOLD');
+  if(state.reviewedRegistrationEvidence)throw Error('ALREADY_REVIEWED_HOLD');
+  state.reviewedRegistrationEvidence={status:'REVIEWED_CURRENT_SNAPSHOT',id:report.id,guid:report.guid,source:'official_megaphone_rss',feedUrl:'https://feeds.megaphone.fm/TASC5851398719',titleAndAudioMatched:true,historyMatched:true,currentRowHash:report.currentHash,originalRegistrationHash:null,originalRegistrationHashMissing:true,reviewedAt:new Date().toISOString(),note:'Current snapshot independently matched; original registration-time proof was not recorded. Identity remains PENDING_REVIEW.'};
+  cell.setValue(JSON.stringify(state));SpreadsheetApp.flush();
+  const saved=JSON.parse(String(cell.getValue()));
+  if(saved.identity?.[0]!=='PENDING_REVIEW'||saved.reviewedRegistrationEvidence?.currentRowHash!==report.currentHash)throw Error('REPAIR_READBACK_FAILED');
+  const result={mode:'PHASE14_COPY_V3_REVIEWED_EVIDENCE_ATTACHED',id:report.id,identityStatus:saved.identity[0],reviewStatus:saved.reviewedRegistrationEvidence.status,hash:report.currentHash,writes:1,propertyWrites:0,triggerChanges:0};
+  console.log(JSON.stringify(result));return result;
+ }finally{lock.releaseLock();}
+}
 function inspectLibraryOfficialReadOnly(){const report=LibraryOfficialEngine.inspect();console.log(JSON.stringify(report));return report;}
 function scheduledLibraryOfficialBackfill(){return LibraryOfficialEngine.runBackfill();}
 /** New records have an atomic history reservation, so an interrupted retry cannot allocate again. */
