@@ -281,7 +281,9 @@ var LibraryOfficialEngine = (function () {
  * No dependency on LIB_OFFICIAL_CONFIG or LIB_V3_BASELINE.
  * Requires the existing LibraryOfficialEngine and LibraryOfficialParser in the COPY GAS project.
  */
-function phase14CopyIngestThreeV16(){
+/** Disabled: v16 mistakenly admitted 2020 archive episodes. */
+function phase14CopyIngestThreeV16(){throw Error('V16_DISABLED_USE_phase14CopyIngestRecentThreeV17');}
+function phase14CopyIngestRecentThreeV17(){
  const COPY='1IhnYURLqhM8i3ACrkNbDujplXRtyI41rR19qGnwZlMY';
  const E=LibraryOfficialEngine,lock=LockService.getScriptLock();
  if(!lock.tryLock(1000))return {status:'BUSY'};
@@ -293,14 +295,29 @@ function phase14CopyIngestThreeV16(){
   if(header[0]!=='台帳ID'||header[6]!=='外部ID'||header[54]!=='公式JSON取得元URL')throw Error('COPY_HEADER_CONFLICT');
   const excluded=new Set(['アルキキ','AJW','朝ポキTV']);
   const feeds=source.getRange(2,1,source.getLastRow()-1,8).getValues().map(r=>({show:String(r[0]||'').trim(),url:String(r[7]||'').trim()})).filter(f=>f.url&&!excluded.has(f.show)&&/^https:\/\/(?:www\.omnycontent\.com\/d\/playlist\/1e3bd144-9b57-451a-93cf-ac0e00e74446\/|feeds\.megaphone\.fm\/TASC)/.test(f.url));
-  const report={mode:'PHASE14_COPY_INGEST_THREE_V16',feedCount:feeds.length,added:[],held:[],existing:0,propertyWrites:0,triggerChanges:0,productionWrites:0};
+  const report={mode:'PHASE14_COPY_INGEST_RECENT_THREE_V17',feedCount:feeds.length,added:[],held:[],existing:0,propertyWrites:0,triggerChanges:0,productionWrites:0};
   const all=[];for(const feed of feeds){try{for(const item of E.rss(feed))all.push(item);}catch(e){report.held.push({show:feed.show,reason:'FEED_'+String(e.message)});}}
   const freq=new Map();all.forEach(x=>freq.set(String(x.guid).toLowerCase(),(freq.get(String(x.guid).toLowerCase())||0)+1));
+  // A recent episode must have a valid, non-future publication timestamp within 7 days.
+  // Missing or malformed dates are held, never treated as new.
+  const nowMs=Date.now(),windowStart=nowMs-7*86400000;
+  const recent=all.filter(item=>{
+   const published=Date.parse(item.pubDate);
+   if(Number.isFinite(published)&&published>=windowStart&&published<=nowMs)return true;
+   return false;
+  });
+  report.outOfWindow=all.length-recent.length;
+  report.windowStart=new Date(windowStart).toISOString();
+  report.windowEnd=new Date(nowMs).toISOString();
+  all.length=0;all.push(...recent);
   all.sort((a,b)=>Date.parse(a.pubDate)-Date.parse(b.pubDate)||String(a.guid).localeCompare(String(b.guid)));
+  if(all.length===0)report.held.push({reason:'NO_RECENT_ITEMS_IN_RSS'});
   const seen=new Set();
   const deadline=Date.now()+180000;
   for(const item of all){
    if(report.added.length>=3||Date.now()>deadline)break;
+   const published=Date.parse(item.pubDate);
+   if(!Number.isFinite(published)||published<windowStart||published>nowMs)throw Error('NOT_RECENT');
    const guid=String(item.guid||'').toLowerCase();
    if(seen.has(guid))continue;seen.add(guid);
    if(freq.get(guid)!==1){report.held.push({guid,reason:'DUPLICATE_FEED_GUID'});continue;}
@@ -323,7 +340,7 @@ function phase14CopyIngestThreeV16(){
     const lRow=ledger.getLastRow()+1,hRow=history.getLastRow()+1,sRow=states.getLastRow()+1;
     for(const [sh,n] of [[ledger,lRow],[history,hRow],[states,sRow]])if(sh.getMaxRows()<n)sh.insertRowsAfter(sh.getMaxRows(),n-sh.getMaxRows());
     if(!ledger.getRange(lRow,1).isBlank()||!history.getRange(hRow,1).isBlank()||!states.getRange(sRow,1).isBlank())throw Error('TARGET_NOT_BLANK');
-    history.getRange(hRow,1,1,9).setValues([[item.guid,id,item.show,item.title,'RESERVED',now,'',lRow,'COPY V16: awaiting native proof']]);
+    history.getRange(hRow,1,1,9).setValues([[item.guid,id,item.show,item.title,'RESERVED',now,'',lRow,'COPY V17: awaiting native proof']]);
     SpreadsheetApp.flush();
     if(String(history.getRange(hRow,1).getValue()).toLowerCase()!==guid)throw Error('RESERVATION_FAILED');
     ledger.getRange(lRow,1,1,55).setValues([row]);SpreadsheetApp.flush();
@@ -334,7 +351,7 @@ function phase14CopyIngestThreeV16(){
     states.getRange(sRow,1,1,3).setValues([[id,JSON.stringify(state),now]]);SpreadsheetApp.flush();
     const stateRead=JSON.parse(String(states.getRange(sRow,2).getValue()||'{}'));
     if(stateRead.identity?.[2]!==E.rowHash(ledger.getRange(lRow,1,1,55).getValues()[0]))throw Error('STATE_PROOF_READBACK_FAILED');
-    history.getRange(hRow,5,1,5).setValues([['登録完了',now,now,lRow,'COPY V16 native hash verified']]);
+    history.getRange(hRow,5,1,5).setValues([['登録完了',now,now,lRow,'COPY V17 native hash verified']]);
     report.added.push({id,guid,show:item.show,ledgerRow:lRow,hashVerified:true});
    }catch(e){report.held.push({guid,show:item.show,reason:String(e.message)});if(/RESERVATION|READBACK|STATE_PROOF/.test(String(e.message)))break;}
   }
