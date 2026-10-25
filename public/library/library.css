@@ -26,3 +26,16 @@ button{background:#594632;border-color:#594632}
 .episode-title:hover{color:#9b3f31}
 dialog{border-top:7px solid #594632}
 @media(max-width:600px){.intro{min-height:195px;padding:22px 20px 24px 27px}.intro:before{width:7px}.intro:after{display:none}h1{font-size:clamp(34px,9vw,52px)}.seal{width:69px;height:69px}.seal strong{font-size:32px}.seal small{font-size:7px}.eyebrow{font-size:9px}.intro-lead{font-size:16px!important}.intro-sub{font-size:12px}}
+
+
+/* Traditional kura V2: overlapping ceramic roof tiles, white plaster, dark timber. */
+/* Pure CSS decoration: no images, scripts, or network requests. */
+body{background-color:#eee9df;background-image:radial-gradient(ellipse at 20% 25%,rgba(255,255,255,.65),transparent 55%),radial-gradient(ellipse at 85% 70%,rgba(164,146,111,.09),transparent 45%)}
+.intro{isolation:isolate;overflow:visible;margin-top:29px;border:6px solid #3d352d;border-top:0;border-radius:0 0 10px 10px;padding:51px 48px 43px;min-height:273px;background-color:#f3efe4;background-image:radial-gradient(circle at 14% 33%,rgba(255,255,255,.94) 0 2px,transparent 4px),radial-gradient(ellipse at 56% 25%,rgba(255,255,255,.56),transparent 65%),repeating-linear-gradient(112deg,rgba(95,82,63,.028) 0px,rgba(95,82,63,.028) 1px,transparent 2px,transparent 9px);box-shadow:inset 0 0 0 5px #c9bda7,0 15px 26px rgba(48,39,28,.13)}
+.intro::before{content:"";position:absolute;z-index:1;left:-15px;right:-15px;top:-39px;bottom:auto;width:auto;height:43px;inset:auto -15px auto -15px;background:radial-gradient(ellipse 24px 18px at 24px 14px,#686a67 0 55%,#393d3d 58% 76%,transparent 80%) 0 13px/48px 29px repeat-x,repeating-linear-gradient(90deg,transparent 0 21px,#272b2c 22px 25px,transparent 26px 48px),linear-gradient(180deg,#363b3c 0%,#555956 36%,#222829 83%,#171c1e 100%);border-bottom:5px solid #2b2b28;border-radius:6px 6px 1px 1px;box-shadow:0 6px 7px rgba(22,20,18,.23)}
+.intro::after{content:"";position:absolute;z-index:-1;top:0;bottom:0;left:14px;right:14px;width:auto;background:linear-gradient(90deg,#342b25 0 8px,transparent 8px calc(100% - 8px),#342b25 calc(100% - 8px));opacity:.85}
+.intro h1,.intro p,.intro .seal{position:relative;z-index:2}
+.intro .seal{box-shadow:0 2px 0 rgba(129,59,47,.14)}
+form{background:#fdfaf3;border:1px solid #baac94;border-top:7px solid #40352a;border-radius:3px 3px 12px 12px;box-shadow:inset 0 0 0 3px #eee5d4,0 6px 16px rgba(49,40,30,.05)}
+.episode{border-top:1px solid #c7b8a0}
+@media(max-width:600px){.intro{margin-top:25px;min-height:211px;padding:32px 23px 23px 31px;border-width:4px}.intro::before{top:-30px;height:34px;left:-9px;right:-9px;background-size:38px 25px,38px 34px,auto;background-position:0 10px,0 0,0 0}.intro::after{left:7px;right:7px;background:linear-gradient(90deg,#342b25 0 5px,transparent 5px calc(100% - 5px),#342b25 calc(100% - 5px))}.intro h1{font-size:clamp(30px,8vw,48px);letter-spacing:.035em}.intro .seal{width:58px;height:58px;margin-left:5px}.intro .seal strong{font-size:27px}.intro-sub{font-size:11px}}
