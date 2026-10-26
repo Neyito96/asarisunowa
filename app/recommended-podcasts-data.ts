@@ -8,7 +8,7 @@ export const recommendedPodcastSnapshot = [
     "comment": "朝リス課外活動の座談会で知りました！",
     "artwork": "https://i.scdn.co/image/ab6765630000ba8a6078864d3b77f9633584e48f",
     "host": "AERA",
-    "genre": "ニュース・時事",
+    "genre": "ニュース",
     "youtube": "",
     "spotify": "https://open.spotify.com/show/3NdPcDtxhkuHCvDTQ1MmwQ?si=390703b62b454254",
     "amazon": "",
