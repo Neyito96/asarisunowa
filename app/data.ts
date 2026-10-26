@@ -58,7 +58,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "東日本大震災",
     "cobaltore12",
     "https://open.spotify.com/playlist/4nptiHJbbsjKS37kykLkNF",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694",
     null,
     null,
     false
@@ -391,7 +391,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "ポキ-1グランプリ 2023",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/5xUDKa3r5arvKSx4gqjwI3",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9",
     null,
     null,
     false
@@ -400,7 +400,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "「MEDIA TALK」 2023厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/6Q0iXwuC9PuLV3cqg11Dmt",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938",
     null,
     null,
     false
@@ -463,7 +463,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#懐メロ（#朝ポキ 楽屋裏）＋おじさんのメロディ",
     "koike",
     "https://open.spotify.com/playlist/0vItsmD8tW7fsv18NkZKzh",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600",
     null,
     null,
     false
@@ -544,7 +544,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "編集マニア",
     "カンダ ・マサキ",
     "https://open.spotify.com/playlist/71mdQ5ANqZda48jBkj0Qmz",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d",
     null,
     null,
     false
