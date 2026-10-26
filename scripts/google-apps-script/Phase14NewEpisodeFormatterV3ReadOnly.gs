@@ -18,15 +18,9 @@ var P14NewEpisodeFormatterV3=(function(){
    if(!paras.length||paras[0].length<60||/キャンペーン|PODCAST MEETING|会員登録/.test(paras[0]))
       return {status:'NEEDS_REVIEW',text:''};
    content=paras[0];
-   // Search only immediately following paragraphs, skipping clearly labeled optional media links.
-   for(let i=1;i<Math.min(paras.length,5);i++){
-    const x=paras[i];
-    if(/^※20\d{2}年\d{1,2}月\d{1,2}日に収録しました。?/.test(x)){
-      content+='\n\n'+x.match(/^※20\d{2}年\d{1,2}月\d{1,2}日に収録しました。?/)[0];break;
-    }
-    if(/【出演・スタッフ】|【朝ポキ情報】|discord|過去回|★|キャンペーン|ご意見・感想|まとめてわかる/i.test(x))break;
-    if(/^※/.test(x))break;
-   }
+   // Find a separately stated recording date even if an optional promotional paragraph intervenes.
+   const rec=s.match(/(?:^|\\n)\\s*(※20\\d{2}年\\d{1,2}月\\d{1,2}日に収録しました。?)/);
+   if(rec&&!content.includes(rec[1]))content+='\\n\\n'+rec[1];
   }
   content=content.replace(/\n{3,}/g,'\n\n').trim();
   if(content.length<60||/PODCAST MEETING|スタンダードコース|discord|ad choices|会員登録|https?:\/\//i.test(content))
