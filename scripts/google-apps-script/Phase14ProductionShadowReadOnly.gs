@@ -43,3 +43,25 @@ function phase14ProductionShadowReadOnly(){
    limitation:'Checks last 150 rows only; NOT full ledger GUID uniqueness audit.'};
  console.log(JSON.stringify(result));return result;
 }
+
+/**
+ * Install one daily READ_ONLY shadow trigger, after COPY morning intake.
+ * Does not touch COPY triggers. Explicitly call once to opt in.
+ */
+function phase14InstallShadowDailyTrigger(){
+ if(ScriptApp.getScriptId()!==P14_SHADOW.SCRIPT)throw Error('WRONG_SCRIPT');
+ if(Session.getScriptTimeZone()!=='Asia/Tokyo')throw Error('SCRIPT_TIMEZONE_MUST_BE_ASIA_TOKYO');
+ const handler='phase14ProductionShadowReadOnly';
+ const existing=ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()===handler);
+ if(existing.length>1)throw Error('MULTIPLE_SHADOW_TRIGGERS_MANUAL_REVIEW');
+ if(existing.length===1){const out={status:'ALREADY_INSTALLED',handler,triggerCount:1};console.log(JSON.stringify(out));return out;}
+ ScriptApp.newTrigger(handler).timeBased().atHour(8).everyDays(1).inTimezone('Asia/Tokyo').create();
+ const out={status:'INSTALLED',handler,triggerCount:1,note:'Runs once within 08:00-09:00 JST; COPY triggers unchanged. Logs only.'};
+ console.log(JSON.stringify(out));return out;
+}
+function phase14ShadowTriggerStatusReadOnly(){
+ if(ScriptApp.getScriptId()!==P14_SHADOW.SCRIPT)throw Error('WRONG_SCRIPT');
+ const count=ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='phase14ProductionShadowReadOnly').length;
+ const out={shadowTriggers:count,writes:0,triggerChanges:0};
+ console.log(JSON.stringify(out));return out;
+}
