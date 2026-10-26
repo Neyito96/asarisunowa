@@ -38,7 +38,7 @@ function phase14ProductionShadowReadOnly(){
    reviewed:out.length,notInProdTail:out.filter(x=>x.prodState==='NOT_FOUND_IN_PROD_TAIL').map(x=>x.copyId),
    collisions:out.filter(x=>x.prodState==='GUID_ID_CONFLICT').map(x=>x.copyId),
    clean:out.filter(x=>x.overview==='CLEAN_CONFIDENT').length,
-   holds:out.filter(x=>x.overview!=='CLEAN_CONFIDENT'||x.cast.status==='NEEDS_REVIEW').map(x=>x.copyId),
+   holds:out.filter(x=>x.overview!=='CLEAN_CONFIDENT'||x.cast==='NEEDS_REVIEW').map(x=>x.copyId),
    status:'READ_ONLY',writes:0,triggerChanges:0,
    limitation:'Checks last 150 rows only; NOT full ledger GUID uniqueness audit.'};
  console.log(JSON.stringify(result));return result;
