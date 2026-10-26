@@ -13,7 +13,7 @@ function phase14ProductionRssShadowReadOnly(){
  const sheet=book.getSheetByName('エピソード台帳'),rows=sheet.getDataRange().getValues();
  const known=new Set(rows.slice(1).map(r=>String(r[6]||'').trim().toLowerCase()).filter(Boolean));
  const cbook=SpreadsheetApp.openById(COPY),feeds=cbook.getSheetByName('取得元一覧').getRange('A2:H8').getDisplayValues();
- const results=[],errors=[];let scanned=0;
+ const results=[],errors=[];let scanned=0,feedItemsReturned=0;const MAX_PER_FEED=3;
  for(const row of feeds){
   const program=row[0],url=row[7];
   if(!/^https:\/\/(?:www\.omnycontent\.com\/d\/playlist\/|feeds\.megaphone\.fm\/TASC)/.test(url)){errors.push({program,reason:'UNAPPROVED_FEED'});continue;}
@@ -22,8 +22,12 @@ function phase14ProductionRssShadowReadOnly(){
    if(resp.getResponseCode()!==200)throw Error('RSS_HTTP_'+resp.getResponseCode());
    const root=XmlService.parse(resp.getContentText()).getRootElement();
    const channel=root.getChild('channel');if(!channel)throw Error('MISSING_CHANNEL');
-   const items=channel.getChildren('item');scanned+=items.length;
-   for(const item of items){
+   const items=channel.getChildren('item');feedItemsReturned+=items.length;
+   const latest=items.map(item=>({item,date:Date.parse(item.getChildText('pubDate')||'')}))
+     .filter(x=>Number.isFinite(x.date)&&x.date<=Date.now())
+     .sort((a,b)=>b.date-a.date).slice(0,MAX_PER_FEED);
+   scanned+=latest.length;
+   for(const {item} of latest){
     const guid=String(item.getChildText('guid')||'').trim();
     if(!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(guid))continue;
     if(known.has(guid.toLowerCase()))continue;
@@ -38,7 +42,7 @@ function phase14ProductionRssShadowReadOnly(){
    }
   } catch(e){errors.push({program,reason:String(e)});}
  }
- const summary={mode:'RSS_SHADOW_READ_ONLY',feeds:feeds.length,scanned,
+ const summary={mode:'RSS_SHADOW_READ_ONLY',feeds:feeds.length,maxPerFeed:MAX_PER_FEED,scanned,feedItemsReturned,
    candidates:results.length,errors,prodRows:rows.length-1,
    writes:0,idsAllocated:0,triggerChanges:0};
  console.log(JSON.stringify(summary));return summary;
