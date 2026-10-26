@@ -17,21 +17,31 @@ function phase14ProductionRssFastShadowV2(){
   const sh=SpreadsheetApp.openById(CFG.prod).getSheetByName('エピソード台帳');
   const props=PropertiesService.getScriptProperties(),last=sh.getLastRow();
   const countKey=CFG.prefix+'_LAST_ROW',setKey=CFG.prefix+'_KNOWN_GUIDS';
-  let cached=props.getProperty(setKey),previous=Number(props.getProperty(countKey)||0),known=new Set();
-  if(cached){
-   try{known=new Set(JSON.parse(cached));}catch(e){cached=null;}
+  const parts=Number(props.getProperty(CFG.prefix+'_PARTS')||0);
+  let previous=Number(props.getProperty(countKey)||0),known=new Set(),valid=parts>0;
+  if(valid){
+   try{
+    for(let n=0;n<parts;n++){
+      const part=props.getProperty(setKey+'_'+n);
+      if(!part)throw Error('MISSING_PART');
+      JSON.parse(part).forEach(g=>known.add(g));
+    }
+   }catch(e){valid=false;}
   }
-  if(!cached||previous<2||previous>last){
-   previous=1;known.clear();
-  }
+  if(!valid||previous<2||previous>last){previous=1;known.clear();}
   const begin=Math.max(2,previous+1),delta=Math.max(0,last-begin+1);
   if(delta){
    sh.getRange(begin,7,delta,1).getDisplayValues().forEach(a=>{if(a[0])known.add(String(a[0]).trim().toLowerCase());});
   }
-  // Do not persist a truncated cache: if property limit is exceeded, rebuild on next run.
-  const packed=JSON.stringify([...known]);
-  if(packed.length<8500){props.setProperties({[setKey]:packed,[countKey]:String(last)});}
-  else {props.deleteProperty(setKey);props.deleteProperty(countKey);}
+  // Partition GUIDs below the Apps Script per-property value limit.
+  const all=[...known],chunkSize=90,needed=Math.ceil(all.length/chunkSize);
+  const oldParts=Number(props.getProperty(CFG.prefix+'_PARTS')||0);
+  const payload={};
+  for(let n=0;n<needed;n++)payload[setKey+'_'+n]=JSON.stringify(all.slice(n*chunkSize,(n+1)*chunkSize));
+  // Write cache parts before moving the checkpoint; missing part forces rebuild.
+  props.setProperties(payload);
+  for(let n=needed;n<oldParts;n++)props.deleteProperty(setKey+'_'+n);
+  props.setProperties({[CFG.prefix+'_PARTS']:String(needed),[countKey]:String(last)});
   const feeds=SpreadsheetApp.openById(CFG.copy).getSheetByName('取得元一覧').getRange('A2:H8').getDisplayValues();
   const output=[],errors=[];let checked=0,available=0;
   const normalizedFeeds=feeds.filter(x=>x[0]&&x[7]);
