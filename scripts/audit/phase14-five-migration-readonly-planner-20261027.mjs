@@ -1,9 +1,9 @@
 /** Side-effect-free planner: snapshots only; never calls APIs or writes. */
 export function planMigration(productionRows, copyRows, historyRows, options = {}) {
  const assert=(condition,reason)=>{if(!condition)throw Error(reason)};
- assert(productionRows.every(r=>r.id&&r.guid), 'INVALID_PRODUCTION_SNAPSHOT');
+ assert(productionRows.every(r=>r.id), 'INVALID_PRODUCTION_SNAPSHOT');
  const pids=new Map(), pguids=new Map(), cguids=new Set(), hids=new Set(), hguids=new Set();
- for(const r of productionRows){assert(!pids.has(r.id),'DUPLICATE_PRODUCTION_ID');assert(!pguids.has(r.guid),'DUPLICATE_PRODUCTION_GUID');pids.set(r.id,r);pguids.set(r.guid,r)}
+ for(const r of productionRows){assert(!pids.has(r.id),'DUPLICATE_PRODUCTION_ID');if(r.guid)assert(!pguids.has(r.guid),'DUPLICATE_PRODUCTION_GUID');pids.set(r.id,r);if(r.guid)pguids.set(r.guid,r)}
  for(const r of historyRows){if(r.id)hids.add(r.id);if(r.guid)hguids.add(r.guid)}
  const allNums=[...pids.keys(),...hids].map(id=>/^EP-(\d+)$/.exec(id)).filter(Boolean).map(m=>Number(m[1]));
  const max=Math.max(0,...allNums);
