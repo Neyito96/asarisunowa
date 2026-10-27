@@ -32,3 +32,15 @@ The `locked` flag is **in-process only**, not a distributed cross-project GAS lo
 
 ## Safety verdict
 LAB prototype only. Production writer not proven, other writer exclusion not proven, RSS full daily coverage SOURCE_PENDING, production EP-06632 remains untouched. **Production recovery NO-GO**. COPY EP IDs are not eligible for transfer.
+
+## 2026-10-27 adversarial hardening (司令塔 9e7008a)
+No production writes. Before hardening, the adversarial 7-case harness returned **7 FAIL / 7 (RED, exit code 1)**. After source fix, the same harness returned **7 PASS / 7 (GREEN, exit code 0)**. Updated baseline regression suite returned **16 PASS / 16, exit code 0** in local Node v22.16.0. These results were obtained using the offline source and synthetic data, not GitHub Actions or Apps Script.
+
+Run both:
+```sh
+node lab/phase15-safe-ingest/test.js
+node lab/phase15-safe-ingest/adversarial.test.js
+```
+Changes: validating duplicate IDs/GUIDs and wrong V3 proofs; COMPLETED never silently succeeds with missing ledger or V3; legacy ledger without history requires proof before skip; history URL differences STOP; index checkpoint is no longer trusted (full observed feed items reexamined by GUID on every run). All conflicts fail closed; no checkpoint advancement on a conflicting item. All feed errors remain SOURCE_PENDING. Proved scenario: RSS reordered to put previously unseen episode before old index gets ingested.
+
+**Residual risks:** LAB memory-only state is not a durable transaction or global lock. Separate instances may clone identical snapshots and allocate the same ID; do not run them as writers. Actor authority and writerExcluded are caller-supplied synthetic booleans, NOT verified production facts. The checkpoint is informational, not a demonstrated persistence layer. Synthetic proof cannot validate real native 55-cell SHA256. Legacy ledger without V3 proof is conservatively STOP (manual reconciliation needed). A full official feed must be supplied; incomplete RSS coverage is not ruled out. Blocking I/O and cross-project locks remain unaddressed. Production remains **NO-GO**.
