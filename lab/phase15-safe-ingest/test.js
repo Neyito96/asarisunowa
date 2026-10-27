@@ -1,13 +1,13 @@
 'use strict';
 const assert=require('node:assert/strict'),{LabIngest}=require('./engine');
-const base={ledger:[{id:'EP-06632',guid:'real-production-child',url:'https://existing'}],history:[{id:'EP-06632',guid:'real-production-child',state:'COMPLETED'}],v3:[]};
+const base={ledger:[{id:'EP-06632',guid:'real-production-child',url:'https://existing'}],history:[{id:'EP-06632',guid:'real-production-child',state:'COMPLETED',url:'https://existing'}],v3:[{id:'EP-06632',proof:'synthetic:real-production-child:EP-06632'}]};
 const options={authority:true,writerExcluded:true,now:()=>0,budget:300000};
 const item=i=>({guid:'guid-'+i,url:'https://official/'+i,audio:'https://audio/'+i});
 const records=[];function test(name,fn){try{fn();records.push({name,result:'PASS'})}catch(e){records.push({name,result:'FAIL',error:e.message})}}
 test('no authority NO-GO',()=>assert.throws(()=>new LabIngest(base).run([]),/STOP_AUTHORITY/));
 test('EP-06632 collision protected',()=>assert.throws(()=>new LabIngest(base,options).run([{name:'A',items:[{...item(1),proposedId:'EP-06632'}]}]),/STOP_ID_COLLISION/));
 test('synthetic new ID after protected 06632',()=>{let e=new LabIngest(base,options);e.run([{name:'A',items:[item(1)]}]);assert.equal(e.s.history[1].id,'EP-06633')});
-for(const stage of ['after_reserved','after_ledger','after_v3','after_completed'])test('resume '+stage,()=>{let e=new LabIngest(base,options);e.failAt=stage;assert.throws(()=>e.run([{name:'A',items:[item(1)]}]),/SYNTHETIC_CRASH/);let x=new LabIngest(e.snapshot(),options);x.run([{name:'A',items:[item(1)]}]);assert.equal(x.s.history[1].state,'COMPLETED');assert.equal(x.s.ledger.length,2);assert.equal(x.s.v3.length,1)});
+for(const stage of ['after_reserved','after_ledger','after_v3','after_completed'])test('resume '+stage,()=>{let e=new LabIngest(base,options);e.failAt=stage;assert.throws(()=>e.run([{name:'A',items:[item(1)]}]),/SYNTHETIC_CRASH/);let x=new LabIngest(e.snapshot(),options);x.run([{name:'A',items:[item(1)]}]);assert.equal(x.s.history[1].state,'COMPLETED');assert.equal(x.s.ledger.length,2);assert.equal(x.s.v3.length,2)});
 test('RSS 503 means SOURCE_PENDING',()=>{let e=new LabIngest(base,options);assert.equal(e.run([{name:'fail',error:'HTTP_503'}]).status,'SOURCE_PENDING')});
 test('four per program processed',()=>{let e=new LabIngest(base,options);e.run([{name:'A',items:Array.from({length:4},(_,i)=>item(i))}]);assert.equal(e.s.history.length,5)});
 test('eleven total processed',()=>{let e=new LabIngest(base,options);e.run([{name:'A',items:Array.from({length:6},(_,i)=>item(i))},{name:'B',items:Array.from({length:5},(_,i)=>item(i+6))}]);assert.equal(e.s.history.length,12)});
