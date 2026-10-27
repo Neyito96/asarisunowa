@@ -1,6 +1,6 @@
 {
   "source": "previously verified LIVE V GitHub snapshots; hashes in eighth audit manifest",
-  "policy": "phase15-school4-and-hodan1-quality-v3",
+  "policy": "phase15-school4-and-hodan1-quality-v3.1",
   "records": [
     {
       "ep_id": "EP-00411",
@@ -15,9 +15,9 @@
       "article_full_url_preserved": true,
       "required_context": [],
       "literal_slash_n_remaining": false,
-      "idempotent": false,
-      "cleaned_preview": "女性は衣類の着脱や月経などでトイレに時間がかかります。中日本高速道路の2018年の調査では、女性の利用時間は男性の小便器利用時間の3倍。なのに、不特定多数の人が使う外出先のトイレではおおむね、女性用の便器が男性用より少ないのが実情です。\n（いちからわかる！）女性トイレの行列、なぜできやすいの？ https://www.asahi.com/articles/DA3S16531717.html?iref=omny",
-      "classification": "STRUCTURAL_CONTENT_PASS_PENDING_INDEPENDENT_FINAL_REVIEW",
+      "idempotent": true,
+      "cleaned_preview": "女性は衣類の着脱や月経などでトイレに時間がかかります。中日本高速道路の2018年の調査では、女性の利用時間は男性の小便器利用時間の3倍。なのに、不特定多数の人が使う外出先のトイレではおおむね、女性用の便器が男性用より少ないのが実情です。\n（いちからわかる！）女性トイレの行列、なぜできやすいの？https://www.asahi.com/articles/DA3S16531717.html?iref=omny",
+      "classification": "CONTENT_QA_CANDIDATE_PENDING_HUMAN_SIGNOFF",
       "writes": 0
     },
     {
@@ -96,9 +96,9 @@
       "article_full_url_preserved": true,
       "required_context": [],
       "literal_slash_n_remaining": false,
-      "idempotent": false,
-      "cleaned_preview": "ゴキブリ人民党は、米国・ボストンの大学院で学んでいたアビジート・ディプケさんがインスタグラムで始めました。インドの最高裁長官が５月、失業中の若者を「ゴキブリ」になぞらえたと受け止められる発言をしたことに反発し、動画などを投稿しました。\n（フロントライン　世界）ゴキブリ人民党の挑戦　奇抜な「ミーム」、怒れるインドの若者は団結した https://www.asahi.com/articles/DA3S16531665.html?iref=omny",
-      "classification": "STRUCTURAL_CONTENT_PASS_PENDING_INDEPENDENT_FINAL_REVIEW",
+      "idempotent": true,
+      "cleaned_preview": "ゴキブリ人民党は、米国・ボストンの大学院で学んでいたアビジート・ディプケさんがインスタグラムで始めました。インドの最高裁長官が５月、失業中の若者を「ゴキブリ」になぞらえたと受け止められる発言をしたことに反発し、動画などを投稿しました。\n（フロントライン　世界）ゴキブリ人民党の挑戦　奇抜な「ミーム」、怒れるインドの若者は団結したhttps://www.asahi.com/articles/DA3S16531665.html?iref=omny",
+      "classification": "CONTENT_QA_CANDIDATE_PENDING_HUMAN_SIGNOFF",
       "writes": 0
     },
     {
@@ -114,9 +114,9 @@
       "article_full_url_preserved": true,
       "required_context": [],
       "literal_slash_n_remaining": false,
-      "idempotent": false,
-      "cleaned_preview": "中国チベット自治区とネパールの国境を流れる河川で8月26日、大規模な土石流が発生し、集落や道路、橋などをのみ込みました。衛星画像などに基づく初期分析では、氷河と岩盤が一体となって崩れ落ちる「岩氷雪崩」が災害の出発点だった可能性が浮上しています。\nネパールの大規模土石流、なぜこれほどの被害？　温暖化で増すリスク https://www.asahi.com/articles/ASV8X44FGV8XUTFL01DM.html?iref=omny",
-      "classification": "STRUCTURAL_CONTENT_PASS_PENDING_INDEPENDENT_FINAL_REVIEW",
+      "idempotent": true,
+      "cleaned_preview": "中国チベット自治区とネパールの国境を流れる河川で8月26日、大規模な土石流が発生し、集落や道路、橋などをのみ込みました。衛星画像などに基づく初期分析では、氷河と岩盤が一体となって崩れ落ちる「岩氷雪崩」が災害の出発点だった可能性が浮上しています。\nネパールの大規模土石流、なぜこれほどの被害？　温暖化で増すリスクhttps://www.asahi.com/articles/ASV8X44FGV8XUTFL01DM.html?iref=omny",
+      "classification": "CONTENT_QA_CANDIDATE_PENDING_HUMAN_SIGNOFF",
       "writes": 0
     },
     {
@@ -134,9 +134,10 @@
       "literal_slash_n_remaining": false,
       "idempotent": true,
       "cleaned_preview": "速度を規制する標識がない生活道路の多くで、車の最高速度（法定速度）が9月1日に、時速60キロから30キロに引き下げられます。規制の標識がなければ、住民が日常的に使う生活道路でも60キロ走行が可能だったため、車の速度を抑えて歩行者らの安全確保につなげる狙いがあります。\n生活道路の法定速度60→30キロに、9月から　一般道の6～7割か\nhttps://www.asahi.com/articles/ASV8V2F1GV8VUTIL00QM.html?iref=omny",
-      "classification": "STRUCTURAL_CONTENT_PASS_PENDING_INDEPENDENT_FINAL_REVIEW",
+      "classification": "CONTENT_QA_CANDIDATE_PENDING_HUMAN_SIGNOFF",
       "writes": 0
     }
   ],
-  "writes": 0
+  "writes": 0,
+  "note": "Fixed unstable added space before article URL; no sheet writes. Idempotency evaluated on normalized text under v3.1; independent implementation review pending."
 }
