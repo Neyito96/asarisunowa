@@ -76,7 +76,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "ニュースチャット 1on1",
     "ルッキー",
     "https://open.spotify.com/playlist/5dBF4gpwMx8k9iHIibO1Z2",
-    "https://mosaic.scdn.co/640/ab67656300005f1f2d03ee68328278afa11f96c8ab67656300005f1f8b88c7f4ff81ff4cae420b6aab67656300005f1feaa27597cc5b738ebe5272c4ab67656300005f1ff4ddfc9ae137e91918c94675",
+    "https://mosaic.scdn.co/300/ab67656300005f1f2d03ee68328278afa11f96c8ab67656300005f1f8b88c7f4ff81ff4cae420b6aab67656300005f1feaa27597cc5b738ebe5272c4ab67656300005f1ff4ddfc9ae137e91918c94675",
     "2025-09-24",
     null,
     false
@@ -310,7 +310,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "メディアを語る　伊藤大地x奥山晶二郎x神田大介",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/2lA13BSsvyLjq9iPFa6oDo",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84996d7c4cc61163a9b6ed71d9",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84996d7c4cc61163a9b6ed71d9",
     null,
     null,
     false
@@ -364,7 +364,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "藤えりか　シネマニア経済サロン",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/20HFJSL3TNNYTR7w0xXTue",
-    "https://mosaic.scdn.co/300/ab67656300005f1f49e87af01730a72f2db2d072ab67656300005f1f5a5ffbf2e1fc943bc050c8fdab67656300005f1fde84392b5165823ae76ff1bcab67656300005f1ff21dc2c37e7721c6f0c602c3",
+    "https://mosaic.scdn.co/640/ab67656300005f1f49e87af01730a72f2db2d072ab67656300005f1f5a5ffbf2e1fc943bc050c8fdab67656300005f1fde84392b5165823ae76ff1bcab67656300005f1ff21dc2c37e7721c6f0c602c3",
     null,
     null,
     false
@@ -391,7 +391,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "ポキ-1グランプリ 2023",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/5xUDKa3r5arvKSx4gqjwI3",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9",
     null,
     null,
     false
@@ -418,7 +418,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "バスケ通信―クラッチタイム（バスクラ）",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/3axOpfDhMhLEtelwGwvMHb",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244",
     null,
     null,
     false
@@ -526,7 +526,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#初登場特集（#朝ポキ）",
     "koike",
     "https://open.spotify.com/playlist/3WLp56ohdZs2AqDoUwNNWd",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef",
     null,
     null,
     false
@@ -544,7 +544,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "編集マニア",
     "カンダ ・マサキ",
     "https://open.spotify.com/playlist/71mdQ5ANqZda48jBkj0Qmz",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d",
     null,
     null,
     false
@@ -616,7 +616,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "中南米",
     "マリオ",
     "https://open.spotify.com/playlist/2Org6cCBgVas4d9OwzzxAv",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37",
     "2026-09-08",
     "2026-09-18",
     true
