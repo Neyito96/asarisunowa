@@ -1,0 +1,48 @@
+{
+  "status": "PRELIMINARY_STRUCTURE_REVIEW",
+  "writes": 0,
+  "records": [
+    {
+      "id": "EP-00411",
+      "show": "ニュースの学校",
+      "issue": "literal slash-n, headline/url separation",
+      "status": "HOLD_CLEANING"
+    },
+    {
+      "id": "EP-00412",
+      "show": "ニュースの学校",
+      "issue": "literal slash-n and promo trimming",
+      "status": "HOLD_CLEANING"
+    },
+    {
+      "id": "EP-00413",
+      "show": "ニュースの学校",
+      "issue": "literal slash-n and promo trimming",
+      "status": "HOLD_CLEANING"
+    },
+    {
+      "id": "EP-00414",
+      "show": "ニュースの学校",
+      "issue": "literal slash-n and linked article preservation",
+      "status": "HOLD_CLEANING"
+    },
+    {
+      "id": "EP-00121",
+      "show": "報談",
+      "issue": "41 literal slash-n tokens; multiple links and long-form context require independent semantic validation",
+      "status": "HOLD_CLEANING"
+    },
+    {
+      "id": "EP-00160",
+      "show": "AJW",
+      "issue": "excluded from public target; English-article links must not be trimmed",
+      "status": "TEST_ONLY_EXCLUDED"
+    },
+    {
+      "id": "EP-00161",
+      "show": "AJW",
+      "issue": "excluded from public target; English-article links must not be trimmed",
+      "status": "TEST_ONLY_EXCLUDED"
+    }
+  ]
+}
