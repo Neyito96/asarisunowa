@@ -1,0 +1,20 @@
+'use strict';
+const assert=require('node:assert/strict'),{LabIngest}=require('./engine');
+const base={ledger:[{id:'EP-06632',guid:'real-production-child',url:'https://existing'}],history:[{id:'EP-06632',guid:'real-production-child',state:'COMPLETED'}],v3:[]};
+const options={authority:true,writerExcluded:true,now:()=>0,budget:300000};
+const item=i=>({guid:'guid-'+i,url:'https://official/'+i,audio:'https://audio/'+i});
+const records=[];function test(name,fn){try{fn();records.push({name,result:'PASS'})}catch(e){records.push({name,result:'FAIL',error:e.message})}}
+test('no authority NO-GO',()=>assert.throws(()=>new LabIngest(base).run([]),/STOP_AUTHORITY/));
+test('EP-06632 collision protected',()=>assert.throws(()=>new LabIngest(base,options).run([{name:'A',items:[{...item(1),proposedId:'EP-06632'}]}]),/STOP_ID_COLLISION/));
+test('synthetic new ID after protected 06632',()=>{let e=new LabIngest(base,options);e.run([{name:'A',items:[item(1)]}]);assert.equal(e.s.history[1].id,'EP-06633')});
+for(const stage of ['after_reserved','after_ledger','after_v3','after_completed'])test('resume '+stage,()=>{let e=new LabIngest(base,options);e.failAt=stage;assert.throws(()=>e.run([{name:'A',items:[item(1)]}]),/SYNTHETIC_CRASH/);let x=new LabIngest(e.snapshot(),options);x.run([{name:'A',items:[item(1)]}]);assert.equal(x.s.history[1].state,'COMPLETED');assert.equal(x.s.ledger.length,2);assert.equal(x.s.v3.length,1)});
+test('RSS 503 means SOURCE_PENDING',()=>{let e=new LabIngest(base,options);assert.equal(e.run([{name:'fail',error:'HTTP_503'}]).status,'SOURCE_PENDING')});
+test('four per program processed',()=>{let e=new LabIngest(base,options);e.run([{name:'A',items:Array.from({length:4},(_,i)=>item(i))}]);assert.equal(e.s.history.length,5)});
+test('eleven total processed',()=>{let e=new LabIngest(base,options);e.run([{name:'A',items:Array.from({length:6},(_,i)=>item(i))},{name:'B',items:Array.from({length:5},(_,i)=>item(i+6))}]);assert.equal(e.s.history.length,12)});
+test('older than seven days not dropped',()=>{let e=new LabIngest(base,options);e.run([{name:'A',items:[{...item(1),pubDate:'2026-10-01'}]}]);assert.equal(e.s.history.length,2)});
+test('idempotent second run',()=>{let e=new LabIngest(base,options);let f=[{name:'A',items:[item(1)]}];e.run(f);e.run(f);assert.equal(e.s.history.length,2)});
+test('same instance concurrent rejected',()=>{let e=new LabIngest(base,options);e.locked=true;assert.throws(()=>e.run([]),/BUSY/)});
+test('other writer not excluded NO-GO',()=>assert.throws(()=>new LabIngest(base,{authority:true,writerExcluded:false}).run([]),/STOP_AUTHORITY/));
+test('time budget at entry',()=>{let e=new LabIngest(base,{...options,now:(()=>{let a=0;return ()=>{a+=301000;return a}})()});assert.throws(()=>e.run([{name:'A',items:[item(1)]}]),/SAFE_DEADLINE/);assert.equal(e.s.ledger.length,1)});
+test('hard crash after reservation remains recoverable',()=>{let e=new LabIngest(base,options);e.failAt='after_reserved';assert.throws(()=>e.run([{name:'A',items:[item(1)]}]),/SYNTHETIC_CRASH/);assert.equal(e.s.history[1].state,'RESERVED')});
+console.log(JSON.stringify({total:records.length,passed:records.filter(x=>x.result==='PASS').length,failed:records.filter(x=>x.result==='FAIL').length,records},null,2));if(records.some(x=>x.result==='FAIL'))process.exitCode=1;
