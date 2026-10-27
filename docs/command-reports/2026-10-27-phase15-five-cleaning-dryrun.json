@@ -1,0 +1,174 @@
+{
+  "test_vector": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+  "cleaner": "phase15-school3-clean-v2-preview (structural baseline; long-form needs specialized review)",
+  "source": "live production V, READ_ONLY",
+  "records": [
+    {
+      "id": "EP-00121",
+      "guid": "e82f586e-c2fc-11f1-a921-1f4c4e7d2443",
+      "program": "報談",
+      "w_old_empty": true,
+      "v_hash": "f676065a16815fce3f7de9b20809866910bb29fd71fa1017e16c9da1b7e21ec7",
+      "snapshot_hash": "f676065a16815fce3f7de9b20809866910bb29fd71fa1017e16c9da1b7e21ec7",
+      "snapshot_equal": true,
+      "candidate_hash": "734f32b9de2c77489a02cc7520511508c28e6fb61bee68ce7cd612be702a2679",
+      "candidate_preview": "今回は元アメリカ総局長の望月洋嗣をゲストに迎え、アメリカ中間選挙についてみていきます。トランプ大統領率いる共和党の苦戦も伝えられる中、アメリカはどう動くのか。前半は簗和夫・農水相の「カット発言」問題の読みときです。\n★朝日新聞アプリで2人をフォローしてください！\n冨名腰隆 https://bit.ly/43wSTFg\n神田大介 https://bit.ly/4k4ZKwA\n※2026年10月8日に収録しました。過去回は下記からご確認ください\nhttps://www.asahi.com/speci",
+      "url_count": 3,
+      "urls_preserved": true,
+      "headline_url_pairs": [
+        {
+          "url": "https://www.asahi.com/articles/ASVB50F45VB5UHBI029M.html",
+          "headline": ""
+        },
+        {
+          "url": "https://www.asahi.com/articles/ASV9B0VB8V9BDIFI00QM.html",
+          "headline": ""
+        },
+        {
+          "url": "https://www.asahi.com/articles/ASV9Q0D9SV9QUHMC001M.html",
+          "headline": ""
+        }
+      ],
+      "literal_slash_n_remaining": false,
+      "idempotent": true,
+      "has_recording_note": true,
+      "has_guest_reference": true,
+      "loss_of_nonpromo_urls": [
+        "https://bit.ly/43wSTFg&nbsp;",
+        "https://bit.ly/4k4ZKwA&nbsp;",
+        "https://www.asahi.com/special/podcasts/?pgid=funa&nbsp;",
+        "https://discord.gg/d7sAbSRQvq&nbsp;",
+        "https://www.asahi.com/articles/ASVB50F45VB5UHBI029M.html?iref=omny&nbsp;",
+        "https://www.asahi.com/articles/ASV9B0VB8V9BDIFI00QM.html?iref=omny&nbsp;",
+        "https://www.asahi.com/articles/ASV9Q0D9SV9QUHMC001M.html?iref=omny&nbsp;",
+        "https://buff.ly/nw0cdOm&nbsp;",
+        "https://bit.ly/43wSTFg&nbsp;",
+        "https://bit.ly/4k4ZKwA&nbsp;",
+        "http://t.asahi.com/won1&nbsp;",
+        "https://bit.ly/asapoki_discord&nbsp;",
+        "https://bit.ly/asapoki_otayori&nbsp;",
+        "https://bit.ly/asapoki_newsletter&nbsp;",
+        "http://t.asahi.com/asapokiguide&nbsp;",
+        "https://bit.ly/asapoki_cast&nbsp;",
+        "https://bit.ly/asapoki_twitter&nbsp;",
+        "https://bit.ly/asapki_calendar&nbsp;",
+        "https://bit.ly/asapoki_lp&nbsp;"
+      ],
+      "status": "HOLD_SEMANTIC_REVIEW",
+      "writes": 0
+    },
+    {
+      "id": "EP-00411",
+      "guid": "891d8c7c-a20b-11f1-8db7-17df4b86cea0",
+      "program": "ニュースの学校",
+      "w_old_empty": true,
+      "v_hash": "971600628cc9bd4d6dc63c43dec87a369e23fd9ca2a0b4a67c930af17f34cc68",
+      "snapshot_hash": "971600628cc9bd4d6dc63c43dec87a369e23fd9ca2a0b4a67c930af17f34cc68",
+      "snapshot_equal": true,
+      "candidate_hash": "30d101dd051614e3753504be2a818e55298b40f413dc91541715719e7fdd06b7",
+      "candidate_preview": "女性は衣類の着脱や月経などでトイレに時間がかかります。中日本高速道路の2018年の調査では、女性の利用時間は男性の小便器利用時間の3倍。なのに、不特定多数の人が使う外出先のトイレではおおむね、女性用の便器が男性用より少ないのが実情です。\n（いちからわかる！）女性トイレの行列、なぜできやすいの？\nhttps://www.asahi.com/articles/DA3S16531717.html?iref=omny",
+      "url_count": 1,
+      "urls_preserved": true,
+      "headline_url_pairs": [
+        {
+          "url": "https://www.asahi.com/articles/DA3S16531717.html",
+          "headline": ""
+        }
+      ],
+      "literal_slash_n_remaining": false,
+      "idempotent": true,
+      "has_recording_note": false,
+      "has_guest_reference": false,
+      "loss_of_nonpromo_urls": [
+        "https://www.asahi.com/articles/DA3S16531717.html?iref=omny&nbsp;"
+      ],
+      "status": "HOLD_SEMANTIC_REVIEW",
+      "writes": 0
+    },
+    {
+      "id": "EP-00412",
+      "guid": "96db81e6-a2b7-11f1-a243-136098aedb2f",
+      "program": "ニュースの学校",
+      "w_old_empty": true,
+      "v_hash": "592988d53ed33e4a47e307775e276bfe4935bbe48aaf7c539bb038cb2b3e9cf1",
+      "snapshot_hash": "592988d53ed33e4a47e307775e276bfe4935bbe48aaf7c539bb038cb2b3e9cf1",
+      "snapshot_equal": true,
+      "candidate_hash": "61fc5f72cb2977013f502acecec434d8670639da6a6cc8b133f89caf8e54cb18",
+      "candidate_preview": "ゴキブリ人民党は、米国・ボストンの大学院で学んでいたアビジート・ディプケさんがインスタグラムで始めました。インドの最高裁長官が５月、失業中の若者を「ゴキブリ」になぞらえたと受け止められる発言をしたことに反発し、動画などを投稿しました。\n（フロントライン　世界）ゴキブリ人民党の挑戦　奇抜な「ミーム」、怒れるインドの若者は団結した\nhttps://www.asahi.com/articles/DA3S16531665.html?iref=omny",
+      "url_count": 1,
+      "urls_preserved": true,
+      "headline_url_pairs": [
+        {
+          "url": "https://www.asahi.com/articles/DA3S16531665.html",
+          "headline": ""
+        }
+      ],
+      "literal_slash_n_remaining": false,
+      "idempotent": true,
+      "has_recording_note": false,
+      "has_guest_reference": false,
+      "loss_of_nonpromo_urls": [
+        "https://www.asahi.com/articles/DA3S16531665.html?iref=omny&nbsp;"
+      ],
+      "status": "HOLD_SEMANTIC_REVIEW",
+      "writes": 0
+    },
+    {
+      "id": "EP-00413",
+      "guid": "e28f46fa-a4dc-11f1-a360-679e7a08570e",
+      "program": "ニュースの学校",
+      "w_old_empty": true,
+      "v_hash": "5c01dfe000b6a92873cdd630d6d95f8c72bd89790b9fbef38b0d78510b8a08f1",
+      "snapshot_hash": "5c01dfe000b6a92873cdd630d6d95f8c72bd89790b9fbef38b0d78510b8a08f1",
+      "snapshot_equal": true,
+      "candidate_hash": "595d050d0e0069bd78101e6a5cfbf7c8402c3aa215efb83023a944c86d791339",
+      "candidate_preview": "中国チベット自治区とネパールの国境を流れる河川で8月26日、大規模な土石流が発生し、集落や道路、橋などをのみ込みました。衛星画像などに基づく初期分析では、氷河と岩盤が一体となって崩れ落ちる「岩氷雪崩」が災害の出発点だった可能性が浮上しています。\nネパールの大規模土石流、なぜこれほどの被害？　温暖化で増すリスク\nhttps://www.asahi.com/articles/ASV8X44FGV8XUTFL01DM.html?iref=omny",
+      "url_count": 1,
+      "urls_preserved": true,
+      "headline_url_pairs": [
+        {
+          "url": "https://www.asahi.com/articles/ASV8X44FGV8XUTFL01DM.html",
+          "headline": ""
+        }
+      ],
+      "literal_slash_n_remaining": false,
+      "idempotent": true,
+      "has_recording_note": false,
+      "has_guest_reference": false,
+      "loss_of_nonpromo_urls": [
+        "https://www.asahi.com/articles/ASV8X44FGV8XUTFL01DM.html?iref=omny&nbsp;"
+      ],
+      "status": "HOLD_SEMANTIC_REVIEW",
+      "writes": 0
+    },
+    {
+      "id": "EP-00414",
+      "guid": "e238cfca-a20a-11f1-a8e1-2fa046a4377a",
+      "program": "ニュースの学校",
+      "w_old_empty": true,
+      "v_hash": "1d96a7115cc2bd7c6f55fc610941df0fd83363b359911e773798b5870d4dadc1",
+      "snapshot_hash": "1d96a7115cc2bd7c6f55fc610941df0fd83363b359911e773798b5870d4dadc1",
+      "snapshot_equal": true,
+      "candidate_hash": "141d551f425164b4ed8771f215a4bf566b840515bfec794b0a46d488fcf93f07",
+      "candidate_preview": "速度を規制する標識がない生活道路の多くで、車の最高速度（法定速度）が9月1日に、時速60キロから30キロに引き下げられます。規制の標識がなければ、住民が日常的に使う生活道路でも60キロ走行が可能だったため、車の速度を抑えて歩行者らの安全確保につなげる狙いがあります。\n生活道路の法定速度60→30キロに、9月から　一般道の6～7割か\nhttps://www.asahi.com/articles/ASV8V2F1GV8VUTIL00QM.html?iref=omny",
+      "url_count": 1,
+      "urls_preserved": true,
+      "headline_url_pairs": [
+        {
+          "url": "https://www.asahi.com/articles/ASV8V2F1GV8VUTIL00QM.html",
+          "headline": ""
+        }
+      ],
+      "literal_slash_n_remaining": false,
+      "idempotent": true,
+      "has_recording_note": false,
+      "has_guest_reference": false,
+      "loss_of_nonpromo_urls": [
+        "https://www.asahi.com/articles/ASV8V2F1GV8VUTIL00QM.html?iref=omny&nbsp;"
+      ],
+      "status": "HOLD_SEMANTIC_REVIEW",
+      "writes": 0
+    }
+  ],
+  "writes": 0
+}
