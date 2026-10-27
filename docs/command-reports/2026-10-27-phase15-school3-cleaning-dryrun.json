@@ -1,0 +1,71 @@
+{
+  "policy_version": "phase15-school3-clean-v2-preview",
+  "test_sha256_abc": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+  "input": "LIVE_READ_ONLY",
+  "writes": 0,
+  "records": [
+    {
+      "ep_id": "EP-00081",
+      "guid": "10db704a-c2c6-11f1-a71b-9b4fb2918b53",
+      "source": "LIVE_PRODUCTION_V",
+      "raw_sha256": "195c4973bd082e4c5fb4b284f2140dbf5941cb9936bcf7449e005c167f83d4e0",
+      "snapshot_hash": "195c4973bd082e4c5fb4b284f2140dbf5941cb9936bcf7449e005c167f83d4e0",
+      "raw_hash_matches_snapshot": true,
+      "w_before_empty": true,
+      "candidate": "硤合反応は、ノーベル化学賞を受賞する東京理科大名誉教授の硤合憲三（そあいけんそう）さんが発見した、生命の起源に迫る化学反応です。物質をつくるときに、つくられた物質が自分と同じ型ができる手助けをする反応を指します。\nどんな反応？　右手と左手って？　ノーベル化学賞の硤合反応がわかる\nhttps://www.asahi.com/articles/ASVB751BBVB7ULLI00VM.html?iref=omny",
+      "candidate_sha256": "d4fde9f0a10b88743d5f0414d50eb776ab132698593616a1703cfcdef2b4f3da",
+      "idempotent": true,
+      "escaped_newlines_remaining": false,
+      "article_urls": [
+        "https://www.asahi.com/articles/ASVB751BBVB7ULLI00VM.html"
+      ],
+      "article_urls_preserved": true,
+      "ac_article_matches": true,
+      "article_title_pair_present": true,
+      "status": "DRY_RUN_PASS_CONTENT_GATES_ONLY",
+      "writes": 0
+    },
+    {
+      "ep_id": "EP-00082",
+      "guid": "67348954-c235-11f1-93b3-f753c32ffb28",
+      "source": "LIVE_PRODUCTION_V",
+      "raw_sha256": "12eaa78bf0dbd76a53fc29b7a7fc01032c1dd13ca00a9d52dbc7a7a4a31878d8",
+      "snapshot_hash": "12eaa78bf0dbd76a53fc29b7a7fc01032c1dd13ca00a9d52dbc7a7a4a31878d8",
+      "raw_hash_matches_snapshot": true,
+      "w_before_empty": true,
+      "candidate": "光遺伝学は、微生物がもつ光を感じるたんぱく質を動物の神経の細胞に入れて、神経の活動をコントロールする技術のことです。動物の記憶や社会行動、痛みなど、脳の様々な機能を脳内のどこが担っているのかを解明することにつながりました。\nノーベル賞の光遺伝学とは？脳活動、「読む」から「書き込む」学問へ\nhttps://www.asahi.com/articles/ASVB54V6PVB5UTFL01LM.html?iref=omny",
+      "candidate_sha256": "04d843e401dc7db81af7aae6391243fb830ffb874d703fcaaed7fc01d10ee39c",
+      "idempotent": true,
+      "escaped_newlines_remaining": false,
+      "article_urls": [
+        "https://www.asahi.com/articles/ASVB54V6PVB5UTFL01LM.html"
+      ],
+      "article_urls_preserved": true,
+      "ac_article_matches": true,
+      "article_title_pair_present": true,
+      "status": "DRY_RUN_PASS_CONTENT_GATES_ONLY",
+      "writes": 0
+    },
+    {
+      "ep_id": "EP-00093",
+      "guid": "d64ebc14-8fc8-11f1-ad39-c7a46ed10435",
+      "source": "LIVE_PRODUCTION_V",
+      "raw_sha256": "a9c89f9bcf0aab8f4d36fd98583e7d9cfce1171d90d356fef758cd9a9d6c8ff0",
+      "snapshot_hash": "a9c89f9bcf0aab8f4d36fd98583e7d9cfce1171d90d356fef758cd9a9d6c8ff0",
+      "raw_hash_matches_snapshot": true,
+      "w_before_empty": true,
+      "candidate": "水道料金は法律で、原則として利用者からの料金でまかなうのがルールです。水道事業は主に市町村が経営しています。川や湖、ダムなどの水源から水を取り込み、浄水場で細かい砂を取り除いたり、消毒したりしてきれいな水にして、水道管を通じて家庭や店舗などに送っています。\n【そもそも解説】水道料金の使い道は？　水道管の漏水事故と関係アリ\nhttps://www.asahi.com/articles/ASV3Y46VCV3YOXIE01PM.html?iref=omny",
+      "candidate_sha256": "597e1793123c10d7cae6008c4f063b6324679915876c5e49fb75e1df1c65c663",
+      "idempotent": true,
+      "escaped_newlines_remaining": false,
+      "article_urls": [
+        "https://www.asahi.com/articles/ASV3Y46VCV3YOXIE01PM.html"
+      ],
+      "article_urls_preserved": true,
+      "ac_article_matches": true,
+      "article_title_pair_present": true,
+      "status": "DRY_RUN_PASS_CONTENT_GATES_ONLY",
+      "writes": 0
+    }
+  ]
+}
