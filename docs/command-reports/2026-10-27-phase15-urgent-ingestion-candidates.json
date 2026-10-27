@@ -1,0 +1,97 @@
+{
+  "directive": "11bb89a0a8d107c9dc3ac7a5dee1119d7da40554",
+  "read_only": true,
+  "writes": 0,
+  "production_last": {
+    "ep_id": "EP-06632",
+    "guid": "a07f0210-b98d-4e6d-9d21-b4c9005ccdfc",
+    "show": "こどもそうだんしつ",
+    "pubdate_jst": "2026/10/14 04:05",
+    "row": 6633
+  },
+  "copy_first_collision": {
+    "ep_id": "EP-06632",
+    "guid": "45dbe89c-d322-4c18-864b-b4ea006173e3",
+    "show": "MEDIA TALK",
+    "row": 6633
+  },
+  "copy_new_items": 5,
+  "rss_full_inventory_complete": false,
+  "official_rss_fetched": false,
+  "unregistered_confirmed_total": null,
+  "source_pending_count": 5,
+  "possible_id_collision_count": 1,
+  "claims": "5 COPY candidate entries; cannot call definitive RSS-ledger difference until official RSS and full production index independently fetched",
+  "candidates": [
+    {
+      "show": "MEDIA TALK",
+      "title": "（編集マニア #50） 降版2分後に届いた原稿",
+      "guid": "45dbe89c-d322-4c18-864b-b4ea006173e3",
+      "official_episode_url": "https://omny.fm/shows/asahi/mania50",
+      "pubdate_jst": "2026/10/27 04:00",
+      "copy_id": "EP-06632",
+      "source": "COPY_ledger_and_fixed_id_history",
+      "production_match": "NOT_IN_PRODUCTION_LAST_ROWS; FULL GUID/URL SCAN PENDING",
+      "official_rss_verified": false,
+      "proposed_id_if_safe": null,
+      "identity_status": "NEEDS_OFFICIAL_RSS_VERIFICATION",
+      "write_approval_status": "NOT_APPROVED"
+    },
+    {
+      "show": "ニュースの学校",
+      "title": "イスラエル総選挙（2026）",
+      "guid": "48792904-ceb3-11f1-a2e6-7b1c2bd6e6eb",
+      "official_episode_url": null,
+      "pubdate_jst": "2026/10/27 04:00",
+      "copy_id": "EP-06633",
+      "source": "COPY_ledger_and_fixed_id_history",
+      "production_match": "NOT_IN_PRODUCTION_LAST_ROWS; FULL GUID/URL SCAN PENDING",
+      "official_rss_verified": false,
+      "proposed_id_if_safe": null,
+      "identity_status": "NEEDS_OFFICIAL_RSS_VERIFICATION",
+      "write_approval_status": "NOT_APPROVED"
+    },
+    {
+      "show": "ドーナツ",
+      "title": "（ポすすめ）AIニュースブリーフィング",
+      "guid": "e474cda9-28f9-4881-9c4f-b4e8008301cf",
+      "official_episode_url": "https://omny.fm/shows/asahi/d20261027",
+      "pubdate_jst": "2026/10/27 04:00",
+      "copy_id": "EP-06634",
+      "source": "COPY_ledger_and_fixed_id_history",
+      "production_match": "NOT_IN_PRODUCTION_LAST_ROWS; FULL GUID/URL SCAN PENDING",
+      "official_rss_verified": false,
+      "proposed_id_if_safe": null,
+      "identity_status": "NEEDS_OFFICIAL_RSS_VERIFICATION",
+      "write_approval_status": "NOT_APPROVED"
+    },
+    {
+      "show": "ニュースの現場から",
+      "title": "【朗読スペシャル】天童よしみさん",
+      "guid": "ef74feab-7dc0-41ff-923c-b4e400b0ebe0",
+      "official_episode_url": "https://omny.fm/shows/asahi/okurimono-ty1",
+      "pubdate_jst": "2026/10/27 04:00",
+      "copy_id": "EP-06635",
+      "source": "COPY_ledger_and_fixed_id_history",
+      "production_match": "NOT_IN_PRODUCTION_LAST_ROWS; FULL GUID/URL SCAN PENDING",
+      "official_rss_verified": false,
+      "proposed_id_if_safe": null,
+      "identity_status": "NEEDS_OFFICIAL_RSS_VERIFICATION",
+      "write_approval_status": "NOT_APPROVED"
+    },
+    {
+      "show": "MEDIA TALK",
+      "title": "（編集マニア #51）ＡのみＹのみ",
+      "guid": "f8405029-19db-4278-85d3-b4ea00617b16",
+      "official_episode_url": "https://omny.fm/shows/asahi/51-2",
+      "pubdate_jst": "2026/10/27 04:10",
+      "copy_id": "EP-06636",
+      "source": "COPY_ledger_and_fixed_id_history",
+      "production_match": "NOT_IN_PRODUCTION_LAST_ROWS; FULL GUID/URL SCAN PENDING",
+      "official_rss_verified": false,
+      "proposed_id_if_safe": null,
+      "identity_status": "NEEDS_OFFICIAL_RSS_VERIFICATION",
+      "write_approval_status": "NOT_APPROVED"
+    }
+  ]
+}
