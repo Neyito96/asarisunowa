@@ -1,0 +1,20 @@
+'use strict';
+const assert=require('node:assert/strict');const {liteScan,LITE_SHOWS}=require('./LiteCore');
+const sources=LITE_SHOWS.map((show,i)=>({show,url:[4,6].includes(i)?'https://feeds.megaphone.fm/TASC123456':'https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/abc'}));
+const item=guid=>({guid,title:guid,pubDate:'Tue, 27 Oct 2026 04:00:00 GMT'});let passed=0;
+function test(name,fn){fn();passed++;console.log('PASS',name)}
+const scan=(change={})=>liteScan({sources,ledgerGuids:[],fetchFeed:()=>[],...change});
+test('seven show whitelist',()=>assert.equal(scan().rows.length,7));
+test('new and existing separately',()=>{let r=scan({ledgerGuids:['old'],fetchFeed:s=>s.show===sources[0].show?[item('old'),item('new')]:[]});assert.equal(r.rows[0].existing,1);assert.equal(r.rows[0].unregistered,1)});
+test('cross feed duplicate',()=>{let r=scan({fetchFeed:()=>[item('shared')]});assert.equal(r.totals.duplicatesObserved,6);assert.equal(r.totals.unregisteredObserved,1)});
+test('within feed duplicate',()=>assert.equal(scan({fetchFeed:s=>s.show===sources[0].show?[item('x'),item('x')]:[]}).rows[0].duplicates,1));
+test('RSS failed is not zero',()=>{let r=scan({fetchFeed:s=>{if(s.show===sources[0].show)throw Error('HTTP_503');return []}});assert.equal(r.rows[0].fetched,null);assert.equal(r.rows[0].status,'SOURCE_PENDING');assert.equal(r.totals.fetched,null)});
+test('missing source pending',()=>assert.equal(scan({sources:sources.slice(1)}).rows[0].status,'SOURCE_PENDING'));
+test('invalid source blocks fetch',()=>{let called=0;let r=scan({sources:[{...sources[0],url:'https://evil.example/'},...sources.slice(1)],fetchFeed:()=>{called++;return []}});assert.equal(called,6);assert.equal(r.rows[0].status,'SOURCE_PENDING')});
+test('old SDGs and AJW excluded',()=>assert.equal(scan({sources:[...sources,{show:'旧SDGsアーカイブ',url:sources[0].url},{show:'AJW',url:sources[0].url}]}).rows.length,7));
+test('duplicated source pending',()=>assert.equal(scan({sources:[sources[0],...sources]}).rows[0].status,'SOURCE_PENDING'));
+test('duplicated ledger GUID STOP',()=>assert.equal(scan({ledgerGuids:['ABC','abc']}).ledgerIntegrity,'STOP_DUPLICATE_LEDGER_GUID'));
+test('missing GUID pending',()=>assert.equal(scan({fetchFeed:s=>s.show===sources[0].show?[item('')]:[]}).rows[0].status,'SOURCE_PENDING'));
+test('no mutation IDs',()=>{let r=scan({fetchFeed:()=>[item('new')]});assert.equal(r.productionWrites,0);assert.equal(r.allocationWrites,0);assert.equal(r.triggerWrites,0);assert.equal(r.rows[0].candidates[0].id,undefined)});
+test('reordered RSS new head checked',()=>assert.equal(scan({ledgerGuids:['old'],fetchFeed:s=>s.show===sources[0].show?[item('new'),item('old')]:[]}).rows[0].unregistered,1));
+console.log(JSON.stringify({total:passed,passed,failed:0}));
