@@ -1,0 +1,254 @@
+{
+  "hash_algorithm": "SHA256",
+  "encoding": "UTF-8",
+  "scope": "GitHub snapshots; not independent fresh V readback",
+  "test_vector_abc": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+  "records": [
+    {
+      "ep_id": "EP-00081",
+      "guid": "10db704a-c2c6-11f1-a71b-9b4fb2918b53",
+      "source_row": 82,
+      "raw_sha256": "195c4973bd082e4c5fb4b284f2140dbf5941cb9936bcf7449e005c167f83d4e0",
+      "cleaned_sha256": "8194476a8b312c73777498d6c57990b72e216531dec508a15e08301eec32a21b",
+      "literal_slash_n": 7,
+      "actual_linefeeds": 0,
+      "urls_raw": [
+        "https://www.asahi.com/articles/ASVB751BBVB7ULLI00VM.html?iref=omny&nbsp;\\n",
+        "https://bit.ly/asapoki_discord&nbsp;\\nほかにも多彩な番組を配信中！&nbsp;http://t.asahi.com/womy&nbsp;\\n\\n\\nLearn"
+      ],
+      "urls_cleaned": [
+        "https://www.asahi.com/articles/ASVB751BBVB7ULLI00VM.html?iref=omny"
+      ],
+      "candidate_reproducibility": "INPUT_HASHED_ONLY",
+      "status": "HOLD_QUALITY_REVIEW"
+    },
+    {
+      "ep_id": "EP-00082",
+      "guid": "67348954-c235-11f1-93b3-f753c32ffb28",
+      "source_row": 83,
+      "raw_sha256": "12eaa78bf0dbd76a53fc29b7a7fc01032c1dd13ca00a9d52dbc7a7a4a31878d8",
+      "cleaned_sha256": "55c22ab2542f4c0300a9a9a1b8d0f02dca23eecdaa9455edd51f4ce952b7a2e4",
+      "literal_slash_n": 7,
+      "actual_linefeeds": 0,
+      "urls_raw": [
+        "https://www.asahi.com/articles/ASVB54V6PVB5UTFL01LM.html?iref=omny&nbsp;\\n",
+        "https://bit.ly/asapoki_discord&nbsp;\\nほかにも多彩な番組を配信中！&nbsp;http://t.asahi.com/womy&nbsp;\\n\\nLearn"
+      ],
+      "urls_cleaned": [
+        "https://www.asahi.com/articles/ASVB54V6PVB5UTFL01LM.html?iref=omny"
+      ],
+      "candidate_reproducibility": "INPUT_HASHED_ONLY",
+      "status": "HOLD_QUALITY_REVIEW"
+    },
+    {
+      "ep_id": "EP-00093",
+      "guid": "d64ebc14-8fc8-11f1-ad39-c7a46ed10435",
+      "source_row": 94,
+      "raw_sha256": "a9c89f9bcf0aab8f4d36fd98583e7d9cfce1171d90d356fef758cd9a9d6c8ff0",
+      "cleaned_sha256": "6e2a32cbc57b4edc5b4c605b762706c026e75bf8d02655e658527bb4c62dc60d",
+      "literal_slash_n": 4,
+      "actual_linefeeds": 0,
+      "urls_raw": [
+        "https://www.asahi.com/articles/ASV3Y46VCV3YOXIE01PM.html?iref=omny&nbsp;\\n\\nご意見・感想・リクエスト",
+        "https://bit.ly/asapoki_discord",
+        "http://t.asahi.com/womy&nbsp;\\n\\n\\n\\n\\nLearn"
+      ],
+      "urls_cleaned": [
+        "https://www.asahi.com/articles/ASV3Y46VCV3YOXIE01PM.html?iref=omny"
+      ],
+      "candidate_reproducibility": "INPUT_HASHED_ONLY",
+      "status": "HOLD_QUALITY_REVIEW"
+    },
+    {
+      "ep_id": "EP-00411",
+      "guid": "891d8c7c-a20b-11f1-8db7-17df4b86cea0",
+      "source_row": 412,
+      "raw_sha256": "971600628cc9bd4d6dc63c43dec87a369e23fd9ca2a0b4a67c930af17f34cc68",
+      "cleaned_sha256": "8028c75d334bfe297617b77507426f4cf5cd70648c6f1731e71b2253c1826bbd",
+      "literal_slash_n": 4,
+      "actual_linefeeds": 0,
+      "urls_raw": [
+        "https://www.asahi.com/articles/DA3S16531717.html?iref=omny&nbsp;\\n\\nご意見・感想・リクエスト",
+        "https://bit.ly/asapoki_discord&nbsp;\\nほかにも多彩な番組を配信中！&nbsp;http://t.asahi.com/womy&nbsp;\\nLearn"
+      ],
+      "urls_cleaned": [
+        "https://www.asahi.com/articles/DA3S16531717.html?iref=omny"
+      ],
+      "candidate_reproducibility": "INPUT_HASHED_ONLY",
+      "status": "HOLD_QUALITY_REVIEW"
+    },
+    {
+      "ep_id": "EP-00121",
+      "guid": "e82f586e-c2fc-11f1-a921-1f4c4e7d2443",
+      "source_row": 122,
+      "raw_sha256": "f676065a16815fce3f7de9b20809866910bb29fd71fa1017e16c9da1b7e21ec7",
+      "cleaned_sha256": "d69646c4c5caf02d214940459e02485f260847d05ea5802aca451b4700a4fab9",
+      "literal_slash_n": 41,
+      "actual_linefeeds": 0,
+      "urls_raw": [
+        "https://bit.ly/43wSTFg&nbsp;\\n神田大介",
+        "https://bit.ly/4k4ZKwA&nbsp;\\n\\n※2026年10月8日に収録しました。過去回は下記からご確認ください&nbsp;\\nhttps://www.asahi.com/special/podcasts/?pgid=funa&nbsp;\\n\\n※「報談」専用のdiscordもぜひどうぞhttps://discord.gg/d7sAbSRQvq&nbsp;\\n\\n【関連記事】\\n「ライジングスター」は本当に昇るのか",
+        "https://www.asahi.com/articles/ASVB50F45VB5UHBI029M.html?iref=omny&nbsp;\\n11月3日実施、アメリカ中間選挙とは",
+        "https://www.asahi.com/articles/ASV9B0VB8V9BDIFI00QM.html?iref=omny&nbsp;\\n「CNNはもう見ない」トランプの道4千キロ、走って聞いた町の叫び&nbsp;\\nhttps://www.asahi.com/articles/ASV9Q0D9SV9QUHMC001M.html?iref=omny&nbsp;\\n\\n\\n【出演・スタッフ】\\n望月洋嗣（国際報道部次長",
+        "https://buff.ly/nw0cdOm&nbsp;\\n冨名腰隆（国際報道部次長",
+        "https://bit.ly/43wSTFg&nbsp;\\nMC・音源編集",
+        "https://bit.ly/4k4ZKwA&nbsp;\\n\\n\\n【朝ポキ情報】アプリで記者と対話&nbsp;http://t.asahi.com/won1&nbsp;\\n交流はdiscord&nbsp;https://bit.ly/asapoki_discord&nbsp;\\nおたよりフォーム&nbsp;https://bit.ly/asapoki_otayori&nbsp;\\n\\n\\n朝ポキTV",
+        "https://www.youtube.com/@asapoki_official\\nメルマガ&nbsp;https://bit.ly/asapoki_newsletter&nbsp;\\n広告ご検討の企業様は&nbsp;http://t.asahi.com/asapokiguide&nbsp;\\n\\n\\n番組検索ツール&nbsp;https://bit.ly/asapoki_cast&nbsp;\\n最新情報はX&nbsp;https://bit.ly/asapoki_twitter&nbsp;\\n番組カレンダー&nbsp;https://bit.ly/asapki_calendar&nbsp;\\n全話あります公式サイト&nbsp;https://bit.ly/asapoki_lp&nbsp;\\n\\nLearn"
+      ],
+      "urls_cleaned": [
+        "https://bit.ly/43wSTFg",
+        "https://bit.ly/4k4ZKwA",
+        "https://www.asahi.com/special/podcasts/?pgid=funa",
+        "https://discord.gg/d7sAbSRQvq",
+        "https://www.asahi.com/articles/ASVB50F45VB5UHBI029M.html?iref=omny",
+        "https://www.asahi.com/articles/ASV9B0VB8V9BDIFI00QM.html?iref=omny",
+        "https://www.asahi.com/articles/ASV9Q0D9SV9QUHMC001M.html?iref=omny",
+        "https://buff.ly/nw0cdOm",
+        "https://bit.ly/43wSTFg",
+        "https://bit.ly/4k4ZKwA",
+        "http://t.asahi.com/won1",
+        "https://bit.ly/asapoki_discord",
+        "https://bit.ly/asapoki_otayori",
+        "https://www.youtube.com/@asapoki_official\\nメルマガ",
+        "https://bit.ly/asapoki_newsletter",
+        "http://t.asahi.com/asapokiguide",
+        "https://bit.ly/asapoki_cast",
+        "https://bit.ly/asapoki_twitter",
+        "https://bit.ly/asapki_calendar",
+        "https://bit.ly/asapoki_lp"
+      ],
+      "candidate_reproducibility": "INPUT_HASHED_ONLY",
+      "status": "HOLD_QUALITY_REVIEW"
+    },
+    {
+      "ep_id": "EP-00160",
+      "guid": "dc6e51ea-7935-4e64-a760-b4de017b32ea",
+      "source_row": 161,
+      "raw_sha256": "d96b7e4980650a776f9e81213fb5b873f732edd886865014c35c62b7e1912ec4",
+      "cleaned_sha256": "95e35ee843890f940059b7519501221225e556521e42a2abfb6d88906bcb5f70",
+      "literal_slash_n": 0,
+      "actual_linefeeds": 7,
+      "urls_raw": [
+        "https://www.asahi.com/ajw/articles/16885557?ref=arukiki",
+        "https://www.asahi.com/ajw/articles/16885557",
+        "https://www.asahi.com/ajw/articles/16859851?ref=arukiki",
+        "https://www.asahi.com/ajw/articles/16859851",
+        "https://www.asahi.com/ajw/articles/16953673?ref=arukiki",
+        "https://www.asahi.com/ajw/articles/16953673",
+        "https://www.asahi.com/ajw/articles/16953974?ref=arukiki",
+        "https://www.asahi.com/ajw/articles/16953974",
+        "https://www.asahi.com/ajw/articles/16953313?ref=arukiki",
+        "https://www.asahi.com/ajw/articles/16953313",
+        "https://omnystudio.com/listener"
+      ],
+      "urls_cleaned": [
+        "https://www.asahi.com/ajw/articles/16885557",
+        "https://www.asahi.com/ajw/articles/16885557?ref=arukiki",
+        "https://www.asahi.com/ajw/articles/16859851",
+        "https://www.asahi.com/ajw/articles/16859851?ref=arukiki",
+        "https://www.asahi.com/ajw/articles/16953673",
+        "https://www.asahi.com/ajw/articles/16953673?ref=arukiki",
+        "https://www.asahi.com/ajw/articles/16953974",
+        "https://www.asahi.com/ajw/articles/16953974?ref=arukiki",
+        "https://www.asahi.com/ajw/articles/16953313",
+        "https://www.asahi.com/ajw/articles/16953313?ref=arukiki",
+        "https://omnystudio.com/listener"
+      ],
+      "candidate_reproducibility": "INPUT_HASHED_ONLY",
+      "status": "HOLD_QUALITY_REVIEW"
+    },
+    {
+      "ep_id": "EP-00161",
+      "guid": "b817e91d-97e7-459b-bebf-b4de00947e14",
+      "source_row": 162,
+      "raw_sha256": "7afcf701c261797a9b9872c1a98c0383b21e3e9bd12dca137849068eacec41aa",
+      "cleaned_sha256": "c0001fc06dd8c1bae8ad4f51bb1b73b20267b1fbcf62805007915988159753b1",
+      "literal_slash_n": 0,
+      "actual_linefeeds": 7,
+      "urls_raw": [
+        "https://www.asahi.com/ajw/articles/16953673?ref=arukiki",
+        "https://www.asahi.com/ajw/articles/16953673",
+        "https://www.asahi.com/ajw/articles/16953974?ref=arukiki",
+        "https://www.asahi.com/ajw/articles/16953974",
+        "https://www.asahi.com/ajw/articles/16953313?ref=arukiki",
+        "https://www.asahi.com/ajw/articles/16953313",
+        "https://www.asahi.com/ajw/articles/16953071?ref=arukiki",
+        "https://www.asahi.com/ajw/articles/16953071",
+        "https://www.asahi.com/ajw/articles/16947499?ref=arukiki",
+        "https://www.asahi.com/ajw/articles/16947499",
+        "https://omnystudio.com/listener"
+      ],
+      "urls_cleaned": [
+        "https://www.asahi.com/ajw/articles/16953673",
+        "https://www.asahi.com/ajw/articles/16953673?ref=arukiki",
+        "https://www.asahi.com/ajw/articles/16953974",
+        "https://www.asahi.com/ajw/articles/16953974?ref=arukiki",
+        "https://www.asahi.com/ajw/articles/16953313",
+        "https://www.asahi.com/ajw/articles/16953313?ref=arukiki",
+        "https://www.asahi.com/ajw/articles/16953071",
+        "https://www.asahi.com/ajw/articles/16953071?ref=arukiki",
+        "https://www.asahi.com/ajw/articles/16947499",
+        "https://www.asahi.com/ajw/articles/16947499?ref=arukiki",
+        "https://omnystudio.com/listener"
+      ],
+      "candidate_reproducibility": "INPUT_HASHED_ONLY",
+      "status": "HOLD_QUALITY_REVIEW"
+    },
+    {
+      "ep_id": "EP-00412",
+      "guid": "96db81e6-a2b7-11f1-a243-136098aedb2f",
+      "source_row": 413,
+      "raw_sha256": "592988d53ed33e4a47e307775e276bfe4935bbe48aaf7c539bb038cb2b3e9cf1",
+      "cleaned_sha256": "41c6fbf47053132927128cb728a42ee6bfadc9b452bc1134ec3a088bcf66a50b",
+      "literal_slash_n": 4,
+      "actual_linefeeds": 0,
+      "urls_raw": [
+        "https://www.asahi.com/articles/DA3S16531665.html?iref=omny&nbsp;\\n\\nご意見・感想・リクエスト",
+        "https://bit.ly/asapoki_discord&nbsp;\\nほかにも多彩な番組を配信中！&nbsp;http://t.asahi.com/womy&nbsp;\\nLearn"
+      ],
+      "urls_cleaned": [
+        "https://www.asahi.com/articles/DA3S16531665.html?iref=omny"
+      ],
+      "candidate_reproducibility": "INPUT_HASHED_ONLY",
+      "status": "HOLD_QUALITY_REVIEW"
+    },
+    {
+      "ep_id": "EP-00413",
+      "guid": "e28f46fa-a4dc-11f1-a360-679e7a08570e",
+      "source_row": 414,
+      "raw_sha256": "5c01dfe000b6a92873cdd630d6d95f8c72bd89790b9fbef38b0d78510b8a08f1",
+      "cleaned_sha256": "ff12771dec93b3f9926bdf5d16714a0ca0a50c7ccf7bfa6f09fe71ef8c0ad2a4",
+      "literal_slash_n": 4,
+      "actual_linefeeds": 0,
+      "urls_raw": [
+        "https://www.asahi.com/articles/ASV8X44FGV8XUTFL01DM.html?iref=omny&nbsp;\\n\\nご意見・感想・リクエスト",
+        "https://bit.ly/asapoki_discord&nbsp;\\nほかにも多彩な番組を配信中！&nbsp;http://t.asahi.com/womy&nbsp;\\nLearn"
+      ],
+      "urls_cleaned": [
+        "https://www.asahi.com/articles/ASV8X44FGV8XUTFL01DM.html?iref=omny"
+      ],
+      "candidate_reproducibility": "INPUT_HASHED_ONLY",
+      "status": "HOLD_QUALITY_REVIEW"
+    },
+    {
+      "ep_id": "EP-00414",
+      "guid": "e238cfca-a20a-11f1-a8e1-2fa046a4377a",
+      "source_row": null,
+      "raw_sha256": "1d96a7115cc2bd7c6f55fc610941df0fd83363b359911e773798b5870d4dadc1",
+      "cleaned_sha256": "e9c9e6af439647d815cc7742e4619871b12ca622a5795879348ba5528643255f",
+      "literal_slash_n": 7,
+      "actual_linefeeds": 0,
+      "urls_raw": [
+        "https://www.asahi.com/articles/ASV8V2F1GV8VUTIL00QM.html?iref=omny&nbsp;\\n",
+        "https://bit.ly/asapoki_discord",
+        "http://t.asahi.com/womy&nbsp;\\n\\nLearn"
+      ],
+      "urls_cleaned": [
+        "https://www.asahi.com/articles/ASV8V2F1GV8VUTIL00QM.html?iref=omny"
+      ],
+      "candidate_reproducibility": "INPUT_HASHED_ONLY",
+      "status": "HOLD_QUALITY_REVIEW"
+    }
+  ],
+  "writes": 0
+}
