@@ -1,0 +1,142 @@
+{
+  "source": "previously verified LIVE V GitHub snapshots; hashes in eighth audit manifest",
+  "policy": "phase15-school4-and-hodan1-quality-v3",
+  "records": [
+    {
+      "ep_id": "EP-00411",
+      "source_raw_length": 382,
+      "article_pairs": [
+        {
+          "headline": "（いちからわかる！）女性トイレの行列、なぜできやすいの？",
+          "url": "https://www.asahi.com/articles/DA3S16531717.html?iref=omny"
+        }
+      ],
+      "all_article_pairs_present": true,
+      "article_full_url_preserved": true,
+      "required_context": [],
+      "literal_slash_n_remaining": false,
+      "idempotent": false,
+      "cleaned_preview": "女性は衣類の着脱や月経などでトイレに時間がかかります。中日本高速道路の2018年の調査では、女性の利用時間は男性の小便器利用時間の3倍。なのに、不特定多数の人が使う外出先のトイレではおおむね、女性用の便器が男性用より少ないのが実情です。\n（いちからわかる！）女性トイレの行列、なぜできやすいの？ https://www.asahi.com/articles/DA3S16531717.html?iref=omny",
+      "classification": "STRUCTURAL_CONTENT_PASS_PENDING_INDEPENDENT_FINAL_REVIEW",
+      "writes": 0
+    },
+    {
+      "ep_id": "EP-00121",
+      "source_raw_length": 1470,
+      "article_pairs": [
+        {
+          "headline": "「ライジングスター」は本当に昇るのか　南部で浮上した民主党の2人",
+          "url": "https://www.asahi.com/articles/ASVB50F45VB5UHBI029M.html?iref=omny"
+        },
+        {
+          "headline": "11月3日実施、アメリカ中間選挙とは　主なシナリオや仕組みを解説",
+          "url": "https://www.asahi.com/articles/ASV9B0VB8V9BDIFI00QM.html?iref=omny"
+        },
+        {
+          "headline": "「CNNはもう見ない」トランプの道4千キロ、走って聞いた町の叫び",
+          "url": "https://www.asahi.com/articles/ASV9Q0D9SV9QUHMC001M.html?iref=omny"
+        }
+      ],
+      "all_article_pairs_present": true,
+      "article_full_url_preserved": true,
+      "required_context": [
+        {
+          "value": "望月洋嗣",
+          "preserved": true
+        },
+        {
+          "value": "冨名腰隆",
+          "preserved": true
+        },
+        {
+          "value": "神田大介",
+          "preserved": true
+        },
+        {
+          "value": "2026年10月8日に収録",
+          "preserved": true
+        },
+        {
+          "value": "https://buff.ly/nw0cdOm",
+          "preserved": true
+        },
+        {
+          "value": "https://bit.ly/43wSTFg",
+          "preserved": true
+        },
+        {
+          "value": "https://bit.ly/4k4ZKwA",
+          "preserved": true
+        },
+        {
+          "value": "https://www.asahi.com/special/podcasts/?pgid=funa",
+          "preserved": true
+        },
+        {
+          "value": "https://discord.gg/d7sAbSRQvq",
+          "preserved": true
+        }
+      ],
+      "literal_slash_n_remaining": false,
+      "idempotent": true,
+      "cleaned_preview": "今回は元アメリカ総局長の望月洋嗣をゲストに迎え、アメリカ中間選挙についてみていきます。トランプ大統領率いる共和党の苦戦も伝えられる中、アメリカはどう動くのか。前半は簗和夫・農水相の「カット発言」問題の読みときです。\n冨名腰隆 https://bit.ly/43wSTFg\n神田大介 https://bit.ly/4k4ZKwA\n※2026年10月8日に収録しました。過去回は下記からご確認ください\nhttps://www.asahi.com/special/podcasts/?pgid=funa\n※「報談」専用のdiscordもぜひどうぞhttps://discord.gg/d7sAbSRQvq\n【関連記事】\n「ライジングスター」は本当に昇るのか　南部で浮上した民主党の2人\nhttps://www.asahi.com/articles/ASVB50F45VB5UHBI029M.html?iref=omny\n11月3日実施、アメリカ中間選挙とは　主なシナリオや仕組みを解説\nhttps://www.asahi.com/articles/ASV9B0VB8V9BDIFI00QM.html?iref=omny\n「CNNはもう見ない」トランプの道4千キロ、走って聞いた町の叫び\nhttps://www.asahi.com/articles/ASV9Q0D9SV9QUHMC001M.html?iref=omny\n【出演・スタッフ】\n望月洋嗣（国際報道部次長） https://buff.ly/nw0cdOm\n冨名腰隆（国際報道部次長） https://bit.ly/43wSTFg\nMC・音源編集　神田大介 https://bit.ly/4k4ZKwA",
+      "classification": "HOLD_LONGFORM_EDITORIAL_LINK_POLICY",
+      "writes": 0
+    },
+    {
+      "ep_id": "EP-00412",
+      "source_raw_length": 399,
+      "article_pairs": [
+        {
+          "headline": "（フロントライン　世界）ゴキブリ人民党の挑戦　奇抜な「ミーム」、怒れるインドの若者は団結した",
+          "url": "https://www.asahi.com/articles/DA3S16531665.html?iref=omny"
+        }
+      ],
+      "all_article_pairs_present": true,
+      "article_full_url_preserved": true,
+      "required_context": [],
+      "literal_slash_n_remaining": false,
+      "idempotent": false,
+      "cleaned_preview": "ゴキブリ人民党は、米国・ボストンの大学院で学んでいたアビジート・ディプケさんがインスタグラムで始めました。インドの最高裁長官が５月、失業中の若者を「ゴキブリ」になぞらえたと受け止められる発言をしたことに反発し、動画などを投稿しました。\n（フロントライン　世界）ゴキブリ人民党の挑戦　奇抜な「ミーム」、怒れるインドの若者は団結した https://www.asahi.com/articles/DA3S16531665.html?iref=omny",
+      "classification": "STRUCTURAL_CONTENT_PASS_PENDING_INDEPENDENT_FINAL_REVIEW",
+      "writes": 0
+    },
+    {
+      "ep_id": "EP-00413",
+      "source_raw_length": 398,
+      "article_pairs": [
+        {
+          "headline": "ネパールの大規模土石流、なぜこれほどの被害？　温暖化で増すリスク",
+          "url": "https://www.asahi.com/articles/ASV8X44FGV8XUTFL01DM.html?iref=omny"
+        }
+      ],
+      "all_article_pairs_present": true,
+      "article_full_url_preserved": true,
+      "required_context": [],
+      "literal_slash_n_remaining": false,
+      "idempotent": false,
+      "cleaned_preview": "中国チベット自治区とネパールの国境を流れる河川で8月26日、大規模な土石流が発生し、集落や道路、橋などをのみ込みました。衛星画像などに基づく初期分析では、氷河と岩盤が一体となって崩れ落ちる「岩氷雪崩」が災害の出発点だった可能性が浮上しています。\nネパールの大規模土石流、なぜこれほどの被害？　温暖化で増すリスク https://www.asahi.com/articles/ASV8X44FGV8XUTFL01DM.html?iref=omny",
+      "classification": "STRUCTURAL_CONTENT_PASS_PENDING_INDEPENDENT_FINAL_REVIEW",
+      "writes": 0
+    },
+    {
+      "ep_id": "EP-00414",
+      "source_raw_length": 419,
+      "article_pairs": [
+        {
+          "headline": "生活道路の法定速度60→30キロに、9月から　一般道の6～7割か",
+          "url": "https://www.asahi.com/articles/ASV8V2F1GV8VUTIL00QM.html?iref=omny"
+        }
+      ],
+      "all_article_pairs_present": true,
+      "article_full_url_preserved": true,
+      "required_context": [],
+      "literal_slash_n_remaining": false,
+      "idempotent": true,
+      "cleaned_preview": "速度を規制する標識がない生活道路の多くで、車の最高速度（法定速度）が9月1日に、時速60キロから30キロに引き下げられます。規制の標識がなければ、住民が日常的に使う生活道路でも60キロ走行が可能だったため、車の速度を抑えて歩行者らの安全確保につなげる狙いがあります。\n生活道路の法定速度60→30キロに、9月から　一般道の6～7割か\nhttps://www.asahi.com/articles/ASV8V2F1GV8VUTIL00QM.html?iref=omny",
+      "classification": "STRUCTURAL_CONTENT_PASS_PENDING_INDEPENDENT_FINAL_REVIEW",
+      "writes": 0
+    }
+  ],
+  "writes": 0
+}
