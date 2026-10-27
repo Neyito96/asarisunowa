@@ -1,0 +1,98 @@
+{
+  "cleaning_version": "phase15-clean-v1-proposal",
+  "description": "V→W proposals from raw; SHA256 and full semantic validation pending; V immutable; no spreadsheet writes",
+  "count": 7,
+  "records": [
+    {
+      "id": "EP-00081",
+      "guid": "10db704a-c2c6-11f1-a71b-9b4fb2918b53",
+      "show": "ニュースの学校",
+      "source": "Megaphone RSS",
+      "row": 82,
+      "raw": "硤合反応は、ノーベル化学賞を受賞する東京理科大名誉教授の硤合憲三（そあいけんそう）さんが発見した、生命の起源に迫る化学反応です。物質をつくるときに、つくられた物質が自分と同じ型ができる手助けをする反応を指します。\\n\\n\\nどんな反応？　右手と左手って？　ノーベル化学賞の硤合反応がわかる\\nhttps://www.asahi.com/articles/ASVB751BBVB7ULLI00VM.html?iref=omny&nbsp;\\n \\n\\nご意見・感想・リクエスト https://bit.ly/asapoki_discord&nbsp;\\nほかにも多彩な番組を配信中！&nbsp;http://t.asahi.com/womy&nbsp;\\n\\n\\nLearn more about your ad choices. Visit megaphone.fm/adchoices",
+      "raw_length": 393,
+      "cleaned_candidate": "硤合反応は、ノーベル化学賞を受賞する東京理科大名誉教授の硤合憲三（そあいけんそう）さんが発見した、生命の起源に迫る化学反応です。物質をつくるときに、つくられた物質が自分と同じ型ができる手助けをする反応を指します。\\n\\n\\nどんな反応？　右手と左手って？　ノーベル化学賞の硤合反応がわかる\\nhttps://www.asahi.com/articles/ASVB751BBVB7ULLI00VM.html?iref=omny \\n \\n\\n",
+      "clean_length": 220,
+      "review_status": "PROPOSAL_ONLY_UNVERIFIED_SEMANTICS",
+      "writes": 0
+    },
+    {
+      "id": "EP-00082",
+      "guid": "67348954-c235-11f1-93b3-f753c32ffb28",
+      "show": "ニュースの学校",
+      "source": "Megaphone RSS",
+      "row": 83,
+      "raw": "光遺伝学は、微生物がもつ光を感じるたんぱく質を動物の神経の細胞に入れて、神経の活動をコントロールする技術のことです。動物の記憶や社会行動、痛みなど、脳の様々な機能を脳内のどこが担っているのかを解明することにつながりました。\\n\\n\\nノーベル賞の光遺伝学とは？脳活動、「読む」から「書き込む」学問へ\\nhttps://www.asahi.com/articles/ASVB54V6PVB5UTFL01LM.html?iref=omny&nbsp;\\n \\n\\nご意見・感想・リクエスト https://bit.ly/asapoki_discord&nbsp;\\nほかにも多彩な番組を配信中！&nbsp;http://t.asahi.com/womy&nbsp;\\n\\nLearn more about your ad choices. Visit megaphone.fm/adchoices",
+      "raw_length": 396,
+      "cleaned_candidate": "光遺伝学は、微生物がもつ光を感じるたんぱく質を動物の神経の細胞に入れて、神経の活動をコントロールする技術のことです。動物の記憶や社会行動、痛みなど、脳の様々な機能を脳内のどこが担っているのかを解明することにつながりました。\\n\\n\\nノーベル賞の光遺伝学とは？脳活動、「読む」から「書き込む」学問へ\\nhttps://www.asahi.com/articles/ASVB54V6PVB5UTFL01LM.html?iref=omny \\n \\n\\n",
+      "clean_length": 225,
+      "review_status": "PROPOSAL_ONLY_UNVERIFIED_SEMANTICS",
+      "writes": 0
+    },
+    {
+      "id": "EP-00093",
+      "guid": "d64ebc14-8fc8-11f1-ad39-c7a46ed10435",
+      "show": "ニュースの学校",
+      "source": "Megaphone RSS",
+      "row": 94,
+      "raw": "水道料金は法律で、原則として利用者からの料金でまかなうのがルールです。水道事業は主に市町村が経営しています。川や湖、ダムなどの水源から水を取り込み、浄水場で細かい砂を取り除いたり、消毒したりしてきれいな水にして、水道管を通じて家庭や店舗などに送っています。\\n\\n【そもそも解説】水道料金の使い道は？　水道管の漏水事故と関係アリhttps://www.asahi.com/articles/ASV3Y46VCV3YOXIE01PM.html?iref=omny&nbsp;\\n\\nご意見・感想・リクエスト https://bit.ly/asapoki_discord&nbsp; ほかにも多彩な番組を配信中！&nbsp;http://t.asahi.com/womy&nbsp;\\n\\n\\n\\n\\nLearn more about your ad choices. Visit megaphone.fm/adchoices",
+      "raw_length": 411,
+      "cleaned_candidate": "水道料金は法律で、原則として利用者からの料金でまかなうのがルールです。水道事業は主に市町村が経営しています。川や湖、ダムなどの水源から水を取り込み、浄水場で細かい砂を取り除いたり、消毒したりしてきれいな水にして、水道管を通じて家庭や店舗などに送っています。\\n\\n【そもそも解説】水道料金の使い道は？　水道管の漏水事故と関係アリhttps://www.asahi.com/articles/ASV3Y46VCV3YOXIE01PM.html?iref=omny \\n\\n",
+      "clean_length": 235,
+      "review_status": "PROPOSAL_ONLY_UNVERIFIED_SEMANTICS",
+      "writes": 0
+    },
+    {
+      "id": "EP-00411",
+      "guid": "891d8c7c-a20b-11f1-8db7-17df4b86cea0",
+      "show": "ニュースの学校",
+      "source": "Megaphone RSS",
+      "row": 412,
+      "raw": "女性は衣類の着脱や月経などでトイレに時間がかかります。中日本高速道路の2018年の調査では、女性の利用時間は男性の小便器利用時間の3倍。なのに、不特定多数の人が使う外出先のトイレではおおむね、女性用の便器が男性用より少ないのが実情です。\\n\\n（いちからわかる！）女性トイレの行列、なぜできやすいの？https://www.asahi.com/articles/DA3S16531717.html?iref=omny&nbsp;\\n\\nご意見・感想・リクエスト https://bit.ly/asapoki_discord&nbsp;\\nほかにも多彩な番組を配信中！&nbsp;http://t.asahi.com/womy&nbsp;\\nLearn more about your ad choices. Visit megaphone.fm/adchoices",
+      "raw_length": 382,
+      "cleaned_candidate": "女性は衣類の着脱や月経などでトイレに時間がかかります。中日本高速道路の2018年の調査では、女性の利用時間は男性の小便器利用時間の3倍。なのに、不特定多数の人が使う外出先のトイレではおおむね、女性用の便器が男性用より少ないのが実情です。\\n\\n（いちからわかる！）女性トイレの行列、なぜできやすいの？https://www.asahi.com/articles/DA3S16531717.html?iref=omny \\n\\n",
+      "clean_length": 213,
+      "review_status": "PROPOSAL_ONLY_UNVERIFIED_SEMANTICS",
+      "writes": 0
+    },
+    {
+      "id": "EP-00121",
+      "guid": "e82f586e-c2fc-11f1-a921-1f4c4e7d2443",
+      "show": "報談",
+      "source": "Megaphone RSS",
+      "row": 122,
+      "raw": "今回は元アメリカ総局長の望月洋嗣をゲストに迎え、アメリカ中間選挙についてみていきます。トランプ大統領率いる共和党の苦戦も伝えられる中、アメリカはどう動くのか。前半は簗和夫・農水相の「カット発言」問題の読みときです。\\n\\n★朝日新聞アプリで2人をフォローしてください！\\n冨名腰隆 https://bit.ly/43wSTFg&nbsp;\\n神田大介 https://bit.ly/4k4ZKwA&nbsp;\\n\\n※2026年10月8日に収録しました。過去回は下記からご確認ください&nbsp;\\nhttps://www.asahi.com/special/podcasts/?pgid=funa&nbsp;\\n\\n※「報談」専用のdiscordもぜひどうぞhttps://discord.gg/d7sAbSRQvq&nbsp;\\n\\n【関連記事】\\n「ライジングスター」は本当に昇るのか　南部で浮上した民主党の2人&nbsp;\\nhttps://www.asahi.com/articles/ASVB50F45VB5UHBI029M.html?iref=omny&nbsp;\\n11月3日実施、アメリカ中間選挙とは　主なシナリオや仕組みを解説&nbsp;\\nhttps://www.asahi.com/articles/ASV9B0VB8V9BDIFI00QM.html?iref=omny&nbsp;\\n「CNNはもう見ない」トランプの道4千キロ、走って聞いた町の叫び&nbsp;\\nhttps://www.asahi.com/articles/ASV9Q0D9SV9QUHMC001M.html?iref=omny&nbsp;\\n\\n\\n【出演・スタッフ】\\n望月洋嗣（国際報道部次長）&nbsp;https://buff.ly/nw0cdOm&nbsp;\\n冨名腰隆（国際報道部次長）&nbsp;https://bit.ly/43wSTFg&nbsp;\\nMC・音源編集　神田大介&nbsp;https://bit.ly/4k4ZKwA&nbsp;\\n\\n\\n【朝ポキ情報】アプリで記者と対話&nbsp;http://t.asahi.com/won1&nbsp;\\n交流はdiscord&nbsp;https://bit.ly/asapoki_discord&nbsp;\\nおたよりフォーム&nbsp;https://bit.ly/asapoki_otayori&nbsp;\\n\\n\\n朝ポキTV https://www.youtube.com/@asapoki_official\\nメルマガ&nbsp;https://bit.ly/asapoki_newsletter&nbsp;\\n広告ご検討の企業様は&nbsp;http://t.asahi.com/asapokiguide&nbsp;\\n\\n\\n番組検索ツール&nbsp;https://bit.ly/asapoki_cast&nbsp;\\n最新情報はX&nbsp;https://bit.ly/asapoki_twitter&nbsp;\\n番組カレンダー&nbsp;https://bit.ly/asapki_calendar&nbsp;\\n全話あります公式サイト&nbsp;https://bit.ly/asapoki_lp&nbsp;\\n\\nLearn more about your ad choices. Visit megaphone.fm/adchoices",
+      "raw_length": 1470,
+      "cleaned_candidate": "今回は元アメリカ総局長の望月洋嗣をゲストに迎え、アメリカ中間選挙についてみていきます。トランプ大統領率いる共和党の苦戦も伝えられる中、アメリカはどう動くのか。前半は簗和夫・農水相の「カット発言」問題の読みときです。\\n\\n★朝日新聞アプリで2人をフォローしてください！\\n冨名腰隆 https://bit.ly/43wSTFg \\n神田大介 https://bit.ly/4k4ZKwA \\n\\n※2026年10月8日に収録しました。過去回は下記からご確認ください \\nhttps://www.asahi.com/special/podcasts/?pgid=funa \\n\\n※「報談」専用のdiscordもぜひどうぞhttps://discord.gg/d7sAbSRQvq \\n\\n【関連記事】\\n「ライジングスター」は本当に昇るのか　南部で浮上した民主党の2人 \\nhttps://www.asahi.com/articles/ASVB50F45VB5UHBI029M.html?iref=omny \\n11月3日実施、アメリカ中間選挙とは　主なシナリオや仕組みを解説 \\nhttps://www.asahi.com/articles/ASV9B0VB8V9BDIFI00QM.html?iref=omny \\n「CNNはもう見ない」トランプの道4千キロ、走って聞いた町の叫び \\nhttps://www.asahi.com/articles/ASV9Q0D9SV9QUHMC001M.html?iref=omny \\n\\n\\n【出演・スタッフ】\\n望月洋嗣（国際報道部次長） https://buff.ly/nw0cdOm \\n冨名腰隆（国際報道部次長） https://bit.ly/43wSTFg \\nMC・音源編集　神田大介 https://bit.ly/4k4ZKwA \\n\\n\\n【朝ポキ情報】アプリで記者と対話 http://t.asahi.com/won1 \\n交流はdiscord https://bit.ly/asapoki_discord \\nおたよりフォーム https://bit.ly/asapoki_otayori \\n\\n\\n朝ポキTV https://www.youtube.com/@asapoki_official\\nメルマガ https://bit.ly/asapoki_newsletter \\n広告ご検討の企業様は http://t.asahi.com/asapokiguide \\n\\n\\n番組検索ツール https://bit.ly/asapoki_cast \\n最新情報はX https://bit.ly/asapoki_twitter \\n番組カレンダー https://bit.ly/asapki_calendar \\n全話あります公式サイト https://bit.ly/asapoki_lp \\n\\n",
+      "clean_length": 1233,
+      "review_status": "PROPOSAL_ONLY_UNVERIFIED_SEMANTICS",
+      "writes": 0
+    },
+    {
+      "id": "EP-00160",
+      "guid": "dc6e51ea-7935-4e64-a760-b4de017b32ea",
+      "show": "AJW",
+      "source": "Omny RSS",
+      "row": 161,
+      "raw": "<p>英語学習などにご活用を！リンク先の英文記事を見ながら、聴いていただけます。</p><p>▼01.Traumatized by Vietnam War, veteran sought solace in Japan（ <a href=\"https://www.asahi.com/ajw/articles/16885557?ref=arukiki\">https://www.asahi.com/ajw/articles/16885557</a> ）</p><p>▼02.Love for village motivated transgender man to run for mayor（ <a href=\"https://www.asahi.com/ajw/articles/16859851?ref=arukiki\">https://www.asahi.com/ajw/articles/16859851</a> ）</p><p>▼03.Iwaya: China open to dialogue with Japan if problem resolved（ <a href=\"https://www.asahi.com/ajw/articles/16953673?ref=arukiki\">https://www.asahi.com/ajw/articles/16953673</a> ）</p><p>▼04.Russia demands arrest of ICC chief Akane and former president（ <a href=\"https://www.asahi.com/ajw/articles/16953974?ref=arukiki\">https://www.asahi.com/ajw/articles/16953974</a> ）</p><p>▼05.Uniqlo closes in on H and M but ZARA gap remains wide（ <a href=\"https://www.asahi.com/ajw/articles/16953313?ref=arukiki\">https://www.asahi.com/ajw/articles/16953313</a> ）</p><p>このエピソードは音声合成システムにより、全自動で作成しています。</p><p>See <a href=\"https://omnystudio.com/listener\">omnystudio.com/listener</a> for privacy information.</p>",
+      "raw_length": 1119,
+      "cleaned_candidate": "英語学習などにご活用を！リンク先の英文記事を見ながら、聴いていただけます。\n ▼01.Traumatized by Vietnam War, veteran sought solace in Japan（ https://www.asahi.com/ajw/articles/16885557 https://www.asahi.com/ajw/articles/16885557?ref=arukiki ）\n ▼02.Love for village motivated transgender man to run for mayor（ https://www.asahi.com/ajw/articles/16859851 https://www.asahi.com/ajw/articles/16859851?ref=arukiki ）\n ▼03.Iwaya: China open to dialogue with Japan if problem resolved（ https://www.asahi.com/ajw/articles/16953673 https://www.asahi.com/ajw/articles/16953673?ref=arukiki ）\n ▼04.Russia demands arrest of ICC chief Akane and former president（ https://www.asahi.com/ajw/articles/16953974 https://www.asahi.com/ajw/articles/16953974?ref=arukiki ）\n ▼05.Uniqlo closes in on H and M but ZARA gap remains wide（ https://www.asahi.com/ajw/articles/16953313 https://www.asahi.com/ajw/articles/16953313?ref=arukiki ）\n このエピソードは音声合成システムにより、全自動で作成しています。\n See omnystudio.com/listener https://omnystudio.com/listener for privacy information.",
+      "clean_length": 993,
+      "review_status": "PROPOSAL_ONLY_UNVERIFIED_SEMANTICS",
+      "writes": 0
+    },
+    {
+      "id": "EP-00161",
+      "guid": "b817e91d-97e7-459b-bebf-b4de00947e14",
+      "show": "AJW",
+      "source": "Omny RSS",
+      "row": 162,
+      "raw": "<p>英語学習などにご活用を！リンク先の英文記事を見ながら、聴いていただけます。</p><p>▼01.Iwaya: China open to dialogue with Japan if problem resolved（ <a href=\"https://www.asahi.com/ajw/articles/16953673?ref=arukiki\">https://www.asahi.com/ajw/articles/16953673</a> ）</p><p>▼02.Russia demands arrest of ICC chief Akane and former president（ <a href=\"https://www.asahi.com/ajw/articles/16953974?ref=arukiki\">https://www.asahi.com/ajw/articles/16953974</a> ）</p><p>▼03.Uniqlo closes in on H and M but ZARA gap remains wide（ <a href=\"https://www.asahi.com/ajw/articles/16953313?ref=arukiki\">https://www.asahi.com/ajw/articles/16953313</a> ）</p><p>▼04.Prudential links fraud scandal to company's business model（ <a href=\"https://www.asahi.com/ajw/articles/16953071?ref=arukiki\">https://www.asahi.com/ajw/articles/16953071</a> ）</p><p>▼05.Annual watch for Mt. Fuji's first snowcap ends after 132 years（ <a href=\"https://www.asahi.com/ajw/articles/16947499?ref=arukiki\">https://www.asahi.com/ajw/articles/16947499</a> ）</p><p>このエピソードは音声合成システムにより、全自動で作成しています。</p><p>See <a href=\"https://omnystudio.com/listener\">omnystudio.com/listener</a> for privacy information.</p>",
+      "raw_length": 1122,
+      "cleaned_candidate": "英語学習などにご活用を！リンク先の英文記事を見ながら、聴いていただけます。\n ▼01.Iwaya: China open to dialogue with Japan if problem resolved（ https://www.asahi.com/ajw/articles/16953673 https://www.asahi.com/ajw/articles/16953673?ref=arukiki ）\n ▼02.Russia demands arrest of ICC chief Akane and former president（ https://www.asahi.com/ajw/articles/16953974 https://www.asahi.com/ajw/articles/16953974?ref=arukiki ）\n ▼03.Uniqlo closes in on H and M but ZARA gap remains wide（ https://www.asahi.com/ajw/articles/16953313 https://www.asahi.com/ajw/articles/16953313?ref=arukiki ）\n ▼04.Prudential links fraud scandal to company's business model（ https://www.asahi.com/ajw/articles/16953071 https://www.asahi.com/ajw/articles/16953071?ref=arukiki ）\n ▼05.Annual watch for Mt. Fuji's first snowcap ends after 132 years（ https://www.asahi.com/ajw/articles/16947499 https://www.asahi.com/ajw/articles/16947499?ref=arukiki ）\n このエピソードは音声合成システムにより、全自動で作成しています。\n See omnystudio.com/listener https://omnystudio.com/listener for privacy information.",
+      "clean_length": 996,
+      "review_status": "PROPOSAL_ONLY_UNVERIFIED_SEMANTICS",
+      "writes": 0
+    }
+  ]
+}
