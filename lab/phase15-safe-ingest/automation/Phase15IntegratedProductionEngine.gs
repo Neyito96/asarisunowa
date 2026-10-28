@@ -201,7 +201,9 @@ function run(args){
    if(proposal.holds.length)result.holds.push({row:rn,id:row[0],why:proposal.holds});
    var changes=proposal.changes.filter(function(c){return proposal.holds.indexOf('SOURCE_IDENTITY_CONFLICT')<0&&(!/^(W_|VERIFIED_ARTICLE)/.test(c.why)||proposal.holds.length===0);});
    if(changes.length){
-    var w=args.write?writeRow(ss,sh,rn,row,changes,origin.source):{ok:true};
+    var w;
+    try{w=args.write?writeRow(ss,sh,rn,row,changes,origin.source):{ok:true};}
+    catch(e){result.holds.push({row:rn,id:row[0],reason:'WRITE_REVIEW_REQUIRED',detail:txt(e).slice(0,140)});result.next=rn+1;if(args.write&&!args.preserveCursor)props.setProperty(cursorKey,String(result.next));continue;}
     if(!w.ok)result.holds.push({row:rn,id:row[0],reason:w.why});
     else{
      changes.forEach(function(c){var k=Object.keys(C.columns).filter(function(z){return C.columns[z]===c.col;})[0];if(k==='W')k=empty(row[22])?'W_new':'W_revised';if(k==='AC')k='AC';if(result.counts[k]!==undefined)result.counts[k]++;});
