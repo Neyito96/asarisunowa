@@ -28,7 +28,7 @@ function section(line){
  return null;
 }
 function promotion(s){return /^(?:★|☆|３STEP|3STEP|ニュースレター.*登録はこちら|番組継続のため|朝日新聞ポッドキャストは、みなさま|ご意見・感想・リクエスト|See .*omnystudio|Learn more about|有料会員が選定！|アプリで記者と対話|番組検索ツール|交流はdiscord)/i.test(s)||/forms\.gle|forms\.cloud\.microsoft|bit\.ly\/asapoki_/i.test(s);}
-function articleUrl(s){return /^https?:\/\/(?:www\.)?asahi\.com\/(?:articles\/|rensai\/|topics\/|edu\/suisogaku\/)/i.test(txt(s));}
+function articleUrl(s){return /^https?:\/\/(?:www\.|digital\.)?asahi\.com\/(?:articles\/|rensai\/|topics\/|edu\/suisogaku\/)/i.test(txt(s));}
 function clean(raw){
  var rawLines=lines(raw),mode='body',body=[],rel=[],cast=[],holds=[],pending='',pairs=0;
  function flush(){if(pending){rel.push(pending);holds.push('RELATED_TITLE_MISSING_VERIFIED_URL');pending='';}}
