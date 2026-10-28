@@ -1,554 +1,260 @@
-// 朝リスPodcastの配信先URLを補完する定期同期
-// 既存値は上書きせず、確度の高い候補だけ空欄へ追記する。
+// 推薦2棚専用。既定READ_ONLY。EP収蔵・補填には使用しない。
+const RECOMMENDATION_SCHEMAS = {
+  posusume: {name: "朝リスPodcast", width: 17, maker: 3,
+    columns: {spotify:6, apple:7, listen:8, standfm:9, amazon:10, youtube:11,
+      website:12, artwork:13, rss:14, pocketcasts:15, pody:16, genre:17}},
+  risuoshi: {name: "おすすめPodcast", width:18, maker:7,
+    columns: {artwork:6, rss:8, youtube:9, spotify:10, amazon:11, apple:12,
+      pocketcasts:13, listen:14, standfm:15, pody:16, website:17, genre:18}}
+};
+const RECOMMENDATION_LEGACY_HANDLERS = ["RISU_applyAllPlatforms", "RISU_applyAppleEnrichment",
+  "syncAllPodcastPlatforms", "syncListenerPodcastPlatforms", "syncRecommendedPodcastPlatforms"];
+let recommendationBudget_ = null;
 
-const LISTENER_PODCAST_PLATFORM_SYNC_SHEET = "朝リスPodcast";
+function syncListenerPodcastPlatforms() { return runRecommendationSync_(["posusume"]); }
+function syncRecommendedPodcastPlatforms() { return runRecommendationSync_(["risuoshi"]); }
+function syncAllPodcastPlatforms() { return runRecommendationPodcastDailySync(); }
+function runRecommendationPodcastDailySync() { return runRecommendationSync_(["posusume", "risuoshi"]); }
 
-function syncListenerPodcastPlatforms() {
-  const lock = LockService.getScriptLock();
-  if (!lock.tryLock(5000)) {
-    throw new Error("Podcast配信先同期を開始できませんでした。少し待って再実行してください。");
-  }
-
-  try {
-    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    const sheet = getSheetLoose(ss, LISTENER_PODCAST_PLATFORM_SYNC_SHEET);
-
-    if (!sheet) {
-      throw new Error("朝リスPodcastシートが見つかりません");
-    }
-
-    if (typeof ensurePodcastMetadataHeaders_ === "function") {
-      ensurePodcastMetadataHeaders_(sheet, "listenerPodcast");
-    }
-
-    const lastRow = sheet.getLastRow();
-    if (lastRow < 2) {
-      return { checked: 0, updatedRows: 0, updatedCells: 0 };
-    }
-
-    const values = sheet.getRange(2, 1, lastRow - 1, 17).getDisplayValues();
-    let updatedRows = 0;
-    let updatedCells = 0;
-
-    for (let i = 0; i < values.length; i++) {
-      const rowNumber = i + 2;
-      const row = values[i];
-      const title = String(row[1] || "").trim();
-      const maker = String(row[2] || "").trim();
-
-      if (!title) continue;
-
-      const existing = {
-        sourceUrl: String(row[0] || "").trim(),
-        spotify: String(row[5] || "").trim(),
-        apple: String(row[6] || "").trim(),
-        listen: String(row[7] || "").trim(),
-        standfm: String(row[8] || "").trim(),
-        amazon: String(row[9] || "").trim(),
-        youtube: String(row[10] || "").trim(),
-        website: String(row[11] || "").trim(),
-        artwork: String(row[12] || "").trim(),
-        rss: String(row[13] || "").trim(),
-        pocketcasts: String(row[14] || "").trim(),
-        pody: String(row[15] || "").trim(),
-        genre: String(row[16] || "").trim()
-      };
-
-      if (listenerPodcastPlatformRowComplete_(existing)) continue;
-
-      const resolved = resolveListenerPodcastPlatforms_(title, maker, existing.sourceUrl, existing.rss);
-      if (!resolved) continue;
-
-      const updates = [];
-
-      queuePodcastCellUpdate_(updates, rowNumber, 6, existing.spotify, resolved.spotify);
-      queuePodcastCellUpdate_(updates, rowNumber, 7, existing.apple, resolved.apple);
-      queuePodcastCellUpdate_(updates, rowNumber, 8, existing.listen, resolved.listen);
-      queuePodcastCellUpdate_(updates, rowNumber, 9, existing.standfm, resolved.standfm);
-      queuePodcastCellUpdate_(updates, rowNumber, 10, existing.amazon, resolved.amazon);
-      queuePodcastCellUpdate_(updates, rowNumber, 11, existing.youtube, resolved.youtube);
-      queuePodcastCellUpdate_(updates, rowNumber, 12, existing.website, resolved.website);
-      queuePodcastCellUpdate_(updates, rowNumber, 13, existing.artwork, resolved.artwork);
-      queuePodcastCellUpdate_(updates, rowNumber, 14, existing.rss, resolved.rss);
-      queuePodcastCellUpdate_(updates, rowNumber, 15, existing.pocketcasts, resolved.pocketcasts);
-      queuePodcastCellUpdate_(updates, rowNumber, 16, existing.pody, resolved.pody);
-      queuePodcastCellUpdate_(updates, rowNumber, 17, existing.genre, resolved.genre);
-
-      if (!updates.length) continue;
-
-      updates.forEach(function(update) {
-        sheet.getRange(update.row, update.column).setValue(update.value);
-      });
-
-      updatedRows++;
-      updatedCells += updates.length;
-    }
-
-    console.log(
-      "朝リスPodcast配信先同期: checked=" + values.length +
-      " updatedRows=" + updatedRows +
-      " updatedCells=" + updatedCells
-    );
-
-    return {
-      checked: values.length,
-      updatedRows: updatedRows,
-      updatedCells: updatedCells
-    };
-  } finally {
-    lock.releaseLock();
-  }
+// 読取専用の棚卸し。別所有者・別プロジェクトのトリガーは列挙できない。
+function auditRecommendationPodcastTriggers() {
+  return {timeZone: Session.getScriptTimeZone(),
+    handlers: ScriptApp.getProjectTriggers().map(t => t.getHandlerFunction()),
+    limitation: "CURRENT_USER_CURRENT_PROJECT_ONLY"};
 }
-
-function syncRecommendedPodcastPlatforms() {
-  const lock = LockService.getScriptLock();
-  if (!lock.tryLock(5000)) {
-    throw new Error("おすすめPodcast配信先同期を開始できませんでした。少し待って再実行してください。");
-  }
-
-  try {
-    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-    const sheet = getSheetLoose(ss, PODCAST_SHEET_NAME);
-    if (!sheet) throw new Error("おすすめPodcastシートが見つかりません");
-
-    if (typeof ensurePodcastMetadataHeaders_ === "function") {
-      ensurePodcastMetadataHeaders_(sheet, "podcast");
-    }
-
-    const lastRow = sheet.getLastRow();
-    if (lastRow < 2) {
-      return { checked: 0, updatedRows: 0, updatedCells: 0 };
-    }
-
-    const values = sheet.getRange(2, 1, lastRow - 1, 18).getDisplayValues();
-    let updatedRows = 0;
-    let updatedCells = 0;
-
-    for (let i = 0; i < values.length; i++) {
-      const rowNumber = i + 2;
-      const row = values[i];
-      const sourceUrl = String(row[0] || "").trim();
-      const title = String(row[1] || "").trim();
-      if (!title) continue;
-
-      let host = String(row[6] || "").trim();
-      let rss = String(row[7] || "").trim();
-      let artwork = String(row[5] || "").trim();
-      let genre = String(row[17] || "").trim();
-
-      let identity = null;
-      try {
-        identity = resolvePodcastUrl(sourceUrl);
-      } catch (_) {
-        identity = null;
-      }
-
-      if (identity && identity.ok) {
-        if (!host) host = String(identity.maker || "").trim();
-        if (!rss) rss = String(identity.rss || "").trim();
-        if (!artwork) artwork = String(identity.artwork || "").trim();
-        if (!genre) genre = String(identity.genre || "").trim();
-      }
-
-      const resolved = resolveListenerPodcastPlatforms_(title, host, sourceUrl, rss);
-      const updates = [];
-
-      queuePodcastCellUpdate_(updates, rowNumber, 6, row[5], artwork || resolved.artwork);
-      queuePodcastCellUpdate_(updates, rowNumber, 7, row[6], host);
-      queuePodcastCellUpdate_(updates, rowNumber, 8, row[7], rss || resolved.rss);
-      queuePodcastCellUpdate_(updates, rowNumber, 9, row[8], resolved.youtube);
-      queuePodcastCellUpdate_(updates, rowNumber, 10, row[9], resolved.spotify);
-      queuePodcastCellUpdate_(updates, rowNumber, 11, row[10], resolved.amazon);
-      queuePodcastCellUpdate_(updates, rowNumber, 12, row[11], resolved.apple);
-      queuePodcastCellUpdate_(updates, rowNumber, 13, row[12], resolved.pocketcasts);
-      queuePodcastCellUpdate_(updates, rowNumber, 14, row[13], resolved.listen);
-      queuePodcastCellUpdate_(updates, rowNumber, 15, row[14], resolved.standfm);
-      queuePodcastCellUpdate_(updates, rowNumber, 16, row[15], resolved.pody);
-      queuePodcastCellUpdate_(updates, rowNumber, 17, row[16], resolved.website);
-      queuePodcastGenreUpdate_(updates, rowNumber, 18, row[17], genre || resolved.genre);
-
-      if (!updates.length) continue;
-      updates.forEach(function(update) {
-        sheet.getRange(update.row, update.column).setValue(update.value);
-      });
-      updatedRows++;
-      updatedCells += updates.length;
-    }
-
-    console.log(
-      "おすすめPodcast配信先同期: checked=" + values.length +
-      " updatedRows=" + updatedRows +
-      " updatedCells=" + updatedCells
-    );
-
-    return {
-      checked: values.length,
-      updatedRows: updatedRows,
-      updatedCells: updatedCells
-    };
-  } finally {
-    lock.releaseLock();
-  }
+function assertRecommendationTriggers_() {
+  const handlers = ScriptApp.getProjectTriggers().map(t => t.getHandlerFunction());
+  if (handlers.some(h => RECOMMENDATION_LEGACY_HANDLERS.indexOf(h) >= 0) ||
+      handlers.filter(h => h === "runRecommendationPodcastDailySync").length > 1)
+    throw new Error("STOP_TRIGGER_CONFLICT");
 }
-
-function syncAllPodcastPlatforms() {
-  return {
-    listenerPodcasts: syncListenerPodcastPlatforms(),
-    recommendedPodcasts: syncRecommendedPodcastPlatforms()
-  };
-}
-
-function listenerPodcastPlatformRowComplete_(existing) {
-  return !!(
-    existing.spotify &&
-    existing.apple &&
-    existing.listen &&
-    existing.standfm &&
-    existing.amazon &&
-    existing.youtube &&
-    existing.website &&
-    existing.artwork &&
-    existing.rss &&
-    existing.pocketcasts &&
-    existing.genre
-  );
-}
-
-function queuePodcastCellUpdate_(updates, row, column, currentValue, candidateValue) {
-  const current = String(currentValue || "").trim();
-  const candidate = String(candidateValue || "").trim();
-
-  if (!current && candidate) {
-    updates.push({ row: row, column: column, value: candidate });
-  }
-}
-
-function queuePodcastGenreUpdate_(updates, row, column, currentValue, candidateValue) {
-  const current = String(currentValue || "").trim();
-  const candidate = String(candidateValue || "").trim();
-
-  // 通常は既存値を守る。ただし旧ロジックで「その他」に落ちた行は、
-  // Apple/RSSから具体的なジャンルが取れた場合だけ修正する。
-  if (
-    (!current && candidate) ||
-    (current === "その他" && candidate && candidate !== "その他")
-  ) {
-    updates.push({ row: row, column: column, value: candidate });
-  }
-}
-
-function resolveListenerPodcastPlatforms_(title, maker, sourceUrl, explicitRss) {
-  const resolved = {
-    spotify: "",
-    apple: "",
-    pocketcasts: "",
-    listen: "",
-    standfm: "",
-    amazon: "",
-    youtube: "",
-    pody: "",
-    website: "",
-    artwork: "",
-    rss: "",
-    genre: ""
-  };
-
-  applyKnownPodcastUrl_(resolved, sourceUrl);
-
-  const manualRss = String(explicitRss || "").trim();
-  if (/^https?:\/\//i.test(manualRss)) {
-    resolved.rss = manualRss;
-  }
-
-  const listenSlug = String(sourceUrl || "").match(/^https?:\/\/listen\.style\/p\/([^/?#]+)/i);
-  if (!resolved.rss && listenSlug && listenSlug[1]) {
-    resolved.rss = "https://rss.listen.style/p/" + listenSlug[1] + "/rss";
-  }
-
-  if (!resolved.spotify && typeof findSpotifyShowByTitle_ === "function") {
-    const spotifyUrl = findSpotifyShowByTitle_(title);
-    if (spotifyUrl) resolved.spotify = spotifyUrl;
-  }
-
-  const apple = findExactApplePodcast_(title, maker);
-  if (!apple) {
-    if (resolved.rss) {
-      const rssLinks = readPodcastFeedLinks_(resolved.rss);
-      rssLinks.forEach(function(url) {
-        applyKnownPodcastUrl_(resolved, url);
-      });
-      if (isSafePublicPodcastRss_(resolved.rss)) {
-        resolved.pocketcasts = pocketCastsFollowUrl_(resolved.rss);
-      }
-      const rssMeta = readPodcastFeedMetadata_(resolved.rss);
-      if (rssMeta) {
-        if (!resolved.artwork) resolved.artwork = rssMeta.artwork || "";
-        if (!resolved.genre) resolved.genre = rssMeta.genre || "";
-      }
-    }
-    return resolved;
-  }
-
-  resolved.apple = String(apple.collectionViewUrl || apple.trackViewUrl || "").trim();
-  resolved.artwork = String(apple.artworkUrl600 || apple.artworkUrl100 || "").trim();
-  resolved.genre = normalizePodcastGenre_(
-    Array.isArray(apple.genres) ? apple.genres : [],
-    apple.primaryGenreName || ""
-  );
-
-  const feedUrl = String(apple.feedUrl || resolved.rss || "").trim();
-  if (feedUrl) {
-    resolved.rss = feedUrl;
-    const rssLinks = readPodcastFeedLinks_(feedUrl);
-    rssLinks.forEach(function(url) {
-      applyKnownPodcastUrl_(resolved, url);
-    });
-    if (isSafePublicPodcastRss_(feedUrl)) {
-      resolved.pocketcasts = pocketCastsFollowUrl_(feedUrl);
-    }
-  }
-
-  return resolved;
-}
-
-function findExactApplePodcast_(title, maker) {
-  const term = String(title || "").trim();
-  if (!term) return null;
-
-  try {
-    const data = fetchJson(
-      "https://itunes.apple.com/search?media=podcast&entity=podcast&limit=12&country=JP&term=" +
-      encodeURIComponent(term)
-    );
-
-    const results = data && Array.isArray(data.results) ? data.results : [];
-    const wantedTitle = normalizeTitle(term);
-    const wantedMaker = normalizeTitle(maker || "");
-
-    for (let i = 0; i < results.length; i++) {
-      const item = results[i];
-      const itemTitle = normalizeTitle(item.collectionName || item.trackName || "");
-      if (!itemTitle || itemTitle !== wantedTitle) continue;
-
-      if (wantedMaker) {
-        const itemMaker = normalizeTitle(item.artistName || item.collectionArtistName || "");
-        if (
-          itemMaker &&
-          itemMaker !== wantedMaker &&
-          itemMaker.indexOf(wantedMaker) < 0 &&
-          wantedMaker.indexOf(itemMaker) < 0
-        ) {
-          continue;
-        }
-      }
-
-      return item;
-    }
-  } catch (_) {
-    return null;
-  }
-
-  return null;
-}
-
-function readPodcastFeedLinks_(feedUrl) {
-  const out = [];
-
-  try {
-    const response = UrlFetchApp.fetch(feedUrl, {
-      muteHttpExceptions: true,
-      followRedirects: true
-    });
-
-    if (response.getResponseCode() < 200 || response.getResponseCode() >= 300) {
-      return out;
-    }
-
-    const xml = response.getContentText();
-    const document = XmlService.parse(xml);
-    const root = document.getRootElement();
-    const channel = root.getChild("channel");
-
-    if (!channel) return out;
-
-    const link = String(channel.getChildText("link") || "").trim();
-    if (/^https?:\/\//i.test(link)) out.push(link);
-
-    const atom = XmlService.getNamespace("atom", "http://www.w3.org/2005/Atom");
-    const atomLinks = channel.getChildren("link", atom);
-    atomLinks.forEach(function(element) {
-      const href = String(element.getAttribute("href") ? element.getAttribute("href").getValue() : "").trim();
-      if (/^https?:\/\//i.test(href)) out.push(href);
-    });
-  } catch (_) {
-    return out;
-  }
-
-  return out;
-}
-
-function applyKnownPodcastUrl_(resolved, value) {
-  const url = String(value || "").trim();
-  if (!/^https?:\/\//i.test(url)) return;
-
-  if (/open\.spotify\.com\/show\//i.test(url)) {
-    resolved.spotify = resolved.spotify || canonicalPodcastUrl_(url);
-    return;
-  }
-
-  if (/podcasts\.apple\.com\//i.test(url)) {
-    resolved.apple = resolved.apple || canonicalPodcastUrl_(url);
-    return;
-  }
-
-  if (/listen\.style\//i.test(url)) {
-    resolved.listen = resolved.listen || canonicalPodcastUrl_(url);
-    return;
-  }
-
-  if (/stand\.fm\//i.test(url)) {
-    resolved.standfm = resolved.standfm || canonicalPodcastUrl_(url);
-    return;
-  }
-
-  if (/music\.amazon\.|amazon\.[^/]+\/podcasts/i.test(url)) {
-    resolved.amazon = resolved.amazon || canonicalPodcastUrl_(url);
-    return;
-  }
-
-  if (/youtube\.com\/|youtu\.be\//i.test(url)) {
-    resolved.youtube = resolved.youtube || canonicalPodcastUrl_(url);
-    return;
-  }
-
-  if (/pocketcasts\.com\//i.test(url)) {
-    resolved.pocketcasts = resolved.pocketcasts || canonicalPodcastUrl_(url);
-    return;
-  }
-
-  if (/pody\.jp\//i.test(url)) {
-    resolved.pody = resolved.pody || canonicalPodcastUrl_(url);
-    return;
-  }
-
-  if (!/itunes\.apple\.com|spotify\.com|googleusercontent\.com|google\.com/i.test(url)) {
-    resolved.website = resolved.website || canonicalPodcastUrl_(url);
-  }
-}
-
-function canonicalPodcastUrl_(value) {
-  const url = String(value || "").trim();
-  try {
-    const parsed = new URL(url);
-    parsed.search = "";
-    parsed.hash = "";
-    return parsed.toString();
-  } catch (_) {
-    return url;
-  }
-}
-
-
-function pocketCastsFollowUrl_(feedUrl) {
-  const rss = String(feedUrl || "").trim();
-  return rss ? "https://pocketcasts.com/follow/" + encodeURIComponent(rss) : "";
-}
-
-function isSafePublicPodcastRss_(feedUrl) {
-  const value = String(feedUrl || "").trim();
-  if (!/^https?:\/\//i.test(value)) return false;
-  try {
-    const parsed = new URL(value);
-    if (parsed.username || parsed.password) return false;
-    const sensitive = ["token", "auth", "key", "signature", "sig", "access_token"];
-    for (let i = 0; i < sensitive.length; i++) {
-      if (parsed.searchParams.has(sensitive[i])) return false;
-    }
-    return true;
-  } catch (_) {
-    return false;
-  }
-}
-
-function readPodcastFeedMetadata_(feedUrl) {
-  try {
-    const response = UrlFetchApp.fetch(String(feedUrl || ""), {
-      muteHttpExceptions: true,
-      followRedirects: true
-    });
-    if (response.getResponseCode() < 200 || response.getResponseCode() >= 300) return null;
-
-    const document = XmlService.parse(response.getContentText());
-    const root = document.getRootElement();
-    const channel = root.getChild("channel");
-    if (!channel) return null;
-
-    const itunes = XmlService.getNamespace("itunes", "http://www.itunes.com/dtds/podcast-1.0.dtd");
-    const author = channel.getChildText("author", itunes) || "";
-    const imageNode = channel.getChild("image", itunes);
-    const imageAttr = imageNode && imageNode.getAttribute("href");
-    const artwork = imageAttr ? imageAttr.getValue() : "";
-    const categories = channel.getChildren("category", itunes).map(function(node) {
-      const attr = node.getAttribute("text");
-      return attr ? attr.getValue() : "";
-    }).filter(Boolean);
-
-    return {
-      title: String(channel.getChildText("title") || "").trim(),
-      maker: String(author || "").trim(),
-      artwork: String(artwork || "").trim(),
-      genre: normalizePodcastGenre_(categories, categories[0] || "")
-    };
-  } catch (_) {
-    return null;
-  }
-}
-
-
-/**
- * ポすすめ・リス推し専用の日次補完入口。
- * 同一GASプロジェクトの既存同期関数を利用し、EP収蔵には触れない。
- * 既存の同期処理は空欄のみ補完する。実行環境への配備は別途必要。
- */
-function runRecommendationPodcastDailySync() {
-  const started = new Date().toISOString();
-  const output = { started, posusume: null, risuoshi: null, errors: [] };
-  try {
-    output.posusume = syncListenerPodcastPlatforms();
-  } catch (error) {
-    output.errors.push({ shelf: "ポすすめ", error: String(error) });
-  }
-  try {
-    output.risuoshi = syncRecommendedPodcastPlatforms();
-  } catch (error) {
-    output.errors.push({ shelf: "リス推し", error: String(error) });
-  }
-  console.log("RECOMMENDATION_PODCAST_DAILY_SYNC " + JSON.stringify(output));
-  if (output.errors.length) throw new Error("推薦Podcast補完の一部が失敗: " + JSON.stringify(output.errors));
-  return output;
-}
-
-/**
- * 手動実行するセットアップ関数。既存の同名トリガーを重複登録しない。
- * プロジェクトのタイムゾーンで午前4時台に1日1回。
- * 旧リス推し専用トリガーを自動削除しないため、導入時に重複監査が必須。
- */
 function installRecommendationPodcastDailySync() {
-  const handler = "runRecommendationPodcastDailySync";
-  const triggers = ScriptApp.getProjectTriggers();
-  const current = triggers.filter(t => t.getHandlerFunction() === handler);
-  const legacy = triggers.filter(t =>
-    ["RISU_applyAllPlatforms", "RISU_applyAppleEnrichment", "syncAllPodcastPlatforms"].includes(t.getHandlerFunction())
-  );
-  if (legacy.length) {
-    throw new Error("旧推薦用トリガーを検出。重複実行防止のため登録中止: " +
-      legacy.map(t => t.getHandlerFunction()).join(", "));
+  // 指令がHOLDの間はプロパティだけでインストールを解禁しない。
+  throw new Error("HOLD: 司令塔承認・全所有者の旧writer監査後に別途導入");
+}
+function validateRecommendationSheet_(sheet, schema, props) {
+  if (!sheet || sheet.getName() !== schema.name || sheet.getLastColumn() !== schema.width)
+    throw new Error("STOP_SHEET_SCHEMA");
+  // 本番実読みで承認した全ヘッダーの配列を登録。推測や自動修復は禁止。
+  const expected = JSON.parse(props.getProperty("RECOMMENDATION_HEADERS_" + schema.name) || "null");
+  const actual = sheet.getRange(1, 1, 1, schema.width).getDisplayValues()[0];
+  if (!Array.isArray(expected) || expected.length !== schema.width ||
+      JSON.stringify(expected) !== JSON.stringify(actual)) throw new Error("STOP_HEADER_MISMATCH");
+}
+function runRecommendationSync_(shelves) {
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(1000)) return {status:"BUSY"};
+  const props = PropertiesService.getScriptProperties();
+  const output = {mode:"READ_ONLY", shelves:{}, errors:[]};
+  recommendationBudget_ = {deadline:Date.now() + 180000, http:0, maxHttp:40, cache:{}};
+  try {
+    assertRecommendationTriggers_();
+    // 書込許可に加え、別所有者/別プロジェクトを含む監査完了が必須。
+    const write = props.getProperty("RECOMMENDATION_WRITE_APPROVED") === "true" &&
+      props.getProperty("RECOMMENDATION_WRITER_AUDIT_APPROVED") === "true";
+    output.mode = write ? "WRITE" : "READ_ONLY";
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    shelves.forEach(function(key) {
+      try {
+        const schema = RECOMMENDATION_SCHEMAS[key];
+        const sheet = ss.getSheetByName(schema.name);
+        validateRecommendationSheet_(sheet, schema, props);
+        const stats = {checked:0, updatedCells:0, deferred:0};
+        output.shelves[key] = stats;
+        const stateKey = "RECOMMENDATION_STATE_" + key;
+        const state = JSON.parse(props.getProperty(stateKey) || "{}");
+        const last = sheet.getLastRow();
+        let cursor = Math.max(2, Math.min(Number(state.cursor) || 2, Math.max(2,last)));
+        // 棚ごとの予算を分離し、一方の失敗/大規模棚で他方を飢餓状態にしない。
+        const shelfDeadline = Math.min(recommendationBudget_.deadline, Date.now() + 80000);
+        const startHttp = recommendationBudget_.http;
+        recommendationBudget_.shelfDeadline = shelfDeadline;
+        recommendationBudget_.shelfMaxHttp = startHttp + 18;
+        for (; cursor <= last; cursor++) {
+          if (Date.now() >= shelfDeadline || recommendationBudget_.http - startHttp >= 18) break;
+          const row = sheet.getRange(cursor,1,1,schema.width).getDisplayValues()[0];
+          const signature = recommendationRowSignature_(row);
+          const retryKey = stateKey + "_ROW_" + cursor;
+          const retry = JSON.parse(props.getProperty(retryKey) || "null");
+          if (retry && retry.row === cursor && retry.signature === signature && Date.now() < retry.nextRetryAt) {
+            stats.deferred++; continue;
+          }
+          if (!String(row[1] || "").trim()) continue;
+          stats.checked++;
+          try {
+            const resolved = resolveListenerPodcastPlatforms_(row[1], row[schema.maker-1], row[0], row[schema.columns.rss-1]);
+            Object.keys(schema.columns).sort((a,b) => (a === "rss") - (b === "rss")).forEach(function(service) {
+              const column = schema.columns[service];
+              if (String(row[column-1] || "").trim()) {
+                resolved.reasons[service] = "EXISTING_PRESERVED"; return;
+              }
+              if (!resolved[service]) return;
+              if (write && Date.now() < shelfDeadline) {
+                if (writeRecommendationCell_(sheet, cursor, column, resolved[service], row, schema)) {
+                  stats.updatedCells++; resolved.reasons[service] = "WRITTEN_VERIFIED";
+                } else resolved.reasons[service] = "REVIEW_CELL_CHANGED_FORMULA_OR_PROTECTED";
+              }
+            });
+            const attempt = retry && retry.row === cursor && retry.signature === signature ? retry.attempt + 1 : 1;
+            const nextRetryAt = Date.now() + Math.min(7*86400000, 3600000*Math.pow(2,Math.min(attempt,7)));
+            console.log("RECOMMENDATION_ROW " + JSON.stringify({shelf:key,row:cursor,mode:output.mode,
+              reasons:resolved.reasons,rawGenre:resolved.rawGenre,attempt,nextRetryAt}));
+            // 1行ごとにcheckpoint。全行の履歴は実行ログ、永続状態は有界サイズ。
+            if (write) props.setProperty(retryKey, JSON.stringify({row:cursor,signature:recommendationRowSignature_(sheet.getRange(cursor,1,1,schema.width).getDisplayValues()[0]),attempt,nextRetryAt,reasons:resolved.reasons}));
+          } catch (error) {
+            console.log("RECOMMENDATION_ROW " + JSON.stringify({shelf:key,row:cursor,reason:recommendationError_(error),nextRetryAt:Date.now()+3600000}));
+            if (write) props.setProperty(retryKey, JSON.stringify({row:cursor,signature,attempt:(retry ? retry.attempt : 0)+1,nextRetryAt:Date.now()+3600000,reason:recommendationError_(error)}));
+          }
+          state.cursor = cursor + 1 > last ? 2 : cursor + 1;
+          if (write) props.setProperty(stateKey, JSON.stringify(state));
+        }
+        stats.cursor = cursor > last ? 2 : cursor;
+        if (write) props.setProperty(stateKey, JSON.stringify({cursor:stats.cursor}));
+      } catch (error) { output.errors.push({shelf:key,reason:recommendationError_(error)}); }
+    });
+    console.log("RECOMMENDATION_SYNC " + JSON.stringify(output));
+    return output;
+  } finally { recommendationBudget_ = null; lock.releaseLock(); }
+}
+function recommendationRowSignature_(row) {
+  return Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256,JSON.stringify(row),Utilities.Charset.UTF_8));
+}
+function recommendationError_(error) {
+  const code = String(error && error.message || "");
+  return /^(STOP_|HTTP_|BUDGET|UNSAFE_URL|OVERSIZE|REDIRECT)/.test(code) ? code.split(":")[0] : "FETCH_OR_ROW_FAILED";
+}
+function writeRecommendationCell_(sheet, row, column, value, original, schema) {
+  // ヘッダー、番組識別セル、値、数式、保護範囲を直前に再確認。
+  validateRecommendationSheet_(sheet,schema,PropertiesService.getScriptProperties());
+  const fresh = sheet.getRange(row,1,1,schema.width).getDisplayValues()[0];
+  if ([0,1,schema.maker-1,schema.columns.rss-1].some(i => fresh[i] !== original[i])) return false;
+  const cell = sheet.getRange(row,column);
+  if (cell.getValue() !== "" || cell.getFormula()) return false;
+  const rangeType = SpreadsheetApp.ProtectionType.RANGE;
+  if (sheet.getProtections(SpreadsheetApp.ProtectionType.SHEET).length ||
+      sheet.getProtections(rangeType).some(p => {
+        const r=p.getRange(); return row>=r.getRow() && row<=r.getLastRow() && column>=r.getColumn() && column<=r.getLastColumn();
+      })) return false;
+  cell.setValue(value);
+  SpreadsheetApp.flush();
+  if (String(cell.getValue()) !== String(value)) throw new Error("STOP_WRITE_VERIFY");
+  return true;
+}
+function queuePodcastCellUpdate_(updates,row,column,current,candidate) {
+  if (!String(current || "").trim() && String(candidate || "").trim()) updates.push({row,column,value:candidate});
+}
+function queuePodcastGenreUpdate_(updates,row,column,current,candidate) {
+  // 出典フラグのない既存値も含め全て保護。「その他」も手動確定とみなす。
+  queuePodcastCellUpdate_(updates,row,column,current,candidate);
+}
+
+// GAS V8にブラウザーのURLグローバルを要求しない。
+function recommendationUrl_(value) {
+  const m = String(value || "").trim().match(/^https:\/\/([a-z0-9.-]+)(\/[^\s#]*)?(?:#[^\s]*)?$/i);
+  if (!m || m[1].indexOf("..")>=0) return null;
+  return {host:m[1].toLowerCase(),path:m[2] || "/"};
+}
+function isSafePublicPodcastRss_(value) {
+  const u = recommendationUrl_(value);
+  return !!u && ["anchor.fm","feeds.megaphone.fm","rss.listen.style","feeds.buzzsprout.com",
+    "feeds.simplecast.com","feeds.transistor.fm","feeds.acast.com","www.omnycontent.com"].indexOf(u.host)>=0 &&
+    !/[?&](token|auth|key|signature|sig|access_token)=/i.test(u.path);
+}
+function recommendationFetch_(url, options) {
+  const u = recommendationUrl_(url);
+  if (!u || !(["itunes.apple.com","api.spotify.com","accounts.spotify.com","open.spotify.com"].indexOf(u.host)>=0 || isSafePublicPodcastRss_(url)))
+    throw new Error("UNSAFE_URL");
+  const b = recommendationBudget_;
+  if (b && (Date.now()>=Math.min(b.deadline,b.shelfDeadline || b.deadline) || b.http>=Math.min(b.maxHttp,b.shelfMaxHttp || b.maxHttp))) throw new Error("BUDGET");
+  if (b && b.cache[url]) return b.cache[url];
+  if (b) b.http++;
+  const response = UrlFetchApp.fetch(url,Object.assign({},options || {},{muteHttpExceptions:true,followRedirects:false}));
+  const code=response.getResponseCode();
+  if (code>=300 && code<400) throw new Error("REDIRECT_REVIEW");
+  if (code<200 || code>=300) throw new Error("HTTP_"+code);
+  if (response.getContent().length>2000000) throw new Error("OVERSIZE");
+  const text=response.getContentText();
+  if (b) b.cache[url]=text;
+  return text;
+}
+function recommendationIdentity_(title,maker,actualTitle,actualMaker) {
+  return !!normalizeTitle(title || "") && !!normalizeTitle(maker || "") &&
+    normalizeTitle(title)===normalizeTitle(actualTitle || "") && normalizeTitle(maker)===normalizeTitle(actualMaker || "");
+}
+function findExactApplePodcast_(title,maker,rss,sourceUrl) {
+  const data=JSON.parse(recommendationFetch_("https://itunes.apple.com/search?media=podcast&entity=podcast&limit=50&country=JP&term="+encodeURIComponent(title)));
+  const sourceId=String(sourceUrl || "").match(/^https:\/\/podcasts\.apple\.com\/[^?#]*\/id(\d+)(?:[?#]|$)/);
+  const matches=(data.results || []).filter(item => {
+    if (!recommendationIdentity_(title,maker,item.collectionName || item.trackName,item.artistName || item.collectionArtistName)) return false;
+    if (!isSafePublicPodcastRss_(item.feedUrl)) return false;
+    if (rss) return String(item.feedUrl)===String(rss);
+    return !!sourceId && String(item.collectionId)===sourceId[1];
+  });
+  return matches.length===1 ? matches[0] : null;
+}
+function readPodcastFeedMetadata_(feedUrl) {
+  const root=XmlService.parse(recommendationFetch_(feedUrl)).getRootElement();
+  const channel=root.getChild("channel");
+  if (!channel) return null;
+  const ns=XmlService.getNamespace("itunes","http://www.itunes.com/dtds/podcast-1.0.dtd");
+  const image=channel.getChild("image",ns);
+  const categories=channel.getChildren("category",ns).map(n => n.getAttribute("text")).filter(Boolean).map(a=>a.getValue());
+  const links=[String(channel.getChildText("link") || "")];
+  const atom=XmlService.getNamespace("atom","http://www.w3.org/2005/Atom");
+  channel.getChildren("link",atom).forEach(n=>{const a=n.getAttribute("href");if(a)links.push(a.getValue());});
+  return {title:channel.getChildText("title"),maker:channel.getChildText("author",ns),links,
+    artwork:image && image.getAttribute("href") ? image.getAttribute("href").getValue() : "",
+    rawGenre:categories,genre:normalizePodcastGenre_(categories,categories[0] || "")};
+}
+function readPodcastFeedLinks_(feedUrl) { const meta=readPodcastFeedMetadata_(feedUrl);return meta ? meta.links : []; }
+function resolveListenerPodcastPlatforms_(title,maker,sourceUrl,explicitRss) {
+  const result={reasons:{},rawGenre:[]};
+  ["spotify","apple","listen","standfm","amazon","youtube","website","artwork","rss","pocketcasts","pody","genre"].forEach(k=>{result[k]="";result.reasons[k]="REVIEW_NO_VERIFIED_SOURCE";});
+  let rss=String(explicitRss || "").trim();
+  let meta=null;
+  if (rss) {
+    try {
+      meta=readPodcastFeedMetadata_(rss);
+      if (!meta || !recommendationIdentity_(title,maker,meta.title,meta.maker)) { meta=null; result.reasons.rss="REVIEW_RSS_IDENTITY"; }
+      else {result.rss=rss;result.artwork=meta.artwork;result.genre=meta.genre;result.rawGenre=meta.rawGenre;}
+    } catch(error) {result.reasons.rss=recommendationError_(error);}
   }
-  if (current.length > 1) throw new Error("同名トリガーが重複しています");
-  if (current.length === 0) {
-    ScriptApp.newTrigger(handler).timeBased().everyDays(1).atHour(4).create();
-  }
-  const summary = { handler, triggerCount: ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === handler).length };
-  console.log("RECOMMENDATION_PODCAST_DAILY_TRIGGER " + JSON.stringify(summary));
-  return summary;
+  try {
+    const apple=result.reasons.rss === "REVIEW_RSS_IDENTITY" ? null : findExactApplePodcast_(title,maker,rss,sourceUrl);
+    if (apple) {
+      result.apple=String(apple.collectionViewUrl || apple.trackViewUrl || "");
+      // 既存RSSは決して置換しない。RSSなしは既存Apple IDとの照合が必要。
+      if (!rss) {rss=apple.feedUrl;result.rss=rss;}
+      result.artwork=result.artwork || apple.artworkUrl600 || apple.artworkUrl100 || "";
+      result.rawGenre=apple.genres || [apple.primaryGenreName || ""];
+      result.genre=normalizePodcastGenre_(result.rawGenre,apple.primaryGenreName || "");
+      if (!meta) {
+        const candidate=readPodcastFeedMetadata_(rss);
+        if (candidate && recommendationIdentity_(title,maker,candidate.title,candidate.maker)) meta=candidate;
+      }
+    }
+  } catch(error) {result.reasons.apple=recommendationError_(error);}
+  // RSSのリンクだけでは採用しない。RSSタイトル/配信者とSpotify APIを突合。
+  const spotifyIds=meta ? meta.links.map(spotifyRecommendationId_).filter(Boolean) : [];
+  const sourceId=spotifyRecommendationId_(sourceUrl);
+  if (sourceId) spotifyIds.push(sourceId);
+  try {
+    const spotify=findVerifiedRecommendationSpotify_(title,maker,spotifyIds);
+    result.spotify=spotify.url;result.reasons.spotify=spotify.reason;
+  } catch(error) {result.reasons.spotify=recommendationError_(error);}
+  // 他サービスは外部リンクの同一性検証が未実装なので自動採用しない。
+  result.reasons.pocketcasts="FOLLOW_LINK_NOT_SHOW_URL";
+  result.reasons.pody="REVIEW_NO_VERIFIED_PODY_ADAPTER";
+  Object.keys(result.reasons).forEach(k=>{if(result[k])result.reasons[k]="VERIFIED";});
+  return result;
+}
+function spotifyRecommendationId_(url) {
+  const match=String(url || "").match(/^https:\/\/open\.spotify\.com\/show\/([A-Za-z0-9]{22})(?:[?#/]|$)/);
+  return match ? match[1] : "";
+}
+function canonicalPodcastUrl_(value) { return String(value || "").split(/[?#]/)[0]; }
+function pocketCastsFollowUrl_(rss) { return isSafePublicPodcastRss_(rss) ? "https://pocketcasts.com/follow/"+encodeURIComponent(rss) : ""; }
+function applyKnownPodcastUrl_(resolved,value) {
+  // 明示入力の番組URLのみを分類する。任意ホストの部分一致は禁止。
+  if (spotifyRecommendationId_(value)) resolved.spotify=resolved.spotify || canonicalPodcastUrl_(value);
 }

@@ -104,53 +104,40 @@ function getSpotifyAccessToken() {
     return "";
   }
 }
-function findSpotifyShowByTitle_(title) {
-  const term = String(title || "").trim();
-  if (!term) return null;
-
-  const token = getSpotifyAccessToken();
-  if (!token) return null;
-
-  try {
-    const res = UrlFetchApp.fetch(
-      "https://api.spotify.com/v1/search?q=" +
-        encodeURIComponent(term) +
-        "&type=show&market=JP&limit=10",
-      {
-        muteHttpExceptions: true,
-        headers: {
-          Authorization: "Bearer " + token,
-          Accept: "application/json"
-        }
-      }
-    );
-
-    if (res.getResponseCode() < 200 || res.getResponseCode() >= 300) {
-      return null;
+// 互換入口もタイトル単独では必ず保留する。
+function findSpotifyShowByTitle_(title) { return null; }
+function findVerifiedRecommendationSpotify_(title, maker, verifiedIds) {
+  const ids = Array.from(new Set(verifiedIds || []));
+  if (!maker || !ids.length) return {url:"",reason:"REVIEW_NO_INDEPENDENT_IDENTITY"};
+  if (ids.length !== 1) return {url:"",reason:"REVIEW_AMBIGUOUS"};
+  // 推薦専用HTTP経路。既存のEP用OAuth/取得コードには変更を加えない。
+  const props=PropertiesService.getScriptProperties();
+  const clientId=props.getProperty("SPOTIFY_CLIENT_ID");
+  const secret=props.getProperty("SPOTIFY_CLIENT_SECRET");
+  if (!clientId || !secret) return {url:"",reason:"AUTH_MISSING"};
+  const token=JSON.parse(recommendationFetch_("https://accounts.spotify.com/api/token",{
+    method:"post",contentType:"application/x-www-form-urlencoded",
+    headers:{Authorization:"Basic "+Utilities.base64Encode(clientId+":"+secret)},
+    payload:{grant_type:"client_credentials"}})).access_token;
+  if (!token) return {url:"",reason:"AUTH_MISSING"};
+  const item=JSON.parse(recommendationFetch_("https://api.spotify.com/v1/shows/"+ids[0]+"?market=JP",{
+    headers:{Authorization:"Bearer "+token,Accept:"application/json"}}));
+  let publisher=String(item.publisher || "");
+  // APIに配信者がない場合のみ同じshow IDの公式ページを確認する。
+  // 複数の配信者メタ情報があれば関連番組の混入を否定できず保留。
+  if (!publisher && String(item.id || "")===ids[0]) {
+    const html=recommendationFetch_("https://open.spotify.com/show/"+ids[0]);
+    const names=[];
+    const pattern=/"(?:publisherName|creatorName|authorName|publisher)"\s*:\s*("(?:[^"\\]|\\.)*")/g;
+    let match;
+    while ((match=pattern.exec(html))!==null) {
+      try { const name=JSON.parse(match[1]); if (names.indexOf(name)<0) names.push(name); } catch (_) { /* untrusted metadata */ }
     }
-
-    const data = JSON.parse(res.getContentText());
-    const items =
-      data && data.shows && Array.isArray(data.shows.items)
-        ? data.shows.items
-        : [];
-    const wanted = normalizeTitle(term);
-
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (normalizeTitle(item && item.name ? item.name : "") !== wanted) continue;
-      const external =
-        item && item.external_urls && item.external_urls.spotify
-          ? String(item.external_urls.spotify)
-          : "";
-      if (external) return external;
-      if (item && item.id) return "https://open.spotify.com/show/" + String(item.id);
-    }
-  } catch (_) {
-    return null;
+    if (names.length===1) publisher=names[0];
   }
-
-  return null;
+  if (String(item.id || "")!==ids[0] || !recommendationIdentity_(title,maker,item.name,publisher))
+    return {url:"",reason:"REVIEW_SPOTIFY_IDENTITY_OR_PUBLISHER_MISSING"};
+  return {url:"https://open.spotify.com/show/"+ids[0],reason:"VERIFIED"};
 }
 
 function fetchSpotifyEpisodeFromWebApi(episodeId) {
