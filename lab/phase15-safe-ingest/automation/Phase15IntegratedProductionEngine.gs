@@ -6,7 +6,7 @@
 */
 var PHASE15_INTEGRATED=(function(){
 'use strict';
-var C={prod:'1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4',copy:'1IhnYURLqhM8i3ACrkNbDujplXRtyI41rR19qGnwZlMY',tab:'エピソード台帳',feeds:'取得元一覧',cursor:'P15I_CURSOR',audit:'P15I_AUDIT',enabled:'P15_WRITES_ENABLED',batch:100,columns:{N:14,O:15,P:16,V:22,W:23,X:24,AC:29,AT:46,AU:47,AV:48,AW:49,AX:50,AY:51}};
+var C={prod:'1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4',copy:'1IhnYURLqhM8i3ACrkNbDujplXRtyI41rR19qGnwZlMY',tab:'エピソード台帳',feeds:'取得元一覧',cursor:'P15I_CURSOR',audit:'P15I_AUDIT',holds:'P15I_HOLD_QUEUE',enabled:'P15_WRITES_ENABLED',batch:100,columns:{N:14,O:15,P:16,V:22,W:23,X:24,AC:29,AT:46,AU:47,AV:48,AW:49,AX:50,AY:51}};
 function txt(v){return v===null||v===undefined?'':String(v);}
 function guid(v){return txt(v).trim().toLowerCase();}
 function goodGuid(v){return /^[\da-f]{8}(-[\da-f]{4}){3}-[\da-f]{12}$/.test(guid(v));}
@@ -195,7 +195,7 @@ function run(args){
    if(!/^EP-\d{5,6}$/.test(txt(row[0]))||!goodGuid(row[6])||/^(AJW|アルキキ|YouTube|朝ポキTV)$/.test(txt(row[1]))){result.holds.push({row:rn,reason:'EXCLUDED_OR_INVALID_ID'});result.next=rn+1;continue;}
    var origin=source.byGuid[guid(row[6])],proposal;
    try{proposal=plan(row,origin,{reviseW:args.reviseW===true});}
-   catch(e){result.holds.push({row:rn,id:row[0],why:'ROW_PARSE_ERROR',detail:txt(e).slice(0,160)});result.next=rn+1;if(args.write)props.setProperty(cursorKey,String(result.next));continue;}
+   catch(e){result.holds.push({row:rn,id:row[0],why:'ROW_PARSE_ERROR',detail:txt(e).slice(0,160)});result.next=rn+1;if(args.write&&!args.preserveCursor)props.setProperty(cursorKey,String(result.next));continue;}
    if(proposal.holds.length)result.holds.push({row:rn,id:row[0],why:proposal.holds});
    var changes=proposal.changes.filter(function(c){return proposal.holds.indexOf('SOURCE_IDENTITY_CONFLICT')<0&&(!/^(W_|VERIFIED_ARTICLE)/.test(c.why)||proposal.holds.length===0);});
    if(changes.length){
@@ -207,6 +207,11 @@ function run(args){
     }
    }
    result.next=rn+1;if(args.write)props.setProperty(cursorKey,String(result.next));
+  }
+  if(args.write&&result.holds.length){
+   var holdTab=ss.getSheetByName(C.holds);if(!holdTab){holdTab=ss.insertSheet(C.holds);holdTab.appendRow(['UTC','TARGET','ROW','EP-ID','GUID','REASON','RETRY_STATUS']);}
+   var holdRows=result.holds.map(function(h){var r=rows[h.row-start]||[];return [new Date().toISOString(),prod?'PROD':'COPY',h.row,h.id||txt(r[0]),txt(r[6]),JSON.stringify(h.why||h.reason||h.detail||''),'PENDING'];});
+   holdTab.getRange(holdTab.getLastRow()+1,1,holdRows.length,7).setValues(holdRows);
   }
   Logger.log(JSON.stringify({mode:result.mode,target:result.target,processed:result.processed,next:result.next,counts:result.counts,holds:result.holds.length,officialJsonVerified:result.officialJsonVerified,feeds:result.feeds}));
   return result;
@@ -233,3 +238,7 @@ function p15iParserSmokeTests(){
  ];
  return tests.map(function(t){var x=PHASE15_INTEGRATED.clean(t.raw),ok=x.pairs===t.pairs&&!/担当者|フォローしてください|無料ご入場|ニュースレター|〖出演|【出演/.test(x.text)&&(!t.hold||x.holds.length>0);return{name:t.name,ok:ok,pairs:x.pairs,holds:x.holds};});
 }
+
+/** Retry a held row after fixing its source, without moving the main scan cursor. */
+function p15iRetryHeldCopyRow(row){return PHASE15_INTEGRATED.run({target:'COPY',startRow:row,limit:1,write:true,preserveCursor:true});}
+function p15iRetryHeldProductionRow(row){return PHASE15_INTEGRATED.run({target:'PROD',startRow:row,limit:1,write:true,preserveCursor:true,prodApproved:true});}
