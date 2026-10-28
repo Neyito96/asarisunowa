@@ -195,6 +195,9 @@ function run(args){
    if(Date.now()-stamp>240000)break;
    var row=rows[i],rn=start+i;result.processed++;
    if(!/^EP-\d{5,6}$/.test(txt(row[0]))||!goodGuid(row[6])||/^(AJW|アルキキ|YouTube|朝ポキTV)$/.test(txt(row[1]))){result.holds.push({row:rn,reason:'EXCLUDED_OR_INVALID_ID'});result.next=rn+1;continue;}
+   if(args.write&&args.target==='COPY'&&start===2&&!args.allowFirstRow){
+    result.holds.push({row:rn,id:row[0],why:'FIRST_ROW_NEEDS_EXPLICIT_TRIAL_GATE'});result.next=rn+1;continue;
+   }
    var origin=source.byGuid[guid(row[6])],proposal;
    try{proposal=plan(row,origin,{reviseW:args.reviseW===true});}
    catch(e){result.holds.push({row:rn,id:row[0],why:'ROW_PARSE_ERROR',detail:txt(e).slice(0,160)});result.next=rn+1;if(args.write&&!args.preserveCursor)props.setProperty(cursorKey,String(result.next));continue;}
@@ -227,7 +230,7 @@ function p15iCopyDryRun(){return PHASE15_INTEGRATED.run({target:'COPY',startRow:
 function p15iProductionDryRun(){return PHASE15_INTEGRATED.run({target:'PROD',startRow:2,limit:30,write:false});}
 function p15iCopyWrite(){return PHASE15_INTEGRATED.run({target:'COPY',startRow:2,limit:30,write:true});}
 function p15iCopyTrialDryRun(){return PHASE15_INTEGRATED.run({target:'COPY',startRow:2,limit:1,write:false});}
-function p15iCopyTrialWrite(){return PHASE15_INTEGRATED.run({target:'COPY',startRow:2,limit:1,write:true,preserveCursor:true});}
+function p15iCopyTrialWrite(){return PHASE15_INTEGRATED.run({target:'COPY',startRow:2,limit:1,write:true,preserveCursor:true,allowFirstRow:true});}
 function p15iCopyContinue(){return PHASE15_INTEGRATED.run({target:'COPY',limit:100,write:true});}
 function p15iProductionContinue(){return PHASE15_INTEGRATED.run({target:'PROD',limit:100,write:true,prodApproved:true});}
 function p15iProductionSmallWrite(){return PHASE15_INTEGRATED.run({target:'PROD',startRow:2,limit:5,write:true,prodApproved:true});}
