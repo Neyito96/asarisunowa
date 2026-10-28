@@ -1,0 +1,166 @@
+/* Phase15 integrated GAS — single-writer, source-fenced, default read-only.
+  Deployment/trigger installation is a separate, unperformed operation.
+  Required Script Property P15_WRITES_ENABLED=YES before COPY writes.
+  This file MUST NOT be deployed over a live GAS project without reviewing its
+  existing script code/properties/other writers.
+*/
+var PHASE15_INTEGRATED=(function(){
+'use strict';
+var C={prod:'1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4',copy:'1IhnYURLqhM8i3ACrkNbDujplXRtyI41rR19qGnwZlMY',tab:'エピソード台帳',feeds:'取得元一覧',cursor:'P15I_CURSOR',audit:'P15I_AUDIT',enabled:'P15_WRITES_ENABLED',batch:100,columns:{N:14,O:15,P:16,V:22,W:23,X:24,AC:29,AY:51}};
+function txt(v){return v===null||v===undefined?'':String(v);}
+function guid(v){return txt(v).trim().toLowerCase();}
+function goodGuid(v){return /^[\da-f]{8}(-[\da-f]{4}){3}-[\da-f]{12}$/.test(guid(v));}
+function validUrl(u){return /^https?:\/\/[a-z0-9.-]+(?::\d+)?(?:\/|$)/i.test(txt(u))&&!/^https?:\/\/[^/]*@/i.test(txt(u));}
+function entity(v){return txt(v).replace(/&(?:amp|nbsp|lt|gt|quot|apos|hellip);|&#(?:x[\da-f]+|\d+);/gi,function(x){var m={'&amp;':'&','&nbsp;':' ','&lt;':'<','&gt;':'>','&quot;':'"','&apos;':"'",'&hellip;':'…'};if(m[x.toLowerCase()])return m[x.toLowerCase()];return String.fromCodePoint(parseInt(x.slice(x[2]==='x'?3:2,-1),x[2]==='x'?16:10));});}
+function lines(raw){
+ var v=txt(raw).replace(/\\r\\n|\\n|\\r|\r\n?/g,'\n');
+ v=v.replace(/<a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi,function(_,href,label){var t=entity(label.replace(/<[^>]*>/g,'')).trim(),u=entity(href).trim();return validUrl(u)?t+(u===t?'':'\n'+u):t;});
+ v=v.replace(/<br\s*\/?>|<\/?(?:p|div|li|section)\b[^>]*>/gi,'\n').replace(/<[^>]+>/g,'');
+ return entity(v).split('\n').map(function(x){return x.trim();}).filter(Boolean);
+}
+function section(line){
+ var m=txt(line).match(/^[【〖［\[]\s*([^】〗］\]\n]{1,80})[】〗］\]]?/);if(!m)return null;
+ var h=m[1].replace(/\s/g,'');
+ if(/^(?:番組内容|内容)$/.test(h))return {kind:'body',tail:line.slice(m[0].length).trim()};
+ if(/^(?:関連記事|関連リンク|関連動画|写真まとめ|特集ページ|まとめトピックス)/.test(h))return {kind:'related',label:'【'+h+'】',tail:line.slice(m[0].length).trim()};
+ if(/^(?:出演|スタッフ|出演者)/.test(h))return {kind:'staff'};
+ if(/^(?:おねがい|朝ポキ情報|お知らせ|イベント|申し込み|過去の番組一覧|おすすめ|朝日地球会議への申し込み)/.test(h))return {kind:'skip'};
+ return null;
+}
+function promotion(s){return /^(?:★|☆|３STEP|3STEP|ニュースレター.*登録はこちら|番組継続のため|朝日新聞ポッドキャストは、みなさま|ご意見・感想・リクエスト|See .*omnystudio|Learn more about|有料会員が選定！|アプリで記者と対話|番組検索ツール|交流はdiscord)/i.test(s)||/forms\.gle|forms\.cloud\.microsoft|bit\.ly\/asapoki_/i.test(s);}
+function articleUrl(s){return /^https?:\/\/(?:www\.)?asahi\.com\/(?:articles\/|rensai\/|topics\/|edu\/suisogaku\/)/i.test(txt(s));}
+function clean(raw){
+ var rawLines=lines(raw),mode='body',body=[],rel=[],cast=[],holds=[],pending='',pairs=0;
+ function flush(){if(pending){rel.push(pending);holds.push('RELATED_TITLE_MISSING_VERIFIED_URL');pending='';}}
+ rawLines.forEach(function(line){
+  var h=section(line);if(h){if(mode==='related')flush();mode=h.kind;if(mode==='related')rel.push(h.label);if(h.tail&&mode==='body')body.push(h.tail);if(h.tail&&mode==='related')pending=h.tail;return;}
+  if(promotion(line)||mode==='skip')return;
+  if(mode==='staff'){if(!/^MC|^音源編集|^https?:/.test(line))cast.push(line);return;}
+  if(mode==='body'){
+   line=line.replace(/これまでのONGOINGはこちら.*$/,'').replace(/過去のいちおしウニュ！はこちら.*$/,'').replace(/過去回はこちらから.*$/,'').trim();
+   if(line&&!/^https?:\/\/(?:forms|bit\.ly)/.test(line))body.push(line);return;
+  }
+  if(mode==='related'){
+   if(/^https?:\/\//.test(line)){if(pending&&articleUrl(line)&&validUrl(line)){rel.push(pending,line);pending='';pairs++;}else{flush();holds.push('UNPAIRED_URL');}}
+   else if(!/ニュースレター|購読|会員登録|登録はこちら|お申し込み/.test(line)){flush();pending=line;}
+  }
+ });
+ if(mode==='related')flush();
+ if(!body.length)holds.push('EMPTY_BODY');
+ var result=body.join('\n')+(rel.length?'\n\n'+rel.join('\n'):'');
+ if(/[【〖［]\s*(?:出演|スタッフ|おねがい)|購読料で配信しています|omnystudio\.com\/listener/.test(result))holds.push('RESIDUE');
+ return {text:result,pairs:pairs,cast:cast,holds:Array.from(new Set(holds))};
+}
+function seconds(v){v=txt(v);if(/^\d+$/.test(v))return Number(v);if(/^\d+:\d{2}(?::\d{2})?$/.test(v)){var p=v.split(':').map(Number);return p.length===2?p[0]*60+p[1]:p[0]*3600+p[1]*60+p[2];}return 0;}
+function parseFeed(xml,url,show){
+ var root=XmlService.parse(xml).getRootElement(),channel=root.getChild('channel');
+ if(!channel)throw Error('RSS_CHANNEL_MISSING');
+ var ns=XmlService.getNamespace('itunes','http://www.itunes.com/dtds/podcast-1.0.dtd'),items=channel.getChildren('item');
+ return items.map(function(it){
+  var g=guid(it.getChildText('guid')),e=it.getChild('enclosure'),im=it.getChild('image',ns);
+  return {guid:g,show:show,source:url,description:it.getChildText('description')||'',title:it.getChildText('title')||'',image:im&&im.getAttribute('href')?im.getAttribute('href').getValue():'',audio:e&&e.getAttribute('url')?e.getAttribute('url').getValue():'',duration:seconds(it.getChildText('duration',ns))};
+ }).filter(function(it){return goodGuid(it.guid);});
+}
+function fetchSources(ss){
+ var sh=ss.getSheetByName(C.feeds);if(!sh)throw Error('SOURCE_LIST_MISSING');
+ var rows=sh.getRange(2,1,Math.min(20,sh.getLastRow()-1),8).getValues(),byGuid={},log=[];
+ rows.forEach(function(r){
+  var show=txt(r[0]),url=txt(r[7]);if(/AJW|アルキキ|YouTube|朝ポキTV/.test(show))return;
+  if(!/^https:\/\/(?:www\.omnycontent\.com\/d\/playlist\/|feeds\.megaphone\.fm\/)/.test(url))return;
+  try{
+   var response=UrlFetchApp.fetch(url,{muteHttpExceptions:true,followRedirects:true});
+   if(response.getResponseCode()!==200)throw Error('HTTP_'+response.getResponseCode());
+   var items=parseFeed(response.getContentText('UTF-8'),url,show);
+   items.forEach(function(item){if(byGuid[item.guid])byGuid[item.guid].collision=true;else byGuid[item.guid]=item;});
+   log.push({show:show,items:items.length,status:'OK'});
+  }catch(e){log.push({show:show,status:'ERROR',message:txt(e).slice(0,120)});}
+ });
+ return {byGuid:byGuid,log:log,unique:Object.keys(byGuid).length};
+}
+function empty(v){return v===null||v===undefined||v==='';}
+function plan(row,src,opts){
+ var o={changes:[],holds:[],parsed:null};
+ if(!src){o.holds.push('GUID_NOT_FOUND_IN_CURRENT_FEEDS');return o;}
+ if(src.collision||guid(src.guid)!==guid(row[6])||src.show!==txt(row[1])){o.holds.push('SOURCE_IDENTITY_CONFLICT');return o;}
+ if(!/^https:\/\/(?:www\.omnycontent\.com|feeds\.megaphone\.fm)\//.test(src.source)){o.holds.push('UNTRUSTED_SOURCE');return o;}
+ var raw=txt(row[21]),official=txt(src.description),mismatch=Boolean(raw&&official&&raw!==official);
+ if(!raw&&official){o.changes.push({col:22,value:official,why:'RSS_RAW_EXACT'});raw=official;}
+ else if(mismatch)o.holds.push('V_DIFF_OFFICIAL_PROTECT');
+ if(raw){
+  var p=clean(raw);o.parsed=p;p.holds.forEach(function(h){o.holds.push(h);});
+  if(!mismatch&&!p.holds.length&&p.text&&p.text!==txt(row[22])&&(empty(row[22])||opts.reviseW)){
+   o.changes.push({col:23,value:p.text,why:empty(row[22])?'W_FILL':'W_REVISE'});
+  }
+  if(!mismatch&&empty(row[28])&&p.pairs&&!p.holds.length){
+   var urls=(p.text.match(/https?:\/\/[^\s]+/g)||[]).filter(articleUrl);
+   if(urls.length===p.pairs)o.changes.push({col:29,value:urls.join(' '),why:'VERIFIED_ARTICLE_INDEX'});
+  }
+  if(!mismatch&&official&&empty(row[23])&&p.cast.length&&!p.holds.length){
+   var names=p.cast.filter(function(x){return !/^MC|^音源編集/.test(x);});
+   if(names.length){o.changes.push({col:24,value:names.join('\n'),why:'EXPLICIT_CAST_IN_OFFICIAL_RAW'});
+    if(empty(row[50]))o.changes.push({col:51,value:src.source+'#guid='+src.guid,why:'CAST_SOURCE'});}
+  }
+ }
+ [['N',src.image],['O',src.audio],['P',src.duration]].forEach(function(x){
+  var c=C.columns[x[0]],v=x[1];if(!empty(row[c-1])||empty(v))return;
+  if(x[0]==='P'?Number.isInteger(v)&&v>0:validUrl(v))o.changes.push({col:c,value:v,why:'RSS_'+x[0]});
+ });
+ return o;
+}
+function writeRow(ss,sh,rn,original,changes,source){
+ var live=sh.getRange(rn,1,1,55).getValues()[0];
+ if(txt(live[0])!==txt(original[0])||guid(live[6])!==guid(original[6]))return {ok:false,why:'EP_ID_GUID_CHANGED'};
+ for(var i=0;i<changes.length;i++){
+  var c=changes[i],cell=sh.getRange(rn,c.col);
+  if(txt(live[c.col-1])!==txt(original[c.col-1])||cell.getFormula()||cell.getDataValidation())return {ok:false,why:'CHANGED_OR_PROTECTED_COL_'+c.col};
+ }
+ var a=ss.getSheetByName(C.audit);
+ if(!a){a=ss.insertSheet(C.audit);a.appendRow(['UTC','STATE','ROW','EP-ID','GUID','SOURCE','COLUMN','BEFORE','AFTER','WHY']);}
+ var records=changes.map(function(c){return [new Date().toISOString(),'PENDING',rn,txt(original[0]),txt(original[6]),source,c.col,txt(original[c.col-1]),txt(c.value),c.why];});
+ var first=a.getLastRow()+1;a.getRange(first,1,records.length,10).setValues(records);SpreadsheetApp.flush();
+ changes.forEach(function(c){sh.getRange(rn,c.col).setValue(c.value);});
+ var verify=sh.getRange(rn,1,1,55).getValues()[0];
+ if(txt(verify[0])!==txt(original[0])||guid(verify[6])!==guid(original[6]))throw Error('POSTWRITE_IDENTITY_CHANGED');
+ changes.forEach(function(c){if(txt(verify[c.col-1])!==txt(c.value))throw Error('POSTWRITE_MISMATCH_COL_'+c.col);});
+ a.getRange(first,2,records.length,1).setValues(records.map(function(){return ['VERIFIED'];}));
+ return {ok:true};
+}
+function run(args){
+ args=args||{};var lock=LockService.getScriptLock();if(!lock.tryLock(10000))throw Error('WRITER_BUSY');
+ try{
+  var prod=args.target==='PROD';if(prod&&args.write&&!args.prodApproved)throw Error('PROD_WRITE_NOT_APPROVED');
+  var props=PropertiesService.getScriptProperties();if(args.write&&props.getProperty(C.enabled)!=='YES')throw Error('WRITE_GATE_CLOSED');
+  var ss=SpreadsheetApp.openById(prod?C.prod:C.copy),sh=ss.getSheetByName(C.tab);
+  if(!sh)throw Error('LEDGER_NOT_FOUND');
+  var start=Math.max(2,Number(args.startRow)||Number(props.getProperty(C.cursor))||2);
+  var end=Math.min(sh.getLastRow(),start+Math.min(100,Math.max(1,Number(args.limit)||100))-1);
+  var source=fetchSources(ss),rows=sh.getRange(start,1,Math.max(1,end-start+1),55).getValues(),stamp=Date.now();
+  var result={mode:args.write?'WRITE':'DRY_RUN',target:prod?'PROD':'COPY',start:start,next:start,officialGuids:source.unique,feeds:source.log,processed:0,counts:{V:0,W_new:0,W_revised:0,AC:0,N:0,O:0,P:0,X:0,AY:0},holds:[],changed:[]};
+  for(var i=0;i<rows.length&&start+i<=end;i++){
+   if(Date.now()-stamp>240000)break;
+   var row=rows[i],rn=start+i;result.processed++;
+   if(!/^EP-\d{5,6}$/.test(txt(row[0]))||!goodGuid(row[6])||/^(AJW|アルキキ|YouTube|朝ポキTV)$/.test(txt(row[1]))){result.holds.push({row:rn,reason:'EXCLUDED_OR_INVALID_ID'});result.next=rn+1;continue;}
+   var origin=source.byGuid[guid(row[6])],proposal=plan(row,origin,{reviseW:args.reviseW===true});
+   if(proposal.holds.length)result.holds.push({row:rn,id:row[0],why:proposal.holds});
+   var changes=proposal.changes.filter(function(c){return proposal.holds.indexOf('SOURCE_IDENTITY_CONFLICT')<0&&(!/^(W_|VERIFIED_ARTICLE)/.test(c.why)||proposal.holds.length===0);});
+   if(changes.length){
+    var w=args.write?writeRow(ss,sh,rn,row,changes,origin.source):{ok:true};
+    if(!w.ok)result.holds.push({row:rn,id:row[0],reason:w.why});
+    else{
+     changes.forEach(function(c){var k=Object.keys(C.columns).filter(function(z){return C.columns[z]===c.col;})[0];if(k==='W')k=empty(row[22])?'W_new':'W_revised';if(k==='AC')k='AC';if(result.counts[k]!==undefined)result.counts[k]++;});
+     result.changed.push({row:rn,id:row[0],cols:changes.map(function(c){return c.col;})});
+    }
+   }
+   result.next=rn+1;if(args.write)props.setProperty(C.cursor,String(result.next));
+  }
+  Logger.log(JSON.stringify({mode:result.mode,target:result.target,processed:result.processed,next:result.next,counts:result.counts,holds:result.holds.length,feeds:result.feeds}));
+  return result;
+ }finally{lock.releaseLock();}
+}
+return {clean:clean,plan:plan,parseFeed:parseFeed,fetchSources:fetchSources,run:run};
+})();
+function p15iCopyDryRun(){return PHASE15_INTEGRATED.run({target:'COPY',startRow:2,limit:30,write:false});}
+function p15iProductionDryRun(){return PHASE15_INTEGRATED.run({target:'PROD',startRow:2,limit:30,write:false});}
+function p15iCopyWrite(){return PHASE15_INTEGRATED.run({target:'COPY',startRow:2,limit:30,write:true});}
+function p15iProductionSmallWrite(){return PHASE15_INTEGRATED.run({target:'PROD',startRow:2,limit:5,write:true,prodApproved:true});}
+/* No trigger creation here: quality gate and parallel-writer owner must be approved first. */
