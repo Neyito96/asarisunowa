@@ -3270,3 +3270,33 @@ footer {
   aspect-ratio:1 / 1;
   object-fit:cover;
 }
+
+/* ポすすめとリス推しのアートワークだけを統一する。
+   カード内の正方形領域を保証し、配信者の画像全体を欠けさせない。 */
+.podcastGrid .podcastArtworkCard > .podcastCover {
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  aspect-ratio: 1 / 1 !important;
+  overflow: hidden !important;
+  align-self: start;
+  background: #fff;
+}
+.podcastGrid .podcastArtworkCard > .podcastCover > img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: 1 / 1 !important;
+  object-fit: contain !important;
+  object-position: center !important;
+}
+@media (max-width: 780px) {
+  .podcastGrid .podcastArtworkCard {
+    min-width: 0;
+  }
+  .podcastGrid .podcastArtworkCard > .podcastCover {
+    min-width: 0;
+  }
+}

@@ -2041,7 +2041,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             )}
             <div className="grid podcastGrid">
               {(listenerPodcastSort === "new" ? [...liveListenerPodcasts].reverse() : liveListenerPodcasts).map((p) => (
-                <article className="card listenerPodcastCard" key={"listener-podcast-" + p.id}>
+                <article className="card listenerPodcastCard podcastArtworkCard" key={"listener-podcast-" + p.id}>
                   <div className="cover podcastCover">
                     {p.artwork ? <img src={p.artwork} alt={p.title + "のアートワーク"} loading="lazy" /> : <span>ASARISU<br />PODCAST</span>}
                   </div>
@@ -2178,7 +2178,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               )}
               <div className="grid podcastGrid">
                 {recommendedPodcasts.map((p) => (
-                  <article className="card" key={"podcast-" + p.id}>
+                  <article className="card podcastArtworkCard" key={"podcast-" + p.id}>
                     <div className="cover podcastCover">
                       {p.artwork ? (
                         <img
