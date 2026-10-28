@@ -143,7 +143,9 @@ function run(args){
    if(Date.now()-stamp>240000)break;
    var row=rows[i],rn=start+i;result.processed++;
    if(!/^EP-\d{5,6}$/.test(txt(row[0]))||!goodGuid(row[6])||/^(AJW|アルキキ|YouTube|朝ポキTV)$/.test(txt(row[1]))){result.holds.push({row:rn,reason:'EXCLUDED_OR_INVALID_ID'});result.next=rn+1;continue;}
-   var origin=source.byGuid[guid(row[6])],proposal=plan(row,origin,{reviseW:args.reviseW===true});
+   var origin=source.byGuid[guid(row[6])],proposal;
+   try{proposal=plan(row,origin,{reviseW:args.reviseW===true});}
+   catch(e){result.holds.push({row:rn,id:row[0],why:'ROW_PARSE_ERROR',detail:txt(e).slice(0,160)});result.next=rn+1;if(args.write)props.setProperty(cursorKey,String(result.next));continue;}
    if(proposal.holds.length)result.holds.push({row:rn,id:row[0],why:proposal.holds});
    var changes=proposal.changes.filter(function(c){return proposal.holds.indexOf('SOURCE_IDENTITY_CONFLICT')<0&&(!/^(W_|VERIFIED_ARTICLE)/.test(c.why)||proposal.holds.length===0);});
    if(changes.length){
@@ -169,3 +171,15 @@ function p15iCopyContinue(){return PHASE15_INTEGRATED.run({target:'COPY',limit:1
 function p15iProductionContinue(){return PHASE15_INTEGRATED.run({target:'PROD',limit:100,write:true,prodApproved:true});}
 function p15iProductionSmallWrite(){return PHASE15_INTEGRATED.run({target:'PROD',startRow:2,limit:5,write:true,prodApproved:true});}
 /* No trigger creation here: quality gate and parallel-writer owner must be approved first. */
+/* Pure local parser smoke tests: no API, Sheets, triggers or writes. */
+function p15iParserSmokeTests(){
+ var tests=[
+ {name:'related_after_staff',raw:'本文\\n〖出演・スタッフ〗\\n担当者\\n【関連記事】\\n記事A\\nhttps://www.asahi.com/articles/A.html',pairs:1},
+ {name:'html_anchor',raw:'<p>本文</p><p>【関連記事】<br><a href="https://www.asahi.com/articles/B.html">記事B</a></p><p>【スタッフ】<br>担当者</p>',pairs:1},
+ {name:'no_unsupported_pairing',raw:'本文\\n【関連記事】\\n記事A\\n記事B\\n【出演】\\n担当者',pairs:0,hold:true},
+ {name:'newsletter_in_related',raw:'本文\\n【関連記事】\\n記事C\\nhttps://www.asahi.com/articles/C.html\\nニュースレター登録はこちら\\nhttps://digital.asahi.com/info/newsletter',pairs:1},
+ {name:'promotion_before_articles',raw:'本文\\n★イベント申し込み\\n記者をフォローしてください\\n【関連記事】\\n記事D\\nhttps://www.asahi.com/articles/D.html',pairs:1},
+ {name:'event_section_before_articles',raw:'本文\\n【朝ポキも参加！GOOD LIFEフェア】\\n無料ご入場いただけます\\n【関連記事】\\n記事E\\nhttps://www.asahi.com/articles/E.html',pairs:1}
+ ];
+ return tests.map(function(t){var x=PHASE15_INTEGRATED.clean(t.raw),ok=x.pairs===t.pairs&&!/担当者|フォローしてください|無料ご入場|ニュースレター|〖出演|【出演/.test(x.text)&&(!t.hold||x.holds.length>0);return{name:t.name,ok:ok,pairs:x.pairs,holds:x.holds};});
+}
