@@ -247,6 +247,31 @@ function p15iParserSmokeTests(){
 function p15iRetryHeldCopyRow(row){return PHASE15_INTEGRATED.run({target:'COPY',startRow:row,limit:1,write:true,preserveCursor:true});}
 function p15iRetryHeldProductionRow(row){return PHASE15_INTEGRATED.run({target:'PROD',startRow:row,limit:1,write:true,preserveCursor:true,prodApproved:true});}
 
+/** Manual bounded retry of 1-10 unresolved COPY holds; never advances normal cursor.
+ * Uses same GUID/source verification. Re-run after source mismatch is resolved.
+ */
+function p15iRetryPendingCopyHolds(){
+ var ss=SpreadsheetApp.openById('1IhnYURLqhM8i3ACrkNbDujplXRtyI41rR19qGnwZlMY');
+ var sh=ss.getSheetByName('P15I_HOLD_QUEUE');if(!sh||sh.getLastRow()<2)return {scanned:0,resolved:0,pending:0};
+ var rows=sh.getRange(2,1,sh.getLastRow()-1,7).getValues(),seen={};
+ var result={scanned:0,resolved:0,pending:0,errors:[]};
+ for(var i=0;i<rows.length&&result.scanned<10;i++){
+  var record=rows[i],rowNumber=Number(record[2]),key=String(record[1])+'/'+rowNumber;
+  if(record[1]!=='COPY'||record[6]!=='PENDING'||seen[key]||!Number.isInteger(rowNumber)||rowNumber<2)continue;
+  seen[key]=true;result.scanned++;
+  try{
+   var trial=PHASE15_INTEGRATED.run({target:'COPY',startRow:rowNumber,limit:1,write:true,preserveCursor:true});
+   var stillHeld=trial.holds.length>0,oldReason=String(record[5]||'');
+   var outcome=stillHeld?'PENDING':'RESOLVED';
+   // Do not declare success for empty-source/no-write cases: trial itself will hold those.
+   if(!stillHeld){sh.getRange(i+2,7).setValue('RESOLVED');result.resolved++;}
+   else result.pending++;
+  }catch(e){result.pending++;result.errors.push({row:rowNumber,reason:String(e).slice(0,120)});}
+ }
+ return result;
+}
+
+
 /** Only call after successful online COPY + production pilot validation and explicit approval. */
 function p15iInstallProductionTrigger(){
  var p=PropertiesService.getScriptProperties();
