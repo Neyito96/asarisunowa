@@ -264,7 +264,12 @@ function p15iRetryPendingCopyHolds(){
    var stillHeld=trial.holds.length>0,oldReason=String(record[5]||'');
    var outcome=stillHeld?'PENDING':'RESOLVED';
    // Do not declare success for empty-source/no-write cases: trial itself will hold those.
-   if(!stillHeld){sh.getRange(i+2,7).setValue('RESOLVED');result.resolved++;}
+   if(!stillHeld){
+     var ledger=ss.getSheetByName('エピソード台帳'),current=ledger.getRange(rowNumber,1,1,7).getValues()[0];
+     if(String(current[0])===String(record[3])&&String(current[6]).toLowerCase()===String(record[4]).toLowerCase()){
+      sh.getRange(i+2,7).setValue('RESOLVED');result.resolved++;
+     }else result.pending++;
+    }
    else result.pending++;
   }catch(e){result.pending++;result.errors.push({row:rowNumber,reason:String(e).slice(0,120)});}
  }
