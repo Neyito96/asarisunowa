@@ -24,7 +24,7 @@ function section(line){
  if(/^(?:番組内容|内容)$/.test(h))return {kind:'body',tail:line.slice(m[0].length).trim()};
  if(/^(?:関連記事|関連リンク|関連動画|写真まとめ|特集ページ|まとめトピックス)/.test(h))return {kind:'related',label:'【'+h+'】',tail:line.slice(m[0].length).trim()};
  if(/^(?:出演|スタッフ|出演者)/.test(h))return {kind:'staff'};
- if(/^(?:おねがい|朝ポキ情報|お知らせ|イベント|申し込み|過去の番組一覧|おすすめ|朝日地球会議への申し込み)/.test(h))return {kind:'skip'};
+ if(/^(?:おねがい|朝ポキ情報|お知らせ|イベント|申し込み|過去の番組一覧|おすすめ|朝ポキも参加|朝日地球会議への申し込み|今回取り上げた記者サロン|川西記者ほか)/.test(h))return {kind:'skip'};
  return null;
 }
 function promotion(s){return /^(?:★|☆|３STEP|3STEP|ニュースレター.*登録はこちら|番組継続のため|朝日新聞ポッドキャストは、みなさま|ご意見・感想・リクエスト|See .*omnystudio|Learn more about|有料会員が選定！|アプリで記者と対話|番組検索ツール|交流はdiscord)/i.test(s)||/forms\.gle|forms\.cloud\.microsoft|bit\.ly\/asapoki_/i.test(s);}
@@ -34,13 +34,15 @@ function clean(raw){
  function flush(){if(pending){rel.push(pending);holds.push('RELATED_TITLE_MISSING_VERIFIED_URL');pending='';}}
  rawLines.forEach(function(line){
   var h=section(line);if(h){if(mode==='related')flush();mode=h.kind;if(mode==='related')rel.push(h.label);if(h.tail&&mode==='body')body.push(h.tail);if(h.tail&&mode==='related')pending=h.tail;return;}
-  if(promotion(line)||mode==='skip')return;
+  if(/^[★☆]|^有料会員が選定！/.test(line)){mode='skip';return;}if(promotion(line)||mode==='skip')return;
   if(mode==='staff'){if(!/^MC|^音源編集|^https?:/.test(line))cast.push(line);return;}
   if(mode==='body'){
-   line=line.replace(/これまでのONGOINGはこちら.*$/,'').replace(/過去のいちおしウニュ！はこちら.*$/,'').replace(/過去回はこちらから.*$/,'').trim();
+   line=line.replace(/これまでのONGOINGはこちら.*$/,'').replace(/過去のいちおしウニュ！はこちら.*$/,'').replace(/過去回はこちらから.*$/,'').replace(/吹奏楽のほかの回はこちら.*$/,'').replace(/3人のトークは毎週月曜日に配信します.*$/,'').trim();
    if(line&&!/^https?:\/\/(?:forms|bit\.ly)/.test(line))body.push(line);return;
   }
   if(mode==='related'){
+   var inline=line.match(/^(.*?)\s+(https?:\/\/\S+)$/);
+   if(inline&&inline[1]&&articleUrl(inline[2])&&validUrl(inline[2])){flush();rel.push(inline[1],inline[2]);pairs++;return;}
    if(/^https?:\/\//.test(line)){if(!articleUrl(line)&&/digital\.asahi\.com\/info\/|bit\.ly\/|t\.asahi\.com\/|forms\./.test(line))return;if(pending&&articleUrl(line)&&validUrl(line)){rel.push(pending,line);pending='';pairs++;}else{flush();holds.push('UNPAIRED_URL');}}
    else if(!/ニュースレター|購読|会員登録|登録はこちら|お申し込み/.test(line)){flush();pending=line;}
   }
