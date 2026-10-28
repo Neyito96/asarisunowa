@@ -41,7 +41,7 @@ function clean(raw){
    if(line&&!/^https?:\/\/(?:forms|bit\.ly)/.test(line))body.push(line);return;
   }
   if(mode==='related'){
-   if(/^https?:\/\//.test(line)){if(pending&&articleUrl(line)&&validUrl(line)){rel.push(pending,line);pending='';pairs++;}else{flush();holds.push('UNPAIRED_URL');}}
+   if(/^https?:\/\//.test(line)){if(!articleUrl(line)&&/digital\.asahi\.com\/info\/|bit\.ly\/|t\.asahi\.com\/|forms\./.test(line))return;if(pending&&articleUrl(line)&&validUrl(line)){rel.push(pending,line);pending='';pairs++;}else{flush();holds.push('UNPAIRED_URL');}}
    else if(!/ニュースレター|購読|会員登録|登録はこちら|お申し込み/.test(line)){flush();pending=line;}
   }
  });
@@ -132,7 +132,8 @@ function run(args){
   var props=PropertiesService.getScriptProperties();if(args.write&&props.getProperty(C.enabled)!=='YES')throw Error('WRITE_GATE_CLOSED');
   var ss=SpreadsheetApp.openById(prod?C.prod:C.copy),sh=ss.getSheetByName(C.tab);
   if(!sh)throw Error('LEDGER_NOT_FOUND');
-  var start=Math.max(2,Number(args.startRow)||Number(props.getProperty(C.cursor))||2);
+  var cursorKey=C.cursor+(prod?'_PROD':'_COPY');
+  var start=Math.max(2,Number(args.startRow)||Number(props.getProperty(cursorKey))||2);
   var end=Math.min(sh.getLastRow(),start+Math.min(100,Math.max(1,Number(args.limit)||100))-1);
   var source=fetchSources(ss),rows=sh.getRange(start,1,Math.max(1,end-start+1),55).getValues(),stamp=Date.now();
   var result={mode:args.write?'WRITE':'DRY_RUN',target:prod?'PROD':'COPY',start:start,next:start,officialGuids:source.unique,feeds:source.log,processed:0,counts:{V:0,W_new:0,W_revised:0,AC:0,N:0,O:0,P:0,X:0,AY:0},holds:[],changed:[]};
@@ -151,7 +152,7 @@ function run(args){
      result.changed.push({row:rn,id:row[0],cols:changes.map(function(c){return c.col;})});
     }
    }
-   result.next=rn+1;if(args.write)props.setProperty(C.cursor,String(result.next));
+   result.next=rn+1;if(args.write)props.setProperty(cursorKey,String(result.next));
   }
   Logger.log(JSON.stringify({mode:result.mode,target:result.target,processed:result.processed,next:result.next,counts:result.counts,holds:result.holds.length,feeds:result.feeds}));
   return result;
@@ -162,5 +163,7 @@ return {clean:clean,plan:plan,parseFeed:parseFeed,fetchSources:fetchSources,run:
 function p15iCopyDryRun(){return PHASE15_INTEGRATED.run({target:'COPY',startRow:2,limit:30,write:false});}
 function p15iProductionDryRun(){return PHASE15_INTEGRATED.run({target:'PROD',startRow:2,limit:30,write:false});}
 function p15iCopyWrite(){return PHASE15_INTEGRATED.run({target:'COPY',startRow:2,limit:30,write:true});}
+function p15iCopyContinue(){return PHASE15_INTEGRATED.run({target:'COPY',limit:100,write:true});}
+function p15iProductionContinue(){return PHASE15_INTEGRATED.run({target:'PROD',limit:100,write:true,prodApproved:true});}
 function p15iProductionSmallWrite(){return PHASE15_INTEGRATED.run({target:'PROD',startRow:2,limit:5,write:true,prodApproved:true});}
 /* No trigger creation here: quality gate and parallel-writer owner must be approved first. */
