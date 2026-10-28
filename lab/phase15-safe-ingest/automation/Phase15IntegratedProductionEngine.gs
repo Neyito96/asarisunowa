@@ -224,6 +224,8 @@ return {clean:clean,plan:plan,parseFeed:parseFeed,fetchSources:fetchSources,run:
 function p15iCopyDryRun(){return PHASE15_INTEGRATED.run({target:'COPY',startRow:2,limit:30,write:false});}
 function p15iProductionDryRun(){return PHASE15_INTEGRATED.run({target:'PROD',startRow:2,limit:30,write:false});}
 function p15iCopyWrite(){return PHASE15_INTEGRATED.run({target:'COPY',startRow:2,limit:30,write:true});}
+function p15iCopyTrialDryRun(){return PHASE15_INTEGRATED.run({target:'COPY',startRow:2,limit:1,write:false});}
+function p15iCopyTrialWrite(){return PHASE15_INTEGRATED.run({target:'COPY',startRow:2,limit:1,write:true,preserveCursor:true});}
 function p15iCopyContinue(){return PHASE15_INTEGRATED.run({target:'COPY',limit:100,write:true});}
 function p15iProductionContinue(){return PHASE15_INTEGRATED.run({target:'PROD',limit:100,write:true,prodApproved:true});}
 function p15iProductionSmallWrite(){return PHASE15_INTEGRATED.run({target:'PROD',startRow:2,limit:5,write:true,prodApproved:true});}
