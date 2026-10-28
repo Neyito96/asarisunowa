@@ -180,6 +180,7 @@ function run(args){
  try{
   var prod=args.target==='PROD';if(prod&&args.write&&!args.prodApproved)throw Error('PROD_WRITE_NOT_APPROVED');
   var props=PropertiesService.getScriptProperties();if(args.write&&props.getProperty(C.enabled)!=='YES')throw Error('WRITE_GATE_CLOSED');
+  if(prod&&args.write&&props.getProperty('P15_PRODUCTION_APPROVED')!=='YES')throw Error('PRODUCTION_QUALITY_GATE_CLOSED');
   var ss=SpreadsheetApp.openById(prod?C.prod:C.copy),sh=ss.getSheetByName(C.tab);
   if(!sh)throw Error('LEDGER_NOT_FOUND');
   var cursorKey=C.cursor+(prod?'_PROD':'_COPY');
