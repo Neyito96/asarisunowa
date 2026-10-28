@@ -1,0 +1,486 @@
+{
+  "date": "2026-10-28",
+  "mode": "READ_ONLY_REAL_30_PLUS_LOCAL_MOCK",
+  "onlineGasExecuted": false,
+  "actualOfficialHttpFetches": 0,
+  "actualSheetWrites": 0,
+  "officialGuidFetchSuccessLive": 0,
+  "realRecordsRead": 30,
+  "parserStructurePass": 11,
+  "parserHolds": 19,
+  "staffHeaderResidue": 0,
+  "semanticQualityApproved": 0,
+  "smokeTestsPassed": 6,
+  "smokeTestTotal": 6,
+  "description": "11 parser-format passes are NOT independent official-RSS provenance approvals. Mock UrlFetchApp->XmlService->GUID->COPY writer performed separately: 1 mock GUID, 8 mock cells first run, 0 second run, 8 audit entries. No real GAS deployment or production writes.",
+  "smoke": [
+    {
+      "name": "related_after_staff",
+      "ok": true,
+      "pairs": 1,
+      "holds": []
+    },
+    {
+      "name": "html_anchor",
+      "ok": true,
+      "pairs": 1,
+      "holds": []
+    },
+    {
+      "name": "no_unsupported_pairing",
+      "ok": true,
+      "pairs": 0,
+      "holds": [
+        "RELATED_TITLE_MISSING_VERIFIED_URL"
+      ]
+    },
+    {
+      "name": "newsletter_in_related",
+      "ok": true,
+      "pairs": 1,
+      "holds": []
+    },
+    {
+      "name": "promotion_before_articles",
+      "ok": true,
+      "pairs": 1,
+      "holds": []
+    },
+    {
+      "name": "event_section_before_articles",
+      "ok": true,
+      "pairs": 1,
+      "holds": []
+    }
+  ],
+  "rows": [
+    {
+      "row": 2,
+      "id": "EP-00001",
+      "guid": "71fc3de6-0be4-4cb3-b916-b4de005fb256",
+      "rawChars": 5088,
+      "cleanChars": 460,
+      "oldWChars": 460,
+      "relatedPairsVerifiedFromV": 3,
+      "parserHolds": [],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": true,
+      "needsExternalOfficialValidation": false
+    },
+    {
+      "row": 3,
+      "id": "EP-00002",
+      "guid": "7c43222b-bef7-4941-87f5-b4dd0010bbfd",
+      "rawChars": 2413,
+      "cleanChars": 497,
+      "oldWChars": 497,
+      "relatedPairsVerifiedFromV": 3,
+      "parserHolds": [],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": true,
+      "needsExternalOfficialValidation": false
+    },
+    {
+      "row": 4,
+      "id": "EP-00003",
+      "guid": "354a7b02-cf84-46d4-9489-b4d200210cc4",
+      "rawChars": 2963,
+      "cleanChars": 522,
+      "oldWChars": 521,
+      "relatedPairsVerifiedFromV": 4,
+      "parserHolds": [],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": false,
+      "needsExternalOfficialValidation": false
+    },
+    {
+      "row": 5,
+      "id": "EP-00004",
+      "guid": "af085854-b81e-4578-b871-b4d7005c0188",
+      "rawChars": 568,
+      "cleanChars": 434,
+      "oldWChars": 434,
+      "relatedPairsVerifiedFromV": 3,
+      "parserHolds": [],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": true,
+      "needsExternalOfficialValidation": false
+    },
+    {
+      "row": 6,
+      "id": "EP-00005",
+      "guid": "21df565b-e5ee-460f-b8cf-b4d6009d7c7b",
+      "rawChars": 344,
+      "cleanChars": 126,
+      "oldWChars": 126,
+      "relatedPairsVerifiedFromV": 0,
+      "parserHolds": [],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": true,
+      "needsExternalOfficialValidation": false
+    },
+    {
+      "row": 7,
+      "id": "EP-00006",
+      "guid": "4c272aaa-9aae-4505-ab56-b4d3006ed6b4",
+      "rawChars": 332,
+      "cleanChars": 220,
+      "oldWChars": 391,
+      "relatedPairsVerifiedFromV": 0,
+      "parserHolds": [
+        "RELATED_TITLE_MISSING_VERIFIED_URL"
+      ],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": false,
+      "needsExternalOfficialValidation": true
+    },
+    {
+      "row": 8,
+      "id": "EP-00007",
+      "guid": "95486c69-4578-4fd3-bd46-b4d600a4c12e",
+      "rawChars": 528,
+      "cleanChars": 279,
+      "oldWChars": 450,
+      "relatedPairsVerifiedFromV": 0,
+      "parserHolds": [
+        "RELATED_TITLE_MISSING_VERIFIED_URL"
+      ],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": false,
+      "needsExternalOfficialValidation": true
+    },
+    {
+      "row": 9,
+      "id": "EP-00008",
+      "guid": "7bdadda8-dd38-4f9e-b40e-b4d7008c7e1f",
+      "rawChars": 411,
+      "cleanChars": 296,
+      "oldWChars": 581,
+      "relatedPairsVerifiedFromV": 0,
+      "parserHolds": [
+        "RELATED_TITLE_MISSING_VERIFIED_URL"
+      ],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": false,
+      "needsExternalOfficialValidation": true
+    },
+    {
+      "row": 10,
+      "id": "EP-00009",
+      "guid": "34acc0b5-3354-4cbc-9299-b4d5006c911b",
+      "rawChars": 304,
+      "cleanChars": 241,
+      "oldWChars": 412,
+      "relatedPairsVerifiedFromV": 0,
+      "parserHolds": [
+        "RELATED_TITLE_MISSING_VERIFIED_URL"
+      ],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": false,
+      "needsExternalOfficialValidation": true
+    },
+    {
+      "row": 11,
+      "id": "EP-00010",
+      "guid": "41a68958-a36b-4e79-ba53-b4d500449326",
+      "rawChars": 364,
+      "cleanChars": 226,
+      "oldWChars": 387,
+      "relatedPairsVerifiedFromV": 0,
+      "parserHolds": [
+        "RELATED_TITLE_MISSING_VERIFIED_URL"
+      ],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": false,
+      "needsExternalOfficialValidation": true
+    },
+    {
+      "row": 12,
+      "id": "EP-00011",
+      "guid": "60b27715-5abe-4213-a860-b4ce007dbfe7",
+      "rawChars": 548,
+      "cleanChars": 282,
+      "oldWChars": 443,
+      "relatedPairsVerifiedFromV": 0,
+      "parserHolds": [
+        "RELATED_TITLE_MISSING_VERIFIED_URL"
+      ],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": false,
+      "needsExternalOfficialValidation": true
+    },
+    {
+      "row": 13,
+      "id": "EP-00012",
+      "guid": "6e319179-8360-4a3d-8ec8-b4cf005bad59",
+      "rawChars": 467,
+      "cleanChars": 312,
+      "oldWChars": 312,
+      "relatedPairsVerifiedFromV": 0,
+      "parserHolds": [
+        "RELATED_TITLE_MISSING_VERIFIED_URL"
+      ],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": true,
+      "needsExternalOfficialValidation": true
+    },
+    {
+      "row": 14,
+      "id": "EP-00013",
+      "guid": "2090eae2-17dd-44f3-9c25-b4cf005ba74d",
+      "rawChars": 453,
+      "cleanChars": 308,
+      "oldWChars": 308,
+      "relatedPairsVerifiedFromV": 0,
+      "parserHolds": [
+        "RELATED_TITLE_MISSING_VERIFIED_URL"
+      ],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": true,
+      "needsExternalOfficialValidation": true
+    },
+    {
+      "row": 15,
+      "id": "EP-00014",
+      "guid": "0db8adfd-c8a2-4b3d-843f-b4c7005679f6",
+      "rawChars": 328,
+      "cleanChars": 223,
+      "oldWChars": 223,
+      "relatedPairsVerifiedFromV": 0,
+      "parserHolds": [
+        "RELATED_TITLE_MISSING_VERIFIED_URL"
+      ],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": true,
+      "needsExternalOfficialValidation": true
+    },
+    {
+      "row": 16,
+      "id": "EP-00015",
+      "guid": "2c94981d-97dc-41ca-a86f-b4cf00dd963e",
+      "rawChars": 439,
+      "cleanChars": 287,
+      "oldWChars": 287,
+      "relatedPairsVerifiedFromV": 0,
+      "parserHolds": [
+        "RELATED_TITLE_MISSING_VERIFIED_URL"
+      ],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": true,
+      "needsExternalOfficialValidation": true
+    },
+    {
+      "row": 17,
+      "id": "EP-00016",
+      "guid": "4ed9bb10-f6a4-453c-8f05-b4d0004832a9",
+      "rawChars": 585,
+      "cleanChars": 257,
+      "oldWChars": 257,
+      "relatedPairsVerifiedFromV": 0,
+      "parserHolds": [
+        "RELATED_TITLE_MISSING_VERIFIED_URL"
+      ],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": true,
+      "needsExternalOfficialValidation": true
+    },
+    {
+      "row": 18,
+      "id": "EP-00017",
+      "guid": "3831605c-2e7e-444b-a799-b4ca001192b7",
+      "rawChars": 586,
+      "cleanChars": 271,
+      "oldWChars": 271,
+      "relatedPairsVerifiedFromV": 0,
+      "parserHolds": [
+        "RELATED_TITLE_MISSING_VERIFIED_URL"
+      ],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": true,
+      "needsExternalOfficialValidation": true
+    },
+    {
+      "row": 19,
+      "id": "EP-00018",
+      "guid": "fe05e3ad-8a1e-40b9-9c2f-b4ae003b1097",
+      "rawChars": 582,
+      "cleanChars": 207,
+      "oldWChars": 207,
+      "relatedPairsVerifiedFromV": 0,
+      "parserHolds": [
+        "RELATED_TITLE_MISSING_VERIFIED_URL"
+      ],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": true,
+      "needsExternalOfficialValidation": true
+    },
+    {
+      "row": 20,
+      "id": "EP-00019",
+      "guid": "935230c4-6cb2-4dd3-ac42-b4c900a8bd8c",
+      "rawChars": 639,
+      "cleanChars": 309,
+      "oldWChars": 309,
+      "relatedPairsVerifiedFromV": 0,
+      "parserHolds": [
+        "RELATED_TITLE_MISSING_VERIFIED_URL"
+      ],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": true,
+      "needsExternalOfficialValidation": true
+    },
+    {
+      "row": 21,
+      "id": "EP-00020",
+      "guid": "125b4708-83f5-4d49-b1ff-b4c10071ac14",
+      "rawChars": 659,
+      "cleanChars": 426,
+      "oldWChars": 426,
+      "relatedPairsVerifiedFromV": 3,
+      "parserHolds": [],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": true,
+      "needsExternalOfficialValidation": false
+    },
+    {
+      "row": 22,
+      "id": "EP-00021",
+      "guid": "a27d92eb-0a6f-408d-baf9-b4dc0086f04a",
+      "rawChars": 2357,
+      "cleanChars": 422,
+      "oldWChars": 422,
+      "relatedPairsVerifiedFromV": 3,
+      "parserHolds": [],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": true,
+      "needsExternalOfficialValidation": false
+    },
+    {
+      "row": 23,
+      "id": "EP-00022",
+      "guid": "b89d4505-e84a-4990-80b3-b4dc007956c7",
+      "rawChars": 2249,
+      "cleanChars": 335,
+      "oldWChars": 335,
+      "relatedPairsVerifiedFromV": 3,
+      "parserHolds": [],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": true,
+      "needsExternalOfficialValidation": false
+    },
+    {
+      "row": 24,
+      "id": "EP-00023",
+      "guid": "e7d0a211-d802-4f39-b97c-b4da00811703",
+      "rawChars": 2301,
+      "cleanChars": 411,
+      "oldWChars": 411,
+      "relatedPairsVerifiedFromV": 3,
+      "parserHolds": [],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": true,
+      "needsExternalOfficialValidation": false
+    },
+    {
+      "row": 25,
+      "id": "EP-00024",
+      "guid": "62d8e0ae-0ed9-4e54-bd85-b4da00ab2578",
+      "rawChars": 555,
+      "cleanChars": 389,
+      "oldWChars": 326,
+      "relatedPairsVerifiedFromV": 0,
+      "parserHolds": [
+        "RELATED_TITLE_MISSING_VERIFIED_URL"
+      ],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": false,
+      "needsExternalOfficialValidation": true
+    },
+    {
+      "row": 26,
+      "id": "EP-00025",
+      "guid": "54943969-2614-437a-9a22-b4da001f9b56",
+      "rawChars": 459,
+      "cleanChars": 310,
+      "oldWChars": 310,
+      "relatedPairsVerifiedFromV": 0,
+      "parserHolds": [
+        "RELATED_TITLE_MISSING_VERIFIED_URL"
+      ],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": true,
+      "needsExternalOfficialValidation": true
+    },
+    {
+      "row": 27,
+      "id": "EP-00026",
+      "guid": "ddcd313b-a84b-4715-8310-b4c1004adb48",
+      "rawChars": 281,
+      "cleanChars": 138,
+      "oldWChars": 138,
+      "relatedPairsVerifiedFromV": 0,
+      "parserHolds": [],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": true,
+      "needsExternalOfficialValidation": false
+    },
+    {
+      "row": 28,
+      "id": "EP-00027",
+      "guid": "30542ca7-fe1a-4889-b5b4-b4cb0023a280",
+      "rawChars": 447,
+      "cleanChars": 358,
+      "oldWChars": 359,
+      "relatedPairsVerifiedFromV": 0,
+      "parserHolds": [
+        "RELATED_TITLE_MISSING_VERIFIED_URL"
+      ],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": false,
+      "needsExternalOfficialValidation": true
+    },
+    {
+      "row": 29,
+      "id": "EP-00028",
+      "guid": "ae4285e6-67af-4aba-afbf-b4b8007f2f96",
+      "rawChars": 364,
+      "cleanChars": 253,
+      "oldWChars": 253,
+      "relatedPairsVerifiedFromV": 0,
+      "parserHolds": [
+        "RELATED_TITLE_MISSING_VERIFIED_URL"
+      ],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": true,
+      "needsExternalOfficialValidation": true
+    },
+    {
+      "row": 30,
+      "id": "EP-00029",
+      "guid": "0d11a387-6aff-4e64-9c30-b4c1004adb3e",
+      "rawChars": 363,
+      "cleanChars": 199,
+      "oldWChars": 199,
+      "relatedPairsVerifiedFromV": 0,
+      "parserHolds": [
+        "RELATED_TITLE_MISSING_VERIFIED_URL"
+      ],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": true,
+      "needsExternalOfficialValidation": true
+    },
+    {
+      "row": 31,
+      "id": "EP-00030",
+      "guid": "2dee36a2-36ed-43d2-b7d1-b4bf0076d03e",
+      "rawChars": 591,
+      "cleanChars": 149,
+      "oldWChars": 149,
+      "relatedPairsVerifiedFromV": 0,
+      "parserHolds": [],
+      "remnantHeader": false,
+      "outputMatchesCurrentW": false,
+      "needsExternalOfficialValidation": false
+    }
+  ]
+}
