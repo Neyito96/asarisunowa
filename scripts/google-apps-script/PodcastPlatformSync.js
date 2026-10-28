@@ -503,3 +503,52 @@ function readPodcastFeedMetadata_(feedUrl) {
     return null;
   }
 }
+
+
+/**
+ * ポすすめ・リス推し専用の日次補完入口。
+ * 同一GASプロジェクトの既存同期関数を利用し、EP収蔵には触れない。
+ * 既存の同期処理は空欄のみ補完する。実行環境への配備は別途必要。
+ */
+function runRecommendationPodcastDailySync() {
+  const started = new Date().toISOString();
+  const output = { started, posusume: null, risuoshi: null, errors: [] };
+  try {
+    output.posusume = syncListenerPodcastPlatforms();
+  } catch (error) {
+    output.errors.push({ shelf: "ポすすめ", error: String(error) });
+  }
+  try {
+    output.risuoshi = syncRecommendedPodcastPlatforms();
+  } catch (error) {
+    output.errors.push({ shelf: "リス推し", error: String(error) });
+  }
+  console.log("RECOMMENDATION_PODCAST_DAILY_SYNC " + JSON.stringify(output));
+  if (output.errors.length) throw new Error("推薦Podcast補完の一部が失敗: " + JSON.stringify(output.errors));
+  return output;
+}
+
+/**
+ * 手動実行するセットアップ関数。既存の同名トリガーを重複登録しない。
+ * プロジェクトのタイムゾーンで午前4時台に1日1回。
+ * 旧リス推し専用トリガーを自動削除しないため、導入時に重複監査が必須。
+ */
+function installRecommendationPodcastDailySync() {
+  const handler = "runRecommendationPodcastDailySync";
+  const triggers = ScriptApp.getProjectTriggers();
+  const current = triggers.filter(t => t.getHandlerFunction() === handler);
+  const legacy = triggers.filter(t =>
+    ["RISU_applyAllPlatforms", "RISU_applyAppleEnrichment", "syncAllPodcastPlatforms"].includes(t.getHandlerFunction())
+  );
+  if (legacy.length) {
+    throw new Error("旧推薦用トリガーを検出。重複実行防止のため登録中止: " +
+      legacy.map(t => t.getHandlerFunction()).join(", "));
+  }
+  if (current.length > 1) throw new Error("同名トリガーが重複しています");
+  if (current.length === 0) {
+    ScriptApp.newTrigger(handler).timeBased().everyDays(1).atHour(4).create();
+  }
+  const summary = { handler, triggerCount: ScriptApp.getProjectTriggers().filter(t => t.getHandlerFunction() === handler).length };
+  console.log("RECOMMENDATION_PODCAST_DAILY_TRIGGER " + JSON.stringify(summary));
+  return summary;
+}
