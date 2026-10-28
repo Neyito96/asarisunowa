@@ -79,12 +79,59 @@ function fetchSources(ss){
  });
  return {byGuid:byGuid,log:log,unique:Object.keys(byGuid).length};
 }
+
+/** Proven Phase14 official Omny endpoint: Phase14BackfillFiveOfficialDryRun.gs.
+ * Fetch historic per-GUID JSON in 15-request chunks, never infer URLs.
+ */
+function utcStamp(v){
+ if(v instanceof Date)return v.getTime();
+ if(typeof v==='number')return Math.round((v-25569)*86400000)-32400000;
+ var x=txt(v).replace(/\//g,'-').replace(' ','T');
+ if(!/(?:Z|[+-]\d\d:\d\d)$/.test(x))x+='+09:00';
+ return Date.parse(x);
+}
+function fetchHistoricOmny(rows,rssMap){
+ var prefix='https://api.omny.fm/orgs/1e3bd144-9b57-451a-93cf-ac0e00e74446/clips/';
+ var todo=[],map={},log=[];
+ rows.forEach(function(r){
+  var g=guid(r[6]),show=txt(r[1]);if(!goodGuid(g)||rssMap[g])return;
+  if(/^(?:ニュースの学校|報談|AJW|アルキキ|YouTube|朝ポキTV)$/.test(show))return;
+  if(todo.some(function(q){return q.guid===g;}))return;
+  todo.push({guid:g,show:show,row:r,url:prefix+g});
+ });
+ for(var off=0;off<todo.length;off+=15){
+  var chunk=todo.slice(off,off+15),responses;
+  try{responses=UrlFetchApp.fetchAll(chunk.map(function(x){return {url:x.url,muteHttpExceptions:true,followRedirects:true};}));}
+  catch(e){chunk.forEach(function(x){log.push({guid:x.guid,status:'NETWORK_ERROR'});});continue;}
+  chunk.forEach(function(x,i){
+   try{
+    var resp=responses[i],status=resp.getResponseCode();
+    if(status!==200){log.push({guid:x.guid,status:'HTTP_'+status});return;}
+    var clip=JSON.parse(resp.getContentText('UTF-8'));
+    if(!clip||guid(clip.Id)!==x.guid){log.push({guid:x.guid,status:'GUID_MISMATCH'});return;}
+    if(txt(clip.Title).trim()!==txt(x.row[2]).trim()){log.push({guid:x.guid,status:'TITLE_MISMATCH'});return;}
+    var local=utcStamp(x.row[3]),official=Date.parse(clip.PublishedUtc);
+    if(!Number.isFinite(local)||!Number.isFinite(official)||Math.abs(local-official)>60000){log.push({guid:x.guid,status:'DATE_MISMATCH'});return;}
+    var desc=txt(clip.DescriptionHtml||clip.Description);
+    if(!desc){log.push({guid:x.guid,status:'DESCRIPTION_MISSING'});return;}
+    var duration=Number(clip.DurationSeconds||0);
+    var audio=txt(clip.AudioUrl),image=txt(clip.ImageUrl);
+    if(audio&&!validUrl(audio))audio='';
+    if(image&&!validUrl(image))image='';
+    map[x.guid]={guid:x.guid,show:x.show,source:x.url,sourceType:'OFFICIAL_JSON',description:desc,title:clip.Title,audio:audio,image:image,duration:Number.isInteger(duration)&&duration>0?duration:0};
+    log.push({guid:x.guid,status:'GUID_TITLE_DATE_VERIFIED'});
+   }catch(e){log.push({guid:x.guid,status:'JSON_PARSE_ERROR'});}
+  });
+ }
+ return {byGuid:map,log:log,checked:todo.length,verified:Object.keys(map).length};
+}
+
 function empty(v){return v===null||v===undefined||v==='';}
 function plan(row,src,opts){
  var o={changes:[],holds:[],parsed:null};
  if(!src){o.holds.push('GUID_NOT_FOUND_IN_CURRENT_FEEDS');return o;}
  if(src.collision||guid(src.guid)!==guid(row[6])||src.show!==txt(row[1])){o.holds.push('SOURCE_IDENTITY_CONFLICT');return o;}
- if(!/^https:\/\/(?:www\.omnycontent\.com|feeds\.megaphone\.fm)\//.test(src.source)){o.holds.push('UNTRUSTED_SOURCE');return o;}
+ if(!/^https:\/\/(?:www\.omnycontent\.com|feeds\.megaphone\.fm|api\.omny\.fm\/orgs\/1e3bd144-9b57-451a-93cf-ac0e00e74446\/clips)\//.test(src.source)){o.holds.push('UNTRUSTED_SOURCE');return o;}
  var raw=txt(row[21]),official=txt(src.description),mismatch=Boolean(raw&&official&&raw!==official);
  if(!raw&&official){o.changes.push({col:22,value:official,why:'RSS_RAW_EXACT'});raw=official;}
  else if(mismatch)o.holds.push('V_DIFF_OFFICIAL_PROTECT');
@@ -138,7 +185,9 @@ function run(args){
   var start=Math.max(2,Number(args.startRow)||Number(props.getProperty(cursorKey))||2);
   var end=Math.min(sh.getLastRow(),start+Math.min(100,Math.max(1,Number(args.limit)||100))-1);
   var source=fetchSources(ss),rows=sh.getRange(start,1,Math.max(1,end-start+1),55).getValues(),stamp=Date.now();
-  var result={mode:args.write?'WRITE':'DRY_RUN',target:prod?'PROD':'COPY',start:start,next:start,officialGuids:source.unique,feeds:source.log,processed:0,counts:{V:0,W_new:0,W_revised:0,AC:0,N:0,O:0,P:0,X:0,AY:0},holds:[],changed:[]};
+  var historic=fetchHistoricOmny(rows,source.byGuid);
+  Object.keys(historic.byGuid).forEach(function(g){if(!source.byGuid[g])source.byGuid[g]=historic.byGuid[g];});
+  var result={mode:args.write?'WRITE':'DRY_RUN',target:prod?'PROD':'COPY',start:start,next:start,officialGuids:source.unique,officialJsonVerified:historic.verified,officialJsonChecked:historic.checked,officialJsonLog:historic.log,feeds:source.log,processed:0,counts:{V:0,W_new:0,W_revised:0,AC:0,N:0,O:0,P:0,X:0,AY:0},holds:[],changed:[]};
   for(var i=0;i<rows.length&&start+i<=end;i++){
    if(Date.now()-stamp>240000)break;
    var row=rows[i],rn=start+i;result.processed++;
@@ -158,7 +207,7 @@ function run(args){
    }
    result.next=rn+1;if(args.write)props.setProperty(cursorKey,String(result.next));
   }
-  Logger.log(JSON.stringify({mode:result.mode,target:result.target,processed:result.processed,next:result.next,counts:result.counts,holds:result.holds.length,feeds:result.feeds}));
+  Logger.log(JSON.stringify({mode:result.mode,target:result.target,processed:result.processed,next:result.next,counts:result.counts,holds:result.holds.length,officialJsonVerified:result.officialJsonVerified,feeds:result.feeds}));
   return result;
  }finally{lock.releaseLock();}
 }
