@@ -34,6 +34,7 @@ function clean(raw){
  function flush(){if(pending){rel.push(pending);holds.push('RELATED_TITLE_MISSING_VERIFIED_URL');pending='';}}
  rawLines.forEach(function(line){
   var h=section(line);if(h){if(mode==='related')flush();mode=h.kind;if(mode==='related')rel.push(h.label);if(h.tail&&mode==='body')body.push(h.tail);if(h.tail&&mode==='related')pending=h.tail;return;}
+  if(/^※20\d{2}年\d{1,2}月\d{1,2}日に収録しました/.test(line)){body.push(line.split('。')[0]+'。');return;}
   if(/^[★☆]|^有料会員が選定！/.test(line)){mode='skip';return;}if(promotion(line)||mode==='skip')return;
   if(mode==='staff'){if(!/^https?:/.test(line))cast.push(line);return;}
   if(mode==='body'){
@@ -50,7 +51,7 @@ function clean(raw){
  if(mode==='related')flush();
  if(!body.length)holds.push('EMPTY_BODY');
  var result=body.join('\n')+(rel.length?'\n\n'+rel.join('\n'):'');
- if(/[【〖［]\s*(?:出演|スタッフ|おねがい)|購読料で配信しています|omnystudio\.com\/listener/.test(result))holds.push('RESIDUE');
+ if(/[【〖［]\s*(?:出演|スタッフ|おねがい)|購読料で配信しています|omnystudio\.com\/listener|PODCAST MEETING|スタンダードコース|discord|会員登録|ad choices/i.test(result))holds.push('RESIDUE');
  return {text:result,pairs:pairs,cast:cast,holds:Array.from(new Set(holds))};
 }
 function seconds(v){v=txt(v);if(/^\d+$/.test(v))return Number(v);if(/^\d+:\d{2}(?::\d{2})?$/.test(v)){var p=v.split(':').map(Number);return p.length===2?p[0]*60+p[1]:p[0]*3600+p[1]*60+p[2];}return 0;}
@@ -60,13 +61,14 @@ function parseFeed(xml,url,show){
  var ns=XmlService.getNamespace('itunes','http://www.itunes.com/dtds/podcast-1.0.dtd'),items=channel.getChildren('item');
  return items.map(function(it){
   var g=guid(it.getChildText('guid')),e=it.getChild('enclosure'),im=it.getChild('image',ns);
-  return {guid:g,show:show,source:url,description:it.getChildText('description')||'',title:it.getChildText('title')||'',image:im&&im.getAttribute('href')?im.getAttribute('href').getValue():'',audio:e&&e.getAttribute('url')?e.getAttribute('url').getValue():'',duration:seconds(it.getChildText('duration',ns))};
+  return {guid:g,show:show,source:url,description:it.getChildText('description')||'',title:it.getChildText('title')||'',published:it.getChildText('pubDate')||'',link:it.getChildText('link')||'',image:im&&im.getAttribute('href')?im.getAttribute('href').getValue():'',audio:e&&e.getAttribute('url')?e.getAttribute('url').getValue():'',duration:seconds(it.getChildText('duration',ns))};
  }).filter(function(it){return goodGuid(it.guid);});
 }
-function fetchSources(ss){
+function fetchSources(ss,deadline){
  var sh=ss.getSheetByName(C.feeds);if(!sh)throw Error('SOURCE_LIST_MISSING');
  var rows=sh.getRange(2,1,Math.min(20,sh.getLastRow()-1),8).getValues(),byGuid={},log=[];
  rows.forEach(function(r){
+  if(deadline&&Date.now()>deadline-15000)return;
   var show=txt(r[0]),url=txt(r[7]);if(/AJW|アルキキ|YouTube|朝ポキTV/.test(show))return;
   if(!/^https:\/\/(?:www\.omnycontent\.com\/d\/playlist\/|feeds\.megaphone\.fm\/)/.test(url))return;
   try{
@@ -90,7 +92,7 @@ function utcStamp(v){
  if(!/(?:Z|[+-]\d\d:\d\d)$/.test(x))x+='+09:00';
  return Date.parse(x);
 }
-function fetchHistoricOmny(rows,rssMap){
+function fetchHistoricOmny(rows,rssMap,deadline){
  var prefix='https://api.omny.fm/orgs/1e3bd144-9b57-451a-93cf-ac0e00e74446/clips/';
  var todo=[],map={},log=[];
  rows.forEach(function(r){
@@ -100,6 +102,7 @@ function fetchHistoricOmny(rows,rssMap){
   todo.push({guid:g,show:show,row:r,url:prefix+g});
  });
  for(var off=0;off<todo.length;off+=15){
+  if(deadline&&Date.now()>deadline-20000)break;
   var chunk=todo.slice(off,off+15),responses;
   try{responses=UrlFetchApp.fetchAll(chunk.map(function(x){return {url:x.url,muteHttpExceptions:true,followRedirects:true};}));}
   catch(e){chunk.forEach(function(x){log.push({guid:x.guid,status:'NETWORK_ERROR'});});continue;}
@@ -118,7 +121,7 @@ function fetchHistoricOmny(rows,rssMap){
     var audio=txt(clip.AudioUrl),image=txt(clip.ImageUrl);
     if(audio&&!validUrl(audio))audio='';
     if(image&&!validUrl(image))image='';
-    map[x.guid]={guid:x.guid,show:x.show,source:x.url,sourceType:'OFFICIAL_JSON',description:desc,title:clip.Title,audio:audio,image:image,duration:Number.isInteger(duration)&&duration>0?duration:0};
+    map[x.guid]={guid:x.guid,show:x.show,source:x.url,sourceType:'OFFICIAL_JSON',description:desc,title:clip.Title,audio:audio,image:image,published:clip.PublishedUtc,link:txt(clip.PublishedUrl||clip.ShareUrl),duration:Number.isFinite(duration)&&duration>0?Math.round(duration):0};
     log.push({guid:x.guid,status:'GUID_TITLE_DATE_VERIFIED'});
    }catch(e){log.push({guid:x.guid,status:'JSON_PARSE_ERROR'});}
   });
@@ -126,12 +129,27 @@ function fetchHistoricOmny(rows,rssMap){
  return {byGuid:map,log:log,checked:todo.length,verified:Object.keys(map).length};
 }
 
+// Adapted from Phase14 V2/V3: explicit section, bounded names, no guessing.
+function castNames(entries){
+ var names=[];
+ for(var i=0;i<entries.length;i++){
+  var entry=entries[i];
+  // Pure production credits are retained in X, not asserted as speakers.
+  if(/^(?:音源編集|編集|制作|構成)(?:[：: 　]|$)/.test(entry))continue;
+  var name=entry.replace(/https?:\/\/\S+/g,'').replace(/^(?:MC(?:[、・]\s*音源編集)?|司会|進行|ゲスト|ナビゲーター)[：: 　]*/,'').replace(/[（(].*$/,'').trim();
+  if(!/^[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}・ 　]{2,30}$/u.test(name))return {names:[],hold:'CAST_NEEDS_REVIEW'};
+  if(names.indexOf(name)<0)names.push(name);
+ }
+ return names.length>5?{names:[],hold:'CAST_OVERFLOW'}:{names:names};
+}
+function humanExcluded(v){return !/^(?:|未指定|FALSE|false|いいえ|0)$/.test(txt(v).trim());}
 function empty(v){return v===null||v===undefined||v==='';}
 function plan(row,src,opts){
  var o={changes:[],holds:[],parsed:null};
  if(!src){o.holds.push('GUID_NOT_FOUND_IN_CURRENT_FEEDS');return o;}
  if(src.collision||guid(src.guid)!==guid(row[6])||src.show!==txt(row[1])){o.holds.push('SOURCE_IDENTITY_CONFLICT');return o;}
  if(!/^https:\/\/(?:www\.omnycontent\.com|feeds\.megaphone\.fm|api\.omny\.fm\/orgs\/1e3bd144-9b57-451a-93cf-ac0e00e74446\/clips)\//.test(src.source)){o.holds.push('UNTRUSTED_SOURCE');return o;}
+ if(txt(src.description).length>49000){o.holds.push('SOURCE_TOO_LONG_FOR_CELL');return o;}
  var raw=txt(row[21]),official=txt(src.description),mismatch=Boolean(raw&&official&&raw!==official);
  if(!raw&&official){o.changes.push({col:22,value:official,why:'RSS_RAW_EXACT'});raw=official;}
  else if(mismatch)o.holds.push('V_DIFF_OFFICIAL_PROTECT');
@@ -144,11 +162,13 @@ function plan(row,src,opts){
    var urls=(p.text.match(/https?:\/\/[^\s]+/g)||[]).filter(articleUrl);
    if(urls.length===p.pairs)o.changes.push({col:29,value:urls.join(' '),why:'VERIFIED_ARTICLE_INDEX'});
   }
-  if(!mismatch&&official&&empty(row[23])&&p.cast.length&&!p.holds.length){
-   var names=p.cast.map(function(x){return x.replace(/https?:\/\/\S+/g,'').replace(/^(?:MC・音源編集|MC|音源編集|司会|ナビゲーター)\s*[・／/:：]?\s*/,'').replace(/[（(].*$/,'').trim();}).filter(function(x){return x.length>=2;});
-   if(names.length){o.changes.push({col:24,value:p.cast.join('\n'),why:'EXPLICIT_CAST_IN_OFFICIAL_RAW'});
-    names.slice(0,5).forEach(function(name,i){if(empty(row[45+i]))o.changes.push({col:46+i,value:name,why:'CAST_NAME_'+(i+1)});});
+  if(!mismatch&&official&&p.cast.length){
+   var castResult=castNames(p.cast),names=castResult.names;
+   if(castResult.hold)o.holds.push(castResult.hold);
+   if(names.length){if(empty(row[23]))o.changes.push({col:24,value:p.cast.join('\n'),why:'EXPLICIT_CAST_IN_OFFICIAL_RAW'});
+    names.forEach(function(name,i){if(empty(row[45+i]))o.changes.push({col:46+i,value:name,why:'CAST_NAME_'+(i+1)});});
     if(empty(row[50]))o.changes.push({col:51,value:src.source+'#guid='+src.guid,why:'CAST_SOURCE'});}
+
   }
  }
  [['N',src.image],['O',src.audio],['P',src.duration]].forEach(function(x){
@@ -158,17 +178,23 @@ function plan(row,src,opts){
  return o;
 }
 function writeRow(ss,sh,rn,original,changes,source){
+ if(typeof P15_AUTO!=='undefined')P15_AUTO.assertOwner(ss);
  var live=sh.getRange(rn,1,1,55).getValues()[0];
- if(txt(live[0])!==txt(original[0])||guid(live[6])!==guid(original[6]))return {ok:false,why:'EP_ID_GUID_CHANGED'};
+ if(txt(live[0])!==txt(original[0])||guid(live[6])!==guid(original[6]))throw Error('EP_ID_GUID_CHANGED');
+ if(live.some(function(v,i){return txt(v)!==txt(original[i]);}))throw Error('CONCURRENT_ROW_CHANGE');
  for(var i=0;i<changes.length;i++){
   var c=changes[i],cell=sh.getRange(rn,c.col);
-  if(txt(live[c.col-1])!==txt(original[c.col-1])||cell.getFormula()||cell.getDataValidation())return {ok:false,why:'CHANGED_OR_PROTECTED_COL_'+c.col};
+  if(txt(live[c.col-1])!==txt(original[c.col-1])||cell.getFormula()||cell.getDataValidation()){if(txt(live[c.col-1])!==txt(original[c.col-1]))throw Error('CONCURRENT_CELL_CHANGE_'+c.col);return {ok:false,why:'PROTECTED_COL_'+c.col};}
  }
  var a=ss.getSheetByName(C.audit);
  if(!a){a=ss.insertSheet(C.audit);a.appendRow(['UTC','STATE','ROW','EP-ID','GUID','SOURCE','COLUMN','BEFORE','AFTER','WHY']);}
  var records=changes.map(function(c){return [new Date().toISOString(),'PENDING',rn,txt(original[0]),txt(original[6]),source,c.col,txt(original[c.col-1]),txt(c.value),c.why];});
  var first=a.getLastRow()+1;a.getRange(first,1,records.length,10).setValues(records);SpreadsheetApp.flush();
- changes.forEach(function(c){sh.getRange(rn,c.col).setValue(c.value);});
+ var expected=original.slice();
+ changes.forEach(function(c){
+  var current=sh.getRange(rn,1,1,55).getValues()[0];
+  if(current.some(function(v,i){return txt(v)!==txt(expected[i]);}))throw Error('CONCURRENT_ROW_CHANGE_DURING_WRITE');
+  sh.getRange(rn,c.col).setValue(typeof c.value==='string'&&/^[=+@-]/.test(c.value)?"'"+c.value:c.value);expected[c.col-1]=c.value;});
  var verify=sh.getRange(rn,1,1,55).getValues()[0];
  if(txt(verify[0])!==txt(original[0])||guid(verify[6])!==guid(original[6]))throw Error('POSTWRITE_IDENTITY_CHANGED');
  changes.forEach(function(c){if(txt(verify[c.col-1])!==txt(c.value))throw Error('POSTWRITE_MISMATCH_COL_'+c.col);});
@@ -184,38 +210,46 @@ function run(args){
   if(prod&&args.write&&props.getProperty('P15_OTHER_WRITERS_PAUSED')!=='YES')throw Error('PARALLEL_WRITERS_NOT_PAUSED');
   var ss=SpreadsheetApp.openById(prod?C.prod:C.copy),sh=ss.getSheetByName(C.tab);
   if(!sh)throw Error('LEDGER_NOT_FOUND');
+  if(args.write&&typeof P15_AUTO!=='undefined')P15_AUTO.assertOwner(ss);
   var cursorKey=C.cursor+(prod?'_PROD':'_COPY');
   var start=Math.max(2,Number(args.startRow)||Number(props.getProperty(cursorKey))||2);
+  if(start>sh.getLastRow())start=2;
+  var deadline=args.deadline||Date.now()+240000;
   var end=Math.min(sh.getLastRow(),start+Math.min(100,Math.max(1,Number(args.limit)||100))-1);
-  var source=fetchSources(ss),rows=sh.getRange(start,1,Math.max(1,end-start+1),55).getValues(),stamp=Date.now();
-  var historic=fetchHistoricOmny(rows,source.byGuid);
+  var source=args.sources||fetchSources(ss,deadline),rows=sh.getRange(start,1,Math.max(1,end-start+1),55).getValues(),stamp=Date.now();
+  var historic=fetchHistoricOmny(rows.filter(function(r){return !args.deferred||!args.deferred[guid(r[6])];}),source.byGuid,deadline);
   Object.keys(historic.byGuid).forEach(function(g){if(!source.byGuid[g])source.byGuid[g]=historic.byGuid[g];});
-  var result={mode:args.write?'WRITE':'DRY_RUN',target:prod?'PROD':'COPY',start:start,next:start,officialGuids:source.unique,officialJsonVerified:historic.verified,officialJsonChecked:historic.checked,officialJsonLog:historic.log,feeds:source.log,processed:0,counts:{V:0,W_new:0,W_revised:0,AC:0,N:0,O:0,P:0,X:0,AT:0,AU:0,AV:0,AW:0,AX:0,AY:0},holds:[],changed:[]};
+  var result={mode:args.write?'WRITE':'DRY_RUN',target:prod?'PROD':'COPY',start:start,next:start,officialGuids:source.unique,officialJsonVerified:historic.verified,officialJsonChecked:historic.checked,officialJsonLog:historic.log,feeds:source.log,processed:0,counts:{V:0,W_new:0,W_revised:0,AC:0,N:0,O:0,P:0,X:0,AT:0,AU:0,AV:0,AW:0,AX:0,AY:0},holds:[],excluded:[],changed:[]};
   for(var i=0;i<rows.length&&start+i<=end;i++){
-   if(Date.now()-stamp>240000)break;
+   if(Date.now()>deadline-15000)break;
    var row=rows[i],rn=start+i;result.processed++;
-   if(!/^EP-\d{5,6}$/.test(txt(row[0]))||!goodGuid(row[6])||/^(AJW|アルキキ|YouTube|朝ポキTV)$/.test(txt(row[1]))){result.holds.push({row:rn,reason:'EXCLUDED_OR_INVALID_ID'});result.next=rn+1;continue;}
-   if(args.write&&args.target==='COPY'&&start===2&&!args.allowFirstRow){
-    result.holds.push({row:rn,id:row[0],why:'FIRST_ROW_NEEDS_EXPLICIT_TRIAL_GATE'});result.next=rn+1;continue;
+   function advance(){result.next=rn+1;if(args.write&&!args.preserveCursor)props.setProperty(cursorKey,String(result.next));}
+   if(/^(AJW|アルキキ|YouTube|朝ポキTV)$/.test(txt(row[1]))||humanExcluded(row[38])){result.excluded.push({row:rn,id:row[0],reason:'OUT_OF_SCOPE'});advance();continue;}
+   if(!/^EP-\d{5,6}$/.test(txt(row[0]))||!goodGuid(row[6])){result.holds.push({row:rn,id:row[0],why:'INVALID_ID_OR_GUID'});advance();continue;}
+   if(args.write&&args.target==='COPY'&&rn===2&&!args.allowFirstRow){
+    result.holds.push({row:rn,id:row[0],why:'FIRST_ROW_NEEDS_EXPLICIT_TRIAL_GATE'});advance();continue;
    }
    var origin=source.byGuid[guid(row[6])],proposal;
    try{proposal=plan(row,origin,{reviseW:args.reviseW===true});}
    catch(e){result.holds.push({row:rn,id:row[0],why:'ROW_PARSE_ERROR',detail:txt(e).slice(0,160)});result.next=rn+1;if(args.write&&!args.preserveCursor)props.setProperty(cursorKey,String(result.next));continue;}
+   if(!origin&&args.deferred&&args.deferred[guid(row[6])])proposal.holds=args.deferred[guid(row[6])];
+   else if(!origin){var diagnosis=historic.log.filter(function(d){return d.guid===guid(row[6]);})[0];if(diagnosis)proposal.holds=[diagnosis.status];}
    if(proposal.holds.length)result.holds.push({row:rn,id:row[0],why:proposal.holds});
    var changes=proposal.changes.filter(function(c){return proposal.holds.indexOf('SOURCE_IDENTITY_CONFLICT')<0&&(!/^(W_|VERIFIED_ARTICLE)/.test(c.why)||proposal.holds.length===0);});
    if(changes.length){
     var w;
     try{w=args.write?writeRow(ss,sh,rn,row,changes,origin.source):{ok:true};}
-    catch(e){result.holds.push({row:rn,id:row[0],reason:'WRITE_REVIEW_REQUIRED',detail:txt(e).slice(0,140)});result.next=rn+1;if(args.write&&!args.preserveCursor)props.setProperty(cursorKey,String(result.next));continue;}
+    catch(e){if(args.write)props.setProperty('P15_HALT',txt(e).slice(0,180));throw e;}
     if(!w.ok)result.holds.push({row:rn,id:row[0],reason:w.why});
     else{
      changes.forEach(function(c){var k=Object.keys(C.columns).filter(function(z){return C.columns[z]===c.col;})[0];if(k==='W')k=empty(row[22])?'W_new':'W_revised';if(k==='AC')k='AC';if(result.counts[k]!==undefined)result.counts[k]++;});
      result.changed.push({row:rn,id:row[0],cols:changes.map(function(c){return c.col;})});
     }
    }
-   result.next=rn+1;if(args.write)props.setProperty(cursorKey,String(result.next));
+   advance();
   }
-  if(args.write&&result.holds.length){
+  if(args.write&&typeof P15_AUTO!=='undefined')P15_AUTO.recordHolds(ss,result,rows);
+  else if(args.write&&result.holds.length){
    var holdTab=ss.getSheetByName(C.holds);if(!holdTab){holdTab=ss.insertSheet(C.holds);holdTab.appendRow(['UTC','TARGET','ROW','EP-ID','GUID','REASON','RETRY_STATUS']);}
    var holdRows=result.holds.map(function(h){var r=rows[h.row-start]||[];return [new Date().toISOString(),prod?'PROD':'COPY',h.row,h.id||txt(r[0]),txt(r[6]),JSON.stringify(h.why||h.reason||h.detail||''),'PENDING'];});
    holdTab.getRange(holdTab.getLastRow()+1,1,holdRows.length,7).setValues(holdRows);
@@ -224,7 +258,7 @@ function run(args){
   return result;
  }finally{lock.releaseLock();}
 }
-return {clean:clean,plan:plan,parseFeed:parseFeed,fetchSources:fetchSources,run:run};
+return {humanExcluded:humanExcluded,clean:clean,castNames:castNames,plan:plan,parseFeed:parseFeed,fetchSources:fetchSources,fetchHistoricOmny:fetchHistoricOmny,writeRow:writeRow,run:run};
 })();
 function p15iCopyDryRun(){return PHASE15_INTEGRATED.run({target:'COPY',startRow:2,limit:30,write:false});}
 function p15iProductionDryRun(){return PHASE15_INTEGRATED.run({target:'PROD',startRow:2,limit:30,write:false});}
@@ -284,6 +318,7 @@ function p15iRetryPendingCopyHolds(){
 
 /** Only call after successful online COPY + production pilot validation and explicit approval. */
 function p15iInstallProductionTrigger(){
+ if(typeof p15AutonomousInstallTrigger==='function')return p15AutonomousInstallTrigger();
  var p=PropertiesService.getScriptProperties();
  if(p.getProperty('P15_WRITES_ENABLED')!=='YES'||p.getProperty('P15_PRODUCTION_APPROVED')!=='YES'||
     p.getProperty('P15_OTHER_WRITERS_PAUSED')!=='YES'||p.getProperty('P15_QUALITY_GATE_PASSED')!=='YES')

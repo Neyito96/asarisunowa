@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-28",
+  "baseCommit": "29334c2",
+  "phase14Reference": "82679d7242f35e1aabae9b2e385c03c76dde8f44",
+  "onlineGasVerified": false,
+  "productionNewCells": 0,
+  "productionQualityCorrections": 0,
+  "productionRowsProcessed": 0,
+  "savedCursor": "Not read from online Script Properties",
+  "regression": {
+    "new": 36,
+    "passed": 36,
+    "legacy": 16,
+    "legacyPassed": 16,
+    "adversarial": 7,
+    "adversarialPassed": 7,
+    "baselineReproductions": 4,
+    "baselineFailed": 4
+  },
+  "hostHttp": {
+    "rss200": 1,
+    "rssItems": 2659,
+    "json200": 1,
+    "jsonIdentityVerified": 1,
+    "onlineGas": false,
+    "identityCheck": "GUID, title and published timestamp matched; live production audit data is not included in this repository artifact"
+  },
+  "triggersInstalled": 0,
+  "onlineDeployment": false,
+  "limitations": [
+    "HTTP audio response is not decoded playback",
+    "Platform adapters require exact GUID/title PodcastEpisode JSON-LD sameAs; real four-platform coverage unverified",
+    "Cross-project ScriptLock does not exist; old production writers require operator verification",
+    "Online acceptance still required"
+  ]
+}
