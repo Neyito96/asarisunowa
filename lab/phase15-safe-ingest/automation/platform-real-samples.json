@@ -1,0 +1,148 @@
+{
+  "checkedAt": "2026-10-28",
+  "environment": "Work host HTTP; not online GAS",
+  "officialRss": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/684015f9-2396-4ac4-bc1f-ac0f0033d08c/podcast.rss",
+  "samples": [
+    {
+      "service": "LISTEN",
+      "url": "https://listen.style/p/tvzppbdm/kn9blri1",
+      "source": {
+        "guid": "95486c69-4578-4fd3-bd46-b4d600a4c12e",
+        "title": "（大阪目線#5）ハラスメント相次ぐ市長ら、有権者はもう一度託せるのか",
+        "published": "Sat, 03 Oct 2026 19:00:00 +0000",
+        "show": "ニュースの現場から",
+        "audio": "https://traffic.omny.fm/d/clips/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/95486c69-4578-4fd3-bd46-b4d600a4c12e/audio.mp3?utm_source=Podcast&in_playlist=684015f9-2396-4ac4-bc1f-ac0f0033d08c",
+        "duration": "6592",
+        "link": "https://omny.fm/shows/asahi/oosaka5"
+      },
+      "expected": {
+        "ok": true,
+        "method": "AUDIO_GUID_TITLE",
+        "url": "https://listen.style/p/tvzppbdm/kn9blri1",
+        "service": "LISTEN",
+        "col": 11
+      },
+      "http": 200,
+      "snapshotSha256": "b23e63bebc91e057fbb114f36dbde5fd390ef03f14936a771cacd3a52aeb0ad0",
+      "fixtureHtml": "<meta property=\"og:title\" content=\"（大阪目線#5）ハラスメント相次ぐ市長ら、有権者はもう一度託せるのか - ニュースの現場から\">\n<script>const audioUrl = 'https://traffic.omny.fm/d/clips/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/95486c69-4578-4fd3-bd46-b4d600a4c12e/audio.mp3?utm_source=Podcast&amp;in_playlist=684015f9-2396-4ac4-bc1f-ac0f0033d08c';</script>",
+      "fixtureNote": "Reduced observed structural fields, not full page; live result used complete HTTP response."
+    },
+    {
+      "service": "Spotify",
+      "url": "https://open.spotify.com/episode/6opJ4Ig4s7CTY9fRqGEHd2",
+      "source": {
+        "guid": "af085854-b81e-4578-b871-b4d7005c0188",
+        "title": "（World Insight #5）停戦から1年、それでも終わらないガザ",
+        "published": "Tue, 06 Oct 2026 19:00:00 +0000",
+        "show": "ニュースの現場から",
+        "audio": "https://traffic.omny.fm/d/clips/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/af085854-b81e-4578-b871-b4d7005c0188/audio.mp3?utm_source=Podcast&in_playlist=684015f9-2396-4ac4-bc1f-ac0f0033d08c",
+        "duration": "3651",
+        "link": "https://omny.fm/shows/asahi/worldinsight5"
+      },
+      "expected": {
+        "ok": true,
+        "method": "SHOW_TITLE_TIMESTAMP_DURATION",
+        "url": "https://open.spotify.com/episode/6opJ4Ig4s7CTY9fRqGEHd2",
+        "service": "Spotify",
+        "col": 12
+      },
+      "http": 200,
+      "snapshotSha256": "819ab39fb5af97a13889ec17f0fb2d983d86f73bc49aa665b8e6d61d951c8f66",
+      "fixtureHtml": "<script type=\"application/ld+json\">{\"@type\": \"PodcastEpisode\", \"url\": \"https://open.spotify.com/episode/6opJ4Ig4s7CTY9fRqGEHd2\", \"name\": \"（World Insight #5）停戦から1年、それでも終わらないガザ\", \"datePublished\": \"2026-10-06\", \"description\": \"Listen to this episode from ニュースの現場から on Spotify.\"}</script>\n<meta name=\"music:release_date\" content=\"2026-10-06T19:00:00Z\"/>\n<meta name=\"music:duration\" content=\"3651\"/>",
+      "fixtureNote": "Reduced observed structural fields, not full page; live result used complete HTTP response."
+    },
+    {
+      "service": "Apple Podcasts",
+      "url": "https://podcasts.apple.com/ca/podcast/id1526773927?i=1000788177207",
+      "source": {
+        "guid": "70738517-d689-461c-a3e9-b4b400551ae8",
+        "title": "（めくろう#197）AI誤報・災害デマ投稿…真実の証明は大変。締めはタコス",
+        "published": "Sun, 06 Sep 2026 19:00:00 +0000",
+        "show": "ニュースの現場から",
+        "audio": "https://traffic.omny.fm/d/clips/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/70738517-d689-461c-a3e9-b4b400551ae8/audio.mp3?utm_source=Podcast&in_playlist=684015f9-2396-4ac4-bc1f-ac0f0033d08c",
+        "duration": "3979",
+        "link": "https://omny.fm/shows/asahi/mekuro197"
+      },
+      "expected": {
+        "ok": true,
+        "method": "GUID_TITLE_DATE",
+        "url": "https://podcasts.apple.com/ca/podcast/id1526773927?i=1000788177207",
+        "service": "Apple Podcasts",
+        "col": 13
+      },
+      "http": 200,
+      "snapshotSha256": "92b2bc07ecbf28a2d8a90badeb32a64b4dee442d40606f76e87298673e230b97",
+      "fixtureHtml": "<script type=\"application/json\">{\"guid\": \"70738517-d689-461c-a3e9-b4b400551ae8\", \"title\": \"（めくろう#197）AI誤報・災害デマ投稿…真実の証明は大変。締めはタコス\", \"storeUrl\": \"https://podcasts.apple.com/ca/podcast/%E3%82%81%E3%81%8F%E3%82%8D%E3%81%86-197-ai%E8%AA%A4%E5%A0%B1-%E7%81%BD%E5%AE%B3%E3%83%87%E3%83%9E%E6%8A%95%E7%A8%BF-%E7%9C%9F%E5%AE%9F%E3%81%AE%E8%A8%BC%E6%98%8E%E3%81%AF%E5%A4%A7%E5%A4%89-%E7%B7%A0%E3%82%81%E3%81%AF%E3%82%BF%E3%82%B3%E3%82%B9/id1526773927?i=1000788177207\", \"releaseDate\": \"2026-09-06T19:00:00Z\", \"mediaEnclosures\": [{\"streamUrl\": \"https://traffic.omny.fm/d/clips/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/70738517-d689-461c-a3e9-b4b400551ae8/audio.mp3?utm_source=Podcast&in_playlist=684015f9-2396-4ac4-bc1f-ac0f0033d08c\", \"priceType\": \"STDQ\", \"duration\": 3979, \"mediaKinds\": [\"audio\"], \"priorityScore\": 0, \"transcriptInfo\": null}]}</script>",
+      "fixtureNote": "Reduced observed structural fields, not full page; live result used complete HTTP response."
+    },
+    {
+      "service": "Amazon Music",
+      "url": "https://music.amazon.in/podcasts/7337408b-4752-4a85-8f27-4208a2ca8b1d/episodes/9db19161-a5ba-49e4-92da-90388c7534a9/ニュースの現場から-（めくろう-197）ai誤報・災害デマ投稿…真実の証明は大変。締めはタコス",
+      "source": {
+        "guid": "70738517-d689-461c-a3e9-b4b400551ae8",
+        "title": "（めくろう#197）AI誤報・災害デマ投稿…真実の証明は大変。締めはタコス",
+        "published": "Sun, 06 Sep 2026 19:00:00 +0000",
+        "show": "ニュースの現場から",
+        "audio": "https://traffic.omny.fm/d/clips/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/70738517-d689-461c-a3e9-b4b400551ae8/audio.mp3?utm_source=Podcast&in_playlist=684015f9-2396-4ac4-bc1f-ac0f0033d08c",
+        "duration": "3979",
+        "link": "https://omny.fm/shows/asahi/mekuro197"
+      },
+      "expected": {
+        "ok": false,
+        "reason": "EPISODE_METADATA_UNAVAILABLE"
+      },
+      "http": 200,
+      "snapshotSha256": "9f944e40b380ba12fd16dd3eb7db4dfff365a7b8ee215cd5b25870ad3e14498a",
+      "fixtureHtml": "<html><head><script type=\"module\" src=\"https://d5fx445wy2wpk.cloudfront.net/release/web-platform/main.bb7b385281da0b951688.js\"></script></head><body></body></html>",
+      "fixtureNote": "Reduced observed structural fields, not full page; live result used complete HTTP response."
+    },
+    {
+      "service": "Pocket Casts",
+      "url": "https://pca.st/episode/9c04f61f-db4c-432e-a34a-f1428d926b00",
+      "source": {
+        "guid": "af085854-b81e-4578-b871-b4d7005c0188",
+        "title": "（World Insight #5）停戦から1年、それでも終わらないガザ",
+        "published": "Tue, 06 Oct 2026 19:00:00 +0000",
+        "show": "ニュースの現場から",
+        "audio": "https://traffic.omny.fm/d/clips/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/af085854-b81e-4578-b871-b4d7005c0188/audio.mp3?utm_source=Podcast&in_playlist=684015f9-2396-4ac4-bc1f-ac0f0033d08c",
+        "duration": "3651",
+        "link": "https://omny.fm/shows/asahi/worldinsight5"
+      },
+      "expected": {
+        "ok": true,
+        "method": "AUDIO_GUID_TITLE",
+        "url": "https://pca.st/episode/9c04f61f-db4c-432e-a34a-f1428d926b00",
+        "service": "Pocket Casts",
+        "col": 42
+      },
+      "http": 200,
+      "snapshotSha256": "fa0aa9586fb24131d6c43463bcec1562c2a88277412190b3e3d49aca3b5b9edd",
+      "fixtureHtml": "<script>window.__reactRouterContext.streamController.enqueue(\"[{\\\"_1\\\": 2}, \\\"episode\\\", {\\\"_3\\\": 4, \\\"_5\\\": 6, \\\"_7\\\": 8, \\\"_9\\\": 10}, \\\"uuid\\\", \\\"9c04f61f-db4c-432e-a34a-f1428d926b00\\\", \\\"title\\\", \\\"（World Insight #5）停戦から1年、それでも終わらないガザ\\\", \\\"url\\\", \\\"https://traffic.omny.fm/d/clips/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/af085854-b81e-4578-b871-b4d7005c0188/audio.mp3?utm_source=Podcast&in_playlist=684015f9-2396-4ac4-bc1f-ac0f0033d08c\\\", \\\"published\\\", \\\"2026-10-06T19:00:00Z\\\"]\")</script>",
+      "fixtureNote": "Reduced observed structural fields, not full page; live result used complete HTTP response."
+    },
+    {
+      "service": "Pody",
+      "url": "https://pody.jp/player/4UD5sHilP15gqAc0clXN/Qjf6a5gZqH7sk0Ju9rI1",
+      "source": {
+        "guid": "70738517-d689-461c-a3e9-b4b400551ae8",
+        "title": "（めくろう#197）AI誤報・災害デマ投稿…真実の証明は大変。締めはタコス",
+        "published": "Sun, 06 Sep 2026 19:00:00 +0000",
+        "show": "ニュースの現場から",
+        "audio": "https://traffic.omny.fm/d/clips/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/70738517-d689-461c-a3e9-b4b400551ae8/audio.mp3?utm_source=Podcast&in_playlist=684015f9-2396-4ac4-bc1f-ac0f0033d08c",
+        "duration": "3979",
+        "link": "https://omny.fm/shows/asahi/mekuro197"
+      },
+      "expected": {
+        "ok": true,
+        "method": "AUDIO_GUID_TITLE",
+        "url": "https://pody.jp/player/4UD5sHilP15gqAc0clXN/Qjf6a5gZqH7sk0Ju9rI1",
+        "service": "Pody",
+        "col": 43
+      },
+      "http": 200,
+      "snapshotSha256": "d723d591092cf95a313676506926faff55567bb5fdf71558274b19151a849f4d",
+      "fixtureHtml": "<script type=\"application/ld+json\">{\"@type\": \"Article\", \"url\": \"https://pody.jp/player/4UD5sHilP15gqAc0clXN/Qjf6a5gZqH7sk0Ju9rI1\", \"datePublished\": \"2026-09-06T19:00:00.000Z\", \"isBasedOn\": {\"@type\": \"PodcastEpisode\", \"name\": \"（めくろう#197）AI誤報・災害デマ投稿…真実の証明は大変。締めはタコス\", \"timeRequired\": \"PT1H6M19S\", \"associatedMedia\": {\"@type\": \"MediaObject\", \"contentUrl\": \"https://traffic.omny.fm/d/clips/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/70738517-d689-461c-a3e9-b4b400551ae8/audio.mp3?utm_source=Podcast&in_playlist=684015f9-2396-4ac4-bc1f-ac0f0033d08c\"}, \"partOfSeries\": {\"@type\": \"PodcastSeries\", \"name\": \"ニュースの現場から\", \"url\": \"https://pody.jp/player/4UD5sHilP15gqAc0clXN\"}}}</script>",
+      "fixtureNote": "Reduced observed structural fields, not full page; live result used complete HTTP response."
+    }
+  ]
+}

@@ -8,14 +8,15 @@
   "productionRowsProcessed": 0,
   "savedCursor": "Not read from online Script Properties",
   "regression": {
-    "new": 36,
-    "passed": 36,
+    "new": 49,
+    "passed": 49,
     "legacy": 16,
     "legacyPassed": 16,
     "adversarial": 7,
     "adversarialPassed": 7,
     "baselineReproductions": 4,
-    "baselineFailed": 4
+    "baselineFailed": 4,
+    "totalPassed": 72
   },
   "hostHttp": {
     "rss200": 1,
@@ -29,8 +30,58 @@
   "onlineDeployment": false,
   "limitations": [
     "HTTP audio response is not decoded playback",
-    "Platform adapters require exact GUID/title PodcastEpisode JSON-LD sameAs; real four-platform coverage unverified",
+    "Six public HTTP samples: five verified, Amazon HTML lacks episode identity; online GAS unverified. Discovery is bounded and historical coverage is not guaranteed.",
     "Cross-project ScriptLock does not exist; old production writers require operator verification",
     "Online acceptance still required"
+  ],
+  "platformSamples": [
+    {
+      "service": "LISTEN",
+      "checked": 1,
+      "verified": 1,
+      "unavailable": 0,
+      "reason": "",
+      "url": "https://listen.style/p/tvzppbdm/kn9blri1"
+    },
+    {
+      "service": "Spotify",
+      "checked": 1,
+      "verified": 1,
+      "unavailable": 0,
+      "reason": "",
+      "url": "https://open.spotify.com/episode/6opJ4Ig4s7CTY9fRqGEHd2"
+    },
+    {
+      "service": "Apple Podcasts",
+      "checked": 1,
+      "verified": 1,
+      "unavailable": 0,
+      "reason": "",
+      "url": "https://podcasts.apple.com/ca/podcast/id1526773927?i=1000788177207"
+    },
+    {
+      "service": "Amazon Music",
+      "checked": 1,
+      "verified": 0,
+      "unavailable": 1,
+      "reason": "EPISODE_METADATA_UNAVAILABLE",
+      "url": "https://music.amazon.in/podcasts/7337408b-4752-4a85-8f27-4208a2ca8b1d/episodes/9db19161-a5ba-49e4-92da-90388c7534a9/ニュースの現場から-（めくろう-197）ai誤報・災害デマ投稿…真実の証明は大変。締めはタコス"
+    },
+    {
+      "service": "Pocket Casts",
+      "checked": 1,
+      "verified": 1,
+      "unavailable": 0,
+      "reason": "",
+      "url": "https://pca.st/episode/9c04f61f-db4c-432e-a34a-f1428d926b00"
+    },
+    {
+      "service": "Pody",
+      "checked": 1,
+      "verified": 1,
+      "unavailable": 0,
+      "reason": "",
+      "url": "https://pody.jp/player/4UD5sHilP15gqAc0clXN/Qjf6a5gZqH7sk0Ju9rI1"
+    }
   ]
 }
