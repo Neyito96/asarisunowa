@@ -181,6 +181,7 @@ function run(args){
   var prod=args.target==='PROD';if(prod&&args.write&&!args.prodApproved)throw Error('PROD_WRITE_NOT_APPROVED');
   var props=PropertiesService.getScriptProperties();if(args.write&&props.getProperty(C.enabled)!=='YES')throw Error('WRITE_GATE_CLOSED');
   if(prod&&args.write&&props.getProperty('P15_PRODUCTION_APPROVED')!=='YES')throw Error('PRODUCTION_QUALITY_GATE_CLOSED');
+  if(prod&&args.write&&props.getProperty('P15_OTHER_WRITERS_PAUSED')!=='YES')throw Error('PARALLEL_WRITERS_NOT_PAUSED');
   var ss=SpreadsheetApp.openById(prod?C.prod:C.copy),sh=ss.getSheetByName(C.tab);
   if(!sh)throw Error('LEDGER_NOT_FOUND');
   var cursorKey=C.cursor+(prod?'_PROD':'_COPY');
@@ -243,3 +244,23 @@ function p15iParserSmokeTests(){
 /** Retry a held row after fixing its source, without moving the main scan cursor. */
 function p15iRetryHeldCopyRow(row){return PHASE15_INTEGRATED.run({target:'COPY',startRow:row,limit:1,write:true,preserveCursor:true});}
 function p15iRetryHeldProductionRow(row){return PHASE15_INTEGRATED.run({target:'PROD',startRow:row,limit:1,write:true,preserveCursor:true,prodApproved:true});}
+
+/** Only call after successful online COPY + production pilot validation and explicit approval. */
+function p15iInstallProductionTrigger(){
+ var p=PropertiesService.getScriptProperties();
+ if(p.getProperty('P15_WRITES_ENABLED')!=='YES'||p.getProperty('P15_PRODUCTION_APPROVED')!=='YES'||
+    p.getProperty('P15_OTHER_WRITERS_PAUSED')!=='YES'||p.getProperty('P15_QUALITY_GATE_PASSED')!=='YES')
+  throw Error('P15_TRIGGERS_NOT_APPROVED');
+ var name='p15iProductionContinue';
+ var found=ScriptApp.getProjectTriggers().filter(function(t){return t.getHandlerFunction()===name;});
+ if(found.length>1)throw Error('DUPLICATE_TRIGGER_PRESENT');
+ if(found.length===1)return {installed:false,alreadyPresent:true,handler:name};
+ var t=ScriptApp.newTrigger(name).timeBased().everyMinutes(15).create();
+ return {installed:true,handler:t.getHandlerFunction(),frequency:'15min'};
+}
+function p15iPauseProductionTrigger(){
+ var removed=0;ScriptApp.getProjectTriggers().forEach(function(t){
+  if(t.getHandlerFunction()==='p15iProductionContinue'){ScriptApp.deleteTrigger(t);removed++;}
+ });
+ return {removed:removed};
+}
