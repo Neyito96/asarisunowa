@@ -65,3 +65,66 @@ P2 画像正方形の公開画面と宇宙分類は各専任室で継続し、�
 - 関数実行0（preflight / Enable / Trialを含め未実行）、台帳書込0（全列）、新規EP-IDなし、トリガー操作0、mainマージ0、新規GASプロジェクト0。Phase15カーソル未設定のまま。保存成功は実機運転・権限承認・本番試運転成功を意味しない。
 - コード変更は今回なし。前工程の81 PASSを保持し、今回の検証はオンライン保存後の全文再取得一致と既存ソース/設定不変の確認。29日RSS候補は今回再取得しておらず、前工程の未登録候補2・保留1を新しい実測として再報告しない。
 - 指定停止点で終了。オンライン保存に続く関数実行・設定変更・本番書込・トリガー設置は行っていない。秘密値・設定全文・既存ソース全文はGitHubに公開していない。
+
+
+## 2026-10-29 12:32〜12:34 Preflight受入・初期設定前READ_ONLY準備
+コード正本は49eb916、オンライン追加保存記録は65d1d1b。今回コード・オンライン設定は変更していない。
+
+### 実機Preflight（管理人実行・提示結果を受入）
+p15AutonomousPreflight / p15-auto-20261029.1-predeployment。本番6640行、maxAllocatedId=6640、savedCursor=null、pendingWrites=0、exclusionHistoryError空、公式8フィードすべてOK、内部検査6件成功、表示トリガー0、writes=0、約117秒。Workが再実行した結果ではない。8フィード成功を公式個別JSON API疎通成功とは扱わない。
+
+### writer競合：未解決、Enable停止
+- 前工程の非公開14ファイルを再検査。本番セルを書き得る旧入口は phase14B1ApplyEP06625Once、phase14VWApplyEP06625Once、phase14RepairEP06632FromOfficial。旧shadowは本番セルwriterと混同しない（FastShadowV2はProperties更新あり）。既存14ファイルにonOpen/onEdit/doGet/doPost入口なし。
+- 既存記録にCOPY V19の2トリガー報告あり。現在の接続先・所有者・停止状態は未確認。COPYや推薦処理など無関係なジョブを停止しない。
+- 今回Driveのscript MIME検索は0件だが、コンテナバインドGASや別所有者の不存在証明にならない。既存GAS URLをブラウザで開くと未ログインの案内ページへ遷移し、現時点の全プロジェクト/全所有者トリガーは閲覧できなかった。
+- Google公式仕様でも別アカウントが設置したトリガーは見えない。参照: https://developers.google.com/apps-script/guides/triggers/installable 。ScriptLock/P15_OWNERは他の旧GASが同じ規約に従うことを強制しない。
+- 残確認は、管理人アカウントのApps Script「マイトリガー」でプロジェクト横断の入口を確認→本番IDへの書込経路があるプロジェクトだけコード・実行履歴・API/WebApp/外部スケジュールを確認→各別所有者にも同じ確認。プロジェクト・関数・所有者・接続先・確認日時・停止根拠をレビュー記録に残す。本番writer以外は維持。確認完了まではP15_OTHER_WRITERS_PAUSEDをYESにしない。
+
+### 12:40 JST頃の候補再照合（Work READ_ONLY）
+2対象番組の公式RSSを再取得、HTTP200 2/2。台帳A1:J6641、固定ID採番履歴A1:H1000（77件）、削除・除外履歴A1:I1000（0件）、監査/旧保留を再取得。台帳A:Jは前工程snapshotと一致。最大ID6640、監査39件すべてVERIFIED、旧保留472件。P15_OWNER/P15_INTAKE/P15_RETRYはメタデータ上未作成。
+指定bundleをローカルの書込メソッドを持たないsnapshotに適用して判定・提案のみ計算。
+
+| GUID | 登録判定 | 変更/重複確認 | 補填提案の注意 |
+|---|---|---|---|
+| 0900cfa3-9c46-4799-b9a0-b4ef00153be2 | 未登録、第一候補 | 番組・タイトル・配信日時・公式URL・RSS URLは前回と一致。台帳GUID/タイトル/個別URL一致0、採番予約/除外一致0 | plan保留0。V2792文字、W、関連記事3組、出演者3名、画像、音声URL、3315秒 |
+| 9c85db3b-04db-4819-9d53-b4e30006c1d3 | 未登録 | 同上の識別情報に変更なし、各重複一致0 | planにRESIDUE。V2674文字、出演者/画像/音声URL/2543秒は提案あり。W/ACは清掃保留 |
+
+今回2件に限定した集計は未登録2・登録済み0・除外0・登録判定保留0、うち清掃品質保留1。ニュースの学校の前回保留1件は今回再取得対象外。
+原文・音声・画像の前回個別snapshotがないため、これらの内容変更なしとは断言しない。今回の原文を次回比較基準とする。音声URL存在は再生成功ではない。6サービスURL/音声再生検証はこのTrialの範囲外。
+第一候補の見込非空列はA/B/C/D/E/F/G/I/J/N/O/P/V/W/X/AC/AF/AG/AS/AT/AU/AV/AY各1（計23セル）。これは提案数で実書込0。EP-IDは実行時再採番（現在最大からならEP-06641）、事前予約しない。
+
+### 初期Script Properties案（すべて未設定・未承認）
+| キー | 提案値・設定時点 |
+|---|---|
+| P15I_CURSOR_PROD | 2。旧242/342/6632は流用せず、先頭データ行から空欄限定で安全再巡回 |
+| P15_MEDIA_CURSOR | 2。主カーソルと独立 |
+| P15_INITIAL_CURSOR_CONFIRMED | 上記開始位置を管理人が採択後YES |
+| P15_MAX_EP_NUMBER | 6640。設定直前に台帳/採番履歴/除外/新予約を再読し最大が増えていれば更新 |
+| P15_INGEST_SINCE | 2026-10-29T00:00:00+09:00。今回の対象日境界。毎日書換えない。28日以前の欠落は別途審査 |
+| P15_BATCHES_PER_TICK | 1（既存巡回最大100行、完走保証ではない） |
+| P15_W_REVISION_APPROVED | NO（空欄Wのみ、既存Wを修正しない） |
+| P15_OTHER_WRITERS_PAUSED | 競合解消を確認するまでNO/未設定。確認後の承認でのみYES |
+| P15_WRITER_REVIEW_NOTE | 確認完了後に実際の確認日時・プロジェクト/入口/所有者・停止根拠への参照を記入。未確認の定型文で通過させない |
+| P15_TRIAL_GUID | 0900cfa3-9c46-4799-b9a0-b4ef00153be2 |
+| P15_TRIAL_APPROVED | 準備時NO。1件書込承認後の実行直前だけYES、終了後に解除する承認も含める |
+| P15_TRIGGER_APPROVED | NO。今回は設置しない |
+| P15_WRITES_ENABLED / P15_PRODUCTION_APPROVED | 準備時NO。承認後のEnableがYESにする |
+| P15_OWNER_SCRIPT_ID | 手入力しない。Enableが実際の既存ScriptApp.getScriptId()を設定 |
+P15_HALT/P15_TICK_UNTIL/P15_LAST_RUN/回復用キーは架空値で初期化しない。既存値が現れた場合は原因確認し、消して通過させない。旧P14系18キーは保持。
+
+### 承認後の実行順序と変更範囲（今回は実行禁止）
+1. writer解消と最新候補/最大ID/pending再確認→初期設定の明示承認。設定前後の非公開バックアップを確保。
+2. Enableの別途承認後、p15AutonomousEnableを1回。内部でPreflightを再実行。P15_OWNER新規作成/ヘッダー/2行目3セル、owner/writeゲート3Propertiesを設定し、P15_RETRYに旧P15I_HOLD_QUEUEの有効な本番保留を原因別・重複除去して移行。元台帳/元保留キューは変更しない。移行件数は実行時に確定する（472履歴をそのまま472件追加しない）。EnableはトリガーもP15_RUNSも作らない。
+3. Enableはゲート設定後にmigrateLegacyを行うため、途中失敗時に自動でゲートを巻き戻すコードではない。完了戻り値とP15_OWNER/P15_RETRY/Propertiesの差分が一致しなければTrialへ進めない。停止設定が必要ならその操作も承認範囲に含める。
+4. 第一候補だけのTrial承認後、p15AutonomousTrialOneを1回。P15_INTAKEを作成しRESERVED→台帳末尾A:BC最大1行→再読込→VERIFIED、P15_MAX_EP_NUMBER更新。必要時は末尾行を拡張。保留があればP15_RETRY、intake中例外ではP15_HALT。通常成功ログはconsole、P15_RUNS/P15_LAST_RUNには記録しない。P15I_AUDITの既存セル監査を新規行に流用せず、P15_INTAKEを新規行監査とする。
+5. 旧「固定ID採番履歴」と「図書館V3・項目状態」はこのTrialでは更新しない。新ロボ採番正本はP15_INTAKE。下流が旧履歴更新を必須とする場合は別途確認が必要。
+6. 登録後、GUID一意・実採番ID・全55列の期待値・IN​​TAKE VERIFIED・pending0・既存行差分0・両カーソル2維持を再読込。承認に含めた同一GUID再実行で追加0を確認。0追加の場合も成功扱いせず、REGISTERED/HOLD/時間不足を区別。Trialは既存補填、6URL、音声Probe、トリガーを呼ばない。
+7. 小バッチは別承認。Tickは新着最大10件＋retry最大5件＋既存100行＋media最大20行を対象とし、「合計100行/1件だけ」とは説明しない。6サービスURL最大12HTTP・45秒枠、音声Probeは別処理。停止/復旧の必要操作も事前に承認範囲を明記。
+
+### 時間予算・停止条件
+- Preflight117秒は全体所要でありRSS取得だけの実測ではない。Trialはowner/pending確認後に180秒期限、候補処理開始条件は残り20秒以上。仮に取得まで117秒なら候補処理開始可能な余裕は約43秒。HTTP呼出やシート操作を強制中断する期限ではなく、絶対180秒以内の保証はない。
+- Tickは開始時240秒。取得が117秒相当ならintake期限=min(160秒,177秒)=160秒、ループ開始打切りは140秒で新着枠は約23秒。retryは残25秒で打切り。既存runには190秒期限が渡り、行ループは175秒まで、JSON新規chunkは170秒まで。retry等に時間を使えば既存100行を消化できない。初回1バッチ、500行設定は禁止のまま。
+- 通常の保留/対象外は継続可能だが、writer不明、owner不一致、予約/監査PENDING、列/ID不一致、追記先の既存値/式/検証規則、書込後不一致、HALTは停止。時間切れ追加0/processed0は試験成功ではない。強制終了ならRESERVED/PENDINGと実セルを照合するまで再実行しない。
+- 小バッチ受入はstatus=OKかつprocessed>=1、pending0、誤上書き0、列別counts・次回カーソル・保留理由・P15_RUNS/P15_LAST_RUNの一致。開始時240秒という設計値と実測時間を別記し、余裕不足ならトリガー承認へ進まない。
+
+今回の実績：本番登録0、補填/品質修正0（全列）、本番巡回0、関数実行0、Properties変更0、トリガー操作0。カーソルnullは管理人Preflight報告値（今回はオンラインProperties再読不能）。コード不変、前工程81 PASSを再実行したとは報告しない。今回のローカル読み取り判定は2件実施。writer確認未完のためEnable実行可能とは認定せず、設定案提出で停止。
