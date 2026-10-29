@@ -148,3 +148,29 @@ P15_HALT/P15_TICK_UNTIL/P15_LAST_RUN/回復用キーは架空値で初期化し�
 管理人の事実確認後、最新台帳/採番/除外/PENDING/オンラインbundle一致をまとめて直前確認し、既存設定案（新規カーソル2、最大IDは再読値、第一候補GUID0900cfa3-9c46-4799-b9a0-b4ef00153be2）を用いた設定・Enable・限定Trial・再読込・同GUID再実行・Trial許可解除/異常時停止を一度の具体的承認にまとめる。今は実行承認を先取りしない。
 
 今回実績：本番追加EP 0、補填0（全列）、品質修正0、巡回0、上書き0。再実行試験未実施のため重複検証は未測定。新着/RSS/カーソル/採番/PENDINGの再取得はwriter解消前なので繰り返していない。設定/Enable/Trial/Tick/トリガー操作0。テスト再実行なし・コード変更なし。別所有者/手動writerの確認が残るためここで停止。
+
+
+## 2026-10-29 22:15 JST — 管理人実機導入・本番初収蔵／初回Tick実績（追記）
+
+本節は2026-10-29 15:03–22:09 JSTの管理人提示GASログおよび本番Google Sheet読取に基づく追記。過去の「未実行」記録はその時点の事実として残す。GitHub実装コードの変更はこの追記では行わない。
+
+### Enableと検証
+- 本番GAS Script ID `1Ywoelv_gnS6oJQz7CDbAn6PZaS4l2lty-XmhHJUdk9-K5PmvwAE79JJV`。管理人が旧Phase14 writer3関数の冒頭を停止例外に変更し、オンライン15ファイル構成で作業。
+- 15:03:28–15:08:31、`p15AutonomousEnable` 実行完了。内部Preflight: rows=6640, maxAllocatedId=6640, pendingWrites=0, feeds 8件OK, triggers=[], writes=0。管理人は `P15_WRITES_ENABLED=YES`, `P15_PRODUCTION_APPROVED=YES` を確認。本番 `P15_OWNER` にScript ID/バージョン/activation日時、`P15_RETRY` に移行済保留情報を確認。
+- 15:14:12–15:15:03、再Preflight成功、同じ最大ID/未完了0/トリガー0/書込0。
+- 21:52:48–21:54:18、`p15AutonomousTrialOne` 成功。GUID `0900cfa3-9c46-4799-b9a0-b4ef00153be2` を `EP-06641` として本番追加、23非空列、hold=0。台帳6642行目と `P15_INTAKE` VERIFIEDを再読確認。
+- 21:57:32頃–21:58:41、同GUID Trial再実行は `added=0`, `registered=1`, `GUID_ALREADY_REGISTERED`。重複なし。管理人は `P15_TRIAL_APPROVED=NO` に復帰したと報告。
+
+### 初回本番Tick（2026-10-29 22:02:03–22:05:52 JST）
+- `p15AutonomousTick` status=OK, elapsedMs=226809, processed=100, next=102, rss=8, official JSON verified=0。
+- intake `added=1` `EP-06642`（ドーナツ「親モヤ #131」GUID `9c85db3b-04db-4819-9d53-b4e30006c1d3`）、registered=1（EP-06641）、held=1（ニュースの学校 GUID `4ea6480a-ccfd-11f1-b2de-17a1ce8dc9d8`、`OFFICIAL_EPISODE_URL_MISSING_OR_UNVERIFIED`）。本番台帳6643行目と `P15_INTAKE` VERIFIEDを再読確認。
+- 既存セルの新規補填は全列0（V/W/AC/N/O/P/X/AT/AU/AV/AW/AX/AY等）、media URL新規0セル。platform: LISTEN unavailable12; Spotify unavailable3 deferred9; Apple unavailable12; Amazon unavailable12; Pocket Casts unavailable3 deferred9; Pody unavailable12。保留判定93、retries checked0/resolved0。P15_RUNSにもこのTickのOK記録あり。
+- 22:07:26–22:07:29 `p15AutonomousRecoveryReport` = `[]`。これはP15I_AUDITの未完了書込とP15_INTAKEのRESERVEDがないという意味であり、旧保留キューやREVIEW件数0を意味しない。
+- `P15I_HOLD_QUEUE` は2026-10-28の旧記録が残存、`P15_RETRY` は移行後の現役管理。最初の100行に関連して V_DIFF_OFFICIAL_PROTECT 93件、RELATED_TITLE_MISSING_VERIFIED_URL 30件、RESIDUE 28件、UNPAIRED_URL 4件のREVIEW記録（同一行で複数理由、歴史記録込み）。旧キューのPENDINGを進行中監査PENDINGと混同しない。
+- `P15_PLATFORM_STATUS` の実例はSpotify/Apple/LISTEN/Amazonの `NO_MATCH_IN_DISCOVERED_PAGE`、Pocket Castsの `HTTP_403`、Podyの `EPISODE_METADATA_UNAVAILABLE`。本番ロボ現行ソースはmediaネットワーク予算12回・45秒を設定。URL補填を単純なタイトル一致で代替しない。
+
+### 次工程の最優先／安全ゲート
+- 管理人の明示優先順位：**空欄の正確な補填セル数と、他プラットフォーム（LISTEN、Spotify、Apple Podcasts、Amazon Music、Pocket Casts、Pody）の正確な個別EP URL取得件数**。新着収蔵に成功しただけでPhase15完了扱いしない。
+- まず公式JSON照合0の原因と、メディア探索で個別EP一致に至らない原因、HTTP403・予算延期の切分け。未確認URLを埋めること、既存V/W上書き、タイトル一致だけの照合は禁止。対象少数件でread-only/コピー検証し、正規の空欄のみを補完する。
+- 15分自動トリガーは未設置、次Tickの連続本番実行は停止中。旧writer外部所有者の不存在は完全確認できていない。コード改変・トリガー設置・広範囲本番書込の承認はこの記録で代替しない。
+- 記録上の累積確定成果は新着EP 2件（EP-06641、EP-06642）、既存補填0セル、他サービスURL補填0セル。今後は「巡回件数」でなく「検証済み新規セル数」で評価。
