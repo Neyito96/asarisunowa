@@ -274,7 +274,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "多国籍共生",
     "bigstone1977",
     "https://open.spotify.com/playlist/3QTWaNLWcbw4oS9DzNyQtr",
-    "https://mosaic.scdn.co/300/ab67656300005f1f57e6d1f79bee5e240b4024beab67656300005f1f6144464ed748960953e9314fab67656300005f1ffd9661cfcba6bbe21f61d3d5ab67656300005f1ffe0571b855782f94e3a25ead",
+    "https://mosaic.scdn.co/640/ab67656300005f1f57e6d1f79bee5e240b4024beab67656300005f1f6144464ed748960953e9314fab67656300005f1ffd9661cfcba6bbe21f61d3d5ab67656300005f1ffe0571b855782f94e3a25ead",
     null,
     null,
     false
@@ -310,7 +310,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "メディアを語る　伊藤大地x奥山晶二郎x神田大介",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/2lA13BSsvyLjq9iPFa6oDo",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84996d7c4cc61163a9b6ed71d9",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84996d7c4cc61163a9b6ed71d9",
     null,
     null,
     false
@@ -337,7 +337,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "3.11特別編　記者の取材を追体験　「福島のいま」",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/4QfZEVeflr1dTyV9RfzWes",
-    "https://mosaic.scdn.co/640/ab67656300005f1f348f70072b476a17691511d2ab67656300005f1f852b268ef4abfd41299a2c8dab67656300005f1fcf9ed0093f8aee836e09bfdbab67656300005f1feabd1aa6631f04b259749698",
+    "https://mosaic.scdn.co/300/ab67656300005f1f348f70072b476a17691511d2ab67656300005f1f852b268ef4abfd41299a2c8dab67656300005f1fcf9ed0093f8aee836e09bfdbab67656300005f1feabd1aa6631f04b259749698",
     null,
     null,
     false
@@ -355,7 +355,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "子供への性暴力　大久保真紀",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/0qTp4leNc1yThyoPCMoRBi",
-    "https://mosaic.scdn.co/300/ab67656300005f1f21ec2856d7e2affbe49bab65ab67656300005f1f5121257e7907349907b5cabbab67656300005f1f9bd2f8d1012cb8190a6fdea1ab67656300005f1ffdb916667b3f3c5b79f2467f",
+    "https://mosaic.scdn.co/640/ab67656300005f1f21ec2856d7e2affbe49bab65ab67656300005f1f5121257e7907349907b5cabbab67656300005f1f9bd2f8d1012cb8190a6fdea1ab67656300005f1ffdb916667b3f3c5b79f2467f",
     null,
     null,
     false
@@ -391,7 +391,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "ポキ-1グランプリ 2023",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/5xUDKa3r5arvKSx4gqjwI3",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9",
     null,
     null,
     false
@@ -463,7 +463,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#懐メロ（#朝ポキ 楽屋裏）＋おじさんのメロディ",
     "koike",
     "https://open.spotify.com/playlist/0vItsmD8tW7fsv18NkZKzh",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600",
     null,
     null,
     false
@@ -526,7 +526,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#初登場特集（#朝ポキ）",
     "koike",
     "https://open.spotify.com/playlist/3WLp56ohdZs2AqDoUwNNWd",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef",
     null,
     null,
     false
@@ -544,7 +544,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "編集マニア",
     "カンダ ・マサキ",
     "https://open.spotify.com/playlist/71mdQ5ANqZda48jBkj0Qmz",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d",
     null,
     null,
     false
