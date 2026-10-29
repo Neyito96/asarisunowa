@@ -344,11 +344,11 @@ function p15iPauseProductionTrigger(){
 // SOURCE: Phase15AutonomousRuntime.gs
 /** Standalone GAS scheduler. Load alongside Phase15IntegratedProductionEngine.gs.
  * No ChatGPT, external worker, web app, npm, or OAuth secret dependency.
- * Dedicated project recommended; never replace unrelated scripts/triggers.
+ * Use the existing production project; never replace unrelated scripts/triggers.
  */
 var P15_AUTO=(function(){
 'use strict';
-var ID='1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4',VERSION='p15-auto-20261028.2-six-platforms';
+var ID='1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4',VERSION='p15-auto-20261029.1-predeployment';
 var H=['KEY','EP-ID','GUID','ROW','REASON','STATE','ATTEMPTS','NEXT_UTC','LAST_UTC'];
 function props(){return PropertiesService.getScriptProperties();}
 function str(x){return x==null?'':String(x);}
@@ -371,7 +371,7 @@ function assertOwner(s){
 }
 function retryPolicy(reason,attempt,now){
  if(/OUT_OF_SCOPE/.test(reason))return {state:'EXCLUDED',next:''};
- if(/TOO_LONG|REVIEW|INVALID|PROTECTED|CONFLICT|MISMATCH|V_DIFF|RELATED_|UNPAIRED|RESIDUE|EMPTY_BODY|CAST_|FIRST_ROW|UNVERIFIED|HTTP_40[134]/.test(reason))return {state:'REVIEW',next:''};
+ if(/EXCLUSION_HISTORY|HISTORY_RESERVED|UNAPPROVED_SHOW|UNTRUSTED_SOURCE|OFFICIAL_EPISODE_URL|TOO_LONG|REVIEW|INVALID|PROTECTED|CONFLICT|MISMATCH|V_DIFF|RELATED_|UNPAIRED|RESIDUE|EMPTY_BODY|CAST_|FIRST_ROW|UNVERIFIED|HTTP_40[134]/.test(reason))return {state:'REVIEW',next:''};
  if(attempt>=8)return {state:'EXHAUSTED',next:''};
  return {state:'RETRY',next:new Date(now+Math.min(7*86400000,3600000*Math.pow(2,attempt))).toISOString()};
 }
@@ -408,6 +408,42 @@ function pending(s){
  var audit=s.getSheetByName('P15I_AUDIT'),intake=s.getSheetByName('P15_INTAKE');
  return (audit?rows(audit,10).filter(function(r){return /^(?:PENDING|ROLLBACK_PENDING)$/.test(r[1]);}).length:0)+(intake?rows(intake,7).filter(function(r){return r[3]==='RESERVED';}).length:0);
 }
+function exclusionHistory(s){
+ var out={guids:{},titles:{},max:0,error:''},t=s.getSheetByName('削除・除外履歴');
+ if(!t){out.error='EXCLUSION_HISTORY_MISSING';return out;}
+ try{
+  var expected=['GUID','固定ID','番組','タイトル','状態','登録日時','理由','記録者','備考'],head=t.getRange(1,1,1,9).getValues()[0];
+  if(expected.some(function(v,i){return head[i]!==v;})){out.error='EXCLUSION_HISTORY_SCHEMA_MISMATCH';return out;}
+  rows(t,9).forEach(function(r){
+   if(r.every(function(v){return v===''||v==null;}))return;
+   var g=norm(r[0]),title=str(r[3]).trim(),show=str(r[2]).trim(),m=str(r[1]).match(/^EP-(\d+)$/);
+   if(m)out.max=Math.max(out.max,+m[1]);
+   // Any recorded deletion/exclusion is fenced, including unknown/restored status.
+   // Re-admission requires an explicit separate review, never an inferred release.
+   if(g)out.guids[g]=true;
+   if(show&&title)out.titles[show+'|'+title]=true;
+   if(!g&&!(show&&title))out.error='EXCLUSION_HISTORY_UNIDENTIFIABLE_ROW';
+  });
+ }catch(e){out.error='EXCLUSION_HISTORY_READ_FAILED';}
+ return out;
+}
+function newEpisodeDecision(x,inv){
+ var g=norm(x.guid),show=str(x.show),title=str(x.title).trim(),ex=inv.exclusions;
+ if(/^(AJW|アルキキ|YouTube|朝ポキTV)$/.test(show))return {state:'EXCLUDED',reason:'OUT_OF_SCOPE'};
+ if(ex.guids[g]||ex.titles[show+'|'+title])return {state:'EXCLUDED',reason:'DELETION_EXCLUSION_HISTORY'};
+ if((inv.guids[g]||[]).some(function(rn){return PHASE15_INTEGRATED.humanExcluded(inv.data[rn-2][38]);}))return {state:'EXCLUDED',reason:'HUMAN_EXCLUDED'};
+ if(inv.guids[g])return {state:'REGISTERED',reason:'GUID_ALREADY_REGISTERED'};
+ if(ex.error)return {state:'HOLD',reason:ex.error};
+ if(!/^[\da-f]{8}(-[\da-f]{4}){3}-[\da-f]{12}$/.test(g)||!title||!Number.isFinite(Date.parse(x.published)))return {state:'HOLD',reason:'INVALID_SOURCE_IDENTITY'};
+ if(!/^(ニュースの現場から|MEDIA TALK|こどもそうだんしつ|スポンジ|ニュースの学校|ドーナツ|報談|旧SDGsアーカイブ)$/.test(show))return {state:'HOLD',reason:'UNAPPROVED_SHOW'};
+ if(x.collision)return {state:'HOLD',reason:'SOURCE_IDENTITY_CONFLICT'};
+ if(!/^https:\/\/(?:www\.omnycontent\.com|feeds\.megaphone\.fm)\//.test(str(x.source)))return {state:'HOLD',reason:'UNTRUSTED_SOURCE'};
+ if(inv.reservedGuids[g])return {state:'HOLD',reason:'HISTORY_RESERVED_GUID'};
+ if(inv.data.some(function(r){return r[1]===show&&str(r[2]).trim()===title&&Math.abs(new Date(r[3]).getTime()-Date.parse(x.published))<60000;}))return {state:'HOLD',reason:'POSSIBLE_DUPLICATE_REVIEW'};
+ if(!/^https:\/\/(?:omny\.fm|www\.omny\.fm)\/shows\/[^/?#]+\/[^/?#]+(?:[?#].*)?$/.test(str(x.link))||/\/playlists\//.test(x.link))return {state:'HOLD',reason:'OFFICIAL_EPISODE_URL_MISSING_OR_UNVERIFIED'};
+ if(str(x.description).length>49000)return {state:'HOLD',reason:'SOURCE_TOO_LONG_FOR_CELL'};
+ return {state:'UNREGISTERED',reason:''};
+}
 function inventory(s){
  var sh=s.getSheetByName('エピソード台帳'),data=rows(sh,55),ids={},guids={},max=0;
  data.forEach(function(r,i){
@@ -420,27 +456,29 @@ function inventory(s){
   var head=legacy.getRange(1,1,1,2).getValues()[0];if(head[0]!=='GUID'||head[1]!=='固定ID')throw Error('HISTORY_SCHEMA_MISMATCH');
   rows(legacy,8).forEach(function(r){var m=str(r[1]).match(/^EP-(\d+)$/);if(m)max=Math.max(max,+m[1]);if(r[0])reservedGuids[norm(r[0])]=str(r[1]);});
  }
- return {sh:sh,data:data,ids:ids,guids:guids,reservedGuids:reservedGuids,max:max};
+ var exclusions=exclusionHistory(s);max=Math.max(max,exclusions.max);
+ return {sh:sh,data:data,ids:ids,guids:guids,reservedGuids:reservedGuids,max:max,exclusions:exclusions};
 }
-function intake(s,sources,deadline){return locked(function(){
+function intake(s,sources,deadline,options){return locked(function(){
+ options=options||{};var limit=options.limit===undefined?10:options.limit;
+ if(!Number.isInteger(limit)||limit<1||limit>10)throw Error('INVALID_INTAKE_LIMIT');
  assertOwner(s);var inv=inventory(s),p=props(),since=Date.parse(p.getProperty('P15_INGEST_SINCE')||'');
  if(!Number.isFinite(since))throw Error('INGEST_SINCE_REQUIRED');
  inv.max=Math.max(inv.max,Number(p.getProperty('P15_MAX_EP_NUMBER')||0));
  var journal=table(s,'P15_INTAKE',['GUID','EP-ID','ROW','STATE','UTC','SOURCE','DETAIL']);
  var reservations=rows(journal,7),reserved={};reservations.forEach(function(r){reserved[norm(r[0])]=r;var m=str(r[1]).match(/^EP-(\d+)$/);if(m)inv.max=Math.max(inv.max,+m[1]);});
  var items=Object.keys(sources.byGuid).map(function(g){return sources.byGuid[g];}).filter(function(x){var time=Date.parse(x.published);return Number.isFinite(time)&&time>=since&&time<=Date.now();}).sort(function(a,b){return Date.parse(a.published)-Date.parse(b.published);});
- var added=0,held=0,counts={};
- for(var i=0;i<items.length&&added<10&&Date.now()<deadline-20000;i++){
-  var x=items[i];if(inv.guids[x.guid])continue;
-  if(inv.reservedGuids[x.guid]){held++;continue;}
+ var added=0,held=0,excluded=0,registered=0,counts={},decisions=[],addedIds=[];
+ if(options.guid)items=items.filter(function(x){return norm(x.guid)===norm(options.guid);});
+ for(var i=0;i<items.length&&added<limit&&Date.now()<deadline-20000;i++){
+  var x=items[i],decision=newEpisodeDecision(x,inv);decisions.push({guid:x.guid,state:decision.state,reason:decision.reason});
+  if(decision.state==='REGISTERED'){registered++;continue;}
+  if(decision.state==='EXCLUDED'){excluded++;continue;}
+  if(decision.state==='HOLD'){held++;recordHolds(s,{start:0,holds:[{row:0,id:'NEW:'+x.guid,why:decision.reason}]},[['',x.show,x.title,x.published,'','',x.guid]]);continue;}
   if(reserved[x.guid]){if(reserved[x.guid][3]==='RESERVED')throw Error('INTAKE_PENDING_RECONCILIATION');continue;}
-  if(x.collision){held++;continue;}
-  // Same show/title/date may be a reissued GUID: do not allocate a second EP-ID.
-  var duplicate=inv.data.some(function(r){return r[1]===x.show&&str(r[2]).trim()===str(x.title).trim()&&Math.abs(new Date(r[3]).getTime()-Date.parse(x.published))<60000;});
-  if(duplicate){recordHolds(s,{start:0,holds:[{row:0,id:'NEW:'+x.guid,why:'POSSIBLE_DUPLICATE_REVIEW'}]},[['',x.show,x.title,x.published,'','',x.guid]]);held++;continue;}
   var ep='EP-'+String(++inv.max).padStart(5,'0'),rn=inv.sh.getLastRow()+1;
   if(rn>inv.sh.getMaxRows())inv.sh.insertRowsAfter(inv.sh.getMaxRows(),1);
-  var row=Array(55).fill('');row[0]=ep;row[1]=x.show;row[2]=x.title;row[3]=new Date(x.published);row[4]='音声';row[5]=/omnycontent/.test(x.source)?'Omny RSS':'Megaphone RSS';row[6]=x.guid;row[31]=new Date();row[32]=x.source;row[44]=x.source;
+  var row=Array(55).fill('');row[0]=ep;row[1]=x.show;row[2]=x.title;row[3]=new Date(x.published);row[4]='音声';row[5]=/omnycontent/.test(x.source)?'Omny RSS':'Megaphone RSS';row[6]=x.guid;row[8]=x.link;row[9]=x.link;row[31]=new Date();row[32]=x.source;row[44]=x.source;
   var proposal=PHASE15_INTEGRATED.plan(row,x,{reviseW:false});
   if(proposal.holds.indexOf('SOURCE_IDENTITY_CONFLICT')>=0)throw Error('NEW_SOURCE_CONFLICT');
   if(proposal.holds.indexOf('SOURCE_TOO_LONG_FOR_CELL')>=0){held++;continue;}
@@ -455,10 +493,10 @@ function intake(s,sources,deadline){return locked(function(){
   if(actual.some(function(v,j){return v instanceof Date&&row[j] instanceof Date?v.getTime()!==row[j].getTime():str(v)!==str(row[j]);}))throw Error('INTAKE_POSTWRITE_MISMATCH');
   put(journal,jr,[x.guid,ep,rn,'VERIFIED',new Date().toISOString(),x.source,JSON.stringify(row)]);
   p.setProperty('P15_MAX_EP_NUMBER',String(inv.max));
-  inv.ids[ep]=rn;inv.guids[x.guid]=[rn];inv.data.push(row);added++;row.forEach(function(v,c){if(v!=='')counts[column(c+1)]=(counts[column(c+1)]||0)+1;});
+  inv.ids[ep]=rn;inv.guids[x.guid]=[rn];inv.data.push(row);added++;addedIds.push(ep);row.forEach(function(v,c){if(v!=='')counts[column(c+1)]=(counts[column(c+1)]||0)+1;});
   if(proposal.holds.length)recordHolds(s,{start:rn,holds:[{row:rn,id:ep,why:proposal.holds}]},[row]);
  }
- return {added:added,held:held,counts:counts};
+ return {added:added,addedIds:addedIds,held:held,excluded:excluded,registered:registered,counts:counts,decisions:decisions};
 });}
 // Parse only a PodcastEpisode node whose identifier AND title match this GUID.
 // This avoids importing show links or promotional links to a different episode.
@@ -604,9 +642,8 @@ function tick(){
   var s=ss();assertOwner(s);if(pending(s))throw Error('PENDING_WRITE_REQUIRES_RECONCILIATION');
   var sources=PHASE15_INTEGRATED.fetchSources(s,deadline);result.rss=sources.log.filter(function(x){return x.status==='OK';}).length;
   if(!result.rss)throw Error('ALL_SOURCES_UNAVAILABLE');
-  // Alternate priority so slow feeds/intake cannot permanently starve patrol.
-  var phase=p.getProperty('P15_NEXT_PHASE')||'INGEST';p.setProperty('P15_NEXT_PHASE',phase==='INGEST'?'PATROL':'INGEST');
-  if(phase==='INGEST'&&Date.now()<deadline-30000)result.intake=intake(s,sources,deadline);
+  // Every tick checks new episodes first; cap intake time to retain patrol/media budget.
+  if(Date.now()<deadline-80000)result.intake=intake(s,sources,Math.min(deadline-80000,Date.now()+60000));
   if(Date.now()<deadline-30000)result.retry=retry(s,sources,deadline);
   var batches=Math.min(5,Math.max(1,Number(p.getProperty('P15_BATCHES_PER_TICK')||1)));
   for(var b=0;b<batches&&Date.now()<deadline-30000;b++){
@@ -630,18 +667,28 @@ function tick(){
  }
  return result;
 }
+function trialOne(){
+ var p=props(),g=norm(p.getProperty('P15_TRIAL_GUID'));
+ if(p.getProperty('P15_TRIAL_APPROVED')!=='YES'||!/^[\da-f]{8}(-[\da-f]{4}){3}-[\da-f]{12}$/.test(g))throw Error('EXPLICIT_ONE_GUID_TRIAL_APPROVAL_REQUIRED');
+ var s=ss();assertOwner(s);if(pending(s))throw Error('PENDING_WRITE_REQUIRES_RECONCILIATION');
+ var deadline=Date.now()+180000,sources=PHASE15_INTEGRATED.fetchSources(s,deadline);
+ if(!sources.byGuid[g])return {status:'HOLD',reason:'TRIAL_GUID_NOT_IN_OFFICIAL_RSS',added:0};
+ try{var result=intake(s,sources,deadline,{limit:1,guid:g});console.log(JSON.stringify({mode:'ONE_GUID_TRIAL',guid:g,result:result}));return result;}catch(e){fatal(e);throw e;}
+ // No patrol, retry, media, cursor change, trigger, or full-pilot approval.
+}
 function preflight(){
  var s=ss(),p=props(),sh=s.getSheetByName('エピソード台帳');
  var header=sh.getRange(1,1,1,55).getValues()[0],expected={0:'台帳ID',6:'外部ID',21:'概要原文',22:'概要清掃済み',38:'人間除外',50:'出演者確認根拠'};
  Object.keys(expected).forEach(function(c){if(header[c]!==expected[c])throw Error('SCHEMA_MISMATCH_'+c);});
  var smoke=p15iParserSmokeTests();if(smoke.some(function(t){return !t.ok;}))throw Error('PARSER_TEST_FAILED');
  var inv=inventory(s),sources=PHASE15_INTEGRATED.fetchSources(s,Date.now()+180000);
- var result={version:VERSION,scriptId:ScriptApp.getScriptId(),savedCursor:p.getProperty('P15I_CURSOR_PROD'),rows:inv.data.length,maxAllocatedId:inv.max,pendingWrites:pending(s),feeds:sources.log,tests:smoke,triggers:ScriptApp.getProjectTriggers().map(function(t){return t.getHandlerFunction();}),writes:0};
+ var result={version:VERSION,exclusionHistoryError:inv.exclusions.error,scriptId:ScriptApp.getScriptId(),savedCursor:p.getProperty('P15I_CURSOR_PROD'),rows:inv.data.length,maxAllocatedId:inv.max,pendingWrites:pending(s),feeds:sources.log,tests:smoke,triggers:ScriptApp.getProjectTriggers().map(function(t){return t.getHandlerFunction();}),writes:0};
  console.log(JSON.stringify(result));return result;
 }
-return {tick:tick,preflight:preflight,assertOwner:assertOwner,recordHolds:recordHolds,retryPolicy:retryPolicy,platformLinks:platformLinks,platformEvidence:platformEvidence,audioProbe:audioProbe,intake:intake,inventory:inventory,migrateLegacy:migrateLegacy,enrich:enrich,version:VERSION};
+return {tick:tick,trialOne:trialOne,newEpisodeDecision:newEpisodeDecision,exclusionHistory:exclusionHistory,preflight:preflight,assertOwner:assertOwner,recordHolds:recordHolds,retryPolicy:retryPolicy,platformLinks:platformLinks,platformEvidence:platformEvidence,audioProbe:audioProbe,intake:intake,inventory:inventory,migrateLegacy:migrateLegacy,enrich:enrich,version:VERSION};
 })();
 function p15AutonomousTick(){return P15_AUTO.tick();}
+function p15AutonomousTrialOne(){return P15_AUTO.trialOne();}
 function p15AutonomousPreflight(){return P15_AUTO.preflight();}
 /** Explicit operator setup, NOT called by tick. No trigger is installed here. */
 function p15AutonomousEnable(){

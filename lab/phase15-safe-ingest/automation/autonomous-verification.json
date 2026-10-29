@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-28",
+  "date": "2026-10-29",
   "baseCommit": "29334c2",
   "phase14Reference": "82679d7242f35e1aabae9b2e385c03c76dde8f44",
   "onlineGasVerified": false,
@@ -8,15 +8,15 @@
   "productionRowsProcessed": 0,
   "savedCursor": "Not read from online Script Properties",
   "regression": {
-    "new": 49,
-    "passed": 49,
+    "new": 58,
+    "passed": 58,
     "legacy": 16,
     "legacyPassed": 16,
     "adversarial": 7,
     "adversarialPassed": 7,
     "baselineReproductions": 4,
     "baselineFailed": 4,
-    "totalPassed": 72
+    "totalPassed": 81
   },
   "hostHttp": {
     "rss200": 1,
@@ -83,5 +83,63 @@
       "reason": "",
       "url": "https://pody.jp/player/4UD5sHilP15gqAc0clXN/Qjf6a5gZqH7sk0Ju9rI1"
     }
-  ]
+  ],
+  "stage2": {
+    "baseline": "e31919e",
+    "onlineCodeChanged": false,
+    "backup": {
+      "sourceFiles": 14,
+      "manifest": true,
+      "settingsKeys": 18,
+      "storedPrivately": true,
+      "duplicateGlobals": 0,
+      "combinedSyntax": "PASS"
+    },
+    "rssReadOnly": {
+      "successfulFeeds": 7,
+      "dateJST": "2026-10-29",
+      "episodes": 3,
+      "registered": 0,
+      "unregisteredEligible": 2,
+      "excluded": 0,
+      "held": 1,
+      "ledgerRowsRead": 6640,
+      "exclusionHistoryEntries": 0,
+      "historyEntries": 77,
+      "episodesByGuid": [
+        {
+          "guid": "0900cfa3-9c46-4799-b9a0-b4ef00153be2",
+          "show": "ニュースの現場から",
+          "title": "病院から戻った夫「何かおかしい」　高次脳機能障害を知っていますか",
+          "state": "UNREGISTERED",
+          "reason": ""
+        },
+        {
+          "guid": "4ea6480a-ccfd-11f1-b2de-17a1ce8dc9d8",
+          "show": "ニュースの学校",
+          "title": "民主社会主義",
+          "state": "HOLD",
+          "reason": "OFFICIAL_EPISODE_URL_MISSING"
+        },
+        {
+          "guid": "9c85db3b-04db-4819-9d53-b4e30006c1d3",
+          "show": "ドーナツ",
+          "title": "（親モヤ #131）約束を守れない子どもにイライラしてしまう…何かいい方法ありますか？",
+          "state": "UNREGISTERED",
+          "reason": ""
+        }
+      ]
+    },
+    "productionNewCells": 0,
+    "productionNewEpisodes": 0,
+    "productionOverwrites": 0,
+    "productionPatrolRows": 0,
+    "productionRetryDuplicateTest": "NOT_RUN",
+    "onlineAddition": "Phase15AutonomousBundle.gs only; requires separate approval",
+    "changes": [
+      "Every-tick intake before patrol and media",
+      "One approved GUID trial, max one episode",
+      "Deletion/exclusion history fence; unavailable history holds intake only"
+    ]
+  }
 }
