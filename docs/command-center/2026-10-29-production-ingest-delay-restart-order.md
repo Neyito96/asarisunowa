@@ -128,3 +128,23 @@ P15_HALT/P15_TICK_UNTIL/P15_LAST_RUN/回復用キーは架空値で初期化し�
 - 小バッチ受入はstatus=OKかつprocessed>=1、pending0、誤上書き0、列別counts・次回カーソル・保留理由・P15_RUNS/P15_LAST_RUNの一致。開始時240秒という設計値と実測時間を別記し、余裕不足ならトリガー承認へ進まない。
 
 今回の実績：本番登録0、補填/品質修正0（全列）、本番巡回0、関数実行0、Properties変更0、トリガー操作0。カーソルnullは管理人Preflight報告値（今回はオンラインProperties再読不能）。コード不変、前工程81 PASSを再実行したとは報告しない。今回のローカル読み取り判定は2件実施。writer確認未完のためEnable実行可能とは認定せず、設定案提出で停止。
+
+
+## 2026-10-29 13:47 JST — 高速実行指令・管理人マイトリガー実機確認
+
+正本4f47f743/承認bundle49eb916を維持。Google再認証後、管理人アカウントのマイトリガーをREAD_ONLY確認。コード/設定/トリガー変更、関数実行は行っていない。
+
+### 今回の新規実測と判定
+- マイトリガーは全1ページ・8個。本番ロボのトリガーは0個。
+- COPYプロジェクトの2個は phase14CopyMorningRunnerV19（最終実行05:11:14/06:15:43）。オンラインLibraryOfficialRssEngine.gsのV19→phase14CopyIngestRecentTenV18を確認し、書込先は本番と異なるCOPY固定ID。台帳sheetId/ヘッダー検証あり。今回確認したこの2トリガーを本番writer停止対象にしない。削除/変更なし。
+- プレイリスト投稿受付の6個は runAutoUpdateBackfillHourlyV1、runAutoUpdateAutomationV1、syncKinoDougaPlaylist、syncIsshoShinbunPlaylist、syncToyohidePlaylist、syncListenerPodcastPlatforms。オンラインの入口およびAutoUpdateAutomationV1/PlaylistSpecial/PodcastPlatformSync/PodcastPlatformPipeline/PlaylistAutoWrite/ThemeV3SingleSheet/SheetData/コードを限定読取。共通SPREADSHEET_IDは本番と異なる受付台帳、確認した処理は受付/Podcast列/Spotify更新。停止を要する本番書込はこの確認範囲では発見せず、6個とも変更しない。ただしプロジェクト全ファイル・全デプロイ版の推移的呼出を完全証明した監査ではない。
+- 本番エディタは既存14 gs＋Phase15AutonomousBundle.gsの15 gsを表示。今回bundleの全内容一致再検査は未実施（writer解消後の直前検査として残す）。
+- 本番実行履歴は過去7日22件・全1ページ。最新はp15AutonomousPreflight、エディタ、2026/10/29 12:32:44、117.242秒、完了。表示範囲に実行中処理なし。旧writer最終表示は10/26 20:53:07のphase14RepairEP06632FromOfficial。これで将来/外部writer不存在を証明したとは扱わない。
+- 旧本番writer3関数をオンライン再読：phase14B1ApplyEP06625Once（X6626）、phase14VWApplyEP06625Once（W6626）、phase14RepairEP06632FromOfficial（EP-06632の空欄＋項目状態）。いずれもScriptLockはあるがP15のowner/停止ゲートを参照せず、手動実行可能。Phase15運転中はこの3関数を手動実行しない運用が必要。同一ScriptLockは同時実行を抑えても、順次の別writer実行を禁止しない。既存ファイルは無変更。
+
+### 未確認範囲・停止理由
+別所有者が作成したトリガー、他アカウント/外部API/別デプロイからの本番書込、今後の旧関数手動実行は管理人マイトリガーだけでは確認できない。管理人による「他所有者/外部の本番writerなし、または対象writer停止済み」と「旧3関数を手動実行しない」の事実確認が未取得。したがってwriter競合解消とは認定せず、P15_OTHER_WRITERS_PAUSEDはYESに変更しない。無関係なCOPY/推薦棚/プレイリストは停止しない。
+
+管理人の事実確認後、最新台帳/採番/除外/PENDING/オンラインbundle一致をまとめて直前確認し、既存設定案（新規カーソル2、最大IDは再読値、第一候補GUID0900cfa3-9c46-4799-b9a0-b4ef00153be2）を用いた設定・Enable・限定Trial・再読込・同GUID再実行・Trial許可解除/異常時停止を一度の具体的承認にまとめる。今は実行承認を先取りしない。
+
+今回実績：本番追加EP 0、補填0（全列）、品質修正0、巡回0、上書き0。再実行試験未実施のため重複検証は未測定。新着/RSS/カーソル/採番/PENDINGの再取得はwriter解消前なので繰り返していない。設定/Enable/Trial/Tick/トリガー操作0。テスト再実行なし・コード変更なし。別所有者/手動writerの確認が残るためここで停止。
