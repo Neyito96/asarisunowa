@@ -2,7 +2,7 @@
  * AC: one URL only when there is exactly one article; multi-article AC untouched.
  * V untouched. Explicit approval property required.
  */
-const P16_HELD3_IDS=['EP-00747','EP-00763','EP-00764'];
+const P16_HELD3_V2_IDS=['EP-00747','EP-00763','EP-00764'];
 function p16Held3ReviewedV2(mode){
  const ss=SpreadsheetApp.openById('1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4');
  const sh=ss.getSheetByName('エピソード台帳');
@@ -23,14 +23,14 @@ function p16Held3ReviewedV2(mode){
   return {id,rn,r,w:p.w,articleCount:expected,acWrite:expected===1&&!ac?p.articles[0].url:null};
  }
  if(mode!=='WRITE'){
-  const items=P16_HELD3_IDS.map(prepare);
+  const items=P16_HELD3_V2_IDS.map(prepare);
   const o={mode:'READ_ONLY',episodes:items.length,cells:items.reduce((n,x)=>n+1+(x.acWrite?1:0),0),items:items.map(x=>({id:x.id,row:x.rn,articles:x.articleCount,wLength:x.w.length,acWrite:!!x.acWrite})),writes:0};
   console.log(JSON.stringify(o));return o;
  }
  if(PropertiesService.getScriptProperties().getProperty('P16_HELD3_APPROVED')!=='YES')throw Error('WRITE_NOT_APPROVED');
  const lock=LockService.getScriptLock();if(!lock.tryLock(10000))throw Error('WRITER_BUSY');
  try{
-  const items=P16_HELD3_IDS.map(prepare),updated=[];
+  const items=P16_HELD3_V2_IDS.map(prepare),updated=[];
   for(const item of items){
    const live=prepare(item.id);
    if(String(live.r[21])!==String(item.r[21])||String(live.r[22])!==String(item.r[22]))throw Error('CONCURRENT_ROW_CHANGE_'+item.id);
