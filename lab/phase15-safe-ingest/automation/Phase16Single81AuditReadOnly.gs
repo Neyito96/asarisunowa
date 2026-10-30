@@ -21,3 +21,47 @@ function p16CheckSingle81ReadOnly(){
  const result={mode:'READ_ONLY_SINGLE81',total:checks.length,passed:pass.length,held:held.length,passedIds:pass.map(x=>x.id),heldItems:held,writes:0};
  console.log(JSON.stringify(result));return result;
 }
+
+/** Append-only Phase16 checked 20. Re-run preview before any production write. */
+function p16Single20Prepared_(){
+ const ss=SpreadsheetApp.openById('1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4'),sh=ss.getSheetByName('エピソード台帳');
+ const ids=["EP-00767","EP-00768","EP-00769","EP-00770","EP-00771","EP-00772","EP-00773","EP-00777","EP-00778","EP-00779","EP-00780","EP-00783","EP-00784","EP-00785","EP-00788","EP-00790","EP-00794","EP-00796","EP-00797","EP-00858"];
+ const rows=ids.map(id=>{
+  const rn=Number(id.slice(3))+1,r=sh.getRange(rn,1,1,55).getValues()[0];
+  if(String(r[0])!==id||r[1]!=='ニュースの学校'||!String(r[21]||'').trim()||String(r[22]||'').trim())throw Error('IDENTITY_OR_W_'+id);
+  if(!['','未指定','FALSE','false','0','いいえ'].includes(String(r[38]??'').trim()))throw Error('EXCLUDED_'+id);
+  const p=P16_NEWS_V5.parse(r[21]);
+  if(p.holds.length||!p.w||p.articles.length!==1)throw Error('PARSER_HOLD_'+id);
+  const src=String(r[21]).replace(/&nbsp;|&#160;/gi,' ');
+  const urls=[...src.matchAll(/https:\/\/(?:www\.asahi\.com\/articles\/[A-Za-z0-9]+\.html|globe\.asahi\.com\/article\/\d+)(?:\?[A-Za-z0-9_=&%-]+)?/g)].map(m=>m[0]);
+  if(urls.length!==1||p.articles[0].url!==urls[0]||!src.includes(p.articles[0].title))throw Error('ARTICLE_PAIR_'+id);
+  if(!p.w.includes('\n【関連記事】\n')||!p.w.includes(p.articles[0].title+p.articles[0].url))throw Error('W_FORMAT_'+id);
+  const ac=String(r[28]||'').trim();
+  if(ac&&ac!==urls[0])throw Error('AC_CONFLICT_'+id);
+  return {id,rn,r,w:p.w,ac:ac?'':urls[0]};
+ });
+ return {ss,sh,rows};
+}
+function p16PreviewSingle20Write(){
+ const x=p16Single20Prepared_(),out={mode:'READ_ONLY_SINGLE20',episodes:x.rows.length,cells:x.rows.reduce((n,a)=>n+1+(a.ac?1:0),0),items:x.rows.map(a=>({id:a.id,row:a.rn,wLength:a.w.length,acWrite:!!a.ac})),writes:0};
+ console.log(JSON.stringify(out));return out;
+}
+function p16WriteSingle20Approved(){
+ if(PropertiesService.getScriptProperties().getProperty('P16_SINGLE20_APPROVED')!=='YES')throw Error('WRITE_NOT_APPROVED');
+ const lock=LockService.getScriptLock();
+ if(!lock.tryLock(10000))throw Error('WRITER_BUSY');
+ try{
+  const {ss,sh,rows}=p16Single20Prepared_(),updated=[];
+  for(const a of rows){
+   const current=sh.getRange(a.rn,1,1,55).getValues()[0];
+   if(current[0]!==a.id||String(current[21])!==String(a.r[21])||String(current[22])!==String(a.r[22])||String(current[28]||'')!==String(a.r[28]||''))throw Error('CONCURRENT_ROW_CHANGE_'+a.id);
+   const changes=[{col:23,value:a.w,why:'PHASE16_SINGLE20_W'}];
+   if(a.ac)changes.push({col:29,value:a.ac,why:'PHASE16_SINGLE20_AC'});
+   const result=PHASE15_INTEGRATED.writeRow(ss,sh,a.rn,current,changes,'P16_SINGLE20');
+   if(!result.ok)throw Error('WRITE_FAILED_'+a.id);
+   updated.push(a.id);
+  }
+  const out={mode:'WRITE_SINGLE20',updated,episodes:updated.length,cells:rows.reduce((n,a)=>n+1+(a.ac?1:0),0)};
+  console.log(JSON.stringify(out));return out;
+ }finally{lock.releaseLock();}
+}
