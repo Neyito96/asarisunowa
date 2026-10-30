@@ -22,7 +22,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "IOK 伊藤大地・奥山晶二郎・神田大介",
     "I'm OK",
     "https://open.spotify.com/playlist/799Fo9to2TK0ahGEJsvcm2",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e",
     "2026-03-30",
     null,
     true
@@ -58,7 +58,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "東日本大震災",
     "cobaltore12",
     "https://open.spotify.com/playlist/4nptiHJbbsjKS37kykLkNF",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694",
     null,
     null,
     false
@@ -184,7 +184,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "東南アジア・インド",
     "bigstone1977",
     "https://open.spotify.com/playlist/5n5OFJCY2SJcNegkwWt6xN",
-    "https://mosaic.scdn.co/300/ab67656300005f1f15498077168a7bc828cedd42ab67656300005f1f3a758c94138ae401a29faaeaab67656300005f1f585314e2f7d479c6fbb54d50ab67656300005f1f8da02bac203c001995bb89dc",
+    "https://mosaic.scdn.co/640/ab67656300005f1f15498077168a7bc828cedd42ab67656300005f1f3a758c94138ae401a29faaeaab67656300005f1f585314e2f7d479c6fbb54d50ab67656300005f1f8da02bac203c001995bb89dc",
     null,
     null,
     false
@@ -265,7 +265,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "SNS・ネット世論",
     "bigstone1977",
     "https://open.spotify.com/playlist/6BZFv1oPFANvVQnPVzpBWI",
-    "https://mosaic.scdn.co/300/ab67656300005f1f02aa7f5ac6cde247efd75d7eab67656300005f1f60890fd8b45020a6fce24755ab67656300005f1f8b6d90f8af99571b0d5bcf1dab67656300005f1fae51735bcfe42ffe77b81d98",
+    "https://mosaic.scdn.co/640/ab67656300005f1f02aa7f5ac6cde247efd75d7eab67656300005f1f60890fd8b45020a6fce24755ab67656300005f1f8b6d90f8af99571b0d5bcf1dab67656300005f1fae51735bcfe42ffe77b81d98",
     null,
     null,
     false
@@ -328,7 +328,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "ウェルビーイングは寺にあり　お坊さんに聞け！",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/121qJsNELEdzq9LUTmdTdt",
-    "https://mosaic.scdn.co/300/ab67656300005f1f34b1ceb7c42ce494ef3492f7ab67656300005f1f861e0a20846c84379a299d3dab67656300005f1fd02625a190ed42860d3fdf7eab67656300005f1ff37dcb87e57465b15d7f4e70",
+    "https://mosaic.scdn.co/640/ab67656300005f1f34b1ceb7c42ce494ef3492f7ab67656300005f1f861e0a20846c84379a299d3dab67656300005f1fd02625a190ed42860d3fdf7eab67656300005f1ff37dcb87e57465b15d7f4e70",
     null,
     null,
     false
@@ -391,7 +391,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "ポキ-1グランプリ 2023",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/5xUDKa3r5arvKSx4gqjwI3",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9",
     null,
     null,
     false
@@ -400,7 +400,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "「MEDIA TALK」 2023厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/6Q0iXwuC9PuLV3cqg11Dmt",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938",
     null,
     null,
     false
@@ -409,7 +409,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "楽屋裏2023　厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/0I9wCLs5oFLNIG1aPLQneg",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32",
     null,
     null,
     false
@@ -526,7 +526,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#初登場特集（#朝ポキ）",
     "koike",
     "https://open.spotify.com/playlist/3WLp56ohdZs2AqDoUwNNWd",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef",
     null,
     null,
     false
@@ -544,7 +544,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "編集マニア",
     "カンダ ・マサキ",
     "https://open.spotify.com/playlist/71mdQ5ANqZda48jBkj0Qmz",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d",
     null,
     null,
     false
@@ -616,7 +616,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "中南米",
     "マリオ",
     "https://open.spotify.com/playlist/2Org6cCBgVas4d9OwzzxAv",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37",
     "2026-09-08",
     "2026-09-18",
     true
