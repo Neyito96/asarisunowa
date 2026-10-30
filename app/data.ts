@@ -58,7 +58,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "東日本大震災",
     "cobaltore12",
     "https://open.spotify.com/playlist/4nptiHJbbsjKS37kykLkNF",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694",
     null,
     null,
     false
@@ -184,7 +184,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "東南アジア・インド",
     "bigstone1977",
     "https://open.spotify.com/playlist/5n5OFJCY2SJcNegkwWt6xN",
-    "https://mosaic.scdn.co/640/ab67656300005f1f15498077168a7bc828cedd42ab67656300005f1f3a758c94138ae401a29faaeaab67656300005f1f585314e2f7d479c6fbb54d50ab67656300005f1f8da02bac203c001995bb89dc",
+    "https://mosaic.scdn.co/300/ab67656300005f1f15498077168a7bc828cedd42ab67656300005f1f3a758c94138ae401a29faaeaab67656300005f1f585314e2f7d479c6fbb54d50ab67656300005f1f8da02bac203c001995bb89dc",
     null,
     null,
     false
@@ -265,7 +265,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "SNS・ネット世論",
     "bigstone1977",
     "https://open.spotify.com/playlist/6BZFv1oPFANvVQnPVzpBWI",
-    "https://mosaic.scdn.co/640/ab67656300005f1f02aa7f5ac6cde247efd75d7eab67656300005f1f60890fd8b45020a6fce24755ab67656300005f1f8b6d90f8af99571b0d5bcf1dab67656300005f1fae51735bcfe42ffe77b81d98",
+    "https://mosaic.scdn.co/300/ab67656300005f1f02aa7f5ac6cde247efd75d7eab67656300005f1f60890fd8b45020a6fce24755ab67656300005f1f8b6d90f8af99571b0d5bcf1dab67656300005f1fae51735bcfe42ffe77b81d98",
     null,
     null,
     false
@@ -328,7 +328,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "ウェルビーイングは寺にあり　お坊さんに聞け！",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/121qJsNELEdzq9LUTmdTdt",
-    "https://mosaic.scdn.co/640/ab67656300005f1f34b1ceb7c42ce494ef3492f7ab67656300005f1f861e0a20846c84379a299d3dab67656300005f1fd02625a190ed42860d3fdf7eab67656300005f1ff37dcb87e57465b15d7f4e70",
+    "https://mosaic.scdn.co/300/ab67656300005f1f34b1ceb7c42ce494ef3492f7ab67656300005f1f861e0a20846c84379a299d3dab67656300005f1fd02625a190ed42860d3fdf7eab67656300005f1ff37dcb87e57465b15d7f4e70",
     null,
     null,
     false
@@ -382,7 +382,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "「SDGsを話そう」厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/4styp7b6VpZThsevXCRDla",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84a1ed8e9ca1ad0f9a7c2b7b07",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84a1ed8e9ca1ad0f9a7c2b7b07",
     null,
     null,
     false
@@ -391,7 +391,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "ポキ-1グランプリ 2023",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/5xUDKa3r5arvKSx4gqjwI3",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9",
     null,
     null,
     false
@@ -418,7 +418,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "バスケ通信―クラッチタイム（バスクラ）",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/3axOpfDhMhLEtelwGwvMHb",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244",
     null,
     null,
     false
@@ -608,7 +608,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "田田田（デンデンデン）",
     "https://open.spotify.com/playlist/6hNrobOVHmYaQT5C7hPkNa",
     "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f09a8bd5875be5defced61b26",
-    "2026-10-23",
+    "2026-10-30",
     "2026-09-17",
     true
   ],
