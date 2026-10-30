@@ -14,7 +14,8 @@ function p16Held3ReviewedV2(mode){
   const p=P16_NEWS_V5.parse(r[21]);
   const expected=id==='EP-00764'?2:1;
   if(p.holds.length||!p.w||p.articles.length!==expected)throw Error('PARSER_HOLD_'+id);
-  const normalizedSource=String(r[21]).replace(/&nbsp;|&#160;/gi,' ');\n  const rawUrls=[...normalizedSource.matchAll(/https:\/\/(?:www\.asahi\.com\/articles\/[A-Za-z0-9]+\.html|globe\.asahi\.com\/article\/\d+)(?:\?[A-Za-z0-9_=&%-]+)?/g)].map(m=>m[0]);
+  const normalizedSource=String(r[21]).replace(/&nbsp;|&#160;/gi,' ');
+  const rawUrls=[...normalizedSource.matchAll(/https:\/\/(?:www\.asahi\.com\/articles\/[A-Za-z0-9]+\.html|globe\.asahi\.com\/article\/\d+)(?:\?[A-Za-z0-9_=&%-]+)?/g)].map(m=>m[0]);
   if(rawUrls.length!==expected||rawUrls.some((url,i)=>p.articles[i].url!==url||!normalizedSource.includes(p.articles[i].title)))throw Error('ARTICLE_PAIR_MISMATCH_'+id);
   const ac=String(r[28]||'').trim();
   if(expected===1&&ac&&ac!==p.articles[0].url)throw Error('AC_CONFLICT_'+id);
