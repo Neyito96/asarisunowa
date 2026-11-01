@@ -370,3 +370,27 @@ function p16PreviewFinalFiveReadOnly(){
  const out={mode:'READ_ONLY_FINAL5',episodes:results.length,passed:results.filter(r=>!r.flags.length).length,items:results,writes:0};
  console.log(JSON.stringify(out));return out;
 }
+
+
+/** User reviewed six cases 2026-11-01. READ_ONLY; AC multi-URLs separated by newline. */
+function p16PreviewUserApprovedSix(){
+ const cases=[{"id":"EP-00775","show":"ニュースの学校","body":"毎年1回、1月に開かれる通常国会では、首相が施政方針演説をするのがならわしになっています。これに対して、各党の代表者が首相の考えや政治姿勢を問うのが代表質問です。国会での本格論戦のスタートに位置づけられています。","arts":[["【そもそも解説】与野党の党首がぶつかる「代表質問」って何？","https://www.asahi.com/articles/AST1W1GLCT1WUTFK01KM.html?iref=omny"]],"extra":"【関連エピソード】\n【ニュースの学校】予算委員会https://bit.ly/43idkHk"},{"id":"EP-00782","show":"ニュースの学校","body":"国は公立高校にも私立高校にも授業料の支援をしていますが、世帯年収に制限をつけています。公立の授業料の場合は世帯年収が910万円未満なら年11万8800円を支援し、私立の授業料の場合は世帯年収が590万円以上910万円未満では公立と同じ11万8800円を支援し、世帯年収が590万円未満なら39万6千円の支援をしています。","arts":[["高校授業料無償化が国会で議論に → 無償化はいいの？ 悪いの？","https://www.asahi.com/edua/article/15612560"]]},{"id":"EP-00800","show":"ニュースの学校","body":"ファクトチェックは、偽情報の疑いがある文章や写真などについて、情報源への聞き取りや、写真・動画を分析することで真偽や正確さを審査する作業のことです。アメリカのメタ社は2016年から外部のファクトチェック団体に依頼し、60以上の言語で約100団体が参加していました。","arts":[["【そもそも解説】メタがやめるファクトチェックとは　新機能を導入へ","https://www.asahi.com/articles/AST183VZRT18ULFA01GM.html?iref=omny"],["熊本地震のライオンデマ、画像をたどったら南アフリカに撮影者がいた","https://withnews.jp/article/f0181108000qq000000000000000W0al10101qq000018248A"]]},{"id":"EP-00865","show":"ニュースの学校","body":"アメリカ大統領選は、各州と首都ワシントンに割り当てられた538人の「選挙人」の過半数を取った候補が勝利します。まず有権者が投票し、大半の州で、1票でも多く得た候補がその州の選挙人を総取りする方式です。","arts":[["アメリカ大統領の決め方（イラストで解説）","https://www.asahi.com/special/visual/us-election1/?iref=omny"],["（いちからわかる！）アメリカ大統領選、どんな仕組み？","https://www.asahi.com/articles/DA3S14683886.html?iref=omny"]]},{"id":"EP-00884","show":"報談","body":"アメリカのトランプ政権は、国際法を無視し、イスラエルとともにイランを攻撃しました。ところで「国際法」とは、いったい何なのか。リスナーさんの質問に答えます。","date":"※2026年5月20日に収録しました。","arts":[]},{"id":"EP-01223","show":"ドーナツ","body":"発達障害、うつ病などの精神障害、知的障害、身体障害など、障害がある人向けのマッチングアプリがあります。互いに障害があった方がわかり合える、安心感があると好評で、当事者にとっては良いことである一方、サポートする側に回ったときどうなってしまうのか。そんな話題です。","date":"※2026年10月7日に収録しました","arts":[["発達障害打ち明けたら…音信不通に　「もう隠さない」恋愛、アプリで","https://www.asahi.com/articles/ASVB50H3YVB5ULLI004M.html"]]}];
+ const sh=SpreadsheetApp.openById('1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4').getSheetByName('エピソード台帳');
+ const items=cases.map(c=>{
+   const n=Number(c.id.slice(3))+1,r=sh.getRange(n,1,1,55).getValues()[0],flags=[];
+   const src=String(r[21]||'').replace(/\\n/g,'\n').replace(/&nbsp;|&#160;/gi,' ').replace(/&hellip;/gi,'…').replace(/<[^>]+>/g,'');
+   if(String(r[0])!==c.id||r[1]!==c.show||!src.trim()||String(r[22]||'').trim())flags.push('ID_SOURCE_OR_W');
+   if(!['','未指定','FALSE','false','0','いいえ'].includes(String(r[38]??'').trim()))flags.push('EXCLUDED');
+   if(!src.includes(c.body)&&c.id!=='EP-00775')flags.push('BODY_MISMATCH');
+   if(c.id==='EP-00775'&&!src.includes('各党の代表者が首相の考えや政治姿勢を党のが代表質問です'))flags.push('CORRECTION_SOURCE_CHANGED');
+   if(c.date&&!src.includes(c.date))flags.push('DATE_MISMATCH');
+   for(const a of c.arts){if(!src.includes(a[0])||!src.includes(a[1]))flags.push('ARTICLE_MISMATCH');}
+   if(c.extra&&(!src.includes('【ニュースの学校】予算委員会')||!src.includes('https://bit.ly/43idkHk')))flags.push('EXTRA_MISMATCH');
+   const w=c.body+(c.date?'\n'+c.date:'')+(c.arts.length?'\n【関連記事】\n'+c.arts.map(a=>a[0]+a[1]).join('\n'):'')+(c.extra?'\n'+c.extra:'');
+   const ac=c.arts.map(a=>a[1]).join('\n');
+   if(String(r[28]||'').trim()&&String(r[28]).trim()!==ac)flags.push('AC_CONFLICT');
+   return {id:c.id,flags:[...new Set(flags)],w,ac,acUrlCount:c.arts.length};
+ });
+ const out={mode:'READ_ONLY_USER_SIX',total:items.length,passed:items.filter(x=>!x.flags.length).length,plannedCells:items.reduce((n,x)=>n+1+(x.ac?1:0),0),items,writes:0,held:'EP-01222'};
+ console.log(JSON.stringify(out));return out;
+}
