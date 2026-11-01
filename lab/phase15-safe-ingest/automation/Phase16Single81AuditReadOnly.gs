@@ -237,3 +237,28 @@ function p16WriteV6Batch3(){
  }finally{lock.releaseLock();}
 }
 
+
+
+/** Multi-article Phase16: strict READ_ONLY audit for 27 remaining News School IDs. */
+function p16AuditRemainingMulti27(){
+ const sh=SpreadsheetApp.openById('1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4').getSheetByName('エピソード台帳');
+ const ids=["EP-00741","EP-00759","EP-00762","EP-00774","EP-00776","EP-00781","EP-00786","EP-00787","EP-00789","EP-00792","EP-00793","EP-00795","EP-00798","EP-00802","EP-00806","EP-00808","EP-00809","EP-00812","EP-00815","EP-00825","EP-00839","EP-00841","EP-00843","EP-00844","EP-00847","EP-00853","EP-00854"];
+ const result=ids.map(id=>{
+  const rn=Number(id.slice(3))+1,r=sh.getRange(rn,1,1,55).getValues()[0],raw=String(r[21]||'');
+  const flags=[];
+  if(r[0]!==id||r[1]!=='ニュースの学校'||!raw||String(r[22]||'').trim())flags.push('IDENTITY_OR_W');
+  if(!['','未指定','FALSE','false','0','いいえ'].includes(String(r[38]??'').trim()))flags.push('EXCLUDED');
+  const lines=raw.replace(/\\n/g,'\n').replace(/&nbsp;|&#160;/gi,' ').split('\n');
+  const clean=lines.filter(line=>!/^(ご意見[・、]?|ほかにも多彩な番組を配信中！|See omnystudio|Learn more about your ad choices)/i.test(line.trim())).join('\n');
+  const p=P16_NEWS_V5.parse(clean);
+  flags.push(...p.holds);
+  const urls=[...raw.replace(/&nbsp;|&#160;/gi,' ').matchAll(/https:\/\/(?:www\.asahi\.com\/articles\/[A-Za-z0-9]+\.html|globe\.asahi\.com\/article\/\d+)(?:\?[A-Za-z0-9_=&%-]+)?/g)].map(m=>m[0]);
+  if(urls.length<2||urls.length!==p.articles.length||urls.some((u,i)=>p.articles[i].url!==u||!raw.includes(p.articles[i].title)))flags.push('ARTICLE_PAIR');
+  if(String(r[28]||'').trim())flags.push('AC_PRESENT_MULTI');
+  if(p.w&&(!p.w.includes('\n【関連記事】\n')||p.articles.some(a=>!p.w.includes(a.title+a.url))))flags.push('W_FORMAT');
+  return {id,links:urls.length,flags:[...new Set(flags)],wLength:p.w?p.w.length:0};
+ });
+ const passed=result.filter(x=>!x.flags.length),held=result.filter(x=>x.flags.length);
+ const out={mode:'READ_ONLY_MULTI27',total:result.length,passed:passed.length,held:held.length,passedItems:passed,heldItems:held,writes:0};
+ console.log(JSON.stringify(out));return out;
+}
