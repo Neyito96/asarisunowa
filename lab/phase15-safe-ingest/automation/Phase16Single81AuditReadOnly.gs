@@ -262,3 +262,87 @@ function p16AuditRemainingMulti27(){
  const out={mode:'READ_ONLY_MULTI27',total:result.length,passed:passed.length,held:held.length,passedItems:passed,heldItems:held,writes:0};
  console.log(JSON.stringify(out));return out;
 }
+
+/** Multi-article W-only 1 writer. Requires P16_NEWS_V5 and PHASE15_INTEGRATED. */
+function p16MultiBatch1Prepare_(){
+ const ss=SpreadsheetApp.openById('1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4'),sh=ss.getSheetByName('エピソード台帳');
+ const ids=["EP-00741","EP-00759","EP-00762","EP-00774","EP-00776","EP-00781","EP-00786","EP-00787","EP-00789","EP-00792","EP-00793","EP-00795","EP-00798","EP-00802"];
+ const items=ids.map(id=>{
+  const rn=Number(id.slice(3))+1,r=sh.getRange(rn,1,1,55).getValues()[0],raw=String(r[21]||'');
+  if(r[0]!==id||r[1]!=='ニュースの学校'||!raw.trim()||String(r[22]||'').trim())throw Error('IDENTITY_OR_W_'+id);
+  if(!['','未指定','FALSE','false','0','いいえ'].includes(String(r[38]??'').trim()))throw Error('EXCLUDED_'+id);
+  if(String(r[28]||'').trim())throw Error('AC_PRESENT_MULTI_'+id);
+  const src=raw.replace(/\\n/g,'\n').replace(/&nbsp;|&#160;/gi,' ');
+  const clean=src.split('\n').filter(line=>!/^(ご意見[・、]?|ほかにも多彩な番組を配信中！|See omnystudio|Learn more about your ad choices)/i.test(line.trim())).join('\n');
+  const p=P16_NEWS_V5.parse(clean);
+  const urls=[...src.matchAll(/https:\/\/(?:www\.asahi\.com\/articles\/[A-Za-z0-9]+\.html|globe\.asahi\.com\/article\/\d+)(?:\?[A-Za-z0-9_=&%-]+)?/g)].map(m=>m[0]);
+  if(p.holds.length||!p.w||urls.length<2||urls.length!==p.articles.length)throw Error('PARSER_HOLD_'+id);
+  if(urls.some((u,k)=>p.articles[k].url!==u||!src.includes(p.articles[k].title)))throw Error('ARTICLE_PAIR_'+id);
+  if(!p.w.includes('\n【関連記事】\n')||p.articles.some(a=>!p.w.includes(a.title+a.url)))throw Error('W_FORMAT_'+id);
+  return {id,rn,r,w:p.w,articles:urls.length};
+ });
+ return {ss,sh,items};
+}
+function p16PreviewMultiBatch1(){
+ const {items}=p16MultiBatch1Prepare_();
+ const out={mode:'READ_ONLY_MULTI_BATCH1',episodes:items.length,cells:items.length,ids:items.map(a=>a.id),writes:0};
+ console.log(JSON.stringify(out));return out;
+}
+function p16WriteMultiBatch1(){
+ if(PropertiesService.getScriptProperties().getProperty('P16_MULTI_BATCH1_APPROVED')!=='YES')throw Error('WRITE_NOT_APPROVED');
+ const lock=LockService.getScriptLock();if(!lock.tryLock(10000))throw Error('WRITER_BUSY');
+ try{
+  const {ss,sh,items}=p16MultiBatch1Prepare_(),updated=[];
+  for(const a of items){
+   const live=sh.getRange(a.rn,1,1,55).getValues()[0];
+   if(String(live[0])!==a.id||String(live[21])!==String(a.r[21])||String(live[22]||'')!==String(a.r[22]||'')||String(live[28]||'')!==String(a.r[28]||''))throw Error('CONCURRENT_ROW_CHANGE_'+a.id);
+   const z=PHASE15_INTEGRATED.writeRow(ss,sh,a.rn,live,[{col:23,value:a.w,why:'P16_MULTI_BATCH1_W'}],'P16_MULTI_BATCH1');
+   if(!z.ok)throw Error('WRITE_FAILED_'+a.id);
+   updated.push(a.id);
+  }
+  const out={mode:'WRITE_MULTI_BATCH1',episodes:updated.length,cells:updated.length,updated};
+  console.log(JSON.stringify(out));return out;
+ }finally{lock.releaseLock();}
+}
+
+/** Multi-article W-only 2 writer. Requires P16_NEWS_V5 and PHASE15_INTEGRATED. */
+function p16MultiBatch2Prepare_(){
+ const ss=SpreadsheetApp.openById('1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4'),sh=ss.getSheetByName('エピソード台帳');
+ const ids=["EP-00806","EP-00808","EP-00809","EP-00812","EP-00815","EP-00825","EP-00839","EP-00841","EP-00843","EP-00844","EP-00847","EP-00853","EP-00854"];
+ const items=ids.map(id=>{
+  const rn=Number(id.slice(3))+1,r=sh.getRange(rn,1,1,55).getValues()[0],raw=String(r[21]||'');
+  if(r[0]!==id||r[1]!=='ニュースの学校'||!raw.trim()||String(r[22]||'').trim())throw Error('IDENTITY_OR_W_'+id);
+  if(!['','未指定','FALSE','false','0','いいえ'].includes(String(r[38]??'').trim()))throw Error('EXCLUDED_'+id);
+  if(String(r[28]||'').trim())throw Error('AC_PRESENT_MULTI_'+id);
+  const src=raw.replace(/\\n/g,'\n').replace(/&nbsp;|&#160;/gi,' ');
+  const clean=src.split('\n').filter(line=>!/^(ご意見[・、]?|ほかにも多彩な番組を配信中！|See omnystudio|Learn more about your ad choices)/i.test(line.trim())).join('\n');
+  const p=P16_NEWS_V5.parse(clean);
+  const urls=[...src.matchAll(/https:\/\/(?:www\.asahi\.com\/articles\/[A-Za-z0-9]+\.html|globe\.asahi\.com\/article\/\d+)(?:\?[A-Za-z0-9_=&%-]+)?/g)].map(m=>m[0]);
+  if(p.holds.length||!p.w||urls.length<2||urls.length!==p.articles.length)throw Error('PARSER_HOLD_'+id);
+  if(urls.some((u,k)=>p.articles[k].url!==u||!src.includes(p.articles[k].title)))throw Error('ARTICLE_PAIR_'+id);
+  if(!p.w.includes('\n【関連記事】\n')||p.articles.some(a=>!p.w.includes(a.title+a.url)))throw Error('W_FORMAT_'+id);
+  return {id,rn,r,w:p.w,articles:urls.length};
+ });
+ return {ss,sh,items};
+}
+function p16PreviewMultiBatch2(){
+ const {items}=p16MultiBatch2Prepare_();
+ const out={mode:'READ_ONLY_MULTI_BATCH2',episodes:items.length,cells:items.length,ids:items.map(a=>a.id),writes:0};
+ console.log(JSON.stringify(out));return out;
+}
+function p16WriteMultiBatch2(){
+ if(PropertiesService.getScriptProperties().getProperty('P16_MULTI_BATCH2_APPROVED')!=='YES')throw Error('WRITE_NOT_APPROVED');
+ const lock=LockService.getScriptLock();if(!lock.tryLock(10000))throw Error('WRITER_BUSY');
+ try{
+  const {ss,sh,items}=p16MultiBatch2Prepare_(),updated=[];
+  for(const a of items){
+   const live=sh.getRange(a.rn,1,1,55).getValues()[0];
+   if(String(live[0])!==a.id||String(live[21])!==String(a.r[21])||String(live[22]||'')!==String(a.r[22]||'')||String(live[28]||'')!==String(a.r[28]||''))throw Error('CONCURRENT_ROW_CHANGE_'+a.id);
+   const z=PHASE15_INTEGRATED.writeRow(ss,sh,a.rn,live,[{col:23,value:a.w,why:'P16_MULTI_BATCH2_W'}],'P16_MULTI_BATCH2');
+   if(!z.ok)throw Error('WRITE_FAILED_'+a.id);
+   updated.push(a.id);
+  }
+  const out={mode:'WRITE_MULTI_BATCH2',episodes:updated.length,cells:updated.length,updated};
+  console.log(JSON.stringify(out));return out;
+ }finally{lock.releaseLock();}
+}
