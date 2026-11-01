@@ -189,3 +189,51 @@ function p16WriteV6Batch2(){
   console.log(JSON.stringify(out));return out;
  }finally{lock.releaseLock();}
 }
+
+/** Phase16 V6 passed batch 3/3: guarded 20-row writer. */
+function p16V6Batch3Prepare_(){
+ const ss=SpreadsheetApp.openById('1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4'),sh=ss.getSheetByName('エピソード台帳');
+ const ids=["EP-00850","EP-00851","EP-00852","EP-00855","EP-00856","EP-00857","EP-00859","EP-00860","EP-00861","EP-00862","EP-00863","EP-00864","EP-00866","EP-00867","EP-00868","EP-00869","EP-00870","EP-00871"];
+ const rows=ids.map(id=>{
+  const rn=Number(id.slice(3))+1,r=sh.getRange(rn,1,1,55).getValues()[0],raw=String(r[21]||'');
+  if(String(r[0])!==id||r[1]!=='ニュースの学校'||!raw.trim()||String(r[22]||'').trim())throw Error('ROW_SOURCE_OR_W_'+id);
+  if(!['','未指定','FALSE','false','0','いいえ'].includes(String(r[38]??'').trim()))throw Error('EXCLUDED_'+id);
+  const lines=raw.replace(/\\n/g,'\n').replace(/&nbsp;|&#160;/gi,' ').split('\n');
+  const kept=lines.filter(line=>!/^(ご意見[・、]?|ほかにも多彩な番組を配信中！|See omnystudio|Learn more about your ad choices)/i.test(line.trim()));
+  const p=P16_NEWS_V5.parse(kept.join('\n'));
+  if(p.holds.length||!p.w||p.articles.length!==1)throw Error('PARSER_HOLD_'+id);
+  const src=raw.replace(/&nbsp;|&#160;/gi,' ');
+  const urls=[...src.matchAll(/https:\/\/(?:www\.asahi\.com\/articles\/[A-Za-z0-9]+\.html|globe\.asahi\.com\/article\/\d+)(?:\?[A-Za-z0-9_=&%-]+)?/g)].map(m=>m[0]);
+  if(urls.length!==1||p.articles[0].url!==urls[0]||!src.includes(p.articles[0].title))throw Error('ARTICLE_PAIR_'+id);
+  if(!p.w.includes('\n【関連記事】\n')||!p.w.includes(p.articles[0].title+p.articles[0].url))throw Error('W_FORMAT_'+id);
+  const ac=String(r[28]||'').trim();
+  if(ac&&ac!==urls[0])throw Error('AC_CONFLICT_'+id);
+  return {id,rn,r,w:p.w,ac:ac?'':urls[0]};
+ });
+ return {ss,sh,rows};
+}
+function p16PreviewV6Batch3(){
+ const x=p16V6Batch3Prepare_();
+ const out={mode:'READ_ONLY_V6_BATCH3',episodes:x.rows.length,cells:x.rows.reduce((n,a)=>n+1+(a.ac?1:0),0),writes:0,ids:x.rows.map(a=>a.id)};
+ console.log(JSON.stringify(out));return out;
+}
+function p16WriteV6Batch3(){
+ if(PropertiesService.getScriptProperties().getProperty('P16_V6_BATCH3_APPROVED')!=='YES')throw Error('WRITE_NOT_APPROVED');
+ const lock=LockService.getScriptLock();
+ if(!lock.tryLock(10000))throw Error('WRITER_BUSY');
+ try{
+  const {ss,sh,rows}=p16V6Batch3Prepare_(),updated=[];
+  for(const a of rows){
+   const live=sh.getRange(a.rn,1,1,55).getValues()[0];
+   if(String(live[0])!==a.id||String(live[21])!==String(a.r[21])||String(live[22]||'')!==String(a.r[22]||'')||String(live[28]||'')!==String(a.r[28]||''))throw Error('CONCURRENT_ROW_CHANGE_'+a.id);
+   const changes=[{col:23,value:a.w,why:'P16_V6_BATCH3_W'}];
+   if(a.ac)changes.push({col:29,value:a.ac,why:'P16_V6_BATCH3_AC'});
+   const result=PHASE15_INTEGRATED.writeRow(ss,sh,a.rn,live,changes,'P16_V6_BATCH3');
+   if(!result.ok)throw Error('WRITE_FAILED_'+a.id);
+   updated.push(a.id);
+  }
+  const out={mode:'WRITE_V6_BATCH3',updated,episodes:updated.length,cells:rows.reduce((n,a)=>n+1+(a.ac?1:0),0)};
+  console.log(JSON.stringify(out));return out;
+ }finally{lock.releaseLock();}
+}
+
