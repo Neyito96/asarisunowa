@@ -394,3 +394,36 @@ function p16PreviewUserApprovedSix(){
  const out={mode:'READ_ONLY_USER_SIX',total:items.length,passed:items.filter(x=>!x.flags.length).length,plannedCells:items.reduce((n,x)=>n+1+(x.ac?1:0),0),items,writes:0,held:'EP-01222'};
  console.log(JSON.stringify(out));return out;
 }
+
+
+/** Guarded write of six explicitly reviewed cases. Run preview first. Does not touch EP-01222. */
+function p16WriteUserApprovedSix(){
+ if(PropertiesService.getScriptProperties().getProperty('P16_USER_SIX_APPROVED')!=='YES')throw Error('WRITE_NOT_APPROVED');
+ const lock=LockService.getScriptLock();
+ if(!lock.tryLock(10000))throw Error('WRITER_BUSY');
+ try{
+  const preview=p16PreviewUserApprovedSix();
+  if(preview.total!==6||preview.passed!==6||preview.plannedCells!==11||preview.items.some(x=>x.flags.length))throw Error('PREVIEW_NOT_ALL_PASSED');
+  const ss=SpreadsheetApp.openById('1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4'),sh=ss.getSheetByName('エピソード台帳');
+  const prepared=preview.items.map(item=>{
+   const rn=Number(item.id.slice(3))+1,r=sh.getRange(rn,1,1,55).getValues()[0];
+   if(r[0]!==item.id||!String(r[21]||'').trim()||String(r[22]||'').trim()||String(r[28]||'').trim())throw Error('CHANGED_ROW_'+item.id);
+   if(!['','未指定','FALSE','false','0','いいえ'].includes(String(r[38]??'').trim()))throw Error('EXCLUDED_'+item.id);
+   const acUrls=item.ac?item.ac.split('\n'):[];
+   if(acUrls.length!==item.acUrlCount||acUrls.some(u=>!/^https:\/\/\S+$/.test(u)||!item.w.includes(u)))throw Error('AC_URL_INVALID_'+item.id);
+   return {item,rn,r};
+  });
+  const updated=[];
+  for(const a of prepared){
+   const live=sh.getRange(a.rn,1,1,55).getValues()[0];
+   if(JSON.stringify(live)!==JSON.stringify(a.r))throw Error('CONCURRENT_ROW_CHANGE_'+a.item.id);
+   const changes=[{col:23,value:a.item.w,why:'P16_USER_REVIEWED_W'}];
+   if(a.item.ac)changes.push({col:29,value:a.item.ac,why:'P16_USER_REVIEWED_AC'});
+   const result=PHASE15_INTEGRATED.writeRow(ss,sh,a.rn,live,changes,'P16_USER_REVIEWED_SIX');
+   if(!result.ok)throw Error('WRITE_FAILED_'+a.item.id);
+   updated.push(a.item.id);
+  }
+  const out={mode:'WRITE_USER_SIX',updated,episodes:updated.length,cells:11,held:'EP-01222'};
+  console.log(JSON.stringify(out));return out;
+ }finally{lock.releaseLock();}
+}
