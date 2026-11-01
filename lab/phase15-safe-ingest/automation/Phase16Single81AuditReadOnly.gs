@@ -65,3 +65,32 @@ function p16WriteSingle20Approved(){
   console.log(JSON.stringify(out));return out;
  }finally{lock.releaseLock();}
 }
+
+
+/** Phase16 V6 61 held cases: read-only rerun; strip only recognized promotional lines. */
+function p16AuditHeld61PromoReadOnly(){
+ const sh=SpreadsheetApp.openById('1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4').getSheetByName('エピソード台帳');
+ const ids=["EP-00748","EP-00775","EP-00791","EP-00799","EP-00800","EP-00801","EP-00803","EP-00804","EP-00805","EP-00807","EP-00810","EP-00811","EP-00813","EP-00814","EP-00816","EP-00817","EP-00818","EP-00819","EP-00820","EP-00821","EP-00822","EP-00823","EP-00824","EP-00826","EP-00827","EP-00828","EP-00829","EP-00830","EP-00831","EP-00832","EP-00833","EP-00834","EP-00835","EP-00836","EP-00837","EP-00838","EP-00840","EP-00842","EP-00845","EP-00846","EP-00848","EP-00849","EP-00850","EP-00851","EP-00852","EP-00855","EP-00856","EP-00857","EP-00859","EP-00860","EP-00861","EP-00862","EP-00863","EP-00864","EP-00865","EP-00866","EP-00867","EP-00868","EP-00869","EP-00870","EP-00871"];
+ const results=ids.map(id=>{
+  const n=Number(id.slice(3))+1,r=sh.getRange(n,1,1,55).getValues()[0],flags=[];
+  const raw=String(r[21]||'');
+  if(r[0]!==id||r[1]!=='ニュースの学校'||!raw.trim()||String(r[22]||'').trim())flags.push('ROW_SOURCE_OR_W');
+  if(!['','未指定','FALSE','false','0','いいえ'].includes(String(r[38]??'').trim()))flags.push('EXCLUDED');
+  const lines=raw.replace(/\\n/g,'\n').replace(/&nbsp;|&#160;/gi,' ').split('\n');
+  const kept=lines.filter(line=>{
+   const t=line.trim();
+   return !/^(ご意見[・、]?|ほかにも多彩な番組を配信中！|See omnystudio|Learn more about your ad choices)/i.test(t);
+  });
+  const p=P16_NEWS_V5.parse(kept.join('\n'));
+  if(p.holds.length)flags.push(...p.holds);
+  if(p.articles.length!==1)flags.push('ARTICLE_COUNT');
+  const urls=[...raw.replace(/&nbsp;|&#160;/gi,' ').matchAll(/https:\/\/(?:www\.asahi\.com\/articles\/[A-Za-z0-9]+\.html|globe\.asahi\.com\/article\/\d+)(?:\?[A-Za-z0-9_=&%-]+)?/g)].map(m=>m[0]);
+  if(urls.length!==1||!p.articles[0]||p.articles[0].url!==urls[0]||!raw.includes(p.articles[0].title))flags.push('ARTICLE_PAIR');
+  if(r[28]&&p.articles[0]&&String(r[28])!==p.articles[0].url)flags.push('AC_CONFLICT');
+  if(p.w&&(!p.w.includes('\n【関連記事】\n')||!p.w.includes(p.articles[0].title+p.articles[0].url)))flags.push('W_FORMAT');
+  return {id,flags,previewLength:p.w?p.w.length:0};
+ });
+ const passed=results.filter(x=>!x.flags.length),held=results.filter(x=>x.flags.length);
+ const out={mode:'READ_ONLY_HELD61_V6',total:ids.length,passed:passed.length,held:held.length,passedIds:passed.map(x=>x.id),heldItems:held,writes:0};
+ console.log(JSON.stringify(out));return out;
+}
