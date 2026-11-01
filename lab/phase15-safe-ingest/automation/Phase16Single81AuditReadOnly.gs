@@ -346,3 +346,27 @@ function p16WriteMultiBatch2(){
   console.log(JSON.stringify(out));return out;
  }finally{lock.releaseLock();}
 }
+
+
+/** Final five: editorially reviewed literal W values; audit-only, NO writer. */
+function p16PreviewFinalFiveReadOnly(){
+ const sh=SpreadsheetApp.openById('1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4').getSheetByName('エピソード台帳');
+ const cases=[{"id":"EP-00782","show":"ニュースの学校","w":"国は公立高校にも私立高校にも授業料の支援をしていますが、世帯年収に制限をつけています。公立の授業料の場合は世帯年収が910万円未満なら年11万8800円を支援し、私立の授業料の場合は世帯年収が590万円以上910万円未満では公立と同じ11万8800円を支援し、世帯年収が590万円未満なら39万6千円の支援をしています。\n【関連記事】\n高校授業料無償化が国会で議論に → 無償化はいいの？ 悪いの？https://www.asahi.com/edua/article/15612560","ac":"https://www.asahi.com/edua/article/15612560"},{"id":"EP-00800","show":"ニュースの学校","w":"ファクトチェックは、偽情報の疑いがある文章や写真などについて、情報源への聞き取りや、写真・動画を分析することで真偽や正確さを審査する作業のことです。アメリカのメタ社は2016年から外部のファクトチェック団体に依頼し、60以上の言語で約100団体が参加していました。\n【関連記事】\n【そもそも解説】メタがやめるファクトチェックとは　新機能を導入へhttps://www.asahi.com/articles/AST183VZRT18ULFA01GM.html?iref=omny\n熊本地震のライオンデマ、画像をたどったら南アフリカに撮影者がいたhttps://withnews.jp/article/f0181108000qq000000000000000W0al10101qq000018248A","ac":""},{"id":"EP-00865","show":"ニュースの学校","w":"アメリカ大統領選は、各州と首都ワシントンに割り当てられた538人の「選挙人」の過半数を取った候補が勝利します。まず有権者が投票し、大半の州で、1票でも多く得た候補がその州の選挙人を総取りする方式です。\n【関連記事】\nアメリカ大統領の決め方（イラストで解説）https://www.asahi.com/special/visual/us-election1/?iref=omny\n（いちからわかる！）アメリカ大統領選、どんな仕組み？https://www.asahi.com/articles/DA3S14683886.html?iref=omny","ac":""},{"id":"EP-00884","show":"報談","w":"アメリカのトランプ政権は、国際法を無視し、イスラエルとともにイランを攻撃しました。ところで「国際法」とは、いったい何なのか。リスナーさんの質問に答えます。\n※2026年5月20日に収録しました。","ac":""},{"id":"EP-01223","show":"ドーナツ","w":"発達障害、うつ病などの精神障害、知的障害、身体障害など、障害がある人向けのマッチングアプリがあります。互いに障害があった方がわかり合える、安心感があると好評で、当事者にとっては良いことである一方、サポートする側に回ったときどうなってしまうのか。そんな話題です。\n※2026年10月7日に収録しました\n【関連記事】\n発達障害打ち明けたら…音信不通に　「もう隠さない」恋愛、アプリでhttps://www.asahi.com/articles/ASVB50H3YVB5ULLI004M.html","ac":"https://www.asahi.com/articles/ASVB50H3YVB5ULLI004M.html"}];
+ const results=cases.map(c=>{
+  const row=Number(c.id.slice(3))+1,r=sh.getRange(row,1,1,55).getValues()[0],raw=String(r[21]||'').replace(/\\n/g,'\n').replace(/&nbsp;|&#160;/gi,' ').replace(/&hellip;/gi,'…');
+  const flags=[];
+  if(r[0]!==c.id||r[1]!==c.show||String(r[22]||'').trim())flags.push('IDENTITY_OR_W');
+  if(!['','未指定','FALSE','false','0','いいえ'].includes(String(r[38]??'').trim()))flags.push('EXCLUDED');
+  const parts=c.w.split('\n【関連記事】\n'),body=parts[0].split('\n');
+  for(const text of body){if(text.trim()&&!raw.includes(text.trim()))flags.push('BODY_NOT_IN_RAW');}
+  if(parts[1])for(const line of parts[1].split('\n')){
+   const link=line.match(/https?:\/\/\S+/);
+   if(!link||!raw.includes(link[0])||!raw.includes(line.slice(0,link.index)))flags.push('ARTICLE_NOT_IN_RAW');
+  }
+  if(c.ac&&String(r[28]||'').trim()&&String(r[28])!==c.ac)flags.push('AC_CONFLICT');
+  if(!c.ac&&String(r[28]||'').trim())flags.push('AC_PRESENT_REVIEW');
+  return {id:c.id,row,flags:[...new Set(flags)],w:c.w,acWrite:!!c.ac&&!r[28]};
+ });
+ const out={mode:'READ_ONLY_FINAL5',episodes:results.length,passed:results.filter(r=>!r.flags.length).length,items:results,writes:0};
+ console.log(JSON.stringify(out));return out;
+}
