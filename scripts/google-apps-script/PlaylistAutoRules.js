@@ -222,7 +222,7 @@ function matchesAutoPlaylistRule_(episode, rule) {
     const title = String(episode && episode.name ? episode.name : "").normalize("NFKC").toLowerCase();
     return ["ノーミライ", "農music", "猟life"].some(function(keyword) {
       return title.indexOf(keyword) >= 0;
-    });
+    }) || extractNoMiraiEpisodeNumber_(episode && episode.name) !== null;
   }
   if (String(rule && rule.matchStrategy ? rule.matchStrategy : "") === "no-mirai-title-prefix") {
     return extractNoMiraiEpisodeNumber_(episode && episode.name) !== null;
