@@ -22,4 +22,7 @@ assert.deepEqual(Array.from(rule.showIds), ["0341I5UOUrJgm7KEvNGInZ"]);
   "今日は野菜づくり",
   "2026年ニュース"
 ].forEach(name => assert.equal(matches({name}, rule), false, "false positive: " + name));
-console.log("No Mirai match: 9 assertions passed");
+// A null item is legitimate in Spotify's latest-20 response; never dereference it.
+assert.equal(matches(null, rule), false);
+assert.equal(matches({name:"（ノーミライ番外編）なんで今月は土曜が5回もあるんや、というお話", release_date:"2026-10-30"},rule),true);
+console.log("No Mirai match: 11 assertions passed");
