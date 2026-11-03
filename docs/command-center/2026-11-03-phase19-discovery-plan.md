@@ -1,0 +1,1 @@
+Phase 19 discovery planned as separate read-only discovery scanner. Detailed runnable source will be provided as a downloadable GAS file. No production changes performed.
