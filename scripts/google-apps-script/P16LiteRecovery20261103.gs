@@ -101,3 +101,111 @@ function P16_RECOVERY_WRITE() {
   Logger.log(JSON.stringify({status:'INTAKE_DONE',feedsOk:preview.feedsOk,result:result}));
   return result;
 }
+
+/**
+ * Permanent morning controller, invoked ONLY by replacing the existing
+ * p15AutonomousTick wrapper. No additional time trigger.
+ * The original P15_AUTO.tick remains available for isolated maintenance.
+ * Do not mark a checkpoint after incomplete intake or incomplete feeds.
+ */
+function P16_DAILY_TICK() {
+  var ss=SpreadsheetApp.openById(P16_RECOVERY_SHEET_ID_);
+  var p=PropertiesService.getScriptProperties();
+  var started=Date.now(), deadline=started+240000;
+  var report={version:'p16-lite-daily-20261103.1',started:new Date(started).toISOString(),
+    status:'HALTED',rss:0,expected:0,feeds:[],intake:{added:0,held:0},media:{cells:0},error:''};
+  var lease=false,lk=LockService.getScriptLock();
+  try {
+    // Match the existing single-writer ownership and release semantics.
+    if(!lk.tryLock(1000))return {status:'BUSY',error:'SCRIPT_LOCK_HELD'};
+    try {
+      if(Number(p.getProperty('P15_TICK_UNTIL')||0)>started)
+        return {status:'BUSY',error:'ACTIVE_LEASE'};
+      p.setProperty('P15_TICK_UNTIL',String(started+600000));
+      lease=true;
+    }finally {lk.releaseLock();}
+    P15_AUTO.assertOwner(ss);
+    var audit=ss.getSheetByName('P15I_AUDIT');
+    var journal=ss.getSheetByName('P15_INTAKE');
+    if(audit&&audit.getLastRow()>1){
+      var states=audit.getRange(2,2,audit.getLastRow()-1,1).getDisplayValues();
+      if(states.some(function(r){return /^(PENDING|ROLLBACK_PENDING)$/.test(r[0]);}))
+        throw Error('PENDING_WRITE_REQUIRES_RECONCILIATION');
+    }
+    if(journal&&journal.getLastRow()>1){
+      var jstates=journal.getRange(2,4,journal.getLastRow()-1,1).getDisplayValues();
+      if(jstates.some(function(r){return r[0]==='RESERVED';}))
+        throw Error('INTAKE_PENDING_RECONCILIATION');
+    }
+    var prior=Date.parse(p.getProperty('P16_LAST_COMPLETE_SCAN_UTC')||'');
+    // Bootstrap against three days, not an empty checkpoint, so the
+    // first new daily run also catches short outages.
+    if(!Number.isFinite(prior))prior=started-3*86400000;
+    var sources=P16_recoverySources_(10);
+    var scan=P16_dailyCoverage_(sources,prior);
+    if(scan.needsMore.length){
+      sources=P16_recoverySources_(40);
+      scan=P16_dailyCoverage_(sources,prior);
+    }
+    report.rss=scan.ok;
+    report.expected=sources.expected;
+    report.feeds=sources.log;
+    report.coverage=scan;
+    // No writing after partial feeds or a gap beyond the latest 40.
+    if(scan.ok!==sources.expected || scan.needsMore.length){
+      report.status='PARTIAL';
+      report.error='FEED_OR_HISTORY_GAP';
+      return report;
+    }
+    if(Date.now()>deadline-60000) {
+      report.status='PARTIAL';report.error='SOURCE_TIME_BUDGET_EXCEEDED';return report;
+    }
+    report.intake=P15_AUTO.intake(ss,sources,Math.min(deadline-20000,Date.now()+100000),{limit:10});
+    // Hit the intake cap? Preserve the previous checkpoint so the
+    // next patrol rechecks remaining not-yet-recorded episodes.
+    if(report.intake.added>=10){
+      report.status='PARTIAL';
+      report.error='INTAKE_LIMIT_REACHED_CHECKPOINT_HELD';
+    }else{
+      report.status='OK';
+      p.setProperty('P16_LAST_COMPLETE_SCAN_UTC',new Date(started).toISOString());
+    }
+    // Platform enrichment is optional and off until independently tested.
+    if(report.status==='OK'&&p.getProperty('P16_ENABLE_MEDIA')==='YES'&&Date.now()<deadline-70000){
+      report.media=P15_AUTO.enrich(ss,sources,Math.min(deadline-5000,Date.now()+55000));
+    }
+  }catch(e){
+    report.status='HALTED';report.error=String(e).slice(0,250);
+  }finally{
+    report.elapsedMs=Date.now()-started;
+    try{
+      var run=ss.getSheetByName('P15_RUNS');
+      if(run)run.appendRow([report.started,report.status,0,'',report.rss,0,'{}',
+        JSON.stringify(report.intake),JSON.stringify(report.media),report.error]);
+      p.setProperty('P16_LAST_RUN',JSON.stringify(report));
+    }catch(logError){p.setProperty('P16_LAST_LOG_ERROR',String(logError).slice(0,150));}
+    if(lease){
+      lk.waitLock(5000);
+      try{p.deleteProperty('P15_TICK_UNTIL');}
+      finally{lk.releaseLock();}
+    }
+    Logger.log(JSON.stringify(report));
+  }
+  return report;
+}
+function P16_dailyCoverage_(sources,priorMs){
+  var ok=0,needsMore=[],details=[];
+  sources.log.forEach(function(f){
+    if(f.status!=='OK'){details.push({show:f.show,status:f.status});return;}
+    ok++;
+    var timestamps=Object.keys(sources.byGuid).map(function(g){return sources.byGuid[g];})
+      .filter(function(x){return x.show===f.show;})
+      .map(function(x){return Date.parse(x.published);})
+      .filter(Number.isFinite);
+    var oldest=timestamps.length?Math.min.apply(null,timestamps):NaN;
+    var gap=!!(f.fetched>f.inspected && (!Number.isFinite(oldest)||oldest>priorMs));
+    if(gap)needsMore.push(f.show);
+    details.push({show:f.show,status:'OK',oldest:new Date(Number.isFinite(oldest)?oldest:0).toISOString(),gap:gap});
+  });
+  return {ok:ok,needsMore:needsMore,details:details};
+}
