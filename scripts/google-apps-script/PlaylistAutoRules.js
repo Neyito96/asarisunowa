@@ -81,8 +81,8 @@ const AUTO_PLAYLIST_RULES = [
     name: "農MUSIC 猟ライフ（ノーミライ）",
     showIds: ["0341I5UOUrJgm7KEvNGInZ"],
     playlistId: "4FBXSFf2nLjLb3qaRoSdoD",
-    keyword: "（ノーミライ #",
-    matchStrategy: "no-mirai-title-prefix",
+    keywords: ["ノーミライ", "農MUSIC", "猟LIFE"],
+    matchStrategy: "no-mirai-title-keywords",
     fetchAllPages: true,
     addIndividually: true,
     updateLatestDateOnAdd: true,
@@ -216,6 +216,14 @@ function getAutoPlaylistEpisodeText_(episode, rule) {
 }
 
 function matchesAutoPlaylistRule_(episode, rule) {
+  if (String(rule && rule.matchStrategy ? rule.matchStrategy : "") === "no-mirai-title-keywords") {
+    // 番外編や番号なし回も、番組内のタイトルに系列名があれば対象にする。
+    // 番組ID境界は呼び出し元の rule.showIds が担保する。
+    const title = String(episode && episode.name ? episode.name : "").normalize("NFKC").toLowerCase();
+    return ["ノーミライ", "農music", "猟life"].some(function(keyword) {
+      return title.indexOf(keyword) >= 0;
+    }) || extractNoMiraiEpisodeNumber_(episode && episode.name) !== null;
+  }
   if (String(rule && rule.matchStrategy ? rule.matchStrategy : "") === "no-mirai-title-prefix") {
     return extractNoMiraiEpisodeNumber_(episode && episode.name) !== null;
   }
