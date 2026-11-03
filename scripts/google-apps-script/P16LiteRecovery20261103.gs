@@ -163,9 +163,17 @@ function P16_DAILY_TICK() {
     report.intake=P15_AUTO.intake(ss,sources,Math.min(deadline-20000,Date.now()+100000),{limit:10});
     // Hit the intake cap? Preserve the previous checkpoint so the
     // next patrol rechecks remaining not-yet-recorded episodes.
-    if(report.intake.added>=10){
+    var ingestSince=Date.parse(p.getProperty('P15_INGEST_SINCE')||'');
+    var eligible=Object.keys(sources.byGuid).filter(function(g){
+      var t=Date.parse(sources.byGuid[g].published);
+      return Number.isFinite(t)&&t>=ingestSince&&t<=Date.now();
+    }).length;
+    var decisions=Array.isArray(report.intake.decisions)?report.intake.decisions:[];
+    var incomplete=report.intake.added>=10 ||
+      report.intake.held>0 || decisions.length<eligible;
+    if(incomplete){
       report.status='PARTIAL';
-      report.error='INTAKE_LIMIT_REACHED_CHECKPOINT_HELD';
+      report.error='INTAKE_INCOMPLETE_OR_HELD';
     }else{
       report.status='OK';
       p.setProperty('P16_LAST_COMPLETE_SCAN_UTC',new Date(started).toISOString());
