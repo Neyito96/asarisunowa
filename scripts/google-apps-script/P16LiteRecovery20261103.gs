@@ -91,16 +91,13 @@ function P16_RECOVERY_PREVIEW() {
   return report;
 }
 function P16_RECOVERY_WRITE() {
-  var lock=LockService.getScriptLock();
-  if(!lock.tryLock(5000))throw Error('P16_RECOVERY_LOCKED');
-  try {
-    var sources=P16_recoverySources_(10),preview=P16_recoveryInspect_(sources);
-    if(preview.status!=='READY')throw Error('P16_FEEDS_PARTIAL_NO_WRITE_'+preview.feedsOk+'/'+preview.feedsExpected);
-    if(!preview.unregisteredCount)return {status:'NO_NEW_EPISODES',added:0,feedsOk:preview.feedsOk};
-    // Existing production intake owns GUID checks, reservations and EP numbering.
-    var ss=SpreadsheetApp.openById(P16_RECOVERY_SHEET_ID_);
-    var result=P15_AUTO.intake(ss,sources,Date.now()+160000,{limit:10});
-    Logger.log(JSON.stringify({status:'INTAKE_DONE',feedsOk:preview.feedsOk,result:result}));
-    return result;
-  }finally{lock.releaseLock();}
+  // P15_AUTO.intake takes the ScriptLock itself. Never nest another lock here.
+  var sources=P16_recoverySources_(10),preview=P16_recoveryInspect_(sources);
+  if(preview.status!=='READY')throw Error('P16_FEEDS_PARTIAL_NO_WRITE_'+preview.feedsOk+'/'+preview.feedsExpected);
+  if(!preview.unregisteredCount)return {status:'NO_NEW_EPISODES',added:0,feedsOk:preview.feedsOk};
+  // Existing production intake owns GUID checks, reservations and EP numbering.
+  var ss=SpreadsheetApp.openById(P16_RECOVERY_SHEET_ID_);
+  var result=P15_AUTO.intake(ss,sources,Date.now()+160000,{limit:10});
+  Logger.log(JSON.stringify({status:'INTAKE_DONE',feedsOk:preview.feedsOk,result:result}));
+  return result;
 }
