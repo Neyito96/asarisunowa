@@ -506,7 +506,7 @@ const officialPrograms: OfficialProgram[] = [
   {
     name: "MEDIA TALK",
     detail:
-      "推し記事、吹奏楽・高校編、MEDIA TALK、木下くんあの動画見た？、いちおしウニュ！、読書会、楽屋裏、サステナブルHUBスタジオ、制作会議、天声人語、ニュース4U、記者サロンTALK、編集マニア、朝ポキシネマ、web編集の教科書",
+      "骨格、TMT、推し記事、吹奏楽・高校編、MEDIA TALK、木下くんあの動画見た？、いちおしウニュ！、読書会、楽屋裏、サステナブルHUBスタジオ、制作会議、天声人語、ニュース4U、記者サロンTALK、編集マニア、朝ポキシネマ、web編集の教科書",
     spotify: "https://open.spotify.com/show/0yhef9ORZkUZs9ZeotdCSY",
     links: [
       ["Spotify", "https://open.spotify.com/show/0yhef9ORZkUZs9ZeotdCSY"],
@@ -1968,7 +1968,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <div className="officialBody">
                   {p.mark && <em>{p.mark}</em>}
                   <h3>{p.name}</h3>
-                  {p.detail && (p.name === "MEDIA TALK" || p.name === "ニュースの現場から" ? <p>{p.detail.split("、").map((item, i) => { const isNew = p.name === "MEDIA TALK" ? (item === "推し記事" || item === "吹奏楽・高校編") : ["Q&A", "地球会議"].includes(item); return <span key={item}>{i > 0 ? "、" : ""}{isNew && <span style={{ display: "inline-block", background: "#d62839", color: "#fff", fontSize: "0.72em", fontWeight: 800, padding: "1px 6px", borderRadius: "4px", marginRight: "4px" }}>NEW</span>}{item}</span>; })}</p> : <p>{p.detail}</p>)}
+                  {p.detail && (p.name === "MEDIA TALK" || p.name === "ニュースの現場から" ? <p>{p.detail.split("、").map((item, i) => { const isNew = p.name === "MEDIA TALK" ? (["骨格", "TMT", "推し記事", "吹奏楽・高校編"].includes(item)) : ["Q&A", "地球会議"].includes(item); return <span key={item}>{i > 0 ? "、" : ""}{isNew && <span style={{ display: "inline-block", background: "#d62839", color: "#fff", fontSize: "0.72em", fontWeight: 800, padding: "1px 6px", borderRadius: "4px", marginRight: "4px" }}>NEW</span>}{item}</span>; })}</p> : <p>{p.detail}</p>)}
                   {p.schedule && <p className="schedule">{p.name === "ニュースの現場から" ? p.schedule.split("日：ニュース大阪目線").map((part, i) => <span key={i}>{i > 0 && <>日：<span style={{ display: "inline-block", background: "#d62839", color: "#fff", fontSize: "0.72em", fontWeight: 800, padding: "1px 6px", borderRadius: "4px", marginRight: "4px" }}>NEW</span>ニュース大阪目線</>}{part}</span>) : p.schedule}</p>}
                   <div className="serviceLinks">
                       {[
