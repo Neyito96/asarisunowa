@@ -6,7 +6,7 @@ const P24_LIBRARY_RULES_ = [
   {key:"issho-shinbun",type:"series",show:"ニュースの現場から",include:["めくろう"],titleOnly:true},
   {key:"kino-douga",type:"series",show:"MEDIA TALK",include:["動画みた？"],titleOnly:true},
   {key:"no-mirai",type:"series",include:["ノーミライ #","農M、猟L"],titleOnly:true},
-  {key:"polirebi",type:"series",include:["ポリレビ"],titleOnly:true},
+  {key:"polirebi",type:"series",show:"ニュースの現場から",include:["ポリレビ"],titleOnly:true},
   {key:"ota-masahiko",type:"speaker",include:["太田匡彦","太田 匡彦"],review:true},
   {key:"toyohide",type:"speaker",include:["豊秀一","豊 秀一"],review:true},
   {key:"sato-yo",type:"speaker",include:["佐藤陽","佐藤 陽"],review:true},
