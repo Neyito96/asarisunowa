@@ -98,7 +98,7 @@ export const recommendedPodcastSnapshot = [
     "comment": "エンディングでリスナーの楽曲（ジャスラック登録されていない楽曲）が流されるポッドキャスト！",
     "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/f5/34/87/f5348773-e0c1-4d56-c786-858ee537b278/mza_6525121823114711123.jpg/600x600bb.jpg",
     "host": "ニッポン放送",
-    "genre": "コメディ",
+    "genre": "雑談・トーク",
     "youtube": "",
     "spotify": "https://open.spotify.com/show/18Wdr5Bi9iRjvLZSALh4BK?si=7f7e7c5d618f4190",
     "amazon": "",
