@@ -20,6 +20,86 @@
   },
   "proposals": [
     {
+      "epId": "EP-03762",
+      "ledgerRow": 3763,
+      "show": "ニュースの現場から",
+      "title": "皇室典範改正、緊迫のイラン情勢…「強くありたいリーダー」に民主主義のブレーキは通用するのか（松田・園田の政治ニュースレビュー：略称ポリレビ）",
+      "date": "2026/7/11 11:55",
+      "spotifyUrl": "https://open.spotify.com/episode/5ZhpzOv087NiKG2YKVo6zX"
+    },
+    {
+      "epId": "EP-03772",
+      "ledgerRow": 3773,
+      "show": "ニュースの現場から",
+      "title": "（ポリレビ）党首討論なのに答えない・ツッコまない　米政治に学ぶ野党立て直し策",
+      "date": "2026/7/18 12:00",
+      "spotifyUrl": "https://open.spotify.com/episode/5iBbK90WXZkzFW5hzN5T9x"
+    },
+    {
+      "epId": "EP-03781",
+      "ledgerRow": 3782,
+      "show": "ニュースの現場から",
+      "title": "（ポリレビ）穴だらけだよ副首都法案　災害対策ってほんと？高市政権が押し切る本当の狙い",
+      "date": "2026/7/25 11:55",
+      "spotifyUrl": "https://open.spotify.com/episode/2jQV0SVJxtFiY6CLYLSDwH"
+    },
+    {
+      "epId": "EP-03788",
+      "ledgerRow": 3789,
+      "show": "ニュースの現場から",
+      "title": "（ポリレビ）消費減税がわからない　なぜ1%、2年間？財源どこ、野党どうする #2321",
+      "date": "2026/8/1 4:00",
+      "spotifyUrl": "https://open.spotify.com/episode/7zQlJZd12NVwOxhxZP8Y7l"
+    },
+    {
+      "epId": "EP-03795",
+      "ledgerRow": 3796,
+      "show": "ニュースの現場から",
+      "title": "（ポリレビ）高市首相の熊本視察動画、なぜ炎上？支持率低下も影響？ #2328",
+      "date": "2026/8/8 4:00",
+      "spotifyUrl": "https://open.spotify.com/episode/1moYKg8RGITXbjHiaCivPp"
+    },
+    {
+      "epId": "EP-03815",
+      "ledgerRow": 3816,
+      "show": "ニュースの現場から",
+      "title": "（ポリレビ）「残念」な日本外交　ICC赤根所長への制裁は国益に反するのに #2342",
+      "date": "2026/8/22 4:00",
+      "spotifyUrl": "https://open.spotify.com/episode/5opb0FSSH0cJqwrmrDxLTp"
+    },
+    {
+      "epId": "EP-03827",
+      "ledgerRow": 3828,
+      "show": "ニュースの現場から",
+      "title": "（ポリレビ）中道はどこへ向かう？重要政策でまとまれず、影響は地方選にも #2349",
+      "date": "2026/8/29 4:00",
+      "spotifyUrl": "https://open.spotify.com/episode/1zJMo15Gw2fzP9R8F6BKwa"
+    },
+    {
+      "epId": "EP-03838",
+      "ledgerRow": 3839,
+      "show": "ニュースの現場から",
+      "title": "（ポリレビ#9）高市首相、「次」を見据えた内閣改造の一手とは？",
+      "date": "2026/9/5 4:00",
+      "spotifyUrl": "https://open.spotify.com/episode/6YN47mPi8lWRuIfWJUw0hW"
+    },
+    {
+      "epId": "EP-03846",
+      "ledgerRow": 3847,
+      "show": "ニュースの現場から",
+      "title": "（ポリレビ＃10）中道解体、高市政権をアシスト？　野党のこれから",
+      "date": "2026/9/12 4:00",
+      "spotifyUrl": "https://open.spotify.com/episode/5pfBPyaDYDBaRT2xpHW5xD"
+    },
+    {
+      "epId": "EP-03853",
+      "ledgerRow": 3854,
+      "show": "ニュースの現場から",
+      "title": "（ポリレビ#11）林芳正氏が閣外へ　どうみる高市首相の内閣改造・自民党役員人事",
+      "date": "2026/9/19 4:00",
+      "spotifyUrl": "https://open.spotify.com/episode/3b96NgjI0ZcEODl1KG2Kvo"
+    },
+    {
       "epId": "EP-00016",
       "ledgerRow": 17,
       "show": "ニュースの現場から",
@@ -58,86 +138,6 @@
       "title": "（ポリレビ #17）どうなる米中間選挙　衆院定数31削減で自民・維新・国民合意のワケ",
       "date": "2026/10/31 4:00",
       "spotifyUrl": "https://open.spotify.com/episode/2K8QjDEYQmHJdYd2HTZeiM"
-    },
-    {
-      "epId": "EP-03762",
-      "ledgerRow": 3763,
-      "show": "ニュースの現場から",
-      "title": "皇室典範改正、緊迫のイラン情勢…「強くありたいリーダー」に民主主義のブレーキは通用するのか（松田・園田の政治ニュースレビュー：略称ポリレビ）",
-      "date": "2026/7/11 11:55",
-      "spotifyUrl": "https://open.spotify.com/episode/5ZhpzOv087NiKG2YKVo6zX"
-    },
-    {
-      "epId": "EP-03772",
-      "ledgerRow": 3773,
-      "show": "ニュースの現場から",
-      "title": "（ポリレビ）党首討論なのに答えない・ツッコまない　米政治に学ぶ野党立て直し策",
-      "date": "2026/7/18 12:00",
-      "spotifyUrl": "https://open.spotify.com/episode/5iBbK90WXZkzFW5hzN5T9x"
-    },
-    {
-      "epId": "EP-03781",
-      "ledgerRow": 3782,
-      "show": "ニュースの現場から",
-      "title": "（ポリレビ）穴だらけだよ副首都法案　災害対策ってほんと？高市政権が押し切る本当の狙い",
-      "date": "2026/7/25 11:55",
-      "spotifyUrl": "https://open.spotify.com/episode/2jQV0SVJxtFiY6CLYLSDwH"
-    },
-    {
-      "epId": "EP-03788",
-      "ledgerRow": 3789,
-      "show": "ニュースの現場から",
-      "title": "（ポリレビ）消費減税がわからない　なぜ1%、2年間？財源どこ、野党どうする #2321",
-      "date": "2026/8/1 4:00",
-      "spotifyUrl": "https://open.spotify.com/episode/7zQlJZd12NVwOxhxZP8Y7l"
-    },
-    {
-      "epId": "EP-03815",
-      "ledgerRow": 3816,
-      "show": "ニュースの現場から",
-      "title": "（ポリレビ）「残念」な日本外交　ICC赤根所長への制裁は国益に反するのに #2342",
-      "date": "2026/8/22 4:00",
-      "spotifyUrl": "https://open.spotify.com/episode/5opb0FSSH0cJqwrmrDxLTp"
-    },
-    {
-      "epId": "EP-03827",
-      "ledgerRow": 3828,
-      "show": "ニュースの現場から",
-      "title": "（ポリレビ）中道はどこへ向かう？重要政策でまとまれず、影響は地方選にも #2349",
-      "date": "2026/8/29 4:00",
-      "spotifyUrl": "https://open.spotify.com/episode/1zJMo15Gw2fzP9R8F6BKwa"
-    },
-    {
-      "epId": "EP-03795",
-      "ledgerRow": 3796,
-      "show": "ニュースの現場から",
-      "title": "（ポリレビ）高市首相の熊本視察動画、なぜ炎上？支持率低下も影響？ #2328",
-      "date": "2026/8/8 4:00",
-      "spotifyUrl": "https://open.spotify.com/episode/1moYKg8RGITXbjHiaCivPp"
-    },
-    {
-      "epId": "EP-03846",
-      "ledgerRow": 3847,
-      "show": "ニュースの現場から",
-      "title": "（ポリレビ＃10）中道解体、高市政権をアシスト？　野党のこれから",
-      "date": "2026/9/12 4:00",
-      "spotifyUrl": "https://open.spotify.com/episode/5pfBPyaDYDBaRT2xpHW5xD"
-    },
-    {
-      "epId": "EP-03853",
-      "ledgerRow": 3854,
-      "show": "ニュースの現場から",
-      "title": "（ポリレビ#11）林芳正氏が閣外へ　どうみる高市首相の内閣改造・自民党役員人事",
-      "date": "2026/9/19 4:00",
-      "spotifyUrl": "https://open.spotify.com/episode/3b96NgjI0ZcEODl1KG2Kvo"
-    },
-    {
-      "epId": "EP-03838",
-      "ledgerRow": 3839,
-      "show": "ニュースの現場から",
-      "title": "（ポリレビ#9）高市首相、「次」を見据えた内閣改造の一手とは？",
-      "date": "2026/9/5 4:00",
-      "spotifyUrl": "https://open.spotify.com/episode/6YN47mPi8lWRuIfWJUw0hW"
     }
   ],
   "excluded": [
@@ -165,5 +165,6 @@
     "spotifyHttp": "not checked",
     "playlistMembership": "not checked",
     "playlistWrite": "none"
-  }
+  },
+  "dateNormalization": "YYYY/M/D H:mm and YYYY/MM/DD HH:mm normalized for chronological order"
 }
