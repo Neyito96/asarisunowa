@@ -7,7 +7,7 @@ function P24_POLIREBI_MEMBERSHIP_READ_ONLY() {
   const token = getSpotifyUserAccessToken();
   if (!token) throw new Error("Spotify認証情報なし。差分未確定。");
   // The existing helper fetches ONLY playlist members; no /shows/{id}/episodes scans.
-  const items = getAllSpotifyPlaylistItems_(P24_POLIREBI_PLAYLIST_ID_, token);
+  const items = P24_FETCH_SPOTIFY_PLAYLIST_ITEMS_READ_ONLY_(P24_POLIREBI_PLAYLIST_ID_, token);
   if (!Array.isArray(items)) throw new Error("Spotify membershipの形式不明。差分未確定。");
   const result = P24_POLIREBI_COMPARE_(proposals,items);
   Logger.log(JSON.stringify({phase:"24",mode:"READ_ONLY",playlistId:P24_POLIREBI_PLAYLIST_ID_,
@@ -61,4 +61,40 @@ function P24_POLIREBI_COMPARE_SELF_TEST() {
   const h=P24_POLIREBI_COMPARE_(candidates,[{item:null}]);
   if (h.safeToSuggestAdds || h.counts.uncertain!==1) throw new Error("UNKNOWN_MEMBER_GUARD_FAIL");
   return {ok:true,tests:["present/missing","unresolved-member-hold"]};
+}
+
+// Spotify Feb 2026: /items GET max limit=50, owner/collaborator only.
+// This is a dedicated read-only helper. Existing production helper remains untouched.
+function P24_FETCH_SPOTIFY_PLAYLIST_ITEMS_READ_ONLY_(playlistId, token) {
+  const all=[], seenPages=new Set();
+  let url="https://api.spotify.com/v1/playlists/"+encodeURIComponent(playlistId)+
+    "/items?market=JP&additional_types=episode&limit=50";
+  for (let page=0;url && page<50;page++) {
+    if (seenPages.has(url)) throw new Error("Spotify pagination loop。差分未確定。");
+    seenPages.add(url);
+    const response=fetchSpotifyReadWithRetry_(url,{
+      muteHttpExceptions:true,
+      headers:{Authorization:"Bearer "+token,Accept:"application/json"}
+    },"P24 playlist membership (read only)");
+    const status=response.getResponseCode();
+    if (status!==200) {
+      // No response body or token in logs. Separate errors explicitly.
+      throw new Error("Spotify playlist membership HTTP "+status+
+        (status===403?" (owner/collaborator access required)":
+         status===404?" (playlist ID/access/endpoint needs review)":
+         status===429?" (rate limit; stop)": "")+
+        "。候補比較未実施、Spotify更新0。");
+    }
+    const body=JSON.parse(response.getContentText());
+    if (!Array.isArray(body.items))throw new Error("Spotify membership items missing。差分未確定。");
+    all.push.apply(all,body.items);
+    url=body.next?String(body.next):"";
+    if (url && !/^https:\/\/api\.spotify\.com\/v1\/playlists\/[A-Za-z0-9]+\/items\?/.test(url)) {
+      throw new Error("Spotify pagination URL invalid。差分未確定。");
+    }
+    if (!url && typeof body.total==="number" && all.length!==body.total)
+      throw new Error("Spotify membership total mismatch。差分未確定。");
+  }
+  if (url)throw new Error("Spotify playlist page cap reached。差分未確定。");
+  return all;
 }
