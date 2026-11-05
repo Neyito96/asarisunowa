@@ -50,7 +50,8 @@ function P24_LIBRARY_PLAYLIST_PROPOSE(key) {
     if (!title || !date) {holds.push({id:id,reason:"MISSING_TITLE_OR_DATE"});return;}
     out.push(candidate);
   });
-  out.sort(function(a,b){return a.date.localeCompare(b.date)||a.id.localeCompare(b.id);});
+  function dateKey(value){const m=String(value).match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})/);return m?m.slice(1).map(function(v,i){return i===0?v:v.padStart(2,"0");}).join(""):"";}
+  out.sort(function(a,b){return dateKey(a.date).localeCompare(dateKey(b.date))||a.id.localeCompare(b.id);});
   const result={dryRun:true,rule:key,source:"production-ledger-read-only",scanned:values.length-1,
     candidates:out,holds:holds,counts:{ready:out.length,hold:holds.length},warning:
     "候補はSpotify API検証・既存プレイリストの所属確認・実再生チェック未実施。書き込み不可。テーマと出演者は人手確認必須。"};
