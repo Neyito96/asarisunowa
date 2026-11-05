@@ -18,7 +18,7 @@ function P24_LIBRARY_PLAYLIST_PROPOSE(key) {
   const ss=SpreadsheetApp.openById(P24_LIBRARY_LEDGER_ID_);
   const sheet=ss.getSheetByName("エピソード台帳");
   if (!sheet) throw new Error("台帳が見つからない");
-  const values=sheet.getDataRange().getDisplayValues();
+  const values=sheet.getRange(1,1,sheet.getLastRow(),24).getDisplayValues(); // A:Xのみ
   if (!values.length) throw new Error("空の台帳");
   const headers=values[0].map(function(s){return String(s).trim();});
   function findColumn(terms) {
