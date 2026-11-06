@@ -80,7 +80,7 @@ function p25CopyIo_(config) {
       if(!before)throw new Error("SNAPSHOT_REQUIRED");
       const ids=[];let offset=0;
       while(true){
-        const page=api("get","playlists/"+id+"/items?market=JP&limit=100&offset="+offset);
+        const page=api("get","playlists/"+id+"/items?market=JP&limit=50&offset="+offset);
         if(!Array.isArray(page.items))throw new Error("MEMBERSHIP_SCHEMA");
         page.items.forEach(function(row){const item=row.item||row.track;if(!item||!item.id)throw new Error("MEMBERSHIP_UNAVAILABLE_ITEM");if(item.type==="episode")ids.push(item.id);});
         if(!page.next)break;if(!page.items.length)throw new Error("MEMBERSHIP_PAGINATION");offset+=page.items.length;
