@@ -11,14 +11,14 @@ function P24_POLIREBI_MEMBERSHIP_READ_ONLY() {
   if (!Array.isArray(items)) throw new Error("Spotify membershipの形式不明。差分未確定。");
   const result = P24_POLIREBI_COMPARE_(proposals,items);
   Logger.log(JSON.stringify({phase:"24",mode:"READ_ONLY",playlistId:P24_POLIREBI_PLAYLIST_ID_,
-    counts:result.counts,missing:result.missing,uncertain:result.uncertain}));
+    counts:result.counts,missing:result.missing,uncertain:result.uncertain,playlistOnly:result.playlistOnly}));
   return result;
 }
 function P24_POLIREBI_COMPARE_(proposals,items) {
   if (!proposals || !Array.isArray(proposals.candidates) || !Array.isArray(items)) {
     throw new Error("候補またはmembershipデータが不正。");
   }
-  const ids=new Set(), uncertain=[];
+  const ids=new Set(), uncertain=[], playlistRecords=[];
   items.forEach(function(entry,index) {
     // Spotify playlist API items can have item (current) or track (legacy).
     const ep=entry && (entry.item || entry.track);
@@ -30,7 +30,7 @@ function P24_POLIREBI_COMPARE_(proposals,items) {
     const valid=/^[A-Za-z0-9]{22}$/.test(id) ? id :
       (uri.match(/^spotify:episode:([A-Za-z0-9]{22})$/)||[])[1] ||
       (url.match(/^https:\/\/open\.spotify\.com\/episode\/([A-Za-z0-9]{22})(?:[?#].*)?$/)||[])[1];
-    if (isEpisode && valid) ids.add(valid);
+    if (isEpisode && valid) { ids.add(valid); playlistRecords.push({id:valid,name:String(ep && ep.name || ""),url:"https://open.spotify.com/episode/"+valid,releaseDate:String(ep && ep.release_date || "")}); }
     else uncertain.push({position:index+1,reason:"UNRESOLVED_MEMBERSHIP_ITEM",itemType:ep && ep.type || null});
   });
   const seen=new Set(), present=[], missing=[], held=[];
@@ -42,12 +42,13 @@ function P24_POLIREBI_COMPARE_(proposals,items) {
     (ids.has(id)?present:missing).push({epId:candidate.id,title:candidate.title,spotifyUrl:url,
       date:candidate.date,reviewRequired:candidate.reviewRequired});
   });
+  const playlistOnly=playlistRecords.filter(function(record){return !seen.has(record.id);});
   // Unresolved entries can hide a matching episode; cannot propose write in that state.
   const safeToSuggestAdds=uncertain.length===0 && held.length===0;
   return {dryRun:true,playlistId:P24_POLIREBI_PLAYLIST_ID_,
     counts:{ledgerCandidates:proposals.candidates.length,playlistItems:items.length,
-      uniqueExistingEpisodeIds:ids.size,present:present.length,missing:missing.length,held:held.length,uncertain:uncertain.length},
-    present:present,missing:missing,held:held,uncertain:uncertain,
+      uniqueExistingEpisodeIds:ids.size,present:present.length,missing:missing.length,held:held.length,uncertain:uncertain.length,playlistOnly:playlistOnly.length},
+    present:present,missing:missing,held:held,uncertain:uncertain,playlistOnly:playlistOnly,
     safeToSuggestAdds:safeToSuggestAdds,writeAllowed:false,
     note:"HTTP等でplaylist取得に失敗すれば例外停止。欠番は自動追加禁止。過去の手動削除は別台帳で確認する。"};
 }
@@ -60,7 +61,10 @@ function P24_POLIREBI_COMPARE_SELF_TEST() {
   if (r.counts.present!==1 || r.counts.missing!==1 || r.missing[0].epId!=="EP-00002" || !r.safeToSuggestAdds)throw new Error("DIFF_TEST_FAIL");
   const h=P24_POLIREBI_COMPARE_(candidates,[{item:null}]);
   if (h.safeToSuggestAdds || h.counts.uncertain!==1) throw new Error("UNKNOWN_MEMBER_GUARD_FAIL");
-  return {ok:true,tests:["present/missing","unresolved-member-hold"]};
+  if (r.counts.playlistOnly!==0) throw new Error("PLAYLIST_ONLY_TEST_FAIL");
+  const extras=P24_POLIREBI_COMPARE_(candidates,[{item:{type:"episode",id:one,uri:"spotify:episode:"+one}},{item:{type:"episode",id:"1234567890123456789012",name:"#15",uri:"spotify:episode:1234567890123456789012"}}]);
+  if (extras.counts.playlistOnly!==1 || extras.playlistOnly[0].name!=="#15") throw new Error("PLAYLIST_ONLY_TEST_FAIL");
+  return {ok:true,tests:["present/missing","unresolved-member-hold","playlist-only-records"]};
 }
 
 // Spotify Feb 2026: /items GET max limit=50, owner/collaborator only.
