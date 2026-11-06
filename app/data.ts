@@ -22,7 +22,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "IOK 伊藤大地・奥山晶二郎・神田大介",
     "I'm OK",
     "https://open.spotify.com/playlist/799Fo9to2TK0ahGEJsvcm2",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e",
     "2026-03-30",
     null,
     true
@@ -58,7 +58,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "東日本大震災",
     "cobaltore12",
     "https://open.spotify.com/playlist/4nptiHJbbsjKS37kykLkNF",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694",
     null,
     null,
     false
@@ -382,7 +382,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "「SDGsを話そう」厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/4styp7b6VpZThsevXCRDla",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84a1ed8e9ca1ad0f9a7c2b7b07",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84a1ed8e9ca1ad0f9a7c2b7b07",
     null,
     null,
     false
@@ -625,7 +625,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "寺下真理加　出演回",
     "招き猫",
     "https://open.spotify.com/playlist/1qhNqjSTfwvJP3cQaXg9bn",
-    "https://mosaic.scdn.co/300/ab67656300005f1f6a6d0998c685bd17a5f80b4aab67656300005f1faa1a80675ea9bd8f2ce8d690ab67656300005f1faa20a97cf7b1aa3204614d40ab67656300005f1fb9700620d31b12d2abe26946",
+    "https://mosaic.scdn.co/640/ab67656300005f1f6a6d0998c685bd17a5f80b4aab67656300005f1faa1a80675ea9bd8f2ce8d690ab67656300005f1faa20a97cf7b1aa3204614d40ab67656300005f1fb9700620d31b12d2abe26946",
     "2026-09-13",
     "2026-09-25",
     true
