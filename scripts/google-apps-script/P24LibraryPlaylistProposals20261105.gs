@@ -6,7 +6,7 @@ const P24_LIBRARY_RULES_ = [
   {key:"issho-shinbun",type:"series",show:"ニュースの現場から",include:["めくろう"],titleOnly:true},
   {key:"kino-douga",type:"series",show:"MEDIA TALK",include:["動画みた？"],titleOnly:true},
   {key:"no-mirai",type:"series",include:["ノーミライ #","農M、猟L"],titleOnly:true},
-  {key:"polirebi",type:"series",show:"ニュースの現場から",include:["ポリレビ"],titleOnly:true},
+  {key:"polirebi",type:"series",show:"ニュースの現場から",include:["ポリレビ"],titleOnly:true,verifiedEpisodeAliases:[{epId:"EP-03752",spotifyEpisodeId:"4W55t8flEwVGQ5035ICEIY"}]},
   {key:"ota-masahiko",type:"speaker",include:["太田匡彦","太田 匡彦"],review:true},
   {key:"toyohide",type:"speaker",include:["豊秀一","豊 秀一"],review:true},
   {key:"sato-yo",type:"speaker",include:["佐藤陽","佐藤 陽"],review:true},
@@ -39,8 +39,13 @@ function P24_LIBRARY_PLAYLIST_PROPOSE(key) {
     const haystack=rule.titleOnly?title:(title+"\n"+cast+"\n"+description);
     if (rule.show && show!==rule.show) return;
     const hits=rule.include.filter(function(term){return haystack.indexOf(term)>=0;});
-    if (!hits.length) return;
-    const raw=String(row[11]||"").trim(); // L列 Spotify individual episode URL
+    const raw=String(row[11]||"").trim();
+    const aliases=Array.isArray(rule.verifiedEpisodeAliases)?rule.verifiedEpisodeAliases:[];
+    const alias=aliases.find(function(item){
+      return item.epId===id && raw==="https://open.spotify.com/episode/"+item.spotifyEpisodeId;
+    });
+    if (!hits.length && !alias) return;
+    if (!hits.length && alias) hits.push("VERIFIED_EP_ID_ALIAS"); // L列 Spotify individual episode URL
     const match=raw.match(/^https:\/\/open\.spotify\.com\/episode\/([A-Za-z0-9]{22})(?:[?#].*)?$/);
     const candidate={id:id,show:show,title:title,date:date,spotifyUrl:match?"https://open.spotify.com/episode/"+match[1]:null,
       matchedTerms:hits,source:"ledger",sheetRow:i+2,reviewRequired:!!rule.review};
@@ -68,5 +73,7 @@ function P24_LIBRARY_PLAYLIST_SELF_TEST() {
   const sample="https://open.spotify.com/episode/0123456789ABCDEFGHIJKL";
   if (!/^https:\/\/open\.spotify\.com\/episode\/[A-Za-z0-9]{22}$/.test(sample)) throw new Error("URL検証失敗");
   if (P24_LIBRARY_RULES_.length!==8) throw new Error("ルール件数");
-  return {ok:true,checks:2};
+  const rule=P24_LIBRARY_RULES_.find(function(r){return r.key==="polirebi";});
+  if (!rule || !rule.verifiedEpisodeAliases || rule.verifiedEpisodeAliases[0].epId!=="EP-03752") throw new Error("ポリレビ確認済み例外");
+  return {ok:true,checks:3};
 }
