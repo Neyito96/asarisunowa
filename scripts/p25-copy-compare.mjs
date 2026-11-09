@@ -9,7 +9,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
-export const NEW_FILES = ['P25LibraryPipeline.js', 'P25CopyAdapter.js', 'P25CopyOwnership.js', 'P25CopySession20261107.js'];
+export const NEW_FILES = ['P25LibraryPipeline.js', 'P25CopyAdapter.js', 'P25CopyOwnership.js', 'P25CopySession20261107.js', 'P25CopyToken.js'];
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
 // Walks source skipping strings/comments; returns top-level (depth 0) function declarations and const/let/var.

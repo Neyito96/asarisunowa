@@ -17,20 +17,30 @@ function p25CopyIo_(config) {
   const ss=SpreadsheetApp.openById(config.stateSheetId);
   const sheet=ss.getSheetByName("P25_STATE");
   if (!sheet || sheet.getRange(1,1,1,4).getDisplayValues()[0].join("|")!=="key|version|part|json") throw new Error("COPY_STATE_SCHEMA_REQUIRED");
-  let token="", apiCalls=0;
+  let token="", apiCalls=0, tokenRefreshes=0;
   const apiBudget=config.apiBudget||50;
+  // Token handling lives in P25CopyToken.js (expiry check, refresh_token grant). At most ONE refresh + retry per run, GET requests only.
   function api(method,path,body) {
     if (++apiCalls>apiBudget) throw new Error("API_BUDGET_EXHAUSTED");
-    if (!token) token=PropertiesService.getScriptProperties().getProperty("P25_COPY_SPOTIFY_ACCESS_TOKEN");
-    if (!token) throw new Error("COPY_TOKEN_REQUIRED");
-    const options={method:method,muteHttpExceptions:true,headers:{Authorization:"Bearer "+token},contentType:"application/json"};
-    if(body) options.payload=JSON.stringify(body);
-    const response=UrlFetchApp.fetch("https://api.spotify.com/v1/"+path,options),status=response.getResponseCode();
-    if(status<200||status>=300) {
-      const error=new Error("SPOTIFY_HTTP");error.status=status;
-      const headers=response.getAllHeaders();error.retryAfterSeconds=Number(headers["Retry-After"]||headers["retry-after"]||60);throw error;
+    for(;;) {
+      if (!token) token=p25CopyTokGet_(config);
+      const used=token;
+      const options={method:method,muteHttpExceptions:true,headers:{Authorization:"Bearer "+used},contentType:"application/json"};
+      if(body) options.payload=JSON.stringify(body);
+      const response=UrlFetchApp.fetch("https://api.spotify.com/v1/"+path,options),status=response.getResponseCode();
+      if(status===401 && method==="get" && tokenRefreshes===0) {
+        // The playlist POST (add) is never retried: a rejected write is reported, not repeated.
+        tokenRefreshes++;
+        token=p25CopyTokGet_(config,{rejected:used});
+        if (++apiCalls>apiBudget) throw new Error("API_BUDGET_EXHAUSTED");
+        continue;
+      }
+      if(status<200||status>=300) {
+        const error=new Error("SPOTIFY_HTTP");error.status=status;
+        const headers=response.getAllHeaders();error.retryAfterSeconds=Number(headers["Retry-After"]||headers["retry-after"]||60);throw error;
+      }
+      return JSON.parse(response.getContentText()||"{}");
     }
-    return JSON.parse(response.getContentText()||"{}");
   }
   function load(key) {
     if(sheet.getLastRow()<2)return null;
@@ -79,6 +89,13 @@ function p25CopyIo_(config) {
         let e;
         try { e=api("get","episodes/"+encodeURIComponent(id)+"?market=JP"); }
         catch(err) {
+          // Token problems (COPY_REAUTH_REQUIRED, COPY_TOKEN_REFRESH_BACKOFF, ...) say nothing about this episode: stop the whole check.
+          if(err&&/^COPY_/.test(String(err.message))){
+            out.stopped={reason:String(err.message),status:err.status||0};
+            if(err.retryAfterSeconds)out.stopped.retryAfterSeconds=err.retryAfterSeconds;
+            out.notVerifiable.push.apply(out.notVerifiable,ids.slice(n));
+            return out;
+          }
           if(err&&err.status===404){out.missing.push(id);continue;}
           if(err&&err.status===400){out.notVerifiable.push(id);continue;}
           const status=err&&err.status?err.status:0;
@@ -95,7 +112,7 @@ function p25CopyIo_(config) {
       out.complete=true;
       return out;
     },
-    apiUsage:function(){return {calls:apiCalls,budget:apiBudget};},
+    apiUsage:function(){return {calls:apiCalls,budget:apiBudget,tokenRefreshes:tokenRefreshes};},
     readRequests:function(){
       const s=SpreadsheetApp.openById(config.requestSheetId).getSheetByName("自動更新申請");
       if(!s||s.getLastRow()<2)return [];

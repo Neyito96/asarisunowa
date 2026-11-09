@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url';
 
 export const COPY_SCRIPT_ID = '16qdHt_nojvKK4Qzcww4C7jkg6frpLiYIHXn4CG-_UtILn4qKlmoixT9R';
 export const PRODUCTION_SCRIPT_ID = '1HpZNp96TQ7S1ilmfyItKI2IxYgdk8ufCsWXSVNEaGkh7_uQRXkr6k1I9';
-export const COPY_FILES = ['P25LibraryPipeline.js', 'P25CopyAdapter.js', 'P25CopyOwnership.js', 'P25CopySession20261107.js'];
+export const COPY_FILES = ['P25LibraryPipeline.js', 'P25CopyAdapter.js', 'P25CopyOwnership.js', 'P25CopySession20261107.js', 'P25CopyToken.js'];
 // Files that exist only in the production project. Seeing one in the pulled folder = wrong project.
 export const PRODUCTION_ONLY = ['P25ProdIo.js', 'P25Ownership.js', 'P25SpotifyTarget.js', 'AutoUpdateAutomationV1.js', 'AutoUpdateRequest.js', 'ThemeV3SingleSheet.js', 'PlaylistAutoWrite.js'];
 const SOURCE_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), 'google-apps-script');

@@ -16,7 +16,7 @@ function p25Plan_(a) { return legacyOnly_(a); }
 function legacyOnly_(a) { return 1; }
 function menuEntry() { return getToken_(); }
 `;
-const NEW = { 'P25LibraryPipeline.js': `function same_(a) { return a + 1; }\nfunction getToken_() { return UrlFetchApp.fetch("https://x", {method:"post"}); }\nfunction readOnly_(x, y) { return x.filter(Boolean); }\nfunction p25Plan_(a, b) { return 2; }\n`, 'P25CopyAdapter.js': '', 'P25CopyOwnership.js': '', 'P25CopySession20261107.js': '' };
+const NEW = { 'P25LibraryPipeline.js': `function same_(a) { return a + 1; }\nfunction getToken_() { return UrlFetchApp.fetch("https://x", {method:"post"}); }\nfunction readOnly_(x, y) { return x.filter(Boolean); }\nfunction p25Plan_(a, b) { return 2; }\n`, 'P25CopyAdapter.js': '', 'P25CopyOwnership.js': '', 'P25CopySession20261107.js': '', 'P25CopyToken.js': '' };
 
 test('parser handles braces inside strings and finds function/const definitions with lines', () => {
   const p = parseTopLevel(OLD);

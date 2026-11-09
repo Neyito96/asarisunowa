@@ -165,7 +165,7 @@ test('COPY staging: dry run lists add/update/same, preserves remote-only files, 
   const d = pulled(COPY_SCRIPT_ID, ['Code.js', 'appsscript.json', 'P25CopyAdapter.js']);
   const plan = planStage(d);
   assert.equal(plan.ok, true);
-  assert.deepEqual(plan.files.map(f => f.action), ['add', 'update', 'add', 'add']);
+  assert.deepEqual(plan.files.map(f => f.action), ['add', 'update', 'add', 'add', 'add']);
   assert.deepEqual(plan.preserved.sort(), ['.clasp.json', 'Code.js', 'appsscript.json']);
   assert.deepEqual(plan.deletes, []);
   assert.equal(fs.readFileSync(path.join(d, 'P25CopyAdapter.js'), 'utf8'), '// remote P25CopyAdapter.js');   // dry run wrote nothing

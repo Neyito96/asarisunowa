@@ -62,3 +62,11 @@ function P25_COPY_ONE_ADD_20261107() {
   const result=P25_RUN_COPY(config);
   console.log(JSON.stringify(result));return result;
 }
+
+// Read-only token summary (booleans and times only). Calls Spotify's token endpoint only when the stored token is about to expire.
+function P25_COPY_TOKEN_CHECK_20261110() {
+  const config=p25CopySessionConfig20261107_();
+  p25CopyTokGet_(config);
+  const result=p25CopyTokStatus_(config);
+  console.log(JSON.stringify(result));return result;
+}

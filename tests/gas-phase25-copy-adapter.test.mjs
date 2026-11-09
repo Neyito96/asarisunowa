@@ -27,7 +27,7 @@ function fixture(count=0){
   const context=vm.createContext({
     ScriptApp:{getScriptId:()=> 'copy-script'},
     SpreadsheetApp:{openById:key=>{assert.ok(books[key],'must never access production');return {getSheetByName:name=>books[key][name]};},flush(){}},
-    PropertiesService:{getScriptProperties:()=>({getProperty:key=>{assert.equal(key,'P25_COPY_SPOTIFY_ACCESS_TOKEN');return 'fixture-only';}})},
+    PropertiesService:{getScriptProperties:()=>({getProperty:key=>{assert.ok(key.startsWith('P25_COPY_SPOTIFY_'));if(key==='P25_COPY_SPOTIFY_ACCESS_TOKEN')return 'fixture-only';if(key==='P25_COPY_SPOTIFY_EXPIRES_AT')return String(Date.now()+3600000);return null;}})},
     Utilities:{getUuid:()=>String(++serial)},
     LockService:{getScriptLock:()=>({tryLock:()=>{if(locked)return false;locked=true;return true;},releaseLock:()=>{locked=false;}})},
     UrlFetchApp:{fetch:(url,options)=>{
@@ -53,7 +53,7 @@ function fixture(count=0){
       return response(200,{items,next:offset+items.length<f.members.length?'/next':null});
     }}
   });
-  for(const name of ['P25LibraryPipeline.js','P25CopyAdapter.js'])vm.runInContext(fs.readFileSync('scripts/google-apps-script/'+name,'utf8'),context);
+  for(const name of ['P25LibraryPipeline.js','P25CopyToken.js','P25CopyAdapter.js'])vm.runInContext(fs.readFileSync('scripts/google-apps-script/'+name,'utf8'),context);
   f.config={environment:'COPY',copyScriptId:'copy-script',stateSheetId:'copy-state',requestSheetId:'copy-requests',ledgerSheetId:'copy-ledger',copyPlaylistIds:[playlist],legacyWriterDisabled:true,write:true,maxAdditions:1};
   f.context=context;f.io=()=>context.p25CopyIo_(f.config);f.run=()=>context.P25_RUN_COPY(f.config);f.inspect=()=>context.P25_INSPECT_COPY(f.config,playlist);f.stateSheet=state;f.requests=requests;return f;
 }
@@ -138,7 +138,7 @@ test('EP-06678-style single check: one GET /episodes/{id}?market=JP, never the r
  const r=verify(f);
  assert.deepEqual(r.ok,['EP-00001']);assert.equal(r.complete,true);assert.equal(r.stopped,null);
  assert.deepEqual(f.singleCalls,[candidate]);assert.equal(f.batchCalls,0);assert.equal(f.posts,0);
- assert.deepEqual(r.apiUsage,{calls:1,budget:50});
+ assert.deepEqual(r.apiUsage,{calls:1,budget:50,tokenRefreshes:0});
  assert.equal(f.calls.every(c=>c.method==='get'),true);
 });
 test('classification kept: ok / missing (404) / unplayable / notVerifiable (ledger problems, mismatched id, 400)',()=>{
@@ -155,17 +155,17 @@ test('classification kept: ok / missing (404) / unplayable / notVerifiable (ledg
  assert.deepEqual(r.notVerifiable.sort(),['EP-00004','EP-00005','EP-00006','EP-99999']);
  assert.equal(r.complete,true);assert.equal(f.batchCalls,0);
 });
-for(const [status,reason] of [[401,'SPOTIFY_AUTH_REQUIRED'],[403,'SPOTIFY_FORBIDDEN'],[500,'SPOTIFY_SERVER_ERROR'],[418,'SPOTIFY_HTTP_418']])test(`HTTP ${status} stops the whole check (${reason}); remaining ids are notVerifiable, nothing is written`,()=>{
+for(const [status,reason] of [[401,'COPY_REAUTH_REQUIRED'],[403,'SPOTIFY_FORBIDDEN'],[500,'SPOTIFY_SERVER_ERROR'],[418,'SPOTIFY_HTTP_418']])test(`HTTP ${status} stops the whole check (${reason}); remaining ids are notVerifiable, nothing is written`,()=>{
  const f=fixture(0);f.config.write=false;
  const rows=f.context.SpreadsheetApp.openById('copy-ledger').getSheetByName('エピソード台帳');
  const r2=Array(39).fill('');r2[0]='EP-00002';r2[1]='テスト番組';r2[2]='t2';r2[3]='2026/11/6 4:00';r2[6]='g2';r2[11]='https://open.spotify.com/episode/'+'A'.repeat(22);rows.rows.push(r2);
  f.episodes={[candidate]:status};
  const r=verify(f,['EP-00001','EP-00002']);
- assert.equal(r.stopped.reason,reason);assert.equal(r.stopped.status,status);assert.equal(r.complete,false);
+ assert.equal(r.stopped.reason,reason);if(status!==401)assert.equal(r.stopped.status,status);assert.equal(r.complete,false);
  assert.deepEqual(r.ok,[]);assert.deepEqual(r.notVerifiable,['EP-00001','EP-00002']);
- assert.equal(f.singleCalls.length,1);                      // stopped at the first failure, no retry loop
+ assert.equal(f.singleCalls.length,1);                      // stopped at the first failure, no retry loop (401: no refresh token stored -> re-auth)
  assert.equal(f.posts,0);
- if(status===403||status===401)assert.match(r.stopped.hint,/Development Mode/);
+ if(status===403)assert.match(r.stopped.hint,/Development Mode/);
 });
 test('429 reports Retry-After and stops without retrying',()=>{
  const f=fixture(0);f.config.write=false;f.episodes={[candidate]:429};
