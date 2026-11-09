@@ -81,6 +81,23 @@ COPY 専用 GAS(スクリプト ID `16qdHt_nojvK…`)だけで行います。本
 4. 別承認の後に `clasp push`(`--force` なし)。
 5. 反映後の最初の操作は `P25_COPY_VERIFY_IDS_20261107`(EP-06678 の1件。GETのみ、呼び出し1回)。`stopped` が出た場合はその `reason` をそのまま共有する。`write:true` は引き続き別承認。
 
+## COPY OAuth の refresh_token 対応(2026-11-10。アクセストークンは約1時間で失効するため)
+- 追加ファイル `P25CopyToken.js`(COPY 用の5つ目)。`P25CopyAdapter.js` は期限切れの前に自動更新し、GET が 401 のときだけ 1 回更新して 1 回再試行する(プレイリストへの POST は再試行しない)。
+- `P25CopySpotifyAuth.js` は GitHub 管理外の COPY 専用ファイル。コールバックが `refresh_token` を捨てている 2 行だけを `scripts/p25-copy-auth-patch.mjs` で置き換える(別のファイルや本番の OAuth には触れない)。
+- クライアントは PKCE(クライアントシークレットなし)。更新時は `P25_COPY_SPOTIFY_CLIENT_ID` を本文に付けて送る。シークレットを新しく入れる必要はない。
+- 保存するプロパティ(すべて COPY プロジェクトのスクリプトプロパティ): `P25_COPY_SPOTIFY_ACCESS_TOKEN` `_REFRESH_TOKEN` `_EXPIRES_AT` `_SCOPE`。再認証が必要になった状態は `_REAUTH_REQUIRED`、更新の待機は `_REFRESH_NOT_BEFORE`。値はログ・チャット・GitHub に出さない。
+
+手順(すべてローカル。COPY への push は別承認):
+1. `cd ~/asarisunowa-review && git pull --ff-only`
+2. `node scripts/p25-copy-stage.mjs ~/p25-copy-api-fix`(点検のみ。旧 `コード.js` が残っていれば `--retire` の手順に従う)
+3. 反映前の記録: `cd ~/p25-copy-api-fix && find . -type f -not -path './.git/*' | sort | xargs shasum -a 256 > ../p25-copy-before-oauth.sha256`
+4. 承認後: `node scripts/p25-copy-stage.mjs ~/p25-copy-api-fix --apply`
+5. 認証ファイルの修正(点検): `node scripts/p25-copy-auth-patch.mjs ~/p25-copy-api-fix/P25CopySpotifyAuth.js --backup-dir ~/p25-copy-backup/auth`
+   `removedLines:2`、`addedLines:3`、`productionOAuthTouched:false` を確認し、`--apply` で適用(元ファイルは backup-dir にハッシュ付きで退避)。
+6. 差分確認: 手順3との差が「5ファイル + P25CopySpotifyAuth.js」だけ(それ以外の変更・削除なし)。`clasp status` を共有。
+7. 別承認の後に `clasp push`(`--force` なし)。
+8. 反映後: COPY 専用 OAuth をもう一度行う(`P25_COPY_PREPARE_SPOTIFY_AUTH` → ブラウザで許可。今回から `refresh_token` が保存される)。続けて `P25_COPY_TOKEN_CHECK_20261110`(読み取りのみ。`refreshTokenPresent:true`、`expiresInSeconds` が正であること)→ `P25_COPY_VERIFY_IDS_20261107`(EP-06678、GET のみ)。
+
 ## 実機(COPY)での必須条件
 - 台帳の AM 列「人間除外」と「削除・除外履歴」シートが読めない場合、処理は停止する(`LEDGER_SCHEMA_MISMATCH` / `EXCLUSION_SHEET_MISSING` / `EXCLUSION_SOURCE_REQUIRED`)。除外データなしでの実行はできない。
 - 旧バージョンで保存された状態に `plan.skipped` が無い、または配列でなくても、例外にならず 0 件として扱う。
