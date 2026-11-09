@@ -500,7 +500,7 @@ const officialPrograms: OfficialProgram[] = [
     ],
     official: "https://omny.fm/shows/asahi/playlists/sponge",
     pody: "https://pody.jp/player/SLYemnwXxXWVj4z0zqt0",
-    youtube: false,    discord: "https://discord.gg/6zBhm97F9",
+    youtube: false,    discord: "https://discord.com/invite/YFWsuhd3hE",
 
   },
   {
@@ -517,7 +517,7 @@ const officialPrograms: OfficialProgram[] = [
     ],
     official: "https://omny.fm/shows/asahi/playlists/playlist-2",
     pody: "https://pody.jp/player/woMdDOpTDIxhqS4HtAsS",
-    discord: "https://discord.gg/6zBhm97F9",
+    discord: "https://discord.com/invite/YFWsuhd3hE",
     youtube: false,
   },
   {
@@ -535,7 +535,7 @@ const officialPrograms: OfficialProgram[] = [
     ],
     official: "https://omny.fm/shows/asahi/playlists/podcast",
     pody: "https://pody.jp/player/4UD5sHilP15gqAc0clXN",
-    discord: "https://discord.gg/6zBhm97F9",
+    discord: "https://discord.com/invite/YFWsuhd3hE",
 
   },
   {
@@ -566,7 +566,7 @@ const officialPrograms: OfficialProgram[] = [
     ],
     official: "https://omny.fm/shows/asahi/playlists/sdgs",
     pody: "https://pody.jp/player/8aeTZ7uuPPmWLxZTkRER",
-    youtube: false,    discord: "https://discord.gg/6zBhm97F9",
+    youtube: false,    discord: "https://discord.com/invite/YFWsuhd3hE",
 
   },
   {
@@ -580,7 +580,7 @@ const officialPrograms: OfficialProgram[] = [
       ["LISTEN", "https://listen.style/p/pkvcigu2"]
     ],
     official: "https://omny.fm/shows/asahi/playlists/playlist-3",
-    youtube: false,    discord: "https://discord.gg/6zBhm97F9",
+    youtube: false,    discord: "https://discord.com/invite/YFWsuhd3hE",
 
   },
   {
@@ -594,7 +594,7 @@ const officialPrograms: OfficialProgram[] = [
       ["LISTEN", "https://listen.style/p/pyjfhr6u"]
     ],
     official: "https://omny.fm/shows/arukiki-ajw",
-    youtube: false,    discord: "https://discord.gg/6zBhm97F9",
+    youtube: false,    discord: "https://discord.com/invite/YFWsuhd3hE",
 
   },
   {
@@ -607,7 +607,7 @@ const officialPrograms: OfficialProgram[] = [
       ["Amazon Music", "https://music.amazon.com/es-us/podcasts/81edc5ed-5305-4cd3-b392-3a001e6c1086/%E6%9C%9D%E6%97%A5%E6%96%B0%E8%81%9Eajw-%E8%8B%B1%E8%AA%9E%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%EF%BC%88the-asahi-shimbun-asia-japan-watch%EF%BC%89"],
     ],
     official: "https://www.asahi.com/ajw/",
-    youtube: false,    discord: "https://discord.gg/6zBhm97F9",
+    youtube: false,    discord: "https://discord.com/invite/YFWsuhd3hE",
 
   },
 ];
@@ -2419,7 +2419,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 </div>
               </div>
               <div className="discordLinkGrid">
-                <a href="https://discord.gg/6zBhm97F9" target="_blank" rel="noreferrer">
+                <a href="https://discord.com/invite/YFWsuhd3hE" target="_blank" rel="noreferrer">
                   <i aria-hidden="true">🌅</i><span><b>朝ポキのDiscord</b><small>総合交流サーバー</small></span>
                 </a>
                 <a href="https://discord.gg/d7sAbSRQvq" target="_blank" rel="noreferrer">
