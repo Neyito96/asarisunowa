@@ -73,6 +73,14 @@ COPY 専用 GAS(スクリプト ID `16qdHt_nojvK…`)だけで行います。本
 4. `clasp status` の出力が「4ファイルの追加/更新と コード.js の削除」だけであることを確認。**COPY 上の `コード.js` の削除は `clasp push` で実行されるため、別承認が必要。** `--force` は使わない。
 5. 戻し方: push 後に問題があれば、バックアップの `コード.js` と、旧4ファイルを外した状態で再度 push すれば元に戻る(旧ファイルは `-retired/` とバックアップの両方にある)。
 
+## Spotify ID 照合の修正を COPY に再反映する手順(2026-11-09 の 403 対応)
+変わるのは `P25CopyAdapter.js` と `P25CopySession20261107.js` の2ファイルだけです(`P25LibraryPipeline.js` / `P25CopyOwnership.js` は同一のはず)。
+1. 空フォルダへ COPY を `clasp clone`(取得のみ)。取得直後のハッシュを記録。
+2. `node scripts/p25-copy-stage.mjs <フォルダ>` で点検(書き込みなし)。`files` に `update` が出るのは上の2つだけで、残り2つは `same`。`deletes` は空。旧 `コード.js` がまだ COPY に残っている場合は、先に「旧 コード.js の退避と置換」の手順(`--retire`)を使う。
+3. 承認後に `--apply`(ローカルのみ)→ 取得直後との差分が2ファイルだけであることを確認 → `clasp status` を共有。
+4. 別承認の後に `clasp push`(`--force` なし)。
+5. 反映後の最初の操作は `P25_COPY_VERIFY_IDS_20261107`(EP-06678 の1件。GETのみ、呼び出し1回)。`stopped` が出た場合はその `reason` をそのまま共有する。`write:true` は引き続き別承認。
+
 ## 実機(COPY)での必須条件
 - 台帳の AM 列「人間除外」と「削除・除外履歴」シートが読めない場合、処理は停止する(`LEDGER_SCHEMA_MISMATCH` / `EXCLUSION_SHEET_MISSING` / `EXCLUSION_SOURCE_REQUIRED`)。除外データなしでの実行はできない。
 - 旧バージョンで保存された状態に `plan.skipped` が無い、または配列でなくても、例外にならず 0 件として扱う。

@@ -66,13 +66,36 @@ function p25CopyIo_(config) {
     // Synthetic owner record: only when the session config enables rule-level auto-add for the test playlist.
     readOwner:function(id){return config.autoAdd&&allow.has(id)?{owner:"P25",generation:1,autoAdd:{since:config.autoAdd.since,revision:config.autoAdd.revision,shows:config.autoAdd.shows||[]}}:null;},
     // READ ONLY Spotify GET: do the ledger's Spotify episode IDs exist and play in Japan?
+    // Spotify (2026-02 Development Mode migration) removed the batch "episodes with ids" endpoint. Each episode is read with
+    // GET /episodes/{id}?market=JP. Per-episode: 200 -> ok/unplayable, 404 -> missing. Anything that is not about one
+    // episode (401/403/429/5xx, budget, network) STOPS the run: the rest stay notVerifiable and `stopped` says why.
+    // Never retries inside the run (a 429 means: wait Retry-After), never writes.
     verifyEpisodes:function(ids){
-      const out={ok:[],missing:[],unplayable:[]};
-      for(let o=0;o<ids.length;o+=50){const chunk=ids.slice(o,o+50);const data=api("get","episodes?market=JP&ids="+chunk.join(","));
-        if(!Array.isArray(data.episodes)||data.episodes.length!==chunk.length)throw new Error("EPISODES_SCHEMA");
-        data.episodes.forEach(function(e,i){if(!e||e.id!==chunk[i])out.missing.push(chunk[i]);else if(e.is_playable===false)out.unplayable.push(chunk[i]);else out.ok.push(chunk[i]);});}
+      const out={ok:[],missing:[],unplayable:[],notVerifiable:[],stopped:null,complete:false};
+      const reasonOf={401:"SPOTIFY_AUTH_REQUIRED",403:"SPOTIFY_FORBIDDEN",429:"SPOTIFY_RATE_LIMITED"};
+      for(let n=0;n<ids.length;n++){
+        const id=ids[n];
+        if(!/^[A-Za-z0-9]{22}$/.test(String(id))){out.notVerifiable.push(id);continue;}
+        let e;
+        try { e=api("get","episodes/"+encodeURIComponent(id)+"?market=JP"); }
+        catch(err) {
+          if(err&&err.status===404){out.missing.push(id);continue;}
+          if(err&&err.status===400){out.notVerifiable.push(id);continue;}
+          const status=err&&err.status?err.status:0;
+          out.stopped={reason:status?(reasonOf[status]||(status>=500?"SPOTIFY_SERVER_ERROR":"SPOTIFY_HTTP_"+status)):(String(err&&err.message)==="API_BUDGET_EXHAUSTED"?"API_BUDGET_EXHAUSTED":"SPOTIFY_NETWORK_ERROR"),status:status};
+          if(status===429)out.stopped.retryAfterSeconds=err.retryAfterSeconds||60;
+          if(status===401||status===403)out.stopped.hint="トークン、Spotify Developer の Development Mode(アプリ所有者の Premium、利用者の登録)、権限を確認してください";
+          out.notVerifiable.push.apply(out.notVerifiable,ids.slice(n));
+          return out;
+        }
+        if(!e||e.id!==id)out.notVerifiable.push(id);
+        else if(e.is_playable===false)out.unplayable.push(id);
+        else out.ok.push(id);
+      }
+      out.complete=true;
       return out;
     },
+    apiUsage:function(){return {calls:apiCalls,budget:apiBudget};},
     readRequests:function(){
       const s=SpreadsheetApp.openById(config.requestSheetId).getSheetByName("自動更新申請");
       if(!s||s.getLastRow()<2)return [];
@@ -159,9 +182,9 @@ function P25_VERIFY_IDS_COPY(config,epIds) {
   const byEp={},idToEp={},ids=[],notVerifiable=[];
   index.rows.forEach(function(e){byEp[e.epId]=e;});
   epIds.forEach(function(id){const e=byEp[id];if(!e||e.reason||!e.spotifyId){notVerifiable.push(id);return;}ids.push(e.spotifyId);idToEp[e.spotifyId]=id;});
-  const r=ids.length?io.verifyEpisodes(ids):{ok:[],missing:[],unplayable:[]};
-  const toEp=function(l){return l.map(function(i){return idToEp[i];});};
-  return {ok:toEp(r.ok),missing:toEp(r.missing),unplayable:toEp(r.unplayable),notVerifiable:notVerifiable};
+  const r=ids.length?io.verifyEpisodes(ids):{ok:[],missing:[],unplayable:[],notVerifiable:[],stopped:null,complete:true};
+  const toEp=function(l){return l.map(function(i){return idToEp[i]||i;});};
+  return {ok:toEp(r.ok),missing:toEp(r.missing),unplayable:toEp(r.unplayable),notVerifiable:notVerifiable.concat(toEp(r.notVerifiable)),complete:r.complete===true,stopped:r.stopped||null,apiUsage:io.apiUsage()};
 }
 // Dry preview for one COPY playlist: the rule revision to put in config.autoAdd, what the plan would do.
 // Never writes (add is not called) and never persists state.

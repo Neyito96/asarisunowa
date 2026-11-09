@@ -23,7 +23,7 @@ function fixture(count=0){
   const requests=new Sheet([Array(9).fill('header'),['2026/11/6','https://open.spotify.com/playlist/'+playlist,'COPY','TEST','DO_NOT_PERSIST','COPY連載','','確認待ち','方式: series / test']]);
   const ledger=new Sheet([headers,row]);
   const books={'copy-state':{P25_STATE:state},'copy-requests':{'自動更新申請':requests},'copy-ledger':{'エピソード台帳':ledger,'削除・除外履歴':new Sheet([['GUID','EP-ID']])}};
-  const f={playlistName:'[P25-COPY] test',members:Array.from({length:count},(_,i)=>id(i)),calls:[],posts:0,snapshot:1,failOffset:null,changeSnapshot:false,emptyPage:false};let serial=0,locked=false;
+  const f={batchCalls:0,singleCalls:[],episodes:{},playlistName:'[P25-COPY] test',members:Array.from({length:count},(_,i)=>id(i)),calls:[],posts:0,snapshot:1,failOffset:null,changeSnapshot:false,emptyPage:false};let serial=0,locked=false;
   const context=vm.createContext({
     ScriptApp:{getScriptId:()=> 'copy-script'},
     SpreadsheetApp:{openById:key=>{assert.ok(books[key],'must never access production');return {getSheetByName:name=>books[key][name]};},flush(){}},
@@ -32,7 +32,15 @@ function fixture(count=0){
     LockService:{getScriptLock:()=>({tryLock:()=>{if(locked)return false;locked=true;return true;},releaseLock:()=>{locked=false;}})},
     UrlFetchApp:{fetch:(url,options)=>{
       const u=new URL(url);assert.equal(u.origin,'https://api.spotify.com');
-      if(u.pathname==='/v1/episodes'){f.calls.push({method:options.method,path:u.pathname,query:u.search});const eids=u.searchParams.get('ids').split(',');return {getResponseCode:()=>200,getContentText:()=>JSON.stringify({episodes:eids.map(i=>i===candidate?{id:i,is_playable:true}:null)}),getAllHeaders:()=>({})};}
+      // Spotify removed the batch endpoint (2026-02 migration): any batch call is a hard 403, as in the real COPY trial.
+      if(u.pathname==='/v1/episodes'){f.calls.push({method:options.method,path:u.pathname,query:u.search});f.batchCalls++;return {getResponseCode:()=>403,getContentText:()=>'{}',getAllHeaders:()=>({})};}
+      if(u.pathname.startsWith('/v1/episodes/')){
+        const eid=u.pathname.split('/').at(-1);f.calls.push({method:options.method,path:u.pathname,query:u.search});f.singleCalls.push(eid);
+        assert.equal(u.searchParams.get('market'),'JP');
+        const b=f.episodes[eid]??(eid===candidate?'ok':404);
+        if(typeof b==='number')return {getResponseCode:()=>b,getContentText:()=>'{}',getAllHeaders:()=>({'Retry-After':'7'})};
+        return {getResponseCode:()=>200,getContentText:()=>JSON.stringify({id:b==='mismatch'?'X'.repeat(22):eid,is_playable:b!=='unplayable'}),getAllHeaders:()=>({})};
+      }
       assert.ok(u.pathname.startsWith('/v1/playlists/'+playlist));
       f.calls.push({method:options.method,path:u.pathname,query:u.search});
       const response=(code,value)=>({getResponseCode:()=>code,getContentText:()=>JSON.stringify(value),getAllHeaders:()=>({'Retry-After':'120'})});
@@ -121,4 +129,62 @@ test('COPY session: the one-add entry is unarmed by default and the config ships
  assert.match(src,/autoAdd:null/);
  assert.match(src,/COPY_ONE_ADD_NOT_ARMED/);
  assert.doesNotMatch(src,/write:true/);
+});
+
+// ---- COPY trial 2026-11-09: GET /episodes?ids= no longer exists -> one GET /episodes/{id} per episode ----
+const verify=(f,eps=['EP-00001'])=>JSON.parse(JSON.stringify(f.context.P25_VERIFY_IDS_COPY(f.config,eps)));
+test('EP-06678-style single check: one GET /episodes/{id}?market=JP, never the removed batch endpoint, no write',()=>{
+ const f=fixture(0);f.config.write=false;
+ const r=verify(f);
+ assert.deepEqual(r.ok,['EP-00001']);assert.equal(r.complete,true);assert.equal(r.stopped,null);
+ assert.deepEqual(f.singleCalls,[candidate]);assert.equal(f.batchCalls,0);assert.equal(f.posts,0);
+ assert.deepEqual(r.apiUsage,{calls:1,budget:50});
+ assert.equal(f.calls.every(c=>c.method==='get'),true);
+});
+test('classification kept: ok / missing (404) / unplayable / notVerifiable (ledger problems, mismatched id, 400)',()=>{
+ const f=fixture(0);f.config.write=false;
+ const rows=f.context.SpreadsheetApp.openById('copy-ledger').getSheetByName('エピソード台帳');
+ const add=(n,sid)=>{const r=Array(39).fill('');r[0]='EP-0000'+n;r[1]='テスト番組';r[2]='t'+n;r[3]='2026/11/6 4:00';r[6]='g'+n;r[11]=sid?'https://open.spotify.com/episode/'+sid:'';rows.rows.push(r);};
+ const A='A'.repeat(22),B='B'.repeat(22),C='C'.repeat(22),D='D'.repeat(22),E='E'.repeat(22);
+ add(2,A);add(3,B);add(4,C);add(5,D);add(6,'');add(7,E);
+ f.episodes={[A]:404,[B]:'unplayable',[C]:'mismatch',[D]:400,[E]:'ok'};
+ const r=verify(f,['EP-00001','EP-00002','EP-00003','EP-00004','EP-00005','EP-00006','EP-00007','EP-99999']);
+ assert.deepEqual(r.ok.sort(),['EP-00001','EP-00007']);
+ assert.deepEqual(r.missing,['EP-00002']);
+ assert.deepEqual(r.unplayable,['EP-00003']);
+ assert.deepEqual(r.notVerifiable.sort(),['EP-00004','EP-00005','EP-00006','EP-99999']);
+ assert.equal(r.complete,true);assert.equal(f.batchCalls,0);
+});
+for(const [status,reason] of [[401,'SPOTIFY_AUTH_REQUIRED'],[403,'SPOTIFY_FORBIDDEN'],[500,'SPOTIFY_SERVER_ERROR'],[418,'SPOTIFY_HTTP_418']])test(`HTTP ${status} stops the whole check (${reason}); remaining ids are notVerifiable, nothing is written`,()=>{
+ const f=fixture(0);f.config.write=false;
+ const rows=f.context.SpreadsheetApp.openById('copy-ledger').getSheetByName('エピソード台帳');
+ const r2=Array(39).fill('');r2[0]='EP-00002';r2[1]='テスト番組';r2[2]='t2';r2[3]='2026/11/6 4:00';r2[6]='g2';r2[11]='https://open.spotify.com/episode/'+'A'.repeat(22);rows.rows.push(r2);
+ f.episodes={[candidate]:status};
+ const r=verify(f,['EP-00001','EP-00002']);
+ assert.equal(r.stopped.reason,reason);assert.equal(r.stopped.status,status);assert.equal(r.complete,false);
+ assert.deepEqual(r.ok,[]);assert.deepEqual(r.notVerifiable,['EP-00001','EP-00002']);
+ assert.equal(f.singleCalls.length,1);                      // stopped at the first failure, no retry loop
+ assert.equal(f.posts,0);
+ if(status===403||status===401)assert.match(r.stopped.hint,/Development Mode/);
+});
+test('429 reports Retry-After and stops without retrying',()=>{
+ const f=fixture(0);f.config.write=false;f.episodes={[candidate]:429};
+ const r=verify(f);
+ assert.equal(r.stopped.reason,'SPOTIFY_RATE_LIMITED');assert.equal(r.stopped.retryAfterSeconds,7);
+ assert.equal(f.singleCalls.length,1);
+});
+test('API budget is enforced per episode and reported as a stop, not a crash',()=>{
+ const f=fixture(0);f.config.write=false;f.config.apiBudget=2;
+ const rows=f.context.SpreadsheetApp.openById('copy-ledger').getSheetByName('エピソード台帳');
+ for(let n=2;n<=4;n++){const r=Array(39).fill('');r[0]='EP-0000'+n;r[1]='テスト番組';r[2]='t'+n;r[3]='2026/11/6 4:00';r[6]='g'+n;r[11]='https://open.spotify.com/episode/'+String(n).repeat(22);rows.rows.push(r);}
+ f.episodes={['2'.repeat(22)]:'ok',['3'.repeat(22)]:'ok',['4'.repeat(22)]:'ok'};
+ const r=verify(f,['EP-00001','EP-00002','EP-00003','EP-00004']);
+ assert.equal(r.stopped.reason,'API_BUDGET_EXHAUSTED');
+ assert.deepEqual(r.ok,['EP-00001','EP-00002']);assert.deepEqual(r.notVerifiable,['EP-00003','EP-00004']);
+ assert.equal(f.singleCalls.length,2);
+});
+test('the COPY source no longer references the removed batch endpoint',()=>{
+ const src=fs.readFileSync('scripts/google-apps-script/P25CopyAdapter.js','utf8');
+ assert.doesNotMatch(src,/episodes\?[^"']*ids=/);
+ assert.match(src,/"episodes\/"\+encodeURIComponent\(id\)\+"\?market=JP"/);
 });

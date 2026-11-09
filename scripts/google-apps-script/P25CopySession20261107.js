@@ -44,7 +44,8 @@ function P25_COPY_SEARCH_20261107() {
   console.log(JSON.stringify(result));return result;
 }
 function P25_COPY_VERIFY_IDS_20261107() {
-  const result=P25_VERIFY_IDS_COPY(p25CopySessionConfig20261107_(),["EP-00001"]);
+  // Edit only the EP-ID list. One GET /episodes/{id} per episode (the batch endpoint was removed by Spotify).
+  const result=P25_VERIFY_IDS_COPY(p25CopySessionConfig20261107_(),["EP-06678"]);
   console.log(JSON.stringify(result));return result;
 }
 function P25_COPY_PREVIEW_20261107() {
