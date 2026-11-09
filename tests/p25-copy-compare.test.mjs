@@ -59,6 +59,9 @@ test('CLI is read-only: writes only into --out, never the old file, refuses --ou
   assert.deepEqual(fs.readdirSync(oldDir), ['コード.js']);
   assert.ok(fs.existsSync(path.join(out, 'report.md')) && fs.existsSync(path.join(out, 'legacy-renamed', 'P25CopyLegacy410.js')));
   assert.equal(JSON.parse(fs.readFileSync(path.join(out, 'report.json'), 'utf8')).collisions.length, 4);
+  const dump = fs.readdirSync(path.join(out, 'dump')).sort();
+  assert.deepEqual(dump, ['getToken_.new.js', 'getToken_.old.js', 'p25Plan_.new.js', 'p25Plan_.old.js', 'readOnly_.new.js', 'readOnly_.old.js']);
+  assert.match(fs.readFileSync(path.join(out, 'dump', 'p25Plan_.old.js'), 'utf8'), /legacyOnly_\(a\);/);
   const bad = spawnSync('node', ['scripts/p25-copy-compare.mjs', '--old', oldFile, '--new-dir', nd, '--out', oldDir]);
   assert.equal(bad.status, 2);
   assert.deepEqual(fs.readdirSync(oldDir), ['コード.js']);

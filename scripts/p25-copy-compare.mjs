@@ -3,7 +3,7 @@
 // Writes ONLY into --out (a folder outside the COPY working folder). Never edits, deletes or pushes anything.
 //
 // Usage: node scripts/p25-copy-compare.mjs --old ~/p25-copy-backup/コード.js [--new-dir scripts/google-apps-script] --out ~/p25-copy-report
-// Output: report.md, report.json, and (for review only) legacy-renamed/P25CopyLegacy410.js
+// Output: report.md, report.json, dump/<name>.old.js|.new.js (full differing functions), and (for review only) legacy-renamed/P25CopyLegacy410.js
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -103,10 +103,11 @@ export function compare(oldText, newFiles) {
   }
   const oldOnly = old.items.filter(x => !newBy.has(x.name)).map(x => ({ name: x.name, lines: [x.startLine, x.endLine], flags: flags(x.body) }));
   // Entry points / string references that renaming would break (menus, triggers, google.script.run, setHandlerFunction).
+  const dumps = collisions.filter(c => !c.same).map(c => ({ name: c.name, old: oldBy.get(c.name).body, nw: newBy.get(c.name).body }));
   const colNames = new Set(collisions.filter(c => !c.same).map(c => c.name));
   const stringRefs = [];
   for (const m of oldText.matchAll(/["'`]([A-Za-z_$][\w$]*)["'`]/g)) if (colNames.has(m[1])) stringRefs.push(m[1]);
-  return { oldCount: old.items.length, newCount: news.length, collisions, oldOnly, dupNew, stringRefs: [...new Set(stringRefs)], warnings };
+  return { dumps, oldCount: old.items.length, newCount: news.length, collisions, oldOnly, dupNew, stringRefs: [...new Set(stringRefs)], warnings };
 }
 
 // Review-only copy of the old file with colliding (different) functions renamed; the original is never touched.
@@ -148,6 +149,11 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
   const r = compare(oldText, files);
   fs.mkdirSync(path.join(outDir, 'legacy-renamed'), { recursive: true });
   const info = { lines: oldText.split('\n').length, sha: crypto.createHash('sha256').update(oldText).digest('hex') };
+  // Full, untruncated bodies of every differing function, split at statement boundaries so `git diff --no-index --word-diff` is readable.
+  fs.mkdirSync(path.join(outDir, 'dump'), { recursive: true });
+  const spread = t => t.replace(/([;{}])(?=[^\n])/g, '$1\n');
+  for (const d of r.dumps) { fs.writeFileSync(path.join(outDir, 'dump', d.name + '.old.js'), spread(d.old) + '\n'); fs.writeFileSync(path.join(outDir, 'dump', d.name + '.new.js'), spread(d.nw) + '\n'); }
+  delete r.dumps;
   fs.writeFileSync(path.join(outDir, 'report.json'), JSON.stringify({ old: info, ...r }, null, 2));
   fs.writeFileSync(path.join(outDir, 'report.md'), report(r, info));
   fs.writeFileSync(path.join(outDir, 'legacy-renamed', 'P25CopyLegacy410.js'), '// REVIEW ONLY: 旧 コード.js の複製。相違する衝突関数を _legacy410 に改名。COPY へは未反映。\n' + renameLegacy(oldText, r.collisions.filter(c => !c.same).map(c => c.name)));
