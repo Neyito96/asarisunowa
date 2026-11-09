@@ -5,22 +5,25 @@ function addAutoPlaylistEpisodesIndividually_(rule, token, episodes) {
   const addedEpisodes = [];
 
   episodes.forEach(function(ep) {
-    const addRes = UrlFetchApp.fetch(
-      "https://api.spotify.com/v1/playlists/" +
-        encodeURIComponent(rule.playlistId) +
-        "/items",
-      {
-        method: "post",
-        muteHttpExceptions: true,
-        contentType: "application/json",
-        headers: {
-          Authorization: "Bearer " + token
-        },
-        payload: JSON.stringify({
-          uris: [String(ep.uri)]
-        })
-      }
-    );
+    // Phase25: the owner check and the POST happen under one lock (see P25Ownership.js).
+    const addRes = p25LegacyGatedFetch_(rule.playlistId, function() {
+      return UrlFetchApp.fetch(
+        "https://api.spotify.com/v1/playlists/" +
+          encodeURIComponent(rule.playlistId) +
+          "/items",
+        {
+          method: "post",
+          muteHttpExceptions: true,
+          contentType: "application/json",
+          headers: {
+            Authorization: "Bearer " + token
+          },
+          payload: JSON.stringify({
+            uris: [String(ep.uri)]
+          })
+        }
+      );
+    });
 
     const status = addRes.getResponseCode();
 
@@ -56,20 +59,23 @@ function addAutoPlaylistEpisodesBatch_(rule, token, episodes) {
     return String(ep.uri);
   });
 
-  const addRes = UrlFetchApp.fetch(
-    "https://api.spotify.com/v1/playlists/" +
-      encodeURIComponent(rule.playlistId) +
-      "/items",
-    {
-      method: "post",
-      muteHttpExceptions: true,
-      contentType: "application/json",
-      headers: {
-        Authorization: "Bearer " + token
-      },
-      payload: JSON.stringify({ uris: uris })
-    }
-  );
+  // Phase25: the owner check and the POST happen under one lock (see P25Ownership.js).
+  const addRes = p25LegacyGatedFetch_(rule.playlistId, function() {
+    return UrlFetchApp.fetch(
+      "https://api.spotify.com/v1/playlists/" +
+        encodeURIComponent(rule.playlistId) +
+        "/items",
+      {
+        method: "post",
+        muteHttpExceptions: true,
+        contentType: "application/json",
+        headers: {
+          Authorization: "Bearer " + token
+        },
+        payload: JSON.stringify({ uris: uris })
+      }
+    );
+  });
 
   Logger.log("Add status: " + addRes.getResponseCode());
   Logger.log(addRes.getContentText());

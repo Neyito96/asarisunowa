@@ -75,6 +75,7 @@ function reportPolirebiRebuildCandidates() {
 
 function rebuildPolirebiPlaylistInReleaseOrder() {
   const rule = getAutoPlaylistRuleByKey_("polirebi-rebuild-audit");
+  p25AssertLegacyMayWrite_(rule.playlistId);
   const report = reportAutoPlaylistV2Rule_(rule.key);
   if (report.completeShowCount !== report.showCount) {
     throw new Error("安全停止: ポリレビ全期間検索が未完了です");

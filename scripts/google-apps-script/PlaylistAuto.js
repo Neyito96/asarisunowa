@@ -62,6 +62,12 @@ function getLatestReleaseDate_(episodes) {
 function syncOneAutoPlaylist_(rule, token, episodeCache) {
   Logger.log("=== " + rule.name + " ===");
 
+  // Phase25: playlists owned by the library-first writer (or paused) are never touched here.
+  if (p25LegacyBlocked_(rule.playlistId)) {
+    Logger.log("Phase25管理のためスキップ: " + String(rule.name || rule.playlistId));
+    return p25LegacySkip_(rule.playlistId);
+  }
+
   const episodes = episodeCache
     ? fetchAutoPlaylistEpisodesCached_(rule, token, episodeCache)
     : fetchAutoPlaylistEpisodes_(rule, token);

@@ -112,6 +112,7 @@ function assertOtaMasahikoPlaylistRebuildPlanSafe_(plan) {
 function deleteOtaMasahikoConfirmedFalsePositives() {
   const plan = buildOtaMasahikoPlaylistRebuildPlan_();
   assertOtaMasahikoPlaylistRebuildPlanSafe_(plan);
+  p25AssertLegacyMayWrite_(plan.playlistId);
 
   Logger.log("=== OTA PLAYLIST REBUILD WRITE ===");
   Logger.log("削除対象: false_positive 36件のみ");

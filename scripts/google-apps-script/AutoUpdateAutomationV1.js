@@ -157,12 +157,15 @@ function runAutoUpdateAutomationV1() {
     );
 
   const managed = syncDailyManagedAutoPlaylistsV1_();
+  // Phase25: library-first writer for playlists explicitly owned by P25. Never throws.
+  const p25 = p25RunProductionSafe_();
   return {
     activation: activation,
     backfill: backfill,
     sync: sync,
     theme: theme,
-    managed: managed
+    managed: managed,
+    p25: p25
   };
 }
 
@@ -174,7 +177,9 @@ function runAutoUpdateBackfillHourlyV1() {
   }
   const activation = processPendingAutoUpdateRequestsV1();
   const backfill = syncNextAutoUpdateBootstrapV1_();
-  return { activation: activation, backfill: backfill };
+  // Phase25: runs after the legacy steps released their locks. Never throws.
+  const p25 = p25RunProductionSafe_();
+  return { activation: activation, backfill: backfill, p25: p25 };
 }
 
 function isAutoUpdateDailyWindowV1_(nowMs) {
@@ -210,6 +215,8 @@ function syncDailyManagedAutoPlaylistsV1_() {
 // 全件走査と初回補完は1時間ごとの別処理へ分離し、朝のAPI負荷を抑える。
 function syncRecentManagedAutoPlaylistV1_(rule, token, episodeCache) {
   if (!rule || rule.enabled === false) throw new Error("有効な固定ルールがありません");
+  // Phase25: P25-owned or paused playlists are skipped (not an error: no pause, no alert).
+  if (p25LegacyBlocked_(rule.playlistId)) return p25LegacySkip_(rule.playlistId);
   const episodesById = {};
   getAutoPlaylistShowIds_(rule).forEach(function(showId) {
     const cacheKey = String(showId);
@@ -325,6 +332,20 @@ function processPendingAutoUpdateRequestsV1() {
           "人間が削除したAUTO登録です。再開は管理関数から行ってください"
         );
         result.review += 1;
+        return;
+      }
+      // Phase25: P25-owned / paused playlists never get a legacy runtime rule or a Spotify-wide
+      // bootstrap. The form row only records the state; the P25 writer reads the ledger itself.
+      const p25Owner = p25OwnerOf_(playlistId);
+      if (p25Owner !== "LEGACY") {
+        sheet.getRange(rowNumber, 5).clearContent();
+        if (p25Owner === "P25") {
+          setAutoUpdateRequestStatusV1_(sheet, rowNumber, "増分自動更新", "Phase25（蔵起点）で管理中");
+          result.activated += 1;
+        } else {
+          setAutoUpdateRequestStatusV1_(sheet, rowNumber, "確認待ち", "Phase25側で一時停止中です。管理者が所有者を確認してください");
+          result.review += 1;
+        }
         return;
       }
       const access = inspectAutoUpdatePlaylistAccessV1_(playlistId, token);
@@ -476,6 +497,7 @@ function syncApprovedAutoUpdateRequestsV1() {
         rule.enabled !== false &&
         rule.lifecycleStatus !== "human_deleted" &&
         rule.bootstrapPending !== true &&
+        !p25LegacyBlocked_(rule.playlistId) &&
         !(typeof isThemeV3RuntimeRule_ === "function" && isThemeV3RuntimeRule_(rule));
     });
     const results = [];
@@ -518,7 +540,8 @@ function syncNextAutoUpdateBootstrapV1_() {
       }
       return normalized;
     }).filter(function(rule) {
-      return rule && rule.enabled !== false && rule.bootstrapPending === true;
+      return rule && rule.enabled !== false && rule.bootstrapPending === true &&
+        !p25LegacyBlocked_(rule.playlistId);
     });
 
     if (!rules.length) return { skipped: true, reason: "no-bootstrap-pending", addedCount: 0 };
@@ -614,6 +637,10 @@ function ensureAutoUpdateSeedBootstrapProgressV1_(rule) {
 }
 
 function syncOneApprovedAutoUpdateRequestV1_(rule, token, bootstrapMaxAdditions) {
+  // Phase25: never pause or alert for a playlist that P25 owns; just skip it.
+  if (p25LegacyBlocked_(rule.playlistId)) {
+    return { playlistId: rule.playlistId, ok: true, skipped: "P25_OWNED", addedCount: 0 };
+  }
   const validation = validateAutoPlaylistRule_(rule);
   if (!validation.valid) return pauseAutoUpdateRuleV1_(rule, "ルール検証失敗: " + validation.errors.join(" / "));
 
@@ -1222,15 +1249,20 @@ function saveAutoUpdateRuntimeRuleV1_(rule) {
 function stopAutoUpdatePlaylistV1(playlistId, reason) {
   const id = String(playlistId || "").trim();
   if (!id) throw new Error("playlistIdが必要です");
+  // Phase25: a manual stop must also stop the library-first writer (owner -> PAUSED, under the gate lock).
+  const p25Paused = p25OwnerPause_(id, String(reason || "人間による手動停止"));
   const rule = loadAutoUpdateRuntimeRuleByPlaylistIdV1_(id);
-  if (!rule) throw new Error("AUTO登録が見つかりません: " + id);
+  if (!rule) {
+    if (p25Paused.paused) return { playlistId: id, status: "停止", enabled: false, p25: p25Paused };
+    throw new Error("AUTO登録が見つかりません: " + id);
+  }
   rule.enabled = false;
   rule.lifecycleStatus = "paused";
   rule.pausedAt = new Date().toISOString();
   rule.pauseReason = String(reason || "人間による手動停止");
   saveAutoUpdateRuntimeRuleV1_(rule);
   setAutoUpdateRuleSheetStatusV1_(rule, "停止", rule.pauseReason);
-  return { playlistId: id, status: "停止", enabled: false };
+  return { playlistId: id, status: "停止", enabled: false, p25: p25Paused };
 }
 
 // 管理用：AUTO登録を人間削除として残す。
@@ -1240,6 +1272,8 @@ function humanDeleteAutoUpdatePlaylistV1(playlistId, reason) {
   if (!id) throw new Error("playlistIdが必要です");
   const detail = String(reason || "人間による手動削除");
   const deletedAt = new Date().toISOString();
+  // Phase25: pause the library-first writer first; the tombstone below is also honored by its canWrite.
+  const p25Paused = p25OwnerPause_(id, detail);
   const rule = loadAutoUpdateRuntimeRuleByPlaylistIdV1_(id);
 
   if (rule) {
@@ -1251,8 +1285,10 @@ function humanDeleteAutoUpdatePlaylistV1(playlistId, reason) {
     setAutoUpdateRuleSheetStatusV1_(rule, "人間削除", detail);
   } else {
     const requestRow = findLatestAutoUpdateRequestRowByPlaylistIdV1_(id);
-    if (!requestRow) throw new Error("AUTO申請が見つかりません: " + id);
-    setAutoUpdateRequestStatusV1_(requestRow.sheet, requestRow.rowNumber, "人間削除", detail);
+    if (!requestRow && !p25Paused.paused) throw new Error("AUTO申請が見つかりません: " + id);
+    if (requestRow) {
+      setAutoUpdateRequestStatusV1_(requestRow.sheet, requestRow.rowNumber, "人間削除", detail);
+    }
   }
 
   PropertiesService.getScriptProperties().setProperty(

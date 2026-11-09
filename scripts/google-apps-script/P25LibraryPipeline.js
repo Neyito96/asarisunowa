@@ -16,6 +16,23 @@ function p25Request_(input) {
   rule.revision = JSON.stringify([rule.type, rule.terms, rule.show]);
   return rule;
 }
+// Ledger date -> "YYYY-MM-DD" (the date as written in the ledger). "" when it cannot be read,
+// which makes auto-add fail closed for that episode.
+function p25Day_(value) {
+  const m = p25Normalize_(value).match(/(\d{4})\s*[-\/.年]\s*(\d{1,2})\s*[-\/.月]\s*(\d{1,2})/);
+  if (!m) return "";
+  const pad = function(n) { return ("0" + n).slice(-2); };
+  return m[1] + "-" + pad(m[2]) + "-" + pad(m[3]);
+}
+// Rule-level auto-add policy. Valid only when an administrator confirmed `since` for exactly this
+// rule revision. Anything else disables auto-add (per-episode approval keeps working).
+function p25AutoAddPolicy_(state, rule) {
+  const policy = state && state.autoAdd;
+  if (!policy || policy.revision !== rule.revision || !/^\d{4}-\d{2}-\d{2}$/.test(String(policy.since || ""))) return null;
+  const shows = (Array.isArray(policy.shows) ? policy.shows : []).map(p25Text_).filter(Boolean);
+  if (rule.show && shows.indexOf(rule.show) < 0) shows.push(rule.show);
+  return { since: policy.since, shows: shows };
+}
 function p25Index_(values) {
   const expected = {0:"台帳ID",1:"番組名",2:"タイトル",3:"配信日時",6:"外部ID",11:"Spotify個別URL",22:"概要清掃済み",23:"出演者"};
   if (!values.length || Object.keys(expected).some(function(i) { return p25Text_(values[0][i]).indexOf(expected[i]) < 0; })) throw new Error("LEDGER_SCHEMA_MISMATCH");
@@ -34,7 +51,8 @@ function p25Index_(values) {
 }
 function p25Plan_(index, rule, state, membership) {
   const existing = new Set(membership), excluded = new Set(state.excluded || []);
-  const result = {candidates:[], additions:[], holds:[], existing:[]};
+  const result = {candidates:[], additions:[], holds:[], existing:[], skipped:[]};
+  const policy = p25AutoAddPolicy_(state, rule);
   index.rows.forEach(function(e) {
     if (rule.show && rule.show !== e.show) return;
     const text = p25Normalize_(rule.type === "series" ? e.title : rule.type === "speaker" ? e.cast : e.title+"\n"+e.description);
@@ -46,11 +64,23 @@ function p25Plan_(index, rule, state, membership) {
     if (e.reason) { result.holds.push({epId:e.epId,reason:e.reason}); return; }
     if (existing.has(e.spotifyId)) { result.existing.push(e.spotifyId); return; }
     const approval = (state.approvals || {})[e.epId];
-    if (!approval || approval.revision !== rule.revision || approval.evidence !== e.evidence) {
+    if (approval && approval.revision === rule.revision && approval.evidence === e.evidence) {
+      candidate.day = p25Day_(e.date); result.additions.push(candidate); return;
+    }
+    if (!policy) {
       result.holds.push({epId:e.epId,reason:"REVIEW_REQUIRED"}); return;
     }
+    // Auto-add: new arrivals only. Everything else is skipped without blocking the playlist,
+    // so old episodes, other shows and the day of approval can never be resurrected.
+    const day = p25Day_(e.date);
+    if (!day) { result.skipped.push({epId:e.epId,reason:"DATE_UNPARSEABLE"}); return; }
+    if (policy.shows.indexOf(e.show) < 0) { result.skipped.push({epId:e.epId,reason:"OTHER_SHOW"}); return; }
+    if (day <= policy.since) { result.skipped.push({epId:e.epId,reason:"NOT_NEW"}); return; }
+    candidate.day = day; candidate.auto = true;
     result.additions.push(candidate);
   });
+  // Oldest first so the playlist keeps release order.
+  result.additions.sort(function(a,b){ return (a.day||"").localeCompare(b.day||"") || a.epId.localeCompare(b.epId); });
   return result;
 }
 function p25SourceAudit_(index, sources) {
@@ -83,12 +113,25 @@ function p25Run_(io, options) {
     for (let step=0; step<limit; step++) {
       if (io.now()-now >= (options.timeBudgetMs || 240000)) break;
       const position = (shared.cursor+step)%ordered.length, rule = ordered[position], key = "playlist:"+rule.playlistId;
+      const owner = io.readOwner ? io.readOwner(rule.playlistId) : null;
+      if (owner && owner.owner !== "P25") {
+        results.push({playlistId:rule.playlistId,skipped:"NOT_P25_OWNED",owner:owner.owner});
+        shared.nextCursor=(position+1)%ordered.length;
+        continue;
+      }
       const state = io.load(key) || {receipt:"ACCEPTED",spotify:"PENDING",publication:"PENDING",approvals:{},excluded:[],observed:[],pending:[]};
+      if (owner) {
+        // A new ownership generation starts from a fresh membership baseline: changes made by
+        // the previous owner must not be mistaken for manual deletions. Tombstones are kept.
+        if (state.generation !== owner.generation) { state.observed = []; state.generation = owner.generation; }
+        state.autoAdd = owner.autoAdd || null;
+      }
       state.traceId = "p25:"+rule.playlistId;
       state.rule = rule;
       state.source = source;
       let result = {playlistId:rule.playlistId,traceId:state.traceId};
-      if (conflicts.has(rule.playlistId) || state.paused || state.humanDeleted) {
+      const stopped = io.isStopped ? io.isStopped(rule.playlistId) === true : false;
+      if (conflicts.has(rule.playlistId) || state.paused || state.humanDeleted || stopped) {
         state.spotify = "HOLD"; state.reason = conflicts.has(rule.playlistId)?"CONFLICTING_REQUESTS":"HUMAN_STOP";
       } else {
         try {
@@ -135,13 +178,18 @@ function p25Run_(io, options) {
             state.lastSuccessfulScanAt=io.now();
           }
         } catch (error) {
+          if (error && error.notSent === true && state.spotify === "WRITING") {
+            // The gate refused before any request left: nothing is uncertain, nothing to resend blindly.
+            state.pending = [];
+          }
           const failure=p25Error_(error,io.now());
+          if (error && error.notSent === true) failure.reason = /P25_GATE_BUSY/.test(String(error.message)) ? "GATE_BUSY" : "OWNER_CHANGED";
           state.spotify="HOLD";state.reason=failure.reason;
           if (failure.resumeAt) shared.resumeAt=failure.resumeAt;
         }
       }
       io.save(key,state);
-      results.push(Object.assign(result,{receipt:state.receipt,spotify:state.spotify,publication:state.publication,reason:state.reason}));
+      results.push(Object.assign(result,{skippedCount:state.plan?state.plan.skipped.length:0,receipt:state.receipt,spotify:state.spotify,publication:state.publication,reason:state.reason}));
       shared.nextCursor=(position+1)%ordered.length;
       if (shared.resumeAt>io.now()) break;
     }
