@@ -22,7 +22,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "IOK 伊藤大地・奥山晶二郎・神田大介",
     "I'm OK",
     "https://open.spotify.com/playlist/799Fo9to2TK0ahGEJsvcm2",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e",
     "2026-03-30",
     null,
     true
@@ -40,7 +40,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "議員になんでも聞いてみよう　秋山訓子の政治家インタビュー",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/2H3SMQ51i2FG9ZX86R5VH8",
-    "https://mosaic.scdn.co/300/ab67656300005f1f46bdba4cf5ef29ec31f5b8c7ab67656300005f1f8620023b00a1b90d47b02feaab67656300005f1fb8e0b644ab05234c1a041046ab67656300005f1ff9a28ae7ac2ecbe57c60d441",
+    "https://mosaic.scdn.co/640/ab67656300005f1f46bdba4cf5ef29ec31f5b8c7ab67656300005f1f8620023b00a1b90d47b02feaab67656300005f1fb8e0b644ab05234c1a041046ab67656300005f1ff9a28ae7ac2ecbe57c60d441",
     "2022-05-01",
     null,
     false
@@ -58,7 +58,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "東日本大震災",
     "cobaltore12",
     "https://open.spotify.com/playlist/4nptiHJbbsjKS37kykLkNF",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694",
     null,
     null,
     false
@@ -283,7 +283,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "オリンピック",
     "bigstone1977",
     "https://open.spotify.com/playlist/5VAmNftiFBnHHv3LsQDKSf",
-    "https://mosaic.scdn.co/300/ab67656300005f1f63523828e791cc92ed2ca676ab67656300005f1facea656d6d35dea47d39b71cab67656300005f1fd7b0f4779e2ad2df975b7b77ab67656300005f1ff11ac3fbd5ba485088abcc49",
+    "https://mosaic.scdn.co/640/ab67656300005f1f63523828e791cc92ed2ca676ab67656300005f1facea656d6d35dea47d39b71cab67656300005f1fd7b0f4779e2ad2df975b7b77ab67656300005f1ff11ac3fbd5ba485088abcc49",
     null,
     null,
     false
@@ -310,7 +310,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "メディアを語る　伊藤大地x奥山晶二郎x神田大介",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/2lA13BSsvyLjq9iPFa6oDo",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84996d7c4cc61163a9b6ed71d9",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84996d7c4cc61163a9b6ed71d9",
     null,
     null,
     false
@@ -409,7 +409,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "楽屋裏2023　厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/0I9wCLs5oFLNIG1aPLQneg",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32",
     null,
     null,
     false
@@ -463,7 +463,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#懐メロ（#朝ポキ 楽屋裏）＋おじさんのメロディ",
     "koike",
     "https://open.spotify.com/playlist/0vItsmD8tW7fsv18NkZKzh",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600",
     null,
     null,
     false
@@ -526,7 +526,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#初登場特集（#朝ポキ）",
     "koike",
     "https://open.spotify.com/playlist/3WLp56ohdZs2AqDoUwNNWd",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef",
     null,
     null,
     false
@@ -544,7 +544,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "編集マニア",
     "カンダ ・マサキ",
     "https://open.spotify.com/playlist/71mdQ5ANqZda48jBkj0Qmz",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d",
     null,
     null,
     false
@@ -616,7 +616,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "中南米",
     "マリオ",
     "https://open.spotify.com/playlist/2Org6cCBgVas4d9OwzzxAv",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37",
     "2026-09-08",
     "2026-09-18",
     true
