@@ -16,7 +16,7 @@ const CALLBACK = `function P25_COPY_SPOTIFY_CALLBACK(q) {
     if (!data.access_token) return HtmlService.createHtmlOutput('NG');
     p.setProperties({P25_COPY_SPOTIFY_ACCESS_TOKEN:String(data.access_token),P25_COPY_SPOTIFY_EXPIRES_AT:String(Date.now()+Number(data.expires_in)*1000),P25_COPY_SPOTIFY_SCOPE:'playlist-read-private playlist-modify-private'});
     // Intentionally discard refresh_token. No Spotify playlist request or mutation.
-    return HtmlService.createHtmlOutput('OK');
+    return HtmlService.createHtmlOutput('COPYの読み取り・非公開プレイリスト変更用短期トークンを保存しました。追加・削除は実行していません。');
   } catch (e) { return HtmlService.createHtmlOutput('ERR'); }
 }
 `;
@@ -27,10 +27,12 @@ test('patch replaces the discard with a p25CopyTokStore_ call, keeps scope, chan
   assert.match(r.text, /p\.setProperty\('P25_COPY_SPOTIFY_SCOPE','playlist-read-private playlist-modify-private'\)/);
   assert.doesNotMatch(r.text, /Intentionally discard/);
   assert.doesNotMatch(r.text, /p\.setProperties/);
-  assert.equal(r.text.includes("return HtmlService.createHtmlOutput('OK');"), true);
-  assert.equal(r.removedLines, 2); assert.equal(r.addedLines, 3);
+  assert.match(r.text, /更新用トークンを含む/);
+  assert.doesNotMatch(r.text, /短期トークン/);
+  assert.equal(r.removedLines, 3); assert.equal(r.addedLines, 4);
   // the rest of the file is byte-identical
-  assert.equal(r.text.replace(/    \/\/ refresh_token is stored[\s\S]*?P25_COPY_SPOTIFY_SCOPE[^\n]*\n/, '###\n'), CALLBACK.replace(/    p\.setProperties[\s\S]*?discard[^\n]*\n/, '###\n'));
+  const strip = t => t.replace(/ *\/\/ refresh_token is stored[\s\S]*?P25_COPY_SPOTIFY_SCOPE[^\n]*\n/, '###\n').replace(/ *p\.setProperties[\s\S]*?discard[^\n]*\n/, '###\n').replace(/return HtmlService\.createHtmlOutput\('COPY[^\n]*\n/, 'RET\n');
+  assert.equal(strip(r.text), strip(CALLBACK));
 });
 
 test('runtime behaviour: the callback stores access, expiry AND refresh_token, scope kept, nothing logged', () => {
@@ -46,7 +48,7 @@ test('runtime behaviour: the callback stores access, expiry AND refresh_token, s
   });
   vm.runInContext(tok, ctx);
   vm.runInContext(patchAuth(CALLBACK).text, ctx);
-  assert.equal(ctx.P25_COPY_SPOTIFY_CALLBACK({ code: 'c' }), 'OK');
+  assert.match(ctx.P25_COPY_SPOTIFY_CALLBACK({ code: 'c' }), /更新用トークンを含む/);
   assert.equal(store.get('P25_COPY_SPOTIFY_ACCESS_TOKEN'), 'AT-X');
   assert.equal(store.get('P25_COPY_SPOTIFY_REFRESH_TOKEN'), 'RT-X');
   assert.ok(Number(store.get('P25_COPY_SPOTIFY_EXPIRES_AT')) > Date.now());
@@ -80,4 +82,31 @@ test('CLI: dry run writes nothing; --apply backs up first; refuses backup dir in
   fs.writeFileSync(path.join(work, '.clasp.json'), JSON.stringify({ scriptId: '1HpZNp96TQ7S1ilmfyItKI2IxYgdk8ufCsWXSVNEaGkh7_uQRXkr6k1I9' }));
   fs.writeFileSync(file, CALLBACK);
   assert.equal(run(file, '--backup-dir', bk).status, 1);                                            // production folder
+});
+
+// Optional check against the REAL COPY-only file (not in GitHub): P25_COPY_AUTH_FILE=/path/P25CopySpotifyAuth.js node --test ...
+test('real P25CopySpotifyAuth.js (only when P25_COPY_AUTH_FILE is set)', { skip: !process.env.P25_COPY_AUTH_FILE }, () => {
+  const real = fs.readFileSync(process.env.P25_COPY_AUTH_FILE, 'utf8');
+  const r = patchAuth(real);
+  assert.equal(r.removedLines, 3); assert.equal(r.addedLines, 4);
+  assert.doesNotMatch(r.text, /Intentionally discard/);
+  const vm = require_vm(); const store = new Map();
+  store.set('P25_COPY_AUTH_NONCE', 'n'); store.set('P25_COPY_AUTH_EXPIRES', String(Date.now() + 60000)); store.set('P25_COPY_AUTH_VERIFIER', 'v'); store.set('P25_COPY_AUTH_CLIENT', 'c');
+  const logs = [];
+  const ctx = vm.createContext({
+    ScriptApp: { getScriptId: () => '16qdHt_nojvKK4Qzcww4C7jkg6frpLiYIHXn4CG-_UtILn4qKlmoixT9R' }, console: { log: (...a) => logs.push(a.join(' ')) },
+    PropertiesService: { getScriptProperties: () => ({ getProperty: k => store.get(k) ?? null, setProperty: (k, v) => store.set(k, String(v)), setProperties: o => Object.entries(o).forEach(([k, v]) => store.set(k, String(v))), deleteProperty: k => store.delete(k) }) },
+    LockService: { getScriptLock: () => ({ tryLock: () => true, releaseLock() {} }), getUserLock: () => ({ tryLock: () => true, releaseLock() {} }) },
+    UrlFetchApp: { fetch: () => ({ getResponseCode: () => 200, getContentText: () => JSON.stringify({ access_token: 'AT-R', refresh_token: 'RT-R', expires_in: 3600, scope: 'playlist-read-private playlist-modify-private', token_type: 'Bearer' }) }) },
+    HtmlService: { createHtmlOutput: s => s }
+  });
+  vm.runInContext(fs.readFileSync('scripts/google-apps-script/P25CopyToken.js', 'utf8'), ctx);
+  vm.runInContext(fs.readFileSync('scripts/google-apps-script/P25CopySession20261107.js', 'utf8'), ctx);
+  vm.runInContext(r.text, ctx);
+  assert.match(ctx.P25_COPY_SPOTIFY_CALLBACK({ parameter: { nonce: 'n', code: 'abc' } }), /更新用トークンを含む/);
+  assert.equal(store.get('P25_COPY_SPOTIFY_ACCESS_TOKEN'), 'AT-R');
+  assert.equal(store.get('P25_COPY_SPOTIFY_REFRESH_TOKEN'), 'RT-R');
+  assert.equal(store.get('P25_COPY_SPOTIFY_SCOPE'), 'playlist-read-private playlist-modify-private');
+  assert.equal(store.has('P25_COPY_AUTH_NONCE'), false);                                // the existing cleanup still runs
+  assert.ok(!logs.join('\n').includes('RT-R'));
 });

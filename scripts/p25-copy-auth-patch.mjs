@@ -16,6 +16,10 @@ const TARGET = new RegExp(
   "^([ \\t]*)p\\.setProperties\\(\\{P25_COPY_SPOTIFY_ACCESS_TOKEN:String\\(data\\.access_token\\),P25_COPY_SPOTIFY_EXPIRES_AT:String\\(Date\\.now\\(\\)\\+Number\\(data\\.expires_in\\)\\*1000\\),P25_COPY_SPOTIFY_SCOPE:" + SCOPE.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&') + "\\}\\);[ \\t]*\\r?\\n[ \\t]*// Intentionally discard refresh_token\\.[^\\n]*\\r?\\n", 'm');
 const sha = t => crypto.createHash('sha256').update(t).digest('hex');
 
+// The success page says "短期トークン" (short-lived token); after the patch a refresh token is stored too.
+const MESSAGE = /createHtmlOutput\('COPYの読み取り・非公開プレイリスト変更用短期トークンを保存しました。追加・削除は実行していません。'\)/g;
+const NEW_MESSAGE = "createHtmlOutput('COPYの読み取り・非公開プレイリスト変更用トークン(更新用トークンを含む)を保存しました。追加・削除は実行していません。')";
+
 export function patchAuth(text) {
   const matches = text.match(new RegExp(TARGET.source, 'gm')) || [];
   if (matches.length !== 1) throw new Error('PATCH_ANCHOR_NOT_FOUND_ONCE: 想定の2行(setProperties と refresh_token 破棄のコメント)が ' + matches.length + ' 件。ファイルが想定と違います');
@@ -24,10 +28,13 @@ export function patchAuth(text) {
     indent + "// refresh_token is stored by P25CopyToken.js (never logged). No Spotify playlist request or mutation.\n" +
     indent + "p25CopyTokStore_(p25CopySessionConfig20261107_(), data, Date.now());\n" +
     indent + "p.setProperty('P25_COPY_SPOTIFY_SCOPE'," + SCOPE + ");\n");
-  new Function(out);                                          // must still be valid JavaScript
-  const before = text.split('\n'), after = out.split('\n');
+  const msg = out.match(MESSAGE) || [];
+  if (msg.length !== 1) throw new Error('PATCH_MESSAGE_NOT_FOUND_ONCE: 成功メッセージが想定と違います');
+  const final = out.replace(MESSAGE, NEW_MESSAGE);
+  new Function(final);                                        // must still be valid JavaScript
+  const before = text.split('\n'), after = final.split('\n');
   const removed = before.filter(l => !after.includes(l)).length, added = after.filter(l => !before.includes(l)).length;
-  return { text: out, removedLines: removed, addedLines: added };
+  return { text: final, removedLines: removed, addedLines: added };
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
