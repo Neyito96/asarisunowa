@@ -19,13 +19,23 @@ function p25Request_(input) {
 // Ledger date -> "YYYY-MM-DD" (the date as written in the ledger). "" when it cannot be read,
 // which makes auto-add fail closed for that episode.
 function p25Day_(value) {
-  const m = p25Normalize_(value).match(/(\d{4})\s*[-\/.年]\s*(\d{1,2})\s*[-\/.月]\s*(\d{1,2})/);
+  const text = p25Normalize_(value);
+  // Timestamps that carry an explicit zone (Z or +hh:mm) are converted to the Japan calendar day.
+  // Zone-less ledger dates are taken as written (JST).
+  if (/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?\s*(?:Z|[+-]\d{2}:?\d{2})$/i.test(text)) {
+    const ms = Date.parse(text.replace(" ", "T").replace(/\s+/g, ""));
+    return isNaN(ms) ? "" : new Date(ms + 9 * 3600 * 1000).toISOString().slice(0, 10);
+  }
+  const m = text.match(/(\d{4})\s*[-\/.年]\s*(\d{1,2})\s*[-\/.月]\s*(\d{1,2})/);
   if (!m) return "";
   const pad = function(n) { return ("0" + n).slice(-2); };
   return m[1] + "-" + pad(m[2]) + "-" + pad(m[3]);
 }
 // Rule-level auto-add policy. Valid only when an administrator confirmed `since` for exactly this
 // rule revision. Anything else disables auto-add (per-episode approval keeps working).
+function p25AddDays_(day, n) {
+  return new Date(Date.parse(day + "T00:00:00Z") + n * 86400000).toISOString().slice(0, 10);
+}
 function p25AutoAddPolicy_(state, rule) {
   const policy = state && state.autoAdd;
   if (!policy || policy.revision !== rule.revision || !/^\d{4}-\d{2}-\d{2}$/.test(String(policy.since || ""))) return null;
@@ -74,6 +84,8 @@ function p25Plan_(index, rule, state, membership) {
     // so old episodes, other shows and the day of approval can never be resurrected.
     const day = p25Day_(e.date);
     if (!day) { result.skipped.push({epId:e.epId,reason:"DATE_UNPARSEABLE"}); return; }
+    // Typos such as a wrong year must not look like "new": at most one day ahead of today (JST).
+    if (state.today && day > p25AddDays_(state.today, 1)) { result.skipped.push({epId:e.epId,reason:"DATE_FUTURE"}); return; }
     if (policy.shows.indexOf(e.show) < 0) { result.skipped.push({epId:e.epId,reason:"OTHER_SHOW"}); return; }
     if (day <= policy.since) { result.skipped.push({epId:e.epId,reason:"NOT_NEW"}); return; }
     candidate.day = day; candidate.auto = true;
@@ -121,12 +133,14 @@ function p25Run_(io, options) {
       }
       const state = io.load(key) || {receipt:"ACCEPTED",spotify:"PENDING",publication:"PENDING",approvals:{},excluded:[],observed:[],pending:[]};
       if (owner) {
-        // A new ownership generation starts from a fresh membership baseline: changes made by
-        // the previous owner must not be mistaken for manual deletions. Tombstones are kept.
-        if (state.generation !== owner.generation) { state.observed = []; state.generation = owner.generation; }
+        // The membership baseline is kept across generations: an episode P25 saw earlier and a human
+        // removed while the playlist was PAUSED/LEGACY is a manual deletion and must not return.
+        // (Legacy writers only add; the first adoption has no state, so its baseline starts empty.)
+        state.generation = owner.generation;
         state.autoAdd = owner.autoAdd || null;
       }
       state.traceId = "p25:"+rule.playlistId;
+      state.today = new Date(now + 9 * 3600 * 1000).toISOString().slice(0, 10);
       state.rule = rule;
       state.source = source;
       let result = {playlistId:rule.playlistId,traceId:state.traceId};
@@ -183,7 +197,7 @@ function p25Run_(io, options) {
             state.pending = [];
           }
           const failure=p25Error_(error,io.now());
-          if (error && error.notSent === true) failure.reason = /P25_GATE_BUSY/.test(String(error.message)) ? "GATE_BUSY" : /P25_WRITE_STOPPED/.test(String(error.message)) ? "WRITE_STOPPED" : "OWNER_CHANGED";
+          if (error && error.notSent === true) failure.reason = /P25_GATE_BUSY/.test(String(error.message)) ? "GATE_BUSY" : /P25_WRITE_STOPPED/.test(String(error.message)) ? "WRITE_STOPPED" : /P25_SETTLING/.test(String(error.message)) ? "SETTLING" : /P25_OPERATOR_MISMATCH/.test(String(error.message)) ? "OPERATOR_MISMATCH" : "OWNER_CHANGED";
           state.spotify="HOLD";state.reason=failure.reason;
           if (failure.resumeAt) shared.resumeAt=failure.resumeAt;
         }

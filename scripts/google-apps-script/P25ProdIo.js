@@ -20,7 +20,16 @@ function p25OwnerIds_() {
 }
 
 const P25_EMERGENCY_STOP_KEY_ = "P25_EMERGENCY_STOP";
+// After an ownership switch, P25 waits this long before its first write, so a legacy write that
+// another execution user started just before the switch (User locks do not exclude across users)
+// has finished. Must exceed the longest single Spotify request.
+const P25_SETTLE_MS_ = 120000;
 
+// The one user allowed to write as P25 (recorded at switch time). Because User locks only
+// exclude executions of the SAME user, P25 writes are pinned to one user.
+function p25EffectiveUser_() {
+  try { return String(Session.getEffectiveUser().getEmail() || ""); } catch (_) { return ""; }
+}
 function p25ProdWriteEnabled_() {
   return PropertiesService.getScriptProperties().getProperty(P25_PROD_WRITE_FLAG_) === "1";
 }
@@ -45,7 +54,9 @@ function P25_EMERGENCY_STOP(reason) {
   const lock = LockService.getUserLock();
   const drained = lock.tryLock(P25_GATE_WAIT_MS_);
   if (drained) lock.releaseLock();
-  return { stopped: true, writeSwitchCleared: true, inFlightWriteConfirmedFinished: drained };
+  // The User lock only covers executions of this user: a write started by another execution user
+  // may still finish for up to P25_SETTLE_MS_ (nothing new can start: the flag is read before every POST).
+  return { stopped: true, writeSwitchCleared: true, inFlightWriteConfirmedFinished: drained, otherUsersMayFinishWithinSeconds: P25_SETTLE_MS_ / 1000 };
 }
 
 // Releases the stop only. Writes stay OFF until P25_PROD_WRITE_ENABLED is set again on purpose.
@@ -173,6 +184,14 @@ function p25ProdIo_(options) {
         if (!p25ProdMayWriteNow_() || isAutoUpdatePlaylistHumanDeletedV1_(id)) {
           throw Object.assign(new Error("P25_WRITE_STOPPED"), { notSent: true });
         }
+        const fresh = p25OwnerRead_(id);
+        if (!fresh.operator || fresh.operator !== p25EffectiveUser_()) {
+          throw Object.assign(new Error("P25_OPERATOR_MISMATCH"), { notSent: true });
+        }
+        const since = Date.parse(fresh.since || "");
+        if (isNaN(since) || Date.now() - since < P25_SETTLE_MS_) {
+          throw Object.assign(new Error("P25_SETTLING"), { notSent: true });
+        }
         return p25SpotifyAdd_(token, id, ids);
       });
       if (!gate.allowed) throw Object.assign(new Error("P25_OWNER_CHANGED"), { notSent: true });
@@ -247,6 +266,10 @@ function p25OwnerSwitch_(playlistId, next, options) {
       if (options.confirm !== id) throw new Error("CONFIRM_REQUIRED: options.confirm に playlistId を指定してください");
       const record = { owner: next, generation: current.generation + 1, revision: (current.revision || 0) + 1, since: new Date().toISOString(), shows: current.shows || [] };
       if (next === "P25") {
+        if (p25EmergencyStopped_()) throw new Error("EMERGENCY_STOP_ACTIVE: 緊急停止を解除してから切り替えてください");
+        const operator = p25EffectiveUser_();
+        if (!operator) throw new Error("OPERATOR_IDENTITY_UNAVAILABLE: 実行ユーザーを取得できないためP25書き込みを有効にできません");
+        record.operator = operator;
         if (options.exclusionsReviewed !== true) {
           throw new Error("EXCLUSIONS_REVIEW_REQUIRED: 旧方式で人が削除した回を P25_IMPORT_EXCLUSIONS で引き継ぎ、確認後に exclusionsReviewed:true を指定してください");
         }

@@ -24,6 +24,7 @@ function load(files, extra = {}) {
     }) },
     LockService: { getScriptLock: () => mkLock('script'), getUserLock: () => mkLock('user') },
     Utilities: { getUuid: () => 'v' + (++serial) },
+    Session: { getEffectiveUser: () => ({ getEmail: () => 'operator@example.com' }) },
     ...extra
   });
   for (const f of files) vm.runInContext(fs.readFileSync(dir + f, 'utf8'), context, { filename: f });
@@ -51,7 +52,7 @@ function harness({ owner, ledger, members = [], stopped = false, approvals = {},
   const record = owner === null ? null : { owner: 'P25', generation: 1, autoAdd: { since: '2026-11-05', revision: rev, shows: ['番組A'] }, ...owner };
   let current = [...members];
   const io = {
-    now: () => 1000, load: k => store.has(k) ? JSON.parse(store.get(k)) : null, save: (k, v) => { log.saves++; store.set(k, JSON.stringify(v)); },
+    now: () => Date.parse('2026-11-09T04:00:00Z'), load: k => store.has(k) ? JSON.parse(store.get(k)) : null, save: (k, v) => { log.saves++; store.set(k, JSON.stringify(v)); },
     withLock: fn => fn(), readLedger: () => ledgerValues(ledger), readRequests: () => [rule], readSources: () => ({ complete: false }),
     readOwner: () => record, isStopped: () => stopped, canWrite: () => true,
     readMembership: () => [...current],
@@ -133,13 +134,20 @@ test('non-P25 owner and stopped playlists never write', () => {
   assert.equal(h.log.adds.length, 0);
 });
 
-test('a new ownership generation does not turn earlier changes into tombstones', () => {
+test('a removal made while paused is tombstoned after resume (no resurrection)', () => {
   const h = harness({ owner: { generation: 1 }, ledger, members: [ep(3), ep(4)] });
-  h.run();
-  const h2 = harness({ owner: { generation: 2 }, ledger, members: [ep(4)] });
+  h.run();                                   // P25 observes ep3, ep4
+  const h2 = harness({ owner: { generation: 2 }, ledger, members: [ep(4)] });  // human removed ep3 while PAUSED
   h2.store.set('playlist:' + PL, h.store.get('playlist:' + PL));
   h2.run();
-  assert.ok(!JSON.parse(h2.store.get('playlist:' + PL)).excluded.includes(ep(3)));
+  assert.ok(JSON.parse(h2.store.get('playlist:' + PL)).excluded.includes(ep(3)));
+  assert.ok(!h2.log.adds.flat().includes(ep(3)));
+});
+
+test('first adoption starts with an empty baseline (legacy-era gaps are not tombstones)', () => {
+  const h = harness({ owner: { generation: 1 }, ledger, members: [ep(4)] });
+  h.run();
+  assert.deepEqual(JSON.parse(h.store.get('playlist:' + PL)).excluded, []);
 });
 
 test('approved past episode is added even though it is not new', () => {
@@ -203,6 +211,7 @@ test('P25_SET_OWNER requires confirmation, since, revision and allowed transitio
   const ok = context.P25_SET_OWNER(PL, 'P25', { confirm: PL, since: '2026-11-05', ruleRevision: 'r', shows: ['番組A'], exclusionsReviewed: true });
   assert.equal(ok.owner, 'P25');
   assert.equal(JSON.parse(props.get('P25_OWNER_' + PL)).autoAdd.since, '2026-11-05');
+  assert.equal(JSON.parse(props.get('P25_OWNER_' + PL)).operator, 'operator@example.com');
   assert.throws(() => context.P25_SET_OWNER(PL, 'LEGACY', { confirm: PL }), /TRANSITION_NOT_ALLOWED/);
   context.P25_SET_OWNER(PL, 'PAUSED', { confirm: PL });
   assert.throws(() => context.P25_SET_OWNER(PL, 'LEGACY', { confirm: PL }), /BOUNDARY_REFRESH_REQUIRED/);
@@ -256,6 +265,7 @@ test('legacy entrypoints skip P25-owned playlists and daily/hourly triggers run 
 
 // ---- review follow-up: concurrent writes, emergency stop, manual-deletion carryover ----
 const PROD = ['P25Ownership.js', 'P25LibraryPipeline.js', 'P25SpotifyTarget.js', 'P25ProdIo.js'];
+const settledOwner = (over = {}) => ({ owner: 'P25', generation: 1, operator: 'operator@example.com', since: '2026-11-01T00:00:00.000Z', ...over });
 function prodIo(extra = {}) {
   const fetches = [];
   const loaded = load(PROD, {
@@ -282,7 +292,7 @@ test('every Spotify playlist write outside Phase25 files is behind the ownership
 
 test('emergency stop applied after the owner was read still blocks the POST (nothing is sent)', () => {
   const { context, props, fetches } = prodIo();
-  props.set('P25_OWNER_' + PL, JSON.stringify({ owner: 'P25', generation: 1 }));
+  props.set('P25_OWNER_' + PL, JSON.stringify(settledOwner()));
   props.set('P25_PROD_WRITE_ENABLED', '1');
   const io = context.p25ProdIo_({ write: true });
   io.readOwner(PL);
@@ -295,7 +305,7 @@ test('emergency stop applied after the owner was read still blocks the POST (not
 
 test('write switch is read fresh inside the gate; absent or other values mean OFF', () => {
   const { context, props, fetches } = prodIo();
-  props.set('P25_OWNER_' + PL, JSON.stringify({ owner: 'P25', generation: 1 }));
+  props.set('P25_OWNER_' + PL, JSON.stringify(settledOwner()));
   const io = context.p25ProdIo_({ write: true });
   io.readOwner(PL);
   assert.throws(() => io.add(PL, [ep(1)]), /P25_WRITE_STOPPED/);
@@ -358,4 +368,67 @@ test('imported legacy manual deletions are never auto-added and cannot be re-app
   const index = context.p25Index_(ledgerRows);
   const plan = context.p25Plan_(index, context.p25Request_(rule), { ...state, autoAdd: { since: '2026-11-05', revision: context.p25Request_(rule).revision, shows: ['番組A'] } }, []);
   assert.ok(!plan.additions.some(x => x.epId === 'EP-00003'));
+});
+
+// ---- second review: other execution users, stop mid-run, date boundary ----
+test('P25 writes are pinned to the user recorded at the switch (User locks do not span users)', () => {
+  const { context, props, fetches } = prodIo({ Session: { getEffectiveUser: () => ({ getEmail: () => 'someone-else@example.com' }) } });
+  props.set('P25_OWNER_' + PL, JSON.stringify(settledOwner()));
+  props.set('P25_PROD_WRITE_ENABLED', '1');
+  const io = context.p25ProdIo_({ write: true });
+  io.readOwner(PL);
+  assert.throws(() => io.add(PL, [ep(1)]), e => e.notSent === true && /P25_OPERATOR_MISMATCH/.test(e.message));
+  assert.equal(fetches.length, 0);
+});
+
+test('first P25 write waits out the settle window after an owner switch', () => {
+  const { context, props, fetches } = prodIo();
+  props.set('P25_PROD_WRITE_ENABLED', '1');
+  props.set('P25_OWNER_' + PL, JSON.stringify(settledOwner({ since: new Date().toISOString() })));
+  const io = context.p25ProdIo_({ write: true });
+  io.readOwner(PL);
+  assert.throws(() => io.add(PL, [ep(1)]), e => e.notSent === true && /P25_SETTLING/.test(e.message));
+  assert.equal(fetches.length, 0);
+});
+
+test('switching to P25 needs a known execution user and no active emergency stop', () => {
+  const noUser = prodIo({ Session: { getEffectiveUser: () => ({ getEmail: () => '' }) } });
+  const args = { confirm: PL, since: '2026-11-05', ruleRevision: 'r', exclusionsReviewed: true };
+  assert.throws(() => noUser.context.P25_SET_OWNER(PL, 'P25', args), /OPERATOR_IDENTITY_UNAVAILABLE/);
+  const stopped = prodIo();
+  stopped.props.set('P25_EMERGENCY_STOP', '{}');
+  assert.throws(() => stopped.context.P25_SET_OWNER(PL, 'P25', args), /EMERGENCY_STOP_ACTIVE/);
+  assert.equal(stopped.props.has('P25_OWNER_' + PL), false);
+});
+
+test('emergency stop in the middle of a multi-playlist run stops every later write', () => {
+  const h = harness({ owner: {}, ledger });
+  let stop = false, adds = 0;
+  const realAdd = h.io.add;
+  h.io.add = (id, ids) => { if (stop) throw Object.assign(new Error('P25_WRITE_STOPPED'), { notSent: true }); adds++; stop = true; realAdd(id, ids); };
+  h.run();                                     // first batch goes out, then stop is raised
+  h.io.readLedger = () => ledgerValues([...ledger, { n: 9, date: '2026/11/9 4:00' }]);   // a new arrival appears
+  h.run();                                     // next run: add refuses, nothing is sent
+  assert.equal(adds, 1);
+  assert.equal(JSON.parse(h.store.get('playlist:' + PL)).reason, 'WRITE_STOPPED');
+});
+
+test('date boundary: zoned timestamps use the Japan day; far-future dates fail closed', () => {
+  const { context } = load(['P25LibraryPipeline.js']);
+  assert.equal(context.p25Day_('2026-11-05T21:00:00Z'), '2026-11-06');   // 06:00 JST next day
+  assert.equal(context.p25Day_('2026-11-05T21:00:00+00:00'), '2026-11-06');
+  assert.equal(context.p25Day_('2026-11-06T04:00:00+09:00'), '2026-11-06');
+  assert.equal(context.p25Day_('2026/11/6 4:00'), '2026-11-06');
+  assert.equal(context.p25Day_('2026年11月6日'), '2026-11-06');
+  const h = harness({ owner: {}, ledger: [{ n: 3, date: '2062/11/6 4:00' }, { n: 4, date: '2026/11/9 4:00' }] });
+  h.run();
+  assert.deepEqual(h.log.adds.flat(), [ep(4)]);                          // today (JST) is fine, 2062 is not
+  const skipped = JSON.parse(h.store.get('playlist:' + PL)).plan.skipped;
+  assert.ok(skipped.some(x => x.epId === 'EP-00003' && x.reason === 'DATE_FUTURE'));
+});
+
+test('episode published on the approval day itself is not auto-added', () => {
+  const h = harness({ owner: {}, ledger: [{ n: 3, date: '2026-11-05T14:30:00Z' }] });   // 23:30 JST on 11/05 = since day
+  h.run();
+  assert.equal(h.log.adds.length, 0);
 });
