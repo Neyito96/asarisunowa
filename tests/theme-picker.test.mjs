@@ -233,3 +233,50 @@ test('COPY staging proves only the 4 files changed, and blocks global-name colli
   assert.throws(() => applyStage(c), /GLOBAL_NAME_COLLISION: p25Plan_/);
   assert.deepEqual(fs.readdirSync(c).sort(), ['.clasp.json', 'Code.js', 'Other.js', 'appsscript.json']);   // refused before copying
 });
+
+// ---------- legacy コード.js retirement (all global-name collisions resolved) ----------
+const legacyText = COPY_FILES.map(f => src(f)).join('\n');   // stand-in for the old single file: same names as the 4 new files
+function withLegacy(extra = '') {
+  const d = pulled(COPY_SCRIPT_ID, ['appsscript.json']);
+  fs.writeFileSync(path.join(d, 'コード.js'), legacyText + extra);
+  const backup = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'bk-')), 'コード.js');
+  fs.writeFileSync(backup, legacyText + extra);
+  return { d, backup };
+}
+test('legacy コード.js: without --retire every name collides and the stage is refused', () => {
+  const { d } = withLegacy();
+  const plan = planStage(d);
+  assert.equal(plan.ok, false);
+  assert.ok(plan.problems.filter(p => p.startsWith('GLOBAL_NAME_COLLISION')).length >= 20);
+  assert.throws(() => applyStage(d), /STAGE_REFUSED/);
+});
+test('legacy retirement: backup-verified move, only the 4 files added, no duplicate globals, nothing else removed', () => {
+  const { d, backup } = withLegacy();
+  fs.writeFileSync(path.join(d, 'Other.js'), 'function otherOnly_() { return 1; }\n');
+  const dry = planStage(d, undefined, { retire: 'コード.js', backup });
+  assert.equal(dry.ok, true);
+  assert.deepEqual(dry.deletes, ['コード.js']);
+  assert.ok(dry.retire.replacedByNew === dry.retire.definitions);
+  assert.ok(fs.existsSync(path.join(d, 'コード.js')));                    // dry run moved nothing
+  const r = applyStage(d, undefined, { retire: 'コード.js', backup });
+  assert.equal(r.verified, true);
+  assert.deepEqual(r.duplicateGlobals, []);
+  assert.deepEqual(r.removed, ['コード.js']);
+  assert.ok(!fs.existsSync(path.join(d, 'コード.js')));
+  assert.equal(fs.readFileSync(path.join(d + '-retired', 'コード.js'), 'utf8'), legacyText);   // retired copy is intact
+  assert.equal(fs.readFileSync(backup, 'utf8'), legacyText);                                        // backup untouched
+  assert.equal(fs.readFileSync(path.join(d, 'Other.js'), 'utf8'), 'function otherOnly_() { return 1; }\n');
+  assert.deepEqual(r.changed.sort(), [...COPY_FILES].sort());
+});
+test('legacy retirement refuses: backup missing/different, unexpected SHA, orphan definitions, protected names', () => {
+  const a = withLegacy();
+  assert.throws(() => applyStage(a.d, undefined, { retire: 'コード.js' }), /RETIRE_BACKUP_REQUIRED/);
+  fs.writeFileSync(a.backup, 'changed');
+  assert.throws(() => applyStage(a.d, undefined, { retire: 'コード.js', backup: a.backup }), /RETIRE_BACKUP_MISMATCH/);
+  const b = withLegacy();
+  assert.throws(() => applyStage(b.d, undefined, { retire: 'コード.js', backup: b.backup, expectSha: '0'.repeat(64) }), /RETIRE_SHA_UNEXPECTED/);
+  const c = withLegacy('\nfunction legacyOnlyHelper_() { return 1; }\n');
+  assert.throws(() => applyStage(c.d, undefined, { retire: 'コード.js', backup: c.backup }), /RETIRE_ORPHAN_DEFINITIONS.*legacyOnlyHelper_/);
+  assert.ok(fs.existsSync(path.join(c.d, 'コード.js')));                    // refused before any move
+  for (const bad of ['appsscript.json', 'P25CopyAdapter.js', '../x.js']) assert.throws(() => applyStage(b.d, undefined, { retire: bad, backup: b.backup }), /RETIRE_NOT_ALLOWED|STAGE_REFUSED/);
+});

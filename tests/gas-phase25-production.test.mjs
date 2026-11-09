@@ -56,7 +56,7 @@ function harness({ owner, ledger, members = [], stopped = false, approvals = {},
   let current = [...members];
   const io = {
     now: () => Date.parse('2026-11-09T04:00:00Z'), load: k => store.has(k) ? JSON.parse(store.get(k)) : null, save: (k, v) => { log.saves++; store.set(k, JSON.stringify(v)); },
-    withLock: fn => fn(), readLedger: () => ledgerValues(ledger), readRequests: () => [rule], readSources: () => ({ complete: false }),
+    withLock: fn => fn(), readLedger: () => ledgerValues(ledger), readExclusions: () => [['GUID', 'EP-ID']], readRequests: () => [rule], readSources: () => ({ complete: false }),
     readOwner: () => record, isStopped: () => stopped, canWrite: () => true,
     readMembership: () => [...current],
     add: (id, ids) => { log.adds.push(ids); current.push(...ids); },

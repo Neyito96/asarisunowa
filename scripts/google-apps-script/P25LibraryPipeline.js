@@ -131,7 +131,9 @@ function p25Run_(io, options) {
     const now = io.now(), shared = io.load("shared") || {cursor:0,resumeAt:0};
     if (shared.resumeAt > now) return {status:"WAIT",resumeAt:shared.resumeAt};
     // exactly once for all requests; with readExclusions the AM column and exclusion sheet are mandatory
-    const index = p25Index_(io.readLedger(), io.readExclusions ? { requireExclusionColumn: true, exclusions: io.readExclusions() } : {});
+    // Human exclusion (AM column) and 削除・除外履歴 are mandatory: an io without them must stop, never run without.
+    if (typeof io.readExclusions !== "function") throw new Error("EXCLUSION_SOURCE_REQUIRED");
+    const index = p25Index_(io.readLedger(), { requireExclusionColumn: true, exclusions: io.readExclusions() });
     const source = p25SourceAudit_(index,io.readSources());
     const rules = new Map(), conflicts = new Set(), invalid = [];
     io.readRequests().forEach(function(request) {
@@ -224,7 +226,7 @@ function p25Run_(io, options) {
         }
       }
       io.save(key,state);
-      results.push(Object.assign(result,{skippedCount:state.plan?state.plan.skipped.length:0,receipt:state.receipt,spotify:state.spotify,publication:state.publication,reason:state.reason}));
+      results.push(Object.assign(result,{skippedCount:(state.plan&&Array.isArray(state.plan.skipped))?state.plan.skipped.length:0,receipt:state.receipt,spotify:state.spotify,publication:state.publication,reason:state.reason}));
       shared.nextCursor=(position+1)%ordered.length;
       if (shared.resumeAt>io.now()) break;
     }
