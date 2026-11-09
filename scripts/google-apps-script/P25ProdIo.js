@@ -19,8 +19,40 @@ function p25OwnerIds_() {
     .map(function(key) { return key.slice(P25_OWNER_PREFIX_.length); });
 }
 
+const P25_EMERGENCY_STOP_KEY_ = "P25_EMERGENCY_STOP";
+
 function p25ProdWriteEnabled_() {
   return PropertiesService.getScriptProperties().getProperty(P25_PROD_WRITE_FLAG_) === "1";
+}
+
+// Fail closed: ANY value in the stop property means stopped.
+function p25EmergencyStopped_() {
+  return PropertiesService.getScriptProperties().getProperty(P25_EMERGENCY_STOP_KEY_) !== null;
+}
+
+// A write is allowed only while the switch is ON and no emergency stop exists. Read fresh every time.
+function p25ProdMayWriteNow_() {
+  return p25ProdWriteEnabled_() && !p25EmergencyStopped_();
+}
+
+// Emergency stop: sets the flag FIRST (so no new write can start), clears the write switch,
+// then waits for the gate lock to confirm that no write is still in flight.
+// It does not change owners: P25-owned playlists stay blocked for legacy writers too.
+function P25_EMERGENCY_STOP(reason) {
+  const props = PropertiesService.getScriptProperties();
+  props.setProperty(P25_EMERGENCY_STOP_KEY_, JSON.stringify({ at: new Date().toISOString(), reason: String(reason || "").slice(0, 200) }));
+  props.deleteProperty(P25_PROD_WRITE_FLAG_);
+  const lock = LockService.getUserLock();
+  const drained = lock.tryLock(P25_GATE_WAIT_MS_);
+  if (drained) lock.releaseLock();
+  return { stopped: true, writeSwitchCleared: true, inFlightWriteConfirmedFinished: drained };
+}
+
+// Releases the stop only. Writes stay OFF until P25_PROD_WRITE_ENABLED is set again on purpose.
+function P25_EMERGENCY_STOP_RELEASE(options) {
+  if (!options || options.confirm !== "RELEASE") throw new Error("CONFIRM_REQUIRED: options.confirm に \"RELEASE\" を指定してください");
+  PropertiesService.getScriptProperties().deleteProperty(P25_EMERGENCY_STOP_KEY_);
+  return { stopped: false, writeEnabled: p25ProdWriteEnabled_() };
 }
 
 // ---- durable state: versioned chunks in Script Properties, committed by a final meta write ----
@@ -129,14 +161,20 @@ function p25ProdIo_(options) {
     readOwner: function(id) { const record = p25OwnerRead_(id); seen[id] = record; return record; },
     isStopped: function(id) { return isAutoUpdatePlaylistHumanDeletedV1_(id); },
     canWrite: function(id) {
-      return options.write === true && p25IsP25Owned_(id) && !isAutoUpdatePlaylistHumanDeletedV1_(id);
+      return options.write === true && p25ProdMayWriteNow_() && p25IsP25Owned_(id) && !isAutoUpdatePlaylistHumanDeletedV1_(id);
     },
     readMembership: function(id) { return p25SpotifyReadMembership_(p25ProdToken_(), id); },
     add: function(id, ids) {
       const record = seen[id];
       if (!record) throw Object.assign(new Error("OWNER_NOT_READ"), { notSent: true });
       const token = p25ProdToken_();
-      const gate = p25WithOwnerGate_(id, "P25", record.generation, function() { return p25SpotifyAdd_(token, id, ids); });
+      const gate = p25WithOwnerGate_(id, "P25", record.generation, function() {
+        // Last check, inside the gate lock, right before the request: switch and stop are read fresh.
+        if (!p25ProdMayWriteNow_() || isAutoUpdatePlaylistHumanDeletedV1_(id)) {
+          throw Object.assign(new Error("P25_WRITE_STOPPED"), { notSent: true });
+        }
+        return p25SpotifyAdd_(token, id, ids);
+      });
       if (!gate.allowed) throw Object.assign(new Error("P25_OWNER_CHANGED"), { notSent: true });
       return gate.value;
     },
@@ -148,8 +186,9 @@ function p25ProdIo_(options) {
 
 function p25RunProduction_(options) {
   options = options || {};
-  const io = p25ProdIo_({ write: p25ProdWriteEnabled_() });
-  return p25Run_(io, { write: p25ProdWriteEnabled_(), maxPlaylists: options.maxPlaylists || 5, maxAdditions: options.maxAdditions || 10 });
+  if (p25EmergencyStopped_()) return { status: "EMERGENCY_STOP" };
+  const io = p25ProdIo_({ write: p25ProdMayWriteNow_() });
+  return p25Run_(io, { write: p25ProdMayWriteNow_(), maxPlaylists: options.maxPlaylists || 5, maxAdditions: options.maxAdditions || 10 });
 }
 
 // Called from the existing daily/hourly triggers. Never throws and never logs raw errors.
@@ -208,6 +247,9 @@ function p25OwnerSwitch_(playlistId, next, options) {
       if (options.confirm !== id) throw new Error("CONFIRM_REQUIRED: options.confirm に playlistId を指定してください");
       const record = { owner: next, generation: current.generation + 1, revision: (current.revision || 0) + 1, since: new Date().toISOString(), shows: current.shows || [] };
       if (next === "P25") {
+        if (options.exclusionsReviewed !== true) {
+          throw new Error("EXCLUSIONS_REVIEW_REQUIRED: 旧方式で人が削除した回を P25_IMPORT_EXCLUSIONS で引き継ぎ、確認後に exclusionsReviewed:true を指定してください");
+        }
         const since = String(options.since || "");
         if (!/^\d{4}-\d{2}-\d{2}$/.test(since) || isNaN(Date.parse(since))) throw new Error("SINCE_REQUIRED: 自動追加の基準日(YYYY-MM-DD)が必要です");
         if (!options.ruleRevision) throw new Error("RULE_REVISION_REQUIRED: P25_ADOPT_PREVIEW の ruleRevision を指定してください");
@@ -278,5 +320,42 @@ function P25_APPROVE_EPISODES(playlistId, epIds, options) {
     });
     p25ProdStateSave_(key, state);
     return { playlistId: id, approved: approved, rejected: rejected };
+  } finally { scriptLock.releaseLock(); }
+}
+
+// Carries manual-deletion history from the legacy era into P25. Accepts EP-IDs, GUIDs or Spotify
+// episode IDs/URLs. Excluded episodes are never auto-added and cannot be approved (the plan drops
+// them first). Additive only; no Spotify access.
+function P25_IMPORT_EXCLUSIONS(playlistId, items, options) {
+  const id = String(playlistId || "").trim();
+  if (!options || options.confirm !== id) throw new Error("CONFIRM_REQUIRED");
+  if (!Array.isArray(items) || !items.length || items.length > 500) throw new Error("EXCLUSIONS_REQUIRED");
+  const index = p25Index_(p25ProdReadLedger_());
+  const known = {};
+  index.rows.forEach(function(e) {
+    [e.epId, e.guid, e.spotifyId].filter(Boolean).forEach(function(k) { known[k] = e; });
+  });
+  const scriptLock = LockService.getScriptLock();
+  if (!scriptLock.tryLock(5000)) throw new Error("RUN_IN_PROGRESS");
+  try {
+    const key = "playlist:" + id;
+    const state = p25ProdStateLoad_(key) || { receipt: "ACCEPTED", spotify: "PENDING", publication: "PENDING", approvals: {}, excluded: [], observed: [], pending: [] };
+    const excluded = new Set(state.excluded || []);
+    const added = [], unknown = [];
+    items.forEach(function(raw) {
+      const text = String(raw || "").trim();
+      const fromUrl = p25EpisodeId_(text);
+      const k = fromUrl || text;
+      const e = known[k];
+      if (!e) { unknown.push(text.slice(0, 40)); return; }
+      [e.epId, e.guid, e.spotifyId].filter(Boolean).forEach(function(v) { excluded.add(v); });
+      // A stored approval must not survive a deliberate exclusion.
+      if (state.approvals) delete state.approvals[e.epId];
+      added.push(e.epId);
+    });
+    state.excluded = Array.from(excluded);
+    state.exclusionsImportedAt = new Date().toISOString();
+    p25ProdStateSave_(key, state);
+    return { playlistId: id, excludedEpisodes: Array.from(new Set(added)), unknown: unknown };
   } finally { scriptLock.releaseLock(); }
 }

@@ -464,28 +464,32 @@ function assertThemeV3SpotifyWrite_(rule) {
 
 function addThemeV3EpisodesIndividually_(rule, token, episodes) {
   assertThemeV3SpotifyWrite_(rule);
+  p25AssertLegacyMayWrite_(rule.playlistId);
 
   let addedCount = 0;
   let failedCount = 0;
   const addedEpisodes = [];
 
   (Array.isArray(episodes) ? episodes : []).forEach(function(ep) {
-    const addRes = UrlFetchApp.fetch(
-      "https://api.spotify.com/v1/playlists/" +
-        encodeURIComponent(rule.playlistId) +
-        "/items",
-      {
-        method: "post",
-        muteHttpExceptions: true,
-        contentType: "application/json",
-        headers: {
-          Authorization: "Bearer " + token
-        },
-        payload: JSON.stringify({
-          uris: [String(ep.uri)]
-        })
-      }
-    );
+    // Phase25: the owner is re-checked under the gate lock immediately before each write.
+    const addRes = p25LegacyGatedFetch_(rule.playlistId, function() {
+      return UrlFetchApp.fetch(
+        "https://api.spotify.com/v1/playlists/" +
+          encodeURIComponent(rule.playlistId) +
+          "/items",
+        {
+          method: "post",
+          muteHttpExceptions: true,
+          contentType: "application/json",
+          headers: {
+            Authorization: "Bearer " + token
+          },
+          payload: JSON.stringify({
+            uris: [String(ep.uri)]
+          })
+        }
+      );
+    });
 
     const status = addRes.getResponseCode();
     if (status === 200 || status === 201) {

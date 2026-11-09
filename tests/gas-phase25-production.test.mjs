@@ -196,10 +196,11 @@ test('owner switch cannot happen while a gated write is in flight', () => {
 
 test('P25_SET_OWNER requires confirmation, since, revision and allowed transitions', () => {
   const { context, props } = load(['P25Ownership.js', 'P25LibraryPipeline.js', 'P25SpotifyTarget.js', 'P25ProdIo.js']);
-  assert.throws(() => context.P25_SET_OWNER(PL, 'P25', { since: '2026-11-05', ruleRevision: 'r' }), /CONFIRM_REQUIRED/);
-  assert.throws(() => context.P25_SET_OWNER(PL, 'P25', { confirm: PL, ruleRevision: 'r' }), /SINCE_REQUIRED/);
-  assert.throws(() => context.P25_SET_OWNER(PL, 'P25', { confirm: PL, since: '2026-11-05' }), /RULE_REVISION_REQUIRED/);
-  const ok = context.P25_SET_OWNER(PL, 'P25', { confirm: PL, since: '2026-11-05', ruleRevision: 'r', shows: ['番組A'] });
+  assert.throws(() => context.P25_SET_OWNER(PL, 'P25', { since: '2026-11-05', ruleRevision: 'r', exclusionsReviewed: true }), /CONFIRM_REQUIRED/);
+  assert.throws(() => context.P25_SET_OWNER(PL, 'P25', { confirm: PL, since: '2026-11-05', ruleRevision: 'r' }), /EXCLUSIONS_REVIEW_REQUIRED/);
+  assert.throws(() => context.P25_SET_OWNER(PL, 'P25', { confirm: PL, ruleRevision: 'r', exclusionsReviewed: true }), /SINCE_REQUIRED/);
+  assert.throws(() => context.P25_SET_OWNER(PL, 'P25', { confirm: PL, since: '2026-11-05', exclusionsReviewed: true }), /RULE_REVISION_REQUIRED/);
+  const ok = context.P25_SET_OWNER(PL, 'P25', { confirm: PL, since: '2026-11-05', ruleRevision: 'r', shows: ['番組A'], exclusionsReviewed: true });
   assert.equal(ok.owner, 'P25');
   assert.equal(JSON.parse(props.get('P25_OWNER_' + PL)).autoAdd.since, '2026-11-05');
   assert.throws(() => context.P25_SET_OWNER(PL, 'LEGACY', { confirm: PL }), /TRANSITION_NOT_ALLOWED/);
@@ -251,4 +252,110 @@ test('legacy entrypoints skip P25-owned playlists and daily/hourly triggers run 
   assert.equal((v1.match(/p25RunProductionSafe_\(\)/g) || []).length, 2);
   assert.match(v1, /p25OwnerPause_\(id/);
   assert.match(v1, /p25OwnerOf_\(playlistId\)/);
+});
+
+// ---- review follow-up: concurrent writes, emergency stop, manual-deletion carryover ----
+const PROD = ['P25Ownership.js', 'P25LibraryPipeline.js', 'P25SpotifyTarget.js', 'P25ProdIo.js'];
+function prodIo(extra = {}) {
+  const fetches = [];
+  const loaded = load(PROD, {
+    getSpotifyUserAccessToken: () => 'tok',
+    isAutoUpdatePlaylistHumanDeletedV1_: () => false,
+    UrlFetchApp: { fetch: (url, o) => { fetches.push({ url, method: o.method }); return { getResponseCode: () => 201, getContentText: () => '{}' }; } },
+    ...extra
+  });
+  loaded.fetches = fetches;
+  return loaded;
+}
+
+test('every Spotify playlist write outside Phase25 files is behind the ownership gate', () => {
+  const files = fs.readdirSync(dir).filter(f => f.endsWith('.js') && !f.startsWith('P25'));
+  for (const f of files) {
+    const text = src(f);
+    // a function that writes to /playlists/.../items must use the gate or the manual-writer assertion
+    const writers = text.split(/\nfunction /).filter(b => /\/items/.test(b) && /method:\s*"(post|put|delete)"/.test(b));
+    for (const body of writers) {
+      assert.match(body, /p25LegacyGatedFetch_\(|p25AssertLegacyMayWrite_\(/, f + ': ' + body.slice(0, 60));
+    }
+  }
+});
+
+test('emergency stop applied after the owner was read still blocks the POST (nothing is sent)', () => {
+  const { context, props, fetches } = prodIo();
+  props.set('P25_OWNER_' + PL, JSON.stringify({ owner: 'P25', generation: 1 }));
+  props.set('P25_PROD_WRITE_ENABLED', '1');
+  const io = context.p25ProdIo_({ write: true });
+  io.readOwner(PL);
+  io.add(PL, [ep(1)]);                       // allowed while the switch is on
+  assert.equal(fetches.length, 1);
+  context.P25_EMERGENCY_STOP('test');        // stop arrives between read and write
+  assert.throws(() => io.add(PL, [ep(2)]), e => e.notSent === true && /P25_WRITE_STOPPED/.test(e.message));
+  assert.equal(fetches.length, 1);
+});
+
+test('write switch is read fresh inside the gate; absent or other values mean OFF', () => {
+  const { context, props, fetches } = prodIo();
+  props.set('P25_OWNER_' + PL, JSON.stringify({ owner: 'P25', generation: 1 }));
+  const io = context.p25ProdIo_({ write: true });
+  io.readOwner(PL);
+  assert.throws(() => io.add(PL, [ep(1)]), /P25_WRITE_STOPPED/);
+  props.set('P25_PROD_WRITE_ENABLED', 'true');
+  assert.throws(() => io.add(PL, [ep(1)]), /P25_WRITE_STOPPED/);
+  assert.equal(fetches.length, 0);
+});
+
+test('emergency stop clears the write switch, stops runs, and release keeps writes OFF', () => {
+  const { context, props } = prodIo();
+  props.set('P25_PROD_WRITE_ENABLED', '1');
+  props.set('P25_OWNER_' + PL, JSON.stringify({ owner: 'P25', generation: 1 }));
+  const r = context.P25_EMERGENCY_STOP('x');
+  assert.equal(r.stopped, true);
+  assert.equal(r.inFlightWriteConfirmedFinished, true);
+  assert.equal(props.has('P25_PROD_WRITE_ENABLED'), false);
+  assert.equal(context.p25RunProductionSafe_().status, 'EMERGENCY_STOP');
+  assert.equal(context.p25ProdIo_({ write: true }).canWrite(PL), false);
+  assert.throws(() => context.P25_EMERGENCY_STOP_RELEASE({}), /CONFIRM_REQUIRED/);
+  const rel = context.P25_EMERGENCY_STOP_RELEASE({ confirm: 'RELEASE' });
+  assert.equal(rel.writeEnabled, false);
+  // owner untouched: legacy stays blocked while stopped
+  assert.equal(context.p25LegacyBlocked_(PL), true);
+});
+
+test('emergency stop reports an in-flight write instead of claiming it finished', () => {
+  const { context, locks } = prodIo();
+  locks.user = true;                         // a write holds the gate lock
+  context.P25_GATE_WAIT_MS_ = 0;
+  const r = context.P25_EMERGENCY_STOP('x');
+  assert.equal(r.stopped, true);
+  assert.equal(r.inFlightWriteConfirmedFinished, false);
+});
+
+test('Theme V3 legacy writer is gated for P25-owned playlists', () => {
+  const t = src('ThemeV3SingleSheet.js');
+  const body = t.slice(t.indexOf('function addThemeV3EpisodesIndividually_'), t.indexOf('function applyThemeV3SpotifyPlan_'));
+  assert.match(body, /p25AssertLegacyMayWrite_\(rule\.playlistId\)/);
+  assert.match(body, /p25LegacyGatedFetch_\(rule\.playlistId/);
+});
+
+test('imported legacy manual deletions are never auto-added and cannot be re-approved', () => {
+  const ledgerRows = ledgerValues([{ n: 3, date: '2026/11/6 4:00' }, { n: 4, date: '2026/11/8 4:00' }, { n: 1, date: '2026/10/01 4:00' }]);
+  const requestRow = Array(9).fill(''); requestRow[1] = rule.url; requestRow[5] = 'ABC'; requestRow[7] = '増分自動更新'; requestRow[8] = '方式: series / x';
+  const { context, props } = prodIo({
+    SPREADSHEET_ID: 'req', AUTO_UPDATE_REQUEST_SHEET_NAME: 'req',
+    getSheetLoose: () => ({ getLastRow: () => 2, getRange: () => ({ getDisplayValues: () => [requestRow] }) }),
+    extractAutoUpdateSpotifyPlaylistId_: u => (String(u).match(/playlist\/([A-Za-z0-9]{22})/) || [])[1] || '',
+    SpreadsheetApp: { openById: () => ({ getSheetByName: () => ({ getLastRow: () => ledgerRows.length, getRange: () => ({ getDisplayValues: () => ledgerRows }) }) }) }
+  });
+  assert.throws(() => context.P25_IMPORT_EXCLUSIONS(PL, ['EP-00003'], {}), /CONFIRM_REQUIRED/);
+  const r = context.P25_IMPORT_EXCLUSIONS(PL, ['EP-00003', 'https://open.spotify.com/episode/' + ep(1), 'EP-99999'], { confirm: PL });
+  assert.deepEqual(Array.from(r.excludedEpisodes).sort(), ['EP-00001', 'EP-00003']);
+  assert.equal(r.unknown.length, 1);
+  const a = context.P25_APPROVE_EPISODES(PL, ['EP-00001', 'EP-00003', 'EP-00004'], { confirm: PL });
+  assert.ok(!a.approved.includes('EP-00003') && !a.approved.includes('EP-00001'));
+  assert.ok(a.approved.includes('EP-00004'));
+  // the pipeline also ignores them even with policy on
+  const state = context.p25ProdStateLoad_('playlist:' + PL);
+  const index = context.p25Index_(ledgerRows);
+  const plan = context.p25Plan_(index, context.p25Request_(rule), { ...state, autoAdd: { since: '2026-11-05', revision: context.p25Request_(rule).revision, shows: ['番組A'] } }, []);
+  assert.ok(!plan.additions.some(x => x.epId === 'EP-00003'));
 });

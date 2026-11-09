@@ -183,7 +183,7 @@ function p25Run_(io, options) {
             state.pending = [];
           }
           const failure=p25Error_(error,io.now());
-          if (error && error.notSent === true) failure.reason = /P25_GATE_BUSY/.test(String(error.message)) ? "GATE_BUSY" : "OWNER_CHANGED";
+          if (error && error.notSent === true) failure.reason = /P25_GATE_BUSY/.test(String(error.message)) ? "GATE_BUSY" : /P25_WRITE_STOPPED/.test(String(error.message)) ? "WRITE_STOPPED" : "OWNER_CHANGED";
           state.spotify="HOLD";state.reason=failure.reason;
           if (failure.resumeAt) shared.resumeAt=failure.resumeAt;
         }
