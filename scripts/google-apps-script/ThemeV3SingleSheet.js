@@ -582,7 +582,7 @@ function applyThemeV3SpotifyPlan_(sheet, rule, token, plan) {
     pendingAdditionCount: Math.max(0, allAdditions.length - additions.length)
   });
 }
-function appendThemeV3AutoDraftCandidates_(sheet, rule, episodes) {
+function appendThemeV3AutoDraftCandidates_(sheet, rule, episodes, sourceLabel) {
   const rows = readThemeV3Rows_(sheet);
   const known = new Set(rows.map(getThemeV3EpisodeId_).filter(Boolean));
   const now = new Date();
@@ -611,7 +611,7 @@ function appendThemeV3AutoDraftCandidates_(sheet, rule, episodes) {
       now,
       "",
       "",
-      "AUTO",
+      String(sourceLabel || "AUTO"),
       "AUTO初稿: テーマキーワード一致。不要なら人間が除外/Spotify削除"
     ]);
     known.add(id);
@@ -630,7 +630,8 @@ function syncThemeV3Rule_(rule, token) {
   const recent = typeof fetchRecentThemeReviewEpisodes_ === "function"
     ? fetchRecentThemeReviewEpisodes_(rule, token)
     : [];
-  const drafted = appendThemeV3AutoDraftCandidates_(sheet, rule, recent);
+  // 巡回で見つけた新着は「AUTO新着」と記録し、初稿(AUTO)・手動選択と区別する。
+  const drafted = appendThemeV3AutoDraftCandidates_(sheet, rule, recent, THEME_PICKER_NEW_ARRIVAL_SOURCE_);
 
   let playlistItems = getAllSpotifyPlaylistItems_(rule.playlistId, token);
   const rows = readThemeV3Rows_(sheet);
@@ -687,6 +688,9 @@ function activateSubmittedThemeV3Request_(rule, token) {
   const activeRule = normalizeThemeV3RuntimeRuleForIncremental_(rule);
   const sheet = ensureThemeV3SheetForRule_(activeRule);
 
+  // 投稿者が蔵から選んだ回を、AUTO初稿より先に管理シートへ入れる(重複・除外済みは入れない)。
+  const picked = importThemePickerSelectionV1_(sheet, activeRule, loadThemePickerSelectionForRuleV1_(activeRule));
+
   const initialEpisodes = fetchInitialThemeV3Episodes_(activeRule, token);
   const drafted = appendThemeV3AutoDraftCandidates_(
     sheet,
@@ -742,6 +746,8 @@ function activateSubmittedThemeV3Request_(rule, token) {
     playlistId: activeRule.playlistId,
     sheetName: sheet.getName(),
     initialCandidateCount: drafted.newCandidateCount,
+    pickedCount: picked.imported,
+    pickedRejected: picked.rejected.length,
     addedCount: Number(addResult.addedCount || 0),
     failedCount: Number(addResult.failedCount || 0),
     latestDate: latestDate,

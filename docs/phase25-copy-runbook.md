@@ -48,6 +48,23 @@ COPY 専用 GAS(スクリプト ID `16qdHt_nojvK…`)だけで行います。本
 ### 停止と復旧
 `write` を `false` に戻せば止まります。追加した回は、試験用プレイリストから手動で削除できます。
 
+## COPY への安全な反映方法(clasp)
+
+`scripts/google-apps-script/` で `clasp push` すると、本番用の約90ファイルが COPY に上がり、COPY にだけあるファイルが消えます。**この方法は使いません。**
+代わりに、COPY を空フォルダへ取得し、4ファイルだけを重ねます(`scripts/p25-copy-stage.mjs`)。
+
+1. 空のフォルダを作り、COPY プロジェクトを `clasp pull`(スクリプト ID は COPY のもの。本番 ID なら中止)。
+2. 点検: `node scripts/p25-copy-stage.mjs <そのフォルダ>`(書き込みなし)。`files` に add / update / same、`preserved` に「触れない既存ファイル」、`deletes` が空であることを確認する。本番の ID・本番専用ファイル(`P25ProdIo.js` など)・`appsscript.json` 欠落があると `ok:false` で止まる。
+3. 重ね書き: `--apply` を付けて再実行(4ファイルだけをコピー。`appsscript.json` と既存ファイルは触らない)。
+4. `clasp status` で差分を確認し、管理者の承認後に、**そのフォルダから** `clasp push`(`--force` は使わない)。
+
+## 読み取り専用の試験で確認する項目
+- 蔵検索(`SEARCH`)、AM 列「人間除外」と「削除・除外履歴」の除外、Spotify ID 照合(`VERIFY_IDS`)、候補プレビュー(`PREVIEW`)は、いずれも Spotify への書き込みも本番データの変更もない。
+- テーマ別プレイリスト(管理シートがあるもの)は P25 に切り替えられない(`THEME_MANAGED_BY_V3`)。二重投稿を防ぐため。
+
+## 承認の明確化(Spotify への追加)
+手順3は、次の3点を管理者が書面で承認した場合だけ実行します: 試験用プレイリスト 1 本(`[P25-COPY]` で始まる名前)/ 追加するエピソード 最大 1 件(EP-ID を指定)/ `write:true` への変更。EP-00028 は HOLD のまま追加しません。
+
 ## 必要な承認(順番)
 1. COPY への 4 ファイルの反映(対象: COPY スクリプト ID `16qdHt_nojvK…` のみ)
 2. 試験用プレイリストの作成と、トークンの設定

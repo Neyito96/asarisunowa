@@ -7,6 +7,8 @@ export type AutoUpdatePayload = {
   inviteUrl: string;
   keywords: string;
   ruleNote: string;
+  // EP-IDs the applicant picked from the library (theme playlists only). The server re-checks them.
+  selectedEpisodes?: string[];
   securityAnswer: string;
   website: string;
 };

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import EpisodePicker, { type PickedEpisode } from "./EpisodePicker";
 import {
   isSpotifyCollaborativeInviteUrl,
   isSpotifyPlaylistUrl,
@@ -21,6 +22,7 @@ export default function PlaylistCombinedAutoForm() {
   const [inviteUrl, setInviteUrl] = useState("");
   const [keywords, setKeywords] = useState("");
   const [ruleNote, setRuleNote] = useState("");
+  const [picked, setPicked] = useState<PickedEpisode[]>([]);
   const [securityAnswer, setSecurityAnswer] = useState("");
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<SubmitStatus>("idle");
@@ -155,6 +157,7 @@ export default function PlaylistCombinedAutoForm() {
           inviteUrl: cleanInviteUrl,
           keywords: cleanKeywords,
           ruleNote: ruleNote.trim(),
+          ...(updateType === "theme" && picked.length ? { selectedEpisodes: picked.map((e) => e.id) } : {}),
           securityAnswer: cleanSecurityAnswer,
           website,
         },
@@ -173,6 +176,7 @@ export default function PlaylistCombinedAutoForm() {
       setInviteUrl("");
       setKeywords("");
       setRuleNote("");
+      setPicked([]);
       setSecurityAnswer("");
       setWebsite("");
     } catch (error) {
@@ -221,6 +225,7 @@ export default function PlaylistCombinedAutoForm() {
         <span>{updateType === "series" ? "連載・シリーズ名／キーワード" : updateType === "speaker" ? "出演者名" : "テーマのキーワード"}</span>
         <textarea value={keywords} onChange={(event) => setKeywords(event.target.value)} placeholder={updateType === "series" ? "例：めくろう\n一緒に新聞をめくろう" : updateType === "speaker" ? "例：宮沢賢一" : "例：中東\nイスラエル\nパレスチナ\nイラン"} rows={updateType === "speaker" ? 2 : 3} required />
       </label>
+      {updateType === "theme" && <EpisodePicker selected={picked} onChange={setPicked} disabled={status === "sending"} />}
       <div className="autoUpdateCommonRule">
         <b>自動更新（楽育ち）について</b>
         <p>最初に入れた1本を目印に、そこから最新回までを古い順に追加します。準備が終わった後は、毎朝、新しい回がないか確認します。</p>

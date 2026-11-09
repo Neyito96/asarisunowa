@@ -3300,3 +3300,12 @@ footer {
     min-width: 0;
   }
 }
+
+/* 蔵から回を選ぶ（テーマ別の申請） */
+.episodePicker { border: 1px solid #d9d2c3; border-radius: 12px; padding: 12px; margin: 12px 0; display: grid; gap: 8px; }
+.episodePickerSearch { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; }
+.episodePickerResults, .episodePickerSelected ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; max-height: 320px; overflow: auto; }
+.episodePickerResults label { display: flex; gap: 8px; align-items: flex-start; cursor: pointer; }
+.episodePickerResults small, .episodePickerSelected small { display: block; opacity: .7; }
+.episodePickerSelected li { display: flex; justify-content: space-between; gap: 8px; }
+@media (max-width: 560px) { .episodePickerSearch { grid-template-columns: 1fr; } }

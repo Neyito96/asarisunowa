@@ -159,6 +159,13 @@ function p25ProdToken_() {
   return token;
 }
 
+function p25ProdThemeManaged_(playlistId) {
+  const id = String(playlistId || "");
+  if (Object.keys(THEME_V3_CONFIG_).some(function(name) { return THEME_V3_CONFIG_[name].playlistId === id; })) return true;
+  const rule = loadAutoUpdateRuntimeRuleByPlaylistIdV1_(id);
+  return Boolean(rule && getAutoPlaylistRuleType_(rule) === AUTO_PLAYLIST_RULE_TYPE_THEME_);
+}
+
 function p25ProdIo_(options) {
   options = options || {};
   const seen = {};
@@ -281,6 +288,8 @@ function p25OwnerSwitch_(playlistId, next, options) {
       if (options.confirm !== id) throw new Error("CONFIRM_REQUIRED: options.confirm に playlistId を指定してください");
       const record = { owner: next, generation: current.generation + 1, revision: (current.revision || 0) + 1, since: new Date().toISOString(), shows: current.shows || [] };
       if (next === "P25") {
+        // Theme playlists are managed by their own sheet (Theme V3). Two writers must never share one playlist.
+        if (p25ProdThemeManaged_(id)) throw new Error("THEME_MANAGED_BY_V3: テーマ別の管理シートがあるプレイリストはP25へ切り替えられません");
         if (p25EmergencyStopped_()) throw new Error("EMERGENCY_STOP_ACTIVE: 緊急停止を解除してから切り替えてください");
         const operator = p25EffectiveUser_();
         if (!operator) throw new Error("OPERATOR_IDENTITY_UNAVAILABLE: 実行ユーザーを取得できないためP25書き込みを有効にできません");

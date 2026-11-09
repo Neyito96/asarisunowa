@@ -1,6 +1,8 @@
 // Phase25 COPY/mock pipeline. No global side effects and no trigger installation.
 // All I/O is injected; production entrypoints deliberately remain unchanged.
 function p25Text_(value) { return String(value == null ? "" : value).trim(); }
+// Episodes the administrator keeps on hold: never added automatically and never selectable. (EP-00028)
+const P25_ADMIN_HOLD_EP_IDS_ = ["EP-00028"];
 function p25Normalize_(value) { return p25Text_(value).normalize("NFKC"); }
 function p25EpisodeId_(url) {
   const m = p25Text_(url).match(/^https:\/\/open\.spotify\.com\/episode\/([A-Za-z0-9]{22})(?:[?#].*)?$/);
@@ -69,7 +71,7 @@ function p25Index_(values, options) {
     return e;
   });
   rows.forEach(function(e) {
-    e.reason = !/^EP-\d{5}$/.test(e.epId) ? "INVALID_EP_ID" : !e.guid ? "GUID_MISSING" : !e.spotifyId ? "SPOTIFY_URL_MISSING_OR_INVALID" : !e.title || !e.date ? "METADATA_MISSING" : counts.ep.get(e.epId)>1 || counts.guid.get(e.guid)>1 || counts.spotify.get(e.spotifyId)>1 ? "IDENTITY_CONFLICT" : "";
+    e.reason = P25_ADMIN_HOLD_EP_IDS_.indexOf(e.epId) >= 0 ? "ADMIN_HOLD" : !/^EP-\d{5}$/.test(e.epId) ? "INVALID_EP_ID" : !e.guid ? "GUID_MISSING" : !e.spotifyId ? "SPOTIFY_URL_MISSING_OR_INVALID" : !e.title || !e.date ? "METADATA_MISSING" : counts.ep.get(e.epId)>1 || counts.guid.get(e.guid)>1 || counts.spotify.get(e.spotifyId)>1 ? "IDENTITY_CONFLICT" : "";
     // Exact evidence binding invalidates approval after any matching input changes.
     e.evidence = JSON.stringify([e.epId,e.guid,e.spotifyId,e.show,e.title,e.date,e.description,e.cast]);
   });

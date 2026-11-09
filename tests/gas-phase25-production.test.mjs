@@ -25,6 +25,7 @@ function load(files, extra = {}) {
     LockService: { getScriptLock: () => mkLock('script'), getUserLock: () => mkLock('user') },
     Utilities: { getUuid: () => 'v' + (++serial) },
     Session: { getEffectiveUser: () => ({ getEmail: () => 'operator@example.com' }) },
+    THEME_V3_CONFIG_: {}, AUTO_PLAYLIST_RULE_TYPE_THEME_: 'theme', loadAutoUpdateRuntimeRuleByPlaylistIdV1_: () => null, getAutoPlaylistRuleType_: () => '',
     ...extra
   });
   for (const f of files) vm.runInContext(fs.readFileSync(dir + f, 'utf8'), context, { filename: f });

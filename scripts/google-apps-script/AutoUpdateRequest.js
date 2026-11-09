@@ -11,6 +11,28 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
   const ruleNote = String(data.ruleNote || "").trim();
   const requestId = String(data.requestId || "").trim();
 
+  // 蔵から選んだ回(テーマ別のみ)。台帳と照合し、1件でも不正なら保存しない。
+  let pickerCell = "";
+  if (Array.isArray(data.selectedEpisodes) && data.selectedEpisodes.length) {
+    if (updateType !== "theme") {
+      return jsonResponse({ ok: false, error: "蔵からの選択はテーマ別プレイリストだけで使えます" });
+    }
+    let checked;
+    try {
+      checked = validateThemePickerSelectionV1_(data.selectedEpisodes);
+    } catch (error) {
+      return jsonResponse({ ok: false, error: String(error && error.message ? error.message : "選択内容を確認できませんでした").slice(0, 120) });
+    }
+    if (checked.rejected.length) {
+      return jsonResponse({
+        ok: false,
+        error: "選べない回が含まれています: " + checked.rejected.slice(0, 5).map(function(r) { return r.epId; }).join(", "),
+        rejected: checked.rejected.slice(0, 20)
+      });
+    }
+    pickerCell = serializeThemePickerSelectionV1_(checked.accepted);
+  }
+
   const validationError = validateAutoUpdateRequest_({
     url: url,
     title: title,
@@ -91,7 +113,8 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
       keywords,
       ruleNote,
       "招待承認待ち",
-      "方式: " + updateType + " / ruleType: " + requestPlan.ruleType
+      "方式: " + updateType + " / ruleType: " + requestPlan.ruleType,
+      pickerCell
     ]);
 
     SpreadsheetApp.flush();
