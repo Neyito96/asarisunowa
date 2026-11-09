@@ -22,7 +22,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "IOK 伊藤大地・奥山晶二郎・神田大介",
     "I'm OK",
     "https://open.spotify.com/playlist/799Fo9to2TK0ahGEJsvcm2",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e",
     "2026-03-30",
     null,
     true
@@ -40,7 +40,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "議員になんでも聞いてみよう　秋山訓子の政治家インタビュー",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/2H3SMQ51i2FG9ZX86R5VH8",
-    "https://mosaic.scdn.co/640/ab67656300005f1f46bdba4cf5ef29ec31f5b8c7ab67656300005f1f8620023b00a1b90d47b02feaab67656300005f1fb8e0b644ab05234c1a041046ab67656300005f1ff9a28ae7ac2ecbe57c60d441",
+    "https://mosaic.scdn.co/300/ab67656300005f1f46bdba4cf5ef29ec31f5b8c7ab67656300005f1f8620023b00a1b90d47b02feaab67656300005f1fb8e0b644ab05234c1a041046ab67656300005f1ff9a28ae7ac2ecbe57c60d441",
     "2022-05-01",
     null,
     false
@@ -283,7 +283,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "オリンピック",
     "bigstone1977",
     "https://open.spotify.com/playlist/5VAmNftiFBnHHv3LsQDKSf",
-    "https://mosaic.scdn.co/640/ab67656300005f1f63523828e791cc92ed2ca676ab67656300005f1facea656d6d35dea47d39b71cab67656300005f1fd7b0f4779e2ad2df975b7b77ab67656300005f1ff11ac3fbd5ba485088abcc49",
+    "https://mosaic.scdn.co/300/ab67656300005f1f63523828e791cc92ed2ca676ab67656300005f1facea656d6d35dea47d39b71cab67656300005f1fd7b0f4779e2ad2df975b7b77ab67656300005f1ff11ac3fbd5ba485088abcc49",
     null,
     null,
     false
@@ -310,7 +310,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "メディアを語る　伊藤大地x奥山晶二郎x神田大介",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/2lA13BSsvyLjq9iPFa6oDo",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84996d7c4cc61163a9b6ed71d9",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84996d7c4cc61163a9b6ed71d9",
     null,
     null,
     false
@@ -490,7 +490,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "PRIDE CODE その声が、世界を変える。世界をポジティブに変えていく声を祝福するプレイリスト。",
     "朝日新聞社 x Spotify",
     "https://open.spotify.com/playlist/37i9dQZF1DWUB0g2l65cg8",
-    "https://i.scdn.co/image/ab67706f0000000250bbbc94a652fd1d81d4a0d1",
+    null,
     null,
     null,
     false
@@ -526,7 +526,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#初登場特集（#朝ポキ）",
     "koike",
     "https://open.spotify.com/playlist/3WLp56ohdZs2AqDoUwNNWd",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef",
     null,
     null,
     false
@@ -544,7 +544,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "編集マニア",
     "カンダ ・マサキ",
     "https://open.spotify.com/playlist/71mdQ5ANqZda48jBkj0Qmz",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d",
     null,
     null,
     false
