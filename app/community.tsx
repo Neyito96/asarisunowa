@@ -2021,6 +2021,17 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               <h2>🎙 ポすすめ</h2>
               <p>ドーナツ（ポすすめ）で紹介された、朝リスさんのPodcastを集めた棚。以前の「日曜版」で紹介された番組もあります。人類ポ完計画、進行中。</p>
             </div>
+            <div className="listenerPodcastSubmitCta" aria-label="ポすすめ投稿のご案内">
+              <div className="listenerPodcastSubmitCtaInfo">
+                <span className="listenerPodcastSubmitCtaIcon" aria-hidden="true">➕</span>
+                <div>
+                  <strong>あなたもポすすめを追加しよう！</strong>
+                  <p>ドーナツで紹介された番組を見つけたら、どなたでも投稿できます。</p>
+                  <span className="listenerPodcastSubmitCtaNote">誰でも投稿OK · 重複チェックつき</span>
+                </div>
+              </div>
+              <a className="listenerPodcastSubmitCtaLink" href="#listener-podcast-form">投稿フォームへ ↓</a>
+            </div>
             <div className="toolbar listenerPodcastToolbar">
               <div className="tools">
                 <div className="sorts" role="group" aria-label="朝リスPodcastの並べ替え">
@@ -2084,7 +2095,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               ))}
             </div>
 
-            <section className="playlistSubmit" aria-labelledby="listener-podcast-submit-title">
+            <section id="listener-podcast-form" className="playlistSubmit" aria-labelledby="listener-podcast-submit-title">
               <div className="playlistSubmitHead">
                 <div>
                   <p className="kicker">ADD A LISTENER&apos;S PODCAST</p>
