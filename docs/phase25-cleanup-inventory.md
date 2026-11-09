@@ -11,7 +11,7 @@
 | 現役 | `AutoUpdateAutomationV1.js` `AutoUpdateRequest.js` `AutoUpdateNotification.js` `PlaylistAuto*.js`(Write / Spotify / Episodes / Rules / Lifecycle 系)`PlaylistSpecial.js` `ThemeV3SingleSheet.js` `PlaylistAutoThemeReview.js` `Spotify*.js` `Post*.js` `Podcast*.js` `Sheet*.js` `Api*.js` `HttpFetch.js` `コード.js`(doPost / doGet) | 投稿フォーム、日次・毎時の巡回、テーマ型、ポッドキャスト連携 |
 | 現役(新方式) | `P25Ownership.js` `P25LibraryPipeline.js` `P25SpotifyTarget.js` `P25ProdIo.js` | 蔵起点の更新。所有者が P25 のプレイリストだけ動く |
 | 新方式に置換予定 | 旧方式の増分巡回(`syncRecentManagedAutoPlaylistV1_` ほか)と初回補完(`syncNextAutoUpdateBootstrapV1_`) | P25 に切り替えたプレイリストでは自動で停止。COPY 実機試験が済むまで残す |
-| 未使用候補 | `*Tests.js`(GAS エディタ用の手動テスト 10 本前後)、`Test.js`、`PlaylistAutoDryRun*.js`、`PlaylistAutoV2DryRunEngine.js`、`PlaylistAutoWorkflowDryRun.js`、`P25CopySession20261107.js` | 他のコードから参照なし。ただしエディタからの手動実行に使われている可能性があるため削除せず、管理者の承認待ち |
+| 未使用候補 | `*Tests.js`(GAS エディタ用の手動テスト 10 本前後)、`Test.js`、`PlaylistAutoDryRun*.js`、`PlaylistAutoV2DryRunEngine.js`、`PlaylistAutoWorkflowDryRun.js` | 他のコードから参照なし。ただしエディタからの手動実行に使われている可能性があるため削除せず、管理者の承認待ち |
 | 削除禁止・保護対象 | `P25CopyAdapter.js` `P25CopyOwnership.js`(COPY 試験用。差分に触れない)、`PlaylistAutoOtaRebuild.js` `PlaylistAutoPolirebiAudit.js`(手動の再構築・削除ツール。P25 担当なら拒否)、`captureAutoUpdateBoundariesV1_`(旧方式へ戻すときの境界更新)、`assertAutoPlaylistLifecycleTransition_`(安全確認)、`appsscript.json` | 復旧経路・安全装置 |
 
 ### 今回削除したコード(参照が 0 件で、`_` 付きの非公開関数のみ)

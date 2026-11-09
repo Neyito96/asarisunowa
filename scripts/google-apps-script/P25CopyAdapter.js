@@ -10,6 +10,10 @@ function p25CopyIo_(config) {
   if (!config || config.environment!=="COPY" || !config.copyScriptId || ScriptApp.getScriptId()!==config.copyScriptId || productionScripts.indexOf(config.copyScriptId)>=0 || !config.stateSheetId || productionSheets.indexOf(config.stateSheetId)>=0 || !config.requestSheetId || productionSheets.indexOf(config.requestSheetId)>=0) throw new Error("COPY_ISOLATION_REQUIRED");
   // Copy playlists must be explicitly allowlisted, with a confirmed legacy-writer stop.
   const allow=new Set(config.copyPlaylistIds||[]);
+  // A writing COPY run is limited to ONE dedicated test playlist and ONE episode per run.
+  if (config.write===true && (allow.size!==1 || config.legacyWriterDisabled!==true || config.maxAdditions!==1)) throw new Error("COPY_WRITE_SCOPE_REQUIRED");
+  // The test playlist must carry the COPY marker in its name, so a production playlist ID pasted by mistake is refused.
+  const namePrefix=config.playlistNamePrefix||"[P25-COPY]", verifiedPlaylists={};
   const ss=SpreadsheetApp.openById(config.stateSheetId);
   const sheet=ss.getSheetByName("P25_STATE");
   if (!sheet || sheet.getRange(1,1,1,4).getDisplayValues()[0].join("|")!=="key|version|part|json") throw new Error("COPY_STATE_SCHEMA_REQUIRED");
@@ -46,10 +50,29 @@ function p25CopyIo_(config) {
     sheet.getRange(start,1,rows.length,4).setValues(rows);SpreadsheetApp.flush();
     sheet.getRange(start+rows.length,1,1,4).setValues([[key,version,"COMMIT",rows.length]]);SpreadsheetApp.flush();
   }
+  function assertCopyPlaylist(id) {
+    if(!allow.has(id))throw new Error("COPY_TARGET_REQUIRED");
+    if(verifiedPlaylists[id])return;
+    const info=api("get","playlists/"+id+"?fields=name");
+    if(typeof info.name!=="string"||info.name.indexOf(namePrefix)!==0)throw new Error("COPY_PLAYLIST_NAME_MARKER_REQUIRED");
+    verifiedPlaylists[id]=true;
+  }
   const io={
     now:function(){return Date.now();},load:load,save:save,
     withLock:function(fn){const lock=LockService.getScriptLock();if(!lock.tryLock(1000))return {status:"BUSY"};try{return fn();}finally{lock.releaseLock();}},
-    readLedger:function(){const s=SpreadsheetApp.openById(config.ledgerSheetId||productionSheets[1]).getSheetByName("エピソード台帳");return s.getRange(1,1,s.getLastRow(),24).getDisplayValues();},
+    readLedger:function(){const s=SpreadsheetApp.openById(config.ledgerSheetId||productionSheets[1]).getSheetByName("エピソード台帳");return s.getRange(1,1,s.getLastRow(),39).getDisplayValues();},
+    // READ ONLY: 削除・除外履歴 of the ledger workbook (col A = GUID, col B = EP-ID). Missing sheet = stop.
+    readExclusions:function(){const s=SpreadsheetApp.openById(config.ledgerSheetId||productionSheets[1]).getSheetByName("削除・除外履歴");if(!s)throw new Error("EXCLUSION_SHEET_MISSING");const last=s.getLastRow();return last<1?[[]]:s.getRange(1,1,last,Math.max(2,s.getLastColumn())).getDisplayValues();},
+    // Synthetic owner record: only when the session config enables rule-level auto-add for the test playlist.
+    readOwner:function(id){return config.autoAdd&&allow.has(id)?{owner:"P25",generation:1,autoAdd:{since:config.autoAdd.since,revision:config.autoAdd.revision,shows:config.autoAdd.shows||[]}}:null;},
+    // READ ONLY Spotify GET: do the ledger's Spotify episode IDs exist and play in Japan?
+    verifyEpisodes:function(ids){
+      const out={ok:[],missing:[],unplayable:[]};
+      for(let o=0;o<ids.length;o+=50){const chunk=ids.slice(o,o+50);const data=api("get","episodes?market=JP&ids="+chunk.join(","));
+        if(!Array.isArray(data.episodes)||data.episodes.length!==chunk.length)throw new Error("EPISODES_SCHEMA");
+        data.episodes.forEach(function(e,i){if(!e||e.id!==chunk[i])out.missing.push(chunk[i]);else if(e.is_playable===false)out.unplayable.push(chunk[i]);else out.ok.push(chunk[i]);});}
+      return out;
+    },
     readRequests:function(){
       const s=SpreadsheetApp.openById(config.requestSheetId).getSheetByName("自動更新申請");
       if(!s||s.getLastRow()<2)return [];
@@ -75,7 +98,7 @@ function p25CopyIo_(config) {
     },
     canWrite:function(id){return config.write===true&&allow.has(id)&&config.legacyWriterDisabled===true;},
     readMembership:function(id){
-      if(!allow.has(id))throw new Error("COPY_TARGET_REQUIRED");
+      assertCopyPlaylist(id);
       const before=api("get","playlists/"+id+"?fields=snapshot_id").snapshot_id;
       if(!before)throw new Error("SNAPSHOT_REQUIRED");
       const ids=[];let offset=0;
@@ -89,7 +112,7 @@ function p25CopyIo_(config) {
       if(before!==after)throw new Error("MEMBERSHIP_CHANGED_DURING_READ");
       return Array.from(new Set(ids));
     },
-    add:function(id,ids){if(!io.canWrite(id))throw new Error("COPY_WRITE_DISABLED");return api("post","playlists/"+id+"/items",{uris:ids.map(function(e){return "spotify:episode:"+e;})});},
+    add:function(id,ids){if(!io.canWrite(id))throw new Error("COPY_WRITE_DISABLED");if(ids.length!==1)throw new Error("COPY_SINGLE_EPISODE_ONLY");assertCopyPlaylist(id);return api("post","playlists/"+id+"/items",{uris:ids.map(function(e){return "spotify:episode:"+e;})});},
     // Existing registration -> site-public sheet -> sync-playlists -> Pages remains
     // the publication transport. Verify the actual deployed anchor independently.
     readPublished:function(id){
@@ -112,7 +135,7 @@ function P25_APPROVE_COPY(config,playlistId,reviewedCandidates) {
   return io.withLock(function(){
     const key="playlist:"+playlistId,state=io.load(key);
     if(!state || !state.plan)throw new Error("RUN_COPY_FIRST");
-    const index=p25Index_(io.readLedger());
+    const index=p25Index_(io.readLedger(),{requireExclusionColumn:true,exclusions:io.readExclusions()});
     (reviewedCandidates||[]).forEach(function(candidate){
       const current=index.rows.find(function(e){return e.epId===candidate.epId;});
       if(!current || current.reason || current.evidence!==candidate.evidence || current.guid!==candidate.guid || current.spotifyId!==candidate.spotifyId || candidate.revision!==state.rule.revision)throw new Error("STALE_APPROVAL");
@@ -120,4 +143,35 @@ function P25_APPROVE_COPY(config,playlistId,reviewedCandidates) {
     });
     io.save(key,state);return {approved:reviewedCandidates.length};
   });
+}
+
+// ---- COPY read-only trials (no Spotify write path) ----
+// Ledger search: reads the ledger workbook only. No Spotify call, no state written.
+function P25_SEARCH_COPY(config,query) {
+  const io=p25CopyIo_(config);
+  return p25Search_(p25Index_(io.readLedger(),{requireExclusionColumn:true,exclusions:io.readExclusions()}),query);
+}
+// Spotify ID mapping check: Spotify GET only (counts against apiBudget).
+function P25_VERIFY_IDS_COPY(config,epIds) {
+  if(!Array.isArray(epIds)||!epIds.length||epIds.length>100)throw new Error("EPISODES_REQUIRED");
+  const io=p25CopyIo_(config);
+  const index=p25Index_(io.readLedger(),{requireExclusionColumn:true,exclusions:io.readExclusions()});
+  const byEp={},idToEp={},ids=[],notVerifiable=[];
+  index.rows.forEach(function(e){byEp[e.epId]=e;});
+  epIds.forEach(function(id){const e=byEp[id];if(!e||e.reason||!e.spotifyId){notVerifiable.push(id);return;}ids.push(e.spotifyId);idToEp[e.spotifyId]=id;});
+  const r=ids.length?io.verifyEpisodes(ids):{ok:[],missing:[],unplayable:[]};
+  const toEp=function(l){return l.map(function(i){return idToEp[i];});};
+  return {ok:toEp(r.ok),missing:toEp(r.missing),unplayable:toEp(r.unplayable),notVerifiable:notVerifiable};
+}
+// Dry preview for one COPY playlist: the rule revision to put in config.autoAdd, what the plan would do.
+// Never writes (add is not called) and never persists state.
+function P25_PREVIEW_COPY(config,playlistId) {
+  const io=p25CopyIo_(config);
+  if((config.copyPlaylistIds||[]).indexOf(playlistId)<0)throw new Error("COPY_TARGET_REQUIRED");
+  const index=p25Index_(io.readLedger(),{requireExclusionColumn:true,exclusions:io.readExclusions()});
+  const row=io.readRequests().filter(function(r){return r.url.indexOf(playlistId)>=0;})[0];
+  if(!row)throw new Error("REQUEST_NOT_FOUND");
+  const rule=p25Request_(row),members=io.readMembership(playlistId);
+  const plan=p25Plan_(index,rule,{excluded:[],approvals:{},autoAdd:config.autoAdd||null,today:new Date(Date.now()+9*3600*1000).toISOString().slice(0,10)},members);
+  return {ruleRevision:rule.revision,members:members.length,wouldAdd:plan.additions.map(function(a){return a.epId;}),holds:plan.holds.length,skipped:plan.skipped.length,humanExcluded:plan.humanExcluded.length,autoAddActive:Boolean(config.autoAdd)};
 }
