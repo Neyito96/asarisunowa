@@ -1026,16 +1026,6 @@ function syncAutoUpdateSeedBootstrapV1_(rule, token, maxAdditions) {
   return { playlistId: rule.playlistId, ok: true, bootstrapPending: false, addedCount: addResult.addedCount, complete: true };
 }
 
-function nextAutoUpdateDailyWindowStartMsV1_(nowMs) {
-  const timeZone = Session.getScriptTimeZone() || "Asia/Tokyo";
-  const tomorrow = Utilities.formatDate(
-    new Date(Number(nowMs || Date.now()) + 24 * 60 * 60 * 1000),
-    timeZone,
-    "yyyy-MM-dd"
-  );
-  return Utilities.parseDate(tomorrow + " 04:00", timeZone, "yyyy-MM-dd HH:mm").getTime();
-}
-
 function autoUpdateRequestFromSheetRowV1_(row) {
   const typeMatch = String(row[8] || "").match(/方式:\s*([^/\s]+)/);
   return {

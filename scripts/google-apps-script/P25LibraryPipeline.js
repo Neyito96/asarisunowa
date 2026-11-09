@@ -43,12 +43,28 @@ function p25AutoAddPolicy_(state, rule) {
   if (rule.show && shows.indexOf(rule.show) < 0) shows.push(rule.show);
   return { since: policy.since, shows: shows };
 }
-function p25Index_(values) {
+// Same rule as the public library (public/library/library-core.mjs `blocked`): anything other than
+// blank / 未指定 / なし / false / 0 / no in the ledger's 人間除外 cell means "excluded by a human".
+function p25Blocked_(value) {
+  const v = p25Normalize_(value).toLowerCase();
+  return v !== "" && ["未指定", "なし", "false", "0", "no"].indexOf(v) < 0;
+}
+// options.requireExclusionColumn: production must read column AM (人間除外) and fail closed when the
+// header is not there. options.exclusions: rows of the 削除・除外履歴 sheet (header first; col A = GUID, col B = EP-ID).
+function p25Index_(values, options) {
+  options = options || {};
   const expected = {0:"台帳ID",1:"番組名",2:"タイトル",3:"配信日時",6:"外部ID",11:"Spotify個別URL",22:"概要清掃済み",23:"出演者"};
   if (!values.length || Object.keys(expected).some(function(i) { return p25Text_(values[0][i]).indexOf(expected[i]) < 0; })) throw new Error("LEDGER_SCHEMA_MISMATCH");
+  if (options.requireExclusionColumn && p25Text_(values[0][38]).indexOf("人間除外") < 0) throw new Error("LEDGER_SCHEMA_MISMATCH");
+  const excludedGuids = new Set(), excludedIds = new Set();
+  (Array.isArray(options.exclusions) ? options.exclusions : []).slice(1).forEach(function(r) {
+    if (p25Text_(r[0])) excludedGuids.add(p25Text_(r[0]).toLowerCase());
+    if (p25Text_(r[1])) excludedIds.add(p25Text_(r[1]));
+  });
   const counts = { ep: new Map(), guid: new Map(), spotify: new Map() };
   const rows = values.slice(1).filter(function(row) { return row.some(Boolean); }).map(function(row) {
     const e = {epId:p25Text_(row[0]),show:p25Text_(row[1]),title:p25Text_(row[2]),date:p25Text_(row[3]),guid:p25Text_(row[6]),spotifyId:p25EpisodeId_(row[11]),description:p25Text_(row[22]),cast:p25Text_(row[23])};
+    e.humanExcluded = p25Blocked_(row[38]) || excludedIds.has(e.epId) || excludedGuids.has(e.guid.toLowerCase());
     [[counts.ep,e.epId],[counts.guid,e.guid],[counts.spotify,e.spotifyId]].forEach(function(pair) { if (pair[1]) pair[0].set(pair[1],(pair[0].get(pair[1])||0)+1); });
     return e;
   });
@@ -61,13 +77,15 @@ function p25Index_(values) {
 }
 function p25Plan_(index, rule, state, membership) {
   const existing = new Set(membership), excluded = new Set(state.excluded || []);
-  const result = {candidates:[], additions:[], holds:[], existing:[], skipped:[]};
+  const result = {candidates:[], additions:[], holds:[], existing:[], skipped:[], humanExcluded:[]};
   const policy = p25AutoAddPolicy_(state, rule);
   index.rows.forEach(function(e) {
     if (rule.show && rule.show !== e.show) return;
     const text = p25Normalize_(rule.type === "series" ? e.title : rule.type === "speaker" ? e.cast : e.title+"\n"+e.description);
     const hits = rule.terms.filter(function(term) { return text.indexOf(term)>=0; });
     if (!hits.length) return;
+    // Ledger-side human exclusion (AM column / 削除・除外履歴) always wins, before anything else.
+    if (e.humanExcluded) { result.humanExcluded.push(e.epId); return; }
     if (excluded.has(e.epId) || excluded.has(e.guid) || excluded.has(e.spotifyId)) return;
     const candidate = {epId:e.epId,guid:e.guid,spotifyId:e.spotifyId,evidence:e.evidence,matchedTerms:hits};
     result.candidates.push(candidate);
@@ -110,7 +128,8 @@ function p25Run_(io, options) {
   return io.withLock(function() {
     const now = io.now(), shared = io.load("shared") || {cursor:0,resumeAt:0};
     if (shared.resumeAt > now) return {status:"WAIT",resumeAt:shared.resumeAt};
-    const index = p25Index_(io.readLedger()); // exactly once for all requests
+    // exactly once for all requests; with readExclusions the AM column and exclusion sheet are mandatory
+    const index = p25Index_(io.readLedger(), io.readExclusions ? { requireExclusionColumn: true, exclusions: io.readExclusions() } : {});
     const source = p25SourceAudit_(index,io.readSources());
     const rules = new Map(), conflicts = new Set(), invalid = [];
     io.readRequests().forEach(function(request) {
@@ -223,4 +242,27 @@ function p25VerifyPublishedHtml_(status,html,playlistId,url,checkedAt) {
     return m&&m[1].split(/[?#]/)[0]===target;
   });
   return {visible:visible,verified:visible,url:url,checkedAt:checkedAt,playlistId:playlistId};
+}
+
+// Pure ledger search (no playlist, no Spotify): which ledger episodes match a show / cast / theme query,
+// and whether each one is clean enough to be offered to a playlist.
+function p25Search_(index, query) {
+  const type = p25Text_(query && query.type);
+  const terms = Array.from(new Set(p25Normalize_(query && query.keywords).split(/[\n,、]+/).map(p25Text_).filter(Boolean))).sort();
+  if (["series", "speaker", "theme"].indexOf(type) < 0 || !terms.length) throw new Error("INVALID_SEARCH");
+  const rule = { type: type, terms: terms, show: p25Text_(query.show), revision: "search" };
+  const plan = p25Plan_(index, rule, { excluded: [], approvals: {} }, []);
+  const holdReason = {};
+  plan.holds.forEach(function(h) { holdReason[h.epId] = h.reason; });
+  const byEp = {};
+  index.rows.forEach(function(e) { byEp[e.epId] = e; });
+  return {
+    terms: terms,
+    humanExcluded: plan.humanExcluded,
+    episodes: plan.candidates.map(function(c) {
+      const e = byEp[c.epId];
+      return { epId: e.epId, guid: e.guid, spotifyId: e.spotifyId, show: e.show, title: e.title, day: p25Day_(e.date),
+               matchedTerms: c.matchedTerms, status: holdReason[c.epId] && holdReason[c.epId] !== "REVIEW_REQUIRED" ? holdReason[c.epId] : "READY" };
+    })
+  };
 }

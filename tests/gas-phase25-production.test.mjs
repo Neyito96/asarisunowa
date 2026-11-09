@@ -32,11 +32,13 @@ function load(files, extra = {}) {
 }
 
 function ledgerValues(rows) {
-  const header = Array(24).fill('');
+  const header = Array(39).fill('');
+  header[38] = '人間除外';
   Object.entries({ 0: '台帳ID', 1: '番組名', 2: 'タイトル', 3: '配信日時', 6: '外部ID', 11: 'Spotify個別URL', 22: '概要清掃済み', 23: '出演者' })
     .forEach(([i, v]) => header[i] = v);
   return [header, ...rows.map(r => {
-    const row = Array(24).fill('');
+    const row = Array(39).fill('');
+    if (r.excl !== undefined) row[38] = r.excl;
     row[0] = 'EP-' + String(r.n).padStart(5, '0'); row[1] = r.show || '番組A'; row[2] = r.title || 'ABC #' + r.n;
     row[3] = r.date; row[6] = 'g' + r.n; row[11] = 'https://open.spotify.com/episode/' + ep(r.n);
     return row;
@@ -354,7 +356,9 @@ test('imported legacy manual deletions are never auto-added and cannot be re-app
     SPREADSHEET_ID: 'req', AUTO_UPDATE_REQUEST_SHEET_NAME: 'req',
     getSheetLoose: () => ({ getLastRow: () => 2, getRange: () => ({ getDisplayValues: () => [requestRow] }) }),
     extractAutoUpdateSpotifyPlaylistId_: u => (String(u).match(/playlist\/([A-Za-z0-9]{22})/) || [])[1] || '',
-    SpreadsheetApp: { openById: () => ({ getSheetByName: () => ({ getLastRow: () => ledgerRows.length, getRange: () => ({ getDisplayValues: () => ledgerRows }) }) }) }
+    SpreadsheetApp: { openById: () => ({ getSheetByName: name => name === '削除・除外履歴'
+      ? ({ getLastRow: () => 1, getLastColumn: () => 2, getRange: () => ({ getDisplayValues: () => [['GUID', 'EP-ID']] }) })
+      : ({ getLastRow: () => ledgerRows.length, getRange: () => ({ getDisplayValues: () => ledgerRows }) }) }) }
   });
   assert.throws(() => context.P25_IMPORT_EXCLUSIONS(PL, ['EP-00003'], {}), /CONFIRM_REQUIRED/);
   const r = context.P25_IMPORT_EXCLUSIONS(PL, ['EP-00003', 'https://open.spotify.com/episode/' + ep(1), 'EP-99999'], { confirm: PL });
@@ -431,4 +435,86 @@ test('episode published on the approval day itself is not auto-added', () => {
   const h = harness({ owner: {}, ledger: [{ n: 3, date: '2026-11-05T14:30:00Z' }] });   // 23:30 JST on 11/05 = since day
   h.run();
   assert.equal(h.log.adds.length, 0);
+});
+
+// ---- Phase25 completion: ledger exclusions (AM column / 削除・除外履歴), search, mapping check, new playlist ----
+test('ledger 人間除外 (AM column) always wins over approval and auto-add', () => {
+  const rows = [{ n: 3, date: '2026/11/6 4:00', excl: '除外' }, { n: 4, date: '2026/11/8 4:00', excl: '未指定' }, { n: 6, date: '2026/11/8 4:00', excl: '' }];
+  const h = harness({ owner: {}, ledger: rows });
+  h.run();
+  assert.deepEqual(h.log.adds.flat(), [ep(4), ep(6)]);
+  // an old approval of the excluded episode does not bring it back
+  const h2 = harness({ owner: {}, ledger: [{ n: 3, date: '2026/11/6 4:00', excl: 'true' }] });
+  const idx = h2.context.p25Index_(ledgerValues([{ n: 3, date: '2026/11/6 4:00', excl: 'true' }]));
+  h2.store.set('playlist:' + PL, JSON.stringify({ approvals: { 'EP-00003': { revision: h2.rev, evidence: idx.rows[0].evidence } }, excluded: [], observed: [], pending: [] }));
+  h2.run();
+  assert.equal(h2.log.adds.length, 0);
+});
+
+test('削除・除外履歴 rows (GUID or EP-ID) exclude episodes; a missing column fails closed', () => {
+  const h = harness({ owner: {}, ledger: [{ n: 3, date: '2026/11/6 4:00' }, { n: 4, date: '2026/11/8 4:00' }, { n: 6, date: '2026/11/8 4:00' }] });
+  h.io.readExclusions = () => [['GUID', 'EP-ID'], ['G3', ''], ['', 'EP-00004']];   // ledger guid is 'g<n>' (case-insensitive)
+  h.run();
+  assert.deepEqual(h.log.adds.flat(), [ep(6)]);
+  const bad = harness({ owner: {}, ledger });
+  bad.io.readExclusions = () => [['GUID', 'EP-ID']];
+  bad.io.readLedger = () => ledgerValues(ledger).map(r => r.slice(0, 24));   // AM column missing
+  assert.throws(() => bad.run(), /LEDGER_SCHEMA_MISMATCH/);
+  assert.equal(bad.log.adds.length, 0);
+});
+
+test('ledger search reports each match with its status and never touches Spotify', () => {
+  const { context } = load(['P25LibraryPipeline.js']);
+  const values = ledgerValues([{ n: 1, date: '2026/11/6 4:00' }, { n: 2, date: '2026/11/6 4:00', excl: '除外' }, { n: 3, date: '2026/11/6 4:00', title: '別番組 #3' }]);
+  values[3][11] = '';   // EP-00003 has no Spotify URL
+  const r = JSON.parse(JSON.stringify(context.p25Search_(context.p25Index_(values, { requireExclusionColumn: true }), { type: 'series', keywords: 'ABC' })));
+  assert.deepEqual(r.episodes.map(e => e.epId), ['EP-00001']);
+  assert.equal(r.episodes[0].status, 'READY');
+  assert.deepEqual(r.humanExcluded, ['EP-00002']);
+  assert.throws(() => context.p25Search_(context.p25Index_(values), { type: 'x', keywords: 'a' }), /INVALID_SEARCH/);
+});
+
+function ioWithSheets(ledgerRows) {
+  return {
+    SPREADSHEET_ID: 's', AUTO_UPDATE_REQUEST_SHEET_NAME: 'r',
+    SpreadsheetApp: { openById: () => ({ getSheetByName: name => name === '削除・除外履歴'
+      ? ({ getLastRow: () => 1, getLastColumn: () => 2, getRange: () => ({ getDisplayValues: () => [['GUID', 'EP-ID']] }) })
+      : ({ getLastRow: () => ledgerRows.length, getRange: () => ({ getDisplayValues: () => ledgerRows }) }) }) }
+  };
+}
+
+test('P25_VERIFY_EPISODE_IDS flags missing / unplayable Spotify IDs (read-only GET)', () => {
+  const rows = ledgerValues([{ n: 1, date: '2026/11/6 4:00' }, { n: 2, date: '2026/11/6 4:00' }, { n: 3, date: '2026/11/6 4:00' }]);
+  const calls = [];
+  const { context } = prodIo({
+    ...ioWithSheets(rows),
+    UrlFetchApp: { fetch: (url, o) => { calls.push({ url, method: o.method });
+      const ids = new URL(url).searchParams.get('ids').split(',');
+      const episodes = ids.map(id => id === ep(2) ? null : { id, is_playable: id !== ep(3) });
+      return { getResponseCode: () => 200, getContentText: () => JSON.stringify({ episodes }) }; } }
+  });
+  const r = JSON.parse(JSON.stringify(context.P25_VERIFY_EPISODE_IDS(['EP-00001', 'EP-00002', 'EP-00003', 'EP-99999'])));
+  assert.deepEqual(r, { ok: ['EP-00001'], missing: ['EP-00002'], unplayable: ['EP-00003'], notVerifiable: ['EP-99999'] });
+  assert.ok(calls.every(c => c.method === 'get'));
+});
+
+test('P25_CREATE_PLAYLIST needs typed confirmation, the write switch and no emergency stop; creates an empty private playlist only', () => {
+  const sent = [];
+  const mk = () => prodIo({ UrlFetchApp: { fetch: (url, o) => { sent.push({ url, body: JSON.parse(o.payload) });
+    return { getResponseCode: () => 201, getContentText: () => JSON.stringify({ id: 'N'.repeat(22) }) }; } } });
+  const a = mk();
+  assert.throws(() => a.context.P25_CREATE_PLAYLIST({ name: '新着' }, {}), /CONFIRM_REQUIRED/);
+  assert.throws(() => a.context.P25_CREATE_PLAYLIST({ name: '新着' }, { confirm: 'CREATE:新着' }), /WRITE_DISABLED/);
+  a.props.set('P25_PROD_WRITE_ENABLED', '1');
+  a.props.set('P25_EMERGENCY_STOP', '{}');
+  assert.throws(() => a.context.P25_CREATE_PLAYLIST({ name: '新着' }, { confirm: 'CREATE:新着' }), /WRITE_DISABLED/);
+  assert.equal(sent.length, 0);
+  a.props.delete('P25_EMERGENCY_STOP');
+  const r = a.context.P25_CREATE_PLAYLIST({ name: '新着', description: 'd' }, { confirm: 'CREATE:新着' });
+  assert.equal(r.url, 'https://open.spotify.com/playlist/' + 'N'.repeat(22));
+  assert.equal(sent.length, 1);
+  assert.ok(sent[0].url.endsWith('/v1/me/playlists'));
+  assert.equal(sent[0].body.public, false);
+  assert.equal(sent[0].body.uris, undefined);          // no episodes added
+  assert.equal(a.props.has('P25_OWNER_' + 'N'.repeat(22)), false);   // no owner change
 });

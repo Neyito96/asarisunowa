@@ -133,10 +133,24 @@ function p25ProdRequestFromRow_(row) {
   return { url: row[1], updateType: type ? type[1] : "", keywords: row[5] };
 }
 
+// Columns A..AM: AM (39th) is 人間除外.
 function p25ProdReadLedger_() {
   const sheet = SpreadsheetApp.openById(P25_PROD_LEDGER_SHEET_ID_).getSheetByName("エピソード台帳");
   if (!sheet) throw new Error("LEDGER_SHEET_MISSING");
-  return sheet.getRange(1, 1, sheet.getLastRow(), 24).getDisplayValues();
+  return sheet.getRange(1, 1, sheet.getLastRow(), 39).getDisplayValues();
+}
+
+// 削除・除外履歴: header row + rows of [GUID, EP-ID, ...]. A missing sheet is an error (fail closed).
+function p25ProdReadExclusions_() {
+  const sheet = SpreadsheetApp.openById(P25_PROD_LEDGER_SHEET_ID_).getSheetByName("削除・除外履歴");
+  if (!sheet) throw new Error("EXCLUSION_SHEET_MISSING");
+  const last = sheet.getLastRow();
+  if (last < 1) return [[]];
+  return sheet.getRange(1, 1, last, Math.max(2, sheet.getLastColumn())).getDisplayValues();
+}
+
+function p25ProdIndex_() {
+  return p25Index_(p25ProdReadLedger_(), { requireExclusionColumn: true, exclusions: p25ProdReadExclusions_() });
 }
 
 function p25ProdToken_() {
@@ -158,6 +172,7 @@ function p25ProdIo_(options) {
       try { return fn(); } finally { lock.releaseLock(); }
     },
     readLedger: p25ProdReadLedger_,
+    readExclusions: p25ProdReadExclusions_,
     readRequests: function() {
       const owned = new Set(p25OwnerIds_().filter(function(id) { return p25IsP25Owned_(id); }));
       const requests = [];
@@ -297,7 +312,7 @@ function P25_ADOPT_PREVIEW(playlistId) {
   const row = p25ProdRequestRows_().get(id);
   if (!row) throw new Error("REQUEST_NOT_FOUND");
   const rule = p25Request_(Object.assign({ url: row[1] }, p25ProdRequestFromRow_(row)));
-  const index = p25Index_(p25ProdReadLedger_());
+  const index = p25ProdIndex_();
   const members = p25SpotifyReadMembership_(p25ProdToken_(), id);
   const plan = p25Plan_(index, rule, { excluded: [], approvals: {} }, members);
   const byEp = {};
@@ -323,7 +338,7 @@ function P25_APPROVE_EPISODES(playlistId, epIds, options) {
   const row = p25ProdRequestRows_().get(id);
   if (!row) throw new Error("REQUEST_NOT_FOUND");
   const rule = p25Request_(Object.assign({ url: row[1] }, p25ProdRequestFromRow_(row)));
-  const index = p25Index_(p25ProdReadLedger_());
+  const index = p25ProdIndex_();
   const scriptLock = LockService.getScriptLock();
   if (!scriptLock.tryLock(5000)) throw new Error("RUN_IN_PROGRESS");
   try {
@@ -353,7 +368,7 @@ function P25_IMPORT_EXCLUSIONS(playlistId, items, options) {
   const id = String(playlistId || "").trim();
   if (!options || options.confirm !== id) throw new Error("CONFIRM_REQUIRED");
   if (!Array.isArray(items) || !items.length || items.length > 500) throw new Error("EXCLUSIONS_REQUIRED");
-  const index = p25Index_(p25ProdReadLedger_());
+  const index = p25ProdIndex_();
   const known = {};
   index.rows.forEach(function(e) {
     [e.epId, e.guid, e.spotifyId].filter(Boolean).forEach(function(k) { known[k] = e; });
@@ -381,4 +396,46 @@ function P25_IMPORT_EXCLUSIONS(playlistId, items, options) {
     p25ProdStateSave_(key, state);
     return { playlistId: id, excludedEpisodes: Array.from(new Set(added)), unknown: unknown };
   } finally { scriptLock.releaseLock(); }
+}
+
+// ---- A. ledger search / Spotify mapping check / new playlist (separate operations) ----
+// 1) Search (read-only): ledger only, no Spotify call.
+function P25_SEARCH_LEDGER(query) {
+  return p25Search_(p25ProdIndex_(), query);
+}
+
+// 2) Spotify ID mapping check (read-only Spotify GET): are the ledger's Spotify IDs real and playable?
+function P25_VERIFY_EPISODE_IDS(epIds) {
+  if (!Array.isArray(epIds) || !epIds.length || epIds.length > 200) throw new Error("EPISODES_REQUIRED");
+  const index = p25ProdIndex_();
+  const byEp = {};
+  index.rows.forEach(function(e) { byEp[e.epId] = e; });
+  const unknown = [], ids = [], idToEp = {};
+  epIds.forEach(function(epId) {
+    const e = byEp[epId];
+    if (!e || e.reason || !e.spotifyId) { unknown.push(epId); return; }
+    ids.push(e.spotifyId); idToEp[e.spotifyId] = epId;
+  });
+  const checked = ids.length ? p25SpotifyVerifyEpisodes_(p25ProdToken_(), ids) : { found: [], missing: [], unplayable: [] };
+  const toEp = function(list) { return list.map(function(id) { return idToEp[id]; }); };
+  return { ok: toEp(checked.found), missing: toEp(checked.missing), unplayable: toEp(checked.unplayable), notVerifiable: unknown };
+}
+
+// 3) NEW playlist creation. Distinct from updating an existing playlist: needs its own typed
+// confirmation, the write switch, no emergency stop, and creates an EMPTY private playlist only.
+// It registers nothing and changes no owner: the administrator then submits the playlist through the
+// existing form, runs P25_ADOPT_PREVIEW and P25_SET_OWNER (each separately approved).
+function P25_CREATE_PLAYLIST(spec, options) {
+  const name = String(spec && spec.name || "").trim();
+  if (!name || name.length > 100) throw new Error("INVALID_PLAYLIST_NAME");
+  const description = String(spec && spec.description || "").trim();
+  if (description.length > 300) throw new Error("INVALID_PLAYLIST_DESCRIPTION");
+  if (!options || options.confirm !== "CREATE:" + name) throw new Error("CONFIRM_REQUIRED: options.confirm に \"CREATE:<プレイリスト名>\" を指定してください");
+  if (!p25ProdMayWriteNow_()) throw new Error("WRITE_DISABLED: 書き込みスイッチがOFFか緊急停止中です");
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) throw new Error("RUN_IN_PROGRESS");
+  try {
+    if (!p25ProdMayWriteNow_()) throw new Error("WRITE_DISABLED");
+    return p25SpotifyCreatePlaylist_(p25ProdToken_(), { name: name, description: description });
+  } finally { lock.releaseLock(); }
 }

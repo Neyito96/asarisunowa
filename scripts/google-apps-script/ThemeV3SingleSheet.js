@@ -173,10 +173,6 @@ function getThemeV3Decision_(row) {
   return String(row && row[8] ? row[8] : "").trim();
 }
 
-function getThemeV3ConfirmedAt_(row) {
-  return row && row[9] ? row[9] : "";
-}
-
 function getThemeV3AddedAt_(row) {
   return row && row[10] ? row[10] : "";
 }

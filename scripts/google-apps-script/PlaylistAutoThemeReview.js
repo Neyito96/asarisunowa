@@ -362,16 +362,6 @@ function getThemeReviewSheetNameV1_(rule) {
 
 // Resolve an existing review sheet without creating or editing it.
 // New theme sheets are provisioned in a separate, reviewed step.
-function getThemeReviewSheetForRuleV1_(rule, ss) {
-  const name = getThemeReviewSheetNameV1_(rule);
-  if (!name || !ss) return null;
-
-  const sheet = ss.getSheetByName(name);
-  if (!sheet) return null;
-
-  return sheet;
-}
-
 // Return queue and history names together.
 // This function does not access or modify a spreadsheet.
 function getThemeReviewSheetNamesV1_(rule) {

@@ -64,3 +64,34 @@ function p25SpotifyAdd_(token, playlistId, episodeIds) {
   if (status < 200 || status >= 300) throw p25SpotifyError_(status, response);
   return true;
 }
+
+// Read-only: checks that ledger-recorded Spotify episode IDs really exist (and are playable) in Japan.
+function p25SpotifyVerifyEpisodes_(token, episodeIds) {
+  const found = [], missing = [], unplayable = [];
+  for (let offset = 0; offset < episodeIds.length; offset += 50) {
+    const chunk = episodeIds.slice(offset, offset + 50);
+    const data = p25SpotifyGet_(token, "episodes?market=JP&ids=" + chunk.map(encodeURIComponent).join(","));
+    if (!Array.isArray(data.episodes) || data.episodes.length !== chunk.length) throw new Error("EPISODES_SCHEMA");
+    data.episodes.forEach(function(episode, i) {
+      if (!episode || episode.id !== chunk[i]) missing.push(chunk[i]);
+      else if (episode.is_playable === false) unplayable.push(chunk[i]);
+      else found.push(chunk[i]);
+    });
+  }
+  return { found: found, missing: missing, unplayable: unplayable };
+}
+
+// Creates an EMPTY private playlist for the signed-in operator account. This is a Spotify write, but it
+// does not touch any existing playlist and adds no episode. Callers must have passed every approval check.
+function p25SpotifyCreatePlaylist_(token, spec) {
+  const response = UrlFetchApp.fetch("https://api.spotify.com/v1/me/playlists", {
+    method: "post", contentType: "application/json", muteHttpExceptions: true,
+    headers: { Authorization: "Bearer " + token, Accept: "application/json" },
+    payload: JSON.stringify({ name: spec.name, description: spec.description || "", public: false, collaborative: false })
+  });
+  const status = response.getResponseCode();
+  if (status < 200 || status >= 300) throw p25SpotifyError_(status, response);
+  const data = JSON.parse(response.getContentText() || "{}");
+  if (!/^[A-Za-z0-9]{22}$/.test(String(data.id || ""))) throw new Error("PLAYLIST_CREATE_SCHEMA");
+  return { playlistId: data.id, url: "https://open.spotify.com/playlist/" + data.id };
+}
