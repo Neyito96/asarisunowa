@@ -50,15 +50,17 @@ function themeV3RowStateV1_(row) {
   if (decision === "除外") return "除外";
   if (decision === "採用" && added) return "Spotify追加済み";
   if (decision === "採用") {
-    if (source === THEME_PICKER_SOURCE_) return "手動選択";
+    if (source === THEME_PICKER_SOURCE_) return "管理者採用";
     if (source === THEME_PICKER_NEW_ARRIVAL_SOURCE_) return "新着候補";
     if (source === "AUTO") return "AUTO初稿";
     return "管理者採用";
   }
+  if (source === THEME_PICKER_SOURCE_) return "手動選択(採用待ち)";
   return source === THEME_PICKER_NEW_ARRIVAL_SOURCE_ ? "新着候補" : "未確認";
 }
 
-// Writes the applicant's selection into the theme's management sheet as 採用 / 投稿者選択 rows.
+// Writes the applicant's selection into the theme's management sheet as 未確認 / 投稿者選択 rows: the existing writer only posts 採用, so an admin must
+// set 判定=採用 by hand (onEdit stamps 確認日時) before anything can reach Spotify.
 // Re-validates against the ledger now (exclusions may have changed since the request). Existing rows
 // (including human exclusions and manual deletions) are never overwritten: a known episode is skipped.
 function importThemePickerSelectionV1_(sheet, rule, epIds) {
@@ -75,8 +77,8 @@ function importThemePickerSelectionV1_(sheet, rule, epIds) {
     rows.push([
       String(rule.key || ""), e.spotifyId, e.date, e.show, e.title, "", "",
       "https://open.spotify.com/episode/" + e.spotifyId,
-      "採用", now, "", "", THEME_PICKER_SOURCE_,
-      "投稿者が蔵から選択 / " + e.epId
+      "未確認", "", "", "", THEME_PICKER_SOURCE_,
+      "投稿者が蔵から選択(管理者の採用待ち) / " + e.epId
     ]);
   });
   if (rows.length) sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, 14).setValues(rows);

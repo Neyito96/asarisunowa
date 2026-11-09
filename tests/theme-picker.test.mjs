@@ -98,7 +98,8 @@ test('import writes 採用/投稿者選択 rows, skips known episodes (incl. hum
   assert.deepEqual(sheet.rows[0], existing);                       // the human exclusion stays untouched
   const added = sheet.rows[1];
   assert.equal(added[1], ep(1));
-  assert.equal(added[8], '採用');
+  assert.equal(added[8], '未確認');                                 // never 採用: needs an admin decision
+  assert.equal(added[9], '');
   assert.equal(added[12], '投稿者選択');
   assert.equal(added[10], '');                                      // not yet on Spotify
   assert.match(added[13], /EP-00001/);
@@ -108,7 +109,8 @@ test('row states: 手動選択 / 管理者採用 / 除外 / Spotify追加済み 
   const { context } = gas();
   const row = (decision, source, added = '') => { const r = Array(14).fill(''); r[8] = decision; r[12] = source; r[10] = added; return r; };
   const st = r => context.themeV3RowStateV1_(r);
-  assert.equal(st(row('採用', '投稿者選択')), '手動選択');
+  assert.equal(st(row('未確認', '投稿者選択')), '手動選択(採用待ち)');
+  assert.equal(st(row('採用', '投稿者選択')), '管理者採用');
   assert.equal(st(row('採用', '人間')), '管理者採用');
   assert.equal(st(row('採用', 'AUTO')), 'AUTO初稿');
   assert.equal(st(row('採用', 'AUTO新着')), '新着候補');
@@ -180,4 +182,54 @@ test('COPY staging refuses the production script, unknown IDs, production-only f
   assert.throws(() => applyStage(pulled(COPY_SCRIPT_ID, ['Code.js'])), /NO_MANIFEST/);
   const empty = fs.mkdtempSync(path.join(os.tmpdir(), 'copy-'));
   assert.throws(() => applyStage(empty), /NO_CLASP_JSON/);
+});
+
+test('approval path: picker rows are never posted by the existing writer until an admin sets 採用', () => {
+  const { context } = gas({ ...sheets(ledger([{ n: 1 }, { n: 2 }])), readThemeV3Rows_: s => s.rows, getThemeV3EpisodeId_: r => String(r[1] || '') });
+  const sheet = fakeSheet([]);
+  context.importThemePickerSelectionV1_(sheet, { key: 'k' }, ['EP-00001', 'EP-00002']);
+  const T = fs.readFileSync(dir + 'ThemeV3SingleSheet.js', 'utf8');
+  const w = vm.createContext({}); vm.runInContext(T.slice(T.indexOf('function getThemeV3EpisodeId_'), T.indexOf('function applyThemeV3DecisionTimestamp_')), w);
+  const plan = () => JSON.parse(JSON.stringify(w.buildThemeV3SpotifyPlan_(sheet.rows, [])));
+  assert.deepEqual(plan().additions, []);                           // nothing to POST
+  sheet.rows[0][8] = '採用';                                         // admin decision (onEdit would stamp 確認日時)
+  assert.deepEqual(plan().additions.map(a => a.episodeId), [ep(1)]); // only the approved one
+});
+
+test('real public library data matches the picker format (manifest, shards, EP-IDs, hold)', () => {
+  const root = 'public/library/data/';
+  const m = JSON.parse(fs.readFileSync(root + 'manifest.json', 'utf8'));
+  assert.ok(Array.isArray(m.shows) && m.shows.length > 0);
+  const rows = [];
+  for (const s of m.shows) {
+    assert.equal(typeof s.name, 'string');
+    for (const p of s.search) rows.push(...JSON.parse(fs.readFileSync(root + p, 'utf8')));
+  }
+  assert.ok(rows.length > 100);
+  for (const r of rows) {
+    assert.match(r.id, /^EP-\d{5}$/);
+    assert.equal(typeof r.title, 'string'); assert.equal(typeof r.show, 'string');
+    assert.match(String(r.date), /^\d{4}-\d{2}-\d{2}/);
+  }
+  const all = searchEpisodes(rows, { query: '' });
+  assert.ok(all.length > 0);
+  assert.ok(!all.some(e => e.id === 'EP-00028'));
+  const one = rows.find(r => r.title.length > 3);
+  assert.ok(searchEpisodes(rows, { query: one.title }).some(e => e.id === one.id));
+});
+
+test('COPY staging proves only the 4 files changed, and blocks global-name collisions', () => {
+  const d = pulled(COPY_SCRIPT_ID, ['Code.js', 'appsscript.json', 'P25CopyAdapter.js']);
+  fs.mkdirSync(path.join(d, 'sub')); fs.writeFileSync(path.join(d, 'sub', 'x.js'), 'keep');
+  const before = fs.readFileSync(path.join(d, 'Code.js'), 'utf8');
+  const r = applyStage(d);
+  assert.equal(r.verified, true);
+  assert.deepEqual(r.changed.sort(), [...COPY_FILES].sort());
+  assert.deepEqual(r.removed, []);
+  assert.equal(fs.readFileSync(path.join(d, 'Code.js'), 'utf8'), before);
+  assert.equal(fs.readFileSync(path.join(d, 'sub', 'x.js'), 'utf8'), 'keep');
+  // a remote-only file that defines the same global function as a COPY file would silently override it in GAS
+  const c = pulled(COPY_SCRIPT_ID); fs.writeFileSync(path.join(c, 'Other.js'), 'function p25Plan_() { return 1; }\n');
+  assert.throws(() => applyStage(c), /GLOBAL_NAME_COLLISION: p25Plan_/);
+  assert.deepEqual(fs.readdirSync(c).sort(), ['.clasp.json', 'Code.js', 'Other.js', 'appsscript.json']);   // refused before copying
 });

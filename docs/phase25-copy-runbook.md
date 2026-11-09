@@ -56,7 +56,8 @@ COPY 専用 GAS(スクリプト ID `16qdHt_nojvK…`)だけで行います。本
 1. 空のフォルダを作り、COPY プロジェクトを `clasp pull`(スクリプト ID は COPY のもの。本番 ID なら中止)。
 2. 点検: `node scripts/p25-copy-stage.mjs <そのフォルダ>`(書き込みなし)。`files` に add / update / same、`preserved` に「触れない既存ファイル」、`deletes` が空であることを確認する。本番の ID・本番専用ファイル(`P25ProdIo.js` など)・`appsscript.json` 欠落があると `ok:false` で止まる。
 3. 重ね書き: `--apply` を付けて再実行(4ファイルだけをコピー。`appsscript.json` と既存ファイルは触らない)。
-4. `clasp status` で差分を確認し、管理者の承認後に、**そのフォルダから** `clasp push`(`--force` は使わない)。
+   `--apply` は、反映の前後で全ファイル(サブフォルダ含む)のハッシュを比べ、**変わったのが4ファイルだけ・消えたファイルが0** であることを確認します。違えば中止します。COPY に残るファイルと同名のグローバル関数・定数を4ファイルが定義している場合(`GLOBAL_NAME_COLLISION`)も、コピー前に中止します。
+4. `clasp status` で差分を確認し、管理者の承認後に、**そのフォルダから** `clasp push`(`--force` は使わない)。承認依頼には、手順2の点検結果(`files`/`preserved`/`deletes`)と、手順4の `clasp status` の出力を添付する。push 対象に4ファイル以外が含まれていたら中止。
 
 ## 読み取り専用の試験で確認する項目
 - 蔵検索(`SEARCH`)、AM 列「人間除外」と「削除・除外履歴」の除外、Spotify ID 照合(`VERIFY_IDS`)、候補プレビュー(`PREVIEW`)は、いずれも Spotify への書き込みも本番データの変更もない。
