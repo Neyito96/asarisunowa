@@ -1,34 +1,59 @@
-// COPY-only READ-ONLY playlist identity check. Spotify GET only. Never logs credentials.
-// Not installed anywhere until the administrator explicitly approves a COPY GAS change.
-function p25CopyPlaylistVerify_(expected, meta, copyPlaylistIds) {
+// COPY-only READ-ONLY playlist identity/membership check. Spotify GET only.
+// Logs and results contain status codes and counts only (no tokens, no ids of people).
+// Depends on (already in COPY GAS): p25CopySessionConfig20261107_, p25CopyIo_,
+// Script Property P25_COPY_SPOTIFY_ACCESS_TOKEN. Not installed until the admin approves.
+var P25_COPY_CHECK_TARGET_ = {playlistId: "1N0T7tMxPMKxXy77C0RPMw", episodeId: "2bQehZDGaWmylhP7x6iyeR"};
+
+// Pure decision function (unit-tested). me = GET /me body, before/after = playlist bodies.
+function p25CopyPlaylistVerify_(target, copyPlaylistIds, me, before, after, items) {
   const problems = [];
-  if (!expected || !/^[A-Za-z0-9]{22}$/.test(expected.playlistId || "")) problems.push("EXPECTED_ID_INVALID");
-  if (!expected || !expected.ownerId) problems.push("EXPECTED_OWNER_REQUIRED");
-  if (!Array.isArray(copyPlaylistIds) || copyPlaylistIds.length !== 1 || copyPlaylistIds[0] !== expected.playlistId) problems.push("ALLOWLIST_MISMATCH");
-  if (!meta || typeof meta !== "object") problems.push("META_UNAVAILABLE");
+  if (!Array.isArray(copyPlaylistIds) || copyPlaylistIds.length !== 1 || copyPlaylistIds[0] !== target.playlistId) problems.push("ALLOWLIST_MISMATCH");
+  if (!me || typeof me.id !== "string" || !me.id) problems.push("ME_UNAVAILABLE");
+  if (!before || !after) problems.push("PLAYLIST_UNAVAILABLE");
   else {
-    if (meta.id !== expected.playlistId) problems.push("ID_MISMATCH");
-    if (!meta.owner || meta.owner.id !== expected.ownerId) problems.push("OWNER_MISMATCH");
-    if (meta.public !== false) problems.push("NOT_PRIVATE"); // null/true/missing => stop
-    if (meta.collaborative === true) problems.push("COLLABORATIVE");
-    if (expected.name && meta.name !== expected.name) problems.push("NAME_DIFFERS_INFO"); // informational only
+    if (before.id !== target.playlistId) problems.push("ID_MISMATCH");
+    if (!before.owner || typeof before.owner.id !== "string" || !before.owner.id) problems.push("OWNER_MISSING");
+    else if (me && before.owner.id !== me.id) problems.push("OWNER_NOT_AUTHORIZED_ACCOUNT");
+    if (before.public !== false) problems.push("NOT_PRIVATE");
+    if (before.collaborative !== false) problems.push("COLLABORATIVE_OR_UNKNOWN");
+    if (!before.snapshot_id || before.snapshot_id !== after.snapshot_id) problems.push("SNAPSHOT_CHANGED_OR_MISSING");
   }
-  const blocking = problems.filter(function(p) { return p !== "NAME_DIFFERS_INFO"; });
-  return {status: blocking.length ? "STOP" : "PASS", problems: problems, spotifyWrite: false};
+  if (!Array.isArray(items)) problems.push("MEMBERSHIP_UNAVAILABLE");
+  return {status: problems.length ? "STOP" : "PASS", problems: problems, spotifyWrite: false,
+    memberCount: Array.isArray(items) ? items.length : null,
+    targetPresent: Array.isArray(items) ? items.indexOf(target.episodeId) >= 0 : null};
 }
+
+// Pure orchestration with injected GET (unit-tested). get(path) returns {code, body}.
+function p25CopyPlaylistCheckRun_(target, copyPlaylistIds, get) {
+  const fail = function(c) { return {status: "STOP", problems: ["HTTP_" + c], spotifyWrite: false, memberCount: null, targetPresent: null}; };
+  const me = get("me"); if (me.code !== 200) return fail(me.code);
+  const f = "playlists/" + target.playlistId;
+  const b = get(f + "?fields=id,public,collaborative,owner(id),snapshot_id"); if (b.code !== 200) return fail(b.code);
+  const ids = []; let offset = 0;
+  while (true) {
+    const p = get(f + "/items?market=JP&limit=50&offset=" + offset); if (p.code !== 200) return fail(p.code);
+    if (!p.body || !Array.isArray(p.body.items)) return p25CopyPlaylistVerify_(target, copyPlaylistIds, me.body, b.body, b.body, null);
+    for (let i = 0; i < p.body.items.length; i++) { const it = p.body.items[i].item || p.body.items[i].track; if (!it || !it.id) return p25CopyPlaylistVerify_(target, copyPlaylistIds, me.body, b.body, b.body, null); ids.push(it.id); }
+    if (!p.body.next) break; if (!p.body.items.length) return p25CopyPlaylistVerify_(target, copyPlaylistIds, me.body, b.body, b.body, null);
+    offset += p.body.items.length;
+  }
+  const a = get(f + "?fields=snapshot_id"); if (a.code !== 200) return fail(a.code);
+  return p25CopyPlaylistVerify_(target, copyPlaylistIds, me.body, b.body, a.body, ids);
+}
+
+// Entry point (no arguments). Run from the editor; expected: {"status":"PASS",...,"spotifyWrite":false}
 function P25_COPY_VERIFY_PLAYLIST_20261107() {
   const config = p25CopySessionConfig20261107_();
-  p25CopyIo_(config); // isolation: COPY script id, COPY sheets only
-  const expected = {playlistId: "1N0T7tMxPMKxXy77C0RPMw", ownerId: config.expectedOwnerId, name: "朝リス Phase25 COPY試験 2026-11-07"};
+  p25CopyIo_(config); // COPY isolation guard (script id, COPY sheets)
   const token = PropertiesService.getScriptProperties().getProperty("P25_COPY_SPOTIFY_ACCESS_TOKEN");
   if (!token) throw new Error("COPY_TOKEN_REQUIRED");
-  const url = "https://api.spotify.com/v1/playlists/" + expected.playlistId + "?fields=id,name,public,collaborative,owner(id),snapshot_id";
-  const res = UrlFetchApp.fetch(url, {method: "get", muteHttpExceptions: true, headers: {Authorization: "Bearer " + token}});
-  const code = res.getResponseCode();
-  if (code !== 200) { const r = {status: "STOP", problems: ["HTTP_" + code], spotifyWrite: false}; console.log(JSON.stringify(r)); return r; }
-  let meta = null;
-  try { meta = JSON.parse(res.getContentText()); } catch (_) { meta = null; }
-  const result = p25CopyPlaylistVerify_(expected, meta, config.copyPlaylistIds);
-  console.log(JSON.stringify(result)); // status/problem codes only
+  const get = function(path) {
+    const res = UrlFetchApp.fetch("https://api.spotify.com/v1/" + path, {method: "get", muteHttpExceptions: true, headers: {Authorization: "Bearer " + token}});
+    let body = null; try { body = JSON.parse(res.getContentText() || "null"); } catch (_) { body = null; }
+    return {code: res.getResponseCode(), body: body};
+  };
+  const result = p25CopyPlaylistCheckRun_(P25_COPY_CHECK_TARGET_, config.copyPlaylistIds, get);
+  console.log(JSON.stringify(result));
   return result;
 }
