@@ -1,0 +1,27 @@
+name: Link probe (read-only)
+# 代表EPでの比較実験。台帳・Sheets・秘密値には触れない（contents: read のみ）。
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/probe-link-services.mjs'
+      - 'public/library/link-discovery.mjs'
+      - '.github/workflows/link-probe.yml'
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/link-discovery.test.mjs
+      - run: node scripts/probe-link-services.mjs docs/release/2026-11-10-link-probe-sample.json probe-report.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: probe-report
+          path: probe-report.json
