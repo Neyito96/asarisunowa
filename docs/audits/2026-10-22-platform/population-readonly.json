@@ -1,0 +1,170 @@
+{
+  "mode": "READ_ONLY",
+  "measuredAt": "2026-10-21T23:21:19.393Z",
+  "sourceHash": "3526cbd384736bb33baff0cc60ab5fd4b8679065ae7d58d50b602b9febb71d6d",
+  "snapshotDate": "2026-10-22",
+  "definitions": {
+    "rawRows": "Current ledger rows, including policy exclusions. Not a finalized canonical episode count.",
+    "publicEligible": "Current exporter policy (Alukiki/AJW excluded), human/tombstone exclusions, valid required metadata. No policy changes.",
+    "repeatTitleMarkers": "Title markers only; not a verified duplicate or rerun classification.",
+    "videoMediaOrUrl": "Media/URL marker only; not automatically excluded.",
+    "externalIdDuplicates": "Column 6 external ID only (not a complete GUID inventory); trimmed case-folded exact value; identity review required. No deduplication applied."
+  },
+  "ledger": {
+    "rawRows": 6591,
+    "policyExcluded": 125,
+    "humanExcluded": 0,
+    "held": 0,
+    "publishable": 6466,
+    "externalIdRepeatedGroups": 0,
+    "externalIdRepeatedRows": 0,
+    "crossShowExternalIdGroups": 0,
+    "shows": [
+      {
+        "show": "AJW",
+        "rawRows": 25,
+        "minDate": "2023-08-08T04:00:00+09:00",
+        "maxDate": "2026-10-10T08:00:00+09:00",
+        "repeatTitleMarkers": 0,
+        "videoMediaOrUrl": 0,
+        "missingExternalId": 0,
+        "officialUuidPresent": 0,
+        "publicEligible": 0
+      },
+      {
+        "show": "MEDIA TALK",
+        "rawRows": 1750,
+        "minDate": "2020-08-06T11:47:00+09:00",
+        "maxDate": "2026-10-10T04:00:00+09:00",
+        "repeatTitleMarkers": 1,
+        "videoMediaOrUrl": 3,
+        "missingExternalId": 1637,
+        "officialUuidPresent": 0,
+        "publicEligible": 1750
+      },
+      {
+        "show": "SDGsを話そう",
+        "rawRows": 1092,
+        "minDate": "2021-10-25T04:00:00+09:00",
+        "maxDate": "2026-06-19T04:00:00+09:00",
+        "repeatTitleMarkers": 0,
+        "videoMediaOrUrl": 0,
+        "missingExternalId": 1092,
+        "officialUuidPresent": 1091,
+        "publicEligible": 1092
+      },
+      {
+        "show": "アルキキ",
+        "rawRows": 100,
+        "minDate": "2026-10-05T07:00:00+09:00",
+        "maxDate": "2026-10-10T11:00:00+09:00",
+        "repeatTitleMarkers": 0,
+        "videoMediaOrUrl": 0,
+        "missingExternalId": 0,
+        "officialUuidPresent": 0,
+        "publicEligible": 0
+      },
+      {
+        "show": "こどもそうだんしつ",
+        "rawRows": 31,
+        "minDate": "2026-07-06T04:00:00+09:00",
+        "maxDate": "2026-10-07T04:05:00+09:00",
+        "repeatTitleMarkers": 0,
+        "videoMediaOrUrl": 0,
+        "missingExternalId": 11,
+        "officialUuidPresent": 0,
+        "publicEligible": 31
+      },
+      {
+        "show": "スポンジ",
+        "rawRows": 173,
+        "minDate": "2021-03-16T06:00:00+09:00",
+        "maxDate": "2026-10-12T04:00:00+09:00",
+        "repeatTitleMarkers": 0,
+        "videoMediaOrUrl": 0,
+        "missingExternalId": 0,
+        "officialUuidPresent": 0,
+        "publicEligible": 173
+      },
+      {
+        "show": "ドーナツ",
+        "rawRows": 60,
+        "minDate": "2023-08-19T04:00:00+09:00",
+        "maxDate": "2026-10-13T04:00:00+09:00",
+        "repeatTitleMarkers": 0,
+        "videoMediaOrUrl": 0,
+        "missingExternalId": 0,
+        "officialUuidPresent": 0,
+        "publicEligible": 60
+      },
+      {
+        "show": "ニュースの学校",
+        "rawRows": 486,
+        "minDate": "2024-10-21T13:07:00+09:00",
+        "maxDate": "2026-10-13T04:00:00+09:00",
+        "repeatTitleMarkers": 0,
+        "videoMediaOrUrl": 0,
+        "missingExternalId": 1,
+        "officialUuidPresent": 0,
+        "publicEligible": 486
+      },
+      {
+        "show": "ニュースの現場から",
+        "rawRows": 2641,
+        "minDate": "2020-08-06T11:06:00+09:00",
+        "maxDate": "2026-10-10T04:00:00+09:00",
+        "repeatTitleMarkers": 0,
+        "videoMediaOrUrl": 2,
+        "missingExternalId": 2514,
+        "officialUuidPresent": 0,
+        "publicEligible": 2641
+      },
+      {
+        "show": "朝ポキTV",
+        "rawRows": 15,
+        "minDate": "2026-09-23T17:00:00+09:00",
+        "maxDate": "2026-10-09T12:00:00+09:00",
+        "repeatTitleMarkers": 0,
+        "videoMediaOrUrl": 15,
+        "missingExternalId": 0,
+        "officialUuidPresent": 0,
+        "publicEligible": 15
+      },
+      {
+        "show": "報談",
+        "rawRows": 218,
+        "minDate": "2022-04-02T16:55:00+09:00",
+        "maxDate": "2026-10-09T04:00:00+09:00",
+        "repeatTitleMarkers": 2,
+        "videoMediaOrUrl": 0,
+        "missingExternalId": 2,
+        "officialUuidPresent": 0,
+        "publicEligible": 218
+      }
+    ]
+  },
+  "external": {
+    "page": "https://yoshimotomasahir.github.io/asapoki_vis/speakers2.html?screen=0",
+    "script": "speakers3.js",
+    "dataEndpoint": "https://asapoki.yoshimoto.workers.dev/",
+    "state": "UNVERIFIED",
+    "httpStatus": 403,
+    "errorCode": 1010,
+    "currentRows": null,
+    "comparison": null,
+    "reason": "Actual page/script fetched; data request blocked. One normal Origin/Referer recovery also blocked. No bypass attempted. Need a permitted exported snapshot with its source date and scope."
+  },
+  "changes": {
+    "productionWrites": 0,
+    "deletions": 0,
+    "additions": 0
+  },
+  "unverified": [
+    "External current rows, scope, date range and completeness",
+    "Per-record matching against external tool",
+    "Results of parallel population audit",
+    "Whether title rerun markers denote identical content",
+    "YouTube/source cross-publication equivalence",
+    "Blank external ID does not mean no official UUID/GUID; V3 states and source namespaces require the parallel audit"
+  ]
+}

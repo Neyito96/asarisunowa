@@ -1,0 +1,25 @@
+name: Shared podcast evidence regression
+on:
+  pull_request:
+    paths:
+      - 'lib/podcast-platform-evidence*'
+      - 'scripts/*platform*'
+      - 'scripts/google-apps-script/PlatformEvidence*'
+      - 'scripts/google-apps-script/PodcastPlatformSync.js'
+      - 'scripts/google-apps-script-risu-apple-enrichment.gs'
+      - 'tests/platform-evidence.test.mjs'
+      - 'app/community.tsx'
+      - '.github/workflows/platform-evidence.yml'
+permissions:
+  contents: read
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/generate-platform-evidence.mjs --check
+      - run: node --test tests/platform-evidence.test.mjs tests/gas-auto*.test.mjs tests/gas-theme-approval.test.mjs
