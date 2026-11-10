@@ -1,7 +1,348 @@
 {
+ "likelyLedgerGaps": [
+  {
+   "priority": "P1",
+   "show": "ニュースの現場から",
+   "title": "（大阪目線#6）共産が支援する町長がかじをとる町は　 「天王山」の地、二分する選挙",
+   "publishedAt": "2026-10-10T19:00:00.000Z",
+   "jstDate": "2026-10-11",
+   "link": "https://omny.fm/shows/asahi/oosaka6",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "ニュースの現場から",
+   "title": "その見た目、小型ねぶたと呼ばれ…還暦超え男性記者のヘアドネ挑戦記",
+   "publishedAt": "2026-10-11T19:00:00.000Z",
+   "jstDate": "2026-10-12",
+   "link": "https://omny.fm/shows/asahi/hairdonation1012",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "MEDIA TALK",
+   "title": "（MT）なんでも話せる場所はどこにある",
+   "publishedAt": "2026-10-11T19:00:00.000Z",
+   "jstDate": "2026-10-12",
+   "link": "https://omny.fm/shows/asahi/20261012",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "ニュースの現場から",
+   "title": "（地球会議 #2）認知症1千万人の時代…超高齢化社会の日本　AIの登場でどう変化？",
+   "publishedAt": "2026-10-12T19:00:00.000Z",
+   "jstDate": "2026-10-13",
+   "link": "https://omny.fm/shows/asahi/worldforum2",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "MEDIA TALK",
+   "title": "（N4U#46）夫婦なら当然？週2の“義務”に耐えた妻—20年後の衝撃　夫婦の性的同意（前編）",
+   "publishedAt": "2026-10-12T19:00:00.000Z",
+   "jstDate": "2026-10-13",
+   "link": "https://omny.fm/shows/asahi/n4u46-1",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "MEDIA TALK",
+   "title": "（N4U#47）夫婦でも「NO」が言えない、性を語る言葉を持たぬ私たち　夫婦の性的同意（後編）",
+   "publishedAt": "2026-10-12T19:01:00.000Z",
+   "jstDate": "2026-10-13",
+   "link": "https://omny.fm/shows/asahi/n4u47-1",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "ニュースの現場から",
+   "title": "（GLOBE）たたかう図書館　本を守り、記憶をつなぎ、街をつくる",
+   "publishedAt": "2026-10-13T19:00:00.000Z",
+   "jstDate": "2026-10-14",
+   "link": "https://omny.fm/shows/asahi/gcast154",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "MEDIA TALK",
+   "title": "（天声人語6）天声人語ができるまで、不思議なローテーション",
+   "publishedAt": "2026-10-13T15:00:00.000Z",
+   "jstDate": "2026-10-14",
+   "link": "https://omny.fm/shows/asahi/tenjin006",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "スポンジ",
+   "title": "（バスケ #50） Bプレミア始動　外国出身選手の出場枠緩和、巻き起こる変革",
+   "publishedAt": "2026-10-13T19:00:00.000Z",
+   "jstDate": "2026-10-14",
+   "link": "https://omny.fm/shows/asahi/basukura50",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "ニュースの現場から",
+   "title": "（ON GOING）東京は無償だけど、千葉では「けっこうな額」　保育料格差に悩む親たち",
+   "publishedAt": "2026-10-14T19:00:00.000Z",
+   "jstDate": "2026-10-15",
+   "link": "https://omny.fm/shows/asahi/childcarefee1015",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "ドーナツ",
+   "title": "（親モヤ #129）妊活・妊娠中の妻にプレッシャーでは…関わり方に迷います",
+   "publishedAt": "2026-10-14T19:00:00.000Z",
+   "jstDate": "2026-10-15",
+   "link": "https://omny.fm/shows/asahi/oyamoya129",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "ニュースの現場から",
+   "title": "（ゆるっと経済 #21）きょうは「ぐびっと」経済？変わるビール市場徹底解説　残業45時間規制についても考えます",
+   "publishedAt": "2026-10-15T19:00:00.000Z",
+   "jstDate": "2026-10-16",
+   "link": "https://omny.fm/shows/asahi/yurukei21",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "ドーナツ",
+   "title": "イスで座らないと歌っちゃいけないの？　退園求められた先に見つけた希望",
+   "publishedAt": "2026-10-15T19:00:00.000Z",
+   "jstDate": "2026-10-16",
+   "link": "https://omny.fm/shows/asahi/takeishi1016",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "スポンジ",
+   "title": "（フィギュア #37）島田麻央の初陣は、「ロシア三人娘」一角が出産1年で4回転　GPシリーズ開幕展望後編",
+   "publishedAt": "2026-10-15T19:00:00.000Z",
+   "jstDate": "2026-10-16",
+   "link": "https://omny.fm/shows/asahi/figure37",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "ニュースの現場から",
+   "title": "（ポリレビ #15）簗大臣の更迭、問題の本質はここだ／米国がロシアに肩入れし問われる日本外交",
+   "publishedAt": "2026-10-16T19:00:00.000Z",
+   "jstDate": "2026-10-17",
+   "link": "https://omny.fm/shows/asahi/polirebi15",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "ドーナツ",
+   "title": "（ノーミライ #9）ひとりでやっとるチキンレースにライバル登場？というお話",
+   "publishedAt": "2026-10-16T21:35:00.000Z",
+   "jstDate": "2026-10-17",
+   "link": "https://omny.fm/shows/asahi/music-life-vol-9",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P2",
+   "show": "報談",
+   "title": "なぜサウジの空港は爆撃されたのか　知っておきたいイエメン情勢 #192",
+   "publishedAt": "2026-10-15T19:00:00.000Z",
+   "jstDate": "2026-10-16",
+   "link": "https://pdst.fm/e/traffic.megaphone.fm/TASC4477967796.mp3",
+   "keyTypes": [
+    "spotify",
+    "megaphone"
+   ],
+   "evidence": "強識別子 spotify+megaphone が揃うが台帳側に対応EPなし（識別子の種類が台帳側と違う可能性。台帳G/J/L列で要確認）"
+  }
+ ],
+ "intakeWindow": {
+  "2026-10-05": {
+   "onsaItems": 5,
+   "unmatched": 0
+  },
+  "2026-10-06": {
+   "onsaItems": 2,
+   "unmatched": 0
+  },
+  "2026-10-07": {
+   "onsaItems": 3,
+   "unmatched": 0
+  },
+  "2026-10-08": {
+   "onsaItems": 4,
+   "unmatched": 0
+  },
+  "2026-10-09": {
+   "onsaItems": 5,
+   "unmatched": 0
+  },
+  "2026-10-10": {
+   "onsaItems": 3,
+   "unmatched": 0
+  },
+  "2026-10-11": {
+   "onsaItems": 2,
+   "unmatched": 1
+  },
+  "2026-10-12": {
+   "onsaItems": 4,
+   "unmatched": 2
+  },
+  "2026-10-13": {
+   "onsaItems": 4,
+   "unmatched": 3
+  },
+  "2026-10-14": {
+   "onsaItems": 3,
+   "unmatched": 3
+  },
+  "2026-10-15": {
+   "onsaItems": 2,
+   "unmatched": 2
+  },
+  "2026-10-16": {
+   "onsaItems": 4,
+   "unmatched": 4
+  },
+  "2026-10-17": {
+   "onsaItems": 3,
+   "unmatched": 2
+  },
+  "2026-10-18": {
+   "onsaItems": 2,
+   "unmatched": 0
+  },
+  "2026-10-19": {
+   "onsaItems": 4,
+   "unmatched": 0
+  },
+  "2026-10-20": {
+   "onsaItems": 3,
+   "unmatched": 0
+  },
+  "2026-10-21": {
+   "onsaItems": 3,
+   "unmatched": 0
+  },
+  "2026-10-22": {
+   "onsaItems": 3,
+   "unmatched": 0
+  },
+  "2026-10-23": {
+   "onsaItems": 4,
+   "unmatched": 0
+  },
+  "2026-10-24": {
+   "onsaItems": 3,
+   "unmatched": 0
+  },
+  "2026-10-25": {
+   "onsaItems": 2,
+   "unmatched": 0
+  }
+ },
  "status": "provisional",
  "label": "暫定分析（おんさAPI実データ未取得。共同編集シート書き出し基準）",
- "asOf": "2026-11-10T12:15:00+09:00",
+ "asOf": "2026-11-10T12:30:00+09:00",
  "populations": {
   "sheetRawEntries": 6064,
   "sheetReadDataEntries": 6025,
@@ -5435,38 +5776,38 @@
    ]
   },
   "strongKeyAvailability": {
-   "STRONG": 5383,
+   "STRONG": 5387,
    "AMBIGUOUS": 0,
    "CONFLICT": 0,
-   "KEY_NO_HIT": 112,
+   "KEY_NO_HIT": 108,
    "NO_KEY": 0
   },
   "agreement": {
-   "強=弱(一致)": 5203,
+   "強=弱(一致)": 5204,
    "強=弱(旧重複行を解消)": 131,
-   "強≠弱(矛盾→HOLD)": 4,
-   "強のみ": 45,
-   "弱のみ(旧側に強ID無し)": 87,
+   "強≠弱(矛盾→HOLD)": 6,
+   "強のみ": 46,
+   "弱のみ(旧側に強ID無し)": 84,
    "弱のみ(旧側に強IDあるが不一致→HOLD)": 7,
-   "どちらも無し": 18
+   "どちらも無し": 17
   },
   "byQuality": {
-   "弱一致": 87,
-   "強一致": 5379,
-   "未一致": 18,
-   "HOLD": 11
+   "弱一致": 84,
+   "強一致": 5381,
+   "未一致": 17,
+   "HOLD": 13
   },
-  "holdCount": 11,
+  "holdCount": 13,
   "note": "強一致=Omny URL/Spotify episode ID/朝日公式item ID/GUID。弱一致=題名+JST日付のみ（旧側に強IDが無い618件等）。HOLDは確定数に入れない。"
  },
  "diffCategoriesByTier": {
   "旧保留(同一性保留)": {
-   "strong": 0,
-   "weak": 85
+   "strong": 1,
+   "weak": 83
   },
   "期間・日時差分": {
-   "strong": 110,
-   "weak": 1
+   "strong": 111,
+   "weak": 0
   },
   "新着(EP-06592以降)": {
    "strong": 69,
@@ -5478,9 +5819,9 @@
   }
  },
  "unmatchedOnsa": {
-  "count": 18,
+  "count": 17,
   "byPriority": {
-   "P1": 18
+   "P1": 17
   },
   "queue": [
    {
@@ -5548,16 +5889,6 @@
     "title": "（ポリレビ #15）簗大臣の更迭、問題の本質はここだ／米国がロシアに肩入れし問われる日本外交",
     "publishedAt": "2026-10-16T19:00:00.000Z",
     "link": "https://omny.fm/shows/asahi/polirebi15",
-    "strongTier": "KEY_NO_HIT",
-    "priority": "P1",
-    "reason": "強IDはあるが台帳側に対応EPなし（台帳未収蔵 or ID相違）",
-    "candidates": []
-   },
-   {
-    "show": "MEDIA TALK",
-    "title": "サウジの王子、幕張メッセでゲームを語る　東京ゲームショウ（前編）#50-402",
-    "publishedAt": "2024-12-10T19:00:00.000Z",
-    "link": "https://omny.fm/shows/asahi/50-402-1",
     "strongTier": "KEY_NO_HIT",
     "priority": "P1",
     "reason": "強IDはあるが台帳側に対応EPなし（台帳未収蔵 or ID相違）",
@@ -5884,7 +6215,11 @@
   ]
  },
  "hold": {
-  "count": 11,
+  "count": 13,
+  "byKind": {
+   "IDENTIFIER_CONFLICT": 6,
+   "KEY_TYPE_MISMATCH_MEGAPHONE": 7
+  },
   "rows": [
    {
     "show": "SDGsを話そう",
@@ -5900,7 +6235,10 @@
       ]
      }
     ],
-    "weakEp": "EP-05802"
+    "strongEp": "EP-01199",
+    "weakEp": "EP-05802",
+    "holdKind": "IDENTIFIER_CONFLICT",
+    "possibleLedgerDuplicate": false
    },
    {
     "show": "SDGsを話そう",
@@ -5916,7 +6254,10 @@
       ]
      }
     ],
-    "weakEp": "EP-06199"
+    "strongEp": "EP-01153",
+    "weakEp": "EP-06199",
+    "holdKind": "IDENTIFIER_CONFLICT",
+    "possibleLedgerDuplicate": false
    },
    {
     "show": "SDGsを話そう",
@@ -5932,7 +6273,10 @@
       ]
      }
     ],
-    "weakEp": "EP-06388"
+    "strongEp": "EP-01122",
+    "weakEp": "EP-06388",
+    "holdKind": "IDENTIFIER_CONFLICT",
+    "possibleLedgerDuplicate": false
    },
    {
     "show": "SDGsを話そう",
@@ -5948,7 +6292,48 @@
       ]
      }
     ],
-    "weakEp": "EP-06389"
+    "strongEp": "EP-01121",
+    "weakEp": "EP-06389",
+    "holdKind": "IDENTIFIER_CONFLICT",
+    "possibleLedgerDuplicate": false
+   },
+   {
+    "show": "報談",
+    "title": "靖国参拝、「公人」なら憲法違反な件　A級合祀させなかった宮司 #184",
+    "publishedAt": "2026-08-26T19:00:00.000Z",
+    "link": "https://pdst.fm/e/traffic.megaphone.fm/TASC8711915389.mp3",
+    "strong": "STRONG",
+    "strongHits": [
+     {
+      "key": "megaphone:TASC8711915389",
+      "eps": [
+       "EP-00130"
+      ]
+     }
+    ],
+    "strongEp": "EP-00130",
+    "weakEp": "EP-06589",
+    "holdKind": "IDENTIFIER_CONFLICT",
+    "possibleLedgerDuplicate": true
+   },
+   {
+    "show": "報談",
+    "title": "内閣改造について考えました　ひよこのひよこっこはひよこのこ♪ #187",
+    "publishedAt": "2026-09-09T19:00:00.000Z",
+    "link": "https://pdst.fm/e/traffic.megaphone.fm/TASC9983241905.mp3",
+    "strong": "STRONG",
+    "strongHits": [
+     {
+      "key": "megaphone:TASC9983241905",
+      "eps": [
+       "EP-00128"
+      ]
+     }
+    ],
+    "strongEp": "EP-00128",
+    "weakEp": "EP-06590",
+    "holdKind": "IDENTIFIER_CONFLICT",
+    "possibleLedgerDuplicate": true
    },
    {
     "show": "報談",
@@ -5957,7 +6342,10 @@
     "link": "https://pdst.fm/e/traffic.megaphone.fm/TASC6676399474.mp3",
     "strong": "KEY_NO_HIT",
     "strongHits": [],
-    "weakEp": "EP-06603"
+    "strongEp": "",
+    "weakEp": "EP-06603",
+    "holdKind": "KEY_TYPE_MISMATCH_MEGAPHONE",
+    "possibleLedgerDuplicate": false
    },
    {
     "show": "報談",
@@ -5966,7 +6354,10 @@
     "link": "https://pdst.fm/e/traffic.megaphone.fm/TASC8960913077.mp3",
     "strong": "KEY_NO_HIT",
     "strongHits": [],
-    "weakEp": "EP-06620"
+    "strongEp": "",
+    "weakEp": "EP-06620",
+    "holdKind": "KEY_TYPE_MISMATCH_MEGAPHONE",
+    "possibleLedgerDuplicate": false
    },
    {
     "show": "報談",
@@ -5975,7 +6366,10 @@
     "link": "https://pdst.fm/e/traffic.megaphone.fm/TASC5167193255.mp3",
     "strong": "KEY_NO_HIT",
     "strongHits": [],
-    "weakEp": "EP-06629"
+    "strongEp": "",
+    "weakEp": "EP-06629",
+    "holdKind": "KEY_TYPE_MISMATCH_MEGAPHONE",
+    "possibleLedgerDuplicate": false
    },
    {
     "show": "報談",
@@ -5984,7 +6378,10 @@
     "link": "https://pdst.fm/e/traffic.megaphone.fm/TASC1085000418.mp3",
     "strong": "KEY_NO_HIT",
     "strongHits": [],
-    "weakEp": "EP-06647"
+    "strongEp": "",
+    "weakEp": "EP-06647",
+    "holdKind": "KEY_TYPE_MISMATCH_MEGAPHONE",
+    "possibleLedgerDuplicate": false
    },
    {
     "show": "報談",
@@ -5993,7 +6390,10 @@
     "link": "https://pdst.fm/e/traffic.megaphone.fm/TASC5687581031.mp3",
     "strong": "KEY_NO_HIT",
     "strongHits": [],
-    "weakEp": "EP-06657"
+    "strongEp": "",
+    "weakEp": "EP-06657",
+    "holdKind": "KEY_TYPE_MISMATCH_MEGAPHONE",
+    "possibleLedgerDuplicate": false
    },
    {
     "show": "報談",
@@ -6002,7 +6402,10 @@
     "link": "https://pdst.fm/e/traffic.megaphone.fm/TASC6086065854.mp3",
     "strong": "KEY_NO_HIT",
     "strongHits": [],
-    "weakEp": "EP-06677"
+    "strongEp": "",
+    "weakEp": "EP-06677",
+    "holdKind": "KEY_TYPE_MISMATCH_MEGAPHONE",
+    "possibleLedgerDuplicate": false
    },
    {
     "show": "報談",
@@ -6011,8 +6414,54 @@
     "link": "https://pdst.fm/e/traffic.megaphone.fm/TASC8449201254.mp3",
     "strong": "KEY_NO_HIT",
     "strongHits": [],
-    "weakEp": "EP-06686"
+    "strongEp": "",
+    "weakEp": "EP-06686",
+    "holdKind": "KEY_TYPE_MISMATCH_MEGAPHONE",
+    "possibleLedgerDuplicate": false
    }
   ]
+ },
+ "sourceComparison": {
+  "evidence": {
+   "lookupEvidence": [
+    {
+     "ep": "EP-05109",
+     "column": "I",
+     "url": "https://omny.fm/shows/asahi/50-402-1",
+     "source": "司令塔READ_ONLY実測 2026-11-10・PR #277 第8指令（本番台帳I列のOmny URLがおんさ側と完全一致。台帳タイトル末尾は「#50-402t」で余分なtあり）"
+    }
+   ],
+   "ledgerColumns": null
+  },
+  "publicJsonOnly": {
+   "unmatched": 18,
+   "hold": 13,
+   "oldOnly": 19,
+   "byQuality": {
+    "弱一致": 84,
+    "強一致": 5380,
+    "未一致": 18,
+    "HOLD": 13
+   }
+  },
+  "withLedgerColumns": {
+   "unmatched": 17,
+   "hold": 13,
+   "oldOnly": 19,
+   "byQuality": {
+    "弱一致": 84,
+    "強一致": 5381,
+    "未一致": 17,
+    "HOLD": 13
+   }
+  },
+  "changedItems": [
+   {
+    "item": "MEDIA TALK|サウジの王子、幕張メッセでゲームを語る　東京ゲームショウ（前編）#50-402|2024-12-10T19:00:00.000Z",
+    "publicJsonOnly": "未一致",
+    "withLedgerColumns": "照合済み(強一致)"
+   }
+  ],
+  "note": "公開JSON由来の識別子は公開済み5,848件のlinks＋旧GUID証拠のみ。本番台帳のG/I/J/L列を加えると、公開されていない保留・除外の行も強識別子で照合できる。"
  }
 }

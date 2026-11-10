@@ -130,6 +130,7 @@ export const strongKeys = ({ link = "", spotify = "", clipId = "", guid = "" } =
   const om = s(link).match(/omny\.fm\/shows\/([^/]+)\/([^/?#]+)/); if (om) k.push(["omny", om[1] + "/" + om[2]]);
   const sp = s(spotify).match(SPOTIFY); if (sp) k.push(["spotify", sp[1]]);
   const as = (s(clipId).match(/itemid=([0-9a-f-]{36})/i) || [])[1]; if (as) k.push(["asahi", as.toLowerCase()]);
+  const mg = (s(link) + " " + s(spotify) + " " + s(clipId)).match(/megaphone\.fm\/(?:[^\s"']*\/)?(TASC\d+)/); if (mg) k.push(["megaphone", mg[1]]);   // Megaphone配信(報談・学校)の識別子
   const g = guidOf2(guid) || guidOf2(link); if (g) k.push(["guid", g]);
   return k;
 };

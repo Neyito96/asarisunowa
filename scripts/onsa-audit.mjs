@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import { parseCsv } from "./lib/ledger-csv.mjs";
 import { projectApi, sheetExportToApiJson } from "./lib/onsa-count.mjs";
-import { auditOnsa } from "./lib/onsa-audit.mjs";
+import { auditOnsa, applyLedgerColumns, compareSources } from "./lib/onsa-audit.mjs";
 import { oldGuidsFromCsv } from "./ledger-increment-judge.mjs";
 
 export function repoRecords(root = ".") {
@@ -30,9 +30,17 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   else { const s = sheetExportToApiJson(readFileSync(arg("--onsa-sheet"), "utf8"), parseCsv); apiJson = s.api; extra = s.extra; source = "共同編集シート書き出し（API本体ではない）"; }
   const projection = projectApi(apiJson, { asOf: arg("--screenshot-at", asOf) });
   const baseCmp = snap.decisions.filter((d) => d.comparison === "対象" && d.publication === "対象").map((d) => d.id);
-  const report = auditOnsa({ projection, extra, records, decisions: snap.decisions, baselineComparisonIds: baseCmp, asOf,
+  const mk = (recs) => auditOnsa({ projection, extra, records: recs, decisions: snap.decisions, baselineComparisonIds: baseCmp, asOf,
     screenshot: arg("--screenshot") ? { value: Number(arg("--screenshot")), asOf: arg("--screenshot-at"), kind: "管理人スクショ（画面カウンタ）" } : null, sheetMeta: { source, exportedAt: arg("--sheet-exported-at", "不明（添付ファイルに時刻情報なし）"), note: "シート書き出し・スクショ・API実取得は別時点。API実取得は未取得" } });
+  const clone = (rs) => rs.map((r) => ({ ...r, links: [...(r.links || [])] }));
+  const publicOnly = mk(clone(records));
+  // 本番台帳の識別子（READ_ONLYで得た根拠）: ①司令塔が本番台帳で直接確認した照合証拠CSV ②本番台帳の書き出し(G/I/J/L列)
+  const enrichedRecords = clone(records); const ev = { lookupEvidence: [], ledgerColumns: null };
+  if (arg("--lookup-evidence")) for (const r of parseCsv(readFileSync(arg("--lookup-evidence"), "utf8").replace(/^\uFEFF/, "")).slice(1)) { const rec = enrichedRecords.find((x) => x.id === r[0]); if (rec && r[2]) { rec.links.push(r[2]); ev.lookupEvidence.push({ ep: r[0], column: r[1], url: r[2], source: r[3] }); } }
+  if (arg("--ledger-columns")) { const res = applyLedgerColumns(enrichedRecords, parseCsv(readFileSync(arg("--ledger-columns"), "utf8").replace(/^\uFEFF/, "")), (arg("--ledger-cols", "G,I,J,L")).split(",")); ev.ledgerColumns = { rowsUsed: res.added.length, unknownIds: res.unknownIds, cols: arg("--ledger-cols", "G,I,J,L") }; }
+  const report = mk(enrichedRecords);
+  report.sourceComparison = ev.lookupEvidence.length || ev.ledgerColumns ? { evidence: ev, ...compareSources(publicOnly, report) } : { status: "unavailable", note: "本番台帳の列(G/I/J/L)も照合証拠も未提供。公開JSON由来の識別子のみで照合" };
   mkdirSync(outDir, { recursive: true }); writeFileSync(`${outDir}/onsa-audit.json`, JSON.stringify(report, null, 1));
   const { populations: p, matching: m } = report;
-  console.log(JSON.stringify({ label: report.label, populations: { ui: p.sheetUiEntries, unique: p.uniqueLinkCount, dup: p.duplicateEntries, screenshot: p.screenshot?.value, baseline: p.baselineComparison.count }, gaps: p.gaps, matching: { quality: m.byQuality, agreement: m.agreement, keys: m.strongKeyAvailability }, tiers: report.diffCategoriesByTier, unmatched: report.unmatchedOnsa.count, unmatchedP: report.unmatchedOnsa.byPriority, oldOnly: report.oldComparisonOnly.count, oldOnlyP: report.oldComparisonOnly.byPriority, hold: report.hold.count }, null, 1));
+  console.log(JSON.stringify({ sourceComparison: report.sourceComparison?.changedItems, holdKinds: report.hold.byKind, label: report.label, populations: { ui: p.sheetUiEntries, unique: p.uniqueLinkCount, dup: p.duplicateEntries, screenshot: p.screenshot?.value, baseline: p.baselineComparison.count }, gaps: p.gaps, matching: { quality: m.byQuality, agreement: m.agreement, keys: m.strongKeyAvailability }, tiers: report.diffCategoriesByTier, unmatched: report.unmatchedOnsa.count, unmatchedP: report.unmatchedOnsa.byPriority, oldOnly: report.oldComparisonOnly.count, oldOnlyP: report.oldComparisonOnly.byPriority, hold: report.hold.count }, null, 1));
 }

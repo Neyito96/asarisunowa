@@ -72,3 +72,52 @@ test("集計の整合: ユニークlink = 旧比較に含まれる分 + 要因�
   const cats = Object.values(r.diffCategoriesByTier).reduce((a, v) => a + v.strong + v.weak, 0);
   assert.equal(r.populations.uniqueLinkCount, 1 + cats + r.unmatchedOnsa.count + r.hold.count);
 });
+
+// ---- 第8指令: 本番台帳の識別子による照合 ----
+import { applyLedgerColumns, compareSources, holdKind } from "../scripts/lib/onsa-audit.mjs";
+const EP5109 = { id: "EP-05109", show: "MEDIA TALK", title: "サウジの王子、幕張メッセでゲームを語る　東京ゲームショウ（前編）#50-402t", publishedAt: "2024-12-11T04:00:00+09:00", links: [] };
+const D5109 = { id: "EP-05109", show: "MEDIA TALK", publication: "保留", classification: "同一性保留", comparison: "保留", review: "要照合" };
+const onsa5109 = () => E("サウジの王子、幕張メッセでゲームを語る　東京ゲームショウ（前編）#50-402", "2024-12-10T19:00:00.000Z", 0, { link: "https://omny.fm/shows/asahi/50-402-1", spotify: "", clipId: "" });
+test("★EP-05109: 台帳タイトル末尾の余分な『t』と日付差で題名+日付は不一致でも、台帳I列のOmny URLが一致すれば既存収蔵済み(強一致)。未収蔵扱いから外す", () => {
+  const before = run({ items: { media: [onsa5109()] }, records: [{ ...EP5109 }], decisions: [D5109], base: [] });
+  assert.equal(before.unmatchedOnsa.count, 1);                                           // 公開JSONだけ（旧保留行にlinksなし）では未一致
+  const rec = { ...EP5109, links: ["https://omny.fm/shows/asahi/50-402-1"] };            // 台帳I列のOmny URL
+  const after = run({ items: { media: [onsa5109()] }, records: [rec], decisions: [D5109], base: [] });
+  assert.equal(after.unmatchedOnsa.count, 0); assert.equal(after.matching.agreement["強のみ"], 1);
+  assert.deepEqual(after.diffCategoriesByTier["旧保留(同一性保留)"], { strong: 1, weak: 0 });   // 旧判定は保留のまま（新EP-IDは発行しない）
+});
+test("台帳列(G/I/J/L)の取り込み: URLと GUID と Megaphone ID を強識別子化し、未知のEP-IDは新規発行せず記録だけ、既存の判定は変えない", () => {
+  const recs = [{ id: "EP-00001", show: "x", title: "t", publishedAt: "d", links: [] }];
+  const table = [["台帳ID", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"], ["EP-00001", "", "", "", "", "", "00000000-0000-4000-8000-000000000001", "", "https://omny.fm/shows/asahi/a1", "https://open.spotify.com/episode/SPX", "", "TASC123"], ["EP-99999", "", "", "", "", "", "", "", "https://omny.fm/shows/asahi/zz"]];
+  const r = applyLedgerColumns(recs, table, ["G", "I", "J", "L"]);
+  assert.deepEqual(r.added, ["EP-00001"]); assert.deepEqual(r.unknownIds, ["EP-99999"]); assert.equal(recs.length, 1);          // EP-IDを勝手に増やさない
+  const sx = buildStrongIndex(recs);
+  assert.equal(matchStrong({ link: "https://omny.fm/shows/asahi/a1" }, sx).ep, "EP-00001");
+  assert.equal(matchStrong({ spotify: "https://open.spotify.com/episode/SPX" }, sx).ep, "EP-00001");
+  assert.equal(matchStrong({ link: "https://pdst.fm/e/traffic.megaphone.fm/TASC123.mp3" }, sx).ep, "EP-00001");
+  assert.equal(matchStrong({ link: "https://omny.fm/shows/asahi/00000000-0000-4000-8000-000000000001" }, sx).ep, "EP-00001");     // G列GUID
+});
+test("公開JSONのみ vs 台帳列併用: どの項目の結果が変わったかを示す", () => {
+  const mk = (links) => run({ items: { media: [onsa5109()] }, records: [{ ...EP5109, links }], decisions: [D5109], base: [] });
+  const c = compareSources(mk([]), mk(["https://omny.fm/shows/asahi/50-402-1"]));
+  assert.equal(c.publicJsonOnly.unmatched, 1); assert.equal(c.withLedgerColumns.unmatched, 0);
+  assert.equal(c.changedItems.length, 1); assert.equal(c.changedItems[0].withLedgerColumns, "照合済み(強一致)");
+});
+test("HOLD分類: Megaphone形式で比較不能(KEY_TYPE_MISMATCH_MEGAPHONE) / 識別子の矛盾(IDENTIFIER_CONFLICT) / 一対多(ONE_TO_MANY)を区別", () => {
+  const sx = buildStrongIndex([{ id: "EP-1", show: "x", title: "a", publishedAt: "d", links: [], guid: U(1) }]);
+  const mega = { link: "https://pdst.fm/e/traffic.megaphone.fm/TASC999.mp3", spotify: "", clipId: "" };
+  assert.equal(holdKind(mega, matchStrong(mega, sx), "EP-1", sx), "KEY_TYPE_MISMATCH_MEGAPHONE");                        // 台帳側はGUIDのみ→比較不能（矛盾ではない）
+  const sx2 = buildStrongIndex([{ id: "EP-1", show: "x", title: "a", publishedAt: "d", links: ["https://omny.fm/shows/asahi/p1"] }, { id: "EP-2", show: "x", title: "b", publishedAt: "d", links: ["https://omny.fm/shows/asahi/p2"] }]);
+  const conflict = { link: "https://omny.fm/shows/asahi/p9", spotify: "", clipId: "" };
+  assert.equal(holdKind(conflict, matchStrong(conflict, sx2), "EP-1", sx2), "IDENTIFIER_CONFLICT");                       // 同種(Omny)なのに値が違う
+  const strongOther = { link: "https://omny.fm/shows/asahi/p2", spotify: "", clipId: "" };
+  assert.equal(holdKind(strongOther, matchStrong(strongOther, sx2), "EP-1", sx2), "IDENTIFIER_CONFLICT");                 // 強IDはEP-2、題名+日付はEP-1
+  const sx3 = buildStrongIndex([{ id: "EP-1", show: "x", title: "a", publishedAt: "d", links: ["https://omny.fm/shows/asahi/dup"] }, { id: "EP-2", show: "x", title: "b", publishedAt: "d", links: ["https://omny.fm/shows/asahi/dup"] }]);
+  const amb = { link: "https://omny.fm/shows/asahi/dup", spotify: "", clipId: "" };
+  assert.equal(holdKind(amb, matchStrong(amb, sx3), "", sx3), "ONE_TO_MANY");
+});
+test("旧判定・新100件の保全: 照合の追加で旧判定(5,848/97/3)の元データを書き換えない", () => {
+  const decisions = [D5109], before = JSON.stringify(decisions), recs = [{ ...EP5109 }];
+  run({ items: { media: [onsa5109()] }, records: recs, decisions, base: [] });
+  assert.equal(JSON.stringify(decisions), before);
+});

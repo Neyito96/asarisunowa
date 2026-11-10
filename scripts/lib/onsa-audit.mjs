@@ -82,9 +82,10 @@ export function auditOnsa({ projection, extra = {}, records, decisions, baseline
     const usable = tier === "強=弱(一致)" || tier === "強=弱(旧重複行を解消)" || tier === "強のみ" ? ep : tier === "弱のみ(旧側に強ID無し)" ? weakEp : "";
     const quality = tier === "強=弱(一致)" || tier === "強=弱(旧重複行を解消)" || tier === "強のみ" ? "強一致" : tier === "弱のみ(旧側に強ID無し)" ? "弱一致" : tier.includes("HOLD") ? "HOLD" : "未一致";
     final.push({ it, ep: usable, quality, tier, strongTier: sm.tier, weakEp, resolvedDup });
-    if (quality === "HOLD") hold.push({ show: it.show, title: it.title, publishedAt: it.publishedAt, link: it.link, strong: sm.tier, strongHits: sm.hits, weakEp });
+    if (quality === "HOLD") hold.push({ show: it.show, title: it.title, publishedAt: it.publishedAt, link: it.link, strong: sm.tier, strongHits: sm.hits, strongEp: sm.ep, weakEp, holdKind: holdKind(it, sm, weakEp, sx), possibleLedgerDuplicate: !!(sm.ep && weakEp && sm.ep !== weakEp && byId.get(sm.ep)?.show === byId.get(weakEp)?.show) });
   }
   const resolved = final.filter((f) => f.resolvedDup).map((f) => ({ strongEp: f.ep, duplicateLedgerRow: f.resolvedDup, show: f.it.show, title: f.it.title }));
+  const holdKinds = hold.reduce((a, h) => ((a[h.holdKind] = (a[h.holdKind] || 0) + 1), a), {});
   const matching = { population: "uniqueLink", items: uniq.length, resolvedLedgerDuplicateRows: { count: resolved.length, byShow: resolved.reduce((a, r) => ((a[r.show] = (a[r.show] || 0) + 1), a), {}), rows: resolved }, strongKeyAvailability: verdict, agreement: agree,
     byQuality: final.reduce((a, f) => ((a[f.quality] = (a[f.quality] || 0) + 1), a), {}), holdCount: hold.length,
     note: "強一致=Omny URL/Spotify episode ID/朝日公式item ID/GUID。弱一致=題名+JST日付のみ（旧側に強IDが無い618件等）。HOLDは確定数に入れない。" };
@@ -118,11 +119,12 @@ export function auditOnsa({ projection, extra = {}, records, decisions, baseline
   });
   const prio = (q) => q.reduce((a, x) => ((a[x.priority] = (a[x.priority] || 0) + 1), a), {});
   return {
+    likelyLedgerGaps: rankLikelyGaps(unmatched, uniq), intakeWindow: intakeWindow(uniq, unmatched),
     status: "provisional", label: "暫定分析（おんさAPI実データ未取得。共同編集シート書き出し基準）", asOf,
     populations, duplicates, matching, diffCategoriesByTier: catTier,
     unmatchedOnsa: { count: unmatchedQueue.length, byPriority: prio(unmatchedQueue), queue: unmatchedQueue },
     oldComparisonOnly: { count: oldOnly.length, byPriority: prio(oldOnly), queue: oldOnly },
-    hold: { count: hold.length, rows: hold },
+    hold: { count: hold.length, byKind: holdKinds, rows: hold },
   };
 }
 function buildStrongIndexFromItems(items, extra) {
@@ -135,3 +137,60 @@ function buildStrongIndexFromItems(items, extra) {
 const nt = (s) => String(s || "").normalize("NFKC").replace(/[\s\u3000]/g, "");
 const dayJ = (v) => { const m = String(v || "").match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/); return m ? `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}` : ""; };
 function sameTitleDay(a, b) { return !!a && !!b && nt(a.title) === nt(b.title) && dayJ(a.publishedAt) === dayJ(b.publishedAt); }
+
+// HOLDの種類を分ける（確定数に入れない）。
+//  ONE_TO_MANY: 1つの強IDが複数EPに対応。
+//  IDENTIFIER_CONFLICT: 双方に同種の識別子があるのに値が合わない、または強IDが指すEPと題名+日付が指すEPが別（台帳内重複の疑いを併記）。
+//  KEY_TYPE_MISMATCH(_MEGAPHONE): おんさ側の識別子の種類（例: Megaphone URL）が台帳側に無く、そもそも比較できない。矛盾ではない。
+export function holdKind(item, sm, weakEp, sx) {
+  if (sm.tier === "AMBIGUOUS") return "ONE_TO_MANY";
+  if (sm.tier === "CONFLICT" || sm.tier === "STRONG") return "IDENTIFIER_CONFLICT";
+  const ks = strongKeys(item), itemTypes = new Set(ks.map(([k]) => k)), ledgerTypes = new Set((weakEp ? sx.keysOf.get(weakEp) || [] : []).map(([k]) => k));
+  const shared = [...itemTypes].some((k) => ledgerTypes.has(k));
+  if (shared) return "IDENTIFIER_CONFLICT";
+  return itemTypes.has("megaphone") ? "KEY_TYPE_MISMATCH_MEGAPHONE" : "KEY_TYPE_MISMATCH";
+}
+
+// 台帳側の強識別子ソースの比較: 公開JSONだけ vs 本番台帳の列(G/I/J/L)も使う。どの項目の結果が変わったかを示す。
+export function compareSources(base, enriched) {
+  const key = (r) => r.show + "|" + r.title + "|" + r.publishedAt;
+  const q = (rep) => { const m = new Map(); for (const x of rep.unmatchedOnsa.queue) m.set(key(x), "未一致"); for (const x of rep.hold.rows) m.set(key(x), "HOLD:" + x.holdKind); return m; };
+  const a = q(base), b = q(enriched), changed = [];
+  for (const [k, v] of a) if (b.get(k) !== v) changed.push({ item: k, publicJsonOnly: v, withLedgerColumns: b.get(k) || "照合済み(強一致)" });
+  for (const [k, v] of b) if (!a.has(k)) changed.push({ item: k, publicJsonOnly: "照合済み", withLedgerColumns: v });
+  const sum = (rep) => ({ unmatched: rep.unmatchedOnsa.count, hold: rep.hold.count, oldOnly: rep.oldComparisonOnly.count, byQuality: rep.matching.byQuality });
+  return { publicJsonOnly: sum(base), withLedgerColumns: sum(enriched), changedItems: changed, note: "公開JSON由来の識別子は公開済み5,848件のlinks＋旧GUID証拠のみ。本番台帳のG/I/J/L列を加えると、公開されていない保留・除外の行も強識別子で照合できる。" };
+}
+
+// 台帳の書き出し(列記号指定)から records を作る。指定列のセル内のURL/GUIDを強識別子として取り込み、由来の列を記録。新EP-IDは発行しない。
+export function applyLedgerColumns(records, table, cols = ["G", "I", "J", "L"]) {
+  const letter = (c) => c.toUpperCase().charCodeAt(0) - 65, idx = cols.map(letter);
+  const byId = new Map(records.map((r) => [r.id, r])), added = [], unknownIds = [];
+  for (const row of table.slice(1)) {
+    const id = String(row[0] || "").trim(); if (!/^EP-\d{5}$/.test(id)) continue;
+    const rec = byId.get(id); if (!rec) { unknownIds.push(id); continue; }
+    rec.ledgerColumns ||= {};
+    idx.forEach((i, n) => { const v = String(row[i] ?? "").trim(); if (!v) return; rec.ledgerColumns[cols[n]] = v;
+      if (/^https?:/.test(v)) (rec.links ||= []).push(v); else if (/^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(v) && !rec.guid) rec.guid = v; else if (/TASC\d+/.test(v)) (rec.links ||= []).push("https://traffic.megaphone.fm/" + v.match(/TASC\d+/)[0] + ".mp3"); });
+    added.push(id);
+  }
+  return { records, added, unknownIds };
+}
+
+const jstDay = (iso) => new Date(Date.parse(iso) + 9 * 3600000).toISOString().slice(0, 10);
+// 日別（2026-10-05〜10-25）のおんさ項目数と未一致数。収蔵漏れが特定の期間に集中しているかを見る。
+export function intakeWindow(uniq, unmatched) {
+  const miss = new Set(unmatched.map((f) => f.it.link)), days = {};
+  for (const i of uniq) { const d = jstDay(i.publishedAt); if (d >= "2026-10-05" && d <= "2026-10-25") { const x = (days[d] ||= { onsaItems: 0, unmatched: 0 }); x.onsaItems++; if (miss.has(i.link)) x.unmatched++; } }
+  return days;
+}
+// 本当に収蔵漏れと考えられるもの。根拠: 強識別子(Omny URL/Spotify ID/朝日item ID)が揃っているのに台帳側（公開JSON＋提供された台帳識別子）に無い。
+// P1=Omny系で識別子が3種揃う / P2=Megaphone系など識別子の種類が台帳側と違い、台帳列(G/J/L)での確認が先に必要。新EP-IDは発行しない。
+export function rankLikelyGaps(unmatched, uniq) {
+  const rows = unmatched.filter((f) => f.strongTier === "KEY_NO_HIT").map((f) => {
+    const types = strongKeys(f.it).map(([k]) => k), omny = types.includes("omny"), n = new Set(types.filter((k) => k !== "guid")).size;
+    return { priority: omny && n >= 3 ? "P1" : "P2", show: f.it.show, title: f.it.title, publishedAt: f.it.publishedAt, jstDate: jstDay(f.it.publishedAt), link: f.it.link, keyTypes: [...new Set(types)],
+      evidence: `強識別子 ${[...new Set(types)].join("+")} が揃うが台帳側に対応EPなし` + (omny && n >= 3 ? "（Omny URL・Spotify ID・朝日item IDの3種）" : "（識別子の種類が台帳側と違う可能性。台帳G/J/L列で要確認）") };
+  });
+  return rows.sort((a, b) => a.priority.localeCompare(b.priority) || a.jstDate.localeCompare(b.jstDate));
+}
