@@ -5,6 +5,7 @@
 // LEDGER.csv: the 55-column 'エピソード台帳' export (full, or at least the rows to add/refresh). Keep it OUTSIDE the repo.
 import {readFile, writeFile, readdir} from 'node:fs/promises';
 import {gunzipSync} from 'node:zlib';
+import {join} from 'node:path';
 import {createHash} from 'node:crypto';
 import {writePublicLibrarySnapshot} from './library-publication-files.mjs';
 import {buildPublicationScope} from '../public/library/publication-scope.mjs';
@@ -26,6 +27,10 @@ const POLICY_EXCLUDED_SHOWS = new Set(['アルキキ', 'AJW', '朝ポキTV']);
 const dateOf = v => { const m = String(v || '').match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})/); return m ? `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}` : ''; };
 
 // Pure provisional classification. existing = Map(show|title -> publication) from reviewed decisions+ledger.
+// Compact export (22 columns) written by the COPY GAS read-only exporter; expanded back to ledger column positions.
+export const COMPACT_COLS = [0, 1, 2, 3, 6, 8, 9, 10, 11, 12, 14, 15, 21, 22, 23, 38, 43, 45, 46, 47, 48, 49];
+export function expandCompact(r) { const full = Array(55).fill(''); COMPACT_COLS.forEach((c, i) => { full[c] = r[i] ?? ''; }); return full; }
+
 export function classifyNewRow(row, existingTitles) {
   if (POLICY_EXCLUDED_SHOWS.has(row[1])) return {publication: '対象外', reason: 'POLICY_SHOW'};
   if (blocked(row[38])) return {publication: '対象外', reason: 'HUMAN_EXCLUDED'};
@@ -43,7 +48,7 @@ export async function buildPreview({ledgerRows, existingDetails, decisionSnapsho
     const r = byId.get(e.id); const s = r && String(r[11] || '').trim();
     if (s && /^https:\/\/open\.spotify\.com\/episode\/[A-Za-z0-9]+/.test(s) && !e.links.some(u => /open\.spotify\.com\/episode\//.test(u))) { e.links.push(s); report.linkRefresh.push(e.id); }
   }
-  const titles = new Set(); for (const r of ledgerRows) if (baseIds.has(r[0])) titles.add(r[1] + '|' + norm(r[2]));
+  const titles = new Set(); for (const e of existingDetails) titles.add(e.show + '|' + norm(e.title)); // published titles; held/excluded old titles need the full ledger
   const added = [], decisions = [...base], provisionalIds = [];
   for (const r of ledgerRows.filter(r => /^EP-\d{5}$/.test(r[0]) && !baseIds.has(r[0])).sort((a, b) => a[0].localeCompare(b[0]))) {
     const c = classifyNewRow(r, titles); report.provisional[c.publication]++;
@@ -61,13 +66,17 @@ export async function buildPreview({ledgerRows, existingDetails, decisionSnapsho
   scope.adopted = scope.publishedIds.length; scope.source = scope.adopted + scope.excluded + scope.held + (added.length - added.filter(e => e.date).length);
   scope.shows = scope.shows.map(s => ({...s, count: episodes.filter(e => e.show === s.name).length}));
   const result = await writePublicLibrarySnapshot({episodes, counts: {source: ledgerRows.length, provisionalUnreviewed: provisionalIds.length}, publicationScope: scope, snapshotDate, destination});
+  const mp = join(destination, 'manifest.json'), manifest = JSON.parse(await readFile(mp, 'utf8'));
+  manifest.preview = {provisional: true, note: '新着は人手レビュー前の暫定提案を含むプレビュー。公開不可。', provisionalIds};
+  await writeFile(mp, JSON.stringify(manifest) + '\n');
   return {result, report: {...report, previousTotal: existingDetails.length, newTotal: episodes.length, provisionalAdded: added.length, provisionalIds}};
 }
 
 if (process.argv[1] && process.argv[1].endsWith('build-universe-preview.mjs')) {
   const [csvPath, out, reportPath] = process.argv.slice(2);
   if (!csvPath || !out) throw Error('Usage: node scripts/build-universe-preview.mjs LEDGER.csv OUT_DIR [REPORT.json]');
-  const rows = parseCsv(await readFile(csvPath, 'utf8')).slice(1).filter(r => /^EP-\d{5}$/.test(r[0]));
+  const parsed = parseCsv(await readFile(csvPath, 'utf8'));
+  const rows = parsed.slice(1).filter(r => /^EP-\d{5}$/.test(r[0])).map(r => parsed[0].length === COMPACT_COLS.length ? expandCompact(r) : r);
   const dir = new URL('../public/library/data/details/', import.meta.url);
   const existing = []; for (const f of await readdir(dir)) existing.push(...JSON.parse(await readFile(new URL(f, dir), 'utf8')));
   const raw = await readFile(new URL('../docs/audits/2026-10-22-publication-scope/decisions.json.gz', import.meta.url));

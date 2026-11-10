@@ -28,8 +28,8 @@ export function publicEpisode(row, verified = {}) {
   const audio = audioUrl && verified[row[0]]?.url === audioUrl ? audioUrl : '';
   const cast = dedupeCast([row[23], ...row.slice(45,50)]);
   const description = plainDescription(row[22] || row[21]);
-  const dateMatch = String(row[3] || '').match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})(?:[ T](\d{2}):(\d{2}))?/);
-  const date = dateMatch ? `${dateMatch[1]}-${dateMatch[2].padStart(2,'0')}-${dateMatch[3].padStart(2,'0')}T${dateMatch[4] || '00'}:${dateMatch[5] || '00'}:00+09:00` : '';
+  const dateMatch = String(row[3] || '').match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})(?:[ T](\d{1,2}):(\d{2}))?/);
+  const date = dateMatch ? `${dateMatch[1]}-${dateMatch[2].padStart(2,'0')}-${dateMatch[3].padStart(2,'0')}T${(dateMatch[4] || '00').padStart(2,'0')}:${dateMatch[5] || '00'}:00+09:00` : '';
   return { id: row[0], show: row[1], title: String(row[2] || ''), date, cast, description, descriptionSource: row[22] ? 'clean' : row[21] ? 'raw-rendered' : 'missing', duration: Number(row[15]) || 0, audio, audioAvailable: !!audioUrl, links: [...new Set(urls.length ? urls : audioUrl ? [audioUrl] : [])], related: String(row[28] || '').split(/\s+/).map(x=>safeUrl(x)).filter(Boolean) };
 }
 export function filterEpisodes(items, { query='', show='', order='newest', from='', to='' } = {}) {

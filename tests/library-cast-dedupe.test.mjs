@@ -14,3 +14,7 @@ test('publicEpisode uses person-level de-duplication', () => {
   const row = Array(55).fill(''); row[0]='EP-00001'; row[1]='番組'; row[2]='題'; row[3]='2026/10/13 4:00'; row[23]='A / B'; row[45]='A'; row[46]='B'; row[47]='C';
   assert.equal(publicEpisode(row).cast, 'A / B / C');
 });
+test('single-digit hour in ledger date keeps its time', () => {
+  const row = Array(55).fill(''); row[0]='EP-00001'; row[1]='番組'; row[2]='題'; row[3]='2026/11/10 4:00';
+  assert.equal(publicEpisode(row).date, '2026-11-10T04:00:00+09:00');
+});

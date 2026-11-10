@@ -36,3 +36,8 @@ test('existing ledger-derived ids are never dropped or renumbered', async () => 
   const {report} = await buildPreview({ledgerRows: [], existingDetails: existing, decisionSnapshot: snap([['EP-00001', 'ドーナツ', '対象'], ['EP-00002', 'ドーナツ', '対象']]), destination: dir, snapshotDate: '2026-11-10'});
   assert.equal(report.newTotal, 2);
 });
+test('compact 22-column export expands back to ledger positions', async () => {
+  const {COMPACT_COLS, expandCompact} = await import('../scripts/build-universe-preview.mjs');
+  const r = COMPACT_COLS.map((c, i) => 'v' + c); const full = expandCompact(r);
+  assert.equal(full.length, 55); assert.equal(full[38], 'v38'); assert.equal(full[49], 'v49'); assert.equal(full[4], '');
+});
