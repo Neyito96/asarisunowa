@@ -8,14 +8,28 @@ export function safeUrl(value, hosts) {
 export function plainDescription(value) {
   return cleanDescription(String(value ?? '').replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, ''));
 }
+// X(出演者・スタッフ)は「名前,肩書 / 名前,肩書」、AT〜AXは同じ人物を1人ずつ持つため、文字列全体の重複排除では二重表示になる。
+// 人物単位(名前部分)で重複排除し、先に現れた表記(肩書つき)を残す。名前が異なる別表記は削除しない。
+const castKey = entry => String(entry).split(/[,，（(]/)[0].replace(/\s+/g, '').normalize('NFKC');
+export function dedupeCast(values) {
+  const seen = new Set(), out = [];
+  for (const value of values.filter(Boolean).map(String)) {
+    for (const part of value.split(/\s+\/\s+/)) {
+      const entry = part.trim(), key = castKey(entry);
+      if (!entry || !key || seen.has(key)) continue;
+      seen.add(key); out.push(entry);
+    }
+  }
+  return out.join(' / ');
+}
 export function publicEpisode(row, verified = {}) {
   const urls = [row[8], row[9], row[11], row[12], row[10], row[43]].map(x => safeUrl(x)).filter(Boolean);
   const audioUrl = safeUrl(row[14], ['traffic.omny.fm', 'www.omnycontent.com', 'traffic.megaphone.fm', 'dcs.megaphone.fm', 'pdst.fm']);
   const audio = audioUrl && verified[row[0]]?.url === audioUrl ? audioUrl : '';
-  const cast = [...new Set([row[23], ...row.slice(45,50)].filter(Boolean).map(String))].join(' / ');
+  const cast = dedupeCast([row[23], ...row.slice(45,50)]);
   const description = plainDescription(row[22] || row[21]);
-  const dateMatch = String(row[3] || '').match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})(?:[ T](\d{2}):(\d{2}))?/);
-  const date = dateMatch ? `${dateMatch[1]}-${dateMatch[2].padStart(2,'0')}-${dateMatch[3].padStart(2,'0')}T${dateMatch[4] || '00'}:${dateMatch[5] || '00'}:00+09:00` : '';
+  const dateMatch = String(row[3] || '').match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})(?:[ T](\d{1,2}):(\d{2}))?/);
+  const date = dateMatch ? `${dateMatch[1]}-${dateMatch[2].padStart(2,'0')}-${dateMatch[3].padStart(2,'0')}T${(dateMatch[4] || '00').padStart(2,'0')}:${dateMatch[5] || '00'}:00+09:00` : '';
   return { id: row[0], show: row[1], title: String(row[2] || ''), date, cast, description, descriptionSource: row[22] ? 'clean' : row[21] ? 'raw-rendered' : 'missing', duration: Number(row[15]) || 0, audio, audioAvailable: !!audioUrl, links: [...new Set(urls.length ? urls : audioUrl ? [audioUrl] : [])], related: String(row[28] || '').split(/\s+/).map(x=>safeUrl(x)).filter(Boolean) };
 }
 export function filterEpisodes(items, { query='', show='', order='newest', from='', to='' } = {}) {
