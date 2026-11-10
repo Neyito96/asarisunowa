@@ -1,0 +1,29 @@
+{
+ "rowsWithLedgerCast": 78,
+ "exactSet": 65,
+ "cast1Match": 77,
+ "tp": 204,
+ "fp": 6,
+ "fn": 12,
+ "fpAllStaffRole": 4,
+ "fpOther": 2,
+ "rowsReview": 58,
+ "rowsClean": 19,
+ "cleanExact": 18,
+ "cleanFp": 0,
+ "cleanTp": 38,
+ "noBlockButLedgerHasCast": 1,
+ "fieldPrecision": 97.1,
+ "fieldRecall": 94.4,
+ "exactSetRate": 83.3,
+ "cast1Rate": 98.7,
+ "cleanTierFieldPrecision": 100,
+ "cleanTierExactRate": 94.7,
+ "fails": {
+  "NO_CAST_BLOCK": 1,
+  "MISSED_LEDGER_NAME": 7,
+  "EXTRA_NAME_NOT_IN_LEDGER": 2,
+  "STAFF_ROLE_POLICY_DIFF": 4
+ },
+ "note": "台帳側を正規化(注記/所属語/重複除去)して比較。台帳自体が真値とは限らない(音源編集の記載方針が一定でない)。自動書込みはしない(suggest-only)。"
+}
