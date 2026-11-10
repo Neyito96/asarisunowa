@@ -1,0 +1,45 @@
+{
+ "episodes": 97,
+ "cast1Blank": 30,
+ "castCauses": {
+  "NOT_APPLICABLE:SHOW_NEVER_LISTS_CAST": 14,
+  "FILLABLE_FROM_OFFICIAL:CAST_IN_OFFICIAL_DESCRIPTION": 16
+ },
+ "castBlankByShow": {
+  "ニュースの学校": 14,
+  "ニュースの現場から": 4,
+  "報談": 3,
+  "MEDIA TALK": 4,
+  "こどもそうだんしつ": 2,
+  "スポンジ": 1,
+  "ドーナツ": 2
+ },
+ "spotifyBlank": 18,
+ "spotifyGroups": {
+  "since1106": {
+   "n": 16,
+   "causes": {
+    "HOLD:NOT_FOUND_AFTER_GRACE": 11,
+    "NOT_YET_PUBLISHED:WITHIN_GRACE_24H": 5
+   },
+   "withAudioUrl": 16,
+   "withListenUrl": 1
+  },
+  "kodomosoudanshitsu": {
+   "n": 2,
+   "causes": {
+    "HOLD:NOT_FOUND_AFTER_GRACE": 2
+   },
+   "withAudioUrl": 0,
+   "withListenUrl": 2
+  }
+ },
+ "requiredStatusAll": {
+  "FILLED": 782,
+  "NOT_APPLICABLE": 14,
+  "HOLD": 124,
+  "FILLABLE_FROM_OFFICIAL": 35,
+  "NOT_YET_PUBLISHED": 15
+ },
+ "note": "CSVに無い列(関連記事28/Amazon40/PocketCasts41/Pody42)は判定対象外"
+}
