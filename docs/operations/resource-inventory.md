@@ -132,8 +132,25 @@ A=EP-ID / V=概要原文 / W=概要清掃済み / X=出演者・スタッフ / J
 3. 本番GASの所有者・共有設定
 4. 共同編集用シート(外部所有)から現在の台帳への同期経路
 5. Podcast Index・Cloudflare Worker/DBの実運用状態（鍵・デプロイ）
-6. 6配信サービス(Spotify/Apple/Amazon/Pocket Casts/LISTEN/Pody)のURL充足率（台帳側）
+6. Amazon/Pody/LISTENの過去の個別EP取得実装の有無（Spotify 97.6%・Pocket Casts 97.3%・Apple 11.2%・LISTEN 0.5%は2026-11-10に実測済み）
 7. 本番台帳の最新件数（10/26時点の6,632件以降）
+
+## 11b. Apple個別EP URLの過去成果と所在（第38号・2026-11-10 実測）
+
+本番Apple(M列)の751〜752件は、**Phase21（2026-11-04）の本番書込**で入ったもの。別のテストシートに保存された「過去URL一覧」は存在しない。
+
+| 項目 | 実測・出典 |
+|---|---|
+| 書込の仕組み | iTunes Lookup（番組ID→`entity=podcastEpisode&limit=200`）→`episodeGuid`＝台帳GUIDで厳格一致→M空欄のみ書込。累計717件（33+20+100×6+64）、`skipped=0`。Issue #265 コメント6622963231〜6623325915 |
+| 結果の保存先 | 本番台帳M列そのもの＋Issue #265のログ。COPYには未保存（Phase14 COPYのM列は2件のみ、本番と同値） |
+| 200件の壁 | Lookupは最新200件で打切り。offset/limit300は無効（Issue #265 6648943747） |
+| 公開HTML | `P22ApplePublicPageProbe20261105.gs`：3番組で15〜16件の`?i=`ID＝最近分のみ。古い回の新規発見0 |
+| Search API（突破済み） | `P22AppleSearchOldEpisodeProbe20261105.gs`：現場の2022/23/24各1件を`term=タイトル`で検索→**3/3 episodeGuid完全一致・同一collectionId・trackViewUrl取得**（6649481234）。大量取得率は**未測定** |
+| 未実施 | 層化30〜50件の測定（発見率・429・誤照合）。Geminiリゾルバ案(V1〜V6)は本番未導入・司令塔監査で未受入（#271） |
+| 過去3件のURL | EP-02052→`i=1000568160883` / EP-02530→`i=1000618788571` / EP-02968→`i=1000660649003`（いずれもM空欄。台帳J列のitemidとGUIDが一致） |
+| 実装パス | `scripts/google-apps-script/PodcastApple.js`・`PodcastResolve.js`（番組メタ補完。エピソードURLは返さない）、`scripts/google-apps-script-risu-apple-enrichment.gs`（おすすめPodcast＝番組単位・別シート）、`P22*Probe*.gs`（ブランチ `fix/p15-lite-recovery-20261103` のみ） |
+| 空欄（7番組の合計） | M空欄4,708件。うちJ列にitemid(=GUID)あり4,670件、G列GUIDあり543件。現場2,627／MEDIA TALK 1,727／学校305／報談26／ドーナツ6／スポンジ4／こども13 |
+| 番組が違うもの | SDGs・アルキキ・AJW・朝ポキTVはAppleの番組IDが台帳に無い（番組レベルの探索から必要） |
 
 ## 12. 件数サマリ
 
