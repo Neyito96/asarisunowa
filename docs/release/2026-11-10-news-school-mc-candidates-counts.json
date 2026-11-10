@@ -1,0 +1,16 @@
+{
+ "show": "ニュースの学校",
+ "episodes": 499,
+ "withOfficialMcMention": 0,
+ "PERSON_MENTION_IN_DESCRIPTION": 39,
+ "GUEST_OR_SPECIAL_WORDS": 1,
+ "DURATION_OUTLIER": 6,
+ "flaggedAny": 46,
+ "medianDurationSec": 754,
+ "note": "氏名・MCは補完しない。公式概要にMCの記載がある回は上記件数のみ。候補は「例外回を探す手がかり」であり例外の断定ではない。",
+ "official": {
+  "fixedHostConfirmedByOfficialSource": false,
+  "status": "ADMIN_STATEMENT_UNVERIFIED",
+  "autoFill": "NONE"
+ }
+}

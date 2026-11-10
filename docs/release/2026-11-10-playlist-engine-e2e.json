@@ -1,0 +1,64 @@
+{
+ "kind": "MOCK_E2E (in-memory Spotify; fixture = ledger rows by publish order)",
+ "episodes": 5945,
+ "cutoff": "2026-11-06",
+ "addOneRow": {
+  "tableRowsBefore": 9,
+  "tableRowsAfter": 10,
+  "codeFilesChanged": 0,
+  "newTriggersNeeded": 0,
+  "newRuleBlocked": [],
+  "errorsAfter": 0
+ },
+ "newArrivalsToCandidates": {
+  "newArrivals": 20,
+  "rulesCompared": 3,
+  "identicalToLegacyLogic": 3,
+  "perRule": {
+   "issho-shinbun": {
+    "expected": 1,
+    "engine": 1,
+    "same": true,
+    "status": "DRY_RUN"
+   },
+   "no-mirai": {
+    "expected": 1,
+    "engine": 1,
+    "same": true,
+    "status": "DRY_RUN"
+   },
+   "polirebi": {
+    "expected": 1,
+    "engine": 1,
+    "same": true,
+    "status": "DRY_RUN"
+   }
+  },
+  "spotifyWritesInDryRun": 0
+ },
+ "formIntake": {
+  "registered": "ALREADY_REGISTERED",
+  "fillOnly": [
+   "spotifyUri"
+  ],
+  "newCandidate": "NEW_CANDIDATE",
+  "excludedRespected": "REGISTERED_RESPECT_STATE",
+  "addedBeforeApproval": 0,
+  "heldReasons": [
+   "AWAITING_APPROVAL"
+  ]
+ },
+ "humanRemoval": {
+  "playlistSize": 15,
+  "removedByHuman": 3,
+  "engineReAddedOver5Runs": 0,
+  "legacyWouldReAddNextRun": 3,
+  "tombstones": 3
+ },
+ "crashRerun": {
+  "firstRun": "OK",
+  "sameRunIdRetry": "COMMIT_REJECTED",
+  "laterRunAdds": 0,
+  "playlistEntries": 1
+ }
+}
