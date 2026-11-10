@@ -1,74 +1,100 @@
 import { buildLedgerIndex, matchItem } from "./onsa-count.mjs";
 // 増分判定: 10/22凍結基準（decisions.json.gz）に無い新着EP-IDを、同じ基準で判定する。READ_ONLY・純粋関数。
-// 原本の物理削除・再採番・本番書込は行わない。未確認は無条件で公開対象にしない（保留）。
-export const POLICY_VERSION = "REVIEWED_D_TARGET/increment-1";
+// 原本の物理削除・再採番・本番書込は行わない。新側の公開採用は停止し、採用可能なものは「掲載候補(未審査)」止まり。
+export const POLICY_VERSION = "REVIEWED_D_TARGET/increment-2";
 export const EXCLUDED_SHOWS = new Set(["アルキキ", "AJW", "朝ポキTV"]);        // 10/22: 対象外番組
 export const SCHOOL = "ニュースの学校";                                     // 宇宙候補として保護／おんさ比較からは除外
-export const SUCCESSOR = "こどもそうだんしつ";                                // 後継番組: 掲載採用、比較外
+export const SUCCESSOR = "こどもそうだんしつ";                                // 後継番組: 掲載候補、比較外
 export const COMPARISON_OUT_SHOWS = new Set([SCHOOL, SUCCESSOR]);
 const REAIR = /再配信|再放送|リピート|アンコール配信|【再】|\[再\]/;
 const ENCORE_OK = /アンコールの舞台/;                                          // EP04305: 再配信ではない採用話（10/22 誤除外防止）
 export const validId = (id) => /^EP-\d{5}$/.test(id || "");
 const s = (v) => String(v ?? "").trim();
-const norm = (t) => s(t).normalize("NFKC").toLowerCase().replace(/[\s　"'“”‘’「」『』【】\[\]()（）・,、。.!！?？~〜\-_:：|｜/／]/g, "");
+const norm = (t) => s(t).normalize("NFKC").toLowerCase().replace(/[\s\u3000"'“”‘’「」『』【】\[\]()（）・,、。.!！?？~〜\-_:：|｜/／]/g, "");
+const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+export const guidOf = (v) => ((s(v).match(UUID) || [""])[0]).toLowerCase();
+// "2026/10/17 4:00" / "2026-10-17T04:00:00+09:00" 等 → "2026-10-17"（JSTの暦日）
+export function dayOf(t) {
+  const v = s(t), m = v.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/);
+  if (m && !/[zZ]|[+-]\d{2}:?\d{2}$/.test(v)) return `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;
+  return Number.isFinite(Date.parse(v)) ? new Date(Date.parse(v) + 9 * 3600000).toISOString().slice(0, 10) : v.slice(0, 10);
+}
+const key = (show, title, date) => show + "\u0000" + norm(title) + "\u0000" + dayOf(date);
 
-// ledger: [{id, show, title, publishedAt, guid, audioUrl}]  baseline: decisions.json の decisions 配列
-export function judgeIncrement(ledger, baseline, opts = {}) {
+// newRows: 新側の行 [{id, show, title, publishedAt, guid}]
+// baseline: 凍結判定 decisions 配列（10/22）
+// opts.oldGuids: Map<guid, {id, source}>  旧側の公式GUID（旧判定H列・旧台帳G列など。旧G列空白でも重複を見逃さない）
+// opts.oldTitles: [{id, show, title, publishedAt}]  旧側の題名+日付（GUIDが無い旧EP向けの補助照合）
+// opts.fullLedger: 旧+新の全行（完全照合モード）。指定時は旧EP-IDの存在・一意性を検証し、旧側GUID/題名もここから作る。
+// opts.auditEvidence: 増分モードでは必須。旧全件存在・ID一意を外部でREAD_ONLY確認した証拠文字列。
+export function judgeIncrement(newRows, baseline, opts = {}) {
   const baseIds = new Map(baseline.map((d) => [d.id, d]));
-  const ids = new Set(), dupIds = [], malformed = [];
-  for (const r of ledger) { if (!validId(r.id)) malformed.push(r.id); else if (ids.has(r.id)) dupIds.push(r.id); ids.add(r.id); }
-  const missingBaseline = baseline.filter((d) => !ids.has(d.id)).map((d) => d.id);    // 旧EP-IDの消失
-  if (missingBaseline.length || dupIds.length || malformed.length) {
-    return { ok: false, stop: "LEDGER_INTEGRITY", missingBaseline, dupIds, malformed };
+  const oldGuids = new Map(opts.oldGuids || []), oldTitles = [...(opts.oldTitles || [])];
+  let rows = newRows, mode = "increment";
+  if (opts.fullLedger) {
+    mode = "full";
+    const all = opts.fullLedger, ids = new Set(), dupIds = [], malformed = [];
+    for (const r of all) { if (!validId(r.id)) malformed.push(r.id); else if (ids.has(r.id)) dupIds.push(r.id); ids.add(r.id); }
+    const missingBaseline = baseline.filter((d) => !ids.has(d.id)).map((d) => d.id);
+    if (missingBaseline.length || dupIds.length || malformed.length) return { ok: false, stop: "LEDGER_INTEGRITY", missingBaseline, dupIds, malformed };
+    for (const r of all) if (baseIds.has(r.id)) { const g = guidOf(r.guid); if (g && !oldGuids.has(g)) oldGuids.set(g, { id: r.id, source: "旧台帳G列" }); oldTitles.push(r); }
+    rows = all.filter((r) => !baseIds.has(r.id));
+  } else {
+    if (!s(opts.auditEvidence)) return { ok: false, stop: "AUDIT_EVIDENCE_REQUIRED", detail: "増分モードは旧全件の存在・ID一意を確認した外部監査証拠(auditEvidence)が必須" };
+    const bad = rows.filter((r) => !validId(r.id) || baseIds.has(r.id)).map((r) => r.id);
+    const dup = rows.map((r) => r.id).filter((id, i, a) => a.indexOf(id) !== i);
+    if (bad.length || dup.length) return { ok: false, stop: "INCREMENT_INTEGRITY", malformedOrAlreadyJudged: bad, dupIds: dup };
   }
   const guidSeen = new Map(), titleSeen = new Map();
-  for (const r of ledger) {
-    if (s(r.guid)) { const g = s(r.guid); if (!guidSeen.has(g)) guidSeen.set(g, r.id); }
-    const k = r.show + "\u0000" + norm(r.title) + "\u0000" + s(r.publishedAt).slice(0, 10);
-    if (norm(r.title) && !titleSeen.has(k)) titleSeen.set(k, r.id);
-  }
-  const rows = [];
-  for (const r of ledger) {
-    if (baseIds.has(r.id)) continue;
-    rows.push(judgeOne(r, { guidSeen, titleSeen, knownShows: opts.knownShows || new Set(baseline.map((d) => d.show)) }));
-  }
-  return { ok: true, policy: POLICY_VERSION, rows };
+  for (const r of rows) { const g = guidOf(r.guid); if (g && !guidSeen.has(g)) guidSeen.set(g, r.id); if (norm(r.title)) { const k = key(r.show, r.title, r.publishedAt); if (!titleSeen.has(k)) titleSeen.set(k, r.id); } }
+  const oldByTitle = new Map(); for (const o of oldTitles) { if (norm(o.title)) { const k = key(o.show, o.title, o.publishedAt); if (!oldByTitle.has(k)) oldByTitle.set(k, o.id); } }
+  const knownShows = opts.knownShows || new Set(baseline.map((d) => d.show));
+  const ctx = { guidSeen, titleSeen, oldGuids, oldByTitle, knownShows, baseIds, pastBefore: opts.pastBefore || "2026-10-22" };
+  return { ok: true, policy: POLICY_VERSION, mode, auditEvidence: s(opts.auditEvidence), rows: rows.map((r) => judgeOne(r, ctx)) };
 }
 
-function out(r, publication, comparison, classification, review, reason, evidence) {
-  return { id: r.id, show: r.show, title: r.title, publishedAt: r.publishedAt, guid: r.guid || "", publication, comparison, classification, review, reason, evidence };
+function out(r, ctx, status, publication, comparison, classification, review, reason, evidence) {
+  return { id: r.id, show: r.show, title: r.title, publishedAt: r.publishedAt, guid: r.guid || "", status, publication, comparison, classification, review, reason, pastImport: dayOf(r.publishedAt) < ctx.pastBefore, evidence };
 }
 
+// status: candidate(掲載候補・未審査) / hold / excluded。candidate の publication は「保留」のまま＝公式採用ではない。
 export function judgeOne(r, ctx) {
-  const show = s(r.show), title = s(r.title);
-  const comparisonDefault = COMPARISON_OUT_SHOWS.has(show) ? "対象外" : "保留";   // 比較対象は旧おんさ照合が取れるまで保留
-  if (EXCLUDED_SHOWS.has(show)) return out(r, "対象外", "対象外", "対象外番組", "確認済み", "10/22基準の公開対象外番組", { rule: "EXCLUDED_SHOW" });
+  const show = s(r.show), title = s(r.title), g = guidOf(r.guid);
+  const cmpDefault = COMPARISON_OUT_SHOWS.has(show) ? "対象外" : "保留";
+  const O = (...a) => out(r, ctx, ...a);
+  if (EXCLUDED_SHOWS.has(show)) return O("excluded", "対象外", "対象外", "対象外番組", "確認済み", "10/22基準の公開対象外番組", { rule: "EXCLUDED_SHOW" });
+  if (!show || !ctx.knownShows.has(show)) return O("hold", "保留", "保留", "同一性保留", "要照合", "未知の番組（基準に無い番組は自動採用しない）", { rule: "UNKNOWN_SHOW" });
+  const old = g && ctx.oldGuids.get(g);                              // 旧EPの公式GUIDとの一致を最優先（旧G列が空でも旧H列で検出）
+  if (old) { const od = ctx.baseIds.get(old.id); return O("excluded", "対象外", "対象外", "重複", "確認済み", `旧${old.id}と公式GUID一致（${old.source}）。旧EPを保持し新側は掲載対象外`, { rule: "OLD_GUID_DUP", of: old.id, oldSource: old.source, oldDecision: od ? `${od.comparison}/${od.publication}/${od.review}` : "" }); }
   const missing = ["title", "publishedAt", "guid"].filter((k) => !s(r[k]));
-  if (!show || !ctx.knownShows.has(show)) return out(r, "保留", "保留", "同一性保留", "要照合", "未知の番組（基準に無い番組は自動採用しない）", { rule: "UNKNOWN_SHOW" });
-  if (missing.length) return out(r, "保留", comparisonDefault, "同一性保留", "要照合", `未確認: ${missing.join(",")} 欠落`, { rule: "MISSING_FIELDS", missing });
-  const g = ctx.guidSeen.get(s(r.guid));
-  if (g && g !== r.id) return out(r, "対象外", "対象外", "重複", "確認済み", `GUID一致: ${g}`, { rule: "GUID_DUP", of: g });
-  const k = show + "\u0000" + norm(title) + "\u0000" + s(r.publishedAt).slice(0, 10);
+  if (missing.length) return O("hold", "保留", cmpDefault, "同一性保留", "要照合", `未確認: ${missing.join(",")} 欠落`, { rule: "MISSING_FIELDS", missing });
+  const gi = ctx.guidSeen.get(g);
+  if (gi && gi !== r.id) return O("excluded", "対象外", "対象外", "重複", "確認済み", `新側内でGUID一致: ${gi}`, { rule: "GUID_DUP", of: gi });
+  const k = key(show, title, r.publishedAt), ot = ctx.oldByTitle.get(k);
+  if (ot) return O("hold", "保留", cmpDefault, "同一性保留", "要照合", `旧${ot}と同番組・同題・同日（公式GUIDで確認できないため自動除外しない）`, { rule: "OLD_TITLE_DATE", of: ot });
   const t = ctx.titleSeen.get(k);
-  if (t && t !== r.id) return out(r, "保留", comparisonDefault, "同一性保留", "要照合", `同番組・同題・同日の別ID ${t}（GUID不一致のため自動除外しない）`, { rule: "TITLE_DATE_DUP", of: t });
-  if (REAIR.test(title) && !ENCORE_OK.test(title)) return out(r, "保留", comparisonDefault, "再配信候補", "要照合", "題名に再配信/再放送語", { rule: "REAIR_TITLE" });
-  if (show === SCHOOL) return out(r, "対象", "対象外", "日時差分", "確認済み", "ニュースの学校: 宇宙候補として保護、おんさ比較からは除外", { rule: "SCHOOL_PROTECTED" });
-  if (show === SUCCESSOR) return out(r, "対象", "対象外", "通常", "確認済み", "後継番組: 掲載採用・比較外", { rule: "SUCCESSOR" });
-  return out(r, "対象", "保留", "通常", "確認済み", "公式識別子(GUID)・題名・日時が揃い重複/再配信語なし。おんさ比較は照合データ待ち", { rule: "NORMAL_COMPLETE" });
+  if (t && t !== r.id) return O("hold", "保留", cmpDefault, "同一性保留", "要照合", `新側内で同番組・同題・同日の別ID ${t}`, { rule: "TITLE_DATE_DUP", of: t });
+  if (REAIR.test(title) && !ENCORE_OK.test(title)) return O("hold", "保留", cmpDefault, "再配信候補", "要照合", "題名に再配信/再放送語", { rule: "REAIR_TITLE" });
+  const base = { review: "未審査(候補)" };
+  if (show === SCHOOL) return O("candidate", "保留", "対象外", "日時差分", base.review, "ニュースの学校: 宇宙候補として保護、おんさ比較からは除外。公式GUID・題名・日時は揃うが人の審査前", { rule: "SCHOOL_PROTECTED" });
+  if (show === SUCCESSOR) return O("candidate", "保留", "対象外", "通常", base.review, "後継番組: 掲載候補・比較外。人の審査前", { rule: "SUCCESSOR" });
+  return O("candidate", "保留", "保留", "通常", base.review, "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち", { rule: "NORMAL_COMPLETE" });
 }
 
-const tally = (rows, key) => rows.reduce((a, r) => ((a[r[key]] = (a[r[key]] || 0) + 1), a), {});
-// 掲載件数の再計算。基準(5,848)から「新規に掲載可能」「保留/除外へ移動」を分離。旧判定を最新値として出さない。
+const tally = (rows, k) => rows.reduce((a, r) => ((a[r[k]] = (a[r[k]] || 0) + 1), a), {});
+// 掲載件数: 承認済み確定分（凍結5,848）と、審査後の最大候補分を分けて出す。新側は審査完了まで確定に加算しない。
 export function recountPublication({ baselineAdopted, baselineSource, baselineDate, judged, asOf, movedFromBaseline = [] }) {
-  const added = judged.filter((r) => r.publication === "対象");
-  const toHold = judged.filter((r) => r.publication === "保留"), toExcl = judged.filter((r) => r.publication === "対象外");
-  const demoted = movedFromBaseline.length;
+  const cand = judged.filter((r) => r.status === "candidate"), hold = judged.filter((r) => r.status === "hold"), excl = judged.filter((r) => r.status === "excluded");
+  const show = {}; for (const r of judged) (show[r.show] ||= { candidate: 0, hold: 0, excluded: 0 })[r.status]++;
   return {
-    asOf, baseline: { adopted: baselineAdopted, source: baselineSource, decisionDate: baselineDate, label: "凍結済み旧基準（最新件数ではない）" },
-    newRows: judged.length, newlyAdoptable: added.length, newHold: toHold.length, newExcluded: toExcl.length, movedFromAdoptedToHoldOrExcluded: demoted,
-    latestAdoptable: baselineAdopted + added.length - demoted, latestSource: baselineSource + judged.length,
-    note: "latestAdoptable は『凍結基準 + 新規採用 − 基準からの移動』。本番反映・公開は別承認。",
-    byClassification: tally(judged, "classification"), byShow: judged.reduce((a, r) => { (a[r.show] ||= { 対象: 0, 保留: 0, 対象外: 0 })[r.publication]++; return a; }, {})
+    asOf, baseline: { adopted: baselineAdopted, source: baselineSource, decisionDate: baselineDate, label: "承認済み凍結基準（10/22）" },
+    newRows: judged.length, newCandidates: cand.length, newHold: hold.length, newExcluded: excl.length, pastImportRows: judged.filter((r) => r.pastImport).length,
+    movedFromAdoptedToHoldOrExcluded: movedFromBaseline.length,
+    confirmedAdoptable: baselineAdopted - movedFromBaseline.length,                           // 承認済み確定分（新側は審査前なので加算しない）
+    maxAdoptableAfterReview: baselineAdopted - movedFromBaseline.length + cand.length,        // 全候補が審査で採用された場合の上限
+    latestSource: baselineSource + judged.length,
+    note: "maxAdoptableAfterReview は上限であり確定値ではない。本番反映・公開は別承認。",
+    byClassification: tally(judged, "classification"), byStatus: tally(judged, "status"), byShow: show,
   };
 }
 

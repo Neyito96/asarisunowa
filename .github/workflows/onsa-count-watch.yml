@@ -15,19 +15,22 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
-      - name: 前回結果を復元
+      # キャッシュの復元先と保存先は同じ state/ ディレクトリ（以前は prev と out/ で食い違っていた）。キーは毎回ユニーク、復元は接頭辞で最新を取る。
+      - name: 前回状態を復元
         uses: actions/cache/restore@v4
-        with: { path: prev, key: onsa-count-none, restore-keys: "onsa-count-" }
-      - name: 集計（画面と同じ計数定義）
-        id: run
+        with: { path: state, key: "onsa-count-state-none", restore-keys: "onsa-count-state-" }
+      - name: 集計（画面と同じ計数定義・提供者上限を遵守）
         run: |
-          mkdir -p prev out
-          node scripts/onsa-count-watch.mjs --out out/onsa-count.json --previous prev/onsa-count.json | tee out/summary.json
+          mkdir -p state out
+          min=5; [ "${{ github.event_name }}" = "workflow_dispatch" ] && min=0.5
+          node scripts/onsa-count-watch.mjs --previous state/onsa-count.json --state state/onsa-count.json --out out/onsa-count.json --min-interval-hours "$min" | tee out/summary.json
       - uses: actions/upload-artifact@v4
+        if: always()
         with: { name: onsa-count, path: out/, retention-days: 30 }
-      - name: 次回用に保存
+      - name: 次回用に状態を保存（失敗・skipped でも試行履歴を残す）
+        if: always()
         uses: actions/cache/save@v4
-        with: { path: out/onsa-count.json, key: "onsa-count-${{ github.run_id }}" }
+        with: { path: state, key: "onsa-count-state-${{ github.run_id }}-${{ github.run_attempt }}" }
       - name: 変化・取得失敗・監視空白をIssue #275へ記録
         if: always()
         env: { GH_TOKEN: "${{ github.token }}" }

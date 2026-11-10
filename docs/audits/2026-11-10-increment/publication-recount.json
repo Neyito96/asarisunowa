@@ -1,0 +1,65 @@
+{
+ "asOf": "2026-11-10T11:40:00+09:00",
+ "baseline": {
+  "adopted": 5848,
+  "source": 6591,
+  "decisionDate": "2026-10-22",
+  "label": "承認済み凍結基準（10/22）"
+ },
+ "newRows": 100,
+ "newCandidates": 97,
+ "newHold": 0,
+ "newExcluded": 3,
+ "pastImportRows": 22,
+ "movedFromAdoptedToHoldOrExcluded": 0,
+ "confirmedAdoptable": 5848,
+ "maxAdoptableAfterReview": 5945,
+ "latestSource": 6691,
+ "note": "maxAdoptableAfterReview は上限であり確定値ではない。本番反映・公開は別承認。",
+ "byClassification": {
+  "通常": 83,
+  "日時差分": 14,
+  "重複": 3
+ },
+ "byStatus": {
+  "candidate": 97,
+  "excluded": 3
+ },
+ "byShow": {
+  "ニュースの現場から": {
+   "candidate": 24,
+   "hold": 0,
+   "excluded": 0
+  },
+  "スポンジ": {
+   "candidate": 10,
+   "hold": 0,
+   "excluded": 0
+  },
+  "ニュースの学校": {
+   "candidate": 14,
+   "hold": 0,
+   "excluded": 0
+  },
+  "MEDIA TALK": {
+   "candidate": 15,
+   "hold": 0,
+   "excluded": 3
+  },
+  "ドーナツ": {
+   "candidate": 20,
+   "hold": 0,
+   "excluded": 0
+  },
+  "報談": {
+   "candidate": 7,
+   "hold": 0,
+   "excluded": 0
+  },
+  "こどもそうだんしつ": {
+   "candidate": 7,
+   "hold": 0,
+   "excluded": 0
+  }
+ }
+}

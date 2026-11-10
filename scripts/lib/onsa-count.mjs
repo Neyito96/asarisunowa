@@ -54,7 +54,11 @@ export function projectApi(json, { asOf, fetchedAt = asOf } = {}) {
 
 // 台帳EPとの同一性: ①GUID/Omny clip ②Spotify episode ID ③番組+題名+日付(JST日)。強い根拠の順。
 const norm = (t) => s(t).normalize("NFKC").toLowerCase().replace(/[\s　"'“”‘’「」『』【】\[\]()（）・,、。.!！?？~〜\-_:：|｜/／]/g, "");
-const dayOf = (t) => (Number.isFinite(Date.parse(t)) ? new Date(Date.parse(t) + 9 * 3600000).toISOString().slice(0, 10) : s(t).slice(0, 10));
+const dayOf = (t) => {
+  const v = s(t), m = v.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/);
+  if (m && !/[zZ]|[+-]\d{2}:?\d{2}$/.test(v)) return `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;     // 時刻帯なしはJSTの暦日
+  return Number.isFinite(Date.parse(v)) ? new Date(Date.parse(v) + 9 * 3600000).toISOString().slice(0, 10) : v.slice(0, 10);
+};
 export function buildLedgerIndex(ledger) {
   const g = new Map(), sp = new Map(), t = new Map();
   for (const r of ledger) {
@@ -70,4 +74,24 @@ export function matchItem(item, ix) {
   const k = item.show + "\u0000" + norm(item.title) + "\u0000" + dayOf(item.publishedAt);
   if (ix.t.has(k)) return { ep: ix.t.get(k), by: "TITLE_DATE" };
   return null;
+}
+
+// ---- 共同編集シート書き出し（"## Sheet name: X" + CSV）→ API相当のJSON ----
+// おんさAPIは共同編集シートがベース。API本体が取得できない間の再現用（シートの書き出し時点の状態であり、APIの実値ではない）。
+export const SHEET_TO_CATEGORY = { "ニュースの現場から": "genba", "メディアトーク": "media", "SDGs": "sdgs", "報談": "houdan", "ドーナツ": "donuts", "スポンジ": "sports" };
+export function sheetExportToApiJson(text, parseCsv) {
+  const parts = text.replace(/^﻿/, "").split(/^## Sheet name: (.*)$/m);
+  const api = Object.fromEntries(SPEC.categories.map((c) => [c, []])); const sheets = {};
+  for (let i = 1; i < parts.length; i += 2) {
+    const name = parts[i].trim(), cat = SHEET_TO_CATEGORY[name]; if (!cat) continue;       // ニュースの学校・YouTube・出演者等は計数対象外
+    const rows = parseCsv(parts[i + 1].trim());
+    let n = 0;
+    for (const r of rows.slice(2)) {                                                       // 先頭2行はヘッダーと注意書き。行数をEP件数とみなさない
+      const link = s(r[0]), date = s(r[1]), title = s(r[2]);
+      if (!title || !/^https?:/.test(link) || !Number.isFinite(Date.parse(date.replace(/ -0000$/, " +0000")))) continue;
+      api[cat].push({ link, pubDate: new Date(Date.parse(date.replace(/ -0000$/, " +0000"))).toISOString(), title, duration: Number(r[3]) || 0, spotify: s(r[11]), clipId: "" }); n++;
+    }
+    sheets[name] = n;
+  }
+  return { api, sheets };
 }
