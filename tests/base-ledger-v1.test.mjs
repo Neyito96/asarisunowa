@@ -153,3 +153,12 @@ test('原本非破壊: 全生成関数は入力の55列を変更しない', () =
   const links = buildPlatformLinks(rows); buildDetail(rows, links); buildSearchIndex(rows); buildBaseView(rows, { links }); buildRelatedArticles(rows[0]);
   assert.equal(JSON.stringify(rows), snap); assert.equal(rows[0].length, len);
 });
+
+test('実値形(本番台帳I/J/L列の実測形): 朝日item(UUID/TASC)・Omny/pdst・Spotifyは個別EPとconfirmed、YouTube元ページ/Apple番組はholdで保持', () => {
+  const r = mk({ cols: { 9: 'https://www.asahi.com/special/podcasts/item/?itemid=2f7b650a-34a7-44ab-b232-b471005d6654', 8: 'https://omny.fm/shows/asahi/polirebi14', 11: 'https://open.spotify.com/episode/7CqHaZnKM5bGq6rhjuW1ka' } });
+  const l = buildPlatformLinks([r]); assert.equal(by(l, 'EP-00001', 'asahi').status, 'confirmed'); assert.equal(by(l, 'EP-00001', 'omny').url, r[8]); assert.equal(by(l, 'EP-00001', 'omny').status, 'confirmed');
+  assert.ok(isEpisodeLevel('asahi', 'https://www.asahi.com/special/podcasts/item/?itemid=TASC5101610336'));
+  assert.ok(!isEpisodeLevel('asahi', 'https://www.asahi.com/special/podcasts/item/?itemid=')); assert.ok(isEpisodeLevel('omny', 'https://pdst.fm/e/traffic.megaphone.fm/TASC1.mp3'));
+  const y = mk({ cols: { 8: 'https://www.youtube.com/watch?v=abc', 9: '' } }); const ly = buildPlatformLinks([y]);
+  assert.ok(ly.some((x) => x.url === y[8] && x.status === 'hold')); assert.ok(checkInvariants([y], [y], { links: ly }).ok);
+});
