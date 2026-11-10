@@ -13,7 +13,7 @@
 |---|---|---|---|---|
 | **PROD** | 朝ポキの田｜正式エピソード台帳【本番】 | `1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4` | 唯一の本番台帳（シート「エピソード台帳」55列、約6.7千行）。公開JSONの元。14MB、最終更新 2026-11-10 09:21Z | [実機] |
 | PROD周辺 | 朝ポキ　プレイリスト一覧表（作業台） | `1KSzoIkOsjUagNBLt3IbKIvgWEmez4f0XISQ-jkUjmwQ` | 旧来のプレイリスト作業台。投稿受付GAS・Apple補強GAS・アプリ(community.tsx)が参照。11/09更新 | [実機] |
-| 外部原本 | 朝ポキ出演者 共同編集用 スプレッドシート | `1CvRyWLQb7YyonGyRSNKtc_liRrgtiWE5yDGI3R48Xfk` | 所有者は別アカウント(onsanai.com)。当方は共有で閲覧。11/10更新。出演者共同編集。**コード側の参照は未確認** | [実機] |
+| 外部原本（READ ONLY） | 朝ポキ出演者 共同編集用 スプレッドシート | `1CvRyWLQb7YyonGyRSNKtc_liRrgtiWE5yDGI3R48Xfk` | 所有者は別アカウント(onsanai.com)。当方は共有で閲覧のみ。毎日更新。番組7タブ（A=Omny URL, B=日付, C=タイトル, L=Spotify, M=朝日公式, N=Pocket Casts）。2026-11-10に Sheets `get_values` で全データ6,568行を読み本番台帳と照合（docs/release/2026-11-10-ext-link-match-dry-run.md）。本番への自動同期は無い | [実機] |
 | COPY | 朝リスの田 Phase14 コピー検証 20261023 | `1IhnYURLqhM8i3ACrkNbDujplXRtyI41rR19qGnwZlMY` | 収蔵ロボのCOPY。朝トリガー設置報告あり。11/09更新 | [実機] |
 | COPY | 朝リス Phase25 COPY試験 2026-11-07（本番接続禁止） | `1lbfEq3Tdj6QaLGJOWZfez-xNkQ5yRHRILqmP1nLJtQw` | P26 COPY GAS用の小型試験シート（62KB） | [実機] |
 | COPY(検証済・終了) | Phase12 新着1件検証専用コピー | `1EFY00C1IyZfIW6LdCAiK0MTXpVGRIQvoc4aLzRnUruI` | EP-06592の1件書込検証。役目終了 | [実機] |
@@ -92,7 +92,7 @@ A=EP-ID / V=概要原文 / W=概要清掃済み / X=出演者・スタッフ / J
 1. 公式RSS・Spotify等 → （収蔵ロボ/GAS）→ **COPY** で検証 → 承認後のみ **PROD台帳**
 2. PROD台帳 → （GitHubでJSON生成）→ `public/library/data` → 朝リスの田サイト(Pages) ／ 宇宙 (`asarisu-universe`, 読み取りのみ)
 3. 作業台（プレイリスト）→ sync-playlists（毎時17/47分）→ Pages
-4. 共同編集用シート（外部所有）→ 出演者データ。取り込みは過去に1007コピーで完了済み。現在の同期経路は**未確認**
+4. 共同編集用シート（外部所有）→ 出演者・各社URL。過去は1007コピー経由で取込完了。現在は自動同期なし。READ ONLYで読み `scripts/match-external-links.mjs` で差分を出し、管理人承認後に補完する設計（トリガー追加なし）
 
 ## 8. Claudeから台帳は読めるか（2026-11-10 実測）
 
@@ -113,7 +113,7 @@ A=EP-ID / V=概要原文 / W=概要清掃済み / X=出演者・スタッフ / J
 | 3 | 旧Phaseの `P26Entry.gs` は COPY ID を埋め込み。本番IDを開かない設計（scriptId照合） | 情報 | 現状維持 |
 | 4 | 本番GAS(`1Ywoelv…`)はDrive検索で見つからない | 中。権限/所有が別の可能性 | 未確認として管理人確認項目へ |
 | 5 | COPYと本番のタイトルが似ている（Phase14コピー検証 と 本番） | 中 | 下記の更新ルール(ラベル必須)で運用 |
-| 6 | 外部所有の共同編集シートが毎日更新されているが、コードとの接続が不明 | 中 | 取り込み経路の確認（司令塔） |
+| 6 | 外部所有の共同編集シートの同期経路 | 解消（第35号）：自動同期なし、READ ONLY照合のみ | 補完は承認後に適用 |
 
 ## 10. 更新ルール
 
@@ -130,7 +130,7 @@ A=EP-ID / V=概要原文 / W=概要清掃済み / X=出演者・スタッフ / J
 1. 本番GAS(`1Ywoelv…`)・投稿受付GAS・Phase2隔離GASの実トリガー設置状況と最終実行
 2. COPYの朝2トリガーの実行ログ
 3. 本番GASの所有者・共有設定
-4. 共同編集用シート(外部所有)から現在の台帳への同期経路
+4. （解消）共同編集シートの同期経路＝自動同期なし。残る未確認: 外部原本の更新頻度の実測
 5. Podcast Index・Cloudflare Worker/DBの実運用状態（鍵・デプロイ）
 6. Amazon/Pody/LISTENの過去の個別EP取得実装の有無（Spotify 97.6%・Pocket Casts 97.3%・Apple 11.2%・LISTEN 0.5%は2026-11-10に実測済み）
 7. 本番台帳の最新件数（10/26時点の6,632件以降）
