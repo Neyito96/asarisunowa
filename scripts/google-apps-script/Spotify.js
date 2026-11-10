@@ -104,53 +104,15 @@ function getSpotifyAccessToken() {
     return "";
   }
 }
+// Compatibility wrapper (Issue #274): returns a show URL only for an unambiguous exact match; any other outcome is
+// classified in PodcastSpotifyResolve.js (AUTH / RATE_LIMIT / NO_RESULTS / AMBIGUOUS / TITLE_MISMATCH ...) and logged.
 function findSpotifyShowByTitle_(title) {
-  const term = String(title || "").trim();
-  if (!term) return null;
-
-  const token = getSpotifyAccessToken();
-  if (!token) return null;
-
-  try {
-    const res = UrlFetchApp.fetch(
-      "https://api.spotify.com/v1/search?q=" +
-        encodeURIComponent(term) +
-        "&type=show&market=JP&limit=10",
-      {
-        muteHttpExceptions: true,
-        headers: {
-          Authorization: "Bearer " + token,
-          Accept: "application/json"
-        }
-      }
-    );
-
-    if (res.getResponseCode() < 200 || res.getResponseCode() >= 300) {
-      return null;
-    }
-
-    const data = JSON.parse(res.getContentText());
-    const items =
-      data && data.shows && Array.isArray(data.shows.items)
-        ? data.shows.items
-        : [];
-    const wanted = normalizeTitle(term);
-
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (normalizeTitle(item && item.name ? item.name : "") !== wanted) continue;
-      const external =
-        item && item.external_urls && item.external_urls.spotify
-          ? String(item.external_urls.spotify)
-          : "";
-      if (external) return external;
-      if (item && item.id) return "https://open.spotify.com/show/" + String(item.id);
-    }
-  } catch (_) {
+  const found = podSpFindShow_(title, "");
+  if (found.status !== "MATCH") {
+    console.log("Spotify番組検索: " + found.status + " (" + String(title || "").slice(0, 40) + ")");
     return null;
   }
-
-  return null;
+  return found.url;
 }
 
 function fetchSpotifyEpisodeFromWebApi(episodeId) {

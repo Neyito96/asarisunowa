@@ -123,6 +123,7 @@ function syncRecommendedPodcastPlatforms() {
     const values = sheet.getRange(2, 1, lastRow - 1, 18).getDisplayValues();
     let updatedRows = 0;
     let updatedCells = 0;
+    const spotifyUnresolved = [];
 
     for (let i = 0; i < values.length; i++) {
       const rowNumber = i + 2;
@@ -152,6 +153,9 @@ function syncRecommendedPodcastPlatforms() {
 
       const resolved = resolveListenerPodcastPlatforms_(title, host, sourceUrl, rss);
       const updates = [];
+      if (!String(row[9] || "").trim() && !resolved.spotify && resolved.spotifyStatus) {
+        spotifyUnresolved.push({ row: rowNumber, title: title, status: resolved.spotifyStatus });
+      }
 
       queuePodcastCellUpdate_(updates, rowNumber, 6, row[5], artwork || resolved.artwork);
       queuePodcastCellUpdate_(updates, rowNumber, 7, row[6], host);
@@ -178,13 +182,15 @@ function syncRecommendedPodcastPlatforms() {
     console.log(
       "おすすめPodcast配信先同期: checked=" + values.length +
       " updatedRows=" + updatedRows +
-      " updatedCells=" + updatedCells
+      " updatedCells=" + updatedCells +
+      " spotifyUnresolved=" + spotifyUnresolved.length
     );
 
     return {
       checked: values.length,
       updatedRows: updatedRows,
-      updatedCells: updatedCells
+      updatedCells: updatedCells,
+      spotifyUnresolved: spotifyUnresolved
     };
   } finally {
     lock.releaseLock();
@@ -237,7 +243,14 @@ function queuePodcastGenreUpdate_(updates, row, column, currentValue, candidateV
   }
 }
 
+// Official links (source URL, RSS) are applied first; the Spotify search only runs when none gave a Spotify show link,
+// and only an unambiguous exact match is accepted (PodcastSpotifyResolve.js). Failures are classified in resolved.spotifyStatus.
 function resolveListenerPodcastPlatforms_(title, maker, sourceUrl, explicitRss) {
+  const resolved = resolveListenerPodcastPlatformsBase_(title, maker, sourceUrl, explicitRss);
+  return podSpCompleteResolved_(resolved, title, maker);
+}
+
+function resolveListenerPodcastPlatformsBase_(title, maker, sourceUrl, explicitRss) {
   const resolved = {
     spotify: "",
     apple: "",
@@ -263,11 +276,6 @@ function resolveListenerPodcastPlatforms_(title, maker, sourceUrl, explicitRss) 
   const listenSlug = String(sourceUrl || "").match(/^https?:\/\/listen\.style\/p\/([^/?#]+)/i);
   if (!resolved.rss && listenSlug && listenSlug[1]) {
     resolved.rss = "https://rss.listen.style/p/" + listenSlug[1] + "/rss";
-  }
-
-  if (!resolved.spotify && typeof findSpotifyShowByTitle_ === "function") {
-    const spotifyUrl = findSpotifyShowByTitle_(title);
-    if (spotifyUrl) resolved.spotify = spotifyUrl;
   }
 
   const apple = findExactApplePodcast_(title, maker);
