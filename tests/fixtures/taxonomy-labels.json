@@ -1,0 +1,2057 @@
+{
+"note": "asarisu-universe work/semantic-normalization-20261026 由来。ID+旧大分類ラベル+由来のみ。承認状態を混同しない。",
+"records": [
+{
+"id": "EP-00001",
+"label": "政治",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00002",
+"label": "ジェンダー",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00005",
+"label": "科学",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00006",
+"label": "動物・自然",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00007",
+"label": "政治",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00008",
+"label": "政治",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00009",
+"label": "経済",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00010",
+"label": "福祉・人権",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00011",
+"label": "人口・少子化",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00012",
+"label": "科学",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00014",
+"label": "暮らし",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00017",
+"label": "交通",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00018",
+"label": "動物・自然",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00021",
+"label": "文化・芸術",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00022",
+"label": "文化・芸術",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00024",
+"label": "環境・気候",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00025",
+"label": "ジェンダー",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00026",
+"label": "AI・技術",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00027",
+"label": "メディア",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00028",
+"label": "暮らし",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00029",
+"label": "経済",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00030",
+"label": "スポーツ",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00031",
+"label": "メディア",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00033",
+"label": "文化・芸術",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00081",
+"label": "科学",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00082",
+"label": "科学",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00093",
+"label": "暮らし",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00095",
+"label": "国際",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00101",
+"label": "暮らし",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00106",
+"label": "暮らし",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00111",
+"label": "暮らし",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00112",
+"label": "暮らし",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00116",
+"label": "歴史・文化",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00117",
+"label": "暮らし",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00118",
+"label": "メディア",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00130",
+"label": "政治",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00291",
+"label": "暮らし",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00293",
+"label": "国際",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00297",
+"label": "暮らし",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00314",
+"label": "環境・気候",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00315",
+"label": "環境・気候",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00340",
+"label": "環境・気候",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00357",
+"label": "環境・気候",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00364",
+"label": "動物・自然",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00374",
+"label": "ジェンダー",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00398",
+"label": "国際",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00412",
+"label": "国際",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00413",
+"label": "防災",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00415",
+"label": "労働",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00416",
+"label": "メディア",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00418",
+"label": "国際",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00419",
+"label": "健康・医療",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00421",
+"label": "文化・芸術",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00422",
+"label": "政治",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00424",
+"label": "国際",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00426",
+"label": "経済",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00427",
+"label": "動物・自然",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00431",
+"label": "政治",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00432",
+"label": "AI・技術",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00433",
+"label": "AI・技術",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00435",
+"label": "政治",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00438",
+"label": "政治",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00439",
+"label": "政治",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00440",
+"label": "健康・医療",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00441",
+"label": "健康・医療",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00444",
+"label": "経済",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00445",
+"label": "政治",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00448",
+"label": "健康・医療",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00449",
+"label": "経済",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00450",
+"label": "歴史・文化",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00451",
+"label": "科学",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00452",
+"label": "政治",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00453",
+"label": "経済",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00454",
+"label": "国際",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00455",
+"label": "国際",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00456",
+"label": "動物・自然",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00457",
+"label": "AI・技術",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00458",
+"label": "科学",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00460",
+"label": "経済",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00461",
+"label": "文化・芸術",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00462",
+"label": "文化・芸術",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00463",
+"label": "教育",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00465",
+"label": "経済",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00466",
+"label": "健康・医療",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00469",
+"label": "国際",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00470",
+"label": "国際",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00471",
+"label": "スポーツ",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00472",
+"label": "政治",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00473",
+"label": "防災",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00474",
+"label": "健康・医療",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00475",
+"label": "科学",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00476",
+"label": "動物・自然",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00478",
+"label": "政治",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00479",
+"label": "スポーツ",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00480",
+"label": "AI・技術",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00481",
+"label": "健康・医療",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00482",
+"label": "福祉・人権",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00483",
+"label": "防災",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00486",
+"label": "暮らし",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00487",
+"label": "国際",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00489",
+"label": "経済",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00490",
+"label": "国際",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00492",
+"label": "政治",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00493",
+"label": "メディア",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00495",
+"label": "歴史・文化",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00496",
+"label": "環境・気候",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00497",
+"label": "政治",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00498",
+"label": "国際",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00499",
+"label": "経済",
+"origin": "human_approved",
+"locked": true
+},
+{
+"id": "EP-00003",
+"label": "環境・気候",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00004",
+"label": "国際",
+"origin": "legacy_proposed",
+"locked": false
+},
+{
+"id": "EP-00013",
+"label": "科学",
+"origin": "legacy_proposed",
+"locked": false
+},
+{
+"id": "EP-00015",
+"label": "政治",
+"origin": "legacy_proposed",
+"locked": false
+},
+{
+"id": "EP-00016",
+"label": "国際",
+"origin": "legacy_proposed",
+"locked": false
+},
+{
+"id": "EP-00019",
+"label": "暮らし",
+"origin": "legacy_proposed",
+"locked": false
+},
+{
+"id": "EP-00020",
+"label": "防災",
+"origin": "legacy_hold",
+"locked": false
+},
+{
+"id": "EP-00023",
+"label": "スポーツ",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00032",
+"label": "メディア",
+"origin": "legacy_proposed",
+"locked": false
+},
+{
+"id": "EP-00034",
+"label": "メディア",
+"origin": "legacy_proposed",
+"locked": false
+},
+{
+"id": "EP-00035",
+"label": "メディア",
+"origin": "legacy_hold",
+"locked": false
+},
+{
+"id": "EP-00036",
+"label": "暮らし",
+"origin": "legacy_proposed",
+"locked": false
+},
+{
+"id": "EP-00037",
+"label": "文化・芸術",
+"origin": "legacy_proposed",
+"locked": false
+},
+{
+"id": "EP-00038",
+"label": "メディア",
+"origin": "legacy_proposed",
+"locked": false
+},
+{
+"id": "EP-00039",
+"label": "暮らし",
+"origin": "legacy_proposed",
+"locked": false
+},
+{
+"id": "EP-00040",
+"label": "暮らし",
+"origin": "legacy_hold",
+"locked": false
+},
+{
+"id": "EP-00041",
+"label": "暮らし",
+"origin": "legacy_proposed",
+"locked": false
+},
+{
+"id": "EP-00042",
+"label": "労働",
+"origin": "legacy_proposed",
+"locked": false
+},
+{
+"id": "EP-00043",
+"label": "文化・芸術",
+"origin": "legacy_proposed",
+"locked": false
+},
+{
+"id": "EP-00044",
+"label": "教育",
+"origin": "legacy_proposed",
+"locked": false
+},
+{
+"id": "EP-00045",
+"label": "動物・自然",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00046",
+"label": "動物・自然",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00047",
+"label": "メディア",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00048",
+"label": "政治",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00049",
+"label": "教育",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00050",
+"label": "教育",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00051",
+"label": "動物・自然",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00052",
+"label": "動物・自然",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00053",
+"label": "教育",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00054",
+"label": "教育",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00055",
+"label": "暮らし",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00056",
+"label": "暮らし",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00057",
+"label": "交通",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00058",
+"label": "科学",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00059",
+"label": "健康・医療",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00060",
+"label": "健康・医療",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00062",
+"label": "スポーツ",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00063",
+"label": "スポーツ",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00064",
+"label": "スポーツ",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00065",
+"label": "スポーツ",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00066",
+"label": "スポーツ",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00067",
+"label": "スポーツ",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00068",
+"label": "スポーツ",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00069",
+"label": "スポーツ",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00070",
+"label": "メディア",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00071",
+"label": "スポーツ",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00072",
+"label": "スポーツ",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00073",
+"label": "スポーツ",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00074",
+"label": "スポーツ",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00075",
+"label": "スポーツ",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00076",
+"label": "スポーツ",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00077",
+"label": "スポーツ",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00078",
+"label": "スポーツ",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00079",
+"label": "スポーツ",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00080",
+"label": "スポーツ",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00083",
+"label": "政治",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00084",
+"label": "健康・医療",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00085",
+"label": "国際",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00086",
+"label": "健康・医療",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00087",
+"label": "歴史・文化",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00088",
+"label": "教育",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00089",
+"label": "国際",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00090",
+"label": "国際",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00091",
+"label": "福祉・人権",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00092",
+"label": "歴史・文化",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00094",
+"label": "福祉・人権",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00096",
+"label": "経済",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00097",
+"label": "教育",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00098",
+"label": "文化・芸術",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00099",
+"label": "環境・気候",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00100",
+"label": "政治",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00102",
+"label": "暮らし",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00103",
+"label": "暮らし",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00104",
+"label": "暮らし",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00105",
+"label": "環境・気候",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00107",
+"label": "教育",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00108",
+"label": "国際",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00109",
+"label": "国際",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00110",
+"label": "国際",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00113",
+"label": "暮らし",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00114",
+"label": "暮らし",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00115",
+"label": "健康・医療",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00119",
+"label": "暮らし",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00120",
+"label": "文化・芸術",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00121",
+"label": "政治",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00122",
+"label": "メディア",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00123",
+"label": "国際",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00124",
+"label": "政治",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00125",
+"label": "国際",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00126",
+"label": "メディア",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00127",
+"label": "政治",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00128",
+"label": "政治",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00129",
+"label": "メディア",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00131",
+"label": "メディア",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00132",
+"label": "メディア",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00133",
+"label": "メディア",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00134",
+"label": "政治",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00135",
+"label": "歴史・文化",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00136",
+"label": "労働",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00137",
+"label": "国際",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00138",
+"label": "経済",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00139",
+"label": "政治",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00140",
+"label": "メディア",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00281",
+"label": "歴史・文化",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00282",
+"label": "暮らし",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00283",
+"label": "文化・芸術",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00284",
+"label": "暮らし",
+"origin": "legacy_hold",
+"locked": false
+},
+{
+"id": "EP-00285",
+"label": "暮らし",
+"origin": "legacy_hold",
+"locked": false
+},
+{
+"id": "EP-00286",
+"label": "福祉・人権",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00287",
+"label": "政治",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00288",
+"label": "歴史・文化",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00289",
+"label": "歴史・文化",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00290",
+"label": "暮らし",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00292",
+"label": "AI・技術",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00294",
+"label": "文化・芸術",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00295",
+"label": "ジェンダー",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00296",
+"label": "メディア",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00298",
+"label": "暮らし",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00299",
+"label": "暮らし",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00300",
+"label": "動物・自然",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00301",
+"label": "メディア",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00302",
+"label": "ジェンダー",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00303",
+"label": "歴史・文化",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00304",
+"label": "政治",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00305",
+"label": "政治",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00306",
+"label": "文化・芸術",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00307",
+"label": "政治",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00308",
+"label": "環境・気候",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00309",
+"label": "環境・気候",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00310",
+"label": "環境・気候",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00311",
+"label": "環境・気候",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00324",
+"label": "環境・気候",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00325",
+"label": "環境・気候",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00329",
+"label": "経済",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00330",
+"label": "ジェンダー",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00339",
+"label": "ジェンダー",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00344",
+"label": "健康・医療",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00345",
+"label": "健康・医療",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00355",
+"label": "環境・気候",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00356",
+"label": "環境・気候",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00358",
+"label": "福祉・人権",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00359",
+"label": "暮らし",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00360",
+"label": "暮らし",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00361",
+"label": "ジェンダー",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00362",
+"label": "環境・気候",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00363",
+"label": "ジェンダー",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00365",
+"label": "福祉・人権",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00366",
+"label": "環境・気候",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00367",
+"label": "AI・技術",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00375",
+"label": "ジェンダー",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00378",
+"label": "文化・芸術",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00379",
+"label": "文化・芸術",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00380",
+"label": "ジェンダー",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00383",
+"label": "福祉・人権",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00385",
+"label": "歴史・文化",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00386",
+"label": "福祉・人権",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00387",
+"label": "暮らし",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00388",
+"label": "暮らし",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00389",
+"label": "環境・気候",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00390",
+"label": "ジェンダー",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00391",
+"label": "ジェンダー",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00392",
+"label": "交通",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00393",
+"label": "交通",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00394",
+"label": "動物・自然",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00397",
+"label": "国際",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00399",
+"label": "福祉・人権",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00400",
+"label": "福祉・人権",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00402",
+"label": "国際",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00403",
+"label": "国際",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00406",
+"label": "環境・気候",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00407",
+"label": "環境・気候",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00408",
+"label": "科学",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00409",
+"label": "政治",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00410",
+"label": "政治",
+"origin": "legacy_assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00411",
+"label": "暮らし",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00414",
+"label": "交通",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00417",
+"label": "歴史・文化",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00420",
+"label": "経済",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00423",
+"label": "政治",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00425",
+"label": "防災",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00428",
+"label": "防災",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00429",
+"label": "防災",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00430",
+"label": "国際",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00434",
+"label": "人権・司法",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00436",
+"label": "労働",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00437",
+"label": "教育",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00442",
+"label": "交通",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00443",
+"label": "人権・司法",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00446",
+"label": "AI・技術",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00447",
+"label": "経済",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00459",
+"label": "国際",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00464",
+"label": "スポーツ",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00467",
+"label": "健康・医療",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00468",
+"label": "人権・司法",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00477",
+"label": "防災",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00484",
+"label": "スポーツ",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00485",
+"label": "交通",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00488",
+"label": "政治",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00491",
+"label": "科学",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00494",
+"label": "国際",
+"origin": "legacy_title_only",
+"locked": false
+},
+{
+"id": "EP-00500",
+"label": "環境・気候",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00501",
+"label": "防災",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00502",
+"label": "交通",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00503",
+"label": "科学",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00504",
+"label": "政治",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00505",
+"label": "国際",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00506",
+"label": "国際",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00507",
+"label": "国際",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00508",
+"label": "健康・医療",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00509",
+"label": "政治",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00510",
+"label": "経済",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00511",
+"label": "国際",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00512",
+"label": "経済",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00513",
+"label": "文化・芸術",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00514",
+"label": "交通",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00515",
+"label": "動物・自然",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00516",
+"label": "政治",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00517",
+"label": "人権・司法",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00518",
+"label": "国際",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00519",
+"label": "健康・医療",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00520",
+"label": "経済",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00521",
+"label": "政治",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00522",
+"label": "政治",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00523",
+"label": "国際",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00524",
+"label": "国際",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00525",
+"label": "国際",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00526",
+"label": "経済",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00527",
+"label": "スポーツ",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00528",
+"label": "防災",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00529",
+"label": "防災",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00530",
+"label": "政治",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00531",
+"label": "スポーツ",
+"origin": "assistant_reviewed",
+"locked": false
+},
+{
+"id": "EP-00532",
+"label": "国際",
+"origin": "assistant_reviewed",
+"locked": false
+}
+]
+}
