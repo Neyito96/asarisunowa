@@ -1,0 +1,14 @@
+--- a/SpotifyAuth.js
++++ b/SpotifyAuth.js
+@@ -176,10 +176,7 @@
+   );
+ 
+   if (response.getResponseCode() !== 200) {
+-    Logger.log(
+-      "Spotify refresh error: " +
+-      response.getContentText()
+-    );
++    Logger.log("Spotify refresh failed (HTTP " + response.getResponseCode() + ")");
+     return "";
+   }
+ 

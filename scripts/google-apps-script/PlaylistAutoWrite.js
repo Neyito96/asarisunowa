@@ -1,5 +1,6 @@
 // プレイリスト自動更新用 Spotify 書き込み補助
 function addAutoPlaylistEpisodesIndividually_(rule, token, episodes) {
+  if (typeof libV3MorningOwnsPlaylist_ === "function" && libV3MorningOwnsPlaylist_(rule && rule.playlistId)) throw new Error("Playlist delegated to V3 morning; legacy writer stopped");
   let addedCount = 0;
   let failedCount = 0;
   const addedEpisodes = [];
@@ -52,6 +53,7 @@ function addAutoPlaylistEpisodesIndividually_(rule, token, episodes) {
 }
 
 function addAutoPlaylistEpisodesBatch_(rule, token, episodes) {
+  if (typeof libV3MorningOwnsPlaylist_ === "function" && libV3MorningOwnsPlaylist_(rule && rule.playlistId)) throw new Error("Playlist delegated to V3 morning; legacy writer stopped");
   const uris = episodes.map(function(ep) {
     return String(ep.uri);
   });

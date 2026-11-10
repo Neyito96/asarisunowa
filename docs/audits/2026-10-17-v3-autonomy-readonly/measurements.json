@@ -1,0 +1,144 @@
+{
+  "results": {
+    "autonomy": {
+      "execution": {
+        "function": "previewLibraryV3Autonomy",
+        "startedAtJst": "2026/10/17 13:45:43",
+        "seconds": 0.909,
+        "status": "完了"
+      },
+      "result": {
+        "mode": "READ_ONLY_AUTONOMY",
+        "config": {
+          "enabled": false,
+          "allowEnrich": false,
+          "allowNew": false,
+          "newAfter": "",
+          "maxEpisodes": 10,
+          "maxItems": 200,
+          "autonomous": false
+        },
+        "baseline": {},
+        "control": {
+          "tick": 0,
+          "failures": 0,
+          "spotify": {},
+          "audio": {
+            "offset": 0
+          }
+        },
+        "feeds": [],
+        "conflictingTriggers": [],
+        "triggers": 0,
+        "audioExecution": "external choice required; GAS never downloads audio bodies",
+        "writes": 0
+      }
+    },
+    "spotify": {
+      "execution": {
+        "function": "previewLibraryV3Spotify",
+        "startedAtJst": "2026/10/17 13:46:10",
+        "seconds": 22.974,
+        "status": "完了"
+      },
+      "result": {
+        "status": "READ_ONLY_SPOTIFY",
+        "inspected": 5,
+        "proposedCells": 0,
+        "writtenCells": 0,
+        "apiCalls": 0,
+        "holds": 5,
+        "samples": [
+          {
+            "id": "EP-00001",
+            "candidate": false,
+            "reasons": [
+              "no_exact_source_evidence"
+            ],
+            "sources": []
+          },
+          {
+            "id": "EP-00002",
+            "candidate": false,
+            "reasons": [
+              "no_exact_source_evidence"
+            ],
+            "sources": []
+          },
+          {
+            "id": "EP-00003",
+            "candidate": false,
+            "reasons": [
+              "no_exact_source_evidence"
+            ],
+            "sources": []
+          },
+          {
+            "id": "EP-00021",
+            "candidate": false,
+            "reasons": [
+              "no_exact_source_evidence"
+            ],
+            "sources": []
+          },
+          {
+            "id": "EP-00022",
+            "candidate": false,
+            "reasons": [
+              "no_exact_source_evidence"
+            ],
+            "sources": []
+          }
+        ],
+        "elapsedMs": 21913
+      }
+    },
+    "audio": {
+      "execution": {
+        "function": "previewLibraryV3AudioQueue",
+        "startedAtJst": "2026/10/17 13:47:22",
+        "seconds": 11.727,
+        "status": "完了"
+      },
+      "result": {
+        "status": "READ_ONLY_AUDIO_QUEUE",
+        "items": [
+          {
+            "id": "EP-00001",
+            "urlSha256": "b0c88820409bd8860cc21b8f056eefb45eb1a85f8314e0fd96890e10cc7a34d7"
+          },
+          {
+            "id": "EP-00002",
+            "urlSha256": "cfeadbbbac0bff9f3cc7236c69d3418c542bfdf823d3de778cec0671e7c5934f"
+          },
+          {
+            "id": "EP-00003",
+            "urlSha256": "144be442ee024b9eef3aea44dcae0f50b91f93212b94004b0a182488e8ec4ef8"
+          },
+          {
+            "id": "EP-00004",
+            "urlSha256": "22ca7773b27ac38003f28eca36c261e6c53651a9081835ad796e61e808feca96"
+          },
+          {
+            "id": "EP-00005",
+            "urlSha256": "4eab45e4d121411d9c86b6adb4ec06220e2eb70de61bab3c9e53c209f798f163"
+          }
+        ],
+        "inspected": 5,
+        "ledgerWrites": 0,
+        "httpCalls": 0,
+        "externalRequired": true
+      }
+    }
+  },
+  "rssCalls": 0,
+  "spotifyApiCalls": 0,
+  "audioHttpCalls": 0,
+  "sheetWrites": 0,
+  "propertiesMutations": 0,
+  "triggersMutations": 0,
+  "deployments": 0,
+  "audioUrlsRedacted": true,
+  "finalVisibleTriggers": 0,
+  "projectName": "朝リスの田_Phase2_隔離検証"
+}

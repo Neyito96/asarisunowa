@@ -1,0 +1,22 @@
+{
+  "function": "previewLibraryV3Progress",
+  "executionSeconds": 7.615,
+  "result": {
+    "mode": "READ_ONLY_V3_PROGRESS",
+    "rows": 6591,
+    "groups": 170,
+    "config": {
+      "enabled": false,
+      "allowEnrich": false,
+      "allowNew": false,
+      "newAfter": "",
+      "maxEpisodes": 10,
+      "maxItems": 200
+    },
+    "conflictingTriggers": [],
+    "writes": 0
+  },
+  "detailLogTruncated": true,
+  "visibleTriggers": 0,
+  "visibleExecutionStatuses": "completed; no running entry seen"
+}

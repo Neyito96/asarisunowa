@@ -1,0 +1,242 @@
+[
+  {
+    "id": "EP-01235",
+    "date": "2020-08-06",
+    "stagingCandidateCount": 1,
+    "strictPageShowTitleDateMatches": 1,
+    "stagingRows": [
+      102
+    ],
+    "stagingHasAudioOrGuid": false,
+    "spotifyEqual": true,
+    "stageCastPresent": true
+  },
+  {
+    "id": "EP-01236",
+    "date": "2020-08-08",
+    "stagingCandidateCount": 1,
+    "strictPageShowTitleDateMatches": 1,
+    "stagingRows": [
+      103
+    ],
+    "stagingHasAudioOrGuid": false,
+    "spotifyEqual": true,
+    "stageCastPresent": true
+  },
+  {
+    "id": "EP-01237",
+    "date": "2020-08-09",
+    "stagingCandidateCount": 1,
+    "strictPageShowTitleDateMatches": 1,
+    "stagingRows": [
+      104
+    ],
+    "stagingHasAudioOrGuid": false,
+    "spotifyEqual": true,
+    "stageCastPresent": true
+  },
+  {
+    "id": "EP-01238",
+    "date": "2020-08-09",
+    "stagingCandidateCount": 1,
+    "strictPageShowTitleDateMatches": 1,
+    "stagingRows": [
+      105
+    ],
+    "stagingHasAudioOrGuid": false,
+    "spotifyEqual": true,
+    "stageCastPresent": true
+  },
+  {
+    "id": "EP-01239",
+    "date": "2020-08-09",
+    "stagingCandidateCount": 1,
+    "strictPageShowTitleDateMatches": 1,
+    "stagingRows": [
+      106
+    ],
+    "stagingHasAudioOrGuid": false,
+    "spotifyEqual": true,
+    "stageCastPresent": true
+  },
+  {
+    "id": "EP-01240",
+    "date": "2020-08-10",
+    "stagingCandidateCount": 1,
+    "strictPageShowTitleDateMatches": 1,
+    "stagingRows": [
+      107
+    ],
+    "stagingHasAudioOrGuid": false,
+    "spotifyEqual": true,
+    "stageCastPresent": true
+  },
+  {
+    "id": "EP-01241",
+    "date": "2020-08-11",
+    "stagingCandidateCount": 1,
+    "strictPageShowTitleDateMatches": 1,
+    "stagingRows": [
+      108
+    ],
+    "stagingHasAudioOrGuid": false,
+    "spotifyEqual": true,
+    "stageCastPresent": true
+  },
+  {
+    "id": "EP-01242",
+    "date": "2020-08-12",
+    "stagingCandidateCount": 1,
+    "strictPageShowTitleDateMatches": 1,
+    "stagingRows": [
+      109
+    ],
+    "stagingHasAudioOrGuid": false,
+    "spotifyEqual": true,
+    "stageCastPresent": true
+  },
+  {
+    "id": "EP-01244",
+    "date": "2020-08-20",
+    "stagingCandidateCount": 1,
+    "strictPageShowTitleDateMatches": 1,
+    "stagingRows": [
+      111
+    ],
+    "stagingHasAudioOrGuid": false,
+    "spotifyEqual": true,
+    "stageCastPresent": true
+  },
+  {
+    "id": "EP-01245",
+    "date": "2020-08-21",
+    "stagingCandidateCount": 1,
+    "strictPageShowTitleDateMatches": 1,
+    "stagingRows": [
+      112
+    ],
+    "stagingHasAudioOrGuid": false,
+    "spotifyEqual": true,
+    "stageCastPresent": true
+  },
+  {
+    "id": "EP-01246",
+    "date": "2020-08-22",
+    "stagingCandidateCount": 1,
+    "strictPageShowTitleDateMatches": 1,
+    "stagingRows": [
+      113
+    ],
+    "stagingHasAudioOrGuid": false,
+    "spotifyEqual": true,
+    "stageCastPresent": true
+  },
+  {
+    "id": "EP-01247",
+    "date": "2020-08-23",
+    "stagingCandidateCount": 1,
+    "strictPageShowTitleDateMatches": 1,
+    "stagingRows": [
+      114
+    ],
+    "stagingHasAudioOrGuid": false,
+    "spotifyEqual": true,
+    "stageCastPresent": true
+  },
+  {
+    "id": "EP-01257",
+    "date": "2020-09-03",
+    "stagingCandidateCount": 1,
+    "strictPageShowTitleDateMatches": 1,
+    "stagingRows": [
+      124
+    ],
+    "stagingHasAudioOrGuid": false,
+    "spotifyEqual": true,
+    "stageCastPresent": true
+  },
+  {
+    "id": "EP-01258",
+    "date": "2020-09-04",
+    "stagingCandidateCount": 1,
+    "strictPageShowTitleDateMatches": 1,
+    "stagingRows": [
+      125
+    ],
+    "stagingHasAudioOrGuid": false,
+    "spotifyEqual": true,
+    "stageCastPresent": true
+  },
+  {
+    "id": "EP-01259",
+    "date": "2020-09-05",
+    "stagingCandidateCount": 1,
+    "strictPageShowTitleDateMatches": 1,
+    "stagingRows": [
+      126
+    ],
+    "stagingHasAudioOrGuid": false,
+    "spotifyEqual": true,
+    "stageCastPresent": true
+  },
+  {
+    "id": "EP-01263",
+    "date": "2020-09-09",
+    "stagingCandidateCount": 1,
+    "strictPageShowTitleDateMatches": 1,
+    "stagingRows": [
+      130
+    ],
+    "stagingHasAudioOrGuid": false,
+    "spotifyEqual": true,
+    "stageCastPresent": true
+  },
+  {
+    "id": "EP-01264",
+    "date": "2020-09-10",
+    "stagingCandidateCount": 1,
+    "strictPageShowTitleDateMatches": 1,
+    "stagingRows": [
+      131
+    ],
+    "stagingHasAudioOrGuid": false,
+    "spotifyEqual": true,
+    "stageCastPresent": true
+  },
+  {
+    "id": "EP-01272",
+    "date": "2020-09-20",
+    "stagingCandidateCount": 1,
+    "strictPageShowTitleDateMatches": 1,
+    "stagingRows": [
+      139
+    ],
+    "stagingHasAudioOrGuid": false,
+    "spotifyEqual": true,
+    "stageCastPresent": true
+  },
+  {
+    "id": "EP-01273",
+    "date": "2020-09-21",
+    "stagingCandidateCount": 1,
+    "strictPageShowTitleDateMatches": 1,
+    "stagingRows": [
+      140
+    ],
+    "stagingHasAudioOrGuid": false,
+    "spotifyEqual": true,
+    "stageCastPresent": true
+  },
+  {
+    "id": "EP-01274",
+    "date": "2020-09-22",
+    "stagingCandidateCount": 1,
+    "strictPageShowTitleDateMatches": 1,
+    "stagingRows": [
+      141
+    ],
+    "stagingHasAudioOrGuid": false,
+    "spotifyEqual": true,
+    "stageCastPresent": true
+  }
+]

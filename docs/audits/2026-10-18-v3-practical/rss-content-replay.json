@@ -1,0 +1,2273 @@
+{
+  "summary": {
+    "mode": "LOCAL_SAVED_FIXTURE_REPLAY",
+    "school": {
+      "inspected": 50,
+      "rawCollected": 50,
+      "cleanGenerated": 50,
+      "episodesWithNoticeRemoval": 50,
+      "removedLines": 104,
+      "speakerEpisodes": 0,
+      "personReviewEpisodes": 0,
+      "cleanReviewEpisodes": 0,
+      "existingWComparison": {
+        "NO_SNAPSHOT_ROW": 3,
+        "BLANK": 28,
+        "CONTENT_DIFFERENCE": 13,
+        "FORMAT_EQUIVALENT": 6
+      }
+    },
+    "other": {
+      "ニュースの現場から": {
+        "episodes": 2,
+        "speakerEpisodes": 2,
+        "peopleRolePairs": 6,
+        "reviewEpisodes": 1,
+        "removedLines": 18
+      },
+      "MEDIA TALK": {
+        "episodes": 2,
+        "speakerEpisodes": 2,
+        "peopleRolePairs": 5,
+        "reviewEpisodes": 1,
+        "removedLines": 18
+      },
+      "こどもそうだんしつ": {
+        "episodes": 2,
+        "speakerEpisodes": 2,
+        "peopleRolePairs": 4,
+        "reviewEpisodes": 2,
+        "removedLines": 9
+      },
+      "スポンジ": {
+        "episodes": 2,
+        "speakerEpisodes": 2,
+        "peopleRolePairs": 4,
+        "reviewEpisodes": 2,
+        "removedLines": 16
+      },
+      "ニュースの学校": {
+        "episodes": 2,
+        "speakerEpisodes": 0,
+        "peopleRolePairs": 0,
+        "reviewEpisodes": 0,
+        "removedLines": 6
+      },
+      "ドーナツ": {
+        "episodes": 2,
+        "speakerEpisodes": 2,
+        "peopleRolePairs": 4,
+        "reviewEpisodes": 2,
+        "removedLines": 18
+      },
+      "報談": {
+        "episodes": 2,
+        "speakerEpisodes": 2,
+        "peopleRolePairs": 4,
+        "reviewEpisodes": 2,
+        "removedLines": 20
+      }
+    },
+    "newRssCalls": 0,
+    "gasRuns": 0,
+    "sheetWrites": 0,
+    "propertiesWrites": 0,
+    "ledgerWSnapshotReadAt": "2026-10-17T01:48:04.646Z"
+  },
+  "school": [
+    {
+      "id": "",
+      "guid": "cfdd6178-c3bc-11f1-a625-db6a01e1862b",
+      "title": "ビール大手のカルテル容疑",
+      "rawLength": 436,
+      "rawHash": "WtZTPreXz39SNkmZABLmG9v0pZ_PgW5IxWMElK2xunk",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 8,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 10,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "スーパーや飲食店などで販売されるビールの価格を調整した疑いがあるとして、公正取引委員会は大手メーカー4社に独占禁止法違反（不当な取引制限）の疑いで家宅捜索に入りました。4社の営業担当者らは数年前から、卸売業者に出荷する際の「生産者価格」について、1リットル当たりの値上げ幅などを協議し、価格を調整した疑いが持たれています。\n\nビール大手4社が価格調整の疑い、公取委が家宅捜索 値上げを協議か\nhttps://www.asahi.com/articles/ASVB64JYCVB6UTIL024M.html?iref=omny",
+      "cleanHash": "mTMt4lABuGC9NQ-5Emhcw_k2RL7B4zhRh8263cylZP8",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "NO_SNAPSHOT_ROW"
+    },
+    {
+      "id": "",
+      "guid": "c7880fd2-b011-11f1-85c7-13f4dad77055",
+      "title": "ニュートリノ",
+      "rawLength": 345,
+      "rawHash": "yqxFB_IhWq1odqf87D9mcG97lbbMMhSJTytUt9dxZ_8",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 4,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 5,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 6,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "ニュートリノは、ごくごく小さな物質の一種です。モノを小さく分割していくと、それ以上細かく分けられない最小の粒にたどりつき、これを「素粒子」と呼びます。\n\n素粒子ニュートリノって何？ なんでも通り抜ける幽霊粒子、水で観測https://www.asahi.com/articles/ASV7P1G5TV7PPLBJ004M.html?iref=omny",
+      "cleanHash": "0e3hbYNXGxFLzHP2rfc9hT5pFBJuJO7STwSVsJYg0n0",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "NO_SNAPSHOT_ROW"
+    },
+    {
+      "id": "",
+      "guid": "31fe02ee-c6e3-11f1-bce1-e76c16114bcf",
+      "title": "簗和生氏の「予算カット」発言",
+      "rawLength": 360,
+      "rawHash": "3wORijI65Lj9jEXTotjeezRv044nSoMRk812px-4T5M",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 8,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 10,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "簗和生農林水産相が、地元市町の道路予算を「カットした」と地元の会合で発言したと報道があり、簗氏は発言を認めて謝罪しました。予算に影響を及ぼす「働きかけ」は否定しています。\n\n【まとめてわかる】簗氏「予算カット」発言、何が問題？ その背景は\nhttps://www.asahi.com/articles/ASVB93STRVB9UTIL024M.html?iref=omny",
+      "cleanHash": "2NXyrufrLmmseuif1JEomQ7LNndQ82MWFoFrVOO1dWI",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "NO_SNAPSHOT_ROW"
+    },
+    {
+      "id": "EP-00408",
+      "guid": "0d4a65fc-c236-11f1-8830-a3bb9b86a793",
+      "title": "アイスキューブ実験",
+      "rawLength": 356,
+      "rawHash": "0QNYFpBOt7B0hRqMxStld_Mg_X5eAaLc4Vf90jAdUKg",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 8,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 10,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "アイスキューブ実験は、宇宙からのニュートリノ信号を南極の氷に埋めた検出器でとらえる手法です。超高エネルギーのニュートリノの観測に成功し、2013年に発表しました。\n\nなぜ南極？千葉大の貢献は？ ノーベル物理学賞のアイスキューブ実験\nhttps://www.asahi.com/articles/ASVB64TL1VB6UTFL01CM.html?iref=omny",
+      "cleanHash": "s2ECZyThXbXkz-VhTBACA4hkckSHe9NDw1WqZ7cJRyg",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00081",
+      "guid": "10db704a-c2c6-11f1-a71b-9b4fb2918b53",
+      "title": "硤合反応",
+      "rawLength": 382,
+      "rawHash": "PgJl_CTYyLf4NSHX0iJUwlfIPSHy0PwuuJ6HpBoOaeY",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 8,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 11,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "硤合反応は、ノーベル化学賞を受賞する東京理科大名誉教授の硤合憲三（そあいけんそう）さんが発見した、生命の起源に迫る化学反応です。物質をつくるときに、つくられた物質が自分と同じ型ができる手助けをする反応を指します。\n\nどんな反応？ 右手と左手って？ ノーベル化学賞の硤合反応がわかる\nhttps://www.asahi.com/articles/ASVB751BBVB7ULLI00VM.html?iref=omny",
+      "cleanHash": "uDh_8cL1klzNIbIOQXTjl6LNO_o9LFFcXYREj3VYjY0",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00082",
+      "guid": "67348954-c235-11f1-93b3-f753c32ffb28",
+      "title": "光遺伝学",
+      "rawLength": 386,
+      "rawHash": "GVZ037x56OGfqYh4H0ly2tpssuH3ptHnlA8BBNL7Eg4",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 8,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 10,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "光遺伝学は、微生物がもつ光を感じるたんぱく質を動物の神経の細胞に入れて、神経の活動をコントロールする技術のことです。動物の記憶や社会行動、痛みなど、脳の様々な機能を脳内のどこが担っているのかを解明することにつながりました。\n\nノーベル賞の光遺伝学とは？脳活動、「読む」から「書き込む」学問へ\nhttps://www.asahi.com/articles/ASVB54V6PVB5UTFL01LM.html?iref=omny",
+      "cleanHash": "QjhPRAPLceUlVjk3lLb6pTvTg3MwX0FsxJUrX7GdFOg",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00083",
+      "guid": "a893af48-be33-11f1-ab49-336c3cc26575",
+      "title": "富山市の人口水増し疑惑",
+      "rawLength": 406,
+      "rawHash": "OsefM9CUemRVIfIqxqneh7pajfCZ5JQaoBtoRk8LHoY",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 8,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 10,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "富山市が2025年の国勢調査で、人口を水増ししていた疑いがあることが9月29日に明らかになりました。調査員が「居住実態なし」として抹消した世帯を「存在する」としたり、調査世帯一覧の末尾に居住実態のない世帯を加えたりして、2千人以上を増やした疑いがあるといいます。\n\n【まとめてわかる】富山市の人口水増し疑惑 国勢調査、何が起きたか\nhttps://www.asahi.com/articles/ASV9Z2GQQV9ZPTIL008M.html?iref=omny",
+      "cleanHash": "xwbG8Tk__KLBqtyKDajHlz6SJiwcVdewxd1magDeASQ",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": "富山市が2025年の国勢調査で、人口を水増ししていた疑いがあることが9月29日に明らかになりました。調査員が「居住実態なし」として抹消した世帯を「存在する」としたり、調査世帯一覧の末尾に居住実態のない世帯を加えたりして、2千人以上を増やした疑いがあるといいます。 【まとめてわかる】富山市の人口水増し疑惑　国勢調査、何が起きたか ご意見・感想・リクエスト ほかにも多彩な番組を配信中！",
+      "existingWComparison": "CONTENT_DIFFERENCE"
+    },
+    {
+      "id": "EP-00084",
+      "guid": "a0e5cf94-a20c-11f1-ae25-dbb1ed677492",
+      "title": "臓器移植",
+      "rawLength": 371,
+      "rawHash": "3Cv3J4mSqhcoAOWhALxDx6Fr7VKsjfOWmzQXTUo5Yro",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 4,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 5,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 6,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "臓器移植は、病気や事故で臓器の機能が弱くなった患者に他の人の臓器を移植することです。親族など健康な提供者（ドナー）からの生体移植と、脳死や心臓が止まって亡くなった人からの移植の二つに大きく分けられます。\n\n【そもそも解説】ドナー現れるまで15年待つことも 臓器移植の現状https://www.asahi.com/articles/ASV7633GFV76UTFL01GM.html?iref=omny",
+      "cleanHash": "Ebo2AEM8cULc115tPyqwGIXz8dhn96Mrj61BnP7ij-M",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": "臓器移植は、病気や事故で臓器の機能が弱くなった患者に他の人の臓器を移植することです。親族など健康な提供者（ドナー）からの生体移植と、脳死や心臓が止まって亡くなった人からの移植の二つに大きく分けられます。 【そもそも解説】ドナー現れるまで15年待つことも　臓器移植の現状 ご意見・感想・リクエスト ほかにも多彩な番組を配信中！",
+      "existingWComparison": "CONTENT_DIFFERENCE"
+    },
+    {
+      "id": "EP-00085",
+      "guid": "03f68e4e-b8c8-11f1-a2c0-ef007fa010c4",
+      "title": "アメリカ中間選挙（2026）",
+      "rawLength": 406,
+      "rawHash": "oa51dbVlkYlRn3n5CGqz63bpeGnih7gXCPPibkAhwtQ",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 8,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 10,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "アメリカ中間選挙は、大統領の任期4年の折り返しに行われる、連邦議会の選挙です。下院の全議席と上院の約3分の1を選びます。大統領自身は選挙に出ませんが、政権への評価が問われ、その後の政策の進めやすさを左右します。多くの州では同時に知事選や州議会議員選も行われます。\n\n11月3日実施、アメリカ中間選挙とは 主なシナリオや仕組みを解説\nhttps://www.asahi.com/articles/ASV9B0VB8V9BDIFI00QM.html?iref=omny",
+      "cleanHash": "papleEAjdcg2qBGPSrWSDr9onOWLBKWrGDWFXQChUbU",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": "アメリカ中間選挙は、大統領の任期4年の折り返しに行われる、連邦議会の選挙です。下院の全議席と上院の約3分の1を選びます。大統領自身は選挙に出ませんが、政権への評価が問われ、その後の政策の進めやすさを左右します。多くの州では同時に知事選や州議会議員選も行われます。 11月3日実施、アメリカ中間選挙とは　主なシナリオや仕組みを解説 ご意見・感想・リクエスト ほかにも多彩な番組を配信中！",
+      "existingWComparison": "CONTENT_DIFFERENCE"
+    },
+    {
+      "id": "EP-00086",
+      "guid": "b2f4d36a-8fce-11f1-a21d-5bde1e22a769",
+      "title": "自由診療",
+      "rawLength": 387,
+      "rawHash": "aHQVEtf1ZVX6dssBqbgYlsWs2OUiuwbtq3h_a_Qpboc",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "医療機関にかかったとき、ふつう患者が支払うのは医療費の1～3割です。これは公的医療保険が適用され、残りの医療費が保険から支払われているためです。そうではなく、保険の対象外として医療費全額を患者が負担するのが自由診療です。\n\n【そもそも解説】ダイエット目的の「やせ薬」自由診療でなぜ使える？https://www.asahi.com/articles/ASV1R2DMYV1RUTFL025M.html?iref=omny\n\nご意見・感想・リクエスト https://bit.ly/asapoki_discord ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+      "cleanHash": "Sqo5alJTnDdQTYqxhlEUwtYutsRyubX3c4Z3gWbC1To",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": "医療機関にかかったとき、ふつう患者が支払うのは医療費の1～3割です。これは公的医療保険が適用され、残りの医療費が保険から支払われているためです。そうではなく、保険の対象外として医療費全額を患者が負担するのが自由診療です。 【そもそも解説】ダイエット目的の「やせ薬」自由診療でなぜ使える？ ご意見・感想・リクエスト ほかにも多彩な番組を配信中！",
+      "existingWComparison": "CONTENT_DIFFERENCE"
+    },
+    {
+      "id": "EP-00087",
+      "guid": "a0a3d8de-b010-11f1-ae8f-f736b3245e7c",
+      "title": "在日コリアン",
+      "rawLength": 377,
+      "rawHash": "PbmrT7Fefhn6_HGwmMhWv_yArCGFokY2dKjI8Kad1LY",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 8,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 10,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "在日コリアンとは、朝鮮半島にルーツを持ち、日本で暮らす人たちのことです。「在日朝鮮人」「在日韓国人」「在日韓国・朝鮮人」とも呼ばれます。特に戦前・戦中から日本で暮らしてきた朝鮮半島出身者とその子孫をさします。\n\n【そもそも解説】在日コリアンとは？ 国籍や呼称が決まった経緯\nhttps://www.asahi.com/articles/ASV972PH5V97OXIE04QM.html?iref=omny",
+      "cleanHash": "YMloHzvMLyqnxBX2rYAlDh_MiNrTqJmOg4L4Jf7YsJs",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": "在日コリアンとは、朝鮮半島にルーツを持ち、日本で暮らす人たちのことです。「在日朝鮮人」「在日韓国人」「在日韓国・朝鮮人」とも呼ばれます。特に戦前・戦中から日本で暮らしてきた朝鮮半島出身者とその子孫をさします。 【そもそも解説】在日コリアンとは？　国籍や呼称が決まった経緯 ご意見・感想・リクエスト ほかにも多彩な番組を配信中！",
+      "existingWComparison": "CONTENT_DIFFERENCE"
+    },
+    {
+      "id": "EP-00088",
+      "guid": "005b98a8-b010-11f1-bd74-9374b0c20e47",
+      "title": "PISA（学習到達度調査）",
+      "rawLength": 406,
+      "rawHash": "fg0MVm_gFEqMXsPAlkmrESITqq8_Um_UP9jAw8KSBtI",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 8,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 10,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "世界各国の15歳を対象とする学習到達度調査「PISA」（ピザ）の2025年の結果が公表され、日本は世界トップクラスの成績を維持しました。2000年に始まり、おおむね3年に1回のペースで続いてきました。日本の教育行政に大きな影響を与えてきた調査として知られています。\n\n【そもそも解説】PISAって？知識の活用力を調査 15歳が対象\nhttps://www.asahi.com/articles/ASV9824DHV98UTIL023M.html?iref=omny",
+      "cleanHash": "BE9sgR8ccUtlPvzSgen139eFv48jOVsTJ0GTqduZwWk",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": "世界各国の15歳を対象とする学習到達度調査「PISA」（ピザ）の2025年の結果が公表され、日本は世界トップクラスの成績を維持しました。2000年に始まり、おおむね3年に1回のペースで続いてきました。日本の教育行政に大きな影響を与えてきた調査として知られています。 【そもそも解説】PISAって？知識の活用力を調査　15歳が対象 ご意見・感想・リクエスト ほかにも多彩な番組を配信中！",
+      "existingWComparison": "CONTENT_DIFFERENCE"
+    },
+    {
+      "id": "EP-00089",
+      "guid": "64c3948e-b8c7-11f1-a925-47cfd294b922",
+      "title": "一般討論演説（国連総会）",
+      "rawLength": 394,
+      "rawHash": "P-levmyETKMwAQ6CAq03WQjAH3y6NmfhXQmy8tzvrTw",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 8,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 10,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "国連総会とは、国連に加盟する全193カ国が参加し、平和の維持や経済成長、人権問題などをめぐる世界の課題について話し合う会議です。新たな会期が始まってまもなく開かれるのが一般討論で、各国の首脳らがニューヨークの国連本部にやってきて演説をします\n\n【まとめてわかる】国連総会の「一般討論」とは？なにを話し合う？\nhttps://www.asahi.com/articles/ASV9P52P1V9PUHBI00VM.html?iref=omny",
+      "cleanHash": "BNW9t8x3da7b55QefUVXqPwRbgW4M8eOSocaE_dt14o",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": "国連総会とは、国連に加盟する全193カ国が参加し、平和の維持や経済成長、人権問題などをめぐる世界の課題について話し合う会議です。新たな会期が始まってまもなく開かれるのが一般討論で、各国の首脳らがニューヨークの国連本部にやってきて演説をします 【まとめてわかる】国連総会の「一般討論」とは？なにを話し合う？ ご意見・感想・リクエスト ほかにも多彩な番組を配信中！",
+      "existingWComparison": "CONTENT_DIFFERENCE"
+    },
+    {
+      "id": "EP-00090",
+      "guid": "b552f5b2-b8c6-11f1-be02-5f8ac27f1c01",
+      "title": "米中首脳会談（2026年9月）",
+      "rawLength": 383,
+      "rawHash": "t274KYEdZjHXlbg-KOEQBji-V8CS2MARZHjsogL9V3k",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 8,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 10,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "中国の習近平国家主席が国賓として11年ぶりに米ワシントンを訪問し、9月24日午前（日本時間同日深夜）からトランプ米大統領との首脳会談が行われました。4カ月余りの間に2度も対面で会ったこと自体が最大の成果だとされています。\n\n習・トランプ会談は成功したのか、米中専門記者がポイントを解説\nhttps://www.asahi.com/articles/ASV9S5CY6V9SBQBQ2S5M.html?iref=omny",
+      "cleanHash": "vUIyvZn2C0E3rIPhbbsyDoTNCoXYjcvmdVNvf0SAjas",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": "中国の習近平国家主席が国賓として11年ぶりに米ワシントンを訪問し、9月24日午前（日本時間同日深夜）からトランプ米大統領との首脳会談が行われました。4カ月余りの間に2度も対面で会ったこと自体が最大の成果だとされています。 習・トランプ会談は成功したのか、米中専門記者がポイントを解説 ご意見・感想・リクエスト ほかにも多彩な番組を配信中！",
+      "existingWComparison": "CONTENT_DIFFERENCE"
+    },
+    {
+      "id": "EP-00091",
+      "guid": "2f2fcbac-a20c-11f1-9b8e-8be94bf1fead",
+      "title": "身寄りのない人の弔い",
+      "rawLength": 383,
+      "rawHash": "lSTKWkPvKNk8OKptkXdp0lYOZNG7A-iaY5mbs5VcQd0",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 8,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 10,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "警察や医療機関から死亡の連絡があると、自治体はまず引き取る人を捜します。見つからない場合は自治体が火葬し、遺骨は遺族が引き取りに来る可能性を踏まえ、納骨堂などで一定期間、保管。引き取り手がなければ無縁の合葬墓（がっそうぼ）などに葬られます。\n\n（いちからわかる！）身寄りない人の弔い、自治体の対応は？\nhttps://www.asahi.com/articles/DA3S16529708.html?iref=omny",
+      "cleanHash": "kleEDMLqr28I5Fj2TgKBbIdsBnjnAJ-0w9dh1UARbO0",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": "警察や医療機関から死亡の連絡があると、自治体はまず引き取る人を捜します。見つからない場合は自治体が火葬し、遺骨は遺族が引き取りに来る可能性を踏まえ、納骨堂などで一定期間、保管。引き取り手がなければ無縁の合葬墓（がっそうぼ）などに葬られます。 （いちからわかる！）身寄りない人の弔い、自治体の対応は？ ご意見・感想・リクエスト ほかにも多彩な番組を配信中！ Learn more about your ad choices. Visit megaphone.fm/adchoices",
+      "existingWComparison": "CONTENT_DIFFERENCE"
+    },
+    {
+      "id": "EP-00092",
+      "guid": "5275de7c-aa7b-11f1-8ea7-f3f83e42e5e3",
+      "title": "彦根城",
+      "rawLength": 402,
+      "rawHash": "Hc-2GohcAOiEGnPSFgTsX4l44UHnMfPQAqi0vlFGEjk",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 8,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 10,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "1600年の関ケ原の戦いで活躍した徳川家康の家臣、井伊直政は、近江国（滋賀県）の東部から北部の領地を任されました。後を継いだ井伊直継が1604年、家康と相談して新しい政治拠点として築城に着手したのが彦根城です。天守は06年に、城全体は22年ごろまでに完成しました。\n\n【まとめてわかる】世界遺産に推薦される「彦根城」とは？\nhttps://www.asahi.com/articles/ASV9331MMV93UCVL04QM.html?iref=omny",
+      "cleanHash": "2CPnHN8qWKlDPLPh_3EDzddYCgQ7hyIUR-UDvm6u_SU",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": "1600年の関ケ原の戦いで活躍した徳川家康の家臣、井伊直政は、近江国（滋賀県）の東部から北部の領地を任されました。後を継いだ井伊直継が1604年、家康と相談して新しい政治拠点として築城に着手したのが彦根城です。天守は06年に、城全体は22年ごろまでに完成しました。 【まとめてわかる】世界遺産に推薦される「彦根城」とは？ https://www.asahi.com/articles/ASV9331MMV93UCVL04QM.html?iref=omny",
+      "existingWComparison": "FORMAT_EQUIVALENT"
+    },
+    {
+      "id": "EP-00093",
+      "guid": "d64ebc14-8fc8-11f1-ad39-c7a46ed10435",
+      "title": "水道料金",
+      "rawLength": 402,
+      "rawHash": "7NKfGOp7Zf3RNaE5i3YfJO_yeeig7t1sG87pt7Epowo",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 9,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "水道料金は法律で、原則として利用者からの料金でまかなうのがルールです。水道事業は主に市町村が経営しています。川や湖、ダムなどの水源から水を取り込み、浄水場で細かい砂を取り除いたり、消毒したりしてきれいな水にして、水道管を通じて家庭や店舗などに送っています。\n\n【そもそも解説】水道料金の使い道は？ 水道管の漏水事故と関係アリhttps://www.asahi.com/articles/ASV3Y46VCV3YOXIE01PM.html?iref=omny\n\nご意見・感想・リクエスト https://bit.ly/asapoki_discord ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+      "cleanHash": "oo-B2NpDJ8vJHqvy2LrHEGdm_Ri43Cl4kACvINeD5sc",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00094",
+      "guid": "c315b3be-8fcd-11f1-bbf8-17060bf76f9b",
+      "title": "自律",
+      "rawLength": 373,
+      "rawHash": "r-tMD91ZniS3uZdv3X0XxZLN3gJ3gJVYrHlKwPvRZ1E",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "自律は、ひきこもり支援を巡る厚生労働省の指針によると、「自分で生き方を決めていける状態」です。親や支援する人が一方的にゴールをつくるのではなく、ひきこもっている本人が自らの意思で目指す方向を決めていく手助けをするよう促しています。\n\n（いちからわかる！）国の指針がめざす、「自律」とは？https://www.asahi.com/articles/DA3S16450224.html?iref=omny\n\nご意見・感想・リクエスト https://bit.ly/asapoki_discord ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+      "cleanHash": "VgmIAohp6cG1AIyuopx2zBZ-gO43_rZ0_F0qZPH8ass",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": "自律は、ひきこもり支援を巡る厚生労働省の指針によると、「自分で生き方を決めていける状態」です。親や支援する人が一方的にゴールをつくるのではなく、ひきこもっている本人が自らの意思で目指す方向を決めていく手助けをするよう促しています。 （いちからわかる！）国の指針がめざす、「自律」とは？ https://www.asahi.com/articles/DA3S16450224.html?iref=omny",
+      "existingWComparison": "CONTENT_DIFFERENCE"
+    },
+    {
+      "id": "EP-00095",
+      "guid": "3e1c3552-b011-11f1-b2ef-9f4170107f74",
+      "title": "フーシ",
+      "rawLength": 399,
+      "rawHash": "Uvuv-izKcHA7DzZo_BdSOqwGvSg4rv3cOp7fS_vDxeM",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 8,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 10,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "フーシの正式名称は「アンサール・アラー（神の支持者）」。イエメン北部でザイド派の宗教運動として生まれました。イエメンはアラビア半島の南西端に位置し、西は紅海、南はアデン湾に面しています。紅海の南の出入り口には海運の要衝バブルマンデブ海峡があります。\n\nフーシって何者？なぜ世界の重要航路を脅かす？ 知っておきたい要点\nhttps://www.asahi.com/articles/ASV9C73TYV9CUHBI03QM.html?iref=omny",
+      "cleanHash": "gcmF9jAEzxVd8QYSzFNPuZUBOuAY08fHR9E00XxJWyw",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": "フーシの正式名称は「アンサール・アラー（神の支持者）」。イエメン北部でザイド派の宗教運動として生まれました。イエメンはアラビア半島の南西端に位置し、西は紅海、南はアデン湾に面しています。紅海の南の出入り口には海運の要衝バブルマンデブ海峡があります。 フーシって何者？なぜ世界の重要航路を脅かす？ 知っておきたい要点 https://www.asahi.com/articles/ASV9C73TYV9CUHBI03QM.html?iref=omny",
+      "existingWComparison": "FORMAT_EQUIVALENT"
+    },
+    {
+      "id": "EP-00096",
+      "guid": "79932bf6-b00f-11f1-ad61-579cb1d92a90",
+      "title": "中部電力の浜岡原発データ不正問題",
+      "rawLength": 378,
+      "rawHash": "T-iAdqsX7iFXMK9CL5QXFvsStJw5k0_9C1eynveI3AE",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 8,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 10,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "データ不正問題は、中部電力が2026年1月に開いた緊急の記者会見で明るみに出ました。浜岡原発3、4号機の再稼働に向けた審査で、想定する最大の地震の揺れ「基準地震動」を不適切な方法で評価していたというものでした。\n\n中部電力の浜岡原発データ不正問題とは きょう会見、報告書公表\nhttps://www.asahi.com/articles/ASV6Q7JFLV6QULFA01QM.html?iref=omny",
+      "cleanHash": "WfOxox1ql7MhCwAhY_p3irEpTN4c95L8mF7wshHxhpI",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": "データ不正問題は、中部電力が2026年1月に開いた緊急の記者会見で明るみに出ました。浜岡原発3、4号機の再稼働に向けた審査で、想定する最大の地震の揺れ「基準地震動」を不適切な方法で評価していたというものでした。 中部電力の浜岡原発データ不正問題とは きょう会見、報告書公表 https://www.asahi.com/articles/ASV6Q7JFLV6QULFA01QM.html?iref=omny",
+      "existingWComparison": "FORMAT_EQUIVALENT"
+    },
+    {
+      "id": "EP-00097",
+      "guid": "d7def52c-aa7a-11f1-9ad9-b3d0c7575ab1",
+      "title": "学習指導要領",
+      "rawLength": 443,
+      "rawHash": "2hVrg7K54weKFlHW0t_FD88xnPGexOYJdYujIy8cbfc",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 8,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 10,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "学習指導要領は文部科学省が小・中・高校といった学校の教育の目標や内容などを決めた文書です。文科相が法令にもとづいて告示するもので、国・公・私立すべての学校が原則として守らなければなりません。文科省は、こうした内容を教えるのにどのくらいの時間がかかるかを踏まえ、年間の総コマ数を教科ごとに表にまとめた「標準授業時数」も法令で定めています。\n\n学習指導要領とは？ 「ゆとり」批判に揺れた歴史 新しい学びの姿は\nhttps://www.asahi.com/articles/ASV8S36HZV8SUTIL01FM.html?iref=omny",
+      "cleanHash": "4Efye7_IPMrHhQNX-74HpKIbdZDpF64cUv5sI41XlZY",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": "学習指導要領は文部科学省が小・中・高校といった学校の教育の目標や内容などを決めた文書です。文科相が法令にもとづいて告示するもので、国・公・私立すべての学校が原則として守らなければなりません。文科省は、こうした内容を教えるのにどのくらいの時間がかかるかを踏まえ、年間の総コマ数を教科ごとに表にまとめた「標準授業時数」も法令で定めています。 学習指導要領とは？ 「ゆとり」批判に揺れた歴史 新しい学びの姿は https://www.asahi.com/articles/ASV8S36HZV8SUTIL01FM.html?iref=omny",
+      "existingWComparison": "FORMAT_EQUIVALENT"
+    },
+    {
+      "id": "EP-00098",
+      "guid": "e98a8026-aa79-11f1-a15c-ffc7757a2452",
+      "title": "ベネチア映画祭",
+      "rawLength": 385,
+      "rawHash": "ebZDyu-1ls4uyTjRjIOTbsqDzNk3ADM2_S3q27zzycY",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 8,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 10,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "ベネチア映画祭はフランスのカンヌ、ドイツのベルリンと並ぶ世界三大映画祭の一つです。2年に1度開かれる世界最大規模の国際美術展ベネチア・ビエンナーレの映画部門として1932年に始まり、35年から毎年開催されるようになりました。\n\nベネチア映画祭が開幕、注目の日本作品は 見どころと歴史を解説\nhttps://www.asahi.com/articles/ASV8021XWV80UCVL020M.html?iref=omny",
+      "cleanHash": "ZzNQ03fgzytynDzKxWDhiOJ0IxeJRwG8gnQXrcyH-8k",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": "ベネチア映画祭はフランスのカンヌ、ドイツのベルリンと並ぶ世界三大映画祭の一つです。2年に1度開かれる世界最大規模の国際美術展ベネチア・ビエンナーレの映画部門として1932年に始まり、35年から毎年開催されるようになりました。 ベネチア映画祭が開幕、注目の日本作品は 見どころと歴史を解説 https://www.asahi.com/articles/ASV8021XWV80UCVL020M.html?iref=omny",
+      "existingWComparison": "FORMAT_EQUIVALENT"
+    },
+    {
+      "id": "EP-00099",
+      "guid": "f20ab57a-8c03-11f1-a0ed-0706e3027d98",
+      "title": "核燃料サイクル",
+      "rawLength": 392,
+      "rawHash": "TjiFBsTl0rp5JCd_PvjHV-2cEC996O4M1tJzvSefspc",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 9,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "核燃料サイクルとは、使用済み核燃料に含まれるプルトニウムなどを再処理して取り出し、改めて原発で燃やす計画です。日本にまだ原発がなかった1956年に原子力長期計画で掲げられ、70年にわたって、日本の原子力政策の柱に位置づけられてきました。\n\n【そもそも解説】核燃料サイクル 相次ぐトラブル・遅れ、その理由はhttps://www.asahi.com/articles/ASV5C32BHV5CUTIL01KM.html?iref=omny\n\nご意見・感想・リクエスト https://bit.ly/asapoki_discord ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+      "cleanHash": "4MytG2Q0RBIO_kcH8t-cOlYnoY47Nr62DSoF32mHdmI",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": "核燃料サイクルとは、使用済み核燃料に含まれるプルトニウムなどを再処理して取り出し、改めて原発で燃やす計画です。日本にまだ原発がなかった1956年に原子力長期計画で掲げられ、70年にわたって、日本の原子力政策の柱に位置づけられてきました。 【そもそも解説】核燃料サイクル 相次ぐトラブル・遅れ、その理由は https://www.asahi.com/articles/ASV5C32BHV5CUTIL01KM.html?iref=omny",
+      "existingWComparison": "CONTENT_DIFFERENCE"
+    },
+    {
+      "id": "EP-00100",
+      "guid": "08d6b3e2-aa79-11f1-910c-67f8f961e179",
+      "title": "概算要求",
+      "rawLength": 384,
+      "rawHash": "ir57qO-zW-BGJh6pywgAJd3ngshoSNE3dS6eZjriJms",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 8,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 10,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "概算要求は、各省庁が翌年度に実施したい政策や事業について、「これだけのお金が必要です」と財務省に求める手続きのことです。予算要求のルールである「概算要求基準」を財務省が示し、各省庁はそれに基づいて8月末までに要求をまとめます。\n\n【まとめてわかる】高市政権、異例の概算要求とそのリスク\nhttps://www.asahi.com/articles/ASV8004STV80ULFA008M.html=?iref=omny",
+      "cleanHash": "hqp1baMQlNHoinle0QPc0Rf2aWiyRogHGfbmJpdke-Y",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": "概算要求は、各省庁が翌年度に実施したい政策や事業について、「これだけのお金が必要です」と財務省に求める手続きのことです。予算要求のルールである「概算要求基準」を財務省が示し、各省庁はそれに基づいて8月末までに要求をまとめます。 【まとめてわかる】高市政権、異例の概算要求とそのリスク https://www.asahi.com/articles/ASV8004STV80ULFA008M.html=?iref=omny",
+      "existingWComparison": "FORMAT_EQUIVALENT"
+    },
+    {
+      "id": "EP-00409",
+      "guid": "41c2f1b0-a20a-11f1-9eab-afdd2a2cc42d",
+      "title": "ふるさと納税",
+      "rawLength": 407,
+      "rawHash": "YDnDC4znO03yvcc6kndve7-9o1e07OgsQ_KcbH9G1PQ",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 4,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 6,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 7,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "ふるさと納税は、自分で選んだ自治体に寄付すると、寄付した額のうち2千円を超える分の税金が減ったり、戻ってきたりする制度です。「実質2千円」で、寄付先の自治体から返礼品ももらえるため、お得だと人気を集めています。寄付額は年々増え、2024年度は過去最高の1兆2728億円になりました。\n\nふるさと納税、寄付したお金はどこへ？ 手数料をめぐる問題点とは？https://www.asahi.com/articles/ASV5Q2CY0V5QULFA00MM.html?iref=omny",
+      "cleanHash": "3N9_z4qcL2hmncH1xZbQiebzwGBE7tKXV43ZdSpojXs",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": "ふるさと納税は、自分で選んだ自治体に寄付すると、寄付した額のうち2千円を超える分の税金が減ったり、戻ってきたりする制度です。「実質2千円」で、寄付先の自治体から返礼品ももらえるため、お得だと人気を集めています。寄付額は年々増え、2024年度は過去最高の1兆2728億円になりました。 ふるさと納税、寄付したお金はどこへ？ 手数料をめぐる問題点とは？ https://www.asahi.com/articles/ASV5Q2CY0V5QULFA00MM.html?iref=omny",
+      "existingWComparison": "CONTENT_DIFFERENCE"
+    },
+    {
+      "id": "EP-00410",
+      "guid": "7de81c6c-a4dd-11f1-ae13-bfeef714d798",
+      "title": "沖縄県知事選（2026）",
+      "rawLength": 413,
+      "rawHash": "aFWZIOnmz73mfezL-YHi0BD3xg0fhIX3dllMYNLmdZ8",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 4,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 5,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 6,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "沖縄県知事選は9月13日に投開票があります。知事選では長年、経済振興と米軍基地問題の二つが大きな争点となってきました。政府とのパイプを生かして経済振興を重視する保守勢力と、米軍基地の整理縮小を優先して掲げる革新勢力が競り合い、およそ10年ごとに入れ替わるようにして県政を担ってきました。\n\n【まとめてわかる】沖縄知事選9月13日投開票 過去の争点、今回はhttps://www.asahi.com/articles/ASV8V1G9FV8VUTIL02RM.html?iref=omny",
+      "cleanHash": "Hplhmt4Kd6aK69Nise8QRf2m0MDwYHuPSC0UOXTVHrc",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": "沖縄県知事選は9月13日に投開票があります。知事選では長年、経済振興と米軍基地問題の二つが大きな争点となってきました。政府とのパイプを生かして経済振興を重視する保守勢力と、米軍基地の整理縮小を優先して掲げる革新勢力が競り合い、およそ10年ごとに入れ替わるようにして県政を担ってきました。 【まとめてわかる】沖縄知事選9月13日投開票 過去の争点、今回は https://www.asahi.com/articles/ASV8V1G9FV8VUTIL02RM.html?iref=omny",
+      "existingWComparison": "CONTENT_DIFFERENCE"
+    },
+    {
+      "id": "EP-00411",
+      "guid": "891d8c7c-a20b-11f1-8db7-17df4b86cea0",
+      "title": "女性トイレの行列",
+      "rawLength": 376,
+      "rawHash": "km7emz8nj1PuRaKP-4PQUe0LNZD8U267CbMljHQNDHU",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 4,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 5,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 6,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "女性は衣類の着脱や月経などでトイレに時間がかかります。中日本高速道路の2018年の調査では、女性の利用時間は男性の小便器利用時間の3倍。なのに、不特定多数の人が使う外出先のトイレではおおむね、女性用の便器が男性用より少ないのが実情です。\n\n（いちからわかる！）女性トイレの行列、なぜできやすいの？https://www.asahi.com/articles/DA3S16531717.html?iref=omny",
+      "cleanHash": "CipBKAZ8cNRA-qOehTW7wy0dsDxMV44CgWzMWvycWWw",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00412",
+      "guid": "96db81e6-a2b7-11f1-a243-136098aedb2f",
+      "title": "ゴキブリ人民党",
+      "rawLength": 393,
+      "rawHash": "YYiy5u5Gjz_5_ZeUXr68e81puJ9qnJ2kPkDVHN4A9fE",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 4,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 5,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 6,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "ゴキブリ人民党は、米国・ボストンの大学院で学んでいたアビジート・ディプケさんがインスタグラムで始めました。インドの最高裁長官が５月、失業中の若者を「ゴキブリ」になぞらえたと受け止められる発言をしたことに反発し、動画などを投稿しました。\n\n（フロントライン 世界）ゴキブリ人民党の挑戦 奇抜な「ミーム」、怒れるインドの若者は団結したhttps://www.asahi.com/articles/DA3S16531665.html?iref=omny",
+      "cleanHash": "gc0njX9kGrO4JjFFSs-igJ7tQIKG4onBxJc5Wt8eGBk",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00413",
+      "guid": "e28f46fa-a4dc-11f1-a360-679e7a08570e",
+      "title": "ネパールの大規模土石流",
+      "rawLength": 392,
+      "rawHash": "e8YJGOuTHUTEK_UNs6kgeimY_Ja-rNo455cE9XwsR8w",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 4,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 5,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 6,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "中国チベット自治区とネパールの国境を流れる河川で8月26日、大規模な土石流が発生し、集落や道路、橋などをのみ込みました。衛星画像などに基づく初期分析では、氷河と岩盤が一体となって崩れ落ちる「岩氷雪崩」が災害の出発点だった可能性が浮上しています。\n\nネパールの大規模土石流、なぜこれほどの被害？ 温暖化で増すリスクhttps://www.asahi.com/articles/ASV8X44FGV8XUTFL01DM.html?iref=omny",
+      "cleanHash": "OX2GaZYSoAtCYT8kWlZ5h3Z30e2gUG9i7_04dT-eSC0",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00414",
+      "guid": "e238cfca-a20a-11f1-a8e1-2fa046a4377a",
+      "title": "生活道路の法定速度引き下げ",
+      "rawLength": 409,
+      "rawHash": "Cz_p5Q1_aXq_veqVo0j2JEXQOmXi_TCa_eDaJQy2bDQ",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "ご意見・感想・リクエスト https://bit.ly/asapoki_discord",
+          "rule": "discord",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 8,
+          "text": "ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+          "rule": "other_programs",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 10,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "速度を規制する標識がない生活道路の多くで、車の最高速度（法定速度）が9月1日に、時速60キロから30キロに引き下げられます。規制の標識がなければ、住民が日常的に使う生活道路でも60キロ走行が可能だったため、車の速度を抑えて歩行者らの安全確保につなげる狙いがあります。\n\n生活道路の法定速度60→30キロに、9月から 一般道の6～7割か\nhttps://www.asahi.com/articles/ASV8V2F1GV8VUTIL00QM.html?iref=omny",
+      "cleanHash": "fPIv5kqW-J3T-3_IDzd2aZEhbKgIDle82x7MWu46EIY",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00415",
+      "guid": "c89195ae-8fca-11f1-86e4-3740b86e5c88",
+      "title": "特定技能1号",
+      "rawLength": 383,
+      "rawHash": "XM_GLgyfgi7nmUUiP73WmcyPt9FsR1Q5FoinDG2MKr4",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 5,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "特定技能は、外国人が日本に滞在・活動するのに必要な在留資格の一つです。政府が認めた産業分野で即戦力として働く外国人に与えられ、1号と2号の2種類あります。1号は、日本に在留できる期間は通算で5年までと決まっています。\n\n外食で働く外国人「特定技能1号」、新たな受け入れ停止 何が問題？https://www.asahi.com/articles/ASV6H1VGYV6HULFA02CM.html?iref=omny\n\nご意見・感想・リクエスト https://bit.ly/asapoki_discord ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+      "cleanHash": "6Njj_nFbnkDKsYj-_tBoWr-cCflJ2z6ni-685lwnQa0",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00416",
+      "guid": "d5065030-8fcb-11f1-82df-5bfe2e3fd61b",
+      "title": "郵送による世論調査",
+      "rawLength": 343,
+      "rawHash": "bjSuuX7i-Bgtrp2UpLyV1BSwLxckkOXeKDHQRCLWRco",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "郵送世論調査は、全国の市区町村の選挙管理委員会が管理している選挙人名簿から、無作為に3000人の対象者を選び、厚めの封筒に調査票を入れて返信をお願いしています。\n\n【そもそも解説】 「有権者の縮図」を作れる理由https://www.asahi.com/articles/ASV4K262HV4KUZPS002M.html?iref=omny\n\nご意見・感想・リクエスト https://bit.ly/asapoki_discord ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+      "cleanHash": "2PQIcysdtSDy_psLRMmxteVwl5G1jbDOxUcawPVoBDQ",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00417",
+      "guid": "367eadde-8c03-11f1-a580-6bfb3ca7ba9f",
+      "title": "飛鳥・藤原の宮都",
+      "rawLength": 345,
+      "rawHash": "WOd04puFQgEdpC7eWb9XntS14u6oFrGAPx4B_10xdRk",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 5,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "飛鳥・藤原の宮都は奈良県明日香村と橿原市、桜井市に点在する遺跡群のことで、6世紀末～8世紀初めに造られた宮殿跡や寺院跡、古墳の計19資産で構成されます。\n\n【まとめてわかる】世界遺産の「飛鳥・藤原の宮都」、どんな場所？https://www.asahi.com/articles/ASV7T3GQRV7TOXIE05BM.html?iref=omny\n\nご意見・感想・リクエスト https://bit.ly/asapoki_discord ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+      "cleanHash": "zl6nRNK_cjoZfGydU0B1NxSk7-Zsa0C9oftPI6RFkYI",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00418",
+      "guid": "f1c413c6-a02c-11f1-8c19-53c818849aae",
+      "title": "ICC赤根智子所長への制裁",
+      "rawLength": 376,
+      "rawHash": "LJcEOK9TegOUANcFNCx3Cuc7gVAUGsmGWi01jxWo1c0",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 10,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "ICCはオランダ・ハーグに本部を置く、独立した常設の国際裁判所です。\n米国はICCの設立当時から、加盟していない国や地域の人もICCの捜査対象になりうるという「管轄権」などを問題視し、加盟を見送ってきました。\n\nICCの赤根所長、なぜ米国の制裁対象に？ 強まる圧力の背景を解説\n\nhttps://www.asahi.com/articles/ASV8N4JJ4V8NUHBI01QM.html?iref=omny\n\nご意見・感想・リクエスト ⁠https://bit.ly/asapoki_discord⁠\n\nほかにも多彩な番組を配信中！ ⁠http://t.asahi.com/womy⁠",
+      "cleanHash": "d9r9nwW0fk7y5rfJ_Fa-XPCDOsTJBv-h22UaSXDmPgY",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00419",
+      "guid": "1ee28b30-9934-11f1-8118-933a8e34cab3",
+      "title": "ワンヘルス",
+      "rawLength": 382,
+      "rawHash": "jdJDISvWYmd7MASn2eJu2kDpGzS_SIR0PqIquotTgL4",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 10,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "ワンヘルスとは？\n\nワンヘルスとは、「人の健康」「動物の健康」「環境の健全性」を一体的に守らなければならないという理念のことです。医学と獣医学が垣根を越え、自然環境についても一体的に考えるべきだとしています。\n\n【まとめてわかる】ワンヘルスとは？ 福岡県議会のドンと知事が主導\n\nhttps://www.asahi.com/articles/ASV8D0HJTV8DTIPE005M.html?iref=omny\nご意見・感想・リクエスト ⁠https://bit.ly/asapoki_discord⁠\n\nほかにも多彩な番組を配信中！ ⁠http://t.asahi.com/womy⁠",
+      "cleanHash": "7HWwupmUxy0w71cZ4pXuYD9lcX-iO2pxV0FZU57qffM",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00420",
+      "guid": "8452931e-8fcc-11f1-8870-af90399d5779",
+      "title": "改正金融商品取引法（暗号資産の金融商品化）",
+      "rawLength": 348,
+      "rawHash": "0jZJLvUHAg8NyPENSIuof9v_0blXqJfPQhGcB3WFz2I",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 9,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "改正金融商品取引法は暗号資産を金融商品として位置づけています。暗号資産を組み込んだETF（上場投資信託）も解禁される見通しで、証券各社は参入する準備に入りました。\n\n【まとめてわかる】暗号資産は金融商品、ETF解禁へ 改正法成立\n\nhttps://www.asahi.com/articles/ASV7G3JJGV7GULFA01RM.html?iref=omny\n\nご意見・感想・リクエスト https://bit.ly/asapoki_discord ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+      "cleanHash": "XDSDlu6-DkDlIDWv9nSU9uUNDtbTgo4i5Ho4ipcIzS8",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00421",
+      "guid": "720f3d0a-8fcd-11f1-aa1e-33581745e19f",
+      "title": "「マンガワン」問題",
+      "rawLength": 353,
+      "rawHash": "-flH22m2MtUHQUzuSx9g74tZ4yVVhXhEoHNwBJOLP5M",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 10,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "「マンガワン」問題とは、小学館のマンガ配信アプリ「マンガワン」の編集部が、過去に性加害事件を起こしたマンガ家を、名義を変えて原作者として起用した問題のことです。\n\n小学館「マンガワン」問題とは 性加害事件のマンガ家、別名義で起用\n\nhttps://www.asahi.com/articles/ASV7R33DVV7RUCVL00KM.html?iref=omny\nご意見・感想・リクエスト ⁠https://bit.ly/asapoki_discord⁠\n\nほかにも多彩な番組を配信中！ ⁠http://t.asahi.com/womy⁠",
+      "cleanHash": "amVSfVq2Kgyd2V6IQ29I2mzRI2oOBpqdB3MBYIbwk0c",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00422",
+      "guid": "895e0234-8fc8-11f1-a197-77b63133ffc1",
+      "title": "森友文書",
+      "rawLength": 376,
+      "rawHash": "uPqGfiai9bZdG4z_-I4nMFUcThGONLqd3cPCecNs1LU",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 9,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "森友文書とは、学校法人・森友学園（大阪市）への国有地売却に関する大量の公文書のことです。森友学園は2016年6月、評価額から8億2千万円値引きされた1億3400万円で土地を購入しました。異例の対応でした。\n\n森友文書、14万ページ超を開示 なぜ改ざん? 知っておきたい要点https://www.asahi.com/articles/ASV3X3TJYV3XPTIL00JM.html?iref=omny\n\nご意見・感想・リクエスト https://bit.ly/asapoki_discord ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+      "cleanHash": "y4BI3vSk3XJU7J8TJTaQ7M2Iz-ArRdo7OeVnlRqPjPI",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00423",
+      "guid": "59902cb6-9933-11f1-b95a-b73ae2d98b79",
+      "title": "小泉防衛大臣の靖国神社参拝",
+      "rawLength": 396,
+      "rawHash": "VhC9bkELAisAQqeswQxo4dUIPNU_pMh8S9hNqBPBnzk",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 9,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "靖国神社は、かつて軍国主義の精神的支柱だった国家神道の中心的施設であり、極東国際軍事裁判（東京裁判）で「A級戦犯」とされた14人が合祀（ごうし）されています。現役防衛相の終戦の日の参拝は2024年、木原稔・現官房長官が参拝して以来です。\n\n【まとめてわかる】小泉防衛相が靖国参拝、中韓との関係にどう波及？\n\nhttps://www.asahi.com/articles/ASV8G3D4VV8GUTFK00FM.html?iref=omny\n\nご意見・感想・リクエスト ⁠⁠https://bit.ly/asapoki_discord⁠⁠\n\nほかにも多彩な番組を配信中！ ⁠⁠http://t.asahi.com/womy⁠⁠",
+      "cleanHash": "q_Z_To7hiiFwPUU6PudmRU8Xh844AIE6hdHq570Yn_4",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00424",
+      "guid": "b4941b38-9931-11f1-8120-23162e6e3261",
+      "title": "北方領土",
+      "rawLength": 369,
+      "rawHash": "VA-p9EhqlxfRELzlZeSMAusNKZvboCeqUupYgCcNHeY",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 11,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "北方領土とは、北海道の北東にある国後（くなしり）島、択捉（えとろふ）島、色丹（しこたん）島、歯舞（はぼまい）群島のことです。面積は計約5千平方キロメートルで、広さは千葉県とほぼ同じです。\n\n【まとめてわかる】北方領土問題とは？ 首脳会談重ねるも解決至らず\n\nhttps://www.asahi.com/articles/ASV8F35GFV8FUHBI00TM.html?iref=omny\n\nご意見・感想・リクエスト ⁠https://bit.ly/asapoki_discord⁠\n\nほかにも多彩な番組を配信中！ ⁠http://t.asahi.com/womy⁠",
+      "cleanHash": "jcwaeWOnz5EH079pelQio8iJxHcFkyCaqmamwlnEm5I",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00425",
+      "guid": "ca5195e4-9932-11f1-b408-dfbf7ea95b38",
+      "title": "千葉豪雨（2026年）",
+      "rawLength": 429,
+      "rawHash": "0DMgVIz4V4PPc7ceQ0sx7Nu2Ri47aC1eOYGe8kpspk4",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 9,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "2026年8月13日から14日未明にかけて、千葉県内の22市町にレベル5大雨特別警報が発表されました。気象庁によると、千葉市中央区では14日午前1時40分までの12時間に348.0ミリの雨が降り、観測史上1位になった。平年8月の1カ月の降水量は115.7ミリといい、その3倍の大雨が半日で降ったことになります。\n\n千葉豪雨、「事前予測」できず線状降水帯発生 気象庁「ここまで…」\n\nhttps://www.asahi.com/articles/ASV8G0SKKV8GUTIL00BM.html?iref=omny\n\nご意見・感想・リクエスト ⁠https://bit.ly/asapoki_discord⁠\n\nほかにも多彩な番組を配信中！ ⁠http://t.asahi.com/womy⁠",
+      "cleanHash": "Q5UTSgwt7B_SiAU66GUYae3n_lWI3dW3fDDbqcj-ANs",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00426",
+      "guid": "2a09d374-8ee9-11f1-8e6d-bf7196c86989",
+      "title": "インバウンド",
+      "rawLength": 423,
+      "rawHash": "GHwEqeThOPpAT39S8-mcu-tE_RMc6w9pZw1HFRSd18g",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 7,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "★次回の配信は8月17日（月）です★\n\nインバウンドと呼ばれる外国人観光客の25年の消費額は9兆4500億円に上り、10年の1兆1500億円から8倍超に急増しました。訪日客の消費は「輸出」として扱われます。2025年に輸出品目別の金額で自動車に次ぐ2位で、日本が外貨を稼ぐ有力産業に成長しています。\n\n【まとめてわかる】日本経済支える外国人観光客 現状と課題を探るhttps://www.asahi.com/articles/ASV7F470SV7FPTIL00KM.html?iref=omny\n\nご意見・感想・リクエスト https://bit.ly/asapoki_discord ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+      "cleanHash": "nZqix4kOg4WXh7E6pM6L0vNjEXGzK8G3DFXnN72hbBw",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00427",
+      "guid": "3b09a934-8c04-11f1-8e8c-8b8f8d7dc94c",
+      "title": "ウナギ",
+      "rawLength": 381,
+      "rawHash": "lBrtJh4qdpFu0LCPi7HVrGAayRVtODoiDJtD2ZqLz58",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 9,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "国内で出回っているウナギの多くは、ニホンウナギやアメリカウナギです。2025年に中央大学のチームが発表したデータでは、24年に国内のかば焼き133点を調べたところ、ニホンウナギが約6割、アメリカウナギが約4割でした。\n\n「土用の丑」のうなぎは何ウナギ？ 食べる前に知っておきたい要点https://www.asahi.com/articles/ASV7L2Q3JV7LUTFL024M.html?iref=omny\n\nご意見・感想・リクエスト https://bit.ly/asapoki_discord ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+      "cleanHash": "72xAcmzw0FuYSwMmE05W1LR-6hH9TEa_0MQX8KlXm4I",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00428",
+      "guid": "51956226-8fc7-11f1-b254-9f4b8e1e064c",
+      "title": "災害関連死",
+      "rawLength": 408,
+      "rawHash": "LLXTy-ZtecX_ECBk_CEl38EK15-A1WQvDP3-1IMo4Tw",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 10,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "災害関連死は、避難生活の負担による持病の悪化、自死など、災害と因果関係がある死を指します。不衛生な環境による肺炎や、ストレスによる血圧上昇などで悪化する心不全、車中泊や雑魚寝が原因で足の静脈に血栓ができる「エコノミークラス症候群」などがその代表例です。\n\n【そもそも解説】災害関連死とは？ 首都直下地震では4万人超想定も\n\nhttps://www.asahi.com/articles/ASV4H33CZV4HTIPE01CM.html?iref=omny\n\nご意見・感想・リクエスト ⁠⁠https://bit.ly/asapoki_discord⁠⁠\n\nほかにも多彩な番組を配信中！ ⁠⁠http://t.asahi.com/womy⁠⁠",
+      "cleanHash": "ShbTtoj2LgeoJ5r6ocIG-SX7_h5hFKgbvHFBRcii1n0",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00429",
+      "guid": "a2cdd34a-8fc6-11f1-b83b-2b14f4c4ff0e",
+      "title": "熊本地震（2026年）",
+      "rawLength": 372,
+      "rawHash": "xWNEe2qOtMBk1FTcnqtxWyQTyjgcEolLgHxGCP0uRTw",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 14,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "熊本県を震源とする最大震度7の地震が7月28日午後4時27分、発生しました。国土地理院は震源地周辺で最大84センチ（その後87センチに更新）の地殻変動が確認されたと発表しました。\n\n【まとめてわかる】なぜ震度7が？ 地表に現れた断層 進む現地調査\n\n⁠https://www.asahi.com/articles/ASV830NV1V83UTFL002M.html?iref=omny\n\nご意見・感想・リクエスト ⁠https://bit.ly/asapoki_discord⁠\n\nほかにも多彩な番組を配信中！ ⁠http://t.asahi.com/womy⁠",
+      "cleanHash": "fpaUEBSM_we5kBz2E76OaEL_HEzb0Ur_Ku0y5iHjKwU",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00430",
+      "guid": "e0a649e0-8c01-11f1-8fb4-f35952851e75",
+      "title": "トランプ政権の新関税（2026年7月）",
+      "rawLength": 383,
+      "rawHash": "S9mJKfq1KyvTjaLvdd0CRKHqGZSDV-06YajNOHYsok4",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 9,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "米国で通商政策を担当する通商代表部（USTR）は2026年7月23日、世界各国・地域に一律にかけてきた10%の関税の代わりに、60カ国・地域を対象に新たな関税を発表しました。日本には12.5%の税率が適用されます。\n\nトランプ政権が新しい関税を発動 日本への影響、今後どうなるhttps://www.asahi.com/articles/ASV7R7RPBV7RUHBI002M.html?iref=omny\n\nご意見・感想・リクエスト https://bit.ly/asapoki_discord ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+      "cleanHash": "eoPHjODpBxvfiFDq1GqB3haCPp44YfBvu3otG29XW1k",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00431",
+      "guid": "0b1a57cc-8c00-11f1-a907-3fdb2f5a8dd3",
+      "title": "電子投票",
+      "rawLength": 406,
+      "rawHash": "AK8IcXIBq8rkC55XvAXbwktgcBCjBR2hLj5ity5TxAY",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 9,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "電子投票とは、投票所に設置されたタブレットなどの電子端末で、候補者に投票する仕組みです。画面に候補者名が表示され、有権者はタッチペンを使って投票したい人を選びます。郵送などでの「不在者投票」やシステムトラブル時を除き、原則として紙の投票用紙は使いません。\n\n【そもそも解説】地方で再び導入相次ぐ「電子投票」 背景と課題は？https://www.asahi.com/articles/ASV6D135DV6DOXIE00DM.html?iref=omny\n\nご意見・感想・リクエスト https://bit.ly/asapoki_discord ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+      "cleanHash": "Vb2-PX2YQga9EzIpXKQmT4fyoa4FWTfbX8mOH46yupM",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00432",
+      "guid": "ffecd912-8bf3-11f1-b1db-afc6a708a22c",
+      "title": "ノエトラ",
+      "rawLength": 399,
+      "rawHash": "AosMSpYoUvD53XcsO7FC4f2MTU1Zi28jROxRggSxnXw",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 5,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "ノエトラはソフトバンク、NEC、ソニーグループ、ホンダの4社が中心となって、2026年1月に新しく設立された企業です。社長にはソフトバンクの幹部が就任し、6月1日に社名を「ノエトラ」に変更しました。この4社を含めて40社超が出資し、大規模な企業連合となります。\n\n【まとめてわかる】国産AI新会社「ノエトラ」始動 どんな会社？https://www.asahi.com/articles/ASV7H4K40V7HULFA01WM.html?iref=omny\n\nご意見・感想・リクエスト https://bit.ly/asapoki_discord ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+      "cleanHash": "ibwJH81I2GJDFdnMQxVi_2Y1yVq-LaKzZwSzkubbcZk",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00433",
+      "guid": "140995a6-9273-459f-850a-b4860041cd1e",
+      "title": "個人情報保護法の改正",
+      "rawLength": 432,
+      "rawHash": "E1jbe782eGrBJyCSqLijBIrM6sUQgntdV-aNMLAm2VM",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 3,
+          "text": "See omnystudio.com/listener for privacy information.",
+          "rule": "omny_privacy",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 4,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "個人情報保護法の改正案が国会で可決され、成立しました。AI（人工知能）開発のためなら、病歴や思想信条といったプライバシー性の高い機微な個人情報でも、本人の同意なく提供されることになる点が、懸念を集めています。\n【そもそも解説】個人情報保護法とは？ 病歴や信条などは慎重な扱いhttps://www.asahi.com/articles/ASV793RDBV79ULFA006M.html?iref=omny\nご意見・感想・リクエスト https://bit.ly/asapoki_discord ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+      "cleanHash": "LdgzCDoctuZuRdNkK7cjqWS3TdXgQZKZTIZ8k1FRu60",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    },
+    {
+      "id": "EP-00434",
+      "guid": "468d5bcd-fc66-4521-8adb-b4860041cd2b",
+      "title": "「検察なめんな」刑事裁判",
+      "rawLength": 412,
+      "rawHash": "-nBH99aWFDmOpiRBlZ1OxoTb8I46mUCe5Roo64_8pAY",
+      "rawPreserved": true,
+      "removed": [
+        {
+          "line": 3,
+          "text": "See omnystudio.com/listener for privacy information.",
+          "rule": "omny_privacy",
+          "reason": "exact_official_boilerplate_line"
+        },
+        {
+          "line": 4,
+          "text": "Learn more about your ad choices. Visit megaphone.fm/adchoices",
+          "rule": "adchoices",
+          "reason": "exact_official_boilerplate_line"
+        }
+      ],
+      "review": [],
+      "clean": "取り調べ中の「検察なめんな」などの威圧的な言動で、現職の検事を罪に問う異例の刑事裁判が始まっています。裁判では「指定弁護士」と呼ばれる弁護士が、検察官の役割を担います。\n【まとめてわかる】「検察なめんな」の検事、異例の刑事裁判 動画もhttps://www.asahi.com/articles/ASV77329WV77PTIL003M.html?iref=omny\nご意見・感想・リクエスト https://bit.ly/asapoki_discord ほかにも多彩な番組を配信中！ http://t.asahi.com/womy",
+      "cleanHash": "VpF9CgDaCcgqGHLw6BJC3iK2dDz9OWYEUMmcOqI8L20",
+      "ruleVersion": "V3-rss-content-1",
+      "people": [],
+      "personReviews": [],
+      "speakers": [],
+      "existingW": null,
+      "existingWComparison": "BLANK"
+    }
+  ],
+  "other": [
+    {
+      "show": "ニュースの現場から",
+      "guid": "73527408-d0df-4554-9feb-b4e50083852a",
+      "title": " （ポリレビ #15）簗大臣の更迭、問題の本質はここだ／米国がロシアに肩入れし問われる日本外交",
+      "feed": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/684015f9-2396-4ac4-bc1f-ac0f0033d08c/podcast.rss",
+      "fetchedAt": "2026-10-17T01:48:22.780860+00:00",
+      "people": [
+        {
+          "name": "松田京平",
+          "role": "出演",
+          "evidence": "松田京平（編集委員）https://t.asahi.com/wqrf",
+          "source": "description_role_line"
+        },
+        {
+          "name": "園田耕司",
+          "role": "出演",
+          "evidence": "園田耕司（同）https://t.asahi.com/wqrg",
+          "source": "description_role_line"
+        },
+        {
+          "name": "安田桂子",
+          "role": "MC",
+          "evidence": "MC・音源編集 安田桂子https://buff.ly/3yD5gm",
+          "source": "description_role_line"
+        },
+        {
+          "name": "安田桂子",
+          "role": "音源編集",
+          "evidence": "MC・音源編集 安田桂子https://buff.ly/3yD5gm",
+          "source": "description_role_line"
+        }
+      ],
+      "reviews": [],
+      "cleanReview": [],
+      "removedLines": 9,
+      "speakers": [
+        "松田京平",
+        "園田耕司",
+        "安田桂子"
+      ]
+    },
+    {
+      "show": "ニュースの現場から",
+      "guid": "e58f2557-8e1f-4c74-adca-b4e400526584",
+      "title": "（ゆるっと経済 #21）きょうは「ぐびっと」経済？変わるビール市場徹底解説　残業45時間規制についても考えます",
+      "feed": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/684015f9-2396-4ac4-bc1f-ac0f0033d08c/podcast.rss",
+      "fetchedAt": "2026-10-17T01:48:22.780860+00:00",
+      "people": [
+        {
+          "name": "岸上渉",
+          "role": "MC",
+          "evidence": "MC・音源編集 岸上渉 https://bit.ly/3SL3x62",
+          "source": "description_role_line"
+        },
+        {
+          "name": "岸上渉",
+          "role": "音源編集",
+          "evidence": "MC・音源編集 岸上渉 https://bit.ly/3SL3x62",
+          "source": "description_role_line"
+        }
+      ],
+      "reviews": [
+        {
+          "reason": "mixed_cast_staff_role_unknown",
+          "names": [
+            "橋田正城"
+          ],
+          "evidence": "橋田正城（経済部）"
+        },
+        {
+          "reason": "mixed_cast_staff_role_unknown",
+          "names": [
+            "南日慶子"
+          ],
+          "evidence": "南日慶子 https://buff.ly/xbEpzvb"
+        }
+      ],
+      "cleanReview": [
+        {
+          "line": 0,
+          "text": "★月100円で読み放題★（11/18まで）",
+          "reason": "episode_specific_or_unregistered_notice_preserved"
+        },
+        {
+          "reason": "unsupported_markup_original_preserved"
+        }
+      ],
+      "removedLines": 9,
+      "speakers": [
+        "岸上渉"
+      ]
+    },
+    {
+      "show": "MEDIA TALK",
+      "guid": "a4b77308-827e-4a9c-84da-b4c900acf817",
+      "title": "（天声人語6）天声人語ができるまで、不思議なローテーション",
+      "feed": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/07a1de49-67cf-4714-8581-ac1000059302/podcast.rss",
+      "fetchedAt": "2026-10-17T01:48:22.781641+00:00",
+      "people": [
+        {
+          "name": "石田博士",
+          "role": "出演",
+          "evidence": "石田博士（論説委員）http://t.asahi.com/wqux",
+          "source": "description_role_line"
+        },
+        {
+          "name": "奥山晶二郎",
+          "role": "MC",
+          "evidence": "MC・音源編集 奥山晶二郎（朝日新聞デジタル版編集長）https://buff.ly/fAaSko3",
+          "source": "description_role_line"
+        },
+        {
+          "name": "奥山晶二郎",
+          "role": "音源編集",
+          "evidence": "MC・音源編集 奥山晶二郎（朝日新聞デジタル版編集長）https://buff.ly/fAaSko3",
+          "source": "description_role_line"
+        }
+      ],
+      "reviews": [],
+      "cleanReview": [
+        {
+          "line": 5,
+          "text": "＜お知らせ＞天声人語の筆者、新しい顔ぶれに",
+          "reason": "episode_specific_or_unregistered_notice_preserved"
+        }
+      ],
+      "removedLines": 9,
+      "speakers": [
+        "石田博士",
+        "奥山晶二郎"
+      ]
+    },
+    {
+      "show": "MEDIA TALK",
+      "guid": "2854dfaf-5368-4d7b-bd72-b49b007ac51d",
+      "title": "（N4U#47）夫婦でも「NO」が言えない、性を語る言葉を持たぬ私たち　夫婦の性的同意（後編）",
+      "feed": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/07a1de49-67cf-4714-8581-ac1000059302/podcast.rss",
+      "fetchedAt": "2026-10-17T01:48:22.781641+00:00",
+      "people": [
+        {
+          "name": "橋本佳奈",
+          "role": "MC",
+          "evidence": "MC・音源編集 橋本佳奈 https://buff.ly/Gl0Clff",
+          "source": "description_role_line"
+        },
+        {
+          "name": "橋本佳奈",
+          "role": "音源編集",
+          "evidence": "MC・音源編集 橋本佳奈 https://buff.ly/Gl0Clff",
+          "source": "description_role_line"
+        }
+      ],
+      "reviews": [
+        {
+          "reason": "mixed_cast_staff_role_unknown",
+          "names": [
+            "岡崎明子"
+          ],
+          "evidence": "岡崎明子（デジタル企画報道部）https://buff.ly/op4pNuS"
+        },
+        {
+          "reason": "mixed_cast_staff_role_unknown",
+          "names": [
+            "酒本友紀子"
+          ],
+          "evidence": "酒本友紀子（社会部）https://buff.ly/Xd0GmFP"
+        }
+      ],
+      "cleanReview": [],
+      "removedLines": 9,
+      "speakers": [
+        "橋本佳奈"
+      ]
+    },
+    {
+      "show": "こどもそうだんしつ",
+      "guid": "a07f0210-b98d-4e6d-9d21-b4c9005ccdfc",
+      "title": "【もっと話そう】数えて比べて　楽しむ骨",
+      "feed": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/693cfdd6-f5a9-4308-9025-adb10164b5b1/podcast.rss",
+      "fetchedAt": "2026-10-17T01:48:22.782092+00:00",
+      "people": [
+        {
+          "name": "大木理恵子",
+          "role": "MC",
+          "evidence": "MC 大木理恵子",
+          "source": "description_role_line"
+        },
+        {
+          "name": "杢田光",
+          "role": "音源編集",
+          "evidence": "音源編集 杢田光",
+          "source": "description_role_line"
+        }
+      ],
+      "reviews": [
+        {
+          "reason": "mixed_cast_staff_role_unknown",
+          "names": [
+            "松原由幸"
+          ],
+          "evidence": "松原由幸さん（学研の図鑑LIVE編集長）"
+        },
+        {
+          "person": "松原由幸",
+          "reason": "name_mention_role_unverified",
+          "evidence": "松原由幸さん"
+        },
+        {
+          "person": "松原由幸",
+          "reason": "name_mention_role_unverified",
+          "evidence": "松原由幸さん"
+        }
+      ],
+      "cleanReview": [
+        {
+          "line": 2,
+          "text": "★幼児から小学生くらいのお子さんの質問を募集します。",
+          "reason": "episode_specific_or_unregistered_notice_preserved"
+        }
+      ],
+      "removedLines": 9,
+      "speakers": [
+        "大木理恵子"
+      ]
+    },
+    {
+      "show": "こどもそうだんしつ",
+      "guid": "511d6330-57d0-479f-b31d-b4c90054712a",
+      "title": "ほねは、どうやってつくられたの？ #16",
+      "feed": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/693cfdd6-f5a9-4308-9025-adb10164b5b1/podcast.rss",
+      "fetchedAt": "2026-10-17T01:48:22.782092+00:00",
+      "people": [
+        {
+          "name": "大木理恵子",
+          "role": "MC",
+          "evidence": "MC 大木理恵子",
+          "source": "description_role_line"
+        },
+        {
+          "name": "杢田光",
+          "role": "音源編集",
+          "evidence": "音源編集 杢田光",
+          "source": "description_role_line"
+        }
+      ],
+      "reviews": [
+        {
+          "reason": "mixed_cast_staff_role_unknown",
+          "names": [
+            "松原由幸"
+          ],
+          "evidence": "松原由幸さん（学研の図鑑LIVE編集長）"
+        },
+        {
+          "reason": "mixed_cast_staff_role_unknown",
+          "names": [
+            "★幼児から小学生くらいのお子さんの質問を募集します。"
+          ],
+          "evidence": "★幼児から小学生くらいのお子さんの質問を募集します。"
+        },
+        {
+          "reason": "mixed_cast_staff_role_unknown",
+          "names": [
+            "なんでかな？ふしぎだな",
+            "と思ったことを",
+            "お寄せください。"
+          ],
+          "evidence": "なんでかな？ふしぎだな、と思ったことを、お寄せください。https://t.asahi.com/wqm2"
+        },
+        {
+          "reason": "mixed_cast_staff_role_unknown",
+          "names": [
+            "★ご感想はこちら"
+          ],
+          "evidence": "★ご感想はこちら https://bit.ly/asapoki_otayori"
+        },
+        {
+          "reason": "mixed_cast_staff_role_unknown",
+          "names": [
+            "★ほかにも番組を配信中！"
+          ],
+          "evidence": "★ほかにも番組を配信中！ http://t.asahi.com/womy"
+        },
+        {
+          "reason": "mixed_cast_staff_role_unknown",
+          "names": [
+            "See omnystudio.com",
+            "listener  for privacy information."
+          ],
+          "evidence": "See omnystudio.com/listener https://omnystudio.com/listener for privacy information."
+        },
+        {
+          "person": "松原由幸",
+          "reason": "name_mention_role_unverified",
+          "evidence": "松原由幸さん"
+        }
+      ],
+      "cleanReview": [
+        {
+          "line": 7,
+          "text": "★幼児から小学生くらいのお子さんの質問を募集します。",
+          "reason": "episode_specific_or_unregistered_notice_preserved"
+        }
+      ],
+      "removedLines": 0,
+      "speakers": [
+        "大木理恵子"
+      ]
+    },
+    {
+      "show": "スポンジ",
+      "guid": "13a056a0-27b2-4079-a9e5-b4e5006200d0",
+      "title": "（相撲 #34）1年ぶりの賜杯、涙が止まらなかった大の里　場所をわかせた小兵の藤ノ川",
+      "feed": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/8ceab8ef-af5f-44e9-9545-b4ab0024434b/podcast.rss",
+      "fetchedAt": "2026-10-17T01:48:29.678071+00:00",
+      "people": [
+        {
+          "name": "水野梓",
+          "role": "MC",
+          "evidence": "MC 水野梓 https://buff.ly/65pKUrL",
+          "source": "description_role_line"
+        },
+        {
+          "name": "金澤ひかり",
+          "role": "音源編集",
+          "evidence": "音源編集・金澤ひかり",
+          "source": "description_role_line"
+        }
+      ],
+      "reviews": [
+        {
+          "reason": "mixed_cast_staff_role_unknown",
+          "names": [
+            "高億翔"
+          ],
+          "evidence": "高億翔（スポーツ部）"
+        },
+        {
+          "reason": "mixed_cast_staff_role_unknown",
+          "names": [
+            "伊藤秀樹"
+          ],
+          "evidence": "伊藤秀樹（スポーツ部）"
+        }
+      ],
+      "cleanReview": [
+        {
+          "line": 2,
+          "text": "【月100円で読み放題（11/18まで）】",
+          "reason": "episode_specific_or_unregistered_notice_preserved"
+        },
+        {
+          "line": 5,
+          "text": "★★「スポンジ Sports Lounge」 番組フォローにご協力お願いします★★",
+          "reason": "episode_specific_or_unregistered_notice_preserved"
+        },
+        {
+          "line": 31,
+          "text": "広告ご検討の企業様は http://t.asahi.com/asapokiguide http://t.asahi.com/asapokiguide",
+          "reason": "episode_specific_or_unregistered_notice_preserved"
+        },
+        {
+          "reason": "unsupported_markup_original_preserved"
+        }
+      ],
+      "removedLines": 7,
+      "speakers": [
+        "水野梓"
+      ]
+    },
+    {
+      "show": "スポンジ",
+      "guid": "b6a82016-ea42-4363-8150-b4ab004cc8d8",
+      "title": "（フィギュア #37）島田麻央の初陣は、「ロシア三人娘」一角が出産1年で4回転　GPシリーズ開幕展望後編",
+      "feed": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/8ceab8ef-af5f-44e9-9545-b4ab0024434b/podcast.rss",
+      "fetchedAt": "2026-10-17T01:48:29.678071+00:00",
+      "people": [
+        {
+          "name": "山根久美子",
+          "role": "MC",
+          "evidence": "MC 山根久美子（大阪ネットワーク報道本部）https://t.asahi.com/wqun",
+          "source": "description_role_line"
+        },
+        {
+          "name": "橋本佳奈",
+          "role": "音源編集",
+          "evidence": "音源編集 橋本佳奈 https://buff.ly/Gl0Clff",
+          "source": "description_role_line"
+        }
+      ],
+      "reviews": [
+        {
+          "reason": "mixed_cast_staff_role_unknown",
+          "names": [
+            "内田快"
+          ],
+          "evidence": "内田快（大阪スポーツ部） https://buff.ly/6OaSFmx"
+        }
+      ],
+      "cleanReview": [
+        {
+          "line": 0,
+          "text": "★月100円で読み放題★（11/18まで）",
+          "reason": "episode_specific_or_unregistered_notice_preserved"
+        },
+        {
+          "line": 6,
+          "text": "★★「スポンジ Sports Lounge」 番組フォローにご協力お願いします★★",
+          "reason": "episode_specific_or_unregistered_notice_preserved"
+        },
+        {
+          "reason": "unsupported_markup_original_preserved"
+        }
+      ],
+      "removedLines": 9,
+      "speakers": [
+        "山根久美子"
+      ]
+    },
+    {
+      "show": "ニュースの学校",
+      "guid": "cfdd6178-c3bc-11f1-a625-db6a01e1862b",
+      "title": "ビール大手のカルテル容疑",
+      "feed": "https://feeds.megaphone.fm/TASC5851398719",
+      "fetchedAt": "2026-10-17T01:48:30.342048+00:00",
+      "people": [],
+      "reviews": [],
+      "cleanReview": [],
+      "removedLines": 3,
+      "speakers": []
+    },
+    {
+      "show": "ニュースの学校",
+      "guid": "c7880fd2-b011-11f1-85c7-13f4dad77055",
+      "title": "ニュートリノ",
+      "feed": "https://feeds.megaphone.fm/TASC5851398719",
+      "fetchedAt": "2026-10-17T01:48:30.342048+00:00",
+      "people": [],
+      "reviews": [],
+      "cleanReview": [],
+      "removedLines": 3,
+      "speakers": []
+    },
+    {
+      "show": "ドーナツ",
+      "guid": "ee4ddbac-dfb7-45c0-b343-b4e5008a65b0",
+      "title": "（ノーミライ #9）ひとりでやっとるチキンレースにライバル登場？というお話",
+      "feed": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/c373aac9-fb6a-4172-8a8f-b498003d9389/podcast.rss",
+      "fetchedAt": "2026-10-17T01:48:30.536293+00:00",
+      "people": [
+        {
+          "name": "近藤康太郎",
+          "role": "MC",
+          "evidence": "近藤康太郎（MC）http://t.asahi.com/wqrp",
+          "source": "description_role_line"
+        },
+        {
+          "name": "山田佳奈",
+          "role": "音源編集",
+          "evidence": "山田佳奈（音源編集）http://t.asahi.com/wqxb",
+          "source": "description_role_line"
+        }
+      ],
+      "reviews": [
+        {
+          "reason": "mixed_cast_staff_role_unknown",
+          "names": [
+            "※朝日新聞アプリでつぶやきのフォロー",
+            "お願いします。"
+          ],
+          "evidence": "※朝日新聞アプリでつぶやきのフォロー、お願いします。"
+        },
+        {
+          "reason": "mixed_cast_staff_role_unknown",
+          "names": [
+            "お便りは２人のつぶやきからでも",
+            "ドーナツのDiscordからでも"
+          ],
+          "evidence": "お便りは２人のつぶやきからでも、ドーナツのDiscordからでも https://bit.ly/asapoki_donut"
+        },
+        {
+          "reason": "mixed_cast_staff_role_unknown",
+          "names": [
+            "優しい励ましのほか",
+            "近藤康太郎に打ち明けてみたい悩みなどなど",
+            "お待ちしています！"
+          ],
+          "evidence": "優しい励ましのほか、近藤康太郎に打ち明けてみたい悩みなどなど、お待ちしています！"
+        }
+      ],
+      "cleanReview": [
+        {
+          "line": 8,
+          "text": "絶賛配信中です。詳しい申し込み方法はこちらから&darr;",
+          "reason": "episode_specific_or_unregistered_notice_preserved"
+        }
+      ],
+      "removedLines": 9,
+      "speakers": [
+        "近藤康太郎"
+      ]
+    },
+    {
+      "show": "ドーナツ",
+      "guid": "fa54c4b2-c527-421e-9bee-b4e40025a494",
+      "title": "イスで座らないと歌っちゃいけないの？　退園求められた先に見つけた希望",
+      "feed": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/c373aac9-fb6a-4172-8a8f-b498003d9389/podcast.rss",
+      "fetchedAt": "2026-10-17T01:48:30.536293+00:00",
+      "people": [
+        {
+          "name": "杢田光",
+          "role": "MC",
+          "evidence": "MC・音源編集 杢田光 https://buff.ly/u9JyLwM",
+          "source": "description_role_line"
+        },
+        {
+          "name": "杢田光",
+          "role": "音源編集",
+          "evidence": "MC・音源編集 杢田光 https://buff.ly/u9JyLwM",
+          "source": "description_role_line"
+        }
+      ],
+      "reviews": [
+        {
+          "reason": "mixed_cast_staff_role_unknown",
+          "names": [
+            "竹石涼子"
+          ],
+          "evidence": "竹石涼子（くらし科学医療部） https://buff.ly/PZZcOvR"
+        }
+      ],
+      "cleanReview": [],
+      "removedLines": 9,
+      "speakers": [
+        "杢田光"
+      ]
+    },
+    {
+      "show": "報談",
+      "guid": "cc0f418a-c86f-11f1-a2a6-73dcfc901dce",
+      "title": "なぜサウジの空港は爆撃されたのか　知ってくださいイエメン情勢 #192",
+      "feed": "https://feeds.megaphone.fm/TASC9421488254",
+      "fetchedAt": "2026-10-17T01:48:35.484574+00:00",
+      "people": [
+        {
+          "name": "神田大介",
+          "role": "MC",
+          "evidence": "MC・音源編集 神田大介 https://bit.ly/4k4ZKwA",
+          "source": "description_role_line"
+        },
+        {
+          "name": "神田大介",
+          "role": "音源編集",
+          "evidence": "MC・音源編集 神田大介 https://bit.ly/4k4ZKwA",
+          "source": "description_role_line"
+        }
+      ],
+      "reviews": [
+        {
+          "reason": "mixed_cast_staff_role_unknown",
+          "names": [
+            "冨名腰隆"
+          ],
+          "evidence": "冨名腰隆（国際報道部次長） https://bit.ly/43wSTFg"
+        }
+      ],
+      "cleanReview": [],
+      "removedLines": 10,
+      "speakers": [
+        "神田大介"
+      ]
+    },
+    {
+      "show": "報談",
+      "guid": "e82f586e-c2fc-11f1-a921-1f4c4e7d2443",
+      "title": "やな大臣いなす国交省　中間選挙とアメリカのだるさ　2題でお届けします #191",
+      "feed": "https://feeds.megaphone.fm/TASC9421488254",
+      "fetchedAt": "2026-10-17T01:48:35.484574+00:00",
+      "people": [
+        {
+          "name": "神田大介",
+          "role": "MC",
+          "evidence": "MC・音源編集 神田大介 https://bit.ly/4k4ZKwA",
+          "source": "description_role_line"
+        },
+        {
+          "name": "神田大介",
+          "role": "音源編集",
+          "evidence": "MC・音源編集 神田大介 https://bit.ly/4k4ZKwA",
+          "source": "description_role_line"
+        }
+      ],
+      "reviews": [
+        {
+          "reason": "announcement_not_current_appearance",
+          "evidence": "https://www.asahi.com/articles/ASV9Q0D9SV9QUHMC001M.html?iref=omny"
+        },
+        {
+          "reason": "mixed_cast_staff_role_unknown",
+          "names": [
+            "望月洋嗣"
+          ],
+          "evidence": "望月洋嗣（国際報道部次長） https://buff.ly/nw0cdOm"
+        },
+        {
+          "reason": "mixed_cast_staff_role_unknown",
+          "names": [
+            "冨名腰隆"
+          ],
+          "evidence": "冨名腰隆（国際報道部次長） https://bit.ly/43wSTFg"
+        }
+      ],
+      "cleanReview": [],
+      "removedLines": 10,
+      "speakers": [
+        "神田大介"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+✔ one test-only POST succeeds only after membership readback; replay posts zero (3.547755ms)
+✔ POST 401 is never success or blindly retried (0.946259ms)
+✔ POST 403 is never success or blindly retried (0.743542ms)
+✔ POST 503 is never success or blindly retried (0.56323ms)
+✔ 429 preserves full Retry-After and prevents early retry (1.781218ms)
+✔ uncertain POST/failed readback held across restarts (0.955863ms)
+✔ production targets and edited plans rejected before network (0.217969ms)
+✔ durable state, ownership lock, and identity failure stop writes (0.307414ms)
+✔ reservation failure prevents POST (0.560206ms)
+✔ GET 403 and auth errors stop before POST (0.90089ms)
+✔ snapshot uses <=50 pages; changing version and unavailable item hold (0.214795ms)
+✔ new private playlist creation requires distinct approval, reservation/readback; repeat is held (0.260053ms)
+✔ real local receipt survives reopening and cross-instance locks conflict (13.773062ms)
+✔ absent auth sends no requests and reports all unknowns honestly (1.901149ms)
+✔ approved one POST, readback, replay zero; logs contain no bearer (29.478169ms)
+✔ already present yields zero POST and replay zero (8.601905ms)
+✔ 403 preflight stops immediately (1.183717ms)
+✔ 403 on POST stops without readback or replay or success (8.852143ms)
+✔ POST 401 distinct stop and no retry (6.639332ms)
+✔ POST 429 distinct stop and no retry (6.801016ms)
+✔ UTC/JST date mismatch holds, never weakens pinned identity (4.896011ms)
+✔ wrong owner stops without mutation (1.243577ms)
+✔ tampered target stops before authentication (0.418923ms)
+✔ unknown actual token grants never POST (0.80799ms)
+✔ failed membership readback is held, durable receipt prevents repost (10.199597ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 165.825977

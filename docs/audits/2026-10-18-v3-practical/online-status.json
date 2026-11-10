@@ -1,0 +1,28 @@
+{
+  "inventoryReadAt": "2026-10-18T01:42:06.746Z",
+  "scriptFiles": 35,
+  "manifestFiles": 1,
+  "addedFilenameSincePreviousFullCapture": [
+    "LibraryV3BaselineTrigger.gs"
+  ],
+  "currentFullSourceComparisonVerified": false,
+  "reason": "Native-credential protection blocks clipboard export; DOM textarea source is truncated to <=500 characters. No truncated string is treated as a full-source hash.",
+  "manifestSha256": "06bec9cd0f28cf465abf5912594da6a321b92bb309dc57a003ea7598e00ace01",
+  "baselineObserved": {
+    "offset": 6591,
+    "complete": true
+  },
+  "configObserved": {
+    "enabled": false,
+    "autonomous": true,
+    "allowEnrich": false,
+    "allowNew": false,
+    "spotifyApi": false
+  },
+  "baselinePropertiesReadAt": "2026-10-18 JST, this task",
+  "onlineCodeWrites": 0,
+  "propertiesWrites": 0,
+  "triggersChanged": 0,
+  "spotifyPosts": 0,
+  "sheetWrites": 0
+}

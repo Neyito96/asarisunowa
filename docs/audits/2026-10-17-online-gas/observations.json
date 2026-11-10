@@ -1,0 +1,99 @@
+{
+  "captured_at_utc": "2026-10-17T02:21:15.663Z",
+  "baseline_commit": "7ce330a50fe7fd719fc39b6028fdd8efe9d494c5",
+  "script_id": "1eLqB-k1XIQz5qqOxamvUlinqld7jwSDO6AkWLx9Zg0ePGsuU7pE4rec-",
+  "project_name": "朝リスの田_Phase2_隔離検証",
+  "sources": 33,
+  "source_status_counts": {
+    "different": 7,
+    "online_only": 6,
+    "normalized_equal": 20
+  },
+  "rechecked_sources": 33,
+  "editor_save_disabled": true,
+  "active_deployments": 0,
+  "archived_deployments": 0,
+  "visible_triggers_current_account": 0,
+  "overview_last_7_days": {
+    "executions": 502,
+    "error_rate_display": "15.34%",
+    "users": 1
+  },
+  "execution_rows_captured": 50,
+  "execution_rows_parsed": 50,
+  "execution_status_counts_visible_page": {
+    "完了": 41,
+    "失敗": 5,
+    "タイムアウト": 4
+  },
+  "source_snapshot_sha256": "26895a496fefdf398070035eb935dda139b402a76097c2ab70cd28045622e297",
+  "related_production": {
+    "name": "朝リスの輪 プレイリスト投稿受付",
+    "scriptId": "1HpZNp96TQ7S1ilmfyItKI2IxYgdk8ufCsWXSVNEaGkh7_uQRXkr6k1I9",
+    "capturedAt": "2026-10-17T02:27:32.067Z",
+    "activeDeployments": 4,
+    "matchedDeploymentId": "AKfycbxlZCNqGqOEY7j61OgcSGM8_xfGT08f4jjamXtSj2DES9fXl-xwJrvcRGYHnskidjIMug",
+    "version": 73,
+    "triggers": [
+      {
+        "owner": "current_account",
+        "last_execution_jst": "2026/10/17 10:48:29",
+        "deployment": "Head",
+        "event": "time_based",
+        "handler": "runAutoUpdateBackfillHourlyV1",
+        "displayed_error_rate": "0%"
+      },
+      {
+        "owner": "current_account",
+        "last_execution_jst": "2026/10/17 4:26:50",
+        "deployment": "Head",
+        "event": "time_based",
+        "handler": "syncKinoDougaPlaylist",
+        "displayed_error_rate": "0%"
+      },
+      {
+        "owner": "current_account",
+        "last_execution_jst": "2026/10/17 4:39:56",
+        "deployment": "Head",
+        "event": "time_based",
+        "handler": "syncIsshoShinbunPlaylist",
+        "displayed_error_rate": "0%"
+      },
+      {
+        "owner": "current_account",
+        "last_execution_jst": "2026/10/17 4:26:52",
+        "deployment": "Head",
+        "event": "time_based",
+        "handler": "syncToyohidePlaylist",
+        "displayed_error_rate": "0%"
+      },
+      {
+        "owner": "current_account",
+        "last_execution_jst": "2026/10/17 4:38:52",
+        "deployment": "Head",
+        "event": "time_based",
+        "handler": "runAutoUpdateAutomationV1",
+        "displayed_error_rate": "0%"
+      },
+      {
+        "owner": "current_account",
+        "last_execution_jst": "2026/10/17 4:32:26",
+        "deployment": "Head",
+        "event": "time_based",
+        "handler": "syncListenerPodcastPlatforms",
+        "displayed_error_rate": "0%"
+      }
+    ],
+    "visible_trigger_count": 6
+  },
+  "not_verified": [
+    "other owners triggers",
+    "script properties keys and values",
+    "deployed version 73 full source",
+    "production HEAD source except supplied isolation project",
+    "exact trigger cadence",
+    "Drive named backups content",
+    "all 502 executions",
+    "V3 live execution performance"
+  ]
+}

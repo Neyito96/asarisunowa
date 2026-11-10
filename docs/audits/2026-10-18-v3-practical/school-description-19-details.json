@@ -1,0 +1,397 @@
+[
+  {
+    "id": "EP-00083",
+    "title": "富山市の人口水増し疑惑",
+    "column": "22 概要原文",
+    "category": "記事URL＋告知URL等の差",
+    "edits": [
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "https://www.asahi.com/articles/ASV9Z2GQQV9ZPTIL008M.html?iref=omny&nbsp; "
+      },
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": " https://bit.ly/asapoki_discord&nbsp;"
+      },
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "&nbsp;http://t.asahi.com/womy&nbsp; Learn more about your ad choices. Visit megaphone.fm/adchoices"
+      }
+    ],
+    "cause": "未判定：旧清掃・人手編集・RSS更新の履歴がない",
+    "recommendation": "既存原文を維持しCONTENT_DIFFERENCE保留。RSS原文は別証拠として保持"
+  },
+  {
+    "id": "EP-00084",
+    "title": "臓器移植",
+    "column": "22 概要原文",
+    "category": "記事URL＋告知URL等の差",
+    "edits": [
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "https://www.asahi.com/articles/ASV7633GFV76UTFL01GM.html?iref=omny&nbsp;"
+      },
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": " https://bit.ly/asapoki_discord&nbsp;"
+      },
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "&nbsp;http://t.asahi.com/womy&nbsp; Learn more about your ad choices. Visit megaphone.fm/adchoices"
+      }
+    ],
+    "cause": "未判定：旧清掃・人手編集・RSS更新の履歴がない",
+    "recommendation": "既存原文を維持しCONTENT_DIFFERENCE保留。RSS原文は別証拠として保持"
+  },
+  {
+    "id": "EP-00085",
+    "title": "アメリカ中間選挙(2026)",
+    "column": "22 概要原文",
+    "category": "記事URL＋告知URL等の差",
+    "edits": [
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "https://www.asahi.com/articles/ASV9B0VB8V9BDIFI00QM.html?iref=omny&nbsp; "
+      },
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": " https://bit.ly/asapoki_discord&nbsp;"
+      },
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "&nbsp;http://t.asahi.com/womy&nbsp; Learn more about your ad choices. Visit megaphone.fm/adchoices"
+      }
+    ],
+    "cause": "未判定：旧清掃・人手編集・RSS更新の履歴がない",
+    "recommendation": "既存原文を維持しCONTENT_DIFFERENCE保留。RSS原文は別証拠として保持"
+  },
+  {
+    "id": "EP-00086",
+    "title": "自由診療",
+    "column": "22 概要原文",
+    "category": "記事URL＋告知URL等の差",
+    "edits": [
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "https://www.asahi.com/articles/ASV1R2DMYV1RUTFL025M.html?iref=omny&nbsp;"
+      },
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "&nbsp;https://bit.ly/asapoki_discord&nbsp;"
+      },
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "&nbsp;http://t.asahi.com/womy&nbsp; Learn more about your ad choices. Visit megaphone.fm/adchoices"
+      }
+    ],
+    "cause": "未判定：旧清掃・人手編集・RSS更新の履歴がない",
+    "recommendation": "既存原文を維持しCONTENT_DIFFERENCE保留。RSS原文は別証拠として保持"
+  },
+  {
+    "id": "EP-00087",
+    "title": "在日コリアン",
+    "column": "22 概要原文",
+    "category": "記事URL＋告知URL等の差",
+    "edits": [
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "https://www.asahi.com/articles/ASV972PH5V97OXIE04QM.html?iref=omny&nbsp; "
+      },
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": " https://bit.ly/asapoki_discord&nbsp;"
+      },
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "&nbsp;http://t.asahi.com/womy&nbsp; Learn more about your ad choices. Visit megaphone.fm/adchoices"
+      }
+    ],
+    "cause": "未判定：旧清掃・人手編集・RSS更新の履歴がない",
+    "recommendation": "既存原文を維持しCONTENT_DIFFERENCE保留。RSS原文は別証拠として保持"
+  },
+  {
+    "id": "EP-00088",
+    "title": "PISA(学習到達度調査)",
+    "column": "22 概要原文",
+    "category": "記事URL＋告知URL等の差",
+    "edits": [
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "https://www.asahi.com/articles/ASV9824DHV98UTIL023M.html?iref=omny&nbsp; "
+      },
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": " https://bit.ly/asapoki_discord&nbsp;"
+      },
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "&nbsp;http://t.asahi.com/womy&nbsp; Learn more about your ad choices. Visit megaphone.fm/adchoices"
+      }
+    ],
+    "cause": "未判定：旧清掃・人手編集・RSS更新の履歴がない",
+    "recommendation": "既存原文を維持しCONTENT_DIFFERENCE保留。RSS原文は別証拠として保持"
+  },
+  {
+    "id": "EP-00089",
+    "title": "一般討論演説(国連総会)",
+    "column": "22 概要原文",
+    "category": "記事URL＋告知URL等の差",
+    "edits": [
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "https://www.asahi.com/articles/ASV9P52P1V9PUHBI00VM.html?iref=omny&nbsp; "
+      },
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": " https://bit.ly/asapoki_discord&nbsp;"
+      },
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "&nbsp;http://t.asahi.com/womy&nbsp; Learn more about your ad choices. Visit megaphone.fm/adchoices"
+      }
+    ],
+    "cause": "未判定：旧清掃・人手編集・RSS更新の履歴がない",
+    "recommendation": "既存原文を維持しCONTENT_DIFFERENCE保留。RSS原文は別証拠として保持"
+  },
+  {
+    "id": "EP-00090",
+    "title": "米中首脳会談(2026年9月)",
+    "column": "22 概要原文",
+    "category": "記事URL＋告知URL等の差",
+    "edits": [
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "https://www.asahi.com/articles/ASV9S5CY6V9SBQBQ2S5M.html?iref=omny&nbsp; "
+      },
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": " https://bit.ly/asapoki_discord&nbsp;"
+      },
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "&nbsp;http://t.asahi.com/womy&nbsp; Learn more about your ad choices. Visit megaphone.fm/adchoices"
+      }
+    ],
+    "cause": "未判定：旧清掃・人手編集・RSS更新の履歴がない",
+    "recommendation": "既存原文を維持しCONTENT_DIFFERENCE保留。RSS原文は別証拠として保持"
+  },
+  {
+    "id": "EP-00091",
+    "title": "身寄りのない人の弔い",
+    "column": "22 概要原文",
+    "category": "記事URL＋告知URL等の差",
+    "edits": [
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "https://www.asahi.com/articles/DA3S16529708.html?iref=omny&nbsp; "
+      },
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": " https://bit.ly/asapoki_discord&nbsp;"
+      },
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "&nbsp;http://t.asahi.com/womy&nbsp;"
+      }
+    ],
+    "cause": "未判定：旧清掃・人手編集・RSS更新の履歴がない",
+    "recommendation": "既存原文を維持しCONTENT_DIFFERENCE保留。RSS原文は別証拠として保持"
+  },
+  {
+    "id": "EP-00092",
+    "title": "彦根城",
+    "column": "22 概要原文",
+    "category": "定型告知・案内URL等の差",
+    "edits": [
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "&nbsp; ご意見・感想・リクエスト https://bit.ly/asapoki_discord&nbsp; ほかにも多彩な番組を配信中！&nbsp;http://t.asahi.com/womy&nbsp; Learn more about your ad choices. Visit megaphone.fm/adchoices"
+      }
+    ],
+    "cause": "未判定：旧清掃・人手編集・RSS更新の履歴がない",
+    "recommendation": "既存原文を維持しCONTENT_DIFFERENCE保留。RSS原文は別証拠として保持"
+  },
+  {
+    "id": "EP-00094",
+    "title": "自律",
+    "column": "22 概要原文",
+    "category": "定型告知・案内URL等の差",
+    "edits": [
+      {
+        "operation": "delete",
+        "existing": " ",
+        "rss": ""
+      },
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "&nbsp; ご意見・感想・リクエスト https://bit.ly/asapoki_discord&nbsp; ほかにも多彩な番組を配信中！&nbsp;http://t.asahi.com/womy&nbsp; Learn more about your ad choices. Visit megaphone.fm/adchoices"
+      }
+    ],
+    "cause": "未判定：旧清掃・人手編集・RSS更新の履歴がない",
+    "recommendation": "既存原文を維持しCONTENT_DIFFERENCE保留。RSS原文は別証拠として保持"
+  },
+  {
+    "id": "EP-00095",
+    "title": "フーシ",
+    "column": "22 概要原文",
+    "category": "定型告知・案内URL等の差",
+    "edits": [
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "&nbsp; ご意見・感想・リクエスト https://bit.ly/asapoki_discord&nbsp; ほかにも多彩な番組を配信中！&nbsp;http://t.asahi.com/womy&nbsp; Learn more about your ad choices. Visit megaphone.fm/adchoices"
+      }
+    ],
+    "cause": "未判定：旧清掃・人手編集・RSS更新の履歴がない",
+    "recommendation": "既存原文を維持しCONTENT_DIFFERENCE保留。RSS原文は別証拠として保持"
+  },
+  {
+    "id": "EP-00096",
+    "title": "中部電力の浜岡原発データ不正問題",
+    "column": "22 概要原文",
+    "category": "定型告知・案内URL等の差",
+    "edits": [
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "&nbsp; ご意見・感想・リクエスト https://bit.ly/asapoki_discord&nbsp; ほかにも多彩な番組を配信中！&nbsp;http://t.asahi.com/womy&nbsp; Learn more about your ad choices. Visit megaphone.fm/adchoices"
+      }
+    ],
+    "cause": "未判定：旧清掃・人手編集・RSS更新の履歴がない",
+    "recommendation": "既存原文を維持しCONTENT_DIFFERENCE保留。RSS原文は別証拠として保持"
+  },
+  {
+    "id": "EP-00097",
+    "title": "学習指導要領",
+    "column": "22 概要原文",
+    "category": "定型告知・案内URL等の差",
+    "edits": [
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "&nbsp; ご意見・感想・リクエスト https://bit.ly/asapoki_discord&nbsp; ほかにも多彩な番組を配信中！&nbsp;http://t.asahi.com/womy&nbsp; Learn more about your ad choices. Visit megaphone.fm/adchoices"
+      }
+    ],
+    "cause": "未判定：旧清掃・人手編集・RSS更新の履歴がない",
+    "recommendation": "既存原文を維持しCONTENT_DIFFERENCE保留。RSS原文は別証拠として保持"
+  },
+  {
+    "id": "EP-00098",
+    "title": "ベネチア映画祭",
+    "column": "22 概要原文",
+    "category": "定型告知・案内URL等の差",
+    "edits": [
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "&nbsp; ご意見・感想・リクエスト https://bit.ly/asapoki_discord&nbsp; ほかにも多彩な番組を配信中！&nbsp;http://t.asahi.com/womy&nbsp; Learn more about your ad choices. Visit megaphone.fm/adchoices"
+      }
+    ],
+    "cause": "未判定：旧清掃・人手編集・RSS更新の履歴がない",
+    "recommendation": "既存原文を維持しCONTENT_DIFFERENCE保留。RSS原文は別証拠として保持"
+  },
+  {
+    "id": "EP-00099",
+    "title": "核燃料サイクル",
+    "column": "22 概要原文",
+    "category": "定型告知・案内URL等の差",
+    "edits": [
+      {
+        "operation": "delete",
+        "existing": " ",
+        "rss": ""
+      },
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "&nbsp; ご意見・感想・リクエスト https://bit.ly/asapoki_discord&nbsp; ほかにも多彩な番組を配信中！&nbsp;http://t.asahi.com/womy&nbsp; Learn more about your ad choices. Visit megaphone.fm/adchoices"
+      }
+    ],
+    "cause": "未判定：旧清掃・人手編集・RSS更新の履歴がない",
+    "recommendation": "既存原文を維持しCONTENT_DIFFERENCE保留。RSS原文は別証拠として保持"
+  },
+  {
+    "id": "EP-00100",
+    "title": "概算要求",
+    "column": "22 概要原文",
+    "category": "定型告知・案内URL等の差",
+    "edits": [
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "&nbsp; ご意見・感想・リクエスト https://bit.ly/asapoki_discord&nbsp; ほかにも多彩な番組を配信中！&nbsp;http://t.asahi.com/womy&nbsp; Learn more about your ad choices. Visit megaphone.fm/adchoices"
+      }
+    ],
+    "cause": "未判定：旧清掃・人手編集・RSS更新の履歴がない",
+    "recommendation": "既存原文を維持しCONTENT_DIFFERENCE保留。RSS原文は別証拠として保持"
+  },
+  {
+    "id": "EP-00409",
+    "title": "ふるさと納税",
+    "column": "22 概要原文",
+    "category": "定型告知・案内URL等の差",
+    "edits": [
+      {
+        "operation": "delete",
+        "existing": " ",
+        "rss": ""
+      },
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": " ご意見・感想・リクエスト https://bit.ly/asapoki_discord&nbsp; ほかにも多彩な番組を配信中！&nbsp;http://t.asahi.com/womy&nbsp; Learn more about your ad choices. Visit megaphone.fm/adchoices"
+      }
+    ],
+    "cause": "未判定：旧清掃・人手編集・RSS更新の履歴がない",
+    "recommendation": "既存原文を維持しCONTENT_DIFFERENCE保留。RSS原文は別証拠として保持"
+  },
+  {
+    "id": "EP-00410",
+    "title": "沖縄県知事選(2026)",
+    "column": "22 概要原文",
+    "category": "定型告知・案内URL等の差",
+    "edits": [
+      {
+        "operation": "delete",
+        "existing": " ",
+        "rss": ""
+      },
+      {
+        "operation": "insert",
+        "existing": "",
+        "rss": "&nbsp; ご意見・感想・リクエスト https://bit.ly/asapoki_discord&nbsp; ほかにも多彩な番組を配信中！&nbsp;http://t.asahi.com/womy&nbsp; Learn more about your ad choices. Visit megaphone.fm/adchoices"
+      }
+    ],
+    "cause": "未判定：旧清掃・人手編集・RSS更新の履歴がない",
+    "recommendation": "既存原文を維持しCONTENT_DIFFERENCE保留。RSS原文は別証拠として保持"
+  }
+]

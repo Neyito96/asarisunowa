@@ -1,0 +1,207 @@
+[
+  {
+    "id": "EP-01243",
+    "checkedAt": "2026-10-17T01:56:29.954099+00:00",
+    "playbackVerified": false,
+    "bytes": 1024,
+    "apiCalls": 4,
+    "observations": [
+      {
+        "method": "HEAD",
+        "http": 302,
+        "verdict": "REDIRECT_NOT_FOLLOWED",
+        "bytes": 0,
+        "contentType": ""
+      },
+      {
+        "method": "HEAD",
+        "http": 302,
+        "verdict": "REDIRECT_NOT_FOLLOWED",
+        "bytes": 0,
+        "contentType": "application/json"
+      },
+      {
+        "method": "HEAD",
+        "http": 200,
+        "verdict": "HEAD_REACHABLE",
+        "bytes": 0,
+        "contentType": "audio/mpeg"
+      },
+      {
+        "method": "GET",
+        "http": 206,
+        "verdict": "AUDIO_PREFIX_OBSERVED",
+        "bytes": 1024,
+        "contentType": "audio/mpeg"
+      }
+    ],
+    "http": 206,
+    "verdict": "AUDIO_PREFIX_OBSERVED",
+    "elapsedMs": 26332,
+    "audioUrlSHA256": "58d31aa2b4ca8b8e6aee16b4d3b69d6cd3f9fa1cbfe3c822dd56cdc5a3a64dea"
+  },
+  {
+    "id": "EP-01248",
+    "checkedAt": "2026-10-17T01:56:56.287872+00:00",
+    "playbackVerified": false,
+    "bytes": 1024,
+    "apiCalls": 4,
+    "observations": [
+      {
+        "method": "HEAD",
+        "http": 302,
+        "verdict": "REDIRECT_NOT_FOLLOWED",
+        "bytes": 0,
+        "contentType": ""
+      },
+      {
+        "method": "HEAD",
+        "http": 302,
+        "verdict": "REDIRECT_NOT_FOLLOWED",
+        "bytes": 0,
+        "contentType": "application/json"
+      },
+      {
+        "method": "HEAD",
+        "http": 200,
+        "verdict": "HEAD_REACHABLE",
+        "bytes": 0,
+        "contentType": "audio/mpeg"
+      },
+      {
+        "method": "GET",
+        "http": 206,
+        "verdict": "AUDIO_PREFIX_OBSERVED",
+        "bytes": 1024,
+        "contentType": "audio/mpeg"
+      }
+    ],
+    "http": 206,
+    "verdict": "AUDIO_PREFIX_OBSERVED",
+    "elapsedMs": 27098,
+    "audioUrlSHA256": "1ecc4b355b5d99b75a146c6e3fbaf40e93aaa7948cce61ac1ec9139ceccc0ce6"
+  },
+  {
+    "id": "EP-01249",
+    "checkedAt": "2026-10-17T01:57:23.386889+00:00",
+    "playbackVerified": false,
+    "bytes": 1024,
+    "apiCalls": 4,
+    "observations": [
+      {
+        "method": "HEAD",
+        "http": 302,
+        "verdict": "REDIRECT_NOT_FOLLOWED",
+        "bytes": 0,
+        "contentType": ""
+      },
+      {
+        "method": "HEAD",
+        "http": 302,
+        "verdict": "REDIRECT_NOT_FOLLOWED",
+        "bytes": 0,
+        "contentType": "application/json"
+      },
+      {
+        "method": "HEAD",
+        "http": 200,
+        "verdict": "HEAD_REACHABLE",
+        "bytes": 0,
+        "contentType": "audio/mpeg"
+      },
+      {
+        "method": "GET",
+        "http": 206,
+        "verdict": "AUDIO_PREFIX_OBSERVED",
+        "bytes": 1024,
+        "contentType": "audio/mpeg"
+      }
+    ],
+    "http": 206,
+    "verdict": "AUDIO_PREFIX_OBSERVED",
+    "elapsedMs": 28329,
+    "audioUrlSHA256": "42e09a191a98540652d8acb14a4362d9f0be3f5f7f2650c3f0e18685fd5b0eb5"
+  },
+  {
+    "id": "EP-01250",
+    "checkedAt": "2026-10-17T01:57:51.717186+00:00",
+    "playbackVerified": false,
+    "bytes": 1024,
+    "apiCalls": 4,
+    "observations": [
+      {
+        "method": "HEAD",
+        "http": 302,
+        "verdict": "REDIRECT_NOT_FOLLOWED",
+        "bytes": 0,
+        "contentType": ""
+      },
+      {
+        "method": "HEAD",
+        "http": 302,
+        "verdict": "REDIRECT_NOT_FOLLOWED",
+        "bytes": 0,
+        "contentType": "application/json"
+      },
+      {
+        "method": "HEAD",
+        "http": 200,
+        "verdict": "HEAD_REACHABLE",
+        "bytes": 0,
+        "contentType": "audio/mpeg"
+      },
+      {
+        "method": "GET",
+        "http": 206,
+        "verdict": "AUDIO_PREFIX_OBSERVED",
+        "bytes": 1024,
+        "contentType": "audio/mpeg"
+      }
+    ],
+    "http": 206,
+    "verdict": "AUDIO_PREFIX_OBSERVED",
+    "elapsedMs": 27019,
+    "audioUrlSHA256": "7a95448dbb01e319c0bf5586712c0498443c2e324cb81877565019faaffc6505"
+  },
+  {
+    "id": "EP-01251",
+    "checkedAt": "2026-10-17T01:58:18.736879+00:00",
+    "playbackVerified": false,
+    "bytes": 1024,
+    "apiCalls": 4,
+    "observations": [
+      {
+        "method": "HEAD",
+        "http": 302,
+        "verdict": "REDIRECT_NOT_FOLLOWED",
+        "bytes": 0,
+        "contentType": ""
+      },
+      {
+        "method": "HEAD",
+        "http": 302,
+        "verdict": "REDIRECT_NOT_FOLLOWED",
+        "bytes": 0,
+        "contentType": "application/json"
+      },
+      {
+        "method": "HEAD",
+        "http": 200,
+        "verdict": "HEAD_REACHABLE",
+        "bytes": 0,
+        "contentType": "audio/mpeg"
+      },
+      {
+        "method": "GET",
+        "http": 206,
+        "verdict": "AUDIO_PREFIX_OBSERVED",
+        "bytes": 1024,
+        "contentType": "audio/mpeg"
+      }
+    ],
+    "http": 206,
+    "verdict": "AUDIO_PREFIX_OBSERVED",
+    "elapsedMs": 26274,
+    "audioUrlSHA256": "f1bfb41d06521900fc4daee4178a530941a00144ad14d16ab6e22bc9cd18e658"
+  }
+]

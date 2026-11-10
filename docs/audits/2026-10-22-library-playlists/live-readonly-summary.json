@@ -1,0 +1,54 @@
+{
+  "checkedAt": "2026-10-22T07:54:57.292382+00:00",
+  "sourceSpreadsheetId": "1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4",
+  "ledgerRows": 6591,
+  "uniqueEpIds": 6591,
+  "maxEpId": "EP-06591",
+  "spotifyUrlsPresentAndSyntaxValid": 6425,
+  "spotifyMappingVerification": "NOT_INFERRED_FROM_URL_SYNTAX",
+  "decisionEpIdRows": 0,
+  "target5936": "PROVISIONAL_NOT_ASSERTED",
+  "schoolRows": 486,
+  "cleanDescriptionPresent": 5781,
+  "nativeCastEvidencePresent": 5921,
+  "castIdentityVerification": "NOT_INFERRED_FROM_NONEMPTY_EVIDENCE_FIELD",
+  "liveGasStatus": "UNKNOWN_NO_AUTHENTICATED_RUNTIME_ACCESS",
+  "latestKnownRollout": "A/B/C approved; Mac execution not yet confirmed in issue241",
+  "query": {
+    "shows": [
+      "ニュースの学校"
+    ],
+    "keywords": [
+      "気候"
+    ],
+    "operator": "AND"
+  },
+  "previewMatches": 2,
+  "sample": [
+    {
+      "epId": "EP-00545",
+      "title": "気候変動（地球温暖化）",
+      "selectionStatus": "SCOPE_PENDING"
+    },
+    {
+      "epId": "EP-00858",
+      "title": "COP（国連気候変動会議）",
+      "selectionStatus": "SCOPE_PENDING"
+    }
+  ],
+  "selectedPlan": {
+    "ready": 0,
+    "holds": [
+      {
+        "epId": "EP-00545",
+        "reason": "SCOPE_PENDING"
+      },
+      {
+        "epId": "EP-00858",
+        "reason": "SCOPE_PENDING"
+      }
+    ]
+  },
+  "sourceWrites": 0,
+  "spotifyApiCalls": 0
+}

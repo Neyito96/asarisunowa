@@ -1,0 +1,549 @@
+{
+  "snapshotReadAt": "2026-10-16T22:13:00.083Z",
+  "stability": {
+    "verifiedAt": "2026-10-16T22:20:35.199Z",
+    "rereadRows": 6591,
+    "changedRows": [],
+    "additionalReadCalls": 27
+  },
+  "ledger": {
+    "mode": "READ_ONLY_LEDGER_GAPS",
+    "total": {
+      "rows": 6591,
+      "missingGuid": 5267,
+      "missingGuidWithClip": 33,
+      "missingGuidWithoutClip": 5234,
+      "missingGuidWithOfficialItem": 5264,
+      "missingGuidWithIdentity": 5264,
+      "missingGuidWithoutIdentity": 3,
+      "conflictingAnchors": 0,
+      "missingAudio": 5375,
+      "missingDescription": 371,
+      "missingCast": 639,
+      "missingSpotify": 166,
+      "blocked": 0
+    },
+    "byShow": [
+      {
+        "show": "ニュースの現場から",
+        "rows": 2641,
+        "missingGuid": 2514,
+        "missingGuidWithClip": 19,
+        "missingGuidWithoutClip": 2495,
+        "missingGuidWithOfficialItem": 2514,
+        "missingGuidWithIdentity": 2514,
+        "missingGuidWithoutIdentity": 0,
+        "conflictingAnchors": 0,
+        "missingAudio": 2514,
+        "missingDescription": 243,
+        "missingCast": 3,
+        "missingSpotify": 3,
+        "blocked": 0
+      },
+      {
+        "show": "MEDIA TALK",
+        "rows": 1750,
+        "missingGuid": 1647,
+        "missingGuidWithClip": 10,
+        "missingGuidWithoutClip": 1637,
+        "missingGuidWithOfficialItem": 1647,
+        "missingGuidWithIdentity": 1647,
+        "missingGuidWithoutIdentity": 0,
+        "conflictingAnchors": 0,
+        "missingAudio": 1657,
+        "missingDescription": 0,
+        "missingCast": 3,
+        "missingSpotify": 3,
+        "blocked": 0
+      },
+      {
+        "show": "こどもそうだんしつ",
+        "rows": 1123,
+        "missingGuid": 1103,
+        "missingGuidWithClip": 4,
+        "missingGuidWithoutClip": 1099,
+        "missingGuidWithOfficialItem": 1103,
+        "missingGuidWithIdentity": 1103,
+        "missingGuidWithoutIdentity": 0,
+        "conflictingAnchors": 0,
+        "missingAudio": 1103,
+        "missingDescription": 1,
+        "missingCast": 0,
+        "missingSpotify": 0,
+        "blocked": 0
+      },
+      {
+        "show": "報談",
+        "rows": 218,
+        "missingGuid": 2,
+        "missingGuidWithClip": 0,
+        "missingGuidWithoutClip": 2,
+        "missingGuidWithOfficialItem": 0,
+        "missingGuidWithIdentity": 0,
+        "missingGuidWithoutIdentity": 2,
+        "conflictingAnchors": 0,
+        "missingAudio": 2,
+        "missingDescription": 0,
+        "missingCast": 3,
+        "missingSpotify": 3,
+        "blocked": 0
+      },
+      {
+        "show": "ニュースの学校",
+        "rows": 486,
+        "missingGuid": 1,
+        "missingGuidWithClip": 0,
+        "missingGuidWithoutClip": 1,
+        "missingGuidWithOfficialItem": 0,
+        "missingGuidWithIdentity": 0,
+        "missingGuidWithoutIdentity": 1,
+        "conflictingAnchors": 0,
+        "missingAudio": 1,
+        "missingDescription": 1,
+        "missingCast": 486,
+        "missingSpotify": 8,
+        "blocked": 0
+      },
+      {
+        "show": "スポンジ",
+        "rows": 173,
+        "missingGuid": 0,
+        "missingGuidWithClip": 0,
+        "missingGuidWithoutClip": 0,
+        "missingGuidWithOfficialItem": 0,
+        "missingGuidWithIdentity": 0,
+        "missingGuidWithoutIdentity": 0,
+        "conflictingAnchors": 0,
+        "missingAudio": 0,
+        "missingDescription": 0,
+        "missingCast": 2,
+        "missingSpotify": 3,
+        "blocked": 0
+      },
+      {
+        "show": "ドーナツ",
+        "rows": 60,
+        "missingGuid": 0,
+        "missingGuidWithClip": 0,
+        "missingGuidWithoutClip": 0,
+        "missingGuidWithOfficialItem": 0,
+        "missingGuidWithIdentity": 0,
+        "missingGuidWithoutIdentity": 0,
+        "conflictingAnchors": 0,
+        "missingAudio": 0,
+        "missingDescription": 0,
+        "missingCast": 2,
+        "missingSpotify": 6,
+        "blocked": 0
+      },
+      {
+        "show": "アルキキ",
+        "rows": 100,
+        "missingGuid": 0,
+        "missingGuidWithClip": 0,
+        "missingGuidWithoutClip": 0,
+        "missingGuidWithOfficialItem": 0,
+        "missingGuidWithIdentity": 0,
+        "missingGuidWithoutIdentity": 0,
+        "conflictingAnchors": 0,
+        "missingAudio": 81,
+        "missingDescription": 100,
+        "missingCast": 100,
+        "missingSpotify": 100,
+        "blocked": 0
+      },
+      {
+        "show": "AJW",
+        "rows": 25,
+        "missingGuid": 0,
+        "missingGuidWithClip": 0,
+        "missingGuidWithoutClip": 0,
+        "missingGuidWithOfficialItem": 0,
+        "missingGuidWithIdentity": 0,
+        "missingGuidWithoutIdentity": 0,
+        "conflictingAnchors": 0,
+        "missingAudio": 2,
+        "missingDescription": 11,
+        "missingCast": 25,
+        "missingSpotify": 25,
+        "blocked": 0
+      },
+      {
+        "show": "朝ポキTV",
+        "rows": 15,
+        "missingGuid": 0,
+        "missingGuidWithClip": 0,
+        "missingGuidWithoutClip": 0,
+        "missingGuidWithOfficialItem": 0,
+        "missingGuidWithIdentity": 0,
+        "missingGuidWithoutIdentity": 0,
+        "conflictingAnchors": 0,
+        "missingAudio": 15,
+        "missingDescription": 15,
+        "missingCast": 15,
+        "missingSpotify": 15,
+        "blocked": 0
+      }
+    ]
+  },
+  "rss": [
+    {
+      "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/684015f9-2396-4ac4-bc1f-ac0f0033d08c/podcast.rss",
+      "show": "ニュースの現場から",
+      "fetchedAt": "2026-10-16T22:13:24.788662+00:00",
+      "http": 200,
+      "finalUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/684015f9-2396-4ac4-bc1f-ac0f0033d08c/podcast.rss",
+      "bytes": 20311898,
+      "etag": "W/\"675b4311c59fb878712a3b953529f3dd277d9778\"",
+      "lastModified": null,
+      "sha256": "e956ec560ef41ffc78dab65669b56a2ec79ebc9b663d7ebf06a67e6551872615",
+      "items": 2648,
+      "elapsedSeconds": 5.144,
+      "projectedCharacters": 6142366,
+      "cacheParts": 342
+    },
+    {
+      "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/07a1de49-67cf-4714-8581-ac1000059302/podcast.rss",
+      "show": "MEDIA TALK",
+      "fetchedAt": "2026-10-16T22:13:24.789631+00:00",
+      "http": 200,
+      "finalUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/07a1de49-67cf-4714-8581-ac1000059302/podcast.rss",
+      "bytes": 14109640,
+      "etag": "W/\"29817c77403e7d56ca00c417745e2a79dc15c063\"",
+      "lastModified": null,
+      "sha256": "970311f0b8176407e78868a14e08365ab9d4042ff2a372d3d16114308bea683e",
+      "items": 1754,
+      "elapsedSeconds": 5.007,
+      "projectedCharacters": 4409630,
+      "cacheParts": 245
+    },
+    {
+      "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/693cfdd6-f5a9-4308-9025-adb10164b5b1/podcast.rss",
+      "show": "こどもそうだんしつ",
+      "fetchedAt": "2026-10-16T22:13:24.790111+00:00",
+      "http": 200,
+      "finalUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/693cfdd6-f5a9-4308-9025-adb10164b5b1/podcast.rss",
+      "bytes": 270391,
+      "etag": "W/\"8afd850946b82266289056bec581e3119fd1641c\"",
+      "lastModified": null,
+      "sha256": "8e10bebd9f78461ade3e02eed3e1d5749fe62647432649ae2e5cb8cf2a05da44",
+      "items": 34,
+      "elapsedSeconds": 4.465,
+      "projectedCharacters": 89290,
+      "cacheParts": 5
+    },
+    {
+      "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/8ceab8ef-af5f-44e9-9545-b4ab0024434b/podcast.rss",
+      "show": "スポンジ",
+      "fetchedAt": "2026-10-16T22:13:29.255215+00:00",
+      "http": 200,
+      "finalUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/8ceab8ef-af5f-44e9-9545-b4ab0024434b/podcast.rss",
+      "bytes": 1614806,
+      "etag": "W/\"7374e5863a9667344090c603ed89d682657adfb6\"",
+      "lastModified": null,
+      "sha256": "502c59037050f1aa1935eb59e55605c29fba6e65c6fecf60fdccd90d1eebed64",
+      "items": 176,
+      "elapsedSeconds": 4.42,
+      "projectedCharacters": 516132,
+      "cacheParts": 29
+    },
+    {
+      "url": "https://feeds.megaphone.fm/TASC5851398719",
+      "show": "ニュースの学校",
+      "fetchedAt": "2026-10-16T22:13:29.797160+00:00",
+      "http": 200,
+      "finalUrl": "https://feeds.megaphone.fm/TASC5851398719",
+      "bytes": 1878682,
+      "etag": null,
+      "lastModified": "Fri, 16 Oct 2026 07:30:07 GMT",
+      "sha256": "6349db1e0ac5ab48ab947d33b22a6ebfb030c8cbb3e05fc5d4c002785fe93e46",
+      "items": 488,
+      "elapsedSeconds": 4.116,
+      "projectedCharacters": 326719,
+      "cacheParts": 19
+    },
+    {
+      "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/c373aac9-fb6a-4172-8a8f-b498003d9389/podcast.rss",
+      "show": "ドーナツ",
+      "fetchedAt": "2026-10-16T22:13:29.932310+00:00",
+      "http": 200,
+      "finalUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/c373aac9-fb6a-4172-8a8f-b498003d9389/podcast.rss",
+      "bytes": 596472,
+      "etag": "W/\"aa345b8de8ec8146e5ece1c834681dbafac0d727\"",
+      "lastModified": null,
+      "sha256": "4e68dbdffe60f563660e15c19c67c5ed299682e4b43696e4d3e183bbef6d4507",
+      "items": 63,
+      "elapsedSeconds": 3.795,
+      "projectedCharacters": 203228,
+      "cacheParts": 12
+    },
+    {
+      "url": "https://feeds.megaphone.fm/TASC9421488254",
+      "show": "報談",
+      "fetchedAt": "2026-10-16T22:13:33.674870+00:00",
+      "http": 200,
+      "finalUrl": "https://feeds.megaphone.fm/TASC9421488254",
+      "bytes": 2025250,
+      "etag": null,
+      "lastModified": "Fri, 16 Oct 2026 09:54:22 GMT",
+      "sha256": "79f2d87fc8fad7e29835738c92e8af97eb1edfefd236a9ea19ed2afbc4ff4e78",
+      "items": 217,
+      "elapsedSeconds": 5.213,
+      "projectedCharacters": 348825,
+      "cacheParts": 20
+    },
+    {
+      "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/ee64c498-786d-4155-962a-acc4009cef3e/podcast.rss",
+      "show": "アルキキ",
+      "fetchedAt": "2026-10-16T22:13:33.727500+00:00",
+      "http": 200,
+      "finalUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/ee64c498-786d-4155-962a-acc4009cef3e/podcast.rss",
+      "bytes": 242949,
+      "etag": "W/\"0e20ddac14c1c3857d9989efba86d42316d22396\"",
+      "lastModified": null,
+      "sha256": "c07adcd6fed80e27b529fc15393670ba1e31c6297b3a5b134ee07868db8ca2ab",
+      "items": 19,
+      "elapsedSeconds": 3.716,
+      "projectedCharacters": 80715,
+      "cacheParts": 5
+    },
+    {
+      "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/29a60fdd-4069-48cf-a604-ad25009874be/podcast.rss",
+      "show": "AJW",
+      "fetchedAt": "2026-10-16T22:13:33.912926+00:00",
+      "http": 200,
+      "finalUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/29a60fdd-4069-48cf-a604-ad25009874be/podcast.rss",
+      "bytes": 149674,
+      "etag": "W/\"01988867ba536132fa23bc2ec0d1cc3cb6ceb513\"",
+      "lastModified": null,
+      "sha256": "ff02d475dbea4851be2e95315865f393f79bb26acc6808e6d8602a99cc46b23c",
+      "items": 24,
+      "elapsedSeconds": 3.598,
+      "projectedCharacters": 45897,
+      "cacheParts": 3
+    },
+    {
+      "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/91b696fe-c723-4bd1-95ed-b4aa00909997/podcast.rss",
+      "show": "旧SDGsアーカイブ",
+      "fetchedAt": "2026-10-16T22:13:37.443233+00:00",
+      "http": 200,
+      "finalUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/91b696fe-c723-4bd1-95ed-b4aa00909997/podcast.rss",
+      "bytes": 9563077,
+      "etag": "W/\"e6ac7853718e0cef1112c9e881e7f32b89112059\"",
+      "lastModified": null,
+      "sha256": "444856f7763aa1701f462ff83f00e1068638277a4af190cd97e34d5fb064316f",
+      "items": 1092,
+      "elapsedSeconds": 4.335,
+      "projectedCharacters": 3069995,
+      "cacheParts": 171
+    }
+  ],
+  "rssItems": 6515,
+  "rssUniqueGuids": 6224,
+  "localReplayElapsedMs": 893,
+  "candidateEpisodes": 3809,
+  "candidateCells": 7664,
+  "candidateFields": {
+    "guid": 3799,
+    "audio": 3809,
+    "description": 56
+  },
+  "feeds": [
+    {
+      "show": "ニュースの学校",
+      "rssItems": 488,
+      "noMatch": 3,
+      "ambiguous": 0,
+      "metadataMismatch": 0,
+      "matchedNoSupportedFill": 485,
+      "eligibleEpisodes": 0,
+      "eligibleCells": 0,
+      "unsupportedGaps": {
+        "guid": 0,
+        "audio": 0,
+        "description": 0,
+        "cast": 485,
+        "spotify": 8
+      },
+      "reasons": {}
+    },
+    {
+      "show": "報談",
+      "rssItems": 217,
+      "noMatch": 1,
+      "ambiguous": 121,
+      "metadataMismatch": 1,
+      "matchedNoSupportedFill": 94,
+      "eligibleEpisodes": 0,
+      "eligibleCells": 0,
+      "unsupportedGaps": {
+        "guid": 0,
+        "audio": 0,
+        "description": 0,
+        "cast": 3,
+        "spotify": 3
+      },
+      "reasons": {
+        "date_mismatch": 1
+      }
+    },
+    {
+      "show": "AJW",
+      "rssItems": 24,
+      "noMatch": 12,
+      "ambiguous": 0,
+      "metadataMismatch": 0,
+      "matchedNoSupportedFill": 12,
+      "eligibleEpisodes": 0,
+      "eligibleCells": 0,
+      "unsupportedGaps": {
+        "guid": 0,
+        "audio": 0,
+        "description": 0,
+        "cast": 12,
+        "spotify": 12
+      },
+      "reasons": {}
+    },
+    {
+      "show": "旧SDGsアーカイブ",
+      "rssItems": 1092,
+      "noMatch": 0,
+      "ambiguous": 8,
+      "metadataMismatch": 1084,
+      "matchedNoSupportedFill": 0,
+      "eligibleEpisodes": 0,
+      "eligibleCells": 0,
+      "unsupportedGaps": {
+        "guid": 0,
+        "audio": 0,
+        "description": 0,
+        "cast": 0,
+        "spotify": 0
+      },
+      "reasons": {
+        "show_mismatch": 1084,
+        "title_mismatch": 5
+      }
+    },
+    {
+      "show": "アルキキ",
+      "rssItems": 19,
+      "noMatch": 19,
+      "ambiguous": 0,
+      "metadataMismatch": 0,
+      "matchedNoSupportedFill": 0,
+      "eligibleEpisodes": 0,
+      "eligibleCells": 0,
+      "unsupportedGaps": {
+        "guid": 0,
+        "audio": 0,
+        "description": 0,
+        "cast": 0,
+        "spotify": 0
+      },
+      "reasons": {}
+    },
+    {
+      "show": "MEDIA TALK",
+      "rssItems": 1754,
+      "noMatch": 5,
+      "ambiguous": 14,
+      "metadataMismatch": 7,
+      "matchedNoSupportedFill": 93,
+      "eligibleEpisodes": 1635,
+      "eligibleCells": 3260,
+      "unsupportedGaps": {
+        "guid": 0,
+        "audio": 0,
+        "description": 0,
+        "cast": 3,
+        "spotify": 3
+      },
+      "reasons": {
+        "title_mismatch": 6,
+        "date_mismatch": 2
+      }
+    },
+    {
+      "show": "ニュースの現場から",
+      "rssItems": 2648,
+      "noMatch": 27,
+      "ambiguous": 268,
+      "metadataMismatch": 66,
+      "matchedNoSupportedFill": 125,
+      "eligibleEpisodes": 2162,
+      "eligibleCells": 4380,
+      "unsupportedGaps": {
+        "guid": 0,
+        "audio": 0,
+        "description": 0,
+        "cast": 3,
+        "spotify": 3
+      },
+      "reasons": {
+        "title_mismatch": 66
+      }
+    },
+    {
+      "show": "こどもそうだんしつ",
+      "rssItems": 34,
+      "noMatch": 2,
+      "ambiguous": 0,
+      "metadataMismatch": 0,
+      "matchedNoSupportedFill": 20,
+      "eligibleEpisodes": 12,
+      "eligibleCells": 24,
+      "unsupportedGaps": {
+        "guid": 0,
+        "audio": 0,
+        "description": 0,
+        "cast": 0,
+        "spotify": 0
+      },
+      "reasons": {}
+    },
+    {
+      "show": "スポンジ",
+      "rssItems": 176,
+      "noMatch": 3,
+      "ambiguous": 151,
+      "metadataMismatch": 2,
+      "matchedNoSupportedFill": 20,
+      "eligibleEpisodes": 0,
+      "eligibleCells": 0,
+      "unsupportedGaps": {
+        "guid": 0,
+        "audio": 0,
+        "description": 0,
+        "cast": 0,
+        "spotify": 1
+      },
+      "reasons": {
+        "title_mismatch": 2
+      }
+    },
+    {
+      "show": "ドーナツ",
+      "rssItems": 63,
+      "noMatch": 3,
+      "ambiguous": 18,
+      "metadataMismatch": 0,
+      "matchedNoSupportedFill": 42,
+      "eligibleEpisodes": 0,
+      "eligibleCells": 0,
+      "unsupportedGaps": {
+        "guid": 0,
+        "audio": 0,
+        "description": 0,
+        "cast": 2,
+        "spotify": 6
+      },
+      "reasons": {}
+    }
+  ],
+  "inputSHA256": {
+    "audit-live.json": "493351aabc2f7c7d6b939f167c004d58167f6e097df10c468acade62a95674fe",
+    "rss-projected.json": "2dcf8fe670934f28935f564a8c74661a4391dcee95e20d91ca869dc932dac982"
+  }
+}

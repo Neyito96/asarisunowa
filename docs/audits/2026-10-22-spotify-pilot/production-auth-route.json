@@ -1,0 +1,50 @@
+{
+  "checkedAt": "2026-10-22T10:06:20.836828+00:00",
+  "mode": "READ_ONLY_STATIC_REPOSITORY",
+  "repositoryCommit": "0841c7c94b929a704f8d8b919dcdfb063bf4f131",
+  "liveProjectNameUserReported": "朝リスの輪 プレイリスト投稿受付",
+  "liveSourceRead": false,
+  "livePropertiesRead": false,
+  "spotifyApiCalls": 0,
+  "spotifyPostAttempts": 0,
+  "beforeCount": null,
+  "afterCount": null,
+  "readback": null,
+  "replayAdded": null,
+  "forbidden": null,
+  "tokenValuesReadOrExported": false,
+  "sourceFiles": [
+    {
+      "name": "SpotifyAuth.js",
+      "sha256": "91a4b24921fdaca04b0b67be89294b7a73ff714d8a730483bcc24545e46f2c61"
+    },
+    {
+      "name": "Spotify.js",
+      "sha256": "2ab036d0debf7315d86ebce81217909c3adc339010d58856b7b7ca0ee5cdbc4c"
+    },
+    {
+      "name": "PlaylistAutoSpotify.js",
+      "sha256": "08efd67861b5b9901505adc39447fc0264eb426d93454d49b64471f3da0bc336"
+    },
+    {
+      "name": "PlaylistAutoV2Production.js",
+      "sha256": "8bdefd6406b9a44a1153f337cb3c2bdb667a46b953b858c4db6d1a531abf3a65"
+    },
+    {
+      "name": "AutoUpdateAutomationV1.js",
+      "sha256": "eb5a3d23ff70ddcc609a7f66cec8b277839bb13579b35f1249007b1e75999b1b"
+    },
+    {
+      "name": "PlaylistAutoWrite.js",
+      "sha256": "159ad8645c6f6e4ae2fdaf97f29b6060935df536dc6729f28591633600d68cb2"
+    },
+    {
+      "name": "PlaylistAutoEpisodes.js",
+      "sha256": "fc29a6288f35626afc4576a135f3327e02790bc24b4420d127f3f09638c30499"
+    },
+    {
+      "name": "PlaylistAuto.js",
+      "sha256": "90569e796038d6ed21097f566818713997d0662c76853dc4a16efda32e55a882"
+    }
+  ]
+}

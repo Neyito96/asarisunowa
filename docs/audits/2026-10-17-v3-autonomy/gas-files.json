@@ -1,0 +1,23 @@
+[
+  {
+    "online_file": "LibraryV2CheckpointEngine.gs",
+    "operation": "update",
+    "baseline_sha256": "38043cebffda107ecea5b4e820bad1445cbbe8c5952fbdc30b0b69b5a96e1499",
+    "proposed_sha256": "314e00923216a7e276d4405e254b9c7d2c102cd339c6e4d35159089ceecfc8b8",
+    "rollback": "restore b3f950f source"
+  },
+  {
+    "online_file": "LibraryV3.gs",
+    "operation": "update",
+    "baseline_sha256": "23955e81909ef31b5fdc8c4c4a4d9c63af7cb65f02343ed88d19c4a273d87cd0",
+    "proposed_sha256": "2c6dd4c0423ae27b53438226df80eac547064b8b77b8e5e3f84053c5139fc99f",
+    "rollback": "restore b3f950f source"
+  },
+  {
+    "online_file": "LibraryV3Autonomy.gs",
+    "operation": "add",
+    "baseline_sha256": null,
+    "proposed_sha256": "0a4344f64aed420eb09aa3e20fac42e868ba82d3b9b65307c1a90ab8d37a352e",
+    "rollback": "remove new file after approval"
+  }
+]
