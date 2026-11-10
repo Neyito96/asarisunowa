@@ -7,6 +7,8 @@ on:
       - 'scripts/probe-link-services.mjs'
       - 'scripts/probe-apple-search.mjs'
       - 'scripts/probe-listen-pody-amazon.mjs'
+      - 'scripts/check-urls.mjs'
+      - 'docs/release/2026-11-10-listen-reach-sample.json'
       - 'docs/release/2026-11-10-show-level-urls.json'
       - 'docs/release/2026-11-10-apple-search-sample30.json'
       - 'public/library/link-discovery.mjs'
@@ -61,3 +63,11 @@ jobs:
           node scripts/probe-listen-pody-amazon.mjs docs/release/2026-11-10-show-level-urls.json lpa.json || true
           split -b 50000 -d lpa.json lpa-part-
           for f in lpa-part-*; do { echo "lpa-dump:$f"; echo '```'; cat "$f"; echo; echo '```'; } > c.md; gh pr comment ${{ github.event.pull_request.number }} --body-file c.md; done
+      - name: LISTEN候補の到達性サンプル（HTTP応答のみ）→ PR comment
+        if: github.event_name == 'pull_request' && always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node scripts/check-urls.mjs docs/release/2026-11-10-listen-reach-sample.json reach.json || true
+          { echo 'reach-report (LISTEN候補・HTTP応答のみ)'; echo '```json'; head -c 20000 reach.json; echo; echo '```'; } > r.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file r.md
