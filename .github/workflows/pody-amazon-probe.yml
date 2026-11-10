@@ -1,0 +1,24 @@
+name: Pody/Amazon route probe (read-only)
+on:
+  pull_request:
+    paths:
+      - 'scripts/probe-pody-amazon-deep.mjs'
+      - '.github/workflows/pody-amazon-probe.yml'
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node scripts/probe-pody-amazon-deep.mjs docs/release/2026-11-10-show-level-urls.json pa.json || true
+          split -b 50000 -d pa.json pa-part-
+          for f in pa-part-*; do { echo "pa-deep:$f"; echo '```'; cat "$f"; echo; echo '```'; } > c.md; gh pr comment ${{ github.event.pull_request.number }} --body-file c.md; done

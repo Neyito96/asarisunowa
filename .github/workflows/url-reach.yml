@@ -1,0 +1,29 @@
+name: URL reach check (read-only)
+# 候補URLのHTTP到達性のみ（再生可能性ではない）。台帳・Sheetsには触れない。
+on:
+  pull_request:
+    paths:
+      - 'docs/release/reach-batches/**'
+      - '.github/workflows/url-reach.yml'
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  reach:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for f in docs/release/reach-batches/*.json; do
+            n=$(basename $f .json)
+            node scripts/check-urls.mjs $f $n-reach.json || true
+            node -e "const j=require('./$n-reach.json');console.log(JSON.stringify({tally:j.tally,bad:j.out.filter(o=>o[1]!==200||o[2]!=='same')}))" > $n-sum.txt
+            { echo "reach-batch:$n"; echo '```json'; cat $n-sum.txt; echo '```'; } > c.md
+            gh pr comment ${{ github.event.pull_request.number }} --body-file c.md
+          done
