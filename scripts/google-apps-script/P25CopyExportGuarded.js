@@ -31,6 +31,7 @@ function p25ExportPlan_(values, spec) {
 function p25ExportMayRun_(approval, nowMs) {
   if (!approval) return {ok: false, reason: "NO_APPROVAL_RECORD"};
   if (approval.sheetId) return {ok: false, reason: "ALREADY_EXPORTED", sheetId: approval.sheetId};
+  if (approval.creating) return {ok: false, reason: "PREVIOUS_RUN_INCOMPLETE"}; // 作成途中で失敗した可能性: 自動再実行せず人間が確認
   if (!approval.approvedBy || !approval.expiresOn) return {ok: false, reason: "APPROVAL_INCOMPLETE"};
   if (Date.parse(approval.expiresOn) < nowMs) return {ok: false, reason: "APPROVAL_EXPIRED"};
   return {ok: true};
@@ -52,13 +53,14 @@ function P25_COPY_EXPORT_NEW_ROWS_GUARDED() {
     const values = sheet.getRange(1, 1, sheet.getLastRow(), 50).getValues(); // only the columns the allowlist needs
     const plan = p25ExportPlan_(values, {minExclusive: "EP-06591", refresh: approval.refresh || [], maxRows: P25_EXPORT_MAX_ROWS_});
     if (plan.problems.length) { console.log(JSON.stringify({status: "STOP", problems: plan.problems, created: false})); return {status: "STOP", problems: plan.problems}; }
+    approval.creating = true; props.setProperty(P25_EXPORT_PROP_, JSON.stringify(approval)); // 先に作成中マーカー: 作成後の保存失敗でも二重作成しない
     const fmt = function(v) { return v instanceof Date ? Utilities.formatDate(v, "Asia/Tokyo", "yyyy/MM/dd HH:mm") : v; };
     const out = [plan.header].concat(plan.rows.map(function(r) { return r.map(fmt); }));
     const ss = SpreadsheetApp.create("朝リス宇宙プレビュー用_派生コピー_期限" + approval.expiresOn + "_削除対象");
     const tab = ss.getSheets()[0].setName("rows");
     tab.getRange(1, 1, out.length, out[0].length).setValues(out);
     tab.getRange(out.length + 2, 1).setValue("一時派生コピー。期限 " + approval.expiresOn + " を過ぎたら削除。共有禁止。");
-    approval.sheetId = ss.getId(); approval.createdRows = plan.rows.length;
+    approval.sheetId = ss.getId(); approval.creating = false; approval.createdRows = plan.rows.length;
     props.setProperty(P25_EXPORT_PROP_, JSON.stringify(approval)); // one file per approval
     const result = {status: "OK", rows: plan.rows.length, cols: out[0].length, ledgerWritten: false, spotifyWrite: false};
     console.log(JSON.stringify(result)); return result;

@@ -28,5 +28,6 @@ test('gate: no approval / incomplete / expired / already exported all block; val
   assert.equal(c.p25ExportMayRun_({approvedBy:'a'},now).reason,'APPROVAL_INCOMPLETE');
   assert.equal(c.p25ExportMayRun_({approvedBy:'a',expiresOn:'2026-11-01'},now).reason,'APPROVAL_EXPIRED');
   assert.equal(c.p25ExportMayRun_({approvedBy:'a',expiresOn:'2026-11-24',sheetId:'x'},now).reason,'ALREADY_EXPORTED');
+  assert.equal(c.p25ExportMayRun_({approvedBy:'a',expiresOn:'2026-11-24',creating:true},now).reason,'PREVIOUS_RUN_INCOMPLETE');
   assert.equal(c.p25ExportMayRun_({approvedBy:'a',expiresOn:'2026-11-24'},now).ok,true);
 });
