@@ -14,8 +14,8 @@ const castKey = entry => String(entry).split(/[,，（(]/)[0].replace(/\s+/g, ''
 export function dedupeCast(values) {
   const seen = new Set(), out = [];
   for (const value of values.filter(Boolean).map(String)) {
-    for (const part of value.split(/\s+\/\s+/)) {
-      const entry = part.trim(), key = castKey(entry);
+    for (const part of value.split(/\s+\/\s+|\r?\n+/)) {
+      const entry = part.replace(/https?:\/\/\S+/g, ' ').replace(/\s+/g, ' ').trim(), key = castKey(entry);
       if (!entry || !key || seen.has(key)) continue;
       seen.add(key); out.push(entry);
     }

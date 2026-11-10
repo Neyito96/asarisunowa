@@ -1,0 +1,169 @@
+{
+ "episodes": 5945,
+ "before": {
+  "pins": 6000,
+  "episodesWithPin": 3622
+ },
+ "after": {
+  "pins": 811,
+  "episodesWithPin": 729,
+  "tag": 4573,
+  "hold": 14
+ },
+ "removedPins": 5197,
+ "keptPins": 803,
+ "newPins": 8,
+ "perPlace": {
+  "日本": {
+   "before": 1437,
+   "after": 0
+  },
+  "アメリカ": {
+   "before": 368,
+   "after": 76
+  },
+  "中国": {
+   "before": 260,
+   "after": 90
+  },
+  "韓国": {
+   "before": 113,
+   "after": 29
+  },
+  "台湾": {
+   "before": 44,
+   "after": 17
+  },
+  "ロシア": {
+   "before": 111,
+   "after": 21
+  },
+  "ウクライナ": {
+   "before": 99,
+   "after": 22
+  },
+  "イスラエル": {
+   "before": 38,
+   "after": 10
+  },
+  "パレスチナ・ガザ": {
+   "before": 37,
+   "after": 15
+  },
+  "キューバ": {
+   "before": 1,
+   "after": 0
+  },
+  "ブラジル": {
+   "before": 19,
+   "after": 7
+  },
+  "イギリス": {
+   "before": 54,
+   "after": 11
+  },
+  "フランス": {
+   "before": 84,
+   "after": 23
+  },
+  "ドイツ": {
+   "before": 46,
+   "after": 9
+  },
+  "インド": {
+   "before": 80,
+   "after": 24
+  },
+  "イラン": {
+   "before": 64,
+   "after": 27
+  },
+  "北朝鮮": {
+   "before": 26,
+   "after": 5
+  },
+  "タイ": {
+   "before": 324,
+   "after": 4
+  },
+  "ベトナム": {
+   "before": 34,
+   "after": 19
+  },
+  "オーストラリア": {
+   "before": 25,
+   "after": 5
+  },
+  "北海道": {
+   "before": 78,
+   "after": 11
+  },
+  "青森": {
+   "before": 11,
+   "after": 1
+  },
+  "宮城": {
+   "before": 33,
+   "after": 2
+  },
+  "東京": {
+   "before": 754,
+   "after": 40
+  },
+  "神奈川": {
+   "before": 41,
+   "after": 2
+  },
+  "長野": {
+   "before": 151,
+   "after": 3
+  },
+  "新潟": {
+   "before": 20,
+   "after": 3
+  },
+  "石川": {
+   "before": 125,
+   "after": 34
+  },
+  "静岡": {
+   "before": 24,
+   "after": 5
+  },
+  "愛知": {
+   "before": 85,
+   "after": 18
+  },
+  "京都": {
+   "before": 221,
+   "after": 45
+  },
+  "大阪": {
+   "before": 731,
+   "after": 116
+  },
+  "兵庫": {
+   "before": 136,
+   "after": 16
+  },
+  "広島": {
+   "before": 123,
+   "after": 20
+  },
+  "福岡": {
+   "before": 43,
+   "after": 9
+  },
+  "沖縄": {
+   "before": 160,
+   "after": 64
+  }
+ },
+ "removedByReason": {
+  "MENTION_ONLY": 4296,
+  "NO_EVIDENCE_PATTERN": 636,
+  "TITLE_NATIONAL_OR_RELATION_USE": 237,
+  "AMBIGUOUS_TOKEN_WEAK_EVIDENCE": 14,
+  "TITLE_RELATION_USE": 14
+ }
+}

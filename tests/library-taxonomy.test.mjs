@@ -23,3 +23,9 @@ test('human-approved (locked) classification is never overwritten',()=>{
 test('legacy labels map to ids without inventing',()=>{
   assert.deepEqual(themeIdsForLabel('国際/米国'),['world']);assert.deepEqual(themeIdsForLabel('人権・司法'),['society','law']);assert.deepEqual(themeIdsForLabel('不明'),[]);
 });
+test('multi-theme: secondary themes are listed as related, primary unchanged; SNS is not shared across themes', () => {
+  const r = classifyText({title: '認知症の介護と医療の現場', description: '認知症 介護 病院 医師'});
+  assert.equal(r.decision, 'TAG'); assert.ok(Array.isArray(r.related));
+  const owners = THEMES.filter(t => t.synonyms.includes('SNS') || t.subthemes.some(s => s.name === 'SNS')).map(t => t.id);
+  assert.deepEqual(owners, ['media']);
+});

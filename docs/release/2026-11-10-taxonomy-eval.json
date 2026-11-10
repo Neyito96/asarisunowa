@@ -13,25 +13,31 @@
  },
  "after": {
   "n": 342,
-  "correct": 103,
-  "wrong": 44,
-  "held": 195,
-  "precision": 0.701,
-  "coverage": 0.43,
-  "recall": 0.301
+  "correct": 107,
+  "wrong": 35,
+  "held": 200,
+  "precision": 0.754,
+  "coverage": 0.415,
+  "recall": 0.313
+ },
+ "afterWithRelated": {
+  "tagged": 142,
+  "primaryOrRelatedHit": 109,
+  "precisionWithRelated": 0.768,
+  "withRelatedThemes": 8
  },
  "afterByOrigin": {
   "human_approved": {
    "n": 109,
-   "correct": 28,
-   "wrong": 10,
+   "correct": 31,
+   "wrong": 7,
    "held": 71
   },
   "legacy_assistant_reviewed": {
    "n": 147,
-   "correct": 48,
-   "wrong": 24,
-   "held": 75
+   "correct": 49,
+   "wrong": 19,
+   "held": 79
   },
   "assistant_reviewed": {
    "n": 33,
