@@ -1,0 +1,20 @@
+name: platform-url-bot-dryrun
+# READ_ONLY dry-run。手動実行のみ(scheduleなし)。Secrets不使用・シート/Spotifyへ書込なし。入力はrepo内のCSV/fixture。
+on:
+  workflow_dispatch:
+    inputs:
+      ledger_csv: { description: 'リポジトリ内の台帳CSVパス', required: true, type: string }
+      fixtures: { description: 'リポジトリ内のfixture JSONパス(任意)', required: false, type: string }
+permissions:
+  contents: read
+jobs:
+  dryrun:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node --test tests/platform-resolver.test.mjs tests/base-ledger-v1.test.mjs
+      - run: node scripts/platform-url-bot.mjs --ledger "${{ inputs.ledger_csv }}" ${{ inputs.fixtures && format('--fixtures "{0}"', inputs.fixtures) || '' }} --out out
+      - uses: actions/upload-artifact@v4
+        with: { name: platform-url-bot-report, path: out/ }
