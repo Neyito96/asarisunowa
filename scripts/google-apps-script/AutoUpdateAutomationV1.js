@@ -420,29 +420,9 @@ function processPendingAutoUpdateRequestsV1() {
     assertAutoPlaylistRuleActivationSafe_(rule);
 
       assertAutoPlaylistSheetLinkBeforeWrite_(rule);
-      let seed = findAutoUpdateSeedEpisodeV1_(
-        getAllSpotifyPlaylistItems_(rule.playlistId, token),
-        rule,
-        token
-      );
-      if (!seed && rule.seedDateOverride) {
-        seed = {
-          id: "manual-date-boundary-" + playlistId,
-          releaseDate: rule.seedDateOverride,
-          name: "申請で確認した最新既存回"
-        };
-      }
-      if (!seed) {
-        setAutoUpdateRequestStatusV1_(
-          sheet,
-          rowNumber,
-          "確認待ち",
-          "条件に合う起点エピソードがプレイリスト内にありません"
-        );
-        result.review += 1;
-        return;
-      }
-      prepareAutoUpdateSeedBootstrapV1_(rule, seed);
+      // 新規申請は空のSpotifyプレイリストから開始できる。
+      // 起点回を要求せず、対象Showを最後まで走査して条件一致回を初回候補にする。
+      prepareAutoUpdateFullBootstrapV1_(rule);
       saveAutoUpdateRuntimeRuleV1_(rule);
 
       // 招待リンクは権限確認後にシートから消し、不要な露出を残さない。
@@ -451,7 +431,7 @@ function processPendingAutoUpdateRequestsV1() {
         sheet,
         rowNumber,
         "初回補完中",
-        "起点 " + seed.releaseDate + " から不足回を古い順に補完します"
+        "対象回を全期間から確認し、古い順に最大50件ずつ追加します"
       );
       result.activated += 1;
     });
@@ -597,8 +577,9 @@ function normalizeAutoUpdateRuntimeRuleV1_(rule) {
 // 同じ起点日から安全に再開できるようにする。候補は既存Playlistと照合してから
 // 追加されるため、再作成しても重複追加にはならない。
 function ensureAutoUpdateSeedBootstrapProgressV1_(rule) {
+  const fullBootstrap = String(rule.bootstrapMode || "") === "full";
   const seedDate = String(rule.bootstrapSeedDate || rule.seedDateOverride || "").trim();
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(seedDate)) {
+  if (!fullBootstrap && !/^\d{4}-\d{2}-\d{2}$/.test(seedDate)) {
     throw new Error("初回補完の起点日を復旧できません");
   }
 
@@ -606,8 +587,13 @@ function ensureAutoUpdateSeedBootstrapProgressV1_(rule) {
     const existing = loadAutoPlaylistScopedState_(rule.key, showId);
     if (existing) return existing;
 
-    const state = createAutoPlaylistScopedShowState_(rule, showId, "seed-bootstrap", "");
-    state.bootstrapSeedDate = seedDate;
+    const state = createAutoPlaylistScopedShowState_(
+      rule,
+      showId,
+      fullBootstrap ? "full-bootstrap" : "seed-bootstrap",
+      ""
+    );
+    if (!fullBootstrap) state.bootstrapSeedDate = seedDate;
     saveAutoPlaylistScopedState_(state);
     return state;
   });
@@ -728,6 +714,45 @@ function selectAutoUpdateSeedEpisodeV1_(episodes, rule) {
   return seeds.length ? seeds[0] : null;
 }
 
+function prepareAutoUpdateFullBootstrapV1_(rule) {
+  rule.bootstrapPending = true;
+  rule.bootstrapMode = "full";
+
+  getAutoPlaylistShowIds_(rule).forEach(function(showId) {
+    const state = createAutoPlaylistScopedShowState_(rule, showId, "full-bootstrap", "");
+    saveAutoPlaylistScopedState_(state);
+  });
+}
+
+function applyAutoUpdateFullBootstrapPageV1_(state, episodes, rule, nextUrl) {
+  const current = Object.assign({}, state || {});
+  const source = Array.isArray(episodes) ? episodes : [];
+
+  if (!current.nextUrl && !current.pendingBoundaryId && source.length) {
+    current.pendingBoundaryId = String(source[0] && source[0].id ? source[0].id : "").trim();
+  }
+
+  const pageCandidateIds = [];
+  source.forEach(function(episode) {
+    if (episode && episode.id && matchesAutoPlaylistRule_(episode, rule)) {
+      pageCandidateIds.push(String(episode.id));
+    }
+  });
+
+  current.pagesFetched = Number(current.pagesFetched || 0) + 1;
+  current.inspectedCount = Number(current.inspectedCount || 0) + source.length;
+  current.candidateIds = mergeAutoPlaylistCandidateIds_(
+    current.candidateIds || [],
+    pageCandidateIds,
+    AUTO_UPDATE_V1_BOOTSTRAP_MAX_CANDIDATES_PER_SHOW_
+  );
+  current.candidateCount = current.candidateIds.length;
+  current.committed = false;
+  current.complete = !String(nextUrl || "").trim();
+  current.nextUrl = current.complete ? "" : String(nextUrl);
+  return current;
+}
+
 function prepareAutoUpdateSeedBootstrapV1_(rule, seed) {
   rule.bootstrapPending = true;
   rule.bootstrapSeedEpisodeId = String(seed.id || "");
@@ -796,7 +821,10 @@ function fetchAutoUpdateSeedBootstrapPageV1_(rule, state, token) {
   const status = response.getResponseCode();
   if (status !== 200) throw new Error("初回補完のShow取得に失敗しました: " + state.showId + " status=" + status);
   const data = JSON.parse(response.getContentText());
-  const nextState = applyAutoUpdateSeedBootstrapPageV1_(
+  const applyPage = String(state && state.mode || "") === "full-bootstrap"
+    ? applyAutoUpdateFullBootstrapPageV1_
+    : applyAutoUpdateSeedBootstrapPageV1_;
+  const nextState = applyPage(
     state,
     Array.isArray(data.items) ? data.items : [],
     rule,
@@ -985,6 +1013,7 @@ function syncAutoUpdateSeedBootstrapV1_(rule, token, maxAdditions) {
 
   // 最後に完了フラグを保存する。
   rule.bootstrapPending = false;
+  delete rule.bootstrapMode;
   delete rule.bootstrapResumeAfterMs;
   saveAutoUpdateRuntimeRuleV1_(rule);
 
