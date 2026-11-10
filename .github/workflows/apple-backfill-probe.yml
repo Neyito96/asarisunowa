@@ -12,7 +12,7 @@ permissions:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 330
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,9 +22,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          for f in docs/release/apple-batches/batch0${BATCH_FILTER:-1}.json; do
+          msg=$(git log -1 --pretty=%s HEAD^2 2>/dev/null || git log -1 --pretty=%s)
+          case "$msg" in *"[apple-run]"*) ;; *) echo "skip (no [apple-run] marker)"; exit 0;; esac
+          for f in docs/release/apple-batches/batch02.json docs/release/apple-batches/batch03.json docs/release/apple-batches/batch04.json docs/release/apple-batches/batch05.json docs/release/apple-batches/batch06.json docs/release/apple-batches/batch07.json; do
             n=$(basename $f .json)
             node scripts/probe-apple-search.mjs $f $n-report.json compact || true
             split -b 50000 -d $n-report.json $n-part-
             for p in $n-part-*; do { echo "apple-backfill:$n:$p"; echo '```'; cat "$p"; echo; echo '```'; } > c.md; gh pr comment ${{ github.event.pull_request.number }} --body-file c.md; done
+            if grep -q RATE_LIMITED $n-report.json; then echo stop-on-429; break; fi
           done

@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'scripts/probe-pody-amazon-deep.mjs'
+      - 'scripts/probe-pody-sitemap.mjs'
       - '.github/workflows/pody-amazon-probe.yml'
 permissions:
   contents: read
@@ -19,6 +20,8 @@ jobs:
       - env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          node scripts/probe-pody-amazon-deep.mjs docs/release/2026-11-10-show-level-urls.json pa.json || true
-          split -b 50000 -d pa.json pa-part-
-          for f in pa-part-*; do { echo "pa-deep:$f"; echo '```'; cat "$f"; echo; echo '```'; } > c.md; gh pr comment ${{ github.event.pull_request.number }} --body-file c.md; done
+          msg=$(git log -1 --pretty=%s HEAD^2 2>/dev/null || git log -1 --pretty=%s)
+          case "$msg" in *"[pody-run]"*) ;; *) echo "skip (no [pody-run] marker)"; exit 0;; esac
+          node scripts/probe-pody-sitemap.mjs docs/release/2026-11-10-show-level-urls.json ps.json || true
+          split -b 50000 -d ps.json ps-part-
+          for f in ps-part-*; do { echo "pody-sitemap:$f"; echo '```'; cat "$f"; echo; echo '```'; } > c.md; gh pr comment ${{ github.event.pull_request.number }} --body-file c.md; done
