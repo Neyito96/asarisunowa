@@ -8,7 +8,7 @@ import { parseCsv } from "../scripts/lib/ledger-csv.mjs";
 import { projectApi, actualDurationZero, SPEC } from "../scripts/lib/onsa-count.mjs";
 
 const base = JSON.parse(gunzipSync(readFileSync(new URL("../docs/audits/2026-10-22-publication-scope/decisions.json.gz", import.meta.url))).toString()).decisions;
-const baseLedger = base.map((d) => ({ id: d.id, show: d.show, title: "t" + d.id, publishedAt: "2020-01-01 00:00:00", guid: "g-" + d.id }));
+const baseLedger = base.map((d) => ({ id: d.id, show: d.show, title: "t" + d.id, publishedAt: "2021-01-01 00:00:00", guid: "g-" + d.id }));
 const ep = (n, show, o = {}) => ({ id: "EP-" + String(n).padStart(5, "0"), show, title: "新着" + n, publishedAt: "2026-11-01 07:00:00", guid: "g-" + n, ...o });
 const run = (news) => judgeIncrement([...baseLedger, ...news], base);
 
@@ -104,7 +104,7 @@ test("実CSV(新100件): 3件重複・97候補・確定5,848/最大5,945・番�
   assert.equal(res.rows.length, new Set(res.rows.map((r) => r.id)).size);
 });
 const API = (o = {}) => ({ genba: [], media: [], sdgs: [], houdan: [], donuts: [], sports: [], ...o });
-const A = (title, pubDate, link = "", extra = {}) => ({ title, pubDate, link, duration: 600, spotify: "", clipId: "", ...extra });
+const A = (title, pubDate, link = "", extra = {}) => ({ title, pubDate, link, duration: 600, spotify: "", clipId: "", mc: [], speakers: [], ...extra });
 const omny = (g) => `https://omny.fm/shows/x/playlists/p/clips/${g}`;
 test("おんさ差分: 新着/旧SDGs/再配信/日時差分/番組構成/未解明/不足/重複をEP単位で分類", () => {
   const cmp = base.filter((d) => d.comparison === "対象" && d.publication === "対象").map((d) => d.id);
@@ -116,7 +116,7 @@ test("おんさ差分: 新着/旧SDGs/再配信/日時差分/番組構成/未解
   const api = API({
     sdgs: [A("t", "2026-01-01", omny(G(sd))), A("t", "2026-01-01", omny(G(re)))],
     genba: [ A("t", "2026-01-01", omny(G(jd))), A("新着6592", "2026-11-01", omny("00000000-0000-4000-8000-000000006592")),
-      A("どこにも無い", "2026-02-02", omny("ffffffff-ffff-4fff-8fff-ffffffffffff")), A("x", "2020-01-01", omny(G(dupOld))), A("x", "2020-01-01", omny(G(dupOld)))],
+      A("どこにも無い", "2026-02-02", omny("ffffffff-ffff-4fff-8fff-ffffffffffff")), A("x", "2021-01-01", omny(G(dupOld))), A("x", "2021-01-01", omny(G(dupOld)))],
   });
   const projection = projectApi(api, { asOf: "2026-11-10" });
   const r = classifyOnsaDiff({ projection, ledger, baselineComparisonIds: cmp, baselineSnapshotDate: "2026-10-21", decisions: base });
@@ -175,4 +175,34 @@ test("CSV見出しの別名を解決し、必須列が無ければ停止", () =>
 });
 test("judgeOne は入力を変更しない", () => {
   const r = Object.freeze(ep(6592, "MEDIA TALK")); judgeOne(r, { guidSeen: new Map(), titleSeen: new Map(), oldGuids: new Map(), oldByTitle: new Map(), baseIds: new Map(), pastBefore: "2026-10-22", knownShows: new Set(["MEDIA TALK"]) });
+});
+
+// ---- speakers3.js で確認した画面の既定条件 ----
+import { dedupeByLink, sheetExportToApiJson, inUiRange } from "../scripts/lib/onsa-count.mjs";
+test("画面カウンタ: duration<=0・月範囲(2020-08〜閲覧月)外・長さ1000分以上は数えない", () => {
+  const api = API({ genba: [A("ok", "2026-05-01"), A("長さ0", "2026-05-02", "", { duration: 0 }), A("範囲前", "2020-07-31T00:00:00+09:00"), A("範囲内", "2020-08-01T00:00:00+09:00"), A("未来", "2027-01-01"), A("長すぎ", "2026-05-03", "", { duration: 60000 })] });
+  const p = projectApi(api, { asOf: "2026-11-10T09:14:00+09:00" });
+  assert.deepEqual(p.items.map((i) => i.counted), [true, false, false, true, false, false]);
+  assert.equal(inUiRange("2020-08-01T00:00:00+09:00", 60, "2026-11-10T00:00:00+09:00"), true);
+});
+test("API schema: mc/speakers 欠落は画面側で例外になるため unavailable 扱い", () => {
+  assert.equal(projectApi(API({ genba: [{ title: "t", pubDate: "2026-05-01", duration: 1 }] }), { asOf: "x" }).status, "unavailable");
+});
+test("共同編集シート書き出し: 6番組タブのみ、先頭2行(見出し・注意書き)は除外、行数をEP件数とみなさない", () => {
+  const row = (l) => l.join(",");
+  const txt = ["## Sheet name: ニュースの現場から", "h1,h2,h3,h4", "note,,,", 'https://omny.fm/shows/asahi/a,"Thu, 06 Aug 2020 02:06:00 +0000",題A,100', "## Sheet name: ニュースの学校", "h", "n", 'https://omny.fm/shows/asahi/b,"Thu, 06 Aug 2020 02:06:00 +0000",学校,100', ""].join("\n");
+  const { api, sheets } = sheetExportToApiJson(txt, parseCsv);
+  assert.deepEqual(sheets, { "ニュースの現場から": 1 }); assert.equal(api.genba.length, 1); assert.equal(api.genba[0].pubDate, "2020-08-06T02:06:00.000Z");
+});
+test("同一linkのカテゴリ重複は専用番組側を残して1件にする（現場タブは総合フィード）", () => {
+  const mk = (category, link) => ({ category, link, counted: true });
+  const r = dedupeByLink([mk("genba", "L1"), mk("sports", "L1"), mk("genba", "L2")]);
+  assert.deepEqual(r.map((i) => i.category + i.link).sort(), ["genbaL2", "sportsL1"]);
+});
+test("旧判定が保留/対象外だった項目は『旧保留(分類)』『旧対象外(分類)』として説明し、未解明にしない", () => {
+  const hold = base.find((d) => d.publication === "保留" && d.classification === "同一性保留" && !/SDGs/.test(d.show));
+  const g = "00000000-0000-4000-8000-0000000000e1";
+  const ledger = baseLedger.map((r) => (r.id === hold.id ? { ...r, guid: g } : r));
+  const r = classifyOnsaDiff({ projection: projectApi(API({ genba: [A("t", "2026-01-01", omny(g))] }), { asOf: "2026-11-10" }), ledger, baselineComparisonIds: [], decisions: base });
+  assert.equal(r.summary["旧保留(同一性保留)"], 1); assert.equal(r.unexplained, 0);
 });

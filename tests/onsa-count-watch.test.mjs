@@ -6,7 +6,7 @@ import { mkdtempSync, writeFileSync, readFileSync as rf, existsSync } from "node
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { watchOnce, LIMITS } from "../scripts/onsa-count-watch.mjs";
-const body = (n) => ({ genba: Array.from({ length: n }, (_, i) => ({ title: "t" + i, pubDate: "2026-05-01", link: "", duration: 1 })), media: [], sdgs: [], houdan: [], donuts: [], sports: [] });
+const body = (n) => ({ genba: Array.from({ length: n }, (_, i) => ({ title: "t" + i, pubDate: "2026-05-01", link: "", duration: 1, mc: [], speakers: [] })), media: [], sdgs: [], houdan: [], donuts: [], sports: [] });
 const ok = (b) => async () => ({ status: 200, json: async () => b });
 const at = (iso) => () => new Date(iso);
 test("成功: 画面カウンタと生配列件数を別に記録し、基準との差に収蔵漏れ断定をしない", async () => {

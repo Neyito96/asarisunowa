@@ -5,7 +5,7 @@
 import { readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import { parseCsv } from "./lib/ledger-csv.mjs";
-import { projectApi } from "./lib/onsa-count.mjs";
+import { projectApi, sheetExportToApiJson } from "./lib/onsa-count.mjs";
 import { guidOf, judgeIncrement, recountPublication, classifyOnsaDiff } from "./lib/ledger-increment.mjs";
 
 const ALIAS = { id: ["台帳ID", "EP-ID", "EPID", "エピソードID"], show: ["番組名", "番組"], title: ["タイトル", "エピソードタイトル", "題名"], publishedAt: ["配信日時（JST）", "配信日時(JST)", "配信日時", "配信日", "公開日時"], guid: ["外部ID", "GUID", "UUID", "GUID/UUID", "公式GUID", "公式識別子"], audioUrl: ["音声URL"], spotifyUrl: ["Spotify URL", "SpotifyURL", "SpotifyエピソードURL"] };
@@ -33,15 +33,22 @@ export function oldTitlesFromRepo(root = ".") {
   return out;
 }
 
-export function writeAll({ outDir, res, snap, asOf, ledgerForOnsa, onsaPath, onsaFetchedAt }) {
+export function writeAll({ outDir, res, snap, asOf, ledgerForOnsa, onsaPath, onsaSheetPath, onsaFetchedAt }) {
   const recount = recountPublication({ baselineAdopted: snap.decisions.filter((d) => d.publication === "対象").length, baselineSource: snap.decisions.length, baselineDate: "2026-10-22", judged: res.rows, asOf });
   mkdirSync(outDir, { recursive: true });
   writeFileSync(`${outDir}/increment-manifest.json`, JSON.stringify({ schema: 1, policy: res.policy, mode: res.mode, auditEvidence: res.auditEvidence, asOf, rows: res.rows }, null, 1));
   writeFileSync(`${outDir}/publication-recount.json`, JSON.stringify(recount, null, 1));
-  if (onsaPath) {
+  if (onsaPath || onsaSheetPath) {
     const baseCmp = snap.decisions.filter((d) => d.comparison === "対象" && d.publication === "対象").map((d) => d.id);
-    let projection; try { projection = projectApi(JSON.parse(load(onsaPath)), { asOf, fetchedAt: onsaFetchedAt || asOf }); } catch (e) { projection = { status: "unavailable", reason: "UNREADABLE_" + e.message, asOf, items: [] }; }
-    writeFileSync(`${outDir}/onsa-diff.json`, JSON.stringify(classifyOnsaDiff({ projection, ledger: ledgerForOnsa, baselineComparisonIds: baseCmp, baselineSnapshotDate: "2026-10-21", decisions: snap.decisions }), null, 1));
+    let apiJson, source;
+    try {
+      if (onsaPath) { apiJson = JSON.parse(load(onsaPath)); source = "API生JSON"; }
+      else { apiJson = sheetExportToApiJson(load(onsaSheetPath), parseCsv).api; source = "共同編集シート書き出し（API本体ではない参考再現）"; }
+    } catch (e) { apiJson = null; }
+    const projection = projectApi(apiJson, { asOf, fetchedAt: onsaFetchedAt || asOf });
+    const common = { projection, ledger: ledgerForOnsa, baselineComparisonIds: baseCmp, baselineSnapshotDate: "2026-10-21", decisions: snap.decisions };
+    const withDup = classifyOnsaDiff(common), noDup = classifyOnsaDiff({ ...common, dedupe: true });
+    writeFileSync(`${outDir}/onsa-diff.json`, JSON.stringify({ source, asOf, withCrossTabDuplicates: withDup, dedupedByLink: noDup }, null, 1));
   }
   return recount;
 }
@@ -58,6 +65,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const full = ledgerPath ? readRows(ledgerPath) : null;
   const res = judgeIncrement(full ? [] : readRows(incPath), snap.decisions, { fullLedger: full, auditEvidence: arg("--audit-evidence", ""), oldGuids, oldTitles });
   if (!res.ok) { console.error("STOP", JSON.stringify(res)); process.exit(3); }
-  const recount = writeAll({ outDir, res, snap, asOf, ledgerForOnsa: full || [], onsaPath: arg("--onsa"), onsaFetchedAt: arg("--onsa-fetched-at") });
+  const recount = writeAll({ outDir, res, snap, asOf, ledgerForOnsa: full || [...oldTitles, ...res.rows.map((r) => ({ id: r.id, show: r.show, title: r.title, publishedAt: r.publishedAt, guid: r.guid }))], onsaPath: arg("--onsa"), onsaSheetPath: arg("--onsa-sheet"), onsaFetchedAt: arg("--onsa-fetched-at") });
   console.log(JSON.stringify({ asOf, mode: res.mode, ...recount }, null, 1));
 }

@@ -5,7 +5,13 @@ export const SPEC = {
   categories: ["genba", "media", "sdgs", "houdan", "donuts", "sports"],      // 6番組。ニュースの学校は含めない
   // 朝リスの田の番組名への対応。sports→スポンジ は未検証の前提（EP同一性が取れた項目だけで裏付ける）
   showOf: { genba: "ニュースの現場から", media: "MEDIA TALK", sdgs: "SDGsを話そう", houdan: "報談", donuts: "ドーナツ", sports: "スポンジ" },
-  sdgsCutoffJst: "2026-06-30T00:00:00+09:00",       // new Date(2026,5,30) 以降をskip（ブラウザのローカル日付。JST想定・要検証）
+  sdgsCutoffJst: "2026-06-30T00:00:00+09:00",       // new Date(2026,5,30) 以降をskip（ブラウザのローカル日付。JST想定）
+  // speakers3.js (yoshimotomasahir/asapoki_vis, AGPL-3.0) を読んで確認した画面カウンタの既定条件。コードは複製せず規則だけを独自実装する。
+  //  ・counts は actualDuration>0 のみ加算。actualDuration=duration(秒)、題名規則で0になる → duration<=0 も非計数
+  //  ・既定フィルタ: 6番組すべて選択 / 長さ 0〜999分 / 月範囲 2020年8月〜閲覧時の当月（ブラウザのローカル月）
+  //  ・各エントリは mc[] と speakers[] を持つ前提（無いと readData が例外で打ち切られ、以降の番組が読み込まれない）
+  uiDefaults: { monthStart: "2020-08", maxMinutes: 999 },
+  verifiedAgainst: "yoshimotomasahir/asapoki_vis speakers3.js 2026-11-10 取得時点のHEAD",
   zeroDurationTitle: [/^（再）/, /^（ふりかえり）/, /^（深掘り）/, /再放送です/],
 };
 const s = (v) => String(v ?? "").trim();
@@ -16,7 +22,7 @@ export function validateApi(json) {
   if (!json || typeof json !== "object") return { ok: false, reason: "NOT_OBJECT" };
   const missing = SPEC.categories.filter((c) => !Array.isArray(json[c]));
   if (missing.length) return { ok: false, reason: "SCHEMA_MISSING_" + missing.join(",") };
-  for (const c of SPEC.categories) for (const e of json[c]) if (!e || typeof e.title !== "string" || !e.pubDate) return { ok: false, reason: "SCHEMA_ENTRY_" + c };
+  for (const c of SPEC.categories) for (const e of json[c]) if (!e || typeof e.title !== "string" || !e.pubDate || !Array.isArray(e.mc) || !Array.isArray(e.speakers)) return { ok: false, reason: "SCHEMA_ENTRY_" + c };   // mc/speakers 欠落は画面側で例外（以降の番組が読めない）
   return { ok: true };
 }
 
@@ -24,6 +30,12 @@ export function validateApi(json) {
 export const actualDurationZero = (title) => SPEC.zeroDurationTitle.some((re) => re.test(s(title)));
 export const sdgsSkipped = (pubDate) => Date.parse(pubDate) >= Date.parse(SPEC.sdgsCutoffJst);
 
+const monthIdx = (iso) => { const d = new Date(Date.parse(iso) + 9 * 3600000); return d.getUTCFullYear() * 12 + d.getUTCMonth(); };
+// 画面の既定フィルタ（月範囲 2020-08〜閲覧月、長さ 0〜999分）。asOf が不正なら月上限は掛けない。
+export function inUiRange(pubDate, duration, asOf) {
+  const m = monthIdx(pubDate), lo = 2020 * 12 + 7, hi = Number.isFinite(Date.parse(asOf)) ? monthIdx(asOf) : Infinity;
+  return m >= lo && m <= hi && Math.floor(Number(duration) / 60) <= SPEC.uiDefaults.maxMinutes;
+}
 // API生JSON → 項目列。counted=画面の件数カウンタに加算される（6番組・SDGsカット・再配信等は非計数）。
 export function projectApi(json, { asOf, fetchedAt = asOf } = {}) {
   const v = validateApi(json);
@@ -31,14 +43,14 @@ export function projectApi(json, { asOf, fetchedAt = asOf } = {}) {
   const items = [];
   for (const c of SPEC.categories) for (const e of json[c]) {
     const skippedSdgs = c === "sdgs" && sdgsSkipped(e.pubDate);
-    const zero = actualDurationZero(e.title);
+    const zero = actualDurationZero(e.title) || !(Number(e.duration) > 0);               // actualDuration=duration。0/欠損も非計数
     const link = s(e.link), sp = s(e.spotify);
     items.push({
       category: c, show: SPEC.showOf[c], title: s(e.title), publishedAt: s(e.pubDate), link, clipId: s(e.clipId),
       guid: (link.match(UUID) || s(e.clipId).match(UUID) || [""])[0].toLowerCase(),
       spotifyId: (sp.match(SPOTIFY) || [])[1] || "",
-      readData: skippedSdgs ? "skipped_sdgs_cutoff" : "kept", counted: !skippedSdgs && !zero,
-      notCountedReason: skippedSdgs ? "SDGs日付カット" : zero ? "actualDuration=0（再/ふりかえり/深掘り/再放送）" : "",
+      readData: skippedSdgs ? "skipped_sdgs_cutoff" : "kept", counted: !skippedSdgs && !zero && inUiRange(e.pubDate, e.duration, asOf),
+      notCountedReason: skippedSdgs ? "SDGs日付カット" : zero ? "actualDuration=0（再/ふりかえり/深掘り/再放送/duration<=0）" : !inUiRange(e.pubDate, e.duration, asOf) ? "UI既定の月範囲/長さの外" : "",
     });
   }
   const kept = items.filter((i) => i.readData === "kept");
@@ -66,13 +78,17 @@ export function buildLedgerIndex(ledger) {
     const sid = (s(r.spotifyUrl).match(SPOTIFY) || [])[1]; if (sid && !sp.has(sid)) sp.set(sid, r);
     const k = r.show + "\u0000" + norm(r.title) + "\u0000" + dayOf(r.publishedAt); if (norm(r.title) && !t.has(k)) t.set(k, r);
   }
-  return { g, sp, t };
+  const ta = new Map();                                                           // 番組を問わない 題名+日付（番組の所属が台帳とおんさで違う場合の補助）
+  for (const r of ledger) { const k = norm(r.title) + "\u0000" + dayOf(r.publishedAt); if (norm(r.title)) ta.set(k, ta.has(k) ? null : r); }   // 複数一致は曖昧なので使わない
+  return { g, sp, t, ta };
 }
 export function matchItem(item, ix) {
   if (item.guid && ix.g.has(item.guid)) return { ep: ix.g.get(item.guid), by: "GUID" };
   if (item.spotifyId && ix.sp.has(item.spotifyId)) return { ep: ix.sp.get(item.spotifyId), by: "SPOTIFY_ID" };
   const k = item.show + "\u0000" + norm(item.title) + "\u0000" + dayOf(item.publishedAt);
   if (ix.t.has(k)) return { ep: ix.t.get(k), by: "TITLE_DATE" };
+  const ka = norm(item.title) + "\u0000" + dayOf(item.publishedAt);
+  if (ix.ta && ix.ta.get(ka)) return { ep: ix.ta.get(ka), by: "TITLE_DATE_ANY_SHOW" };
   return null;
 }
 
@@ -89,9 +105,17 @@ export function sheetExportToApiJson(text, parseCsv) {
     for (const r of rows.slice(2)) {                                                       // 先頭2行はヘッダーと注意書き。行数をEP件数とみなさない
       const link = s(r[0]), date = s(r[1]), title = s(r[2]);
       if (!title || !/^https?:/.test(link) || !Number.isFinite(Date.parse(date.replace(/ -0000$/, " +0000")))) continue;
-      api[cat].push({ link, pubDate: new Date(Date.parse(date.replace(/ -0000$/, " +0000"))).toISOString(), title, duration: Number(r[3]) || 0, spotify: s(r[11]), clipId: "" }); n++;
+      api[cat].push({ link, pubDate: new Date(Date.parse(date.replace(/ -0000$/, " +0000"))).toISOString(), title, duration: Number(r[3]) || 0, spotify: s(r[11]), clipId: "", mc: [], speakers: [] }); n++;
     }
     sheets[name] = n;
   }
   return { api, sheets };
+}
+
+// 同一linkが複数カテゴリに出る重複エントリ（現場タブは総合フィードで専用番組と重なる）を1件にまとめる。専用番組側を残す。
+// 画面(speakers3.js)は重複を除かないため、APIが重複を除いているかは未確認。比較時は両方の件数を出す。
+export function dedupeByLink(items) {
+  const m = new Map();
+  for (const i of items) { const cur = m.get(i.link); if (!cur || (cur.category === "genba" && i.category !== "genba")) m.set(i.link, i); }
+  return [...m.values()];
 }

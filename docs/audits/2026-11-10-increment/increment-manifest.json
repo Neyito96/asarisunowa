@@ -3,7 +3,7 @@
  "policy": "REVIEWED_D_TARGET/increment-2",
  "mode": "increment",
  "auditEvidence": "司令塔READ_ONLY実測 2026-11-10: 旧6,591存在・ID一意・旧ID消失0・台帳重複0 (PR #277)",
- "asOf": "2026-11-10T11:40:00+09:00",
+ "asOf": "2026-11-10T09:14:00+09:00",
  "rows": [
   {
    "id": "EP-06592",
