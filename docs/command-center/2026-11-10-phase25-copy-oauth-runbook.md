@@ -33,7 +33,7 @@
 - 書き込み実行時のみ: `write:true`, `legacyWriterDisabled:true`(COPY GAS にはレガシーwriterが無いことの確認後), `maxAdditions:1`, `maxPlaylists:1`
 - COPY Sheet: `P25_STATE` 1行目 `key|version|part|json`、`自動更新申請` に test playlist の URL 行(状態は 確認待ち/招待承認待ち/増分自動更新/初回補完中 のいずれか)
 - ledgerSheetId は本番台帳(読み取りのみ)。state/request に本番シートは使えない(コードでガード済み)
-- リポジトリ内コードにはプレイリスト名 `[P25-COPY]` の検査が存在しない。名前確認は preflight 手順(下記)で人手+ログ確認とする。コード化は別途提案。
+- 試験プレイリストの実記録(11/07 COPYセッション記録): ID `1N0T7tMxPMKxXy77C0RPMw`、名称「朝リス Phase25 COPY試験 2026-11-07」、NEYITO所有、非公開、空。**`[P25-COPY]` 接頭辞は実態と不一致のため受入条件から廃止**(名称変更は承認されておらず行わない)。受入条件は下記の強一致(ID・所有者・非公開・allowlist)とする。コードに名前検査は無く、リポジトリ内に `[P25-COPY]` は存在しない。
 
 ## 4. 既存 Spotify アプリの流用可否
 
@@ -51,11 +51,12 @@
 3. 画面に「COPYの読み取り・非公開プレイリスト変更用トークン…保存しました」と出れば完了。
 
 ### 操作B: 実行 (Claude 実施、管理人の操作は承認のみ)
-1. READ_ONLY preflight: `P25_COPY_PREFLIGHT_20261107` → `P25_COPY_READ_ONLY_20261107`。確認: EP-06678 の GUID・Spotify ID、除外/HOLD履歴、テストプレイリストの名前が `[P25-COPY]` で始まること、現メンバーシップ。
+1. READ_ONLY preflight: `P25_COPY_PREFLIGHT_20261107` → `P25_COPY_READ_ONLY_20261107`。確認: EP-06678 の GUID・Spotify ID、除外/HOLD履歴、テストプレイリストについて 実ID=`1N0T7tMxPMKxXy77C0RPMw`・所有者が認可したSpotifyアカウント(NEYITO)・非公開(public=false)・`copyPlaylistIds` と完全一致、の4点が強一致すること(名称は記録値「朝リス Phase25 COPY試験 2026-11-07」と一致を参考確認、不一致でも上記4点が一致していれば可。名称変更は行わない)、現メンバーシップ。
 2. 不一致・token無し・403・429・メンバーシップ不明のいずれかで即停止。
 3. 承認(`P25_APPROVE_COPY` に inspect が返した manifest を完全一致で渡す。STALE_APPROVAL は停止)。
 4. `write:true` で EP-06678 のみ POST 最大1件 → readback で追加確認 → 再実行して POST 0件を確認。
 5. ログ/スナップショットのみ報告(秘密値なし)。
 
 ## 6. 停止条件
-COPY専用でないGoogleアカウント / 想定外scope / Client ID 形式不正 / 本番ID検出 / テストプレイリスト名・所有者の不一致。
+COPY専用でないGoogleアカウント / 想定外scope / Client ID 形式不正 / 本番ID検出 / テストプレイリストの実ID・所有者・非公開設定・allowlist のいずれかの不一致、または現メンバーシップ取得不能(名称のみの差異は停止条件にしない)。
+Googleアカウント確認: COPY GAS にログイン中のアカウントが COPY 専用か(アドレスの提出は不要、Googleアカウント画面で本人確認)。確認が済むまで操作A は開始しない。Spotify Dashboard に未使用/COPY専用アプリがあれば流用、無い場合のみ新規作成。本番アプリの流用は原則避ける。`P25_COPY_AUTH_URL`(state を含む)・token・nonce は貼付禁止。
