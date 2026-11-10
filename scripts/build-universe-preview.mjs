@@ -10,6 +10,7 @@ import {createHash} from 'node:crypto';
 import {writePublicLibrarySnapshot} from './library-publication-files.mjs';
 import {buildPublicationScope} from '../public/library/publication-scope.mjs';
 import {blocked, publicEpisode} from '../lib/library-public.mjs';
+import {refreshCastFromLedger} from '../public/library/cast-sync.mjs';
 
 export function parseCsv(text) {
   const rows = []; let row = [], f = '', q = false;
@@ -42,8 +43,10 @@ export function classifyNewRow(row, existingTitles) {
 export async function buildPreview({ledgerRows, existingDetails, decisionSnapshot, destination, snapshotDate}) {
   const base = decisionSnapshot.decisions, baseIds = new Set(base.map(d => d.id));
   const byId = new Map(ledgerRows.map(r => [r[0], r]));
-  const existing = existingDetails.map(e => ({...e, links: [...(e.links || [])]}));
-  const report = {linkRefresh: [], provisional: {対象: 0, 保留: 0, 対象外: 0}, holds: {}, ids: {}};
+  const existing0 = existingDetails.map(e => ({...e, links: [...(e.links || [])]}));
+  // 出演者: 台帳の確定変更を既存エピソードへ増分反映(台帳のみが真値。推測値では上書きしない。台帳が空なら既存を消さない)
+  const cr = refreshCastFromLedger(existing0, byId), existing = cr.episodes;
+  const report = {linkRefresh: [], castRefresh: {changed: cr.changes.length, added: cr.changes.filter(c => c.kind === 'CAST_ADDED').length, replaced: cr.changes.filter(c => c.kind === 'CAST_CHANGED').length, keptBlank: cr.keptBlank, ids: cr.changes.map(c => c.id), byShow: cr.changes.reduce((m, c) => (m[c.show] = (m[c.show] || 0) + 1, m), {})}, provisional: {対象: 0, 保留: 0, 対象外: 0}, holds: {}, ids: {}};
   for (const e of existing) { // refresh only: add a ledger Spotify episode URL that the snapshot lacks
     const r = byId.get(e.id); const s = r && String(r[11] || '').trim();
     if (s && /^https:\/\/open\.spotify\.com\/episode\/[A-Za-z0-9]+/.test(s) && !e.links.some(u => /open\.spotify\.com\/episode\//.test(u))) { e.links.push(s); report.linkRefresh.push(e.id); }
@@ -83,5 +86,5 @@ if (process.argv[1] && process.argv[1].endsWith('build-universe-preview.mjs')) {
   const snapshot = JSON.parse(gunzipSync(raw).toString('utf8'));
   const {result, report} = await buildPreview({ledgerRows: rows, existingDetails: existing, decisionSnapshot: snapshot, destination: out, snapshotDate: new Intl.DateTimeFormat('sv-SE', {timeZone: 'Asia/Tokyo'}).format(new Date())});
   if (reportPath) await writeFile(reportPath, JSON.stringify(report, null, 1));
-  console.log(JSON.stringify({result, summary: {previousTotal: report.previousTotal, newTotal: report.newTotal, provisional: report.provisional, holds: report.holds, linkRefresh: report.linkRefresh.length}}, null, 1));
+  console.log(JSON.stringify({result, summary: {previousTotal: report.previousTotal, newTotal: report.newTotal, provisional: report.provisional, holds: report.holds, linkRefresh: report.linkRefresh.length, castRefresh: {changed: report.castRefresh.changed, added: report.castRefresh.added, replaced: report.castRefresh.replaced, keptBlank: report.castRefresh.keptBlank, byShow: report.castRefresh.byShow}}}, null, 1));
 }
