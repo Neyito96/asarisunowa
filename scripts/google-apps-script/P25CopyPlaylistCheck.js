@@ -78,3 +78,22 @@ function P25_COPY_FEED_CHECK_20261110() {
   });
   console.log(JSON.stringify(out)); return out;
 }
+
+// READ-ONLY on the production ledger. Creates ONE NEW private spreadsheet (new file, owner = this user) holding only the
+// rows newer than the reviewed publication decisions (EP-06592+) plus a few refresh rows, so a developer can read them
+// without manual export. Never writes to the ledger. No Spotify. Output: counts only.
+function P25_COPY_EXPORT_NEW_ROWS_20261110() {
+  const config = p25CopySessionConfig20261107_();
+  p25CopyIo_(config);
+  const refresh = ["EP-00001","EP-00002","EP-00003","EP-00021","EP-00022","EP-00023","EP-00062","EP-00081","EP-00082","EP-00686","EP-00703","EP-00825","EP-00101","EP-00102","EP-00103","EP-00121","EP-01069","EP-01222","EP-01223","EP-00282","EP-00408","EP-00418"];
+  const sheet = SpreadsheetApp.openById(config.ledgerSheetId).getSheetByName("エピソード台帳");
+  const values = sheet.getRange(1, 1, sheet.getLastRow(), 55).getValues();
+  const cols = [0,1,2,3,6,8,9,10,11,12,14,15,21,22,23,38,43,45,46,47,48,49];
+  const pick = function(r) { return cols.map(function(c) { const v = r[c]; return v instanceof Date ? Utilities.formatDate(v, "Asia/Tokyo", "yyyy/MM/dd HH:mm") : v; }); };
+  const out = [pick(values[0])];
+  values.slice(1).forEach(function(r) { const id = String(r[0]); if (/^EP-\d{5}$/.test(id) && (id > "EP-06591" || refresh.indexOf(id) >= 0)) out.push(pick(r)); });
+  const ss = SpreadsheetApp.create("朝リス宇宙プレビュー用_新着100件と更新行_20261110(読取専用の派生コピー)");
+  ss.getSheets()[0].setName("rows").getRange(1, 1, out.length, cols.length).setValues(out);
+  const result = {rows: out.length - 1, cols: cols.length, newSpreadsheetCreated: true, ledgerWritten: false, spotifyWrite: false};
+  console.log(JSON.stringify(result)); return result;
+}
