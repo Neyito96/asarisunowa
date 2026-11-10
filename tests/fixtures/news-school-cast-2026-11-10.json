@@ -1,0 +1,55 @@
+{
+  "schema": "asarisunowa.news-school.cast-oracle.v1",
+  "snapshotDate": "2026-11-10",
+  "source": "2026-11-10 read-only verification of live エピソード台帳; X and AT matched for all 500 rows",
+  "sourceAuthority": "管理人が指定・訂正した出演者。公式RSS概要から直接MCを検証したことを意味しない。",
+  "show": "ニュースの学校",
+  "defaultCast": "神田大介",
+  "exceptionCast": "杢田光",
+  "idRangesInclusive": [
+    [
+      "EP-00081",
+      "EP-00100"
+    ],
+    [
+      "EP-00408",
+      "EP-00872"
+    ]
+  ],
+  "additionalIds": [
+    "EP-06591",
+    "EP-06594",
+    "EP-06600",
+    "EP-06606",
+    "EP-06609",
+    "EP-06618",
+    "EP-06628",
+    "EP-06645",
+    "EP-06646",
+    "EP-06658",
+    "EP-06666",
+    "EP-06670",
+    "EP-06675",
+    "EP-06684",
+    "EP-06690"
+  ],
+  "exceptionEpisodeIds": [
+    "EP-00804",
+    "EP-00814",
+    "EP-00825",
+    "EP-00826",
+    "EP-00835",
+    "EP-00844",
+    "EP-00853",
+    "EP-00858"
+  ],
+  "expectedTotal": 500,
+  "expectedPerPerson": {
+    "神田大介": 492,
+    "杢田光": 8
+  },
+  "notes": [
+    "ID集合は2026-11-10時点の台帳から読み取った500件を表す。一時検証用fixtureであり自動上書き・未来の番組追加の根拠にしてはならない。",
+    "蔵・宇宙の最新実データでの一致は別途検証する。CSVと同じく、このJSONだけでは既存プレビューに必要な説明/リンク/除外情報を再生成できない。"
+  ]
+}
