@@ -173,8 +173,17 @@ function runAutoUpdateBackfillHourlyV1() {
     return { skipped: true, reason: "daily-window" };
   }
   const activation = processPendingAutoUpdateRequestsV1();
+  let speakerLatest = { skipped: true, reason: "handler-missing" };
+  if (typeof syncBootstrapSpeakerLatestFastLaneV1_ === "function") {
+    try {
+      speakerLatest = syncBootstrapSpeakerLatestFastLaneV1_();
+    } catch (error) {
+      Logger.log("speaker fast lane全体失敗: " + String(error));
+      speakerLatest = { ok: false, error: String(error) };
+    }
+  }
   const backfill = syncNextAutoUpdateBootstrapV1_();
-  return { activation: activation, backfill: backfill };
+  return { activation: activation, speakerLatest: speakerLatest, backfill: backfill };
 }
 
 function isAutoUpdateDailyWindowV1_(nowMs) {
@@ -240,12 +249,29 @@ function syncRecentManagedAutoPlaylistV1_(rule, token, episodeCache) {
   if (missing.length > AUTO_UPDATE_V1_MAX_ADDITIONS_PER_RUN_) {
     throw new Error("朝の追加候補が上限を超えました: " + missing.length);
   }
-  if (!missing.length) return { addedCount: 0, failedCount: 0 };
+
+  // Even if Spotify already contains the newest matching episode, repair stale sheet/site dates.
+  const existingMatched = Object.keys(episodesById).map(function(id) {
+    return episodesById[id];
+  }).filter(function(episode) {
+    return existingUris.has(String(episode.uri || ("spotify:episode:" + episode.id)));
+  });
+
+  if (!missing.length) {
+    if (rule.updateLatestDateOnAdd === true && existingMatched.length) {
+      updatePlaylistLatestDate_(rule.playlistId, getLatestReleaseDate_(existingMatched));
+    }
+    return { addedCount: 0, failedCount: 0, reconciledLatestDate: existingMatched.length > 0 };
+  }
+
   assertAutoPlaylistSheetLinkBeforeWrite_(rule);
   const result = addAutoPlaylistEpisodesIndividually_(rule, token, missing);
   if (result.failedCount > 0) throw new Error("Spotify追加に一部失敗しました");
-  if (result.addedCount > 0 && rule.updateLatestDateOnAdd === true) {
-    updatePlaylistLatestDate_(rule.playlistId, getLatestReleaseDate_(result.addedEpisodes));
+  if (rule.updateLatestDateOnAdd === true) {
+    const latestSource = result.addedEpisodes.concat(existingMatched);
+    if (latestSource.length) {
+      updatePlaylistLatestDate_(rule.playlistId, getLatestReleaseDate_(latestSource));
+    }
   }
   return result;
 }
@@ -674,6 +700,15 @@ function syncOneApprovedAutoUpdateRequestV1_(rule, token, bootstrapMaxAdditions)
   });
   if (addResult.addedCount > 0) {
     updatePlaylistLatestDate_(rule.playlistId, getLatestReleaseDate_(addResult.addedEpisodes));
+  } else if (rule.updateLatestDateOnAdd === true) {
+    const existingEpisodes = getAllSpotifyPlaylistItems_(rule.playlistId, token).map(function(row) {
+      return row && row.item ? row.item : null;
+    }).filter(function(ep) {
+      return ep && ep.release_date;
+    });
+    if (existingEpisodes.length) {
+      updatePlaylistLatestDate_(rule.playlistId, getLatestReleaseDate_(existingEpisodes));
+    }
   }
   setAutoUpdateRuleSheetStatusV1_(rule, "増分自動更新", "前回追加 " + addResult.addedCount + "件");
   return { playlistId: rule.playlistId, ok: true, addedCount: addResult.addedCount };

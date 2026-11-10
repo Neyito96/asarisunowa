@@ -1,0 +1,35 @@
+SIMULATED_NORDIC_COUNTS {"get":13,"post":1,"delete":1}
+✔ cache reads remain possible during cooldown, fresh does not hit cache
+✔ fresh forces a second request, persistent prefer survives execution reset
+✔ 429 respects huge Retry-After, preserves queue cursor and makes one call
+✔ rolling hour budget applies across executions and rolling 30 seconds prevents bursts
+✔ run cap and deadline safely stop before request
+✔ backfill has a separate one page/hour allowance
+✔ pool stores complete fields and repeated consumers require no GET
+✔ missing details deduplicate a single hydration job
+✔ partial playlist build cannot overwrite active membership
+✔ stable snapshot check uses real fresh metadata at both ends
+✔ local classification and human exclusions continue during quota wait
+✔ hold and exclusion prevent writes even for already queued add
+✔ direct mutation without durable journal is rejected
+✔ successful POST dirties cache and is not confirmed until fresh membership
+✔ ambiguous POST is reconciled without re-POST; absent outcome goes to review
+✔ 429 POST is not treated as success and persists a safely retryable job
+✔ fresh existing item is recorded without adding or later deleting pre-existing item
+✔ human decision changed immediately before send prevents POST
+✔ human columns are not overwritten by receipt updates
+✔ completed playlist refresh wakes blocked writer within the same execution
+✔ install preserves rules, ledgers, cooldown and existing legacy runtime data
+✔ rollback preserves quota and budget; restores old ownership only after safe export
+✔ rollback refuses unresolved sent write and pauses network without releasing V2 ownership
+✔ old paths are unchanged except the explicit Nordic owner exclusion
+✔ simulated Nordic bootstrap through fresh confirmation to incremental and human removal
+✔ human Spotify removal is tombstoned only with a newer complete generation
+✔ show paging resumes after quota expiry at exact saved offset
+✔ three consecutive 429s defer that job for a day without discarding cursor
+✔ missing V2 ownership hook stops installation before changing data or triggers
+✔ enabled V3 Nordic cannot also run through V2
+✔ completed stable refresh retires old cached generations, not other playlists
+ℹ tests 31
+ℹ pass 31
+ℹ fail 0

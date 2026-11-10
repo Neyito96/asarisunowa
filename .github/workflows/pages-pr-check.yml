@@ -24,6 +24,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Run GAS auto-update hotfix tests
+        run: node --test tests/gas-auto-update-hotfix.test.mjs
+
       - name: Build and verify Pages
         run: npm run build:pages
 
