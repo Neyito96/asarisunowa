@@ -33,3 +33,11 @@ jobs:
         run: |
           { echo '## link-probe report (代表EP・READ ONLY)'; echo '```json'; head -c 60000 probe-report.json; echo; echo '```'; } > body.md
           gh pr comment ${{ github.event.pull_request.number }} --body-file body.md
+      - name: Apple episode dump (compact, read-only) → PR comments
+        if: github.event_name == 'pull_request' && always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node scripts/dump-apple-episodes.mjs docs/release/2026-11-10-link-probe-sample.json apple-dump.json
+          split -b 50000 -d apple-dump.json apple-part-
+          for f in apple-part-*; do { echo "apple-dump:$f"; echo '```'; cat "$f"; echo; echo '```'; } > c.md; gh pr comment ${{ github.event.pull_request.number }} --body-file c.md; done
