@@ -4,9 +4,10 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import { parseCsv } from "./lib/ledger-csv.mjs";
+import { projectApi } from "./lib/onsa-count.mjs";
 import { judgeIncrement, recountPublication, classifyOnsaDiff } from "./lib/ledger-increment.mjs";
 
-const ALIAS = { id: ["EP-ID", "EPID", "エピソードID"], show: ["番組", "番組名"], title: ["タイトル", "エピソードタイトル", "題名"], publishedAt: ["配信日時", "配信日", "公開日時"], guid: ["GUID", "UUID", "GUID/UUID", "公式GUID", "公式識別子"], audioUrl: ["音声URL"] };
+const ALIAS = { id: ["台帳ID", "EP-ID", "EPID", "エピソードID"], show: ["番組名", "番組"], title: ["タイトル", "エピソードタイトル", "題名"], publishedAt: ["配信日時（JST）", "配信日時(JST)", "配信日時", "配信日", "公開日時"], guid: ["外部ID", "GUID", "UUID", "GUID/UUID", "公式GUID", "公式識別子"], audioUrl: ["音声URL"], spotifyUrl: ["Spotify URL", "SpotifyURL", "SpotifyエピソードURL"] };
 export function ledgerFromRows(table) {
   const head = table[0].map((h) => String(h).trim()), idx = {};
   for (const [k, names] of Object.entries(ALIAS)) idx[k] = head.findIndex((h) => names.includes(h));
@@ -30,8 +31,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   writeFileSync(`${outDir}/increment-manifest.json`, JSON.stringify({ schema: 1, policy: res.policy, asOf, rows: res.rows }, null, 1));
   writeFileSync(`${outDir}/publication-recount.json`, JSON.stringify(recount, null, 1));
   if (arg("--onsa")) {
+    // --onsa: おんさAPIの生JSON({genba,media,sdgs,houdan,donuts,sports})。取得不能・schema不一致は unavailable（古い数字は再利用しない）
     const baseCmp = snap.decisions.filter((d) => d.comparison === "対象" && d.publication === "対象").map((d) => d.id);
-    const diff = classifyOnsaDiff({ onsaItems: JSON.parse(load(arg("--onsa"))), ledger, baselineComparisonIds: baseCmp, baselineSnapshotDate: "2026-10-21", onsaAsOf: asOf, decisions: snap.decisions });
+    let projection; try { projection = projectApi(JSON.parse(load(arg("--onsa"))), { asOf, fetchedAt: arg("--onsa-fetched-at", asOf) }); } catch (e) { projection = { status: "unavailable", reason: "UNREADABLE_" + e.message, asOf, items: [] }; }
+    const diff = classifyOnsaDiff({ projection, ledger, baselineComparisonIds: baseCmp, baselineSnapshotDate: "2026-10-21", decisions: snap.decisions });
     writeFileSync(`${outDir}/onsa-diff.json`, JSON.stringify(diff, null, 1));
   }
   console.log(JSON.stringify({ asOf, newRows: res.rows.length, ...recount }, null, 1));

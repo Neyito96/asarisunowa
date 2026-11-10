@@ -1,3 +1,4 @@
+import { buildLedgerIndex, matchItem } from "./onsa-count.mjs";
 // 増分判定: 10/22凍結基準（decisions.json.gz）に無い新着EP-IDを、同じ基準で判定する。READ_ONLY・純粋関数。
 // 原本の物理削除・再採番・本番書込は行わない。未確認は無条件で公開対象にしない（保留）。
 export const POLICY_VERSION = "REVIEWED_D_TARGET/increment-1";
@@ -71,30 +72,33 @@ export function recountPublication({ baselineAdopted, baselineSource, baselineDa
   };
 }
 
-// おんさ比較差分の分類。onsa: [{show, guid?, title?, publishedAt?}]（外部実測側）, comparisonSet: 旧比較対象 EP-ID 集合
-// 差分を「説明可能」「未解明」に分ける。基準日時が違うため差を収蔵漏れと断定しない。
-export function classifyOnsaDiff({ onsaItems, ledger, baselineComparisonIds, baselineSnapshotDate, onsaAsOf, decisions }) {
-  const byGuid = new Map(ledger.filter((r) => s(r.guid)).map((r) => [s(r.guid), r]));
-  const byKey = new Map(ledger.map((r) => [r.show + "\u0000" + norm(r.title), r]));
-  const baseSet = new Set(baselineComparisonIds);
-  const dec = new Map((decisions || []).map((d) => [d.id, d]));
-  const cats = {}; const rows = [];
-  const put = (cat, it, ep, why) => { (cats[cat] ||= []).push(it); rows.push({ category: cat, explained: cat !== "未解明", show: it.show, title: it.title || "", ep: ep?.id || "", why }); };
-  for (const it of onsaItems) {
-    const ep = (s(it.guid) && byGuid.get(s(it.guid))) || byKey.get(it.show + "\u0000" + norm(it.title));
-    if (!ep) { put("未解明", it, null, "原本に照合できない（収蔵漏れとは断定しない）"); continue; }
+// おんさ比較差分のEP単位照合。projection = projectApi() の結果（画面のカウンタ定義で計数される項目 counted のみを比較母集団にする）。
+// 旧比較対象(baselineComparisonIds)との差を、説明可能（新着/旧SDGs/再配信/日時差分/番組構成）と未解明に分け、
+// 逆方向（旧比較対象なのにおんさ側に無い＝不足）と同一EPへの多重対応（重複）も出す。基準日時が違うため収蔵漏れとは断定しない。
+export function classifyOnsaDiff({ projection, ledger, baselineComparisonIds, baselineSnapshotDate, decisions }) {
+  if (!projection || projection.status !== "ok") return { status: "unavailable", reason: projection?.reason || "NO_PROJECTION", asOf: projection?.asOf || null };
+  const ix = buildLedgerIndex(ledger), baseSet = new Set(baselineComparisonIds), dec = new Map((decisions || []).map((d) => [d.id, d]));
+  const counted = projection.items.filter((i) => i.counted), rows = [], hits = new Map(), summary = {}, by = {};
+  const put = (cat, it, ep, why, how) => { summary[cat] = (summary[cat] || 0) + 1; rows.push({ category: cat, explained: cat !== "未解明", show: it.show, title: it.title, publishedAt: it.publishedAt, ep: ep?.id || "", matchedBy: how || "", why }); };
+  for (const it of counted) {
+    const m = matchItem(it, ix);
+    if (!m) { put("未解明", it, null, "原本に照合できない（GUID/Spotify ID/題名+日付のいずれも不一致）。収蔵漏れとは断定しない"); continue; }
+    const ep = m.ep; by[m.by] = (by[m.by] || 0) + 1; hits.set(ep.id, (hits.get(ep.id) || 0) + 1);
     if (baseSet.has(ep.id)) continue;                                               // 旧比較対象5,219に含まれる＝差分ではない
-    const d = dec.get(ep.id);
-    const n = Number(ep.id.slice(3));
-    if (!d && n > 6591) put("新着(EP-06592以降)", it, ep, "10/22判定後の新規収蔵");
-    else if (d && ["再配信", "再配信候補"].includes(d.classification)) put("再配信", it, ep, `旧判定 ${d.classification}`);
-    else if (/SDGs/.test(it.show) && d && d.publication !== "対象") put("旧SDGs", it, ep, `旧判定 ${d.publication}/${d.classification}`);
-    else if (d && d.comparison === "保留" && d.publication === "対象") put("期間・日時差分", it, ep, "旧比較は保留、掲載は日時差分で採用(113件群)");
-    else if (d && COMPARISON_OUT_SHOWS.has(ep.show)) put("番組構成", it, ep, "旧比較外番組");
-    else if (d && ["対象外番組", "重複"].includes(d.classification)) put("番組構成", it, ep, `旧判定 ${d.classification}`);
-    else put("未解明", it, ep, "旧判定上は説明できない");
+    const d = dec.get(ep.id), n = Number(ep.id.slice(3));
+    if (!d && n > 6591) put("新着(EP-06592以降)", it, ep, "10/22判定後の新規収蔵", m.by);
+    else if (d && ["再配信", "再配信候補"].includes(d.classification)) put("再配信", it, ep, `旧判定 ${d.classification}`, m.by);
+    else if (/SDGs/.test(it.show) && d && d.publication !== "対象") put("旧SDGs", it, ep, `旧判定 ${d.publication}/${d.classification}`, m.by);
+    else if (d && d.comparison === "保留" && d.publication === "対象") put("期間・日時差分", it, ep, "旧比較は保留、掲載は日時差分で採用(113件群)", m.by);
+    else if (d && ["対象外番組", "重複"].includes(d.classification)) put("番組構成", it, ep, `旧判定 ${d.classification}`, m.by);
+    else put("未解明", it, ep, d ? `旧判定 ${d.publication}/${d.classification}/比較${d.comparison} では説明できない` : "旧判定なし", m.by);
   }
-  const summary = Object.fromEntries(Object.entries(cats).map(([k, v]) => [k, v.length]));
-  return { onsaAsOf, baselineSnapshotDate, baselineComparison: baseSet.size, onsaItems: onsaItems.length, diff: onsaItems.length - baseSet.size, explained: rows.filter((r) => r.explained).length, unexplained: rows.filter((r) => !r.explained).length, summary, rows,
-    note: "基準日時が異なるため差分を収蔵漏れとは判定しない。未解明は個別調査対象。" };
+  const matchedEp = new Set(hits.keys()), allByKey = new Map(projection.items.map((i) => [i, matchItem(i, ix)]));
+  const notCountedHit = new Map(); for (const [i, m] of allByKey) if (m && !i.counted) notCountedHit.set(m.ep.id, i.notCountedReason);
+  const missing = baselineComparisonIds.filter((id) => !matchedEp.has(id)).map((id) => ({ ep: id, show: (ledger.find((r) => r.id === id) || {}).show || "", why: notCountedHit.get(id) || "おんさ側に照合できる項目なし（API取得時点・番組範囲・識別子差のいずれか）" }));
+  const dups = [...hits].filter(([, n]) => n > 1).map(([ep, n]) => ({ ep, count: n }));
+  return { status: "ok", asOf: projection.asOf, baselineSnapshotDate, baselineComparison: baseSet.size, uiCounter: projection.uiCounter, rawArrayCount: projection.rawArrayCount, diff: counted.length - baseSet.size,
+    explained: rows.filter((r) => r.explained).length, unexplained: rows.filter((r) => !r.explained).length, summary, matchedBy: by,
+    missingFromOnsa: missing, duplicateMatches: dups, rows,
+    note: "基準日時が異なるため差分を収蔵漏れとは判定しない。画面カウンタ(6番組・SDGsカット・actualDuration>0)とAPI生配列件数は別物。未解明は個別調査対象。" };
 }

@@ -1,0 +1,73 @@
+// おんさ検索サイト(speakers3.js)の計数定義の再現。READ_ONLY・ネットワーク不使用（取得は呼び出し側）。
+// 仕様根拠: 司令塔が確認した公開ソース（PR #277 コメント 2026-11-10）。ソース追従は SPEC で一箇所に集約。
+export const SPEC = {
+  source: "https://github.com/yoshimotomasahir/asapoki_vis/blob/main/speakers3.js",
+  categories: ["genba", "media", "sdgs", "houdan", "donuts", "sports"],      // 6番組。ニュースの学校は含めない
+  // 朝リスの田の番組名への対応。sports→スポンジ は未検証の前提（EP同一性が取れた項目だけで裏付ける）
+  showOf: { genba: "ニュースの現場から", media: "MEDIA TALK", sdgs: "SDGsを話そう", houdan: "報談", donuts: "ドーナツ", sports: "スポンジ" },
+  sdgsCutoffJst: "2026-06-30T00:00:00+09:00",       // new Date(2026,5,30) 以降をskip（ブラウザのローカル日付。JST想定・要検証）
+  zeroDurationTitle: [/^（再）/, /^（ふりかえり）/, /^（深掘り）/, /再放送です/],
+};
+const s = (v) => String(v ?? "").trim();
+const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+const SPOTIFY = /open\.spotify\.com\/episode\/([A-Za-z0-9]+)/;
+
+export function validateApi(json) {
+  if (!json || typeof json !== "object") return { ok: false, reason: "NOT_OBJECT" };
+  const missing = SPEC.categories.filter((c) => !Array.isArray(json[c]));
+  if (missing.length) return { ok: false, reason: "SCHEMA_MISSING_" + missing.join(",") };
+  for (const c of SPEC.categories) for (const e of json[c]) if (!e || typeof e.title !== "string" || !e.pubDate) return { ok: false, reason: "SCHEMA_ENTRY_" + c };
+  return { ok: true };
+}
+
+// speakers3.js readData() の actualDuration=0 条件
+export const actualDurationZero = (title) => SPEC.zeroDurationTitle.some((re) => re.test(s(title)));
+export const sdgsSkipped = (pubDate) => Date.parse(pubDate) >= Date.parse(SPEC.sdgsCutoffJst);
+
+// API生JSON → 項目列。counted=画面の件数カウンタに加算される（6番組・SDGsカット・再配信等は非計数）。
+export function projectApi(json, { asOf, fetchedAt = asOf } = {}) {
+  const v = validateApi(json);
+  if (!v.ok) return { status: "unavailable", reason: v.reason, asOf, items: [] };
+  const items = [];
+  for (const c of SPEC.categories) for (const e of json[c]) {
+    const skippedSdgs = c === "sdgs" && sdgsSkipped(e.pubDate);
+    const zero = actualDurationZero(e.title);
+    const link = s(e.link), sp = s(e.spotify);
+    items.push({
+      category: c, show: SPEC.showOf[c], title: s(e.title), publishedAt: s(e.pubDate), link, clipId: s(e.clipId),
+      guid: (link.match(UUID) || s(e.clipId).match(UUID) || [""])[0].toLowerCase(),
+      spotifyId: (sp.match(SPOTIFY) || [])[1] || "",
+      readData: skippedSdgs ? "skipped_sdgs_cutoff" : "kept", counted: !skippedSdgs && !zero,
+      notCountedReason: skippedSdgs ? "SDGs日付カット" : zero ? "actualDuration=0（再/ふりかえり/深掘り/再放送）" : "",
+    });
+  }
+  const kept = items.filter((i) => i.readData === "kept");
+  return {
+    status: "ok", asOf, fetchedAt,
+    rawArrayCount: items.length,                              // API生配列の全件数
+    readDataCount: kept.length,                               // readData後（SDGsカット後）
+    uiCounter: items.filter((i) => i.counted).length,         // 画面のカウンタ相当（num_title）
+    byCategory: Object.fromEntries(SPEC.categories.map((c) => [c, { raw: items.filter((i) => i.category === c).length, counted: items.filter((i) => i.category === c && i.counted).length }])),
+    items,
+  };
+}
+
+// 台帳EPとの同一性: ①GUID/Omny clip ②Spotify episode ID ③番組+題名+日付(JST日)。強い根拠の順。
+const norm = (t) => s(t).normalize("NFKC").toLowerCase().replace(/[\s　"'“”‘’「」『』【】\[\]()（）・,、。.!！?？~〜\-_:：|｜/／]/g, "");
+const dayOf = (t) => (Number.isFinite(Date.parse(t)) ? new Date(Date.parse(t) + 9 * 3600000).toISOString().slice(0, 10) : s(t).slice(0, 10));
+export function buildLedgerIndex(ledger) {
+  const g = new Map(), sp = new Map(), t = new Map();
+  for (const r of ledger) {
+    const gu = (s(r.guid).match(UUID) || [""])[0].toLowerCase(); if (gu && !g.has(gu)) g.set(gu, r);
+    const sid = (s(r.spotifyUrl).match(SPOTIFY) || [])[1]; if (sid && !sp.has(sid)) sp.set(sid, r);
+    const k = r.show + "\u0000" + norm(r.title) + "\u0000" + dayOf(r.publishedAt); if (norm(r.title) && !t.has(k)) t.set(k, r);
+  }
+  return { g, sp, t };
+}
+export function matchItem(item, ix) {
+  if (item.guid && ix.g.has(item.guid)) return { ep: ix.g.get(item.guid), by: "GUID" };
+  if (item.spotifyId && ix.sp.has(item.spotifyId)) return { ep: ix.sp.get(item.spotifyId), by: "SPOTIFY_ID" };
+  const k = item.show + "\u0000" + norm(item.title) + "\u0000" + dayOf(item.publishedAt);
+  if (ix.t.has(k)) return { ep: ix.t.get(k), by: "TITLE_DATE" };
+  return null;
+}
