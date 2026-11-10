@@ -12,3 +12,18 @@ test('広告・連絡先の混入と概要欠損は警告として件数化(公�
   const r = checkPublicSnapshot([ep({ description: 'ご連絡は a@asahi.com Learn more about your ad choices.' }), ep({ id: 'EP-2', description: '' })]);
   assert.equal(r.counts.adResidue, 1); assert.equal(r.counts.emptyDescription, 1); assert.ok(r.ok);
 });
+
+import { stripKnownFooters } from '../scripts/lib/readiness.mjs';
+test('段階1: 既知の定型フッターだけを完全一致で除去(本文・URL付き関連記事は不変)、原文は変更しない', () => {
+  const body = '本日のテーマは宇宙です。 【関連記事】 記事A https://www.asahi.com/articles/AAA.html';
+  const src = `${body} ご意見・感想・リクエスト https://bit.ly/x ほかにも多彩な番組を配信中！ http://t.asahi.com/y See omnystudio.com/listener for privacy information.`;
+  const r = stripKnownFooters(src); assert.equal(r.text, body); assert.deepEqual(r.removed.map((x) => x.id).sort(), ['asapoki-feedback', 'omny-privacy']);
+  assert.equal(src.includes('omnystudio'), true, '入力文字列は不変');
+  assert.equal(stripKnownFooters(`${body} Learn more about your ad choices. Visit megaphone.fm/adchoices`).text, body);
+  assert.equal(stripKnownFooters(`${body} 【おねがい】 朝日新聞ポッドキャストは、みなさまからの購読料で配信しています。 番組継続のため、会員登録をお願いします！`).text, body);
+  assert.equal(stripKnownFooters(`${body} ご意見・感想・リクエスト ⁠⁠https://bit.ly/x ⁠ほかにも多彩な番組を配信中！ ⁠https://t.asahi.com/y`).text.includes('ご意見'), false, 'ゼロ幅文字入りも除去');
+});
+test('段階1: フッターだけの概要は空にせず元のまま(blockedEmpty)、イベント告知のフォームURLなど本文中のURLは触らない', () => {
+  const only = 'See omnystudio.com/listener for privacy information.'; const r = stripKnownFooters(only); assert.equal(r.text, only); assert.equal(r.blockedEmpty, true);
+  const ev = 'グッズ配布中 https://forms.gle/AbC123 ※収録しました'; assert.equal(stripKnownFooters(ev).text, ev); assert.deepEqual(stripKnownFooters(ev).removed, []);
+});

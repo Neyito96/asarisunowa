@@ -18,3 +18,20 @@ export function checkPublicSnapshot(episodes, manifest = null) {
   const fatal = counts.duplicateIds + counts.excludedShows + counts.missingCore + counts.countMismatch + counts.unsafeLinks;
   return { total: episodes.length, counts, fatal, ok: fatal === 0, examples: Object.fromEntries(Object.entries(issues).map(([k, v]) => [k, v.slice(0, 5)])) };
 }
+
+// ---- 段階的改善(表示用のみ): 既知の定型フッターだけを完全一致で除去。原文は変更しない。 ----
+const ZW = '[\\s\\u2060\\u200b]*';
+export const KNOWN_FOOTERS = Object.freeze([
+  { id: 'omny-privacy', re: new RegExp(`\\s*See omnystudio\\.com\\/listener(?:\\s+\\S+)? for privacy information\\.?`, 'g') },
+  { id: 'megaphone-adchoices', re: new RegExp(`\\s*Learn more about your ad choices\\.${ZW}Visit${ZW}megaphone\\.fm\\/adchoices`, 'g') },
+  { id: 'asapoki-feedback', re: new RegExp(`\\s*ご意見・感想・リクエスト${ZW}(?:https?:\\/\\/\\S+)?${ZW}ほかにも多彩な番組を配信中！${ZW}(?:https?:\\/\\/\\S+)?`, 'g') },
+  { id: 'asapoki-membership', re: new RegExp(`\\s*【おねがい】${ZW}朝日新聞ポッドキャストは、みなさまからの購読料で配信しています。${ZW}番組継続のため、会員登録をお願いします！(?:${ZW}https?:\\/\\/\\S+)?`, 'g') },
+]);
+/** 既知フッターのみ除去。結果が空になる場合は除去せず元の文を返す(空化防止)。removedに適用ルールと文字数を返す。 */
+export function stripKnownFooters(text) {
+  const src = String(text ?? ''); let out = src; const removed = [];
+  for (const f of KNOWN_FOOTERS) { const before = out; out = out.replace(f.re, ''); if (out !== before) removed.push({ id: f.id, chars: before.length - out.length }); }
+  out = out.replace(/\s+$/, '').replace(/[ \t]{2,}/g, ' ');
+  if (!out.trim()) return { text: src, removed: [], blockedEmpty: removed.length > 0 };
+  return { text: out, removed, blockedEmpty: false };
+}
