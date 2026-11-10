@@ -1,0 +1,373 @@
+{
+ "status": "NOT_EXECUTED（管理人承認待ち）",
+ "sheetId": "1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4",
+ "protocol": [
+  "各セル書込の直前に idCell と対象セルを再読込",
+  "expect不一致なら以降すべて停止（部分適用を許容しても、停止位置を監査ログに記録）",
+  "1セルずつ書込→直後に読み戻して値一致を確認",
+  "監査ログ: epId, range, 書込前値(空), 書込後値, 時刻, 根拠"
+ ],
+ "count": 36,
+ "items": [
+  {
+   "epId": "EP-00592",
+   "range": "エピソード台帳!AP593",
+   "idCell": "エピソード台帳!A593",
+   "value": "https://pca.st/episode/4e0ef7b7-e174-4253-a603-b82f81f0a3a7",
+   "expectIdCell": "EP-00592",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "ニュースの学校!283"
+  },
+  {
+   "epId": "EP-00592",
+   "range": "エピソード台帳!L593",
+   "idCell": "エピソード台帳!A593",
+   "value": "https://open.spotify.com/episode/4MZhm9uxfjFfgfOoIwLPJo",
+   "expectIdCell": "EP-00592",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "ニュースの学校!283"
+  },
+  {
+   "epId": "EP-06612",
+   "range": "エピソード台帳!AP6613",
+   "idCell": "エピソード台帳!A6613",
+   "value": "https://pca.st/episode/4f8b2488-b26d-44dc-be39-93383d595104",
+   "expectIdCell": "EP-06612",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug+spotifyId",
+   "source": "SDGs!1128"
+  },
+  {
+   "epId": "EP-06614",
+   "range": "エピソード台帳!AP6615",
+   "idCell": "エピソード台帳!A6615",
+   "value": "https://pca.st/episode/94212eb5-179c-4506-99c1-e9dcad36e77f",
+   "expectIdCell": "EP-06614",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug+spotifyId",
+   "source": "SDGs!1129"
+  },
+  {
+   "epId": "EP-06632",
+   "range": "エピソード台帳!AP6633",
+   "idCell": "エピソード台帳!A6633",
+   "value": "https://pca.st/episode/f0930075-23cf-4c8f-b08a-d54a7695a8a6",
+   "expectIdCell": "EP-06632",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+spotifyId",
+   "source": "SDGs!1127"
+  },
+  {
+   "epId": "EP-06637",
+   "range": "エピソード台帳!AP6638",
+   "idCell": "エピソード台帳!A6638",
+   "value": "https://pca.st/episode/97ee9871-cc43-4a75-88db-7ae582c36fca",
+   "expectIdCell": "EP-06637",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "SDGs!1131"
+  },
+  {
+   "epId": "EP-06637",
+   "range": "エピソード台帳!L6638",
+   "idCell": "エピソード台帳!A6638",
+   "value": "https://open.spotify.com/episode/3R0OSSgJr30F7nPTIS31cd",
+   "expectIdCell": "EP-06637",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "SDGs!1131"
+  },
+  {
+   "epId": "EP-06638",
+   "range": "エピソード台帳!AP6639",
+   "idCell": "エピソード台帳!A6639",
+   "value": "https://pca.st/episode/0ead77fc-f047-4a5d-81da-98539d3dd3e2",
+   "expectIdCell": "EP-06638",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "SDGs!1130"
+  },
+  {
+   "epId": "EP-06638",
+   "range": "エピソード台帳!L6639",
+   "idCell": "エピソード台帳!A6639",
+   "value": "https://open.spotify.com/episode/3C0YaChbzQevk1UNGgr7aK",
+   "expectIdCell": "EP-06638",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "SDGs!1130"
+  },
+  {
+   "epId": "EP-06664",
+   "range": "エピソード台帳!AP6665",
+   "idCell": "エピソード台帳!A6665",
+   "value": "https://pca.st/episode/64d0c7e3-6d8c-41d9-b31d-b3e7ffa3b52a",
+   "expectIdCell": "EP-06664",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug+spotifyId",
+   "source": "SDGs!1132"
+  },
+  {
+   "epId": "EP-06667",
+   "range": "エピソード台帳!AP6668",
+   "idCell": "エピソード台帳!A6668",
+   "value": "https://pca.st/episode/6f6eb323-20c5-4b51-9af6-31c0e32792aa",
+   "expectIdCell": "EP-06667",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug+spotifyId",
+   "source": "SDGs!1133"
+  },
+  {
+   "epId": "EP-06672",
+   "range": "エピソード台帳!AP6673",
+   "idCell": "エピソード台帳!A6673",
+   "value": "https://pca.st/episode/0763438a-165e-4206-87ad-49ca74df72d6",
+   "expectIdCell": "EP-06672",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug+spotifyId",
+   "source": "ニュースの現場から!2670"
+  },
+  {
+   "epId": "EP-06673",
+   "range": "エピソード台帳!AP6674",
+   "idCell": "エピソード台帳!A6674",
+   "value": "https://pca.st/episode/00caf501-7c90-4a8f-942b-f3b948ea04c2",
+   "expectIdCell": "EP-06673",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "メディアトーク!1769"
+  },
+  {
+   "epId": "EP-06673",
+   "range": "エピソード台帳!L6674",
+   "idCell": "エピソード台帳!A6674",
+   "value": "https://open.spotify.com/episode/040tkGaOpGEinVLVfRgis7",
+   "expectIdCell": "EP-06673",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "メディアトーク!1769"
+  },
+  {
+   "epId": "EP-06674",
+   "range": "エピソード台帳!AP6675",
+   "idCell": "エピソード台帳!A6675",
+   "value": "https://pca.st/episode/cbf38cc7-8f54-4eed-9106-039190107d5f",
+   "expectIdCell": "EP-06674",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "スポンジ!186"
+  },
+  {
+   "epId": "EP-06674",
+   "range": "エピソード台帳!L6675",
+   "idCell": "エピソード台帳!A6675",
+   "value": "https://open.spotify.com/episode/03Wiv7rqPhQSGS5PRXtWkI",
+   "expectIdCell": "EP-06674",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "スポンジ!186"
+  },
+  {
+   "epId": "EP-06676",
+   "range": "エピソード台帳!AP6677",
+   "idCell": "エピソード台帳!A6677",
+   "value": "https://pca.st/episode/3f0068ee-7676-4ac9-84cb-9a3e792b0d8a",
+   "expectIdCell": "EP-06676",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "ドーナツ!81"
+  },
+  {
+   "epId": "EP-06676",
+   "range": "エピソード台帳!L6677",
+   "idCell": "エピソード台帳!A6677",
+   "value": "https://open.spotify.com/episode/3qNO5ptj3HbQAfIAibkyqH",
+   "expectIdCell": "EP-06676",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "ドーナツ!81"
+  },
+  {
+   "epId": "EP-06678",
+   "range": "エピソード台帳!AP6679",
+   "idCell": "エピソード台帳!A6679",
+   "value": "https://pca.st/episode/36525672-086a-4de9-983d-3c6c68d6ce22",
+   "expectIdCell": "EP-06678",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug+spotifyId",
+   "source": "ニュースの現場から!2671"
+  },
+  {
+   "epId": "EP-06679",
+   "range": "エピソード台帳!AP6680",
+   "idCell": "エピソード台帳!A6680",
+   "value": "https://pca.st/episode/c9736e95-0e3c-4a25-9225-d90de6578cca",
+   "expectIdCell": "EP-06679",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "ドーナツ!82"
+  },
+  {
+   "epId": "EP-06679",
+   "range": "エピソード台帳!L6680",
+   "idCell": "エピソード台帳!A6680",
+   "value": "https://open.spotify.com/episode/3pXSQkk2XNbUxpUfbHzi7p",
+   "expectIdCell": "EP-06679",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "ドーナツ!82"
+  },
+  {
+   "epId": "EP-06680",
+   "range": "エピソード台帳!AP6681",
+   "idCell": "エピソード台帳!A6681",
+   "value": "https://pca.st/episode/299744a0-3fb1-4290-bf0d-4b229f728ee0",
+   "expectIdCell": "EP-06680",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug+spotifyId",
+   "source": "ニュースの現場から!2672"
+  },
+  {
+   "epId": "EP-06681",
+   "range": "エピソード台帳!AP6682",
+   "idCell": "エピソード台帳!A6682",
+   "value": "https://pca.st/episode/c24c7d23-fd52-4df4-9cbd-5c6344065203",
+   "expectIdCell": "EP-06681",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "ドーナツ!83"
+  },
+  {
+   "epId": "EP-06681",
+   "range": "エピソード台帳!L6682",
+   "idCell": "エピソード台帳!A6682",
+   "value": "https://open.spotify.com/episode/1Dx1vc41CPmOaWM7EPVapZ",
+   "expectIdCell": "EP-06681",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "ドーナツ!83"
+  },
+  {
+   "epId": "EP-06682",
+   "range": "エピソード台帳!AP6683",
+   "idCell": "エピソード台帳!A6683",
+   "value": "https://pca.st/episode/b4d590b2-6ac1-4b20-8e8e-e2ccc050a818",
+   "expectIdCell": "EP-06682",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug+spotifyId",
+   "source": "ニュースの現場から!2673"
+  },
+  {
+   "epId": "EP-06683",
+   "range": "エピソード台帳!AP6684",
+   "idCell": "エピソード台帳!A6684",
+   "value": "https://pca.st/episode/eb904a27-7bba-4df5-9f3a-e2adb0fb4c94",
+   "expectIdCell": "EP-06683",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "メディアトーク!1770"
+  },
+  {
+   "epId": "EP-06683",
+   "range": "エピソード台帳!L6684",
+   "idCell": "エピソード台帳!A6684",
+   "value": "https://open.spotify.com/episode/2tnCWXnyLwGG2KHLsC5fId",
+   "expectIdCell": "EP-06683",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "メディアトーク!1770"
+  },
+  {
+   "epId": "EP-06685",
+   "range": "エピソード台帳!AP6686",
+   "idCell": "エピソード台帳!A6686",
+   "value": "https://pca.st/episode/898fad78-e0fd-409e-a22f-4edf4edef798",
+   "expectIdCell": "EP-06685",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "ドーナツ!84"
+  },
+  {
+   "epId": "EP-06685",
+   "range": "エピソード台帳!L6686",
+   "idCell": "エピソード台帳!A6686",
+   "value": "https://open.spotify.com/episode/61mmSDXAR1r2szHHIdRf6s",
+   "expectIdCell": "EP-06685",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "ドーナツ!84"
+  },
+  {
+   "epId": "EP-06687",
+   "range": "エピソード台帳!AP6688",
+   "idCell": "エピソード台帳!A6688",
+   "value": "https://pca.st/episode/247b0647-c56c-48b3-9054-d8d9dcc17d87",
+   "expectIdCell": "EP-06687",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug+spotifyId",
+   "source": "ニュースの現場から!2674"
+  },
+  {
+   "epId": "EP-06688",
+   "range": "エピソード台帳!AP6689",
+   "idCell": "エピソード台帳!A6689",
+   "value": "https://pca.st/episode/0cda8302-410a-4709-af59-e269df758540",
+   "expectIdCell": "EP-06688",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "メディアトーク!1771"
+  },
+  {
+   "epId": "EP-06688",
+   "range": "エピソード台帳!L6689",
+   "idCell": "エピソード台帳!A6689",
+   "value": "https://open.spotify.com/episode/1yqiV1YOwqKge9CtSJpQzX",
+   "expectIdCell": "EP-06688",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "メディアトーク!1771"
+  },
+  {
+   "epId": "EP-06689",
+   "range": "エピソード台帳!AP6690",
+   "idCell": "エピソード台帳!A6690",
+   "value": "https://pca.st/episode/5c49c1ee-7a10-4ed1-b66a-a9e354ef653f",
+   "expectIdCell": "EP-06689",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "スポンジ!187"
+  },
+  {
+   "epId": "EP-06689",
+   "range": "エピソード台帳!L6690",
+   "idCell": "エピソード台帳!A6690",
+   "value": "https://open.spotify.com/episode/3gWNOOU1kHUv6MamZKzXIo",
+   "expectIdCell": "EP-06689",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "スポンジ!187"
+  },
+  {
+   "epId": "EP-06691",
+   "range": "エピソード台帳!AP6692",
+   "idCell": "エピソード台帳!A6692",
+   "value": "https://pca.st/episode/95c73f42-c9db-45a4-a9e2-05e7cbbb683b",
+   "expectIdCell": "EP-06691",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "ドーナツ!85"
+  },
+  {
+   "epId": "EP-06691",
+   "range": "エピソード台帳!L6692",
+   "idCell": "エピソード台帳!A6692",
+   "value": "https://open.spotify.com/episode/6ijee5TntHdj09M3C4CmO7",
+   "expectIdCell": "EP-06691",
+   "expectTargetEmpty": true,
+   "evidence": "asahiItemId=externalId+omnySlug",
+   "source": "ドーナツ!85"
+  }
+ ]
+}

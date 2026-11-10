@@ -96,3 +96,28 @@ test('summarize', () => {
   const s = summarize(matchExternalLinks(P, { 'ドーナツ': [ext('https://omny.fm/shows/asahi/a', 'Mon, 09 Nov 2026 19:00:00 +0000', 'A', SP('p'), asahi(G1), PC(G3))] }));
   assert.equal(s.total.CONFIRMED, 1); assert.equal(s.byTab['ドーナツ'].spotifyFill, 1); assert.equal(s.byTab['ドーナツ'].pocketFill, 1);
 });
+
+import { verify } from '../scripts/verify-ext-link-candidates.mjs';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+
+test('verify: 台帳セルが埋まっていたら不合格／正常なら合格', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'extlink-'));
+  const hdr = Array(44).fill('h');
+  const mk = (spotify) => [hdr, prod('EP-1', 'ドーナツ', 'A', '2026/11/10 4:00', G1, 'https://omny.fm/shows/asahi/a', spotify, '')];
+  const extRows = [['h'], ['x'], ext('https://omny.fm/shows/asahi/a', 'Mon, 09 Nov 2026 19:00:00 +0000', 'A', SP('p'), asahi(G1), '')];
+  fs.writeFileSync(path.join(dir, 'e.json'), JSON.stringify({ values: extRows }));
+  const cand = [{ epId: 'EP-1', column: 'L', url: SP('p'), evidence: 'x', source: 'ドーナツ!3' }];
+  const go = (spotify) => {
+    fs.writeFileSync(path.join(dir, 'p.json'), JSON.stringify({ values: mk(spotify) }));
+    return verify({ prodFiles: [path.join(dir, 'p.json')], extFiles: { 'ドーナツ': path.join(dir, 'e.json') }, candidates: cand });
+  };
+  assert.equal(go('').passed, 1);
+  const bad = go(SP('z'));
+  assert.equal(bad.passed, 0); assert.equal(bad.perCheck.prodCellEmptyNow, 0);
+  // 別行が同じURLを既に使っている場合も不合格
+  fs.writeFileSync(path.join(dir, 'p.json'), JSON.stringify({ values: [hdr, prod('EP-1', 'ドーナツ', 'A', '2026/11/10 4:00', G1, 'https://omny.fm/shows/asahi/a', '', ''), prod('EP-2', 'ドーナツ', 'Z', '2026/11/09 4:00', G2, 'https://omny.fm/shows/asahi/z', SP('p'), '')] }));
+  const dup = verify({ prodFiles: [path.join(dir, 'p.json')], extFiles: { 'ドーナツ': path.join(dir, 'e.json') }, candidates: cand });
+  assert.equal(dup.perCheck.urlUnusedInColumn, 0);
+});
