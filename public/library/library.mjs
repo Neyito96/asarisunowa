@@ -1,5 +1,5 @@
 import { publicationLabel } from './publication-scope.mjs';
-import { filterEpisodes, safeUrl } from './library-core.mjs';
+import { filterEpisodes, safeUrl, dedupeCast } from './library-core.mjs';
 const $=id=>document.getElementById(id), cache=new Map();
 let manifest, page=0, generation=0, activeResults=null, activeDetail=0;
 const criteria=()=>({query:$('query').value.trim(),show:$('show').value,order:$('order').value,from:$('from').value,to:$('to').value});
@@ -14,7 +14,7 @@ function saveFilters(c){const u=new URL(location.href);for(const [k,v] of Object
 function label(show){return manifest.shows.find(x=>x.name===show)?.label || show;}
 function renderList(items,total) {
  const fragment=document.createDocumentFragment();
- for(const e of items){const article=node('article',undefined,'episode'),top=node('div',undefined,'episode-top');top.append(node('span',label(e.show)),node('time',e.date.slice(0,10)));const title=node('h2'),button=node('button',e.title,'episode-title');button.type='button';button.addEventListener('click',()=>openDetail(e.id));title.append(button);article.append(top,title);if(e.cast)article.append(node('p',e.cast));article.append(node('span',e.audio?'▶ 音声あり':'配信先リンク・詳細を見る','badge'));fragment.append(article);}
+ for(const e of items){const article=node('article',undefined,'episode'),top=node('div',undefined,'episode-top');top.append(node('span',label(e.show)),node('time',e.date.slice(0,10)));const title=node('h2'),button=node('button',e.title,'episode-title');button.type='button';button.addEventListener('click',()=>openDetail(e.id));title.append(button);article.append(top,title);if(e.cast)article.append(node('p',dedupeCast([e.cast])));article.append(node('span',e.audio?'▶ 音声あり':'配信先リンク・詳細を見る','badge'));fragment.append(article);}
  if(!items.length)fragment.append(node('p','条件に合うエピソードが見つかりませんでした。言葉や日付を変えてお試しください。','empty'));
  $('results').replaceChildren(fragment);$('status').textContent=`${total.toLocaleString()}件${criteria().query?' の検索結果':''}`;
  $('prev').disabled=page===0;$('next').disabled=(page+1)*40>=total;$('page-label').textContent=total?`${page+1} / ${Math.ceil(total/40)}`:'0 / 0';
@@ -54,7 +54,7 @@ async function openDetail(id,fromUrl=false) {
  try{const rows=await json(`details/${Math.floor(Number(id.slice(3))/manifest.detailBucketSize)}.json`),e=rows.find(x=>x.id===id);if(run!==activeDetail)return;if(!e)throw Error('missing');
  const h=node('h2',e.title);h.id='detail-title';body.replaceChildren(node('p',`${label(e.show)} / ${e.id}`,'detail-meta'),h,node('p',`${e.date.replace('T',' ').slice(0,16)}（日本時間）${e.duration?' · '+Math.round(e.duration/60)+'分':''}`,'detail-meta'));
  if(e.archiveWarning)body.append(node('p',e.archiveWarning,'audio-note'));
- if(e.cast)body.append(node('p',e.cast,'detail-meta'));
+ if(e.cast)body.append(node('p',dedupeCast([e.cast]),'detail-meta'));
  if(e.audio){const audio=document.createElement('audio');audio.controls=true;audio.preload='none';audio.hidden=true;const play=node('button','▶ この回を聴く');play.type='button';play.addEventListener('click',()=>{audio.hidden=false;audio.src=e.audio;play.hidden=true;audio.play().catch(()=>{note.textContent='プレーヤーの再生ボタン、または配信先リンクからお聴きください。';});});const note=node('p','配信元の音声です。再生ボタンを押すと読み込みます。','audio-note');audio.addEventListener('error',()=>{note.textContent='音声を読み込めませんでした。配信先リンクからお聴きください。';});body.append(play,audio,note);}
  else body.append(node('p','この回は配信先リンクからお聴きください。','audio-note'));
  const links=node('div',undefined,'detail-links');addLinks(links,e.links);if(!links.children.length)addLinks(links,['https://www.asahi.com/special/podcasts/']);body.append(links,node('p',e.description || '概要欄は未収録です。公式ページをご確認ください。','description'));
