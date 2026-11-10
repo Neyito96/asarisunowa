@@ -110,3 +110,12 @@ test('cast proposals stay suggest-only and carry confidence',()=>{
   const r=row({21:'【出演】山田太郎（部）'});const a=auditRow(r,{now:NOW,pubDate:NOW-86400e3*3});const p=proposals('E',r,a,{checkedAt:'t'}).find(q=>q.key==='cast1');
   assert.equal(p.autoApplicable,false);assert.equal(p.mode,'suggest-only');assert.equal(p.confidence,'clean');
 });
+test('show fixed host: unconfirmed or exceptions-unidentified never becomes a candidate; confirmed+identified excludes exception episodes',()=>{
+  const r=row({0:'EP-9',21:'本文のみ'});const base={now:NOW,pubDate:NOW-5*86400e3,showEpisodeCount:499,showCastBlankRate:1};
+  const host={name:'神田大介',status:'CONFIRMED_OFFICIAL',evidence:['公式番組情報']};
+  assert.equal(find(auditRow(r,{...base,showFixedHost:{...host,status:'ADMIN_STATEMENT_UNVERIFIED'},exceptionsIdentified:true}),'cast1').status,'HOLD');
+  const un=find(auditRow(r,{...base,showFixedHost:host,exceptionsIdentified:false}),'cast1');assert.equal(un.status,'HOLD');assert.match(un.hostHint,/一律補完しない/);
+  const ok=find(auditRow(r,{...base,showFixedHost:host,exceptionsIdentified:true}),'cast1');assert.equal(ok.status,'FILLABLE_FROM_OFFICIAL');assert.equal(ok.source,'official-show-info');
+  const ex=find(auditRow(r,{...base,showFixedHost:host,exceptionsIdentified:true,exceptionEpisodeIds:['EP-9']}),'cast1');assert.equal(ex.status,'HOLD');
+  assert.equal(proposals('EP-9',r,[ok],{checkedAt:'t'})[0].autoApplicable,false);
+});

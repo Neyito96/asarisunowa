@@ -113,7 +113,10 @@ export function auditRow(row, ctx) {
       else if (idx > 0 && cast.names.length > 0 && cast.found) r = {status: 'NOT_APPLICABLE', reason: 'SOURCE_BLOCK_LISTS_ONLY_' + cast.names.length, evidence: [cast.block]};
       else if (idx > 0) r = {status: 'HOLD', reason: known ? 'ADDITIONAL_CAST_UNCONFIRMED' : 'CAST_UNDOCUMENTED_NEEDS_REVIEW', needsReview: true};
       else if (cast.found) r = {status: 'HOLD', reason: 'CAST_BLOCK_EMPTY_OR_UNPARSEABLE', evidence: [cast.block], needsReview: true}; // 空ブロックは公式側の未記入の可能性。再探索
-      else r = {status: 'HOLD', reason: 'UNKNOWN_UNDOCUMENTED', needsReview: true, ...hint}; // 記載なし=「不要」の証明にならない。未記録・要確認のまま。
+      // 番組の固定MC(番組レベル)とエピソード固有の出演者は別物。公式の番組情報で裏付けた固定MCだけが補完候補(提案止まり)。例外回(未特定を含む)は対象外。
+      else if (idx === 0 && ctx.showFixedHost?.status === 'CONFIRMED_OFFICIAL' && !(ctx.exceptionEpisodeIds || []).includes(row[0]) && ctx.exceptionsIdentified === true)
+        r = {status: 'FILLABLE_FROM_OFFICIAL', reason: 'SHOW_FIXED_HOST_OFFICIAL', value: ctx.showFixedHost.name, source: 'official-show-info', evidence: ctx.showFixedHost.evidence || [], confidence: 'show-level', role: 'MC'};
+      else r = {status: 'HOLD', reason: 'UNKNOWN_UNDOCUMENTED', needsReview: true, ...hint, ...(ctx.showFixedHost ? {hostHint: `番組固定MC候補: ${ctx.showFixedHost.status}(${ctx.exceptionsIdentified === true ? '例外特定済' : '例外未特定のため一律補完しない'})`} : {})}; // 記載なし=「不要」の証明にならない。未記録・要確認のまま。
     } else if (c.kind === 'related') {
       r = /asahi\.com\/(?:articles|topics)\//.test(row[21] || ctx.official?.descRaw || '') ? {status: 'FILLABLE_FROM_OFFICIAL', reason: 'RELATED_ARTICLE_URLS_IN_DESCRIPTION', source: 'official-description'}
         : {status: 'HOLD', reason: 'NO_RELATED_IN_DESCRIPTION_UNCONFIRMED', needsReview: true}; // 概要に無い=関連記事が存在しない証明ではない
