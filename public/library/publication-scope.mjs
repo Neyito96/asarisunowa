@@ -37,3 +37,12 @@ export function publicationLabel(manifest){
  if(manifest.total!==scope.adopted||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(scope.decisionDate||''))throw Error('PUBLICATION_MANIFEST_MISMATCH');
  return `掲載対象${manifest.total.toLocaleString()}件・${Number(scope.decisionDate.slice(0,4))}年${Number(scope.decisionDate.slice(5,7))}月${Number(scope.decisionDate.slice(8,10))}日掲載判定`;
 }
+
+/** 公開対象と「未掲載(スナップショット後の新着・未レビュー・保留・除外)」を分けて返す。新着を黙って捨てず件数を記録する。
+ * 掲載判定スナップショットは日付つきの記録であり、総数の固定目標ではない。 */
+export function partitionEpisodes(items,scope){
+ const published=selectPublishedEpisodes(items,scope,{requireComplete:true});
+ const pubIds=new Set(published.map(e=>e.id));
+ const pending=items.filter(e=>!pubIds.has(e.id));
+ return {published,pending,counts:{published:published.length,pending:pending.length,total:items.length}};
+}
