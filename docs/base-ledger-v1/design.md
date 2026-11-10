@@ -6,7 +6,7 @@
 基本台帳のスリム化は「画面(View)」の話であり、探索メタデータの削減ではない。
 
 1. 対象: 朝日公式 / LISTEN / Spotify / Apple Podcasts / Amazon Music / Pocket Casts / Pody / Omny・Megaphone(+音声URL。YouTubeは正規音声EPに紐づく公式動画URLとしてのみ補助保持)。
-2. 内部に `EP_ID × platform × URL × status × evidence × last_checked` を保持する(実装: `buildPlatformLinks`, 出力 `ep-platform-links.csv`)。本番では既存 `P15_PLATFORM_STATUS`(EP-ID/SERVICE/COLUMN/STATE/REASON/URL/EVIDENCE_URL/CHECKED_UTC/NEXT_UTC)が同じ役割を既に果たしているため、**別の新タブを作らずこれを正本とする案を第一候補**、台帳URL列(11,12,13,41,42,43列=LISTEN/Spotify/Apple/Amazon/PocketCasts/Pody。P15_PLATFORM_STATUSの実測で確認)はGAS互換のため現位置のまま維持。
+2. 内部に `EP_ID × platform × type × URL × status × evidence × last_checked` を保持する(実装: `buildPlatformLinks`, 出力 `ep-platform-links.csv`)。本番では既存 `P15_PLATFORM_STATUS`(EP-ID/SERVICE/COLUMN/STATE/REASON/URL/EVIDENCE_URL/CHECKED_UTC/NEXT_UTC)が同じ役割を既に果たしているため、**別の新タブを作らずこれを正本とする案を第一候補**、台帳URL列(11,12,13,41,42,43列=LISTEN/Spotify/Apple/Amazon/PocketCasts/Pody。P15_PLATFORM_STATUSの実測で確認)はGAS互換のため現位置のまま維持。
 3. status: `confirmed / candidate / hold / not_found / unavailable(一時エラー・再探索) / not_supported`。**空欄≠存在しない**(空欄は `not_found, probed=false` で再探索対象)。
 4. 誤リンク防止: 番組URL(/show/)・ホスト不一致・個別EPでないURLは `confirmed` にしない(`hold`、原文保持)。段階照合順: GUID → 公式ID → 配信日時 → タイトル → 番組。
 5. 既存の有効URLは1件も失わない(`checkInvariants` のURL消失検査)。URL関連列(8,9,10,11,12,14,28,32,40,41,42 ※0始まり)は棚卸しで「不要」に分類しない(`classifyColumn`)。
@@ -38,7 +38,7 @@
 ## 3. 基本台帳v1 (View, 13列)
 `EP-ID, 番組, タイトル, 配信日時, 公式GUID, Omny/公式URL, Spotify URL, 概要(清掃済み), 出演者, 再配信フラグ, 掲載判定, 理由/根拠, 最終更新日` (`buildBaseView`)。
 - 元データから**非破壊に生成**(入力不変をテスト)。全55列は raw/detail としてEP-IDをキーに残す。既存GASの列位置参照は壊さない(列の移動・削除なし。Viewは別タブ/別ファイル)。
-- 未確定: 出演者の正準列(`castCol`は指定式。本番55列ヘッダ未取得のため空出力)、必須列、掲載判定の正本(現在は「図書館・宇宙 検索対象判定」タブD列)。
+- 出演者: 司令塔の本番ヘッダ実測により確定(§8)。未確定は掲載判定の正本のみ(現在は「図書館・宇宙 検索対象判定」タブD列)。
 
 ## 4. 依存関係棚卸し
 `scripts/base-ledger-deps.mjs` → `dependency-inventory.json`(repo 112ファイル走査、25列・11タブ参照を検出)。
@@ -57,3 +57,30 @@ URL全種保全 / 誤リンク非確定 / 空欄の再探索性 / 一時エラ�
 ## 7. 11/17の最小公開変更 / 公開後の整理
 - 11/17: 公開側の変更は不要(除外は既に掲載0件、基本台帳v1はView生成のみで公開に影響しない)。
 - 公開後: 本番GAS依存確定 → アーカイブ後非表示→移行→(別承認で)削除の順。URL探索系は最後まで残す。
+
+## 8. 第9指令修正版の反映(2026-11-10 司令塔監査 #6758635827 / #6758701159)
+優先順位: **原本を守る → 検索に載せる → 表示を整理する。** 13列Viewは表示用、検索・分析の材料は詳細データ(`ep-detail.json`, EP-IDキー)と検索索引(`search-index.json`)に全て保持。
+
+### 8.1 人間除外(AM列)バグ修正
+旧実装は「空欄でなければ除外」で、本番実値「未指定」6,511行・空白120行を全て除外する重大バグだった。現在は `classifyHumanExclude`: 未指定/空/なし/false/0/no=除外しない、明示allowlist(除外・除外済み・除外確定・人間除外・exclude・excluded・true・yes・1)のみ除外、**未知値は除外せず保留(HOLD理由付き)**=掲載を消さないfail-closed。本番の実除外値の正確な語彙は未確認のため、allowlistは暫定(COPYで実値の全種を列挙して確定する)。回帰テストに6,511+120行の実値再現を追加。
+(参考: 公開側 `lib/library-public.mjs blocked()` は「未指定等以外=除外」でfail-open。本PRでは公開側コードは変更していない。実値が既知語彙のみなら現状でも誤除外は出ないが、未知値の扱いは公開前にCOPYで要確認。)
+
+### 8.2 出演者
+`buildParticipants`: **AT〜AX(0-based45〜49)の個別氏名を優先**、AY(50)=確認根拠を保持、X(23)=原文(役割・URL混在)は別フィールド保持。個別列が空のときのみXを「原文候補」として表示(`source:'X-raw-candidate'`)。同姓同名・表記揺れは推測統合しない(同一EP内の完全一致のみ除去)。
+
+### 8.3 URL(固定順・個別EPのみconfirmed)
+順序: 朝日公式個別(J,I)→Omny/Megaphone音声(O)→LISTEN(K)→Spotify(L)→Apple(M)→Amazon(AO)→Pocket Casts(AP)→Pody(AQ)→YouTube補助(AR)。AC=関連記事URLは配信先URLではなく関連記事として扱う。各社の個別EP形式(`EP`表): LISTEN `/p/<番組>/<EP>`、Spotify `/episode/`、Apple `?i=`、Pody `/player/<番組>/<EP>`、Amazon `/podcasts/<番組>/episodes/<EP>`、Pocket Casts `pca.st/episode/..` または `/podcasts/<uuid>/<uuid>`、Omny/Megaphone は音声ファイル/clip/個別ページ(`podcast.rss`・playlistは不可)、朝日は `/articles/`・`/episode(s)/`(`/pr/`不可)、YouTube は `watch?v=`・`youtu.be/<id>`。
+LISTEN/Spotify/Apple/Pody/Amazon(番組)の実形はP15実データで確認。**Amazon・Pocket Casts・Omny個別ページの「個別EP」実例は実データで未確認**(公開形式の知識に基づく)。形式が合わないURLは confirmed にせず `hold`(原文保持・再探索可)とするfail-closed設計なので、実形式が違っても「誤確定」ではなく「保留」に倒れる。COPYで実在URL全件を流して形式を確定する。
+
+### 8.4 概要・関連記事・検索
+- V(概要原文)・W(清掃済み)を両方保持・両方索引化。清掃で落ちた語も原文から検索できる。原文は削除しない。
+- 関連記事: `buildRelatedArticles` が既存 `editDescription`(V3)を再利用し `EP-ID × 見出し × URL × 出典(V/W/AC) × 順序` を生成。AC列URLは本文に無くても失わず追加(見出し空)。
+- 検索索引: title / desc(清掃+原文, HTML・URL除去) / cast(AT〜AX+X) / related見出し / ids(EP-ID・GUID・関連URL)を重み分離して保持。NFKC正規化、全語AND。
+- **既存サイト検索経路の実調査(未変更)**: `filterEpisodes` は title・cast(X+AT〜AX)・`keywords||description`・idを検索。公開shardの`keywords`は「清掃済み概要+タグ+関連記事見出し」。→ (a) 原文にしかない語は公開検索に届かない、(b) 関連記事見出しは編集済み(descriptionEdits)EPのみ、(c) AY根拠は検索対象外(表示用途のため妥当)。公開検索への反映は挙動変更になるため本PRでは実施せず、COPY検証+別承認の候補とする。
+
+### 8.5 情報損失チェック
+`lossReport`: タイトル・概要原文/清掃済み・出演者(AT〜AX,X)・確認根拠・関連URL・配信先URLの非空セルを原本と生成物でEP別に照合し、索引件数・View行数も比較。受入条件=損失0。CLIは損失があると終了コード1。
+**実データでの実行は未実施**(本番台帳本体は本環境から読めないため)。管理者側でエクスポートしたCSVを `node scripts/base-ledger-v1.mjs --ledger <csv> --out <dir>` に渡せば同じ検査が走る。
+
+### 8.6 依存棚卸し
+repo内スキャン(113ファイル)を優先して実施済み。本番GASソース(ALIB_AUTO_tick/P15)は**未確認**。管理者への手動exportは、repo内で参照が確認できず切替判断に必須となった時に限り最小限で依頼する。本番タブ・列の削除は棚卸し前は一切しない(確定削除候補0)。

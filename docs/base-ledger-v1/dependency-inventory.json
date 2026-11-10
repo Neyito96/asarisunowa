@@ -1,33 +1,33 @@
 {
   "readOnly": true,
-  "scannedFiles": 112,
+  "scannedFiles": 113,
   "limitation": "本番GAS(ALIB_AUTO_tick/P15)はrepo外。--extraで読み取り専用exportを渡すまで55列/44タブの網羅棚卸しは不可。",
   "columns": [
     {
       "col0": 0,
       "colLetter": "A",
-      "refs": 68,
-      "cls": "表示維持",
-      "why": "repo内プログラムが参照"
+      "refs": 77,
+      "cls": "運用必須",
+      "why": "検索・分析の中核(タイトル/概要/出演者/ID)。削減禁止"
     },
     {
       "col0": 1,
       "colLetter": "B",
-      "refs": 47,
-      "cls": "表示維持",
-      "why": "repo内プログラムが参照"
+      "refs": 49,
+      "cls": "運用必須",
+      "why": "検索・分析の中核(タイトル/概要/出演者/ID)。削減禁止"
     },
     {
       "col0": 2,
       "colLetter": "C",
-      "refs": 23,
-      "cls": "表示維持",
-      "why": "repo内プログラムが参照"
+      "refs": 26,
+      "cls": "運用必須",
+      "why": "検索・分析の中核(タイトル/概要/出演者/ID)。削減禁止"
     },
     {
       "col0": 3,
       "colLetter": "D",
-      "refs": 15,
+      "refs": 16,
       "cls": "表示維持",
       "why": "repo内プログラムが参照"
     },
@@ -48,7 +48,7 @@
     {
       "col0": 6,
       "colLetter": "G",
-      "refs": 14,
+      "refs": 15,
       "cls": "表示維持",
       "why": "repo内プログラムが参照"
     },
@@ -64,35 +64,35 @@
       "colLetter": "I",
       "refs": 18,
       "cls": "運用必須",
-      "why": "プラットフォームURL探索・補完・サイト表示に使用(削減禁止)"
+      "why": "プラットフォームURL探索・補完・サイト表示(削減禁止)"
     },
     {
       "col0": 9,
       "colLetter": "J",
       "refs": 15,
       "cls": "運用必須",
-      "why": "プラットフォームURL探索・補完・サイト表示に使用(削減禁止)"
+      "why": "プラットフォームURL探索・補完・サイト表示(削減禁止)"
     },
     {
       "col0": 10,
       "colLetter": "K",
       "refs": 14,
       "cls": "運用必須",
-      "why": "プラットフォームURL探索・補完・サイト表示に使用(削減禁止)"
+      "why": "プラットフォームURL探索・補完・サイト表示(削減禁止)"
     },
     {
       "col0": 11,
       "colLetter": "L",
-      "refs": 12,
+      "refs": 14,
       "cls": "運用必須",
-      "why": "プラットフォームURL探索・補完・サイト表示に使用(削減禁止)"
+      "why": "プラットフォームURL探索・補完・サイト表示(削減禁止)"
     },
     {
       "col0": 12,
       "colLetter": "M",
       "refs": 7,
       "cls": "運用必須",
-      "why": "プラットフォームURL探索・補完・サイト表示に使用(削減禁止)"
+      "why": "プラットフォームURL探索・補完・サイト表示(削減禁止)"
     },
     {
       "col0": 13,
@@ -106,7 +106,7 @@
       "colLetter": "O",
       "refs": 12,
       "cls": "運用必須",
-      "why": "プラットフォームURL探索・補完・サイト表示に使用(削減禁止)"
+      "why": "プラットフォームURL探索・補完・サイト表示(削減禁止)"
     },
     {
       "col0": 15,
@@ -132,37 +132,37 @@
     {
       "col0": 21,
       "colLetter": "V",
-      "refs": 12,
-      "cls": "表示維持",
-      "why": "repo内プログラムが参照"
+      "refs": 15,
+      "cls": "運用必須",
+      "why": "検索・分析の中核(タイトル/概要/出演者/ID)。削減禁止"
     },
     {
       "col0": 22,
       "colLetter": "W",
-      "refs": 8,
-      "cls": "表示維持",
-      "why": "repo内プログラムが参照"
+      "refs": 11,
+      "cls": "運用必須",
+      "why": "検索・分析の中核(タイトル/概要/出演者/ID)。削減禁止"
     },
     {
       "col0": 23,
       "colLetter": "X",
-      "refs": 1,
-      "cls": "表示維持",
-      "why": "repo内プログラムが参照"
+      "refs": 3,
+      "cls": "運用必須",
+      "why": "検索・分析の中核(タイトル/概要/出演者/ID)。削減禁止"
     },
     {
       "col0": 28,
       "colLetter": "AC",
-      "refs": 2,
+      "refs": 3,
       "cls": "運用必須",
-      "why": "プラットフォームURL探索・補完・サイト表示に使用(削減禁止)"
+      "why": "プラットフォームURL探索・補完・サイト表示(削減禁止)"
     },
     {
       "col0": 32,
       "colLetter": "AG",
       "refs": 1,
-      "cls": "運用必須",
-      "why": "プラットフォームURL探索・補完・サイト表示に使用(削減禁止)"
+      "cls": "表示維持",
+      "why": "repo内プログラムが参照"
     },
     {
       "col0": 38,
@@ -175,83 +175,29 @@
       "col0": 43,
       "colLetter": "AR",
       "refs": 1,
-      "cls": "表示維持",
-      "why": "repo内プログラムが参照"
+      "cls": "運用必須",
+      "why": "プラットフォームURL探索・補完・サイト表示(削減禁止)"
+    },
+    {
+      "col0": 50,
+      "colLetter": "AY",
+      "refs": 2,
+      "cls": "運用必須",
+      "why": "検索・分析の中核(タイトル/概要/出演者/ID)。削減禁止"
     }
   ],
   "tabs": [
     {
-      "tab": "自動更新申請",
-      "files": [
-        "scripts/google-apps-script/AutoUpdateRequest.js",
-        "scripts/google-apps-script-playlist-submit.gs"
-      ]
-    },
-    {
       "tab": "エピソード台帳",
       "files": [
         "scripts/google-apps-script/LibraryPhase8ReadOnlyStatus.js",
-        "scripts/google-apps-script-library-ad-cleaning-audit.gs"
-      ]
-    },
-    {
-      "tab": "テーマ候補確認",
-      "files": [
-        "scripts/google-apps-script/PlaylistAutoThemeReview.js"
-      ]
-    },
-    {
-      "tab": "テーマ判定履歴",
-      "files": [
-        "scripts/google-apps-script/PlaylistAutoThemeReview.js"
-      ]
-    },
-    {
-      "tab": "朝リスPodcast",
-      "files": [
-        "scripts/google-apps-script/PodcastPlatformSync.js",
-        "scripts/google-apps-script/コード.js",
-        "scripts/google-apps-script-playlist-submit.gs"
+        "tests/base-ledger-v1.test.mjs"
       ]
     },
     {
       "tab": "北欧",
       "files": [
         "scripts/google-apps-script/ThemeV3SingleSheet.js"
-      ]
-    },
-    {
-      "tab": "投稿受付",
-      "files": [
-        "scripts/google-apps-script/コード.js",
-        "scripts/google-apps-script-playlist-submit.gs"
-      ]
-    },
-    {
-      "tab": "作業台　 ",
-      "files": [
-        "scripts/google-apps-script/コード.js"
-      ]
-    },
-    {
-      "tab": "サイト公開用",
-      "files": [
-        "scripts/google-apps-script/コード.js",
-        "scripts/google-apps-script-playlist-submit.gs"
-      ]
-    },
-    {
-      "tab": "おすすめPodcast",
-      "files": [
-        "scripts/google-apps-script/コード.js",
-        "scripts/google-apps-script-playlist-submit.gs",
-        "scripts/google-apps-script-risu-apple-enrichment.gs"
-      ]
-    },
-    {
-      "tab": "作業台",
-      "files": [
-        "scripts/google-apps-script-playlist-submit.gs"
       ]
     }
   ],
@@ -370,9 +316,7 @@
           "refs": 1
         }
       ],
-      "tabs": [
-        "自動更新申請"
-      ]
+      "tabs": []
     },
     {
       "file": "scripts/google-apps-script/LibraryPhase8ReadOnlyStatus.js",
@@ -450,10 +394,7 @@
           "refs": 3
         }
       ],
-      "tabs": [
-        "テーマ候補確認",
-        "テーマ判定履歴"
-      ]
+      "tabs": []
     },
     {
       "file": "scripts/google-apps-script/PlaylistDates.js",
@@ -579,9 +520,7 @@
           "refs": 2
         }
       ],
-      "tabs": [
-        "朝リスPodcast"
-      ]
+      "tabs": []
     },
     {
       "file": "scripts/google-apps-script/PostDuplicate.js",
@@ -708,24 +647,6 @@
       ]
     },
     {
-      "file": "scripts/google-apps-script/コード.js",
-      "columns": [],
-      "tabs": [
-        "投稿受付",
-        "作業台　 ",
-        "サイト公開用",
-        "おすすめPodcast",
-        "朝リスPodcast"
-      ]
-    },
-    {
-      "file": "scripts/google-apps-script-library-ad-cleaning-audit.gs",
-      "columns": [],
-      "tabs": [
-        "エピソード台帳"
-      ]
-    },
-    {
       "file": "scripts/google-apps-script-playlist-submit.gs",
       "columns": [
         {
@@ -801,39 +722,45 @@
           "refs": 1
         }
       ],
-      "tabs": [
-        "投稿受付",
-        "作業台",
-        "サイト公開用",
-        "おすすめPodcast",
-        "朝リスPodcast",
-        "自動更新申請"
-      ]
-    },
-    {
-      "file": "scripts/google-apps-script-risu-apple-enrichment.gs",
-      "columns": [],
-      "tabs": [
-        "おすすめPodcast"
-      ]
+      "tabs": []
     },
     {
       "file": "scripts/lib/base-ledger.mjs",
       "columns": [
         {
           "col0": 0,
-          "refs": 6
+          "refs": 14
         },
         {
           "col0": 1,
-          "refs": 1
+          "refs": 2
         },
         {
           "col0": 2,
-          "refs": 1
+          "refs": 3
         },
         {
           "col0": 3,
+          "refs": 1
+        },
+        {
+          "col0": 22,
+          "refs": 2
+        },
+        {
+          "col0": 21,
+          "refs": 2
+        },
+        {
+          "col0": 23,
+          "refs": 2
+        },
+        {
+          "col0": 50,
+          "refs": 2
+        },
+        {
+          "col0": 28,
           "refs": 1
         }
       ],
@@ -970,6 +897,46 @@
         }
       ],
       "tabs": []
+    },
+    {
+      "file": "tests/base-ledger-v1.test.mjs",
+      "columns": [
+        {
+          "col0": 0,
+          "refs": 1
+        },
+        {
+          "col0": 1,
+          "refs": 1
+        },
+        {
+          "col0": 2,
+          "refs": 1
+        },
+        {
+          "col0": 3,
+          "refs": 1
+        },
+        {
+          "col0": 6,
+          "refs": 1
+        },
+        {
+          "col0": 11,
+          "refs": 2
+        },
+        {
+          "col0": 21,
+          "refs": 1
+        },
+        {
+          "col0": 22,
+          "refs": 1
+        }
+      ],
+      "tabs": [
+        "エピソード台帳"
+      ]
     },
     {
       "file": "tests/library-phase8-readonly-status.test.mjs",
