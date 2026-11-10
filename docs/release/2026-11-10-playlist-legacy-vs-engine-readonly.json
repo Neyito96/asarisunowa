@@ -1,0 +1,139 @@
+{
+ "kind": "READ_ONLY_LOGIC_COMPARISON",
+ "note": "RSS由来の台帳行(title/description)を入力に、旧GASの照合関数と新エンジンの判定を比較。SpotifyのAPI応答・実プレイリスト内容は未使用=実環境の一致ではない。",
+ "episodes": 5945,
+ "legacyRules": 9,
+ "configRowsGenerated": 9,
+ "configErrors": [],
+ "allIdentical": true,
+ "perRule": [
+  {
+   "key": "issho-shinbun",
+   "legacyEnabled": true,
+   "legacyMatches": 31,
+   "newMatches": 31,
+   "onlyLegacy": 0,
+   "onlyNew": 0,
+   "identical": true,
+   "showScopeSame": true,
+   "configBlocked": [],
+   "strategy": null
+  },
+  {
+   "key": "kino-douga",
+   "legacyEnabled": true,
+   "legacyMatches": 2,
+   "newMatches": 2,
+   "onlyLegacy": 0,
+   "onlyNew": 0,
+   "identical": true,
+   "showScopeSame": true,
+   "configBlocked": [],
+   "strategy": null
+  },
+  {
+   "key": "toyohide",
+   "legacyEnabled": true,
+   "legacyMatches": 16,
+   "newMatches": 16,
+   "onlyLegacy": 0,
+   "onlyNew": 0,
+   "identical": true,
+   "showScopeSame": true,
+   "configBlocked": [],
+   "strategy": null
+  },
+  {
+   "key": "ota-masahiko",
+   "legacyEnabled": true,
+   "legacyMatches": 6,
+   "newMatches": 6,
+   "onlyLegacy": 0,
+   "onlyNew": 0,
+   "identical": true,
+   "showScopeSame": true,
+   "configBlocked": [],
+   "strategy": "ota-safe-confirmed"
+  },
+  {
+   "key": "no-mirai",
+   "legacyEnabled": true,
+   "legacyMatches": 10,
+   "newMatches": 10,
+   "onlyLegacy": 0,
+   "onlyNew": 0,
+   "identical": true,
+   "showScopeSame": true,
+   "configBlocked": [],
+   "strategy": "no-mirai-title-prefix"
+  },
+  {
+   "key": "sato-yo",
+   "legacyEnabled": true,
+   "legacyMatches": 0,
+   "newMatches": 0,
+   "onlyLegacy": 0,
+   "onlyNew": 0,
+   "identical": true,
+   "showScopeSame": true,
+   "configBlocked": [],
+   "strategy": "sato-yo-safe-confirmed"
+  },
+  {
+   "key": "south-america",
+   "legacyEnabled": true,
+   "legacyMatches": 63,
+   "newMatches": 63,
+   "onlyLegacy": 0,
+   "onlyNew": 0,
+   "identical": true,
+   "showScopeSame": true,
+   "configBlocked": [],
+   "strategy": null
+  },
+  {
+   "key": "polirebi",
+   "legacyEnabled": true,
+   "legacyMatches": 15,
+   "newMatches": 15,
+   "onlyLegacy": 0,
+   "onlyNew": 0,
+   "identical": true,
+   "showScopeSame": true,
+   "configBlocked": [],
+   "strategy": null
+  },
+  {
+   "key": "polirebi-rebuild-audit",
+   "legacyEnabled": false,
+   "legacyMatches": 15,
+   "newMatches": 15,
+   "onlyLegacy": 0,
+   "onlyNew": 0,
+   "identical": true,
+   "showScopeSame": true,
+   "configBlocked": [],
+   "strategy": null
+  }
+ ],
+ "legacyTriggerFunctions": [
+  {
+   "fn": "syncToyohidePlaylist",
+   "playlistId": "4Ri6rxTGFimTm0KkZtKfBZ",
+   "ruleKey": "toyohide",
+   "coveredByDailyManaged": true
+  },
+  {
+   "fn": "syncIsshoShinbunPlaylist",
+   "playlistId": "4tY0lHoV8IemMBp4iTnKnl",
+   "ruleKey": "issho-shinbun",
+   "coveredByDailyManaged": true
+  },
+  {
+   "fn": "syncKinoDougaPlaylist",
+   "playlistId": "6nDhZQG75F1wU62sdcYJMq",
+   "ruleKey": "kino-douga",
+   "coveredByDailyManaged": true
+  }
+ ]
+}
