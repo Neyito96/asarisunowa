@@ -15,14 +15,15 @@ test('audit classifies five ways and never proposes for filled cells',()=>{
   const r=row({0:'EP-1',21:'【出演】山田太郎（部）【おねがい】',11:'https://open.spotify.com/episode/abc'});
   const a=auditRow(r,{now:NOW,pubDate:NOW-2*3600e3,resolutions:{},showEpisodeCount:200,showCastBlankRate:0});
   assert.equal(find(a,'spotify').status,'FILLED');
-  assert.equal(find(a,'cast1').status,'FILLABLE_FROM_OFFICIAL');assert.equal(find(a,'cast2').status,'NOT_APPLICABLE');
+  assert.equal(find(a,'cast1').status,'FILLABLE_FROM_OFFICIAL');assert.equal(find(a,'cast2').status,'NOT_APPLICABLE');assert.match(find(a,'cast2').reason,/^SOURCE_BLOCK_LISTS_ONLY_1$/);
   assert.equal(find(a,'apple').status,'NOT_YET_PUBLISHED');assert.equal(find(a,'descClean').status,'FILLABLE_FROM_OFFICIAL');
   assert.ok(!proposals('EP-1',r,a,{checkedAt:'t'}).some(p=>p.key==='spotify'));
 });
-test('old blank after grace with NOT_FOUND is HOLD (never guessed); show that never lists cast is NOT_APPLICABLE',()=>{
+test('old blank after grace with NOT_FOUND is HOLD (never guessed); past blank rate alone never makes cast NOT_APPLICABLE',()=>{
   const r=row({21:'本文のみ'});
   const a=auditRow(r,{now:NOW,pubDate:NOW-5*86400e3,resolutions:{spotify:{status:'NOT_FOUND'}},showEpisodeCount:499,showCastBlankRate:1});
-  assert.equal(find(a,'spotify').status,'HOLD');assert.equal(find(a,'spotify').reason,'NOT_FOUND_AFTER_GRACE');assert.equal(find(a,'cast1').reason,'SHOW_NEVER_LISTS_CAST');
+  assert.equal(find(a,'spotify').status,'HOLD');assert.equal(find(a,'spotify').reason,'NOT_FOUND_AFTER_GRACE');assert.equal(find(a,'cast1').status,'HOLD');assert.equal(find(a,'cast1').reason,'UNKNOWN_UNDOCUMENTED');assert.equal(find(a,'cast1').needsReview,true);assert.ok(find(a,'cast1').historyHint);
+  const ex=auditRow(r,{now:NOW,pubDate:NOW-5*86400e3,showEpisodeCount:499,showCastBlankRate:1,officialNoCast:true,officialNoCastEvidence:['番組概要: 出演者の記載なし(公式)']});assert.equal(find(ex,'cast1').status,'NOT_APPLICABLE');assert.equal(find(ex,'cast1').reason,'OFFICIAL_STATES_NO_CAST');
   assert.equal(find(auditRow(r,{now:NOW,pubDate:NOW-5*86400e3,unsupportedPlatforms:['pody']}),'pody').reason,'NO_VERIFIED_ROUTE');
 });
 test('apply fills only blanks, is idempotent, logs rollback, and never overwrites',()=>{
@@ -68,4 +69,44 @@ test('extractCast: literal \\n sequences from the sheet export and combined role
   const b=extractCast('【出演・スタッフ】 大宮慎次朗（スポーツ部） https://b.ly/G MC・音源編集 岸上渉 https://b.ly/S 【おねがい】');
   assert.deepEqual(b.names,['大宮慎次朗（スポーツ部）','岸上渉']);
   assert.deepEqual(extractCast('【出演・スタッフ】 神田大介（MC、音源編集） https://b.ly/k 【朝ポキ情報】').names,['神田大介（MC、音源編集）']);
+});
+
+import {buildDashboard} from '../public/library/quality-dashboard.mjs';
+import {linkState,LINK_STATE} from '../public/library/link-state.mjs';
+test('N/A does not shrink the denominator; unmeasured columns are never given a rate',()=>{
+  const r=row({21:'本文のみ'});const au=auditRow(r,{now:NOW,pubDate:NOW-5*86400e3,showEpisodeCount:499,showCastBlankRate:1,unmeasuredKeys:['related','amazon','pocketcasts','pody']});
+  assert.equal(find(au,'amazon').status,'UNMEASURED');
+  const d=buildDashboard({episodes:[{id:'a',pubDate:NOW,collectedAt:NOW,review:'unreviewed',audit:au}],now:NOW});
+  const cast1=d.columns.find(c=>c.key==='cast1');assert.equal(cast1.HOLD,1);assert.equal(cast1.needsReview,1);
+  for(const k of ['related','amazon','pocketcasts','pody']){const c=d.columns.find(x=>x.key===k);assert.equal(c.coverage,'未測定');assert.equal(c.fillRate,null);}
+  assert.equal(d.fillRateRequired.total,au.filter(a=>a.tier==='required'&&a.status!=='UNMEASURED').length);
+  assert.match(d.scopeNote,/全55列/);
+});
+test('descClean comes from description-editor and never changes raw; edit holds block auto-fill',()=>{
+  const raw='本編です。\\n【出演】山田太郎（部）\\nご意見は xx@asahi.com';const r=row({21:raw});const before=r[21];
+  const a=find(auditRow(r,{now:NOW,pubDate:NOW-5*86400e3}),'descClean');assert.equal(r[21],before);
+  assert.ok(['FILLABLE_FROM_OFFICIAL','HOLD'].includes(a.status));if(a.status==='FILLABLE_FROM_OFFICIAL')assert.match(a.source,/description-editor/);
+});
+test('link state maps resolver results to six operational states',()=>{
+  const b={platform:'spotify',show:'S',ageHours:100};
+  assert.equal(linkState({...b,existingUrl:'u'}).state,LINK_STATE.FETCHED);
+  assert.equal(linkState({...b,resolution:{status:'VERIFIED'}}).state,LINK_STATE.FETCHED);
+  assert.equal(linkState({...b,resolution:{status:'NOT_FOUND'}}).state,LINK_STATE.NOT_FOUND);
+  assert.equal(linkState({...b,ageHours:2,resolution:{status:'NOT_FOUND'}}).state,LINK_STATE.WAITING);
+  assert.equal(linkState({...b,resolution:{status:'HOLD',reason:'AMBIGUOUS'}}).state,LINK_STATE.HOLD);
+  assert.equal(linkState({...b,unsupported:['spotify']}).state,LINK_STATE.NOT_IMPLEMENTED);
+  assert.equal(linkState({...b,notProvided:{spotify:['S']}}).state,LINK_STATE.NOT_PROVIDED);
+  assert.equal(linkState({...b,resolution:{status:'NOT_FOUND'},notProvided:{spotify:['other']}}).state,LINK_STATE.NOT_FOUND);
+});
+test('cast extraction: roles, standalone hiragana names, notes, separators, confidence tier',()=>{
+  const x=extractCast('【出演・スタッフ】\n高億翔（スポーツ部）\n水野梓\n音源編集・金澤ひかり\n★イベントのお知らせ');
+  assert.deepEqual(x.people.map(p=>p.name),['高億翔','水野梓','金澤ひかり']);
+  assert.equal(x.people.find(p=>p.name==='金澤ひかり').role,'音源編集');assert.equal(x.confidence,'review');assert.match(x.notes,/イベント/);
+  const y=extractCast('【出演】山田太郎（部）、鈴木一郎（局）');assert.deepEqual(y.people.map(p=>p.name),['山田太郎','鈴木一郎']);assert.equal(y.confidence,'clean');
+  assert.equal(extractCast('【出演】淀川テクニック・柴田英昭さん（現代美術家）').names.length,1);
+  assert.deepEqual(extractCast('【出演】\nお便りはこちら').names,[]);
+});
+test('cast proposals stay suggest-only and carry confidence',()=>{
+  const r=row({21:'【出演】山田太郎（部）'});const a=auditRow(r,{now:NOW,pubDate:NOW-86400e3*3});const p=proposals('E',r,a,{checkedAt:'t'}).find(q=>q.key==='cast1');
+  assert.equal(p.autoApplicable,false);assert.equal(p.mode,'suggest-only');assert.equal(p.confidence,'clean');
 });

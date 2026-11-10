@@ -1,68 +1,443 @@
 {
  "episodes": 97,
  "patrols": 342,
+ "evaluationKind": "FIXTURE_REPLAY: 台帳の原本を真値(oracle)として再生。外部サービス取得の実測ではない。",
+ "reflect": {
+  "castCellsWrittenBeforeApproval": 0,
+  "episodesWithCastSuggestion": 83,
+  "episodesWithCleanTierSuggestion": 19,
+  "descCleanFilled": 86,
+  "descSearchable": {
+   "tried": 85,
+   "hit": 85
+  },
+  "linksVisibleInPreview": {
+   "tried": 79,
+   "visible": 79
+  },
+  "rawDescriptionUnchanged": {
+   "rows": 97,
+   "intact": 97
+  },
+  "castSearchAfterSimulatedHumanApproval": {
+   "tried": 19,
+   "hit": 19
+  },
+  "indexRebuildMs": 71,
+  "linkStatesAtEnd": {
+   "取得済み": 181,
+   "未発見": 110
+  },
+  "simulatedLatencyFromPublish": {
+   "collected": {
+    "p50h": 0.08,
+    "maxh": 2,
+    "n": 97
+   },
+   "previewReflected": {
+    "p50h": 0.08,
+    "maxh": 6.08,
+    "n": 97
+   },
+   "note": "模擬: 巡回2時間周期・サービス側反映遅延1〜7時間は決定的に生成した仮定値。実測ではない。"
+  }
+ },
  "castAgainstExistingLedger": {
   "rowsWithLedgerCast": 67,
-  "cast1Match": 64,
-  "fullSetMatch": 51
+  "cast1Match": 65,
+  "fullSetMatch": 52
  },
  "apiCalls": 2958,
  "rate429Injected": 1,
- "cellWrites": 181,
+ "cellWrites": 267,
  "writtenValuesMatchTruth": true,
  "unreviewedNeverPublishable": true,
  "dashboard": {
   "asOf": "2026-11-11T07:00:00.000Z",
   "collected": 97,
   "fillRateRequired": {
-   "filled": 715,
-   "total": 956,
-   "percent": 74.8
+   "filled": 723,
+   "total": 970,
+   "percent": 74.5,
+   "basis": "必須列のうち測定済みセル全件(N/Aも分母に含む)",
+   "notApplicableExplicit": 0,
+   "percentExcludingExplicitNA": 74.5
   },
+  "unmeasuredCells": 388,
+  "columns": [
+   {
+    "key": "datetime",
+    "label": "配信日時",
+    "tier": "required",
+    "cells": 97,
+    "FILLED": 97,
+    "FILLABLE_FROM_OFFICIAL": 0,
+    "NOT_YET_PUBLISHED": 0,
+    "NOT_APPLICABLE": 0,
+    "HOLD": 0,
+    "UNMEASURED": 0,
+    "needsReview": 0,
+    "measured": true,
+    "coverage": "measured",
+    "fillRate": 100
+   },
+   {
+    "key": "guid",
+    "label": "GUID",
+    "tier": "required",
+    "cells": 97,
+    "FILLED": 97,
+    "FILLABLE_FROM_OFFICIAL": 0,
+    "NOT_YET_PUBLISHED": 0,
+    "NOT_APPLICABLE": 0,
+    "HOLD": 0,
+    "UNMEASURED": 0,
+    "needsReview": 0,
+    "measured": true,
+    "coverage": "measured",
+    "fillRate": 100
+   },
+   {
+    "key": "audio",
+    "label": "音声URL",
+    "tier": "required",
+    "cells": 97,
+    "FILLED": 89,
+    "FILLABLE_FROM_OFFICIAL": 0,
+    "NOT_YET_PUBLISHED": 0,
+    "NOT_APPLICABLE": 0,
+    "HOLD": 8,
+    "UNMEASURED": 0,
+    "needsReview": 0,
+    "measured": true,
+    "coverage": "measured",
+    "fillRate": 91.8
+   },
+   {
+    "key": "descRaw",
+    "label": "概要原文",
+    "tier": "required",
+    "cells": 97,
+    "FILLED": 97,
+    "FILLABLE_FROM_OFFICIAL": 0,
+    "NOT_YET_PUBLISHED": 0,
+    "NOT_APPLICABLE": 0,
+    "HOLD": 0,
+    "UNMEASURED": 0,
+    "needsReview": 0,
+    "measured": true,
+    "coverage": "measured",
+    "fillRate": 100
+   },
+   {
+    "key": "descClean",
+    "label": "清掃済み概要",
+    "tier": "required",
+    "cells": 97,
+    "FILLED": 86,
+    "FILLABLE_FROM_OFFICIAL": 0,
+    "NOT_YET_PUBLISHED": 0,
+    "NOT_APPLICABLE": 0,
+    "HOLD": 11,
+    "UNMEASURED": 0,
+    "needsReview": 11,
+    "measured": true,
+    "coverage": "measured",
+    "fillRate": 88.7
+   },
+   {
+    "key": "cast1",
+    "label": "出演者1",
+    "tier": "required",
+    "cells": 97,
+    "FILLED": 0,
+    "FILLABLE_FROM_OFFICIAL": 83,
+    "NOT_YET_PUBLISHED": 0,
+    "NOT_APPLICABLE": 0,
+    "HOLD": 14,
+    "UNMEASURED": 0,
+    "needsReview": 14,
+    "measured": true,
+    "coverage": "measured",
+    "fillRate": 0
+   },
+   {
+    "key": "cast2",
+    "label": "出演者2",
+    "tier": "recommended",
+    "cells": 97,
+    "FILLED": 0,
+    "FILLABLE_FROM_OFFICIAL": 75,
+    "NOT_YET_PUBLISHED": 0,
+    "NOT_APPLICABLE": 8,
+    "HOLD": 14,
+    "UNMEASURED": 0,
+    "needsReview": 14,
+    "measured": true,
+    "coverage": "measured",
+    "fillRate": 0
+   },
+   {
+    "key": "cast3",
+    "label": "出演者3",
+    "tier": "recommended",
+    "cells": 97,
+    "FILLED": 0,
+    "FILLABLE_FROM_OFFICIAL": 52,
+    "NOT_YET_PUBLISHED": 0,
+    "NOT_APPLICABLE": 31,
+    "HOLD": 14,
+    "UNMEASURED": 0,
+    "needsReview": 14,
+    "measured": true,
+    "coverage": "measured",
+    "fillRate": 0
+   },
+   {
+    "key": "cast4",
+    "label": "出演者4",
+    "tier": "recommended",
+    "cells": 97,
+    "FILLED": 0,
+    "FILLABLE_FROM_OFFICIAL": 9,
+    "NOT_YET_PUBLISHED": 0,
+    "NOT_APPLICABLE": 74,
+    "HOLD": 14,
+    "UNMEASURED": 0,
+    "needsReview": 14,
+    "measured": true,
+    "coverage": "measured",
+    "fillRate": 0
+   },
+   {
+    "key": "cast5",
+    "label": "出演者5",
+    "tier": "recommended",
+    "cells": 97,
+    "FILLED": 0,
+    "FILLABLE_FROM_OFFICIAL": 2,
+    "NOT_YET_PUBLISHED": 0,
+    "NOT_APPLICABLE": 81,
+    "HOLD": 14,
+    "UNMEASURED": 0,
+    "needsReview": 14,
+    "measured": true,
+    "coverage": "measured",
+    "fillRate": 0
+   },
+   {
+    "key": "related",
+    "label": "関連記事",
+    "tier": "recommended",
+    "cells": 97,
+    "FILLED": 0,
+    "FILLABLE_FROM_OFFICIAL": 0,
+    "NOT_YET_PUBLISHED": 0,
+    "NOT_APPLICABLE": 0,
+    "HOLD": 0,
+    "UNMEASURED": 97,
+    "needsReview": 0,
+    "measured": false,
+    "coverage": "未測定",
+    "fillRate": null
+   },
+   {
+    "key": "officialPage",
+    "label": "公式個別URL",
+    "tier": "required",
+    "cells": 97,
+    "FILLED": 76,
+    "FILLABLE_FROM_OFFICIAL": 0,
+    "NOT_YET_PUBLISHED": 0,
+    "NOT_APPLICABLE": 0,
+    "HOLD": 21,
+    "UNMEASURED": 0,
+    "needsReview": 0,
+    "measured": true,
+    "coverage": "measured",
+    "fillRate": 78.4
+   },
+   {
+    "key": "listen",
+    "label": "LISTEN",
+    "tier": "required",
+    "cells": 97,
+    "FILLED": 30,
+    "FILLABLE_FROM_OFFICIAL": 0,
+    "NOT_YET_PUBLISHED": 0,
+    "NOT_APPLICABLE": 0,
+    "HOLD": 67,
+    "UNMEASURED": 0,
+    "needsReview": 0,
+    "measured": true,
+    "coverage": "measured",
+    "fillRate": 30.9
+   },
+   {
+    "key": "spotify",
+    "label": "Spotify",
+    "tier": "required",
+    "cells": 97,
+    "FILLED": 79,
+    "FILLABLE_FROM_OFFICIAL": 0,
+    "NOT_YET_PUBLISHED": 0,
+    "NOT_APPLICABLE": 0,
+    "HOLD": 18,
+    "UNMEASURED": 0,
+    "needsReview": 0,
+    "measured": true,
+    "coverage": "measured",
+    "fillRate": 81.4
+   },
+   {
+    "key": "apple",
+    "label": "Apple Podcasts",
+    "tier": "required",
+    "cells": 97,
+    "FILLED": 72,
+    "FILLABLE_FROM_OFFICIAL": 0,
+    "NOT_YET_PUBLISHED": 0,
+    "NOT_APPLICABLE": 0,
+    "HOLD": 25,
+    "UNMEASURED": 0,
+    "needsReview": 0,
+    "measured": true,
+    "coverage": "measured",
+    "fillRate": 74.2
+   },
+   {
+    "key": "amazon",
+    "label": "Amazon Music",
+    "tier": "recommended",
+    "cells": 97,
+    "FILLED": 0,
+    "FILLABLE_FROM_OFFICIAL": 0,
+    "NOT_YET_PUBLISHED": 0,
+    "NOT_APPLICABLE": 0,
+    "HOLD": 0,
+    "UNMEASURED": 97,
+    "needsReview": 0,
+    "measured": false,
+    "coverage": "未測定",
+    "fillRate": null
+   },
+   {
+    "key": "pocketcasts",
+    "label": "Pocket Casts",
+    "tier": "recommended",
+    "cells": 97,
+    "FILLED": 0,
+    "FILLABLE_FROM_OFFICIAL": 0,
+    "NOT_YET_PUBLISHED": 0,
+    "NOT_APPLICABLE": 0,
+    "HOLD": 0,
+    "UNMEASURED": 97,
+    "needsReview": 0,
+    "measured": false,
+    "coverage": "未測定",
+    "fillRate": null
+   },
+   {
+    "key": "pody",
+    "label": "Pody",
+    "tier": "recommended",
+    "cells": 97,
+    "FILLED": 0,
+    "FILLABLE_FROM_OFFICIAL": 0,
+    "NOT_YET_PUBLISHED": 0,
+    "NOT_APPLICABLE": 0,
+    "HOLD": 0,
+    "UNMEASURED": 97,
+    "needsReview": 0,
+    "measured": false,
+    "coverage": "未測定",
+    "fillRate": null
+   }
+  ],
+  "scopeNote": "率は「監査対象にした列」のみ。未測定列(入力に無い列)は率を出さず、全55列の充足率は主張しない。",
   "notFilledReasons": {
-   "NOT_APPLICABLE:NO_ADDITIONAL_PERSON_IN_SOURCE": 252,
-   "FILLABLE_FROM_OFFICIAL:CAST_IN_OFFICIAL_DESCRIPTION": 219,
+   "FILLABLE_FROM_OFFICIAL:CAST_IN_OFFICIAL_DESCRIPTION": 221,
    "HOLD:NOT_FOUND_AFTER_GRACE": 110,
+   "NOT_APPLICABLE:SOURCE_BLOCK_LISTS_ONLY_3": 86,
+   "NOT_APPLICABLE:SOURCE_BLOCK_LISTS_ONLY_2": 69,
+   "HOLD:CAST_UNDOCUMENTED_NEEDS_REVIEW": 56,
+   "NOT_APPLICABLE:SOURCE_BLOCK_LISTS_ONLY_1": 32,
    "HOLD:NOT_CHECKED": 21,
-   "FILLABLE_FROM_OFFICIAL:DERIVE_FROM_RAW_DESCRIPTION": 19,
-   "NOT_APPLICABLE:SHOW_NEVER_LISTS_CAST": 14,
-   "HOLD:FEED_VALUE_MISSING": 8
+   "HOLD:UNKNOWN_UNDOCUMENTED": 14,
+   "HOLD:DESCRIPTION_EDIT_HOLD:RELATED_TEXT_WITHOUT_URL_REVIEW": 11,
+   "HOLD:FEED_VALUE_MISSING": 8,
+   "NOT_APPLICABLE:SOURCE_BLOCK_LISTS_ONLY_4": 7
   },
   "platformDiscovery": {
    "officialPage": {
-    "eligible": 97,
+    "measured": 97,
+    "unmeasured": 0,
     "found": 76,
-    "rate": 78.4
+    "rate": 78.4,
+    "notProvided": 0,
+    "notImplemented": 0,
+    "waiting": 0,
+    "hold": 21
    },
    "listen": {
-    "eligible": 97,
+    "measured": 97,
+    "unmeasured": 0,
     "found": 30,
-    "rate": 30.9
+    "rate": 30.9,
+    "notProvided": 0,
+    "notImplemented": 0,
+    "waiting": 0,
+    "hold": 67
    },
    "spotify": {
-    "eligible": 97,
+    "measured": 97,
+    "unmeasured": 0,
     "found": 79,
-    "rate": 81.4
+    "rate": 81.4,
+    "notProvided": 0,
+    "notImplemented": 0,
+    "waiting": 0,
+    "hold": 18
    },
    "apple": {
-    "eligible": 97,
+    "measured": 97,
+    "unmeasured": 0,
     "found": 72,
-    "rate": 74.2
+    "rate": 74.2,
+    "notProvided": 0,
+    "notImplemented": 0,
+    "waiting": 0,
+    "hold": 25
    },
    "amazon": {
-    "eligible": 0,
+    "measured": 0,
+    "unmeasured": 97,
     "found": 0,
-    "rate": null
+    "rate": null,
+    "notProvided": 0,
+    "notImplemented": 0,
+    "waiting": 0,
+    "hold": 0
    },
    "pocketcasts": {
-    "eligible": 0,
+    "measured": 0,
+    "unmeasured": 97,
     "found": 0,
-    "rate": null
+    "rate": null,
+    "notProvided": 0,
+    "notImplemented": 0,
+    "waiting": 0,
+    "hold": 0
    },
    "pody": {
-    "eligible": 0,
+    "measured": 0,
+    "unmeasured": 97,
     "found": 0,
-    "rate": null
+    "rate": null,
+    "notProvided": 0,
+    "notImplemented": 0,
+    "waiting": 0,
+    "hold": 0
    }
   },
   "latencyHours": {
@@ -75,8 +450,8 @@
     "max": 8.08
    },
    "pubToPreview": {
-    "p50": 4.08,
-    "max": 8.08
+    "p50": 0.08,
+    "max": 6.08
    }
   },
   "states": {
