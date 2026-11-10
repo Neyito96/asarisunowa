@@ -10,7 +10,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const nfkc = (t) => String(t || '').normalize('NFKC').replace(/\s+/g, ' ').trim();
 const normT = (t) => nfkc(t).toLowerCase().replace(/\s+/g, '');
 const stats = { calls: 0, http: {}, rateLimited: 0, retries: 0 };
-const PACE_MS = 3000; // Searchは lookup より厳しい可能性があるため控えめ
+const PACE_MS = Number(process.env.PACE_MS || 3000); // Searchは lookup より厳しい可能性があるため控えめ
 
 export function queryVariants(title) {
   const full = nfkc(title);
@@ -76,5 +76,6 @@ const report = {
   elapsedSec: Math.round((Date.now() - t0) / 1000), paceMs: PACE_MS,
   items: results,
 };
-fs.writeFileSync(process.argv[3], JSON.stringify(report, null, 1));
+if (process.argv[4] === 'compact') report.items = results.map((r) => [r.epId, r.state, (r.urls[0] || '').match(/[?&]i=(\d+)/)?.[1] || '', r.queries, r.returned]);
+fs.writeFileSync(process.argv[3], JSON.stringify(report, process.argv[4] === 'compact' ? null : null, process.argv[4] === 'compact' ? 0 : 1));
 console.log(JSON.stringify({ total: report.total, byState: report.byState, apiCalls: report.apiCalls, http: report.http, elapsedSec: report.elapsedSec }));
