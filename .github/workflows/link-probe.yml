@@ -9,6 +9,7 @@ on:
       - '.github/workflows/link-probe.yml'
 permissions:
   contents: read
+  pull-requests: write
 jobs:
   probe:
     runs-on: ubuntu-latest
@@ -25,3 +26,10 @@ jobs:
         with:
           name: probe-report
           path: probe-report.json
+      - name: Post report to the PR (read-only report, no secrets)
+        if: github.event_name == 'pull_request' && always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo '## link-probe report (代表EP・READ ONLY)'; echo '```json'; head -c 60000 probe-report.json; echo; echo '```'; } > body.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file body.md
