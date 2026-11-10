@@ -11,7 +11,8 @@ for(const l of labels){const ids=themeIdsForLabel(l.label);if(!ids.length){unmap
 function score(pred){let tp=0,fp=0,fn=0,hold=0,top1=0;for(const x of ev){const p=pred(x.e);if(!p.length){hold++;fn+=1;continue;}const ok=p.some(i=>x.gold.includes(i));if(ok){tp++;}else{fp++;fn++;}}
   const n=ev.length;return {n,correct:tp,wrong:fp,held:hold,precision:+(tp/(tp+fp||1)).toFixed(3),coverage:+((tp+fp)/n).toFixed(3),recall:+(tp/n).toFixed(3)};}
 const before=score(e=>{const t=(e.title||'')+' '+(e.description||'');return THEMES.filter(th=>t.includes(th.name)).map(th=>th.id);});
+const afterPlus=(()=>{let hit=0,tag=0,rel=0;for(const x of ev){const r=classifyText(x.e);if(r.decision!=='TAG')continue;tag++;const ids=[r.themeId,...r.related];if(ids.some(i=>x.gold.includes(i)))hit++;if(r.related.length)rel++;}return {tagged:tag,primaryOrRelatedHit:hit,precisionWithRelated:+(hit/(tag||1)).toFixed(3),withRelatedThemes:rel};})();
 const after=score(e=>{const r=classifyText(e);return r.decision==='TAG'?[r.themeId]:[];});
 const byOrigin={};for(const o of ['human_approved','legacy_assistant_reviewed','assistant_reviewed']){const sub=ev.filter(x=>x.origin===o);if(!sub.length)continue;let c=0,w=0,h=0;for(const x of sub){const r=classifyText(x.e);if(r.decision!=='TAG')h++;else if(x.gold.includes(r.themeId))c++;else w++;}byOrigin[o]={n:sub.length,correct:c,wrong:w,held:h};}
-const res={evaluated:ev.length,unmappedLabels:unmapped,missingInLibrary:missing,before,after,afterByOrigin:byOrigin,note:'正解=旧ラベル(人間承認/復旧/AI)を20主テーマへ別名対応したもの。AI由来ラベルは人間承認ではない'};
+const res={evaluated:ev.length,unmappedLabels:unmapped,missingInLibrary:missing,before,after,afterWithRelated:afterPlus,afterByOrigin:byOrigin,note:'正解=旧ラベル(人間承認/復旧/AI)を20主テーマへ別名対応したもの。AI由来ラベルは人間承認ではない'};
 console.log(JSON.stringify(res,null,1));if(process.argv[3])fs.writeFileSync(process.argv[3],JSON.stringify(res,null,1));

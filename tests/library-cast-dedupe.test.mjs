@@ -18,3 +18,7 @@ test('single-digit hour in ledger date keeps its time', () => {
   const row = Array(55).fill(''); row[0]='EP-00001'; row[1]='番組'; row[2]='題'; row[3]='2026/11/10 4:00';
   assert.equal(publicEpisode(row).date, '2026-11-10T04:00:00+09:00');
 });
+
+test('URLs and line breaks are stripped from cast entries and still deduped by person', () => {
+  assert.equal(dedupeCast(['五十嵐大介（編集委員） https://buff.ly/f1NyCfi\n真田嶺（社会部）https://buff.ly/pOSHRAJ / 真田嶺 / 堀江麻友']), '五十嵐大介（編集委員） / 真田嶺（社会部） / 堀江麻友');
+});

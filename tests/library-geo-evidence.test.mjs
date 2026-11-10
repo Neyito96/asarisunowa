@@ -28,3 +28,13 @@ test('body-only mention is a tag; repeated located cues in the body pin', () => 
 test('インドネシア does not trigger インド', () => {
   assert.equal(d('インドネシアの選挙').インド, undefined);
 });
+
+import {PLACES as ALL_PLACES} from '../public/library/geo-evidence.mjs';
+test('real-data regression counter-examples never become PIN', () => {
+  const cases = [['ワシントン条約'], ['友達の定義ってなんだろう　ソウルメイト'], ['東京オリンピックを振り返る'], ['日本語の難しさ'], ['日本人とは何か'],
+    ['マネタイズって、どう考えたらいいでしょう'], ['タイトルの付け方'], ['松本人志さんの発言'], ['石川さんに聞く'], ['長野智子さんに聞く'], ['宮城さんの話'], ['広島カープの優勝'], ['東京大学の研究'], ['京都大学の研究'], ['川崎フロンターレ']];
+  for (const [title] of cases) assert.deepEqual(pinnedPlaces({title, description: ''}), [], title);
+});
+test('gazetteer entries all carry scope and coordinates', () => {
+  for (const p of ALL_PLACES) { assert.ok(['world', 'japan'].includes(p.scope), p.name); assert.ok(Number.isFinite(p.lat) && Number.isFinite(p.lon), p.name); }
+});
