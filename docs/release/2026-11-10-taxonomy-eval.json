@@ -1,0 +1,44 @@
+{
+ "evaluated": 342,
+ "unmappedLabels": 0,
+ "missingInLibrary": 0,
+ "before": {
+  "n": 342,
+  "correct": 37,
+  "wrong": 15,
+  "held": 290,
+  "precision": 0.712,
+  "coverage": 0.152,
+  "recall": 0.108
+ },
+ "after": {
+  "n": 342,
+  "correct": 103,
+  "wrong": 44,
+  "held": 195,
+  "precision": 0.701,
+  "coverage": 0.43,
+  "recall": 0.301
+ },
+ "afterByOrigin": {
+  "human_approved": {
+   "n": 109,
+   "correct": 28,
+   "wrong": 10,
+   "held": 71
+  },
+  "legacy_assistant_reviewed": {
+   "n": 147,
+   "correct": 48,
+   "wrong": 24,
+   "held": 75
+  },
+  "assistant_reviewed": {
+   "n": 33,
+   "correct": 4,
+   "wrong": 5,
+   "held": 24
+  }
+ },
+ "note": "正解=旧ラベル(人間承認/復旧/AI)を20主テーマへ別名対応したもの。AI由来ラベルは人間承認ではない"
+}
