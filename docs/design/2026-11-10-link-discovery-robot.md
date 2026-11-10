@@ -38,3 +38,10 @@ READ ONLY。台帳・Sheets・GAS・トリガー・OAuthは変更しない。新
 5. 出力は候補JSON止まり。台帳への書込は管理人承認後に、#298と同じ書込プロトコル（再読込→空確認→1セル書込→読み戻し→監査ログ）で行う。
 
 実装: `scripts/probe-link-services.mjs`（代表実測）、`scripts/dump-apple-episodes.mjs`、`scripts/match-apple-dump.mjs`（全件dry-run）、`tests/link-discovery.test.mjs`（3件）。候補: `docs/release/2026-11-10-apple-fill-candidates.json`（27件, expectEmpty）。
+
+## 追記（2026-11-10 夜）第39号・第36号の測定結果（READ ONLY）
+- **Apple Search 層化30件**（現場12・MEDIA TALK12・学校6、2020〜2026年、Lookup200件の窓の外）：**26件 CONFIRMED**（episodeGuid＝台帳itemid、同一collectionId、個別URL形状）、4件 NOT_FOUND（いずれも現場の2020-11〜2022-03）。API 34回・全HTTP 200・429ゼロ・111秒（3秒間隔）。誤照合0。→ `scripts/probe-apple-search.mjs`、標本 `…-apple-search-sample30.json`。
+- **LISTEN**: `rss.listen.style/p/<番組コード>/rss` が**全エピソード**（現場2,672件など）を返し、各itemの guid＝台帳のGUID（J列itemid）、link＝個別EP URL。GUID一致＋日付±1日で**候補5,084件**（既存K列34件は全件一致＝検証になった）。HOLD 6件（GUID複数行3組・日付差3件）。到達性サンプル34/34が HTTP 200（再生可能性は未確認＝第41号）。→ `…-listen-fill-candidates.json`。
+- **Pody**: 番組ページは最新21件のEPリンクのみ（続きあり）。EPページの静的HTMLに日付・GUID・音声URLが無い→強キー無し（題名のみ＝HOLD）。深掘りは別設計。
+- **Amazon**: 静的取得の番組ページは全番組で同一の11.5KB殻（EPリンク0）→公開ページのEP探索は静的取得では不可。公式APIはclosed beta。
+- **第41号 TODO**: 状態 DISCOVERED→EPISODE_VERIFIED→PAGE_REACHABLE→PLAYBACK_VERIFIED。HTTP 200だけで再生可能と断定しない。初回対象=第40号の36セル。実装は本件の後続（`scripts/check-urls.mjs` は PAGE_REACHABLE のみ）。
