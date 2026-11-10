@@ -24,3 +24,10 @@
 ## 承認が必要な操作(未実施)
 - 本番 GAS への反映(`PodcastSpotifyResolve.js` の追加、`PodcastPlatformSync.js` / `Spotify.js` の変更)。
 - PODCAST 19 の J 列への書き込み。`fillRecommendedPodcastSpotifyOne` は、既定がドライラン。実行には `apply: true` と `confirmShowId`(番組ID)、同一性の確認、J 列が空であることが全て必要で、1セルだけ書く。既存値は上書きしない。
+
+## 司令塔レビュー対応（2026-11-10 第2指令）
+
+- 検索の**早期MATCH廃止**: 計画した全クエリ（全タイトル変種 × 1ページ目、満杯なら2ページ目）を終えてから判定する。後続ページ/変種に同名の別番組が出れば、出版社証拠で一意に絞れない限り `AMBIGUOUS`（URLなし）。
+- **部分結果は採用しない**: 429 / 401・403 / 5xx / ネットワーク / 呼び出し上限（`INCOMPLETE`）で打ち切られた場合は理由コードのみ返し、`url`/`id` は空。途中の一致は `tentative`（人の確認用）としてだけ保持し、シートには書かない。
+- 監査関数は `asOf` / 母数(`total`,`withListen`,`missingSpotify`) / `classified` / `unclassified` / `window` / `nextStart` を分けて返す（先頭15件=全体分析ではない）。
+- **READ_ONLY経路**: 本番GASに未反映の監査関数は管理者に実行依頼しない。代わりに `node scripts/podcast-spotify-gaps.mjs export.csv` でシート書き出しCSVをオフライン集計できる（ネットワーク・Sheets・GAS不使用）。READ_ONLY限定のGAS反映は管理者の個別承認事項として別途提示する。

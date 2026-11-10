@@ -103,7 +103,7 @@ test('call budget: stops with what was found, never loops', () => {
   const full = Array.from({ length: 10 }, (_, i) => show(idOf(i + 10), 'y' + i));
   const w = world([search(full)]);
   const r = find(w, '【公式】ポッドキャスト茶会 | 雑談部', '', { maxCalls: 2 });
-  assert.equal(w.calls.length, 2); assert.equal(r.status, 'TITLE_MISMATCH'); assert.equal(r.partial, 'BUDGET');
+  assert.equal(w.calls.length, 2); assert.equal(r.status, 'INCOMPLETE'); assert.equal(r.partial, 'BUDGET'); assert.equal(r.url, '');
 });
 
 test('failure reasons are classified: 401/403 AUTH, 429 RATE_LIMIT, 5xx HTTP_ERROR, network NETWORK, no token AUTH', () => {
@@ -184,6 +184,8 @@ test('audit with lookup: classifies a limited number of rows, stops on RATE_LIMI
   assert.equal(r.rows[0].status, 'MATCH'); assert.equal(r.rows[0].proposedUrl, 'https://open.spotify.com/show/' + idOf(1));
   assert.equal(r.rows[1].status, 'RATE_LIMIT'); assert.equal(r.rows[2].status, undefined);
   assert.deepEqual(r.byStatus, { MATCH: 1, RATE_LIMIT: 1 });
+  assert.equal(r.classified, 2); assert.equal(r.unclassified, 1); assert.equal(r.missingSpotify, 3);        // window != population
+  assert.deepEqual(r.window, { start: 0, end: 2 }); assert.equal(r.nextStart, 2); assert.match(r.asOf, /^\d{4}-\d{2}-\d{2}T/);
   assert.equal(s.writes.length, 0);
 });
 
@@ -266,4 +268,54 @@ test('editor entry points are read-only: no apply flag anywhere, DRYRUN never wr
   vm.runInContext('var getSpotifyAccessToken = function(){ return "TOKEN"; }; var Utilities = { sleep: function(){} };', w.ctx);
   const r = plain(w.ctx.DRYRUN_PODCAST19_SPOTIFY_FILL());
   assert.equal(r.dryRun, true); assert.equal(r.identity, 'MATCH'); assert.equal(s.writes.length, 0);
+});
+
+// ---- PR #276 review: no early decision, no adoption of a partial search ----
+const A = show(idOf(1), 'ポッドキャスト茶会', 'X社'), B = show(idOf(2), 'ポッドキャスト茶会', 'Y社');
+test('review 1: exact hit on page 1, same-name show on page 2 -> AMBIGUOUS (not an early MATCH)', () => {
+  const page1 = [A, ...Array.from({ length: 9 }, (_, i) => show(idOf(i + 20), 'other' + i))];
+  const w = world([search(page1), search([B])]);
+  const r = find(w, 'ポッドキャスト茶会');
+  assert.equal(r.status, 'AMBIGUOUS'); assert.equal(r.url, ''); assert.equal(r.candidates.length, 2); assert.equal(w.calls.length, 2);
+});
+test('review 1: exact hit on the first variant, same-name show only under a later variant -> AMBIGUOUS', () => {
+  const w = world([search([A]), search([B])]);                         // variants: spaced title, then without spaces
+  const r = find(w, 'ポッドキャスト 茶会');
+  assert.equal(r.status, 'AMBIGUOUS'); assert.equal(r.url, ''); assert.equal(w.calls.length, 2);
+});
+test('review 1: publisher evidence separates the same-name shows; without it they stay ambiguous', () => {
+  assert.equal(find(world([search([A]), search([B])]), 'ポッドキャスト 茶会', 'Y社').id, idOf(2));
+  assert.equal(find(world([search([A]), search([B])]), 'ポッドキャスト 茶会', '').status, 'AMBIGUOUS');
+  assert.equal(find(world([search([A]), search([B])]), 'ポッドキャスト 茶会', 'Z社').status, 'AMBIGUOUS');
+});
+test('review 1: the same show seen by several variants is one candidate and still MATCH after the full plan', () => {
+  const w = world([search([A]), search([A])]);
+  const r = find(w, 'ポッドキャスト 茶会');
+  assert.equal(r.status, 'MATCH'); assert.equal(r.id, idOf(1)); assert.equal(w.calls.length, 2);        // both variants were searched before deciding
+});
+for (const [label, failure, expected] of [['429', { status: 429, headers: { 'Retry-After': '99' } }, 'RATE_LIMIT'], ['401', { status: 401 }, 'AUTH'], ['403', { status: 403 }, 'AUTH'], ['500', { status: 500 }, 'HTTP_ERROR'], ['network', new Error('dns'), 'NETWORK']]) {
+  test(`review 2: exact hit then ${label} on the next query -> ${expected}, tentative only, nothing confirmed`, () => {
+    const replies = [search([A]), failure, failure];
+    const w = world(replies);
+    const r = find(w, 'ポッドキャスト 茶会');
+    assert.equal(r.status, expected); assert.equal(r.url, ''); assert.equal(r.id, '');
+    assert.deepEqual(r.tentative, { id: idOf(1), name: 'ポッドキャスト茶会' });
+    const held = plain(w.ctx.podSpCompleteResolved_({ spotify: '' }, 'ポッドキャスト 茶会', '', world(replies).deps));
+    assert.equal(held.spotify, ''); assert.equal(held.spotifyStatus, expected);
+  });
+}
+test('review 2: call budget runs out after an exact hit -> INCOMPLETE, no URL; with enough budget the same data is a MATCH', () => {
+  const cut = find(world([search([A]), search([A])]), 'ポッドキャスト 茶会', '', { maxCalls: 1 });
+  assert.equal(cut.status, 'INCOMPLETE'); assert.equal(cut.url, ''); assert.equal(cut.tentative.id, idOf(1));
+  assert.equal(find(world([search([A]), search([A])]), 'ポッドキャスト 茶会', '', { maxCalls: 2 }).status, 'MATCH');
+});
+test('review 2: a failure on page 2 after a full first page with an exact hit is not a MATCH', () => {
+  const page1 = [A, ...Array.from({ length: 9 }, (_, i) => show(idOf(i + 20), 'other' + i))];
+  const r = find(world([search(page1), { status: 429, headers: { 'Retry-After': '99' } }]), 'ポッドキャスト茶会');
+  assert.equal(r.status, 'RATE_LIMIT'); assert.equal(r.url, '');
+});
+test('review 2: the sheet is never filled from a partial search (sync path keeps the cell blank)', () => {
+  const w = world([search([A]), { status: 429, headers: { 'Retry-After': '99' } }]);
+  const out = plain(w.ctx.podSpCompleteResolved_({ spotify: '' }, 'ポッドキャスト 茶会', '', w.deps));
+  assert.equal(out.spotify, ''); assert.match(out.spotifyDetail, /tentative/);
 });

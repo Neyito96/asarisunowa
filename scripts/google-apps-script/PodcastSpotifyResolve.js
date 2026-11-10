@@ -107,10 +107,14 @@ function podSpClassify_(items, title, maker) {
   return { status: "NO_RESULTS", url: "", id: "", candidates: [] };
 }
 
-// Searches show candidates for a title. options: {maxCalls (default 6)}.
+// Searches show candidates for a title. options: {maxCalls (default 8), knownShowId}.
+// A MATCH is returned ONLY when the whole planned search finished: every title variant, page 0 each, plus page 1 whenever
+// page 0 was full. An early exact hit is a tentative candidate, never a decision: a later page / variant may reveal a second
+// show with the same name. If the search is cut short (429, auth, HTTP error, network, call budget) the result is the failure
+// reason (INCOMPLETE for the budget) with the tentative candidate attached for humans, and url stays empty.
 function podSpFindShow_(title, maker, deps, options) {
   deps = deps || podSpDefaultDeps_();
-  const maxCalls = Number(options && options.maxCalls) > 0 ? Number(options.maxCalls) : 6;
+  const maxCalls = Number(options && options.maxCalls) > 0 ? Number(options.maxCalls) : 8;
   const term = String(title || "").trim();
   if (!term) return { status: "NO_RESULTS", url: "", id: "", candidates: [], calls: 0 };
   const token = deps.token();
@@ -118,25 +122,29 @@ function podSpFindShow_(title, maker, deps, options) {
   const seen = {}, items = [];
   let calls = 0, failure = null;
   const variants = podSpTitleVariants_(term);
-  for (let v = 0; v < variants.length && !failure; v++) {
-    for (let page = 0; page < 2 && !failure; page++) {
-      if (calls >= maxCalls) { failure = { reason: "BUDGET" }; break; }
+  outer:
+  for (let v = 0; v < variants.length; v++) {
+    for (let page = 0; page < 2; page++) {
+      if (calls >= maxCalls) { failure = { reason: "BUDGET" }; break outer; }
       calls++;
       const res = podSpGet_(deps, token, "search?q=" + encodeURIComponent(variants[v]) + "&type=show&market=JP&limit=10&offset=" + (page * 10));
-      if (!res.ok) { failure = res; break; }
+      if (!res.ok) { failure = res; break outer; }
       const raw = res.data && res.data.shows && Array.isArray(res.data.shows.items) ? res.data.shows.items : [];
       raw.forEach(function(entry) { const it = podSpItem_(entry); if (it && !seen[it.id]) { seen[it.id] = true; items.push(it); } });
-      const decided = podSpClassify_(items, term, maker);
-      if (decided.status === "MATCH") return { status: "MATCH", url: decided.url, id: decided.id, candidates: decided.candidates, calls: calls };
-      if (raw.length < 10) break;                       // no further page for this variant
+      // Two same-name shows that publisher evidence cannot separate: stopping here is safe (no decision is made).
+      if (podSpClassify_(items, term, maker).status === "AMBIGUOUS") return { status: "AMBIGUOUS", url: "", id: "", candidates: podSpClassify_(items, term, maker).candidates, calls: calls };
+      if (raw.length < 10) break;
     }
   }
   const verdict = podSpClassify_(items, term, maker);
-  // An ambiguous/mismatching pool is reported as such even if a later call failed; a failure with nothing found is the failure.
-  if (failure && failure.reason !== "BUDGET" && verdict.status === "NO_RESULTS") {
-    return { status: failure.reason, url: "", id: "", candidates: [], calls: calls, httpStatus: failure.status || 0, retryAfterSeconds: failure.retryAfterSeconds || 0 };
+  if (failure) {
+    return {
+      status: failure.reason === "BUDGET" ? "INCOMPLETE" : failure.reason, url: "", id: "",
+      candidates: verdict.candidates, tentative: verdict.status === "MATCH" ? { id: verdict.id, name: (items.filter(function(i) { return i.id === verdict.id; })[0] || {}).name || "" } : null,
+      calls: calls, partial: failure.reason, httpStatus: failure.status || 0, retryAfterSeconds: failure.retryAfterSeconds || 0
+    };
   }
-  return { status: verdict.status, url: "", id: "", candidates: verdict.candidates, calls: calls, partial: failure ? failure.reason : "" };
+  return { status: verdict.status, url: verdict.url, id: verdict.id, candidates: verdict.candidates, calls: calls };
 }
 
 // Called after the official links (source URL, RSS) were applied: a known official Spotify link always wins over search.
@@ -144,7 +152,7 @@ function podSpCompleteResolved_(resolved, title, maker, deps) {
   if (resolved.spotify) { resolved.spotifyStatus = "KNOWN_LINK"; return resolved; }
   const found = podSpFindShow_(title, maker, deps);
   resolved.spotifyStatus = found.status;
-  resolved.spotifyDetail = found.status === "MATCH" ? "" : JSON.stringify({ candidates: found.candidates, calls: found.calls, retryAfterSeconds: found.retryAfterSeconds || 0 });
+  resolved.spotifyDetail = found.status === "MATCH" ? "" : JSON.stringify({ candidates: found.candidates, tentative: found.tentative || null, calls: found.calls, retryAfterSeconds: found.retryAfterSeconds || 0 });
   if (found.status === "MATCH") resolved.spotify = found.url;
   return resolved;
 }
@@ -200,18 +208,25 @@ function auditRecommendedPodcastSpotifyGaps(options) {
     if (!String(row[9] || "").trim()) missing.push({ row: i + 2, title: String(row[1]).trim(), maker: String(row[6] || "").trim(), source: String(row[0] || "").trim() });
   });
   const byStatus = {};
+  const start = Math.max(0, Number(options.start) || 0), limit = Math.max(1, Number(options.maxLookups) || 15);
+  let classified = 0, end = start;
   if (options.lookup === true) {
-    const start = Math.max(0, Number(options.start) || 0), limit = Math.max(1, Number(options.maxLookups) || 15);
     const deps = options.deps || podSpDefaultDeps_();
     for (let i = start; i < Math.min(missing.length, start + limit); i++) {
-      const found = podSpFindShow_(missing[i].title, missing[i].maker, deps, { maxCalls: 3 });
+      const found = podSpFindShow_(missing[i].title, missing[i].maker, deps, { maxCalls: 6 });
       missing[i].status = found.status; missing[i].candidates = found.candidates; missing[i].proposedUrl = found.status === "MATCH" ? found.url : "";
       byStatus[found.status] = (byStatus[found.status] || 0) + 1;
+      classified++; end = i + 1;
       if (found.status === "RATE_LIMIT" || found.status === "AUTH") break;       // stop the whole audit; do not hammer
     }
   }
-  const result = { total: total, withListen: withListen, missingSpotify: missing.length, lookedUp: Object.keys(byStatus).reduce(function(s, k) { return s + byStatus[k]; }, 0), byStatus: byStatus, rows: missing };
-  console.log("おすすめPodcast LISTENあり・Spotify欠落: " + missing.length + " / LISTENあり " + withListen + " / 全体 " + total + " " + JSON.stringify(byStatus));
+  // Population and coverage are reported separately: a lookup pass covers a window, NOT the whole population.
+  const result = {
+    asOf: new Date().toISOString(), total: total, withListen: withListen, missingSpotify: missing.length,
+    lookup: options.lookup === true, window: { start: start, end: end }, classified: classified, unclassified: options.lookup === true ? missing.length - classified : missing.length,
+    nextStart: end < missing.length ? end : null, byStatus: byStatus, rows: missing
+  };
+  console.log("おすすめPodcast LISTENあり・Spotify欠落: " + missing.length + " / LISTENあり " + withListen + " / 全体 " + total + " 分類済み " + classified + " 未分類 " + result.unclassified + " " + JSON.stringify(byStatus));
   return result;
 }
 
