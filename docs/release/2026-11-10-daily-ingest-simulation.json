@@ -1,0 +1,136 @@
+{
+ "seeded": 78,
+ "finalTotal": 122,
+ "uniqueIds": true,
+ "uniqueGuids": true,
+ "publishedUnchanged": true,
+ "newAreUnreviewed": true,
+ "days": [
+  {
+   "day": "2026-10-31",
+   "fetched": 82,
+   "added": 4,
+   "total": 82,
+   "unreviewed": 4,
+   "published": 78,
+   "status": "OK",
+   "anomalies": []
+  },
+  {
+   "day": "2026-11-01",
+   "fetched": 84,
+   "added": 2,
+   "total": 84,
+   "unreviewed": 6,
+   "published": 78,
+   "status": "OK",
+   "anomalies": []
+  },
+  {
+   "day": "2026-11-02",
+   "fetched": 89,
+   "added": 5,
+   "total": 89,
+   "unreviewed": 11,
+   "published": 78,
+   "status": "OK",
+   "anomalies": []
+  },
+  {
+   "day": "2026-11-03",
+   "fetched": 92,
+   "added": 3,
+   "total": 92,
+   "unreviewed": 14,
+   "published": 78,
+   "status": "WARN",
+   "anomalies": [
+    "SPOTIFY_LINK_GAP"
+   ]
+  },
+  {
+   "day": "2026-11-04",
+   "fetched": 98,
+   "added": 6,
+   "total": 98,
+   "unreviewed": 20,
+   "published": 78,
+   "status": "WARN",
+   "anomalies": [
+    "SPOTIFY_LINK_GAP"
+   ]
+  },
+  {
+   "day": "2026-11-05",
+   "fetched": 102,
+   "added": 4,
+   "total": 102,
+   "unreviewed": 24,
+   "published": 78,
+   "status": "WARN",
+   "anomalies": [
+    "SPOTIFY_LINK_GAP"
+   ]
+  },
+  {
+   "day": "2026-11-06",
+   "fetched": 108,
+   "added": 6,
+   "total": 108,
+   "unreviewed": 30,
+   "published": 78,
+   "status": "WARN",
+   "anomalies": [
+    "SPOTIFY_LINK_GAP"
+   ]
+  },
+  {
+   "day": "2026-11-07",
+   "fetched": 110,
+   "added": 2,
+   "total": 110,
+   "unreviewed": 32,
+   "published": 78,
+   "status": "WARN",
+   "anomalies": [
+    "SPOTIFY_LINK_GAP"
+   ]
+  },
+  {
+   "day": "2026-11-08",
+   "fetched": 112,
+   "added": 2,
+   "total": 112,
+   "unreviewed": 34,
+   "published": 78,
+   "status": "WARN",
+   "anomalies": [
+    "SPOTIFY_LINK_GAP"
+   ]
+  },
+  {
+   "day": "2026-11-09",
+   "fetched": 117,
+   "added": 5,
+   "total": 117,
+   "unreviewed": 39,
+   "published": 78,
+   "status": "WARN",
+   "anomalies": [
+    "SPOTIFY_LINK_GAP"
+   ]
+  },
+  {
+   "day": "2026-11-10",
+   "fetched": 122,
+   "added": 5,
+   "total": 122,
+   "unreviewed": 44,
+   "published": 78,
+   "status": "WARN",
+   "anomalies": [
+    "SPOTIFY_LINK_GAP"
+   ]
+  }
+ ]
+}
