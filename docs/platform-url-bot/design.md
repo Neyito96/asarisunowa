@@ -31,8 +31,22 @@
 READ_ONLY単一CLI `scripts/platform-url-bot.mjs`: `proposals.json`(空欄のみ・`write:false`)、`records.json`、`report.json`(媒体別 対象/空欄試行/VERIFIED/新規VERIFIED/HOLD/NOT_FOUND/ERROR/API呼出/retry予定/前日差/警告)、`state.json`、`manifest.json`(入力SHA256)。Actions: `platform-url-bot-dryrun.yml`(手動実行のみ・Secretsなし・成果物アップロード)。定期実行・本番書込は別承認。
 **Before/After実測: 未取得**(台帳CSVと実APIがこの環境にないため数値は作らない)。
 
-## 7. 回帰テスト(`tests/platform-resolver.test.mjs` 15件)
+## 7. 回帰テスト(`tests/platform-resolver.test.mjs` 20件)
 #274(茶会の番組Spotify URL `show/7dDe6p…` を個別EPにしない/遅延出現)、#265(EP-06642〜44の他列不変・入力CSV不変・429のretry state)、同名異話・日付ずれ・別番組・改題・再配信・GUID違い・複数一致、空欄/非空欄保護、429/404/5xx/403/タイムアウト、冪等再実行(提案重複0)、再試行、新着優先、レポート警告、Spotify/Appleアダプタ。
+
+## 7b. レビュー指摘(司令塔 PR #281)への対応
+- **Actions注入対策**: `inputs.*` は env(`IN_LEDGER`/`IN_FIXTURES`)経由のみ、runはbash配列。CLIは `BOT_RESTRICT_PATHS=1` で相対・安全文字(`[A-Za-z0-9._/-]`)・`..`/絶対/先頭`-`禁止・workspace配下のみ許可(違反は終了コード2)。悪意ある引用符/`$()`/バッククォート/空白/改行/`../`/絶対パスのテストあり。
+- **Spotify打切り**: `truncated` ならタイトル+日付の唯一一致でも `HOLD:INCOMPLETE_CANDIDATE_SET`(再開カーソル=`next` URLをevidenceに記録、`input.cursors.spotify` から再開)。0件でもNOT_FOUNDと断定しない。強ID一致のみ打切り下でも確定可。Appleは200件上限到達で `truncated`。
+- **既存URL**: 新ステータス `PRESERVED`(`PRESERVED_UNVERIFIED`=形式確認のみ・実体照合なし)。`VERIFIED` は今回の照合で確証した場合だけ。レポートも別集計。既存値の保護は維持。
+- **番組同一性**: 題名+日付での確定には、候補の番組ID と期待番組ID(台帳側 `showIds`、番組URLから導出)の**両方が存在し一致**が必要。欠落は `HOLD:SHOW_IDENTITY_UNPROVEN`。強ID(GUID/外部ID)があれば独立証拠として確定可。他番組と判明した候補は除外。
+- **再試行**: Retry-After は秒/HTTP-date 両対応、**runを跨ぐ共有クールダウン**を `state.json.__cooldown` に保存・復元。401/403=`ERROR:AUTH_*`(6h・要対応・クールダウンtrip・レポートに権限警告)、その他4xx=`HTTP_*`(24h)、5xx/タイムアウト=`TRANSIENT`(指数バックオフ)を分離。実API未検証は継続明示。
+
+## 7c. LISTEN / Amazon / Pocket Casts / Pody の代替経路(推測URLで埋めない)
+- 確証できる入力: ①台帳の既存URL(K,AO,AP,AQ列) ②P15が発見した番組ページ内リンク(P15_PLATFORM_CANDIDATES: 実データでLISTEN `/p/<番組>/<EP>`・Pody `/player/<番組>/<EP>` の個別形を確認) ③各社が公開する番組ページ/公式RSSのitem(link・guid・enclosure)と台帳GUID・公開日の照合。
+- 欠損入力: 各社の**番組ページのHTML/RSSを読む経路はこの環境から未実測**(外部到達不可)。Amazon/Pocket Castsは個別EP URLの実例が未入手。→ 実データ取得後に `candidates()` アダプタを追加する(インターフェース互換)。それまでは `ERROR:NO_VERIFIED_ROUTE` を表示し推測生成しない。
+
+## 7d. スタックPRの扱い
+本PRは #279 のブランチ上に積んだ(base=`feat/issue-278-base-ledger-v1-20261110`)ため、差分は新規ファイルのみ: `git diff feat/issue-278-base-ledger-v1-20261110...HEAD --stat`。#279 が先にmainへ入ったら base を `main` へ付替え(`gh api -X PATCH repos/Neyito96/asarisunowa/pulls/281 -f base=main`)、差分に #279 のファイルが出ないことを確認。#279 のファイルは変更していない(`git diff feat/issue-278-base-ledger-v1-20261110 -- scripts/lib/base-ledger.mjs` が空)。
 
 ## 8. ROLLBACK
 本PRは新規ファイルのみ・書込なし。リバート=ファイル削除/PRクローズで完了。本番影響なし。

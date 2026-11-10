@@ -3,7 +3,18 @@
 import { PLATFORMS, isEpisodeLevel, urlMatchesPlatform, parseUrl, classifyRedistribution } from './base-ledger.mjs';
 
 export const BOT_PLATFORMS = Object.freeze(['listen', 'spotify', 'apple', 'amazon', 'pocketcasts', 'pody']);
-export const STATUS = Object.freeze(['VERIFIED', 'HOLD', 'NOT_FOUND', 'ERROR']);
+/** PRESERVED = 既存の個別EP形式URLを保護しただけ(形式確認のみ・実体照合なし)。VERIFIED(今回の照合で確証)とは別。 */
+export const STATUS = Object.freeze(['VERIFIED', 'PRESERVED', 'HOLD', 'NOT_FOUND', 'ERROR']);
+/** 番組URLから番組ID(プラットフォーム固有)を取り出す。 */
+export function showIdFromUrl(platform, url) {
+  const m = platform === 'spotify' ? String(url || '').match(/\/show\/([A-Za-z0-9]+)/) : platform === 'apple' ? String(url || '').match(/\/id(\d+)/) : null;
+  return m ? m[1] : '';
+}
+/** Retry-After: 秒数 or HTTP-date → 秒。不正は null。 */
+export function parseRetryAfter(v, now = Date.now()) {
+  if (v == null || v === '') return null; const n = Number(v); if (Number.isFinite(n)) return Math.max(0, n);
+  const d = Date.parse(String(v)); return Number.isNaN(d) ? null : Math.max(0, Math.ceil((d - now) / 1000));
+}
 const HOUR = 3600e3;
 const s = (v) => (v == null ? '' : String(v).trim());
 
@@ -26,6 +37,9 @@ export function dateCompatible(ledgerAt, candAt, precision = 'time') {
 /** retry_after(epoch ms)。429: Retry-After優先。5xx/timeout: 指数バックオフ(上限24h)。NOT_FOUND: 新着は短く、古い話は長く。 */
 export function retryAfter({ kind, attempts = 0, retryAfterSec = null, now, ageDays = 0 }) {
   if (kind === 'RATE_LIMIT') return now + Math.max(60, Number(retryAfterSec) || 0) * 1000 + Math.min(attempts, 5) * 60e3;
+  if (kind === 'AUTH') return now + 6 * HOUR;
+  if (kind === 'FATAL') return now + 24 * HOUR;
+  if (kind === 'INCOMPLETE') return now + 30 * 60e3;
   if (kind === 'TRANSIENT') return now + Math.min(24 * HOUR, 5 * 60e3 * 2 ** Math.min(attempts, 8));
   if (kind === 'NOT_FOUND') return now + (ageDays <= 7 ? 6 * HOUR : ageDays <= 60 ? 24 * HOUR : 7 * 24 * HOUR);
   return null;
@@ -40,6 +54,7 @@ export class FetchError extends Error { constructor(kind, status, retryAfterSec)
 export function classifyHttp(status, retryAfterSec) {
   if (status === 429) return new FetchError('RATE_LIMIT', 429, retryAfterSec);
   if (status === 404) return new FetchError('NOT_FOUND', 404);
+  if (status === 401 || status === 403) return new FetchError('AUTH', status);
   if (status >= 500 || status === 0 || status === 408) return new FetchError('TRANSIENT', status);
   return new FetchError('FATAL', status);
 }
@@ -51,7 +66,7 @@ export async function resolveOne(input, platform, { fetchers = {}, gate = new Co
   const f = { checkedAt: new Date(now).toISOString(), over: {} }; const out = (o) => rec(input, platform, { ...f, over: o });
   const existing = s(input.existing?.[platform]);
   if (existing) {
-    if (parseUrl(existing) && urlMatchesPlatform(existing, PLATFORMS.find((p) => p.key === platform)) && isEpisodeLevel(platform, existing)) return out({ url: existing, status: 'VERIFIED', reason: 'EXISTING_PROTECTED', evidence: ['existing-ledger-url'] });
+    if (parseUrl(existing) && urlMatchesPlatform(existing, PLATFORMS.find((p) => p.key === platform)) && isEpisodeLevel(platform, existing)) return out({ url: existing, status: 'PRESERVED', reason: 'PRESERVED_UNVERIFIED', evidence: ['existing-ledger-url:form-checked-only'] });
     return out({ url: existing, entity_type: 'show', status: 'HOLD', reason: 'NON_EPISODE_URL_IN_EPISODE_CELL', evidence: ['existing-ledger-url'] }); // 修正は提案のみ。上書きしない
   }
   const fx = fetchers[platform];
@@ -63,7 +78,9 @@ export async function resolveOne(input, platform, { fetchers = {}, gate = new Co
     const kind = e.kind || 'TRANSIENT';
     if (kind === 'RATE_LIMIT') { const ra = retryAfter({ kind, attempts, retryAfterSec: e.retryAfterSec, now }); gate.trip(platform, ra); return out({ status: 'ERROR', reason: 'HTTP_429', retry_after: ra, evidence: [`retry-after:${e.retryAfterSec ?? 'none'}`] }); }
     if (kind === 'NOT_FOUND') return out({ status: 'NOT_FOUND', reason: 'HTTP_404', retry_after: retryAfter({ kind: 'NOT_FOUND', now, ageDays: ageDays(input, now) }) });
-    return out({ status: 'ERROR', reason: kind === 'FATAL' ? `HTTP_${e.status}` : 'TRANSIENT', retry_after: retryAfter({ kind: 'TRANSIENT', attempts, now }), evidence: [String(e.message)] });
+    if (kind === 'AUTH') { const ra = retryAfter({ kind, now }); gate.trip(platform, ra); return out({ status: 'ERROR', reason: `AUTH_${e.status}`, retry_after: ra, evidence: ['fatal:needs-credentials-or-permission'] }); }
+    if (kind === 'FATAL') return out({ status: 'ERROR', reason: `HTTP_${e.status}`, retry_after: retryAfter({ kind, now }), evidence: ['fatal:non-retryable-until-changed'] });
+    return out({ status: 'ERROR', reason: 'TRANSIENT', retry_after: retryAfter({ kind: 'TRANSIENT', attempts, now }), evidence: [String(e.message)] });
   }
   // 個別EP形式でない候補(番組URL・検索結果URL)は候補から除外し、個別EP列に入れない。
   const expShow = s(input.showIds?.[platform]); const sameShow = (c) => !c.showId || !expShow || c.showId === expShow;
@@ -73,9 +90,14 @@ export async function resolveOne(input, platform, { fetchers = {}, gate = new Co
   const strong = cands.filter((c) => (guid && s(c.guid).toLowerCase() === guid) || (input.knownExternalIds || []).includes(c.externalId));
   if (strong.length === 1) return out({ url: strong[0].url, external_id: s(strong[0].externalId), status: 'VERIFIED', reason: 'STRONG_ID', evidence: [...ev, 'guid-or-external-id-match'] });
   if (strong.length > 1) return out({ status: 'HOLD', reason: 'AMBIGUOUS_STRONG_ID', evidence: strong.map((c) => c.url) });
+  const showProof = (c) => !!(c.showId && expShow && c.showId === expShow);
   const nt = normTitle(input.title); const red = classifyRedistribution({ title: input.title });
   const titled = cands.filter((c) => normTitle(c.title) === nt && nt);
-  const full = titled.filter((c) => dateCompatible(input.publishedAt, c.publishedAt, c.precision) && sameShow(c));
+  const dated = titled.filter((c) => dateCompatible(input.publishedAt, c.publishedAt, c.precision));
+  if (res.truncated) return out({ status: 'HOLD', reason: 'INCOMPLETE_CANDIDATE_SET', retry_after: retryAfter({ kind: 'INCOMPLETE', now }), evidence: [...ev, `resume-cursor:${s(res.resumeCursor) || 'none'}`, `partial-matches:${dated.length}`] });
+  const full = dated;
+  if (full.length > 1 && full.some((c) => !showProof(c))) return out({ status: 'HOLD', reason: 'SHOW_IDENTITY_UNPROVEN', evidence: full.map((c) => c.url) });
+  if (full.length === 1 && !showProof(full[0])) return out({ url: '', status: 'HOLD', reason: 'SHOW_IDENTITY_UNPROVEN', evidence: [...ev, `candidate:${full[0].url}`, 'need-show-id-both-sides-or-strong-id'] });
   if (full.length === 1 && !red.flag) return out({ url: full[0].url, external_id: s(full[0].externalId), status: 'VERIFIED', reason: 'TITLE_DATE_SHOW', evidence: [...ev, 'exact-normalized-title', 'date-compatible', 'show-scoped-unique'] });
   if (full.length > 1) return out({ status: 'HOLD', reason: 'AMBIGUOUS_MULTIPLE_MATCH', evidence: full.map((c) => c.url) });
   if (full.length === 1 && red.flag) return out({ url: full[0].url, status: 'HOLD', reason: 'REDISTRIBUTION_RISK_NEEDS_STRONG_ID', evidence: red.rules });
@@ -88,26 +110,26 @@ const ageDays = (i, now) => { const t = toEpoch(i.publishedAt); return Number.is
 
 /** 全EP×6社。新着(若い順)優先、過去欠損は limit で低負荷バックフィル。state[ep|platform]=attempts を引き継ぐ。 */
 export async function runBot(inputs, { fetchers = {}, now = Date.now(), limit = Infinity, backfillLimit = 50, state = {}, platforms = BOT_PLATFORMS } = {}) {
-  const gate = new CooldownGate(); const recs = []; const calls = Object.fromEntries(platforms.map((p) => [p, 0])); let backfill = 0;
+  const gate = new CooldownGate(); for (const [p, u] of Object.entries(state.__cooldown || {})) gate.trip(p, u); const recs = []; const calls = Object.fromEntries(platforms.map((p) => [p, 0])); let backfill = 0;
   const wrapped = Object.fromEntries(Object.entries(fetchers).map(([p, fx]) => [p, { candidates: async (i) => { calls[p]++; return fx.candidates(i); } }]));
   const ordered = [...inputs].sort((a, b) => toEpoch(b.publishedAt) - toEpoch(a.publishedAt));
   let n = 0;
   for (const i of ordered) for (const p of platforms) {
-    const due = state[`${i.epId}|${p}`]?.retry_after; if (due && due > now) continue; // 再試行時刻前はスキップ
+    const due = state[`${i.epId}|${p}`]?.retry_after; if (due && due > now) continue; // 再試行時刻前はスキップ(__cooldown はgateへ引継ぎ済み)
     const hasExisting = !!s(i.existing?.[p]); const old = ageDays(i, now) > 7;
     if (!hasExisting && n >= limit) continue;
     if (!hasExisting && old) { if (backfill >= backfillLimit) continue; backfill++; }
     if (!hasExisting) n++;
     recs.push(await resolveOne(i, p, { fetchers: wrapped, gate, now, attempts: state[`${i.epId}|${p}`]?.attempts || 0 }));
   }
-  return { records: recs, apiCalls: calls };
+  return { records: recs, apiCalls: calls, cooldown: Object.fromEntries([...gate.until].filter(([, u]) => u > now)) };
 }
 
 /** 補完提案: 空欄セルへVERIFIEDのみ。非空欄は上書きしない。HOLD/ERROR/NOT_FOUNDは提案しない。冪等(同EP×platformは1件)。 */
 export function planFills(records, ledgerCells = {}) {
   const seen = new Set(); const fills = [];
   for (const r of records) {
-    if (r.status !== 'VERIFIED' || r.reason === 'EXISTING_PROTECTED') continue;
+    if (r.status !== 'VERIFIED') continue;
     const k = `${r.ep_id}|${r.platform}`; if (seen.has(k)) continue; seen.add(k);
     if (s(ledgerCells[k])) continue; // 既存非空欄は保護
     fills.push({ ep_id: r.ep_id, platform: r.platform, url: r.url, evidence: r.evidence, reason: r.reason, write: false });
@@ -115,8 +137,8 @@ export function planFills(records, ledgerCells = {}) {
   return fills;
 }
 /** 次回state(attempts・retry_after)。成功は消す。 */
-export function nextState(prev, records) {
-  const st = { ...prev };
+export function nextState(prev, records, cooldown = null) {
+  const st = { ...prev }; if (cooldown) { const now = Date.now(); st.__cooldown = { ...(prev.__cooldown || {}), ...cooldown }; for (const [p, u] of Object.entries(st.__cooldown)) if (u <= now && !(cooldown[p])) delete st.__cooldown[p]; }
   for (const r of records) { const k = `${r.ep_id}|${r.platform}`; if (r.status === 'VERIFIED') delete st[k]; else if (r.retry_after) st[k] = { attempts: (prev[k]?.attempts || 0) + 1, retry_after: r.retry_after, reason: r.reason }; }
   return st;
 }
@@ -126,7 +148,7 @@ export function buildReport(inputs, { records, apiCalls }, { previous = null, ro
   const per = {};
   for (const p of BOT_PLATFORMS) {
     const rs = records.filter((r) => r.platform === p); const c = (st) => rs.filter((r) => r.status === st).length;
-    per[p] = { targets: inputs.length, attempted: rs.length, blankAttempted: rs.filter((r) => r.reason !== 'EXISTING_PROTECTED' && r.reason !== 'NON_EPISODE_URL_IN_EPISODE_CELL').length, VERIFIED: c('VERIFIED'), newlyVerified: rs.filter((r) => r.status === 'VERIFIED' && r.reason !== 'EXISTING_PROTECTED').length, HOLD: c('HOLD'), NOT_FOUND: c('NOT_FOUND'), ERROR: c('ERROR'), apiCalls: apiCalls[p] || 0, routeVerified: routes[p] ?? false,
+    per[p] = { targets: inputs.length, attempted: rs.length, blankAttempted: rs.filter((r) => r.reason !== 'PRESERVED_UNVERIFIED' && r.reason !== 'NON_EPISODE_URL_IN_EPISODE_CELL').length, VERIFIED: c('VERIFIED'), PRESERVED_UNVERIFIED: c('PRESERVED'), newlyVerified: c('VERIFIED'), errorReasons: rs.filter((r) => r.status === 'ERROR').reduce((a, r) => (a[r.reason] = (a[r.reason] || 0) + 1, a), {}), HOLD: c('HOLD'), NOT_FOUND: c('NOT_FOUND'), ERROR: c('ERROR'), apiCalls: apiCalls[p] || 0, routeVerified: routes[p] ?? false,
       retryScheduled: rs.filter((r) => r.retry_after).length };
     per[p].delta = previous?.platforms?.[p] ? Object.fromEntries(['VERIFIED', 'HOLD', 'NOT_FOUND', 'ERROR'].map((k) => [k, per[p][k] - (previous.platforms[p][k] || 0)])) : null;
   }
@@ -135,7 +157,8 @@ export function buildReport(inputs, { records, apiCalls }, { previous = null, ro
     if (v.blankAttempted > 0 && v.apiCalls === 0) warnings.push(`${p}: 空欄${v.blankAttempted}件に対しAPI呼出0(成功扱いしない)`);
     if (v.blankAttempted > 0 && v.newlyVerified === 0 && v.apiCalls > 0) warnings.push(`${p}: 補完候補0件(要原因確認)`);
     if (!v.routeVerified) warnings.push(`${p}: 実API経路は未検証(fixtureのみ)`);
-    if (v.ERROR) warnings.push(`${p}: ERROR ${v.ERROR}件`);
+    if (v.ERROR) warnings.push(`${p}: ERROR ${v.ERROR}件 ${JSON.stringify(v.errorReasons)}`);
+    if (Object.keys(v.errorReasons).some((k) => /^AUTH_/.test(k))) warnings.push(`${p}: 認証/権限エラー(要対応・自動再試行では解消しない)`);
   }
   return { generatedAt: new Date(now).toISOString(), episodes: inputs.length, platforms: per, warnings };
 }
