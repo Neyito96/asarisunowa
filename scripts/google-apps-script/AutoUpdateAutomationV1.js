@@ -215,7 +215,8 @@ function syncRecentManagedAutoPlaylistV1_(rule, token, episodeCache) {
     const cacheKey = String(showId);
     const page = episodeCache[cacheKey] || fetchAutoUpdateShowFirstPageV1_(showId, token);
     episodeCache[cacheKey] = page;
-    page.items.forEach(function(episode) {
+    (Array.isArray(page.items) ? page.items : []).forEach(function(episode) {
+      // Spotify /shows/{id}/episodes can include null (unavailable) items.
       if (episode && episode.id && matchesAutoPlaylistRule_(episode, rule)) {
         episodesById[String(episode.id)] = episode;
       }
