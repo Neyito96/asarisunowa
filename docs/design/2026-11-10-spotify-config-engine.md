@@ -84,3 +84,8 @@
 - Spotify実API・実プレイリスト・実トリガー・LockServiceの原子性・本番ALIB採番器は未確認。差分比較・E2Eはモック/ロジックのみ。
 - 戦略関数(ノーミライ/太田/佐藤)はGAS側の既存関数を呼ぶ前提(vmで同一ソースを実行して一致を確認)。GASへの移植は未実施。
 - tombstoneの「連続2回欠け」は、Spotify読取の取りこぼしを避ける保守的な設定(`confirmAbsent`)。値の妥当性は実測で調整。
+
+## 12. 収蔵・補完・候補生成・更新を一つの流れに(最終統合指令)
+`public/library/playlist-router.mjs`: 日次パイプライン(収蔵→Phase26補完)の結果から、**Spotify個別URLが補完された回だけ**を中央キューへ入れる。URL未取得の新着は `AWAITING_SPOTIFY_URL` で待機(「Spotify未公開」とは断定しない)。蔵の除外/保留/未レビューはそのままエンジンへ渡す。番組IDが分からない回は候補にしない。
+接続テスト(`tests/playlist-router-phase26.test.mjs`): 新着→TMP仮ID収蔵→(URL未取得)待機→同日の再巡回でPhase26がURLを補完→プレイリスト候補化→保留は候補にならない。**この試験で、厳格RSS解析が番組名を正規化(？→?)するため番組名の完全一致では候補が落ちる接続バグを発見し、ルーターに同じ正規化(NFKC・空白除去)を入れて修正**。
+COPY実機試験の投入コード(未導入・COPY専用): `scripts/copy-gas-proposal/`(`P26Bundle.gs`=`scripts/build-copy-gas.mjs`で生成、`P26Entry.gs`)。承認書: `docs/release/2026-11-10-copy-realenv-approval-package.md`。
