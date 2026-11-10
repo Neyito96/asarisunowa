@@ -57,3 +57,24 @@ function P25_COPY_VERIFY_PLAYLIST_20261107() {
   console.log(JSON.stringify(result));
   return result;
 }
+
+// READ-ONLY (no Spotify): confirms the official feed lists the target GUID. Outputs booleans and counts only.
+function P25_COPY_FEED_CHECK_20261110() {
+  const config = p25CopySessionConfig20261107_();
+  p25CopyIo_(config);
+  const out = {feeds: [], targetGuidFound: false, spotifyWrite: false};
+  (config.officialFeedUrls || []).forEach(function(url) {
+    const r = {hostOk: /^https:\/\/(?:omny\.fm|www\.omnycontent\.com|feeds\.megaphone\.fm)\//.test(url), code: null, items: 0};
+    if (r.hostOk) {
+      const res = UrlFetchApp.fetch(url, {muteHttpExceptions: true}); r.code = res.getResponseCode();
+      if (r.code === 200) {
+        const ch = XmlService.parse(res.getContentText()).getRootElement().getChild("channel");
+        const items = ch ? ch.getChildren("item") : [];
+        r.items = items.length;
+        items.forEach(function(it) { if (it.getChildText("guid") === "d7ea556a-cd9b-41ae-91d1-b4fa00731960") out.targetGuidFound = true; });
+      }
+    }
+    out.feeds.push(r);
+  });
+  console.log(JSON.stringify(out)); return out;
+}
