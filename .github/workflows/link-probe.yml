@@ -6,6 +6,8 @@ on:
     paths:
       - 'scripts/probe-link-services.mjs'
       - 'scripts/probe-apple-search.mjs'
+      - 'scripts/probe-listen-pody-amazon.mjs'
+      - 'docs/release/2026-11-10-show-level-urls.json'
       - 'docs/release/2026-11-10-apple-search-sample30.json'
       - 'public/library/link-discovery.mjs'
       - '.github/workflows/link-probe.yml'
@@ -51,3 +53,11 @@ jobs:
           node scripts/probe-apple-search.mjs docs/release/2026-11-10-apple-search-sample30.json apple-search-report.json || true
           { echo 'apple-search-report (第39号 30件層化・READ ONLY)'; echo '```json'; head -c 60000 apple-search-report.json; echo; echo '```'; } > s.md
           gh pr comment ${{ github.event.pull_request.number }} --body-file s.md
+      - name: LISTEN / Pody / Amazon 探索（第36号・READ ONLY）→ PR comments
+        if: github.event_name == 'pull_request' && always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node scripts/probe-listen-pody-amazon.mjs docs/release/2026-11-10-show-level-urls.json lpa.json || true
+          split -b 50000 -d lpa.json lpa-part-
+          for f in lpa-part-*; do { echo "lpa-dump:$f"; echo '```'; cat "$f"; echo; echo '```'; } > c.md; gh pr comment ${{ github.event.pull_request.number }} --body-file c.md; done
