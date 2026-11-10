@@ -3,26 +3,30 @@
  "asOf": "2026-11-10T09:14:00+09:00",
  "withCrossTabDuplicates": {
   "status": "ok",
+  "matchBasis": "題名+JST日付(弱一致)中心。強識別子での再照合は onsa-audit.json を正とする",
   "asOf": "2026-11-10T09:14:00+09:00",
   "baselineSnapshotDate": "2026-10-21",
   "baselineComparison": 5219,
-  "uiCounter": 5785,
+  "uiEntryCount": 5785,
   "rawArrayCount": 6064,
   "dedupe": false,
   "duplicateEntriesRemoved": 0,
-  "diff": 566,
-  "explained": 552,
+  "comparedPopulation": "uiEntries",
+  "comparedCount": 5785,
+  "comparedCountMinusBaselineComparison": 566,
+  "explained": 555,
   "unexplained": 63,
   "summary": {
    "旧保留(同一性保留)": 214,
    "期間・日時差分": 106,
    "番組構成": 147,
    "未解明": 63,
-   "新着(EP-06592以降)": 76,
+   "新着(EP-06592以降)": 79,
    "旧SDGs": 9
   },
   "matchedBy": {
-   "TITLE_DATE": 5722
+   "TITLE_DATE": 5650,
+   "GUID": 72
   },
   "missingFromOnsa": [
    {
@@ -48,6 +52,21 @@
    {
     "ep": "EP-00299",
     "show": "ドーナツ",
+    "why": "おんさ側に照合できる項目なし（API取得時点・番組範囲・識別子差のいずれか）"
+   },
+   {
+    "ep": "EP-03857",
+    "show": "MEDIA TALK",
+    "why": "おんさ側に照合できる項目なし（API取得時点・番組範囲・識別子差のいずれか）"
+   },
+   {
+    "ep": "EP-03858",
+    "show": "MEDIA TALK",
+    "why": "おんさ側に照合できる項目なし（API取得時点・番組範囲・識別子差のいずれか）"
+   },
+   {
+    "ep": "EP-03861",
+    "show": "MEDIA TALK",
     "why": "おんさ側に照合できる項目なし（API取得時点・番組範囲・識別子差のいずれか）"
    },
    {
@@ -2700,7 +2719,7 @@
     "title": "（大阪目線 #7）「いびきがうるさい」から婚約破棄まで…裁判沙汰の末に　司法記者がみた人間ドラマ",
     "publishedAt": "2026-10-17T19:00:00.000Z",
     "ep": "EP-06599",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2710,7 +2729,7 @@
     "title": "（めくろう #202）さん付け徐々に　ドパガキ急激に　キャンピングカーは憧れに",
     "publishedAt": "2026-10-18T19:00:00.000Z",
     "ep": "EP-06602",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2720,7 +2739,7 @@
     "title": "【朗読スペシャル】 泉ピン子さん　初めて「本気の演技」をした日（人生の贈りもの）",
     "publishedAt": "2026-10-19T19:00:00.000Z",
     "ep": "EP-06608",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2730,7 +2749,7 @@
     "title": "（World Insight #6）ネパールを襲った巨大土石流　「山津波」が押し寄せた現場は",
     "publishedAt": "2026-10-20T19:00:00.000Z",
     "ep": "EP-06610",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2740,7 +2759,7 @@
     "title": "（ON GOING）子どもの学習にAI、どこまでOK？　認知科学者・今井むつみさんと考えた",
     "publishedAt": "2026-10-21T19:00:00.000Z",
     "ep": "EP-06616",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2750,7 +2769,7 @@
     "title": "（PUERTA #25）不正アクセス急増　AIに委ねるか滅ぼされるか　2040への分岐点",
     "publishedAt": "2026-10-22T19:00:00.000Z",
     "ep": "EP-06592",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2760,7 +2779,7 @@
     "title": "（ポリレビ #16）米中ロ会談、急浮上の裏側は？高市外交1年、他の総理と比べると…",
     "publishedAt": "2026-10-23T19:00:00.000Z",
     "ep": "EP-06623",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2770,7 +2789,7 @@
     "title": "（大阪目線 #8）高村薫さんが「しょぼかった」といった万博　閉幕1年、記者は食い下がった",
     "publishedAt": "2026-10-24T19:00:00.000Z",
     "ep": "EP-06625",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2780,7 +2799,7 @@
     "title": "（めくろう #203）怖すぎる情報流出　怖くない妖怪研究　本読み返す秋",
     "publishedAt": "2026-10-25T19:00:00.000Z",
     "ep": "EP-06630",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2790,7 +2809,7 @@
     "title": "【朗読スペシャル】 天童よしみさん 　貫いてきた「歌の道」（人生の贈りもの）",
     "publishedAt": "2026-10-26T19:00:00.000Z",
     "ep": "EP-06634",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2800,7 +2819,7 @@
     "title": "（GLOBE）思わず笑って、そして考えさせる　イグ・ノーベル賞はなぜ面白い？",
     "publishedAt": "2026-10-27T19:00:00.000Z",
     "ep": "EP-06633",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2810,7 +2829,7 @@
     "title": "病院から戻った夫「何かおかしい」　高次脳機能障害を知っていますか",
     "publishedAt": "2026-10-28T19:00:00.000Z",
     "ep": "EP-06641",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2820,7 +2839,7 @@
     "title": "（ゆるっと経済 #22）「クールジャパン機構」なぜうまくいかなかった？ 次の一手のは「司令塔」",
     "publishedAt": "2026-10-29T19:00:00.000Z",
     "ep": "EP-06643",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2830,7 +2849,7 @@
     "title": "（ポリレビ #17）どうなる米中間選挙　衆院定数31削減で自民・維新・国民合意のワケ",
     "publishedAt": "2026-10-30T19:00:00.000Z",
     "ep": "EP-06649",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2840,7 +2859,7 @@
     "title": "（大阪目線 #9）福岡市長選がカオス過ぎる件　乱立を招いた影の主役と三国志",
     "publishedAt": "2026-10-31T19:10:00.000Z",
     "ep": "EP-06653",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2850,7 +2869,7 @@
     "title": "（めくろう #204）藩士熱狂　ぴよちゃん活況　オンボロ社屋でファッションショー",
     "publishedAt": "2026-11-01T19:00:00.000Z",
     "ep": "EP-06654",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2860,7 +2879,7 @@
     "title": "（カガク #27）”火星の月探査” MMXで挑む「砂」持ち帰り！ NASAを出し抜ける？ 成功確率は…",
     "publishedAt": "2026-11-02T19:00:00.000Z",
     "ep": "EP-06659",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2870,7 +2889,7 @@
     "title": "（World Insight #7）NYの家賃、収入の半分？ 物価高が動かす米中間選挙",
     "publishedAt": "2026-11-03T19:00:00.000Z",
     "ep": "EP-06662",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2880,7 +2899,7 @@
     "title": "新聞から川柳、ゴミからアートをつくる　アーティスト淀川テクニックさんの発想術",
     "publishedAt": "2026-11-04T19:00:00.000Z",
     "ep": "EP-06668",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2890,7 +2909,7 @@
     "title": "（皇室365）分刻みの出張、皇室取材は体力勝負　皇室典範改正このままでいいの？",
     "publishedAt": "2026-11-05T19:00:00.000Z",
     "ep": "EP-06672",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2900,7 +2919,7 @@
     "title": "（ポリレビ #19）国会担当キャップの疑問「これ説明できる政治家は…」　支援金の詳細、定数削減",
     "publishedAt": "2026-11-06T19:00:00.000Z",
     "ep": "EP-06678",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2910,7 +2929,7 @@
     "title": "（大阪目線 #10）流産した後、働くということ　もう一つの「12週の壁」",
     "publishedAt": "2026-11-07T19:00:00.000Z",
     "ep": "EP-06680",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2920,7 +2939,7 @@
     "title": "（めくろう #205）惨事ストレス自覚ないまま　KYと呼ばれて…「マ？」",
     "publishedAt": "2026-11-08T19:00:00.000Z",
     "ep": "EP-06682",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2930,7 +2949,7 @@
     "title": "【朗読スペシャル】橋爪功さん　皮肉屋のガキ大将、舞台と出会う（人生の贈りもの）",
     "publishedAt": "2026-11-09T19:00:00.000Z",
     "ep": "EP-06687",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -2942,6 +2961,36 @@
     "ep": "EP-03856",
     "matchedBy": "TITLE_DATE",
     "why": "旧判定 保留/同一性保留/比較保留。10/22時点で比較・掲載とも確定していない"
+   },
+   {
+    "category": "新着(EP-06592以降)",
+    "explained": true,
+    "show": "MEDIA TALK",
+    "title": "#2-1 被爆75年　燃えた誰かの背中、自分を見ると…声で残す被爆者の思い",
+    "publishedAt": "2020-08-12T01:00:00.000Z",
+    "ep": "EP-06595",
+    "matchedBy": "GUID",
+    "why": "10/22判定後の新規収蔵"
+   },
+   {
+    "category": "新着(EP-06592以降)",
+    "explained": true,
+    "show": "MEDIA TALK",
+    "title": "#2-2 被爆75年　ただ怖く、助ける気持ちは生まれない　講演で語った記憶",
+    "publishedAt": "2020-08-13T01:00:00.000Z",
+    "ep": "EP-06596",
+    "matchedBy": "GUID",
+    "why": "10/22判定後の新規収蔵"
+   },
+   {
+    "category": "新着(EP-06592以降)",
+    "explained": true,
+    "show": "MEDIA TALK",
+    "title": "#2-5 被爆75年　手応え、また裏切られた　原発もコロナも何度繰り返す",
+    "publishedAt": "2020-08-16T02:00:00.000Z",
+    "ep": "EP-06597",
+    "matchedBy": "GUID",
+    "why": "10/22判定後の新規収蔵"
    },
    {
     "category": "旧保留(同一性保留)",
@@ -3420,7 +3469,7 @@
     "title": "（MT）記事を書くのはAIに任せちゃっていいだろうか",
     "publishedAt": "2026-10-18T19:00:00.000Z",
     "ep": "EP-06601",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -3430,7 +3479,7 @@
     "title": "（制作会議 #113）親子向けステージ盛りだくさん　GOODLIFEな3日間、現地からお届け",
     "publishedAt": "2026-10-19T19:00:00.000Z",
     "ep": "EP-06607",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -3440,7 +3489,7 @@
     "title": "（動画見た？#51）流行のSNS「セットログ」とは／NHK「未解決事件」がすごい／「ガス人間」、実はリアル？",
     "publishedAt": "2026-10-20T19:00:00.000Z",
     "ep": "EP-06613",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -3450,7 +3499,7 @@
     "title": "（MT）わたしはヤンキーにニュースを届けたいのだ",
     "publishedAt": "2026-10-25T19:00:00.000Z",
     "ep": "EP-06627",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -3460,7 +3509,7 @@
     "title": "（編集マニア #50） 降版2分後に届いた原稿、頭も真っ白　編集経験は広告営業で役に立っています",
     "publishedAt": "2026-10-26T19:00:00.000Z",
     "ep": "EP-06636",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -3470,7 +3519,7 @@
     "title": "（編集マニア #51）ＡのみＹのみ、新聞広告の特ダネ・特オチ　実は動画広告も手がけています",
     "publishedAt": "2026-10-26T19:10:00.000Z",
     "ep": "EP-06635",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -3480,7 +3529,7 @@
     "title": "（骨格）骨は「ただの白い塊」じゃない！　組み立てて、眺めて、比べて…発見が止まらない",
     "publishedAt": "2026-10-29T19:00:00.000Z",
     "ep": "EP-06644",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -3490,7 +3539,7 @@
     "title": "（推し記事 #8）美輪明宏さんへの相談「ゲイ告白すべきか」　記者が忘れられない回答",
     "publishedAt": "2026-10-30T19:00:00.000Z",
     "ep": "EP-06648",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -3500,7 +3549,7 @@
     "title": "（TMT #-1）ドパ以外の指標に出会いたい　新聞と人生、遠回りの価値",
     "publishedAt": "2026-11-01T19:00:00.000Z",
     "ep": "EP-06655",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -3510,7 +3559,7 @@
     "title": "（ウニュ #97）「私、くさい？」体臭の劣等感　悩みを共有するカフェで出会ったのは",
     "publishedAt": "2026-11-02T19:00:00.000Z",
     "ep": "EP-06660",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -3520,7 +3569,7 @@
     "title": "（サステナ）NPO＝無償ボランティアではない　テクノロジーで寄付文化に変革を",
     "publishedAt": "2026-11-03T19:00:00.000Z",
     "ep": "EP-06663",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -3530,7 +3579,7 @@
     "title": "（推し記事 #9）高市首相を追う記者が政治の世界で感じた男女格差と現在地​‌",
     "publishedAt": "2026-11-04T19:00:00.000Z",
     "ep": "EP-06669",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -3540,7 +3589,7 @@
     "title": "（ドラマ座談会 #2）人生「変わった」ドラマ、救命病棟24時　没入する作品のポイントは？",
     "publishedAt": "2026-11-05T19:00:00.000Z",
     "ep": "EP-06673",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -3550,7 +3599,7 @@
     "title": "（TMT #0）メディアを語れば、自分の常識も揺らぎ出す　The Media Talkで再始動",
     "publishedAt": "2026-11-08T19:00:00.000Z",
     "ep": "EP-06683",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -3560,7 +3609,7 @@
     "title": "（制作会議 #114）ポッドキャスト公開収録、12月6日ぜひ来てね　朗読企画もスタート",
     "publishedAt": "2026-11-09T19:00:00.000Z",
     "ep": "EP-06688",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6070,7 +6119,7 @@
     "title": "（日曜版）これって老境？",
     "publishedAt": "2026-10-17T19:00:00.000Z",
     "ep": "EP-06598",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6080,7 +6129,7 @@
     "title": "（対話）スクラップをめくろう　神田大介の1年目",
     "publishedAt": "2026-10-18T19:00:00.000Z",
     "ep": "EP-06604",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6090,7 +6139,7 @@
     "title": "（ポすすめ）クリエイティブの反対語・ファミレスで隣から聞こえてくるフリーランスのモヤモヤ話",
     "publishedAt": "2026-10-19T19:00:00.000Z",
     "ep": "EP-06605",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6100,7 +6149,7 @@
     "title": "（親モヤ #130）子どもは「仕事の邪魔」ですか？　やさしくない環境で過ごしているかも",
     "publishedAt": "2026-10-21T19:00:00.000Z",
     "ep": "EP-06617",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6110,7 +6159,7 @@
     "title": "（アラサー）詐欺被害を発信する勇気　休養もリフレッシュも大事",
     "publishedAt": "2026-10-22T19:00:00.000Z",
     "ep": "EP-06619",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6120,7 +6169,7 @@
     "title": "（ノーミライ #10）やっぱ悩みがごじゃやったんちゃうやろか、というお話",
     "publishedAt": "2026-10-23T19:00:00.000Z",
     "ep": "EP-06624",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6130,7 +6179,7 @@
     "title": "（日曜版）わたしの悪夢",
     "publishedAt": "2026-10-24T19:00:00.000Z",
     "ep": "EP-06626",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6140,7 +6189,7 @@
     "title": "（1on1）菜緒都さん　かっこよさって何ですか",
     "publishedAt": "2026-10-25T19:00:00.000Z",
     "ep": "EP-06631",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6150,7 +6199,7 @@
     "title": "（ポすすめ）AIニュースブリーフィング",
     "publishedAt": "2026-10-26T19:00:00.000Z",
     "ep": "EP-06640",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6160,7 +6209,7 @@
     "title": "（親モヤ #131）約束を守れない子どもにイライラしてしまう…何かいい方法ありますか？",
     "publishedAt": "2026-10-28T19:00:00.000Z",
     "ep": "EP-06642",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6170,7 +6219,7 @@
     "title": "（ノーミライ番外編）なんで今月は土曜が５回もあるんや、というお話",
     "publishedAt": "2026-10-30T19:00:00.000Z",
     "ep": "EP-06651",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6180,7 +6229,7 @@
     "title": "（日曜版）わたしシンデレラ",
     "publishedAt": "2026-10-31T19:00:00.000Z",
     "ep": "EP-06652",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6190,7 +6239,7 @@
     "title": "（1on1）竹端寛さん　どう「わからない他者」と向き合いますか",
     "publishedAt": "2026-11-01T19:00:00.000Z",
     "ep": "EP-06656",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6200,7 +6249,7 @@
     "title": "（ポすすめ）ポッドキャスト茶会",
     "publishedAt": "2026-11-02T19:00:00.000Z",
     "ep": "EP-06661",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6210,7 +6259,7 @@
     "title": "（よりみ知）なぜスポーツ界は同性愛を公表しにくい？　学校体育の男性性から考えてみた　スナックよりみ知11月号",
     "publishedAt": "2026-11-04T19:00:00.000Z",
     "ep": "EP-06671",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6220,7 +6269,7 @@
     "title": "（アラサー）料理するとき、レシピ見る？　アレンジする派・しっかり守る派",
     "publishedAt": "2026-11-05T19:00:00.000Z",
     "ep": "EP-06676",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6230,7 +6279,7 @@
     "title": "（ノーミライ#11）……いつ切り出すんやろ、というお話",
     "publishedAt": "2026-11-06T19:00:00.000Z",
     "ep": "EP-06679",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6240,7 +6289,7 @@
     "title": "（日曜版）目と目が合ったらミラクル",
     "publishedAt": "2026-11-07T19:00:00.000Z",
     "ep": "EP-06681",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6250,7 +6299,7 @@
     "title": "（1on1）蚊取り線香はツッコミ待ちだった　寺下真理加さん",
     "publishedAt": "2026-11-08T19:00:00.000Z",
     "ep": "EP-06685",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6260,7 +6309,7 @@
     "title": "（ポすすめ）ながらcast",
     "publishedAt": "2026-11-09T19:00:00.000Z",
     "ep": "EP-06691",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6330,7 +6379,7 @@
     "title": "（相撲 #34）1年ぶりの賜杯、涙が止まらなかった大の里　場所をわかせた小兵の藤ノ川",
     "publishedAt": "2026-10-16T19:00:00.000Z",
     "ep": "EP-06593",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6340,7 +6389,7 @@
     "title": "（バスケ #51）主力一新・スタイル刷新　Bプレミア、注目クラブ総ざらい",
     "publishedAt": "2026-10-20T19:00:00.000Z",
     "ep": "EP-06611",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6350,7 +6399,7 @@
     "title": "（野球 #5）ドラフト会議は人生の交差点　あの夏で終わりじゃなかった物語",
     "publishedAt": "2026-10-21T19:00:00.000Z",
     "ep": "EP-06615",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6360,7 +6409,7 @@
     "title": "（陸上 #1）全日本大学駅伝を走って変わった人生　今は大会運営に奔走中",
     "publishedAt": "2026-10-22T19:00:00.000Z",
     "ep": "EP-06621",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6370,7 +6419,7 @@
     "title": "（陸上 #2）初出場の区間賞で得たロマン　全日本大学駅伝が生むドラマ",
     "publishedAt": "2026-10-23T19:00:00.000Z",
     "ep": "EP-06622",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6380,7 +6429,7 @@
     "title": "（サッカー #34）買い叩かれるか、世界と渡り合うか　秋開幕でJリーグに起きた異変",
     "publishedAt": "2026-10-27T19:00:00.000Z",
     "ep": "EP-06639",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6390,7 +6439,7 @@
     "title": "（陸上 #3）全日本大学駅伝あす号砲　注目選手は何区に？優勝争いは？直前予想します",
     "publishedAt": "2026-10-30T19:00:00.000Z",
     "ep": "EP-06650",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6400,7 +6449,7 @@
     "title": "（バスケ #52）がん公表した吉田亜沙美、復帰までの道のり　「私の人生にバスケは必要だった」",
     "publishedAt": "2026-11-03T19:00:00.000Z",
     "ep": "EP-06665",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6410,7 +6459,7 @@
     "title": "（相撲 #35）年収1000万円から100万円に…「土俵には金が埋まっている」　力士の懐事情",
     "publishedAt": "2026-11-05T19:00:00.000Z",
     "ep": "EP-06674",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -6420,7 +6469,7 @@
     "title": "（バスケ #53・Wリーグ）富士通のルーキー大脇晴　憧れの元NBA・ロッドマンと同じ91番",
     "publishedAt": "2026-11-09T19:00:00.000Z",
     "ep": "EP-06689",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    }
   ],
@@ -6428,26 +6477,30 @@
  },
  "dedupedByLink": {
   "status": "ok",
+  "matchBasis": "題名+JST日付(弱一致)中心。強識別子での再照合は onsa-audit.json を正とする",
   "asOf": "2026-11-10T09:14:00+09:00",
   "baselineSnapshotDate": "2026-10-21",
   "baselineComparison": 5219,
-  "uiCounter": 5785,
+  "uiEntryCount": 5785,
   "rawArrayCount": 6064,
   "dedupe": true,
   "duplicateEntriesRemoved": 290,
-  "diff": 276,
-  "explained": 403,
+  "comparedPopulation": "uniqueLink",
+  "comparedCount": 5495,
+  "comparedCountMinusBaselineComparison": 276,
+  "explained": 406,
   "unexplained": 63,
   "summary": {
    "旧保留(同一性保留)": 85,
    "番組構成": 127,
    "期間・日時差分": 106,
    "未解明": 63,
-   "新着(EP-06592以降)": 76,
+   "新着(EP-06592以降)": 79,
    "旧SDGs": 9
   },
   "matchedBy": {
-   "TITLE_DATE": 5432
+   "TITLE_DATE": 5360,
+   "GUID": 72
   },
   "missingFromOnsa": [
    {
@@ -7178,6 +7231,21 @@
    {
     "ep": "EP-03367",
     "show": "ニュースの現場から",
+    "why": "おんさ側に照合できる項目なし（API取得時点・番組範囲・識別子差のいずれか）"
+   },
+   {
+    "ep": "EP-03857",
+    "show": "MEDIA TALK",
+    "why": "おんさ側に照合できる項目なし（API取得時点・番組範囲・識別子差のいずれか）"
+   },
+   {
+    "ep": "EP-03858",
+    "show": "MEDIA TALK",
+    "why": "おんさ側に照合できる項目なし（API取得時点・番組範囲・識別子差のいずれか）"
+   },
+   {
+    "ep": "EP-03861",
+    "show": "MEDIA TALK",
     "why": "おんさ側に照合できる項目なし（API取得時点・番組範囲・識別子差のいずれか）"
    },
    {
@@ -9580,7 +9648,7 @@
     "title": "（大阪目線 #7）「いびきがうるさい」から婚約破棄まで…裁判沙汰の末に　司法記者がみた人間ドラマ",
     "publishedAt": "2026-10-17T19:00:00.000Z",
     "ep": "EP-06599",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9590,7 +9658,7 @@
     "title": "（めくろう #202）さん付け徐々に　ドパガキ急激に　キャンピングカーは憧れに",
     "publishedAt": "2026-10-18T19:00:00.000Z",
     "ep": "EP-06602",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9600,7 +9668,7 @@
     "title": "【朗読スペシャル】 泉ピン子さん　初めて「本気の演技」をした日（人生の贈りもの）",
     "publishedAt": "2026-10-19T19:00:00.000Z",
     "ep": "EP-06608",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9610,7 +9678,7 @@
     "title": "（World Insight #6）ネパールを襲った巨大土石流　「山津波」が押し寄せた現場は",
     "publishedAt": "2026-10-20T19:00:00.000Z",
     "ep": "EP-06610",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9620,7 +9688,7 @@
     "title": "（ON GOING）子どもの学習にAI、どこまでOK？　認知科学者・今井むつみさんと考えた",
     "publishedAt": "2026-10-21T19:00:00.000Z",
     "ep": "EP-06616",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9630,7 +9698,7 @@
     "title": "（PUERTA #25）不正アクセス急増　AIに委ねるか滅ぼされるか　2040への分岐点",
     "publishedAt": "2026-10-22T19:00:00.000Z",
     "ep": "EP-06592",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9640,7 +9708,7 @@
     "title": "（ポリレビ #16）米中ロ会談、急浮上の裏側は？高市外交1年、他の総理と比べると…",
     "publishedAt": "2026-10-23T19:00:00.000Z",
     "ep": "EP-06623",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9650,7 +9718,7 @@
     "title": "（大阪目線 #8）高村薫さんが「しょぼかった」といった万博　閉幕1年、記者は食い下がった",
     "publishedAt": "2026-10-24T19:00:00.000Z",
     "ep": "EP-06625",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9660,7 +9728,7 @@
     "title": "（めくろう #203）怖すぎる情報流出　怖くない妖怪研究　本読み返す秋",
     "publishedAt": "2026-10-25T19:00:00.000Z",
     "ep": "EP-06630",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9670,7 +9738,7 @@
     "title": "【朗読スペシャル】 天童よしみさん 　貫いてきた「歌の道」（人生の贈りもの）",
     "publishedAt": "2026-10-26T19:00:00.000Z",
     "ep": "EP-06634",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9680,7 +9748,7 @@
     "title": "（GLOBE）思わず笑って、そして考えさせる　イグ・ノーベル賞はなぜ面白い？",
     "publishedAt": "2026-10-27T19:00:00.000Z",
     "ep": "EP-06633",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9690,7 +9758,7 @@
     "title": "病院から戻った夫「何かおかしい」　高次脳機能障害を知っていますか",
     "publishedAt": "2026-10-28T19:00:00.000Z",
     "ep": "EP-06641",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9700,7 +9768,7 @@
     "title": "（ゆるっと経済 #22）「クールジャパン機構」なぜうまくいかなかった？ 次の一手のは「司令塔」",
     "publishedAt": "2026-10-29T19:00:00.000Z",
     "ep": "EP-06643",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9710,7 +9778,7 @@
     "title": "（ポリレビ #17）どうなる米中間選挙　衆院定数31削減で自民・維新・国民合意のワケ",
     "publishedAt": "2026-10-30T19:00:00.000Z",
     "ep": "EP-06649",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9720,7 +9788,7 @@
     "title": "（大阪目線 #9）福岡市長選がカオス過ぎる件　乱立を招いた影の主役と三国志",
     "publishedAt": "2026-10-31T19:10:00.000Z",
     "ep": "EP-06653",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9730,7 +9798,7 @@
     "title": "（めくろう #204）藩士熱狂　ぴよちゃん活況　オンボロ社屋でファッションショー",
     "publishedAt": "2026-11-01T19:00:00.000Z",
     "ep": "EP-06654",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9740,7 +9808,7 @@
     "title": "（カガク #27）”火星の月探査” MMXで挑む「砂」持ち帰り！ NASAを出し抜ける？ 成功確率は…",
     "publishedAt": "2026-11-02T19:00:00.000Z",
     "ep": "EP-06659",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9750,7 +9818,7 @@
     "title": "（World Insight #7）NYの家賃、収入の半分？ 物価高が動かす米中間選挙",
     "publishedAt": "2026-11-03T19:00:00.000Z",
     "ep": "EP-06662",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9760,7 +9828,7 @@
     "title": "新聞から川柳、ゴミからアートをつくる　アーティスト淀川テクニックさんの発想術",
     "publishedAt": "2026-11-04T19:00:00.000Z",
     "ep": "EP-06668",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9770,7 +9838,7 @@
     "title": "（皇室365）分刻みの出張、皇室取材は体力勝負　皇室典範改正このままでいいの？",
     "publishedAt": "2026-11-05T19:00:00.000Z",
     "ep": "EP-06672",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9780,7 +9848,7 @@
     "title": "（ポリレビ #19）国会担当キャップの疑問「これ説明できる政治家は…」　支援金の詳細、定数削減",
     "publishedAt": "2026-11-06T19:00:00.000Z",
     "ep": "EP-06678",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9790,7 +9858,7 @@
     "title": "（大阪目線 #10）流産した後、働くということ　もう一つの「12週の壁」",
     "publishedAt": "2026-11-07T19:00:00.000Z",
     "ep": "EP-06680",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9800,7 +9868,7 @@
     "title": "（めくろう #205）惨事ストレス自覚ないまま　KYと呼ばれて…「マ？」",
     "publishedAt": "2026-11-08T19:00:00.000Z",
     "ep": "EP-06682",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9810,7 +9878,7 @@
     "title": "【朗読スペシャル】橋爪功さん　皮肉屋のガキ大将、舞台と出会う（人生の贈りもの）",
     "publishedAt": "2026-11-09T19:00:00.000Z",
     "ep": "EP-06687",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -9822,6 +9890,36 @@
     "ep": "EP-03856",
     "matchedBy": "TITLE_DATE",
     "why": "旧判定 保留/同一性保留/比較保留。10/22時点で比較・掲載とも確定していない"
+   },
+   {
+    "category": "新着(EP-06592以降)",
+    "explained": true,
+    "show": "MEDIA TALK",
+    "title": "#2-1 被爆75年　燃えた誰かの背中、自分を見ると…声で残す被爆者の思い",
+    "publishedAt": "2020-08-12T01:00:00.000Z",
+    "ep": "EP-06595",
+    "matchedBy": "GUID",
+    "why": "10/22判定後の新規収蔵"
+   },
+   {
+    "category": "新着(EP-06592以降)",
+    "explained": true,
+    "show": "MEDIA TALK",
+    "title": "#2-2 被爆75年　ただ怖く、助ける気持ちは生まれない　講演で語った記憶",
+    "publishedAt": "2020-08-13T01:00:00.000Z",
+    "ep": "EP-06596",
+    "matchedBy": "GUID",
+    "why": "10/22判定後の新規収蔵"
+   },
+   {
+    "category": "新着(EP-06592以降)",
+    "explained": true,
+    "show": "MEDIA TALK",
+    "title": "#2-5 被爆75年　手応え、また裏切られた　原発もコロナも何度繰り返す",
+    "publishedAt": "2020-08-16T02:00:00.000Z",
+    "ep": "EP-06597",
+    "matchedBy": "GUID",
+    "why": "10/22判定後の新規収蔵"
    },
    {
     "category": "旧保留(同一性保留)",
@@ -10300,7 +10398,7 @@
     "title": "（MT）記事を書くのはAIに任せちゃっていいだろうか",
     "publishedAt": "2026-10-18T19:00:00.000Z",
     "ep": "EP-06601",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -10310,7 +10408,7 @@
     "title": "（制作会議 #113）親子向けステージ盛りだくさん　GOODLIFEな3日間、現地からお届け",
     "publishedAt": "2026-10-19T19:00:00.000Z",
     "ep": "EP-06607",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -10320,7 +10418,7 @@
     "title": "（動画見た？#51）流行のSNS「セットログ」とは／NHK「未解決事件」がすごい／「ガス人間」、実はリアル？",
     "publishedAt": "2026-10-20T19:00:00.000Z",
     "ep": "EP-06613",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -10330,7 +10428,7 @@
     "title": "（MT）わたしはヤンキーにニュースを届けたいのだ",
     "publishedAt": "2026-10-25T19:00:00.000Z",
     "ep": "EP-06627",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -10340,7 +10438,7 @@
     "title": "（編集マニア #50） 降版2分後に届いた原稿、頭も真っ白　編集経験は広告営業で役に立っています",
     "publishedAt": "2026-10-26T19:00:00.000Z",
     "ep": "EP-06636",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -10350,7 +10448,7 @@
     "title": "（編集マニア #51）ＡのみＹのみ、新聞広告の特ダネ・特オチ　実は動画広告も手がけています",
     "publishedAt": "2026-10-26T19:10:00.000Z",
     "ep": "EP-06635",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -10360,7 +10458,7 @@
     "title": "（骨格）骨は「ただの白い塊」じゃない！　組み立てて、眺めて、比べて…発見が止まらない",
     "publishedAt": "2026-10-29T19:00:00.000Z",
     "ep": "EP-06644",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -10370,7 +10468,7 @@
     "title": "（推し記事 #8）美輪明宏さんへの相談「ゲイ告白すべきか」　記者が忘れられない回答",
     "publishedAt": "2026-10-30T19:00:00.000Z",
     "ep": "EP-06648",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -10380,7 +10478,7 @@
     "title": "（TMT #-1）ドパ以外の指標に出会いたい　新聞と人生、遠回りの価値",
     "publishedAt": "2026-11-01T19:00:00.000Z",
     "ep": "EP-06655",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -10390,7 +10488,7 @@
     "title": "（ウニュ #97）「私、くさい？」体臭の劣等感　悩みを共有するカフェで出会ったのは",
     "publishedAt": "2026-11-02T19:00:00.000Z",
     "ep": "EP-06660",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -10400,7 +10498,7 @@
     "title": "（サステナ）NPO＝無償ボランティアではない　テクノロジーで寄付文化に変革を",
     "publishedAt": "2026-11-03T19:00:00.000Z",
     "ep": "EP-06663",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -10410,7 +10508,7 @@
     "title": "（推し記事 #9）高市首相を追う記者が政治の世界で感じた男女格差と現在地​‌",
     "publishedAt": "2026-11-04T19:00:00.000Z",
     "ep": "EP-06669",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -10420,7 +10518,7 @@
     "title": "（ドラマ座談会 #2）人生「変わった」ドラマ、救命病棟24時　没入する作品のポイントは？",
     "publishedAt": "2026-11-05T19:00:00.000Z",
     "ep": "EP-06673",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -10430,7 +10528,7 @@
     "title": "（TMT #0）メディアを語れば、自分の常識も揺らぎ出す　The Media Talkで再始動",
     "publishedAt": "2026-11-08T19:00:00.000Z",
     "ep": "EP-06683",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -10440,7 +10538,7 @@
     "title": "（制作会議 #114）ポッドキャスト公開収録、12月6日ぜひ来てね　朗読企画もスタート",
     "publishedAt": "2026-11-09T19:00:00.000Z",
     "ep": "EP-06688",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11740,7 +11838,7 @@
     "title": "（日曜版）これって老境？",
     "publishedAt": "2026-10-17T19:00:00.000Z",
     "ep": "EP-06598",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11750,7 +11848,7 @@
     "title": "（対話）スクラップをめくろう　神田大介の1年目",
     "publishedAt": "2026-10-18T19:00:00.000Z",
     "ep": "EP-06604",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11760,7 +11858,7 @@
     "title": "（ポすすめ）クリエイティブの反対語・ファミレスで隣から聞こえてくるフリーランスのモヤモヤ話",
     "publishedAt": "2026-10-19T19:00:00.000Z",
     "ep": "EP-06605",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11770,7 +11868,7 @@
     "title": "（親モヤ #130）子どもは「仕事の邪魔」ですか？　やさしくない環境で過ごしているかも",
     "publishedAt": "2026-10-21T19:00:00.000Z",
     "ep": "EP-06617",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11780,7 +11878,7 @@
     "title": "（アラサー）詐欺被害を発信する勇気　休養もリフレッシュも大事",
     "publishedAt": "2026-10-22T19:00:00.000Z",
     "ep": "EP-06619",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11790,7 +11888,7 @@
     "title": "（ノーミライ #10）やっぱ悩みがごじゃやったんちゃうやろか、というお話",
     "publishedAt": "2026-10-23T19:00:00.000Z",
     "ep": "EP-06624",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11800,7 +11898,7 @@
     "title": "（日曜版）わたしの悪夢",
     "publishedAt": "2026-10-24T19:00:00.000Z",
     "ep": "EP-06626",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11810,7 +11908,7 @@
     "title": "（1on1）菜緒都さん　かっこよさって何ですか",
     "publishedAt": "2026-10-25T19:00:00.000Z",
     "ep": "EP-06631",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11820,7 +11918,7 @@
     "title": "（ポすすめ）AIニュースブリーフィング",
     "publishedAt": "2026-10-26T19:00:00.000Z",
     "ep": "EP-06640",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11830,7 +11928,7 @@
     "title": "（親モヤ #131）約束を守れない子どもにイライラしてしまう…何かいい方法ありますか？",
     "publishedAt": "2026-10-28T19:00:00.000Z",
     "ep": "EP-06642",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11840,7 +11938,7 @@
     "title": "（ノーミライ番外編）なんで今月は土曜が５回もあるんや、というお話",
     "publishedAt": "2026-10-30T19:00:00.000Z",
     "ep": "EP-06651",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11850,7 +11948,7 @@
     "title": "（日曜版）わたしシンデレラ",
     "publishedAt": "2026-10-31T19:00:00.000Z",
     "ep": "EP-06652",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11860,7 +11958,7 @@
     "title": "（1on1）竹端寛さん　どう「わからない他者」と向き合いますか",
     "publishedAt": "2026-11-01T19:00:00.000Z",
     "ep": "EP-06656",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11870,7 +11968,7 @@
     "title": "（ポすすめ）ポッドキャスト茶会",
     "publishedAt": "2026-11-02T19:00:00.000Z",
     "ep": "EP-06661",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11880,7 +11978,7 @@
     "title": "（よりみ知）なぜスポーツ界は同性愛を公表しにくい？　学校体育の男性性から考えてみた　スナックよりみ知11月号",
     "publishedAt": "2026-11-04T19:00:00.000Z",
     "ep": "EP-06671",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11890,7 +11988,7 @@
     "title": "（アラサー）料理するとき、レシピ見る？　アレンジする派・しっかり守る派",
     "publishedAt": "2026-11-05T19:00:00.000Z",
     "ep": "EP-06676",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11900,7 +11998,7 @@
     "title": "（ノーミライ#11）……いつ切り出すんやろ、というお話",
     "publishedAt": "2026-11-06T19:00:00.000Z",
     "ep": "EP-06679",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11910,7 +12008,7 @@
     "title": "（日曜版）目と目が合ったらミラクル",
     "publishedAt": "2026-11-07T19:00:00.000Z",
     "ep": "EP-06681",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11920,7 +12018,7 @@
     "title": "（1on1）蚊取り線香はツッコミ待ちだった　寺下真理加さん",
     "publishedAt": "2026-11-08T19:00:00.000Z",
     "ep": "EP-06685",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11930,7 +12028,7 @@
     "title": "（ポすすめ）ながらcast",
     "publishedAt": "2026-11-09T19:00:00.000Z",
     "ep": "EP-06691",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11970,7 +12068,7 @@
     "title": "（相撲 #34）1年ぶりの賜杯、涙が止まらなかった大の里　場所をわかせた小兵の藤ノ川",
     "publishedAt": "2026-10-16T19:00:00.000Z",
     "ep": "EP-06593",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11980,7 +12078,7 @@
     "title": "（バスケ #51）主力一新・スタイル刷新　Bプレミア、注目クラブ総ざらい",
     "publishedAt": "2026-10-20T19:00:00.000Z",
     "ep": "EP-06611",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -11990,7 +12088,7 @@
     "title": "（野球 #5）ドラフト会議は人生の交差点　あの夏で終わりじゃなかった物語",
     "publishedAt": "2026-10-21T19:00:00.000Z",
     "ep": "EP-06615",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -12000,7 +12098,7 @@
     "title": "（陸上 #1）全日本大学駅伝を走って変わった人生　今は大会運営に奔走中",
     "publishedAt": "2026-10-22T19:00:00.000Z",
     "ep": "EP-06621",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -12010,7 +12108,7 @@
     "title": "（陸上 #2）初出場の区間賞で得たロマン　全日本大学駅伝が生むドラマ",
     "publishedAt": "2026-10-23T19:00:00.000Z",
     "ep": "EP-06622",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -12020,7 +12118,7 @@
     "title": "（サッカー #34）買い叩かれるか、世界と渡り合うか　秋開幕でJリーグに起きた異変",
     "publishedAt": "2026-10-27T19:00:00.000Z",
     "ep": "EP-06639",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -12030,7 +12128,7 @@
     "title": "（陸上 #3）全日本大学駅伝あす号砲　注目選手は何区に？優勝争いは？直前予想します",
     "publishedAt": "2026-10-30T19:00:00.000Z",
     "ep": "EP-06650",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -12040,7 +12138,7 @@
     "title": "（バスケ #52）がん公表した吉田亜沙美、復帰までの道のり　「私の人生にバスケは必要だった」",
     "publishedAt": "2026-11-03T19:00:00.000Z",
     "ep": "EP-06665",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -12050,7 +12148,7 @@
     "title": "（相撲 #35）年収1000万円から100万円に…「土俵には金が埋まっている」　力士の懐事情",
     "publishedAt": "2026-11-05T19:00:00.000Z",
     "ep": "EP-06674",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    },
    {
@@ -12060,7 +12158,7 @@
     "title": "（バスケ #53・Wリーグ）富士通のルーキー大脇晴　憧れの元NBA・ロッドマンと同じ91番",
     "publishedAt": "2026-11-09T19:00:00.000Z",
     "ep": "EP-06689",
-    "matchedBy": "TITLE_DATE",
+    "matchedBy": "GUID",
     "why": "10/22判定後の新規収蔵"
    }
   ],

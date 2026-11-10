@@ -98,6 +98,19 @@ export function recountPublication({ baselineAdopted, baselineSource, baselineDa
   };
 }
 
+// 旧凍結判定(d)に照らした、旧比較対象外の項目の要因カテゴリ。判定順序は固定（再配信→旧SDGs→日時差分→旧保留→旧対象外→未解明）。
+export function categorizeAgainstBaseline(ep, it, d) {
+  const n = Number(ep.id.slice(3));
+  if (!d && n > 6591) return ["新着(EP-06592以降)", "10/22判定後の新規収蔵"];
+  if (d && ["再配信", "再配信候補"].includes(d.classification)) return ["再配信", `旧判定 ${d.classification}`];
+  if (/SDGs/.test(it.show) && d && d.publication !== "対象") return ["旧SDGs", `旧判定 ${d.publication}/${d.classification}`];
+  if (d && d.comparison === "保留" && d.publication === "対象") return ["期間・日時差分", "旧比較は保留、掲載は日時差分で採用(113件群)"];
+  if (d && ["対象外番組", "重複"].includes(d.classification)) return ["番組構成", `旧判定 ${d.classification}`];
+  if (d && d.publication === "保留") return [`旧保留(${d.classification})`, `旧判定 保留/${d.classification}/比較${d.comparison}。10/22時点で比較・掲載とも確定していない`];
+  if (d && d.publication === "対象外") return [`旧対象外(${d.classification})`, `旧判定 対象外/${d.classification}`];
+  return ["未解明", d ? `旧判定 ${d.publication}/${d.classification}/比較${d.comparison} では説明できない` : "旧判定なし"];
+}
+
 // おんさ比較差分のEP単位照合。projection = projectApi() の結果（画面のカウンタ定義で計数される項目 counted のみを比較母集団にする）。
 // 旧比較対象(baselineComparisonIds)との差を、説明可能（新着/旧SDGs/再配信/日時差分/番組構成）と未解明に分け、
 // 逆方向（旧比較対象なのにおんさ側に無い＝不足）と同一EPへの多重対応（重複）も出す。基準日時が違うため収蔵漏れとは断定しない。
@@ -112,21 +125,14 @@ export function classifyOnsaDiff({ projection, ledger, baselineComparisonIds, ba
     if (!m) { put("未解明", it, null, "原本に照合できない（GUID/Spotify ID/題名+日付のいずれも不一致）。収蔵漏れとは断定しない"); continue; }
     const ep = m.ep; by[m.by] = (by[m.by] || 0) + 1; hits.set(ep.id, (hits.get(ep.id) || 0) + 1);
     if (baseSet.has(ep.id)) continue;                                               // 旧比較対象5,219に含まれる＝差分ではない
-    const d = dec.get(ep.id), n = Number(ep.id.slice(3));
-    if (!d && n > 6591) put("新着(EP-06592以降)", it, ep, "10/22判定後の新規収蔵", m.by);
-    else if (d && ["再配信", "再配信候補"].includes(d.classification)) put("再配信", it, ep, `旧判定 ${d.classification}`, m.by);
-    else if (/SDGs/.test(it.show) && d && d.publication !== "対象") put("旧SDGs", it, ep, `旧判定 ${d.publication}/${d.classification}`, m.by);
-    else if (d && d.comparison === "保留" && d.publication === "対象") put("期間・日時差分", it, ep, "旧比較は保留、掲載は日時差分で採用(113件群)", m.by);
-    else if (d && ["対象外番組", "重複"].includes(d.classification)) put("番組構成", it, ep, `旧判定 ${d.classification}`, m.by);
-    else if (d && d.publication === "保留") put(`旧保留(${d.classification})`, it, ep, `旧判定 保留/${d.classification}/比較${d.comparison}。10/22時点で比較・掲載とも確定していない`, m.by);
-    else if (d && d.publication === "対象外") put(`旧対象外(${d.classification})`, it, ep, `旧判定 対象外/${d.classification}`, m.by);
-    else put("未解明", it, ep, d ? `旧判定 ${d.publication}/${d.classification}/比較${d.comparison} では説明できない` : "旧判定なし", m.by);
+    const [cat, why] = categorizeAgainstBaseline(ep, it, dec.get(ep.id));
+    put(cat, it, ep, why, m.by);
   }
   const matchedEp = new Set(hits.keys()), allByKey = new Map(all.map((i) => [i, matchItem(i, ix)]));
   const notCountedHit = new Map(); for (const [i, m] of allByKey) if (m && !i.counted) notCountedHit.set(m.ep.id, i.notCountedReason);
   const missing = baselineComparisonIds.filter((id) => !matchedEp.has(id)).map((id) => ({ ep: id, show: (ledger.find((r) => r.id === id) || {}).show || "", why: notCountedHit.get(id) || "おんさ側に照合できる項目なし（API取得時点・番組範囲・識別子差のいずれか）" }));
   const dups = [...hits].filter(([, n]) => n > 1).map(([ep, n]) => ({ ep, count: n }));
-  return { status: "ok", asOf: projection.asOf, baselineSnapshotDate, baselineComparison: baseSet.size, uiCounter: projection.uiCounter, rawArrayCount: projection.rawArrayCount, dedupe, duplicateEntriesRemoved: dedupe ? projection.items.filter((i) => i.counted).length - counted.length : 0, diff: counted.length - baseSet.size,
+  return { status: "ok", matchBasis: "題名+JST日付(弱一致)中心。強識別子での再照合は onsa-audit.json を正とする", asOf: projection.asOf, baselineSnapshotDate, baselineComparison: baseSet.size, uiEntryCount: projection.uiCounter, rawArrayCount: projection.rawArrayCount, dedupe, duplicateEntriesRemoved: dedupe ? projection.items.filter((i) => i.counted).length - counted.length : 0, comparedPopulation: dedupe ? "uniqueLink" : "uiEntries", comparedCount: counted.length, comparedCountMinusBaselineComparison: counted.length - baseSet.size,
     explained: rows.filter((r) => r.explained).length, unexplained: rows.filter((r) => !r.explained).length, summary, matchedBy: by,
     missingFromOnsa: missing, duplicateMatches: dups, rows,
     note: "基準日時が異なるため差分を収蔵漏れとは判定しない。画面カウンタ(6番組・SDGsカット・actualDuration>0)とAPI生配列件数は別物。未解明は個別調査対象。" };

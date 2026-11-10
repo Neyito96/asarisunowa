@@ -48,7 +48,7 @@ export function projectApi(json, { asOf, fetchedAt = asOf } = {}) {
     items.push({
       category: c, show: SPEC.showOf[c], title: s(e.title), publishedAt: s(e.pubDate), link, clipId: s(e.clipId),
       guid: (link.match(UUID) || s(e.clipId).match(UUID) || [""])[0].toLowerCase(),
-      spotifyId: (sp.match(SPOTIFY) || [])[1] || "",
+      spotifyId: (sp.match(SPOTIFY) || [])[1] || "", spotify: sp, clipId: s(e.clipId),
       readData: skippedSdgs ? "skipped_sdgs_cutoff" : "kept", counted: !skippedSdgs && !zero && inUiRange(e.pubDate, e.duration, asOf),
       notCountedReason: skippedSdgs ? "SDGs日付カット" : zero ? "actualDuration=0（再/ふりかえり/深掘り/再放送/duration<=0）" : !inUiRange(e.pubDate, e.duration, asOf) ? "UI既定の月範囲/長さの外" : "",
     });
@@ -97,19 +97,23 @@ export function matchItem(item, ix) {
 export const SHEET_TO_CATEGORY = { "ニュースの現場から": "genba", "メディアトーク": "media", "SDGs": "sdgs", "報談": "houdan", "ドーナツ": "donuts", "スポンジ": "sports" };
 export function sheetExportToApiJson(text, parseCsv) {
   const parts = text.replace(/^﻿/, "").split(/^## Sheet name: (.*)$/m);
-  const api = Object.fromEntries(SPEC.categories.map((c) => [c, []])); const sheets = {};
+  const api = Object.fromEntries(SPEC.categories.map((c) => [c, []])); const sheets = {}, extra = {};          // extra: 計数対象外タブ（学校・YouTube）。照合の説明用で件数には入れない
   for (let i = 1; i < parts.length; i += 2) {
-    const name = parts[i].trim(), cat = SHEET_TO_CATEGORY[name]; if (!cat) continue;       // ニュースの学校・YouTube・出演者等は計数対象外
+    const name = parts[i].trim(), cat = SHEET_TO_CATEGORY[name];
+    if (!cat) {                                                                              // ニュースの学校・YouTube・出演者等は計数対象外
+      if (name === "ニュースの学校" || name === "YouTube") for (const r of parseCsv(parts[i + 1].trim()).slice(2)) if (/^https?:/.test(s(r[0])) && s(r[2])) (extra[name] ||= []).push({ link: s(r[0]), pubDate: s(r[1]), title: s(r[2]), spotify: s(r[11]), clipId: s(r[12]) });
+      continue;
+    }
     const rows = parseCsv(parts[i + 1].trim());
     let n = 0;
     for (const r of rows.slice(2)) {                                                       // 先頭2行はヘッダーと注意書き。行数をEP件数とみなさない
       const link = s(r[0]), date = s(r[1]), title = s(r[2]);
       if (!title || !/^https?:/.test(link) || !Number.isFinite(Date.parse(date.replace(/ -0000$/, " +0000")))) continue;
-      api[cat].push({ link, pubDate: new Date(Date.parse(date.replace(/ -0000$/, " +0000"))).toISOString(), title, duration: Number(r[3]) || 0, spotify: s(r[11]), clipId: "", mc: [], speakers: [] }); n++;
+      api[cat].push({ link, pubDate: new Date(Date.parse(date.replace(/ -0000$/, " +0000"))).toISOString(), title, duration: Number(r[3]) || 0, spotify: s(r[11]), clipId: s(r[12]), pca: s(r[13]), mc: [], speakers: [] }); n++;
     }
     sheets[name] = n;
   }
-  return { api, sheets };
+  return { api, sheets, extra };
 }
 
 // 同一linkが複数カテゴリに出る重複エントリ（現場タブは総合フィードで専用番組と重なる）を1件にまとめる。専用番組側を残す。
@@ -119,3 +123,14 @@ export function dedupeByLink(items) {
   for (const i of items) { const cur = m.get(i.link); if (!cur || (cur.category === "genba" && i.category !== "genba")) m.set(i.link, i); }
   return [...m.values()];
 }
+
+// ---- 強い識別子（Omny URL / Spotify episode ID / 朝日公式item ID / GUID） ----
+export const strongKeys = ({ link = "", spotify = "", clipId = "", guid = "" } = {}) => {
+  const k = [];
+  const om = s(link).match(/omny\.fm\/shows\/([^/]+)\/([^/?#]+)/); if (om) k.push(["omny", om[1] + "/" + om[2]]);
+  const sp = s(spotify).match(SPOTIFY); if (sp) k.push(["spotify", sp[1]]);
+  const as = (s(clipId).match(/itemid=([0-9a-f-]{36})/i) || [])[1]; if (as) k.push(["asahi", as.toLowerCase()]);
+  const g = guidOf2(guid) || guidOf2(link); if (g) k.push(["guid", g]);
+  return k;
+};
+const guidOf2 = (v) => ((s(v).match(UUID) || [""])[0]).toLowerCase();
