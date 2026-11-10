@@ -15,7 +15,7 @@ const ID = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 const segs = (u) => u.pathname.split('/').filter(Boolean);
 /** 各プラットフォームの「個別エピソード」判定。番組トップ・RSS・不明形式は false(=confirmedにしない)。 */
 const EP = {
-  asahi: (u) => !/\/pr\//.test(u.pathname) && (/^\/articles\//.test(u.pathname) || /\/episodes?\/[^/]+/.test(u.pathname) || /^\/special\/podcasts\/[^/]+\/[^/]+/.test(u.pathname)),
+  asahi: (u) => !/\/pr\//.test(u.pathname) && ((/^\/special\/podcasts\/item\/?$/.test(u.pathname) && new RegExp(`^(?:${ID}|TASC\\d+)$`, 'i').test(u.searchParams.get('itemid') || '')) || /^\/articles\//.test(u.pathname) || /\/episodes?\/[^/]+/.test(u.pathname) || /^\/special\/podcasts\/[^/]+\/[^/]+/.test(u.pathname)),
   omny: (u) => (/(^|\.)omny\.fm$/.test(u.hostname) && /^\/shows\/[^/]+\/(?:[^/]+\/)?[^/]+/.test(u.pathname) && segs(u).length >= 3)
     || (!/\.rss$/i.test(u.pathname) && !/\/playlist\//.test(u.pathname) && (/\.(mp3|m4a|aac)$/i.test(u.pathname) || /\/clips\//.test(u.pathname)))
     || (/megaphone\.fm$/.test(u.hostname) && (/\.mp3$/i.test(u.pathname) || /\/episodes\/[^/]+/.test(u.pathname))) || /(^|\.)pdst\.fm$/.test(u.hostname) && segs(u).length >= 1,
@@ -30,8 +30,8 @@ const EP = {
 
 /** 固定順(司令塔指定): 朝日公式→Omny/Megaphone→LISTEN→Spotify→Apple→Amazon→PocketCasts→Pody→YouTube補助。col=台帳0-based列。 */
 export const PLATFORMS = Object.freeze([
-  { key: 'asahi', label: '朝日新聞公式個別URL', type: 'episode', cols: [9, 8], hosts: [/(^|\.)asahi\.com$/] },
-  { key: 'omny', label: 'Omny/Megaphone元配信・音声', type: 'audio', cols: [14], hosts: [/(^|\.)omny\.fm$/, /(^|\.)omnycontent\.com$/, /megaphone\.fm$/, /(^|\.)pdst\.fm$/] },
+  { key: 'asahi', label: '朝日新聞公式個別URL', type: 'episode', cols: [9, 8, 14], pool: true, hosts: [/(^|\.)asahi\.com$/] },
+  { key: 'omny', label: 'Omny/Megaphone元配信・音声', type: 'audio', cols: [8, 9, 14], pool: true, hosts: [/(^|\.)omny\.fm$/, /(^|\.)omnycontent\.com$/, /megaphone\.fm$/, /(^|\.)pdst\.fm$/] },
   { key: 'listen', label: 'LISTEN', type: 'episode', cols: [10], hosts: [/(^|\.)listen\.style$/] },
   { key: 'spotify', label: 'Spotify', type: 'episode', cols: [11], hosts: [/(^|\.)open\.spotify\.com$/] },
   { key: 'apple', label: 'Apple Podcasts', type: 'episode', cols: [12], hosts: [/(^|\.)podcasts\.apple\.com$/] },
@@ -80,7 +80,9 @@ export function buildPlatformLinks(rows, p15 = [], { asOf = null } = {}) {
       const seen = new Set();
       for (const { u, col } of good) { if (seen.has(u)) continue; seen.add(u); out.push({ ep_id: ep, platform: pf.key, type: pf.type, order, url: u, status: 'confirmed', retryable: false, evidence: `ledger-col-${col + 1}`, last_checked: asOf || '', probed: true }); }
       // 当該プラットフォーム専用列に入っている未確定URL(番組URL/ホスト違い)は hold として原文保持。(asahiのAC列は他社URLを含むため除外)
-      const ownHold = own;
+      const poolHosts = PLATFORMS.filter((x) => x.pool);
+      // I/J/O列は朝日公式・Omny/Megaphoneが混在するため、どちらかのホストに合致するURLは該当側で確定判定。どちらにも合わないURLだけ朝日側でholdとして保持。
+      const ownHold = pf.pool ? own.filter(({ u }) => (urlMatchesPlatform(u, pf) && !isEpisodeLevel(pf.key, u)) || (pf.key === 'asahi' && !poolHosts.some((x) => urlMatchesPlatform(u, x)))) : own;
       for (const { u } of ownHold) { if (seen.has(u)) continue; seen.add(u); out.push({ ep_id: ep, platform: pf.key, type: pf.type, order, url: u, status: 'hold', retryable: true, evidence: 'ledger-value-not-episode-level-or-host-mismatch', last_checked: asOf || '', probed: true }); }
       if (!good.length && !ownHold.length) {
         const p = p15Idx.get(`${ep}|${svc[pf.key]}`);
