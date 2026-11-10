@@ -1,0 +1,91 @@
+{
+ "episodes": 97,
+ "patrols": 342,
+ "castAgainstExistingLedger": {
+  "rowsWithLedgerCast": 67,
+  "cast1Match": 64,
+  "fullSetMatch": 51
+ },
+ "apiCalls": 2958,
+ "rate429Injected": 1,
+ "cellWrites": 181,
+ "writtenValuesMatchTruth": true,
+ "unreviewedNeverPublishable": true,
+ "dashboard": {
+  "asOf": "2026-11-11T07:00:00.000Z",
+  "collected": 97,
+  "fillRateRequired": {
+   "filled": 715,
+   "total": 956,
+   "percent": 74.8
+  },
+  "notFilledReasons": {
+   "NOT_APPLICABLE:NO_ADDITIONAL_PERSON_IN_SOURCE": 252,
+   "FILLABLE_FROM_OFFICIAL:CAST_IN_OFFICIAL_DESCRIPTION": 219,
+   "HOLD:NOT_FOUND_AFTER_GRACE": 110,
+   "HOLD:NOT_CHECKED": 21,
+   "FILLABLE_FROM_OFFICIAL:DERIVE_FROM_RAW_DESCRIPTION": 19,
+   "NOT_APPLICABLE:SHOW_NEVER_LISTS_CAST": 14,
+   "HOLD:FEED_VALUE_MISSING": 8
+  },
+  "platformDiscovery": {
+   "officialPage": {
+    "eligible": 97,
+    "found": 76,
+    "rate": 78.4
+   },
+   "listen": {
+    "eligible": 97,
+    "found": 30,
+    "rate": 30.9
+   },
+   "spotify": {
+    "eligible": 97,
+    "found": 79,
+    "rate": 81.4
+   },
+   "apple": {
+    "eligible": 97,
+    "found": 72,
+    "rate": 74.2
+   },
+   "amazon": {
+    "eligible": 0,
+    "found": 0,
+    "rate": null
+   },
+   "pocketcasts": {
+    "eligible": 0,
+    "found": 0,
+    "rate": null
+   },
+   "pody": {
+    "eligible": 0,
+    "found": 0,
+    "rate": null
+   }
+  },
+  "latencyHours": {
+   "pubToCollected": {
+    "p50": 0.08,
+    "max": 2
+   },
+   "pubToFilled": {
+    "p50": 6.08,
+    "max": 8.08
+   },
+   "pubToPreview": {
+    "p50": 4.08,
+    "max": 8.08
+   }
+  },
+  "states": {
+   "unreviewed": 97,
+   "hold": 0,
+   "excluded": 0,
+   "approvedPublished": 0
+  },
+  "lastSuccessfulPatrol": "2026-11-11T07:00:00.000Z",
+  "anomalies": []
+ }
+}
