@@ -152,3 +152,21 @@ test('P0-1 Actions注入対策: runに inputs を展開せず env経由・bash�
   for (const b of bad) { let code = 0; try { execFileSync('node', ['scripts/platform-url-bot.mjs', '--ledger', b, '--out', 'out'], { stdio: 'pipe', env: { ...process.env, BOT_RESTRICT_PATHS: '1' } }); } catch (e) { code = e.status; } assert.equal(code, 2, b); }
   assert.ok(!fs.existsSync('/tmp/pwned'));
 });
+
+test('回帰(continue): retry_after前のEP×社は呼び出されずスキップ、他のEP/社は処理される', async () => {
+  let calls = []; const f = { spotify: { candidates: async (i) => { calls.push(i.epId); return { candidates: [] }; } } };
+  const st = { 'EP-A|spotify': { attempts: 1, retry_after: NOW + 3600e3 } };
+  const r = await runBot([inp({ epId: 'EP-A' }), inp({ epId: 'EP-B' })], { fetchers: f, now: NOW, state: st, platforms: ['spotify'] });
+  assert.deepEqual(calls, ['EP-B']); assert.deepEqual(r.records.map((x) => x.ep_id), ['EP-B']);
+});
+test('再開カーソルの実効性: 打切りHOLDのカーソルがstateに保存され、次回runでアダプタが続きから取得し確定できる', async () => {
+  const P1 = 'https://api.spotify.com/v1/shows/S1/episodes?market=JP&limit=50', P2 = 'https://api.spotify.com/v1/shows/S1/episodes?offset=100';
+  const pages = { [P1]: { next: P2, items: [{ id: 'X', name: '別の回', release_date: '2026-01-01', release_date_precision: 'day', external_urls: { spotify: SP('X') } }] }, [P2]: { next: null, items: [{ id: 'T', name: '第5回 お茶の話', release_date: '2026-11-08', release_date_precision: 'day', external_urls: { spotify: SP('T') } }] } };
+  const fetched = []; const ad = spotifyAdapter(async (u) => (fetched.push(u), { status: 200, json: pages[u] }), { maxPages: 1 });
+  const i = inp({ showUrls: { spotify: 'https://open.spotify.com/show/S1' } });
+  const r1 = await runBot([i], { fetchers: { spotify: ad }, now: NOW, platforms: ['spotify'] });
+  assert.equal(r1.records[0].reason, 'INCOMPLETE_CANDIDATE_SET'); assert.equal(r1.records[0].resume_cursor, P2);
+  const st = nextState({}, r1.records, r1.cooldown); assert.equal(st['EP-06642|spotify'].resume_cursor, P2);
+  const r2 = await runBot([i], { fetchers: { spotify: ad }, now: st['EP-06642|spotify'].retry_after + 1, state: st, platforms: ['spotify'] });
+  assert.equal(fetched.at(-1), P2, '続きのページから取得'); assert.equal(r2.records[0].status, 'VERIFIED'); assert.equal(r2.records[0].url, SP('T'));
+});

@@ -59,7 +59,7 @@ export function classifyHttp(status, retryAfterSec) {
   return new FetchError('FATAL', status);
 }
 
-const rec = (i, platform, f) => ({ ep_id: i.epId, platform, entity_type: 'episode', url: '', external_id: '', evidence: [], checked_at: f.checkedAt, status: 'NOT_FOUND', reason: '', retry_after: null, ...f.over });
+const rec = (i, platform, f) => ({ ep_id: i.epId, platform, entity_type: 'episode', url: '', external_id: '', evidence: [], checked_at: f.checkedAt, status: 'NOT_FOUND', reason: '', retry_after: null, resume_cursor: '', ...f.over });
 
 /** 1EP×1platform の探索。確定条件は厳格: 既存URL保護 → 強ID(GUID/外部ID) → 完全タイトル+日付+番組一致(唯一) 以外は HOLD。 */
 export async function resolveOne(input, platform, { fetchers = {}, gate = new CooldownGate(), now = Date.now(), attempts = 0 } = {}) {
@@ -94,7 +94,7 @@ export async function resolveOne(input, platform, { fetchers = {}, gate = new Co
   const nt = normTitle(input.title); const red = classifyRedistribution({ title: input.title });
   const titled = cands.filter((c) => normTitle(c.title) === nt && nt);
   const dated = titled.filter((c) => dateCompatible(input.publishedAt, c.publishedAt, c.precision));
-  if (res.truncated) return out({ status: 'HOLD', reason: 'INCOMPLETE_CANDIDATE_SET', retry_after: retryAfter({ kind: 'INCOMPLETE', now }), evidence: [...ev, `resume-cursor:${s(res.resumeCursor) || 'none'}`, `partial-matches:${dated.length}`] });
+  if (res.truncated) return out({ status: 'HOLD', reason: 'INCOMPLETE_CANDIDATE_SET', resume_cursor: s(res.resumeCursor), retry_after: retryAfter({ kind: 'INCOMPLETE', now }), evidence: [...ev, `resume-cursor:${s(res.resumeCursor) || 'none'}`, `partial-matches:${dated.length}`] });
   const full = dated;
   if (full.length > 1 && full.some((c) => !showProof(c))) return out({ status: 'HOLD', reason: 'SHOW_IDENTITY_UNPROVEN', evidence: full.map((c) => c.url) });
   if (full.length === 1 && !showProof(full[0])) return out({ url: '', status: 'HOLD', reason: 'SHOW_IDENTITY_UNPROVEN', evidence: [...ev, `candidate:${full[0].url}`, 'need-show-id-both-sides-or-strong-id'] });
@@ -120,7 +120,8 @@ export async function runBot(inputs, { fetchers = {}, now = Date.now(), limit = 
     if (!hasExisting && n >= limit) continue;
     if (!hasExisting && old) { if (backfill >= backfillLimit) continue; backfill++; }
     if (!hasExisting) n++;
-    recs.push(await resolveOne(i, p, { fetchers: wrapped, gate, now, attempts: state[`${i.epId}|${p}`]?.attempts || 0 }));
+    const cur = state[`${i.epId}|${p}`]?.resume_cursor; const iw = cur ? { ...i, cursors: { ...(i.cursors || {}), [p]: cur } } : i; // 打切り後は前回の続きから再開
+    recs.push(await resolveOne(iw, p, { fetchers: wrapped, gate, now, attempts: state[`${i.epId}|${p}`]?.attempts || 0 }));
   }
   return { records: recs, apiCalls: calls, cooldown: Object.fromEntries([...gate.until].filter(([, u]) => u > now)) };
 }
@@ -139,7 +140,7 @@ export function planFills(records, ledgerCells = {}) {
 /** 次回state(attempts・retry_after)。成功は消す。 */
 export function nextState(prev, records, cooldown = null) {
   const st = { ...prev }; if (cooldown) { const now = Date.now(); st.__cooldown = { ...(prev.__cooldown || {}), ...cooldown }; for (const [p, u] of Object.entries(st.__cooldown)) if (u <= now && !(cooldown[p])) delete st.__cooldown[p]; }
-  for (const r of records) { const k = `${r.ep_id}|${r.platform}`; if (r.status === 'VERIFIED') delete st[k]; else if (r.retry_after) st[k] = { attempts: (prev[k]?.attempts || 0) + 1, retry_after: r.retry_after, reason: r.reason }; }
+  for (const r of records) { const k = `${r.ep_id}|${r.platform}`; if (r.status === 'VERIFIED') delete st[k]; else if (r.retry_after) st[k] = { attempts: (prev[k]?.attempts || 0) + 1, retry_after: r.retry_after, reason: r.reason, ...(r.resume_cursor ? { resume_cursor: r.resume_cursor } : {}) }; }
   return st;
 }
 
