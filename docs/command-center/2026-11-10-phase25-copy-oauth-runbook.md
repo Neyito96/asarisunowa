@@ -60,3 +60,21 @@
 ## 6. 停止条件
 COPY専用でないGoogleアカウント / 想定外scope / Client ID 形式不正 / 本番ID検出 / テストプレイリストの実ID・所有者・非公開設定・allowlist のいずれかの不一致、または現メンバーシップ取得不能(名称のみの差異は停止条件にしない)。
 Googleアカウント確認: COPY GAS にログイン中のアカウントが COPY 専用か(アドレスの提出は不要、Googleアカウント画面で本人確認)。確認が済むまで操作A は開始しない。Spotify Dashboard に未使用/COPY専用アプリがあれば流用、無い場合のみ新規作成。本番アプリの流用は原則避ける。`P25_COPY_AUTH_URL`(state を含む)・token・nonce は貼付禁止。
+
+## 7. 更新 (2026-11-10 14:38 JST): トークン露出対応
+
+司令塔確認: COPY GAS のスクリプトプロパティに Client ID・Access Token・Refresh Token・有効期限・2 scope が既に存在。従来の「未設定」は撤回。ただし Access/Refresh Token がスクリーンショットに写ったため **既存トークンは露出済みとして扱う**。Claude は秘密値を読まず・転記しない(プロパティの値の取得は一切行っていない)。「認可済み」とは断定しない。
+
+### 7.1 失効(管理人、画面操作)
+1. Spotify アカウントの「アプリ」(Account → Apps / 接続済みアプリ)で当該 COPY 用アプリの「アクセス権を削除(Remove access)」を実行 → そのユーザーに発行済みの Refresh/Access Token が無効化される(Spotify 公式画面の表示に従う。結果が画面で確認できない場合は未失効として扱う)。
+2. COPY GAS のスクリプト プロパティから `P25_COPY_SPOTIFY_ACCESS_TOKEN` / `P25_COPY_SPOTIFY_REFRESH_TOKEN` / `P25_COPY_SPOTIFY_EXPIRES_AT` を削除(値は開かず、行の削除のみ)。`_CLIENT_ID` は秘密ではないので残してよい。
+3. 画像が GitHub/チャットに残っている場合は削除または非表示にする。Client Secret は PKCE のため不要。もし Secret が設定されていたら Dashboard で再発行。
+4. 本番GAS・本番Spotify アプリのトークンは対象外(触らない)。
+
+### 7.2 安全な再認可(操作A を再実行)
+- 前提: §5 操作A と同じ。Google アカウント COPY 専用確認 → Spotify Dashboard の COPY 用アプリ確認 → `P25_COPY_PREPARE_SPOTIFY_AUTH` → 10分以内に認可。以降、**スクリーンショットでスクリプト プロパティを開いた状態を撮らない**(値は表示しない)。
+
+### 7.3 再取得後の READ_ONLY 確認(Claude 実施。EP-06678 書込みはこの全てが済むまで禁止)
+実施順: ① `P25_COPY_PREFLIGHT_20261107`(isolation PASS・POST 0) ② プレイリスト実ID・所有者・非公開・allowlist一致の確認 ③ membership取得(snapshot前後一致) ④ トークン有効性は GET のみで確認。いずれも `write:false`。
+- 注意(コード監査): 既存 `readMembership` は snapshot_id と items のみ取得し、**所有者・public/private は検査しない**。②のために GET `playlists/{id}?fields=owner(id),public,name` を行う READ_ONLY 関数を COPY GAS に追加する提案(COPY GAS への追加であり本番変更ではないが、管理人承認後に実施)。承認前は管理人が Spotify 画面で所有者・非公開を目視確認し、結果のみ(値でなく「一致/不一致」)を記録する。
+- 停止: 401/403/429、scope が2つ以外、所有者/非公開/ID/allowlist 不一致、membership 取得不能、本番ID検出。
