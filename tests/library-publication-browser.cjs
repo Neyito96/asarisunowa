@@ -19,10 +19,10 @@ const {chromium,webkit,devices}=require(process.env.LIBRARY_PLAYWRIGHT||'playwri
  if(!live)await page.route('https://neyito96.github.io/asarisunowa/library/**',async route=>{const u=new URL(route.request().url());const relative=u.pathname.replace('/asarisunowa/library/','');if(relative.includes('..'))throw Error('invalid preview route');await route.fulfill({path:path.join(root,'library',relative),contentType:relative.endsWith('.mjs')?'text/javascript':'application/json',headers:{'Access-Control-Allow-Origin':'*'}});});
  // Test-only inspection of module state; the hook is never saved in the shipped HTML.
  await page.route(universeUrl,async route=>{const html=live?await (await route.fetch()).text():await fs.readFile(path.join(root,'universe/index.html'),'utf8');await route.fulfill({contentType:'text/html',body:html.replace('window.addEventListener("resize",resize);init();','window.__scopeAcceptance=()=>({ids:rows.map(r=>r.id),starIds:stars.flatMap(s=>s.episodes.map(r=>r.id))});window.addEventListener("resize",resize);init();')});});
- await page.goto(universeUrl);await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('掲載対象'+NF+'件'),{},{timeout:60000});
+ await page.goto(universeUrl);await page.waitForFunction(nf=>document.querySelector('#status').textContent.includes('掲載対象'+nf+'件'),NF,{timeout:60000});
  assert.match(await page.locator('#status').innerText(),new RegExp(DL));assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
  assert.ok(await page.locator('#space').isVisible());
- await page.locator('[data-mode=episodes]').click();await page.waitForFunction(()=>document.querySelector('#status').textContent.includes(NF+'個の星'));
+ await page.locator('[data-mode=episodes]').click();await page.waitForFunction(nf=>document.querySelector('#status').textContent.includes(nf+'個の星'),NF);
  const expected=(live?await (await context.request.get(new URL('data/scope.json',libraryUrl).href)).json():JSON.parse(await fs.readFile(path.join(root,'library/data/scope.json'),'utf8'))).publishedIds;
  const universe=await page.evaluate(()=>window.__scopeAcceptance());
  assert.deepEqual(universe.ids.sort(),expected);assert.deepEqual(universe.starIds.sort(),expected);

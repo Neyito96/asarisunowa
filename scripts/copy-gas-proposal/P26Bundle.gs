@@ -399,7 +399,7 @@ function extractCast(descRaw) {
 }
 
 /** ctx: {now(ms), pubDate(ms), official:{descRaw,audio,guid,pubDate}, resolutions:{platform:{status,url,evidence,reason}}, showCastBlankRate, showEpisodeCount,
- *       graceHours:{spotify:...}, unsupportedPlatforms:[...]} */
+ *       graceHours:{spotify:...}, unsupportedPlatforms:[...], duplicateOf:'正規EP-ID'(重複保留行のとき。空欄列はDUPLICATE_HOLDでFILL提案を出さない)} */
 function auditRow(row, ctx) {
   const out = [], ageH = ctx.pubDate ? (ctx.now - ctx.pubDate) / HOUR : null;
   const grace = {asahi: 6, listen: 24, spotify: 24, apple: 24, amazon: 72, pocketcasts: 48, pody: 48, ...(ctx.graceHours || {})};
@@ -408,6 +408,7 @@ function auditRow(row, ctx) {
     const v = row[c.col], base = {col: c.col, key: c.key, label: c.label, tier: c.tier, kind: c.kind};
     if ((ctx.unmeasuredKeys || []).includes(c.key)) { out.push({...base, status: 'UNMEASURED', reason: 'COLUMN_NOT_IN_INPUT_DATA'}); continue; } // 入力に列が無い=判定していない(埋まっていない/不要のどちらでもない)
     if (!blank(v)) { out.push({...base, status: 'FILLED', reason: 'PRESENT'}); continue; }
+    if (ctx.duplicateOf) { out.push({...base, status: 'HOLD', reason: 'DUPLICATE_HOLD', duplicateOf: ctx.duplicateOf, needsReview: false}); continue; } // 重複保留行: 欠損を「新規の欠損」として埋めに行かない(正規レコード側で充足)。整理は管理人の別承認
     let r;
     if (c.kind === 'feed') {
       const o = {datetime: ctx.official?.pubDate, guid: ctx.official?.guid, audio: ctx.official?.audio, descRaw: ctx.official?.descRaw}[c.key];

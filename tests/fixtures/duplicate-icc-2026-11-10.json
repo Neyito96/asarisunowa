@@ -1,0 +1,4 @@
+{"schema":"asarisunowa.duplicate-case.v1","source":"司令塔の2026-11-10 READ_ONLY本番台帳照合値(司令塔報告のまま。本リポジトリ側で台帳を再取得していない)",
+ "records":[
+  {"id":"EP-00418","show":"ニュースの学校","title":"ICC赤根智子所長への制裁","date":"2026-08-26T04:00:00+09:00","guid":"f1c413c6-a02c-11f1-8c19-53c818849aae","spotify":"https://open.spotify.com/episode/02JGdAOh1TT4QxGbFDDXRq","hasRawDesc":true,"hasCleanDesc":true,"decision":"対象","origin":"Megaphone RSS"},
+  {"id":"EP-06591","show":"ニュースの学校","title":"ICC赤根知子所長への制裁","date":"2026/8/26 4:00","guid":"","spotify":"https://open.spotify.com/episode/02JGdAOh1TT4QxGbFDDXRq","hasRawDesc":false,"hasCleanDesc":false,"decision":"保留","origin":"COPY_1007"}]}
