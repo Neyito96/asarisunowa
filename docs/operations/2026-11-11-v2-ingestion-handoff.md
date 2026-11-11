@@ -274,4 +274,4 @@ COPYの新着11件（EP-06695〜06705）: LISTEN の個別URLは LISTEN RSS の 
 | 独立COPY GAS | DONE（模擬通し試験） | RSS直接取得→1件追記→原文を詳細表に保存→登録完了→再実行0→取得失敗時は書込0。ロック取得/解放、トリガー作成なし。OAuth承認は未依頼（最後に1回） |
 | 完全性指標 | DONE | `integrityMetrics`。測定値: `docs/release/2026-11-11-p25v2-stage5-metrics.json`（総数6580・公開6033・未判定129・保留257・対象外161・詳細26行/原文5/ハッシュのみ21/清掃5）。サービス列・採番表は全行未読の部分測定（未確認と明記） |
 
-試験: P25V2関連 54件 PASS。リポジトリ全体では `tests/ui-components.test.mjs` が本変更前から失敗（本件と無関係）。
+試験: P25V2関連 51件 PASS。リポジトリ全体では `tests/ui-components.test.mjs` が本変更前から失敗（本件と無関係）。
