@@ -2380,6 +2380,15 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               </a>
               <p className="resourceSectionLabel officialResourceLabel">公式リンク</p>
               <a
+                href="https://pody.jp/features/asahi"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <small className="resourceBadge newBadge withnewsBadge">🆕 Pody特集</small>
+                <b>朝日新聞ポッドキャスト特集</b>
+                <span>Podyで番組と記事で読める回を探す ↗</span>
+              </a>
+              <a
                 href="https://www.asahi.com/withnews/podcasts/"
                 target="_blank"
                 rel="noreferrer"
