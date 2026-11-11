@@ -118,13 +118,13 @@ export function parseListField(v) { if (Array.isArray(v)) return v; return [...S
 export function summarize(pairs, { samplePerType = 5 } = {}) {
   const out = { auditVersion: AUDIT_VERSION, pairs: pairs.length, byCandidate: {} };
   for (const pair of pairs) for (const [name, res] of Object.entries(pair.results)) {
-    const b = (out.byCandidate[name] ||= { audited: 0, verdict: {}, findingTypes: {}, itemsWithType: {}, samples: {}, strata: {} });
+    const b = (out.byCandidate[name] = out.byCandidate[name] || { audited: 0, verdict: {}, findingTypes: {}, itemsWithType: {}, samples: {}, strata: {} });
     b.audited++; b.verdict[res.verdict] = (b.verdict[res.verdict] || 0) + 1;
-    const st = stratum(pair.item), sk = [st.host, st.len, st.age].join('/'), sh = (b.strata[st.show] ||= { audited: 0, fail: 0, review: 0 }), sx = (b.strata[sk] ||= { audited: 0, fail: 0, review: 0 });
+    const st = stratum(pair.item), sk = [st.host, st.len, st.age].join('/'), sh = (b.strata[st.show] = b.strata[st.show] || { audited: 0, fail: 0, review: 0 }), sx = (b.strata[sk] = b.strata[sk] || { audited: 0, fail: 0, review: 0 });
     for (const s of [sh, sx]) { s.audited++; if (res.verdict === '不合格') s.fail++; if (res.verdict === '要確認') s.review++; }
     const types = new Set(res.findings.map((f) => f.type));
     for (const f of res.findings) b.findingTypes[f.type] = (b.findingTypes[f.type] || 0) + 1;
-    for (const t of types) { b.itemsWithType[t] = (b.itemsWithType[t] || 0) + 1; const s = (b.samples[t] ||= []); if (s.length < samplePerType) s.push(pair.epId); }
+    for (const t of types) { b.itemsWithType[t] = (b.itemsWithType[t] || 0) + 1; const s = (b.samples[t] = b.samples[t] || []); if (s.length < samplePerType) s.push(pair.epId); }
   }
   return out;
 }
