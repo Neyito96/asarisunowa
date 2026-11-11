@@ -2,6 +2,7 @@
 // 既存資産の再利用: URL探索は PR #281 platform-resolver.resolveOne の返り値 {ep_id, platform, url, status, reason, checked_at, evidence, retry_after}
 // をそのまま受け取る。書込は PR #299 LedgerFillRobot 互換マニフェスト（keyPolicy EPID+GUID・guidCheck）で行う。清掃・出演者・関連記事の抽出関数は注入する
 // （PR #279 base-ledger の buildParticipants / buildRelatedArticles、PR #299 audit-summary-cleaned の検査をそのまま渡せる）。
+import { editDescription, DESCRIPTION_VERSION } from '../../public/library/description-editor.mjs';
 export const SERVICE_COLUMNS = Object.freeze({ spotify: 'Spotify', apple: 'Apple', amazon: 'Amazon', pocketcasts: 'Pocket Casts', listen: 'LISTEN', pody: 'Pody' });
 export const URL_STATE_HEADERS = Object.freeze(['EP-ID', '公式GUID', 'サービス', 'URL', '状態', '理由', '確認日時', '根拠', '再試行予定']);
 const s = (v) => String(v ?? '').trim();
@@ -50,12 +51,24 @@ export function planSummaryCleaning(values, detailValues, cleanFn, version, at) 
   detailValues.slice(1).forEach((r, i) => {
     const ep = s(r[d['EP-ID']]), raw = String(r[d['概要原文']] ?? ''), state = s(r[d['清掃状態']]);
     if (!ep || !raw.trim() || (state !== '未清掃' && s(r[d['清掃版']]) === version)) return;
-    let out; try { out = cleanFn(raw); } catch (e) { out = { ok: false, reason: String(e.message || e) }; }
-    detailUpdates.push({ row: i + 2, epId: ep, 清掃状態: out.ok ? '清掃済' : '清掃失敗', 清掃版: version, 清掃日時: at, 清掃結果: out.ok ? `文字数 ${raw.length}→${s(out.text).length}` : s(out.reason) });
+    let out; try { out = cleanFn(raw); } catch (e) { out = { ok: false, error: true, reason: String(e.message || e) }; }
+    const u = { row: i + 2, epId: ep, 清掃状態: out.ok ? '清掃済' : out.error ? '清掃失敗' : '要確認（清掃保留）', 清掃版: version, 清掃日時: at, 清掃結果: out.ok ? `文字数 ${raw.length}→${s(out.text).length}` : s(out.reason) };
+    if (d['清掃済み本文'] !== undefined) Object.assign(u, { 清掃済み本文: s(out.text), '関連記事(抽出)': out.related ? JSON.stringify(out.related) : '', '出演者候補(抽出)': (out.staff || []).join(' / '), 抽出保留: (out.holds || []).join(',') });
+    detailUpdates.push(u);
     const x = byEp.get(ep);
     if (out.ok && x) { const cur = s(x.r[idx['概要（清掃済）']]); if (!cur) ledgerCells.push({ epId: ep, column: colLetter(idx['概要（清掃済）']), expectedOld: '', value: s(out.text) }); else if (cur !== s(out.text)) hold.push({ ep, why: 'CLEANED_DIFFERS_FROM_EXISTING' }); }
   });
   return { detailUpdates, ledgerCells, hold };
+}
+// 既存の公開用整形 editDescription（public/library/description-editor.mjs）をそのまま使う清掃関数。原文は変えない。
+// 一行化は項目定義「改行はスペース化」に合わせる。保留(holds)があれば ok=false（清掃失敗ではなく要確認）。
+export const CLEAN_VERSION = 'P25V2-' + DESCRIPTION_VERSION;
+export function v2CleanSummary(raw) {
+  const r = editDescription(raw);
+  const text = r.description.replace(/\s*\n+\s*/g, ' ').replace(/[ \u3000]{2,}/g, ' ').trim();
+  return { ok: r.holds.length === 0, text, reason: r.holds.join(','), holds: r.holds,
+    related: r.relatedArticles.map((a) => ({ title: a.title === a.originalUrl ? '' : a.title, url: a.url })),
+    staff: r.staff.map((x) => x.trim()).filter(Boolean), removed: r.removed.map((x) => x.reason), recording: r.recording };
 }
 // 出演者・関連記事: 抽出関数を注入。確信度の低いもの（confidence < min）は書かずに HOLD。既存値がある列は書かない。
 export function planCastAndRelated(values, detailValues, { extractCast, extractRelated, minConfidence = 0.9 }) {

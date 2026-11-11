@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs'; import vm from 'node:vm';
-import { toResolverInputs, toUrlStateRows, planLinkFills, planSummaryCleaning, planCastAndRelated, pendingWork, colLetter } from '../scripts/ledger-v2/v2-enrich.mjs';
+import { v2CleanSummary, CLEAN_VERSION, toResolverInputs, toUrlStateRows, planLinkFills, planSummaryCleaning, planCastAndRelated, pendingWork, colLetter } from '../scripts/ledger-v2/v2-enrich.mjs';
 const sb = { module: { exports: {} } }; vm.runInNewContext(fs.readFileSync('scripts/google-apps-script/P25V2IngestAdapter.js', 'utf8'), sb);
 const H = [...sb.module.exports.HEADERS], DH = [...sb.module.exports.DETAIL_HEADERS], C = (n) => H.indexOf(n);
 const G = (n) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
@@ -73,4 +73,26 @@ test('封緘転送: 公開鍵で暗号化→秘密鍵でのみ復号。暗号文
   assert.throws(() => open(t, privateKey));
   assert.ok(fs.readFileSync('scripts/ledger-v2/sealed-transfer.pub.pem', 'utf8').includes('PUBLIC KEY'));
   assert.ok(!fs.readFileSync('.github/workflows/v2-rss-readonly.yml', 'utf8').includes('path: rss-items.json'));   // 本文入りファイルを成果物に出さない
+});
+
+test('清掃（既存 editDescription を再利用）: 共通案内・SNS・追跡パラメータを除去、本文の固有名詞は保全、関連記事は見出し＋URLで抽出、出演・スタッフは候補として分離、一行化', () => {
+  const raw = '防衛費の議論を、記者が解説します。\n※2026年10月9日に収録しました。\n【関連記事】\n防衛費、過去最大に\nhttps://www.asahi.com/articles/ASV1.html?iref=omny\n【出演・スタッフ】\n山田太郎（編集委員）\n朝日新聞ポッドキャスト（ https://www.asahi.com/special/podcasts/?iref=omny ）では他にも様々な番組を配信、テキストでも読めます。';
+  const r = v2CleanSummary(raw);
+  assert.equal(r.ok, true); assert.ok(r.text.includes('防衛費の議論を、記者が解説します。')); assert.ok(!r.text.includes('\n'));
+  assert.ok(!r.text.includes('では他にも') && !r.text.includes('iref'));
+  assert.deepEqual(r.related, [{ title: '防衛費、過去最大に', url: 'https://www.asahi.com/articles/ASV1.html' }]);
+  assert.deepEqual(r.staff, ['山田太郎（編集委員）']);
+  assert.ok(CLEAN_VERSION.startsWith('P25V2-V3-public-sections'));
+  const empty = v2CleanSummary('朝日新聞ポッドキャスト（ https://x ）では他にも様々な番組を配信、テキストでも読めます。');
+  assert.equal(empty.ok, false); assert.ok(empty.holds.includes('CONTENT_EMPTY'));
+});
+
+test('清掃計画: 収蔵詳細の追加列（清掃済み本文・関連記事・出演者候補・抽出保留）を埋め、原文は不変。同じ版の再実行は差分0', () => {
+  const det = [DH, ['EP-00001', G(1), 'rss', 'T', '本文です。\n【関連記事】\n見出し\nhttps://www.asahi.com/articles/A.html', 'h', '9', '未清掃', '', '', '', '', '', '', '', '', '公式RSS直接']];
+  const r = planSummaryCleaning(V(), det, v2CleanSummary, CLEAN_VERSION, 'NOW');
+  assert.equal(r.detailUpdates.length, 1); const u = r.detailUpdates[0];
+  assert.equal(u.清掃状態, '清掃済'); assert.equal(u.清掃済み本文, '本文です。'); assert.equal(JSON.parse(u['関連記事(抽出)'])[0].url, 'https://www.asahi.com/articles/A.html');
+  const done = det.map((x) => [...x]); done[1][7] = '清掃済'; done[1][8] = CLEAN_VERSION;
+  assert.equal(planSummaryCleaning(V(), done, v2CleanSummary, CLEAN_VERSION, 'NOW').detailUpdates.length, 0);
+  assert.equal(det[1][4].startsWith('本文です。\n'), true);
 });
