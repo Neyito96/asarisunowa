@@ -1,0 +1,23 @@
+name: v2-rss-readonly
+# 公式RSSの読取専用取得（台帳・GAS・Spotifyには触れない）。重複起動防止: [v2rss-run] を含むコミットのpushでのみ起動＋concurrency。
+on:
+  push:
+    branches: [feat/v2-ingestion-preflight-20261111]
+permissions:
+  contents: read
+concurrency:
+  group: v2-rss-readonly
+  cancel-in-progress: false
+jobs:
+  fetch:
+    if: contains(github.event.head_commit.message, '[v2rss-run]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - run: node --test tests/p25-v2-ingest.test.mjs
+      - run: node scripts/ledger-v2/fetch-official-rss.mjs 40 rss-items.json
+      - uses: actions/upload-artifact@v4
+        with: { name: v2-rss-items, path: rss-items.json, retention-days: 7 }

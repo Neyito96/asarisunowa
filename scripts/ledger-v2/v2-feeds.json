@@ -1,0 +1,12 @@
+{
+  "note": "V2・統合台帳『番組RSS』列に記録済みの公式フィード（2026-11-11 実測）。番組追加はここに1行足す。SDGsは旧番組のため対象外。",
+  "feeds": [
+    { "show": "ニュースの現場から", "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/684015f9-2396-4ac4-bc1f-ac0f0033d08c/podcast.rss" },
+    { "show": "MEDIA TALK", "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/07a1de49-67cf-4714-8581-ac1000059302/podcast.rss" },
+    { "show": "こどもそうだんしつ", "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/693cfdd6-f5a9-4308-9025-adb10164b5b1/podcast.rss" },
+    { "show": "スポンジ", "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/8ceab8ef-af5f-44e9-9545-b4ab0024434b/podcast.rss" },
+    { "show": "ニュースの学校", "url": "https://feeds.megaphone.fm/TASC5851398719" },
+    { "show": "ドーナツ", "url": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/c373aac9-fb6a-4172-8a8f-b498003d9389/podcast.rss" },
+    { "show": "報談", "url": "https://feeds.megaphone.fm/TASC9421488254" }
+  ]
+}
