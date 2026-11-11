@@ -52,7 +52,9 @@ var LedgerFillRobot_ = (function () {
       var k = c.epId + ':' + c.column; if (seenEp[k]) errs.push('DUP_CELL@' + i); seenEp[k] = 1;
       if (seenUrl[c.url]) errs.push('DUP_URL@' + i); seenUrl[c.url] = 1;
       if ((m.holdEpIds || []).indexOf(c.epId) >= 0) errs.push('HOLD@' + i);
+      if (m.keyPolicy === 'EPID+GUID' && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(String(c.guid))) errs.push('BAD_GUID@' + i);
     });
+    if (m.keyPolicy === 'EPID+GUID' && !(m.guidCheck && m.guidCheck.columns && m.guidCheck.columns.length)) errs.push('NO_GUID_CHECK_COLUMNS');
     return errs;
   }
 
@@ -60,20 +62,26 @@ var LedgerFillRobot_ = (function () {
   function classify(c, live, ctx) {
     var rows = ctx.rowsByEp[c.epId];
     if (!rows || rows.length !== 1) return { s: 'SKIP_EPID', why: rows ? 'EPID_MULTI' : 'EPID_NOT_FOUND' };
-    var row = rows[0]; var cur = live[c.column] ? live[c.column][row - 1] : undefined;
+    var row = rows[0];
+    if (ctx.guidCols && ctx.guidCols.length) {                       // 第50号: 行移動対策。EP-IDで引いた行のGUIDを書く直前に再確認
+      var hay = ctx.guidCols.map(function (gc) { return String((ctx.guid[gc] || [])[row - 1] || '').toLowerCase(); }).join(' ');
+      if (hay.indexOf(String(c.guid).toLowerCase()) < 0) return { s: 'SKIP_GUID_MISMATCH', row: row, why: 'GUID_NOT_ON_ROW' };
+    }
+    var cur = live[c.column] ? live[c.column][row - 1] : undefined;
     if (!isBlank(cur)) return String(cur).trim() === c.url ? { s: 'DONE', row: row } : { s: 'SKIP_CONFLICT', row: row, why: 'NON_EMPTY' };
     if (ctx.urlRows[c.column] && ctx.urlRows[c.column][c.url] && ctx.urlRows[c.column][c.url] !== row) return { s: 'SKIP_DUP_URL', row: row };
     return { s: 'WRITABLE', row: row };
   }
-  function buildCtx(adapter, cols, stats, o) {
-    var live = {}; var urlRows = {};
+  function buildCtx(adapter, cols, stats, o, guidCols) {
+    var live = {}; var urlRows = {}; var guid = {};
+    (guidCols || []).forEach(function (gc) { guid[gc] = withRetry(function () { stats.apiCalls++; return adapter.readColumn(gc); }, o, adapter, stats); });
     var A = withRetry(function () { stats.apiCalls++; return adapter.readColumn('A'); }, o, adapter, stats);
     cols.forEach(function (col) {
       live[col] = withRetry(function () { stats.apiCalls++; return adapter.readColumn(col); }, o, adapter, stats);
       urlRows[col] = {}; live[col].forEach(function (v, i) { if (i > 0 && !isBlank(v)) urlRows[col][String(v).trim()] = i + 1; });
     });
     var rowsByEp = {}; A.forEach(function (v, i) { if (i > 0 && !isBlank(v)) (rowsByEp[String(v).trim()] = rowsByEp[String(v).trim()] || []).push(i + 1); });
-    return { live: live, urlRows: urlRows, rowsByEp: rowsByEp };
+    return { live: live, urlRows: urlRows, rowsByEp: rowsByEp, guid: guid, guidCols: guidCols || [] };
   }
 
   function run(manifest, adapter, mode, opts) {
@@ -88,11 +96,12 @@ var LedgerFillRobot_ = (function () {
     try {
       var ckKey = 'lfr:' + manifest.runId; var ck = adapter.props.get(ckKey); ck = ck ? JSON.parse(ck) : { settled: {} };
       var cols = []; manifest.cells.forEach(function (c) { if (cols.indexOf(c.column) < 0) cols.push(c.column); });
+      var gcols = (manifest.guidCheck && manifest.guidCheck.columns) || [];
       var pending = manifest.cells.filter(function (c) { return !ck.settled[c.epId + ':' + c.column]; });
       for (var p = 0; p < pending.length; p += o.chunkSize) {
         if (adapter.nowMs() - t0 > o.maxMillis) { res.status = 'PARTIAL_TIME'; break; }          // 次回、チェックポイントから再開
         var chunk = pending.slice(p, p + o.chunkSize);
-        var ctx = buildCtx(adapter, cols, stats, o);                                              // チャンク直前に最新を再取得
+        var ctx = buildCtx(adapter, cols, stats, o, gcols);                                              // チャンク直前に最新を再取得
         var todo = [];
         chunk.forEach(function (c) {
           var r = classify(c, ctx.live, ctx);
@@ -109,7 +118,7 @@ var LedgerFillRobot_ = (function () {
             res.status = 'HALT_WRITE_ERROR'; res.failures.push({ error: String((e && e.message) || e).slice(0, 200) });
             adapter.props.set(ckKey, JSON.stringify(ck)); return res;
           }
-          var after = buildCtx(adapter, cols, stats, o);                                          // 読み戻し
+          var after = buildCtx(adapter, cols, stats, o, []);                                          // 読み戻し
           todo.forEach(function (t) {
             var got = after.live[t.c.column][t.row - 1];
             if (String(got).trim() === t.c.url) { res.counts.written++; ck.settled[t.c.epId + ':' + t.c.column] = 'WRITTEN'; }
@@ -137,7 +146,28 @@ var LedgerFillRobot_ = (function () {
     return { changed: changed.length, unexpected: extra.length, unexpectedCells: extra.slice(0, 10) };
   }
 
-  return { run: run, validateManifest: validateManifest, auditDiff: auditDiff, isTransient: isTransient, DEFAULTS: DEFAULTS, listenUrlOk: listenUrlOk };
+  // 第50号: EP-ID基準の全行差分監査（行の挿入・並べ替えがあっても、行番号でなくEP-IDで前後を突き合わせる）。
+  // pre/post は 2次元配列(A..K, 1行目ヘッダ)。想定変更 = マニフェスト中セルが空欄→そのURLになった場合のみ。
+  function auditDiffByEp(pre, post, manifest, columns) {
+    var w = columns || 11, exp = {};
+    manifest.cells.forEach(function (c) { exp[c.epId + ':' + (colIndex(c.column) - 1)] = c.url; });
+    function index(t) { var m = {}, dup = []; (t || []).forEach(function (r, i) { if (i > 0 && r && r[0]) { if (m[r[0]]) dup.push(r[0]); m[r[0]] = r; } }); return { m: m, dup: dup }; }
+    var A = index(pre), B = index(post), unexpected = [], changed = 0;
+    Object.keys(A.m).forEach(function (ep) { if (!B.m[ep]) unexpected.push(ep + ':MISSING_AFTER'); });
+    Object.keys(B.m).forEach(function (ep) {
+      var a = A.m[ep], b = B.m[ep];
+      if (!a) { unexpected.push(ep + ':NEW_ROW'); return; }
+      for (var c = 0; c < w; c++) {
+        var x = String(a[c] || ''), y = String(b[c] || '');
+        if (x === y) continue; changed++;
+        var e = exp[ep + ':' + c];
+        if (!(e !== undefined && x.trim() === '' && y.trim() === e)) unexpected.push(ep + ':' + c);
+      }
+    });
+    return { changed: changed, unexpected: unexpected.length, unexpectedCells: unexpected.slice(0, 10), dupEpIdsBefore: A.dup.length, dupEpIdsAfter: B.dup.length };
+  }
+
+  return { run: run, validateManifest: validateManifest, auditDiff: auditDiff, auditDiffByEp: auditDiffByEp, isTransient: isTransient, DEFAULTS: DEFAULTS, listenUrlOk: listenUrlOk };
 })();
 
 // GAS 用アダプタ（本番未接続。SPREADSHEET_ID は既存定数を利用。導入は別承認）。

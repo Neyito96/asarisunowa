@@ -28,3 +28,8 @@ Claudeの逐セル書込（第48号で約2,000リクエスト/1,000セル、Shee
 - COPY環境での実機試験（COPY台帳IDとGAS配置が必要。管理人側の準備/承認事項）
 - 本番デプロイ、時間駆動トリガー有効化、Sheets REST+サービスアカウント経路: 管理人の別承認が必要
 - 定期READ_ONLY巡回、第41号再生可能性チェッカー（HTTP200≠再生可能）: 後続
+
+## 第50号 追記（2026-11-11）: マニフェスト v2
+- 生成は `scripts/ledger-fill-robot/build-manifest-v2.mjs`（EP-ID+GUIDキー・行番号非依存・見出し名確認・SDGs1095正本優先・掲載判定=対象のみ）。
+- ロボットは `keyPolicy:'EPID+GUID'` のとき、書込直前に EP-ID で行を引き、その行の G/J 列に GUID があるか再確認（無ければ `SKIP_GUID_MISMATCH`）。監査は EP-ID 基準の `auditDiffByEp`。
+- 結果・未完事項・再開手順: `docs/operations/2026-11-11-listen-k-v2-manifest-resume.md`

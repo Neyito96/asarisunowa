@@ -19,7 +19,7 @@ function mkAdapter(sheet, f = {}) {
   const st = { reads: 0, writeCalls: 0, cellsWritten: 0, sleeps: [], locked: false, props: {} };
   const ad = {
     st,
-    readColumn(col) { st.reads++; if (f.failRead && st.reads === f.failRead) { const e = new Error('Quota exceeded: Read requests per minute'); throw e; } return [...sheet[col === 'A' ? 'A' : 'K']]; },
+    readColumn(col) { st.reads++; if (f.failRead && st.reads === f.failRead) { const e = new Error('Quota exceeded: Read requests per minute'); throw e; } return [...(sheet[col] || sheet[col === 'A' ? 'A' : 'K'])]; },
     writeCells(cells) {
       st.writeCalls++;
       if (f.quotaEvery && st.writeCalls % f.quotaEvery === 0) throw new Error('429 Quota exceeded for Write requests per minute');
