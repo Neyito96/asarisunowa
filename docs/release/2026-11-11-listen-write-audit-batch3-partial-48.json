@@ -1,0 +1,2310 @@
+{
+ "approval": "Issue #283 第48号（2026-11-11）",
+ "label": "batch3-partial",
+ "sheetId": "1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4",
+ "summary": {
+  "planned": 285,
+  "written": 285,
+  "readBackMatch": 285,
+  "skipped": 0,
+  "failed": 0,
+  "unexpectedChangedCellsInA_K": 0,
+  "missing": 0,
+  "rowsBefore": 6695,
+  "rowsAfter": 6695,
+  "Kbefore": 3633,
+  "Kafter": 3918,
+  "Kunique": 3918,
+  "byShow": {
+   "ニュースの現場から": 147,
+   "MEDIA TALK": 68,
+   "こどもそうだんしつ": 1,
+   "スポンジ": 4,
+   "ニュースの学校": 55,
+   "ドーナツ": 7,
+   "報談": 3
+  }
+ },
+ "cells": [
+  {
+   "epId": "EP-00001",
+   "cell": "K2",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/7m1rzjhs",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00006",
+   "cell": "K7",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/oftqpuxu",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00014",
+   "cell": "K15",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/2vxiiuhh",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00019",
+   "cell": "K20",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/uvryeidx",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00021",
+   "cell": "K22",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/dkratf7h",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00026",
+   "cell": "K27",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/puhhls2p",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00034",
+   "cell": "K35",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/ptb4ezrh",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00039",
+   "cell": "K40",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/n8z6abgz",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00056",
+   "cell": "K57",
+   "show": "こどもそうだんしつ",
+   "before": "(empty)",
+   "after": "https://listen.style/p/yhap2rfc/ixwtztl6",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00061",
+   "cell": "K62",
+   "show": "スポンジ",
+   "before": "(empty)",
+   "after": "https://listen.style/p/gqkauao0/um3tzinj",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00071",
+   "cell": "K72",
+   "show": "スポンジ",
+   "before": "(empty)",
+   "after": "https://listen.style/p/gqkauao0/wvbpnteo",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00074",
+   "cell": "K75",
+   "show": "スポンジ",
+   "before": "(empty)",
+   "after": "https://listen.style/p/gqkauao0/kqeygg2g",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00078",
+   "cell": "K79",
+   "show": "スポンジ",
+   "before": "(empty)",
+   "after": "https://listen.style/p/gqkauao0/m4nvxfhw",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00081",
+   "cell": "K82",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/uqvkgrrz",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00086",
+   "cell": "K87",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/45d6cqlb",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00094",
+   "cell": "K95",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/iykndbxr",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00100",
+   "cell": "K101",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/wynquqig",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00101",
+   "cell": "K102",
+   "show": "ドーナツ",
+   "before": "(empty)",
+   "after": "https://listen.style/p/swt65jwj/cssbaibr",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00107",
+   "cell": "K108",
+   "show": "ドーナツ",
+   "before": "(empty)",
+   "after": "https://listen.style/p/swt65jwj/altt2nqt",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00111",
+   "cell": "K112",
+   "show": "ドーナツ",
+   "before": "(empty)",
+   "after": "https://listen.style/p/swt65jwj/putjdoi6",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00121",
+   "cell": "K122",
+   "show": "報談",
+   "before": "(empty)",
+   "after": "https://listen.style/p/ywaodpkl/frfrsby3",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00126",
+   "cell": "K127",
+   "show": "報談",
+   "before": "(empty)",
+   "after": "https://listen.style/p/ywaodpkl/8pqtc9hf",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00135",
+   "cell": "K136",
+   "show": "報談",
+   "before": "(empty)",
+   "after": "https://listen.style/p/ywaodpkl/qqyr81bk",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00281",
+   "cell": "K282",
+   "show": "ドーナツ",
+   "before": "(empty)",
+   "after": "https://listen.style/p/swt65jwj/1eypy2hd",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00285",
+   "cell": "K286",
+   "show": "ドーナツ",
+   "before": "(empty)",
+   "after": "https://listen.style/p/swt65jwj/psnop26a",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00294",
+   "cell": "K295",
+   "show": "ドーナツ",
+   "before": "(empty)",
+   "after": "https://listen.style/p/swt65jwj/zkpklvx7",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00295",
+   "cell": "K296",
+   "show": "ドーナツ",
+   "before": "(empty)",
+   "after": "https://listen.style/p/swt65jwj/jfdnkqyt",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00411",
+   "cell": "K412",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/6ncuwy5x",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00413",
+   "cell": "K414",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/e63df49j",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00417",
+   "cell": "K418",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/kilskvqs",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00426",
+   "cell": "K427",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/oyrlksyt",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00430",
+   "cell": "K431",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/0zishkzq",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00435",
+   "cell": "K436",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/s71szuip",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00436",
+   "cell": "K437",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/jhcdeg0r",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00441",
+   "cell": "K442",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/y7nylae6",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00450",
+   "cell": "K451",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/mfnbmdfz",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00455",
+   "cell": "K456",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/jnih49xo",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00459",
+   "cell": "K460",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/0vssmvtx",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00460",
+   "cell": "K461",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/mwd8t708",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00465",
+   "cell": "K466",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/hdqxv1nw",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00474",
+   "cell": "K475",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/odabp9lx",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00479",
+   "cell": "K480",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/ptska8ur",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00480",
+   "cell": "K481",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/2hddc0fv",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00485",
+   "cell": "K486",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/x1iondxc",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00489",
+   "cell": "K490",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/iserbiwh",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00498",
+   "cell": "K499",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/abirxtms",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00503",
+   "cell": "K504",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/heajgugb",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00504",
+   "cell": "K505",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/udyd4a6u",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00508",
+   "cell": "K509",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/vbrvx2is",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00514",
+   "cell": "K515",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/rqzripho",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00523",
+   "cell": "K524",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/pof5x2py",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00527",
+   "cell": "K528",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/adzvohak",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00528",
+   "cell": "K529",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/3fpihsmj",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00533",
+   "cell": "K534",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/400pwnfz",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00537",
+   "cell": "K538",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/g00rh8cq",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00547",
+   "cell": "K548",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/0bdnkxtf",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00549",
+   "cell": "K550",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/a5di9da4",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00553",
+   "cell": "K554",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/zjdvsau2",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00557",
+   "cell": "K558",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/vpxxa9us",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00566",
+   "cell": "K567",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/txuhgtmw",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00568",
+   "cell": "K569",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/wpircz6g",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00573",
+   "cell": "K574",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/dy4ucggc",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00576",
+   "cell": "K577",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/u6eimcd9",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00582",
+   "cell": "K583",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/v7e5dtie",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00591",
+   "cell": "K592",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/juwf2vcp",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00593",
+   "cell": "K594",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/vetw4irw",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00597",
+   "cell": "K598",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/dzhqoaqr",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00601",
+   "cell": "K602",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/gyzmsrfx",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00605",
+   "cell": "K606",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/yplv2ngr",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00612",
+   "cell": "K613",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/erhgmn0o",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00617",
+   "cell": "K618",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/f55kcjje",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00622",
+   "cell": "K623",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/tefwjimu",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00625",
+   "cell": "K626",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/827gelrb",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00630",
+   "cell": "K631",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/8myobzcg",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00636",
+   "cell": "K637",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/uhrkaekz",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00641",
+   "cell": "K642",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/r13txvui",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00644",
+   "cell": "K645",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/hvexvgpv",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-00649",
+   "cell": "K650",
+   "show": "ニュースの学校",
+   "before": "(empty)",
+   "after": "https://listen.style/p/pkvcigu2/7amqjwya",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01789",
+   "cell": "K1790",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/p8mnimym",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01794",
+   "cell": "K1795",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/5bq6bwf0",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01803",
+   "cell": "K1804",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/n2hnzhei",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01807",
+   "cell": "K1808",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/r5dhd1ag",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01812",
+   "cell": "K1813",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/iuithyja",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01813",
+   "cell": "K1814",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/azbtekrj",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01817",
+   "cell": "K1818",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/f6einsjy",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01826",
+   "cell": "K1827",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/qqgqbhht",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01831",
+   "cell": "K1832",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/udfl0u53",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01836",
+   "cell": "K1837",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/lvw4w25r",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01837",
+   "cell": "K1838",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/whkcila0",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01842",
+   "cell": "K1843",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/ccm7qu3f",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01851",
+   "cell": "K1852",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/oqufjxmy",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01855",
+   "cell": "K1856",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/0nh8mh9e",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01860",
+   "cell": "K1861",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/xce4xf8f",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01861",
+   "cell": "K1862",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/gfj4dagd",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01865",
+   "cell": "K1866",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/ii0ofuyo",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01874",
+   "cell": "K1875",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/pjmwryxf",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01879",
+   "cell": "K1880",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/kberqquj",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01883",
+   "cell": "K1884",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/dwyhfe3m",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01884",
+   "cell": "K1885",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/tvpsxrzh",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01889",
+   "cell": "K1890",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/ym3b5rxv",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01898",
+   "cell": "K1899",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/py9rtwx3",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01902",
+   "cell": "K1903",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/tv5mtzy3",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01909",
+   "cell": "K1910",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/gbshojzu",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01910",
+   "cell": "K1911",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/fvwreviq",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01914",
+   "cell": "K1915",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/uwoxajow",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01924",
+   "cell": "K1925",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/6ugonrap",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01929",
+   "cell": "K1930",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/0kesyx1p",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01933",
+   "cell": "K1934",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/ibrty4fe",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01935",
+   "cell": "K1936",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/3baieese",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01940",
+   "cell": "K1941",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/ydmlmiaq",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01949",
+   "cell": "K1950",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/2nhvcw5j",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01953",
+   "cell": "K1954",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/9zuwtzqc",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01954",
+   "cell": "K1955",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/dlyowf4l",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01959",
+   "cell": "K1960",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/xbjnehpd",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01963",
+   "cell": "K1964",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/zrmi2fen",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01973",
+   "cell": "K1974",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/6xoxkuvs",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01978",
+   "cell": "K1979",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/jmo4svyq",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01979",
+   "cell": "K1980",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/wedduzyw",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01983",
+   "cell": "K1984",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/8vase7io",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01989",
+   "cell": "K1990",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/khjrr7ts",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-01999",
+   "cell": "K2000",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/n4dmztcw",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02004",
+   "cell": "K2005",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/rpkko1s0",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02006",
+   "cell": "K2007",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/jv1v8mdl",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02010",
+   "cell": "K2011",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/8kajkrao",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02014",
+   "cell": "K2015",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/f6srx4oy",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02023",
+   "cell": "K2024",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/l06vyw2c",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02028",
+   "cell": "K2029",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/iadl7np5",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02030",
+   "cell": "K2031",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/zavdxnun",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02033",
+   "cell": "K2034",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/o83lkx98",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02038",
+   "cell": "K2039",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/mmcrnuww",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02048",
+   "cell": "K2049",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/ttcanppg",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02052",
+   "cell": "K2053",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/0rbjzzoa",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02054",
+   "cell": "K2055",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/afy9wmam",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02058",
+   "cell": "K2059",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/mim5gqbx",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02062",
+   "cell": "K2063",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/zla5uff9",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02071",
+   "cell": "K2072",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/dywbbdb2",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02076",
+   "cell": "K2077",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/ru6ioqu9",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02079",
+   "cell": "K2080",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/gmgfl8zj",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02082",
+   "cell": "K2083",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/gyfzqhwb",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02087",
+   "cell": "K2088",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/kmdlmnau",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02097",
+   "cell": "K2098",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/j8rkqmyy",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02101",
+   "cell": "K2102",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/388juzko",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02103",
+   "cell": "K2104",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/dimrejov",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02107",
+   "cell": "K2108",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/o2ice86z",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02111",
+   "cell": "K2112",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/e079hlnx",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02120",
+   "cell": "K2121",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/a0axawjl",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02125",
+   "cell": "K2126",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/qionrze3",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02128",
+   "cell": "K2129",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/ob6whwhq",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02131",
+   "cell": "K2132",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/9f6hkuwq",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02137",
+   "cell": "K2138",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/xrtl1xwk",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02146",
+   "cell": "K2147",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/xqmiyfxi",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02150",
+   "cell": "K2151",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/xwl1ikf1",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02152",
+   "cell": "K2153",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/ktl5xjjh",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-02156",
+   "cell": "K2157",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/nd5rtmau",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03143",
+   "cell": "K3144",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/wruip8pz",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03147",
+   "cell": "K3148",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/keinivzx",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03150",
+   "cell": "K3151",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/kaz48ioq",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03155",
+   "cell": "K3156",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/cn3hgzkw",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03161",
+   "cell": "K3162",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/cpwefhmp",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03174",
+   "cell": "K3175",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/httupjh6",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03179",
+   "cell": "K3180",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/ec3tfy6x",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03180",
+   "cell": "K3181",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/ya1rizd6",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03185",
+   "cell": "K3186",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/adr1tjtb",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03192",
+   "cell": "K3193",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/a3jvasp4",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03203",
+   "cell": "K3204",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/vbhzd5ua",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03209",
+   "cell": "K3210",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/spw100sb",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03210",
+   "cell": "K3211",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/egtwaf87",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03217",
+   "cell": "K3218",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/sb4sdmss",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03222",
+   "cell": "K3223",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/tj7eykq9",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03234",
+   "cell": "K3235",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/ldzwpp3m",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03240",
+   "cell": "K3241",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/8ltfmrri",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03241",
+   "cell": "K3242",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/iqugrckp",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03247",
+   "cell": "K3248",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/ijsuqzbo",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03253",
+   "cell": "K3254",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/gcyxyspf",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03264",
+   "cell": "K3265",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/gacs67av",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03270",
+   "cell": "K3271",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/ljaqfeny",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03271",
+   "cell": "K3272",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/rybrtihw",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03277",
+   "cell": "K3278",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/ql4gxots",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03282",
+   "cell": "K3283",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/nzzu56bj",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03294",
+   "cell": "K3295",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/mivc8xvb",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03301",
+   "cell": "K3302",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/rvia0pmt",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03302",
+   "cell": "K3303",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/qu7ip59p",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03309",
+   "cell": "K3310",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/jx1ajeqh",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03320",
+   "cell": "K3321",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/zwxaczek",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03330",
+   "cell": "K3331",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/i4kzpx92",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03335",
+   "cell": "K3336",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/pxbkbewt",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03336",
+   "cell": "K3337",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/vhqnwivq",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03341",
+   "cell": "K3342",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/r4crc57l",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03352",
+   "cell": "K3353",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/ls9dmtqz",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03358",
+   "cell": "K3359",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/utuwc3hv",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03364",
+   "cell": "K3365",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/aln1xtdk",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03365",
+   "cell": "K3366",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/3klt6ddj",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03371",
+   "cell": "K3372",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/wtssq5ih",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03381",
+   "cell": "K3382",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/j9iso3tw",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03387",
+   "cell": "K3388",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/mzvj7h6y",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03391",
+   "cell": "K3392",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/01ywednx",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03392",
+   "cell": "K3393",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/l81t9fsy",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03398",
+   "cell": "K3399",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/3sghbwug",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03407",
+   "cell": "K3408",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/copdytoc",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03411",
+   "cell": "K3412",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/oqgmbpg2",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03416",
+   "cell": "K3417",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/72we2grk",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03417",
+   "cell": "K3418",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/wcsynjbg",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03421",
+   "cell": "K3422",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/wjvaqiqk",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03433",
+   "cell": "K3434",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/bxdpqbxm",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03439",
+   "cell": "K3440",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/9ts4qg26",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03443",
+   "cell": "K3444",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/mt4exn3p",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03444",
+   "cell": "K3445",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/zeprc4rb",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03450",
+   "cell": "K3451",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/wxu90onh",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03459",
+   "cell": "K3460",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/or8kvaa3",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03463",
+   "cell": "K3464",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/htxlssok",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03470",
+   "cell": "K3471",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/xtlh0hdw",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03471",
+   "cell": "K3472",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/h3n6jfcq",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03475",
+   "cell": "K3476",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/hwzo2pyc",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03485",
+   "cell": "K3486",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/uamnmtx6",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03491",
+   "cell": "K3492",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/b1ux8ulx",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03496",
+   "cell": "K3497",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/adw31uoo",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03497",
+   "cell": "K3498",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/8vwjodwv",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03502",
+   "cell": "K3503",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/rx6xdmqx",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03512",
+   "cell": "K3513",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/pc63seey",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03516",
+   "cell": "K3517",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/i0xqaspe",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-03521",
+   "cell": "K3522",
+   "show": "ニュースの現場から",
+   "before": "(empty)",
+   "after": "https://listen.style/p/tvzppbdm/3lhacxdj",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04440",
+   "cell": "K4441",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/82dez5d2",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04444",
+   "cell": "K4445",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/wv1hca9l",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04453",
+   "cell": "K4454",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/kyhdfctq",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04457",
+   "cell": "K4458",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/l0jdtwcz",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04462",
+   "cell": "K4463",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/tbsgj6ks",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04463",
+   "cell": "K4464",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/43qv3ehg",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04468",
+   "cell": "K4469",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/403ieymb",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04476",
+   "cell": "K4477",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/no2cvqxv",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04482",
+   "cell": "K4483",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/b45uvdsd",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04486",
+   "cell": "K4487",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/xwum7m56",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04488",
+   "cell": "K4489",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/5sf5pdbq",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04492",
+   "cell": "K4493",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/a8lbtwu9",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04501",
+   "cell": "K4502",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/bkssge94",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04505",
+   "cell": "K4506",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/egjx2ja6",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04510",
+   "cell": "K4511",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/2p4npxyt",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04511",
+   "cell": "K4512",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/kwvtbafy",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04516",
+   "cell": "K4517",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/s7e8982z",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04524",
+   "cell": "K4525",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/zdtmb2dq",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04529",
+   "cell": "K4530",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/sc6jtbou",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04534",
+   "cell": "K4535",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/7pjz0tyq",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04536",
+   "cell": "K4537",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/w6ttl2y9",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04540",
+   "cell": "K4541",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/a3oyrinw",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04549",
+   "cell": "K4550",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/bjrpkbgo",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04553",
+   "cell": "K4554",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/j67feiy3",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04558",
+   "cell": "K4559",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/0dakggkm",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04559",
+   "cell": "K4560",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/9dhyjvds",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04564",
+   "cell": "K4565",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/qjywkvr2",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04572",
+   "cell": "K4573",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/jwtrtfpn",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04577",
+   "cell": "K4578",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/2m7v4uaj",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04581",
+   "cell": "K4582",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/jla5u5mw",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04583",
+   "cell": "K4584",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/1elfqemj",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04588",
+   "cell": "K4589",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/uc5vua34",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04597",
+   "cell": "K4598",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/exzui87y",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04601",
+   "cell": "K4602",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/8wunw2zz",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04606",
+   "cell": "K4607",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/bdgw8lth",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04607",
+   "cell": "K4608",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/qaqtlm6l",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04612",
+   "cell": "K4613",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/ih1ofghj",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04620",
+   "cell": "K4621",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/9lddxfvj",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04625",
+   "cell": "K4626",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/qrhomtqu",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04629",
+   "cell": "K4630",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/eculdakx",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04631",
+   "cell": "K4632",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/kpuaq6xd",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04636",
+   "cell": "K4637",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/dtx0sduf",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04645",
+   "cell": "K4646",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/hs4syftm",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04649",
+   "cell": "K4650",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/nrlxr9k7",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04654",
+   "cell": "K4655",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/2psnr5ya",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04655",
+   "cell": "K4656",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/m5vkvauw",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04660",
+   "cell": "K4661",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/krg2ckqf",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04668",
+   "cell": "K4669",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/g1edwiaq",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04673",
+   "cell": "K4674",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/3tguoyf7",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04677",
+   "cell": "K4678",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/cm0xvce4",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04679",
+   "cell": "K4680",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/dzudv5ud",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04683",
+   "cell": "K4684",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/lrovimqt",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04693",
+   "cell": "K4694",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/1fgliiln",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04697",
+   "cell": "K4698",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/2zjafxh2",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04702",
+   "cell": "K4703",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/23fpcwqb",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04703",
+   "cell": "K4704",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/opdhpq9j",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04708",
+   "cell": "K4709",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/um0jxb9c",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04716",
+   "cell": "K4717",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/h8sxikit",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04721",
+   "cell": "K4722",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/xj1b4tnm",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04722",
+   "cell": "K4723",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/atr3mge0",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04727",
+   "cell": "K4728",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/xqf2h2qk",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04731",
+   "cell": "K4732",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/yd7wjzgk",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04741",
+   "cell": "K4742",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/0q8dif1x",
+   "readBack": "MATCH"
+  },
+  {
+   "epId": "EP-04745",
+   "cell": "K4746",
+   "show": "MEDIA TALK",
+   "before": "(empty)",
+   "after": "https://listen.style/p/vbc86ror/fyncx9l0",
+   "readBack": "MATCH"
+  }
+ ]
+}
