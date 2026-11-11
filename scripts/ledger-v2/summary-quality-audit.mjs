@@ -21,9 +21,9 @@ const URL_RE = /https?:\/\/[^\s<>「」『』（）()"'、]+/g;
 const ARTICLE_RE = /^https?:\/\/(?:www\.asahi\.com\/(?:articles|[a-z]+\/articles)\/|digital\.asahi\.com\/articles\/|withnews\.jp\/article\/|globe\.asahi\.com\/article\/|book\.asahi\.com\/article\/|www\.asahi\.com\/special\/(?!podcasts))/;
 // 消してよいと監査側が確信できる定型だけ。迷うものは入れない。
 const DROP_LINE = /^See .*omnystudio\.com\/listener|Learn more about your ad choices|会員登録をお願い|購読料で配信|交流はdiscord|^ご意見・感想・リクエスト|おたよりフォーム|^メルマガ|広告ご検討の企業様|^番組検索ツール|^最新情報はX|^番組カレンダー|全話あります公式サイト|アプリで記者と対話|^朝ポキTV|ほかにも(?:多彩な)?番組を配信中|^★?ご感想はこちら/;
-const DROP_SECTION = /^【(?:おねがい|朝ポキ情報|お知らせ|イベント)/;
+const DROP_SECTION = /^【(?:おねがい|朝ポキ情報|お知らせ|イベント)|^【[^】]*(?:参加|フェス|募集|告知|プレゼント|チケット|キャンペーン)[^】]*】\s*$/;
 const STAFF_SECTION = /^【(?:出演[・／/]スタッフ|出演者|スタッフ|出演)】/;
-const RELATED_SECTION = /^【(?:関連記事|関連リンク|写真まとめ|特集ページ|まとめてわかる)/;
+const RELATED_SECTION = /^【(?:関連記事|関連リンク|写真まとめ|特集ページ|まとめてわかる)|^【[^】]*(?:関連|参考|アーカイブ)[^】]*】\s*$/;
 const AMBIG_LINE = /^[★※▼■◆]|募集|お寄せください|応募|申し込み|配信します|収録しました|プレゼント|イベント|フォロー/;
 
 // 原文を行に分け、監査側の期待（KEEP/DROP/STAFF/RELATED/AMBIGUOUS）を付ける。
@@ -43,6 +43,9 @@ export function classifyRawLines(raw) {
     else expect = 'KEEP';
     out.push({ i, text, len: text.length, expect, section });
   });
+  for (let k = 0; k + 1 < out.length; k++) {   // 見出し行の直後がURLだけの行なら、その見出しは関連リンクの見出し（本文として採点しない）
+    if (/^\s*(?:https?:\/\/\S+\s*)+$/.test(out[k + 1].text) && out[k].expect === 'KEEP') out[k].expect = 'RELATED';
+  }
   return out;
 }
 const grams = (t, k = 3) => { const s = new Set(); for (let i = 0; i + k <= t.length; i++) s.add(t.slice(i, i + k)); return s; };
@@ -53,7 +56,7 @@ export function coverage(line, cleaned) {
   let hit = 0; for (const x of g) if (h.has(x)) hit++; return hit / g.size;
 }
 const PROPER = /「[^」]{2,30}」|[ァ-ヴー]{3,}|[A-Za-z][A-Za-z0-9&.\-]{2,}|#\d+/g;
-const CAST_BAD = /https?:|会員登録|discord|おたより|フォーム|@|購読|配信中|メルマガ|ご意見/i;
+const CAST_BAD = /会員登録|discord|おたより|お便り|フォーム|購読|配信中|メルマガ|ご意見|フォロー/i;   // 出演者の個人リンク（URL）は混入ではない
 export function articleUrls(text) { return [...String(text || '').matchAll(URL_RE)].map((m) => m[0].replace(/[.,;]+$/, '')).filter((u) => ARTICLE_RE.test(u)).map((u) => publicationUrl(u) || u); }
 
 // 1件の監査。candidate = { description, cast(文字列 or 配列), related(URL配列 or {url,title}配列) }

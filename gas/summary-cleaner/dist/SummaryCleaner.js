@@ -442,9 +442,9 @@ const URL_RE = /https?:\/\/[^\s<>「」『』（）()"'、]+/g;
 const ARTICLE_RE = /^https?:\/\/(?:www\.asahi\.com\/(?:articles|[a-z]+\/articles)\/|digital\.asahi\.com\/articles\/|withnews\.jp\/article\/|globe\.asahi\.com\/article\/|book\.asahi\.com\/article\/|www\.asahi\.com\/special\/(?!podcasts))/;
 // 消してよいと監査側が確信できる定型だけ。迷うものは入れない。
 const DROP_LINE = /^See .*omnystudio\.com\/listener|Learn more about your ad choices|会員登録をお願い|購読料で配信|交流はdiscord|^ご意見・感想・リクエスト|おたよりフォーム|^メルマガ|広告ご検討の企業様|^番組検索ツール|^最新情報はX|^番組カレンダー|全話あります公式サイト|アプリで記者と対話|^朝ポキTV|ほかにも(?:多彩な)?番組を配信中|^★?ご感想はこちら/;
-const DROP_SECTION = /^【(?:おねがい|朝ポキ情報|お知らせ|イベント)/;
+const DROP_SECTION = /^【(?:おねがい|朝ポキ情報|お知らせ|イベント)|^【[^】]*(?:参加|フェス|募集|告知|プレゼント|チケット|キャンペーン)[^】]*】\s*$/;
 const STAFF_SECTION = /^【(?:出演[・／/]スタッフ|出演者|スタッフ|出演)】/;
-const RELATED_SECTION = /^【(?:関連記事|関連リンク|写真まとめ|特集ページ|まとめてわかる)/;
+const RELATED_SECTION = /^【(?:関連記事|関連リンク|写真まとめ|特集ページ|まとめてわかる)|^【[^】]*(?:関連|参考|アーカイブ)[^】]*】\s*$/;
 const AMBIG_LINE = /^[★※▼■◆]|募集|お寄せください|応募|申し込み|配信します|収録しました|プレゼント|イベント|フォロー/;
 
 // 原文を行に分け、監査側の期待（KEEP/DROP/STAFF/RELATED/AMBIGUOUS）を付ける。
@@ -464,6 +464,9 @@ function classifyRawLines(raw) {
     else expect = 'KEEP';
     out.push({ i, text, len: text.length, expect, section });
   });
+  for (let k = 0; k + 1 < out.length; k++) {   // 見出し行の直後がURLだけの行なら、その見出しは関連リンクの見出し（本文として採点しない）
+    if (/^\s*(?:https?:\/\/\S+\s*)+$/.test(out[k + 1].text) && out[k].expect === 'KEEP') out[k].expect = 'RELATED';
+  }
   return out;
 }
 const grams = (t, k = 3) => { const s = new Set(); for (let i = 0; i + k <= t.length; i++) s.add(t.slice(i, i + k)); return s; };
@@ -474,7 +477,7 @@ function coverage(line, cleaned) {
   let hit = 0; for (const x of g) if (h.has(x)) hit++; return hit / g.size;
 }
 const PROPER = /「[^」]{2,30}」|[ァ-ヴー]{3,}|[A-Za-z][A-Za-z0-9&.\-]{2,}|#\d+/g;
-const CAST_BAD = /https?:|会員登録|discord|おたより|フォーム|@|購読|配信中|メルマガ|ご意見/i;
+const CAST_BAD = /会員登録|discord|おたより|お便り|フォーム|購読|配信中|メルマガ|ご意見|フォロー/i;   // 出演者の個人リンク（URL）は混入ではない
 function articleUrls(text) { return [...String(text || '').matchAll(URL_RE)].map((m) => m[0].replace(/[.,;]+$/, '')).filter((u) => ARTICLE_RE.test(u)).map((u) => publicationUrl(u) || u); }
 
 // 1件の監査。candidate = { description, cast(文字列 or 配列), related(URL配列 or {url,title}配列) }
@@ -577,7 +580,7 @@ const STAFF_HEAD = H('出演[・／/]?スタッフ|出演者|出演|スタッフ
 const RELATED_HEAD = H('関連記事|関連リンク|関連URL|参考記事|写真まとめ|特集ページ|まとめてわかる');
 const DROP_HEAD = H('おねがい|お願い|朝ポキ情報|お知らせ|イベント|告知|募集|プレゼント|お便り募集|おたより募集|SNS');
 // 定型の宣伝・広告（行ごと除去）。本編の話題（Xの騒動・イベントの報道）を誤って消さないよう、宣伝の言い回しに限る。
-const PROMO = /See .*omnystudio\.com\/listener|Learn more about your ad choices|購読料で配信|会員登録をお願い|^交流はdiscord|^ご意見・感想・リクエスト|おたよりフォーム|^メルマガ|広告ご検討の企業様|^番組検索ツール|^最新情報はX|^番組カレンダー|全話あります公式サイト|アプリで記者と対話|^朝ポキTV|ほかにも(?:多彩な)?番組を配信中|^★?ご感想はこちら|フォローをお願い|フォローしてね|チャンネル登録|^(?:X|Twitter|Instagram|インスタ)(?:\s*[:：]|\s*はこちら|\s*https?:)|配信、テキストでも読めます/i;
+const PROMO = /See .*omnystudio\.com\/listener|Learn more about your ad choices|購読料で配信|会員登録をお願い|^交流はdiscord|^ご意見・感想・リクエスト|おたよりフォーム|^メルマガ|広告ご検討の企業様|^番組検索ツール|^最新情報はX|^番組カレンダー|全話あります公式サイト|アプリで記者と対話|^朝ポキTV|ほかにも(?:多彩な)?番組を配信中|^★?ご感想はこちら|フォローをお願い|フォローしてね|チャンネル登録|^(?:X|Twitter|Instagram|インスタ)(?:\s*[:：]|\s*はこちら|\s*https?:)|配信、テキストでも読めます|フォロー[、,]?\s*お願い|お便りは|お便りを|discord|ディスコード/i;
 const EVENT_PROMO = /(?:募集|応募|申し込み|申込|お申し込み|参加者|チケット|エントリー|アンケート|フォーム|お寄せください|お待ちしています)/;
 
 // 原文を見出しで区切った節に分ける（見出しを境界として扱う。全削除の正規表現にしない）
@@ -590,6 +593,7 @@ function sections(raw) {
     else if ((m = l.match(RELATED_HEAD)) && /^\s*(?:【|\[|［|〔|■|◆|▼|●)/.test(l)) start('related', m[0].trim(), l.slice(m[0].length).trim());
     else if ((m = l.match(DROP_HEAD)) && /^\s*(?:【|\[|［|〔|■|◆|▼|●)/.test(l)) start('drop', m[0].trim(), l.slice(m[0].length).trim());
     else if ((m = l.match(BODY_HEAD)) && /^\s*(?:【|\[|［|〔|■|◆|▼|●)/.test(l)) start('body', m[0].trim(), l.slice(m[0].length).trim());
+    else if (/^\s*【[^】]{1,40}】\s*$/.test(l)) start(/関連|参考|記事|リンク|アーカイブ/.test(l) ? 'related' : /参加|イベント|フェス|募集|お知らせ|告知|プレゼント|チケット|会員|キャンペーン|SNS|フォロー/.test(l) ? 'drop' : 'body', l.trim(), '');   // 名前の決まっていない見出しだけの行も境界にする
     else cur.lines.push(l);
   }
   out.push(cur); return out.filter((s) => s.lines.length || s.head);
@@ -611,8 +615,8 @@ function parseCastLine(line) {
 function cleanV4(raw) {
   const src = String(raw ?? '');
   if (!src.trim()) return { ok: false, holds: ['RAW_EMPTY'], text: '', cast: [], related: [], socials: [], removed: [] };
-  const secs = sections(src), body = [], cast = [], related = [], removed = [], socials = [], holds = [];
-  const pushRel = (title, url) => { const clean = cleanUrl(url); if (related.some((r) => r.url === clean)) return; related.push({ title: T(title).replace(/^【[^】]*】/, '').trim(), url: clean, originalUrl: url, source: '概要原文' }); };
+  const secs = sections(src), body = [], cast = [], related = [], removed = [], socials = [], holds = [], notes = [];
+  const pushRel = (title, url, kind) => { const clean = cleanUrl(url); if (related.some((r) => r.url === clean)) return; related.push({ title: T(title).replace(/^【[^】]*】/, '').trim(), url: clean, originalUrl: url, kind: kind || 'article', source: '概要原文' }); };
   for (const s of secs) {
     if (s.kind === 'drop') { removed.push({ reason: 'SECTION_' + s.head, lines: s.lines.length }); continue; }
     if (s.kind === 'staff') {
@@ -629,9 +633,13 @@ function cleanV4(raw) {
         continue;
       }
       if (s.kind === 'related') {   // 関連節の中の見出し行（次行がURL）は body に一時置き、次の記事URLで回収
-        if (us.length && !art.length) { if (EVENT_PROMO.test(l) || us.some((u) => SNS_URL.test(u))) { removed.push({ reason: 'RELATED_PROMO' }); continue; } holds.push('RELATED_NONARTICLE_REVIEW'); removed.push({ reason: 'RELATED_NONARTICLE_HELD' }); continue; }
-        const nx = s.lines[i + 1] || ''; if (urlsOf(nx).some((u) => ARTICLE_URL.test(u)) && !stripUrls(nx)) { body.push(text); continue; }
-        if (text) { holds.push('RELATED_TEXT_WITHOUT_URL'); body.push(text); } continue;
+        if (us.length && !art.length) {
+          if (EVENT_PROMO.test(l) || us.some((u) => SNS_URL.test(u))) { removed.push({ reason: 'RELATED_PROMO' }); continue; }
+          let title = text; if (!T(title) && i > 0 && body.length && body[body.length - 1] === stripUrls(s.lines[i - 1])) title = body.pop();
+          if (T(title)) { us.forEach((u) => pushRel(title, u, 'link')); continue; }   // 見出しつきの非記事リンク（動画・特集・短縮URL等）は種類 link として組で保存
+          holds.push('RELATED_NONARTICLE_REVIEW'); removed.push({ reason: 'RELATED_NONARTICLE_HELD' }); continue; }
+        const nx = s.lines[i + 1] || ''; if (urlsOf(nx).length && !stripUrls(nx)) { body.push(text); continue; }   // 次の行がURLだけ→見出しとして一時置き
+        if (text) notes.push(text); continue;   // 関連節の説明文は本文に混ぜず、関連記事JSONに note として保存
       }
       if (us.length) {
         if (us.every((u) => SNS_URL.test(u))) { socials.push(...us); removed.push({ reason: 'SNS_LINK' }); if (text && !/^[@＠]?\w+$/.test(text)) body.push(text); continue; }
@@ -645,19 +653,21 @@ function cleanV4(raw) {
   // 閉じていない見出し行（関連節で回収されなかった見出し）が本文末尾に残らないよう、関連節由来の行は本文から外さない＝そのまま（要確認で拾う）
   const text = body.join('\n').replace(/\s*(?:ご意見・感想・リクエスト|ほかにも(?:多彩な)?番組を配信中|Learn more about your ad choices)[\s\S]*$/i, '').replace(/[ 　]{2,}/g, ' ').trim();
   if (!text) holds.push('CONTENT_EMPTY');
+  notes.forEach((n) => related.push({ title: n, url: '', kind: 'note', source: '概要原文' }));
   return { ok: !holds.length, holds: [...new Set(holds)], text, cast, related, socials: [...new Set(socials)], removed };
 }
 
 // 台帳の書式に合わせる: 出演者=原文の行（リンク付き）を改行区切り、関連記事URL=記事URLを空白区切り
 const castCell = (cast) => cast.map((c) => c.raw.replace(/\s+/g, ' ').trim()).join('\n');
-const relatedCell = (related) => related.map((r) => r.url).join(' ');
+const relatedCell = (related) => related.filter((r) => r.kind === 'article' && r.url).map((r) => r.url).join(' ');
 
 // 既存値が「原文から機械的に取り出しただけ」か（＝自動値。更新してよい）。原文に無い文字・URLを含むなら人の手が入った可能性→保護
 function derivedFromRaw(existing, raw) {
   const ex = T(existing); if (!ex) return true;
   const src = descriptionLines(String(raw ?? '').replace(/<!\[CDATA\[|\]\]>/g, '')).join('\n'), srcN = NZ(stripUrls(src)), srcUrls = new Set(urlsOf(src).map(cleanUrl));
   if (urlsOf(ex).some((u) => !srcUrls.has(cleanUrl(u)))) return false;
-  return ex.split(/\n+/).every((l) => { const n = NZ(stripUrls(l)).replace(/^【[^】]*】/, ''); return !n || srcN.includes(n); });
+  const P = (t) => NZ(t).replace(/[、。，．・「」『』（）()【】\[\]！？!?…:：;；"'“”‘’〜~ー—–\-,／/|｜]/g, ''), srcP = P(stripUrls(src));
+  return stripUrls(ex).split(/[\n。！？／/|｜,、]+/).every((l) => { const n = P(l); return n.length < 2 || srcP.includes(n); });   // 書式（区切り・句読点・並べ方）が違っても、文字が原文にあれば自動値
 }
 
 // 診断用: 自動値とみなせなかった最初の理由（短く切る）
@@ -665,7 +675,8 @@ function explainDerived(existing, raw) {
   const ex = T(existing); if (!ex) return null;
   const src = descriptionLines(String(raw ?? '').replace(/<!\[CDATA\[|\]\]>/g, '')).join('\n'), srcN = NZ(stripUrls(src)), srcUrls = new Set(urlsOf(src).map(cleanUrl));
   const u = urlsOf(ex).find((x) => !srcUrls.has(cleanUrl(x))); if (u) return { type: 'URL_NOT_IN_RAW', sample: u.slice(0, 80), rawUrls: [...srcUrls].slice(0, 3).map((x) => x.slice(0, 60)) };
-  const l = ex.split(/\n+/).find((x) => { const n = NZ(stripUrls(x)).replace(/^【[^】]*】/, ''); return n && !srcN.includes(n); });
+  const P = (t) => NZ(t).replace(/[、。，．・「」『』（）()【】\[\]！？!?…:：;；"'“”‘’〜~ー—–\-,／/|｜]/g, ''), srcP = P(stripUrls(src)); void srcN;
+  const l = stripUrls(ex).split(/[\n。！？／/|｜,、]+/).find((x) => { const n = P(x); return n.length >= 2 && !srcP.includes(n); });
   return l ? { type: 'TEXT_NOT_IN_RAW', sample: l.slice(0, 80) } : null;
 }
 
