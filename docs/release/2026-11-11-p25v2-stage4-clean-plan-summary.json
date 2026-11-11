@@ -1,0 +1,256 @@
+{
+ "backfill": 25,
+ "hold": [],
+ "summary": [
+  {
+   "ep": "EP-06696",
+   "row": 2,
+   "rawLen": 2440,
+   "cleanLen": 191,
+   "state": "清掃済",
+   "related": 3,
+   "staff": 3,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06697",
+   "row": 3,
+   "rawLen": 2195,
+   "cleanLen": 206,
+   "state": "清掃済",
+   "related": 3,
+   "staff": 3,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06698",
+   "row": 4,
+   "rawLen": 1878,
+   "cleanLen": 125,
+   "state": "清掃済",
+   "related": 1,
+   "staff": 3,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06699",
+   "row": 5,
+   "rawLen": 2565,
+   "cleanLen": 323,
+   "state": "清掃済",
+   "related": 3,
+   "staff": 3,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06700",
+   "row": 6,
+   "rawLen": 5195,
+   "cleanLen": 202,
+   "state": "清掃済",
+   "related": 5,
+   "staff": 3,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06701",
+   "row": 7,
+   "rawLen": 5205,
+   "cleanLen": 187,
+   "state": "清掃済",
+   "related": 5,
+   "staff": 3,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06702",
+   "row": 8,
+   "rawLen": 2090,
+   "cleanLen": 144,
+   "state": "清掃済",
+   "related": 1,
+   "staff": 0,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06703",
+   "row": 9,
+   "rawLen": 4325,
+   "cleanLen": 243,
+   "state": "清掃済",
+   "related": 4,
+   "staff": 3,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06704",
+   "row": 10,
+   "rawLen": 580,
+   "cleanLen": 89,
+   "state": "清掃済",
+   "related": 0,
+   "staff": 3,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06705",
+   "row": 11,
+   "rawLen": 3050,
+   "cleanLen": 365,
+   "state": "清掃済",
+   "related": 3,
+   "staff": 3,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06706",
+   "row": 12,
+   "rawLen": 610,
+   "cleanLen": 85,
+   "state": "清掃済",
+   "related": 1,
+   "staff": 0,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06707",
+   "row": 13,
+   "rawLen": 2336,
+   "cleanLen": 286,
+   "state": "清掃済",
+   "related": 3,
+   "staff": 3,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06708",
+   "row": 14,
+   "rawLen": 595,
+   "cleanLen": 75,
+   "state": "清掃済",
+   "related": 1,
+   "staff": 0,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06709",
+   "row": 15,
+   "rawLen": 2678,
+   "cleanLen": 299,
+   "state": "清掃済",
+   "related": 3,
+   "staff": 3,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06710",
+   "row": 16,
+   "rawLen": 2293,
+   "cleanLen": 152,
+   "state": "清掃済",
+   "related": 2,
+   "staff": 3,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06711",
+   "row": 17,
+   "rawLen": 3326,
+   "cleanLen": 380,
+   "state": "清掃済",
+   "related": 3,
+   "staff": 3,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06712",
+   "row": 18,
+   "rawLen": 686,
+   "cleanLen": 161,
+   "state": "清掃済",
+   "related": 1,
+   "staff": 0,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06713",
+   "row": 19,
+   "rawLen": 4687,
+   "cleanLen": 226,
+   "state": "清掃済",
+   "related": 3,
+   "staff": 2,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06714",
+   "row": 20,
+   "rawLen": 2539,
+   "cleanLen": 319,
+   "state": "清掃済",
+   "related": 3,
+   "staff": 2,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06715",
+   "row": 21,
+   "rawLen": 4471,
+   "cleanLen": 144,
+   "state": "要確認（清掃保留）",
+   "related": 17,
+   "staff": 0,
+   "holds": "RELATED_TEXT_WITHOUT_URL_REVIEW"
+  },
+  {
+   "ep": "EP-06716",
+   "row": 22,
+   "rawLen": 2553,
+   "cleanLen": 106,
+   "state": "清掃済",
+   "related": 5,
+   "staff": 5,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06717",
+   "row": 23,
+   "rawLen": 641,
+   "cleanLen": 117,
+   "state": "清掃済",
+   "related": 1,
+   "staff": 0,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06718",
+   "row": 24,
+   "rawLen": 638,
+   "cleanLen": 113,
+   "state": "清掃済",
+   "related": 1,
+   "staff": 0,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06719",
+   "row": 25,
+   "rawLen": 2648,
+   "cleanLen": 238,
+   "state": "清掃済",
+   "related": 3,
+   "staff": 3,
+   "holds": ""
+  },
+  {
+   "ep": "EP-06720",
+   "row": 26,
+   "rawLen": 4285,
+   "cleanLen": 177,
+   "state": "清掃済",
+   "related": 3,
+   "staff": 2,
+   "holds": ""
+  }
+ ]
+}

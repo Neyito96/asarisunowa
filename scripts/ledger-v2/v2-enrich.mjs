@@ -62,13 +62,33 @@ export function planSummaryCleaning(values, detailValues, cleanFn, version, at) 
 }
 // 既存の公開用整形 editDescription（public/library/description-editor.mjs）をそのまま使う清掃関数。原文は変えない。
 // 一行化は項目定義「改行はスペース化」に合わせる。保留(holds)があれば ok=false（清掃失敗ではなく要確認）。
-export const CLEAN_VERSION = 'P25V2-' + DESCRIPTION_VERSION;
+// V2追加規則（既存 editDescription の前後に最小限を足す。実データ 26件で見つかった取りこぼしだけ）:
+//  前処理: 「〇〇は毎週X曜日に配信します」を文ごと除去（既存規則は文の途中で切れて主語が残るため）
+//  後処理: 共通案内・SNS・購読/広告/アプリ案内の行を本文と出演欄から除去、出演欄は【…】や★で始まる案内で打ち切り、
+//          本文中の「見出し + asahi.com 記事URL」を関連記事へ移す。人名・役割・事実の文は消さない。
+export const CLEAN_VERSION = 'P25V2-' + DESCRIPTION_VERSION + '+v2rules-1';
+const PROMO_LINE = /^(?:★|【(?:おねがい|朝ポキ情報|お知らせ)】|ご意見・感想・リクエスト|ほかにも(?:多彩な)?番組を配信中|朝日新聞ポッドキャストは、みなさまからの購読料|番組継続のため|アプリで記者と対話|交流はdiscord|おたよりフォーム|朝ポキTV|メルマガ|広告ご検討の企業様|番組検索ツール|最新情報はX|番組カレンダー|全話あります公式サイト|Learn more about your ad choices|See .*omnystudio)/i;
+const ARTICLE = /(https?:\/\/www\.asahi\.com\/articles\/[A-Za-z0-9]+\.html)(?:\?[^\s]*)?/;
 export function v2CleanSummary(raw) {
-  const r = editDescription(raw);
-  const text = r.description.replace(/\s*\n+\s*/g, ' ').replace(/[ \u3000]{2,}/g, ' ').trim();
-  return { ok: r.holds.length === 0, text, reason: r.holds.join(','), holds: r.holds,
-    related: r.relatedArticles.map((a) => ({ title: a.title === a.originalUrl ? '' : a.title, url: a.url })),
-    staff: r.staff.map((x) => x.trim()).filter(Boolean), removed: r.removed.map((x) => x.reason), recording: r.recording };
+  const pre = String(raw ?? '').replace(/[^。>\s]*?は毎週[月火水木金土日]曜日に配信します。?/g, '');
+  const r = editDescription(pre);
+  const related = r.relatedArticles.map((a) => ({ title: a.title === a.originalUrl ? '' : a.title, url: a.url }));
+  const removed = r.removed.map((x) => x.reason), keep = [];
+  for (const para of r.description.split(/\n+/)) {
+    const line = para.trim(); if (!line) continue;
+    if (PROMO_LINE.test(line)) { removed.push('V2_PROMO_LINE'); continue; }
+    const m = line.match(ARTICLE);
+    if (m) { let title = line.slice(0, m.index).replace(/[\s【】]+$/g, '').trim(); const url = m[1];
+      if (!title && keep.length) title = keep.pop();   // 見出しとURLが別の行（<br>区切り）のとき直前の行を見出しにする
+      if (!related.some((x) => x.url === url)) related.push({ title: title.replace(/^【[^】]*】/, '').trim() || '', url });
+      const rest = line.slice(m.index + m[0].length).trim(); if (rest && !PROMO_LINE.test(rest)) keep.push(rest); removed.push('V2_INLINE_ARTICLE'); continue; }
+    keep.push(line);
+  }
+  // 本文の末尾に残る案内（同じ段落に連結された場合）も切る
+  let text = keep.join(' ').replace(/\s*(?:ご意見・感想・リクエスト|ほかにも(?:多彩な)?番組を配信中|Learn more about your ad choices)[\s\S]*$/i, '').replace(/[ 　]{2,}/g, ' ').trim();
+  const staff = []; for (const x of r.staff) { const t = x.trim(); if (!t) continue; if (PROMO_LINE.test(t) || /^【/.test(t)) break; staff.push(t.replace(/\s*https?:\/\/\S+/g, '').trim()); }
+  const holds = [...r.holds]; if (!text) holds.push('CONTENT_EMPTY');
+  return { ok: holds.length === 0, text, reason: [...new Set(holds)].join(','), holds: [...new Set(holds)], related, staff: staff.filter(Boolean), removed, recording: r.recording };
 }
 // 出演者・関連記事: 抽出関数を注入。確信度の低いもの（confidence < min）は書かずに HOLD。既存値がある列は書かない。
 export function planCastAndRelated(values, detailValues, { extractCast, extractRelated, minConfidence = 0.9 }) {
@@ -98,4 +118,17 @@ export function pendingWork(values, detailValues = [[]], urlStateRows = []) {
     if (!s(x.r[idx['出演者']])) need.push('出演者'); if (!s(x.r[idx['関連記事URL']])) need.push('関連記事');
     return { epId: x.epId, need };
   }).filter((p) => p.need.length);
+}
+// 概要原文の後日補完: 収蔵詳細の概要原文が空で、記録済みのSHA256（先頭16桁でも可）・文字数が取得した原文と一致する行だけに入れる。違えば HOLD。
+export function planRawBackfill(detailValues, rawByGuid, { via = '公式RSS（封緘転送）', at = '' } = {}) {
+  const h = detailValues[0].map(s), d = Object.fromEntries(h.map((n, i) => [n, i])), out = [], hold = [];
+  detailValues.slice(1).forEach((r, i) => {
+    const ep = s(r[d['EP-ID']]), g = s(r[d['公式GUID']]).toLowerCase(), have = String(r[d['概要原文']] ?? '');
+    const x = rawByGuid[g]; if (!ep || !x || have.trim()) return;
+    const sha = s(x.sha256), rec = s(r[d['概要原文SHA256']]), len = s(r[d['概要原文文字数']]);
+    if (rec && !sha.startsWith(rec)) { hold.push({ ep, why: 'SHA_MISMATCH' }); return; }
+    if (len && +len !== String(x.descriptionRaw).length) { hold.push({ ep, why: 'LENGTH_MISMATCH' }); return; }
+    out.push({ row: i + 2, epId: ep, 概要原文: String(x.descriptionRaw), 概要原文SHA256: sha, 概要原文文字数: String(String(x.descriptionRaw).length), 清掃状態: '未清掃', 原文取得方法: via, 取得日時: at || s(r[d['取得日時']]) });
+  });
+  return { updates: out, hold };
 }

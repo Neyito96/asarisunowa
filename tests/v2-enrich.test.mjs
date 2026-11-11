@@ -96,3 +96,28 @@ test('清掃計画: 収蔵詳細の追加列（清掃済み本文・関連記事
   assert.equal(planSummaryCleaning(V(), done, v2CleanSummary, CLEAN_VERSION, 'NOW').detailUpdates.length, 0);
   assert.equal(det[1][4].startsWith('本文です。\n'), true);
 });
+
+test('V2追加規則（実データで見つかった取りこぼし）: 出演欄は案内で打ち切り・URL除去、学校型の本文内記事は関連記事へ、共通案内・広告文を除去、配信予定文は文ごと除去', () => {
+  const omny = '<p>話題の本文です。</p> <p>※2026年10月5日に収録しました。3人のトークは毎週月曜日に配信します</p> <p>【出演・スタッフ】<br>山田太郎（音源編集）&nbsp;<a href="https://bit.ly/x">https://bit.ly/x</a><br>MC 佐藤花子（編集委員）</p> <p>【おねがい】<br>朝日新聞ポッドキャストは、みなさまからの購読料で配信しています。</p> <p>【朝ポキ情報】<br>交流はdiscord https://bit.ly/d</p><p>See <a href="https://omnystudio.com/listener">omnystudio.com/listener</a> for privacy information.</p>';
+  const a = v2CleanSummary(omny);
+  assert.equal(a.text, '話題の本文です。 ※2026年10月5日に収録しました。');
+  assert.deepEqual(a.staff, ['山田太郎（音源編集）', 'MC 佐藤花子（編集委員）']);
+  const mega = '<p>ニュースの説明文。</p>\n<p>記事の見出しです<br><a href="https://www.asahi.com/articles/ASV1.html?iref=omny">https://www.asahi.com/articles/ASV1.html?iref=omny</a>&nbsp;</p>\n<p>ご意見・感想・リクエスト <a href="https://bit.ly/q">https://bit.ly/q</a><br>ほかにも多彩な番組を配信中！ <a href="http://t.asahi.com/w">http://t.asahi.com/w</a></p><p>Learn more about your ad choices. Visit <a href="https://megaphone.fm/adchoices">megaphone.fm/adchoices</a></p>';
+  const b = v2CleanSummary(mega);
+  assert.equal(b.text, 'ニュースの説明文。');
+  assert.deepEqual(b.related, [{ title: '記事の見出しです', url: 'https://www.asahi.com/articles/ASV1.html' }]);
+  assert.equal(b.ok, true); assert.ok(CLEAN_VERSION.endsWith('+v2rules-1'));
+});
+
+test('原文の後日補完: 記録済みSHA256(先頭一致)・文字数が一致する空欄行だけ。違えば HOLD、既に原文がある行は触らない（再実行差分0）', async () => {
+  const { planRawBackfill } = await import('../scripts/ledger-v2/v2-enrich.mjs');
+  const crypto = await import('node:crypto'); const sha = (t) => crypto.createHash('sha256').update(t).digest('hex');
+  const t1 = '本文A', t2 = '本文B';
+  const det = [DH, ['EP-1', 'g1', '', '', '', sha(t1).slice(0, 16), String(t1.length), '原文未取得（長さ・ハッシュのみ確認）', '', '', '', '', '', '', '', '', ''],
+    ['EP-2', 'g2', '', '', '', 'ffffffffffffffff', '3', '', '', '', '', '', '', '', '', '', ''], ['EP-3', 'g3', '', '', '既にある', '', '', '未清掃', '', '', '', '', '', '', '', '', '']];
+  const raw = { g1: { descriptionRaw: t1, sha256: sha(t1) }, g2: { descriptionRaw: t2, sha256: sha(t2) }, g3: { descriptionRaw: 'x', sha256: sha('x') } };
+  const r = planRawBackfill(det, raw, { at: 'T' });
+  assert.deepEqual(r.updates.map((u) => [u.epId, u.概要原文, u.概要原文SHA256 === sha(t1), u.清掃状態]), [['EP-1', '本文A', true, '未清掃']]);
+  assert.deepEqual(r.hold, [{ ep: 'EP-2', why: 'SHA_MISMATCH' }]);
+  const det2 = det.map((x) => [...x]); det2[1][4] = t1; assert.equal(planRawBackfill(det2, raw).updates.length, 0);
+});

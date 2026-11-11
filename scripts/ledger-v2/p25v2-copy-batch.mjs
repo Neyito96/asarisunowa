@@ -2,7 +2,7 @@
 // plan   : node p25v2-copy-batch.mjs plan   <COPY 統合 A1:J.json> <採番履歴.json> <収蔵詳細.json|none> <rss-items.json> <maxRowsCap> <copyId> <copyName> <out.json> [readonly]
 //          readonly を付けると全候補の予定採番だけを出す（書込計画なし）
 // verify : node p25v2-copy-batch.mjs verify <plan.json> <読み戻し 統合 A{start}:AH{end}.json(values)>
-import fs from 'node:fs'; import vm from 'node:vm';
+import fs from 'node:fs'; import vm from 'node:vm'; import crypto from 'node:crypto';
 const sb = { module: { exports: {} } };
 vm.runInNewContext(fs.readFileSync(new URL('../google-apps-script/P25V2IngestAdapter.js', import.meta.url), 'utf8'), sb);
 const A = sb.module.exports, H = [...A.HEADERS];
@@ -24,7 +24,7 @@ if (mode === 'plan') {
     readDetails: () => det, appendDetails: (rows) => { P.details = { startRow: det.length + 1, rows }; return det.length + 1; },
     markNumberingRows: (list) => { P.marks.push(...list); } };
   const cfg = { environment: 'COPY', targetSpreadsheetId: id, expectedTargetId: id, sheetName: A.SHEET, scope: A.SCOPE, write: !ro, maxRowsCap: +cap };
-  const r = A.ingest(io, cfg, items, { write: !ro, maxRows: +cap, planAll: !!ro, now: () => now, sha256: () => '' });
+  const r = A.ingest(io, cfg, items, { write: !ro, maxRows: +cap, planAll: !!ro, now: () => now, sha256: (x) => crypto.createHash('sha256').update(x).digest('hex') });
   const outObj = { mode: r.mode, at: now, counts: r.counts, rowsBefore: r.rowsBefore, publicBefore: r.publicBefore, publicAfter: r.publicAfter, plan: r.plan,
     hold: r.decisions.filter((d) => d.decision === 'HOLD'), block: r.decisions.filter((d) => d.decision === 'BLOCK'), metadataChange: r.decisions.filter((d) => d.decision === 'METADATA_CHANGE'), repaired: r.numberingRepaired, writes: ro ? null : P };
   fs.writeFileSync(out, JSON.stringify(outObj, null, 1));
