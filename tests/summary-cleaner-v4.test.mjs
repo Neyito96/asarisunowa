@@ -114,7 +114,8 @@ test('配布GAS模擬: 点検→清掃監査（結果シート・進捗）→再
   assert.equal(r1[Hh.indexOf('判定')], '自動検査合格・目視未確認'); assert.equal(r1[Hh.indexOf('新・概要')], '一の本文です。'); assert.deepEqual(JSON.parse(r1[Hh.indexOf('関連記事JSON(見出し+URL)')]).map((x) => [x.title, x.url]), [['一の記事見出し', 'https://www.asahi.com/articles/ASX1.html']]);
   assert.equal(r2[Hh.indexOf('判定')], '要確認'); assert.match(r2[Hh.indexOf('理由')], /MANUAL_EDIT_PROTECTED/); assert.equal(r3[Hh.indexOf('判定')], 'HOLD');
   const snap = JSON.stringify(res); const again = e.run('S2_清掃監査'); assert.equal(again.updated, 0); assert.equal(JSON.stringify(res), snap);   // 再実行で差分0
-  const a = e.run('S3A_COPYへ反映_試験10件'); assert.equal(a.status, 'OK'); assert.equal(a.episodes, 1);
+  copyL[1][N] = '一の本文です。';   // 前回の反映が途中で止まり、書けたのに履歴が無い状態を再現
+  const a = e.run('S3A_COPYへ反映_試験10件'); assert.equal(a.status, 'OK'); assert.equal(a.recoveredHistory, 1); assert.equal(e.books[COPY].sheets['清掃・反映履歴'].st.rows.filter((r) => r[7] === 'OK(回収)').length, 1);
   assert.equal(copyL[1][N], '一の本文です。'); assert.equal(copyL[1][P], 'https://www.asahi.com/articles/ASX1.html'); assert.equal(copyL[2][N], '人が直した概要'); assert.equal(copyL[3][N], '');
   assert.equal(e.run('S3B_COPYへ反映_全件').status, 'OK_NO_CHANGE');
   const v2 = e.books[V2W].sheets['V2・統合台帳'].st.rows, v2snap = JSON.stringify(v2);

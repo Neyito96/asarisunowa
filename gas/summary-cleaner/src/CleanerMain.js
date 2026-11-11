@@ -136,7 +136,7 @@ function scApply_(targetId, nameIncludes, level, label, maxEpisodes) {
     var H = {}; SC_HEADERS_.forEach(function (n, i) { H[n] = i; });
     var cur = res.getLastRow() > 1 ? res.getRange(2, 1, res.getLastRow() - 1, SC_HEADERS_.length).getDisplayValues() : [];
     var cols = { summary: L.ix.summary, cast: L.ix.cast, related: L.ix.related }, NEW = { summary: '新・概要', cast: '新・出演者', related: '新・関連記事URL' }, OLD = { summary: '旧・概要', cast: '旧・出演者', related: '旧・関連記事URL' };
-    var epCount = 0, applyId = new Date().toISOString() + '/' + label, now = new Date().toISOString(), writes = [], skip = {}, sk = function (w) { skip[w] = (skip[w] || 0) + 1; };
+    var recovered = [], epCount = 0, applyId = new Date().toISOString() + '/' + label, now = new Date().toISOString(), writes = [], skip = {}, sk = function (w) { skip[w] = (skip[w] || 0) + 1; };
     cur.forEach(function (r, ri) {
       if (writes.length >= SC_CONFIG.applyMaxPerRun || (maxEpisodes && epCount >= maxEpisodes)) return;
       var ok = String(r[H['人の確認']]).toUpperCase() === 'OK', v = r[H['判定']];
@@ -144,13 +144,19 @@ function scApply_(targetId, nameIncludes, level, label, maxEpisodes) {
       if (!r[H['書換可']]) { sk('NOTHING_TO_WRITE'); return; }
       var x = byEp[r[H['EP-ID']]]; if (!x) { sk('EP_NOT_IN_TARGET'); return; }
       if (r[H['公式GUID']] && x.guids.indexOf(String(r[H['公式GUID']]).toLowerCase()) < 0) { sk('GUID_MISMATCH'); return; }
-      var ks = String(r[H['書換可']]).split('+'), fine = ks.every(function (k) { return String(x[k]) === String(r[H[OLD[k]]]); });
-      if (!fine) { sk('CHANGED_SINCE_AUDIT'); return; }   // 監査後に誰かが直した値は守る（S2を再実行すると最新値で判定し直す）
+      var ks = String(r[H['書換可']]).split('+'), st = {};
+      ks.forEach(function (k) { st[k] = String(x[k]) === String(r[H[OLD[k]]]) ? 'old' : (!r[H['反映先']] && String(x[k]) === String(r[H[NEW[k]]])) ? 'done' : 'changed'; });
+      if (ks.some(function (k) { return st[k] === 'changed'; })) { sk('CHANGED_SINCE_AUDIT'); return; }   // 監査後に誰かが直した値は守る（S2を再実行すると最新値で判定し直す）
+      ks.filter(function (k) { return st[k] === 'done'; }).forEach(function (k) { recovered.push([now, applyId, label, x.ep, SC_COLS_[k], String(r[H[OLD[k]]]), String(r[H[NEW[k]]]), 'OK(回収)']); });   // 前回が途中で止まり、書けていたのに記録が無い列は履歴だけ回収
+      ks = ks.filter(function (k) { return st[k] === 'old'; });
+      if (!ks.length) { cur[ri][H['反映先']] = label; cur[ri][H['反映日時']] = now; return; }
       if (ks.some(function (k) { return /^[=+]/.test(String(r[H[NEW[k]]])); })) { sk('FORMULA_LIKE_VALUE_HOLD'); return; }
       epCount++;
       ks.forEach(function (k) { writes.push({ ri: ri, ep: x.ep, row: x.row, col: cols[k] + 1, colName: SC_COLS_[k], oldV: String(x[k]), newV: r[H[NEW[k]]] }); });
     });
     var histRows = [], bad = 0, byCol = {};
+    var pend = writes.map(function (w) { return [now, applyId, label, w.ep, w.colName, w.oldV, w.newV, '書込中']; }).concat(recovered), hStart = hist.getLastRow() + 1;
+    if (pend.length) { var pr = hist.getRange(hStart, 1, pend.length, SC_HIST_HEADERS_.length); pr.setNumberFormat('@'); pr.setValues(pend); SpreadsheetApp.flush(); PropertiesService.getScriptProperties().setProperty('SC_LAST_APPLY', applyId); }   // 先に履歴（旧値）を残してから書く＝途中で止まっても取消できる
     writes.forEach(function (w) { (byCol[w.col] = byCol[w.col] || []).push(w); });
     Object.keys(byCol).forEach(function (col) {   // 連続する行をまとめて書く（1セルずつ書くと遅く、時間切れで履歴が残らない恐れ）
       var ws = byCol[col].sort(function (a, b) { return a.row - b.row; }), i = 0;
@@ -161,9 +167,10 @@ function scApply_(targetId, nameIncludes, level, label, maxEpisodes) {
     var lastRow = t.sh.getLastRow(), back = {};
     Object.keys(byCol).forEach(function (col) { back[col] = t.sh.getRange(1, Number(col), lastRow, 1).getDisplayValues(); });   // 読み戻しは列ごとに1回
     writes.forEach(function (w) { var b = back[w.col][w.row - 1][0], st = b === String(w.newV) ? 'OK' : 'READBACK_MISMATCH'; if (st !== 'OK') bad++; histRows.push([now, applyId, label, w.ep, w.colName, w.oldV, w.newV, st]); cur[w.ri][H['反映先']] = label; cur[w.ri][H['反映日時']] = now; });
-    if (histRows.length) { var hr = hist.getRange(hist.getLastRow() + 1, 1, histRows.length, SC_HIST_HEADERS_.length); hr.setNumberFormat('@'); hr.setValues(histRows); res.getRange(2, 1, cur.length, SC_HEADERS_.length).setValues(cur); }
+    if (histRows.length) hist.getRange(hStart, 8, histRows.length, 1).setValues(histRows.map(function (h) { return [h[7]]; }));   // 書込中 → OK / READBACK_MISMATCH
+    if (pend.length) res.getRange(2, 1, cur.length, SC_HEADERS_.length).setValues(cur);
     PropertiesService.getScriptProperties().setProperty('SC_LAST_APPLY', applyId);
-    return { status: bad ? 'READBACK_MISMATCH' : writes.length ? 'OK' : 'OK_NO_CHANGE', target: label, level: level, cellsWritten: writes.length, episodes: Object.keys(writes.reduce(function (a, w) { a[w.ep] = 1; return a; }, {})).length, skipped: skip, applyId: applyId, ms: Date.now() - t0 };
+    return { status: bad ? 'READBACK_MISMATCH' : writes.length ? 'OK' : 'OK_NO_CHANGE', target: label, level: level, cellsWritten: writes.length, recoveredHistory: recovered.length, episodes: Object.keys(writes.reduce(function (a, w) { a[w.ep] = 1; return a; }, {})).length, skipped: skip, applyId: applyId, ms: Date.now() - t0 };
   } finally { lock.releaseLock(); }
 }
 // S3: COPYの台帳へ反映（自動検査合格＋人の確認OK）。まず10件だけ（S3A）→ 結果シート・反映履歴で確認 → 全件（S3B）
@@ -175,7 +182,7 @@ function S4_V2作業用へ反映() { return scLog_('S4_V2作業用へ反映', sc
 function S9_直前の反映を取消() {
   var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), hist = scSheet_(c.ss, SC_HISTORY_, SC_HIST_HEADERS_), id = PropertiesService.getScriptProperties().getProperty('SC_LAST_APPLY');
   if (!id || hist.getLastRow() < 2) return scLog_('S9_直前の反映を取消', { status: 'NOTHING_TO_UNDO' });
-  var rows = hist.getRange(2, 1, hist.getLastRow() - 1, SC_HIST_HEADERS_.length).getDisplayValues().filter(function (r) { return r[1] === id && r[7] === 'OK'; });
+  var rows = hist.getRange(2, 1, hist.getLastRow() - 1, SC_HIST_HEADERS_.length).getDisplayValues().filter(function (r) { return r[1] === id && /^OK|^書込中$/.test(r[7]); });
   if (!rows.length) return scLog_('S9_直前の反映を取消', { status: 'NOTHING_TO_UNDO' });
   var t = rows[0][2] === 'COPY' ? c : scOpen_(SC_CONFIG.v2WorkingId, ''), L = scLedger_(t.sh), byEp = {}, h = L.values[0], undone = 0, kept = 0, out = [];
   L.rows.forEach(function (r) { byEp[r.ep] = r; });
