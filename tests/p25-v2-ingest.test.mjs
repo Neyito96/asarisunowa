@@ -252,3 +252,21 @@ test('本番混入防止: .claspignore が COPY専用ファイルを除外し、
   }
   assert.ok(!fs.readFileSync('scripts/google-apps-script/P25V2IngestAdapter.js', 'utf8').match(/newTrigger|ScriptApp\.newTrigger|deleteTrigger/));
 });
+
+test('中断復旧の修復は「採番済」だけ。人が付けた「要確認」などの状態は書き換えない', () => {
+  const io = mockIo(v2([{ ep: 'EP-00001', show: 'ニュースの学校', title: 'x', guid: G(900) }]), { num: [[G(900), 'EP-00001', 'ニュースの学校', 'x', '要確認（原文・音声URL未取得）', '', '', '', '']] });
+  const r = A.ingest(io, cfg(), [item({ title: 'x' })], { write: true });
+  assert.equal(r.numberingRepaired.length, 0); assert.equal(io.st.num[1][4], '要確認（原文・音声URL未取得）');
+});
+
+test('COPY専用GASの依存関係: 使うGASサービスは許可済みのものだけ・他ファイルの関数に依存しない・権限雛形と一致', () => {
+  const src = fs.readFileSync('scripts/google-apps-script/P25V2IngestAdapter.js', 'utf8');
+  const used = new Set([...src.matchAll(/\b(SpreadsheetApp|UrlFetchApp|LockService|ScriptApp|Utilities|DriveApp|GmailApp|PropertiesService|MailApp|CacheService)\./g)].map((m) => m[1]));
+  assert.deepEqual([...used].sort(), ['LockService', 'ScriptApp', 'SpreadsheetApp', 'UrlFetchApp', 'Utilities']);
+  const defined = new Set([...src.matchAll(/function\s+([A-Za-z0-9_]+)\s*\(/g)].map((m) => m[1]));
+  const called = [...src.matchAll(/\b(p25v2[A-Za-z0-9_]*|P25V2_[A-Z_]+)\s*\(/g)].map((m) => m[1]);
+  assert.deepEqual(called.filter((f) => !defined.has(f)), []);                                     // 本アダプタ以外の関数を呼ばない
+  assert.ok(!/\b(p25[A-Z]|P25_RUN|SPREADSHEET_ID)\b/.test(src.replace(/\/\/[^\n]*/g, '').replace(/p25v2/g, '')));   // コメントを除いて検査            // Phase25本体・本番設定に依存しない
+  const scopes = JSON.parse(fs.readFileSync('docs/operations/p25v2-copy-gas/appsscript.json', 'utf8')).oauthScopes;
+  assert.deepEqual(scopes, ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/script.external_request', 'https://www.googleapis.com/auth/script.scriptapp']);
+});

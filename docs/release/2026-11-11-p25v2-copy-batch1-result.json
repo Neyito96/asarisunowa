@@ -1,0 +1,46 @@
+{
+ "copy": "…bnK1PY",
+ "batch": 1,
+ "cap": 10,
+ "counts": {
+  "CANDIDATE": 25,
+  "HOLD": 0,
+  "BLOCK": 5,
+  "ALREADY_INGESTED": 244,
+  "METADATA_CHANGE": 6
+ },
+ "epIds": [
+  "EP-06696",
+  "EP-06697",
+  "EP-06698",
+  "EP-06699",
+  "EP-06700",
+  "EP-06701",
+  "EP-06702",
+  "EP-06703",
+  "EP-06704",
+  "EP-06705"
+ ],
+ "writes": {
+  "採番履歴(採番済)": "A134:I143",
+  "台帳": "V2・統合台帳 A6558:AH6567",
+  "収蔵詳細": "A2:L11",
+  "採番履歴(登録完了)": "E134:H143"
+ },
+ "readbackMismatch": 0,
+ "existingRowsUnchanged": true,
+ "publicCount": 6033,
+ "after": {
+  "readonlyReplan": {
+   "CANDIDATE": 15,
+   "ALREADY_INGESTED": 254,
+   "next": "EP-06706〜EP-06720"
+  },
+  "numberingAudit": {
+   "missingInRange": 0,
+   "unusedNumbers": 0,
+   "next": "EP-06706"
+  }
+ },
+ "note": "採番済の記録は最初の計画(07:52:38)の時刻で書き、修復範囲の修正後に再計画(07:52:50)。番号・GUIDは同一。"
+}

@@ -223,7 +223,7 @@ function p25v2Ingest_(io, config, items, opts) {
   var numbering = io.readNumbering ? p25v2Numbering_(io.readNumbering()) : null;
   if (!numbering && config.requireNumbering !== false) throw new Error('NUMBERING_SOURCE_REQUIRED');
   var reserved = Number(config.reservedMaxEpNo || 0);
-  var todo = decisions.filter(function (d) { return d.decision === 'CANDIDATE'; }).sort(P25V2_DATE_SORT_).slice(0, maxRows);   // 古い順に採番
+  var todo = decisions.filter(function (d) { return d.decision === 'CANDIDATE'; }).sort(P25V2_DATE_SORT_).slice(0, (!write && opts.planAll) ? Infinity : maxRows);   // 古い順に採番（READ_ONLY+planAll は全候補の予定採番）
   // 予定採番（READ_ONLYでも出す）
   var simNum = (numbering || []).map(function (n) { return { row: n.row, guid: n.guid, epId: n.epId, state: n.state }; }), simRows = recs.rows.slice();
   var allocs = todo.map(function (d) {
@@ -240,7 +240,7 @@ function p25v2Ingest_(io, config, items, opts) {
     decisions.filter(function (d) { return d.decision === 'ALREADY_INGESTED'; }).forEach(function (d) {
       var g = p25v2Guids_(d.item)[0], n = numbering.filter(function (x) { return x.guid === g; })[0];
       var led = recs.rows.filter(function (r) { return r.epId === d.existing; })[0];
-      if (n && led && n.epId === d.existing && n.state !== '登録完了') fix.push({ row: n.row, state: '登録完了', at: nowF(), ledgerRow: led.row, epId: n.epId });
+      if (n && led && n.epId === d.existing && n.state === '採番済') fix.push({ row: n.row, state: '登録完了', at: nowF(), ledgerRow: led.row, epId: n.epId });
     });
     if (fix.length) { io.markNumberingRows(fix); res.numberingRepaired = fix.map(function (f) { return f.epId; }); }
   }

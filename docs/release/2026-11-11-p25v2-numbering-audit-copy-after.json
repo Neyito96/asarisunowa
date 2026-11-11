@@ -1,0 +1,54 @@
+{
+ "generatedAt": "2026-11-11T07:55:05.868Z",
+ "counts": {
+  "history": 141,
+  "v2Eps": 6565,
+  "prod59Eps": 6694,
+  "deletedEps": 140
+ },
+ "max": {
+  "history": "EP-06705",
+  "v2": "EP-06705",
+  "prod59": "EP-06694"
+ },
+ "historyDuplicateEp": [],
+ "historyDuplicateGuid": [],
+ "historyGuidMismatchWithLedger": [],
+ "historyGuidOnOtherLedgerEp": [
+  "EP-00287",
+  "EP-00288",
+  "EP-00289",
+  "EP-00300",
+  "EP-00302",
+  "EP-00303",
+  "EP-00304",
+  "EP-00305",
+  "EP-00306",
+  "EP-00307",
+  "EP-06595",
+  "EP-06596",
+  "EP-06597"
+ ],
+ "historyEpNotInV2": [],
+ "historyNotCompleted": [
+  {
+   "ep": "EP-06632",
+   "state": "要確認（原文・音声URL未取得）"
+  }
+ ],
+ "v2EpsMissingFromHistory": {
+  "total": 6424,
+  "inRange": []
+ },
+ "unusedNumbersBelowMax": [],
+ "unusedNumbersBelowMaxCount": 0,
+ "backfill": {
+  "eligible": 0,
+  "hold": [],
+  "epIds": []
+ },
+ "idSafety": {
+  "rule": "next = max(V2, 本番59列, 採番履歴, 削除済み一覧) + 1。欠番は再利用しない。同GUIDの採番済は同番号を再利用",
+  "nextIfIngestedNow": "EP-06706"
+ }
+}
