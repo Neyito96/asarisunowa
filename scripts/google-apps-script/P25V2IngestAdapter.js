@@ -173,71 +173,138 @@ function p25v2AssertCopyTarget_(config, actual, forWrite) {
   return true;
 }
 
-// 中核処理（I/O 注入）。io: open() -> {id,name,sheetName}, readAll() -> values, appendRow(row) -> rowNumber, readRow(n) -> values[]
+// ---- 別表（V2本体34列は変えない。後日補完・清掃・索引をここで管理）----
+// 収蔵詳細: 1EP=1行。概要原文はここだけに保全し、清掃結果は別列（原文は上書きしない）。
+var P25V2_DETAIL_SHEET_ = 'V2・収蔵詳細';
+var P25V2_DETAIL_HEADERS_ = ['EP-ID', '公式GUID', '取得元', '取得日時', '概要原文', '概要原文SHA256', '概要原文文字数', '清掃状態', '清掃版', '清掃日時', '清掃結果', '出典URL'];
+// URL状態: 1EP×1サービス=1行（縦持ち）。サービス追加で列は増えない。PR #281 resolveOne の返り値をそのまま記録できる形。
+var P25V2_URLSTATE_SHEET_ = 'V2・URL状態';
+var P25V2_URLSTATE_HEADERS_ = ['EP-ID', '公式GUID', 'サービス', 'URL', '状態', '理由', '確認日時', '根拠', '再試行予定'];
+var P25V2_HARD_CAP_ = 10;   // 1回の追記上限の絶対値（設定 maxRowsCap はこれ以下。既定1。引き上げは別承認）
+function p25v2DetailRow_(epId, item, at, sha) {
+  var raw = String(item.descriptionRaw == null ? '' : item.descriptionRaw);
+  var len = raw ? raw.length : Number(item.descLen || 0);
+  var state = raw ? '未清掃' : (len ? '原文未取得（長さ・ハッシュのみ確認）' : '原文なし');
+  return [epId, p25v2Guids_(item)[0] || '', p25v2T_(item.rss), at, raw, raw ? (sha ? sha(raw) : '') : p25v2T_(item.descSha256), String(len), state, '', '', '', p25v2T_(item.sourceUrl || item.rss)];
+}
+function p25v2SheetHeaderCheck_(values, headers, name) {
+  var h = (values && values[0] || []).map(p25v2T_);
+  headers.forEach(function (n, i) { if (h[i] !== n) throw new Error('SHEET_SCHEMA_MISMATCH ' + name + ':' + n); });
+}
+// 本番GASプロジェクトに混入していないか（doGet/doPost が同居していたら停止）・トリガーが無いか
+function p25v2AssertIsolated_(env) {
+  env = env || {};
+  if (env.hasDoGet || env.hasDoPost) throw new Error('NOT_ISOLATED_PROJECT');
+  if (env.triggerCount > 0) throw new Error('TRIGGERS_PRESENT');
+  return true;
+}
+var P25V2_DATE_SORT_ = function (a, b) { var x = p25v2DateKey_(a.item.date), y = p25v2DateKey_(b.item.date); var f = function (k) { return k.split('-').map(function (n) { return ('0000' + n).slice(-4); }).join(''); }; return f(x) < f(y) ? -1 : f(x) > f(y) ? 1 : 0; };
+
+// 中核処理（I/O 注入・小バッチ）。
+// io: open() -> {id,name,sheetName}, readAll(), appendRows(rows)->先頭行, readRows(n,k), readNumbering(), appendNumberingRows(rows)->先頭行,
+//     markNumberingRows([{row,state,at,ledgerRow}]), [readDetails(), appendDetails(rows)]
+// 順序（チェックポイント）: 採番履歴「採番済」(一括) → 台帳追記(一括) → 読み戻し → 収蔵詳細 → 採番履歴「登録完了」(読み戻し一致分のみ)。
+// どこで止まっても、再実行で 採番済の番号を再利用／台帳にある分は ALREADY_INGESTED＋採番修復 となり、二重登録も欠番も生じない。
 function p25v2Ingest_(io, config, items, opts) {
   opts = opts || {};
-  var write = opts.write === true, maxRows = Math.min(Number(opts.maxRows || 1), 1);
+  var write = opts.write === true;
+  var cap = Math.min(Number(config.maxRowsCap || 1), P25V2_HARD_CAP_);
+  var maxRows = Math.max(0, Math.min(Number(opts.maxRows || 1), cap));
+  var nowF = opts.now || function () { return new Date().toISOString(); };
   var actual = io.open();
   p25v2AssertCopyTarget_(config, actual, write);
   var before = io.readAll(), recs = p25v2Records_(before);
   var decisions = p25v2Classify_(recs.rows, items || []);
   var count = function (d) { return decisions.filter(function (x) { return x.decision === d; }).length; };
-  var res = { mode: write ? 'COPY_WRITE' : 'READ_ONLY_DRY_RUN', rowsBefore: recs.rows.length, publicBefore: p25v2PublicCount_(recs.rows),
+  var res = { mode: write ? 'COPY_WRITE' : 'READ_ONLY_DRY_RUN', status: 'OK', rowsBefore: recs.rows.length, publicBefore: p25v2PublicCount_(recs.rows),
     counts: { CANDIDATE: count('CANDIDATE'), HOLD: count('HOLD'), BLOCK: count('BLOCK'), ALREADY_INGESTED: count('ALREADY_INGESTED'), METADATA_CHANGE: count('METADATA_CHANGE') },
-    decisions: decisions.map(function (d) { return { guid: p25v2Guids_(d.item)[0] || '', show: p25v2T_(d.item.show), decision: d.decision, reasons: d.reasons, existing: d.existing || '' }; }),
-    added: 0, addedEpIds: [] };
-  var todo = decisions.filter(function (d) { return d.decision === 'CANDIDATE'; }).slice(0, maxRows);
-  // 中断復旧: 台帳には入ったが採番履歴が「採番済」のまま → 同GUID・同EP-IDなら「登録完了」へ直す（書込モードのみ）
-  if (write && io.readNumbering) {
-    var numb = p25v2Numbering_(io.readNumbering()), nowR = (opts.now || function () { return new Date().toISOString(); })();
-    res.numberingRepaired = [];
-    decisions.filter(function (d) { return d.decision === 'ALREADY_INGESTED'; }).forEach(function (d) {
-      var g = p25v2Guids_(d.item)[0], n = numb.filter(function (x) { return x.guid === g; })[0];
-      var led = recs.rows.filter(function (r) { return r.epId === d.existing; })[0];
-      if (n && led && n.epId === d.existing && n.state !== '登録完了') { io.markNumbering(n.row, '登録完了', nowR, led.row); res.numberingRepaired.push(n.epId); }
-    });
-  }
-  if (!write || !todo.length) return res;
-  var reserved = Number(config.reservedMaxEpNo || 0);
+    decisions: decisions.map(function (d) { return { guid: p25v2Guids_(d.item)[0] || '', show: p25v2T_(d.item.show), date: p25v2T_(d.item.date), decision: d.decision, reasons: d.reasons, existing: d.existing || '' }; }),
+    added: 0, addedEpIds: [], numberingRepaired: [], plan: [] };
   var numbering = io.readNumbering ? p25v2Numbering_(io.readNumbering()) : null;
   if (!numbering && config.requireNumbering !== false) throw new Error('NUMBERING_SOURCE_REQUIRED');
-  todo.forEach(function (d) {
-    var alloc = numbering ? p25v2Allocate_(recs.rows, numbering, p25v2Guids_(d.item)[0], reserved) : { epId: p25v2NextEpId_(recs.rows, reserved) };
-    var epId = alloc.epId, row = p25v2BuildRow_(recs.schema, d.item, epId), now = (opts.now || function () { return new Date().toISOString(); })();
-    if (numbering && !alloc.reused) { alloc.numberingRow = io.appendNumbering([p25v2Guids_(d.item)[0], epId, p25v2T_(d.item.show), p25v2T_(d.item.title), '採番済', now, '', '', 'P25V2']); numbering.push({ row: alloc.numberingRow, guid: p25v2Guids_(d.item)[0], epId: epId, state: '採番済' }); }
-    p25v2AssertCopyTarget_(config, io.open(), true);              // 書込直前に再検証
-    var after = io.readAll();
-    // Detect in-place edits as well as new/deleted rows. Row count alone is insufficient.
-    if (after.length !== before.length || JSON.stringify(after) !== JSON.stringify(before)) throw new Error('LEDGER_CHANGED_SINCE_READ');
-    p25v2Schema_(after[0]);
-    var n = io.appendRow(row);
-    if (n !== before.length + 1) throw new Error('APPEND_POSITION_UNEXPECTED');
-    var di = recs.schema.idx['配信日時 JST'];
-    var norm = function (r) { return r.map(function (v, i) { return i === di ? p25v2DateKey_(v) : p25v2T_(v); }); };   // シートが日時を日付型に変換しても値で比較
-    var back = norm(io.readRow(n));
-    var want = norm(row);
-    if (JSON.stringify(back.slice(0, want.length)) !== JSON.stringify(want)) throw new Error('READBACK_MISMATCH');
-    if (numbering) io.markNumbering(alloc.numberingRow, '登録完了', now, n);
-    res.added++; res.addedEpIds.push(epId); res.readbackOk = true; res.writtenRow = n; res.numberingReused = !!alloc.reused;
-    recs.rows.push({ row: n, epId: epId, show: d.item.show, title: d.item.title, judge: '未判定', rep: epId, guid: d.item.guid, jsonUuid: d.item.jsonUuid || '', officialUrl: d.item.officialUrl || '' });
+  var reserved = Number(config.reservedMaxEpNo || 0);
+  var todo = decisions.filter(function (d) { return d.decision === 'CANDIDATE'; }).sort(P25V2_DATE_SORT_).slice(0, maxRows);   // 古い順に採番
+  // 予定採番（READ_ONLYでも出す）
+  var simNum = (numbering || []).map(function (n) { return { row: n.row, guid: n.guid, epId: n.epId, state: n.state }; }), simRows = recs.rows.slice();
+  var allocs = todo.map(function (d) {
+    var g = p25v2Guids_(d.item)[0];
+    var al = numbering ? p25v2Allocate_(simRows, simNum, g, reserved) : { epId: p25v2NextEpId_(simRows, reserved), reused: false };
+    if (!al.reused) simNum.push({ row: 0, guid: g, epId: al.epId, state: '採番済' });
+    simRows.push({ epId: al.epId, show: d.item.show, title: d.item.title, guid: g, jsonUuid: '', officialUrl: '' });
+    res.plan.push({ epId: al.epId, reused: !!al.reused, guid: g, show: p25v2T_(d.item.show), date: p25v2T_(d.item.date) });
+    return al;
   });
+  // 中断復旧: 台帳にあるのに採番履歴が「採番済」→「登録完了」に修復（書込モードのみ）
+  if (write && numbering) {
+    var fix = [];
+    decisions.filter(function (d) { return d.decision === 'ALREADY_INGESTED'; }).forEach(function (d) {
+      var g = p25v2Guids_(d.item)[0], n = numbering.filter(function (x) { return x.guid === g; })[0];
+      var led = recs.rows.filter(function (r) { return r.epId === d.existing; })[0];
+      if (n && led && n.epId === d.existing && n.state !== '登録完了') fix.push({ row: n.row, state: '登録完了', at: nowF(), ledgerRow: led.row, epId: n.epId });
+    });
+    if (fix.length) { io.markNumberingRows(fix); res.numberingRepaired = fix.map(function (f) { return f.epId; }); }
+  }
+  if (!write || !todo.length) { res.publicAfter = res.publicBefore; return res; }
+  if (opts.deadlineMs && Date.now() > opts.deadlineMs) { res.status = 'PARTIAL_TIME'; return res; }
+  var at = nowF();
+  var rows = todo.map(function (d, i) { return p25v2BuildRow_(recs.schema, d.item, allocs[i].epId); });
+  // 1) 採番履歴「採番済」（再利用分は書かない）
+  var newNum = []; todo.forEach(function (d, i) { if (!allocs[i].reused) newNum.push(i); });
+  if (newNum.length) {
+    var first = io.appendNumberingRows(newNum.map(function (i) { return [p25v2Guids_(todo[i].item)[0], allocs[i].epId, p25v2T_(todo[i].item.show), p25v2T_(todo[i].item.title), '採番済', at, '', '', 'P25V2'] }));
+    newNum.forEach(function (i, k) { allocs[i].numberingRow = first + k; });
+  }
+  // 2) 書込直前の再検証（対象・台帳の不変・見出し）
+  p25v2AssertCopyTarget_(config, io.open(), true);
+  var after = io.readAll();
+  if (after.length !== before.length || JSON.stringify(after) !== JSON.stringify(before)) throw new Error('LEDGER_CHANGED_SINCE_READ');
+  p25v2Schema_(after[0]);
+  // 3) 台帳へ一括追記
+  var n0 = io.appendRows(rows);
+  if (n0 !== before.length + 1) throw new Error('APPEND_POSITION_UNEXPECTED');
+  // 4) 読み戻し（日時は値で比較）
+  var di = recs.schema.idx['配信日時 JST'];
+  var norm = function (r) { return r.map(function (v, i) { return i === di ? p25v2DateKey_(v) : p25v2T_(v); }); };
+  var back = io.readRows(n0, rows.length) || [], okIdx = [], bad = [];
+  rows.forEach(function (r, i) { var w = norm(r), b = norm(back[i] || []).slice(0, w.length); if (JSON.stringify(b) === JSON.stringify(w)) okIdx.push(i); else bad.push(allocs[i].epId); });
+  // 5) 収蔵詳細（概要原文の保全）: 読み戻し一致分のみ。既にあるEP-IDには書かない
+  if (io.appendDetails && okIdx.length) {
+    var dv = io.readDetails(); p25v2SheetHeaderCheck_(dv, P25V2_DETAIL_HEADERS_, P25V2_DETAIL_SHEET_);
+    var have = {}; dv.slice(1).forEach(function (r) { have[p25v2T_(r[0])] = 1; });
+    var drows = okIdx.filter(function (i) { return !have[allocs[i].epId]; }).map(function (i) { return p25v2DetailRow_(allocs[i].epId, todo[i].item, at, opts.sha256); });
+    if (drows.length) io.appendDetails(drows);
+    res.detailsAdded = drows.length;
+  }
+  // 6) 採番履歴「登録完了」
+  if (numbering && okIdx.length) io.markNumberingRows(okIdx.map(function (i) { return { row: allocs[i].numberingRow, state: '登録完了', at: at, ledgerRow: n0 + i }; }));
+  okIdx.forEach(function (i) {
+    res.added++; res.addedEpIds.push(allocs[i].epId);
+    recs.rows.push({ row: n0 + i, epId: allocs[i].epId, show: todo[i].item.show, title: todo[i].item.title, judge: '未判定', rep: allocs[i].epId, guid: todo[i].item.guid, jsonUuid: '', officialUrl: '' });
+  });
+  res.firstRow = n0; res.readbackOk = bad.length === 0; res.numberingReused = allocs.some(function (a) { return a.reused; });
   res.publicAfter = p25v2PublicCount_(recs.rows);
+  if (bad.length) { res.status = 'HALT_READBACK_MISMATCH'; res.readbackFailed = bad; throw Object.assign(new Error('READBACK_MISMATCH ' + bad.join(',')), { result: res }); }
   return res;
 }
 
 // GAS 用 I/O（COPY 専用プロジェクトで手動実行。トリガーは作らない）
 function p25v2GasIo_(config) {
   var ss = null, sh = null;
+  var sheet = function (name) { var x = ss.getSheetByName(name); if (!x) throw new Error('SHEET_NOT_FOUND ' + name); return x; };
+  var appendBlock = function (x, rows, copyFormat) { var n = x.getLastRow() + 1; if (copyFormat && n > 2) x.getRange(n - 1, 1, 1, rows[0].length).copyFormatToRange(x, 1, rows[0].length, n, n + rows.length - 1); x.getRange(n, 1, rows.length, rows[0].length).setValues(rows); SpreadsheetApp.flush(); return n; };
   return {
     open: function () { ss = SpreadsheetApp.openById(config.targetSpreadsheetId); sh = ss.getSheetByName(config.sheetName); return { id: ss.getId(), name: ss.getName(), sheetName: sh ? sh.getName() : '' }; },
     readAll: function () { return sh.getRange(1, 1, sh.getLastRow(), sh.getLastColumn()).getDisplayValues(); },
-    appendRow: function (row) { var n = sh.getLastRow() + 1; if (n > 2) sh.getRange(n - 1, 1, 1, row.length).copyFormatToRange(sh, 1, row.length, n, n); sh.getRange(n, 1, 1, row.length).setValues([row]); SpreadsheetApp.flush(); return n; },
-    readRow: function (n) { return sh.getRange(n, 1, 1, sh.getLastColumn()).getDisplayValues()[0]; },
-    readNumbering: function () { var ns = ss.getSheetByName(P25V2_NUM_SHEET_); return ns.getRange(1, 1, Math.max(ns.getLastRow(), 1), 9).getDisplayValues(); },
-    appendNumbering: function (row) { var ns = ss.getSheetByName(P25V2_NUM_SHEET_), n = ns.getLastRow() + 1; ns.getRange(n, 1, 1, 9).setValues([row]); SpreadsheetApp.flush(); return n; },
-    markNumbering: function (n, state, at, ledgerRow) { var ns = ss.getSheetByName(P25V2_NUM_SHEET_); ns.getRange(n, 5).setValue(state); ns.getRange(n, 7, 1, 2).setValues([[at, ledgerRow]]); SpreadsheetApp.flush(); }
+    appendRows: function (rows) { return appendBlock(sh, rows, true); },
+    readRows: function (n, k) { return sh.getRange(n, 1, k, sh.getLastColumn()).getDisplayValues(); },
+    readNumbering: function () { var ns = sheet(P25V2_NUM_SHEET_); return ns.getRange(1, 1, Math.max(ns.getLastRow(), 1), 9).getDisplayValues(); },
+    appendNumberingRows: function (rows) { return appendBlock(sheet(P25V2_NUM_SHEET_), rows, false); },
+    markNumberingRows: function (list) { var ns = sheet(P25V2_NUM_SHEET_); list.forEach(function (m) { ns.getRange(m.row, 5).setValue(m.state); ns.getRange(m.row, 7, 1, 2).setValues([[m.at, m.ledgerRow]]); }); SpreadsheetApp.flush(); },
+    readDetails: function () { var d = sheet(P25V2_DETAIL_SHEET_); return d.getRange(1, 1, Math.max(d.getLastRow(), 1), P25V2_DETAIL_HEADERS_.length).getDisplayValues(); },
+    appendDetails: function (rows) { return appendBlock(sheet(P25V2_DETAIL_SHEET_), rows, false); }
   };
 }
+function p25v2GasSha256_(s) { return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, s, Utilities.Charset.UTF_8).map(function (b) { return ('0' + (b & 255).toString(16)).slice(-2); }).join(''); }
 // 公式RSSの取得（GAS）。feeds: [{show, url, limit}]。1フィードの失敗で全体を止めず、失敗は記録する。
 function p25v2FetchFeeds_(feeds) {
   var items = [], errors = [];
@@ -249,12 +316,13 @@ function p25v2FetchFeeds_(feeds) {
 }
 // 手動実行（COPY専用プロジェクト）。同時実行はスクリプトロックで1本に限定。
 function P25V2_INGEST_COPY(config, items, write) {
+  p25v2AssertIsolated_({ hasDoGet: typeof doGet === 'function', hasDoPost: typeof doPost === 'function', triggerCount: ScriptApp.getProjectTriggers().length });
   var lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return { status: 'LOCKED' };
   try {
     var src = items || p25v2FetchFeeds_(config.feeds);
-    var res = p25v2Ingest_(p25v2GasIo_(config), config, src.items || src, { write: write === true, maxRows: 1 });
+    var res = p25v2Ingest_(p25v2GasIo_(config), config, src.items || src, { write: write === true, maxRows: config.maxRows || 1, deadlineMs: Date.now() + 4 * 60 * 1000, sha256: p25v2GasSha256_ });
     res.feedErrors = src.errors || []; return res;
   } finally { lock.releaseLock(); }
 }
 
-if (typeof module !== 'undefined' && module.exports) module.exports = { parseRss: p25v2ParseRss_, jstDate: p25v2JstDate_, numbering: p25v2Numbering_, allocate: p25v2Allocate_, NUM_HEADERS: P25V2_NUM_HEADERS_, schema: p25v2Schema_, classify: p25v2Classify_, records: p25v2Records_, buildRow: p25v2BuildRow_, nextEpId: p25v2NextEpId_, publicCount: p25v2PublicCount_, assertCopyTarget: p25v2AssertCopyTarget_, ingest: p25v2Ingest_, HEADERS: P25V2_HEADERS_, PROTECTED: P25V2_PROTECTED_IDS_, SHEET: P25V2_SHEET_, SCOPE: P25V2_SCOPE_ };
+if (typeof module !== 'undefined' && module.exports) module.exports = { assertIsolated: p25v2AssertIsolated_, detailRow: p25v2DetailRow_, DETAIL_HEADERS: P25V2_DETAIL_HEADERS_, URLSTATE_HEADERS: P25V2_URLSTATE_HEADERS_, HARD_CAP: P25V2_HARD_CAP_, parseRss: p25v2ParseRss_, jstDate: p25v2JstDate_, numbering: p25v2Numbering_, allocate: p25v2Allocate_, NUM_HEADERS: P25V2_NUM_HEADERS_, schema: p25v2Schema_, classify: p25v2Classify_, records: p25v2Records_, buildRow: p25v2BuildRow_, nextEpId: p25v2NextEpId_, publicCount: p25v2PublicCount_, assertCopyTarget: p25v2AssertCopyTarget_, ingest: p25v2Ingest_, HEADERS: P25V2_HEADERS_, PROTECTED: P25V2_PROTECTED_IDS_, SHEET: P25V2_SHEET_, SCOPE: P25V2_SCOPE_ };

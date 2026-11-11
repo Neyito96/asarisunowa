@@ -17,7 +17,14 @@ const cfg = (o = {}) => ({ environment: 'COPY', targetSpreadsheetId: COPY_ID, ex
 const NUMH = ['GUID', '固定ID', '番組', 'タイトル', '状態', '採番日時', '登録完了日時', '台帳行番号', 'エラー・備考'];
 function mockIo(values, meta = {}) {
   const st = { values: values.map((r) => [...r]), writes: 0, num: [NUMH, ...(meta.num || [])] };
-  return { st, readNumbering: () => st.num.map((r) => [...r]), appendNumbering: (row) => { st.num.push([...row]); return st.num.length; }, markNumbering: (n, state, at, lr) => { st.num[n - 1][4] = state; st.num[n - 1][6] = at; st.num[n - 1][7] = lr; }, open: () => ({ id: meta.id || COPY_ID, name: meta.name || '【COPY試験】V2', sheetName: meta.sheet || A.SHEET }), readAll: () => st.values.map((r) => [...r]), appendRow: (row) => { st.writes++; st.values.push([...row]); return st.values.length; }, readRow: (n) => [...st.values[n - 1]] };
+  const DH = [...A.DETAIL_HEADERS]; st.details = [DH, ...(meta.details || [])];
+  return { st, readNumbering: () => st.num.map((r) => [...r]),
+    appendNumberingRows: (rows) => { const n = st.num.length + 1; rows.forEach((r) => st.num.push([...r])); return n; },
+    markNumberingRows: (list) => list.forEach((m) => { st.num[m.row - 1][4] = m.state; st.num[m.row - 1][6] = m.at; st.num[m.row - 1][7] = m.ledgerRow; }),
+    readDetails: () => st.details.map((r) => [...r]), appendDetails: (rows) => { const n = st.details.length + 1; rows.forEach((r) => st.details.push([...r])); return n; },
+    open: () => ({ id: meta.id || COPY_ID, name: meta.name || '【COPY試験】V2', sheetName: meta.sheet || A.SHEET }), readAll: () => st.values.map((r) => [...r]),
+    appendRows: (rows) => { st.writes++; const n = st.values.length + 1; rows.forEach((r) => st.values.push([...r])); return n; },
+    readRows: (n, k) => st.values.slice(n - 1, n - 1 + k).map((r) => [...r]) };
 }
 const item = (o = {}) => ({ show: 'ニュースの学校', title: o.title || '【COPY試験・合成】新着1件', date: '2026/11/11 04:00', guid: o.guid || G(900), officialUrl: o.url, links: { LISTEN: 'https://listen.style/p/abcd1234/efgh5678' }, ...o.extra });
 
@@ -93,7 +100,7 @@ test('書込直前に台帳が変わっていたら書かない', () => {
 
 test('読み戻し不一致は停止として報告', () => {
   const io = mockIo(v2([{ ep: 'EP-00001', guid: G(1) }]));
-  io.readRow = (n) => io.st.values[n - 1].map((x, i) => (i === C('タイトル') ? 'changed' : x));
+  io.readRows = (n, k) => io.st.values.slice(n - 1, n - 1 + k).map((r) => r.map((x, i) => (i === C('タイトル') ? 'changed' : x)));
   assert.throws(() => A.ingest(io, cfg(), [item()], { write: true }), /READBACK_MISMATCH/);
 });
 
@@ -132,7 +139,7 @@ test('RSS→分類→COPY収蔵: 解析結果がそのまま候補になり、�
   const items = A.parseRss(OMNY, 'https://feeds.megaphone.fm/X', 'ニュースの現場から');
   const r = A.ingest(io, cfg(), items, { write: true, now: () => 'T' });
   assert.equal(r.counts.CANDIDATE, 2); assert.equal(r.added, 1);
-  const row = io.st.values[2]; assert.equal(row[C('配信日時 JST')], '2026/11/11 04:00'); assert.equal(row[C('再生時間 秒')], '3723'); assert.equal(row[C('音声URL')].includes('audio.mp3'), true);
+  const row = io.st.values[2]; assert.equal(row[C('配信日時 JST')], '2026/11/10 00:30'); assert.equal(row[C('再生時間 秒')], '611');   // 古い順に採番
   const bad = A.classify([], [{ show: 's', title: 't', date: 'Tue, 10 Nov 2026', guid: G(3) }]);
   assert.ok(bad[0].reasons.includes('DATE_FORMAT'));
 });
@@ -147,10 +154,10 @@ test('採番: 採番履歴(正本)に「採番済→登録完了」を記録。�
 
 test('中断復旧: 採番済のまま台帳書込が失敗 → 再実行で同じEP-IDを再利用（番号を飛ばさない・二重採番しない）', () => {
   const io = mockIo(v2([{ ep: 'EP-00001', guid: G(1) }]));
-  const ap = io.appendRow; io.appendRow = () => { throw new Error('API_DOWN'); };
+  const ap = io.appendRows; io.appendRows = () => { throw new Error('API_DOWN'); };
   assert.throws(() => A.ingest(io, cfg(), [item()], { write: true }), /API_DOWN/);
   assert.equal(io.st.num.length, 2); assert.equal(io.st.num[1][4], '採番済');
-  io.appendRow = ap;
+  io.appendRows = ap;
   const r = A.ingest(io, cfg(), [item()], { write: true });
   assert.equal(JSON.stringify(r.addedEpIds), JSON.stringify(['EP-00002'])); assert.equal(r.numberingReused, true);
   assert.equal(io.st.num.length, 2); assert.equal(io.st.num[1][4], '登録完了');
@@ -171,19 +178,77 @@ test('同GUIDで題名だけ変わった回は METADATA_CHANGE として記録�
 
 test('読み戻し: シートが日時を日付型に変えて「4:00」表示になっても値が同じなら一致（実COPYで発生）', () => {
   const io = mockIo(v2([{ ep: 'EP-00001', guid: G(1) }]));
-  io.readRow = (n) => io.st.values[n - 1].map((x, i) => (i === C('配信日時 JST') ? '2026/11/11 4:00' : x));
+  io.readRows = (n, k) => io.st.values.slice(n - 1, n - 1 + k).map((r) => r.map((x, i) => (i === C('配信日時 JST') ? '2026/11/11 4:00' : x)));
   const r = A.ingest(io, cfg(), [item()], { write: true });
   assert.equal(r.readbackOk, true);
-  io.readRow = (n) => io.st.values[n - 1].map((x, i) => (i === C('配信日時 JST') ? '2026/11/11 5:00' : x));
+  io.readRows = (n, k) => io.st.values.slice(n - 1, n - 1 + k).map((r) => r.map((x, i) => (i === C('配信日時 JST') ? '2026/11/11 5:00' : x)));
   assert.throws(() => A.ingest(io, cfg(), [item({ guid: G(901), title: '別' })], { write: true }), /READBACK_MISMATCH/);
 });
 
 test('中断復旧: 台帳には入ったが採番履歴が「採番済」のまま → 再実行で「登録完了」に修復し、追加は0', () => {
   const io = mockIo(v2([{ ep: 'EP-00001', guid: G(1) }]));
-  const rb = io.readRow; io.readRow = () => ['broken'];
+  const rb = io.readRows; io.readRows = () => [['broken']];
   assert.throws(() => A.ingest(io, cfg(), [item()], { write: true }), /READBACK_MISMATCH/);
-  assert.equal(io.st.num[1][4], '採番済'); io.readRow = rb;
+  assert.equal(io.st.num[1][4], '採番済'); io.readRows = rb;
   const r = A.ingest(io, cfg(), [item()], { write: true, now: () => 'R' });
   assert.equal(r.added, 0); assert.equal(r.counts.ALREADY_INGESTED, 1);
   assert.equal(JSON.stringify(r.numberingRepaired), JSON.stringify(['EP-00002'])); assert.equal(io.st.num[1][4], '登録完了'); assert.equal(io.st.num[1][7], 3);
+});
+
+test('小バッチ: 上限は設定(maxRowsCap)と絶対上限10の小さい方。古い順に連番採番し、一括追記→読み戻し→収蔵詳細→登録完了', () => {
+  const io = mockIo(v2([{ ep: 'EP-06694', guid: G(1) }]));
+  const items = [5, 3, 4, 2].map((n) => item({ guid: G(100 + n), title: 't' + n, extra: { date: `2026/10/1${n} 04:00`, descriptionRaw: n === 2 ? '' : '原文' + n, descLen: n === 2 ? 50 : undefined, descSha256: n === 2 ? 'abc' : undefined } }));
+  const r1 = A.ingest(io, cfg(), items, { write: true, maxRows: 99, now: () => 'T', sha256: (x) => 'h' + x.length });
+  assert.equal(r1.added, 1);                                                     // maxRowsCap 既定1
+  const r2 = A.ingest(io, cfg({ maxRowsCap: 50 }), items, { write: true, maxRows: 99, now: () => 'T', sha256: (x) => 'h' + x.length });
+  assert.equal(r2.added, 3); assert.equal(A.HARD_CAP, 10);
+  assert.equal(JSON.stringify(io.st.values.slice(2).map((r) => [r[0], r[C('配信日時 JST')]])), JSON.stringify([['EP-06695', '2026/10/12 04:00'], ['EP-06696', '2026/10/13 04:00'], ['EP-06697', '2026/10/14 04:00'], ['EP-06698', '2026/10/15 04:00']]));
+  assert.ok(io.st.num.slice(1).every((r) => r[4] === '登録完了'));
+  const d = io.st.details.slice(1);
+  assert.equal(d.length, 4); assert.equal(d[0][7], '原文未取得（長さ・ハッシュのみ確認）'); assert.equal(d[0][5], 'abc');
+  assert.equal(d[1][4], '原文3'); assert.equal(d[1][5], 'h3'); assert.equal(d[1][7], '未清掃');
+  const r3 = A.ingest(io, cfg({ maxRowsCap: 50 }), items, { write: true, maxRows: 99 });
+  assert.equal(r3.added, 0); assert.equal(r3.counts.ALREADY_INGESTED, 4); assert.equal(io.st.details.length, 5);
+});
+
+test('小バッチの途中失敗: 読み戻しが一部不一致 → 一致分だけ登録完了、不一致分は採番済のまま停止。再実行で修復・追加0', () => {
+  const io = mockIo(v2([{ ep: 'EP-00001', guid: G(1) }]));
+  const items = [1, 2, 3].map((n) => item({ guid: G(200 + n), title: 'b' + n, extra: { date: `2026/10/1${n} 04:00` } }));
+  const rb = io.readRows; io.readRows = (n, k) => rb(n, k).map((r, i) => (i === 1 ? r.map((x, j) => (j === C('タイトル') ? 'x' : x)) : r));
+  let err; try { A.ingest(io, cfg({ maxRowsCap: 5 }), items, { write: true, maxRows: 5 }); } catch (e) { err = e; }
+  assert.match(err.message, /READBACK_MISMATCH EP-00003/); assert.equal(err.result.added, 2);
+  assert.equal(JSON.stringify(io.st.num.slice(1).map((r) => r[4])), JSON.stringify(['登録完了', '採番済', '登録完了']));
+  io.readRows = rb;
+  const r = A.ingest(io, cfg({ maxRowsCap: 5 }), items, { write: true, maxRows: 5 });
+  assert.equal(r.added, 0); assert.equal(JSON.stringify(r.numberingRepaired), JSON.stringify(['EP-00003'])); assert.equal(io.st.values.length, 5);
+});
+
+test('READ_ONLY でも予定採番(plan)を出す。期限切れ(deadline)なら書かずに PARTIAL_TIME', () => {
+  const io = mockIo(v2([{ ep: 'EP-00009', guid: G(1) }]), { num: [[G(77), 'EP-00012', 's', 't', '採番済', '', '', '', '']] });
+  const items = [item({ guid: G(77), title: 'reuse' }), item({ guid: G(78), title: 'new', extra: { date: '2026/11/12 04:00' } })];
+  const r = A.ingest(io, cfg({ write: false, maxRowsCap: 5 }), items, { write: false, maxRows: 5 });
+  assert.equal(JSON.stringify(r.plan.map((p) => [p.epId, p.reused])), JSON.stringify([['EP-00012', true], ['EP-00013', false]]));
+  const r2 = A.ingest(io, cfg({ maxRowsCap: 5 }), items, { write: true, maxRows: 5, deadlineMs: 1 });
+  assert.equal(r2.status, 'PARTIAL_TIME'); assert.equal(io.st.writes, 0);
+});
+
+test('本番混入防止: doGet/doPost が同居するプロジェクト・トリガーがあるプロジェクトでは停止', () => {
+  assert.throws(() => A.assertIsolated({ hasDoGet: true }), /NOT_ISOLATED_PROJECT/);
+  assert.throws(() => A.assertIsolated({ hasDoPost: true }), /NOT_ISOLATED_PROJECT/);
+  assert.throws(() => A.assertIsolated({ triggerCount: 1 }), /TRIGGERS_PRESENT/);
+  assert.equal(A.assertIsolated({ triggerCount: 0 }), true);
+  // 本番の全GASファイルと同じ空間に読み込むと入口が停止する（コード.js の doGet を検知）
+  const g = { module: { exports: {} }, ScriptApp: { getProjectTriggers: () => [] }, LockService: { getScriptLock: () => ({ tryLock: () => true, releaseLock() {} }) } };
+  vm.runInNewContext('function doGet(){}\n' + fs.readFileSync('scripts/google-apps-script/P25V2IngestAdapter.js', 'utf8'), g);
+  assert.throws(() => vm.runInNewContext('P25V2_INGEST_COPY({}, [], false)', g), /NOT_ISOLATED_PROJECT/);
+});
+
+test('本番混入防止: .claspignore が COPY専用ファイルを除外し、本番ファイルは除外しない', () => {
+  const ig = fs.readFileSync('scripts/google-apps-script/.claspignore', 'utf8').split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#'));
+  for (const f of ['P25V2IngestAdapter.js', 'LedgerFillRobot.js']) assert.ok(ig.includes(f), f);
+  for (const f of fs.readdirSync('scripts/google-apps-script').filter((f) => /\.(js|gs)$/.test(f))) {
+    const copyOnly = /P25V2IngestAdapter|LedgerFillRobot/.test(f);
+    assert.equal(ig.includes(f), copyOnly, f);
+  }
+  assert.ok(!fs.readFileSync('scripts/google-apps-script/P25V2IngestAdapter.js', 'utf8').match(/newTrigger|ScriptApp\.newTrigger|deleteTrigger/));
 });
