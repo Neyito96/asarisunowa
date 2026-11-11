@@ -5,6 +5,7 @@
   const S = v => String(v == null ? "" : v).trim();
   const norm = v => S(v).normalize("NFKC").replace(/\s+/g," ").toLowerCase();
   const key = v => norm(v).replace(/[\s　・、。:：!?！？「」『』（）()【】\[\]]/g,"");
+  const titleKey = v => key(S(v).replace(/^(?:[（(]再[）)]|[（(]再配信[）)]|【再配信】)\s*/,""));
   const field = (headers, aliases) => {
     const indices = aliases.map(a => headers.findIndex(h => norm(h) === norm(a))).filter(i => i >= 0);
     return indices.length ? indices[0] : -1;
@@ -52,7 +53,7 @@
       else if (r.guid && seenGuids.has(r.guid) || r.url && seenUrls.has(r.url)) reason="BATCH_IDENTITY_COLLISION";
       else {
         const exact=[...(byGuid.get(r.guid)||[]),...(byUrl.get(r.url)||[])];
-        const candidates=exact.length?exact:(byTitle.get(key(r.show)+"|"+key(r.title))||[]);
+        const candidates=exact.length?exact:(byTitle.get(key(r.show)+"|"+titleKey(r.title))||[]);
         if(candidates.length) {
           const representatives=[...new Set(candidates.map(x=>x.representative||x.ep))];
           if(representatives.length===1 && representatives[0]) {
