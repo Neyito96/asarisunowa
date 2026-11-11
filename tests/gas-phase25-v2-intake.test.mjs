@@ -20,7 +20,9 @@ test("same GUID is a held duplicate with surviving representative",()=>{
 });
 test("same show and normalized title is HOLD pending editorial review",()=>{
  const p=plan(h,[r("EP-00001","SDGsを話そう","スポーツとLGBT①","g1","url1","対象","EP-00001")],[r("EP-07001","SDGsを話そう","（再）スポーツとLGBT①","g2","url2")]);
- assert.equal(p.results[0].status,"CANDIDATE"); // prefix stripping is NOT automatic; avoid a false confirmed duplicate
+ assert.equal(p.results[0].status,"HOLD");
+ assert.equal(p.results[0].reason,"POSSIBLE_REBROADCAST");
+ assert.equal(p.results[0].representative,"EP-00001");
 });
 test("excluded shows are not candidates and repeated batch ids are held",()=>{
  const p=plan(h,[],[r("","AJW","x","g1","u1"),r("","MEDIA TALK","x","g2","u2"),r("","MEDIA TALK","y","g2","u3")]);
