@@ -23,3 +23,12 @@ test('missing identifiers never auto-admitted',()=>{
  const r=audit([], [row('EP-2','','','New')]);
  assert.equal(r.outcomes[0].decision,'BLOCK');
 });
+test('same GUID in another show also blocks (cross-show repost)',()=>{
+ const r=audit([row('EP-1','guid-1','https://example.org/1','Old','報談')],[row('EP-2','GUID-1','https://example.org/2','New')]);
+ assert.equal(r.outcomes[0].decision,'BLOCK');
+});
+test('rerun mark （再） goes to HOLD, and matches original title',()=>{
+ const r=audit([row('EP-1','g1','https://example.org/1','台風の話')],[row('EP-2','g2','https://example.org/2','（再）台風の話'),row('EP-3','g3','https://example.org/3','【再配信】別の話')]);
+ assert.equal(r.outcomes[0].decision,'HOLD'); assert.ok(r.outcomes[0].reasons.includes('SAME_SHOW_TITLE_REVIEW'));
+ assert.equal(r.outcomes[1].decision,'HOLD');
+});

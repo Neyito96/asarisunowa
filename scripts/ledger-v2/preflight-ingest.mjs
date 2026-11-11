@@ -35,12 +35,13 @@ function parse(file, kind) {
 }
 export function audit(existing, incoming) {
   const byId=new Map(), byGuid=new Map(), byUrl=new Map(), byTitle=new Map();
-  const keyTitle=r=>r.show.toLowerCase()+'\u0000'+r.title.toLowerCase();
+  const RERUN=/[（(【\[]\s*再(放送|配信)?\s*[）)】\]]|再配信|再放送/;
+  const keyTitle=r=>r.show.toLowerCase()+'\u0000'+r.title.normalize('NFKC').replace(RERUN,'').replace(/\s+/g,'').toLowerCase();
   for(const r of existing) {
     if(!r.id || !r.show) throw Error('EXISTING_MISSING_ID_OR_SHOW at row '+r.sourceRow);
     if(byId.has(r.id)) throw Error('EXISTING_DUPLICATE_EP_ID '+r.id);
     byId.set(r.id,r);
-    if(r.guid) { const k=r.show+'\u0000'+r.guid; if(!byGuid.has(k)) byGuid.set(k,r); }
+    if(r.guid) { const k=r.guid.toLowerCase(); if(!byGuid.has(k)) byGuid.set(k,r); }
     if(r.url&&!byUrl.has(r.url)) byUrl.set(r.url,r);
     if(r.title&&!byTitle.has(keyTitle(r))) byTitle.set(keyTitle(r),r);
   }
@@ -49,12 +50,13 @@ export function audit(existing, incoming) {
     const reasons=[];
     if(!r.id||!r.show||!r.title||(!r.guid&&!r.url)) reasons.push('MISSING_REQUIRED_IDENTIFIER');
     if(r.id && (byId.has(r.id)||seenIds.has(r.id))) reasons.push('EP_ID_EXISTS_OR_REPEATED');
-    const g=r.guid?r.show+'\u0000'+r.guid:'';
+    const g=r.guid?r.guid.toLowerCase():'';
     if(g&&(byGuid.has(g)||seenGuid.has(g))) reasons.push('GUID_EXISTS_OR_REPEATED');
     if(r.url&&(byUrl.has(r.url)||seenUrl.has(r.url))) reasons.push('OFFICIAL_URL_EXISTS_OR_REPEATED');
     if(r.title&&byTitle.has(keyTitle(r))) reasons.push('SAME_SHOW_TITLE_REVIEW');
+    if(r.title&&RERUN.test(r.title.normalize('NFKC'))) reasons.push('RERUN_MARK_REVIEW');
     // A clean ID alone does not authorize publishing or Spotify additions.
-    const decision=reasons.some(x=>x!=='SAME_SHOW_TITLE_REVIEW')?'BLOCK':reasons.length?'HOLD':'CANDIDATE_UNREVIEWED';
+    const decision=reasons.some(x=>!/_REVIEW$/.test(x))?'BLOCK':reasons.length?'HOLD':'CANDIDATE_UNREVIEWED';
     outcomes.push({epId:r.id,sourceRow:r.sourceRow,decision,reasons});
     if(r.id)seenIds.add(r.id);
     if(g)seenGuid.add(g);
