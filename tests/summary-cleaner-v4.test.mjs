@@ -101,7 +101,7 @@ const FEED = (G) => `<rss><channel><item><title>A</title><guid>${G(1)}</guid><pu
 test('配布GAS: 再生成と一致・実行一覧は S0〜S9 だけ・収蔵の入口は出さない・トリガー作成なし', () => {
   assert.equal(SRC, buildCleanerGas()['SummaryCleaner.js']);
   const pub = [...SRC.matchAll(/^function ([^\s(]+)\(/gm)].map((m) => m[1]).filter((n) => /^[A-Z]/.test(n) && !/_$/.test(n));   // モジュール内部（即時関数の中）の関数は実行一覧に出ない
-  assert.deepEqual(pub, ['S0_進捗', 'S1_点検', 'S2_清掃監査', 'S3A_COPYへ反映_試験10件', 'S3B_COPYへ反映_全件', 'S4_V2作業用へ反映', 'S9_直前の反映を取消', 'S8_診断', 'S7_抜き取り']);
+  assert.deepEqual(pub, ['S0_進捗', 'S1_点検', 'S2_清掃監査', 'S3A_COPYへ反映_試験10件', 'S3B_COPYへ反映_全件', 'S4_V2作業用へ反映', 'S9_直前の反映を取消', 'S8_診断', 'S7_抜き取り', 'S5A_V2詳細保全_試験10件', 'S5B_V2詳細保全_全件']);
   assert.ok(!/newTrigger|DriveApp|MailApp/.test(SRC)); assert.ok(!/function\s+do(Get|Post)\b/.test(SRC));
 });
 
@@ -123,5 +123,23 @@ test('配布GAS模擬: 点検→清掃監査（結果シート・進捗）→再
   r1[Hh.indexOf('人の確認')] = 'OK'; const w = e.run('S4_V2作業用へ反映'); assert.equal(w.status, 'OK'); assert.equal(v2[1][N], '一の本文です。'); assert.equal(w.detailRows, 1);
   const det = e.books[V2W].sheets['V2・清掃詳細'].st.rows; assert.equal(det[1][0], 'EP-1'); assert.deepEqual(JSON.parse(det[1][2]).map((x) => x.title), ['一の記事見出し']);   // V2側にも見出し＋URLの組を保持
   const u = e.run('S9_直前の反映を取消'); assert.equal(u.undone, 2); assert.equal(v2[1][N], ''); assert.equal(v2[1][P], '');
+  assert.equal(det[1][7], '自動検査合格・目視未確認'); assert.equal(det[1][9], '取得');
   e.g.SC_CONFIG.copyId = '1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4'; assert.throws(() => e.run('S1_点検'), /PROTECTED_TARGET_REFUSED/);
+});
+
+test('配布GAS模擬: S5 は V2作業用の収蔵詳細に原文、清掃詳細に全EPの構造化データを保存（台帳34列・COPYだけの回は触らない・原文は上書きしない・再実行差分0）', () => {
+  const e = env(FEED); e.run('S2_清掃監査');
+  const v2b = e.books[V2W].sheets, v2snap = JSON.stringify(v2b['V2・統合台帳'].st.rows);
+  e.books[COPY].sheets['V2・統合台帳'].st.rows.push(e.books[COPY].sheets['V2・統合台帳'].st.rows[1].map((x, i) => (i === 0 ? 'EP-9' : x)));   // COPYだけにある回
+  e.g.SC_CONFIG.copyId = COPY;
+  const a = e.run('S5A_V2詳細保全_試験10件'); assert.equal(a.status, 'OK'); assert.equal(a.raw.added, 3); assert.equal(a.raw.addedMissing, 1); assert.equal(a.detail.rows, 3);
+  const raw = v2b['V2・収蔵詳細'].st.rows, det = v2b['V2・清掃詳細'].st.rows;
+  assert.equal(raw[0].length, 17); assert.deepEqual(raw.slice(1).map((r) => r[0]), ['EP-1', 'EP-2', 'EP-3']);
+  assert.equal(raw[1][4], RAWX('一')); assert.equal(raw[1][5], crypto.createHash('sha256').update(RAWX('一'), 'utf8').digest('hex')); assert.equal(raw[3][4], ''); assert.equal(raw[3][7], '原文なし（欠損）');
+  assert.deepEqual(det.slice(1).map((r) => [r[0], r[7], r[9]]), [['EP-1', '自動検査合格・目視未確認', '取得'], ['EP-2', '要確認', '取得'], ['EP-3', 'HOLD', '欠損']]);   // 書き換えない回（要確認・HOLD）も残す
+  assert.equal(JSON.stringify(v2b['V2・統合台帳'].st.rows), v2snap);   // 台帳は不変
+  const snap = JSON.stringify([raw, det]); const b = e.run('S5B_V2詳細保全_全件'); assert.equal(b.status, 'OK_NO_CHANGE'); assert.equal(JSON.stringify([raw, det]), snap);   // 再実行差分0
+  raw[1][4] = '人が残した原文'; raw[1][5] = 'abcd';   // 保全済み原文は RSS が変わっても上書きしない
+  const c = e.run('S5B_V2詳細保全_全件'); assert.equal(c.raw.rssChangedLogged, 1); assert.equal(raw[1][4], '人が残した原文'); assert.equal(v2b['V2・原文変化履歴'].st.rows.length, 2);
+  assert.equal(e.run('S5B_V2詳細保全_全件').raw.rssChangedLogged, 0);   // 同じ変化は二重に記録しない
 });
