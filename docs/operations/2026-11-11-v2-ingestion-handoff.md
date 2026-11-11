@@ -296,3 +296,8 @@ COPYの新着11件（EP-06695〜06705）: LISTEN の個別URLは LISTEN RSS の 
 
 ### 管理人に必要な操作（1回）
 `gas/p25v2-copy/README.md` の「管理人の操作」1〜8（新規独立プロジェクト作成→権限ファイルと1ファイル貼付→CHECK で OAuth 許可→DRYRUN→WRITE_ONE→VERIFY→結果共有）。
+
+## §16 GAS実機試験の前提（2026-11-11）— 実機は未実行
+- 分岐: DRYRUN の CANDIDATE=0 なら WRITE_ONE/VERIFY は実行せず、`P25V2_5_BACKFILL_RAW` で既存21件の原文補完（1回最大10件）を実機試験の対象にする。架空の回は作らない。手順は `gas/p25v2-copy/README.md`。
+- コード変更: CHECK は全件取得の時間（`fetchAllMs`・番組別 `ms`/`chars`）と公開数を報告、2分超は `CHECK_FETCH_TOO_SLOW`。WRITE_ONE は取得エラーがあれば書込0で `STOP_FEED_ERRORS`、追加0なら検証記録を作らない。VERIFY は書込記録なしで `NO_WRITE_TO_VERIFY`。BACKFILL は取得エラーで停止・4分超で停止、EP-ID/GUID が台帳と一致する行だけ、書込前に空欄を再確認、読み戻しで SHA256 と文字数一致、収蔵詳細17列の全セル比較で他セル不変（`otherCellsChanged`）、公開数の前後一致、再実行は `OK_NO_CHANGE`。
+- 模擬PASS: `tests/p25v2-copy-gas.test.mjs` 8件（P25V2関連 計74件）。実機の測定値（取得時間・件数・埋めた件数・HOLD理由・差分0）は管理人の実行後にここへ追記する。

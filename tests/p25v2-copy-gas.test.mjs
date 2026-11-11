@@ -18,10 +18,11 @@ function mkSheet(name, rows, maxCols) {
     getDisplayValue: () => get(r, c), getValue: () => get(r, c), setValues: (v) => v.forEach((row, i) => row.forEach((x, j) => put(r + i, c + j, x))), setValue: (x) => put(r, c, x), copyFormatToRange: () => {} });
   return { st, getName: () => name, getLastRow: () => st.rows.length, getLastColumn: () => w(), getMaxColumns: () => w(), getRange: rng, appendRow: (row) => st.rows.push([...row]) };
 }
-function env({ id = COPY, name = '【COPY試験】V2収蔵ボット', triggers = 0, feed, details = [] } = {}) {
+function env({ id = COPY, name = '【COPY試験】V2収蔵ボット', triggers = 0, feed, details = [], ledgerExtra = [] } = {}) {
   const box = { module: { exports: {} } }; vm.runInNewContext(fs.readFileSync('scripts/google-apps-script/P25V2IngestAdapter.js', 'utf8'), box); const A = box.module.exports;
   const H = [...A.HEADERS], led = H.map(() => ''); led[0] = 'EP-00010'; led[H.indexOf('番組')] = 'ニュースの学校'; led[H.indexOf('タイトル')] = '既存'; led[H.indexOf('配信日時 JST')] = '2026/11/01 04:00'; led[H.indexOf('掲載判定')] = '対象'; led[H.indexOf('代表EP-ID')] = 'EP-00010'; led[H.indexOf('公式GUID')] = 'aaaaaaaa-0000-4000-8000-000000000010';
-  const sheets = { 'V2・統合台帳': mkSheet('V2・統合台帳', [H, led]), '固定ID採番履歴': mkSheet('固定ID採番履歴', [[...A.NUM_HEADERS]], 9), 'V2・収蔵詳細': mkSheet('V2・収蔵詳細', [[...A.DETAIL_HEADERS], ...details], 17) };
+  const extra = ledgerExtra.map(([ep, gd]) => { const r = H.map(() => ''); r[0] = ep; r[H.indexOf('番組')] = 'ニュースの学校'; r[H.indexOf('タイトル')] = 't' + ep; r[H.indexOf('配信日時 JST')] = '2026/11/02 04:00'; r[H.indexOf('掲載判定')] = '未判定'; r[H.indexOf('代表EP-ID')] = ep; r[H.indexOf('公式GUID')] = gd; return r; });
+  const sheets = { 'V2・統合台帳': mkSheet('V2・統合台帳', [H, led, ...extra]), '固定ID採番履歴': mkSheet('固定ID採番履歴', [[...A.NUM_HEADERS]], 9), 'V2・収蔵詳細': mkSheet('V2・収蔵詳細', [[...A.DETAIL_HEADERS], ...details], 17) };
   const props = {}, logs = [], fetched = [];
   const g = { Date, JSON, Math, Logger: { log: (s) => logs.push(s) },
     SpreadsheetApp: { openById: (x) => { assert.equal(x, COPY); return { getId: () => id, getName: () => name, getSheetByName: (n) => sheets[n] || null, insertSheet: (n) => (sheets[n] = mkSheet(n, [])) }; }, flush() {} },
@@ -89,17 +90,38 @@ test('障害: 5xx は1回だけ再試行して成功、4xx は再試行せず記
   let n = 0; const e = env({ feed: (u) => (/TASC5851398719/.test(u) && n++ === 0 ? { getResponseCode: () => 503, getContentText: () => '' } : okFeed([{ title: 'A', guid: G1, pub: 'Tue, 10 Nov 2026 19:00:00 GMT', raw: RAW }])(u)) });
   assert.equal(e.run('P25V2_3_WRITE_ONE').added, 1);
   const e2 = env({ feed: () => ({ getResponseCode: () => 404, getContentText: () => '' }) }); const r = e2.run('P25V2_3_WRITE_ONE');
-  assert.equal(r.added, 0); assert.equal(r.feedErrors.length, 7); assert.equal(e2.fetched.length, 7);
+  assert.equal(r.status, 'STOP_FEED_ERRORS'); assert.equal(r.added, 0); assert.equal(r.feedErrors.length, 7); assert.equal(e2.fetched.length, 7);
   const e3 = env({ feed: okFeed([]) }); e3.sheets['V2・収蔵詳細'] = mkSheet('V2・収蔵詳細', [e3.A.DETAIL_HEADERS.slice(0, 12)], 12);
   assert.throws(() => e3.run('P25V2_1_CHECK'), /SHEET_TOO_NARROW/);
 });
 
-test('原文の後日補完: ハッシュ一致・空欄だけ埋める。ハッシュ違いは上書きせず HOLD。再実行は0', () => {
-  const r2 = '<p>二件目の合成原文。</p>';
-  const d1 = ['EP-06701', G1, '', '', '', sha(RAW).slice(0, 16), String(RAW.length), '原文未取得（長さ・ハッシュのみ確認）', '', '', '', '', '', '', '', '', '未取得（長さ・ハッシュのみ）'];
-  const d2 = ['EP-06702', G2, '', '', '', 'deadbeefdeadbeef', String(r2.length), '原文未取得（長さ・ハッシュのみ確認）', '', '', '', '', '', '', '', '', '未取得（長さ・ハッシュのみ）'];
-  const e = env({ details: [d1, d2], feed: okFeed([{ title: 'A', guid: G1, pub: 'Tue, 10 Nov 2026 19:00:00 GMT', raw: RAW }, { title: 'B', guid: G2, pub: 'Tue, 10 Nov 2026 19:00:00 GMT', raw: r2 }]) });
-  const r = JSON.parse(JSON.stringify(e.run('P25V2_5_BACKFILL_RAW'))); assert.deepEqual(r.filled, ['EP-06701']); assert.deepEqual(r.hold, [{ epId: 'EP-06702', why: 'SHA_MISMATCH' }]);
-  const det = e.sheets['V2・収蔵詳細'].st.rows; assert.equal(det[1][4], RAW); assert.equal(det[1][5], sha(RAW)); assert.equal(det[1][7], '未清掃'); assert.equal(det[2][4], '');
-  const again = e.run('P25V2_5_BACKFILL_RAW'); assert.equal(again.filled.length, 0);
+const D = (ep, g, h, len) => [ep, g, '', '', '', h, String(len), '原文未取得（長さ・ハッシュのみ確認）', '', '', '', '', '', '', '', '', '未取得（長さ・ハッシュのみ）'];
+const R2 = '<p>二件目の合成原文。</p>', G3 = 'bbbbbbbb-0000-4000-8000-000000000003';
+const bfEnv = (feed) => env({ details: [D('EP-06701', G1, sha(RAW).slice(0, 16), RAW.length), D('EP-06702', G2, 'deadbeefdeadbeef', R2.length), D('EP-06703', G3, sha(RAW).slice(0, 16), RAW.length)],
+  ledgerExtra: [['EP-06701', G1], ['EP-06702', G2], ['EP-06703', 'cccccccc-0000-4000-8000-000000000009']],
+  feed: feed || okFeed([{ title: 'A', guid: G1, pub: 'Tue, 10 Nov 2026 19:00:00 GMT', raw: RAW }, { title: 'B', guid: G2, pub: 'Tue, 10 Nov 2026 19:00:00 GMT', raw: R2 }, { title: 'C', guid: G3, pub: 'Tue, 10 Nov 2026 19:00:00 GMT', raw: RAW }]) });
+
+test('新着0のとき: DRYRUN は WRITE_ONE を勧めず原文補完へ案内、VERIFY は書込記録なしを NO_WRITE_TO_VERIFY と返す', () => {
+  const e = env({ feed: okFeed([{ title: '既存', guid: 'aaaaaaaa-0000-4000-8000-000000000010', pub: 'Sat, 31 Oct 2026 19:00:00 GMT', raw: RAW }]) });
+  const c = e.run('P25V2_1_CHECK'); assert.equal(c.status, 'CHECK_OK'); assert.equal(c.publicCount, 1); assert.equal(typeof c.fetchAllMs, 'number'); assert.ok(c.feeds.every((f) => typeof f.chars === 'number'));
+  const d = e.run('P25V2_2_DRYRUN'); assert.equal(d.counts.CANDIDATE, 0); assert.match(d.next, /WRITE_ONE は実行しない.*BACKFILL_RAW/);
+  assert.equal(e.run('P25V2_4_VERIFY').status, 'NO_WRITE_TO_VERIFY');
+  const w = e.run('P25V2_3_WRITE_ONE'); assert.equal(w.added, 0); assert.equal(e.props.P25V2_LAST_WRITE, undefined);   // 追加0なら検証記録を作らない
+});
+
+test('原文の後日補完: GUID/EP-ID/SHA/文字数が一致し原文が空の行だけ埋める。他セル不変・公開数不変・再実行は差分0。ハッシュ違い・台帳GUID違いは HOLD', () => {
+  const e = bfEnv(), det = e.sheets['V2・収蔵詳細'].st.rows;
+  const r = JSON.parse(JSON.stringify(e.run('P25V2_5_BACKFILL_RAW')));
+  assert.equal(r.status, 'OK'); assert.deepEqual(r.filled, ['EP-06701']); assert.equal(r.otherCellsChanged, 0); assert.equal(r.publicBefore, r.publicAfter);
+  assert.deepEqual(r.hold.map((h) => [h.epId, h.why]).sort(), [['EP-06702', 'SHA_MISMATCH'], ['EP-06703', 'LEDGER_GUID_MISMATCH']]);
+  assert.equal(det[1][4], RAW); assert.equal(det[1][5], sha(RAW)); assert.equal(det[1][6], String(RAW.length)); assert.equal(det[1][7], '未清掃'); assert.equal(det[2][4], ''); assert.equal(det[3][4], '');
+  const snap = JSON.stringify(det); const again = e.run('P25V2_5_BACKFILL_RAW');
+  assert.equal(again.status, 'OK_NO_CHANGE'); assert.equal(again.filled.length, 0); assert.equal(JSON.stringify(det), snap);
+  assert.ok(!JSON.stringify(e.sheets['V2・実行ログ'].st.rows).includes('合成の概要原文'));
+});
+
+test('原文の後日補完: 取得エラーが1本でもあれば書込0で停止（STOP_FEED_ERRORS）', () => {
+  const e = bfEnv((u) => (/TASC9421488254/.test(u) ? { getResponseCode: () => 404, getContentText: () => '' } : okFeed([{ title: 'A', guid: G1, pub: 'Tue, 10 Nov 2026 19:00:00 GMT', raw: RAW }])(u)));
+  const snap = JSON.stringify(e.sheets['V2・収蔵詳細'].st.rows), r = e.run('P25V2_5_BACKFILL_RAW');
+  assert.equal(r.status, 'STOP_FEED_ERRORS'); assert.equal(JSON.stringify(e.sheets['V2・収蔵詳細'].st.rows), snap);
 });
