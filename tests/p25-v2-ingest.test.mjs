@@ -267,7 +267,7 @@ test('COPY専用GASの依存関係: 使うGASサービスは許可済みのも�
   const called = [...src.matchAll(/\b(p25v2[A-Za-z0-9_]*|P25V2_[A-Z_]+)\s*\(/g)].map((m) => m[1]);
   assert.deepEqual(called.filter((f) => !defined.has(f)), []);                                     // 本アダプタ以外の関数を呼ばない
   assert.ok(!/\b(p25[A-Z]|P25_RUN|SPREADSHEET_ID)\b/.test(src.replace(/\/\/[^\n]*/g, '').replace(/p25v2/g, '')));   // コメントを除いて検査            // Phase25本体・本番設定に依存しない
-  const scopes = JSON.parse(fs.readFileSync('docs/operations/p25v2-copy-gas/appsscript.json', 'utf8')).oauthScopes;
+  const scopes = JSON.parse(fs.readFileSync('gas/p25v2-copy/appsscript.json', 'utf8')).oauthScopes;
   assert.deepEqual(scopes, ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/script.external_request', 'https://www.googleapis.com/auth/script.scriptapp']);
 });
 

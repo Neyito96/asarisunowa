@@ -162,7 +162,7 @@
 | READ_ONLY計画 | `planAll` で全候補の予定採番（再利用か新規か）を出す |
 | 別表（V2本体34列は変更なし） | `V2・収蔵詳細`（1EP=1行。概要原文・SHA256・文字数・清掃状態/版/日時/結果・出典）、`V2・URL状態`（1EP×1サービス=1行の縦持ち。PR #281 の状態をそのまま記録） |
 | 本番混入防止 | `scripts/google-apps-script/.claspignore` で `P25V2IngestAdapter.js`・`LedgerFillRobot.js` を本番 push から除外（テストで全GASファイルを検査）。入口 `P25V2_INGEST_COPY` は doGet/doPost が同居する（＝本番プロジェクト）・トリガーがある場合に停止。トリガー作成コードは無い（テストで検査） |
-| GAS依存・権限 | 使用サービスは SpreadsheetApp / UrlFetchApp / LockService / ScriptApp / Utilities のみ、他ファイルの関数・本番設定に依存しない（テストで検査）。権限雛形: `docs/operations/p25v2-copy-gas/appsscript.json`（spreadsheets・script.external_request・script.scriptapp） |
+| GAS依存・権限 | 使用サービスは SpreadsheetApp / UrlFetchApp / LockService / ScriptApp / Utilities のみ、他ファイルの関数・本番設定に依存しない（テストで検査）。権限雛形: `gas/p25v2-copy/appsscript.json`（spreadsheets・script.external_request・script.scriptapp） |
 | 採番監査 | `scripts/ledger-v2/numbering-audit.mjs`（READ_ONLY）。重複・GUID食い違い・他EPとのGUID共有・欠番・履歴の欠落と、COPY用の非破壊バックフィル行を出す |
 | COPYバッチ道具 | `scripts/ledger-v2/p25v2-copy-batch.mjs`（plan/verify）。判定・採番・行生成はすべてアダプタ |
 | 第2段階の接続口 | `scripts/ledger-v2/v2-enrich.mjs`: `toResolverInputs`（V2→PR #281 resolveOne 入力）、`toUrlStateRows`（PR #281 結果→URL状態表）、`planLinkFills`（VERIFIED かつ空欄だけ・既存と違えば HOLD・LedgerFillRobot互換マニフェスト）、`planSummaryCleaning`（原文は不変・清掃結果は別列・V2清掃済欄は空欄のときだけ・版が同じなら再実行しない）、`planCastAndRelated`（抽出関数を注入・確信度不足や既存値はHOLD）、`pendingWork`（EPごとの未補完一覧） |
@@ -253,7 +253,7 @@ COPYの新着11件（EP-06695〜06705）: LISTEN の個別URLは LISTEN RSS の 
 - [ ] 出演者候補は「候補」のまま（V2「出演者」列には書いていない）。同一人物判定・確信度の基準は未確定
 - [ ] 他5サービスの実API経路の検証（PR #281）
 - [ ] 過去の取りこぼしの遡及取得（カーソル/期間分割・予算上限・チェックポイント）
-- [ ] GAS実機試験（COPY専用・権限雛形 `docs/operations/p25v2-copy-gas/appsscript.json`）。管理人の認証は最後に1回
+- [ ] GAS実機試験（COPY専用・権限雛形 `gas/p25v2-copy/appsscript.json`）。管理人の認証は最後に1回
 - [ ] V2正本・本番への反映（未承認）
 
 ### 13.5 実測ファイル（本文は含まない）
@@ -275,3 +275,24 @@ COPYの新着11件（EP-06695〜06705）: LISTEN の個別URLは LISTEN RSS の 
 | 完全性指標 | DONE | `integrityMetrics`。測定値: `docs/release/2026-11-11-p25v2-stage5-metrics.json`（総数6580・公開6033・未判定129・保留257・対象外161・詳細26行/原文5/ハッシュのみ21/清掃5）。サービス列・採番表は全行未読の部分測定（未確認と明記） |
 
 試験: P25V2関連 51件 PASS。リポジトリ全体では `tests/ui-components.test.mjs` が本変更前から失敗（本件と無関係）。
+
+## §15 第6段階（2026-11-11）— 独立COPY専用GASを最優先・清掃は別工程・品質未検証の値を公開しない
+
+### 区別（厳守）
+| 区分 | 対象 |
+|---|---|
+| 実装済 | `gas/p25v2-copy/`（配布 `dist/P25V2CopyIngest.js`・`dist/appsscript.json`・`src/P25V2CopyMain.js`・`.clasp.json.example`・`README.md` 操作手順）。共有コードは `P25V2IngestAdapter.js`（5xx 1回再試行・`limit 0`=全件・収蔵時に清掃/出演者/関連記事を剥がす `p25v2StripUnverified_` を追加） |
+| 模擬PASS | `tests/p25v2-copy-gas.test.mjs` 6件（配布ファイルそのものを実行: 点検→予行0書込→1件書込→検証OK→再実行0、保護ID/名前/ID食い違い/トリガーありで停止、5xx再試行/4xx非再試行、列不足停止、原文後日補完のSHA一致のみ・不一致HOLD・再実行0、ログに本文なし）。P25V2関連 計72件 PASS |
+| **実機未実行** | OAuth 許可・COPY 実書込・readback・再実行0 は管理人操作待ち（README の8手順）。済んだとは扱わない |
+
+### 清掃の品質（管理者指摘への対応）
+- 状態を分離: `未処理 / 自動処理済・未検証 / 自動検査合格・目視未確認 / 品質確認済 / 要確認 / 不合格`。品質確認済は品質記録（`QUALITY_LOG_HEADERS`）に「目視」「検証者」「原文SHA256」「清掃版」が揃うときだけ。
+- `planSummaryProjection` は品質確認済だけを投影（自動処理済・自動検査合格は投影しない）。`planSummaryCleaning` は品質確認済の行を新しい版で上書きしない。
+- 第5段階で COPY に投影した5件（N6557:N6570）は**取り消して空欄に戻した**。収蔵詳細の5行の状態は「清掃済」→「自動処理済・未検証」（読み戻し確認済み）。
+- 監査器 `summary-quality-audit.mjs`（SQA-1・原文だけを基準に、誤削除/部分削除/固有名詞消失/削除漏れ/出演者の本文混入/HTML残骸/URL・追跡パラメータ残り/記事URL消失/見出し結合ミス/出演者の欠落・混入/関連記事への宣伝混入/改行破壊 を分類。迷う行は採点しない）と、回帰fixture 9種（合成文）`tests/fixtures/summary-quality-fixtures.mjs`、試験 `tests/summary-quality-audit.test.mjs` 14件。
+- fixture で見つかり直した清掃規則（v2rules-3）: CDATA が本文に残る／関連記事欄に宣伝・非記事リンクが混入（記事URLのみ採用、宣伝は除去、見出しなし非記事リンクは HOLD）／段落の改行が失われる。旧 `editDescription` 単独では fixture 9種中 7種で誤り（Megaphone 定型の削除漏れ・本文内URL・【まとめてわかる】記事URL消失・出演者欄への宣伝混入）。
+- 既存V2の「概要（清掃済）」の実データ監査（約6,000件・層化）は**未実施**。理由: 比較基準の原文がワークスペースに無く、GitHub への本文転送は禁止。独立COPY GAS が原文を保全した後に、同じ監査器を GAS 側または封緘経路で実行する。参考: COPY の N6551・N6554 で既存値に宣伝文・追跡URL・見出し行の残存を目視確認（抜き取り2件であり誤り率ではない）。
+- 品質未検証: 収蔵詳細26件すべて（原文あり5件は自動処理済・未検証、21件は原文未取得で判定不可）。
+
+### 管理人に必要な操作（1回）
+`gas/p25v2-copy/README.md` の「管理人の操作」1〜8（新規独立プロジェクト作成→権限ファイルと1ファイル貼付→CHECK で OAuth 許可→DRYRUN→WRITE_ONE→VERIFY→結果共有）。

@@ -1,0 +1,4 @@
+{
+  "scriptId": "ここに新しく作った独立Apps ScriptプロジェクトのスクリプトIDを入れる（本番GASのIDは絶対に入れない）",
+  "rootDir": "dist"
+}

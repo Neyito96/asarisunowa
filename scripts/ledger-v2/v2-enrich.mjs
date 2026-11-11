@@ -51,8 +51,9 @@ export function planSummaryCleaning(values, detailValues, cleanFn, version, at) 
   detailValues.slice(1).forEach((r, i) => {
     const ep = s(r[d['EP-ID']]), raw = String(r[d['概要原文']] ?? ''), state = s(r[d['清掃状態']]);
     if (!ep || !raw.trim() || (state !== '未清掃' && s(r[d['清掃版']]) === version)) return;
+    if (state === '品質確認済') { hold.push({ ep, why: 'QUALITY_CONFIRMED_NOT_OVERWRITTEN' }); return; }   // 人が確認した結果を新しい版で自動上書きしない
     let out; try { out = cleanFn(raw); } catch (e) { out = { ok: false, error: true, reason: String(e.message || e) }; }
-    const u = { row: i + 2, epId: ep, 清掃状態: out.ok ? '清掃済' : out.error ? '清掃失敗' : '要確認（清掃保留）', 清掃版: version, 清掃日時: at, 清掃結果: out.ok ? `文字数 ${raw.length}→${s(out.text).length}` : s(out.reason) };
+    const u = { row: i + 2, epId: ep, 清掃状態: out.ok ? '自動処理済・未検証' : out.error ? '清掃失敗' : '要確認（清掃保留）', 清掃版: version, 清掃日時: at, 清掃結果: out.ok ? `文字数 ${raw.length}→${s(out.text).length}` : s(out.reason) };
     if (d['清掃済み本文'] !== undefined) Object.assign(u, { 清掃済み本文: s(out.text),
       '関連記事(抽出)': out.related ? JSON.stringify(out.related.map((x) => ({ ...x, source: '概要原文' }))) : '',
       // 人名の同一視・確定はしない。出典と「候補」であることを必ず付ける
@@ -70,14 +71,21 @@ export function planSummaryCleaning(values, detailValues, cleanFn, version, at) 
 //  前処理: 「〇〇は毎週X曜日に配信します」を文ごと除去（既存規則は文の途中で切れて主語が残るため）
 //  後処理: 共通案内・SNS・購読/広告/アプリ案内の行を本文と出演欄から除去、出演欄は【…】や★で始まる案内で打ち切り、
 //          本文中の「見出し + asahi.com 記事URL」を関連記事へ移す。人名・役割・事実の文は消さない。
-export const CLEAN_VERSION = 'P25V2-' + DESCRIPTION_VERSION + '+v2rules-2';   // -2: 出演者候補・関連記事に出典と確度を付ける
+export const CLEAN_VERSION = 'P25V2-' + DESCRIPTION_VERSION + '+v2rules-3';   // -2: 出演者候補・関連記事に出典と確度 / -3: CDATA除去・段落の改行保持・関連記事への宣伝/非記事リンク混入をHOLD（品質監査SQA-1の指摘）
 const PROMO_LINE = /^(?:★|【(?:おねがい|朝ポキ情報|お知らせ)】|ご意見・感想・リクエスト|ほかにも(?:多彩な)?番組を配信中|朝日新聞ポッドキャストは、みなさまからの購読料|番組継続のため|アプリで記者と対話|交流はdiscord|おたよりフォーム|朝ポキTV|メルマガ|広告ご検討の企業様|番組検索ツール|最新情報はX|番組カレンダー|全話あります公式サイト|Learn more about your ad choices|See .*omnystudio)/i;
+const ARTICLE_URL = /^https?:\/\/(?:www\.asahi\.com\/(?:[a-z]+\/)?articles\/|digital\.asahi\.com\/articles\/|withnews\.jp\/article\/|globe\.asahi\.com\/article\/|book\.asahi\.com\/article\/)/;
+const PROMO_TITLE = /会員登録|購読|discord|おたより|フォーム|配信中|メルマガ|ご意見|アプリで|公式サイト|カレンダー|検索ツール/i;
 const ARTICLE = /(https?:\/\/www\.asahi\.com\/articles\/[A-Za-z0-9]+\.html)(?:\?[^\s]*)?/;
 export function v2CleanSummary(raw) {
-  const pre = String(raw ?? '').replace(/[^。>\s]*?は毎週[月火水木金土日]曜日に配信します。?/g, '');
+  const pre = String(raw ?? '').replace(/<!\[CDATA\[|\]\]>/g, '').replace(/[^。>\s]*?は毎週[月火水木金土日]曜日に配信します。?/g, '');
   const r = editDescription(pre);
-  const related = r.relatedArticles.map((a) => ({ title: a.title === a.originalUrl ? '' : a.title, url: a.url }));
-  const removed = r.removed.map((x) => x.reason), keep = [];
+  const removed = r.removed.map((x) => x.reason), keep = [], relHold = [];
+  // 関連記事欄は記事URLだけを自動で採る。宣伝見出しのリンクは除去、見出しのない非記事リンクは原文に残したまま HOLD（消し過ぎ・誤抽出の防止）。
+  const related = [];
+  for (const a of r.relatedArticles) { const title = a.title === a.originalUrl ? '' : a.title;
+    if (ARTICLE_URL.test(a.url)) related.push({ title, url: a.url });
+    else if (PROMO_LINE.test(title) || PROMO_TITLE.test(title)) removed.push('V2_RELATED_PROMO');
+    else relHold.push(a.url); }
   for (const para of r.description.split(/\n+/)) {
     const line = para.trim(); if (!line) continue;
     if (PROMO_LINE.test(line)) { removed.push('V2_PROMO_LINE'); continue; }
@@ -89,9 +97,9 @@ export function v2CleanSummary(raw) {
     keep.push(line);
   }
   // 本文の末尾に残る案内（同じ段落に連結された場合）も切る
-  let text = keep.join(' ').replace(/\s*(?:ご意見・感想・リクエスト|ほかにも(?:多彩な)?番組を配信中|Learn more about your ad choices)[\s\S]*$/i, '').replace(/[ 　]{2,}/g, ' ').trim();
+  let text = keep.join('\n').replace(/\s*(?:ご意見・感想・リクエスト|ほかにも(?:多彩な)?番組を配信中|Learn more about your ad choices)[\s\S]*$/i, '').replace(/[ 　]{2,}/g, ' ').trim();
   const staff = []; for (const x of r.staff) { const t = x.trim(); if (!t) continue; if (PROMO_LINE.test(t) || /^【/.test(t)) break; staff.push(t.replace(/\s*https?:\/\/\S+/g, '').trim()); }
-  const holds = [...r.holds]; if (!text) holds.push('CONTENT_EMPTY');
+  const holds = [...r.holds]; if (!text) holds.push('CONTENT_EMPTY'); if (relHold.length) holds.push('RELATED_NONARTICLE_REVIEW');
   return { ok: holds.length === 0, text, reason: [...new Set(holds)].join(','), holds: [...new Set(holds)], related, staff: staff.filter(Boolean), removed, recording: r.recording };
 }
 // 出演者・関連記事: 抽出関数を注入。確信度の低いもの（confidence < min）は書かずに HOLD。既存値がある列は書かない。
@@ -136,14 +144,18 @@ export function planRawBackfill(detailValues, rawByGuid, { via = '公式RSS（�
   });
   return { updates: out, hold };
 }
-// 清掃結果の V2本体「概要（清掃済）」への投影（別工程）。条件: 清掃済・原文のSHA256が記録と一致・EP-IDとGUIDが一致・本体の欄が空欄。既存値は保護（違えば HOLD）。
-export function planSummaryProjection(values, detailValues, sha256) {
+// 清掃結果の V2本体「概要（清掃済）」への投影（別工程）。条件: 品質確認済（品質記録に 目視 の確認があり、原文SHA256と清掃版が一致）・
+// 原文のSHA256が記録と一致・EP-IDとGUIDが一致・本体の欄が空欄。既存値は保護（違えば HOLD）。自動処理済・未検証は投影しない。
+export function planSummaryProjection(values, detailValues, sha256, qualityRows = [[]]) {
+  const qh = (qualityRows[0] || []).map(s), qi = Object.fromEntries(qh.map((n, i) => [n, i]));
+  const confirmed = (ep, sha, ver) => qualityRows.slice(1).some((q) => s(q[qi['EP-ID']]) === ep && s(q[qi['判定']]) === '品質確認済' && /目視/.test(s(q[qi['検証方法']])) && s(q[qi['検証者']]) && s(q[qi['概要原文SHA256']]) === sha && s(q[qi['清掃版']]) === ver);
   const { idx, rows, guid } = v2Index(values), byEp = new Map(rows.map((x) => [x.epId, x]));
   const h = detailValues[0].map(s), d = Object.fromEntries(h.map((n, i) => [n, i])), cells = [], hold = [];
   for (const r of detailValues.slice(1)) {
     const ep = s(r[d['EP-ID']]); if (!ep) continue;
     const raw = String(r[d['概要原文']] ?? ''), text = s(r[d['清掃済み本文']]), x = byEp.get(ep);
-    if (s(r[d['清掃状態']]) !== '清掃済' || !text) continue;
+    if (!text) continue;
+    if (s(r[d['清掃状態']]) !== '品質確認済' || !confirmed(ep, s(r[d['概要原文SHA256']]), s(r[d['清掃版']]))) { hold.push({ ep, why: 'QUALITY_NOT_CONFIRMED' }); continue; }
     if (!x) { hold.push({ ep, why: 'EP_NOT_IN_V2' }); continue; }
     if (!raw || sha256(raw) !== s(r[d['概要原文SHA256']])) { hold.push({ ep, why: 'RAW_HASH_UNVERIFIED' }); continue; }
     if (guid(x) !== s(r[d['公式GUID']]).toLowerCase()) { hold.push({ ep, why: 'GUID_MISMATCH' }); continue; }
@@ -183,7 +195,7 @@ export function integrityMetrics(values, detailValues = [[]], urlStateRows = [],
   const num = numberingRows.slice(1).filter((r) => s(r[1]));
   return { total: rows.length, published: rows.filter((r) => judge(r) === '対象' && s(r.r[idx['代表EP-ID']]) === r.epId).length,
     byJudge: rows.reduce((a, r) => ((a[judge(r) || '空欄'] = (a[judge(r) || '空欄'] || 0) + 1), a), {}),
-    details: { rows: det.length, rawStored: det.filter((r) => s(r[di['概要原文']])).length, hashOnly: det.filter((r) => !s(r[di['概要原文']]) && s(r[di['概要原文SHA256']])).length, cleaned: det.filter((r) => s(r[di['清掃状態']]) === '清掃済').length, cleanHold: det.filter((r) => /要確認/.test(s(r[di['清掃状態']]))).length, missingDetailRow: rows.filter((r) => /P25V2収蔵/.test(s(r.r[idx['判定根拠']] ?? '')) && !det.some((d) => s(d[0]) === r.epId)).map((r) => r.epId) },
+    details: { rows: det.length, rawStored: det.filter((r) => s(r[di['概要原文']])).length, hashOnly: det.filter((r) => !s(r[di['概要原文']]) && s(r[di['概要原文SHA256']])).length, cleaned: det.filter((r) => /^(?:自動処理済・未検証|自動検査合格・目視未確認|品質確認済|清掃済)$/.test(s(r[di['清掃状態']]))).length, qualityConfirmed: det.filter((r) => s(r[di['清掃状態']]) === '品質確認済').length, unverified: det.filter((r) => /^(?:自動処理済・未検証|自動検査合格・目視未確認|清掃済)$/.test(s(r[di['清掃状態']]))).length, cleanHold: det.filter((r) => /要確認/.test(s(r[di['清掃状態']]))).length, missingDetailRow: rows.filter((r) => /P25V2収蔵/.test(s(r.r[idx['判定根拠']] ?? '')) && !det.some((d) => s(d[0]) === r.epId)).map((r) => r.epId) },
     summaryProjected: rows.filter((r) => s(r.r[idx['概要（清掃済）']])).length, services: svc,
     numbering: { rows: num.length, pending: num.filter((r) => s(r[4]) === '採番済').map((r) => s(r[1])), lastCompletedAt: num.map((r) => s(r[6])).filter(Boolean).sort().at(-1) || '' } };
 }

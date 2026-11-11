@@ -305,12 +305,21 @@ function p25v2GasIo_(config) {
   };
 }
 function p25v2GasSha256_(s) { return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, s, Utilities.Charset.UTF_8).map(function (b) { return ('0' + (b & 255).toString(16)).slice(-2); }).join(''); }
-// 公式RSSの取得（GAS）。feeds: [{show, url, limit}]。1フィードの失敗で全体を止めず、失敗は記録する。
+function p25v2Sleep_(ms) { if (typeof Utilities !== 'undefined' && Utilities.sleep) Utilities.sleep(ms); }
+// 収蔵工程は清掃・出演者・関連記事を書かない（品質未検証の値を台帳本体に入れない）。原文は収蔵詳細にだけ保全する。
+function p25v2StripUnverified_(items) { return (items || []).map(function (x) { var y = {}; Object.keys(x).forEach(function (k) { if (['summaryCleaned', 'cast', 'relatedUrls'].indexOf(k) < 0) y[k] = x[k]; }); return y; }); }
+// 公式RSSの取得（GAS）。feeds: [{show, url, limit}]（limit 省略=30件、0=全件）。1フィードの失敗で全体を止めず、失敗は記録する。
 function p25v2FetchFeeds_(feeds) {
   var items = [], errors = [];
   (feeds || []).forEach(function (f) {
-    try { var r = UrlFetchApp.fetch(f.url, { muteHttpExceptions: true }); if (r.getResponseCode() !== 200) throw new Error('FEED_HTTP_' + r.getResponseCode()); items = items.concat(p25v2ParseRss_(r.getContentText(), f.url, f.show, f.limit || 30)); }
-    catch (e) { errors.push({ show: f.show, error: String(e.message || e) }); }
+    var last = '';
+    for (var attempt = 0; attempt < 2; attempt++) {   // 一時障害（5xx・通信例外）は1回だけ再試行。4xxは再試行しない
+      try { var r = UrlFetchApp.fetch(f.url, { muteHttpExceptions: true }), code = r.getResponseCode();
+        if (code !== 200) { last = 'FEED_HTTP_' + code; if (code >= 500 && attempt === 0) { p25v2Sleep_(2000); continue; } break; }
+        items = items.concat(p25v2ParseRss_(r.getContentText(), f.url, f.show, f.limit == null ? 30 : (f.limit > 0 ? f.limit : undefined))); last = ''; break; }
+      catch (e) { last = String(e.message || e); if (/UNVERIFIED_FEED_HOST|FEED_INVALID/.test(last) || attempt > 0) break; p25v2Sleep_(2000); }
+    }
+    if (last) errors.push({ show: f.show, error: last });
   });
   return { items: items, errors: errors };
 }
@@ -320,9 +329,9 @@ function P25V2_INGEST_COPY(config, items, write) {
   var lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return { status: 'LOCKED' };
   try {
     var src = items || p25v2FetchFeeds_(config.feeds);
-    var res = p25v2Ingest_(p25v2GasIo_(config), config, src.items || src, { write: write === true, maxRows: config.maxRows || 1, deadlineMs: Date.now() + 4 * 60 * 1000, sha256: p25v2GasSha256_ });
+    var res = p25v2Ingest_(p25v2GasIo_(config), config, p25v2StripUnverified_(src.items || src), { write: write === true, maxRows: config.maxRows || 1, deadlineMs: Date.now() + 4 * 60 * 1000, sha256: p25v2GasSha256_ });
     res.feedErrors = src.errors || []; return res;
   } finally { lock.releaseLock(); }
 }
 
-if (typeof module !== 'undefined' && module.exports) module.exports = { assertIsolated: p25v2AssertIsolated_, detailRow: p25v2DetailRow_, DETAIL_HEADERS: P25V2_DETAIL_HEADERS_, URLSTATE_HEADERS: P25V2_URLSTATE_HEADERS_, HARD_CAP: P25V2_HARD_CAP_, parseRss: p25v2ParseRss_, jstDate: p25v2JstDate_, numbering: p25v2Numbering_, allocate: p25v2Allocate_, NUM_HEADERS: P25V2_NUM_HEADERS_, schema: p25v2Schema_, classify: p25v2Classify_, records: p25v2Records_, buildRow: p25v2BuildRow_, nextEpId: p25v2NextEpId_, publicCount: p25v2PublicCount_, assertCopyTarget: p25v2AssertCopyTarget_, ingest: p25v2Ingest_, HEADERS: P25V2_HEADERS_, PROTECTED: P25V2_PROTECTED_IDS_, SHEET: P25V2_SHEET_, SCOPE: P25V2_SCOPE_ };
+if (typeof module !== 'undefined' && module.exports) module.exports = { stripUnverified: p25v2StripUnverified_, fetchFeeds: p25v2FetchFeeds_, assertIsolated: p25v2AssertIsolated_, detailRow: p25v2DetailRow_, DETAIL_HEADERS: P25V2_DETAIL_HEADERS_, URLSTATE_HEADERS: P25V2_URLSTATE_HEADERS_, HARD_CAP: P25V2_HARD_CAP_, parseRss: p25v2ParseRss_, jstDate: p25v2JstDate_, numbering: p25v2Numbering_, allocate: p25v2Allocate_, NUM_HEADERS: P25V2_NUM_HEADERS_, schema: p25v2Schema_, classify: p25v2Classify_, records: p25v2Records_, buildRow: p25v2BuildRow_, nextEpId: p25v2NextEpId_, publicCount: p25v2PublicCount_, assertCopyTarget: p25v2AssertCopyTarget_, ingest: p25v2Ingest_, HEADERS: P25V2_HEADERS_, PROTECTED: P25V2_PROTECTED_IDS_, SHEET: P25V2_SHEET_, SCOPE: P25V2_SCOPE_ };

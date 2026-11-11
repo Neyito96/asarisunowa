@@ -37,7 +37,7 @@ test('概要清掃は非破壊: 原文は変えず、清掃結果を別列へ。
   const r = planSummaryCleaning(vals, det, clean, 'clean-v1', 'NOW');
   assert.equal(r.ledgerCells.length, 1); assert.equal(r.ledgerCells[0].value, '原文 A'); assert.equal(r.ledgerCells[0].column, colLetter(C('概要（清掃済）')));
   assert.deepEqual(r.hold, [{ ep: 'EP-00002', why: 'CLEANED_DIFFERS_FROM_EXISTING' }]);
-  assert.deepEqual(r.detailUpdates.map((u) => u.清掃状態), ['清掃済', '清掃済', '清掃失敗']);
+  assert.deepEqual(r.detailUpdates.map((u) => u.清掃状態), ['自動処理済・未検証', '自動処理済・未検証', '清掃失敗']);
   assert.equal(det[1][4], '原文\nA');                                                       // 原文は不変
   const again = planSummaryCleaning(vals, [DH, ['EP-00001', G(1), '', '', '原文', '', '', '清掃済', 'clean-v1', '', '', '']], clean, 'clean-v1', 'NOW');
   assert.equal(again.detailUpdates.length, 0);                                               // 同じ版は再実行しない（版を上げれば再清掃）
@@ -75,10 +75,10 @@ test('封緘転送: 公開鍵で暗号化→秘密鍵でのみ復号。暗号文
   assert.ok(!fs.readFileSync('.github/workflows/v2-rss-readonly.yml', 'utf8').includes('path: rss-items.json'));   // 本文入りファイルを成果物に出さない
 });
 
-test('清掃（既存 editDescription を再利用）: 共通案内・SNS・追跡パラメータを除去、本文の固有名詞は保全、関連記事は見出し＋URLで抽出、出演・スタッフは候補として分離、一行化', () => {
+test('清掃（既存 editDescription を再利用）: 共通案内・SNS・追跡パラメータを除去、本文の固有名詞は保全、関連記事は見出し＋URLで抽出、出演・スタッフは候補として分離、段落の改行は保持（v2rules-3）', () => {
   const raw = '防衛費の議論を、記者が解説します。\n※2026年10月9日に収録しました。\n【関連記事】\n防衛費、過去最大に\nhttps://www.asahi.com/articles/ASV1.html?iref=omny\n【出演・スタッフ】\n山田太郎（編集委員）\n朝日新聞ポッドキャスト（ https://www.asahi.com/special/podcasts/?iref=omny ）では他にも様々な番組を配信、テキストでも読めます。';
   const r = v2CleanSummary(raw);
-  assert.equal(r.ok, true); assert.ok(r.text.includes('防衛費の議論を、記者が解説します。')); assert.ok(!r.text.includes('\n'));
+  assert.equal(r.ok, true); assert.ok(r.text.includes('防衛費の議論を、記者が解説します。')); assert.equal(r.text, '防衛費の議論を、記者が解説します。\n※2026年10月9日に収録しました。');
   assert.ok(!r.text.includes('では他にも') && !r.text.includes('iref'));
   assert.deepEqual(r.related, [{ title: '防衛費、過去最大に', url: 'https://www.asahi.com/articles/ASV1.html' }]);
   assert.deepEqual(r.staff, ['山田太郎（編集委員）']);
@@ -91,7 +91,7 @@ test('清掃計画: 収蔵詳細の追加列（清掃済み本文・関連記事
   const det = [DH, ['EP-00001', G(1), 'rss', 'T', '本文です。\n【関連記事】\n見出し\nhttps://www.asahi.com/articles/A.html', 'h', '9', '未清掃', '', '', '', '', '', '', '', '', '公式RSS直接']];
   const r = planSummaryCleaning(V(), det, v2CleanSummary, CLEAN_VERSION, 'NOW');
   assert.equal(r.detailUpdates.length, 1); const u = r.detailUpdates[0];
-  assert.equal(u.清掃状態, '清掃済'); assert.equal(u.清掃済み本文, '本文です。'); assert.equal(JSON.parse(u['関連記事(抽出)'])[0].url, 'https://www.asahi.com/articles/A.html'); assert.equal(JSON.parse(u['関連記事(抽出)'])[0].source, '概要原文');
+  assert.equal(u.清掃状態, '自動処理済・未検証'); assert.equal(u.清掃済み本文, '本文です。'); assert.equal(JSON.parse(u['関連記事(抽出)'])[0].url, 'https://www.asahi.com/articles/A.html'); assert.equal(JSON.parse(u['関連記事(抽出)'])[0].source, '概要原文');
   const done = det.map((x) => [...x]); done[1][7] = '清掃済'; done[1][8] = CLEAN_VERSION;
   assert.equal(planSummaryCleaning(V(), done, v2CleanSummary, CLEAN_VERSION, 'NOW').detailUpdates.length, 0);
   assert.equal(det[1][4].startsWith('本文です。\n'), true);
@@ -100,13 +100,13 @@ test('清掃計画: 収蔵詳細の追加列（清掃済み本文・関連記事
 test('V2追加規則（実データで見つかった取りこぼし）: 出演欄は案内で打ち切り・URL除去、学校型の本文内記事は関連記事へ、共通案内・広告文を除去、配信予定文は文ごと除去', () => {
   const omny = '<p>話題の本文です。</p> <p>※2026年10月5日に収録しました。3人のトークは毎週月曜日に配信します</p> <p>【出演・スタッフ】<br>山田太郎（音源編集）&nbsp;<a href="https://bit.ly/x">https://bit.ly/x</a><br>MC 佐藤花子（編集委員）</p> <p>【おねがい】<br>朝日新聞ポッドキャストは、みなさまからの購読料で配信しています。</p> <p>【朝ポキ情報】<br>交流はdiscord https://bit.ly/d</p><p>See <a href="https://omnystudio.com/listener">omnystudio.com/listener</a> for privacy information.</p>';
   const a = v2CleanSummary(omny);
-  assert.equal(a.text, '話題の本文です。 ※2026年10月5日に収録しました。');
+  assert.equal(a.text, '話題の本文です。\n※2026年10月5日に収録しました。');
   assert.deepEqual(a.staff, ['山田太郎（音源編集）', 'MC 佐藤花子（編集委員）']);
   const mega = '<p>ニュースの説明文。</p>\n<p>記事の見出しです<br><a href="https://www.asahi.com/articles/ASV1.html?iref=omny">https://www.asahi.com/articles/ASV1.html?iref=omny</a>&nbsp;</p>\n<p>ご意見・感想・リクエスト <a href="https://bit.ly/q">https://bit.ly/q</a><br>ほかにも多彩な番組を配信中！ <a href="http://t.asahi.com/w">http://t.asahi.com/w</a></p><p>Learn more about your ad choices. Visit <a href="https://megaphone.fm/adchoices">megaphone.fm/adchoices</a></p>';
   const b = v2CleanSummary(mega);
   assert.equal(b.text, 'ニュースの説明文。');
   assert.deepEqual(b.related, [{ title: '記事の見出しです', url: 'https://www.asahi.com/articles/ASV1.html' }]);
-  assert.equal(b.ok, true); assert.ok(CLEAN_VERSION.endsWith('+v2rules-2'));
+  assert.equal(b.ok, true); assert.ok(CLEAN_VERSION.endsWith('+v2rules-3'));
 });
 
 test('原文の後日補完: 記録済みSHA256(先頭一致)・文字数が一致する空欄行だけ。違えば HOLD、既に原文がある行は触らない（再実行差分0）', async () => {
@@ -130,18 +130,28 @@ test('出演者候補は出典と「候補（未確定）」付きのJSON。同�
   assert.ok(c.every((x) => x.source === '概要原文【出演・スタッフ】' && x.confidence === '候補（未確定）'));
 });
 
-test('概要（清掃済）への投影: 清掃済・原文ハッシュ一致・GUID一致・空欄だけ。既存値は保護、再実行は0', async () => {
-  const { planSummaryProjection } = await import('../scripts/ledger-v2/v2-enrich.mjs');
+test('概要（清掃済）への投影: 品質確認済（目視の記録あり・SHA/版一致）だけ。自動処理済・未検証や自動検査だけの合格は投影しない。既存値は保護、再実行は0', async () => {
+  const { planSummaryProjection, QUALITY_LOG_HEADERS } = await import('../scripts/ledger-v2/v2-enrich.mjs').then(async (m) => ({ ...m, ...(await import('../scripts/ledger-v2/summary-quality-audit.mjs')) }));
   const crypto = await import('node:crypto'); const sha = (t) => crypto.createHash('sha256').update(t).digest('hex');
   const vals = V(); vals[2][C('概要（清掃済）')] = '人の文';
-  const det = [DH, ['EP-00001', G(1), '', '', '原文1', sha('原文1'), '3', '清掃済', 'v', '', '', '', '清掃1', '', '', '', ''],
-    ['EP-00002', G(2), '', '', '原文2', sha('原文2'), '3', '清掃済', 'v', '', '', '', '清掃2', '', '', '', ''],
-    ['EP-00003', G(3), '', '', '原文3', 'bad', '3', '清掃済', 'v', '', '', '', '清掃3', '', '', '', ''],
-    ['EP-00001', G(9), '', '', '原文9', sha('原文9'), '3', '清掃済', 'v', '', '', '', '清掃9', '', '', '', '']];
-  const r = planSummaryProjection(vals, det, sha);
+  const row = (ep, g, raw, h, st, text) => [ep, g, '', '', raw, h, '3', st, 'v', '', '', '', text, '', '', '', ''];
+  const det = [DH, row('EP-00001', G(1), '原文1', sha('原文1'), '品質確認済', '清掃1'), row('EP-00002', G(2), '原文2', sha('原文2'), '品質確認済', '清掃2'),
+    row('EP-00003', G(3), '原文3', 'bad', '品質確認済', '清掃3'), row('EP-00001', G(9), '原文9', sha('原文9'), '品質確認済', '清掃9'),
+    row('EP-00004', G(4), '原文4', sha('原文4'), '自動処理済・未検証', '清掃4'), row('EP-00005', G(5), '原文5', sha('原文5'), '品質確認済', '清掃5')];
+  const q = (ep, h, how, who = '管理人') => [ep, '', h, '', 'v', 'SQA-1', '品質確認済', '', how, who, 'T', ''];
+  const qual = [[...QUALITY_LOG_HEADERS], q('EP-00001', sha('原文1')), q('EP-00002', sha('原文2')), q('EP-00003', 'bad'), q('EP-00001', sha('原文9')), q('EP-00004', sha('原文4')), q('EP-00005', sha('原文5'), '自動検査')].map((r) => (r[8] === undefined || r[0] === 'EP-ID' ? r : (r[8] = r[8] || '原文と目視比較', r)));
+  qual[1][8] = qual[2][8] = qual[3][8] = qual[4][8] = qual[5][8] = '原文と目視比較';
+  const r = planSummaryProjection(vals, det, sha, qual);
   assert.deepEqual(r.cells.map((c) => [c.epId, c.column, c.value]), [['EP-00001', 'N', '清掃1']]);
-  assert.deepEqual(r.hold.map((h) => h.why).sort(), ['EXISTING_VALUE_PROTECTED', 'GUID_MISMATCH', 'RAW_HASH_UNVERIFIED']);
-  vals[1][C('概要（清掃済）')] = '清掃1'; assert.equal(planSummaryProjection(vals, det, sha).cells.length, 0);
+  assert.deepEqual(r.hold.map((h) => h.why).sort(), ['EXISTING_VALUE_PROTECTED', 'GUID_MISMATCH', 'QUALITY_NOT_CONFIRMED', 'QUALITY_NOT_CONFIRMED', 'RAW_HASH_UNVERIFIED']);
+  assert.equal(planSummaryProjection(vals, det, sha).cells.length, 0);   // 品質記録なし→投影0
+  vals[1][C('概要（清掃済）')] = '清掃1'; assert.equal(planSummaryProjection(vals, det, sha, qual).cells.length, 0);
+});
+
+test('清掃計画: 品質確認済の行は新しい版でも自動上書きしない', () => {
+  const vals = V(); const det = [DH, ['EP-00001', G(1), '', '', '原文', '', '', '品質確認済', 'old', '', '', '', '人が確認した文', '', '', '', '']];
+  const r = planSummaryCleaning(vals, det, () => ({ ok: true, text: '新案' }), 'new', 'NOW');
+  assert.equal(r.detailUpdates.length, 0); assert.deepEqual(r.hold, [{ ep: 'EP-00001', why: 'QUALITY_CONFIRMED_NOT_OVERWRITTEN' }]);
 });
 
 test('遡及照合カーソル: 予算内で古い方へ進む・失敗時は進めない・完了は止まる・同じ状態からの再計画は同じ', async () => {

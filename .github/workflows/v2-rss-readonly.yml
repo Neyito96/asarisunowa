@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: '22' }
-      - run: node --test tests/p25-v2-ingest.test.mjs tests/v2-leak-guard.test.mjs
+      - run: node --test tests/p25-v2-ingest.test.mjs tests/v2-leak-guard.test.mjs tests/p25v2-copy-gas.test.mjs tests/summary-quality-audit.test.mjs
       - run: node scripts/ledger-v2/fetch-official-rss.mjs 40 rss-items.json
       - run: node scripts/ledger-v2/post-rss-dump.mjs rss-items.json 306
         env: { GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
