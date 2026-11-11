@@ -159,3 +159,12 @@ test('v2検証: keyPolicy=EPID+GUID なのに guidCheck 無し / GUID形式不�
   const e = R.validateManifest(m);
   assert.ok(e.includes('NO_GUID_CHECK_COLUMNS')); assert.ok(e.some((x) => x.startsWith('BAD_GUID')));
 });
+
+test('GAS入口のハッシュ照合: digestInput の sha256 が生成時の sha256 と一致（整形保存・再読込後も）', async () => {
+  const crypto = await import('node:crypto');
+  const { batches } = buildManifest({ ...fixture([{ n: 1 }, { n: 2 }]), spreadsheetId: 'COPY-ID' });
+  const reread = JSON.parse(JSON.stringify(batches[0], null, 1));
+  const h = crypto.createHash('sha256').update(R.digestInput(reread), 'utf8').digest('hex');
+  assert.equal(h, batches[0].sha256);
+  assert.equal(batches[0].approval.spreadsheetId, 'COPY-ID');
+});

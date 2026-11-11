@@ -170,21 +170,46 @@ var LedgerFillRobot_ = (function () {
   return { run: run, validateManifest: validateManifest, auditDiff: auditDiff, auditDiffByEp: auditDiffByEp, isTransient: isTransient, DEFAULTS: DEFAULTS, listenUrlOk: listenUrlOk };
 })();
 
-// GAS 用アダプタ（本番未接続。SPREADSHEET_ID は既存定数を利用。導入は別承認）。
+// マニフェストのハッシュ対象文字列（build-manifest*.mjs と同じ: sha256 を除いた JSON.stringify）。
+function ledgerFillRobotDigestInput_(m) { var c = JSON.parse(JSON.stringify(m)); delete c.sha256; return JSON.stringify(c); }
+
+// GAS 用アダプタ（本番未接続）。第50号: 既存 SPREADSHEET_ID（コード.js の別シート）は使わない。書込先は必ず明示する。
 function ledgerFillRobotGasAdapter_(spreadsheetId, sheetName) {
   var sheet = SpreadsheetApp.openById(spreadsheetId).getSheetByName(sheetName);
+  if (!sheet) throw new Error('LFR_SHEET_NOT_FOUND');
   var lock = LockService.getScriptLock(); var props = PropertiesService.getScriptProperties();
+  function colNo(col) { var n = 0; for (var i = 0; i < col.length; i++) n = n * 26 + (col.charCodeAt(i) - 64); return n; }
   return {
-    readColumn: function (col) { var last = sheet.getLastRow(); var idx = col.charCodeAt(0) - 64; return sheet.getRange(1, idx, last, 1).getValues().map(function (r) { return String(r[0]); }); },
-    writeCells: function (cells) { cells.forEach(function (u) { sheet.getRange(u.row, u.col.charCodeAt(0) - 64).setValue(u.value); }); SpreadsheetApp.flush(); },
+    readColumn: function (col) { var last = sheet.getLastRow(); return sheet.getRange(1, colNo(col), last, 1).getDisplayValues().map(function (r) { return String(r[0]); }); },
+    writeCells: function (cells) { cells.forEach(function (u) { sheet.getRange(u.row, colNo(u.col)).setValue(u.value); }); SpreadsheetApp.flush(); },
     lock: { tryLock: function (ms) { return lock.tryLock(ms); }, release: function () { lock.releaseLock(); } },
     props: { get: function (k) { return props.getProperty(k); }, set: function (k, v) { props.setProperty(k, v); } },
     sleep: function (ms) { Utilities.sleep(ms); }, nowMs: function () { return Date.now(); }, random: Math.random
   };
 }
-// 手動実行用エントリ（モード既定はDRY_RUN。WRITEは manifest.approval と明示指定が必要）。
-function runLedgerFillRobot(manifestJson, mode) {
-  var manifest = JSON.parse(manifestJson);
-  return LedgerFillRobot_.run(manifest, ledgerFillRobotGasAdapter_(SPREADSHEET_ID, manifest.approval.sheet), mode || 'DRY_RUN');
+
+// 手動実行用エントリ（第50号）。設定は Script Properties だけで行い、コードに台帳IDを書かない。
+//   LFR_TARGET_SPREADSHEET_ID : 書込先（COPY試験では COPY 台帳のID）
+//   LFR_MANIFEST_FILE_ID      : マニフェストJSONを置いた Drive ファイルID
+//   LFR_APPROVED_SHA256       : 管理人が承認したマニフェストの sha256
+//   LFR_ALLOW_WRITE_RUN_ID    : WRITE を許可する runId（空なら WRITE 不可）
+// WRITE の条件: 上記すべて一致 + manifest.approval.spreadsheetId == LFR_TARGET_SPREADSHEET_ID。
+function runLedgerFillRobotFromProps(mode) {
+  mode = mode || 'DRY_RUN';
+  var p = PropertiesService.getScriptProperties();
+  var target = p.getProperty('LFR_TARGET_SPREADSHEET_ID'), fileId = p.getProperty('LFR_MANIFEST_FILE_ID');
+  if (!target || !fileId) return { status: 'CONFIG_MISSING' };
+  var m = JSON.parse(DriveApp.getFileById(fileId).getBlob().getDataAsString('UTF-8'));
+  var bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, ledgerFillRobotDigestInput_(m), Utilities.Charset.UTF_8);
+  var hex = bytes.map(function (b) { return ('0' + (b & 255).toString(16)).slice(-2); }).join('');
+  if (hex !== m.sha256) return { status: 'MANIFEST_HASH_MISMATCH' };
+  if (mode === 'WRITE') {
+    if (hex !== p.getProperty('LFR_APPROVED_SHA256')) return { status: 'WRITE_NOT_APPROVED_SHA' };
+    if (m.runId !== p.getProperty('LFR_ALLOW_WRITE_RUN_ID')) return { status: 'WRITE_NOT_APPROVED_RUN' };
+    if (!m.approval || m.approval.spreadsheetId !== target) return { status: 'WRITE_TARGET_MISMATCH' };
+  }
+  var res = LedgerFillRobot_.run(m, ledgerFillRobotGasAdapter_(target, m.approval.sheet), mode);
+  console.log(JSON.stringify({ runId: res.runId, mode: res.mode, status: res.status, counts: res.counts, stats: res.stats, skips: res.skips.length, failures: res.failures.slice(0, 5) }));
+  return res;
 }
-if (typeof module !== 'undefined' && module.exports) module.exports = LedgerFillRobot_;
+if (typeof module !== 'undefined' && module.exports) { LedgerFillRobot_.digestInput = ledgerFillRobotDigestInput_; module.exports = LedgerFillRobot_; }

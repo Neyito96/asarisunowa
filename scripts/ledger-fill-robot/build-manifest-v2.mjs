@@ -8,6 +8,7 @@
 // usage:
 //   node build-manifest-v2.mjs --ledger AK.json --judge BDBE.json --scope 判定タブ.json --sdgs SDGs1095.json \
 //        --rss lpa.json --out manifest.json --report report.json --run-id <id> [--issue 283] [--max 1000] [--hold EP-1,EP-2]
+//        [--spreadsheet-id <書込先ID>]  ← WRITE用マニフェストには必須（GAS入口が書込先と照合）。省略時は DRY_RUN 専用
 // 入力 JSON はいずれも Sheets values.get 形式 {values:[[...],...]}（rss は probe-listen-pody-amazon.mjs のダンプ {listen:{番組:{all:[[guid,url,date],...]}}}）。
 import fs from 'node:fs';
 import crypto from 'node:crypto';
@@ -37,7 +38,7 @@ function rssJstDay(p) {
   return Math.floor((t + 9 * 3600e3) / 864e5);
 }
 
-export function buildManifest({ ledger, judge, scope, sdgs, rss, runId, issue = '283', max = 1000, hold = DEFAULT_HOLD }) {
+export function buildManifest({ ledger, judge, scope, sdgs, rss, runId, issue = '283', max = 1000, hold = DEFAULT_HOLD, spreadsheetId = '' }) {
   // 台帳V2で列順が変わったら誤読せず停止する（列は見出し名で確認。行番号は使わない）
   const need = (t, i, name, tab) => { if (!s((t[0] || [])[i]).startsWith(name)) throw new Error(`HEADER_MISMATCH ${tab}[${i}] expected "${name}" got "${s((t[0] || [])[i])}"`); };
   [[0, '台帳ID'], [1, '番組名'], [3, '配信日時'], [6, '外部ID'], [9, '公式個別URL'], [10, 'LISTEN URL']].forEach(([i, n]) => need(ledger, i, n, 'エピソード台帳'));
@@ -133,7 +134,7 @@ export function buildManifest({ ledger, judge, scope, sdgs, rss, runId, issue = 
   const batches = [];
   for (let b = 0; b * max < total; b++) {
     const part = cells.slice(b * max, (b + 1) * max);
-    const m = { runId: `${runId}-b${b + 1}`, urlShape: 'listen', keyPolicy: 'EPID+GUID', guidCheck: { columns: ['G', 'J'] }, holdEpIds: hold, approval: { issue, columns: ['K'], maxCells: max, sheet: 'エピソード台帳' }, cells: part };
+    const m = { runId: `${runId}-b${b + 1}`, urlShape: 'listen', keyPolicy: 'EPID+GUID', guidCheck: { columns: ['G', 'J'] }, holdEpIds: hold, approval: { issue, columns: ['K'], maxCells: max, sheet: 'エピソード台帳', ...(spreadsheetId ? { spreadsheetId } : {}) }, cells: part };
     m.sha256 = crypto.createHash('sha256').update(JSON.stringify(m)).digest('hex');
     batches.push(m);
   }
@@ -153,7 +154,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const rd = (f) => JSON.parse(fs.readFileSync(f, 'utf8'));
   const vals = (f) => (f ? rd(f).values : null);
   const hold = arg('hold') ? arg('hold').split(',') : DEFAULT_HOLD;
-  const { batches, report, review } = buildManifest({ ledger: vals(arg('ledger')), judge: vals(arg('judge')), scope: vals(arg('scope')), sdgs: vals(arg('sdgs')), rss: rd(arg('rss')), runId: arg('run-id', 'listen-k-v2'), issue: arg('issue', '283'), max: +arg('max', 1000), hold });
+  const { batches, report, review } = buildManifest({ ledger: vals(arg('ledger')), judge: vals(arg('judge')), scope: vals(arg('scope')), sdgs: vals(arg('sdgs')), rss: rd(arg('rss')), runId: arg('run-id', 'listen-k-v2'), issue: arg('issue', '283'), max: +arg('max', 1000), hold, spreadsheetId: arg('spreadsheet-id', '') });
   const out = arg('out', 'manifest.json');
   batches.forEach((m, i) => fs.writeFileSync(out.replace(/\.json$/, `-b${i + 1}.json`), JSON.stringify(m, null, 1)));
   fs.writeFileSync(arg('report', 'manifest-report.json'), JSON.stringify(report, null, 1));

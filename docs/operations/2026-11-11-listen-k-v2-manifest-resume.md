@@ -25,7 +25,8 @@
 - `docs/release/2026-11-11-listen-k-v2-manifest-report.json` … 件数・除外理由・EP-ID例・SDGs照合
 - `docs/release/2026-11-11-listen-k-v2-review-shared-guid.json` … 別承認用レビュー119件（`REVIEW_ONLY_NOT_APPROVED`）
 - `scripts/google-apps-script/LedgerFillRobot.js` … 追加: `keyPolicy:'EPID+GUID'` の検証、書込直前の行GUID再確認（`SKIP_GUID_MISMATCH`）、EP-ID基準の全行差分監査 `auditDiffByEp`
-- `tests/ledger-fill-robot-v2.test.mjs` … 追加11件（重複・行移動・SDGs・見出し変更・固定sha等）。既存12件と合わせ **23/23 合格**
+- GAS入口を `runLedgerFillRobotFromProps(mode)` に変更（書込先・マニフェスト・承認sha256・承認runIdを Script Properties で照合）。**既存 `SPREADSHEET_ID`（コード.js）は本番台帳と別シートのため使わない。**
+- `tests/ledger-fill-robot-v2.test.mjs` … 追加12件（重複・行移動・SDGs・見出し変更・固定sha等）。既存12件と合わせ **24/24 合格**
 
 台帳本文（タイトル・概要等）はリポジトリに置いていない。マニフェストは EP-ID・GUID・LISTEN公開URL・番組名・RSS配信日のみ。
 
@@ -39,6 +40,8 @@
 
 ## 4. 未完事項（承認待ち・未確認）
 - [ ] **本番書込は未承認**（888件・レビュー119件とも）。書込はGASロボット経由のみ（Claude逐セル書込は再開しない＝第49号）。
+- [ ] コミット済み b1 マニフェストは `approval.spreadsheetId` 無し＝**DRY_RUN専用**。WRITE には `--spreadsheet-id` 付きで再生成し、管理人が sha256/runId を承認する。
+- [ ] `scripts/google-apps-script/` に `.claspignore` が無く、本番へ clasp push するとロボットも入る。除外/移動の判断が必要（要承認）。
 - [ ] COPY台帳でのGAS実機試験（手順書: `docs/operations/2026-11-11-ledger-fill-robot-gas-setup.md`）。
 - [ ] 「台帳V2」の正式な列構成は **未確認**。現時点は行番号非依存＋見出し確認で対応。
 - [ ] RSS未一致25件（EP-00043等の古い現場回）は原因未確認。
@@ -60,5 +63,5 @@
      --run-id listen-k-v2-YYYYMMDD --max 1000
    ```
    同じ入力なら同じ sha256 になる（固定マニフェスト）。
-4. テスト: `node --test tests/ledger-fill-robot.test.mjs tests/ledger-fill-robot-v2.test.mjs`（23件）
-5. 書込（承認後のみ）: GASで `runLedgerFillRobot(manifestJson, 'DRY_RUN')` → 結果確認 → 承認記録のうえ `'WRITE'` → 前後 A:K を取得して `auditDiffByEp(pre, post, manifest)` の `unexpected === 0` を確認。異常時は停止して報告。
+4. テスト: `node --test tests/ledger-fill-robot.test.mjs tests/ledger-fill-robot-v2.test.mjs`（24件）
+5. 書込（承認後のみ）: 手順書どおり GAS で `runLedgerFillRobotFromProps('DRY_RUN')` → 結果確認 → 承認記録のうえ `'WRITE'` → 前後 A:K を取得して `auditDiffByEp(pre, post, manifest)` の `unexpected === 0` を確認。異常時は停止して報告。
