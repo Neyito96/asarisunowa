@@ -101,7 +101,7 @@ const FEED = (G) => `<rss><channel><item><title>A</title><guid>${G(1)}</guid><pu
 test('配布GAS: 再生成と一致・実行一覧は S0〜S9 だけ・収蔵の入口は出さない・トリガー作成なし', () => {
   assert.equal(SRC, buildCleanerGas()['SummaryCleaner.js']);
   const pub = [...SRC.matchAll(/^function ([^\s(]+)\(/gm)].map((m) => m[1]).filter((n) => /^[A-Z]/.test(n) && !/_$/.test(n));   // モジュール内部（即時関数の中）の関数は実行一覧に出ない
-  assert.deepEqual(pub, ['S0_進捗', 'S1_点検', 'S2_清掃監査', 'S3A_COPYへ反映_試験10件', 'S3B_COPYへ反映_全件', 'S4_V2作業用へ反映', 'S9_直前の反映を取消', 'S8_診断']);
+  assert.deepEqual(pub, ['S0_進捗', 'S1_点検', 'S2_清掃監査', 'S3A_COPYへ反映_試験10件', 'S3B_COPYへ反映_全件', 'S4_V2作業用へ反映', 'S9_直前の反映を取消', 'S8_診断', 'S7_抜き取り']);
   assert.ok(!/newTrigger|DriveApp|MailApp/.test(SRC)); assert.ok(!/function\s+do(Get|Post)\b/.test(SRC));
 });
 
@@ -119,8 +119,9 @@ test('配布GAS模擬: 点検→清掃監査（結果シート・進捗）→再
   assert.equal(copyL[1][N], '一の本文です。'); assert.equal(copyL[1][P], 'https://www.asahi.com/articles/ASX1.html'); assert.equal(copyL[2][N], '人が直した概要'); assert.equal(copyL[3][N], '');
   assert.equal(e.run('S3B_COPYへ反映_全件').status, 'OK_NO_CHANGE');
   const v2 = e.books[V2W].sheets['V2・統合台帳'].st.rows, v2snap = JSON.stringify(v2);
-  assert.equal(e.run('S4_V2作業用へ反映').cellsWritten, 0); assert.equal(JSON.stringify(v2), v2snap);   // 人の確認なし→書かない
-  r1[Hh.indexOf('人の確認')] = 'OK'; const w = e.run('S4_V2作業用へ反映'); assert.equal(w.status, 'OK'); assert.equal(v2[1][N], '一の本文です。');
+  e.g.SC_CONFIG.v2ApplyLevel = 'HUMAN_OK'; assert.equal(e.run('S4_V2作業用へ反映').cellsWritten, 0); assert.equal(JSON.stringify(v2), v2snap);   // 人の確認なし→書かない
+  r1[Hh.indexOf('人の確認')] = 'OK'; const w = e.run('S4_V2作業用へ反映'); assert.equal(w.status, 'OK'); assert.equal(v2[1][N], '一の本文です。'); assert.equal(w.detailRows, 1);
+  const det = e.books[V2W].sheets['V2・清掃詳細'].st.rows; assert.equal(det[1][0], 'EP-1'); assert.deepEqual(JSON.parse(det[1][2]).map((x) => x.title), ['一の記事見出し']);   // V2側にも見出し＋URLの組を保持
   const u = e.run('S9_直前の反映を取消'); assert.equal(u.undone, 2); assert.equal(v2[1][N], ''); assert.equal(v2[1][P], '');
   e.g.SC_CONFIG.copyId = '1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4'; assert.throws(() => e.run('S1_点検'), /PROTECTED_TARGET_REFUSED/);
 });
