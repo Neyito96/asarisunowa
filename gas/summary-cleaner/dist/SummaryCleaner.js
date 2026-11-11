@@ -660,6 +660,15 @@ function derivedFromRaw(existing, raw) {
   return ex.split(/\n+/).every((l) => { const n = NZ(stripUrls(l)).replace(/^【[^】]*】/, ''); return !n || srcN.includes(n); });
 }
 
+// 診断用: 自動値とみなせなかった最初の理由（短く切る）
+function explainDerived(existing, raw) {
+  const ex = T(existing); if (!ex) return null;
+  const src = descriptionLines(String(raw ?? '').replace(/<!\[CDATA\[|\]\]>/g, '')).join('\n'), srcN = NZ(stripUrls(src)), srcUrls = new Set(urlsOf(src).map(cleanUrl));
+  const u = urlsOf(ex).find((x) => !srcUrls.has(cleanUrl(x))); if (u) return { type: 'URL_NOT_IN_RAW', sample: u.slice(0, 80), rawUrls: [...srcUrls].slice(0, 3).map((x) => x.slice(0, 60)) };
+  const l = ex.split(/\n+/).find((x) => { const n = NZ(stripUrls(x)).replace(/^【[^】]*】/, ''); return n && !srcN.includes(n); });
+  return l ? { type: 'TEXT_NOT_IN_RAW', sample: l.slice(0, 80) } : null;
+}
+
 // 1件の判定。existing = 台帳の現在値 {summary, cast, related}
 function judgeEpisode(raw, existing = {}, sha256) {
   const c = cleanV4(raw), findings = [];
@@ -680,7 +689,7 @@ function judgeEpisode(raw, existing = {}, sha256) {
   return { verdict, reason: [...new Set([...c.holds, ...findings])].join(','), clean: c, findings, compare: cmp, writable, manual, rawSha: sha256 ? sha256(String(raw)) : '', auditVersion: AUDIT_VERSION };
 }
 
-return { CLEANER_VERSION, sections, parseCastLine, cleanV4, castCell, relatedCell, derivedFromRaw, judgeEpisode };
+return { CLEANER_VERSION, sections, parseCastLine, cleanV4, castCell, relatedCell, derivedFromRaw, explainDerived, judgeEpisode };
 })();
 
 // ===== 概要欄清掃ロボ（Issue #308）— 入口 =====
@@ -862,4 +871,27 @@ function S9_直前の反映を取消() {
   if (out.length) hist.getRange(hist.getLastRow() + 1, 1, out.length, SC_HIST_HEADERS_.length).setValues(out);
   PropertiesService.getScriptProperties().deleteProperty('SC_LAST_APPLY');
   return scLog_('S9_直前の反映を取消', { status: 'OK', undone: undone, keptBecauseEditedAfter: kept });
+}
+
+// S8: 診断（書込なし）。判定理由ごとに数件、原因の行を短く表示する（不具合の調査用）
+function S8_診断() {
+  var o = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), res = o.ss.getSheetByName(SC_RESULT_), L = scLedger_(o.sh), raw = scRawMap_(), byEp = {};
+  L.rows.forEach(function (r) { byEp[r.ep] = r; });
+  var H = {}; SC_HEADERS_.forEach(function (n, i) { H[n] = i; }); var cur = res.getRange(2, 1, res.getLastRow() - 1, SC_HEADERS_.length).getDisplayValues();
+  var want = ['MANUAL_EDIT_PROTECTED', 'OVER_DELETION', 'STAFF_IN_BODY', 'CAST_CONTAMINATED', 'RELATED_NONARTICLE_REVIEW', 'RELATED_TEXT_WITHOUT_URL', 'UNDER_DELETION', 'LOST_PROPER_NOUN'], out = {};
+  want.forEach(function (w) { out[w] = []; });
+  cur.forEach(function (r) {
+    var x = byEp[r[0]]; if (!x) return; var g = x.guids.filter(function (k) { return raw.map[k]; })[0]; if (!g) return; var text = raw.map[g];
+    want.forEach(function (w) {
+      if (out[w].length >= 4 || String(r[H['理由']]).indexOf(w) < 0) return;
+      var d = { ep: r[0], show: r[2] };
+      if (w === 'MANUAL_EDIT_PROTECTED') d.why = ['summary', 'cast', 'related'].map(function (k) { return [k, CleanerV4.explainDerived(x[k], text)]; }).filter(function (p) { return p[1]; });
+      else { var c = CleanerV4.cleanV4(text), lines = QualityAudit.classifyRawLines(text), a = QualityAudit.auditPair(text, { description: c.text, cast: c.cast.map(function (q) { return [q.role, q.name, q.note].join(' '); }), related: c.related });
+        d.findings = a.findings.filter(function (f) { return f.type === w; }).slice(0, 2).map(function (f) { var l = lines.filter(function (q) { return q.i === f.line; })[0]; return { line: f.line, expect: l && l.expect, text: l ? l.text.slice(0, 70) : '' }; });
+        if (w === 'CAST_CONTAMINATED') d.cast = c.cast.slice(0, 4).map(function (q) { return q.raw.slice(0, 60); });
+        if (/RELATED/.test(w)) d.related = c.related.slice(0, 3).map(function (q) { return [q.title.slice(0, 30), q.url.slice(0, 60)]; }), d.removed = c.removed.slice(0, 6).map(function (q) { return q.reason; }); }
+      out[w].push(d);
+    });
+  });
+  return scLog_('S8_診断', out);
 }

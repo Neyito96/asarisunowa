@@ -100,6 +100,15 @@ export function derivedFromRaw(existing, raw) {
   return ex.split(/\n+/).every((l) => { const n = NZ(stripUrls(l)).replace(/^【[^】]*】/, ''); return !n || srcN.includes(n); });
 }
 
+// 診断用: 自動値とみなせなかった最初の理由（短く切る）
+export function explainDerived(existing, raw) {
+  const ex = T(existing); if (!ex) return null;
+  const src = descriptionLines(String(raw ?? '').replace(/<!\[CDATA\[|\]\]>/g, '')).join('\n'), srcN = NZ(stripUrls(src)), srcUrls = new Set(urlsOf(src).map(cleanUrl));
+  const u = urlsOf(ex).find((x) => !srcUrls.has(cleanUrl(x))); if (u) return { type: 'URL_NOT_IN_RAW', sample: u.slice(0, 80), rawUrls: [...srcUrls].slice(0, 3).map((x) => x.slice(0, 60)) };
+  const l = ex.split(/\n+/).find((x) => { const n = NZ(stripUrls(x)).replace(/^【[^】]*】/, ''); return n && !srcN.includes(n); });
+  return l ? { type: 'TEXT_NOT_IN_RAW', sample: l.slice(0, 80) } : null;
+}
+
 // 1件の判定。existing = 台帳の現在値 {summary, cast, related}
 export function judgeEpisode(raw, existing = {}, sha256) {
   const c = cleanV4(raw), findings = [];
