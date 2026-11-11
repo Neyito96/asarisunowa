@@ -1,8 +1,9 @@
 // rss-items.json を PR コメントへ分割投稿（成果物ストレージに届かない環境向け。lpa-dump と同じ方式）。概要原文は長さとSHA256のみ。
-import fs from 'node:fs'; import crypto from 'node:crypto';
+import fs from 'node:fs'; import crypto from 'node:crypto'; import { assertPublishable } from './leak-guard.mjs';
 const [file = 'rss-items.json', pr = '306'] = process.argv.slice(2);
 const d = JSON.parse(fs.readFileSync(file, 'utf8'));
 const compact = { fetchedAt: d.fetchedAt, feedStatus: d.feedStatus, items: d.items.map((x) => ({ ...x, descriptionRaw: undefined, descLen: (x.descriptionRaw || '').length, descSha256: crypto.createHash('sha256').update(x.descriptionRaw || '').digest('hex').slice(0, 16) })) };
+assertPublishable(compact);   // 本文混入の疑いがあれば投稿しない（第5段階・再発防止）
 const s = JSON.stringify(compact), size = 60000, parts = [];
 for (let i = 0; i < s.length; i += size) parts.push(s.slice(i, i + size));
 const run = process.env.GITHUB_RUN_ID || 'local';
