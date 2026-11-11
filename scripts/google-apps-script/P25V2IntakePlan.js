@@ -39,7 +39,7 @@
     function add(m,k,r) { if(k) {const a=m.get(k)||[];a.push(r);m.set(k,a);} }
     for (const r of old) {
       add(byId,r.ep,r);add(byGuid,r.guid,r);add(byUrl,r.url,r);
-      add(byTitle,key(r.show)+"|"+key(r.title),r);
+      add(byTitle,key(r.show)+"|"+titleKey(r.title),r);
     }
     const results=[], seenGuids=new Set(), seenUrls=new Set(), seenIds=new Set();
     for (const r0 of incoming||[]) {
