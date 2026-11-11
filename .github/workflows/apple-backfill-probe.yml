@@ -1,0 +1,33 @@
+name: Apple backfill probe (read-only)
+# 第43号: Apple Search 全件調査を600件前後のバッチで実行（READ ONLY。台帳・Sheets・秘密値に触れない）。
+on:
+  pull_request:
+    paths:
+      - 'docs/release/apple-batches/**'
+      - 'scripts/probe-apple-search.mjs'
+      - '.github/workflows/apple-backfill-probe.yml'
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run batches sequentially (stop on rate limit)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          msg=$(gh api repos/${{ github.repository }}/commits/${{ github.event.pull_request.head.sha }} -q .commit.message | head -1)
+          case "$msg" in *"[apple-run]"*) ;; *) echo "skip (no [apple-run] marker)"; exit 0;; esac
+          for f in docs/release/apple-batches/batch02.json docs/release/apple-batches/batch03.json docs/release/apple-batches/batch04.json docs/release/apple-batches/batch05.json docs/release/apple-batches/batch06.json docs/release/apple-batches/batch07.json; do
+            n=$(basename $f .json)
+            node scripts/probe-apple-search.mjs $f $n-report.json compact || true
+            split -b 50000 -d $n-report.json $n-part-
+            for p in $n-part-*; do { echo "apple-backfill:$n:$p"; echo '```'; cat "$p"; echo; echo '```'; } > c.md; gh pr comment ${{ github.event.pull_request.number }} --body-file c.md; done
+            if grep -q RATE_LIMITED $n-report.json; then echo stop-on-429; break; fi
+          done

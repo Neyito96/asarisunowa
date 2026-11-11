@@ -1,0 +1,377 @@
+{
+ "note": "代表EP（公開情報のみ: EP-ID/番組/題名/配信日/外部ID/既知URL）。台帳本文は含まない",
+ "appleShowIds": {
+  "ニュースの現場から": "1526773927",
+  "MEDIA TALK": "1527037575",
+  "こどもそうだんしつ": "1592938106",
+  "スポンジ": "6803013072",
+  "ニュースの学校": "1551595534",
+  "ドーナツ": "6798131655",
+  "報談": "1822960480"
+ },
+ "prodShowCounts": {
+  "ニュースの現場から": 2665,
+  "MEDIA TALK": 1768,
+  "こどもそうだんしつ": 38,
+  "スポンジ": 183,
+  "ニュースの学校": 500,
+  "ドーナツ": 80,
+  "報談": 225,
+  "アルキキ": 100,
+  "AJW": 25,
+  "朝ポキTV": 15,
+  "SDGsを話そう": 1092
+ },
+ "samples": [
+  {
+   "epId": "EP-06687",
+   "show": "ニュースの現場から",
+   "title": "【朗読スペシャル】橋爪功さん　皮肉屋のガキ大将、舞台と出会う（人生の贈りもの） ",
+   "date": "2026/11/10 4:00",
+   "guid": "498802d9-6726-4895-b9ab-b4f900136d45",
+   "tag": "newest",
+   "known": {
+    "spotify": "https://open.spotify.com/episode/0lUYuwJaQcoXP7vs8XnW6u",
+    "listen": "https://listen.style/p/tvzppbdm/idnp6imm",
+    "apple": "",
+    "pocket": ""
+   }
+  },
+  {
+   "epId": "EP-00020",
+   "show": "ニュースの現場から",
+   "title": "（そなえとーく #21）酷暑のなかの熊本地震　「見落とされがちな人たち」も快適な避難所とは",
+   "date": "2026/09/22 04:00",
+   "guid": "125b4708-83f5-4d49-b1ff-b4c10071ac14",
+   "tag": "known-apple",
+   "known": {
+    "spotify": "https://open.spotify.com/episode/2ip5JoDK98EjwfOZrM163j",
+    "listen": "",
+    "apple": "https://podcasts.apple.com/jp/podcast/%E3%81%9D%E3%81%AA%E3%81%88%E3%81%A8%E3%83%BC%E3%81%8F-21-%E9%85%B7%E6%9A%91%E3%81%AE%E3%81%AA%E3%81%8B%E3%81%AE%E7%86%8A%E6%9C%AC%E5%9C%B0%E9%9C%87-%E8%A6%8B%E8%90%BD%E3%81%A8%E3%81%95%E3%82%8C%E3%81%8C%E3%81%A1%E3%81%AA%E4%BA%BA%E3%81%9F%E3%81%A1-%E3%82%82%E5%BF%AB%E9%81%A9%E3%81%AA%E9%81%BF%E9%9B%A3%E6%89%80%E3%81%A8%E3%81%AF/id1526773927?i=1000790986893&uo=4",
+    "pocket": "https://pca.st/episode/4d93a358-3a13-4f65-aca8-08ca1ccacd72"
+   }
+  },
+  {
+   "epId": "EP-02110",
+   "show": "ニュースの現場から",
+   "title": "おいしそうな菓子パン、そっと棚に戻したことない？　食べ物のカロリー（後編） #799",
+   "date": "2022/8/12 11:55",
+   "guid": "",
+   "tag": "apple-gap",
+   "known": {
+    "spotify": "https://open.spotify.com/episode/5yWHGijgwxDwjObbkMfqsk",
+    "listen": "",
+    "apple": "",
+    "pocket": "https://pca.st/episode/0c5c89dc-1d18-485e-8b2b-3a4fde85edea"
+   }
+  },
+  {
+   "epId": "EP-06688",
+   "show": "MEDIA TALK",
+   "title": "（制作会議 #114）ポッドキャスト公開収録、12月6日ぜひ来てね　朗読企画もスタート",
+   "date": "2026/11/10 4:00",
+   "guid": "c5fc5584-586c-48b9-99c2-b4f900a6dbf3",
+   "tag": "newest",
+   "known": {
+    "spotify": "",
+    "listen": "",
+    "apple": "",
+    "pocket": ""
+   }
+  },
+  {
+   "epId": "EP-05576",
+   "show": "MEDIA TALK",
+   "title": "（N4U）「俺より推しが大事？」バンドにのめりこむ妻を許せない男性　「推し活」の沼（後編）",
+   "date": "2026/8/20 4:00",
+   "guid": "c3cdbad3-1b62-4a44-992d-b47a00174813",
+   "tag": "known-apple",
+   "known": {
+    "spotify": "https://open.spotify.com/episode/6y7APde1Oh9BiocvLgUjFK",
+    "listen": "",
+    "apple": "https://podcasts.apple.com/jp/podcast/n4u-%E4%BF%BA%E3%82%88%E3%82%8A%E6%8E%A8%E3%81%97%E3%81%8C%E5%A4%A7%E4%BA%8B-%E3%83%90%E3%83%B3%E3%83%89%E3%81%AB%E3%81%AE%E3%82%81%E3%82%8A%E3%81%93%E3%82%80%E5%A6%BB%E3%82%92%E8%A8%B1%E3%81%9B%E3%81%AA%E3%81%84%E7%94%B7%E6%80%A7-%E6%8E%A8%E3%81%97%E6%B4%BB-%E3%81%AE%E6%B2%BC-%E5%BE%8C%E7%B7%A8/id1527037575?i=1000784402543&uo=4",
+    "pocket": "https://pca.st/episode/4d908af2-be0c-406f-9a01-e731be6c8203"
+   }
+  },
+  {
+   "epId": "EP-04431",
+   "show": "MEDIA TALK",
+   "title": "5点じゃ、ご容赦できない？　5点ラジオと語る奥深き音源編集の世界 #99-41",
+   "date": "2022/8/16 4:00",
+   "guid": "",
+   "tag": "apple-gap",
+   "known": {
+    "spotify": "https://open.spotify.com/episode/6tUCPpdSsMl7OszQgIucRD",
+    "listen": "",
+    "apple": "",
+    "pocket": "https://pca.st/episode/b24cf41a-9cf7-4b12-8813-b91bd6d3c5a8"
+   }
+  },
+  {
+   "epId": "EP-06667",
+   "show": "こどもそうだんしつ",
+   "title": "「レタス○個分の食物繊維」って見かけるけど、なんでレタスでたとえるの？",
+   "date": "2026/11/4 4:05",
+   "guid": "c6af6a0d-0e16-4637-bfc5-b4f6001b6c82",
+   "tag": "newest",
+   "known": {
+    "spotify": "https://open.spotify.com/episode/1J2dPtKW9S6CyHmnAJJcTg",
+    "listen": "https://listen.style/p/yhap2rfc/wjwadchk",
+    "apple": "",
+    "pocket": ""
+   }
+  },
+  {
+   "epId": "EP-00054",
+   "show": "こどもそうだんしつ",
+   "title": "あんまり世の中で使わないことも、学校で勉強するのはなんで？ #9",
+   "date": "2026/08/26 04:00",
+   "guid": "67bfb1ad-a018-4177-adfa-b4ad00bc86da",
+   "tag": "known-apple",
+   "known": {
+    "spotify": "https://open.spotify.com/episode/1nIPGMd21ARqnGKcuByZ85",
+    "listen": "",
+    "apple": "https://podcasts.apple.com/jp/podcast/%E3%81%82%E3%82%93%E3%81%BE%E3%82%8A%E4%B8%96%E3%81%AE%E4%B8%AD%E3%81%A7%E4%BD%BF%E3%82%8F%E3%81%AA%E3%81%84%E3%81%93%E3%81%A8%E3%82%82-%E5%AD%A6%E6%A0%A1%E3%81%A7%E5%8B%89%E5%BC%B7%E3%81%99%E3%82%8B%E3%81%AE%E3%81%AF%E3%81%AA%E3%82%93%E3%81%A7-9/id1592938106?i=1000785816872&uo=4",
+    "pocket": "https://pca.st/episode/e9e530ab-798a-4517-a7b8-1e5694fd724f"
+   }
+  },
+  {
+   "epId": "EP-06582",
+   "show": "こどもそうだんしつ",
+   "title": "【もっと話そう】地獄温泉",
+   "date": "2026/7/8 4:05",
+   "guid": "",
+   "tag": "apple-gap",
+   "known": {
+    "spotify": "https://open.spotify.com/episode/2DqimLFThlTZgFKmxMaFfA",
+    "listen": "",
+    "apple": "",
+    "pocket": "https://pca.st/episode/82f78067-e994-418a-90bb-a20f6dffce92"
+   }
+  },
+  {
+   "epId": "EP-06689",
+   "show": "スポンジ",
+   "title": "（バスケ #53・Wリーグ）富士通のルーキー大脇晴　憧れの元NBA・ロッドマンと同じ91番",
+   "date": "2026/11/10 4:00",
+   "guid": "e903c9f6-be76-456b-96b0-b4f900bfee22",
+   "tag": "newest",
+   "known": {
+    "spotify": "",
+    "listen": "",
+    "apple": "",
+    "pocket": ""
+   }
+  },
+  {
+   "epId": "EP-01140",
+   "show": "スポンジ",
+   "title": "（フィギュア）「スケートの楽しさ」伝わるマツケンサンバ　11年ぶり全日本の織田信成選手に心奪われた #1739",
+   "date": "2024/12/28 4:00",
+   "guid": "b860d878-4517-40ea-94ba-b24f0181f13e",
+   "tag": "known-apple",
+   "known": {
+    "spotify": "https://open.spotify.com/episode/0d8CJ0k5vKNvIbkMN1AdGD",
+    "listen": "",
+    "apple": "https://podcasts.apple.com/jp/podcast/%E3%83%95%E3%82%A3%E3%82%AE%E3%83%A5%E3%82%A2-%E3%82%B9%E3%82%B1%E3%83%BC%E3%83%88%E3%81%AE%E6%A5%BD%E3%81%97%E3%81%95-%E4%BC%9D%E3%82%8F%E3%82%8B%E3%83%9E%E3%83%84%E3%82%B1%E3%83%B3%E3%82%B5%E3%83%B3%E3%83%90-11%E5%B9%B4%E3%81%B6%E3%82%8A%E5%85%A8%E6%97%A5%E6%9C%AC%E3%81%AE%E7%B9%94%E7%94%B0%E4%BF%A1%E6%88%90%E9%81%B8%E6%89%8B%E3%81%AB%E5%BF%83%E5%A5%AA%E3%82%8F%E3%82%8C%E3%81%9F-1739/id6803013072?i=1000784336016&uo=4",
+    "pocket": "https://pca.st/episode/e7bbb941-0c61-4fb5-ab92-ead91e2d91f3"
+   }
+  },
+  {
+   "epId": "EP-01069",
+   "show": "スポンジ",
+   "title": "（野球#4）大谷翔平32歳の現在地　二刀流はいつまでできる？",
+   "date": "2026/10/12 4:00",
+   "guid": "6ce4d1e1-8502-4ccd-908e-b4dd00543161",
+   "tag": "apple-gap",
+   "known": {
+    "spotify": "https://open.spotify.com/episode/7aqebBAkvlWBUr9KZpITEI",
+    "listen": "",
+    "apple": "",
+    "pocket": "https://pca.st/episode/30aa4f96-0986-4d14-8b41-839e7b78946c"
+   }
+  },
+  {
+   "epId": "EP-06690",
+   "show": "ニュースの学校",
+   "title": "GMOグループの会見",
+   "date": "2026/11/10 4:00",
+   "guid": "460fffb2-d985-11f1-86fc-578138d2c45c",
+   "tag": "newest",
+   "known": {
+    "spotify": "",
+    "listen": "https://listen.style/p/pkvcigu2/snvjsjlq",
+    "apple": "",
+    "pocket": ""
+   }
+  },
+  {
+   "epId": "EP-00485",
+   "show": "ニュースの学校",
+   "title": "リニア中央新幹線",
+   "date": "2026/05/18 4:00",
+   "guid": "45c2e740-4cd6-4451-973b-b42e017152d0",
+   "tag": "known-apple",
+   "known": {
+    "spotify": "https://open.spotify.com/episode/5lacO4oJr9gS5zV6xhRB3n",
+    "listen": "",
+    "apple": "https://podcasts.apple.com/jp/podcast/%E3%83%AA%E3%83%8B%E3%82%A2%E4%B8%AD%E5%A4%AE%E6%96%B0%E5%B9%B9%E7%B7%9A/id1551595534?i=1000768281615&uo=4",
+    "pocket": "https://pca.st/episode/46c7c4f7-d51f-4ac6-9fe3-f8e5ec651ada"
+   }
+  },
+  {
+   "epId": "EP-00674",
+   "show": "ニュースの学校",
+   "title": "クラスター弾",
+   "date": "2025/08/12 4:00",
+   "guid": "3e528e7a-ace7-4722-9d6b-b2000056c404",
+   "tag": "apple-gap",
+   "known": {
+    "spotify": "https://open.spotify.com/episode/68NRX5kHnrnx0X18Sm7VGR",
+    "listen": "",
+    "apple": "",
+    "pocket": "https://pca.st/episode/6972ce74-0ed3-4978-acef-895b2c85a163"
+   }
+  },
+  {
+   "epId": "EP-06691",
+   "show": "ドーナツ",
+   "title": "（ポすすめ）ながらcast",
+   "date": "2026/11/10 4:00",
+   "guid": "9ec35d98-1ba0-4ea2-9f28-b4f900284c74",
+   "tag": "newest",
+   "known": {
+    "spotify": "",
+    "listen": "",
+    "apple": "",
+    "pocket": ""
+   }
+  },
+  {
+   "epId": "EP-00298",
+   "show": "ドーナツ",
+   "title": "（対話）3カ月で100人とマチアプで会ってみた　小林友花さん",
+   "date": "2026/08/26 04:00",
+   "guid": "78f778f1-1fb5-4eb0-be59-b48a00851c13",
+   "tag": "known-apple",
+   "known": {
+    "spotify": "https://open.spotify.com/episode/6UObP374ZcIUjoZVaHqvY3",
+    "listen": "",
+    "apple": "https://podcasts.apple.com/jp/podcast/%E5%AF%BE%E8%A9%B1-3%E3%82%AB%E6%9C%88%E3%81%A7100%E4%BA%BA%E3%81%A8%E3%83%9E%E3%83%81%E3%82%A2%E3%83%97%E3%81%A7%E4%BC%9A%E3%81%A3%E3%81%A6%E3%81%BF%E3%81%9F-%E5%B0%8F%E6%9E%97%E5%8F%8B%E8%8A%B1%E3%81%95%E3%82%93/id6798131655?i=1000785817545&uo=4",
+    "pocket": "https://pca.st/episode/cfc58602-5334-474c-be01-8916cedc18cd"
+   }
+  },
+  {
+   "epId": "EP-06679",
+   "show": "ドーナツ",
+   "title": "（ノーミライ#11）……いつ切り出すんやろ、というお話",
+   "date": "2026/11/7 4:00",
+   "guid": "008be503-16a0-49c3-8e92-b4f900a4e92c",
+   "tag": "apple-gap",
+   "known": {
+    "spotify": "",
+    "listen": "",
+    "apple": "",
+    "pocket": ""
+   }
+  },
+  {
+   "epId": "EP-06686",
+   "show": "報談",
+   "title": "（カロリーオフ）首相動静欄にあるメディアとの懇談が気になる問題",
+   "date": "2026/11/9 4:00",
+   "guid": "39a5034a-d448-11f1-a336-1ba2815de680",
+   "tag": "newest",
+   "known": {
+    "spotify": "",
+    "listen": "",
+    "apple": "",
+    "pocket": ""
+   }
+  },
+  {
+   "epId": "EP-00952",
+   "show": "報談",
+   "title": "キーワードで知る中東　今回は「ムスリム同胞団」を取り上げます #1885",
+   "date": "2025/05/23 4:00",
+   "guid": "e3b85ebe-dfe5-4a35-84a1-b2db005cdf63",
+   "tag": "known-apple",
+   "known": {
+    "spotify": "https://open.spotify.com/episode/0pWH9XQsWSuSraT9e5xiji",
+    "listen": "",
+    "apple": "https://podcasts.apple.com/jp/podcast/%E3%82%AD%E3%83%BC%E3%83%AF%E3%83%BC%E3%83%89%E3%81%A7%E7%9F%A5%E3%82%8B%E4%B8%AD%E6%9D%B1-%E4%BB%8A%E5%9B%9E%E3%81%AF-%E3%83%A0%E3%82%B9%E3%83%AA%E3%83%A0%E5%90%8C%E8%83%9E%E5%9B%A3-%E3%82%92%E5%8F%96%E3%82%8A%E4%B8%8A%E3%81%92%E3%81%BE%E3%81%99-1885/id1822960480?i=1000779032327&uo=4",
+    "pocket": "https://pca.st/episode/347d6856-468a-4162-9139-519fb8c49f1b"
+   }
+  },
+  {
+   "epId": "EP-01055",
+   "show": "報談",
+   "title": "ロシア、サウジ、イラン…中国が動かす国際社会　ところで私、ジャニーズ問題取材してました #1055",
+   "date": "2023/3/31 4:00",
+   "guid": "48f8c72c-ae6b-4928-a07d-afd4001e5ec0",
+   "tag": "apple-gap",
+   "known": {
+    "spotify": "https://open.spotify.com/episode/30eOOnYumFgUdJ0dgWMz2O",
+    "listen": "",
+    "apple": "",
+    "pocket": "https://pca.st/episode/21e0b9a0-b6e3-4673-9b00-46262f9c3656"
+   }
+  },
+  {
+   "epId": "EP-06577",
+   "show": "SDGsを話そう",
+   "title": "【番組から大事なお知らせ】「こどもそうだんしつ」にリニューアルします",
+   "date": "2026/6/19 4:00",
+   "guid": "",
+   "tag": "newest",
+   "known": {
+    "spotify": "https://open.spotify.com/episode/6yzr9wfYZs3MzfNyH3RBv3",
+    "listen": "",
+    "apple": "",
+    "pocket": "https://pca.st/episode/13d7f55c-7dec-4d1b-a356-c0d1137aed2e"
+   }
+  },
+  {
+   "epId": "EP-05850",
+   "show": "SDGsを話そう",
+   "title": "育児のこと、心のどこかでなめてたのかも　育ててるだけですごい #363",
+   "date": "2023/4/21 4:00",
+   "guid": "",
+   "tag": "apple-gap",
+   "known": {
+    "spotify": "https://open.spotify.com/episode/3tkcfGjRHFJ5LQ8L30q3Sp",
+    "listen": "",
+    "apple": "",
+    "pocket": "https://pca.st/episode/159804a5-d489-483f-a029-9ab186256499"
+   }
+  },
+  {
+   "epId": "EP-01221",
+   "show": "スポンジ",
+   "title": "（相撲）#193 崖っぷちの横綱たち　引退の基準、不透明では？",
+   "date": "2021/3/16 6:00",
+   "guid": "3bace6f2-9e08-41ff-b8b5-acea01805c7b",
+   "tag": "dup-title-pair-a",
+   "known": {
+    "spotify": "https://open.spotify.com/episode/3j5UULjviAYAKoR9BKDU2q",
+    "listen": "",
+    "apple": "https://podcasts.apple.com/jp/podcast/%E7%9B%B8%E6%92%B2-193-%E5%B4%96%E3%81%A3%E3%81%B7%E3%81%A1%E3%81%AE%E6%A8%AA%E7%B6%B1%E3%81%9F%E3%81%A1-%E5%BC%95%E9%80%80%E3%81%AE%E5%9F%BA%E6%BA%96-%E4%B8%8D%E9%80%8F%E6%98%8E%E3%81%A7%E3%81%AF/id6803013072?i=1000784333264&uo=4",
+    "pocket": "https://pca.st/episode/2802167d-154f-4c96-a7dd-7db82c0ef430"
+   }
+  },
+  {
+   "epId": "EP-01444",
+   "show": "ニュースの現場から",
+   "title": "#193 崖っぷちの横綱たち　引退の基準、不透明では？",
+   "date": "2021/3/16 6:00",
+   "guid": "",
+   "tag": "dup-title-pair-b",
+   "known": {
+    "spotify": "https://open.spotify.com/episode/3j5UULjviAYAKoR9BKDU2q",
+    "listen": "",
+    "apple": "",
+    "pocket": "https://pca.st/episode/2802167d-154f-4c96-a7dd-7db82c0ef430"
+   }
+  }
+ ]
+}

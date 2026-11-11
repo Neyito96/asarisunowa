@@ -1,0 +1,73 @@
+name: Link probe (read-only)
+# 代表EPでの比較実験。台帳・Sheets・秘密値には触れない（contents: read のみ）。
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/probe-link-services.mjs'
+      - 'scripts/probe-apple-search.mjs'
+      - 'scripts/probe-listen-pody-amazon.mjs'
+      - 'scripts/check-urls.mjs'
+      - 'docs/release/2026-11-10-listen-reach-sample.json'
+      - 'docs/release/2026-11-10-show-level-urls.json'
+      - 'docs/release/2026-11-10-apple-search-sample30.json'
+      - 'public/library/link-discovery.mjs'
+      - '.github/workflows/link-probe.yml'
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/link-discovery.test.mjs
+      - run: node scripts/probe-link-services.mjs docs/release/2026-11-10-link-probe-sample.json probe-report.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: probe-report
+          path: probe-report.json
+      - name: Post report to the PR (read-only report, no secrets)
+        if: github.event_name == 'pull_request' && always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          { echo '## link-probe report (代表EP・READ ONLY)'; echo '```json'; head -c 60000 probe-report.json; echo; echo '```'; } > body.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file body.md
+      - name: Apple episode dump (compact, read-only) → PR comments
+        if: github.event_name == 'pull_request' && always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node scripts/dump-apple-episodes.mjs docs/release/2026-11-10-link-probe-sample.json apple-dump.json
+          split -b 50000 -d apple-dump.json apple-part-
+          for f in apple-part-*; do { echo "apple-dump:$f"; echo '```'; cat "$f"; echo; echo '```'; } > c.md; gh pr comment ${{ github.event.pull_request.number }} --body-file c.md; done
+      - name: Apple Search 層化30件（第39号・READ ONLY）→ PR comment
+        if: github.event_name == 'pull_request' && always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node scripts/probe-apple-search.mjs docs/release/2026-11-10-apple-search-sample30.json apple-search-report.json || true
+          { echo 'apple-search-report (第39号 30件層化・READ ONLY)'; echo '```json'; head -c 60000 apple-search-report.json; echo; echo '```'; } > s.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file s.md
+      - name: LISTEN / Pody / Amazon 探索（第36号・READ ONLY）→ PR comments
+        if: github.event_name == 'pull_request' && always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node scripts/probe-listen-pody-amazon.mjs docs/release/2026-11-10-show-level-urls.json lpa.json || true
+          split -b 50000 -d lpa.json lpa-part-
+          for f in lpa-part-*; do { echo "lpa-dump:$f"; echo '```'; cat "$f"; echo; echo '```'; } > c.md; gh pr comment ${{ github.event.pull_request.number }} --body-file c.md; done
+      - name: LISTEN候補の到達性サンプル（HTTP応答のみ）→ PR comment
+        if: github.event_name == 'pull_request' && always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node scripts/check-urls.mjs docs/release/2026-11-10-listen-reach-sample.json reach.json || true
+          { echo 'reach-report (LISTEN候補・HTTP応答のみ)'; echo '```json'; head -c 20000 reach.json; echo; echo '```'; } > r.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file r.md

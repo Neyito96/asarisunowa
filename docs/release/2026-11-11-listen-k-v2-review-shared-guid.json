@@ -1,0 +1,1552 @@
+{
+ "status": "REVIEW_ONLY_NOT_APPROVED",
+ "cells": [
+  {
+   "epId": "EP-01934",
+   "guid": "33feec60-a57c-4445-9a9d-ae6b002c38cb",
+   "url": "https://listen.style/p/tvzppbdm/a7zt6nws",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01068",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-01972",
+   "guid": "eceb2f66-eeda-4dc5-af40-ae85009b8ae1",
+   "url": "https://listen.style/p/tvzppbdm/5y8e7twf",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01067",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02045",
+   "guid": "08e008ed-595d-439f-9a32-aebd00e61030",
+   "url": "https://listen.style/p/tvzppbdm/fv8mxnte",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01065",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02089",
+   "guid": "21bbd68e-cad2-4b1d-a08b-aeda00dfbd70",
+   "url": "https://listen.style/p/tvzppbdm/4ek4fsb5",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01064",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02132",
+   "guid": "a3d5f689-fbd0-44e0-a512-aefc0062fd48",
+   "url": "https://listen.style/p/tvzppbdm/7wgdzsr0",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01063",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02177",
+   "guid": "f79ba366-915d-4a70-879a-af1f00a30f34",
+   "url": "https://listen.style/p/tvzppbdm/j02bjusk",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01062",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02211",
+   "guid": "5dd2d0f0-a9a3-4e98-a95c-af3b009d2643",
+   "url": "https://listen.style/p/tvzppbdm/ydazc0k6",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01061",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02220",
+   "guid": "32e8cde9-2aa3-4e78-b8bb-af3f000a68b2",
+   "url": "https://listen.style/p/tvzppbdm/sob3jrbr",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01060",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02247",
+   "guid": "346fdc2b-c525-4165-962f-af54010bb4c7",
+   "url": "https://listen.style/p/tvzppbdm/u5o1hdka",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01059",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02290",
+   "guid": "2465cea1-1f51-415e-8e1d-af780062ac1d",
+   "url": "https://listen.style/p/tvzppbdm/zxokxhua",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01058",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02325",
+   "guid": "26669a44-6ed1-447a-a1f4-af9500ec6c3c",
+   "url": "https://listen.style/p/tvzppbdm/dedmd37z",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01057",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02369",
+   "guid": "d0a6b985-f6d6-4d1a-842c-afb6003ec2a7",
+   "url": "https://listen.style/p/tvzppbdm/h4zdoyen",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01056",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02404",
+   "guid": "48f8c72c-ae6b-4928-a07d-afd4001e5ec0",
+   "url": "https://listen.style/p/tvzppbdm/vp1wldva",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01055",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02446",
+   "guid": "5d13052b-333a-4e6e-b44d-aff200add807",
+   "url": "https://listen.style/p/tvzppbdm/uuvwo2io",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01054",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02447",
+   "guid": "9a9cbe78-18b0-4a25-9e8d-aff200af05e6",
+   "url": "https://listen.style/p/tvzppbdm/ecnlqphb",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01053",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02448",
+   "guid": "f3a0f08c-fbb0-43b8-9d56-aff200576741",
+   "url": "https://listen.style/p/tvzppbdm/dko4gktu",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01052",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02449",
+   "guid": "1670e075-23a8-4379-9727-aff2005c329b",
+   "url": "https://listen.style/p/tvzppbdm/cgabpyzr",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01051",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02497",
+   "guid": "c63d48f8-eccb-45ac-aca2-b0180065b8a9",
+   "url": "https://listen.style/p/tvzppbdm/y4jzrgll",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01050",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02498",
+   "guid": "6b1ff1fc-881f-40bb-85eb-b01a00f978b2",
+   "url": "https://listen.style/p/tvzppbdm/w2pjaob6",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01049",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02499",
+   "guid": "c56154c9-d0d1-481a-9d99-b01a00e11048",
+   "url": "https://listen.style/p/tvzppbdm/jahrx38l",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01048",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02500",
+   "guid": "b956f582-8f6c-4e34-a593-b01800872da4",
+   "url": "https://listen.style/p/tvzppbdm/ngdpexjp",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01047",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02530",
+   "guid": "67353269-9cc4-45e3-88f9-b02e0027e3a1",
+   "url": "https://listen.style/p/tvzppbdm/guin68ly",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01046",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02540",
+   "guid": "9f6eec22-3ee3-4fbf-9ac4-b034009d9477",
+   "url": "https://listen.style/p/tvzppbdm/7rixtbjg",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01045",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02548",
+   "guid": "794eff42-4694-4f36-bd16-b03700e14aa3",
+   "url": "https://listen.style/p/tvzppbdm/8ncl70ax",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01044",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02558",
+   "guid": "283266be-e706-4155-9ca9-b037008511dd",
+   "url": "https://listen.style/p/tvzppbdm/ewycqm2p",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01043",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02566",
+   "guid": "ea1352fe-5748-492b-bfd1-b0490086a639",
+   "url": "https://listen.style/p/tvzppbdm/drh5l1sa",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01042",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02577",
+   "guid": "0b04dee6-e11e-453c-9b0b-b04a0078d410",
+   "url": "https://listen.style/p/tvzppbdm/q6768lc0",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01041",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02585",
+   "guid": "529649ef-79c4-4c44-84a2-b05400383fa9",
+   "url": "https://listen.style/p/tvzppbdm/fnam7hfs",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01040",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02594",
+   "guid": "aa794672-3289-416f-a7db-b0580025f030",
+   "url": "https://listen.style/p/tvzppbdm/isedalt0",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01039",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02603",
+   "guid": "45e024b4-ac30-4957-9453-b0650009c8bc",
+   "url": "https://listen.style/p/tvzppbdm/5ojarlre",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01038",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02613",
+   "guid": "6eb99fb0-452e-49bf-8e58-b06c0075da0d",
+   "url": "https://listen.style/p/tvzppbdm/kxry6t8y",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01037",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02621",
+   "guid": "9fc78f90-5c85-4cd1-8e0e-b06e000bfa44",
+   "url": "https://listen.style/p/tvzppbdm/u7m8tktj",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01036",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02632",
+   "guid": "8cb0bd3a-a21e-49a5-9134-b07a006ac1a8",
+   "url": "https://listen.style/p/tvzppbdm/tsoeerea",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01035",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02638",
+   "guid": "11997918-926a-4583-a2ed-b0830055d363",
+   "url": "https://listen.style/p/tvzppbdm/4funsoms",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01034",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02648",
+   "guid": "ad5e7ddd-cb96-4064-a8a3-b083006dca05",
+   "url": "https://listen.style/p/tvzppbdm/axl2hibc",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01033",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02656",
+   "guid": "c2dc9c56-0be6-404a-a087-b09200045c4b",
+   "url": "https://listen.style/p/tvzppbdm/v7b9mbrm",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01032",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02666",
+   "guid": "d7f6bbc6-4ab0-4e05-a6a2-b091008d28a6",
+   "url": "https://listen.style/p/tvzppbdm/1qfll7cr",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01031",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02674",
+   "guid": "721b0513-89f6-4c7b-8109-b091008dc8d6",
+   "url": "https://listen.style/p/tvzppbdm/8zwx4vb3",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01030",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02682",
+   "guid": "84942557-edc2-4a48-ac70-b0a4004b085e",
+   "url": "https://listen.style/p/tvzppbdm/qetvosmu",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01029",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02690",
+   "guid": "d4f82fca-d832-4eb3-aa06-b0a4008e02f7",
+   "url": "https://listen.style/p/tvzppbdm/dlzj4loa",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01028",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02698",
+   "guid": "42cbe29e-fc10-43d4-aeba-b0b2003e5ef5",
+   "url": "https://listen.style/p/tvzppbdm/yxxqk1mn",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01027",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02714",
+   "guid": "28fab249-d3e1-4c70-ace1-b0c0005bcd4a",
+   "url": "https://listen.style/p/tvzppbdm/psytexre",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01026",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02722",
+   "guid": "60ed15b8-a715-42c3-8d58-b0c0005888f0",
+   "url": "https://listen.style/p/tvzppbdm/zje35d1p",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01025",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02730",
+   "guid": "a2836c96-cc1b-494c-a5b8-b0ce00a72727",
+   "url": "https://listen.style/p/tvzppbdm/tcfnpgnh",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01024",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02738",
+   "guid": "cf87f54f-8134-475d-aab7-b0ce00ae2d26",
+   "url": "https://listen.style/p/tvzppbdm/uqx7zafa",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01023",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02746",
+   "guid": "39640f93-4437-48bf-87f3-b0db0167f686",
+   "url": "https://listen.style/p/tvzppbdm/s5qsccnr",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01022",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02754",
+   "guid": "a7eee9e2-4c9b-47bd-8471-b0dc007e7cfe",
+   "url": "https://listen.style/p/tvzppbdm/suixlea5",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01021",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02779",
+   "guid": "02d7d546-4a7a-420f-8a6a-b0f80162ff39",
+   "url": "https://listen.style/p/tvzppbdm/zf6v1kda",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01020",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02787",
+   "guid": "8284d008-7f00-48d9-9905-b0f801635f19",
+   "url": "https://listen.style/p/tvzppbdm/gq3npgr5",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01019",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02795",
+   "guid": "2fba4a7e-1aee-4017-bf89-b0f801637dd1",
+   "url": "https://listen.style/p/tvzppbdm/pjdymnnj",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01018",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02803",
+   "guid": "90f98848-fe18-441c-896a-b10d00545ac7",
+   "url": "https://listen.style/p/tvzppbdm/qomowagi",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01017",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02811",
+   "guid": "7cc45675-0608-40eb-ad9d-b10d005b4000",
+   "url": "https://listen.style/p/tvzppbdm/xk9d9tdv",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01016",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02819",
+   "guid": "8066af8f-0e3f-445a-9775-b11a017eb20a",
+   "url": "https://listen.style/p/tvzppbdm/wz0zna0o",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01015",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02827",
+   "guid": "3636aec5-257c-4d30-8680-b11a017fe47d",
+   "url": "https://listen.style/p/tvzppbdm/zhvfqnwd",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01014",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02835",
+   "guid": "59261319-cef8-42e6-92b2-b1260044404c",
+   "url": "https://listen.style/p/tvzppbdm/khyqdohp",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01013",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02843",
+   "guid": "2b53e6d0-f84a-4eb3-a65c-b126004bf4b2",
+   "url": "https://listen.style/p/tvzppbdm/e7tpcyao",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01012",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02851",
+   "guid": "867f28a9-7361-424c-bfc6-b137003b0658",
+   "url": "https://listen.style/p/tvzppbdm/ulpz8eed",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01011",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02859",
+   "guid": "75bd7412-e063-494f-a21b-b13700449cee",
+   "url": "https://listen.style/p/tvzppbdm/7x7peror",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01010",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02868",
+   "guid": "bf8f3c4a-ca04-4a73-bb83-b1450023058f",
+   "url": "https://listen.style/p/tvzppbdm/ehstvajd",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01009",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02875",
+   "guid": "4b7bdfe9-7487-42a2-a8ef-b1450028373f",
+   "url": "https://listen.style/p/tvzppbdm/nvjjms1v",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01008",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02885",
+   "guid": "555e21dc-4379-44d7-bae3-b150007a9c28",
+   "url": "https://listen.style/p/tvzppbdm/iehqlsa8",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01007",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02893",
+   "guid": "58d05ab8-d988-4b12-81b3-b15a002a0858",
+   "url": "https://listen.style/p/tvzppbdm/jsd67g4a",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01006",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02901",
+   "guid": "d32a16f6-7a33-4de4-bc90-b15a002ea229",
+   "url": "https://listen.style/p/tvzppbdm/sjirdrpm",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01005",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02918",
+   "guid": "f9d1bb7f-ccc9-4fc1-92d3-b16f003096f0",
+   "url": "https://listen.style/p/tvzppbdm/1gczxija",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01003",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02926",
+   "guid": "495bec3a-8be2-4497-8e65-b16f0038bc2e",
+   "url": "https://listen.style/p/tvzppbdm/v7ote17f",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01002",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02934",
+   "guid": "691d8139-1b22-4024-b39c-b17e002d3f56",
+   "url": "https://listen.style/p/tvzppbdm/r1sz5mak",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01001",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02942",
+   "guid": "f68d9df5-a2c8-48ea-8e47-b17e0039e9c6",
+   "url": "https://listen.style/p/tvzppbdm/v47labih",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-01000",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02950",
+   "guid": "a30dacf5-c429-498f-a8c0-b18a007a7a05",
+   "url": "https://listen.style/p/tvzppbdm/8mrzpz2t",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00999",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02958",
+   "guid": "2810baed-8444-4bc0-9fb3-b18a007d798d",
+   "url": "https://listen.style/p/tvzppbdm/ordvuzvu",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00998",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02966",
+   "guid": "a306c785-8a2b-44a8-8af7-b1990020d150",
+   "url": "https://listen.style/p/tvzppbdm/qmebd0yy",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00997",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02974",
+   "guid": "1b6c94d5-e26e-4d48-ba35-b19900211d35",
+   "url": "https://listen.style/p/tvzppbdm/cdxxsn0j",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00996",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02982",
+   "guid": "7404affa-fd2c-4dba-99d6-b1a70022b114",
+   "url": "https://listen.style/p/tvzppbdm/otntl0di",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00995",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02990",
+   "guid": "9a3e2187-6c0c-4d74-9fca-b1a700288916",
+   "url": "https://listen.style/p/tvzppbdm/4wds7zfe",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00994",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-02998",
+   "guid": "1aac7329-93d7-4413-af57-b1b401782146",
+   "url": "https://listen.style/p/tvzppbdm/rrb9gmlh",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00993",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03006",
+   "guid": "48ef1b7a-a643-4224-9492-b1b40178b7d5",
+   "url": "https://listen.style/p/tvzppbdm/uthjw3bn",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00992",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03014",
+   "guid": "d5606c59-b049-40b7-8154-b1c0007781c1",
+   "url": "https://listen.style/p/tvzppbdm/jzxtdhfg",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00991",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03022",
+   "guid": "c5284037-fc84-491f-b2d3-b1c0007db4ec",
+   "url": "https://listen.style/p/tvzppbdm/qddubke8",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00990",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03037",
+   "guid": "a45fe9d7-01d5-4ab3-8f99-b1d700b287cb",
+   "url": "https://listen.style/p/tvzppbdm/kxsj5i1d",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00989",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03045",
+   "guid": "f968099b-a355-4977-9a30-b1d700b41ee2",
+   "url": "https://listen.style/p/tvzppbdm/wnyydgx6",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00988",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03053",
+   "guid": "a8949127-f4a7-4402-925e-b1e20166fde4",
+   "url": "https://listen.style/p/tvzppbdm/6yblbad8",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00987",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03061",
+   "guid": "a4e62c19-622f-4568-9231-b1e2016858f8",
+   "url": "https://listen.style/p/tvzppbdm/pyumjgot",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00986",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03069",
+   "guid": "8f3de775-ee8d-4f4b-b7e0-b1e600453f4d",
+   "url": "https://listen.style/p/tvzppbdm/r1yqvnvm",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00985",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03077",
+   "guid": "37111e56-004e-4240-9348-b1e600301e56",
+   "url": "https://listen.style/p/tvzppbdm/jarxwtad",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00984",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03085",
+   "guid": "271945c9-cbbd-45be-a8fc-b20200365f35",
+   "url": "https://listen.style/p/tvzppbdm/p3iy97gq",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00983",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03093",
+   "guid": "d14cda36-bef1-4d05-9b0b-b20200435c84",
+   "url": "https://listen.style/p/tvzppbdm/agjscg0f",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00982",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03101",
+   "guid": "931640ed-1e48-4921-a990-b210004a7da0",
+   "url": "https://listen.style/p/tvzppbdm/qpwk0hke",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00981",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03108",
+   "guid": "477b50a8-c2a2-4674-a614-b21800b4fbd9",
+   "url": "https://listen.style/p/tvzppbdm/ovk9npob",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00980",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03116",
+   "guid": "9ced90a3-5859-4ce3-84f0-b21000501de5",
+   "url": "https://listen.style/p/tvzppbdm/xl4mc0lb",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00979",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03123",
+   "guid": "28ffb3ed-7851-46cc-b076-b22500538f14",
+   "url": "https://listen.style/p/tvzppbdm/jcmubhga",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00978",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03132",
+   "guid": "fe88c19e-3479-4bd9-9e32-b22c000dad80",
+   "url": "https://listen.style/p/tvzppbdm/xb72od2q",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00977",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03140",
+   "guid": "e35a4109-c95d-485a-a267-b230008c693c",
+   "url": "https://listen.style/p/tvzppbdm/vokc5uo6",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00976",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03148",
+   "guid": "c1cf6c8b-24d1-4352-bf32-b23a006d3e02",
+   "url": "https://listen.style/p/tvzppbdm/qngyfkp4",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00975",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03156",
+   "guid": "ccb694d0-b526-4ba9-be79-b23a0077aef2",
+   "url": "https://listen.style/p/tvzppbdm/fpmgxgdz",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00974",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03164",
+   "guid": "bceb0a4d-c04e-44e9-9531-b248002a011d",
+   "url": "https://listen.style/p/tvzppbdm/bd1eyllc",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00973",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03172",
+   "guid": "23cbf948-9950-44d9-9ad6-b248002b5e51",
+   "url": "https://listen.style/p/tvzppbdm/dcn68mup",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00972",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03188",
+   "guid": "5803b2de-d55b-4032-a0bc-b25d00345814",
+   "url": "https://listen.style/p/tvzppbdm/gp4iga4l",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00971",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03196",
+   "guid": "8b32ef4b-cb3d-469e-820c-b25d003c4e84",
+   "url": "https://listen.style/p/tvzppbdm/5d80wjfr",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00970",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03204",
+   "guid": "943b07d7-59e5-43ce-8f38-b26b0007496a",
+   "url": "https://listen.style/p/tvzppbdm/ypxf8njs",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00969",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03211",
+   "guid": "e9c620f2-2e62-4748-a965-b26b000750a6",
+   "url": "https://listen.style/p/tvzppbdm/wmcd72tk",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00968",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03219",
+   "guid": "ff4c9b84-c3a3-4510-99b8-b27900325192",
+   "url": "https://listen.style/p/tvzppbdm/nfs7qnn0",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00967",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03227",
+   "guid": "b5ff2da2-11ae-4044-987e-b27900324982",
+   "url": "https://listen.style/p/tvzppbdm/8seyp0yq",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00966",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03235",
+   "guid": "c9d60574-fbd1-4e07-b8df-b287004a7d46",
+   "url": "https://listen.style/p/tvzppbdm/gzlzseil",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00965",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03243",
+   "guid": "b20b2cce-6cae-4d0f-882c-b287005ad2d0",
+   "url": "https://listen.style/p/tvzppbdm/b6j4dzfy",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00964",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03251",
+   "guid": "409af96c-23bc-4b43-af41-b29301820f15",
+   "url": "https://listen.style/p/tvzppbdm/n0r9ydyv",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00963",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03259",
+   "guid": "0d5b3753-46cc-4c90-b5e0-b293018213e5",
+   "url": "https://listen.style/p/tvzppbdm/chx9zdyn",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00962",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03267",
+   "guid": "1908eeb3-3f68-4637-b44d-b2a3005d22fa",
+   "url": "https://listen.style/p/tvzppbdm/inrpmzsd",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00961",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03275",
+   "guid": "c65bd0b1-3a42-43f4-856a-b2a3005d2ea3",
+   "url": "https://listen.style/p/tvzppbdm/mrdb9ocz",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00960",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03283",
+   "guid": "5e4020f9-cf65-46c5-9dcb-b2aa0059175d",
+   "url": "https://listen.style/p/tvzppbdm/kzx8qhtf",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00959",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03291",
+   "guid": "cfeef6c2-24ec-4f6f-a684-b2b8002d5a4d",
+   "url": "https://listen.style/p/tvzppbdm/vscspvq1",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00958",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03297",
+   "guid": "3e10a3b9-c70c-44a8-b50f-b2bf005be504",
+   "url": "https://listen.style/p/tvzppbdm/nsf6bnl1",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00957",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03304",
+   "guid": "3facd7b0-9df6-4f8c-94e8-b2bf005d2a8a",
+   "url": "https://listen.style/p/tvzppbdm/obb2tqis",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00956",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03311",
+   "guid": "c4bf1249-d1a5-4fb3-9efe-b2ca0089f956",
+   "url": "https://listen.style/p/tvzppbdm/owngayqn",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00955",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03318",
+   "guid": "ba4b9afd-e328-4415-95d8-b2cd002fd6a6",
+   "url": "https://listen.style/p/tvzppbdm/k9ksh38b",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00954",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03325",
+   "guid": "5bd69a53-bea9-4d89-b0a4-b2db005cdb23",
+   "url": "https://listen.style/p/tvzppbdm/qozwpwcs",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00953",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03332",
+   "guid": "e3b85ebe-dfe5-4a35-84a1-b2db005cdf63",
+   "url": "https://listen.style/p/tvzppbdm/k25aalfu",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00952",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03346",
+   "guid": "801ddcd8-c389-47b7-847d-b2e90024ef2e",
+   "url": "https://listen.style/p/tvzppbdm/zlpfzr4u",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00951",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03353",
+   "guid": "a6a645a5-e1a6-41a1-91fa-b2f7002d0e0f",
+   "url": "https://listen.style/p/tvzppbdm/xoawmtnm",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00950",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03360",
+   "guid": "4c98f990-9fa4-40e8-a8d6-b2fe0041b827",
+   "url": "https://listen.style/p/tvzppbdm/1vwzydci",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00949",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  },
+  {
+   "epId": "EP-03367",
+   "guid": "85c75f16-4186-4980-a213-b30500602a46",
+   "url": "https://listen.style/p/tvzppbdm/o1hewgjr",
+   "show": "ニュースの現場から",
+   "sharedWith": [
+    {
+     "epId": "EP-00946",
+     "show": "報談",
+     "judge": "対象外"
+    }
+   ]
+  }
+ ]
+}
