@@ -34,6 +34,7 @@ function p25v2JstDate_(rfc) {
   var d = new Date(t + 9 * 3600e3), p = function (n) { return ('0' + n).slice(-2); };
   return d.getUTCFullYear() + '/' + (d.getUTCMonth() + 1) + '/' + d.getUTCDate() + ' ' + p(d.getUTCHours()) + ':' + p(d.getUTCMinutes());
 }
+function p25v2DateKey_(v) { var m = p25v2T_(v).match(/^(\d{4})\/(\d{1,2})\/(\d{1,2}) (\d{1,2}):(\d{2})/); return m ? [m[1], +m[2], +m[3], +m[4], m[5]].join('-') : p25v2T_(v); }
 function p25v2Seconds_(v) { var s = p25v2T_(v); if (/^\d+$/.test(s)) return s; var a = s.split(':').map(Number); if (a.some(isNaN)) return ''; return String(a.reduce(function (x, y) { return x * 60 + y; }, 0)); }
 // feedUrl は台帳 V2「番組RSS」に記録されている公式URL。show は V2 の番組名（設定で対応付け）。limit は新しい順の最大件数（差分取得）。
 function p25v2ParseRss_(xml, feedUrl, show, limit) {
@@ -186,6 +187,16 @@ function p25v2Ingest_(io, config, items, opts) {
     decisions: decisions.map(function (d) { return { guid: p25v2Guids_(d.item)[0] || '', show: p25v2T_(d.item.show), decision: d.decision, reasons: d.reasons, existing: d.existing || '' }; }),
     added: 0, addedEpIds: [] };
   var todo = decisions.filter(function (d) { return d.decision === 'CANDIDATE'; }).slice(0, maxRows);
+  // 中断復旧: 台帳には入ったが採番履歴が「採番済」のまま → 同GUID・同EP-IDなら「登録完了」へ直す（書込モードのみ）
+  if (write && io.readNumbering) {
+    var numb = p25v2Numbering_(io.readNumbering()), nowR = (opts.now || function () { return new Date().toISOString(); })();
+    res.numberingRepaired = [];
+    decisions.filter(function (d) { return d.decision === 'ALREADY_INGESTED'; }).forEach(function (d) {
+      var g = p25v2Guids_(d.item)[0], n = numb.filter(function (x) { return x.guid === g; })[0];
+      var led = recs.rows.filter(function (r) { return r.epId === d.existing; })[0];
+      if (n && led && n.epId === d.existing && n.state !== '登録完了') { io.markNumbering(n.row, '登録完了', nowR, led.row); res.numberingRepaired.push(n.epId); }
+    });
+  }
   if (!write || !todo.length) return res;
   var reserved = Number(config.reservedMaxEpNo || 0);
   var numbering = io.readNumbering ? p25v2Numbering_(io.readNumbering()) : null;
@@ -201,8 +212,10 @@ function p25v2Ingest_(io, config, items, opts) {
     p25v2Schema_(after[0]);
     var n = io.appendRow(row);
     if (n !== before.length + 1) throw new Error('APPEND_POSITION_UNEXPECTED');
-    var back = io.readRow(n).map(p25v2T_);
-    var want = row.map(p25v2T_);
+    var di = recs.schema.idx['配信日時 JST'];
+    var norm = function (r) { return r.map(function (v, i) { return i === di ? p25v2DateKey_(v) : p25v2T_(v); }); };   // シートが日時を日付型に変換しても値で比較
+    var back = norm(io.readRow(n));
+    var want = norm(row);
     if (JSON.stringify(back.slice(0, want.length)) !== JSON.stringify(want)) throw new Error('READBACK_MISMATCH');
     if (numbering) io.markNumbering(alloc.numberingRow, '登録完了', now, n);
     res.added++; res.addedEpIds.push(epId); res.readbackOk = true; res.writtenRow = n; res.numberingReused = !!alloc.reused;
@@ -218,7 +231,7 @@ function p25v2GasIo_(config) {
   return {
     open: function () { ss = SpreadsheetApp.openById(config.targetSpreadsheetId); sh = ss.getSheetByName(config.sheetName); return { id: ss.getId(), name: ss.getName(), sheetName: sh ? sh.getName() : '' }; },
     readAll: function () { return sh.getRange(1, 1, sh.getLastRow(), sh.getLastColumn()).getDisplayValues(); },
-    appendRow: function (row) { var n = sh.getLastRow() + 1; sh.getRange(n, 1, 1, row.length).setValues([row]); SpreadsheetApp.flush(); return n; },
+    appendRow: function (row) { var n = sh.getLastRow() + 1; if (n > 2) sh.getRange(n - 1, 1, 1, row.length).copyFormatToRange(sh, 1, row.length, n, n); sh.getRange(n, 1, 1, row.length).setValues([row]); SpreadsheetApp.flush(); return n; },
     readRow: function (n) { return sh.getRange(n, 1, 1, sh.getLastColumn()).getDisplayValues()[0]; },
     readNumbering: function () { var ns = ss.getSheetByName(P25V2_NUM_SHEET_); return ns.getRange(1, 1, Math.max(ns.getLastRow(), 1), 9).getDisplayValues(); },
     appendNumbering: function (row) { var ns = ss.getSheetByName(P25V2_NUM_SHEET_), n = ns.getLastRow() + 1; ns.getRange(n, 1, 1, 9).setValues([row]); SpreadsheetApp.flush(); return n; },

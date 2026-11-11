@@ -168,3 +168,22 @@ test('同GUIDで題名だけ変わった回は METADATA_CHANGE として記録�
   const r = A.ingest(io, cfg(), [item({ title: '新題' })], { write: true });
   assert.equal(r.counts.METADATA_CHANGE, 1); assert.equal(r.added, 0); assert.equal(r.decisions[0].existing, 'EP-00001');
 });
+
+test('読み戻し: シートが日時を日付型に変えて「4:00」表示になっても値が同じなら一致（実COPYで発生）', () => {
+  const io = mockIo(v2([{ ep: 'EP-00001', guid: G(1) }]));
+  io.readRow = (n) => io.st.values[n - 1].map((x, i) => (i === C('配信日時 JST') ? '2026/11/11 4:00' : x));
+  const r = A.ingest(io, cfg(), [item()], { write: true });
+  assert.equal(r.readbackOk, true);
+  io.readRow = (n) => io.st.values[n - 1].map((x, i) => (i === C('配信日時 JST') ? '2026/11/11 5:00' : x));
+  assert.throws(() => A.ingest(io, cfg(), [item({ guid: G(901), title: '別' })], { write: true }), /READBACK_MISMATCH/);
+});
+
+test('中断復旧: 台帳には入ったが採番履歴が「採番済」のまま → 再実行で「登録完了」に修復し、追加は0', () => {
+  const io = mockIo(v2([{ ep: 'EP-00001', guid: G(1) }]));
+  const rb = io.readRow; io.readRow = () => ['broken'];
+  assert.throws(() => A.ingest(io, cfg(), [item()], { write: true }), /READBACK_MISMATCH/);
+  assert.equal(io.st.num[1][4], '採番済'); io.readRow = rb;
+  const r = A.ingest(io, cfg(), [item()], { write: true, now: () => 'R' });
+  assert.equal(r.added, 0); assert.equal(r.counts.ALREADY_INGESTED, 1);
+  assert.equal(JSON.stringify(r.numberingRepaired), JSON.stringify(['EP-00002'])); assert.equal(io.st.num[1][4], '登録完了'); assert.equal(io.st.num[1][7], 3);
+});
