@@ -11,7 +11,7 @@ var SC_CONFIG = {
   v2ApplyLevel: 'HUMAN_OK',
   ledgerSheet: 'V2・統合台帳',
   timeBudgetMs: 270000,     // 1回の実行で処理に使う時間（GASの上限6分に余裕を残す）
-  applyMaxPerRun: 2000,
+  applyMaxPerRun: 6000,
   feeds: P25V2_COPY_FEEDS_()
 };
 var SC_REFUSE_IDS_ = ['1I0fm8iBM6BMeLgBDdvQ4HLitlGy4sTm7Njjy50J-8BA', '1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4', '1KSzoIkOsjUagNBLt3IbKIvgWEmez4f0XISQ-jkUjmwQ'];   // V1原本・本番59列・旧GAS参照
@@ -150,10 +150,17 @@ function scApply_(targetId, nameIncludes, level, label, maxEpisodes) {
       epCount++;
       ks.forEach(function (k) { writes.push({ ri: ri, ep: x.ep, row: x.row, col: cols[k] + 1, colName: SC_COLS_[k], oldV: String(x[k]), newV: r[H[NEW[k]]] }); });
     });
-    var histRows = [], bad = 0;
-    writes.forEach(function (w) { t.sh.getRange(w.row, w.col).setValue(w.newV); });
+    var histRows = [], bad = 0, byCol = {};
+    writes.forEach(function (w) { (byCol[w.col] = byCol[w.col] || []).push(w); });
+    Object.keys(byCol).forEach(function (col) {   // 連続する行をまとめて書く（1セルずつ書くと遅く、時間切れで履歴が残らない恐れ）
+      var ws = byCol[col].sort(function (a, b) { return a.row - b.row; }), i = 0;
+      while (i < ws.length) { var j = i; while (j + 1 < ws.length && ws[j + 1].row === ws[j].row + 1) j++;
+        t.sh.getRange(ws[i].row, Number(col), j - i + 1, 1).setValues(ws.slice(i, j + 1).map(function (w) { return [w.newV]; })); i = j + 1; }
+    });
     SpreadsheetApp.flush();
-    writes.forEach(function (w) { var back = t.sh.getRange(w.row, w.col).getDisplayValue(), st = back === String(w.newV) ? 'OK' : 'READBACK_MISMATCH'; if (st !== 'OK') bad++; histRows.push([now, applyId, label, w.ep, w.colName, w.oldV, w.newV, st]); cur[w.ri][H['反映先']] = label; cur[w.ri][H['反映日時']] = now; });
+    var lastRow = t.sh.getLastRow(), back = {};
+    Object.keys(byCol).forEach(function (col) { back[col] = t.sh.getRange(1, Number(col), lastRow, 1).getDisplayValues(); });   // 読み戻しは列ごとに1回
+    writes.forEach(function (w) { var b = back[w.col][w.row - 1][0], st = b === String(w.newV) ? 'OK' : 'READBACK_MISMATCH'; if (st !== 'OK') bad++; histRows.push([now, applyId, label, w.ep, w.colName, w.oldV, w.newV, st]); cur[w.ri][H['反映先']] = label; cur[w.ri][H['反映日時']] = now; });
     if (histRows.length) { var hr = hist.getRange(hist.getLastRow() + 1, 1, histRows.length, SC_HIST_HEADERS_.length); hr.setNumberFormat('@'); hr.setValues(histRows); res.getRange(2, 1, cur.length, SC_HEADERS_.length).setValues(cur); }
     PropertiesService.getScriptProperties().setProperty('SC_LAST_APPLY', applyId);
     return { status: bad ? 'READBACK_MISMATCH' : writes.length ? 'OK' : 'OK_NO_CHANGE', target: label, level: level, cellsWritten: writes.length, episodes: Object.keys(writes.reduce(function (a, w) { a[w.ep] = 1; return a; }, {})).length, skipped: skip, applyId: applyId, ms: Date.now() - t0 };
