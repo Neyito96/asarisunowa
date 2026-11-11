@@ -96,7 +96,7 @@ export function cleanV4(raw) {
 
 // 台帳の書式に合わせる: 出演者=原文の行（リンク付き）を改行区切り、関連記事URL=記事URLを空白区切り
 export const castCell = (cast) => cast.map((c) => c.raw.replace(/\s+/g, ' ').trim()).join('\n');
-export const relatedCell = (related) => related.filter((r) => r.kind === 'article' && r.url).map((r) => r.url).join(' ');
+export const relatedCell = (related) => related.filter((r) => (r.kind || 'article') === 'article' && r.url).map((r) => r.url).join(' ');
 
 // 既存値が「原文から機械的に取り出しただけ」か（＝自動値。更新してよい）。原文に無い文字・URLを含むなら人の手が入った可能性→保護
 export function derivedFromRaw(existing, raw) {
