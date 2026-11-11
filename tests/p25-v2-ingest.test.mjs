@@ -270,3 +270,38 @@ test('COPY専用GASの依存関係: 使うGASサービスは許可済みのも�
   const scopes = JSON.parse(fs.readFileSync('docs/operations/p25v2-copy-gas/appsscript.json', 'utf8')).oauthScopes;
   assert.deepEqual(scopes, ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/script.external_request', 'https://www.googleapis.com/auth/script.scriptapp']);
 });
+
+test('GAS模擬の通し試験: 公式RSSを直接取得→1件追記→原文を詳細表に保存→採番登録完了→読み戻し一致→再実行0。トリガー作成なし・ロック解放', async () => {
+  const crypto = await import('node:crypto');
+  const mkSheet = (name, rows) => { const st = { name, rows: rows.map((r) => [...r]) };
+    const w = () => Math.max(...st.rows.map((r) => r.length), 1);
+    const rng = (r, c, nr = 1, nc = 1) => ({
+      getDisplayValues: () => Array.from({ length: nr }, (_, i) => Array.from({ length: nc }, (_, j) => String((st.rows[r - 1 + i] || [])[c - 1 + j] ?? ''))),
+      setValues: (v) => v.forEach((row, i) => row.forEach((x, j) => { while (st.rows.length < r + i) st.rows.push([]); st.rows[r - 1 + i][c - 1 + j] = x; })),
+      setValue: (x) => { while (st.rows.length < r) st.rows.push([]); st.rows[r - 1][c - 1] = x; }, copyFormatToRange: () => {} });
+    return { st, getName: () => name, getLastRow: () => st.rows.length, getLastColumn: () => w(), getRange: rng }; };
+  const ledger = mkSheet(A.SHEET, v2([{ ep: 'EP-00010', guid: G(10) }])), num = mkSheet('固定ID採番履歴', [NUMH]), det = mkSheet('V2・収蔵詳細', [[...A.DETAIL_HEADERS]]);
+  const sheets = { [A.SHEET]: ledger, '固定ID採番履歴': num, 'V2・収蔵詳細': det };
+  let locked = 0, released = 0, fetched = [];
+  const rss = `<?xml version="1.0"?><rss><channel><title>ニュースの学校</title><item><title>【合成】GAS通し</title><guid>${G(950)}</guid><pubDate>Tue, 10 Nov 2026 19:00:00 GMT</pubDate><link>https://example.invalid/ep</link><description><![CDATA[<p>合成の概要原文です。</p>]]></description><enclosure url="https://example.invalid/a.mp3" type="audio/mpeg"/></item></channel></rss>`;
+  const g = { module: { exports: {} }, Date, JSON, Math,
+    SpreadsheetApp: { openById: (id) => { assert.equal(id, COPY_ID); return { getId: () => COPY_ID, getName: () => '【COPY試験】GAS模擬', getSheetByName: (n) => sheets[n] || null }; }, flush() {} },
+    UrlFetchApp: { fetch: (u) => { fetched.push(u); return { getResponseCode: () => 200, getContentText: () => rss }; } },
+    LockService: { getScriptLock: () => ({ tryLock: () => (locked++, true), releaseLock: () => released++ }) },
+    ScriptApp: { getProjectTriggers: () => [], newTrigger: () => { throw new Error('TRIGGER_FORBIDDEN'); } },
+    Utilities: { DigestAlgorithm: { SHA_256: 'sha256' }, Charset: { UTF_8: 'utf8' }, computeDigest: (_a, s) => [...crypto.createHash('sha256').update(s, 'utf8').digest()].map((b) => (b > 127 ? b - 256 : b)) } };
+  vm.runInNewContext(fs.readFileSync('scripts/google-apps-script/P25V2IngestAdapter.js', 'utf8'), g);
+  g.CFG = cfg({ feeds: [{ show: 'ニュースの学校', url: 'https://feeds.megaphone.fm/TASC5851398719' }], maxRows: 1 });
+  const r1 = vm.runInNewContext('P25V2_INGEST_COPY(CFG, null, true)', g);
+  assert.deepEqual(fetched, ['https://feeds.megaphone.fm/TASC5851398719']); assert.equal(locked, 1); assert.equal(released, 1);
+  assert.equal(ledger.st.rows.length, 3); assert.equal(ledger.st.rows[2][C('公式GUID')], G(950));
+  const dh = [...A.DETAIL_HEADERS], raw = det.st.rows[1][dh.indexOf('概要原文')];
+  assert.match(raw, /合成の概要原文/); assert.equal(det.st.rows[1][dh.indexOf('概要原文SHA256')], crypto.createHash('sha256').update(raw).digest('hex'));
+  assert.equal(num.st.rows[1][4], '登録完了'); assert.equal(r1.feedErrors.length, 0);
+  const before = JSON.stringify([ledger.st.rows, num.st.rows, det.st.rows]);
+  vm.runInNewContext('P25V2_INGEST_COPY(CFG, null, true)', g);
+  assert.equal(JSON.stringify([ledger.st.rows, num.st.rows, det.st.rows]), before);   // 再実行は差分0
+  g.UrlFetchApp.fetch = () => ({ getResponseCode: () => 503, getContentText: () => '' });
+  const r3 = vm.runInNewContext('P25V2_INGEST_COPY(CFG, null, true)', g);
+  assert.equal(r3.feedErrors[0].error, 'FEED_HTTP_503'); assert.equal(JSON.stringify([ledger.st.rows, num.st.rows, det.st.rows]), before);   // 取得失敗は記録して何も書かない
+});

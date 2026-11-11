@@ -53,7 +53,11 @@ export function planSummaryCleaning(values, detailValues, cleanFn, version, at) 
     if (!ep || !raw.trim() || (state !== '未清掃' && s(r[d['清掃版']]) === version)) return;
     let out; try { out = cleanFn(raw); } catch (e) { out = { ok: false, error: true, reason: String(e.message || e) }; }
     const u = { row: i + 2, epId: ep, 清掃状態: out.ok ? '清掃済' : out.error ? '清掃失敗' : '要確認（清掃保留）', 清掃版: version, 清掃日時: at, 清掃結果: out.ok ? `文字数 ${raw.length}→${s(out.text).length}` : s(out.reason) };
-    if (d['清掃済み本文'] !== undefined) Object.assign(u, { 清掃済み本文: s(out.text), '関連記事(抽出)': out.related ? JSON.stringify(out.related) : '', '出演者候補(抽出)': (out.staff || []).join(' / '), 抽出保留: (out.holds || []).join(',') });
+    if (d['清掃済み本文'] !== undefined) Object.assign(u, { 清掃済み本文: s(out.text),
+      '関連記事(抽出)': out.related ? JSON.stringify(out.related.map((x) => ({ ...x, source: '概要原文' }))) : '',
+      // 人名の同一視・確定はしない。出典と「候補」であることを必ず付ける
+      '出演者候補(抽出)': out.staff && out.staff.length ? JSON.stringify(out.staff.map((t) => ({ text: t, source: '概要原文【出演・スタッフ】', confidence: '候補（未確定）' }))) : '',
+      抽出保留: (out.holds || []).join(',') });
     detailUpdates.push(u);
     const x = byEp.get(ep);
     if (out.ok && x) { const cur = s(x.r[idx['概要（清掃済）']]); if (!cur) ledgerCells.push({ epId: ep, column: colLetter(idx['概要（清掃済）']), expectedOld: '', value: s(out.text) }); else if (cur !== s(out.text)) hold.push({ ep, why: 'CLEANED_DIFFERS_FROM_EXISTING' }); }
@@ -66,7 +70,7 @@ export function planSummaryCleaning(values, detailValues, cleanFn, version, at) 
 //  前処理: 「〇〇は毎週X曜日に配信します」を文ごと除去（既存規則は文の途中で切れて主語が残るため）
 //  後処理: 共通案内・SNS・購読/広告/アプリ案内の行を本文と出演欄から除去、出演欄は【…】や★で始まる案内で打ち切り、
 //          本文中の「見出し + asahi.com 記事URL」を関連記事へ移す。人名・役割・事実の文は消さない。
-export const CLEAN_VERSION = 'P25V2-' + DESCRIPTION_VERSION + '+v2rules-1';
+export const CLEAN_VERSION = 'P25V2-' + DESCRIPTION_VERSION + '+v2rules-2';   // -2: 出演者候補・関連記事に出典と確度を付ける
 const PROMO_LINE = /^(?:★|【(?:おねがい|朝ポキ情報|お知らせ)】|ご意見・感想・リクエスト|ほかにも(?:多彩な)?番組を配信中|朝日新聞ポッドキャストは、みなさまからの購読料|番組継続のため|アプリで記者と対話|交流はdiscord|おたよりフォーム|朝ポキTV|メルマガ|広告ご検討の企業様|番組検索ツール|最新情報はX|番組カレンダー|全話あります公式サイト|Learn more about your ad choices|See .*omnystudio)/i;
 const ARTICLE = /(https?:\/\/www\.asahi\.com\/articles\/[A-Za-z0-9]+\.html)(?:\?[^\s]*)?/;
 export function v2CleanSummary(raw) {
@@ -131,4 +135,55 @@ export function planRawBackfill(detailValues, rawByGuid, { via = '公式RSS（�
     out.push({ row: i + 2, epId: ep, 概要原文: String(x.descriptionRaw), 概要原文SHA256: sha, 概要原文文字数: String(String(x.descriptionRaw).length), 清掃状態: '未清掃', 原文取得方法: via, 取得日時: at || s(r[d['取得日時']]) });
   });
   return { updates: out, hold };
+}
+// 清掃結果の V2本体「概要（清掃済）」への投影（別工程）。条件: 清掃済・原文のSHA256が記録と一致・EP-IDとGUIDが一致・本体の欄が空欄。既存値は保護（違えば HOLD）。
+export function planSummaryProjection(values, detailValues, sha256) {
+  const { idx, rows, guid } = v2Index(values), byEp = new Map(rows.map((x) => [x.epId, x]));
+  const h = detailValues[0].map(s), d = Object.fromEntries(h.map((n, i) => [n, i])), cells = [], hold = [];
+  for (const r of detailValues.slice(1)) {
+    const ep = s(r[d['EP-ID']]); if (!ep) continue;
+    const raw = String(r[d['概要原文']] ?? ''), text = s(r[d['清掃済み本文']]), x = byEp.get(ep);
+    if (s(r[d['清掃状態']]) !== '清掃済' || !text) continue;
+    if (!x) { hold.push({ ep, why: 'EP_NOT_IN_V2' }); continue; }
+    if (!raw || sha256(raw) !== s(r[d['概要原文SHA256']])) { hold.push({ ep, why: 'RAW_HASH_UNVERIFIED' }); continue; }
+    if (guid(x) !== s(r[d['公式GUID']]).toLowerCase()) { hold.push({ ep, why: 'GUID_MISMATCH' }); continue; }
+    const cur = s(x.r[idx['概要（清掃済）']]);
+    if (cur === text) continue; if (cur) { hold.push({ ep, why: 'EXISTING_VALUE_PROTECTED' }); continue; }
+    cells.push({ epId: ep, row: x.row, column: colLetter(idx['概要（清掃済）']), expectedOld: '', value: text, version: s(r[d['清掃版']]), rawSha256: s(r[d['概要原文SHA256']]) });
+  }
+  return { cells, hold };
+}
+// 過去分の遡及照合カーソル: 各番組フィードを古い方へ一定件数ずつ進める。1回の総予算(API/件数)を超えない。再実行は同じカーソルから（完了済みは進めない）。
+export function nextScanWindows(state, feeds, { budgetItems = 200, windowSize = 40 } = {}) {
+  const next = JSON.parse(JSON.stringify(state || {})), plan = []; let left = budgetItems;
+  for (const f of feeds) {
+    const st = next[f.show] || { offset: windowSize, done: false, total: null };   // 先頭 windowSize 件は日次取得で見ている
+    if (st.done || left <= 0) { next[f.show] = st; continue; }
+    const take = Math.min(windowSize, left, st.total == null ? windowSize : Math.max(0, st.total - st.offset));
+    if (take <= 0) { st.done = true; next[f.show] = st; continue; }
+    plan.push({ show: f.show, url: f.url, offset: st.offset, limit: take }); left -= take; next[f.show] = st;
+  }
+  return { plan, state: next };
+}
+export function advanceScanState(state, results) {
+  const next = JSON.parse(JSON.stringify(state || {}));
+  for (const r of results) {
+    const st = next[r.show] || { offset: r.offset, done: false, total: null };
+    if (r.ok) { st.offset = r.offset + r.taken; st.total = r.total; st.done = st.offset >= r.total; st.lastSuccessAt = r.at; } else { st.lastError = r.error; st.lastErrorAt = r.at; }   // 失敗時はカーソルを進めない
+    next[r.show] = st;
+  }
+  return next;
+}
+// データ完全性ダッシュボードの指標
+export function integrityMetrics(values, detailValues = [[]], urlStateRows = [], numberingRows = [[]]) {
+  const { idx, rows } = v2Index(values);
+  const judge = (r) => s(r.r[idx['掲載判定']] ?? '');
+  const dh = (detailValues[0] || []).map(s), di = Object.fromEntries(dh.map((n, i) => [n, i])), det = detailValues.slice(1).filter((r) => s(r[0]));
+  const svc = {}; for (const [k, c] of Object.entries(SERVICE_COLUMNS)) svc[k] = { filled: rows.filter((r) => s(r.r[idx[c]])).length, verifiedInStateTable: urlStateRows.filter((u) => s(u[2]) === k && s(u[4]) === '確認済み').length, hold: urlStateRows.filter((u) => s(u[2]) === k && s(u[4]) === '照合保留').length, notFound: urlStateRows.filter((u) => s(u[2]) === k && s(u[4]) === '未発見').length };
+  const num = numberingRows.slice(1).filter((r) => s(r[1]));
+  return { total: rows.length, published: rows.filter((r) => judge(r) === '対象' && s(r.r[idx['代表EP-ID']]) === r.epId).length,
+    byJudge: rows.reduce((a, r) => ((a[judge(r) || '空欄'] = (a[judge(r) || '空欄'] || 0) + 1), a), {}),
+    details: { rows: det.length, rawStored: det.filter((r) => s(r[di['概要原文']])).length, hashOnly: det.filter((r) => !s(r[di['概要原文']]) && s(r[di['概要原文SHA256']])).length, cleaned: det.filter((r) => s(r[di['清掃状態']]) === '清掃済').length, cleanHold: det.filter((r) => /要確認/.test(s(r[di['清掃状態']]))).length, missingDetailRow: rows.filter((r) => /P25V2収蔵/.test(s(r.r[idx['判定根拠']] ?? '')) && !det.some((d) => s(d[0]) === r.epId)).map((r) => r.epId) },
+    summaryProjected: rows.filter((r) => s(r.r[idx['概要（清掃済）']])).length, services: svc,
+    numbering: { rows: num.length, pending: num.filter((r) => s(r[4]) === '採番済').map((r) => s(r[1])), lastCompletedAt: num.map((r) => s(r[6])).filter(Boolean).sort().at(-1) || '' } };
 }

@@ -91,7 +91,7 @@ test('清掃計画: 収蔵詳細の追加列（清掃済み本文・関連記事
   const det = [DH, ['EP-00001', G(1), 'rss', 'T', '本文です。\n【関連記事】\n見出し\nhttps://www.asahi.com/articles/A.html', 'h', '9', '未清掃', '', '', '', '', '', '', '', '', '公式RSS直接']];
   const r = planSummaryCleaning(V(), det, v2CleanSummary, CLEAN_VERSION, 'NOW');
   assert.equal(r.detailUpdates.length, 1); const u = r.detailUpdates[0];
-  assert.equal(u.清掃状態, '清掃済'); assert.equal(u.清掃済み本文, '本文です。'); assert.equal(JSON.parse(u['関連記事(抽出)'])[0].url, 'https://www.asahi.com/articles/A.html');
+  assert.equal(u.清掃状態, '清掃済'); assert.equal(u.清掃済み本文, '本文です。'); assert.equal(JSON.parse(u['関連記事(抽出)'])[0].url, 'https://www.asahi.com/articles/A.html'); assert.equal(JSON.parse(u['関連記事(抽出)'])[0].source, '概要原文');
   const done = det.map((x) => [...x]); done[1][7] = '清掃済'; done[1][8] = CLEAN_VERSION;
   assert.equal(planSummaryCleaning(V(), done, v2CleanSummary, CLEAN_VERSION, 'NOW').detailUpdates.length, 0);
   assert.equal(det[1][4].startsWith('本文です。\n'), true);
@@ -106,7 +106,7 @@ test('V2追加規則（実データで見つかった取りこぼし）: 出演�
   const b = v2CleanSummary(mega);
   assert.equal(b.text, 'ニュースの説明文。');
   assert.deepEqual(b.related, [{ title: '記事の見出しです', url: 'https://www.asahi.com/articles/ASV1.html' }]);
-  assert.equal(b.ok, true); assert.ok(CLEAN_VERSION.endsWith('+v2rules-1'));
+  assert.equal(b.ok, true); assert.ok(CLEAN_VERSION.endsWith('+v2rules-2'));
 });
 
 test('原文の後日補完: 記録済みSHA256(先頭一致)・文字数が一致する空欄行だけ。違えば HOLD、既に原文がある行は触らない（再実行差分0）', async () => {
@@ -120,4 +120,47 @@ test('原文の後日補完: 記録済みSHA256(先頭一致)・文字数が一�
   assert.deepEqual(r.updates.map((u) => [u.epId, u.概要原文, u.概要原文SHA256 === sha(t1), u.清掃状態]), [['EP-1', '本文A', true, '未清掃']]);
   assert.deepEqual(r.hold, [{ ep: 'EP-2', why: 'SHA_MISMATCH' }]);
   const det2 = det.map((x) => [...x]); det2[1][4] = t1; assert.equal(planRawBackfill(det2, raw).updates.length, 0);
+});
+
+test('出演者候補は出典と「候補（未確定）」付きのJSON。同一視しない（同名でも別要素のまま）', () => {
+  const det = [DH, ['EP-00001', G(1), '', '', '<p>本文。</p><p>【出演・スタッフ】<br>山田太郎（記者）<br>山田太郎（MC）</p>', 'h', '1', '未清掃', '', '', '', '', '', '', '', '', '']];
+  const u = planSummaryCleaning(V(), det, v2CleanSummary, CLEAN_VERSION, 'T').detailUpdates[0];
+  const c = JSON.parse(u['出演者候補(抽出)']);
+  assert.deepEqual(c.map((x) => x.text), ['山田太郎（記者）', '山田太郎（MC）']);
+  assert.ok(c.every((x) => x.source === '概要原文【出演・スタッフ】' && x.confidence === '候補（未確定）'));
+});
+
+test('概要（清掃済）への投影: 清掃済・原文ハッシュ一致・GUID一致・空欄だけ。既存値は保護、再実行は0', async () => {
+  const { planSummaryProjection } = await import('../scripts/ledger-v2/v2-enrich.mjs');
+  const crypto = await import('node:crypto'); const sha = (t) => crypto.createHash('sha256').update(t).digest('hex');
+  const vals = V(); vals[2][C('概要（清掃済）')] = '人の文';
+  const det = [DH, ['EP-00001', G(1), '', '', '原文1', sha('原文1'), '3', '清掃済', 'v', '', '', '', '清掃1', '', '', '', ''],
+    ['EP-00002', G(2), '', '', '原文2', sha('原文2'), '3', '清掃済', 'v', '', '', '', '清掃2', '', '', '', ''],
+    ['EP-00003', G(3), '', '', '原文3', 'bad', '3', '清掃済', 'v', '', '', '', '清掃3', '', '', '', ''],
+    ['EP-00001', G(9), '', '', '原文9', sha('原文9'), '3', '清掃済', 'v', '', '', '', '清掃9', '', '', '', '']];
+  const r = planSummaryProjection(vals, det, sha);
+  assert.deepEqual(r.cells.map((c) => [c.epId, c.column, c.value]), [['EP-00001', 'N', '清掃1']]);
+  assert.deepEqual(r.hold.map((h) => h.why).sort(), ['EXISTING_VALUE_PROTECTED', 'GUID_MISMATCH', 'RAW_HASH_UNVERIFIED']);
+  vals[1][C('概要（清掃済）')] = '清掃1'; assert.equal(planSummaryProjection(vals, det, sha).cells.length, 0);
+});
+
+test('遡及照合カーソル: 予算内で古い方へ進む・失敗時は進めない・完了は止まる・同じ状態からの再計画は同じ', async () => {
+  const { nextScanWindows, advanceScanState } = await import('../scripts/ledger-v2/v2-enrich.mjs');
+  const feeds = [{ show: 'A', url: 'u1' }, { show: 'B', url: 'u2' }, { show: 'C', url: 'u3' }];
+  const p1 = nextScanWindows({}, feeds, { budgetItems: 100, windowSize: 40 });
+  assert.deepEqual(p1.plan.map((p) => [p.show, p.offset, p.limit]), [['A', 40, 40], ['B', 40, 40], ['C', 40, 20]]);
+  assert.deepEqual(nextScanWindows({}, feeds, { budgetItems: 100, windowSize: 40 }).plan, p1.plan);
+  const s2 = advanceScanState(p1.state, [{ show: 'A', offset: 40, taken: 40, total: 90, ok: true, at: 't' }, { show: 'B', offset: 40, ok: false, error: 'HTTP_503', at: 't' }, { show: 'C', offset: 40, taken: 20, total: 60, ok: true, at: 't' }]);
+  assert.equal(s2.A.offset, 80); assert.equal(s2.B.offset, 40); assert.equal(s2.C.done, true);
+  const p2 = nextScanWindows(s2, feeds, { budgetItems: 100, windowSize: 40 });
+  assert.deepEqual(p2.plan.map((p) => [p.show, p.offset, p.limit]), [['A', 80, 10], ['B', 40, 40]]);
+});
+
+test('完全性指標: 収蔵総数・公開・判定別・原文保全・清掃・投影・サービス別・採番の未完了', async () => {
+  const { integrityMetrics } = await import('../scripts/ledger-v2/v2-enrich.mjs');
+  const vals = V(); vals[1][C('掲載判定')] = '対象'; vals[1][C('代表EP-ID')] = 'EP-00001'; vals[1][C('LISTEN')] = 'https://listen.style/p/a/b';
+  const det = [DH, ['EP-00001', G(1), '', '', '原文', 'h', '2', '清掃済', '', '', '', '', '', '', '', '', ''], ['EP-00002', G(2), '', '', '', 'h', '2', '原文未取得', '', '', '', '', '', '', '', '', '']];
+  const m = integrityMetrics(vals, det, [['EP-00001', G(1), 'listen', 'u', '確認済み']], [['GUID', '固定ID', '', '', '状態', '', '登録完了日時'], ['g', 'EP-00001', '', '', '登録完了', '', 'T1'], ['g2', 'EP-00002', '', '', '採番済', '', '']]);
+  assert.equal(m.total, 3); assert.equal(m.published, 1); assert.equal(m.details.rawStored, 1); assert.equal(m.details.hashOnly, 1); assert.equal(m.details.cleaned, 1);
+  assert.equal(m.services.listen.filled, 1); assert.equal(m.services.listen.verifiedInStateTable, 1); assert.deepEqual(m.numbering.pending, ['EP-00002']); assert.equal(m.numbering.lastCompletedAt, 'T1');
 });

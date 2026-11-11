@@ -258,3 +258,20 @@ COPYの新着11件（EP-06695〜06705）: LISTEN の個別URLは LISTEN RSS の 
 
 ### 13.5 実測ファイル（本文は含まない）
 `docs/release/2026-11-11-p25v2-stage4-verify.json`、`docs/release/2026-11-11-p25v2-stage4-clean-plan-summary.json`
+
+## §14 第5段階（2026-11-11）結果 — COPY限定・本番/V2正本/GAS/main 不変・PR #306 Draft維持
+
+| 項目 | 判定 | 実測 |
+|---|---|---|
+| P0 公開成果物の監査・再発防止 | DONE | artifact 117件中 v2-rss系 0件。対象4 runのログ・PRコメント613件で原文断片52個の一致0。git履歴213コミットは既存の公開サイトデータのみ一致（意図された公開物）。キャッシュは権限外で**未確認**。削除前に第三者が取得した写しは回収不能（残存リスク）。workflowは upload-artifact 撤去・`assertPublishable`（leak-guard）・`if: always()` 後始末。経緯: `2026-11-11-v2-rss-exposure-incident.md` |
+| EP-06695 詳細行の復旧 | DONE | 収蔵詳細 27行目。原文630字、SHA256 2ddac8a1…dc8c 一致、v2rules-2 清掃、原文取得方法=公式RSS（封緘転送） |
+| 原文保全（残り21件） | PARTIAL / BLOCKED（意図的） | COPYに原文を保持=5件（06695/06698/06704/06706/06708）。残り21件は長さ+SHA256のみ。約11万字をこのセッション経由で転記しない判断（クレジット節約・本文の経路最小化）。復号済み平文と秘密鍵は作業後に削除済み。**回収手順**: 独立COPY GAS が公式RSSを直接取得し `planRawBackfill`（SHA前方一致・長さ一致・空欄のみ）で埋める |
+| 清掃（v2rules-2） | DONE（5件）/ 21件は原文待ち | 再実行差分0（detailUpdates 0・ledger 0）。関連記事は別欄JSON（source=概要原文）、出演者は候補JSON（source・confidence=候補（未確定））、人物の自動同定なし。原文は不変。EP-06715 は HOLD（RELATED_TEXT_WITHOUT_URL_REVIEW） |
+| 本体「概要（清掃済）」への投影 | DONE（5件） | `planSummaryProjection`: 清掃済・原文SHA一致・EP-ID/GUID一致・空欄のみ。N6557:N6570 書込→A:AH読み戻しで対象5セルのみ変化、他は不変。保留0 |
+| LISTEN | PARTIAL | EP-06704 は未発見（後日再探索）。06706〜06720 の未補完分は次段階（4条件照合のまま） |
+| 他5サービス | BLOCKED | PR #281 の ROUTES が全て未検証(false)。推測URLは作らない。URL状態表で HOLD/NOT_FOUND を管理 |
+| 遡及照合カーソル | DONE（コード・試験） | `nextScanWindows` / `advanceScanState`: 予算内・失敗時は進めない・完了停止・同状態から同計画 |
+| 独立COPY GAS | DONE（模擬通し試験） | RSS直接取得→1件追記→原文を詳細表に保存→登録完了→再実行0→取得失敗時は書込0。ロック取得/解放、トリガー作成なし。OAuth承認は未依頼（最後に1回） |
+| 完全性指標 | DONE | `integrityMetrics`。測定値: `docs/release/2026-11-11-p25v2-stage5-metrics.json`（総数6580・公開6033・未判定129・保留257・対象外161・詳細26行/原文5/ハッシュのみ21/清掃5）。サービス列・採番表は全行未読の部分測定（未確認と明記） |
+
+試験: P25V2関連 54件 PASS。リポジトリ全体では `tests/ui-components.test.mjs` が本変更前から失敗（本件と無関係）。
