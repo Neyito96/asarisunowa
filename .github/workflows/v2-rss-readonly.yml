@@ -5,6 +5,8 @@ on:
     branches: [feat/v2-ingestion-preflight-20261111]
 permissions:
   contents: read
+  issues: write
+  pull-requests: write
 concurrency:
   group: v2-rss-readonly
   cancel-in-progress: false
@@ -19,5 +21,7 @@ jobs:
         with: { node-version: '22' }
       - run: node --test tests/p25-v2-ingest.test.mjs
       - run: node scripts/ledger-v2/fetch-official-rss.mjs 40 rss-items.json
+      - run: node scripts/ledger-v2/post-rss-dump.mjs rss-items.json 306
+        env: { GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
       - uses: actions/upload-artifact@v4
         with: { name: v2-rss-items, path: rss-items.json, retention-days: 7 }
