@@ -131,7 +131,8 @@ function p25v2Ingest_(io, config, items, opts) {
     var epId = p25v2NextEpId_(recs.rows, reserved), row = p25v2BuildRow_(recs.schema, d.item, epId);
     p25v2AssertCopyTarget_(config, io.open(), true);              // 書込直前に再検証
     var after = io.readAll();
-    if (after.length !== before.length) throw new Error('LEDGER_CHANGED_SINCE_READ');
+    // Detect in-place edits as well as new/deleted rows. Row count alone is insufficient.
+    if (after.length !== before.length || JSON.stringify(after) !== JSON.stringify(before)) throw new Error('LEDGER_CHANGED_SINCE_READ');
     p25v2Schema_(after[0]);
     var n = io.appendRow(row);
     if (n !== before.length + 1) throw new Error('APPEND_POSITION_UNEXPECTED');
