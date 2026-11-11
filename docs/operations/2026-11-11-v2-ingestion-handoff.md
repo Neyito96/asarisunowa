@@ -301,3 +301,15 @@ COPYの新着11件（EP-06695〜06705）: LISTEN の個別URLは LISTEN RSS の 
 - 分岐: DRYRUN の CANDIDATE=0 なら WRITE_ONE/VERIFY は実行せず、`P25V2_5_BACKFILL_RAW` で既存21件の原文補完（1回最大10件）を実機試験の対象にする。架空の回は作らない。手順は `gas/p25v2-copy/README.md`。
 - コード変更: CHECK は全件取得の時間（`fetchAllMs`・番組別 `ms`/`chars`）と公開数を報告、2分超は `CHECK_FETCH_TOO_SLOW`。WRITE_ONE は取得エラーがあれば書込0で `STOP_FEED_ERRORS`、追加0なら検証記録を作らない。VERIFY は書込記録なしで `NO_WRITE_TO_VERIFY`。BACKFILL は取得エラーで停止・4分超で停止、EP-ID/GUID が台帳と一致する行だけ、書込前に空欄を再確認、読み戻しで SHA256 と文字数一致、収蔵詳細17列の全セル比較で他セル不変（`otherCellsChanged`）、公開数の前後一致、再実行は `OK_NO_CHANGE`。
 - 模擬PASS: `tests/p25v2-copy-gas.test.mjs` 8件（P25V2関連 計74件）。実機の測定値（取得時間・件数・埋めた件数・HOLD理由・差分0）は管理人の実行後にここへ追記する。
+
+## §17 GAS作成・配置・実行の自動化の調査（2026-11-11）
+| 手段 | 結果 |
+|---|---|
+| Google Drive コネクタで Apps Script プロジェクトを作成（`application/vnd.google-apps.script+json` の取り込み） | **不可**（実測: コネクタが「Google形式のファイルは外部形式の中身でしか作れない」と拒否）。他に作成手段なし |
+| clasp（作業環境から） | **不可**。clasp は未導入で、npm の導入は通信設定で拒否。仮に導入できても管理人の Google ログイン（`clasp login`）が必要 |
+| Apps Script API（projects.create / updateContent / scripts.run） | **不可**。作業環境に Google の認証情報が無い（gcloud 未ログイン）。利用には管理人が API を有効化し、OAuth で許可する必要がある。`scripts.run` には実行可能APIとしてのデプロイとGCPプロジェクト連携も要る |
+| GitHub Actions + clasp | **採らない**。管理人の Google 更新トークンをリポジトリのシークレットに置く必要があり、漏れたときの被害が大きい |
+| Claude in Chrome（管理人のChromeで script.google.com を操作） | **今回は不可**（拡張機能が未接続。管理人はスマホから操作中）。PCのChromeで拡張機能が使える場合は、新規作成・貼付・保存・関数の実行まで代行でき、管理人の操作は権限承認画面のクリックだけになる |
+| GitHub から読み込んで実行するローダー | **採らない**（外部から取得したコードの実行は安全でない） |
+
+結論: 現在の環境では作成・配置を代行できない。管理人の操作を最小化した手順は `gas/p25v2-copy/README.md`（作成→2ファイル貼付→各関数の実行→許可）。PC の Chrome で Claude in Chrome が接続されれば、許可のクリック以外を代行できる。
