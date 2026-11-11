@@ -23,5 +23,10 @@ jobs:
       - run: node scripts/ledger-v2/fetch-official-rss.mjs 40 rss-items.json
       - run: node scripts/ledger-v2/post-rss-dump.mjs rss-items.json 306
         env: { GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
+      - name: 概要原文を封緘して投稿（本文は暗号化。公開鍵 scripts/ledger-v2/sealed-transfer.pub.pem）
+        run: |
+          node scripts/ledger-v2/sealed-transfer.mjs seal rss-items.json scripts/ledger-v2/sealed-guids.json scripts/ledger-v2/sealed-transfer.pub.pem sealed.json
+          node scripts/ledger-v2/sealed-transfer.mjs post sealed.json 306
+        env: { GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
       - uses: actions/upload-artifact@v4
-        with: { name: v2-rss-items, path: rss-items.json, retention-days: 7 }
+        with: { name: v2-rss-items, path: sealed.json, retention-days: 7 }

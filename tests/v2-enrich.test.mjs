@@ -60,3 +60,17 @@ test('継続監査: EPごとの未補完一覧（URL未探索/要再確認・原
   assert.ok(p.find((x) => x.epId === 'EP-00002').need.includes('詳細:未作成'));
   assert.ok(!p.find((x) => x.epId === 'EP-00002').need.includes('出演者'));
 });
+
+test('封緘転送: 公開鍵で暗号化→秘密鍵でのみ復号。暗号文に本文が現れない・改ざんは検出', async () => {
+  const crypto = await import('node:crypto');
+  const { seal, open } = await import('../scripts/ledger-v2/sealed-transfer.mjs');
+  const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', { modulusLength: 2048, publicKeyEncoding: { type: 'spki', format: 'pem' }, privateKeyEncoding: { type: 'pkcs8', format: 'pem' } });
+  const obj = { items: { g1: { descriptionRaw: '本文テキスト【関連記事】https://www.asahi.com/articles/X.html' } } };
+  const s = seal(obj, publicKey);
+  assert.ok(!JSON.stringify(s).includes('本文') && !JSON.stringify(s).includes('asahi'));
+  assert.deepEqual(open(s, privateKey), obj);
+  const t = { ...s, data: Buffer.from(Buffer.from(s.data, 'base64').map((b, i) => (i === 3 ? b ^ 1 : b))).toString('base64') };
+  assert.throws(() => open(t, privateKey));
+  assert.ok(fs.readFileSync('scripts/ledger-v2/sealed-transfer.pub.pem', 'utf8').includes('PUBLIC KEY'));
+  assert.ok(!fs.readFileSync('.github/workflows/v2-rss-readonly.yml', 'utf8').includes('path: rss-items.json'));   // 本文入りファイルを成果物に出さない
+});
