@@ -95,3 +95,16 @@ test('読み戻し不一致は停止として報告', () => {
   io.readRow = (n) => io.st.values[n - 1].map((x, i) => (i === C('タイトル') ? 'changed' : x));
   assert.throws(() => A.ingest(io, cfg(), [item()], { write: true }), /READBACK_MISMATCH/);
 });
+
+test('同じ行数でも既存内容が書込直前に変わったら停止する', () => {
+  const io = mockIo(v2([{ ep: 'EP-00001', guid: G(1) }]));
+  let reads = 0;
+  const base = io.readAll;
+  io.readAll = () => {
+    const values = base();
+    if (++reads === 2) values[1][C('タイトル')] = 'other writer changed title';
+    return values;
+  };
+  assert.throws(() => A.ingest(io, cfg(), [item()], { write: true }), /LEDGER_CHANGED_SINCE_READ/);
+  assert.equal(io.st.writes, 0);
+});
