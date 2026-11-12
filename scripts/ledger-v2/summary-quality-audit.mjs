@@ -13,7 +13,7 @@ const publicationUrl = cleanUrl;
 // 段落（</p>）ごとに行へ分ける。段落の区切りを残すため（★の告知ブロックは段落の終わりまで）。<p> の無い原文は全体で1段落＝hasParas=false
 export function paraLines(raw) {
   const src = String(raw ?? '').replace(/<!\[CDATA\[|\]\]>/g, ''), parts = src.split(/<\/p\s*>/i), out = [];
-  parts.forEach((chunk, p) => descriptionLines(chunk).forEach((text) => out.push({ text, p })));
+  parts.forEach((chunk, p) => descriptionLines(chunk).forEach((text) => out.push({ text: text.replace(/[\u200B\u2060\uFEFF]/g, ''), p })));
   return { lines: out, hasParas: parts.length > 1 };
 }
 // ★/☆ で始まる告知（フォロー・募集・イベント・新番組・感想募集など）。その段落の残りの行も告知として扱う
@@ -21,7 +21,7 @@ export const STAR_NOTICE = /^[★☆].*(?:読み放題|月額|円で|初回限�
 // 見出しの後に文が続く告知（【秋トクキャンペーン …】本文…）
 export const INLINE_NOTICE_HEAD = /^【[^】]*(?:キャンペーン|イベント|祝|募集|プレゼント|お知らせ|告知|チケット|参加者)[^】]*】/;
 
-export const AUDIT_VERSION = 'SQA-7';
+export const AUDIT_VERSION = 'SQA-8';
 // 清掃状態（処理済みと品質確認済みを分離）。品質確認済は人の目視確認と記録があるときだけ付く。自動検査の合格は「自動検査合格・目視未確認」。
 export const QUALITY_STATES = Object.freeze(['未処理', '自動処理済・未検証', '自動検査合格・目視未確認', '品質確認済', '要確認', '不合格']);
 export const QUALITY_LOG_HEADERS = Object.freeze(['EP-ID', '公式GUID', '概要原文SHA256', '検査対象', '清掃版', '監査版', '判定', '誤り分類', '検証方法', '検証者', '検証日時', '理由']);
@@ -40,6 +40,8 @@ const AMBIG_LINE = /^[★※▼■◆]|募集|お寄せください|応募|申�
 export function classifyRawLines(raw) {
   const out = []; let section = 'body', notice = -1;   // notice = ★告知・見出し付き告知が続いている段落番号
   const pl = paraLines(raw);
+  const groups = new Map(); pl.lines.forEach(({text,p}) => groups.set(p, (groups.get(p) || '') + '\n' + text));
+  const invitations = new Set([...groups].filter(([p,t]) => pl.hasParas && /(?:^|\n)(?:【ご案内】|【リアルで新聞をめくろう】|[★☆]「PODCAST MEETING)/.test(t) && /PODCAST MEETING/.test(t) && /申し込|申込|応募|参加|開催|対象はデジタル版有料会員/.test(t) && /https?:\/\/(?:ciy\.digital\.asahi\.com\/ciy\/|que\.digital\.asahi\.com\/question\/|forms\.gle\/|t\.asahi\.com\/wr7n)/.test(t)).map(([p])=>p));
   pl.lines.forEach(({ text, p }, i) => {
     const urlOnly = /^\s*(?:https?:\/\/\S+\s*)+$/.test(text);
     if (notice >= 0 && (p !== notice || /^[【★☆※]/.test(text))) { notice = -1; if (section === 'notice') section = 'body'; }
@@ -48,7 +50,7 @@ export function classifyRawLines(raw) {
     else if (DROP_SECTION.test(text)) section = 'drop'; else if (STAFF_SECTION.test(text)) section = 'staff'; else if (RELATED_SECTION.test(text)) section = 'related'; else if (/^【[^】]{1,40}】\s*$/.test(text)) section = 'body';   // 名前の決まっていない見出しで節が切り替わる
     const headerOnly = /^【[^】]+】\s*$/.test(text);
     let expect;
-    if (/^(?:https?:\/\/(?:twitter\.com|x\.com)\/[^\s（）()]+\s*[（(][^）)]+[）)]\s*)+$/i.test(text) || DROP_LINE.test(text) || /^(?:ご意見・ご要望|フォーム|ツイッター|メール).*?(?:forms\.gle|twitter\.com|podcast@asahi)/i.test(text) || /^(?:ご登録フォーム\s+https?:|https?:\/\/que\.digital\.asahi\.com\/question\/11008783\s+（ご登録フォーム）)/.test(text) || /^(?:有料会員、)?始めるなら今[、。].*朝日新聞デジタル.*キャンペーン/.test(text) || /^朝日新聞ポッドキャスト[（(].*では他にも様々な番組を配信[、。]テキストでも読めます/.test(text) || /^[３3]STEPで朝リスちゃんグッズGet！/.test(text)) expect = 'DROP';
+    if (/^(?:【(?:ご案内|締め切り迫る)】)?9月23日に 朝ポキ 初の対面イベント「PODCAST MEETING 2022」を開催！皆さんと会いたいです！$/.test(text) || (String(raw).includes('対面イベント「PODCAST MEETING 2022」を開催') && /^※応募締切は9月4日です。$/.test(text)) || invitations.has(p) || /^(?:・\s*)?(?:メールマガジン)?「朝ポキおたより」(?:が|に|、).*?(?:ご登録|始まり|始まります)/.test(text) || /^(?:過去回は、「連載」→「伊藤・奥山・神田」からお聞きいただけます。)?朝ポキ7番組の更新情報・アーカイブはこちら！$/.test(text.replace(URL_RE, '').trim()) || /^(?:https?:\/\/(?:twitter\.com|x\.com)\/[^\s（）()]+\s*[（(][^）)]+[）)]\s*)+$/i.test(text) || DROP_LINE.test(text) || /^(?:ご意見・ご要望|フォーム|ツイッター|メール).*?(?:forms\.gle|twitter\.com|podcast@asahi)/i.test(text) || /^(?:ご登録フォーム\s+https?:|https?:\/\/que\.digital\.asahi\.com\/question\/11008783\s+（ご登録フォーム）)/.test(text) || /^(?:有料会員、)?始めるなら今[、。].*朝日新聞デジタル.*キャンペーン/.test(text) || /^朝日新聞ポッドキャスト[（(].*では他にも様々な番組を配信[、。]テキストでも読めます/.test(text) || /^[３3]STEPで朝リスちゃんグッズGet！/.test(text)) expect = 'DROP';
     else if (section === 'drop' || section === 'notice') expect = 'DROP';
     else if (section === 'staff') expect = 'STAFF';
     else if (section === 'related' || (/https?:/.test(text) && [...text.matchAll(URL_RE)].some((m) => ARTICLE_RE.test(m[0])))) expect = 'RELATED';
@@ -99,7 +101,7 @@ export function auditPair(raw, candidate, { minKeepCoverage = 0.85, partialFloor
     if (r?.title && r.title !== r.url) {
       const segment = l.text.includes('▽') ? l.text.split('▽').find((part) => articleUrls(part).includes(u)) || l.text : l.text;
       const same = segment.replace(URL_RE, '').trim(), prev = l.i > 0 ? rawLines[l.i - 1] : '';
-      const head = N(same).length >= 4 ? same : prev.replace(URL_RE, '').trim();
+      const head = N(same).length > 0 ? same : prev.replace(URL_RE, '').trim();
       if (head && coverage(r.title, head) < 0.8 && coverage(head, r.title) < 0.8) add('ARTICLE_TITLE_MISMATCH', { line: l.i });
     }
   }
@@ -117,7 +119,7 @@ export function auditPair(raw, candidate, { minKeepCoverage = 0.85, partialFloor
   if (keepParas >= 3 && descParas === 1) add('LINEBREAK_LOST');
   if (rel.some((r) => !ARTICLE_RE.test(r.url) && (CAST_BAD.test(r.title || '') || !r.title))) add('RELATED_CONTAMINATED');
   // 明示的な案内が残る候補は合格させない（曖昧な本文を推測削除しない）。
-  if (/PODCAST MEETING|朝ポキおたより.*(?:登録|始ま)|朝ポキ[0-9７7]*番組の更新情報・アーカイブはこちら|^[★☆].*クラウドファンディング.*こちら/m.test(desc)) add('PROMO_REMAINS_REVIEW');
+  if (desc.split(/\n+/).some((line) => /PODCAST MEETING|朝ポキおたより.*(?:登録|始ま)|朝ポキ[0-9７7]*番組の更新情報・アーカイブはこちら|^[★☆].*クラウドファンディング.*こちら/.test(line) && !(/開催しました|開催された|収録した内容|収録した印刷工場|振り返|大盛況で終了/.test(line) && !/開催します|お申し込|応募|ご参加|募集/.test(line)))) add('PROMO_REMAINS_REVIEW');
   const ambiguous = lines.filter((l) => l.expect === 'AMBIGUOUS').length;
   const severe = findings.some((f) => /OVER_DELETION|EMPTY_OUTPUT|LOST_ARTICLE_URL|CAST_CONTAMINATED|STAFF_IN_BODY|HTML_RESIDUE|RELATED_CONTAMINATED/.test(f.type));
   const verdict = severe ? '不合格' : findings.length ? '要確認' : '自動検査合格・目視未確認';

@@ -230,3 +230,21 @@ test('S4列単位: ロボ最終履歴一致は更新でき、人の別値は保�
     assert.equal(v[1][n],mode==='robot'?'一の本文です。':'人の概要');assert.equal(e.run('S4_V2作業用へ反映').cellsWritten,0);
   }
 });
+
+test('SC4-9: 明示された募集段落だけを除き、次の本文・収録日・出演者・記事を保持', () => {
+ const raw=P(['【リアルで新聞をめくろう】','9月23日は「PODCAST MEETING 2024」！','入場無料で申し込めます。','https://ciy.digital.asahi.com/ciy/11014641'],['【番組内容】','今回の本編は選挙報道です。','※2024年8月26日に収録しました。'],STAFF,REL);
+ const j=judgeEpisode(raw);assert.equal(j.verdict,'自動検査合格・目視未確認');assert.equal(j.clean.text,'今回の本編は選挙報道です。\n※2024年8月26日に収録しました。');assert.equal(j.clean.cast.length,3);assert.equal(j.clean.related.length,1);
+});
+test('SC4-9: 告知語だけでは段落削除しない。イベントの取材・振り返りは本文に保持',()=>{
+ const body='9月に開催された「PODCAST MEETING 2024」を振り返ります。';const j=judgeEpisode(P([body]));assert.equal(j.clean.text,body);assert.equal(j.verdict,'自動検査合格・目視未確認');
+ const ambiguous='【ご案内】\nPODCAST MEETINGを開催します。\n重要な本文。';assert.match(cleanV4(ambiguous).text,/重要な本文/);
+});
+test('SC4-9: 定型メルマガ・アーカイブ案内だけを除き、報道文は残す',()=>{
+ const raw=P(['メールマガジンの購読について取材しました。'],['メールマガジン「朝ポキおたより」が、始まりました。ぜひご登録を。'],['朝ポキ7番組の更新情報・アーカイブはこちら！ https://www.asahi.com/special/podcasts/']);const j=judgeEpisode(raw);assert.equal(j.clean.text,'メールマガジンの購読について取材しました。');assert.equal(j.verdict,'自動検査合格・目視未確認');
+});
+test('SC4-9: 同一記事URLの重複に見出し欠落を誤報しない。未知URLは保留',()=>{
+ const raw=P(['本編です。'],['【関連記事】','第一の見出し','https://www.asahi.com/articles/AS1.html?iref=omny','https://www.asahi.com/articles/AS1.html']);const j=judgeEpisode(raw);assert.equal(j.verdict,'自動検査合格・目視未確認');assert.equal(j.clean.related.length,1);assert.equal(judgeEpisode(raw+'<p>https://www.asahi.com/articles/AS2.html</p>').verdict,'要確認');
+});
+test('SC4-9: 短い見出し・ゼロ幅文字・自然な閉じ括弧を正確に保全',()=>{
+ const j=judgeEpisode(P(['本文。'],['【関連記事】','第1問 https://www.asahi.com/articles/AS1.html','第二の見出し（補足）','\u2060https://www.asahi.com/articles/AS2.html']));assert.equal(j.verdict,'自動検査合格・目視未確認');assert.deepEqual(j.clean.related.map(x=>x.title),['第1問','第二の見出し（補足）']);
+});
