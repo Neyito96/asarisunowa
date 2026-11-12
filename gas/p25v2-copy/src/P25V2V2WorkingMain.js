@@ -87,7 +87,7 @@ function p25v2V2JudgePlan_(cfg) {
   var o = p25v2OpenChecked_(cfg, false), v = o.sh.getRange(1, 1, o.sh.getLastRow(), o.sh.getLastColumn()).getDisplayValues(), h = v[0];
   var I = function (n) { var i = h.indexOf(n); if (i < 0) throw new Error('LEDGER_COLUMN_NOT_FOUND ' + n); return i; };
   var c = { ep: I('EP-ID'), show: I('番組'), title: I('タイトル'), date: I('配信日時 JST'), judge: I('掲載判定'), rep: I('代表EP-ID'), guid: I('公式GUID'), uuid: I('公式JSON UUID'), dur: I('再生時間 秒'), sum: I('概要（清掃済）'), reason: I('除外・保留理由'), basis: I('判定根拠') };
-  var num = {}; p25v2Numbering_(p25v2GasIo_(cfg).readNumbering()).forEach(function (n) { num[n.epId] = n; });
+  var io = p25v2GasIo_(cfg); io.open(); var num = {}; p25v2Numbering_(io.readNumbering()).forEach(function (n) { num[n.epId] = n; });
   var ds = o.ss.getSheetByName('V2・清掃詳細'), cv = {}; if (ds && ds.getLastRow() > 1) { var dv = ds.getRange(1, 1, ds.getLastRow(), ds.getLastColumn()).getDisplayValues(); dv.slice(1).forEach(function (r) { cv[r[0]] = r[dv[0].indexOf('判定')]; }); }
   var guidCount = {}, titleDate = {};
   v.slice(1).forEach(function (r) { var seen = {}; [r[c.guid], r[c.uuid]].forEach(function (g) { g = String(g).toLowerCase(); if (g && !seen[g]) { seen[g] = 1; guidCount[g] = (guidCount[g] || 0) + 1; } }); var k = r[c.show] + '\u0001' + r[c.title] + '\u0001' + r[c.date]; titleDate[k] = (titleDate[k] || 0) + 1; });
