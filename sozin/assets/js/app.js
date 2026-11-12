@@ -79,7 +79,8 @@ $('downloadPdf').addEventListener('click',()=>{
 });
 $('printPdf').addEventListener('click',()=>{
  const c=createPdf(),w=window.open('','_blank');if(!w){$('copied').textContent='ポップアップがブロックされました。Safariで開き直してください。';return;}
- w.document.write('<!doctype html><html lang="ja"><head><meta charset="utf-8"><title>SOZIN 概算お見積書</title><style>body{margin:0}img{display:block;width:100%;max-width:794px;margin:auto}@page{size:A4;margin:0}</style></head><body><img src="'+c.toDataURL('image/png')+'"><script>window.onload=()=>window.print();<\\/script></body></html>');w.document.close();
+ w.document.write('<!doctype html><html lang="ja"><head><meta charset="utf-8"><title>SOZIN 概算お見積書</title><style>body{margin:0}img{display:block;width:100%;max-width:794px;margin:auto}@page{size:A4;margin:0}</style></head><body><img id="sheet" src="'+c.toDataURL('image/png')+'"></body></html>');w.document.close();
+ const img=w.document.getElementById('sheet');img.onload=()=>{w.focus();w.print();};if(img.complete){w.focus();w.print();}
 });
 
 $('product').dispatchEvent(new Event('change'));
