@@ -64,7 +64,7 @@ function createPdf(){
  let ry=907;
  if(breakdown.length){for(const [label,amount] of breakdown.slice(0,6)){
   text(label,128,ry,22,'#64535d','400',690);
-  text(yen(amount),1120,ry,23,'#342b33','500',265);
+  ctx.textAlign='right';text(yen(amount),1116,ry,23,'#342b33','500',250);ctx.textAlign='left';
   ry+=48;
  }}else{text('仕様確認後に個別見積もり',128,ry,23,'#756a71');}
  ctx.fillStyle='#f3e7ed';ctx.fillRect(106,1214,1028,204);
