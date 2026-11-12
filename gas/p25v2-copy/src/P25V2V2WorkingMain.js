@@ -203,14 +203,18 @@ function p25v2GuidApply_(env, fn, maxRows, approvalKey) {
     return p25v2Report_(fn, out);
   } finally { lock.releaseLock(); }
 }
-function p25v2GuidUndo_(env, fn) {
+function p25v2GuidUndo_(env, fn) {   // 一括: GUID列とEP-ID列を1回読み、書いた値が今もそのままの行だけ空に戻す（連続行はまとめて書く）
   var cfg = p25v2EnvCfg_(env); cfg.write = true; var o = p25v2OpenChecked_(cfg, true), hs = o.ss.getSheetByName(P25V2_GUID_HIST_);
   if (!hs || hs.getLastRow() < 2) return p25v2Report_(fn, { status: 'NOTHING_TO_UNDO' });
   var hv = hs.getRange(2, 1, hs.getLastRow() - 1, P25V2_GUID_HIST_HEADERS_.length).getDisplayValues(), h = o.sh.getRange(1, 1, 1, o.sh.getLastColumn()).getDisplayValues()[0], col = h.indexOf('公式GUID') + 1;
-  var undone = 0, kept = 0;
-  hv.forEach(function (r, k) { if (!/^OK$|^書込中$/.test(r[5])) return; var cell = o.sh.getRange(Number(r[3]), col), ep = o.sh.getRange(Number(r[3]), 1).getDisplayValue();
-    if (ep === r[2] && String(cell.getDisplayValue()).toLowerCase() === r[4]) { cell.setValue(''); hs.getRange(k + 2, 6).setValue('取消済'); undone++; } else kept++; });
-  return p25v2Report_(fn, { status: 'OK', undone: undone, keptBecauseChanged: kept });
+  var n = o.sh.getLastRow(), gv = o.sh.getRange(1, col, n, 1).getDisplayValues(), ev = o.sh.getRange(1, 1, n, 1).getDisplayValues(), rows = [], st = hv.map(function (r) { return [r[5]]; }), kept = 0;
+  hv.forEach(function (r, k) { if (!/^OK$|^書込中$/.test(r[5])) return; var rw = Number(r[3]);
+    if (ev[rw - 1] && ev[rw - 1][0] === r[2] && String(gv[rw - 1][0]).toLowerCase() === r[4]) { rows.push(rw); st[k] = ['取消済']; } else kept++; });
+  rows.sort(function (x, y) { return x - y; }); var i = 0;
+  while (i < rows.length) { var j = i; while (j + 1 < rows.length && rows[j + 1] === rows[j] + 1) j++; o.sh.getRange(rows[i], col, j - i + 1, 1).setValues(rows.slice(i, j + 1).map(function () { return ['']; })); i = j + 1; }
+  SpreadsheetApp.flush(); hs.getRange(2, 6, st.length, 1).setValues(st);
+  var after = o.sh.getRange(1, col, n, 1).getDisplayValues(), bad = rows.filter(function (rw) { return after[rw - 1][0] !== ''; }).length;
+  return p25v2Report_(fn, { status: bad ? 'READBACK_MISMATCH' : 'OK', undone: rows.length, keptBecauseChanged: kept, readbackMismatch: bad });
 }
 // COPY（少数件試験・上限20行）
 function P25V2_G1_GUID補完_予行_COPY() { return p25v2GuidDry_('COPY', 'P25V2_G1_GUID補完_予行_COPY'); }
