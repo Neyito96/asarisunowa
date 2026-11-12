@@ -11,9 +11,12 @@ export function cleanUrl(u) {
 }
 const publicationUrl = cleanUrl;
 // 段落（</p>）ごとに行へ分ける。段落の区切りを残すため（★の告知ブロックは段落の終わりまで）。<p> の無い原文は全体で1段落＝hasParas=false
+// 共通ライブラリが訳さない名前付き文字参照（&darr; &times; など）を文字に戻す。原文側と出力側の両方に同じ変換がかかる（SQA-10）
+const NAMED_ENTITIES = { darr: '↓', uarr: '↑', rarr: '→', larr: '←', harr: '↔', times: '×', divide: '÷', infin: '∞', copy: '©', reg: '®', trade: '™', deg: '°', middot: '·', bull: '•', laquo: '«', raquo: '»', yen: '¥', euro: '€', Oslash: 'Ø', oslash: 'ø', eacute: 'é', Eacute: 'É', aacute: 'á', uuml: 'ü', ouml: 'ö', auml: 'ä', ccedil: 'ç', ntilde: 'ñ', hearts: '♥', star: '☆', sect: '§', para: '¶', plusmn: '±', frac12: '½', minus: '−', ensp: ' ', emsp: ' ', thinsp: ' ' };
+export const decodeNamedEntities = (t) => String(t).replace(/&([A-Za-z][A-Za-z0-9]{1,7});/g, (m, n) => NAMED_ENTITIES[n] ?? m);
 export function paraLines(raw) {
   const src = String(raw ?? '').replace(/<!\[CDATA\[|\]\]>/g, ''), parts = src.split(/<\/p\s*>/i), out = [];
-  parts.forEach((chunk, p) => descriptionLines(chunk).forEach((text) => out.push({ text: text.replace(/[\u200B\u2060\uFEFF]/g, ''), p })));
+  parts.forEach((chunk, p) => descriptionLines(chunk).forEach((text) => out.push({ text: decodeNamedEntities(text.replace(/[\u200B\u2060\uFEFF]/g, '')), p })));
   return { lines: out, hasParas: parts.length > 1 };
 }
 // ★/☆ で始まる告知（フォロー・募集・イベント・新番組・感想募集など）。その段落の残りの行も告知として扱う
@@ -21,7 +24,7 @@ export const STAR_NOTICE = /^[★☆].*(?:読み放題|月額|円で|初回限�
 // 見出しの後に文が続く告知（【秋トクキャンペーン …】本文…）
 export const INLINE_NOTICE_HEAD = /^【[^】]*(?:キャンペーン|イベント|祝|募集|プレゼント|お知らせ|告知|チケット|参加者)[^】]*】/;
 
-export const AUDIT_VERSION = 'SQA-8';
+export const AUDIT_VERSION = 'SQA-10';   // SQA-9 は所在不明の版（2026-11-12）と衝突させないため欠番
 // 清掃状態（処理済みと品質確認済みを分離）。品質確認済は人の目視確認と記録があるときだけ付く。自動検査の合格は「自動検査合格・目視未確認」。
 export const QUALITY_STATES = Object.freeze(['未処理', '自動処理済・未検証', '自動検査合格・目視未確認', '品質確認済', '要確認', '不合格']);
 export const QUALITY_LOG_HEADERS = Object.freeze(['EP-ID', '公式GUID', '概要原文SHA256', '検査対象', '清掃版', '監査版', '判定', '誤り分類', '検証方法', '検証者', '検証日時', '理由']);

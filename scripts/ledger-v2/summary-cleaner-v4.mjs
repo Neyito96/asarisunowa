@@ -2,9 +2,9 @@
 // 原則: 原文は変えない。原文だけを基準に、本文・出演者（リンク付き）・関連記事（見出し＋URLのペア）を分ける。
 // 迷うもの（見出しなし記事URL・非記事リンク・本文の大幅減少・監査で重大所見）は 要確認。品質確認済は人だけが付ける。
 import { descriptionLines, DESCRIPTION_VERSION } from '../../public/library/description-editor.mjs';
-import { auditPair, AUDIT_VERSION, cleanUrl, paraLines, STAR_NOTICE, INLINE_NOTICE_HEAD } from './summary-quality-audit.mjs';
+import { auditPair, AUDIT_VERSION, cleanUrl, paraLines, STAR_NOTICE, INLINE_NOTICE_HEAD, decodeNamedEntities } from './summary-quality-audit.mjs';
 
-export const CLEANER_VERSION = 'SC4-9(' + DESCRIPTION_VERSION + ')';
+export const CLEANER_VERSION = 'SC4-11(' + DESCRIPTION_VERSION + ')';   // SC4-10 は所在不明の版（2026-11-12）と衝突させないため欠番
 const T = (v) => String(v ?? '').trim();
 const NZ = (t) => String(t ?? '').normalize('NFKC').replace(/\s+/g, '');
 const URL_RE = /https?:\/\/[^\s<>「」『』（）()"'、]+/g;
@@ -122,23 +122,31 @@ export const castCell = (cast) => cast.map((c) => c.raw.replace(/\s+/g, ' ').tri
 export const relatedCell = (related) => related.filter((r) => (r.kind || 'article') === 'article' && r.url).map((r) => r.url).join(' ');
 
 // 既存値が「原文から機械的に取り出しただけ」か（＝自動値。更新してよい）。原文に無い文字・URLを含むなら人の手が入った可能性→保護
-export function derivedFromRaw(existing, raw) {
-  const ex = T(existing); if (!ex) return true;
-  const src = descriptionLines(String(raw ?? '').replace(/<!\[CDATA\[|\]\]>/g, '')).join('\n'), srcN = NZ(stripUrls(src)), srcUrls = new Set(urlsOf(src).map(cleanUrl));
-  if (urlsOf(ex).some((u) => !srcUrls.has(cleanUrl(u)))) return false;
-  const P = (t) => NZ(t).replace(/[、。，．・「」『』（）()【】\[\]！？!?…:：;；"'“”‘’〜~ー—–\-,／/|｜]/g, ''), srcP = P(stripUrls(src));
-  return stripUrls(ex).split(/[\n。！？／/|｜,、]+/).every((l) => { const n = P(l); return n.length < 2 || srcP.includes(n); });   // 書式（区切り・句読点・並べ方）が違っても、文字が原文にあれば自動値
+// SC4-11: 旧清掃器の出力の痕跡を自動値として認める（2026-11-13 V2実データ1,675件の分析）。
+//   ①旧清掃器が足した節見出しだけの行（【関連記事】〖出演・スタッフ〗等）②URLを消した跡の空かっこ「（ ）」・矢印（↓→▽）・「mailto:」
+//   ③リンクの表示文字・href の値（原文のタグの中にある文字）④名前付き文字参照（&darr; 等）。
+//   原文に無い文・URLが1つでもあれば従来どおり保護（人が書き足した文は自動値にならない）。
+const SECTION_WORD = /^(?:関連記事|関連リンク|出演|出演者|出演・スタッフ|出演スタッフ|スタッフ|ゲスト|MC|音源編集|ご意見・ご感想|ご意見ご感想)$/;
+const URL_ANY = /(?:https?:\/\/|mailto:|www\.)[^\s<>"'）)」』】]+|\b[a-z0-9.-]+\.(?:com|co\.jp|jp|fm|me|net|org|st|style)(?:\/[^\s<>"'）)」』】]*)?/gi;
+const PD = (t) => NZ(decodeNamedEntities(t)).replace(/[、。，．・「」『』（）()【】〖〗\[\]！？!?…:：;；"'“”‘’〜~ー—–\-,／/|｜↓→▽▼▶►➡＞>＜<※★☆■□◆◇●○♪]/g, '');
+function rawSource(raw) {
+  const plain = String(raw ?? '').replace(/<!\[CDATA\[|\]\]>/g, ''), hrefs = [...plain.matchAll(/href\s*=\s*["']([^"']+)["']/gi)].map((m) => m[1]);
+  return [descriptionLines(plain).join('\n'), plain.replace(/<[^>]*>/g, '\n'), hrefs.join('\n')].join('\n');
 }
-
-// 診断用: 自動値とみなせなかった最初の理由（短く切る）
-export function explainDerived(existing, raw) {
+const urlKey = (u) => cleanUrl(String(u).replace(/[.,;、。]+$/, ''));
+function firstNotDerived(existing, raw) {
   const ex = T(existing); if (!ex) return null;
-  const src = descriptionLines(String(raw ?? '').replace(/<!\[CDATA\[|\]\]>/g, '')).join('\n'), srcN = NZ(stripUrls(src)), srcUrls = new Set(urlsOf(src).map(cleanUrl));
-  const u = urlsOf(ex).find((x) => !srcUrls.has(cleanUrl(x))); if (u) return { type: 'URL_NOT_IN_RAW', sample: u.slice(0, 80), rawUrls: [...srcUrls].slice(0, 3).map((x) => x.slice(0, 60)) };
-  const P = (t) => NZ(t).replace(/[、。，．・「」『』（）()【】\[\]！？!?…:：;；"'“”‘’〜~ー—–\-,／/|｜]/g, ''), srcP = P(stripUrls(src)); void srcN;
-  const l = stripUrls(ex).split(/[\n。！？／/|｜,、]+/).find((x) => { const n = P(x); return n.length >= 2 && !srcP.includes(n); });
-  return l ? { type: 'TEXT_NOT_IN_RAW', sample: l.slice(0, 80) } : null;
+  const src = rawSource(raw), srcUrls = new Set(urlsOf(src).map(urlKey));
+  const u = urlsOf(ex).find((x) => !srcUrls.has(urlKey(x))); if (u) return { type: 'URL_NOT_IN_RAW', sample: u.slice(0, 80), rawUrls: [...srcUrls].slice(0, 3).map((x) => x.slice(0, 60)) };
+  const srcP = PD(src.replace(URL_ANY, ' '));
+  const frags = ex.replace(URL_ANY, '\n').replace(/[（(]\s*[)）]/g, '\n').replace(/[↓→▽▼▶►➡]+/g, '\n')
+    .replace(/[【〖]([^】〗]{1,20})[】〗]/g, (m, h) => (SECTION_WORD.test(h.trim()) ? '\n' : '\n' + h + '\n')).split(/[\n。！？／/|｜,、]+/);
+  const l = frags.find((x) => { const n = PD(x); return n.length >= 2 && !srcP.includes(n); });
+  return l ? { type: 'TEXT_NOT_IN_RAW', sample: l.trim().slice(0, 80) } : null;
 }
+export function derivedFromRaw(existing, raw) { return !firstNotDerived(existing, raw); }
+// 診断用: 自動値とみなせなかった最初の理由（短く切る）
+export function explainDerived(existing, raw) { return firstNotDerived(existing, raw); }
 
 // 1件の判定。existing = 台帳の現在値 {summary, cast, related}
 export function judgeEpisode(raw, existing = {}, sha256) {

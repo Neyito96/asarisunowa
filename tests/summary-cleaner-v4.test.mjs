@@ -248,3 +248,21 @@ test('SC4-9: 同一記事URLの重複に見出し欠落を誤報しない。未�
 test('SC4-9: 短い見出し・ゼロ幅文字・自然な閉じ括弧を正確に保全',()=>{
  const j=judgeEpisode(P(['本文。'],['【関連記事】','第1問 https://www.asahi.com/articles/AS1.html','第二の見出し（補足）','\u2060https://www.asahi.com/articles/AS2.html']));assert.equal(j.verdict,'自動検査合格・目視未確認');assert.deepEqual(j.clean.related.map(x=>x.title),['第1問','第二の見出し（補足）']);
 });
+
+// ===== SC4-11 / SQA-10 回帰（2026-11-13 V2実データの手動保護1,675件の原因別。本文は合成）=====
+import { derivedFromRaw } from '../scripts/ledger-v2/summary-cleaner-v4.mjs';
+const RAW11 = '<p>今回は雨の日の過ごし方を話します。</p><p>【出演・スタッフ】<br>山田花子 MC 鈴木一郎</p><p>関連する記事<br>雨の日のコツ <a href="https://www.asahi.com/articles/ASX1.html?iref=omny">www.asahi.com/articles/ASX1.html</a></p><p>メール <a href="mailto:podcast@asahi.com">こちら</a>まで</p><p>イベントは視聴できます&darr;</p>';
+test('SC4-11 旧清掃器の付けた節見出しだけの行は自動値（【関連記事】が原文に無くても）', () => {
+  assert.equal(derivedFromRaw('今回は雨の日の過ごし方を話します。\n【関連記事】\n雨の日のコツ', RAW11), true);
+});
+test('SC4-11 URLを消した跡の空かっこ・矢印・mailto: は自動値', () => {
+  assert.equal(derivedFromRaw('雨の日のコツ（ ）\nメール mailto:podcast@asahi.com こちらまで\nイベントは視聴できます↓', RAW11), true);
+});
+test('SC4-11 人が書き足した文は従来どおり保護', () => {
+  assert.equal(derivedFromRaw('今回は雨の日の過ごし方を話します。\n傘の選び方も紹介しました。', RAW11), false);
+  assert.equal(derivedFromRaw('【おすすめ】傘の選び方', RAW11), false);   // 節名でない見出しの中身は原文照合する
+  assert.equal(derivedFromRaw('雨の日のコツ https://example.com/x', RAW11), false);   // 原文に無いURL
+});
+test('SQA-10 名前付き文字参照（&darr; 等）を清掃後の本文に残さない', () => {
+  const c = cleanV4(RAW11); assert.ok(!/&[a-z]+;/i.test(c.text), c.text); assert.ok(c.text.includes('視聴できます↓') || !c.text.includes('視聴できます'));
+});
