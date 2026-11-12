@@ -11,6 +11,7 @@ var P25V2_PROTECTED_IDS_ = [
   '1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4', // 本番 59列台帳
   '1KSzoIkOsjUagNBLt3IbKIvgWEmez4f0XISQ-jkUjmwQ'  // 既存GAS SPREADSHEET_ID
 ];
+var P25V2_V2_WORKING_ID_ = '1ZAl4QpQ4i5ycyPy1qVNtT-Ke2nsSHhWGFkAH3xedAbc';   // V2作業用: environment='V2_WORKING' かつ明示承認のときだけ書込を許す（他の保護IDは常に拒否）
 var P25V2_SHEET_ = 'V2・統合台帳';
 var P25V2_SCOPE_ = 'V2_INGEST_APPEND_ONLY';
 var P25V2_HEADERS_ = ['EP-ID', '番組', 'タイトル', '配信日時 JST', '掲載判定', '代表EP-ID', '同一内容ID', '公式GUID', '公式JSON UUID', '公式個別URL', 'Omny埋込URL', '旧元ページURL', '再生時間 秒', '概要（清掃済）', '出演者', '関連記事URL', '音声URL', 'Spotify', 'Apple', 'Amazon', 'Pocket Casts', 'LISTEN', 'Pody', 'YouTube', '番組RSS', '画像URL', '文字起こし出典URL', '所属ID', '公式JSON取得元', '元EP-ID', '除外・保留理由', '判定根拠', '備考', '再生状態'];
@@ -128,7 +129,7 @@ function p25v2Numbering_(values) {
   return values.slice(1).map(function (r, i) { return { row: i + 2, guid: p25v2T_(r[0]).toLowerCase(), epId: p25v2T_(r[1]), state: p25v2T_(r[4]) }; }).filter(function (r) { return r.guid || r.epId; });
 }
 // 同GUIDに採番済みならその番号を再利用（中断復旧）。無ければ 台帳・採番履歴・予約下限 の最大+1。衝突は停止。
-function p25v2Allocate_(ledgerRows, numbering, guid, reservedMax) {
+function p25v2Allocate_(ledgerRows, numbering, guid, reservedMax, guidReserve) {
   var g = p25v2T_(guid).toLowerCase(), prior = numbering.filter(function (n) { return n.guid === g; });
   if (prior.length > 1) throw new Error('NUMBERING_GUID_DUPLICATE');
   var used = {}; ledgerRows.forEach(function (r) { if (r.epId) used[r.epId] = r; });
@@ -138,6 +139,8 @@ function p25v2Allocate_(ledgerRows, numbering, guid, reservedMax) {
     return { epId: prior[0].epId, reused: true, numberingRow: prior[0].row };
   }
   var ids = ledgerRows.map(function (r) { return { epId: r.epId }; }).concat(numbering);
+  var rsv = guidReserve && guidReserve[g];   // 別台帳（COPY試験など）で同じGUIDに振った番号があれば、未使用なら同じ番号を使う（GUIDと番号の対応を揃える）
+  if (rsv && !used[rsv] && !numbering.some(function (n) { return n.epId === rsv; })) return { epId: rsv, reused: false, fromReserve: true };
   var next = p25v2NextEpId_(ids, reservedMax);
   if (numbering.some(function (n) { return n.epId === next; })) throw new Error('NUMBERING_ID_COLLISION ' + next);
   return { epId: next, reused: false };
@@ -161,12 +164,17 @@ function p25v2PublicCount_(rows) { return rows.filter(function (r) { return r.ju
 // 書込先の検証（純関数）。actual = 実際に開いたファイルの {id, name, sheetName}
 function p25v2AssertCopyTarget_(config, actual, forWrite) {
   config = config || {}; actual = actual || {};
-  var t = p25v2T_(config.targetSpreadsheetId);
-  if (P25V2_PROTECTED_IDS_.indexOf(t) >= 0 || P25V2_PROTECTED_IDS_.indexOf(p25v2T_(actual.id)) >= 0) throw new Error('PROTECTED_TARGET_REFUSED');
-  if (config.environment !== 'COPY') throw new Error('COPY_ENV_REQUIRED');
+  var t = p25v2T_(config.targetSpreadsheetId), v2w = config.environment === 'V2_WORKING';
+  var prot = function (id) { return P25V2_PROTECTED_IDS_.indexOf(id) >= 0 && !(v2w && id === P25V2_V2_WORKING_ID_); };
+  if (prot(t) || prot(p25v2T_(actual.id))) throw new Error('PROTECTED_TARGET_REFUSED');
+  if (config.environment !== 'COPY' && !v2w) throw new Error('COPY_ENV_REQUIRED');
   if (!t || t !== p25v2T_(config.expectedTargetId)) throw new Error('TARGET_ID_UNCONFIRMED');
   if (p25v2T_(actual.id) !== t) throw new Error('OPENED_ID_MISMATCH');
-  if (!/COPY/.test(p25v2T_(actual.name))) throw new Error('TARGET_NAME_NOT_COPY');
+  if (v2w) {   // V2作業用: IDが固定値と一致・名前に「基本台帳 V2 作業用」・書込は承認フラグ必須
+    if (t !== P25V2_V2_WORKING_ID_) throw new Error('V2_WORKING_ID_MISMATCH');
+    if (p25v2T_(actual.name).indexOf('基本台帳 V2 作業用') < 0) throw new Error('TARGET_NAME_NOT_V2_WORKING');
+    if (forWrite && config.v2WorkingApproved !== true) throw new Error('V2_WORKING_NOT_APPROVED');
+  } else if (!/COPY/.test(p25v2T_(actual.name))) throw new Error('TARGET_NAME_NOT_COPY');
   if (config.sheetName !== P25V2_SHEET_ || actual.sheetName !== P25V2_SHEET_) throw new Error('SHEET_NAME_MISMATCH');
   if (config.scope !== P25V2_SCOPE_) throw new Error('SCOPE_MISMATCH');
   if (forWrite && config.write !== true) throw new Error('WRITE_FLAG_OFF');
@@ -228,10 +236,10 @@ function p25v2Ingest_(io, config, items, opts) {
   var simNum = (numbering || []).map(function (n) { return { row: n.row, guid: n.guid, epId: n.epId, state: n.state }; }), simRows = recs.rows.slice();
   var allocs = todo.map(function (d) {
     var g = p25v2Guids_(d.item)[0];
-    var al = numbering ? p25v2Allocate_(simRows, simNum, g, reserved) : { epId: p25v2NextEpId_(simRows, reserved), reused: false };
+    var al = numbering ? p25v2Allocate_(simRows, simNum, g, reserved, config.guidReserve) : { epId: p25v2NextEpId_(simRows, reserved), reused: false };
     if (!al.reused) simNum.push({ row: 0, guid: g, epId: al.epId, state: '採番済' });
     simRows.push({ epId: al.epId, show: d.item.show, title: d.item.title, guid: g, jsonUuid: '', officialUrl: '' });
-    res.plan.push({ epId: al.epId, reused: !!al.reused, guid: g, show: p25v2T_(d.item.show), date: p25v2T_(d.item.date) });
+    res.plan.push({ epId: al.epId, reused: !!al.reused, fromReserve: !!al.fromReserve, guid: g, show: p25v2T_(d.item.show), date: p25v2T_(d.item.date) });
     return al;
   });
   // 中断復旧: 台帳にあるのに採番履歴が「採番済」→「登録完了」に修復（書込モードのみ）

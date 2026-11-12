@@ -88,23 +88,25 @@ function P25V2_3_WRITE_ONE() {
   return p25v2Report_('P25V2_3_WRITE_ONE', res);
 }
 // 4) 読み戻し検証（書込なし）: 直前の追加分が 台帳(GUID一致)・採番(登録完了)・収蔵詳細(原文SHA256一致) に揃い、再実行では「既収蔵」になること
-function P25V2_4_VERIFY() {
-  var cfg = p25v2Cfg_(), o = p25v2OpenChecked_(cfg, false), last = JSON.parse(PropertiesService.getScriptProperties().getProperty('P25V2_LAST_WRITE') || '{}');
-  if (!(last.addedEpIds || []).length) return p25v2Report_('P25V2_4_VERIFY', { status: 'NO_WRITE_TO_VERIFY', note: 'WRITE_ONE で1件以上追加した後に実行する。新着なしのときは BACKFILL_RAW の結果で確認する' });
+function P25V2_4_VERIFY() { return p25v2Verify_(p25v2Cfg_(), 'P25V2_LAST_WRITE', 'P25V2_4_VERIFY'); }
+function p25v2Verify_(cfg, propKey, fn) {
+  var o = p25v2OpenChecked_(cfg, false), last = JSON.parse(PropertiesService.getScriptProperties().getProperty(propKey) || '{}');
+  if (!(last.addedEpIds || []).length) return p25v2Report_(fn, { status: 'NO_WRITE_TO_VERIFY', note: '書込で1件以上追加した後に実行する' });
   var io = p25v2GasIo_(cfg); io.open();
   var recs = p25v2Records_(io.readAll()), num = p25v2Numbering_(io.readNumbering()), det = io.readDetails(), dh = det[0];
-  var checks = (last.addedEpIds || []).map(function (ep) {
-    var row = recs.rows.filter(function (r) { return r.epId === ep; })[0], n = num.filter(function (x) { return x.epId === ep; })[0];
-    var d = det.filter(function (r) { return r[0] === ep; })[0], raw = d ? String(d[dh.indexOf('概要原文')]) : '';
-    return { epId: ep, ledgerRow: !!row, numbering: n ? n.state : 'なし', detailRow: !!d, rawLen: raw.length, rawShaOk: !!raw && p25v2GasSha256_(raw) === String(d[dh.indexOf('概要原文SHA256')]) };
+  var checks = (last.addedEpIds || []).map(function (ep, i) {
+    var row = recs.rows.filter(function (r) { return r.epId === ep; }), n = num.filter(function (x) { return x.epId === ep; })[0];
+    var d = det.filter(function (r) { return r[0] === ep; })[0], raw = d ? String(d[dh.indexOf('概要原文')]) : '', g = (last.guids || [])[i] || '';
+    return { epId: ep, ledgerRows: row.length, guidOk: row.length === 1 && p25v2Guids_(row[0]).indexOf(g) >= 0, numbering: n ? n.state : 'なし', numberingGuidOk: !!n && n.guid === g, detailRow: !!d, rawLen: raw.length, rawShaOk: !!raw && p25v2GasSha256_(raw) === String(d[dh.indexOf('概要原文SHA256')]) };
   });
+  var dupIds = {}, dups = []; recs.rows.forEach(function (r) { if (dupIds[r.epId]) dups.push(r.epId); dupIds[r.epId] = 1; });
   var pending = num.filter(function (x) { return x.state === '採番済'; }).map(function (x) { return x.epId; });
   var src = p25v2FetchFeeds_(cfg.feeds), again = p25v2Ingest_(io, cfg, p25v2StripUnverified_(src.items), { write: false, sha256: p25v2GasSha256_ });
   var lastGuids = last.guids || [], rerunAlready = again.decisions.filter(function (x) { return lastGuids.indexOf(x.guid) >= 0; }).every(function (x) { return x.decision === 'ALREADY_INGESTED'; });
-  var ok = checks.length > 0 && checks.every(function (c) { return c.ledgerRow && c.numbering === '登録完了' && c.detailRow && c.rawShaOk; }) && !pending.length && rerunAlready;
-  var out = { status: ok ? 'VERIFY_OK' : 'VERIFY_NG', last: last, checks: checks, numberingPending: pending, rerunAlreadyIngested: rerunAlready, nextCandidates: again.counts.CANDIDATE };
-  p25v2Log_(o.ss, 'P25V2_4_VERIFY', { mode: 'READ_ONLY', status: out.status, counts: again.counts }, JSON.stringify(checks).slice(0, 300));
-  return p25v2Report_('P25V2_4_VERIFY', out);
+  var ok = checks.length > 0 && checks.every(function (c) { return c.ledgerRows === 1 && c.guidOk && c.numbering === '登録完了' && c.numberingGuidOk && c.detailRow && c.rawShaOk; }) && !pending.length && !dups.length && rerunAlready;
+  var out = { status: ok ? 'VERIFY_OK' : 'VERIFY_NG', last: last, checks: checks, numberingPending: pending, duplicateEpIds: dups, rerunAlreadyIngested: rerunAlready, nextCandidates: again.counts.CANDIDATE };
+  p25v2Log_(o.ss, fn, { mode: 'READ_ONLY', status: out.status, counts: again.counts }, JSON.stringify(checks.map(function (c) { return c.epId + ':' + (c.guidOk && c.rawShaOk && c.numbering === '登録完了' ? 'OK' : 'NG'); })).slice(0, 300));
+  return p25v2Report_(fn, out);
 }
 // 5) 原文の後日補完: 収蔵詳細で原文が空・ハッシュだけある行を、公式RSSの原文で埋める（GUID一致・SHA前方一致・文字数一致・空欄だけ）。1回10件まで
 function P25V2_5_BACKFILL_RAW() {

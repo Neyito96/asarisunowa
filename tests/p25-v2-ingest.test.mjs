@@ -305,3 +305,24 @@ test('GAS模擬の通し試験: 公式RSSを直接取得→1件追記→原文�
   const r3 = vm.runInNewContext('P25V2_INGEST_COPY(CFG, null, true)', g);
   assert.equal(r3.feedErrors[0].error, 'FEED_HTTP_503'); assert.equal(JSON.stringify([ledger.st.rows, num.st.rows, det.st.rows]), before);   // 取得失敗は記録して何も書かない
 });
+
+// ===== V2作業用（PR #306 新着一括収蔵）=====
+const V2W = '1ZAl4QpQ4i5ycyPy1qVNtT-Ke2nsSHhWGFkAH3xedAbc';
+const v2cfg = (o = {}) => cfg({ environment: 'V2_WORKING', targetSpreadsheetId: V2W, expectedTargetId: V2W, v2WorkingApproved: true, ...o });
+const v2open = { id: V2W, name: '朝リスの田｜基本台帳 V2 作業用｜2026-11-11', sheetName: A.SHEET };
+test('V2作業用: 承認・ID・名前が揃った時だけ書込可。他の保護対象は従来どおり拒否', () => {
+  A.assertCopyTarget(v2cfg(), v2open, true);
+  assert.throws(() => A.assertCopyTarget(v2cfg({ v2WorkingApproved: false }), v2open, true), /V2_WORKING_NOT_APPROVED/);
+  A.assertCopyTarget(v2cfg({ v2WorkingApproved: false }), v2open, false);   // 読取は可
+  assert.throws(() => A.assertCopyTarget(v2cfg(), { ...v2open, name: '朝リスの田 V2正本' }, true), /TARGET_NAME_NOT_V2_WORKING/);
+  assert.throws(() => A.assertCopyTarget(cfg({ targetSpreadsheetId: V2W, expectedTargetId: V2W }), { ...v2open, name: 'COPY' }, true), /PROTECTED_TARGET_REFUSED/);   // COPY設定ではV2作業用に書けない
+  A.PROTECTED.filter((id) => id !== V2W).forEach((id) => assert.throws(() => A.assertCopyTarget(v2cfg({ targetSpreadsheetId: id, expectedTargetId: id }), { ...v2open, id }, true), /PROTECTED_TARGET_REFUSED/));
+});
+test('採番: COPYと同じGUIDは同番号、他GUIDは予約最大より後ろ、使用済みの予約番号は使わない', () => {
+  const rows = A.records(v2([{ ep: 'EP-06700', guid: G(1) }])).rows;
+  const rsv = { [G(5)]: 'EP-06721', [G(6)]: 'EP-06700' };
+  assert.deepEqual({ ...A.allocate(rows, [], G(5), 6725, rsv) }, { epId: 'EP-06721', reused: false, fromReserve: true });
+  assert.equal(A.allocate(rows, [], G(6), 6725, rsv).epId, 'EP-06726');   // EP-06700 は別GUIDで使用済み
+  assert.equal(A.allocate(rows, [], G(7), 6725, rsv).epId, 'EP-06726');
+  assert.equal(A.allocate(rows, [{ guid: G(9), epId: 'EP-06721', row: 2 }], G(5), 6725, rsv).epId, 'EP-06726');   // 採番履歴で他GUIDに使用済み
+});

@@ -4,7 +4,7 @@
 import fs from 'node:fs';
 const root = new URL('../../', import.meta.url), rd = (p) => fs.readFileSync(new URL(p, root), 'utf8');
 export function buildCopyGas() {
-  const adapter = rd('scripts/google-apps-script/P25V2IngestAdapter.js'), main = rd('gas/p25v2-copy/src/P25V2CopyMain.js');
+  const adapter = rd('scripts/google-apps-script/P25V2IngestAdapter.js'), main = rd('gas/p25v2-copy/src/P25V2CopyMain.js') + '\n' + rd('gas/p25v2-copy/src/P25V2V2WorkingMain.js');
   const head = '// 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-copy-gas.mjs で再生成。元: scripts/google-apps-script/P25V2IngestAdapter.js + gas/p25v2-copy/src/P25V2CopyMain.js\n';
   return { 'P25V2CopyIngest.js': head + adapter.replace(/\n?if \(typeof module !== 'undefined'[^\n]*\n?/, '\n') + '\n' + main, 'appsscript.json': rd('gas/p25v2-copy/appsscript.json') };
 }
