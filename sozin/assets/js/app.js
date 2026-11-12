@@ -13,7 +13,7 @@ banner:()=>select('variant','商品タイプ',[['standard','スタンダード�
 setDigital:()=>number('pages','総ページ数',1,300,8)+select('delivery','納品方法',[['fileOnly','データのみ'],['fileAndUrl','データ＋閲覧URL（1年間）']]),
 other:()=>'<div class="callout">チケット・チラシ等は個別見積もりでご案内します。</div>'
 };
-let summary='',lastEstimate={total:null,lines:[],notes:[]};
+let summary='',lastEstimate={total:null,lines:[],notes:[],breakdown:[]};
 function update(){const type=$('product').value,lines=[names[type]],notes=[];let total=null;
 const val=id=>$(id)?.value,num=id=>Number(val(id)),valid=(n,min,max)=>Number.isInteger(n)&&n>=min&&n<=max;
 if(type==='pdf'){const n=num('pages');lines.push(n+'ページ');if(valid(n,1,300))total=P.pdf.base+Math.max(0,n-2)*P.pdf.perPage;}
@@ -32,9 +32,26 @@ $('breakdown').replaceChildren(...breakdown.map(([label,amount])=>{const div=doc
 $('details').textContent=lines.join(' ／ ');$('price').textContent=total===null?'要お見積もり':yen(total);$('price').classList.toggle('pending',total===null);$('note').textContent=notes.join(' ');
 summary='SOZIN お見積もり相談（試作ページ）\n商品：'+lines.join(' ／ ')+'\n参考価格（税込）：'+(total===null?'要お見積もり':yen(total))+'\n※正式価格はSOZINにご確認ください。';
 }
-$('product').addEventListener('change',()=>{$('fields').innerHTML=fields[$('product').value]();update();});
-$('fields').addEventListener('change',update);$('fields').addEventListener('input',update);
-$('copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(summary);$('copied').textContent='コピーしました。LINEに貼り付けてください。';}catch(e){$('copied').textContent='コピーできない場合は画面をスクリーンショットしてください。';}});
+let confirmed=false;
+const exportIds=['downloadPdf','printPdf','downloadImage','copy'];
+function markDirty(){
+ confirmed=false;
+ for(const id of exportIds)$(id).disabled=true;
+ $('editStatus').textContent='条件を変更しました。「この条件で見積もりを確定する」を押してください。';
+ $('copied').textContent='';
+ $('price').style.opacity='.45';
+}
+$('confirmEstimate').addEventListener('click',()=>{
+ update();confirmed=true;
+ for(const id of exportIds)$(id).disabled=false;
+ $('price').style.opacity='1';
+ $('editStatus').textContent='✓ この条件で見積もりを確定しました。PDF・画像に保存できます。';
+ $('copied').textContent='';
+ document.querySelector('.paper-sheet').scrollIntoView({behavior:'smooth',block:'center'});
+});
+$('product').addEventListener('change',()=>{$('fields').innerHTML=fields[$('product').value]();markDirty();});
+$('fields').addEventListener('change',markDirty);$('fields').addEventListener('input',markDirty);
+$('copy').addEventListener('click',async()=>{if(!confirmed)return;try{await navigator.clipboard.writeText(summary);$('copied').textContent='コピーしました。LINEに貼り付けてください。';}catch(e){$('copied').textContent='コピーできない場合は画面をスクリーンショットしてください。';}});
 
 function createPdf(){
  // A4 one-sheet raster PDF, with all visible details and a clearly marked provisional status.
@@ -96,13 +113,35 @@ function imagePdf(canvas){
  return new Blob(chunks,{type:'application/pdf'});
 }
 $('downloadPdf').addEventListener('click',()=>{
+ if(!confirmed)return;
  try{const blob=imagePdf(createPdf()),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='SOZIN_概算見積書_'+new Date().toISOString().slice(0,10)+'.pdf';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);$('copied').textContent='PDFを作成しました。iPhoneでは「ファイル」アプリのダウンロード先をご確認ください。';}
  catch(e){$('copied').textContent='PDFを生成できませんでした。「印刷・PDFとして保存」をお試しください。';}
 });
 $('printPdf').addEventListener('click',()=>{
+ if(!confirmed)return;
  const c=createPdf(),w=window.open('','_blank');if(!w){$('copied').textContent='ポップアップがブロックされました。Safariで開き直してください。';return;}
  w.document.write('<!doctype html><html lang="ja"><head><meta charset="utf-8"><title>SOZIN 概算お見積書</title><style>body{margin:0}img{display:block;width:100%;max-width:794px;margin:auto}@page{size:A4;margin:0}</style></head><body><img id="sheet" src="'+c.toDataURL('image/png')+'"></body></html>');w.document.close();
  const img=w.document.getElementById('sheet');img.onload=()=>{w.focus();w.print();};if(img.complete){w.focus();w.print();}
+});
+
+
+function saveBlob(blob,filename){
+ const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;
+ document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+$('downloadImage').addEventListener('click',()=>{
+ if(!confirmed)return;
+ try{
+  const source=createPdf(),small=document.createElement('canvas');
+  small.width=800;small.height=Math.round(800*source.height/source.width);
+  const c=small.getContext('2d');if(!c)throw new Error('canvas unavailable');
+  c.drawImage(source,0,0,small.width,small.height);
+  small.toBlob(blob=>{
+   if(!blob){$('copied').textContent='画像保存に失敗しました。PDF保存をお試しください。';return;}
+   saveBlob(blob,'SOZIN_概算見積書_軽量_'+new Date().toLocaleDateString('sv-SE')+'.jpg');
+   $('copied').textContent='軽量JPEGを作成しました（約800px幅）。iPhoneでは「ファイル」のダウンロード先をご確認ください。';
+  },'image/jpeg',.72);
+ }catch(e){$('copied').textContent='画像保存に失敗しました。PDF保存をお試しください。';}
 });
 
 $('product').dispatchEvent(new Event('change'));
