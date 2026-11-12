@@ -10,8 +10,18 @@ export function cleanUrl(u) {
   return base.slice(0, q) + (keep.length ? '?' + keep.join('&') : '') + hash;
 }
 const publicationUrl = cleanUrl;
+// 段落（</p>）ごとに行へ分ける。段落の区切りを残すため（★の告知ブロックは段落の終わりまで）。<p> の無い原文は全体で1段落＝hasParas=false
+export function paraLines(raw) {
+  const src = String(raw ?? '').replace(/<!\[CDATA\[|\]\]>/g, ''), parts = src.split(/<\/p\s*>/i), out = [];
+  parts.forEach((chunk, p) => descriptionLines(chunk).forEach((text) => out.push({ text, p })));
+  return { lines: out, hasParas: parts.length > 1 };
+}
+// ★/☆ で始まる告知（フォロー・募集・イベント・新番組・感想募集など）。その段落の残りの行も告知として扱う
+export const STAR_NOTICE = /^[★☆].*(?:フォロー|お寄せ|募集|お待ち|申し込|申込|配信あり|新番組|はじめます|キャンペーン|イベント|プレゼント|ご感想|ご意見|アンケート|質問)/;
+// 見出しの後に文が続く告知（【秋トクキャンペーン …】本文…）
+export const INLINE_NOTICE_HEAD = /^【[^】]*(?:キャンペーン|イベント|祝|募集|プレゼント|お知らせ|告知|チケット|参加者)[^】]*】/;
 
-export const AUDIT_VERSION = 'SQA-3';
+export const AUDIT_VERSION = 'SQA-4';
 // 清掃状態（処理済みと品質確認済みを分離）。品質確認済は人の目視確認と記録があるときだけ付く。自動検査の合格は「自動検査合格・目視未確認」。
 export const QUALITY_STATES = Object.freeze(['未処理', '自動処理済・未検証', '自動検査合格・目視未確認', '品質確認済', '要確認', '不合格']);
 export const QUALITY_LOG_HEADERS = Object.freeze(['EP-ID', '公式GUID', '概要原文SHA256', '検査対象', '清掃版', '監査版', '判定', '誤り分類', '検証方法', '検証者', '検証日時', '理由']);
@@ -21,21 +31,24 @@ const URL_RE = /https?:\/\/[^\s<>「」『』（）()"'、]+/g;
 const ARTICLE_RE = /^https?:\/\/(?:www\.asahi\.com\/(?:articles|[a-z]+\/articles)\/|digital\.asahi\.com\/articles\/|withnews\.jp\/article\/|globe\.asahi\.com\/article\/|book\.asahi\.com\/article\/|www\.asahi\.com\/special\/(?!podcasts))/;
 // 消してよいと監査側が確信できる定型だけ。迷うものは入れない。
 const DROP_LINE = /^See .*omnystudio\.com\/listener|Learn more about your ad choices|会員登録をお願い|購読料で配信|交流はdiscord|^ご意見・感想・リクエスト|おたよりフォーム|^メルマガ|広告ご検討の企業様|^番組検索ツール|^最新情報はX|^番組カレンダー|全話あります公式サイト|アプリで記者と対話|^朝ポキTV|ほかにも(?:多彩な)?番組を配信中|^★?ご感想はこちら|discord|をフォロー|フォロー[、,]?\s*お願い|お待ちしています|申し込みはこちら|申込はこちら/i;
-const DROP_SECTION = /^【(?:おねがい|朝ポキ情報|お知らせ|イベント)|^【[^】]*(?:参加|フェス|募集|告知|プレゼント|チケット|キャンペーン)[^】]*】\s*$/;
+const DROP_SECTION = /^【(?:おねがい|朝ポキ情報|お知らせ|イベント)|^【[^】]*(?:参加|フェス|募集|告知|プレゼント|チケット|キャンペーン|イベント)[^】]*】\s*$/;
 const STAFF_SECTION = /^【(?:出演[・／/]スタッフ|出演者|スタッフ|出演)】/;
 const RELATED_SECTION = /^【(?:関連記事|関連リンク|写真まとめ|特集ページ|まとめてわかる)|^【[^】]*(?:関連|参考|アーカイブ)[^】]*】\s*$/;
 const AMBIG_LINE = /^[★※▼■◆]|募集|お寄せください|応募|申し込み|配信します|収録しました|プレゼント|イベント|フォロー/;
 
 // 原文を行に分け、監査側の期待（KEEP/DROP/STAFF/RELATED/AMBIGUOUS）を付ける。
 export function classifyRawLines(raw) {
-  const out = []; let section = 'body';
-  descriptionLines(String(raw ?? '').replace(/<!\[CDATA\[|\]\]>/g, '')).forEach((text, i) => {
+  const out = []; let section = 'body', notice = -1;   // notice = ★告知・見出し付き告知が続いている段落番号
+  const pl = paraLines(raw);
+  pl.lines.forEach(({ text, p }, i) => {
     const urlOnly = /^\s*(?:https?:\/\/\S+\s*)+$/.test(text);
-    if (DROP_SECTION.test(text)) section = 'drop'; else if (STAFF_SECTION.test(text)) section = 'staff'; else if (RELATED_SECTION.test(text)) section = 'related'; else if (/^【[^】]{1,40}】\s*$/.test(text)) section = 'body';   // 名前の決まっていない見出しで節が切り替わる
+    if (notice >= 0 && (p !== notice || /^[【★☆※]/.test(text))) { notice = -1; if (section === 'notice') section = 'body'; }
+    if (pl.hasParas && (STAR_NOTICE.test(text) || (INLINE_NOTICE_HEAD.test(text) && !/^【[^】]+】\s*$/.test(text)))) { section = 'notice'; notice = p; }
+    else if (DROP_SECTION.test(text)) section = 'drop'; else if (STAFF_SECTION.test(text)) section = 'staff'; else if (RELATED_SECTION.test(text)) section = 'related'; else if (/^【[^】]{1,40}】\s*$/.test(text)) section = 'body';   // 名前の決まっていない見出しで節が切り替わる
     const headerOnly = /^【[^】]+】\s*$/.test(text);
     let expect;
     if (DROP_LINE.test(text)) expect = 'DROP';
-    else if (section === 'drop') expect = 'DROP';
+    else if (section === 'drop' || section === 'notice') expect = 'DROP';
     else if (section === 'staff') expect = 'STAFF';
     else if (section === 'related' || (/https?:/.test(text) && [...text.matchAll(URL_RE)].some((m) => ARTICLE_RE.test(m[0])))) expect = 'RELATED';
     else if (urlOnly || headerOnly) expect = 'DROP';

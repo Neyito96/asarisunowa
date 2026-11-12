@@ -439,8 +439,18 @@ function cleanUrl(u) {
   return base.slice(0, q) + (keep.length ? '?' + keep.join('&') : '') + hash;
 }
 const publicationUrl = cleanUrl;
+// 段落（</p>）ごとに行へ分ける。段落の区切りを残すため（★の告知ブロックは段落の終わりまで）。<p> の無い原文は全体で1段落＝hasParas=false
+function paraLines(raw) {
+  const src = String(raw ?? '').replace(/<!\[CDATA\[|\]\]>/g, ''), parts = src.split(/<\/p\s*>/i), out = [];
+  parts.forEach((chunk, p) => descriptionLines(chunk).forEach((text) => out.push({ text, p })));
+  return { lines: out, hasParas: parts.length > 1 };
+}
+// ★/☆ で始まる告知（フォロー・募集・イベント・新番組・感想募集など）。その段落の残りの行も告知として扱う
+const STAR_NOTICE = /^[★☆].*(?:フォロー|お寄せ|募集|お待ち|申し込|申込|配信あり|新番組|はじめます|キャンペーン|イベント|プレゼント|ご感想|ご意見|アンケート|質問)/;
+// 見出しの後に文が続く告知（【秋トクキャンペーン …】本文…）
+const INLINE_NOTICE_HEAD = /^【[^】]*(?:キャンペーン|イベント|祝|募集|プレゼント|お知らせ|告知|チケット|参加者)[^】]*】/;
 
-const AUDIT_VERSION = 'SQA-3';
+const AUDIT_VERSION = 'SQA-4';
 // 清掃状態（処理済みと品質確認済みを分離）。品質確認済は人の目視確認と記録があるときだけ付く。自動検査の合格は「自動検査合格・目視未確認」。
 const QUALITY_STATES = Object.freeze(['未処理', '自動処理済・未検証', '自動検査合格・目視未確認', '品質確認済', '要確認', '不合格']);
 const QUALITY_LOG_HEADERS = Object.freeze(['EP-ID', '公式GUID', '概要原文SHA256', '検査対象', '清掃版', '監査版', '判定', '誤り分類', '検証方法', '検証者', '検証日時', '理由']);
@@ -450,21 +460,24 @@ const URL_RE = /https?:\/\/[^\s<>「」『』（）()"'、]+/g;
 const ARTICLE_RE = /^https?:\/\/(?:www\.asahi\.com\/(?:articles|[a-z]+\/articles)\/|digital\.asahi\.com\/articles\/|withnews\.jp\/article\/|globe\.asahi\.com\/article\/|book\.asahi\.com\/article\/|www\.asahi\.com\/special\/(?!podcasts))/;
 // 消してよいと監査側が確信できる定型だけ。迷うものは入れない。
 const DROP_LINE = /^See .*omnystudio\.com\/listener|Learn more about your ad choices|会員登録をお願い|購読料で配信|交流はdiscord|^ご意見・感想・リクエスト|おたよりフォーム|^メルマガ|広告ご検討の企業様|^番組検索ツール|^最新情報はX|^番組カレンダー|全話あります公式サイト|アプリで記者と対話|^朝ポキTV|ほかにも(?:多彩な)?番組を配信中|^★?ご感想はこちら|discord|をフォロー|フォロー[、,]?\s*お願い|お待ちしています|申し込みはこちら|申込はこちら/i;
-const DROP_SECTION = /^【(?:おねがい|朝ポキ情報|お知らせ|イベント)|^【[^】]*(?:参加|フェス|募集|告知|プレゼント|チケット|キャンペーン)[^】]*】\s*$/;
+const DROP_SECTION = /^【(?:おねがい|朝ポキ情報|お知らせ|イベント)|^【[^】]*(?:参加|フェス|募集|告知|プレゼント|チケット|キャンペーン|イベント)[^】]*】\s*$/;
 const STAFF_SECTION = /^【(?:出演[・／/]スタッフ|出演者|スタッフ|出演)】/;
 const RELATED_SECTION = /^【(?:関連記事|関連リンク|写真まとめ|特集ページ|まとめてわかる)|^【[^】]*(?:関連|参考|アーカイブ)[^】]*】\s*$/;
 const AMBIG_LINE = /^[★※▼■◆]|募集|お寄せください|応募|申し込み|配信します|収録しました|プレゼント|イベント|フォロー/;
 
 // 原文を行に分け、監査側の期待（KEEP/DROP/STAFF/RELATED/AMBIGUOUS）を付ける。
 function classifyRawLines(raw) {
-  const out = []; let section = 'body';
-  descriptionLines(String(raw ?? '').replace(/<!\[CDATA\[|\]\]>/g, '')).forEach((text, i) => {
+  const out = []; let section = 'body', notice = -1;   // notice = ★告知・見出し付き告知が続いている段落番号
+  const pl = paraLines(raw);
+  pl.lines.forEach(({ text, p }, i) => {
     const urlOnly = /^\s*(?:https?:\/\/\S+\s*)+$/.test(text);
-    if (DROP_SECTION.test(text)) section = 'drop'; else if (STAFF_SECTION.test(text)) section = 'staff'; else if (RELATED_SECTION.test(text)) section = 'related'; else if (/^【[^】]{1,40}】\s*$/.test(text)) section = 'body';   // 名前の決まっていない見出しで節が切り替わる
+    if (notice >= 0 && (p !== notice || /^[【★☆※]/.test(text))) { notice = -1; if (section === 'notice') section = 'body'; }
+    if (pl.hasParas && (STAR_NOTICE.test(text) || (INLINE_NOTICE_HEAD.test(text) && !/^【[^】]+】\s*$/.test(text)))) { section = 'notice'; notice = p; }
+    else if (DROP_SECTION.test(text)) section = 'drop'; else if (STAFF_SECTION.test(text)) section = 'staff'; else if (RELATED_SECTION.test(text)) section = 'related'; else if (/^【[^】]{1,40}】\s*$/.test(text)) section = 'body';   // 名前の決まっていない見出しで節が切り替わる
     const headerOnly = /^【[^】]+】\s*$/.test(text);
     let expect;
     if (DROP_LINE.test(text)) expect = 'DROP';
-    else if (section === 'drop') expect = 'DROP';
+    else if (section === 'drop' || section === 'notice') expect = 'DROP';
     else if (section === 'staff') expect = 'STAFF';
     else if (section === 'related' || (/https?:/.test(text) && [...text.matchAll(URL_RE)].some((m) => ARTICLE_RE.test(m[0])))) expect = 'RELATED';
     else if (urlOnly || headerOnly) expect = 'DROP';
@@ -567,7 +580,7 @@ function stratifiedSample(pairs, k = 2) {
   return [...by.entries()].sort().map(([key, ids]) => ({ stratum: key, epIds: ids.sort().slice(0, k) }));
 }
 
-return { cleanUrl, AUDIT_VERSION, QUALITY_STATES, QUALITY_LOG_HEADERS, classifyRawLines, coverage, articleUrls, auditPair, stratum, joinKey, parseListField, summarize, stratifiedSample };
+return { cleanUrl, paraLines, STAR_NOTICE, INLINE_NOTICE_HEAD, AUDIT_VERSION, QUALITY_STATES, QUALITY_LOG_HEADERS, classifyRawLines, coverage, articleUrls, auditPair, stratum, joinKey, parseListField, summarize, stratifiedSample };
 })();
 
 var CleanerV4 = (function () {
@@ -575,8 +588,8 @@ var CleanerV4 = (function () {
 // 原則: 原文は変えない。原文だけを基準に、本文・出演者（リンク付き）・関連記事（見出し＋URLのペア）を分ける。
 // 迷うもの（見出しなし記事URL・非記事リンク・本文の大幅減少・監査で重大所見）は 要確認。品質確認済は人だけが付ける。
 const { descriptionLines, DESCRIPTION_VERSION } = DescEditor;
-const { auditPair, AUDIT_VERSION, cleanUrl } = QualityAudit;
-const CLEANER_VERSION = 'SC4-3(' + DESCRIPTION_VERSION + ')';
+const { auditPair, AUDIT_VERSION, cleanUrl, paraLines, STAR_NOTICE, INLINE_NOTICE_HEAD } = QualityAudit;
+const CLEANER_VERSION = 'SC4-4(' + DESCRIPTION_VERSION + ')';
 const T = (v) => String(v ?? '').trim();
 const NZ = (t) => String(t ?? '').normalize('NFKC').replace(/\s+/g, '');
 const URL_RE = /https?:\/\/[^\s<>「」『』（）()"'、]+/g;
@@ -589,16 +602,19 @@ const STAFF_HEAD = H('出演[・／/]?スタッフ|出演者|出演|スタッフ
 const RELATED_HEAD = H('関連記事|関連リンク|関連URL|参考記事|写真まとめ|特集ページ|まとめてわかる');
 const DROP_HEAD = H('おねがい|お願い|朝ポキ情報|お知らせ|イベント|告知|募集|プレゼント|お便り募集|おたより募集|SNS');
 // 定型の宣伝・広告（行ごと除去）。本編の話題（Xの騒動・イベントの報道）を誤って消さないよう、宣伝の言い回しに限る。
-const PROMO = /See .*omnystudio\.com\/listener|Learn more about your ad choices|購読料で配信|会員登録をお願い|^交流はdiscord|^ご意見・感想・リクエスト|おたよりフォーム|^メルマガ|広告ご検討の企業様|^番組検索ツール|^最新情報はX|^番組カレンダー|全話あります公式サイト|アプリで記者と対話|^朝ポキTV|ほかにも(?:多彩な)?番組を配信中|^★?ご感想はこちら|フォローをお願い|フォローしてね|チャンネル登録|^(?:X|Twitter|Instagram|インスタ)(?:\s*[:：]|\s*はこちら|\s*https?:)|配信、テキストでも読めます|フォロー[、,]?\s*お願い|をフォロー|お便りは|お便りを|discord|ディスコード|お待ちしています|申し込みはこちら|申込はこちら|^[★☆※]\s*(?:お便り|おたより|ご感想|ご意見)/i;
+const PROMO = /See .*omnystudio\.com\/listener|Learn more about your ad choices|購読料で配信|会員登録をお願い|^交流はdiscord|^ご意見・感想・リクエスト|おたよりフォーム|^メルマガ|広告ご検討の企業様|^番組検索ツール|^最新情報はX|^番組カレンダー|全話あります公式サイト|アプリで記者と対話|^朝ポキTV|ほかにも(?:多彩な)?番組を配信中|^★?ご感想はこちら|フォローをお願い|フォローしてね|チャンネル登録|^(?:X|Twitter|Instagram|インスタ)(?:\s*[:：]|\s*はこちら|\s*https?:)|配信、テキストでも読めます|フォロー[、,]?\s*お願い|をフォロー|お便りは(?:こちら|下記|フォーム)|お便りを(?:お待ち|お寄せ|募集|送って|どうぞ)|discord|ディスコード|お待ちしています|申し込みはこちら|申込はこちら|^[★☆※]\s*(?:お便り|おたより|ご感想|ご意見)/i;
 const EVENT_PROMO = /(?:募集|応募|申し込み|申込|お申し込み|参加者|チケット|エントリー|アンケート|フォーム|お寄せください|お待ちしています)/;
 
 // 原文を見出しで区切った節に分ける（見出しを境界として扱う。全削除の正規表現にしない）
 function sections(raw) {
-  const lines = descriptionLines(String(raw ?? '').replace(/<!\[CDATA\[|\]\]>/g, '')), out = []; let cur = { kind: 'body', head: '', lines: [] };
+  const pl = paraLines(raw), out = []; let cur = { kind: 'body', head: '', lines: [] }, notice = -1;
   const start = (kind, head, rest) => { out.push(cur); cur = { kind, head, lines: rest ? [rest] : [] }; };
-  for (const l of lines) {
+  for (const { text: l, p } of pl.lines) {
     let m;
-    if ((m = l.match(STAFF_HEAD)) && /^\s*(?:【|\[|［|〔|■|◆|▼|●)/.test(l)) start('staff', m[0].trim(), l.slice(m[0].length).trim());
+    if (notice >= 0 && (p !== notice || /^[【★☆※]/.test(l))) { notice = -1; if (cur.kind === 'notice') start('body', '', ''); }   // ★告知は段落の終わりまで
+    if (pl.hasParas && STAR_NOTICE.test(l)) { start('notice', '★告知', l); notice = p; }
+    else if (pl.hasParas && INLINE_NOTICE_HEAD.test(l) && !/^【[^】]+】\s*$/.test(l)) { start('notice', (l.match(INLINE_NOTICE_HEAD) || [''])[0], l); notice = p; }
+    else if ((m = l.match(STAFF_HEAD)) && /^\s*(?:【|\[|［|〔|■|◆|▼|●)/.test(l)) start('staff', m[0].trim(), l.slice(m[0].length).trim());
     else if ((m = l.match(RELATED_HEAD)) && /^\s*(?:【|\[|［|〔|■|◆|▼|●)/.test(l)) start('related', m[0].trim(), l.slice(m[0].length).trim());
     else if ((m = l.match(DROP_HEAD)) && /^\s*(?:【|\[|［|〔|■|◆|▼|●)/.test(l)) start('drop', m[0].trim(), l.slice(m[0].length).trim());
     else if ((m = l.match(BODY_HEAD)) && /^\s*(?:【|\[|［|〔|■|◆|▼|●)/.test(l)) start('body', m[0].trim(), l.slice(m[0].length).trim());
@@ -624,10 +640,15 @@ function parseCastLine(line) {
 function cleanV4(raw) {
   const src = String(raw ?? '');
   if (!src.trim()) return { ok: false, holds: ['RAW_EMPTY'], text: '', cast: [], related: [], socials: [], removed: [] };
-  const secs = sections(src), body = [], cast = [], related = [], removed = [], socials = [], holds = [], notes = [];
+  const secs = sections(src), follow = [], body = [], cast = [], related = [], removed = [], socials = [], holds = [], notes = [];
   const pushRel = (title, url, kind) => { const clean = cleanUrl(url); if (related.some((r) => r.url === clean)) return; related.push({ title: T(title).replace(/^【[^】]*】/, '').trim(), url: clean, originalUrl: url, kind: kind || 'article', source: '概要原文' }); };
   for (const s of secs) {
     if (s.kind === 'drop') { removed.push({ reason: 'SECTION_' + s.head, lines: s.lines.length }); continue; }
+    if (s.kind === 'notice') {   // ★告知・見出し付き告知: 本文に入れない。「氏名＋URL」の行（アプリでフォロー等）は出演者に無ければ出演者へ保全
+      removed.push({ reason: 'NOTICE', lines: s.lines.length });
+      s.lines.slice(1).forEach((l) => { const c = parseCastLine(l); if (c.name && c.links.length && c.name.length <= 20 && !/[。！？!?、]/.test(c.name)) follow.push({ ...c, note: c.note || '告知欄で紹介' }); });
+      continue;
+    }
     if (s.kind === 'staff') {
       for (const l of s.lines) { if (PROMO.test(l)) { removed.push({ reason: 'PROMO_IN_STAFF' }); continue; } const c = parseCastLine(l); if (c.name || c.role) cast.push(c); }
       continue;
@@ -662,6 +683,7 @@ function cleanV4(raw) {
   // 閉じていない見出し行（関連節で回収されなかった見出し）が本文末尾に残らないよう、関連節由来の行は本文から外さない＝そのまま（要確認で拾う）
   const text = body.join('\n').replace(/\s*(?:ご意見・感想・リクエスト|ほかにも(?:多彩な)?番組を配信中|Learn more about your ad choices)[\s\S]*$/i, '').replace(/[ 　]{2,}/g, ' ').trim();
   if (!text) holds.push('CONTENT_EMPTY');
+  follow.forEach((c) => { if (!cast.some((x) => NZ(x.name) === NZ(c.name))) cast.push(c); });
   notes.forEach((n) => related.push({ title: n, url: '', kind: 'note', source: '概要原文' }));
   return { ok: !holds.length, holds: [...new Set(holds)], text, cast, related, socials: [...new Set(socials)], removed };
 }

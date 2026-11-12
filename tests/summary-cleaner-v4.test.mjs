@@ -143,3 +143,40 @@ test('配布GAS模擬: S5 は V2作業用の収蔵詳細に原文、清掃詳細
   const c = e.run('S5B_V2詳細保全_全件'); assert.equal(c.raw.rssChangedLogged, 1); assert.equal(raw[1][4], '人が残した原文'); assert.equal(v2b['V2・原文変化履歴'].st.rows.length, 2);
   assert.equal(e.run('S5B_V2詳細保全_全件').raw.rssChangedLogged, 0);   // 同じ変化は二重に記録しない
 });
+
+// ---- Issue #308 品質改善（2026-11-12 実機で見つかった型）。合成原文のみ ----
+const P = (...ps) => ps.map((x) => '<p>' + x.join('<br>') + '</p>').join(' ');
+const STAFF = ['【出演・スタッフ】', '架空太郎（経済部）https://buff.ly/aaa', 'MC　仮名花子', '音源編集　試験次郎'];
+const REL = ['【関連記事】', '架空の見出しその一', 'https://www.asahi.com/articles/ASX0001.html?iref=omny'];
+const TAIL = ['【朝ポキ情報】', 'おたよりフォーム https://bit.ly/asapoki_otayori'];
+test('型1 見出しの後に文が続くキャンペーン告知は本文に残らない（秋トク型）', () => {
+  const raw = P(['【秋トクキャンペーン 11月18日まで】架空コースを初めて申し込む方限定！月額100円', 'https://digital.asahi.com/pr/cp/x/?ref=cp', '', '【番組内容】', '架空の園で忘れ物をした子に先生は宝探しを提案しました。', '※2026年9月17日に収録しました'], REL, STAFF, TAIL);
+  const j = judgeEpisode(raw, {});
+  assert.ok(!/キャンペーン|月額100円/.test(j.clean.text)); assert.match(j.clean.text, /宝探し/);
+  assert.equal(j.clean.related.length, 1); assert.equal(j.clean.related[0].title, '架空の見出しその一');
+  assert.ok(!j.findings.some((f) => /OVER_DELETION|UNDER_DELETION/.test(f)), j.reason);
+});
+test('型2 番組内容の「お便りをいただきました」を宣伝と誤認しない／冒頭の★新番組告知は消す', () => {
+  const raw = P(['★新番組「架空そうだんしつ」をはじめます！', 'そこで質問を募集します。', 'ぜひお寄せください。https://t.asahi.com/xxxx'], ['【番組内容】', 'メーカー勤務のリスナーさんから、原料不足に関するお便りをいただきました。政府の説明と食い違う理由をひもときました。', '※2026年6月10日に収録しました。'], STAFF, TAIL);
+  const j = judgeEpisode(raw, {});
+  assert.match(j.clean.text, /お便りをいただきました/); assert.ok(!/新番組|募集/.test(j.clean.text));
+  assert.notEqual(j.verdict, '不合格', j.reason);
+});
+test('型3 イベント告知（見出しだけの行）を消しても監査が本文消失と誤判定しない', () => {
+  const raw = P(['【祝・1億DL！　5/31（土）イベント】', '記念グッズを大放出。公開収録やクイズも！', '架空一郎、試験二郎に朝ポキメンバーも多数参加。', 'https://ciy.digital.asahi.com/ciy/0000'], ['【番組内容】', '1936年の架空事件について、当時の通信傍受の経緯を解説します。'], ['※2025年4月4日に収録しました。全3回の3本目です'], REL, STAFF, TAIL);
+  const j = judgeEpisode(raw, {});
+  assert.ok(!/記念グッズ|架空一郎/.test(j.clean.text)); assert.match(j.clean.text, /通信傍受/);
+  assert.ok(!j.findings.some((f) => /OVER_DELETION|LOST_PROPER_NOUN|PARTIAL_DELETION/.test(f)), j.reason);
+});
+test('型4 ★フォロー告知の氏名行は本文に入れず、出演者に無い人だけ出演者へ保全', () => {
+  const raw = P(['★みなさまからの質問、お待ちしています https://bit.ly/asapoki_otayori'], ['【番組内容】', '架空の政策用語の定義について素朴な疑問をぶつけました。'], ['★朝日新聞アプリで2人をフォローしてください！', '架空太郎 https://bit.ly/aaa', '仮名三郎 https://bit.ly/bbb'], ['★Q&Aのご感想をお寄せください！', '次回以降の参考にします。', 'こちらのフォームからお願いします↓↓', 'https://forms.example.com/r/zz'], STAFF, TAIL);
+  const j = judgeEpisode(raw, {});
+  assert.ok(!/架空太郎|仮名三郎|次回以降|フォーム/.test(j.clean.text), j.clean.text); assert.match(j.clean.text, /素朴な疑問/);
+  const names = j.clean.cast.map((c) => c.name);
+  assert.equal(names.filter((n) => n === '架空太郎').length, 1); assert.ok(names.includes('仮名三郎')); assert.ok(names.includes('仮名花子'));
+  assert.ok(!j.findings.some((f) => /STAFF_IN_BODY|CAST_CONTAMINATED|OVER_DELETION/.test(f)), j.reason);
+});
+test('<p> の無い原文では★行だけを消し、後続の本文は消さない（段落が分からないときは保守的に）', () => {
+  const j = cleanV4('★番組へのご感想をお寄せください\n本編の大事な説明です。続きもあります。');
+  assert.match(j.text, /本編の大事な説明/);
+});
