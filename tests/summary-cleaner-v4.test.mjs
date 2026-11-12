@@ -186,3 +186,8 @@ test('型5 「過去回は下記から」の案内は本文から外す（同じ
   assert.ok(!/過去回/.test(j.clean.text), j.clean.text); assert.match(j.clean.text, /2026年4月8日に収録しました/);
   assert.ok(!j.findings.some((f) => /OVER_DELETION/.test(f)), j.reason);
 });
+test('型6 ★月額100円・読み放題などの購読キャンペーンは本文に残さない／「過去の回はこちら」も外す', () => {
+  const raw = P(['★月100円で読み放題★（11/18まで）', '架空コース（月額1,980円）が2カ月間は月額100円！※初回限定', 'https://digital.asahi.com/pr/cp/x/'], ['架空大会の展望を担当記者が解説します。', '※2026年9月18日に収録しました。前後編の後編です。過去の回はこちら（ https://www.asahi.com/special/podcasts/?pgid=z ）。'], STAFF, TAIL);
+  const j = judgeEpisode(raw, {});
+  assert.ok(!/読み放題|月額|初回限定|過去の回/.test(j.clean.text), j.clean.text); assert.match(j.clean.text, /展望を担当記者/); assert.match(j.clean.text, /収録しました/);
+});

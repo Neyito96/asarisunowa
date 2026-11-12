@@ -143,6 +143,7 @@ function scApply_(targetId, nameIncludes, level, label, maxEpisodes, resName) {
     var H = {}; SC_HEADERS_.forEach(function (n, i) { H[n] = i; });
     var cur = res.getLastRow() > 1 ? res.getRange(2, 1, res.getLastRow() - 1, SC_HEADERS_.length).getDisplayValues() : [];
     var cols = { summary: L.ix.summary, cast: L.ix.cast, related: L.ix.related }, NEW = { summary: '新・概要', cast: '新・出演者', related: '新・関連記事URL' }, OLD = { summary: '旧・概要', cast: '旧・出演者', related: '旧・関連記事URL' };
+    var last = {}; if (hist.getLastRow() > 1) hist.getRange(2, 1, hist.getLastRow() - 1, SC_HIST_HEADERS_.length).getDisplayValues().forEach(function (h) { if (/^OK/.test(h[7])) last[h[2] + '\u0001' + h[3] + '\u0001' + h[4]] = h[6]; else if (h[7] === 'UNDO') delete last[h[2] + '\u0001' + h[3] + '\u0001' + h[4]]; });   // このロボが最後に書いた値（人の編集と区別する）
     var recovered = [], epCount = 0, applyId = new Date().toISOString() + '/' + label, now = new Date().toISOString(), writes = [], skip = {}, sk = function (w) { skip[w] = (skip[w] || 0) + 1; };
     cur.forEach(function (r, ri) {
       if (writes.length >= SC_CONFIG.applyMaxPerRun || (maxEpisodes && epCount >= maxEpisodes)) return;
@@ -152,7 +153,7 @@ function scApply_(targetId, nameIncludes, level, label, maxEpisodes, resName) {
       var x = byEp[r[H['EP-ID']]]; if (!x) { sk('EP_NOT_IN_TARGET'); return; }
       if (r[H['公式GUID']] && x.guids.indexOf(String(r[H['公式GUID']]).toLowerCase()) < 0) { sk('GUID_MISMATCH'); return; }
       var ks = String(r[H['書換可']]).split('+'), st = {};
-      ks.forEach(function (k) { st[k] = String(x[k]) === String(r[H[OLD[k]]]) ? 'old' : (!r[H['反映先']] && String(x[k]) === String(r[H[NEW[k]]])) ? 'done' : 'changed'; });
+      ks.forEach(function (k) { st[k] = String(x[k]) === String(r[H[OLD[k]]]) ? 'old' : (!r[H['反映先']] && String(x[k]) === String(r[H[NEW[k]]])) ? 'done' : (String(x[k]) !== String(r[H[NEW[k]]]) && last[label + '\u0001' + x.ep + '\u0001' + SC_COLS_[k]] === String(x[k])) ? 'old' : 'changed'; });   // 台帳の値が、このロボが前回書いた値のままなら清掃版の更新として書き直してよい（人が直した値は守る）
       if (r[H['反映先']] === label && ks.every(function (k) { return String(x[k]) === String(r[H[NEW[k]]]); })) { sk('ALREADY_APPLIED'); return; }
       if (ks.some(function (k) { return st[k] === 'changed'; })) { sk('CHANGED_SINCE_AUDIT'); return; }   // 監査後に誰かが直した値は守る（S2を再実行すると最新値で判定し直す）
       ks.filter(function (k) { return st[k] === 'done'; }).forEach(function (k) { recovered.push([now, applyId, label, x.ep, SC_COLS_[k], String(r[H[OLD[k]]]), String(r[H[NEW[k]]]), 'OK(回収)']); });   // 前回が途中で止まり、書けていたのに記録が無い列は履歴だけ回収
@@ -182,7 +183,7 @@ function scApply_(targetId, nameIncludes, level, label, maxEpisodes, resName) {
       if (Object.keys(eps).length) detailWritten = scV2DetailUpsert_(t.ss, L, cur, H, eps, now).changed;
     }
     if (pend.length) res.getRange(2, 1, cur.length, SC_HEADERS_.length).setValues(cur);
-    PropertiesService.getScriptProperties().setProperty('SC_LAST_APPLY', applyId);
+    if (pend.length) PropertiesService.getScriptProperties().setProperty('SC_LAST_APPLY', applyId);   // 書込が無い回で取消対象を上書きしない
     return { status: bad ? 'READBACK_MISMATCH' : writes.length ? 'OK' : 'OK_NO_CHANGE', target: label, level: level, cellsWritten: writes.length, recoveredHistory: recovered.length, detailRows: detailWritten, episodes: Object.keys(writes.reduce(function (a, w) { a[w.ep] = 1; return a; }, {})).length, skipped: skip, applyId: applyId, ms: Date.now() - t0 };
   } finally { lock.releaseLock(); }
 }
