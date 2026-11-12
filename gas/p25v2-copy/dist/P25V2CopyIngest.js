@@ -380,7 +380,8 @@ function p25v2Env_() { return { hasDoGet: typeof doGet === 'function', hasDoPost
 // 開く前・開いた後の両方で対象を確認する（書込なし）
 function p25v2OpenChecked_(cfg, forWrite) {
   p25v2AssertIsolated_(p25v2Env_());
-  if (P25V2_PROTECTED_IDS_.indexOf(cfg.targetSpreadsheetId) >= 0) throw new Error('PROTECTED_TARGET_REFUSED');
+  var v2ok = cfg.environment === 'V2_WORKING' && cfg.targetSpreadsheetId === P25V2_V2_WORKING_ID_;   // V2作業用だけは承認付き設定で開ける（他の保護IDは常に拒否）
+  if (P25V2_PROTECTED_IDS_.indexOf(cfg.targetSpreadsheetId) >= 0 && !v2ok) throw new Error('PROTECTED_TARGET_REFUSED');
   var ss = SpreadsheetApp.openById(cfg.targetSpreadsheetId), sh = ss.getSheetByName(cfg.sheetName);
   var actual = { id: ss.getId(), name: ss.getName(), sheetName: sh ? sh.getName() : '' };
   p25v2AssertCopyTarget_(cfg, actual, forWrite);
