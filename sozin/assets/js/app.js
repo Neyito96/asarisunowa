@@ -23,7 +23,13 @@ if(type==='banner'){const v=val('variant');lines.push($('variant').selectedOptio
 if(type==='setDigital'){const n=num('pages'),kind=val('delivery');lines.push(n+'ページ・'+$('delivery').selectedOptions[0].textContent);if(valid(n,1,300))total=n*P.setDigital[kind];notes.push('印刷物とのセット料金。印刷物の料金は含みません。');}
 if(type==='program'){const p=num('pages'),c=num('copies');lines.push(p+'ページ・'+c+'部');if(valid(p,4,200)&&valid(c,1,100000))total=Math.round((30000+p*2500+c*100)*1.1);notes.push('【デモ用仮計算】基本料30,000円＋ページ数×2,500円＋部数×100円、税10％。実際の価格表とは無関係です。');}
 if(total!==null)notes.push('正式な料金ではありません。送料・特急料金・特殊仕様は別途。');else notes.push('こちらの仕様は個別にお見積もりいたします。');
-lastEstimate={total,lines:[...lines],notes:[...notes]};$('details').textContent=lines.join(' ／ ');$('price').textContent=total===null?'要お見積もり':yen(total);$('price').classList.toggle('pending',total===null);$('note').textContent=notes.join(' ');
+const breakdown=[];
+if(type==='program' && total!==null){const p=num('pages'),c=num('copies'),base=30000,pageFee=p*2500,printFee=c*100,subtotal=base+pageFee+printFee;
+ breakdown.push(['基本制作費（仮）',base],['ページ制作費 '+p+'P × 2,500円（仮）',pageFee],['印刷部数 '+c+'部 × 100円（仮）',printFee],['税抜小計',subtotal],['消費税相当額（10%）',total-subtotal]);}
+else if(total!==null){breakdown.push(['参考価格・一式（税込）',total]);}
+lastEstimate={total,lines:[...lines],notes:[...notes],breakdown};
+$('breakdown').replaceChildren(...breakdown.map(([label,amount])=>{const div=document.createElement('div');div.className='item';const a=document.createElement('span'),b=document.createElement('span');a.textContent=label;b.textContent=yen(amount);div.append(a,b);return div;}));
+$('details').textContent=lines.join(' ／ ');$('price').textContent=total===null?'要お見積もり':yen(total);$('price').classList.toggle('pending',total===null);$('note').textContent=notes.join(' ');
 summary='SOZIN お見積もり相談（試作ページ）\n商品：'+lines.join(' ／ ')+'\n参考価格（税込）：'+(total===null?'要お見積もり':yen(total))+'\n※正式価格はSOZINにご確認ください。';
 }
 $('product').addEventListener('change',()=>{$('fields').innerHTML=fields[$('product').value]();update();});
@@ -31,30 +37,46 @@ $('fields').addEventListener('change',update);$('fields').addEventListener('inpu
 $('copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(summary);$('copied').textContent='コピーしました。LINEに貼り付けてください。';}catch(e){$('copied').textContent='コピーできない場合は画面をスクリーンショットしてください。';}});
 
 function createPdf(){
- const {total,lines,notes}=lastEstimate,can=document.createElement('canvas');can.width=1240;can.height=1754;
- const ctx=can.getContext('2d');if(!ctx)throw new Error('canvas unavailable');
- const W=1240,H=1754;ctx.fillStyle='#fffdfc';ctx.fillRect(0,0,W,H);
- ctx.fillStyle='#29232b';ctx.fillRect(0,0,W,28);ctx.fillStyle='#ad7a91';ctx.fillRect(0,28,W,8);
- ctx.fillStyle='#29232b';ctx.font='bold 64px Georgia,serif';ctx.fillText('SOZIN',104,148);
- ctx.fillStyle='#a8798e';ctx.font='30px Georgia,serif';ctx.fillText("Ballet de' Arte",106,195);
- ctx.fillStyle='#29232b';ctx.font='600 52px "Noto Sans JP","Hiragino Kaku Gothic ProN",sans-serif';ctx.fillText('概算お見積書',104,305);
- ctx.fillStyle='#a9758c';ctx.font='bold 25px "Noto Sans JP",sans-serif';ctx.fillText('試算版・正式見積もりではありません',105,360);
- ctx.strokeStyle='#e7dfe3';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(105,405);ctx.lineTo(1135,405);ctx.stroke();
- ctx.fillStyle='#746971';ctx.font='26px "Noto Sans JP",sans-serif';ctx.fillText('発行日：'+new Date().toLocaleDateString('ja-JP'),105,462);
- ctx.fillText('対象商品',105,548);
- ctx.fillStyle='#29232b';ctx.font='600 32px "Noto Sans JP",sans-serif';
- let y=607;for(const line of lines){ctx.fillText(line,105,y,1020);y+=52;}
- ctx.fillStyle='#f5e6ed';ctx.fillRect(100,810,1040,260);
- ctx.fillStyle='#775967';ctx.font='26px "Noto Sans JP",sans-serif';ctx.fillText('概算金額（税込）',146,885);
- ctx.fillStyle='#8d4f6b';ctx.font='bold 76px "Noto Sans JP",sans-serif';ctx.fillText(total===null?'要お見積もり':total.toLocaleString('ja-JP')+' 円',146,995,930);
- ctx.fillStyle='#29232b';ctx.font='600 27px "Noto Sans JP",sans-serif';ctx.fillText('計算条件・ご注意',105,1170);
- ctx.fillStyle='#746971';ctx.font='24px "Noto Sans JP",sans-serif';
- let yy=1225;const all=['本PDFは概算シミュレーターで作成された確認用データです。',...notes,'この金額での受注・納期・仕様を保証するものではありません。','正式なお見積もりはSOZINへお問い合わせください。'];
- function wrapText(t,maxChars){let out=[];while(t.length>maxChars){out.push(t.slice(0,maxChars));t=t.slice(maxChars);}out.push(t);return out;}
- for(const n of all){for(const line of wrapText(n,37)){if(yy<1560)ctx.fillText(line,105,yy);yy+=40;}yy+=9;}
- ctx.strokeStyle='#e7dfe3';ctx.beginPath();ctx.moveTo(105,1640);ctx.lineTo(1135,1640);ctx.stroke();
- ctx.fillStyle='#746971';ctx.font='22px "Noto Sans JP",sans-serif';ctx.fillText('創人デザインシステム株式会社  |  www.sozindesign.com',105,1694);
- return can;
+ // A4 one-sheet raster PDF, with all visible details and a clearly marked provisional status.
+ const {total,lines,notes,breakdown=[]}=lastEstimate;
+ const canvas=document.createElement('canvas');canvas.width=1240;canvas.height=1754;
+ const ctx=canvas.getContext('2d');if(!ctx)throw new Error('canvas unavailable');
+ const W=1240,H=1754;
+ ctx.fillStyle='#fffefd';ctx.fillRect(0,0,W,H);
+ ctx.strokeStyle='#d7c1cc';ctx.lineWidth=3;ctx.strokeRect(55,55,W-110,H-110);
+ ctx.strokeStyle='#ecdee5';ctx.lineWidth=1;ctx.strokeRect(70,70,W-140,H-140);
+ ctx.fillStyle='#302830';ctx.fillRect(55,55,W-110,11);
+ const text=(t,x,y,size=26,color='#342b33',weight='400',maxW=1000)=>{
+  ctx.font=weight+' '+size+'px "Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif';
+  ctx.fillStyle=color;ctx.fillText(String(t),x,y,maxW);
+ };
+ const line=(y)=>{ctx.strokeStyle='#e7dce1';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(114,y);ctx.lineTo(1126,y);ctx.stroke();};
+ text('SOZIN',112,165,64,'#342b33','700');text("Ballet de' Arte",114,213,28,'#a2768c');
+ text('概算お見積書',112,320,52,'#302830','700');
+ text('試作・仮価格 ／ 正式見積もりではありません',112,377,24,'#9e5c7b','700');
+ line(412);
+ text('発行日：'+new Date().toLocaleDateString('ja-JP'),112,474,24,'#756a71');
+ text('発行元：創人デザインシステム株式会社',112,516,24,'#756a71');
+ text('ご希望の仕様',112,589,28,'#342b33','700');
+ let y=643;for(const l of lines.slice(0,4)){text(l,128,y,27,'#3a3037','500');y+=42;}
+ line(795);
+ text('料金内訳',112,847,28,'#342b33','700');
+ let ry=907;
+ if(breakdown.length){for(const [label,amount] of breakdown.slice(0,6)){
+  text(label,128,ry,22,'#64535d','400',690);
+  text(yen(amount),1120,ry,23,'#342b33','500',265);
+  ry+=48;
+ }}else{text('仕様確認後に個別見積もり',128,ry,23,'#756a71');}
+ ctx.fillStyle='#f3e7ed';ctx.fillRect(106,1214,1028,204);
+ text('概算金額（税込）',143,1288,28,'#795768','500');
+ text(total===null?'要お見積もり':yen(total),143,1380,total===null?57:73,'#915771','700',942);
+ text('計算条件・注意事項',112,1472,24,'#342b33','700');
+ const noteText=notes.join('　')+' 本書は検証用です。金額・納期は保証されません。';
+ const chunks=[];let rest=noteText;while(rest.length&&chunks.length<3){chunks.push(rest.slice(0,44));rest=rest.slice(44);}
+ chunks.forEach((t,i)=>text(t,118,1522+i*36,18,'#71666d','400',1000));
+ line(1640);
+ text('www.sozindesign.com  |  SOZIN Ballet de’ Arte',112,1686,19,'#826f79');
+ return canvas;
 }
 function imagePdf(canvas){
  // Image-only PDF: Japanese text is rendered locally using device fonts.
