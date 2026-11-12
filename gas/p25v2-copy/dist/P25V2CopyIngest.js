@@ -677,7 +677,8 @@ var P25V2_GUID_HIST_ = 'V2・GUID補完履歴', P25V2_GUID_HIST_HEADERS_ = ['日
 function p25v2GuidPlan_(cfg) {
   var o = p25v2OpenChecked_(cfg, false), v = o.sh.getRange(1, 1, o.sh.getLastRow(), o.sh.getLastColumn()).getDisplayValues(), h = v[0];
   var I = function (n) { var i = h.indexOf(n); if (i < 0) throw new Error('LEDGER_COLUMN_NOT_FOUND ' + n); return i; }, cEp = I('EP-ID'), cG = I('公式GUID'), cU = I('公式JSON UUID');
-  var ds = o.ss.getSheetByName(P25V2_DETAIL_SHEET_); if (!ds) throw new Error('SHEET_NOT_FOUND ' + P25V2_DETAIL_SHEET_);
+  // GUIDの出どころは常に V2作業用の「V2・収蔵詳細」（読むだけ）。COPY試験でも同じ出どころを使い、書くのは COPY の台帳だけ
+  var ds = SpreadsheetApp.openById(P25V2_V2_WORKING_ID_).getSheetByName(P25V2_DETAIL_SHEET_); if (!ds) throw new Error('SHEET_NOT_FOUND ' + P25V2_DETAIL_SHEET_);
   var dv = ds.getLastRow() > 1 ? ds.getRange(1, 1, ds.getLastRow(), 2).getDisplayValues() : [['EP-ID', '公式GUID']];
   var detByEp = {}, detCount = {}, used = {}, epCount = {};
   dv.slice(1).forEach(function (r) { var g = String(r[1]).trim().toLowerCase(); if (!r[0] || !g) return; detByEp[r[0]] = g; detCount[g] = (detCount[g] || 0) + 1; });
