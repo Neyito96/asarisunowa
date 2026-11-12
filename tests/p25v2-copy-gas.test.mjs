@@ -47,10 +47,14 @@ test('配布ファイルは元コードから再生成した結果と一致（�
 });
 
 test('静的検査: doGet/doPost なし・トリガー作成なし・使うGASサービスは限定・設定の対象はCOPYで保護ID外・RSSは記録済み7本', () => {
-  assert.ok(!/function\s+do(Get|Post)\b/.test(SRC)); assert.ok(!/newTrigger|deleteTrigger|\.timeBased\(|\.everyDays\(|DriveApp|GmailApp|MailApp/.test(SRC));
+  assert.ok(!/function\s+do(Get|Post)\b/.test(SRC)); assert.ok(!/DriveApp|GmailApp|MailApp/.test(SRC));
+  // トリガー作成は承認ボタン後の P25V2_D8 だけ（1本・他のトリガーがあれば拒否）。削除は P25V2_D9 だけ
+  const fnOf = (re) => [...SRC.matchAll(/function\s+([^\s(]+)\s*\([^)]*\)\s*\{/g)].map((m) => ({ name: m[1], at: m.index })).filter((f, i, a) => { const end = (a[i + 1] || { at: SRC.length }).at; return re.test(SRC.slice(f.at, end)); }).map((f) => f.name);
+  assert.deepEqual(fnOf(/newTrigger/), ['P25V2_D8_日次トリガー設置']); assert.deepEqual(fnOf(/deleteTrigger/), ['P25V2_D9_日次停止_トリガー削除']);
+  const d8 = SRC.slice(SRC.indexOf('function P25V2_D8_日次トリガー設置')); assert.ok(d8.indexOf("p25v2Approved_('APPROVE_DAILY_TRIGGER')") < d8.indexOf('newTrigger'));
   const used = new Set([...SRC.matchAll(/\b(SpreadsheetApp|UrlFetchApp|LockService|ScriptApp|Utilities|PropertiesService|Logger|DriveApp|CacheService|MailApp)\./g)].map((m) => m[1]));
   assert.deepEqual([...used].sort(), ['LockService', 'Logger', 'PropertiesService', 'ScriptApp', 'SpreadsheetApp', 'UrlFetchApp', 'Utilities']);
-  assert.deepEqual([...SRC.matchAll(/ScriptApp\.(\w+)/g)].map((m) => m[1]).filter((x, i, a) => a.indexOf(x) === i), ['getProjectTriggers']);
+  assert.deepEqual([...SRC.matchAll(/ScriptApp\.(\w+)/g)].map((m) => m[1]).filter((x, i, a) => a.indexOf(x) === i), ['getProjectTriggers', 'newTrigger', 'deleteTrigger']);
   const e = env({ feed: okFeed([]) }), cfg = JSON.parse(JSON.stringify(vm.runInNewContext('P25V2_COPY_CONFIG', e.g)));
   assert.equal(cfg.targetSpreadsheetId, COPY); assert.equal(cfg.expectedTargetId, COPY); assert.ok(!e.A.PROTECTED.includes(COPY)); assert.equal(cfg.maxRowsCap, 1);
   const feeds = JSON.parse(fs.readFileSync('scripts/ledger-v2/v2-feeds.json', 'utf8')).feeds;
