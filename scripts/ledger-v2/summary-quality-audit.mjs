@@ -21,7 +21,7 @@ export const STAR_NOTICE = /^[★☆].*(?:読み放題|月額|円で|初回限�
 // 見出しの後に文が続く告知（【秋トクキャンペーン …】本文…）
 export const INLINE_NOTICE_HEAD = /^【[^】]*(?:キャンペーン|イベント|祝|募集|プレゼント|お知らせ|告知|チケット|参加者)[^】]*】/;
 
-export const AUDIT_VERSION = 'SQA-6';
+export const AUDIT_VERSION = 'SQA-7';
 // 清掃状態（処理済みと品質確認済みを分離）。品質確認済は人の目視確認と記録があるときだけ付く。自動検査の合格は「自動検査合格・目視未確認」。
 export const QUALITY_STATES = Object.freeze(['未処理', '自動処理済・未検証', '自動検査合格・目視未確認', '品質確認済', '要確認', '不合格']);
 export const QUALITY_LOG_HEADERS = Object.freeze(['EP-ID', '公式GUID', '概要原文SHA256', '検査対象', '清掃版', '監査版', '判定', '誤り分類', '検証方法', '検証者', '検証日時', '理由']);
@@ -44,10 +44,11 @@ export function classifyRawLines(raw) {
     const urlOnly = /^\s*(?:https?:\/\/\S+\s*)+$/.test(text);
     if (notice >= 0 && (p !== notice || /^[【★☆※]/.test(text))) { notice = -1; if (section === 'notice') section = 'body'; }
     if (pl.hasParas && (STAR_NOTICE.test(text) || (INLINE_NOTICE_HEAD.test(text) && !/^【[^】]+】\s*$/.test(text)))) { section = 'notice'; notice = p; }
+    else if (/^【朝日新聞アプリで(?:つぶやきの)?フォローしてください】/.test(text)) section = 'drop';
     else if (DROP_SECTION.test(text)) section = 'drop'; else if (STAFF_SECTION.test(text)) section = 'staff'; else if (RELATED_SECTION.test(text)) section = 'related'; else if (/^【[^】]{1,40}】\s*$/.test(text)) section = 'body';   // 名前の決まっていない見出しで節が切り替わる
     const headerOnly = /^【[^】]+】\s*$/.test(text);
     let expect;
-    if (DROP_LINE.test(text)) expect = 'DROP';
+    if (/^(?:https?:\/\/(?:twitter\.com|x\.com)\/[^\s（）()]+\s*[（(][^）)]+[）)]\s*)+$/i.test(text) || DROP_LINE.test(text) || /^(?:ご意見・ご要望|フォーム|ツイッター|メール).*?(?:forms\.gle|twitter\.com|podcast@asahi)/i.test(text) || /^(?:ご登録フォーム\s+https?:|https?:\/\/que\.digital\.asahi\.com\/question\/11008783\s+（ご登録フォーム）)/.test(text) || /^(?:有料会員、)?始めるなら今[、。].*朝日新聞デジタル.*キャンペーン/.test(text) || /^朝日新聞ポッドキャスト[（(].*では他にも様々な番組を配信[、。]テキストでも読めます/.test(text) || /^[３3]STEPで朝リスちゃんグッズGet！/.test(text)) expect = 'DROP';
     else if (section === 'drop' || section === 'notice') expect = 'DROP';
     else if (section === 'staff') expect = 'STAFF';
     else if (section === 'related' || (/https?:/.test(text) && [...text.matchAll(URL_RE)].some((m) => ARTICLE_RE.test(m[0])))) expect = 'RELATED';
@@ -81,7 +82,7 @@ export function auditPair(raw, candidate, { minKeepCoverage = 0.85, partialFloor
   for (const l of keep) {
     const c = coverage(l.text, desc);
     if (c < partialFloor) add('OVER_DELETION', { line: l.i, len: l.len }); else if (c < minKeepCoverage) add('PARTIAL_DELETION', { line: l.i, len: l.len, coverage: +c.toFixed(2) });
-    else for (const m of l.text.matchAll(PROPER)) if (!N(desc).includes(N(m[0])) && N(m[0])) { add('LOST_PROPER_NOUN', { line: l.i, len: m[0].length }); break; }
+    else for (const m of l.text.replace(URL_RE, '').matchAll(PROPER)) if (!N(desc).includes(N(m[0])) && N(m[0])) { add('LOST_PROPER_NOUN', { line: l.i, len: m[0].length }); break; }
   }
   for (const l of lines.filter((x) => x.expect === 'DROP' && N(x.text).length >= 6)) if (coverage(l.text, desc) >= 0.9) add('UNDER_DELETION', { line: l.i, len: l.len });
   const descLines = desc.split(/\n+/).map(N).filter(Boolean);   // 出演者の行が本文に「行として」残っているか（本文中で名前に触れるのは正常）
@@ -96,7 +97,8 @@ export function auditPair(raw, candidate, { minKeepCoverage = 0.85, partialFloor
     if (!relUrls.has(u)) { add('LOST_ARTICLE_URL', { line: l.i }); continue; }
     const r = rel.find((x) => (publicationUrl(x.url) || x.url) === u);
     if (r?.title && r.title !== r.url) {
-      const same = l.text.replace(URL_RE, '').trim(), prev = l.i > 0 ? rawLines[l.i - 1] : '';
+      const segment = l.text.includes('▽') ? l.text.split('▽').find((part) => articleUrls(part).includes(u)) || l.text : l.text;
+      const same = segment.replace(URL_RE, '').trim(), prev = l.i > 0 ? rawLines[l.i - 1] : '';
       const head = N(same).length >= 4 ? same : prev.replace(URL_RE, '').trim();
       if (head && coverage(r.title, head) < 0.8 && coverage(head, r.title) < 0.8) add('ARTICLE_TITLE_MISMATCH', { line: l.i });
     }
@@ -106,7 +108,7 @@ export function auditPair(raw, candidate, { minKeepCoverage = 0.85, partialFloor
   const castAll = castArr.join(' ');
   if (candidate?.cast !== undefined) {
     for (const l of lines.filter((x) => x.expect === 'STAFF' && !STAFF_SECTION.test(x.text) && !/^\s*(?:https?:\/\/\S+\s*)+$/.test(x.text))) {
-      const name = l.text.replace(URL_RE, '').replace(/[（(][^）)]*[）)]/g, '').replace(/^(?:MC|司会|音源編集|出演|ゲスト|聞き手|パーソナリティー?)[\s　:：]*/, '').trim();
+      const name = l.text.replace(URL_RE, '').replace(/[（(][^）)]*[）)]/g, '').replace(/^(?:MC|司会|音源編集|出演|ゲスト|聞き手|パーソナリティー?)[\s　:：]*/, '').replace(/[／/|｜]\s*$/, '').trim();
       if (N(name).length >= 2 && !N(castAll).includes(N(name))) add('CAST_MISSING', { line: l.i });
     }
     if (castArr.some((c) => CAST_BAD.test(c))) add('CAST_CONTAMINATED');
@@ -114,6 +116,8 @@ export function auditPair(raw, candidate, { minKeepCoverage = 0.85, partialFloor
   const keepParas = keep.length, descParas = desc.split(/\n+/).filter(Boolean).length;
   if (keepParas >= 3 && descParas === 1) add('LINEBREAK_LOST');
   if (rel.some((r) => !ARTICLE_RE.test(r.url) && (CAST_BAD.test(r.title || '') || !r.title))) add('RELATED_CONTAMINATED');
+  // 明示的な案内が残る候補は合格させない（曖昧な本文を推測削除しない）。
+  if (/PODCAST MEETING|朝ポキおたより.*(?:登録|始ま)|朝ポキ[0-9７7]*番組の更新情報・アーカイブはこちら|^[★☆].*クラウドファンディング.*こちら/m.test(desc)) add('PROMO_REMAINS_REVIEW');
   const ambiguous = lines.filter((l) => l.expect === 'AMBIGUOUS').length;
   const severe = findings.some((f) => /OVER_DELETION|EMPTY_OUTPUT|LOST_ARTICLE_URL|CAST_CONTAMINATED|STAFF_IN_BODY|HTML_RESIDUE|RELATED_CONTAMINATED/.test(f.type));
   const verdict = severe ? '不合格' : findings.length ? '要確認' : '自動検査合格・目視未確認';

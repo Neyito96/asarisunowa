@@ -11,7 +11,7 @@ var SC_CONFIG = {
   v2ApplyLevel: 'AUTO_PASS',   // 2026-11-12 司令塔指示で AUTO_PASS（COPYで抜き取り20件確認後）。'HUMAN_OK' に戻すと人の確認OKの行だけ
   ledgerSheet: 'V2・統合台帳',
   timeBudgetMs: 270000,     // 1回の実行で処理に使う時間（GASの上限6分に余裕を残す）
-  applyMaxPerRun: 6000,
+  applyMaxPerRun: 600, // 大量反映は600セル程度ずつ再開。履歴と現在値で重複書込を防ぐ
   feeds: P25V2_COPY_FEEDS_()
 };
 var SC_REFUSE_IDS_ = ['1I0fm8iBM6BMeLgBDdvQ4HLitlGy4sTm7Njjy50J-8BA', '1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4', '1KSzoIkOsjUagNBLt3IbKIvgWEmez4f0XISQ-jkUjmwQ'];   // V1原本・本番59列・旧GAS参照
@@ -153,12 +153,12 @@ function scApply_(targetId, nameIncludes, level, label, maxEpisodes, resName) {
       var x = byEp[r[H['EP-ID']]]; if (!x) { sk('EP_NOT_IN_TARGET'); return; }
       if (r[H['公式GUID']] && x.guids.indexOf(String(r[H['公式GUID']]).toLowerCase()) < 0) { sk('GUID_MISMATCH'); return; }
       var ks = String(r[H['書換可']]).split('+'), st = {};
-      ks.forEach(function (k) { st[k] = String(x[k]) === String(r[H[OLD[k]]]) ? 'old' : (!r[H['反映先']] && String(x[k]) === String(r[H[NEW[k]]])) ? 'done' : (String(x[k]) !== String(r[H[NEW[k]]]) && last[label + '\u0001' + x.ep + '\u0001' + SC_COLS_[k]] === String(x[k])) ? 'old' : 'changed'; });   // 台帳の値が、このロボが前回書いた値のままなら清掃版の更新として書き直してよい（人が直した値は守る）
+      ks.forEach(function (k) { st[k] = String(x[k]) === String(r[H[NEW[k]]]) ? 'done' : (String(x[k]) === String(r[H[OLD[k]]]) || last[label + '\u0001' + x.ep + '\u0001' + SC_COLS_[k]] === String(x[k])) ? 'old' : 'changed'; });   // 列単位: 最新値は書かず、監査旧値またはロボ最終反映値との一致だけ更新を許す
       if (r[H['反映先']] === label && ks.every(function (k) { return String(x[k]) === String(r[H[NEW[k]]]); })) { sk('ALREADY_APPLIED'); return; }
-      if (ks.some(function (k) { return st[k] === 'changed'; })) { sk('CHANGED_SINCE_AUDIT'); return; }   // 監査後に誰かが直した値は守る（S2を再実行すると最新値で判定し直す）
-      ks.filter(function (k) { return st[k] === 'done'; }).forEach(function (k) { recovered.push([now, applyId, label, x.ep, SC_COLS_[k], String(r[H[OLD[k]]]), String(r[H[NEW[k]]]), 'OK(回収)']); });   // 前回が途中で止まり、書けていたのに記録が無い列は履歴だけ回収
+      var hasChanged = ks.some(function (k) { return st[k] === 'changed'; }); if (hasChanged) sk('CHANGED_SINCE_AUDIT');   // 手動変更の可能性がある列は後段の old フィルタで保護し、他の安全な列は進める
+      ks.filter(function (k) { return st[k] === 'done' && !r[H['反映先']]; }).forEach(function (k) { recovered.push([now, applyId, label, x.ep, SC_COLS_[k], String(r[H[OLD[k]]]), String(r[H[NEW[k]]]), 'OK(回収)']); });   // 反映記録のない一致列だけ履歴を回収（既存記録の重複は作らない）
       ks = ks.filter(function (k) { return st[k] === 'old'; });
-      if (!ks.length) { cur[ri][H['反映先']] = label; cur[ri][H['反映日時']] = now; return; }
+      if (!ks.length) { if (!hasChanged) { cur[ri][H['反映先']] = label; cur[ri][H['反映日時']] = now; } return; }
       if (ks.some(function (k) { return /^[=+]/.test(String(r[H[NEW[k]]])); })) { sk('FORMULA_LIKE_VALUE_HOLD'); return; }
       epCount++;
       ks.forEach(function (k) { writes.push({ ri: ri, ep: x.ep, row: x.row, col: cols[k] + 1, colName: SC_COLS_[k], oldV: String(x[k]), newV: r[H[NEW[k]]] }); });

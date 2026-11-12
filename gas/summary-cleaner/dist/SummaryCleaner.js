@@ -450,7 +450,7 @@ const STAR_NOTICE = /^[★☆].*(?:読み放題|月額|円で|初回限定|フ�
 // 見出しの後に文が続く告知（【秋トクキャンペーン …】本文…）
 const INLINE_NOTICE_HEAD = /^【[^】]*(?:キャンペーン|イベント|祝|募集|プレゼント|お知らせ|告知|チケット|参加者)[^】]*】/;
 
-const AUDIT_VERSION = 'SQA-6';
+const AUDIT_VERSION = 'SQA-7';
 // 清掃状態（処理済みと品質確認済みを分離）。品質確認済は人の目視確認と記録があるときだけ付く。自動検査の合格は「自動検査合格・目視未確認」。
 const QUALITY_STATES = Object.freeze(['未処理', '自動処理済・未検証', '自動検査合格・目視未確認', '品質確認済', '要確認', '不合格']);
 const QUALITY_LOG_HEADERS = Object.freeze(['EP-ID', '公式GUID', '概要原文SHA256', '検査対象', '清掃版', '監査版', '判定', '誤り分類', '検証方法', '検証者', '検証日時', '理由']);
@@ -473,10 +473,11 @@ function classifyRawLines(raw) {
     const urlOnly = /^\s*(?:https?:\/\/\S+\s*)+$/.test(text);
     if (notice >= 0 && (p !== notice || /^[【★☆※]/.test(text))) { notice = -1; if (section === 'notice') section = 'body'; }
     if (pl.hasParas && (STAR_NOTICE.test(text) || (INLINE_NOTICE_HEAD.test(text) && !/^【[^】]+】\s*$/.test(text)))) { section = 'notice'; notice = p; }
+    else if (/^【朝日新聞アプリで(?:つぶやきの)?フォローしてください】/.test(text)) section = 'drop';
     else if (DROP_SECTION.test(text)) section = 'drop'; else if (STAFF_SECTION.test(text)) section = 'staff'; else if (RELATED_SECTION.test(text)) section = 'related'; else if (/^【[^】]{1,40}】\s*$/.test(text)) section = 'body';   // 名前の決まっていない見出しで節が切り替わる
     const headerOnly = /^【[^】]+】\s*$/.test(text);
     let expect;
-    if (DROP_LINE.test(text)) expect = 'DROP';
+    if (/^(?:https?:\/\/(?:twitter\.com|x\.com)\/[^\s（）()]+\s*[（(][^）)]+[）)]\s*)+$/i.test(text) || DROP_LINE.test(text) || /^(?:ご意見・ご要望|フォーム|ツイッター|メール).*?(?:forms\.gle|twitter\.com|podcast@asahi)/i.test(text) || /^(?:ご登録フォーム\s+https?:|https?:\/\/que\.digital\.asahi\.com\/question\/11008783\s+（ご登録フォーム）)/.test(text) || /^(?:有料会員、)?始めるなら今[、。].*朝日新聞デジタル.*キャンペーン/.test(text) || /^朝日新聞ポッドキャスト[（(].*では他にも様々な番組を配信[、。]テキストでも読めます/.test(text) || /^[３3]STEPで朝リスちゃんグッズGet！/.test(text)) expect = 'DROP';
     else if (section === 'drop' || section === 'notice') expect = 'DROP';
     else if (section === 'staff') expect = 'STAFF';
     else if (section === 'related' || (/https?:/.test(text) && [...text.matchAll(URL_RE)].some((m) => ARTICLE_RE.test(m[0])))) expect = 'RELATED';
@@ -510,7 +511,7 @@ function auditPair(raw, candidate, { minKeepCoverage = 0.85, partialFloor = 0.3 
   for (const l of keep) {
     const c = coverage(l.text, desc);
     if (c < partialFloor) add('OVER_DELETION', { line: l.i, len: l.len }); else if (c < minKeepCoverage) add('PARTIAL_DELETION', { line: l.i, len: l.len, coverage: +c.toFixed(2) });
-    else for (const m of l.text.matchAll(PROPER)) if (!N(desc).includes(N(m[0])) && N(m[0])) { add('LOST_PROPER_NOUN', { line: l.i, len: m[0].length }); break; }
+    else for (const m of l.text.replace(URL_RE, '').matchAll(PROPER)) if (!N(desc).includes(N(m[0])) && N(m[0])) { add('LOST_PROPER_NOUN', { line: l.i, len: m[0].length }); break; }
   }
   for (const l of lines.filter((x) => x.expect === 'DROP' && N(x.text).length >= 6)) if (coverage(l.text, desc) >= 0.9) add('UNDER_DELETION', { line: l.i, len: l.len });
   const descLines = desc.split(/\n+/).map(N).filter(Boolean);   // 出演者の行が本文に「行として」残っているか（本文中で名前に触れるのは正常）
@@ -525,7 +526,8 @@ function auditPair(raw, candidate, { minKeepCoverage = 0.85, partialFloor = 0.3 
     if (!relUrls.has(u)) { add('LOST_ARTICLE_URL', { line: l.i }); continue; }
     const r = rel.find((x) => (publicationUrl(x.url) || x.url) === u);
     if (r?.title && r.title !== r.url) {
-      const same = l.text.replace(URL_RE, '').trim(), prev = l.i > 0 ? rawLines[l.i - 1] : '';
+      const segment = l.text.includes('▽') ? l.text.split('▽').find((part) => articleUrls(part).includes(u)) || l.text : l.text;
+      const same = segment.replace(URL_RE, '').trim(), prev = l.i > 0 ? rawLines[l.i - 1] : '';
       const head = N(same).length >= 4 ? same : prev.replace(URL_RE, '').trim();
       if (head && coverage(r.title, head) < 0.8 && coverage(head, r.title) < 0.8) add('ARTICLE_TITLE_MISMATCH', { line: l.i });
     }
@@ -535,7 +537,7 @@ function auditPair(raw, candidate, { minKeepCoverage = 0.85, partialFloor = 0.3 
   const castAll = castArr.join(' ');
   if (candidate?.cast !== undefined) {
     for (const l of lines.filter((x) => x.expect === 'STAFF' && !STAFF_SECTION.test(x.text) && !/^\s*(?:https?:\/\/\S+\s*)+$/.test(x.text))) {
-      const name = l.text.replace(URL_RE, '').replace(/[（(][^）)]*[）)]/g, '').replace(/^(?:MC|司会|音源編集|出演|ゲスト|聞き手|パーソナリティー?)[\s　:：]*/, '').trim();
+      const name = l.text.replace(URL_RE, '').replace(/[（(][^）)]*[）)]/g, '').replace(/^(?:MC|司会|音源編集|出演|ゲスト|聞き手|パーソナリティー?)[\s　:：]*/, '').replace(/[／/|｜]\s*$/, '').trim();
       if (N(name).length >= 2 && !N(castAll).includes(N(name))) add('CAST_MISSING', { line: l.i });
     }
     if (castArr.some((c) => CAST_BAD.test(c))) add('CAST_CONTAMINATED');
@@ -543,6 +545,8 @@ function auditPair(raw, candidate, { minKeepCoverage = 0.85, partialFloor = 0.3 
   const keepParas = keep.length, descParas = desc.split(/\n+/).filter(Boolean).length;
   if (keepParas >= 3 && descParas === 1) add('LINEBREAK_LOST');
   if (rel.some((r) => !ARTICLE_RE.test(r.url) && (CAST_BAD.test(r.title || '') || !r.title))) add('RELATED_CONTAMINATED');
+  // 明示的な案内が残る候補は合格させない（曖昧な本文を推測削除しない）。
+  if (/PODCAST MEETING|朝ポキおたより.*(?:登録|始ま)|朝ポキ[0-9７7]*番組の更新情報・アーカイブはこちら|^[★☆].*クラウドファンディング.*こちら/m.test(desc)) add('PROMO_REMAINS_REVIEW');
   const ambiguous = lines.filter((l) => l.expect === 'AMBIGUOUS').length;
   const severe = findings.some((f) => /OVER_DELETION|EMPTY_OUTPUT|LOST_ARTICLE_URL|CAST_CONTAMINATED|STAFF_IN_BODY|HTML_RESIDUE|RELATED_CONTAMINATED/.test(f.type));
   const verdict = severe ? '不合格' : findings.length ? '要確認' : '自動検査合格・目視未確認';
@@ -589,7 +593,7 @@ var CleanerV4 = (function () {
 // 迷うもの（見出しなし記事URL・非記事リンク・本文の大幅減少・監査で重大所見）は 要確認。品質確認済は人だけが付ける。
 const { descriptionLines, DESCRIPTION_VERSION } = DescEditor;
 const { auditPair, AUDIT_VERSION, cleanUrl, paraLines, STAR_NOTICE, INLINE_NOTICE_HEAD } = QualityAudit;
-const CLEANER_VERSION = 'SC4-7(' + DESCRIPTION_VERSION + ')';
+const CLEANER_VERSION = 'SC4-8(' + DESCRIPTION_VERSION + ')';
 const T = (v) => String(v ?? '').trim();
 const NZ = (t) => String(t ?? '').normalize('NFKC').replace(/\s+/g, '');
 const URL_RE = /https?:\/\/[^\s<>「」『』（）()"'、]+/g;
@@ -603,6 +607,10 @@ const RELATED_HEAD = H('関連記事|関連リンク|関連URL|参考記事|写�
 const DROP_HEAD = H('おねがい|お願い|朝ポキ情報|お知らせ|イベント|告知|募集|プレゼント|お便り募集|おたより募集|SNS');
 // 定型の宣伝・広告（行ごと除去）。本編の話題（Xの騒動・イベントの報道）を誤って消さないよう、宣伝の言い回しに限る。
 const PROMO = /読み放題|スタンダードコース|初回限定|初月無料|月額\s*[\d０-９,，]+円|See .*omnystudio\.com\/listener|Learn more about your ad choices|購読料で配信|会員登録をお願い|^交流はdiscord|^ご意見・感想・リクエスト|おたよりフォーム|^メルマガ|広告ご検討の企業様|^番組検索ツール|^最新情報はX|^番組カレンダー|全話あります公式サイト|アプリで記者と対話|^朝ポキTV|ほかにも(?:多彩な)?番組を配信中|^★?ご感想はこちら|フォローをお願い|フォローしてね|チャンネル登録|^(?:X|Twitter|Instagram|インスタ)(?:\s*[:：]|\s*はこちら|\s*https?:)|配信、テキストでも読めます|フォロー[、,]?\s*お願い|をフォロー|お便りは(?:こちら|下記|フォーム)|お便りを(?:お待ち|お寄せ|募集|送って|どうぞ)|discord|ディスコード|お待ちしています|申し込みはこちら|申込はこちら|^[★☆※]\s*(?:お便り|おたより|ご感想|ご意見)/i;
+// 原文で確認した独立した案内行だけ。本文中のフォーム・キャンペーン報道には適用しない。
+const CONTACT_LINE = /^(?:ご意見・ご要望|フォーム|ツイッター|メール).*?(?:forms\.gle|twitter\.com|podcast@asahi)/i;
+const EXTRA_PROMO = /^(?:ご登録フォーム\s+https?:|https?:\/\/que\.digital\.asahi\.com\/question\/11008783\s+（ご登録フォーム）)|^(?:有料会員、)?始めるなら今[、。].*朝日新聞デジタル.*キャンペーン|^[３3]STEPで朝リスちゃんグッズGet！/;
+const SOCIAL_LABEL_LINE = /^(?:https?:\/\/(?:twitter\.com|x\.com)\/[^\s（）()]+\s*[（(][^）)]+[）)]\s*)+$/i;
 const EVENT_PROMO = /(?:募集|応募|申し込み|申込|お申し込み|参加者|チケット|エントリー|アンケート|フォーム|お寄せください|お待ちしています)/;
 
 // 原文を見出しで区切った節に分ける（見出しを境界として扱う。全削除の正規表現にしない）
@@ -641,21 +649,23 @@ function cleanV4(raw) {
   const src = String(raw ?? '');
   if (!src.trim()) return { ok: false, holds: ['RAW_EMPTY'], text: '', cast: [], related: [], socials: [], removed: [] };
   const secs = sections(src), follow = [], body = [], cast = [], related = [], removed = [], socials = [], holds = [], notes = [];
-  const pushRel = (title, url, kind) => { const clean = cleanUrl(url); if (related.some((r) => r.url === clean)) return; related.push({ title: T(title).replace(/^【[^】]*】/, '').trim(), url: clean, originalUrl: url, kind: kind || 'article', source: '概要原文' }); };
+  const pushRel = (title, url, kind) => { const clean = cleanUrl(url); if (related.some((r) => r.url === clean)) return; related.push({ title: T(title).replace(/^【[^】]*】/, '').replace(/^[\s（(]+|[\s（）()]+$/g, '').trim(), url: clean, originalUrl: url, kind: kind || 'article', source: '概要原文' }); };
   for (const s of secs) {
+    if (s.kind === 'related') s.lines = s.lines.flatMap((l) => l.includes('▽') && urlsOf(l).filter((u) => ARTICLE_URL.test(u)).length > 1 ? l.split('▽').filter(Boolean) : [l]);
     if (s.kind === 'drop') { removed.push({ reason: 'SECTION_' + s.head, lines: s.lines.length }); continue; }
     if (s.kind === 'notice') {   // ★告知・見出し付き告知: 本文に入れない。「氏名＋URL」の行（アプリでフォロー等）は出演者に無ければ出演者へ保全
       removed.push({ reason: 'NOTICE', lines: s.lines.length });
-      s.lines.slice(1).forEach((l) => { const c = parseCastLine(l); if (c.name && c.links.length && c.name.length <= 20 && !/[。！？!?、]/.test(c.name)) follow.push({ ...c, note: c.note || '告知欄で紹介' }); });
+      s.lines.slice(1).forEach((l) => { const c = parseCastLine(l); if (!PROMO.test(l) && !CONTACT_LINE.test(l) && c.name && c.links.length && c.name.length <= 20 && !/[。！？!?、]/.test(c.name)) follow.push({ ...c, note: c.note || '告知欄で紹介' }); });
       continue;
     }
     if (s.kind === 'staff') {
-      for (const l of s.lines) { if (PROMO.test(l)) { removed.push({ reason: 'PROMO_IN_STAFF' }); continue; } const c = parseCastLine(l); if (c.name || c.role) cast.push(c); }
+      for (const l of s.lines) { if (PROMO.test(l) || CONTACT_LINE.test(l) || EXTRA_PROMO.test(l)) { removed.push({ reason: 'PROMO_IN_STAFF' }); continue; } const c = parseCastLine(l); if (c.name || c.role) cast.push(c); }
       continue;
     }
     for (let i = 0; i < s.lines.length; i++) {
       const l = s.lines[i], us = urlsOf(l), text = stripUrls(l);
-      if (PROMO.test(l)) { removed.push({ reason: 'PROMO' }); continue; }
+      if (SOCIAL_LABEL_LINE.test(l)) { socials.push(...us); removed.push({ reason: 'SOCIAL_LABEL' }); continue; }
+      if (PROMO.test(l) || CONTACT_LINE.test(l) || EXTRA_PROMO.test(l)) { removed.push({ reason: 'PROMO' }); continue; }
       const art = us.filter((u) => ARTICLE_URL.test(u));
       if (art.length) {   // 見出しと同じ行 or 直前の行（URLだけの行）
         let title = text; if (!T(title) && i > 0 && body.length && body[body.length - 1] === stripUrls(s.lines[i - 1])) title = body.pop();   // 直前の行が見出し
@@ -725,7 +735,8 @@ function judgeEpisode(raw, existing = {}, sha256) {
   const cmp = !ex.summary ? '旧空欄' : same('summary') ? '同一' : '差分あり';
   const writable = {};
   ['summary', 'cast', 'related'].forEach((k) => { writable[k] = !manual.includes(k) && !same(k) && (k === 'summary' ? !!nw.summary : !!nw[k]); });   // 新しい値が空の列は書かない（既存を消さない）
-  if (manual.length) { findings.push('MANUAL_EDIT_PROTECTED:' + manual.join('+')); if (verdict === '自動検査合格・目視未確認') verdict = '要確認'; }
+  // 概要自体が原文由来で品質合格なら、他列の手動値を保持したまま概要を反映できる。概要の手動値は常に要確認。
+  if (manual.length) { findings.push('MANUAL_EDIT_PROTECTED:' + manual.join('+')); if (verdict === '自動検査合格・目視未確認' && (manual.includes('summary') || !writable.summary)) verdict = '要確認'; }
   if (ex.cast && !c.cast.length) findings.push('CAST_NOT_IN_RAW');   // 既存の出演者が原文に無い（既定値の疑い）。消さずに記録
   if (verdict === '不合格') ['summary', 'cast', 'related'].forEach((k) => { writable[k] = false; });
   return { verdict, reason: [...new Set([...c.holds, ...findings])].join(','), clean: c, findings, compare: cmp, writable, manual, rawSha: sha256 ? sha256(String(raw)) : '', auditVersion: AUDIT_VERSION };
@@ -747,7 +758,7 @@ var SC_CONFIG = {
   v2ApplyLevel: 'AUTO_PASS',   // 2026-11-12 司令塔指示で AUTO_PASS（COPYで抜き取り20件確認後）。'HUMAN_OK' に戻すと人の確認OKの行だけ
   ledgerSheet: 'V2・統合台帳',
   timeBudgetMs: 270000,     // 1回の実行で処理に使う時間（GASの上限6分に余裕を残す）
-  applyMaxPerRun: 6000,
+  applyMaxPerRun: 600, // 大量反映は600セル程度ずつ再開。履歴と現在値で重複書込を防ぐ
   feeds: P25V2_COPY_FEEDS_()
 };
 var SC_REFUSE_IDS_ = ['1I0fm8iBM6BMeLgBDdvQ4HLitlGy4sTm7Njjy50J-8BA', '1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4', '1KSzoIkOsjUagNBLt3IbKIvgWEmez4f0XISQ-jkUjmwQ'];   // V1原本・本番59列・旧GAS参照
@@ -889,12 +900,12 @@ function scApply_(targetId, nameIncludes, level, label, maxEpisodes, resName) {
       var x = byEp[r[H['EP-ID']]]; if (!x) { sk('EP_NOT_IN_TARGET'); return; }
       if (r[H['公式GUID']] && x.guids.indexOf(String(r[H['公式GUID']]).toLowerCase()) < 0) { sk('GUID_MISMATCH'); return; }
       var ks = String(r[H['書換可']]).split('+'), st = {};
-      ks.forEach(function (k) { st[k] = String(x[k]) === String(r[H[OLD[k]]]) ? 'old' : (!r[H['反映先']] && String(x[k]) === String(r[H[NEW[k]]])) ? 'done' : (String(x[k]) !== String(r[H[NEW[k]]]) && last[label + '\u0001' + x.ep + '\u0001' + SC_COLS_[k]] === String(x[k])) ? 'old' : 'changed'; });   // 台帳の値が、このロボが前回書いた値のままなら清掃版の更新として書き直してよい（人が直した値は守る）
+      ks.forEach(function (k) { st[k] = String(x[k]) === String(r[H[NEW[k]]]) ? 'done' : (String(x[k]) === String(r[H[OLD[k]]]) || last[label + '\u0001' + x.ep + '\u0001' + SC_COLS_[k]] === String(x[k])) ? 'old' : 'changed'; });   // 列単位: 最新値は書かず、監査旧値またはロボ最終反映値との一致だけ更新を許す
       if (r[H['反映先']] === label && ks.every(function (k) { return String(x[k]) === String(r[H[NEW[k]]]); })) { sk('ALREADY_APPLIED'); return; }
-      if (ks.some(function (k) { return st[k] === 'changed'; })) { sk('CHANGED_SINCE_AUDIT'); return; }   // 監査後に誰かが直した値は守る（S2を再実行すると最新値で判定し直す）
-      ks.filter(function (k) { return st[k] === 'done'; }).forEach(function (k) { recovered.push([now, applyId, label, x.ep, SC_COLS_[k], String(r[H[OLD[k]]]), String(r[H[NEW[k]]]), 'OK(回収)']); });   // 前回が途中で止まり、書けていたのに記録が無い列は履歴だけ回収
+      var hasChanged = ks.some(function (k) { return st[k] === 'changed'; }); if (hasChanged) sk('CHANGED_SINCE_AUDIT');   // 手動変更の可能性がある列は後段の old フィルタで保護し、他の安全な列は進める
+      ks.filter(function (k) { return st[k] === 'done' && !r[H['反映先']]; }).forEach(function (k) { recovered.push([now, applyId, label, x.ep, SC_COLS_[k], String(r[H[OLD[k]]]), String(r[H[NEW[k]]]), 'OK(回収)']); });   // 反映記録のない一致列だけ履歴を回収（既存記録の重複は作らない）
       ks = ks.filter(function (k) { return st[k] === 'old'; });
-      if (!ks.length) { cur[ri][H['反映先']] = label; cur[ri][H['反映日時']] = now; return; }
+      if (!ks.length) { if (!hasChanged) { cur[ri][H['反映先']] = label; cur[ri][H['反映日時']] = now; } return; }
       if (ks.some(function (k) { return /^[=+]/.test(String(r[H[NEW[k]]])); })) { sk('FORMULA_LIKE_VALUE_HOLD'); return; }
       epCount++;
       ks.forEach(function (k) { writes.push({ ri: ri, ep: x.ep, row: x.row, col: cols[k] + 1, colName: SC_COLS_[k], oldV: String(x[k]), newV: r[H[NEW[k]]] }); });

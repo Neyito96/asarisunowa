@@ -191,3 +191,42 @@ test('型6 ★月額100円・読み放題などの購読キャンペーンは本
   const j = judgeEpisode(raw, {});
   assert.ok(!/読み放題|月額|初回限定|過去の回/.test(j.clean.text), j.clean.text); assert.match(j.clean.text, /展望を担当記者/); assert.match(j.clean.text, /収録しました/);
 });
+
+test('SC4-8: URL文字は固有名詞に数えず、実際の本文固有名詞は保持検査する', () => {
+  const raw = '<p>架空の「重要な名前」を説明します。 https://example.org/UniqueToken</p>';
+  const j = judgeEpisode(raw); assert.equal(j.verdict, '自動検査合格・目視未確認');
+  assert.match(j.clean.text, /重要な名前/);
+});
+test('SC4-8: 独立した連絡先・SNSラベルを除去し、報道本文は消さない', () => {
+  const raw = P(['フォームの運用を取材しました。'], ['ご意見・ご要望（フォーム） https://forms.gle/example ／メール podcast@asahi.com'], ['https://twitter.com/AsahiPodcast （朝ポキ）']);
+  const j = judgeEpisode(raw); assert.equal(j.clean.text, 'フォームの運用を取材しました。'); assert.equal(j.verdict, '自動検査合格・目視未確認'); assert.ok(j.clean.socials.includes('https://twitter.com/AsahiPodcast'));
+});
+test('SC4-8: 他列の手動値を保護して概要のみ合格。手動概要・実際の消失は合格にしない', () => {
+  const raw = P(['本文です。'], ['ご意見・ご要望（フォーム） https://forms.gle/example']);
+  const j = judgeEpisode(raw, { summary: '本文です。ご意見・ご要望（フォーム） https://forms.gle/example', cast: '人が訂正した出演者' });
+  assert.equal(j.verdict, '自動検査合格・目視未確認'); assert.equal(j.writable.summary, true); assert.equal(j.writable.cast, false); assert.match(j.reason, /MANUAL_EDIT_PROTECTED:cast/);
+  assert.equal(judgeEpisode(raw, {summary:'人が訂正した概要',cast:'手動出演者'}).verdict, '要確認');
+});
+test('SC4-8: 同じ行の複数記事を個別の見出しURLペアとして保全', () => {
+  const raw = P(['本編の本文。'], ['【関連記事】第一の記事（ https://www.asahi.com/articles/AS1.html ）▽第二の記事（ https://www.asahi.com/articles/AS2.html ）']);
+  const j = judgeEpisode(raw); assert.deepEqual(j.clean.related.map(x=>[x.title,x.url]), [['第一の記事','https://www.asahi.com/articles/AS1.html'],['第二の記事','https://www.asahi.com/articles/AS2.html']]); assert.equal(j.verdict,'自動検査合格・目視未確認');
+});
+test('SC4-8: 宣伝を本文と区別できなければ要確認のまま止める', () => {
+  assert.equal(judgeEpisode(P(['本編です。'],['12月にPODCAST MEETINGを開催します！'])).verdict,'要確認');
+});
+test('S4列単位: 監査後の手動関連記事を守り、概要を書き、再実行差分0', () => {
+  const e=env(FEED);e.run('S2_清掃監査');e.g.SC_CONFIG.v2ApplyLevel='AUTO_PASS';
+  const v=e.books[V2W].sheets['V2・統合台帳'].st.rows, n=e.H.indexOf('概要（清掃済）'),p=e.H.indexOf('関連記事URL');v[1][p]='人が追加した記事';
+  const w=e.run('S4_V2作業用へ反映');assert.equal(w.cellsWritten,1);assert.equal(v[1][n],'一の本文です。');assert.equal(v[1][p],'人が追加した記事');assert.equal(e.run('S4_V2作業用へ反映').cellsWritten,0);
+});
+test('S4列単位: ロボ最終履歴一致は更新でき、人の別値は保護。GUID不一致は全列停止', () => {
+  for(const mode of ['robot','human','guid']) {
+    const e=env(FEED); e.run('S2_清掃監査');e.g.SC_CONFIG.v2ApplyLevel='AUTO_PASS';
+    const v=e.books[V2W].sheets['V2・統合台帳'].st.rows, n=e.H.indexOf('概要（清掃済）');
+    v[1][n]=mode==='robot'?'前回ロボの概要':'人の概要';
+    e.books[COPY].sheets['清掃・反映履歴']=mkSheet([Array.from(e.g.SC_HIST_HEADERS_),['時刻','以前','V2作業用','EP-1','概要（清掃済）','','前回ロボの概要','OK']]);
+    if(mode==='guid')v[1][e.H.indexOf('公式GUID')]='ffffffff-0000-4000-8000-000000000001';
+    const w=e.run('S4_V2作業用へ反映');assert.equal(w.cellsWritten,mode==='robot'?2:mode==='human'?1:0);
+    assert.equal(v[1][n],mode==='robot'?'一の本文です。':'人の概要');assert.equal(e.run('S4_V2作業用へ反映').cellsWritten,0);
+  }
+});
