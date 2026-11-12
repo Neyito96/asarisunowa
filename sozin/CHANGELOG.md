@@ -1,5 +1,17 @@
 # SOZIN 開発履歴 (CHANGELOG)
 
+## 2026-11-12 — V0.4 確定ボタン・軽量画像保存・紙面枠の強化
+
+- 入力の変更時は金額を更新せず「条件変更・再確定が必要」と案内。明示的な「この条件で見積もりを確定する」ボタンを押すと金額・内訳を更新。
+- 未確定時はPDF、印刷、軽量JPEG、条件コピーを無効化し、前回見積もり金額を薄く表示して誤操作を防止。
+- Web見積書本体に二重の四角枠・内枠・影・紙色を適用。保存ボタンは紙面の外に配置。
+- A4縦一枚の詳細見積もりPDFは継続。追加の「軽量JPEG画像で保存」は、PDFと同じ紙面を約800px幅に縮小し、JPEG品質0.72で端末に保存する。容量は内容により変動。
+- 旧版V0.1〜V0.3を維持し、`versions/v0.4/` にHTMLとJavaScriptを独立保管。
+- 最短の既存URL: https://neyito96.github.io/asarisunowa/sozin/ 
+- 比較ページ: https://neyito96.github.io/asarisunowa/sozin/versions/
+- GitHub上のJavaScript構文チェックは通過。GitHub Pages反映・Safari実機・ダウンロード成功は未確認。
+- 引き続きデモ用の仮単価。**顧客向けの確定見積価格ではない。**
+
 ## 2026-11-12 — V0.3 紙の見積書風UI・A4一枚の詳細PDF
 
 - 短い入口URL: https://neyito96.github.io/asarisunowa/sozin/
