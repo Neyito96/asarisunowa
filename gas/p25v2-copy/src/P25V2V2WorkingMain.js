@@ -97,7 +97,8 @@ function p25v2V2JudgePlan_(cfg, pick) {
     if (i === 0 || !pick(r, c)) return;
     var p = { row: i + 1, ep: r[c.ep], show: r[c.show], cur: r[c.judge], guid: String(r[c.guid]).toLowerCase() }, why = [];
     if (P25V2_EXCLUDED_SHOWS_.test(r[c.show])) { p.judge = '対象外'; why.push('除外番組（Issue #278）'); }
-    else if (P25V2_RERUN_MARK_.test(r[c.title]) || !(Number(r[c.dur]) > 0)) { p.judge = '対象外'; why.push(P25V2_RERUN_MARK_.test(r[c.title]) ? '再配信表記（Issue #278）' : '再生時間0以下（Issue #278）'); }
+    else if (P25V2_RERUN_MARK_.test(r[c.title]) || (String(r[c.dur]).trim() !== '' && !(Number(r[c.dur]) > 0))) { p.judge = '対象外'; why.push(P25V2_RERUN_MARK_.test(r[c.title]) ? '再配信表記（Issue #278）' : '再生時間0以下（Issue #278）'); }
+    else if (String(r[c.dur]).trim() === '') { p.judge = '保留'; why.push('再生時間未取得'); }   // 空欄は「0秒」ではない（未取得）。再配信と決めつけない
     else {
       if (!num[p.ep]) why.push('採番履歴なし'); else if (num[p.ep].state !== '登録完了' || num[p.ep].guid !== p.guid) why.push('採番履歴が登録完了でない');
       if (r[c.rep] !== p.ep) why.push('代表EP-IDが自分でない');
