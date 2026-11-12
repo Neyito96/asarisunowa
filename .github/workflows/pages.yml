@@ -30,6 +30,8 @@ jobs:
           node --check scripts/google-apps-script/AutoUpdateAutomationV1.js
           node --check scripts/google-apps-script/SheetData.js
       - run: npm run build:pages
+      - name: Include standalone SOZIN demo
+        run: mkdir -p dist/client/sozin && cp -R sozin/. dist/client/sozin/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
