@@ -101,7 +101,7 @@ const FEED = (G) => `<rss><channel><item><title>A</title><guid>${G(1)}</guid><pu
 test('配布GAS: 再生成と一致・実行一覧は S0〜S9 だけ・収蔵の入口は出さない・トリガー作成なし', () => {
   assert.equal(SRC, buildCleanerGas()['SummaryCleaner.js']);
   const pub = [...SRC.matchAll(/^function ([^\s(]+)\(/gm)].map((m) => m[1]).filter((n) => /^[A-Z]/.test(n) && !/_$/.test(n));   // モジュール内部（即時関数の中）の関数は実行一覧に出ない
-  assert.deepEqual(pub, ['S0_進捗', 'S1_点検', 'S2_清掃監査', 'S3A_COPYへ反映_試験10件', 'S3B_COPYへ反映_全件', 'S4_V2作業用へ反映', 'S9_直前の反映を取消', 'S8_診断', 'S7_抜き取り', 'S5A_V2詳細保全_試験10件', 'S5B_V2詳細保全_全件']);
+  assert.deepEqual(pub, ['S0_進捗', 'S1_点検', 'S2_清掃監査', 'S3A_COPYへ反映_試験10件', 'S3B_COPYへ反映_全件', 'S4_V2作業用へ反映', 'S9_直前の反映を取消', 'S8_診断', 'S7_抜き取り', 'S5A_V2詳細保全_試験10件', 'S5B_V2詳細保全_全件', 'S6A_V2新着_清掃監査', 'S6B_V2新着_反映']);
   assert.ok(!/newTrigger|DriveApp|MailApp/.test(SRC)); assert.ok(!/function\s+do(Get|Post)\b/.test(SRC));
 });
 
