@@ -180,3 +180,9 @@ test('<p> の無い原文では★行だけを消し、後続の本文は消さ�
   const j = cleanV4('★番組へのご感想をお寄せください\n本編の大事な説明です。続きもあります。');
   assert.match(j.text, /本編の大事な説明/);
 });
+test('型5 「過去回は下記から」の案内は本文から外す（同じ行の収録日は残す）', () => {
+  const raw = P(['【番組内容】', '架空の首脳会談で伝えられた内容の法律的な立て付けを聞きました。'], ['※2026年4月8日に収録しました。「架空談」の過去回は下記からご確認ください', 'https://www.asahi.com/special/podcasts/?pgid=x'], ['「架空談」の過去回は下記からご確認ください', 'https://www.asahi.com/special/podcasts/?pgid=y'], STAFF, TAIL);
+  const j = judgeEpisode(raw, {});
+  assert.ok(!/過去回/.test(j.clean.text), j.clean.text); assert.match(j.clean.text, /2026年4月8日に収録しました/);
+  assert.ok(!j.findings.some((f) => /OVER_DELETION/.test(f)), j.reason);
+});

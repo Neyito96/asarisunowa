@@ -450,7 +450,7 @@ const STAR_NOTICE = /^[★☆].*(?:フォロー|お寄せ|募集|お待ち|申�
 // 見出しの後に文が続く告知（【秋トクキャンペーン …】本文…）
 const INLINE_NOTICE_HEAD = /^【[^】]*(?:キャンペーン|イベント|祝|募集|プレゼント|お知らせ|告知|チケット|参加者)[^】]*】/;
 
-const AUDIT_VERSION = 'SQA-4';
+const AUDIT_VERSION = 'SQA-5';
 // 清掃状態（処理済みと品質確認済みを分離）。品質確認済は人の目視確認と記録があるときだけ付く。自動検査の合格は「自動検査合格・目視未確認」。
 const QUALITY_STATES = Object.freeze(['未処理', '自動処理済・未検証', '自動検査合格・目視未確認', '品質確認済', '要確認', '不合格']);
 const QUALITY_LOG_HEADERS = Object.freeze(['EP-ID', '公式GUID', '概要原文SHA256', '検査対象', '清掃版', '監査版', '判定', '誤り分類', '検証方法', '検証者', '検証日時', '理由']);
@@ -459,7 +459,7 @@ const N = (t) => String(t ?? '').normalize('NFKC').replace(/https?:\/\/\S+/g, ''
 const URL_RE = /https?:\/\/[^\s<>「」『』（）()"'、]+/g;
 const ARTICLE_RE = /^https?:\/\/(?:www\.asahi\.com\/(?:articles|[a-z]+\/articles)\/|digital\.asahi\.com\/articles\/|withnews\.jp\/article\/|globe\.asahi\.com\/article\/|book\.asahi\.com\/article\/|www\.asahi\.com\/special\/(?!podcasts))/;
 // 消してよいと監査側が確信できる定型だけ。迷うものは入れない。
-const DROP_LINE = /^See .*omnystudio\.com\/listener|Learn more about your ad choices|会員登録をお願い|購読料で配信|交流はdiscord|^ご意見・感想・リクエスト|おたよりフォーム|^メルマガ|広告ご検討の企業様|^番組検索ツール|^最新情報はX|^番組カレンダー|全話あります公式サイト|アプリで記者と対話|^朝ポキTV|ほかにも(?:多彩な)?番組を配信中|^★?ご感想はこちら|discord|をフォロー|フォロー[、,]?\s*お願い|お待ちしています|申し込みはこちら|申込はこちら/i;
+const DROP_LINE = /過去回は(?:下記|こちら)から|^See .*omnystudio\.com\/listener|Learn more about your ad choices|会員登録をお願い|購読料で配信|交流はdiscord|^ご意見・感想・リクエスト|おたよりフォーム|^メルマガ|広告ご検討の企業様|^番組検索ツール|^最新情報はX|^番組カレンダー|全話あります公式サイト|アプリで記者と対話|^朝ポキTV|ほかにも(?:多彩な)?番組を配信中|^★?ご感想はこちら|discord|をフォロー|フォロー[、,]?\s*お願い|お待ちしています|申し込みはこちら|申込はこちら/i;
 const DROP_SECTION = /^【(?:おねがい|朝ポキ情報|お知らせ|イベント)|^【[^】]*(?:参加|フェス|募集|告知|プレゼント|チケット|キャンペーン|イベント)[^】]*】\s*$/;
 const STAFF_SECTION = /^【(?:出演[・／/]スタッフ|出演者|スタッフ|出演)】/;
 const RELATED_SECTION = /^【(?:関連記事|関連リンク|写真まとめ|特集ページ|まとめてわかる)|^【[^】]*(?:関連|参考|アーカイブ)[^】]*】\s*$/;
@@ -589,7 +589,7 @@ var CleanerV4 = (function () {
 // 迷うもの（見出しなし記事URL・非記事リンク・本文の大幅減少・監査で重大所見）は 要確認。品質確認済は人だけが付ける。
 const { descriptionLines, DESCRIPTION_VERSION } = DescEditor;
 const { auditPair, AUDIT_VERSION, cleanUrl, paraLines, STAR_NOTICE, INLINE_NOTICE_HEAD } = QualityAudit;
-const CLEANER_VERSION = 'SC4-4(' + DESCRIPTION_VERSION + ')';
+const CLEANER_VERSION = 'SC4-5(' + DESCRIPTION_VERSION + ')';
 const T = (v) => String(v ?? '').trim();
 const NZ = (t) => String(t ?? '').normalize('NFKC').replace(/\s+/g, '');
 const URL_RE = /https?:\/\/[^\s<>「」『』（）()"'、]+/g;
@@ -681,7 +681,7 @@ function cleanV4(raw) {
     }
   }
   // 閉じていない見出し行（関連節で回収されなかった見出し）が本文末尾に残らないよう、関連節由来の行は本文から外さない＝そのまま（要確認で拾う）
-  const text = body.join('\n').replace(/\s*(?:ご意見・感想・リクエスト|ほかにも(?:多彩な)?番組を配信中|Learn more about your ad choices)[\s\S]*$/i, '').replace(/[ 　]{2,}/g, ' ').trim();
+  const text = body.join('\n').replace(/(?:※\s*)?「[^」]{1,20}」の過去回は(?:下記|こちら)から(?:ご確認|お聴き|お聞き)ください[。．]?/g, '').split('\n').filter((x) => T(x)).join('\n').replace(/\s*(?:ご意見・感想・リクエスト|ほかにも(?:多彩な)?番組を配信中|Learn more about your ad choices)[\s\S]*$/i, '').replace(/[ 　]{2,}/g, ' ').trim();
   if (!text) holds.push('CONTENT_EMPTY');
   follow.forEach((c) => { if (!cast.some((x) => NZ(x.name) === NZ(c.name))) cast.push(c); });
   notes.forEach((n) => related.push({ title: n, url: '', kind: 'note', source: '概要原文' }));

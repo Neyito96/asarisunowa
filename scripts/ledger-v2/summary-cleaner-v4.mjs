@@ -4,7 +4,7 @@
 import { descriptionLines, DESCRIPTION_VERSION } from '../../public/library/description-editor.mjs';
 import { auditPair, AUDIT_VERSION, cleanUrl, paraLines, STAR_NOTICE, INLINE_NOTICE_HEAD } from './summary-quality-audit.mjs';
 
-export const CLEANER_VERSION = 'SC4-4(' + DESCRIPTION_VERSION + ')';
+export const CLEANER_VERSION = 'SC4-5(' + DESCRIPTION_VERSION + ')';
 const T = (v) => String(v ?? '').trim();
 const NZ = (t) => String(t ?? '').normalize('NFKC').replace(/\s+/g, '');
 const URL_RE = /https?:\/\/[^\s<>「」『』（）()"'、]+/g;
@@ -96,7 +96,7 @@ export function cleanV4(raw) {
     }
   }
   // 閉じていない見出し行（関連節で回収されなかった見出し）が本文末尾に残らないよう、関連節由来の行は本文から外さない＝そのまま（要確認で拾う）
-  const text = body.join('\n').replace(/\s*(?:ご意見・感想・リクエスト|ほかにも(?:多彩な)?番組を配信中|Learn more about your ad choices)[\s\S]*$/i, '').replace(/[ 　]{2,}/g, ' ').trim();
+  const text = body.join('\n').replace(/(?:※\s*)?「[^」]{1,20}」の過去回は(?:下記|こちら)から(?:ご確認|お聴き|お聞き)ください[。．]?/g, '').split('\n').filter((x) => T(x)).join('\n').replace(/\s*(?:ご意見・感想・リクエスト|ほかにも(?:多彩な)?番組を配信中|Learn more about your ad choices)[\s\S]*$/i, '').replace(/[ 　]{2,}/g, ' ').trim();
   if (!text) holds.push('CONTENT_EMPTY');
   follow.forEach((c) => { if (!cast.some((x) => NZ(x.name) === NZ(c.name))) cast.push(c); });
   notes.forEach((n) => related.push({ title: n, url: '', kind: 'note', source: '概要原文' }));
