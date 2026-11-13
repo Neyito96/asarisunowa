@@ -1,0 +1,39 @@
+name: Apple GUID test (read-only)
+# Issue #280: Apple Lookup の trackId / episodeGuid を V2 の事前期待値と照合する READ ONLY 実API試験。
+# シート・台帳・Secretsに触れない。番組あたり1回だけ照会（5件=最大5番組、10件=最大5番組でキャッシュ再利用）。scheduleなし。
+on:
+  pull_request:
+    paths:
+      - 'gas/apple-guid-test/**'
+      - 'scripts/apple-guid-test.mjs'
+      - 'docs/apple-urlbot/guid-sample30.json'
+      - '.github/workflows/apple-guid-test.yml'
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  guid:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node --test tests/apple-guid-test-gas.test.mjs tests/platform-resolver.test.mjs
+      - name: GUID test 5 then 10 (stop if 5 has API errors only)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          node scripts/apple-guid-test.mjs docs/apple-urlbot/guid-sample30.json 5 guid5.json | tee s5.txt
+          if node -e 'const r=require("./guid5.json");process.exit(r.counts.MATCH+r.counts.MISMATCH>0?0:1)'; then
+            node scripts/apple-guid-test.mjs docs/apple-urlbot/guid-sample30.json 10 guid10.json guid5.json | tee s10.txt
+          else echo "5件で照合結果なし→10件は実行しない" > s10.txt; fi
+          { echo "apple-guid-test (READ ONLY, run ${{ github.run_id }})"; echo '```'; cat s5.txt; cat s10.txt; echo '```';
+            echo '<details><summary>detail 5</summary>'; echo; echo '```json'; cat guid5.json; echo '```'; echo '</details>';
+            if [ -f guid10.json ]; then echo '<details><summary>detail 10</summary>'; echo; echo '```json'; cat guid10.json; echo '```'; echo '</details>'; fi; } > c.md
+          gh pr comment "$PR" --body-file c.md
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: apple-guid-test, path: 'guid*.json' }
