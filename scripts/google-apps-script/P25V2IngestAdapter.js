@@ -318,19 +318,21 @@ function p25v2Sleep_(ms) { if (typeof Utilities !== 'undefined' && Utilities.sle
 function p25v2StripUnverified_(items) { return (items || []).map(function (x) { var y = {}; Object.keys(x).forEach(function (k) { if (['summaryCleaned', 'cast', 'relatedUrls'].indexOf(k) < 0) y[k] = x[k]; }); return y; }); }
 // 公式RSSの取得（GAS）。feeds: [{show, url, limit}]（limit 省略=30件、0=全件）。1フィードの失敗で全体を止めず、失敗は記録する。
 function p25v2FetchFeeds_(feeds) {
-  var items = [], errors = [], stats = [];
+  var items = [], errors = [], stats = [], empty = [];
   (feeds || []).forEach(function (f) {
     var last = '', t0 = Date.now(), bytes = 0, before = items.length;
     for (var attempt = 0; attempt < 2; attempt++) {   // 一時障害（5xx・通信例外）は1回だけ再試行。4xxは再試行しない
       try { var r = UrlFetchApp.fetch(f.url, { muteHttpExceptions: true }), code = r.getResponseCode();
         if (code !== 200) { last = 'FEED_HTTP_' + code; if (code >= 500 && attempt === 0) { p25v2Sleep_(2000); continue; } break; }
-        var body = r.getContentText(); bytes = body.length; items = items.concat(p25v2ParseRss_(body, f.url, f.show, f.limit == null ? 30 : (f.limit > 0 ? f.limit : undefined))); last = ''; break; }
+        var body = r.getContentText(); bytes = body.length; var got = p25v2ParseRss_(body, f.url, f.show, f.limit == null ? 30 : (f.limit > 0 ? f.limit : undefined));
+        if (!got.length) empty.push(f.show);   // 公式フィードは常に過去回を含む。0件は「新着0」ではなく異常の印（日次 D1 はこれで止まる）
+        items = items.concat(got); last = ''; break; }
       catch (e) { last = String(e.message || e); if (/UNVERIFIED_FEED_HOST|FEED_INVALID/.test(last) || attempt > 0) break; p25v2Sleep_(2000); }
     }
     if (last) errors.push({ show: f.show, error: last });
     stats.push({ show: f.show, ms: Date.now() - t0, chars: bytes, items: items.length - before });   // 実行時間・サイズの実測（本文は含めない）
   });
-  return { items: items, errors: errors, stats: stats };
+  return { items: items, errors: errors, stats: stats, empty: empty };
 }
 // 承認ボタンの後に設置する日次の時間主導トリガー（各プロジェクト1本）だけは隔離チェックの対象外。それ以外のトリガーが1本でもあれば停止
 var P25V2_ALLOWED_TRIGGER_HANDLERS_ = ['P25V2_D1_日次実行', 'D2_清掃と人物_日次'];

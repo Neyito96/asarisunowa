@@ -70,7 +70,7 @@ function P25V2_V2_3_WRITE_BATCH() {
   catch (e) { res = e.result || { mode: 'V2_WRITE', status: 'ERROR' }; res.status = 'ERROR'; res.error = String(e.message || e); }
   p25v2Log_(o.ss, 'P25V2_V2_3_WRITE_BATCH', res, (res.error || '') + ' 予約最大=' + cfg.reservedMaxEpNo);
   if (res.added > 0) PropertiesService.getScriptProperties().setProperty('P25V2_V2_LAST_WRITE', JSON.stringify({ at: new Date().toISOString(), addedEpIds: res.addedEpIds || [], guids: (res.plan || []).map(function (p) { return p.guid; }), status: res.status }));
-  return p25v2Report_('P25V2_V2_3_WRITE_BATCH', { status: res.status, error: res.error, added: res.added, addedEpIds: res.addedEpIds, counts: res.counts, publicBefore: res.publicBefore, publicAfter: res.publicAfter, reservation: cfg.reservation,
+  return p25v2Report_('P25V2_V2_3_WRITE_BATCH', { status: res.status, error: res.error, emptyFeeds: src.empty || [], added: res.added, addedEpIds: res.addedEpIds, counts: res.counts, publicBefore: res.publicBefore, publicAfter: res.publicAfter, reservation: cfg.reservation,
     plan: (res.plan || []).map(function (p) { return [p.epId, p.show, p.guid, p.fromReserve ? 'COPYと同番号' : '新番号']; }) });
 }
 // 4) 読み戻し検証（書込なし）: 台帳1行・GUID一致・採番履歴（GUID一致・登録完了）・原文SHA256・EP-IDの重複なし・再実行で既収蔵
@@ -259,7 +259,7 @@ function P25V2_D1_日次実行() {
   var P = PropertiesService.getScriptProperties(), fn = 'P25V2_D1_日次実行'; if (P.getProperty('AUTORUN_STOP')) return p25v2Report_(fn, { status: 'STOPPED', reason: P.getProperty('AUTORUN_STOP') });
   var stop = function (why, res) { P.setProperty('AUTORUN_STOP', new Date().toISOString() + ' ' + why); return p25v2Report_(fn, { status: 'STOP', reason: why, res: res }); };
   var added = 0, runs = [];
-  for (var k = 0; k < 3; k++) { var w = P25V2_V2_3_WRITE_BATCH(); runs.push(w.status + ':' + (w.added || 0)); if (w.status !== 'OK') return stop('WRITE_' + w.status, w); added += w.added || 0; if (!w.added) break; }
+  for (var k = 0; k < 3; k++) { var w = P25V2_V2_3_WRITE_BATCH(); runs.push(w.status + ':' + (w.added || 0)); if (w.status !== 'OK') return stop('WRITE_' + w.status, w); if (w.emptyFeeds && w.emptyFeeds.length) return stop('FEED_EMPTY ' + w.emptyFeeds.join(','), w); added += w.added || 0; if (!w.added) break; }   // 取得失敗（STOP_FEED_ERRORS）と空のフィード（FEED_EMPTY）は止まる。正常な新着0は OK・added 0
   if (added) { var v = P25V2_V2_4_VERIFY(); if (v.status !== 'VERIFY_OK') return stop('VERIFY_NG', v); }
   var j = null;
   if (added && p25v2Approved_('APPROVE_AUTO_JUDGE')) { var eps = JSON.parse(P.getProperty('P25V2_V2_LAST_WRITE') || '{}').addedEpIds || []; j = p25v2AutoJudge_(eps); if (/MISMATCH/.test(j.status)) return stop('JUDGE_' + j.status, j); }

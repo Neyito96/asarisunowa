@@ -319,19 +319,21 @@ function p25v2Sleep_(ms) { if (typeof Utilities !== 'undefined' && Utilities.sle
 function p25v2StripUnverified_(items) { return (items || []).map(function (x) { var y = {}; Object.keys(x).forEach(function (k) { if (['summaryCleaned', 'cast', 'relatedUrls'].indexOf(k) < 0) y[k] = x[k]; }); return y; }); }
 // 公式RSSの取得（GAS）。feeds: [{show, url, limit}]（limit 省略=30件、0=全件）。1フィードの失敗で全体を止めず、失敗は記録する。
 function p25v2FetchFeeds_(feeds) {
-  var items = [], errors = [], stats = [];
+  var items = [], errors = [], stats = [], empty = [];
   (feeds || []).forEach(function (f) {
     var last = '', t0 = Date.now(), bytes = 0, before = items.length;
     for (var attempt = 0; attempt < 2; attempt++) {   // 一時障害（5xx・通信例外）は1回だけ再試行。4xxは再試行しない
       try { var r = UrlFetchApp.fetch(f.url, { muteHttpExceptions: true }), code = r.getResponseCode();
         if (code !== 200) { last = 'FEED_HTTP_' + code; if (code >= 500 && attempt === 0) { p25v2Sleep_(2000); continue; } break; }
-        var body = r.getContentText(); bytes = body.length; items = items.concat(p25v2ParseRss_(body, f.url, f.show, f.limit == null ? 30 : (f.limit > 0 ? f.limit : undefined))); last = ''; break; }
+        var body = r.getContentText(); bytes = body.length; var got = p25v2ParseRss_(body, f.url, f.show, f.limit == null ? 30 : (f.limit > 0 ? f.limit : undefined));
+        if (!got.length) empty.push(f.show);   // 公式フィードは常に過去回を含む。0件は「新着0」ではなく異常の印（日次 D1 はこれで止まる）
+        items = items.concat(got); last = ''; break; }
       catch (e) { last = String(e.message || e); if (/UNVERIFIED_FEED_HOST|FEED_INVALID/.test(last) || attempt > 0) break; p25v2Sleep_(2000); }
     }
     if (last) errors.push({ show: f.show, error: last });
     stats.push({ show: f.show, ms: Date.now() - t0, chars: bytes, items: items.length - before });   // 実行時間・サイズの実測（本文は含めない）
   });
-  return { items: items, errors: errors, stats: stats };
+  return { items: items, errors: errors, stats: stats, empty: empty };
 }
 // 承認ボタンの後に設置する日次の時間主導トリガー（各プロジェクト1本）だけは隔離チェックの対象外。それ以外のトリガーが1本でもあれば停止
 var P25V2_ALLOWED_TRIGGER_HANDLERS_ = ['P25V2_D1_日次実行', 'D2_清掃と人物_日次'];
@@ -595,7 +597,7 @@ function P25V2_V2_3_WRITE_BATCH() {
   catch (e) { res = e.result || { mode: 'V2_WRITE', status: 'ERROR' }; res.status = 'ERROR'; res.error = String(e.message || e); }
   p25v2Log_(o.ss, 'P25V2_V2_3_WRITE_BATCH', res, (res.error || '') + ' 予約最大=' + cfg.reservedMaxEpNo);
   if (res.added > 0) PropertiesService.getScriptProperties().setProperty('P25V2_V2_LAST_WRITE', JSON.stringify({ at: new Date().toISOString(), addedEpIds: res.addedEpIds || [], guids: (res.plan || []).map(function (p) { return p.guid; }), status: res.status }));
-  return p25v2Report_('P25V2_V2_3_WRITE_BATCH', { status: res.status, error: res.error, added: res.added, addedEpIds: res.addedEpIds, counts: res.counts, publicBefore: res.publicBefore, publicAfter: res.publicAfter, reservation: cfg.reservation,
+  return p25v2Report_('P25V2_V2_3_WRITE_BATCH', { status: res.status, error: res.error, emptyFeeds: src.empty || [], added: res.added, addedEpIds: res.addedEpIds, counts: res.counts, publicBefore: res.publicBefore, publicAfter: res.publicAfter, reservation: cfg.reservation,
     plan: (res.plan || []).map(function (p) { return [p.epId, p.show, p.guid, p.fromReserve ? 'COPYと同番号' : '新番号']; }) });
 }
 // 4) 読み戻し検証（書込なし）: 台帳1行・GUID一致・採番履歴（GUID一致・登録完了）・原文SHA256・EP-IDの重複なし・再実行で既収蔵
@@ -784,7 +786,7 @@ function P25V2_D1_日次実行() {
   var P = PropertiesService.getScriptProperties(), fn = 'P25V2_D1_日次実行'; if (P.getProperty('AUTORUN_STOP')) return p25v2Report_(fn, { status: 'STOPPED', reason: P.getProperty('AUTORUN_STOP') });
   var stop = function (why, res) { P.setProperty('AUTORUN_STOP', new Date().toISOString() + ' ' + why); return p25v2Report_(fn, { status: 'STOP', reason: why, res: res }); };
   var added = 0, runs = [];
-  for (var k = 0; k < 3; k++) { var w = P25V2_V2_3_WRITE_BATCH(); runs.push(w.status + ':' + (w.added || 0)); if (w.status !== 'OK') return stop('WRITE_' + w.status, w); added += w.added || 0; if (!w.added) break; }
+  for (var k = 0; k < 3; k++) { var w = P25V2_V2_3_WRITE_BATCH(); runs.push(w.status + ':' + (w.added || 0)); if (w.status !== 'OK') return stop('WRITE_' + w.status, w); if (w.emptyFeeds && w.emptyFeeds.length) return stop('FEED_EMPTY ' + w.emptyFeeds.join(','), w); added += w.added || 0; if (!w.added) break; }   // 取得失敗（STOP_FEED_ERRORS）と空のフィード（FEED_EMPTY）は止まる。正常な新着0は OK・added 0
   if (added) { var v = P25V2_V2_4_VERIFY(); if (v.status !== 'VERIFY_OK') return stop('VERIFY_NG', v); }
   var j = null;
   if (added && p25v2Approved_('APPROVE_AUTO_JUDGE')) { var eps = JSON.parse(P.getProperty('P25V2_V2_LAST_WRITE') || '{}').addedEpIds || []; j = p25v2AutoJudge_(eps); if (/MISMATCH/.test(j.status)) return stop('JUDGE_' + j.status, j); }

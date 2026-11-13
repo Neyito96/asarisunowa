@@ -326,3 +326,13 @@ test('採番: COPYと同じGUIDは同番号、他GUIDは予約最大より後ろ
   assert.equal(A.allocate(rows, [], G(7), 6725, rsv).epId, 'EP-06726');
   assert.equal(A.allocate(rows, [{ guid: G(9), epId: 'EP-06721', row: 2 }], G(5), 6725, rsv).epId, 'EP-06726');   // 採番履歴で他GUIDに使用済み
 });
+
+test('新着0件とフィード取得失敗を区別: HTTPエラー・例外は errors、0件のフィードは empty（日次は止まる）、過去回があれば正常（新着の有無は後段の重複判定）', () => {
+  const rss = (n) => '<?xml version="1.0"?><rss><channel>' + Array.from({ length: n }, (_, i) => `<item><title>t${i}</title><guid>${G(900 + i)}</guid><pubDate>Wed, 12 Nov 2026 19:00:00 GMT</pubDate><enclosure url="https://traffic.omny.fm/d/clips/a/b/${G(900 + i)}/audio.mp3" type="audio/mpeg"/></item>`).join('') + '</channel></rss>';
+  const replies = { 'https://www.omnycontent.com/d/playlist/ok/podcast.rss': [200, rss(2)], 'https://www.omnycontent.com/d/playlist/empty/podcast.rss': [200, rss(0)], 'https://www.omnycontent.com/d/playlist/down/podcast.rss': [503, ''] };
+  const box = { module: { exports: {} }, Utilities: { sleep() {} }, UrlFetchApp: { fetch: (u) => { if (!replies[u]) throw new Error('使用できないアドレス'); return { getResponseCode: () => replies[u][0], getContentText: () => replies[u][1] }; } } };
+  vm.runInNewContext(fs.readFileSync('scripts/google-apps-script/P25V2IngestAdapter.js', 'utf8'), box);
+  const f = box.p25v2FetchFeeds_([{ show: 'OK', url: 'https://www.omnycontent.com/d/playlist/ok/podcast.rss' }, { show: 'EMPTY', url: 'https://www.omnycontent.com/d/playlist/empty/podcast.rss' }, { show: 'DOWN', url: 'https://www.omnycontent.com/d/playlist/down/podcast.rss' }, { show: 'ERR', url: 'https://www.omnycontent.com/d/playlist/err/podcast.rss' }]);
+  assert.deepEqual(JSON.parse(JSON.stringify(f.errors.map((e) => e.show + ':' + e.error.split(' ')[0]))), ['DOWN:FEED_HTTP_503', 'ERR:使用できないアドレス']); assert.deepEqual(JSON.parse(JSON.stringify(f.empty)), ['EMPTY']);
+  assert.equal(f.items.length, 2);
+});

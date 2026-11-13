@@ -1057,3 +1057,28 @@ function K1_空欄棚卸し() {
   var byField = {}; S.forEach(function (x) { var f = byField[x[0]] = byField[x[0]] || { filled: 0, blank: 0 }; if (x[1] === '入力あり') f.filled += x[5]; else f.blank += x[5]; });
   return scLog_('K1_空欄棚卸し', { status: 'OK', publicCandidates: D.rows.filter(pub).length, byFieldPublic: byField, wroteTo: 'COPY「' + K1_SUM_ + '」「' + K1_ROWS_ + '」（公開候補の空欄だけ個票）', ms: Date.now() - t0 });
 }
+
+// ---------- LA0 監査一式（L2→L3→L4→E1→K1）。押すたびに時間の許す所まで進み、止まった所から続ける。最後に監査マニフェストを残す ----------
+// 結果はすべて COPY（非公開）。マニフェスト: 実行ID・配布物の SHA256・データ取得日時・対象台帳・各工程の結果と主な件数
+var LA0_STEPS_ = ['L2', 'L3', 'L4', 'E1', 'K1'], LA0_MANIFEST_ = '監査・マニフェスト';
+function LA0_監査一式_実行() {
+  var t0 = Date.now(), P = PropertiesService.getScriptProperties(), st = JSON.parse(P.getProperty('LA0_STATE') || 'null');
+  if (!st || st.step >= LA0_STEPS_.length) st = { runId: new Date().toISOString(), step: 0, results: {} };
+  var run = { L2: L2_全台帳_差分監査, L3: L3_公式音声_確認, L4: L4_採否_集計レポート, E1: E1_V2公開データ_予行, K1: K1_空欄棚卸し };
+  while (st.step < LA0_STEPS_.length) {
+    if (Date.now() - t0 > 90000 && LA0_STEPS_[st.step] !== 'L4') { P.setProperty('LA0_STATE', JSON.stringify(st)); return scLog_('LA0_監査一式_実行', { status: 'PRESS_AGAIN', next: LA0_STEPS_[st.step], runId: st.runId, done: st.results }); }
+    var name = LA0_STEPS_[st.step], r = run[name]();
+    st.results[name] = { status: r.status, at: new Date().toISOString() };
+    if (name === 'L3' && r.status === 'PARTIAL_RESUME_NEEDED') { st.results.L3.left = r.left; P.setProperty('LA0_STATE', JSON.stringify(st)); return scLog_('LA0_監査一式_実行', { status: 'PRESS_AGAIN', next: 'L3（続き）', left: r.left, runId: st.runId }); }
+    if (/MISMATCH|ERROR|NO_L2/.test(r.status)) { P.setProperty('LA0_STATE', JSON.stringify(st)); return scLog_('LA0_監査一式_実行', { status: 'STOPPED_AT_' + name, result: r.status, runId: st.runId }); }
+    if (name === 'L2') st.results.L2.counts = r.counts; if (name === 'L4') { st.results.L4.verdicts = r.verdicts; st.results.L4.publishable = r.publishableIfApproved; }
+    if (name === 'E1') { st.results.E1.adopted = r.adopted; st.results.E1.removed = r.removed; st.results.E1.added = r.added; } if (name === 'K1') st.results.K1.byFieldPublic = r.byFieldPublic;
+    st.step++; P.setProperty('LA0_STATE', JSON.stringify(st));
+  }
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), H = ['実行ID', '終了日時', '配布物SHA256(本体)', 'V2台帳', 'COPY', '旧公開の基準', '工程の結果(JSON)'], sh = c.ss.getSheetByName(LA0_MANIFEST_) || c.ss.insertSheet(LA0_MANIFEST_);
+  if (sh.getLastRow() === 0) sh.getRange(1, 1, 1, H.length).setValues([H]);
+  var sum = c.ss.getSheetByName(LA2_SUM_), base = sum ? sum.getRange(3, 2).getDisplayValues()[0][0] : '';
+  sh.getRange(sh.getLastRow() + 1, 1, 1, H.length).setNumberFormat('@').setValues([[st.runId, new Date().toISOString(), typeof CLEANER_BUILD_SOURCE_SHA256 === 'string' ? CLEANER_BUILD_SOURCE_SHA256 : '(不明)', SC_CONFIG.v2WorkingId, SC_CONFIG.copyId, base, JSON.stringify(st.results).slice(0, 45000)]]);
+  return scLog_('LA0_監査一式_実行', { status: 'DONE', runId: st.runId, build: typeof CLEANER_BUILD_SOURCE_SHA256 === 'string' ? CLEANER_BUILD_SOURCE_SHA256.slice(0, 16) : '', results: st.results, wroteTo: 'COPY「' + LA0_MANIFEST_ + '」ほか監査シート', ms: Date.now() - t0 });
+}
+function LA9_監査一式_最初から() { PropertiesService.getScriptProperties().deleteProperty('LA0_STATE'); return scLog_('LA9_監査一式_最初から', { status: 'OK' }); }
