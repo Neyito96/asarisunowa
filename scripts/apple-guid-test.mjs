@@ -2,9 +2,9 @@
 // Apple GUID照合の READ_ONLY 実API試験（GAS版 gas/apple-guid-test/AppleGuidTest.js の判定コードをそのまま読み込んで使う）。
 // シート・台帳へは一切書かない。入力は docs/apple-urlbot/guid-sample30.json（司令塔がV2から抽出した事前期待値）。
 // usage: node scripts/apple-guid-test.mjs <sample.json> <n(1-10)> [out.json] [prev5.json]
-import fs from 'node:fs'; import { createRequire } from 'node:module';
-const require = createRequire(import.meta.url);
-const G = require('../gas/apple-guid-test/AppleGuidTest.js');
+import fs from 'node:fs'; import vm from 'node:vm';
+// リポジトリは "type":"module" のため require できない。GAS配布ファイルを vm でそのまま評価して関数を取り出す
+const G = vm.createContext({}); vm.runInContext(fs.readFileSync(new URL('../gas/apple-guid-test/AppleGuidTest.js', import.meta.url), 'utf8'), G);
 const [samplePath, nArg, outPath, prevPath] = process.argv.slice(2);
 const n = Number(nArg); if (!samplePath || !(n >= 1 && n <= G.AGT_CFG.maxN)) { console.error('usage: <sample.json> <n 1-10> [out.json] [prev5.json]'); process.exit(2); }
 const rows = JSON.parse(fs.readFileSync(samplePath, 'utf8')).rows.map((r, i) => ({ rowIndex: i + 2, appleUrl: '', ...r }));
