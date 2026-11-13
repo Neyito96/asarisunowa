@@ -29,23 +29,54 @@ export function classifyPlatformUrl(platform, url) {
 
 // 公式個別URL: 朝日新聞ポッドキャストの個別ページ（itemid=公式GUID）。台帳の既存値の形を確かめるだけで、ここでは作らない
 export const OFFICIAL_ITEM_BASE = 'https://www.asahi.com/special/podcasts/item/?itemid=';
-export function officialItemId(url) { const m = String(url ?? '').match(/^https:\/\/www\.asahi\.com\/special\/podcasts\/item\/\?itemid=([0-9a-f-]{36})(?:&.*)?$/i); return m ? m[1].toLowerCase() : ''; }
-// 補完の候補（確認前）: 公式個別URLが空で、GUIDがUUIDの形の行だけ。書くのは公式ページを取得して canonical の itemid が一致した後だけ（GAS 側）
+// itemid は UUID（Omny 配信）だけでなく、Megaphone 配信の回（ニュースの学校など）は配信ホスト固有ID（例 TASC4073670976）になる
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const normId = (id) => (UUID_RE.test(String(id)) ? String(id).toLowerCase() : String(id));
+export function officialItemId(url) { const m = String(url ?? '').match(/^https:\/\/www\.asahi\.com\/special\/podcasts\/item\/\?itemid=([A-Za-z0-9-]{6,64})(?:&.*)?$/i); return m ? normId(m[1]) : ''; }
+// 音声URLから配信ホスト固有IDを取る（Megaphone: traffic.megaphone.fm/TASC4073670976.mp3。pdst.fm などの計測用前置きも許す）
+export function hostIdFromAudio(url) { const m = String(url ?? '').match(/megaphone\.fm\/([A-Z]{2,10}\d{6,})\.mp3/); return m ? m[1] : ''; }
+// 公式個別ページの候補（確認前）。優先順: おんさ共有台帳の Asahi.com URL（他人の記録なので必ずこちらでも確かめる）→ Megaphone の配信ホストID → UUID 形式の GUID。
+// Megaphone の回は GUID が UUID でも GUID を itemid に使わない（公式ページは配信ホストIDで引くため）。key は照合に使う itemid
 export function officialUrlCandidate(row) {
   if (String(row.officialUrl ?? '').trim()) return { status: 'HAS_VALUE' };
-  const g = String(row.guid ?? '').trim().toLowerCase();
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(g)) return { status: 'NO_GUID' };
-  return { status: 'CANDIDATE', url: OFFICIAL_ITEM_BASE + g, guid: g };
+  const onsaId = officialItemId(row.onsaAsahiUrl), host = hostIdFromAudio(row.audioUrl), g = String(row.guid ?? '').trim();
+  if (onsaId) return { status: 'CANDIDATE', url: OFFICIAL_ITEM_BASE + onsaId, key: onsaId, guid: onsaId, kind: 'おんさ記録のURL' };
+  if (host) return { status: 'CANDIDATE', url: OFFICIAL_ITEM_BASE + host, key: host, guid: host, kind: 'Megaphone配信ID' };
+  if (UUID_RE.test(g)) return { status: 'CANDIDATE', url: OFFICIAL_ITEM_BASE + g.toLowerCase(), key: g.toLowerCase(), guid: g.toLowerCase(), kind: '公式GUID' };
+  return { status: 'NO_GUID' };
 }
-// 取得した公式ページが本物か: HTTP 200 かつ canonical（または og:url）の itemid が GUID と一致する時だけ VERIFIED
-export function verifyOfficialPage(code, html, guid) {
+const pageText = (h) => String(h ?? '').replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+const flat = (t) => String(t ?? '').normalize('NFKC').replace(/[\s　「」『』"“”'’（）()【】\[\]・、。,.!！?？:：/／#＃-]/g, '').toLowerCase();
+// 取得した公式ページが本物か: HTTP 200・canonical（または og:url）の itemid が期待するIDと一致・（タイトルを渡した時は）ページにそのタイトルがある、の全部を満たす時だけ VERIFIED
+export function verifyOfficialPage(code, html, expectedId, title) {
   if (code === 404 || code === 410) return { status: 'NOT_FOUND', reason: 'HTTP_' + code };
   if (code !== 200) return { status: 'ERROR', reason: 'HTTP_' + code };
   const h = String(html ?? ''), can = (h.match(/<link[^>]+rel=["']canonical["'][^>]*href=["']([^"']+)["']/i) || h.match(/<meta[^>]+property=["']og:url["'][^>]*content=["']([^"']+)["']/i) || [])[1] || '';
   const id = officialItemId(can.replace(/&amp;/g, '&'));
   if (!id) return { status: 'HOLD', reason: 'NO_CANONICAL_ITEMID' };
-  if (id !== String(guid).toLowerCase()) return { status: 'HOLD', reason: 'CANONICAL_MISMATCH ' + id };
-  return { status: 'VERIFIED', reason: 'CANONICAL_ITEMID_MATCH' };
+  if (id !== normId(expectedId)) return { status: 'HOLD', reason: 'CANONICAL_MISMATCH ' + id };
+  if (title) { const want = flat(title).replace(/^再/, '').slice(0, 24); if (want.length >= 4 && flat(pageText(h)).indexOf(want) < 0) return { status: 'HOLD', reason: 'TITLE_NOT_ON_PAGE' }; }
+  return { status: 'VERIFIED', reason: title ? 'CANONICAL_ITEMID_AND_TITLE_MATCH' : 'CANONICAL_ITEMID_MATCH' };
+}
+
+// ---------- おんさ共有台帳との照合（読むだけ）。Omny URL・Asahi.com の itemid・Spotify エピソードID のどれかが一致した時だけ同じ回と見なす（タイトルだけでは結び付けない） ----------
+const omnyKey = (u) => { const m = String(u ?? '').match(/omny\.fm\/shows\/([^/?#]+)\/([^/?#]+)/i); return m ? (m[1] + '/' + m[2]).toLowerCase() : ''; };
+const spotifyKey = (u) => { const m = String(u ?? '').match(/open\.spotify\.com\/episode\/([A-Za-z0-9]{22})/); return m ? m[1] : ''; };
+export const ONSA_MATCH_HEADERS = ['EP-ID', '区分', '一致方法', 'おんさシート', 'おんさ行', 'おんさタイトル', 'おんさ日付', 'おんさ秒', 'おんさ Asahi.com URL', 'V2タイトル', '差異', 'メモ'];
+// onsa: [{sheet,row,omny,date,title,seconds,spotify,asahi}]、v2: laRead_ の行（omny=旧元ページURL, spotify=Spotify列, officialUrl, guid, audioUrl）
+export function onsaMatch(v2, onsa) {
+  const idx = { omny: new Map(), asahi: new Map(), spotify: new Map() }, used = new Set(), out = [], count = {};
+  onsa.forEach((o, i) => { const k1 = omnyKey(o.omny), k2 = officialItemId(o.asahi), k3 = spotifyKey(o.spotify); if (k1) idx.omny.set(k1, i); if (k2) idx.asahi.set(k2, i); if (k3) idx.spotify.set(k3, i); });
+  const add = (row, kind) => { count[kind] = (count[kind] || 0) + 1; out.push(row); };
+  v2.filter((r) => r.ep).forEach((r) => {
+    const ids = [['旧元ページURL(Omny)', idx.omny.get(omnyKey(r.sourceUrl))], ['公式itemid', idx.asahi.get(officialItemId(r.officialUrl)) ?? idx.asahi.get(normId(r.guid)) ?? idx.asahi.get(hostIdFromAudio(r.audioUrl))], ['Spotify', idx.spotify.get(spotifyKey(r.spotify))]].filter((x) => x[1] !== undefined);
+    if (!ids.length) { add([r.ep, 'おんさに無い', '', '', '', '', '', '', '', r.title, '', 'おんさの収録範囲外（YouTube・ニュースの学校の扱いなど）か未記録の可能性。これだけで除外しない'], 'おんさに無い'); return; }
+    const hits = [...new Set(ids.map((x) => x[1]))]; if (hits.length > 1) { add([r.ep, '識別子が別々のおんさ行を指す', ids.map((x) => x[0]).join('・'), '', '', '', '', '', '', r.title, '', 'おんさ行 ' + hits.map((h) => onsa[h].sheet + ':' + onsa[h].row).join(' / ')], '識別子矛盾'); return; }
+    const o = onsa[hits[0]]; used.add(hits[0]); const diff = [flat(o.title) !== flat(r.title) ? 'タイトル' : '', o.seconds && r.seconds && Math.abs(Number(o.seconds) - Number(r.seconds)) > 2 ? '再生時間' : ''].filter(Boolean).join('・');
+    add([r.ep, diff ? '一致（差異あり）' : '一致', ids.map((x) => x[0]).join('・'), o.sheet, String(o.row), o.title, o.date, o.seconds, o.asahi, r.title, diff, ''], diff ? '一致（差異あり）' : '一致');
+  });
+  onsa.forEach((o, i) => { if (!used.has(i) && (omnyKey(o.omny) || officialItemId(o.asahi) || spotifyKey(o.spotify))) add(['', 'おんさにあり台帳に無い', '', o.sheet, String(o.row), o.title, o.date, o.seconds, o.asahi, '', '', '未収蔵の可能性（エピソードの不存在ではない）。公式ページ・音声で確かめる'], 'おんさにあり台帳に無い'); });
+  return { rows: out, count };
 }
 
 // SDGs 1,092件の採用監査: 公式1件ごとに台帳の行を GUID → 公式個別URLの itemid → 公式JSON UUID の順で探す。タイトルだけでは結び付けない

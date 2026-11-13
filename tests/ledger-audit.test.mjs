@@ -14,7 +14,14 @@ test('各サービスURL: 個別EPと番組トップを区別（番組トップ�
 
 test('公式個別URL: 候補はGUIDがある空欄だけ・canonicalのitemidが一致した時だけ確認済み', () => {
   const g = '27b37ff5-5c04-4e90-b3f6-b4dc00603b06';
-  assert.deepEqual(officialUrlCandidate({ officialUrl: '', guid: g }), { status: 'CANDIDATE', url: 'https://www.asahi.com/special/podcasts/item/?itemid=' + g, guid: g });
+  assert.deepEqual(officialUrlCandidate({ officialUrl: '', guid: g }), { status: 'CANDIDATE', url: 'https://www.asahi.com/special/podcasts/item/?itemid=' + g, key: g, guid: g, kind: '公式GUID' });
+  // Megaphone の回は UUID の GUID ではなく配信ホストIDを使う・おんさの記録URLがあれば最優先（ただし必ずこちらで確かめる）
+  const mg = officialUrlCandidate({ officialUrl: '', guid: 'cfdd6178-c3bc-11f1-a625-db6a01e1862b', audioUrl: 'https://pdst.fm/e/traffic.megaphone.fm/TASC4073670976.mp3?updated=1' });
+  assert.equal(mg.url, 'https://www.asahi.com/special/podcasts/item/?itemid=TASC4073670976'); assert.equal(mg.kind, 'Megaphone配信ID');
+  assert.equal(officialUrlCandidate({ officialUrl: '', guid: g, onsaAsahiUrl: 'https://www.asahi.com/special/podcasts/item/?itemid=TASC1234567890' }).key, 'TASC1234567890');
+  const pg = (id, body = '') => '<link rel="canonical" href="https://www.asahi.com/special/podcasts/item/?itemid=' + id + '"><h1>' + body + '</h1>';
+  assert.equal(verifyOfficialPage(200, pg('TASC4073670976', 'ICC赤根知子所長への制裁'), 'TASC4073670976', 'ICC赤根知子所長への制裁').status, 'VERIFIED');
+  assert.equal(verifyOfficialPage(200, pg('TASC4073670976', '別の回'), 'TASC4073670976', 'ICC赤根知子所長への制裁').reason, 'TITLE_NOT_ON_PAGE');   // ID が合ってもタイトルが無ければ HOLD
   assert.equal(officialUrlCandidate({ officialUrl: 'https://x', guid: g }).status, 'HAS_VALUE'); assert.equal(officialUrlCandidate({ officialUrl: '', guid: '' }).status, 'NO_GUID');
   const page = (id) => '<html><link rel="canonical" href="https://www.asahi.com/special/podcasts/item/?itemid=' + id + '"></html>';
   assert.equal(verifyOfficialPage(200, page(g), g).status, 'VERIFIED'); assert.equal(verifyOfficialPage(200, page('00000000-0000-4000-8000-000000000000'), g).status, 'HOLD');
@@ -71,4 +78,13 @@ test('L2: 旧本番台帳は読むだけ（la2V1ReadOnly_ に書込・挿入・�
   const fs = await import('node:fs'); const src = fs.readFileSync('gas/summary-cleaner/src/CleanerMain.js', 'utf8');
   const body = src.slice(src.indexOf('function la2V1ReadOnly_'), src.indexOf('function L2_全台帳_差分監査'));
   assert.ok(body.length > 200); assert.ok(!/\.set[A-Z]|insert|delete|clear|appendRow|copyTo|protect/.test(body));
+});
+
+test('おんさ照合: Omny・Asahi itemid・Spotify のどれかが一致した時だけ同じ回／おんさに無い・おんさにだけある回は除外理由にしない', async () => {
+  const { onsaMatch } = await import('../scripts/ledger-v2/ledger-audit.mjs');
+  const v2 = [{ ep: 'EP-1', title: 'A回', sourceUrl: 'https://omny.fm/shows/asahi/a1', seconds: '600' }, { ep: 'EP-2', title: 'B回', guid: 'x', audioUrl: 'https://traffic.megaphone.fm/TASC1111111111.mp3' }, { ep: 'EP-3', title: 'C回' }, { ep: 'EP-4', title: '同じ題', sourceUrl: '' }];
+  const onsa = [{ sheet: 'S', row: 3, omny: 'https://omny.fm/shows/asahi/a1/', title: 'A回', seconds: '650' }, { sheet: 'S', row: 4, asahi: 'https://www.asahi.com/special/podcasts/item/?itemid=TASC1111111111', title: 'B回' }, { sheet: 'S', row: 5, omny: 'https://omny.fm/shows/asahi/zz', title: '同じ題' }];
+  const r = onsaMatch(v2, onsa), by = (k) => r.rows.filter((x) => x[1] === k).map((x) => x[0] || x[4]);
+  assert.deepEqual(by('一致（差異あり）'), ['EP-1']); assert.deepEqual(by('一致'), ['EP-2']); assert.deepEqual(by('おんさに無い'), ['EP-3', 'EP-4']); assert.deepEqual(by('おんさにあり台帳に無い'), ['5']);   // タイトルが同じでも識別子が無ければ結び付けない
+  assert.match(r.rows.find((x) => x[0] === 'EP-3')[11], /これだけで除外しない/);
 });

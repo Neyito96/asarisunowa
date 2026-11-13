@@ -389,3 +389,27 @@ test('K1 空欄棚卸し（V2は読むだけ）: 項目ごとに理由と埋め�
   e.g.UrlFetchApp.fetch = () => { n++; return { getResponseCode: () => (n < 3 ? (n === 1 ? 429 : 503) : 200), getHeaders: () => (n === 1 ? { 'Retry-After': '2' } : {}), getContentText: () => '' }; };
   assert.equal(vm.runInNewContext('laFetchRetry_("https://x", {}).getResponseCode()', e.g), 200); assert.equal(n, 3); assert.deepEqual(sleeps, [2000, 3000]);
 });
+
+test('Megaphone対応: GUIDがUUIDでなくても音声URLの配信ID(TASC…)を itemid として照合し、タイトルが公式ページに無ければ HOLD', () => {
+  const e = env(FEED), V = e.books[V2W].sheets['V2・統合台帳'].st.rows, H = e.H, J = H.indexOf('公式個別URL'), G = H.indexOf('公式GUID'), A = H.indexOf('音声URL'), T = H.indexOf('タイトル');
+  [1, 2, 3].forEach((i) => { V[i][J] = ''; V[i][G] = 'not-a-uuid-' + i; V[i][T] = '合成の回その' + i; });
+  V[1][A] = 'https://traffic.megaphone.fm/TASC1234567890.mp3?updated=1'; V[2][A] = 'https://traffic.megaphone.fm/TASC2222222222.mp3'; V[3][A] = '';
+  const page = (id, t) => ({ getResponseCode: () => 200, getHeaders: () => ({}), getContentText: () => '<link rel="canonical" href="https://www.asahi.com/special/podcasts/item/?itemid=' + id + '"><h1>' + t + '</h1>' });
+  const one = (u) => (u.endsWith('TASC1234567890') ? page('TASC1234567890', '合成の回その1') : page('TASC2222222222', '別の回'));
+  e.g.UrlFetchApp.fetchAll = (reqs) => reqs.map((q) => one(q.url)); e.g.UrlFetchApp.fetch = (u) => one(u);
+  const a = e.run('U1_公式URL_確認'); assert.equal(a.candidates, 2);   // EP-3 は音声URLもUUIDも無いので候補にしない（推測URLを作らない）
+  const st = e.books[COPY].sheets['公式URL確認'].st.rows.slice(1);
+  assert.deepEqual(st.map((r) => [r[0], r[1], r[3]]), [['EP-1', 'TASC1234567890', 'VERIFIED'], ['EP-2', 'TASC2222222222', 'HOLD']]);
+  assert.match(st[0][4], /Megaphone配信ID/); assert.match(st[1][4], /TITLE_NOT_ON_PAGE/);
+});
+
+test('L3対象の拡大: L2追加・V2保留・未判定・対象外（重複）・おんさのみをEP-IDで重複なく集める／おんさ共有台帳は読むだけ', () => {
+  const e = env(FEED), V = e.books[V2W].sheets['V2・統合台帳'].st.rows, H = e.H, K = H.indexOf('掲載判定'), R = H.indexOf('代表EP-ID');
+  V[1][K] = '保留'; V[2][K] = '対象外'; V[2][R] = 'EP-3'; V[3][K] = '対象'; V[3][R] = 'EP-3';
+  const C = e.books[COPY]; C.sheets['監査・全台帳差分'] = mkSheet([['h'], ['EP-1', 'V2にあり旧公開にない'], ['EP-3', 'V2にあり旧公開にない（再配信候補）']]);
+  C.sheets['監査・おんさ照合'] = mkSheet([['h'], ['', 'おんさにあり台帳に無い', '', 'スポンジ', '12', 'おんさだけの回', '2024/1/1', '600', 'https://www.asahi.com/special/podcasts/item/?itemid=TASC9999999999']]);
+  const L = e.g.LedgerAudit; e.g.__C = C; const out = JSON.parse(JSON.stringify(vm.runInNewContext("la3Candidates_({ ss: { getSheetByName: function (n) { return __C.sheets[n] || null; } } }, laRead_(scOpen_(SC_CONFIG.v2WorkingId, '').sh)).list", e.g)));
+  assert.ok(L); assert.deepEqual(out.map((x) => [x.ep, x.labels.join('・'), x.other]), [['EP-1', 'V2にあり旧公開にない・V2保留', ''], ['EP-2', 'V2対象外（10/22の重複判定）', 'EP-3'], ['EP-3', 'V2にあり旧公開にない（再配信候補）', ''], ['ONSA:スポンジ:12', 'おんさにあり台帳に無い', '']]);
+  const src = fs.readFileSync('gas/summary-cleaner/src/CleanerMain.js', 'utf8'), body = src.slice(src.indexOf('function laOnsaReadOnly_'), src.indexOf('function laOnsaAsahiByEp_'));
+  assert.ok(body.includes('getDisplayValues')); assert.ok(!/setValue|setValues|insertSheet|clear|deleteRow|appendRow|setFormula/.test(body));   // おんさ原本へは書かない
+});

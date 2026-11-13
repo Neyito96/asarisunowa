@@ -728,9 +728,9 @@ function D7_停止旗を外す() { PropertiesService.getScriptProperties().delet
 var LA_COPY_SHEETS_ = { summary: '監査・概要', cols: '監査・列充足', url: '監査・公式URL欠落', plat: '監査・各サービスURL', platCells: '監査・各サービスURL_要確認', sdgs: '監査・SDGs1092', show: '監査・番組別件数', odd: '監査・要確認行' };
 function laRead_(sh) {   // 台帳を見出し名で読む（全列）
   var v = sh.getRange(1, 1, sh.getLastRow(), sh.getLastColumn()).getDisplayValues(), h = v[0], c = function (n) { return h.indexOf(n); };
-  var I = { ep: c('EP-ID'), show: c('番組'), title: c('タイトル'), date: c('配信日時 JST'), judge: c('掲載判定'), rep: c('代表EP-ID'), guid: c('公式GUID'), uuid: c('公式JSON UUID'), url: c('公式個別URL'), src: c('旧元ページURL'), reason: c('除外・保留理由'), related: c('関連記事URL') };
+  var I = { ep: c('EP-ID'), show: c('番組'), title: c('タイトル'), date: c('配信日時 JST'), judge: c('掲載判定'), rep: c('代表EP-ID'), guid: c('公式GUID'), uuid: c('公式JSON UUID'), url: c('公式個別URL'), src: c('旧元ページURL'), reason: c('除外・保留理由'), related: c('関連記事URL'), audio: c('音声URL'), spotify: c('Spotify'), sec: c('再生時間 秒') };
   ['ep', 'show', 'judge', 'rep', 'guid', 'url'].forEach(function (k) { if (I[k] < 0) throw new Error('LEDGER_COLUMN_NOT_FOUND ' + k); });
-  var rows = v.slice(1).map(function (r, i) { return { row: i + 2, ep: r[I.ep], show: r[I.show], title: r[I.title], date: r[I.date], judge: r[I.judge], rep: r[I.rep], guid: String(r[I.guid] || '').toLowerCase(), jsonUuid: I.uuid >= 0 ? r[I.uuid] : '', officialUrl: r[I.url], sourceUrl: I.src >= 0 ? r[I.src] : '', reason: I.reason >= 0 ? r[I.reason] : '', related: I.related >= 0 ? r[I.related] : '', _r: r }; }).filter(function (r) { return r._r.some(function (x) { return x !== ''; }); });
+  var rows = v.slice(1).map(function (r, i) { return { row: i + 2, ep: r[I.ep], show: r[I.show], title: r[I.title], date: r[I.date], judge: r[I.judge], rep: r[I.rep], guid: String(r[I.guid] || '').toLowerCase(), jsonUuid: I.uuid >= 0 ? r[I.uuid] : '', officialUrl: r[I.url], sourceUrl: I.src >= 0 ? r[I.src] : '', reason: I.reason >= 0 ? r[I.reason] : '', related: I.related >= 0 ? r[I.related] : '', audioUrl: I.audio >= 0 ? r[I.audio] : '', spotify: I.spotify >= 0 ? r[I.spotify] : '', seconds: I.sec >= 0 ? r[I.sec] : '', _r: r }; }).filter(function (r) { return r._r.some(function (x) { return x !== ''; }); });
   return { h: h, I: I, rows: rows, values: v };
 }
 function laWriteSheet_(ss, name, H, vals) { var sh = ss.getSheetByName(name) || ss.insertSheet(name); sh.clearContents(); sh.getRange(1, 1, 1, H.length).setValues([H]); for (var i = 0; i < vals.length; i += 5000) { var p = vals.slice(i, i + 5000), rg = sh.getRange(2 + i, 1, p.length, H.length); rg.setNumberFormat('@'); rg.setValues(p.map(function (r) { return r.map(function (x) { return String(x); }); })); } sh.setFrozenRows(1); return vals.length; }
@@ -767,6 +767,7 @@ function L1_台帳総合監査() {
 }
 
 // ---------- 公式個別URL: 確認（公式ページを取得）→ 承認後に空欄だけ書く → 取消 ----------
+// 公式URL確認の2列目は照合キー（itemid）: UUID の GUID、Megaphone 配信ID、おんさ記録の itemid のどれか
 var OU_STATE_ = '公式URL確認', OU_STATE_H_ = ['EP-ID', '公式GUID', '確認したURL', '状態', '理由', '確認日時'], OU_HIST_ = '公式URL補完履歴', OU_HIST_H_ = ['日時', '実行ID', '環境', 'EP-ID', '台帳行', '旧値', '新値', '状態'];
 // 原因（2026-11-13 19:14）: UrlFetchApp.fetchAll は、まとめた10件のうち1件でも通信そのものが失敗すると（「使用できないアドレス」など。muteHttpExceptions は HTTP の失敗しか抑えない）
 // 全体を例外で止める。さらに結果を最後にまとめて書いていたので、その回に確かめた分も残らなかった。
@@ -805,7 +806,7 @@ function ouCheck_(fn, budgetMs, maxN) {   // V2を読むだけ。確認結果は
   var t0 = Date.now(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), D = laRead_(v.sh);
   var st = c.ss.getSheetByName(OU_STATE_) || c.ss.insertSheet(OU_STATE_); if (st.getLastRow() === 0) st.getRange(1, 1, 1, OU_STATE_H_.length).setValues([OU_STATE_H_]);
   var done = {}, errs = {}; if (st.getLastRow() > 1) st.getRange(2, 1, st.getLastRow() - 1, OU_STATE_H_.length).getDisplayValues().forEach(function (r) { if (r[3] === 'ERROR') errs[r[1]] = (errs[r[1]] || 0) + 1; else done[r[1]] = r[3]; });
-  var todo = D.rows.map(function (r) { return { r: r, c: LedgerAudit.officialUrlCandidate(r) }; }).filter(function (x) { return x.r.ep && x.c.status === 'CANDIDATE' && !done[x.c.guid]; });
+  var onsa = laOnsaAsahiByEp_(D.rows), todo = D.rows.map(function (r) { return { r: r, c: laOfficialCandidate_(r, onsa) }; }).filter(function (x) { return x.r.ep && x.c.status === 'CANDIDATE' && !done[x.c.key]; });
   var n = 0, k = { VERIFIED: 0, NOT_FOUND: 0, HOLD: 0, ERROR: 0 }, ex = [];
   for (var i = 0; i < todo.length; i += 10) {
     if (Date.now() - t0 > (budgetMs || 240000) || (maxN && n >= maxN)) break;
@@ -814,8 +815,8 @@ function ouCheck_(fn, budgetMs, maxN) {   // V2を読むだけ。確認結果は
       var f = res[j] || { error: 'NO_RESPONSE' }, vr;
       if (f.error) vr = (errs[x.c.guid] || 0) + 1 >= OU_MAX_ERRORS_ ? { status: 'HOLD', reason: 'REPEATED_FETCH_ERROR ' + f.error } : { status: 'ERROR', reason: 'FETCH_EXCEPTION ' + f.error };
       else if (f.code >= 300 && f.code < 400) vr = { status: 'HOLD', reason: 'REDIRECT ' + (f.location || '(転送先なし)').slice(0, 100) };
-      else { try { vr = LedgerAudit.verifyOfficialPage(f.code, f.html, x.c.guid); } catch (e) { vr = { status: 'ERROR', reason: 'VERIFY_EXCEPTION ' + String(e).slice(0, 80) }; } }
-      k[vr.status]++; n++; out.push([x.r.ep, x.c.guid, x.c.url, vr.status, vr.reason, new Date().toISOString()]); if (vr.status !== 'VERIFIED' && ex.length < 10) ex.push(x.r.ep + ' ' + vr.status + ' ' + vr.reason);
+      else { try { vr = LedgerAudit.verifyOfficialPage(f.code, f.html, x.c.key, x.r.title); } catch (e) { vr = { status: 'ERROR', reason: 'VERIFY_EXCEPTION ' + String(e).slice(0, 80) }; } }
+      k[vr.status]++; n++; out.push([x.r.ep, x.c.key, x.c.url, vr.status, vr.reason + (x.c.kind ? ' [' + x.c.kind + ']' : ''), new Date().toISOString()]); if (vr.status !== 'VERIFIED' && ex.length < 10) ex.push(x.r.ep + ' ' + vr.status + ' ' + vr.reason);
     });
     var r0 = st.getLastRow() + 1, rg = st.getRange(r0, 1, out.length, OU_STATE_H_.length); rg.setNumberFormat('@'); rg.setValues(out); SpreadsheetApp.flush();   // 10件ごとに保存
     Utilities.sleep(300);
@@ -829,7 +830,7 @@ function ouApply_(env, fn) {   // 確認済み（VERIFIED）の URL を、公式
   var t0 = Date.now(), runId = new Date().toISOString() + '/OFFICIAL_URL', c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), target = env === 'V2' ? scOpen_(SC_CONFIG.v2WorkingId, '') : c, D = laRead_(target.sh);
   var st = c.ss.getSheetByName(OU_STATE_); if (!st || st.getLastRow() < 2) return scLog_(fn, { status: 'NO_VERIFIED', note: '先に U1_公式URL_確認' });
   var ok = {}; st.getRange(2, 1, st.getLastRow() - 1, OU_STATE_H_.length).getDisplayValues().forEach(function (r) { if (r[3] === 'VERIFIED') ok[r[1]] = r[2]; });
-  var col = D.I.url + 1, plan = D.rows.filter(function (r) { return r.ep && !String(r.officialUrl).trim() && ok[r.guid]; }).map(function (r) { return { row: r.row, ep: r.ep, url: ok[r.guid] }; });
+  var onsa = laOnsaAsahiByEp_(D.rows), col = D.I.url + 1, plan = D.rows.map(function (r) { return { r: r, c: laOfficialCandidate_(r, onsa) }; }).filter(function (x) { return x.r.ep && x.c.status === 'CANDIDATE' && ok[x.c.key] && ok[x.c.key] === x.c.url; }).map(function (x) { return { row: x.r.row, ep: x.r.ep, url: x.c.url }; });
   if (!plan.length) return scLog_(fn, { status: 'OK_NO_CHANGE', env: env });
   var hs = c.ss.getSheetByName(OU_HIST_) || c.ss.insertSheet(OU_HIST_); if (hs.getLastRow() === 0) hs.getRange(1, 1, 1, OU_HIST_H_.length).setValues([OU_HIST_H_]);
   var h0 = hs.getLastRow() + 1, hr = plan.map(function (p) { return [runId, runId, env, p.ep, String(p.row), '', p.url, '予定']; }), hrg = hs.getRange(h0, 1, hr.length, OU_HIST_H_.length); hrg.setNumberFormat('@'); hrg.setValues(hr);   // 先に履歴
@@ -938,63 +939,91 @@ function L2_全台帳_差分監査() {
   var t0 = Date.now(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), D = laRead_(v.sh), old = la2OldPublic_(), v1 = la2V1ReadOnly_();
   var r = LedgerAudit.ledgerDiff({ oldPub: old.rows, v2: D.rows, v1: v1.rows, since: '2026-11-13' });
   laWriteSheet_(c.ss, LA2_SHEET_, LedgerAudit.LEDGER_DIFF_HEADERS, r.rows);
+  var om = { count: { note: 'おんさ共有台帳を読めなかった' } }; try { om = LedgerAudit.onsaMatch(D.rows, laOnsaReadOnly_()); laWriteSheet_(c.ss, LA_ONSA_SHEET_, LedgerAudit.ONSA_MATCH_HEADERS, om.rows); } catch (e) { om.count.error = String(e).slice(0, 120); }
   var snap = new Date().toISOString(), sum = [['実行日時', snap], ['旧公開（GitHub Pages）', old.manifest.total + '（生成 ' + old.manifest.generatedAt + '・基準日 ' + old.manifest.snapshotDate + '）'], ['V2 統合台帳の行', D.rows.length], ['V2 公開候補（対象かつ代表EP）', r.n.v2Public], ['旧本番台帳の行（' + v1.sheet + '）', v1.rows.length], ['旧本番 新着受入履歴の行', v1.intakeHistoryRows === null ? 'シートなし' : v1.intakeHistoryRows], ['両方にある公開EP', r.n.both], ['V2で追加', r.n.added], ['旧公開だけ', r.n.oldOnly]]
-    .concat(Object.keys(r.equation).map(function (k) { return ['計算式: ' + k, r.equation[k] ? '一致' : '不一致']; })).concat(Object.keys(r.count).sort().map(function (k) { return [k, r.count[k]]; }));
+    .concat(Object.keys(r.equation).map(function (k) { return ['計算式: ' + k, r.equation[k] ? '一致' : '不一致']; })).concat(Object.keys(r.count).sort().map(function (k) { return [k, r.count[k]]; })).concat(Object.keys(om.count).map(function (k) { return ['おんさ照合: ' + k, om.count[k]]; }));
   laWriteSheet_(c.ss, LA2_SUM_, ['項目', '値'], sum);
-  return scLog_('L2_全台帳_差分監査', { status: Object.keys(r.equation).every(function (k) { return r.equation[k]; }) ? 'OK' : 'EQUATION_MISMATCH', counts: r.n, equation: r.equation, kinds: r.count, wroteTo: 'COPY「' + LA2_SHEET_ + '」「' + LA2_SUM_ + '」（V1・V2・公開には書いていない）', ms: Date.now() - t0 });
+  return scLog_('L2_全台帳_差分監査', { status: Object.keys(r.equation).every(function (k) { return r.equation[k]; }) ? 'OK' : 'EQUATION_MISMATCH', counts: r.n, equation: r.equation, kinds: r.count, onsa: om.count, wroteTo: 'COPY「' + LA2_SHEET_ + '」「' + LA2_SUM_ + '」（V1・V2・公開には書いていない）', ms: Date.now() - t0 });
 }
-var LA3_H_ = ['EP-ID', '区分', '公式個別URL', '公式ページ', '公式ページの理由', '音声URL', '音声', '音声の理由', 'Content-Type', 'Content-Length', '再生時間 秒', '原回EP-ID', '原回の再生時間 秒', '原回の音声 Content-Length', '確認日時'];
-function la3Audio_(url) {   // 音声の実在: 先頭2バイトだけ取る（Range）。200/206 で audio/* なら OK
+// ---------- おんさ共有台帳（朝ポキ出演者 共同編集用・永久 READ ONLY）。getValues だけ ----------
+var LA_ONSA_ID_ = '1CvRyWLQb7YyonGyRSNKtc_liRrgtiWE5yDGI3R48Xfk', LA_ONSA_SKIP_ = /^(YouTube|出演者|記者ページ|プレイリスト|朝ポキメンバー)$/, LA_ONSA_SHEET_ = '監査・おんさ照合', laOnsaCache_ = null;
+function laOnsaReadOnly_() {
+  if (laOnsaCache_) return laOnsaCache_;
+  var out = [];
+  SpreadsheetApp.openById(LA_ONSA_ID_).getSheets().forEach(function (sh) {
+    if (LA_ONSA_SKIP_.test(sh.getName()) || sh.getLastRow() < 3) return;
+    var v = sh.getRange(1, 1, sh.getLastRow(), Math.min(14, sh.getLastColumn())).getDisplayValues(), h = v[0].map(function (x) { return String(x).toLowerCase(); });
+    var c = function (re, d) { var i = h.findIndex(function (x) { return re.test(x); }); return i >= 0 ? i : d; }, A = c(/omny/, 0), D = c(/日付/, 1), T = c(/タイトル/, 2), S = 3, SP = c(/spotify/, 11), AS = c(/asahi/, 12);
+    v.slice(2).forEach(function (r, i) { if (r[A] || r[AS] || r[SP]) out.push({ sheet: sh.getName(), row: i + 3, omny: r[A], date: r[D], title: r[T], seconds: r[S], spotify: r[SP], asahi: r[AS] }); });
+  });
+  laOnsaCache_ = out; return out;
+}
+function laOnsaAsahiByEp_(rows) {   // EP-ID → おんさの Asahi.com URL（識別子で一致した行だけ）。おんさが読めない時は空（止めない）
+  try { var m = {}; LedgerAudit.onsaMatch(rows, laOnsaReadOnly_()).rows.forEach(function (x) { if (x[0] && /^一致/.test(x[1]) && x[8]) m[x[0]] = x[8]; }); return m; } catch (e) { console.log('ONSA_READ_FAILED ' + e); return {}; }
+}
+function laOfficialCandidate_(r, onsaMap) { return LedgerAudit.officialUrlCandidate({ officialUrl: r.officialUrl, guid: r.guid, audioUrl: r.audioUrl, onsaAsahiUrl: (onsaMap || {})[r.ep] || '' }); }
+
+var LA3_H_ = ['EP-ID', '監査区分', '照合した公式URL', '公式ページ', '公式ページの理由', '音声URL', '音声', '音声の理由', 'Content-Type', 'Content-Length', '再生時間 秒', '比較相手EP-ID', '相手の再生時間 秒', '相手の音声 Content-Length', 'おんさ照合', '確認日時'];
+function la3Audio_(url) {   // 音声の実在: 先頭2バイトだけ取る（Range）。200/206 で audio/* なら AUDIO_OK（再生の確認ではない。応答と形式の確認）
   if (!/^https:\/\//.test(String(url || ''))) return { status: 'NO_AUDIO_URL' };
   try { var r = laFetchRetry_(url, { muteHttpExceptions: true, followRedirects: true, headers: { Range: 'bytes=0-1' } }), code = r.getResponseCode(), h = r.getHeaders() || {}, ct = String(h['Content-Type'] || h['content-type'] || ''), cr = String(h['Content-Range'] || h['content-range'] || ''), len = cr.split('/')[1] || String(h['Content-Length'] || h['content-length'] || '');
     if ((code === 200 || code === 206) && /^audio\/|mpeg|mp4|octet-stream/i.test(ct)) return { status: 'AUDIO_OK', reason: 'HTTP_' + code, ct: ct, len: len };
     return { status: code === 404 || code === 410 ? 'NOT_FOUND' : 'NG', reason: 'HTTP_' + code, ct: ct, len: len };
   } catch (e) { return { status: 'ERROR', reason: String(e && e.message || e).slice(0, 100) }; }
 }
-function L3_公式音声_確認() {   // V2 を読むだけ。L2 の追加候補について確かめ、COPY に書き足す（済みは取り直さない。ERROR は次回もう一度）
-  var t0 = Date.now(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), D = laRead_(v.sh), h = D.h, A = h.indexOf('音声URL'), S = h.indexOf('再生時間 秒');
-  var l2 = c.ss.getSheetByName(LA2_SHEET_); if (!l2 || l2.getLastRow() < 2) return scLog_('L3_公式音声_確認', { status: 'NO_L2', note: '先に L2_全台帳_差分監査' });
-  var cand = l2.getRange(2, 1, l2.getLastRow() - 1, LedgerAudit.LEDGER_DIFF_HEADERS.length).getDisplayValues().filter(function (r) { return /^V2にあり旧公開にない/.test(r[1]); });
+// 監査の対象（EP-ID で重複を除く）: L2 の「V2にあり旧公開にない」213件前後・V2 の保留・未判定・対象外（10/22 の重複判定）・旧公開にありV2で非公開。
+// ほかに、おんさにあって台帳に無い行（EP-ID なし）も「ONSA:シート:行」として公式ページを確かめる
+function la3Candidates_(c, D) {
+  var by = {}, cand = {}, add = function (ep, label, other) { var x = cand[ep] = cand[ep] || { ep: ep, labels: [], other: '' }; if (x.labels.indexOf(label) < 0) x.labels.push(label); if (other && !x.other) x.other = other; };
+  D.rows.forEach(function (r) { by[r.ep] = r; });
+  var l2 = c.ss.getSheetByName(LA2_SHEET_); if (l2 && l2.getLastRow() > 1) l2.getRange(2, 1, l2.getLastRow() - 1, LedgerAudit.LEDGER_DIFF_HEADERS.length).getDisplayValues().forEach(function (r) { if (/^V2にあり旧公開にない/.test(r[1])) add(r[0], r[1], String(r[17] || '').split(' ')[0]); else if (/^旧公開にありV2で非公開/.test(r[1])) add(r[0], '旧公開にありV2で非公開', r[17]); });
+  D.rows.forEach(function (r) { if (!r.ep) return; if (r.judge === '保留') add(r.ep, 'V2保留'); else if (r.judge === '未判定' || !r.judge) add(r.ep, 'V2未判定'); else if (r.judge === '対象外') add(r.ep, 'V2対象外（10/22の重複判定）', r.rep && r.rep !== r.ep ? r.rep : ''); });
+  var os = c.ss.getSheetByName(LA_ONSA_SHEET_); if (os && os.getLastRow() > 1) os.getRange(2, 1, os.getLastRow() - 1, LedgerAudit.ONSA_MATCH_HEADERS.length).getDisplayValues().forEach(function (r) { if (r[1] === 'おんさにあり台帳に無い') { var id = 'ONSA:' + r[3] + ':' + r[4]; cand[id] = { ep: id, labels: ['おんさにあり台帳に無い'], other: '', onsa: { title: r[5], asahi: r[8], seconds: r[7] } }; } });
+  return { by: by, list: Object.keys(cand).sort().map(function (k) { return cand[k]; }) };
+}
+function L3_公式音声_確認() {   // V2・おんさは読むだけ。確かめた結果を COPY に書き足す（済みは取り直さない。ERROR は次回もう一度）
+  var t0 = Date.now(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), D = laRead_(v.sh);
+  if (!c.ss.getSheetByName(LA2_SHEET_)) return scLog_('L3_公式音声_確認', { status: 'NO_L2', note: '先に L2_全台帳_差分監査' });
+  var C = la3Candidates_(c, D), onsa = laOnsaAsahiByEp_(D.rows);
   var st = c.ss.getSheetByName(LA3_SHEET_) || c.ss.insertSheet(LA3_SHEET_); if (st.getLastRow() === 0) st.getRange(1, 1, 1, LA3_H_.length).setValues([LA3_H_]);
   var done = {}; if (st.getLastRow() > 1) st.getRange(2, 1, st.getLastRow() - 1, LA3_H_.length).getDisplayValues().forEach(function (r) { if (r[3] !== 'ERROR' && r[6] !== 'ERROR') done[r[0]] = 1; });
-  var by = {}; D.rows.forEach(function (r) { by[r.ep] = r; });
-  var todo = cand.filter(function (r) { return !done[r[0]]; }), n = 0, k = {}, buf = [];
+  var todo = C.list.filter(function (x) { return !done[x.ep]; }), n = 0, k = {}, buf = [], flush = function () { if (!buf.length) return; var r0 = st.getLastRow() + 1; st.getRange(r0, 1, buf.length, LA3_H_.length).setNumberFormat('@').setValues(buf); buf = []; SpreadsheetApp.flush(); };
   for (var i = 0; i < todo.length; i++) {
     if (Date.now() - t0 > 240000) break;
-    var x = todo[i], r = by[x[0]] || { _r: [] }, url = String(r.officialUrl || ''), page = { status: 'NO_OFFICIAL_URL', reason: '公式個別URLが空' };
-    if (LedgerAudit.officialItemId(url)) { var f = ouFetchOne_(url); page = f.error ? { status: 'ERROR', reason: f.error } : (f.code >= 300 && f.code < 400 ? { status: 'HOLD', reason: 'REDIRECT ' + (f.location || '') } : LedgerAudit.verifyOfficialPage(f.code, f.html, r.guid)); }
-    var au = la3Audio_(r._r[A]), origEp = String(x[17] || '').split(' ')[0], o = by[origEp], oa = o ? la3Audio_(o._r[A]) : null;
-    buf.push([x[0], x[1], url, page.status, page.reason || '', r._r[A] || '', au.status, au.reason || '', au.ct || '', au.len || '', S >= 0 ? r._r[S] : '', origEp, o && S >= 0 ? o._r[S] : '', oa ? oa.len || '' : '', new Date().toISOString()]);
+    var x = todo[i], r = C.by[x.ep] || { _r: [], title: x.onsa ? x.onsa.title : '' }, cand = x.onsa ? { status: LedgerAudit.officialItemId(x.onsa.asahi) ? 'CANDIDATE' : 'NO_GUID', url: x.onsa.asahi, key: LedgerAudit.officialItemId(x.onsa.asahi) } : (LedgerAudit.officialItemId(r.officialUrl) ? { status: 'CANDIDATE', url: r.officialUrl, key: LedgerAudit.officialItemId(r.officialUrl) } : laOfficialCandidate_(r, onsa));
+    var page = { status: 'NO_OFFICIAL_URL', reason: '候補なし（GUID・配信ID・おんさ記録なし）' };
+    if (cand.status === 'CANDIDATE') { var f = ouFetchOne_(cand.url); page = f.error ? { status: 'ERROR', reason: f.error } : (f.code >= 300 && f.code < 400 ? { status: 'HOLD', reason: 'REDIRECT ' + (f.location || '') } : LedgerAudit.verifyOfficialPage(f.code, f.html, cand.key, r.title)); }
+    var au = x.onsa ? { status: 'NO_AUDIO_URL', reason: '台帳に行が無い' } : la3Audio_(r.audioUrl), o = x.other ? C.by[x.other] : null, oa = o ? la3Audio_(o.audioUrl) : null;
+    buf.push([x.ep, x.labels.join('・'), cand.url || '', page.status, (page.reason || '') + (cand.kind ? ' [' + cand.kind + ']' : ''), r.audioUrl || '', au.status, au.reason || '', au.ct || '', au.len || '', r.seconds || (x.onsa ? x.onsa.seconds : ''), x.other || '', o ? o.seconds : '', oa ? oa.len || '' : '', onsa[x.ep] ? 'おんさと一致（Asahi URLあり）' : '', new Date().toISOString()]);
     k[page.status + '/' + au.status] = (k[page.status + '/' + au.status] || 0) + 1; n++;
-    if (buf.length >= 10) { var r0 = st.getLastRow() + 1; st.getRange(r0, 1, buf.length, LA3_H_.length).setNumberFormat('@').setValues(buf); buf = []; SpreadsheetApp.flush(); }
+    if (buf.length >= 10) flush();
   }
-  if (buf.length) { var r1 = st.getLastRow() + 1; st.getRange(r1, 1, buf.length, LA3_H_.length).setNumberFormat('@').setValues(buf); }
-  return scLog_('L3_公式音声_確認', { status: todo.length - n ? 'PARTIAL_RESUME_NEEDED' : 'OK', candidates: cand.length, checked: n, left: todo.length - n, result: k, ms: Date.now() - t0 });
+  flush();
+  var labels = {}; C.list.forEach(function (x) { x.labels.forEach(function (l) { labels[l] = (labels[l] || 0) + 1; }); });
+  return scLog_('L3_公式音声_確認', { status: todo.length - n ? 'PARTIAL_RESUME_NEEDED' : 'OK', candidates: C.list.length, byLabel: labels, checked: n, left: todo.length - n, result: k, ms: Date.now() - t0 });
 }
-function L4_採否_集計レポート() {   // 読むだけ（COPY の L2・L3 から計算し、COPY に書く）
-  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), l2 = c.ss.getSheetByName(LA2_SHEET_), l3 = c.ss.getSheetByName(LA3_SHEET_);
-  if (!l2 || l2.getLastRow() < 2) return scLog_('L4_採否_集計レポート', { status: 'NO_L2' });
-  var L2 = l2.getRange(2, 1, l2.getLastRow() - 1, LedgerAudit.LEDGER_DIFF_HEADERS.length).getDisplayValues(), L3 = {}; if (l3 && l3.getLastRow() > 1) l3.getRange(2, 1, l3.getLastRow() - 1, LA3_H_.length).getDisplayValues().forEach(function (r) { L3[r[0]] = r; });
-  var sumRows = c.ss.getSheetByName(LA2_SUM_).getRange(2, 1, c.ss.getSheetByName(LA2_SUM_).getLastRow() - 1, 2).getDisplayValues(), sv = {}; sumRows.forEach(function (r) { sv[r[0]] = r[1]; });
-  var out = [], k = { VERIFIED: 0, DUPLICATE: 0, HOLD: 0, EXCLUDE: 0, ERROR: 0 }, unexplained = [];
-  L2.forEach(function (r) {
-    if (!/^V2にあり旧公開にない/.test(r[1])) { if (/^(旧公開にありV2|旧本番台帳にありV2にない|同じGUID)/.test(r[1])) { out.push([r[0], r[1], r[2], r[3]]); k[r[2] === 'DUPLICATE候補' ? 'HOLD' : r[2]] = (k[r[2] === 'DUPLICATE候補' ? 'HOLD' : r[2]] || 0) + 1; } return; }
-    var x = L3[r[0]], verdict = 'HOLD', why = 'L3 未確認';
-    if (x) {
-      var pageOk = x[3] === 'VERIFIED', audioOk = x[6] === 'AUDIO_OK';
-      if (/再配信/.test(r[1])) {
-        var same = x[11] && x[12] && Math.abs(Number(x[10]) - Number(x[12])) <= 2 && x[9] && x[13] && x[9] === x[13];
-        verdict = r[2] === 'DUPLICATE候補' && same ? 'DUPLICATE' : 'HOLD'; why = same ? '原回 ' + x[11] + ' と再生時間・音声の長さが一致（強い識別子）' : r[2] === 'DUPLICATE候補' ? 'タイトルは一致したが音声の一致を確かめられない' : '原回なしの再配信（司令塔の判断待ち）';
-      } else { verdict = pageOk && audioOk ? 'VERIFIED' : x[3] === 'ERROR' || x[6] === 'ERROR' ? 'ERROR' : 'HOLD'; why = '公式ページ=' + x[3] + '・音声=' + x[6]; }
-    } else unexplained.push(r[0]);
-    k[verdict]++; out.push([r[0], r[1], verdict, why]);
+function L4_採否_集計レポート() {   // 読むだけ（COPY の L2・L3 から計算し、COPY に書く）。根拠が足りない回は HOLD のまま
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), l3 = c.ss.getSheetByName(LA3_SHEET_), sumSh = c.ss.getSheetByName(LA2_SUM_);
+  if (!sumSh || sumSh.getLastRow() < 2) return scLog_('L4_採否_集計レポート', { status: 'NO_L2' });
+  var sv = {}; sumSh.getRange(2, 1, sumSh.getLastRow() - 1, 2).getDisplayValues().forEach(function (r) { sv[r[0]] = r[1]; });
+  var L3 = l3 && l3.getLastRow() > 1 ? l3.getRange(2, 1, l3.getLastRow() - 1, LA3_H_.length).getDisplayValues() : [], last = {}; L3.forEach(function (r) { last[r[0]] = r; });
+  var out = [], k = {}, cnt = function (key) { k[key] = (k[key] || 0) + 1; };
+  Object.keys(last).sort().forEach(function (ep) {
+    var x = last[ep], lab = x[1], pageOk = x[3] === 'VERIFIED', audioOk = x[6] === 'AUDIO_OK', err = x[3] === 'ERROR' || x[6] === 'ERROR';
+    var sameAudio = x[11] && x[12] && x[10] && Math.abs(Number(x[10]) - Number(x[12])) <= 2 && x[9] && x[13] && x[9] === x[13];
+    var verdict = 'HOLD', why = '公式ページ=' + x[3] + '・音声=' + x[6];
+    if (err) verdict = 'ERROR';
+    else if (/再配信/.test(lab)) { verdict = /DUPLICATE候補/.test(lab) || sameAudio ? (sameAudio ? 'DUPLICATE（統合案）' : 'HOLD') : 'HOLD'; why = sameAudio ? '相手 ' + x[11] + ' と再生時間・音声の長さが一致し、タイトルも原回と一致' : '再配信。音声の一致を確かめられない、または原回なし（司令塔の判断待ち）'; }
+    else if (/対象外（10\/22の重複判定）/.test(lab)) { verdict = sameAudio ? 'DUPLICATE（10/22判定を裏付け）' : 'HOLD'; why = sameAudio ? '代表 ' + x[11] + ' と再生時間・音声の長さが一致' : '10/22 の重複判定を音声で裏付けられない（除外は維持、再審査の候補）'; }
+    else if (/おんさにあり台帳に無い/.test(lab)) { verdict = pageOk ? '未収蔵候補（公式ページあり）' : 'HOLD'; why = pageOk ? '公式ページで実在を確認。台帳への収蔵は別承認' : 'おんさの記録だけでは実在を確定しない'; }
+    else if (pageOk && audioOk) { verdict = /V2保留|V2未判定/.test(lab) ? 'HOLD解消候補（採用案）' : 'VERIFIED'; }
+    cnt(verdict); out.push([ep, lab, verdict, why, x[2], x[3], x[6]]);
   });
-  var both = Number(sv['両方にある公開EP'] || 0), publishable = both + k.VERIFIED;
-  laWriteSheet_(c.ss, LA4_SHEET_, ['EP-ID', '区分', '採否案', '根拠'], out);
-  return scLog_('L4_採否_集計レポート', { status: unexplained.length ? 'HAS_UNCHECKED' : 'OK', oldPublic: sv['旧公開（GitHub Pages）'], v2Public: sv['V2 公開候補（対象かつ代表EP）'], both: both, added: sv['V2で追加'], verdicts: k, publishableIfApproved: publishable,
-    formula: '公開できる数 = 両方にある公開EP(' + both + ') + 追加のうち VERIFIED(' + k.VERIFIED + ')', uncheckedEpisodes: unexplained.slice(0, 50), wroteTo: 'COPY「' + LA4_SHEET_ + '」' });
+  laWriteSheet_(c.ss, LA4_SHEET_, ['EP-ID', '監査区分', '採否案', '根拠', '照合した公式URL', '公式ページ', '音声'], out);
+  var both = Number(sv['両方にある公開EP'] || 0), verifiedAdded = out.filter(function (r) { return r[2] === 'VERIFIED' && /V2にあり旧公開にない/.test(r[1]); }).length;
+  return scLog_('L4_採否_集計レポート', { status: 'OK', oldPublic: sv['旧公開（GitHub Pages）'], v2Public: sv['V2 公開候補（対象かつ代表EP）'], both: both, checkedEpisodes: out.length, verdicts: k, publishableIfApproved: both + verifiedAdded,
+    formula: '公開できる数 = 両方にある公開EP(' + both + ') + 追加のうち VERIFIED(' + verifiedAdded + ')。HOLD解消候補・未収蔵候補・統合案はすべて人の承認待ち', wroteTo: 'COPY「' + LA4_SHEET_ + '」' });
 }
-
 // ---------- E1 予行（読むだけ）: V2 統合台帳＋人物索引（＋関連記事索引があれば）から公開図書館データを作り、公開中のデータと EP-ID 単位で比べる ----------
 // 作るだけで公開しない。結果は COPY「E1・予行差分」。旧公開に無い回は L4 で VERIFIED のものだけ採用候補にする（それ以外は保留）
 function E1_V2公開データ_予行() {
