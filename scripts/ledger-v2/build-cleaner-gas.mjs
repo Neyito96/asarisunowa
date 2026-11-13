@@ -2,7 +2,7 @@
 // 各モジュールは即時関数で包み、import は先に定義したモジュールの戻り値から受け取る。usage: node scripts/ledger-v2/build-cleaner-gas.mjs [--check]
 import fs from 'node:fs';
 const root = new URL('../../', import.meta.url), rd = (p) => fs.readFileSync(new URL(p, root), 'utf8');
-const MODS = [['LibClean', 'public/library/library-clean.mjs'], ['DescEditor', 'public/library/description-editor.mjs'], ['QualityAudit', 'scripts/ledger-v2/summary-quality-audit.mjs'], ['CleanerV4', 'scripts/ledger-v2/summary-cleaner-v4.mjs'], ['PersonIndex', 'scripts/ledger-v2/person-index.mjs'], ['SdgsOfficial', 'scripts/ledger-v2/sdgs-official-1092.mjs'], ['LedgerAudit', 'scripts/ledger-v2/ledger-audit.mjs']];
+const MODS = [['LibClean', 'public/library/library-clean.mjs'], ['DescEditor', 'public/library/description-editor.mjs'], ['QualityAudit', 'scripts/ledger-v2/summary-quality-audit.mjs'], ['CleanerV4', 'scripts/ledger-v2/summary-cleaner-v4.mjs'], ['PersonIndex', 'scripts/ledger-v2/person-index.mjs'], ['SdgsOfficial', 'scripts/ledger-v2/sdgs-official-1092.mjs'], ['LedgerAudit', 'scripts/ledger-v2/ledger-audit.mjs'], ['LibraryCore', 'public/library/library-core.mjs'], ['PubScope', 'public/library/publication-scope.mjs'], ['V2LibCore', 'scripts/ledger-v2/v2-library-core.mjs']];
 const byPath = Object.fromEntries(MODS.map(([n, p]) => [p, n]));
 function wrap(name, path) {
   let src = rd(path); const exports = [];

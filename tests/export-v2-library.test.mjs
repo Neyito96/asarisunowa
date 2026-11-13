@@ -17,12 +17,13 @@ const persons = [['EP-ID', '索引名', '表記原文', '肩書き・注記', '�
 const related = [['EP-ID', '番号', '見出し', 'URL', 'リンク', '出典', '元URL（原文の表記）'], ['EP-00001', '1', '記事の見出し', 'https://www.asahi.com/a.html', '', '', ''], ['EP-00005', '1', '未取得', 'https://www.asahi.com/b.html', '', '', '']];
 
 test('E1: 対象かつ代表EPだけ公開・再配信は原回公開済みなら除外、原回なしは保留・同じGUIDは除外・人名は原文で確認だけ・見出し未取得はURLだけ・音声は確認済み証拠がある時だけ', () => {
-  const r = buildV2Library({ ledger, persons, related, previousPublicIds: new Set(['EP-00001']), verifiedAudio: { 'EP-00001': { url: 'https://traffic.omny.fm/x.mp3' } }, decidedAt: '2026-11-14T00:00:00Z' });
+  assert.deepEqual(buildV2Library({ ledger, persons, related, previousPublicIds: new Set(['EP-00001']), decidedAt: '2026-11-14T00:00:00Z' }).episodes.map((e) => e.id), ['EP-00001']);   // 未確認の新規は自動公開しない
+  const r = buildV2Library({ ledger, persons, related, previousPublicIds: new Set(['EP-00001']), newEpisodeAllowList: new Set(['EP-00005']), verifiedAudio: { 'EP-00001': { url: 'https://traffic.omny.fm/x.mp3' } }, decidedAt: '2026-11-14T00:00:00Z' });
   assert.deepEqual(r.episodes.map((e) => e.id), ['EP-00001', 'EP-00005']);
   const why = Object.fromEntries(r.audit.map((a) => [a.id, a.publication + '/' + a.classification]));
   assert.deepEqual(why, { 'EP-00001': '対象/通常', 'EP-00002': '除外/再配信', 'EP-00003': '保留/再配信', 'EP-00004': '除外/重複', 'EP-00005': '対象/通常', 'EP-00006': '保留/通常', 'EP-00007': '除外/同一内容' });
   const e1 = r.episodes[0]; assert.equal(e1.cast, '神田大介'); assert.equal(e1.audio, 'https://traffic.omny.fm/x.mp3'); assert.deepEqual(e1.relatedArticles, [{ title: '記事の見出し', url: 'https://www.asahi.com/a.html' }]); assert.equal(e1.date, '2026-10-10T04:00:00+09:00');
-  assert.deepEqual(r.episodes[1].relatedArticles, [{ title: '', url: 'https://www.asahi.com/b.html' }]); assert.equal(r.episodes[1].audio, '');
+  assert.deepEqual(r.episodes[1].relatedArticles, [{ title: '', url: 'https://www.asahi.com/b.html' }]); assert.equal(r.episodes[1].audio, ''); assert.equal(r.episodes[1].audioAvailable, false); assert.equal(e1.audioAvailable, true);
   assert.equal(r.scope.adopted, 2); assert.equal(r.scope.held, 2); assert.equal(r.scope.excluded, 3);
   const d = compareWithPublic(r.episodes, [{ id: 'EP-00001', show: 'A', title: '原回の話 #4', date: '2026-10-10T04:00:00+09:00', cast: '', audio: true }, { id: 'EP-09999', show: 'A', title: 'x', date: '', cast: '', audio: false }]);
   assert.deepEqual(d.added, ['EP-00005']); assert.deepEqual(d.removed, ['EP-09999']); assert.deepEqual(d.changed, [{ id: 'EP-00001', fields: ['cast'] }]);

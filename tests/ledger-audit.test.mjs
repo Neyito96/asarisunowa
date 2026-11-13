@@ -53,3 +53,22 @@ test('関連記事の照合キー: iref・ref=omny・utm・#は外すが、id= �
   assert.deepEqual(rr.map((r) => [r[2], r[3], r[6]]), [['T', 'https://a/A.html', 'https://a/A.html?iref=omny / 台帳: https://a/A.html?ref=omny'], ['未取得', 'https://a/B.html', 'https://a/B.html']]);
   assert.equal(sheetText("'abc"), "''abc"); assert.equal(sheetText('abc'), 'abc');
 });
+
+test('L2 全台帳差分: 計算式が一致・再配信はタイトル一致だけでは確定しない（DUPLICATE候補）・同じGUIDの別EP・旧本番にだけある回・11/13以降の新着は別枠', async () => {
+  const { ledgerDiff } = await import('../scripts/ledger-v2/ledger-audit.mjs');
+  const P = (ep, o = {}) => ({ ep, show: 'S', title: 't' + ep, date: '2026/10/01 04:00', judge: '対象', rep: ep, guid: 'g' + ep, ...o });
+  const v2 = [P('EP-1'), P('EP-2', { title: '原回 #4' }), P('EP-3', { title: '（再）原回 #4', guid: 'x3' }), P('EP-4', { title: '（再）無い話 #9', guid: 'x4' }), P('EP-5', { date: '2026/11/13 04:00' }), P('EP-6', { date: '2026/10/20 04:00' }), P('EP-7', { guid: 'gEP-1' }), P('EP-8', { judge: '対象外' })];
+  const oldPub = [{ id: 'EP-1', show: 'S', title: 'tEP-1', date: '2026-10-01T04:00:00+09:00' }, { id: 'EP-2', show: 'S', title: '原回 #4', date: '2026-10-01' }, { id: 'EP-8', show: 'S', title: 'tEP-8', date: '2026-10-01' }];
+  const v1 = [{ id: 'EP-1', title: 'tEP-1', date: '2026/10/01', guid: 'gEP-1' }, { id: 'EP-9', title: '旧だけ', date: '2026/09/01', guid: 'g9' }];
+  const r = ledgerDiff({ oldPub, v2, v1, since: '2026-11-13' }), by = (ep) => r.rows.filter((x) => x[0] === ep).map((x) => x[1] + '/' + x[2]);
+  assert.ok(Object.values(r.equation).every(Boolean)); assert.deepEqual(r.n, { oldPublic: 3, v2Public: 7, both: 2, added: 5, oldOnly: 1 });
+  assert.deepEqual(by('EP-3'), ['V2にあり旧公開にない・再配信/DUPLICATE候補']); assert.deepEqual(by('EP-4'), ['V2にあり旧公開にない・再配信/HOLD']);
+  assert.deepEqual(by('EP-5'), ['V2にあり旧公開にない・2026-11-13以降の新着/HOLD']); assert.deepEqual(by('EP-6'), ['V2にあり旧公開にない・新規/HOLD']);
+  assert.ok(by('EP-7').includes('同じGUIDが別EP-ID/DUPLICATE')); assert.deepEqual(by('EP-8'), ['旧公開にありV2で非公開/EXCLUDE']); assert.deepEqual(by('EP-9'), ['旧本番台帳にありV2にない/ERROR']);
+});
+
+test('L2: 旧本番台帳は読むだけ（la2V1ReadOnly_ に書込・挿入・削除の呼び出しが無い）', async () => {
+  const fs = await import('node:fs'); const src = fs.readFileSync('gas/summary-cleaner/src/CleanerMain.js', 'utf8');
+  const body = src.slice(src.indexOf('function la2V1ReadOnly_'), src.indexOf('function L2_全台帳_差分監査'));
+  assert.ok(body.length > 200); assert.ok(!/\.set[A-Z]|insert|delete|clear|appendRow|copyTo|protect/.test(body));
+});

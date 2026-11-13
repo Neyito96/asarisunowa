@@ -109,3 +109,40 @@ export function playlistCounts(rows) {
     const d = day(r.date); if (d) { if (!c.first || d < c.first) c.first = d; if (!c.last || d > c.last) c.last = d; } });
   return [...m].sort((a, b) => b[1].all - a[1].all).map(([k, c]) => [k, c.all, c.pub, c.dup, c.out, c.hold, c.none, c.other, c.noEp, c.first, c.last]);
 }
+
+// ---------- 全台帳の差分監査（L2）。旧公開図書館・V2・旧本番台帳を EP-ID と GUID で突き合わせる（読むだけ） ----------
+export const isRerunTitle = (t) => /^[（(]再[)）]/.test(String(t ?? '').trim());
+export const rerunBaseTitle = (t) => String(t ?? '').normalize('NFKC').replace(/^[(（]再[)）]\s*/, '').replace(/#\s*\d+\s*$/, '').replace(/[\s　「」『』"“”]/g, '');
+const normT = (t) => String(t ?? '').normalize('NFKC').replace(/[\s　]/g, '');
+const ymd = (d) => { const m = String(d ?? '').match(/(\d{4})[-/](\d{1,2})[-/](\d{1,2})/); return m ? m[1] + '-' + m[2].padStart(2, '0') + '-' + m[3].padStart(2, '0') : ''; };
+export const LEDGER_DIFF_HEADERS = ['EP-ID', '区分', '採否案', '根拠', '番組', 'タイトル（V2）', '配信日（V2）', 'V2掲載判定', 'V2代表EP', 'GUID（V2）', '旧公開', '旧公開タイトル', '旧公開配信日', '旧本番台帳', '旧本番タイトル', '旧本番配信日', '旧本番GUID', '重複・原回EP-ID', '差異'];
+// oldPub: [{id,show,title,date}]、v2: laRead_ の行、v1: [{id,show,title,date,guid,excluded}]、since: 新着を別枠で数える日付（YYYY-MM-DD）
+export function ledgerDiff({ oldPub = [], v2 = [], v1 = [], since = '2026-11-13' }) {
+  const O = new Map(oldPub.map((e) => [e.id, e])), V = new Map(v2.filter((r) => r.ep).map((r) => [r.ep, r])), P = new Map(v1.filter((r) => r.id).map((r) => [r.id, r]));
+  const pub = (r) => r && r.judge === '対象' && r.rep === r.ep, orig = new Map(), byGuid = new Map();
+  for (const r of V.values()) { if (!isRerunTitle(r.title)) { const k = r.show + '|' + rerunBaseTitle(r.title); (orig.get(k) || orig.set(k, []).get(k)).push(r.ep); } const g = String(r.guid || '').toLowerCase(); if (g) (byGuid.get(g) || byGuid.set(g, []).get(g)).push(r.ep); }
+  const v1Guid = new Map(); for (const r of P.values()) { const g = String(r.guid || '').toLowerCase(); if (g) (v1Guid.get(g) || v1Guid.set(g, []).get(g)).push(r.id); }
+  const rows = [], count = {}, add = (ep, kind, verdict, why, extra = {}) => { const r = V.get(ep) || {}, o = O.get(ep), p = P.get(ep); count[kind + '｜' + verdict] = (count[kind + '｜' + verdict] || 0) + 1;
+    rows.push([ep, kind, verdict, why, r.show || (o && o.show) || (p && p.show) || '', r.title || '', r.date || '', r.judge || '', r.rep || '', r.guid || '', o ? '公開' : '', o ? o.title : '', o ? ymd(o.date) : '', p ? (p.excluded ? '人間除外' : 'あり') : '', p ? p.title : '', p ? ymd(p.date) : '', p ? p.guid : '', extra.dup || '', extra.diff || '']); };
+  const ids = new Set([...O.keys(), ...V.keys(), ...P.keys()]);
+  for (const ep of [...ids].sort()) {
+    const r = V.get(ep), o = O.get(ep), p = P.get(ep), g = String(r && r.guid || '').toLowerCase();
+    const diff = [o && r && normT(o.title) !== normT(r.title) ? 'タイトル(旧公開)' : '', o && r && ymd(o.date) && ymd(r.date) && ymd(o.date) !== ymd(r.date) ? '配信日(旧公開)' : '', p && r && normT(p.title) !== normT(r.title) ? 'タイトル(旧本番)' : '', p && r && ymd(p.date) && ymd(r.date) && ymd(p.date) !== ymd(r.date) ? '配信日(旧本番)' : '', p && r && p.guid && g && String(p.guid).toLowerCase() !== g ? 'GUID(旧本番)' : ''].filter(Boolean).join('・');
+    const sameGuid = g ? (byGuid.get(g) || []).filter((x) => x !== ep) : [], v1Other = g ? (v1Guid.get(g) || []).filter((x) => x !== ep) : [];
+    if (sameGuid.length || v1Other.length) add(ep, '同じGUIDが別EP-ID', 'DUPLICATE', '公式GUIDが同じ', { dup: [...sameGuid, ...v1Other].join(' '), diff });
+    if (o && !r) { add(ep, '旧公開にありV2にない', 'ERROR', 'V2台帳にEP-IDがない', { diff }); continue; }
+    if (o && r && !pub(r)) { add(ep, '旧公開にありV2で非公開', r.rep && r.rep !== ep ? 'DUPLICATE' : r.judge === '対象外' ? 'EXCLUDE' : 'HOLD', 'V2 掲載判定=' + r.judge + (r.rep && r.rep !== ep ? '・代表=' + r.rep : ''), { dup: r.rep !== ep ? r.rep : '', diff }); continue; }
+    if (o && r) { if (diff) add(ep, '両方にあり表記・日付が違う', 'HOLD', '台帳ごとに値が違う', { diff }); continue; }
+    if (r && pub(r)) {
+      if (isRerunTitle(r.title)) { const os = (orig.get(r.show + '|' + rerunBaseTitle(r.title)) || []).filter((x) => x !== ep), opub = os.filter((x) => O.has(x));
+        add(ep, 'V2にあり旧公開にない・再配信', opub.length ? 'DUPLICATE候補' : 'HOLD', opub.length ? '原回 ' + opub.join(' ') + ' が公開済み（タイトル一致のみ。GUID・音源で確定させる）' : '原回が台帳に無い再配信（一括採用・一括削除しない）', { dup: os.join(' '), diff }); continue; }
+      add(ep, ymd(r.date) >= since ? 'V2にあり旧公開にない・' + since + '以降の新着' : 'V2にあり旧公開にない・新規', 'HOLD', '公式ページ・音声の確認待ち（L3）', { diff }); }
+    if (p && !r) add(ep, '旧本番台帳にありV2にない', p.excluded ? 'EXCLUDE' : 'ERROR', p.excluded ? '旧本番で人間除外' : 'V2台帳にEP-IDがない');
+    else if (r && !p && pub(r)) count['（参考）V2公開候補で旧本番台帳にない'] = (count['（参考）V2公開候補で旧本番台帳にない'] || 0) + 1;
+  }
+  const n = { oldPublic: O.size, v2Public: [...V.values()].filter(pub).length, both: [...O.keys()].filter((e) => pub(V.get(e))).length };
+  n.added = n.v2Public - n.both; n.oldOnly = n.oldPublic - n.both;
+  const addedKinds = rows.filter((x) => /^V2にあり旧公開にない/.test(x[1])).length;
+  const equation = { '旧公開 = 両方 + 旧公開だけ': n.oldPublic === n.both + n.oldOnly, 'V2公開候補 = 両方 + 追加': n.v2Public === n.both + n.added, '追加 = 分類済みの追加行': n.added === addedKinds };
+  return { rows, count, n, equation };
+}
