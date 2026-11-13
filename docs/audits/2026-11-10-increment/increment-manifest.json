@@ -1,0 +1,1718 @@
+{
+ "schema": 1,
+ "policy": "REVIEWED_D_TARGET/increment-2",
+ "mode": "increment",
+ "auditEvidence": "司令塔READ_ONLY実測 2026-11-10: 旧6,591存在・ID一意・旧ID消失0・台帳重複0 (PR #277)",
+ "asOf": "2026-11-10T09:14:00+09:00",
+ "rows": [
+  {
+   "id": "EP-06592",
+   "show": "ニュースの現場から",
+   "title": "（PUERTA #25）不正アクセス急増　AIに委ねるか滅ぼされるか　2040への分岐点",
+   "publishedAt": "2026/10/23 04:00:00",
+   "guid": "5218b5c5-7f21-4089-a5c7-b4ea00cf1bd3",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06593",
+   "show": "スポンジ",
+   "title": "（相撲 #34）1年ぶりの賜杯、涙が止まらなかった大の里　場所をわかせた小兵の藤ノ川",
+   "publishedAt": "2026/10/17 4:00",
+   "guid": "13a056a0-27b2-4079-a9e5-b4e5006200d0",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": true,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06594",
+   "show": "ニュースの学校",
+   "title": "PHPの脆弱性（ぜいじゃくせい）",
+   "publishedAt": "2026/10/23 4:00",
+   "guid": "2b3d2f6a-cdfb-11f1-8f31-abebc4a650c5",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "対象外",
+   "classification": "日時差分",
+   "review": "未審査(候補)",
+   "reason": "ニュースの学校: 宇宙候補として保護、おんさ比較からは除外。公式GUID・題名・日時は揃うが人の審査前",
+   "pastImport": false,
+   "evidence": {
+    "rule": "SCHOOL_PROTECTED"
+   }
+  },
+  {
+   "id": "EP-06595",
+   "show": "MEDIA TALK",
+   "title": "#2-1 被爆75年　燃えた誰かの背中、自分を見ると…声で残す被爆者の思い",
+   "publishedAt": "2020/8/12 10:00",
+   "guid": "dd169c36-40c0-4cf4-9b1d-ac14008566ab",
+   "status": "excluded",
+   "publication": "対象外",
+   "comparison": "対象外",
+   "classification": "重複",
+   "review": "確認済み",
+   "reason": "旧EP-03857と公式GUID一致（旧判定タブH列「公式GUID=」（司令塔READ_ONLY実測 2026-11-10・PR #277コメント））。旧EPを保持し新側は掲載対象外",
+   "pastImport": true,
+   "evidence": {
+    "rule": "OLD_GUID_DUP",
+    "of": "EP-03857",
+    "oldSource": "旧判定タブH列「公式GUID=」（司令塔READ_ONLY実測 2026-11-10・PR #277コメント）",
+    "oldDecision": "対象/対象/確認済み"
+   }
+  },
+  {
+   "id": "EP-06596",
+   "show": "MEDIA TALK",
+   "title": "#2-2 被爆75年　ただ怖く、助ける気持ちは生まれない　講演で語った記憶",
+   "publishedAt": "2020/8/13 10:00",
+   "guid": "1545b33c-84e9-4302-806a-ac1400858106",
+   "status": "excluded",
+   "publication": "対象外",
+   "comparison": "対象外",
+   "classification": "重複",
+   "review": "確認済み",
+   "reason": "旧EP-03858と公式GUID一致（旧判定タブH列「公式GUID=」（司令塔READ_ONLY実測 2026-11-10・PR #277コメント））。旧EPを保持し新側は掲載対象外",
+   "pastImport": true,
+   "evidence": {
+    "rule": "OLD_GUID_DUP",
+    "of": "EP-03858",
+    "oldSource": "旧判定タブH列「公式GUID=」（司令塔READ_ONLY実測 2026-11-10・PR #277コメント）",
+    "oldDecision": "対象/対象/確認済み"
+   }
+  },
+  {
+   "id": "EP-06597",
+   "show": "MEDIA TALK",
+   "title": "#2-5 被爆75年　手応え、また裏切られた　原発もコロナも何度繰り返す",
+   "publishedAt": "2020/8/16 11:00",
+   "guid": "3303d8d0-a941-488e-ab22-ac1700443eaa",
+   "status": "excluded",
+   "publication": "対象外",
+   "comparison": "対象外",
+   "classification": "重複",
+   "review": "確認済み",
+   "reason": "旧EP-03861と公式GUID一致（旧判定タブH列「公式GUID=」（司令塔READ_ONLY実測 2026-11-10・PR #277コメント））。旧EPを保持し新側は掲載対象外",
+   "pastImport": true,
+   "evidence": {
+    "rule": "OLD_GUID_DUP",
+    "of": "EP-03861",
+    "oldSource": "旧判定タブH列「公式GUID=」（司令塔READ_ONLY実測 2026-11-10・PR #277コメント）",
+    "oldDecision": "対象/対象/確認済み"
+   }
+  },
+  {
+   "id": "EP-06598",
+   "show": "ドーナツ",
+   "title": "（日曜版）これって老境？",
+   "publishedAt": "2026/10/18 4:00",
+   "guid": "b1dc9e1f-c35c-49a1-9fe3-b4e5007b9b28",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": true,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06599",
+   "show": "ニュースの現場から",
+   "title": "（大阪目線 #7）「いびきがうるさい」から婚約破棄まで…裁判沙汰の末に　司法記者がみた人間ドラマ",
+   "publishedAt": "2026/10/18 4:00",
+   "guid": "e82dff62-ad36-41d3-9609-b4e300473821",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": true,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06600",
+   "show": "ニュースの学校",
+   "title": "相次ぐ個人情報流出",
+   "publishedAt": "2026/10/19 4:00",
+   "guid": "46c4da34-c933-11f1-bfe9-3b7c32431339",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "対象外",
+   "classification": "日時差分",
+   "review": "未審査(候補)",
+   "reason": "ニュースの学校: 宇宙候補として保護、おんさ比較からは除外。公式GUID・題名・日時は揃うが人の審査前",
+   "pastImport": true,
+   "evidence": {
+    "rule": "SCHOOL_PROTECTED"
+   }
+  },
+  {
+   "id": "EP-06601",
+   "show": "MEDIA TALK",
+   "title": "（MT）記事を書くのはAIに任せちゃっていいだろうか",
+   "publishedAt": "2026/10/19 4:00",
+   "guid": "57cf0f97-b149-41c2-a2c4-b4dc00603b07",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": true,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06602",
+   "show": "ニュースの現場から",
+   "title": "（めくろう #202）さん付け徐々に　ドパガキ急激に　キャンピングカーは憧れに",
+   "publishedAt": "2026/10/19 4:00",
+   "guid": "a7a7e53b-4657-46ec-af31-b4e20033184f",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": true,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06603",
+   "show": "報談",
+   "title": "（カロリーオフ）官房長官って、どのくらい偉いのか問題",
+   "publishedAt": "2026/10/19 4:00",
+   "guid": "ee5353a6-c92a-11f1-a174-1b53912d7c1f",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": true,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06604",
+   "show": "ドーナツ",
+   "title": "（対話）スクラップをめくろう　神田大介の1年目",
+   "publishedAt": "2026/10/19 4:00",
+   "guid": "f9c74194-f53e-4436-b2b9-b4e300984d0d",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": true,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06605",
+   "show": "ドーナツ",
+   "title": "（ポすすめ）クリエイティブの反対語・ファミレスで隣から聞こえてくるフリーランスのモヤモヤ話",
+   "publishedAt": "2026/10/20 4:00",
+   "guid": "08ec2131-3403-4f12-8dfb-b4e5007b9ad7",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": true,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06606",
+   "show": "ニュースの学校",
+   "title": "フランスの大規模デモ（2026）",
+   "publishedAt": "2026/10/20 4:00",
+   "guid": "18dbaaea-cb94-11f1-b618-bfc67d94509d",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "対象外",
+   "classification": "日時差分",
+   "review": "未審査(候補)",
+   "reason": "ニュースの学校: 宇宙候補として保護、おんさ比較からは除外。公式GUID・題名・日時は揃うが人の審査前",
+   "pastImport": true,
+   "evidence": {
+    "rule": "SCHOOL_PROTECTED"
+   }
+  },
+  {
+   "id": "EP-06607",
+   "show": "MEDIA TALK",
+   "title": "（制作会議 #113）親子向けステージ盛りだくさん　GOODLIFEな3日間、現地からお届け",
+   "publishedAt": "2026/10/20 4:00",
+   "guid": "b06a5ea1-aec1-47e5-b1f9-b4dd00b6a25d",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": true,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06608",
+   "show": "ニュースの現場から",
+   "title": "【朗読スペシャル】 泉ピン子さん　初めて「本気の演技」をした日（人生の贈りもの）",
+   "publishedAt": "2026/10/20 4:00",
+   "guid": "d9226a5c-88fe-4f3a-8063-b4e400829390",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": true,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06609",
+   "show": "ニュースの学校",
+   "title": "ナビ・ピレイ氏",
+   "publishedAt": "2026/10/21 4:00",
+   "guid": "03f55b76-c6e4-11f1-b750-cfc625bd082a",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "対象外",
+   "classification": "日時差分",
+   "review": "未審査(候補)",
+   "reason": "ニュースの学校: 宇宙候補として保護、おんさ比較からは除外。公式GUID・題名・日時は揃うが人の審査前",
+   "pastImport": true,
+   "evidence": {
+    "rule": "SCHOOL_PROTECTED"
+   }
+  },
+  {
+   "id": "EP-06610",
+   "show": "ニュースの現場から",
+   "title": "（World Insight #6）ネパールを襲った巨大土石流　「山津波」が押し寄せた現場は",
+   "publishedAt": "2026/10/21 4:00",
+   "guid": "45786cb6-5abc-4b29-9051-b4e500648a62",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": true,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06611",
+   "show": "スポンジ",
+   "title": "（バスケ #51）主力一新・スタイル刷新　Bプレミア、注目クラブ総ざらい",
+   "publishedAt": "2026/10/21 4:00",
+   "guid": "53c151a7-b15e-492b-9eea-b4dc0090db03",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": true,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06612",
+   "show": "こどもそうだんしつ",
+   "title": "キャラクターってなんのためにいるの？ #17",
+   "publishedAt": "2026/10/21 4:00",
+   "guid": "8395e9ec-941e-466f-aa70-b4e500853913",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "対象外",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "後継番組: 掲載候補・比較外。人の審査前",
+   "pastImport": true,
+   "evidence": {
+    "rule": "SUCCESSOR"
+   }
+  },
+  {
+   "id": "EP-06613",
+   "show": "MEDIA TALK",
+   "title": "（動画見た？#51）流行のSNS「セットログ」とは／NHK「未解決事件」がすごい／「ガス人間」、実はリアル？",
+   "publishedAt": "2026/10/21 4:00",
+   "guid": "bb4fdb37-90cc-48fb-88d8-b4e700c3c303",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": true,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06614",
+   "show": "こどもそうだんしつ",
+   "title": "【もっと話そう】「？」から「！」に変わるキャラクターデザイン",
+   "publishedAt": "2026/10/21 4:05",
+   "guid": "c0de2f01-906c-4513-a7e1-b4e500854185",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "対象外",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "後継番組: 掲載候補・比較外。人の審査前",
+   "pastImport": true,
+   "evidence": {
+    "rule": "SUCCESSOR"
+   }
+  },
+  {
+   "id": "EP-06615",
+   "show": "スポンジ",
+   "title": "（野球 #5）ドラフト会議は人生の交差点　あの夏で終わりじゃなかった物語",
+   "publishedAt": "2026/10/22 4:00",
+   "guid": "0b4af7ab-49c1-400a-b3a8-b4e900b3d684",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06616",
+   "show": "ニュースの現場から",
+   "title": "（ON GOING）子どもの学習にAI、どこまでOK？　認知科学者・今井むつみさんと考えた",
+   "publishedAt": "2026/10/22 4:00",
+   "guid": "8fe3c32f-056a-4223-9ed1-b4e500c559ea",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06617",
+   "show": "ドーナツ",
+   "title": "（親モヤ #130）子どもは「仕事の邪魔」ですか？　やさしくない環境で過ごしているかも",
+   "publishedAt": "2026/10/22 4:00",
+   "guid": "cd329172-6f57-477d-b586-b4e30006bc96",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06618",
+   "show": "ニュースの学校",
+   "title": "はしか（麻疹）",
+   "publishedAt": "2026/10/22 4:00",
+   "guid": "eec326f6-cb94-11f1-bcc5-fb8d1ae2ffb5",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "対象外",
+   "classification": "日時差分",
+   "review": "未審査(候補)",
+   "reason": "ニュースの学校: 宇宙候補として保護、おんさ比較からは除外。公式GUID・題名・日時は揃うが人の審査前",
+   "pastImport": false,
+   "evidence": {
+    "rule": "SCHOOL_PROTECTED"
+   }
+  },
+  {
+   "id": "EP-06619",
+   "show": "ドーナツ",
+   "title": "（アラサー）詐欺被害を発信する勇気　休養もリフレッシュも大事",
+   "publishedAt": "2026/10/23 4:00",
+   "guid": "5e460a9e-6b55-4f74-800d-b4da00a79a80",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06620",
+   "show": "報談",
+   "title": "プルゴリは実在する　生命保険業界、「営業」の光と影 #193",
+   "publishedAt": "2026/10/23 4:00",
+   "guid": "92d13e62-cdf3-11f1-a85d-1f82f31384e1",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06621",
+   "show": "スポンジ",
+   "title": "（陸上 #1）全日本大学駅伝を走って変わった人生　今は大会運営に奔走中",
+   "publishedAt": "2026/10/23 4:00",
+   "guid": "c28c3603-d13c-4922-8180-b4e5009033d6",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06622",
+   "show": "スポンジ",
+   "title": "（陸上 #2）初出場の区間賞で得たロマン　全日本大学駅伝が生むドラマ",
+   "publishedAt": "2026/10/24 4:00",
+   "guid": "09745c24-ed3b-4b95-b62f-b4e8008dcd64",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06623",
+   "show": "ニュースの現場から",
+   "title": "（ポリレビ #16）米中ロ会談、急浮上の裏側は？高市外交1年、他の総理と比べると…",
+   "publishedAt": "2026/10/24 4:00",
+   "guid": "28f11a95-ac3b-46a9-a584-b4ec009c3cb9",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06624",
+   "show": "ドーナツ",
+   "title": "（ノーミライ #10）やっぱ悩みがごじゃやったんちゃうやろか、というお話",
+   "publishedAt": "2026/10/24 4:00",
+   "guid": "b7b13c9d-5f69-4a84-84b9-b4ec005d3bdd",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06625",
+   "show": "ニュースの現場から",
+   "title": "（大阪目線 #8）高村薫さんが「しょぼかった」といった万博　閉幕1年、記者は食い下がった",
+   "publishedAt": "2026/10/25 4:00",
+   "guid": "aca6c2d2-6291-4bd5-801a-b4eb00651c0d",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06626",
+   "show": "ドーナツ",
+   "title": "（日曜版）わたしの悪夢",
+   "publishedAt": "2026/10/25 4:00",
+   "guid": "d44645db-746d-421d-baac-b4eb008e182c",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06627",
+   "show": "MEDIA TALK",
+   "title": "（MT）わたしはヤンキーにニュースを届けたいのだ",
+   "publishedAt": "2026/10/26 4:00",
+   "guid": "08e40b40-d56b-4f22-be57-b4dc00603b13",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06628",
+   "show": "ニュースの学校",
+   "title": "ロシアの日本人記者拘束",
+   "publishedAt": "2026/10/26 4:00",
+   "guid": "24fc4a82-ceb4-11f1-8144-abc7c06c50b6",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "対象外",
+   "classification": "日時差分",
+   "review": "未審査(候補)",
+   "reason": "ニュースの学校: 宇宙候補として保護、おんさ比較からは除外。公式GUID・題名・日時は揃うが人の審査前",
+   "pastImport": false,
+   "evidence": {
+    "rule": "SCHOOL_PROTECTED"
+   }
+  },
+  {
+   "id": "EP-06629",
+   "show": "報談",
+   "title": "（カロリーオフ）外国勢力は本当に選挙を動かすのか問題",
+   "publishedAt": "2026/10/26 4:00",
+   "guid": "b0a84ffa-cebd-11f1-a5ab-17a6f304129c",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06630",
+   "show": "ニュースの現場から",
+   "title": "（めくろう #203）怖すぎる情報流出　怖くない妖怪研究　本読み返す秋",
+   "publishedAt": "2026/10/26 4:00",
+   "guid": "df9ffb68-6f44-45b1-9331-b4e2007caa71",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06631",
+   "show": "ドーナツ",
+   "title": "（1on1）菜緒都さん　かっこよさって何ですか",
+   "publishedAt": "2026/10/26 4:00",
+   "guid": "f8906ca4-3861-4eb8-83b8-b4eb008e0422",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06632",
+   "show": "こどもそうだんしつ",
+   "title": "【もっと話そう】数えて比べて　楽しむ骨",
+   "publishedAt": "2026/10/14 4:05",
+   "guid": "a07f0210-b98d-4e6d-9d21-b4c9005ccdfc",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "対象外",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "後継番組: 掲載候補・比較外。人の審査前",
+   "pastImport": true,
+   "evidence": {
+    "rule": "SUCCESSOR"
+   }
+  },
+  {
+   "id": "EP-06633",
+   "show": "ニュースの現場から",
+   "title": "（GLOBE）思わず笑って、そして考えさせる　イグ・ノーベル賞はなぜ面白い？",
+   "publishedAt": "2026/10/28 04:00",
+   "guid": "93a6a5b8-35f6-447b-abb6-b4ec0061a16e",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06634",
+   "show": "ニュースの現場から",
+   "title": "【朗読スペシャル】 天童よしみさん 　貫いてきた「歌の道」（人生の贈りもの）",
+   "publishedAt": "2026/10/27 04:00",
+   "guid": "ef74feab-7dc0-41ff-923c-b4e400b0ebe0",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06635",
+   "show": "MEDIA TALK",
+   "title": "（編集マニア #51）ＡのみＹのみ、新聞広告の特ダネ・特オチ　実は動画広告も手がけています",
+   "publishedAt": "2026/10/27 04:10",
+   "guid": "f8405029-19db-4278-85d3-b4ea00617b16",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06636",
+   "show": "MEDIA TALK",
+   "title": "（編集マニア #50） 降版2分後に届いた原稿、頭も真っ白　編集経験は広告営業で役に立っています",
+   "publishedAt": "2026/10/27 04:00",
+   "guid": "45dbe89c-d322-4c18-864b-b4ea006173e3",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06637",
+   "show": "こどもそうだんしつ",
+   "title": "タコが体の色を変えられるのは、なんで？ #18",
+   "publishedAt": "2026/10/28 04:05",
+   "guid": "69b1b092-5c09-48c8-9936-b4ec00664d97",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "対象外",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "後継番組: 掲載候補・比較外。人の審査前",
+   "pastImport": false,
+   "evidence": {
+    "rule": "SUCCESSOR"
+   }
+  },
+  {
+   "id": "EP-06638",
+   "show": "こどもそうだんしつ",
+   "title": "（もっと話そう）タコ墨でお習字できるかな　グニャグニャの体に四苦八苦",
+   "publishedAt": "2026/10/28 04:00",
+   "guid": "b47f4817-6b1f-41b6-8766-b4ec00665a27",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "対象外",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "後継番組: 掲載候補・比較外。人の審査前",
+   "pastImport": false,
+   "evidence": {
+    "rule": "SUCCESSOR"
+   }
+  },
+  {
+   "id": "EP-06639",
+   "show": "スポンジ",
+   "title": "（サッカー #34）買い叩かれるか、世界と渡り合うか　秋開幕でJリーグに起きた異変",
+   "publishedAt": "2026/10/28 04:00",
+   "guid": "a2cd47a2-b397-4059-98be-b4de0092b380",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06640",
+   "show": "ドーナツ",
+   "title": "（ポすすめ）AIニュースブリーフィング",
+   "publishedAt": "2026/10/27 04:00",
+   "guid": "e474cda9-28f9-4881-9c4f-b4e8008301cf",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06641",
+   "show": "ニュースの現場から",
+   "title": "病院から戻った夫「何かおかしい」　高次脳機能障害を知っていますか",
+   "publishedAt": "2026/10/29 4:00",
+   "guid": "0900cfa3-9c46-4799-b9a0-b4ef00153be2",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06642",
+   "show": "ドーナツ",
+   "title": "（親モヤ #131）約束を守れない子どもにイライラしてしまう…何かいい方法ありますか？",
+   "publishedAt": "2026/10/29 4:00",
+   "guid": "9c85db3b-04db-4819-9d53-b4e30006c1d3",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06643",
+   "show": "ニュースの現場から",
+   "title": "（ゆるっと経済 #22）「クールジャパン機構」なぜうまくいかなかった？ 次の一手のは「司令塔」",
+   "publishedAt": "2026/10/30 4:00",
+   "guid": "359f3452-1b90-4820-a53a-b4ef006ef44b",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06644",
+   "show": "MEDIA TALK",
+   "title": "（骨格）骨は「ただの白い塊」じゃない！　組み立てて、眺めて、比べて…発見が止まらない",
+   "publishedAt": "2026/10/30 4:00",
+   "guid": "0cee895c-ee0f-4a30-8020-b4d300723b88",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06645",
+   "show": "ニュースの学校",
+   "title": "民主社会主義",
+   "publishedAt": "2026/10/29 4:00",
+   "guid": "4ea6480a-ccfd-11f1-b2de-17a1ce8dc9d8",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "対象外",
+   "classification": "日時差分",
+   "review": "未審査(候補)",
+   "reason": "ニュースの学校: 宇宙候補として保護、おんさ比較からは除外。公式GUID・題名・日時は揃うが人の審査前",
+   "pastImport": false,
+   "evidence": {
+    "rule": "SCHOOL_PROTECTED"
+   }
+  },
+  {
+   "id": "EP-06646",
+   "show": "ニュースの学校",
+   "title": "AI主権",
+   "publishedAt": "2026/10/30 4:00",
+   "guid": "0db36344-8fce-11f1-b526-87dbf0a47201",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "対象外",
+   "classification": "日時差分",
+   "review": "未審査(候補)",
+   "reason": "ニュースの学校: 宇宙候補として保護、おんさ比較からは除外。公式GUID・題名・日時は揃うが人の審査前",
+   "pastImport": false,
+   "evidence": {
+    "rule": "SCHOOL_PROTECTED"
+   }
+  },
+  {
+   "id": "EP-06647",
+   "show": "報談",
+   "title": "VIVANT、モンゴル火災、福田康夫氏死去　近づかない中国との距離",
+   "publishedAt": "2026/10/30 4:00",
+   "guid": "ca61c8a4-d36d-11f1-ae7a-97b9e64c5d86",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06648",
+   "show": "MEDIA TALK",
+   "title": "（推し記事 #8）美輪明宏さんへの相談「ゲイ告白すべきか」　記者が忘れられない回答",
+   "publishedAt": "2026/10/31 4:00",
+   "guid": "1ce7d1f3-eb36-41df-ac35-b4f20074e1eb",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06649",
+   "show": "ニュースの現場から",
+   "title": "（ポリレビ #17）どうなる米中間選挙　衆院定数31削減で自民・維新・国民合意のワケ",
+   "publishedAt": "2026/10/31 4:00",
+   "guid": "1d23b6c1-795a-4fc1-bb11-b4f300648a6b",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06650",
+   "show": "スポンジ",
+   "title": "（陸上 #3）全日本大学駅伝あす号砲　注目選手は何区に？優勝争いは？直前予想します",
+   "publishedAt": "2026/10/31 4:00",
+   "guid": "5f9bc01d-0f71-4732-8ae9-b4f200364b89",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06651",
+   "show": "ドーナツ",
+   "title": "（ノーミライ番外編）なんで今月は土曜が5回もあるんや、というお話",
+   "publishedAt": "2026/10/31 4:00",
+   "guid": "8566d10d-729f-4992-8627-b4f300d4a5ef",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06652",
+   "show": "ドーナツ",
+   "title": "（日曜版）わたしシンデレラ",
+   "publishedAt": "2026/11/1 4:00",
+   "guid": "de1b9d63-e25e-4800-9f03-b4f3005c8405",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06653",
+   "show": "ニュースの現場から",
+   "title": "（大阪目線 #9）福岡市長選がカオス過ぎる件　乱立を招いた影の主役と三国志",
+   "publishedAt": "2026/11/1 4:10",
+   "guid": "be476923-36f3-4435-82d5-b4f200db10a2",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06654",
+   "show": "ニュースの現場から",
+   "title": "（めくろう #204）藩士熱狂　ぴよちゃん活況　オンボロ社屋でファッションショー",
+   "publishedAt": "2026/11/2 4:00",
+   "guid": "9f04aa96-e258-4978-b88e-b4ee0061ccc1",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06655",
+   "show": "MEDIA TALK",
+   "title": "（TMT #-1）ドパ以外の指標に出会いたい　新聞と人生、遠回りの価値",
+   "publishedAt": "2026/11/2 4:00",
+   "guid": "0b5f028f-ef6f-46ad-80a1-b4f2006cdff0",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06656",
+   "show": "ドーナツ",
+   "title": "（1on1）竹端寛さん　どう「わからない他者」と向き合いますか",
+   "publishedAt": "2026/11/2 4:00",
+   "guid": "faa44e57-6cb9-4315-88b2-b4ed00a42327",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06657",
+   "show": "報談",
+   "title": "（カロリーオフ）法案を審議する優先順位、誰が決めているのか問題",
+   "publishedAt": "2026/11/2 4:00",
+   "guid": "e9c42e50-d447-11f1-900c-fbf7147f7af8",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06658",
+   "show": "ニュースの学校",
+   "title": "キリスト教国家主義",
+   "publishedAt": "2026/11/2 4:00",
+   "guid": "c4df9d8c-ceb5-11f1-ba67-d7580ec81709",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "対象外",
+   "classification": "日時差分",
+   "review": "未審査(候補)",
+   "reason": "ニュースの学校: 宇宙候補として保護、おんさ比較からは除外。公式GUID・題名・日時は揃うが人の審査前",
+   "pastImport": false,
+   "evidence": {
+    "rule": "SCHOOL_PROTECTED"
+   }
+  },
+  {
+   "id": "EP-06659",
+   "show": "ニュースの現場から",
+   "title": "（カガク #27）”火星の月探査” MMXで挑む「砂」持ち帰り！ NASAを出し抜ける？ 成功確率は…",
+   "publishedAt": "2026/11/3 4:00",
+   "guid": "ab8f929a-52f3-4a44-9b11-b4f500d444d4",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06660",
+   "show": "MEDIA TALK",
+   "title": "（ウニュ #97）「私、くさい？」体臭の劣等感　悩みを共有するカフェで出会ったのは",
+   "publishedAt": "2026/11/3 4:00",
+   "guid": "8da73095-2c99-49f0-868e-b4f200046b90",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06661",
+   "show": "ドーナツ",
+   "title": "（ポすすめ）ポッドキャスト茶会",
+   "publishedAt": "2026/11/3 4:00",
+   "guid": "1383a0c4-1572-44bc-84d5-b4ed00a44df4",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06662",
+   "show": "ニュースの現場から",
+   "title": "（World Insight #7）NYの家賃、収入の半分？ 物価高が動かす米中間選挙",
+   "publishedAt": "2026/11/4 4:00",
+   "guid": "a271e44e-87fa-4556-8381-b4f20071b6f3",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06663",
+   "show": "MEDIA TALK",
+   "title": "（サステナ）NPO＝無償ボランティアではない　テクノロジーで寄付文化に変革を",
+   "publishedAt": "2026/11/4 4:00",
+   "guid": "08bd2a27-ce18-4b0d-b711-b4f40103d3fa",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06664",
+   "show": "こどもそうだんしつ",
+   "title": "【もっと話そう】見えないものを、だれかに伝えるには",
+   "publishedAt": "2026/11/4 4:00",
+   "guid": "3db8d37a-7987-40bd-ab2d-b4f6001e0d06",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "対象外",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "後継番組: 掲載候補・比較外。人の審査前",
+   "pastImport": false,
+   "evidence": {
+    "rule": "SUCCESSOR"
+   }
+  },
+  {
+   "id": "EP-06665",
+   "show": "スポンジ",
+   "title": "（バスケ #52）がん公表した吉田亜沙美、復帰までの道のり　「私の人生にバスケは必要だった」",
+   "publishedAt": "2026/11/4 4:00",
+   "guid": "3c98733f-1f9e-4678-9a50-b4e4004ab9eb",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06666",
+   "show": "ニュースの学校",
+   "title": "衆議院の定数削減（2026年11月）",
+   "publishedAt": "2026/11/4 4:00",
+   "guid": "bf1450b0-d43b-11f1-a0f9-830786de18e0",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "対象外",
+   "classification": "日時差分",
+   "review": "未審査(候補)",
+   "reason": "ニュースの学校: 宇宙候補として保護、おんさ比較からは除外。公式GUID・題名・日時は揃うが人の審査前",
+   "pastImport": false,
+   "evidence": {
+    "rule": "SCHOOL_PROTECTED"
+   }
+  },
+  {
+   "id": "EP-06667",
+   "show": "こどもそうだんしつ",
+   "title": "「レタス○個分の食物繊維」って見かけるけど、なんでレタスでたとえるの？",
+   "publishedAt": "2026/11/4 4:05",
+   "guid": "c6af6a0d-0e16-4637-bfc5-b4f6001b6c82",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "対象外",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "後継番組: 掲載候補・比較外。人の審査前",
+   "pastImport": false,
+   "evidence": {
+    "rule": "SUCCESSOR"
+   }
+  },
+  {
+   "id": "EP-06668",
+   "show": "ニュースの現場から",
+   "title": "新聞から川柳、ゴミからアートをつくる　アーティスト淀川テクニックさんの発想術",
+   "publishedAt": "2026/11/5 4:00",
+   "guid": "6402b261-6595-49e1-a50c-b4f800112ce8",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06669",
+   "show": "MEDIA TALK",
+   "title": "（推し記事 #9）高市首相を追う記者が政治の世界で感じた男女格差と現在地​‌",
+   "publishedAt": "2026/11/5 4:00",
+   "guid": "96f74df8-61da-464e-ac6f-b4f800a00081",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06670",
+   "show": "ニュースの学校",
+   "title": "日本サッカー協会副会長の辞任",
+   "publishedAt": "2026/11/5 4:00",
+   "guid": "4456ceb0-d43c-11f1-a8ef-4f618a01b6c2",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "対象外",
+   "classification": "日時差分",
+   "review": "未審査(候補)",
+   "reason": "ニュースの学校: 宇宙候補として保護、おんさ比較からは除外。公式GUID・題名・日時は揃うが人の審査前",
+   "pastImport": false,
+   "evidence": {
+    "rule": "SCHOOL_PROTECTED"
+   }
+  },
+  {
+   "id": "EP-06671",
+   "show": "ドーナツ",
+   "title": "（よりみ知）なぜスポーツ界は同性愛を公表しにくい？　学校体育の男性性から考えてみた　スナックよりみ知11月号",
+   "publishedAt": "2026/11/5 4:00",
+   "guid": "89cbb783-6b74-48bf-a4f4-b4f300898aae",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06672",
+   "show": "ニュースの現場から",
+   "title": "（皇室365）分刻みの出張、皇室取材は体力勝負　皇室典範改正このままでいいの？",
+   "publishedAt": "2026/11/6 4:00",
+   "guid": "20bae540-6439-4006-8c8e-b4f80011253a",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06673",
+   "show": "MEDIA TALK",
+   "title": "（ドラマ座談会 #2）人生「変わった」ドラマ、救命病棟24時　没入する作品のポイントは？",
+   "publishedAt": "2026/11/6 4:00",
+   "guid": "31939d42-bea6-4957-8e0a-b4f6017ff14d",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06674",
+   "show": "スポンジ",
+   "title": "（相撲 #35）年収1000万円から100万円に…「土俵には金が埋まっている」　力士の懐事情",
+   "publishedAt": "2026/11/6 4:00",
+   "guid": "1587feb1-5a14-4b91-aae1-b4f601778714",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06675",
+   "show": "ニュースの学校",
+   "title": "西山朋佳棋士",
+   "publishedAt": "2026/11/6 4:00",
+   "guid": "da951214-d28a-11f1-8184-5bcc38eb15d4",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "対象外",
+   "classification": "日時差分",
+   "review": "未審査(候補)",
+   "reason": "ニュースの学校: 宇宙候補として保護、おんさ比較からは除外。公式GUID・題名・日時は揃うが人の審査前",
+   "pastImport": false,
+   "evidence": {
+    "rule": "SCHOOL_PROTECTED"
+   }
+  },
+  {
+   "id": "EP-06676",
+   "show": "ドーナツ",
+   "title": "（アラサー）料理するとき、レシピ見る？　アレンジする派・しっかり守る派",
+   "publishedAt": "2026/11/6 4:00",
+   "guid": "2b03eb0a-51d4-4ff3-b70c-b4da00a9945b",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06677",
+   "show": "報談",
+   "title": "アメリカ中間選挙は、何が歴史的だった？　ルート66から考えよう #195",
+   "publishedAt": "2026/11/6 4:00",
+   "guid": "5db4c8c0-d8f2-11f1-8469-ff99ca6b7780",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06678",
+   "show": "ニュースの現場から",
+   "title": "（ポリレビ #19）国会担当キャップの疑問「これ説明できる政治家は…」　支援金の詳細、定数削減",
+   "publishedAt": "2026/11/7 4:00",
+   "guid": "d7ea556a-cd9b-41ae-91d1-b4fa00731960",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06679",
+   "show": "ドーナツ",
+   "title": "（ノーミライ#11）……いつ切り出すんやろ、というお話",
+   "publishedAt": "2026/11/7 4:00",
+   "guid": "008be503-16a0-49c3-8e92-b4f900a4e92c",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06680",
+   "show": "ニュースの現場から",
+   "title": "（大阪目線 #10）流産した後、働くということ　もう一つの「12週の壁」",
+   "publishedAt": "2026/11/8 4:00",
+   "guid": "73133b6a-1deb-4cba-a8cf-b4f20038c7c8",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06681",
+   "show": "ドーナツ",
+   "title": "（日曜版）目と目が合ったらミラクル",
+   "publishedAt": "2026/11/8 4:00",
+   "guid": "41f68063-feb2-48e9-9f41-b4fa0179e6fe",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06682",
+   "show": "ニュースの現場から",
+   "title": "（めくろう #205）惨事ストレス自覚ないまま　KYと呼ばれて…「マ？」",
+   "publishedAt": "2026/11/9 4:00",
+   "guid": "a73edf38-f48d-4bd8-b909-b4f1005351b3",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06683",
+   "show": "MEDIA TALK",
+   "title": "（TMT #0）メディアを語れば、自分の常識も揺らぎ出す　The Media Talkで再始動",
+   "publishedAt": "2026/11/9 4:00",
+   "guid": "502f9c0a-c605-4169-8939-b4f2006cdff8",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06684",
+   "show": "ニュースの学校",
+   "title": "消費減税と支援金（2026年11月）",
+   "publishedAt": "2026/11/9 4:00",
+   "guid": "c9c64cf4-d984-11f1-ba29-9bc9d6eda7b7",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "対象外",
+   "classification": "日時差分",
+   "review": "未審査(候補)",
+   "reason": "ニュースの学校: 宇宙候補として保護、おんさ比較からは除外。公式GUID・題名・日時は揃うが人の審査前",
+   "pastImport": false,
+   "evidence": {
+    "rule": "SCHOOL_PROTECTED"
+   }
+  },
+  {
+   "id": "EP-06685",
+   "show": "ドーナツ",
+   "title": "（1on1）蚊取り線香はツッコミ待ちだった　寺下真理加さん",
+   "publishedAt": "2026/11/9 4:00",
+   "guid": "2993a3cc-98e7-46a9-a89e-b4f30089a7e0",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06686",
+   "show": "報談",
+   "title": "（カロリーオフ）首相動静欄にあるメディアとの懇談が気になる問題",
+   "publishedAt": "2026/11/9 4:00",
+   "guid": "39a5034a-d448-11f1-a336-1ba2815de680",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06687",
+   "show": "ニュースの現場から",
+   "title": "【朗読スペシャル】橋爪功さん　皮肉屋のガキ大将、舞台と出会う（人生の贈りもの）",
+   "publishedAt": "2026/11/10 4:00",
+   "guid": "498802d9-6726-4895-b9ab-b4f900136d45",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06688",
+   "show": "MEDIA TALK",
+   "title": "（制作会議 #114）ポッドキャスト公開収録、12月6日ぜひ来てね　朗読企画もスタート",
+   "publishedAt": "2026/11/10 4:00",
+   "guid": "c5fc5584-586c-48b9-99c2-b4f900a6dbf3",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06689",
+   "show": "スポンジ",
+   "title": "（バスケ #53・Wリーグ）富士通のルーキー大脇晴　憧れの元NBA・ロッドマンと同じ91番",
+   "publishedAt": "2026/11/10 4:00",
+   "guid": "e903c9f6-be76-456b-96b0-b4f900bfee22",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  },
+  {
+   "id": "EP-06690",
+   "show": "ニュースの学校",
+   "title": "GMOグループの会見",
+   "publishedAt": "2026/11/10 4:00",
+   "guid": "460fffb2-d985-11f1-86fc-578138d2c45c",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "対象外",
+   "classification": "日時差分",
+   "review": "未審査(候補)",
+   "reason": "ニュースの学校: 宇宙候補として保護、おんさ比較からは除外。公式GUID・題名・日時は揃うが人の審査前",
+   "pastImport": false,
+   "evidence": {
+    "rule": "SCHOOL_PROTECTED"
+   }
+  },
+  {
+   "id": "EP-06691",
+   "show": "ドーナツ",
+   "title": "（ポすすめ）ながらcast",
+   "publishedAt": "2026/11/10 4:00",
+   "guid": "9ec35d98-1ba0-4ea2-9f28-b4f900284c74",
+   "status": "candidate",
+   "publication": "保留",
+   "comparison": "保留",
+   "classification": "通常",
+   "review": "未審査(候補)",
+   "reason": "公式GUID・題名・日時が揃い、旧GUID/題名重複・再配信語なし。人の審査前の掲載候補。おんさ比較は照合待ち",
+   "pastImport": false,
+   "evidence": {
+    "rule": "NORMAL_COMPLETE"
+   }
+  }
+ ]
+}

@@ -1,0 +1,6467 @@
+{
+ "likelyLedgerGaps": [
+  {
+   "priority": "P1",
+   "show": "ニュースの現場から",
+   "title": "（大阪目線#6）共産が支援する町長がかじをとる町は　 「天王山」の地、二分する選挙",
+   "publishedAt": "2026-10-10T19:00:00.000Z",
+   "jstDate": "2026-10-11",
+   "link": "https://omny.fm/shows/asahi/oosaka6",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "ニュースの現場から",
+   "title": "その見た目、小型ねぶたと呼ばれ…還暦超え男性記者のヘアドネ挑戦記",
+   "publishedAt": "2026-10-11T19:00:00.000Z",
+   "jstDate": "2026-10-12",
+   "link": "https://omny.fm/shows/asahi/hairdonation1012",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "MEDIA TALK",
+   "title": "（MT）なんでも話せる場所はどこにある",
+   "publishedAt": "2026-10-11T19:00:00.000Z",
+   "jstDate": "2026-10-12",
+   "link": "https://omny.fm/shows/asahi/20261012",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "ニュースの現場から",
+   "title": "（地球会議 #2）認知症1千万人の時代…超高齢化社会の日本　AIの登場でどう変化？",
+   "publishedAt": "2026-10-12T19:00:00.000Z",
+   "jstDate": "2026-10-13",
+   "link": "https://omny.fm/shows/asahi/worldforum2",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "MEDIA TALK",
+   "title": "（N4U#46）夫婦なら当然？週2の“義務”に耐えた妻—20年後の衝撃　夫婦の性的同意（前編）",
+   "publishedAt": "2026-10-12T19:00:00.000Z",
+   "jstDate": "2026-10-13",
+   "link": "https://omny.fm/shows/asahi/n4u46-1",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "MEDIA TALK",
+   "title": "（N4U#47）夫婦でも「NO」が言えない、性を語る言葉を持たぬ私たち　夫婦の性的同意（後編）",
+   "publishedAt": "2026-10-12T19:01:00.000Z",
+   "jstDate": "2026-10-13",
+   "link": "https://omny.fm/shows/asahi/n4u47-1",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "ニュースの現場から",
+   "title": "（GLOBE）たたかう図書館　本を守り、記憶をつなぎ、街をつくる",
+   "publishedAt": "2026-10-13T19:00:00.000Z",
+   "jstDate": "2026-10-14",
+   "link": "https://omny.fm/shows/asahi/gcast154",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "MEDIA TALK",
+   "title": "（天声人語6）天声人語ができるまで、不思議なローテーション",
+   "publishedAt": "2026-10-13T15:00:00.000Z",
+   "jstDate": "2026-10-14",
+   "link": "https://omny.fm/shows/asahi/tenjin006",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "スポンジ",
+   "title": "（バスケ #50） Bプレミア始動　外国出身選手の出場枠緩和、巻き起こる変革",
+   "publishedAt": "2026-10-13T19:00:00.000Z",
+   "jstDate": "2026-10-14",
+   "link": "https://omny.fm/shows/asahi/basukura50",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "ニュースの現場から",
+   "title": "（ON GOING）東京は無償だけど、千葉では「けっこうな額」　保育料格差に悩む親たち",
+   "publishedAt": "2026-10-14T19:00:00.000Z",
+   "jstDate": "2026-10-15",
+   "link": "https://omny.fm/shows/asahi/childcarefee1015",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "ドーナツ",
+   "title": "（親モヤ #129）妊活・妊娠中の妻にプレッシャーでは…関わり方に迷います",
+   "publishedAt": "2026-10-14T19:00:00.000Z",
+   "jstDate": "2026-10-15",
+   "link": "https://omny.fm/shows/asahi/oyamoya129",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "ニュースの現場から",
+   "title": "（ゆるっと経済 #21）きょうは「ぐびっと」経済？変わるビール市場徹底解説　残業45時間規制についても考えます",
+   "publishedAt": "2026-10-15T19:00:00.000Z",
+   "jstDate": "2026-10-16",
+   "link": "https://omny.fm/shows/asahi/yurukei21",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "ドーナツ",
+   "title": "イスで座らないと歌っちゃいけないの？　退園求められた先に見つけた希望",
+   "publishedAt": "2026-10-15T19:00:00.000Z",
+   "jstDate": "2026-10-16",
+   "link": "https://omny.fm/shows/asahi/takeishi1016",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "スポンジ",
+   "title": "（フィギュア #37）島田麻央の初陣は、「ロシア三人娘」一角が出産1年で4回転　GPシリーズ開幕展望後編",
+   "publishedAt": "2026-10-15T19:00:00.000Z",
+   "jstDate": "2026-10-16",
+   "link": "https://omny.fm/shows/asahi/figure37",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "ニュースの現場から",
+   "title": "（ポリレビ #15）簗大臣の更迭、問題の本質はここだ／米国がロシアに肩入れし問われる日本外交",
+   "publishedAt": "2026-10-16T19:00:00.000Z",
+   "jstDate": "2026-10-17",
+   "link": "https://omny.fm/shows/asahi/polirebi15",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P1",
+   "show": "ドーナツ",
+   "title": "（ノーミライ #9）ひとりでやっとるチキンレースにライバル登場？というお話",
+   "publishedAt": "2026-10-16T21:35:00.000Z",
+   "jstDate": "2026-10-17",
+   "link": "https://omny.fm/shows/asahi/music-life-vol-9",
+   "keyTypes": [
+    "omny",
+    "spotify",
+    "asahi",
+    "guid"
+   ],
+   "evidence": "強識別子 omny+spotify+asahi+guid が揃うが台帳側に対応EPなし（Omny URL・Spotify ID・朝日item IDの3種）"
+  },
+  {
+   "priority": "P2",
+   "show": "報談",
+   "title": "なぜサウジの空港は爆撃されたのか　知っておきたいイエメン情勢 #192",
+   "publishedAt": "2026-10-15T19:00:00.000Z",
+   "jstDate": "2026-10-16",
+   "link": "https://pdst.fm/e/traffic.megaphone.fm/TASC4477967796.mp3",
+   "keyTypes": [
+    "spotify",
+    "megaphone"
+   ],
+   "evidence": "強識別子 spotify+megaphone が揃うが台帳側に対応EPなし（識別子の種類が台帳側と違う可能性。台帳G/J/L列で要確認）"
+  }
+ ],
+ "intakeWindow": {
+  "2026-10-05": {
+   "onsaItems": 5,
+   "unmatched": 0
+  },
+  "2026-10-06": {
+   "onsaItems": 2,
+   "unmatched": 0
+  },
+  "2026-10-07": {
+   "onsaItems": 3,
+   "unmatched": 0
+  },
+  "2026-10-08": {
+   "onsaItems": 4,
+   "unmatched": 0
+  },
+  "2026-10-09": {
+   "onsaItems": 5,
+   "unmatched": 0
+  },
+  "2026-10-10": {
+   "onsaItems": 3,
+   "unmatched": 0
+  },
+  "2026-10-11": {
+   "onsaItems": 2,
+   "unmatched": 1
+  },
+  "2026-10-12": {
+   "onsaItems": 4,
+   "unmatched": 2
+  },
+  "2026-10-13": {
+   "onsaItems": 4,
+   "unmatched": 3
+  },
+  "2026-10-14": {
+   "onsaItems": 3,
+   "unmatched": 3
+  },
+  "2026-10-15": {
+   "onsaItems": 2,
+   "unmatched": 2
+  },
+  "2026-10-16": {
+   "onsaItems": 4,
+   "unmatched": 4
+  },
+  "2026-10-17": {
+   "onsaItems": 3,
+   "unmatched": 2
+  },
+  "2026-10-18": {
+   "onsaItems": 2,
+   "unmatched": 0
+  },
+  "2026-10-19": {
+   "onsaItems": 4,
+   "unmatched": 0
+  },
+  "2026-10-20": {
+   "onsaItems": 3,
+   "unmatched": 0
+  },
+  "2026-10-21": {
+   "onsaItems": 3,
+   "unmatched": 0
+  },
+  "2026-10-22": {
+   "onsaItems": 3,
+   "unmatched": 0
+  },
+  "2026-10-23": {
+   "onsaItems": 4,
+   "unmatched": 0
+  },
+  "2026-10-24": {
+   "onsaItems": 3,
+   "unmatched": 0
+  },
+  "2026-10-25": {
+   "onsaItems": 2,
+   "unmatched": 0
+  }
+ },
+ "status": "provisional",
+ "label": "暫定分析（おんさAPI実データ未取得。共同編集シート書き出し基準）",
+ "asOf": "2026-11-10T12:30:00+09:00",
+ "populations": {
+  "sheetRawEntries": 6064,
+  "sheetReadDataEntries": 6025,
+  "sheetUiEntries": 5785,
+  "uniqueLinkCount": 5495,
+  "duplicateEntries": 290,
+  "screenshot": {
+   "value": 5512,
+   "asOf": "2026-11-10T09:14:00+09:00",
+   "kind": "管理人スクショ（画面カウンタ）"
+  },
+  "api": {
+   "status": "unavailable",
+   "note": "おんさAPI実データ未取得。画面値を現時点のAPI実数として扱わない"
+  },
+  "baselineComparison": {
+   "count": 5219,
+   "decisionDate": "2026-10-22",
+   "definition": "旧判定 C=対象 かつ D=対象"
+  },
+  "sheetMeta": {
+   "source": "共同編集シート書き出し（API本体ではない）",
+   "exportedAt": "不明（添付ファイルに時刻情報なし）",
+   "note": "シート書き出し・スクショ・API実取得は別時点。API実取得は未取得"
+  },
+  "gaps": [
+   {
+    "name": "sheetUiEntries − screenshot",
+    "value": 273,
+    "status": "未説明",
+    "note": "同一基準(画面ルール)のシート再現と画面スクショの差。原因未確定"
+   },
+   {
+    "name": "uniqueLinkCount − baselineComparison",
+    "value": 276,
+    "status": "暫定(シート基準)",
+    "note": "ユニークlinkと旧比較対象のEP単位照合の差"
+   },
+   {
+    "name": "uniqueLinkCount − screenshot",
+    "value": -17,
+    "status": "原因未確定",
+    "note": "母集団が異なる（重複除去あり/なし）。更新時刻差と断定しない"
+   },
+   {
+    "name": "screenshot − baselineComparison",
+    "value": 293,
+    "status": "母集団が異なる",
+    "note": "画面カウンタと旧判定は定義・時点が違う。293を収蔵漏れとしない"
+   }
+  ]
+ },
+ "duplicates": {
+  "duplicateLinks": 290,
+  "duplicateEntriesBeyondFirst": 290,
+  "byCategoryPair": {
+   "genba+sports": {
+    "entries": 276,
+    "links": 138,
+    "sameDateAll": 137,
+    "sameSpotifyAll": 127,
+    "sameTitleIgnoringBrackets": 108,
+    "samples": [
+     {
+      "link": "https://omny.fm/shows/asahi/193",
+      "entries": [
+       {
+        "category": "genba",
+        "title": "#193 崖っぷちの横綱たち　引退の基準、不透明では？"
+       },
+       {
+        "category": "sports",
+        "title": "（相撲）#193 崖っぷちの横綱たち　引退の基準、不透明では？"
+       }
+      ],
+      "publishedAt": "2021-03-15T21:00:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/194",
+      "entries": [
+       {
+        "category": "genba",
+        "title": "#194 「史上最大のカムバック」なるか　照ノ富士の挑戦"
+       },
+       {
+        "category": "sports",
+        "title": "（相撲）#194 「史上最大のカムバック」なるか　照ノ富士の挑戦"
+       }
+      ],
+      "publishedAt": "2021-03-16T21:00:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/204",
+      "entries": [
+       {
+        "category": "genba",
+        "title": "#204 大相撲、三賞って何ですか？　優勝争いだけじゃない見どころ"
+       },
+       {
+        "category": "sports",
+        "title": "（相撲）#204 大相撲、三賞って何ですか？　優勝争いだけじゃない見どころ"
+       }
+      ],
+      "publishedAt": "2021-03-26T21:00:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/89ee407c-ff87-494c-9079-ad9d00a4cc45",
+      "entries": [
+       {
+        "category": "genba",
+        "title": "#350 新横綱・照ノ富士が優勝争い筆頭　九月場所のダークホースは"
+       },
+       {
+        "category": "sports",
+        "title": "（相撲）#350 新横綱・照ノ富士が優勝争い筆頭　九月場所のダークホースは"
+       }
+      ],
+      "publishedAt": "2021-09-10T07:55:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/361-104",
+      "entries": [
+       {
+        "category": "genba",
+        "title": "#362 大相撲史上最長、104連敗で引退　勝南桜が藤井聡太三冠にあやかったのは"
+       },
+       {
+        "category": "sports",
+        "title": "（相撲）#362 大相撲史上最長、104連敗で引退　勝南桜が藤井聡太三冠にあやかったのは"
+       }
+      ],
+      "publishedAt": "2021-09-19T20:00:00.000Z"
+     }
+    ]
+   },
+   "genba+houdan": {
+    "entries": 242,
+    "links": 121,
+    "sameDateAll": 121,
+    "sameSpotifyAll": 121,
+    "sameTitleIgnoringBrackets": 120,
+    "samples": [
+     {
+      "link": "https://omny.fm/shows/asahi/33feec60-a57c-4445-9a9d-ae6b002c38cb",
+      "entries": [
+       {
+        "category": "genba",
+        "title": "（テスト企画）あのニュース、君にはどう映った？　特派員とゆったり語り合ってみた"
+       },
+       {
+        "category": "houdan",
+        "title": "（テスト企画）あのニュース、君にはどう映った？　特派員とゆったり語り合ってみた"
+       }
+      ],
+      "publishedAt": "2022-04-02T07:55:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/666",
+      "entries": [
+       {
+        "category": "genba",
+        "title": "北京で、最大の引き締めが始まった？　記者が見る「ゼロコロナ」政策の難しさ #666"
+       },
+       {
+        "category": "houdan",
+        "title": "北京で、最大の引き締めが始まった？　記者が見る「ゼロコロナ」政策の難しさ #666"
+       }
+      ],
+      "publishedAt": "2022-04-28T19:00:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/692-1",
+      "entries": [
+       {
+        "category": "genba",
+        "title": "出前を取っただけで自宅隔離に？　コロナから政治取材までゆったり語ります #692"
+       },
+       {
+        "category": "houdan",
+        "title": "出前を取っただけで自宅隔離に？　コロナから政治取材までゆったり語ります #692"
+       }
+      ],
+      "publishedAt": "2022-05-19T23:17:11.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/736",
+      "entries": [
+       {
+        "category": "genba",
+        "title": "名前は沖縄ルーツ、でも僕は大阪育ち　ルポに感じた同じ迷い #736"
+       },
+       {
+        "category": "houdan",
+        "title": "名前は沖縄ルーツ、でも僕は大阪育ち　ルポに感じた同じ迷い #736"
+       }
+      ],
+      "publishedAt": "2022-06-25T07:55:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/779",
+      "entries": [
+       {
+        "category": "genba",
+        "title": "選挙期間中に走った衝撃　安倍元首相襲撃事件を考える #779"
+       },
+       {
+        "category": "houdan",
+        "title": "選挙期間中に走った衝撃　安倍元首相襲撃事件を考える #779"
+       }
+      ],
+      "publishedAt": "2022-07-28T19:00:00.000Z"
+     }
+    ]
+   },
+   "donuts+genba": {
+    "entries": 18,
+    "links": 9,
+    "sameDateAll": 9,
+    "sameSpotifyAll": 0,
+    "sameTitleIgnoringBrackets": 9,
+    "samples": [
+     {
+      "link": "https://omny.fm/shows/asahi/1227",
+      "entries": [
+       {
+        "category": "genba",
+        "title": "1945年8月の朝日新聞①　ポツダム宣言を巡るかけひき、記事は読者を説教していた #1227"
+       },
+       {
+        "category": "donuts",
+        "title": "1945年8月の朝日新聞①　ポツダム宣言を巡るかけひき、記事は読者を説教していた #1227"
+       }
+      ],
+      "publishedAt": "2023-08-18T19:00:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/1228",
+      "entries": [
+       {
+        "category": "genba",
+        "title": "1945年8月の朝日新聞②　被爆直後の広島、惨状は伝えられなかった #1228"
+       },
+       {
+        "category": "donuts",
+        "title": "1945年8月の朝日新聞②　被爆直後の広島、惨状は伝えられなかった #1228"
+       }
+      ],
+      "publishedAt": "2023-08-19T19:00:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/1229",
+      "entries": [
+       {
+        "category": "genba",
+        "title": "1945年8月の朝日新聞③　玉音放送前日のがんじがらめ、そして進駐軍の洋モク #1229"
+       },
+       {
+        "category": "donuts",
+        "title": "1945年8月の朝日新聞③　玉音放送前日のがんじがらめ、そして進駐軍の洋モク #1229"
+       }
+      ],
+      "publishedAt": "2023-08-20T19:00:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/1611",
+      "entries": [
+       {
+        "category": "genba",
+        "title": "白虹事件（前編）　朝日新聞社、史上最大の危機は大正時代に #1611"
+       },
+       {
+        "category": "donuts",
+        "title": "白虹事件（前編）　朝日新聞社、史上最大の危機は大正時代に #1611"
+       }
+      ],
+      "publishedAt": "2024-08-21T19:00:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/1612",
+      "entries": [
+       {
+        "category": "genba",
+        "title": "白虹事件（後編）　歴史にifはないけれど、あの判断で良かったのか #1612"
+       },
+       {
+        "category": "donuts",
+        "title": "白虹事件（後編）　歴史にifはないけれど、あの判断で良かったのか #1612"
+       }
+      ],
+      "publishedAt": "2024-08-22T19:00:00.000Z"
+     }
+    ]
+   },
+   "media+sports": {
+    "entries": 10,
+    "links": 5,
+    "sameDateAll": 5,
+    "sameSpotifyAll": 5,
+    "sameTitleIgnoringBrackets": 4,
+    "samples": [
+     {
+      "link": "https://omny.fm/shows/asahi/50-269",
+      "entries": [
+       {
+        "category": "media",
+        "title": "バスケワールドカップ効果　人気高まるBリーグ、チケットが取れない試合も ＃50-269"
+       },
+       {
+        "category": "sports",
+        "title": "（バスケ）ワールドカップ効果　人気高まるBリーグ、チケットが取れない試合も ＃50-269"
+       }
+      ],
+      "publishedAt": "2023-11-15T19:00:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/50-369",
+      "entries": [
+       {
+        "category": "media",
+        "title": "フィジカルゲームだった決勝　見つめ直す日本の現在地（バスクラ・パリ五輪女子） #50-369"
+       },
+       {
+        "category": "sports",
+        "title": "（バスケ）フィジカルゲームだった決勝　見つめ直す日本の現在地（パリ五輪女子） #50-369"
+       }
+      ],
+      "publishedAt": "2024-09-04T19:00:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/50-404",
+      "entries": [
+       {
+        "category": "media",
+        "title": "双子対決や日本代表選手の母校対決…序盤から見どころ満載（バスクラ・ウインターカップ） #50-404"
+       },
+       {
+        "category": "sports",
+        "title": "（バスケ）双子対決や日本代表選手の母校対決…序盤から見どころ満載（ウインターカップ） #50-404"
+       }
+      ],
+      "publishedAt": "2024-12-12T19:00:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/50-421",
+      "entries": [
+       {
+        "category": "media",
+        "title": "3人で補い合うリーダー　これが私たちの京都精華（バスクラ・女子）#50-421"
+       },
+       {
+        "category": "sports",
+        "title": "（バスケ）3人で補い合うリーダー　これが私たちの京都精華（女子）#50-421"
+       }
+      ],
+      "publishedAt": "2025-01-25T19:00:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/50-568",
+      "entries": [
+       {
+        "category": "media",
+        "title": "完成した福岡大大濠のパズル　荒療治で目覚めた3年生（バスクラ・ウインターカップ男子） #50-568"
+       },
+       {
+        "category": "sports",
+        "title": "（バスケ・ウインターカップ男子）完成した福岡大大濠のパズル　荒療治で目覚めた3年生  #50-568"
+       }
+      ],
+      "publishedAt": "2026-01-27T19:00:00.000Z"
+     }
+    ]
+   },
+   "donuts+media": {
+    "entries": 18,
+    "links": 9,
+    "sameDateAll": 9,
+    "sameSpotifyAll": 0,
+    "sameTitleIgnoringBrackets": 8,
+    "samples": [
+     {
+      "link": "https://omny.fm/shows/asahi/us1-1",
+      "entries": [
+       {
+        "category": "media",
+        "title": "（右往左往）前編：靖国神社、右翼団体、そして朝日新聞社"
+       },
+       {
+        "category": "donuts",
+        "title": "（右往左往）前編：靖国神社、右翼団体、そして朝日新聞社"
+       }
+      ],
+      "publishedAt": "2026-05-03T19:00:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/us1-2",
+      "entries": [
+       {
+        "category": "media",
+        "title": "（右往左往）中編：ACGしか勝たん、中国へ行って強く思った"
+       },
+       {
+        "category": "donuts",
+        "title": "（右往左往）中編：ACGしか勝たん、中国へ行って強く思った"
+       }
+      ],
+      "publishedAt": "2026-05-04T19:00:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/us1-3",
+      "entries": [
+       {
+        "category": "media",
+        "title": "（右往左往）後編：インターネット、性という深淵　人を動かすもの"
+       },
+       {
+        "category": "donuts",
+        "title": "（右往左往）後編：インターネット、性という深淵　人を動かすもの"
+       }
+      ],
+      "publishedAt": "2026-05-05T19:00:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/20260616",
+      "entries": [
+       {
+        "category": "media",
+        "title": "（朝レキ）朝日新聞の紙面からみたラジオ・テレビ史　久米宏さんがつくった「フォーマット」、今も随所に　放送100年の「光」と「陰」"
+       },
+       {
+        "category": "donuts",
+        "title": "（朝レキ）朝日新聞の紙面からみたラジオ・テレビ史　久米宏さんがつくった「フォーマット」、今も随所に　放送100年の「光」と「陰」"
+       }
+      ],
+      "publishedAt": "2026-06-15T19:00:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/20260707",
+      "entries": [
+       {
+        "category": "media",
+        "title": "（右往左往）民族派としての目覚め、それは小学校で　一水会・海野学さん①"
+       },
+       {
+        "category": "donuts",
+        "title": "（右往左往）民族派の目覚め、それは小学生で　一水会・海野学さん①"
+       }
+      ],
+      "publishedAt": "2026-07-06T19:00:00.000Z"
+     }
+    ]
+   },
+   "sdgs+sports": {
+    "entries": 16,
+    "links": 8,
+    "sameDateAll": 8,
+    "sameSpotifyAll": 0,
+    "sameTitleIgnoringBrackets": 6,
+    "samples": [
+     {
+      "link": "https://omny.fm/shows/asahi/315-1",
+      "entries": [
+       {
+        "category": "sdgs",
+        "title": "羽生結弦選手が紡いだ2つの言葉の力　新しいアイスショー「GIFT」への思い #315"
+       },
+       {
+        "category": "sports",
+        "title": "（フィギュア）羽生結弦選手が紡いだ2つの言葉の力　新しいアイスショー「GIFT」への思い #315"
+       }
+      ],
+      "publishedAt": "2023-02-12T19:00:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/316-1",
+      "entries": [
+       {
+        "category": "sdgs",
+        "title": "フィギュアスケーターが性的少数者と公表する理由　スポーツと多様性を考える #316"
+       },
+       {
+        "category": "sports",
+        "title": "フィギュアスケーターが性的少数者と公表する理由　スポーツと多様性を考える #316"
+       }
+      ],
+      "publishedAt": "2023-02-13T19:00:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/100-712",
+      "entries": [
+       {
+        "category": "sdgs",
+        "title": "初めて知った父と甲子園　元球児の記者が共感　甲子園球場100年（前編） #712"
+       },
+       {
+        "category": "sports",
+        "title": "（甲子園球場100年・前編）初めて知った父と甲子園　元球児の記者が共感　甲子園球場100年 #712"
+       }
+      ],
+      "publishedAt": "2024-09-17T19:00:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/757-1",
+      "entries": [
+       {
+        "category": "sdgs",
+        "title": "「伝統だとか言ってられない」迫られるスポーツ現場の熱中症対策　進む温暖化、来夏に向け考える #757"
+       },
+       {
+        "category": "sports",
+        "title": "「伝統だとか言ってられない」迫られるスポーツ現場の熱中症対策　進む温暖化、来夏に向け考える #757"
+       }
+      ],
+      "publishedAt": "2024-11-24T19:00:00.000Z"
+     },
+     {
+      "link": "https://omny.fm/shows/asahi/901-1",
+      "entries": [
+       {
+        "category": "sdgs",
+        "title": "上手くならなくてもいい　スケボーやブレイキンがもたらす変化　不登校とスポーツ（前編） #901"
+       },
+       {
+        "category": "sports",
+        "title": "（不登校とスポーツ・前編）上手くならなくてもいい　スケボーやブレイキンがもたらす変化 #901"
+       }
+      ],
+      "publishedAt": "2025-06-24T19:00:00.000Z"
+     }
+    ]
+   }
+  },
+  "rows": [
+   {
+    "link": "https://omny.fm/shows/asahi/193",
+    "categories": "genba+sports",
+    "titles": [
+     "#193 崖っぷちの横綱たち　引退の基準、不透明では？",
+     "（相撲）#193 崖っぷちの横綱たち　引退の基準、不透明では？"
+    ],
+    "publishedAt": [
+     "2021-03-15T21:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "3j5UULjviAYAKoR9BKDU2q"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/194",
+    "categories": "genba+sports",
+    "titles": [
+     "#194 「史上最大のカムバック」なるか　照ノ富士の挑戦",
+     "（相撲）#194 「史上最大のカムバック」なるか　照ノ富士の挑戦"
+    ],
+    "publishedAt": [
+     "2021-03-16T21:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6ar6gHO2q3a4RuCKK6DDf1"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/204",
+    "categories": "genba+sports",
+    "titles": [
+     "#204 大相撲、三賞って何ですか？　優勝争いだけじゃない見どころ",
+     "（相撲）#204 大相撲、三賞って何ですか？　優勝争いだけじゃない見どころ"
+    ],
+    "publishedAt": [
+     "2021-03-26T21:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5knGzfTvaSedoQdB9fGREf"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/89ee407c-ff87-494c-9079-ad9d00a4cc45",
+    "categories": "genba+sports",
+    "titles": [
+     "#350 新横綱・照ノ富士が優勝争い筆頭　九月場所のダークホースは",
+     "（相撲）#350 新横綱・照ノ富士が優勝争い筆頭　九月場所のダークホースは"
+    ],
+    "publishedAt": [
+     "2021-09-10T07:55:00.000Z"
+    ],
+    "spotifyIds": [
+     "6KTh85UqpaNFu6fTSjKjsc"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/361-104",
+    "categories": "genba+sports",
+    "titles": [
+     "#362 大相撲史上最長、104連敗で引退　勝南桜が藤井聡太三冠にあやかったのは",
+     "（相撲）#362 大相撲史上最長、104連敗で引退　勝南桜が藤井聡太三冠にあやかったのは"
+    ],
+    "publishedAt": [
+     "2021-09-19T20:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1tmM0VRTuDU0B6SSZcDBPg"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/432be203-b448-4dd9-8be3-ada000cb9632",
+    "categories": "genba+sports",
+    "titles": [
+     "#371 勝ちにこだわる戦法、白鵬への批判　横綱に求める「水戸黄門」",
+     "（相撲）#371 勝ちにこだわる戦法、白鵬への批判　横綱に求める「水戸黄門」"
+    ],
+    "publishedAt": [
+     "2021-09-25T20:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "3dAQH5jPD1C0rdSq9exHjl"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/390",
+    "categories": "genba+sports",
+    "titles": [
+     "#390 引退・白鵬、「誓約書サイン」の裏側　相撲協会が刺したクギ（前編）",
+     "（相撲）#390 引退・白鵬、「誓約書サイン」の裏側　相撲協会が刺したクギ（前編）"
+    ],
+    "publishedAt": [
+     "2021-10-10T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4inB1s6frY7tXRvW6RoynW"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/391",
+    "categories": "genba+sports",
+    "titles": [
+     "#391 入門時の低評価、覆した白鵬の努力と才能　相撲人生の第二章が始まる（後編）",
+     "（相撲）#391 入門時の低評価、覆した白鵬の努力と才能　相撲人生の第二章が始まる（後編）"
+    ],
+    "publishedAt": [
+     "2021-10-11T02:55:00.000Z"
+    ],
+    "spotifyIds": [
+     "2P0pagHaQuPYVKEyaGQWTy"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/436",
+    "categories": "genba+sports",
+    "titles": [
+     "#436 照ノ富士、一人横綱の重圧　十一月場所「安全に勝とう」は危険",
+     "（相撲）#436 照ノ富士、一人横綱の重圧　十一月場所「安全に勝とう」は危険"
+    ],
+    "publishedAt": [
+     "2021-11-11T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1DGu2DlBYnsymd9MZ2kMYC"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/445-3",
+    "categories": "genba+sports",
+    "titles": [
+     "#445 大相撲、こんな取材をしています　やはりコロナで様変わりして",
+     "（相撲）#445 大相撲、こんな取材をしています　やはりコロナで様変わりして"
+    ],
+    "publishedAt": [
+     "2021-11-18T02:55:00.000Z"
+    ],
+    "spotifyIds": [
+     "0DkGmEkNk0M5TGaNhTkd9e"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2-11",
+    "categories": "genba+sports",
+    "titles": [
+     "#465 相撲部屋、ちゃんこ鍋にまつわる裏話　記者は「2杯目おかわり」がマナー",
+     "（相撲）#465 相撲部屋、ちゃんこ鍋にまつわる裏話　記者は「2杯目おかわり」がマナー"
+    ],
+    "publishedAt": [
+     "2021-12-02T02:55:00.000Z"
+    ],
+    "spotifyIds": [
+     "4Jb8SrAMUliEUpZI9DOOAA"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/7-602",
+    "categories": "genba+sports",
+    "titles": [
+     "御嶽海、何が変わった？　新大関までの苦節7年と勝負強さ #602",
+     "（相撲）御嶽海、何が変わった？　新大関までの苦節7年と勝負強さ #602"
+    ],
+    "publishedAt": [
+     "2022-03-13T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "60lhKFT4KmozoN1JNrnb6J"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/603",
+    "categories": "genba+sports",
+    "titles": [
+     "「軽トラの衝突事故」でも医師が来ない　力士の安全を守るには #603",
+     "（相撲）「軽トラの衝突事故」でも医師が来ない　力士の安全を守るには #603"
+    ],
+    "publishedAt": [
+     "2022-03-14T02:55:00.000Z"
+    ],
+    "spotifyIds": [
+     "26CVwUZCFWQPfxQzUSdpkW"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/33feec60-a57c-4445-9a9d-ae6b002c38cb",
+    "categories": "genba+houdan",
+    "titles": [
+     "（テスト企画）あのニュース、君にはどう映った？　特派員とゆったり語り合ってみた",
+     "（テスト企画）あのニュース、君にはどう映った？　特派員とゆったり語り合ってみた"
+    ],
+    "publishedAt": [
+     "2022-04-02T07:55:00.000Z"
+    ],
+    "spotifyIds": [
+     "6NeqeTze9fvtqc5BThHASG"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/666",
+    "categories": "genba+houdan",
+    "titles": [
+     "北京で、最大の引き締めが始まった？　記者が見る「ゼロコロナ」政策の難しさ #666",
+     "北京で、最大の引き締めが始まった？　記者が見る「ゼロコロナ」政策の難しさ #666"
+    ],
+    "publishedAt": [
+     "2022-04-28T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6yNJKehUtKuk5crSPqScU8"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/678",
+    "categories": "genba+sports",
+    "titles": [
+     "86年ぶり快挙の若隆景　福島の相撲一家、三男坊が目指す夢 #678",
+     "（相撲）86年ぶり快挙の若隆景　福島の相撲一家、三男坊が目指す夢 #678"
+    ],
+    "publishedAt": [
+     "2022-05-09T02:55:00.000Z"
+    ],
+    "spotifyIds": [
+     "2CVtAy704CQkbxZ3gZ15oT"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/692-1",
+    "categories": "genba+houdan",
+    "titles": [
+     "出前を取っただけで自宅隔離に？　コロナから政治取材までゆったり語ります #692",
+     "出前を取っただけで自宅隔離に？　コロナから政治取材までゆったり語ります #692"
+    ],
+    "publishedAt": [
+     "2022-05-19T23:17:11.000Z"
+    ],
+    "spotifyIds": [
+     "7LdlMcVKaRwGGYvVtFE4C0"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/736",
+    "categories": "genba+houdan",
+    "titles": [
+     "名前は沖縄ルーツ、でも僕は大阪育ち　ルポに感じた同じ迷い #736",
+     "名前は沖縄ルーツ、でも僕は大阪育ち　ルポに感じた同じ迷い #736"
+    ],
+    "publishedAt": [
+     "2022-06-25T07:55:00.000Z"
+    ],
+    "spotifyIds": [
+     "4E11DBIvVZ761CitU9Zatl"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/779",
+    "categories": "genba+houdan",
+    "titles": [
+     "選挙期間中に走った衝撃　安倍元首相襲撃事件を考える #779",
+     "選挙期間中に走った衝撃　安倍元首相襲撃事件を考える #779"
+    ],
+    "publishedAt": [
+     "2022-07-28T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1v7ACM04poLJCtG9ODZ8Xb"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/816",
+    "categories": "genba+sports",
+    "titles": [
+     "コロナで力士3割が休場、番付どうなる？　逸ノ城Vの名古屋場所を振り返る #816",
+     "（相撲）コロナで力士3割が休場、番付どうなる？　逸ノ城Vの名古屋場所を振り返る #816"
+    ],
+    "publishedAt": [
+     "2022-08-24T07:55:00.000Z"
+    ],
+    "spotifyIds": [
+     "6XPX0uCjWLJz6BSqrem9qQ"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/821-1",
+    "categories": "genba+houdan",
+    "titles": [
+     "「選挙って本当に優秀な人を選べるの？」　中国で問われ、考えた #821",
+     "「選挙って本当に優秀な人を選べるの？」　中国で問われ、考えた #821"
+    ],
+    "publishedAt": [
+     "2022-08-27T07:55:00.000Z"
+    ],
+    "spotifyIds": [
+     "5Q0P0j94KgScppVjYDyRBE"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/864-1",
+    "categories": "genba+houdan",
+    "titles": [
+     "パンダが日本にやってきた日　中国の宝、50年のインパクト #864",
+     "パンダが日本にやってきた日　中国の宝、50年のインパクト #864"
+    ],
+    "publishedAt": [
+     "2022-10-01T07:55:00.000Z"
+    ],
+    "spotifyIds": [
+     "24d1kXHSBUOsaVRBizZLff"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/883",
+    "categories": "genba+sports",
+    "titles": [
+     "37歳で優勝「鉄人」玉鷲、茨城出身？　ユーモアたっぷり取材の裏側 #883",
+     "（相撲）37歳で優勝「鉄人」玉鷲、茨城出身？　ユーモアたっぷり取材の裏側 #883"
+    ],
+    "publishedAt": [
+     "2022-10-17T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2WbVm06vo0mdyoUqeroDEz"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/886",
+    "categories": "genba+sports",
+    "titles": [
+     "羽生結弦さん、「引退」ではない理由　スケート競技歴14年の記者がよみとく #886",
+     "（フィギュア）羽生結弦さん、「引退」ではない理由　スケート競技歴14年の記者がよみとく #886"
+    ],
+    "publishedAt": [
+     "2022-10-20T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1EncORdH3DIjl0ZRLAVnbk"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/887",
+    "categories": "genba+sports",
+    "titles": [
+     "スケートのシーズン突入　4回転半の申し子誕生、おすすめの観戦法は #887",
+     "（フィギュア）スケートのシーズン突入　4回転半の申し子誕生、おすすめの観戦法は #887"
+    ],
+    "publishedAt": [
+     "2022-10-21T02:55:00.000Z"
+    ],
+    "spotifyIds": [
+     "5A9DUpU13IiTs0jlOj0CWM"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/895",
+    "categories": "genba+houdan",
+    "titles": [
+     "側近で固められた指導部、胡錦濤氏の退出騒動　中国共産党大会を読む #895",
+     "側近で固められた指導部、胡錦濤氏の退出騒動　中国共産党大会を読む #895"
+    ],
+    "publishedAt": [
+     "2022-10-27T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0o2HvhJ66kf9KM92J2Jeyn"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/902",
+    "categories": "genba+houdan",
+    "titles": [
+     "習近平体制と監視社会　継ぎ足しのタレ、引き継ぐべきか #902",
+     "習近平体制と監視社会　継ぎ足しのタレ、引き継ぐべきか #902"
+    ],
+    "publishedAt": [
+     "2022-11-02T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5CkKjfxInpvjN0VFfVOG57"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/925",
+    "categories": "genba+houdan",
+    "titles": [
+     "書かれたら終わりな新党立ち上げ会議　記者を呼んだ政治家のすごさ #925",
+     "書かれたら終わりな新党立ち上げ会議　記者を呼んだ政治家のすごさ #925"
+    ],
+    "publishedAt": [
+     "2022-11-24T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "3x5XVOjHtBYrFAO7Vm5GXf"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/946",
+    "categories": "genba+sports",
+    "titles": [
+     "フィギュアの演技中、ジャンプを跳ぶ前によぎる思いとは　リスナーさんの質問に答えます #946",
+     "（フィギュア）演技中、ジャンプを跳ぶ前によぎる思いとは　リスナーさんの質問に答えます #946"
+    ],
+    "publishedAt": [
+     "2022-12-14T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2I1FVxLKPI9MELasaMgJJN"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/954",
+    "categories": "genba+sports",
+    "titles": [
+     "28年ぶりの巴戦で起きた「危険な事故」　高安の悲願はいつかなうのか？ #954",
+     "（相撲）28年ぶりの巴戦で起きた「危険な事故」　高安の悲願はいつかなうのか？ #954"
+    ],
+    "publishedAt": [
+     "2022-12-22T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1YQgJPNKAbIWjYbHo2ALsr"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/960",
+    "categories": "genba+houdan",
+    "titles": [
+     "2.5億人が感染？　隔離のはずが「もう帰れ」　中国のコロナ政策激変 #960",
+     "2.5億人が感染？　隔離のはずが「もう帰れ」　中国のコロナ政策激変 #960"
+    ],
+    "publishedAt": [
+     "2022-12-28T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0148B8ysaPy1zgOuy5t41C"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/990",
+    "categories": "genba+houdan",
+    "titles": [
+     "「で、家持ってんの？」　中国の人口減をたどれば、悩ましい結婚習慣が #990",
+     "「で、家持ってんの？」　中国の人口減をたどれば、悩ましい結婚習慣が #990"
+    ],
+    "publishedAt": [
+     "2023-01-26T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6rppaThdw6GRL3voSojSht"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/994",
+    "categories": "genba+sports",
+    "titles": [
+     "フィギュア三原舞依選手、「笑顔」の本当の理由　世界トップ6の戦いに日本勢席巻 #994",
+     "（フィギュア）三原舞依選手、「笑顔」の本当の理由　世界トップ6の戦いに日本勢席巻 #994"
+    ],
+    "publishedAt": [
+     "2023-01-30T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0ULQ1GDEL88wagOfEsodDh"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/997",
+    "categories": "genba+sports",
+    "titles": [
+     "高橋大輔選手演じる「男36歳の苦悩」、女子は10代が躍進　フィギュア全日本 #997",
+     "（フィギュア全日本）高橋大輔選手演じる「男36歳の苦悩」、女子は10代が躍進  #997"
+    ],
+    "publishedAt": [
+     "2023-02-02T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2SUhGjTsioCXDhGqiIWS4l"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1026",
+    "categories": "genba+houdan",
+    "titles": [
+     "中国の気球、結局なんだった？　アメリカとの駆け引きの裏を探る　#1026",
+     "中国の気球、結局なんだった？　アメリカとの駆け引きの裏を探る　#1026"
+    ],
+    "publishedAt": [
+     "2023-03-02T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2v4R5T7yICNHFhpYWfoN3M"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1055",
+    "categories": "genba+houdan",
+    "titles": [
+     "ロシア、サウジ、イラン…中国が動かす国際社会　ところで私、ジャニーズ問題取材してました #1055",
+     "ロシア、サウジ、イラン…中国が動かす国際社会　ところで私、ジャニーズ問題取材してました #1055"
+    ],
+    "publishedAt": [
+     "2023-03-30T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "30eOOnYumFgUdJ0dgWMz2O"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1062",
+    "categories": "genba+sports",
+    "titles": [
+     "のめり込む親、「期待されている」重圧感じる選手　フィギュアスケート「英才教育」の現場 #1062",
+     "（フィギュア）のめり込む親、「期待されている」重圧感じる選手　「英才教育」の現場 #1062"
+    ],
+    "publishedAt": [
+     "2023-04-06T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4OcTe1Zu6VRHkP1mSHl6XI"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1069",
+    "categories": "genba+sports",
+    "titles": [
+     "「100グラムも太れない」成長期にあえぐフィギュア選手　骨折や摂食障害食い止めるには #1069",
+     "（フィギュア）「100グラムも太れない」成長期にあえぐフィギュア選手　骨折や摂食障害食い止めるには #1069"
+    ],
+    "publishedAt": [
+     "2023-04-13T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1RgIlFdsfwUFbOrzZ1AAN0"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1091",
+    "categories": "genba+houdan",
+    "titles": [
+     "①BOOWY派かTM NETWORK派か　懐メロ合戦は突然に #1091",
+     "①BOOWY派かTM NETWORK派か　懐メロ合戦は突然に #1091"
+    ],
+    "publishedAt": [
+     "2023-05-04T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6KoWWtgql2wLR5tFQoYys9"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1092",
+    "categories": "genba+houdan",
+    "titles": [
+     "②上に政策あれば下に対策あり　中国の監視をすり抜ける投稿術 #1092",
+     "②上に政策あれば下に対策あり　中国の監視をすり抜ける投稿術 #1092"
+    ],
+    "publishedAt": [
+     "2023-05-04T19:05:00.000Z"
+    ],
+    "spotifyIds": [
+     "1E7t2Jmy5CN1oDncwPYH98"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1093",
+    "categories": "genba+houdan",
+    "titles": [
+     "③「ちょっとお茶飲もう」は中国の常套手段　監視下の取材を語ります #1093",
+     "③「ちょっとお茶飲もう」は中国の常套手段　監視下の取材を語ります #1093"
+    ],
+    "publishedAt": [
+     "2023-05-04T19:10:00.000Z"
+    ],
+    "spotifyIds": [
+     "7eY6VsQDT3tuRBWdREasgE"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1094",
+    "categories": "genba+houdan",
+    "titles": [
+     "④選挙はTOKIOの「宙船」に通ず　おまえのオールをまかせるな #1094",
+     "④選挙はTOKIOの「宙船」に通ず　おまえのオールをまかせるな #1094"
+    ],
+    "publishedAt": [
+     "2023-05-04T19:15:00.000Z"
+    ],
+    "spotifyIds": [
+     "30tS0Z4t6ASChwXudnDIXE"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1106",
+    "categories": "genba+sports",
+    "titles": [
+     "フィギュア、世界制覇の日本勢「かなだい」のアイスダンス、ペアとどう違う? #1106",
+     "（フィギュア）世界制覇の日本勢「かなだい」のアイスダンス、ペアとどう違う? #1106"
+    ],
+    "publishedAt": [
+     "2023-05-13T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "18ZGlbZ9JNK33qqlFyMewC"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/7-1137",
+    "categories": "genba+houdan",
+    "titles": [
+     "①7年ぶりの日本生活　コンビニ楽しい、手続き多すぎ、通勤しんどい #1137",
+     "①7年ぶりの日本生活　コンビニ楽しい、手続き多すぎ、通勤しんどい #1137"
+    ],
+    "publishedAt": [
+     "2023-06-08T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2gCayOadLDmv2kMjYgcuzW"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1138",
+    "categories": "genba+houdan",
+    "titles": [
+     "②首相公邸で記念撮影、する？　しない？　政治部時代の私は… #1138",
+     "②首相公邸で記念撮影、する？　しない？　政治部時代の私は… #1138"
+    ],
+    "publishedAt": [
+     "2023-06-08T19:05:00.000Z"
+    ],
+    "spotifyIds": [
+     "1R134nGH5xI5N4VJ5UXrzW"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1139",
+    "categories": "genba+houdan",
+    "titles": [
+     "③自民 vs. 公明？　  東京選挙区で何が　すれ違いの原因は岸田政権に #1139",
+     "③自民 vs. 公明？　  東京選挙区で何が　すれ違いの原因は岸田政権に #1139"
+    ],
+    "publishedAt": [
+     "2023-06-08T19:10:00.000Z"
+    ],
+    "spotifyIds": [
+     "6ecVOEC2nUYjGxWJ68hEZP"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1140",
+    "categories": "genba+houdan",
+    "titles": [
+     "④日本に足りない「したたかさ」　投票行ったら、お好み焼き屋へ  #1140",
+     "④日本に足りない「したたかさ」　投票行ったら、お好み焼き屋へ  #1140"
+    ],
+    "publishedAt": [
+     "2023-06-08T19:15:00.000Z"
+    ],
+    "spotifyIds": [
+     "62rmTSDAJOdyv8DGEuFY5x"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1144",
+    "categories": "genba+sports",
+    "titles": [
+     "霧馬山が大関昇進　鶴竜親方の引退相撲に花を添えた ＃1144",
+     "（相撲）霧馬山が大関昇進　鶴竜親方の引退相撲に花を添えた ＃1144"
+    ],
+    "publishedAt": [
+     "2023-06-12T02:55:00.000Z"
+    ],
+    "spotifyIds": [
+     "1ol6e1XPP0HbsNw1HttltX"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1167",
+    "categories": "genba+houdan",
+    "titles": [
+     "街角で感じた中国との違い　人との距離、積極的でもいいじゃない #1167",
+     "街角で感じた中国との違い　人との距離、積極的でもいいじゃない #1167"
+    ],
+    "publishedAt": [
+     "2023-06-29T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5eq1Zd9nLpYQ6aMfd7sJEK"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1176",
+    "categories": "genba+houdan",
+    "titles": [
+     "白熱！重大ニュースはどれ　ロシアのワグネル、中国、アメリカ　自分のものさしが揺らぐとき #1176",
+     "白熱！重大ニュースはどれ　ロシアのワグネル、中国、アメリカ　自分のものさしが揺らぐとき #1176"
+    ],
+    "publishedAt": [
+     "2023-07-06T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1BcRxsRnwqhbhR9Reu84Ax"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1183",
+    "categories": "genba+houdan",
+    "titles": [
+     "有利だから解散・総選挙、それでいいの？　6月の騒動はなんだったのか #1183",
+     "有利だから解散・総選挙、それでいいの？　6月の騒動はなんだったのか #1183"
+    ],
+    "publishedAt": [
+     "2023-07-13T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "3StqiyTR2zRa6Es7p9LMFB"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1192",
+    "categories": "genba+houdan",
+    "titles": [
+     "男同士でジェンダー格差を語ろう、結婚生活の難しさも　リスナーさんの質問に答えます #1192",
+     "男同士でジェンダー格差を語ろう、結婚生活の難しさも　リスナーさんの質問に答えます #1192"
+    ],
+    "publishedAt": [
+     "2023-07-20T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "28XeevRGoAm8DkXzaQRnDu"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1199",
+    "categories": "genba+houdan",
+    "titles": [
+     "分割配信　ワンピースではなく、こち亀スタイルでいこうじゃないか #1199",
+     "分割配信　ワンピースではなく、こち亀スタイルでいこうじゃないか #1199"
+    ],
+    "publishedAt": [
+     "2023-07-27T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2HLeVKpLKcH5ZkF4TJ0PMV"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1209",
+    "categories": "genba+houdan",
+    "titles": [
+     "総理番、新入りが受ける洗礼と駆け引き　政治部あるある言いたい #1209",
+     "総理番、新入りが受ける洗礼と駆け引き　政治部あるある言いたい #1209"
+    ],
+    "publishedAt": [
+     "2023-08-03T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5RzHuUh4FM8AEfnrXGAK1n"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1216",
+    "categories": "genba+houdan",
+    "titles": [
+     "岸田首相の最側近、木原誠二氏ってどんな人？　牛肉とワインの夜に #1216",
+     "岸田首相の最側近、木原誠二氏ってどんな人？　牛肉とワインの夜に #1216"
+    ],
+    "publishedAt": [
+     "2023-08-10T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4S1aMlCY3JyfKNhzX5GsNn"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/funakoshi",
+    "categories": "genba+houdan",
+    "titles": [
+     "終電ギスギスどうすれば　半導体のかけひき、中国の関係者に聞きました #1225",
+     "終電ギスギスどうすれば　半導体のかけひき、中国の関係者に聞きました #1225"
+    ],
+    "publishedAt": [
+     "2023-08-17T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1mWv6A3lkcNdbivugk78x5"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1227",
+    "categories": "donuts+genba",
+    "titles": [
+     "1945年8月の朝日新聞①　ポツダム宣言を巡るかけひき、記事は読者を説教していた #1227",
+     "1945年8月の朝日新聞①　ポツダム宣言を巡るかけひき、記事は読者を説教していた #1227"
+    ],
+    "publishedAt": [
+     "2023-08-18T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2zXqxeUvIZJCYXvL3GjAuP",
+     "2GrfIT41XMzLUXLQo9fRqV"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1228",
+    "categories": "donuts+genba",
+    "titles": [
+     "1945年8月の朝日新聞②　被爆直後の広島、惨状は伝えられなかった #1228",
+     "1945年8月の朝日新聞②　被爆直後の広島、惨状は伝えられなかった #1228"
+    ],
+    "publishedAt": [
+     "2023-08-19T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1NsYRy8piuiRQL5aV3WalW",
+     "6Uy8szOPE6AIO86fqMrNcJ"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1229",
+    "categories": "donuts+genba",
+    "titles": [
+     "1945年8月の朝日新聞③　玉音放送前日のがんじがらめ、そして進駐軍の洋モク #1229",
+     "1945年8月の朝日新聞③　玉音放送前日のがんじがらめ、そして進駐軍の洋モク #1229"
+    ],
+    "publishedAt": [
+     "2023-08-20T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1kIS90uiSmhNToixoHkoBP",
+     "2WRPtGKfldQKiciAxVcIOQ"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1231",
+    "categories": "genba+sports",
+    "titles": [
+     "革新する日本のバスケ　島田慎二チェアマンに聞くBリーグとW杯 #1231",
+     "（バスケ）革新する日本のバスケ　島田慎二チェアマンに聞くBリーグとW杯 #1231"
+    ],
+    "publishedAt": [
+     "2023-08-22T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6jEFREMnKNpyosg3XDY9kE"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1232",
+    "categories": "genba+sports",
+    "titles": [
+     "もう朝青龍の影は追わない　万能型の豊昇龍、初Vで大関昇進 #1232",
+     "（相撲）もう朝青龍の影は追わない　万能型の豊昇龍、初Vで大関昇進 #1232"
+    ],
+    "publishedAt": [
+     "2023-08-23T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "34Om4u62aAO1ocp5WCbiIT"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1233",
+    "categories": "genba+houdan",
+    "titles": [
+     "「台湾有事」どう思いますか　安全保障、食わず嫌いしないで語ろうよ #1233",
+     "「台湾有事」どう思いますか　安全保障、食わず嫌いしないで語ろうよ #1233"
+    ],
+    "publishedAt": [
+     "2023-08-24T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0z7iGQsJ0QeAZIaxUbVZ2y"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1242",
+    "categories": "genba+houdan",
+    "titles": [
+     "中国と日本のホンネの対話、細っているようで心配です　処理水放出で深まる溝　#1242",
+     "中国と日本のホンネの対話、細っているようで心配です　処理水放出で深まる溝　#1242"
+    ],
+    "publishedAt": [
+     "2023-09-01T07:55:00.000Z"
+    ],
+    "spotifyIds": [
+     "0Zp8yGPPa9ZAGKjwkEAIds"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1249",
+    "categories": "genba+houdan",
+    "titles": [
+     "茂木氏・石破氏・河野氏の処遇は　駆け引き始まる内閣改造 #1249",
+     "茂木氏・石破氏・河野氏の処遇は　駆け引き始まる内閣改造 #1249"
+    ],
+    "publishedAt": [
+     "2023-09-07T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0E9IFzkhzIBkroQJ9gob0e"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1259",
+    "categories": "genba+houdan",
+    "titles": [
+     "銅が世界で奪い合いに　EVだと1台につき80キロ超必要 #1259",
+     "銅が世界で奪い合いに　EVだと1台につき80キロ超必要 #1259"
+    ],
+    "publishedAt": [
+     "2023-09-14T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "54Z07sFEDS45oHbF4X0JoC"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1260",
+    "categories": "genba+sports",
+    "titles": [
+     "フィギュア選手がティッシュを離せない理由、氷に空いた穴の秘密…「あるある」解説 #1260",
+     "（フィギュア）選手がティッシュを離せない理由、氷に空いた穴の秘密…「あるある」解説 #1260"
+    ],
+    "publishedAt": [
+     "2023-09-15T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0WjjsJBIzMlcCVU6SMhsLO"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1265",
+    "categories": "genba+sports",
+    "titles": [
+     "なでしこジャパン、Ｗ杯ともう一つの戦い　変革迎える女子サッカーの世界 #1265",
+     "（サッカー）なでしこジャパン、Ｗ杯ともう一つの戦い　変革迎える女子サッカーの世界 #1265"
+    ],
+    "publishedAt": [
+     "2023-09-20T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "57TzxxXbWm0DElvFNP7mTS"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1266",
+    "categories": "genba+houdan",
+    "titles": [
+     "そもそも解説、内閣改造って何のため　岸田首相は何をしたいの？ #1266",
+     "そもそも解説、内閣改造って何のため　岸田首相は何をしたいの？ #1266"
+    ],
+    "publishedAt": [
+     "2023-09-21T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "3nA08BXXDlHOLExQlTnDUP"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1276",
+    "categories": "genba+houdan",
+    "titles": [
+     "芸術の秋ですね　ところで、ジャニーズ事務所の会見どう思った？ #1276",
+     "芸術の秋ですね　ところで、ジャニーズ事務所の会見どう思った？ #1276"
+    ],
+    "publishedAt": [
+     "2023-09-28T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6llpzOk6D2sOuTtCTeeE39"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1283-1",
+    "categories": "genba+houdan",
+    "titles": [
+     "インボイス制度、わかりやすく伝えます　負担のしわ寄せは誰に #1283",
+     "インボイス制度、わかりやすく伝えます　負担のしわ寄せは誰に #1283"
+    ],
+    "publishedAt": [
+     "2023-10-05T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "60jhFWRS27DNxegyVtTTKY"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1289",
+    "categories": "genba+sports",
+    "titles": [
+     "「小さな巨人」がつかんだ、パリ五輪の切符　バスケ男子の48年ぶり快挙を振り返る ＃1289",
+     "（バスケ）「小さな巨人」がつかんだ、パリ五輪の切符　男子が48年ぶり快挙 ＃1289"
+    ],
+    "publishedAt": [
+     "2023-10-09T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5nWTuhN9EFXt2GnDk4vLSy"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1291",
+    "categories": "genba+sports",
+    "titles": [
+     "イニエスタ退団とサッカービジネス　移籍先から見えてくるもの #1291",
+     "（サッカー）イニエスタ退団とサッカービジネス　移籍先から見えてくるもの #1291"
+    ],
+    "publishedAt": [
+     "2023-10-11T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2wI5CdPyzCVPERrhRI9wCd"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1292-1",
+    "categories": "genba+houdan",
+    "titles": [
+     "少年Fの青春記　野球に熱中、学習塾は出禁、階段落ちても元気に登校 #1292",
+     "少年Fの青春記　野球に熱中、学習塾は出禁、階段落ちても元気に登校 #1292"
+    ],
+    "publishedAt": [
+     "2023-10-12T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5CfQ8wIeFiULd79xjiYxKO"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1299",
+    "categories": "genba+houdan",
+    "titles": [
+     "中国の国防相はなぜ消えた　魚の禁輸も外交カード #1299",
+     "中国の国防相はなぜ消えた　魚の禁輸も外交カード #1299"
+    ],
+    "publishedAt": [
+     "2023-10-19T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4ogwnhkxA9wCLcDtYVkCgS"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1306",
+    "categories": "genba+houdan",
+    "titles": [
+     "スーパー視察と不支持率　岸田さん、「クリスマス選挙」はご勘弁 #1306",
+     "スーパー視察と不支持率　岸田さん、「クリスマス選挙」はご勘弁 #1306"
+    ],
+    "publishedAt": [
+     "2023-10-26T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4s2peJkFBz3VvWjwTBD8Im"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1313",
+    "categories": "genba+houdan",
+    "titles": [
+     "中国とイスラエル・パレスチナの距離　「一帯一路」の陰で #1313",
+     "中国とイスラエル・パレスチナの距離　「一帯一路」の陰で #1313"
+    ],
+    "publishedAt": [
+     "2023-11-02T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0tiCWY82bd2x3VKhPykuyT"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1317",
+    "categories": "genba+sports",
+    "titles": [
+     "広がる「AIジャッジ」、スポーツどう変える　VARとカーナビに通じること #1317",
+     "（サッカー）広がる「AIジャッジ」、スポーツどう変える　VARとカーナビに通じること #1317"
+    ],
+    "publishedAt": [
+     "2023-11-06T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "3lUR7WII3rQq84sf4M651C"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1320",
+    "categories": "genba+houdan",
+    "titles": [
+     "李克強・前首相、こだわった「真実」　武漢から広がった新型コロナの陰で #1320",
+     "李克強・前首相、こだわった「真実」　武漢から広がった新型コロナの陰で #1320"
+    ],
+    "publishedAt": [
+     "2023-11-09T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "7AhNHxAW9fVnDonN9lhBZk"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1326",
+    "categories": "genba+sports",
+    "titles": [
+     "「バスケ代表拒否なら罰則」に選手たちも反応　波紋を呼んだ新規定の意図は ＃1326",
+     "（バスケ）「代表拒否なら罰則」に選手たちも反応　波紋を呼んだ新規定の意図は ＃1326"
+    ],
+    "publishedAt": [
+     "2023-11-15T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5IJQTAS0Sz8G0hkbkNc2uf"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1328",
+    "categories": "genba+sports",
+    "titles": [
+     "フィギュアシーズン到来　「関東卍ボーイズ」3人の活躍は、女子の新星が誕生 #1328",
+     "（フィギュア）シーズン到来　「関東卍ボーイズ」3人の活躍は、女子の新星が誕生 #1328"
+    ],
+    "publishedAt": [
+     "2023-11-17T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "37jWoPjKlUcd2Avck2SyOx"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1335",
+    "categories": "genba+houdan",
+    "titles": [
+     "期待を超えない米中、意外と良かった日中　APECの舞台裏で #1335",
+     "期待を超えない米中、意外と良かった日中　APECの舞台裏で #1335"
+    ],
+    "publishedAt": [
+     "2023-11-23T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5yRuCHETMvvVLth94bwQFo"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1342",
+    "categories": "genba+houdan",
+    "titles": [
+     "創価学会、公明党の過去と未来　池田大作氏の死去で考える #1342",
+     "創価学会、公明党の過去と未来　池田大作氏の死去で考える #1342"
+    ],
+    "publishedAt": [
+     "2023-11-30T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0JsPuajYqMZKExq2KAVrFt"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1348",
+    "categories": "genba+sports",
+    "titles": [
+     "ダンク炸裂の日本航空、厳しく楽しむ開志国際　バスケ ・ウインターカップ見どころ紹介 #1348",
+     "（バスケ）ダンク炸裂の日本航空、厳しく楽しむ開志国際　ウインターカップ見どころ紹介 #1348"
+    ],
+    "publishedAt": [
+     "2023-12-06T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4wyvfoh4qboNaNx1WiIPi9"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1349",
+    "categories": "genba+houdan",
+    "titles": [
+     "パーティー券と派閥の裏金疑惑、を話すまで30分ほど待ってくれますか #1349",
+     "パーティー券と派閥の裏金疑惑、を話すまで30分ほど待ってくれますか #1349"
+    ],
+    "publishedAt": [
+     "2023-12-07T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6Xmts9fdIUKjKqw1lLgaSo"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/j-30-1355",
+    "categories": "genba+sports",
+    "titles": [
+     "W杯優勝よりも、街に芝生を増やしたい　Jリーグの30年と目指す未来 #1355",
+     "（サッカー）W杯優勝よりも、街に芝生を増やしたい　Jリーグの30年と目指す未来 #1355"
+    ],
+    "publishedAt": [
+     "2023-12-13T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "7uEmVdjKOUdoDj1rWoVRXo"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1356",
+    "categories": "genba+houdan",
+    "titles": [
+     "「女性ならでは」ダメ？　存在を言えない金山の資料　2題でお届けします #1356",
+     "「女性ならでは」ダメ？　存在を言えない金山の資料　2題でお届けします #1356"
+    ],
+    "publishedAt": [
+     "2023-12-14T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2mgC2Wy2v625bCxMydDD3j"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1363",
+    "categories": "genba+houdan",
+    "titles": [
+     "語られ始めた「岸田政権の終わり」　禅譲シナリオ、なんてアリなの #1363",
+     "語られ始めた「岸田政権の終わり」　禅譲シナリオ、なんてアリなの #1363"
+    ],
+    "publishedAt": [
+     "2023-12-21T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4UrbjvlGXNZoJtPHGskeZL"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1370",
+    "categories": "genba+houdan",
+    "titles": [
+     "殺人事件から考えるコミュニケーション　腹を割る、ってどういうこと #1370",
+     "殺人事件から考えるコミュニケーション　腹を割る、ってどういうこと #1370"
+    ],
+    "publishedAt": [
+     "2023-12-28T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6Ku3stAWqwDKxVBs8OsmNZ"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1381",
+    "categories": "genba+sports",
+    "titles": [
+     "次の横綱は生まれる？　鶴竜の至言「上がれるうちに上がれ」 #1381",
+     "（相撲）次の横綱は生まれる？　鶴竜の至言「上がれるうちに上がれ」 #1381"
+    ],
+    "publishedAt": [
+     "2024-01-08T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0jbmvtilPzdns1IxY3dRiW"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1383",
+    "categories": "genba+sports",
+    "titles": [
+     "宇野昌磨の苦闘、回転数の判定が厳しい？　フィギュア男子日本勢にライバル #1383",
+     "（フィギュア）宇野昌磨の苦闘、回転数の判定が厳しい？　男子日本勢にライバル #1383"
+    ],
+    "publishedAt": [
+     "2024-01-10T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2sSPWfkn1fiFiQritGA2TJ"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1392",
+    "categories": "genba+houdan",
+    "titles": [
+     "能登半島地震　国会議員は「現地入り自粛」で良かったんでしょうか #1392",
+     "能登半島地震　国会議員は「現地入り自粛」で良かったんでしょうか #1392"
+    ],
+    "publishedAt": [
+     "2024-01-18T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "3XmpfrqCPYnSStXMvNFmgU"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1399",
+    "categories": "genba+houdan",
+    "titles": [
+     "台湾総統選、中国からはどう見えた？　2024年は選挙イヤーです #1399",
+     "台湾総統選、中国からはどう見えた？　2024年は選挙イヤーです #1399"
+    ],
+    "publishedAt": [
+     "2024-01-25T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "13Q2H4klOZW2D99It4L8XE"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1406",
+    "categories": "genba+houdan",
+    "titles": [
+     "ダウンタウン・松本人志氏の件　「4時ですよ～だ」を見ていた僕は  #1406",
+     "ダウンタウン・松本人志氏の件　「4時ですよ～だ」を見ていた僕は  #1406"
+    ],
+    "publishedAt": [
+     "2024-02-01T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5DgzhkkKIIObhLZBHlpNMa"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1413",
+    "categories": "genba+houdan",
+    "titles": [
+     "能登半島地震、取材で見えた「想定外」　避難したくても道路がなければ #1413",
+     "能登半島地震、取材で見えた「想定外」　避難したくても道路がなければ #1413"
+    ],
+    "publishedAt": [
+     "2024-02-08T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "3HXnAKYTF7OzAP9sXois5b"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1419",
+    "categories": "genba+sports",
+    "titles": [
+     "クラブ数変更は新時代の幕開け　新シーズンのJリーグどう変わる #1419",
+     "（サッカー）クラブ数変更は新時代の幕開け　新シーズンのJリーグどう変わる #1419"
+    ],
+    "publishedAt": [
+     "2024-02-14T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "76i5NPEmDaSYo3QsjgURNS"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1420",
+    "categories": "genba+houdan",
+    "titles": [
+     "大臣がカンニングでは困ります　会見前日の「質問取り」なんなの？ #1420",
+     "大臣がカンニングでは困ります　会見前日の「質問取り」なんなの？ #1420"
+    ],
+    "publishedAt": [
+     "2024-02-15T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1GYB4ZRt4SxzdpYw7LK9Qy"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1427",
+    "categories": "genba+houdan",
+    "titles": [
+     "サッカー中国、監督も選手もワイロまみれでした　恒例「テレビ懺悔」で告白 #1427",
+     "サッカー中国、監督も選手もワイロまみれでした　恒例「テレビ懺悔」で告白 #1427"
+    ],
+    "publishedAt": [
+     "2024-02-22T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4urDFrZmHXgT0B4JlCiQUq"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1431",
+    "categories": "genba+sports",
+    "titles": [
+     "「心だけは折れない」横綱の威厳をみせた照ノ富士9度目V　新大関・琴ノ若の今後は？ #1431",
+     "（相撲）「心だけは折れない」横綱の威厳をみせた照ノ富士9度目V　新大関・琴ノ若の今後は？ #1431"
+    ],
+    "publishedAt": [
+     "2024-02-26T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2WkATezOWGDPDggt5lNPTg"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1433",
+    "categories": "genba+sports",
+    "titles": [
+     "バスケ女子日本代表がパリ五輪切符　走り勝ったシューター軍団 #1433",
+     "（バスケ）女子日本代表がパリ五輪切符　走り勝ったシューター軍団 #1433"
+    ],
+    "publishedAt": [
+     "2024-02-28T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "7lmamghg2hL6MB0Dz2EG3y"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1434",
+    "categories": "genba+houdan",
+    "titles": [
+     "就職活動、今さらですがアドバイス　「武装」しなくても大丈夫です #1434",
+     "就職活動、今さらですがアドバイス　「武装」しなくても大丈夫です #1434"
+    ],
+    "publishedAt": [
+     "2024-02-29T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1HTtGcJOitK8bmSnW09wOX"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1436",
+    "categories": "genba+sports",
+    "titles": [
+     "フィギュア選手が1番滑走が嫌な理由、大会前のカツ丼はNG？「あるある」解説  #1436",
+     "（フィギュア）選手が1番滑走が嫌な理由、大会前のカツ丼はNG？「あるある」解説  #1436"
+    ],
+    "publishedAt": [
+     "2024-03-02T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0Mbfm73MlHKeh1hvLZzUUD"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1441",
+    "categories": "genba+houdan",
+    "titles": [
+     "知っておきたい「セキュリティークリアランス」　経済安全保障の問題です #1441",
+     "知っておきたい「セキュリティークリアランス」　経済安全保障の問題です #1441"
+    ],
+    "publishedAt": [
+     "2024-03-07T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1dJ5IOdHWH01GiiovPcZ3B"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1448",
+    "categories": "genba+houdan",
+    "titles": [
+     "駐夫（ちゅうおっと）という生き方　「闇落ち」を経験したジャーナリストが話します #1448",
+     "駐夫（ちゅうおっと）という生き方　「闇落ち」を経験したジャーナリストが話します #1448"
+    ],
+    "publishedAt": [
+     "2024-03-14T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "322n1Ecl8UIrdNhhUNJf80"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1452",
+    "categories": "genba+sports",
+    "titles": [
+     "激戦の東地区、快進撃みせた三遠　琉球はアウェーでも熱い応援 #1452",
+     "（バスケ）激戦の東地区、快進撃みせた三遠　琉球はアウェーでも熱い応援 #1452"
+    ],
+    "publishedAt": [
+     "2024-03-18T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0DAZPFJxz1IopE3QXNir0f"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1455",
+    "categories": "genba+houdan",
+    "titles": [
+     "次期戦闘機、輸出へ向けて自公が合意　「殺傷兵器」と公明党の距離感 #1455",
+     "次期戦闘機、輸出へ向けて自公が合意　「殺傷兵器」と公明党の距離感 #1455"
+    ],
+    "publishedAt": [
+     "2024-03-21T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1ehkxITJzje1fJh7a8b3iV"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1462",
+    "categories": "genba+houdan",
+    "titles": [
+     "春は別れの季節です　あるのかないのか「4月解散」、そして #1462",
+     "春は別れの季節です　あるのかないのか「4月解散」、そして #1462"
+    ],
+    "publishedAt": [
+     "2024-03-28T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "7J9f4x9XOQRRgMpyZ3Wjcy"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1468",
+    "categories": "genba+sports",
+    "titles": [
+     "「バスケ通信―クラッチタイム」始動　 パリオリンピックの見どころを解説 #1468",
+     "「バスケ通信―クラッチタイム」始動　 パリオリンピックの見どころを解説 #1468"
+    ],
+    "publishedAt": [
+     "2024-04-03T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2dI5MuKoonZE4BMRNhvJ5x"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1469",
+    "categories": "genba+sports",
+    "titles": [
+     "イランもベトナムも日本徹底マーク　強くなるアジアのサッカー、追われる立場で見えた課題 #1469",
+     "（サッカー）イランもベトナムも日本徹底マーク　強くなるアジアのサッカー、追われる立場で見えた課題 #1469"
+    ],
+    "publishedAt": [
+     "2024-04-04T02:55:00.000Z"
+    ],
+    "spotifyIds": [
+     "7KFJu93yXdnA2bGrauIb2u"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1470",
+    "categories": "genba+houdan",
+    "titles": [
+     "二階俊博氏にみる政治家の生き様、あり方　すみません本編は30分くらいで始まります #1470",
+     "二階俊博氏にみる政治家の生き様、あり方　すみません本編は30分くらいで始まります #1470"
+    ],
+    "publishedAt": [
+     "2024-04-04T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2tHzZ5cNuiAbcKxlRDGy6O"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1476",
+    "categories": "genba+houdan",
+    "titles": [
+     "「ふしぎ発見」で記者になりました　今こそ語ろう、冨名腰隆のミーハーだましい #1476",
+     "「ふしぎ発見」で記者になりました　今こそ語ろう、冨名腰隆のミーハーだましい #1476"
+    ],
+    "publishedAt": [
+     "2024-04-10T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "3Vg627nanJsDEWTDITsMKu"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1477",
+    "categories": "genba+sports",
+    "titles": [
+     "サッカーって、どう見たらいいの？ 奥深さと楽しみ方を解説します #1477",
+     "サッカーって、どう見たらいいの？ 奥深さと楽しみ方を解説します #1477"
+    ],
+    "publishedAt": [
+     "2024-04-11T02:55:00.000Z"
+    ],
+    "spotifyIds": [
+     "4Fq9IDPzcrgaPWjuCpuvPT"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1483",
+    "categories": "genba+sports",
+    "titles": [
+     "フィギュア「4回転の神」が世界最高得点　あえて禁止技入れた選手も　世界選手権 #1483",
+     "（フィギュア）「4回転の神」が世界最高得点　あえて禁止技入れた選手も　世界選手権 #1483"
+    ],
+    "publishedAt": [
+     "2024-04-15T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6u13nDnHNhuNjb5SiSzsmb"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1485",
+    "categories": "genba+houdan",
+    "titles": [
+     "「5人衆」の明暗を何が分けたのか　自民党、派閥の裏金問題で処分 #1485",
+     "「5人衆」の明暗を何が分けたのか　自民党、派閥の裏金問題で処分 #1485"
+    ],
+    "publishedAt": [
+     "2024-04-17T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5OmmoEuw2lFFJN66sAg48M"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1492",
+    "categories": "genba+houdan",
+    "titles": [
+     "岸田首相の訪米、なんのため？　議会スピーチから読み解いた #1492",
+     "岸田首相の訪米、なんのため？　議会スピーチから読み解いた #1492"
+    ],
+    "publishedAt": [
+     "2024-04-24T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0X8o0VqgOtiprFUidTg8oM"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1499",
+    "categories": "genba+houdan",
+    "titles": [
+     "核ごみ、揺れ動く自治体とカネと　私たちも新聞をめくってみました #1499",
+     "核ごみ、揺れ動く自治体とカネと　私たちも新聞をめくってみました #1499"
+    ],
+    "publishedAt": [
+     "2024-05-01T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2R2dPQUFBvwClWcG6hrFUf"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1504",
+    "categories": "genba+sports",
+    "titles": [
+     "尊富士、110年ぶりに新入幕V　「お前ならやれる」横綱の言葉で入ったスイッチ　#1504",
+     "（相撲）尊富士、110年ぶりに新入幕V　「お前ならやれる」横綱の言葉で入ったスイッチ　#1504"
+    ],
+    "publishedAt": [
+     "2024-05-06T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1W96T9RdTfYuuDNdnTMGep"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1-1506",
+    "categories": "genba+houdan",
+    "titles": [
+     "自民全敗、ふりかえる衆院補選　岸田首相の次の一手は？ #1506",
+     "自民全敗、ふりかえる衆院補選　岸田首相の次の一手は #1506"
+    ],
+    "publishedAt": [
+     "2024-05-08T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "425KNJm24h5oSL93IR5k6W"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1509",
+    "categories": "genba+sports",
+    "titles": [
+     "ファミリーになれた富士通V　そして渡辺雄太は来季からBリーグへ #1509",
+     "（バスケ）ファミリーになれた富士通V　そして渡辺雄太は来季からBリーグへ #1509"
+    ],
+    "publishedAt": [
+     "2024-05-11T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "3pfsqTkBhPgRZ4Ul8lpa38"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1513",
+    "categories": "genba+sports",
+    "titles": [
+     "無二のリーダー長谷部誠が残したもの　心技体、プロに最も必要なのは #1513",
+     "（サッカー）無二のリーダー長谷部誠が残したもの　心技体、プロに最も必要なのは #1513"
+    ],
+    "publishedAt": [
+     "2024-05-15T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0Mw3hGoTeyOZhQpGH4wWWm"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1514",
+    "categories": "genba+houdan",
+    "titles": [
+     "中国政府、補助金やりすぎ？　習近平氏のヨーロッパ歴訪を読む #1514",
+     "中国政府、補助金やりすぎ？　習近平氏のヨーロッパ歴訪を読む #1514"
+    ],
+    "publishedAt": [
+     "2024-05-16T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4pIfuZ6sMJ4qZ2t7imMLTA"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1521",
+    "categories": "genba+houdan",
+    "titles": [
+     "カスハラには、言い返しも必要です　イワシの値段が高いんです #1521",
+     "カスハラには、言い返しも必要です　イワシの値段が高いんです #1521"
+    ],
+    "publishedAt": [
+     "2024-05-23T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "077xAGBR1MfIf6H3cvemJp"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1528",
+    "categories": "genba+houdan",
+    "titles": [
+     "思惑それぞれ違うけど、4年半ぶりの開催が成果　日中韓首脳会談 #1528",
+     "思惑それぞれ違うけど、4年半ぶりの開催が成果　日中韓首脳会談 #1528"
+    ],
+    "publishedAt": [
+     "2024-05-30T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4ZeMPI02zJnhZ5qq4ARKmI"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1532",
+    "categories": "genba+sports",
+    "titles": [
+     "オフサイドの起源は「待ち伏せ防止」　審判の判定には「雰囲気」も大事？ #1532",
+     "（サッカー）オフサイドの起源は「待ち伏せ防止」　審判の判定には「雰囲気」も大事？ #1532"
+    ],
+    "publishedAt": [
+     "2024-06-03T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6yd5riimMfO8M4YyUpX3iR"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1535",
+    "categories": "genba+houdan",
+    "titles": [
+     "遠い国で起きている戦争　当事者になれない私たちの苦しさ #1535",
+     "遠い国で起きている戦争　当事者になれない私たちの苦しさ #1535"
+    ],
+    "publishedAt": [
+     "2024-06-06T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "52yh8kyrA1cSXfeL35HhT0"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1536",
+    "categories": "genba+sports",
+    "titles": [
+     "宇野昌磨選手が引退　「ステファンのため」コーチとの絆、貫いた哲学 #1536",
+     "（フィギュア）宇野昌磨選手が引退　「ステファンのため」コーチとの絆、貫いた哲学 #1536"
+    ],
+    "publishedAt": [
+     "2024-06-07T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4OQHZ2CkdTXA5zpfKY0zT1"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1542",
+    "categories": "genba+houdan",
+    "titles": [
+     "これはひどい、政治資金規正法の改正案　なお冒頭の約20分は飛ばしていただいても… #1542",
+     "これはひどい、政治資金規正法の改正案　なお冒頭の約20分は飛ばしていただいても… #1542"
+    ],
+    "publishedAt": [
+     "2024-06-13T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1aFWPsHstYk19ga28F31m1"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1543",
+    "categories": "genba+sports",
+    "titles": [
+     "「しけた顔」やめた琉球　降り注ぐ声援と培った団結力（バスクラ・前編） #1543",
+     "（バスケ）「しけた顔」やめた琉球　降り注ぐ声援と培った団結力（前編） #1543"
+    ],
+    "publishedAt": [
+     "2024-06-14T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2K4kRgFONSlgZFuefFBVqE"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1549",
+    "categories": "genba+houdan",
+    "titles": [
+     "「いい文章」ってなんでしょう　みなさんの考えもぜひ教えてください #1549",
+     "「いい文章」ってなんでしょう　みなさんの考えもぜひ教えてください #1549"
+    ],
+    "publishedAt": [
+     "2024-06-20T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "56cfPL3a94SZJVPu4s2wug"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1550",
+    "categories": "genba+sports",
+    "titles": [
+     "「下克上じゃけぇ」B1広島が初優勝　後半強くなる自在な盾（バスクラ・後編） #1550",
+     "（バスケ）「下克上じゃけぇ」B1広島が初優勝　後半強くなる自在な盾（後編） #1550"
+    ],
+    "publishedAt": [
+     "2024-06-21T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "7kuPJgIKZHVVVDh1swrKgC"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1556",
+    "categories": "genba+houdan",
+    "titles": [
+     "金正恩氏は見抜いていた？　G7→ロ朝会談→NATO首脳会議から浮かぶキーワード #1556",
+     "金正恩氏は見抜いていた？　G7→ロ朝会談→NATO首脳会議から浮かぶキーワード #1556"
+    ],
+    "publishedAt": [
+     "2024-06-27T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2bMLnZUcKkw8SBls4J0g0q"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1557",
+    "categories": "genba+sports",
+    "titles": [
+     "バスケ愛あふれる沖縄　子どもも80歳も誰とでも楽しめる（バスクラ・番外編）#1557",
+     "バスケ愛あふれる沖縄　子どもも80歳も誰とでも楽しめる（番外編）#1557"
+    ],
+    "publishedAt": [
+     "2024-06-28T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1CZfAV0sTdvbua65ceS1X6"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1563",
+    "categories": "genba+houdan",
+    "titles": [
+     "「セクシー田中さん」問題、私たちが学べること　大事なものはなんですか #1563",
+     "「セクシー田中さん」問題、私たちが学べること　大事なものはなんですか #1563"
+    ],
+    "publishedAt": [
+     "2024-07-04T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6oSCMz118xc0AMSBRaX1Vv"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1564",
+    "categories": "genba+sports",
+    "titles": [
+     "マリノス、アジアの頂点まであと一歩　ACL優勝の持つ大きな意味 #1564",
+     "（サッカー）マリノス、アジアの頂点まであと一歩　ACL優勝の持つ大きな意味 #1564"
+    ],
+    "publishedAt": [
+     "2024-07-05T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "76HmqldlTBsy9mi06u8Vyf"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1569",
+    "categories": "genba+sports",
+    "titles": [
+     "フィギュア佐藤駿選手が登場　羽生結弦さんにもらった宝物は…新しい趣味は　素顔に迫る #1569",
+     "（フィギュア）佐藤駿選手が登場　羽生結弦さんにもらった宝物は…新しい趣味は　素顔に迫る #1569"
+    ],
+    "publishedAt": [
+     "2024-07-10T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "7fg340Y9kj5ifb97Y6Ugkr"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1570",
+    "categories": "genba+houdan",
+    "titles": [
+     "東京都知事選を語ろう　風は誰に吹いたのか、国政への影響は #1570",
+     "東京都知事選を語ろう　風は誰に吹いたのか、国政への影響は #1570"
+    ],
+    "publishedAt": [
+     "2024-07-11T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "45h3pOv3kaLLux8Z4gs1Mg"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1577",
+    "categories": "genba+houdan",
+    "titles": [
+     "川崎重工の海自接待疑惑、安倍昭恵さん、自治体マッチングアプリ　今回はアラカルトで #1577",
+     "川崎重工の海自接待疑惑、安倍昭恵さん、自治体マッチングアプリ　今回はアラカルトで #1577"
+    ],
+    "publishedAt": [
+     "2024-07-18T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5ddn8tha0jW3wUNnJmH9tr"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1578",
+    "categories": "genba+sports",
+    "titles": [
+     "パリ五輪で世界を驚かせる　アカツキジャパン観戦ガイド（バスクラ） #1578",
+     "（バスケ）パリ五輪で世界を驚かせる　アカツキジャパン観戦ガイド  #1578"
+    ],
+    "publishedAt": [
+     "2024-07-19T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1NRsYg8f8UH10SQhsBc16H"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1584",
+    "categories": "genba+houdan",
+    "titles": [
+     "「3中全会」で決まったこと　不動産不況の中国、どうなるんですか #1584",
+     "「3中全会」で決まったこと　不動産不況の中国、どうなるんですか #1584"
+    ],
+    "publishedAt": [
+     "2024-07-25T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2XUN0AXFX6F9Q4DZ8yZnn1"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1590",
+    "categories": "genba+sports",
+    "titles": [
+     "五輪サッカー、なぜ男子だけ「23歳以下」？　W杯とオリンピック、せめぎ合いの歴史 #1590",
+     "（サッカー）五輪、なぜ男子だけ「23歳以下」？　W杯とオリンピック、せめぎ合いの歴史 #1590"
+    ],
+    "publishedAt": [
+     "2024-07-31T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6WxLAMNnHwjBBKwotC1Ebw"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1591",
+    "categories": "genba+houdan",
+    "titles": [
+     "ケータイとロックの話で、ふな記者にまさかの事態　何が琴線に触れちゃったの #1591",
+     "ケータイとロックの話で、ふな記者にまさかの事態　何が琴線に触れちゃったの #1591"
+    ],
+    "publishedAt": [
+     "2024-08-01T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "7lYLMn86MIS36WRnhHKEeF"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1598",
+    "categories": "genba+houdan",
+    "titles": [
+     "核兵器のない世界を考える　「傘の下」にいる限界、潜在的な保有国としての日本 #1598",
+     "核兵器のない世界を考える　「傘の下」にいる限界、潜在的な保有国としての日本 #1598"
+    ],
+    "publishedAt": [
+     "2024-08-08T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5UjFKEuTfwi71crioOqnoe"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1605",
+    "categories": "genba+houdan",
+    "titles": [
+     "テーマは日本共産党　柔軟さとかたくなさ、その境界線はどこに #1605",
+     "テーマは日本共産党　柔軟さとかたくなさ、その境界線はどこに #1605"
+    ],
+    "publishedAt": [
+     "2024-08-15T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "78H1LwW7rXAuvGAGB1M5E9"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1606",
+    "categories": "genba+sports",
+    "titles": [
+     "人もゴミもピックアップ　石川の復興支援で「映えるコート」に（バスクラ） ＃1606",
+     "（バスケ）人もゴミもピックアップ　石川の復興支援で「映えるコート」に ＃1606"
+    ],
+    "publishedAt": [
+     "2024-08-16T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0LEeH8XBu5wT42ns2rqpnC"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1611",
+    "categories": "donuts+genba",
+    "titles": [
+     "白虹事件（前編）　朝日新聞社、史上最大の危機は大正時代に #1611",
+     "白虹事件（前編）　朝日新聞社、史上最大の危機は大正時代に #1611"
+    ],
+    "publishedAt": [
+     "2024-08-21T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "18oCRNIajYuJrrWuSkeWdl",
+     "5XoQuTBs0V1p8TV9dH4evq"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1612",
+    "categories": "donuts+genba",
+    "titles": [
+     "白虹事件（後編）　歴史にifはないけれど、あの判断で良かったのか #1612",
+     "白虹事件（後編）　歴史にifはないけれど、あの判断で良かったのか #1612"
+    ],
+    "publishedAt": [
+     "2024-08-22T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "08nklT4SoqKpFVuxoOmBQD",
+     "2T6tz4l80WTuzOS5N24vq8"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1619",
+    "categories": "genba+houdan",
+    "titles": [
+     "岸田首相、退陣表明の舞台裏　パレスホテルで何があったのか #1619",
+     "岸田首相、退陣表明の舞台裏　パレスホテルで何があったのか #1619"
+    ],
+    "publishedAt": [
+     "2024-08-29T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4fJuo1eh1h8F0EVJZOT2Cy"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1626",
+    "categories": "genba+houdan",
+    "titles": [
+     "中国人旅行者「日本は安全じゃない」　監視社会は快適だけど #1626",
+     "中国人旅行者「日本は安全じゃない」　監視社会は快適だけど #1626"
+    ],
+    "publishedAt": [
+     "2024-09-05T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1lJVzmEYpCXv1FwSulhaZS"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1267-1",
+    "categories": "genba+sports",
+    "titles": [
+     "躍進のバレー男子、パリ五輪取材記者がレポート　石川祐希の海外挑戦が開いた道 #1627",
+     "（バレー）躍進の男子、パリ五輪取材記者がレポート　石川祐希の海外挑戦が開いた道 #1627"
+    ],
+    "publishedAt": [
+     "2024-09-06T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5IrX4aKgtoohNgsM6BiKVQ"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1628",
+    "categories": "genba+sports",
+    "titles": [
+     "地元フランスを追い詰めた日本　残り16秒、その時私たちは (バスクラ・パリ五輪男子） #1628",
+     "（バスケ）地元フランスを追い詰めた日本　残り16秒、その時私たちは （パリ五輪男子） #1628"
+    ],
+    "publishedAt": [
+     "2024-09-07T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4KKVhhr3WiHjXsErMi92SC"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1633",
+    "categories": "genba+houdan",
+    "titles": [
+     "自民党総裁選が始まりました　混戦を抜け出すのは誰なんでしょうか #1633",
+     "自民党総裁選が始まりました　混戦を抜け出すのは誰なんでしょうか #1633"
+    ],
+    "publishedAt": [
+     "2024-09-12T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "17LcpVcFajdB627qsnvF05"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/j-1634",
+    "categories": "genba+sports",
+    "titles": [
+     "欧州クラブ、こぞって日本に来る理由　あのレッドブルもJリーグ進出（ポキフト） #1634",
+     "（サッカー）欧州クラブ、こぞって日本に来る理由　あのレッドブルもJリーグ進出  #1634"
+    ],
+    "publishedAt": [
+     "2024-09-13T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "16p0a8pZD9zH8GumpNcRJA"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1640",
+    "categories": "genba+houdan",
+    "titles": [
+     "江戸幕府「最大の汚点」　司馬遼太郎の指摘、無視するような政府の発表 #1640",
+     "江戸幕府「最大の汚点」　司馬遼太郎の指摘、無視するような政府の発表 #1640"
+    ],
+    "publishedAt": [
+     "2024-09-19T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5eSXCHxnOTH9QGxDjWFIbw"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/a1647",
+    "categories": "genba+houdan",
+    "titles": [
+     "中国・深圳の事件、処理水巡る禁輸の緩和　そしてきょう総裁選 #1647",
+     "中国・深圳の事件、処理水巡る禁輸の緩和　そしてきょう総裁選 #1647"
+    ],
+    "publishedAt": [
+     "2024-09-26T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "417MUjdtQB3tLoXWtPjilI"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1654",
+    "categories": "genba+houdan",
+    "titles": [
+     "「弱者男性」から考えるジェンダー　男性専用車両は、あった方がいいですか #1654",
+     "「弱者男性」から考えるジェンダー　男性専用車両は、あった方がいいですか #1654"
+    ],
+    "publishedAt": [
+     "2024-10-03T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5izxyPr63NLeEodBmhs49y"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1655",
+    "categories": "genba+sports",
+    "titles": [
+     "千葉J・渡辺雄太が起こす化学反応　Bリーグ9季目開幕（バスクラ） #1655",
+     "（バスケ）千葉J・渡辺雄太が起こす化学反応　Bリーグ9季目開幕  #1655"
+    ],
+    "publishedAt": [
+     "2024-10-04T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0fJuDxMc59OOMS9esYClR7"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1660",
+    "categories": "genba+sports",
+    "titles": [
+     "ついに禁止技が解禁、フィギュアシーズン開幕へ　男子は新たな時代に突入 #1660",
+     "（フィギュア）ついに禁止技が解禁、シーズン開幕へ　男子は新たな時代に突入 #1660"
+    ],
+    "publishedAt": [
+     "2024-10-09T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "11ZacmUfQ6fZGal9txraMG"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1661",
+    "categories": "genba+houdan",
+    "titles": [
+     "大急ぎで振り返る総裁選、組閣、公認問題　「ふな祭り」の告知もありますよ #1661",
+     "大急ぎで振り返る総裁選、組閣、公認問題　「ふな祭り」の告知もありますよ #1661"
+    ],
+    "publishedAt": [
+     "2024-10-10T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "46I2xgm2w1D5aPR0531qIQ"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1662",
+    "categories": "genba+sports",
+    "titles": [
+     "Jリーグのサッカーは、世界を目指しているか　町田の進撃どう思う？（ポキフト） #1662",
+     "（サッカー）Jリーグは、世界を目指しているか　町田の進撃どう思う？　 #1662"
+    ],
+    "publishedAt": [
+     "2024-10-11T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4ERSsRBJiAplukV6Wnh8fW"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1665",
+    "categories": "genba+sports",
+    "titles": [
+     "信じてもらえなかった「権力者」監督からの性暴力　取材を受けた理由　スポーツと性暴力 #1665",
+     "信じてもらえなかった「権力者」監督からの性暴力　取材を受けた理由　スポーツと性暴力 #1665"
+    ],
+    "publishedAt": [
+     "2024-10-14T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6MLVlkNsbiMlHyr4keB1tZ"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1668",
+    "categories": "genba+houdan",
+    "titles": [
+     "髪を洗わないシャンプーCM、減反と高齢化、袴田さん事件　ふなと新聞をめくろう #1668",
+     "髪を洗わないシャンプーCM、減反と高齢化、袴田さん事件　ふなと新聞をめくろう #1668"
+    ],
+    "publishedAt": [
+     "2024-10-17T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4DdXrYTZnoSvrKTs1sEWiW"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1675",
+    "categories": "genba+houdan",
+    "titles": [
+     "もうすぐ投開票！ 衆院選2024の情勢調査、注目選挙区をお伝えします #1675",
+     "もうすぐ投開票！ 衆院選2024の情勢調査、注目選挙区をお伝えします #1675"
+    ],
+    "publishedAt": [
+     "2024-10-24T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4v3ldKYwLL2ZejeW9nxfqr"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1682",
+    "categories": "genba+houdan",
+    "titles": [
+     "石破首相は退陣せず、議席増の立憲は渋い顔　ふりかえる総選挙の舞台裏 #1682",
+     "石破首相は退陣せず、議席増の立憲は渋い顔　ふりかえる総選挙の舞台裏 #1682"
+    ],
+    "publishedAt": [
+     "2024-10-31T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6lsz0HZx6BvHkjLYnaZIuv"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1683",
+    "categories": "genba+sports",
+    "titles": [
+     "存続危機に立たされるWEリーグ　異例のトップ交代劇、背景に何が（ポキフト） #1683",
+     "（サッカー）存続危機に立たされるWEリーグ　異例のトップ交代劇、背景に何が #1683"
+    ],
+    "publishedAt": [
+     "2024-11-01T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2n1HtV5jlnGaKELYVthsM4"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1689",
+    "categories": "genba+houdan",
+    "titles": [
+     "「すねる大人」にならないために　らんまとめぞん、バイトの話も #1689",
+     "「すねる大人」にならないために　らんまとめぞん、バイトの話も #1689"
+    ],
+    "publishedAt": [
+     "2024-11-07T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5hS4bHWuOtGT7lcXTBlchL"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1690",
+    "categories": "genba+sports",
+    "titles": [
+     "BリーグからNBAへ　壁を切り開いた河村勇輝（バスクラ） #1690",
+     "（バスケ）BリーグからNBAへ　壁を切り開いた河村勇輝  #1690"
+    ],
+    "publishedAt": [
+     "2024-11-08T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "79B1A7iRRwHaGmKOOYjzkn"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1696",
+    "categories": "genba+houdan",
+    "titles": [
+     "思い出す前トランプ政権、アメリカ変わってなくない？　「ふな祭り」からお届けします #1696",
+     "思い出す前トランプ政権、アメリカ変わってなくない？　「ふな祭り」からお届けします #1696"
+    ],
+    "publishedAt": [
+     "2024-11-14T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "7EosiuP7yxgtIDLfQluNMC"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1703",
+    "categories": "genba+houdan",
+    "titles": [
+     "兵庫・斎藤県政「評価する」76％の意味を考える　日中首脳会談の嚙み合わなさとは #1703",
+     "兵庫・斎藤県政「評価する」76％の意味を考える　日中首脳会談の嚙み合わなさとは #1703"
+    ],
+    "publishedAt": [
+     "2024-11-21T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1BL2ttDd6VvJg8CUm6vTdu"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2024-1704",
+    "categories": "genba+sports",
+    "titles": [
+     "大谷翔平、いろいろありすぎた2024年シーズン　偉業の裏に記者が見た素顔 #1704",
+     "（野球）大谷翔平、いろいろありすぎた2024年シーズン　偉業の裏に記者が見た素顔 #1704"
+    ],
+    "publishedAt": [
+     "2024-11-22T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2PoC0PMwKniqCa6RdCZzqX"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1710",
+    "categories": "genba+houdan",
+    "titles": [
+     "（シャッフル企画）あいさつ代わりに「ご飯食べた？」　　この時期欠かせない激推し中国グルメ #1710",
+     "（シャッフル企画）あいさつ代わりに「ご飯食べた？」　　この時期欠かせない激推し中国グルメ #1710"
+    ],
+    "publishedAt": [
+     "2024-11-28T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4IF6whCxvPK9tMJd5xf1Tc"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1717",
+    "categories": "genba+houdan",
+    "titles": [
+     "税と財務省を考える　かつての「最強官庁」に、アベノミクスで起きたこと #1717",
+     "税と財務省を考える　かつての「最強官庁」に、アベノミクスで起きたこと #1717"
+    ],
+    "publishedAt": [
+     "2024-12-05T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "73vBSa98tZpOEEl2RnUrSr"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1718",
+    "categories": "genba+sports",
+    "titles": [
+     "八村塁がバスケ協会に苦言　歴代担当者が背景をひもとく（バスクラ） #1718",
+     "（バスケ）八村塁がバスケ協会に苦言　歴代担当者が背景をひもとく  #1718"
+    ],
+    "publishedAt": [
+     "2024-12-06T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5o33SsNFZ7gykMIIxgupba"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1724",
+    "categories": "genba+houdan",
+    "titles": [
+     "え、来年また衆院選？　政治部長・松田京平と政治の未来を考えた #1724",
+     "え、来年また衆院選？　政治部長・松田京平と政治の未来を考えた #1724"
+    ],
+    "publishedAt": [
+     "2024-12-12T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4jldwBzKgXYGx3qLowwPlH"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1725-1",
+    "categories": "genba+sports",
+    "titles": [
+     "Jクラブ、本当の価値は何億円？ 日本サッカーの「失われた30年」（ポキフト） #1725",
+     "（サッカー）Jクラブ、本当の価値は何億円？　日本サッカーの「失われた30年」  #1725"
+    ],
+    "publishedAt": [
+     "2024-12-13T19:00:00.000Z",
+     "2024-12-16T12:35:24.000Z"
+    ],
+    "spotifyIds": [
+     "76VkY07ccZ4mnFOj4DlyuE"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1731",
+    "categories": "genba+houdan",
+    "titles": [
+     "年の瀬、激動の国際社会　内向き志向と自己責任がキーワードかも #1731",
+     "年の瀬、激動の国際社会　内向き志向と自己責任がキーワードかも #1731"
+    ],
+    "publishedAt": [
+     "2024-12-19T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "7Dc3NKCcwpzNeqROrCdkXZ"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1732",
+    "categories": "genba+sports",
+    "titles": [
+     "大関同士の相星決戦にわいた千秋楽　新世代の台頭　2025年の大相撲はどうなる？ #1732",
+     "（相撲）大関同士の相星決戦にわいた千秋楽　新世代の台頭　2025年の大相撲はどうなる？ #1732"
+    ],
+    "publishedAt": [
+     "2024-12-20T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6heV399PNsel7Fe8YEIkGL"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1738",
+    "categories": "genba+houdan",
+    "titles": [
+     "リベラルと保守、違いあいまい　「ラジオ屋さんごっこ」つかささんと考えた #1738",
+     "リベラルと保守、違いあいまい　「ラジオ屋さんごっこ」つかささんと考えた #1738"
+    ],
+    "publishedAt": [
+     "2024-12-26T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2yWnhryF8SgOpKG9P5FZso"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1739",
+    "categories": "genba+sports",
+    "titles": [
+     "「スケートの楽しさ」伝わるマツケンサンバ　11年ぶり全日本の織田信成選手に心奪われた #1739",
+     "（フィギュア）「スケートの楽しさ」伝わるマツケンサンバ　11年ぶり全日本の織田信成選手に心奪われた #1739"
+    ],
+    "publishedAt": [
+     "2024-12-27T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0d8CJ0k5vKNvIbkMN1AdGD"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1752",
+    "categories": "genba+houdan",
+    "titles": [
+     "「ナベツネ」とは何だったのか　読売主筆・渡辺恒雄氏の功罪を（開始25分ごろから）考えた #1752",
+     "「ナベツネ」とは何だったのか　読売主筆・渡辺恒雄氏の功罪を（開始25分ごろから）考えた #1752"
+    ],
+    "publishedAt": [
+     "2025-01-09T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "3bJYmKyZQBekWJgUm9usm0"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1753",
+    "categories": "genba+sports",
+    "titles": [
+     "令和の人材育成は高校野球に学べ　日刊スポーツコラボ企画、新鋭「名将」座談会 #1753",
+     "令和の人材育成は高校野球に学べ　日刊スポーツコラボ企画、新鋭「名将」座談会 #1753"
+    ],
+    "publishedAt": [
+     "2025-01-10T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2ycLQIyE9PSTG6HCiKq2ON"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1759",
+    "categories": "genba+houdan",
+    "titles": [
+     "阪神・淡路大震災から30年　そして戦後80年、ふりかえる「安倍談話」 の曲折 #1759",
+     "阪神・淡路大震災から30年　そして戦後80年、ふりかえる「安倍談話」 の曲折 #1759"
+    ],
+    "publishedAt": [
+     "2025-01-16T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "36sLLxzgEc2arOl5cnHj7w"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1760",
+    "categories": "genba+sports",
+    "titles": [
+     "サッカー担当記者全員で選んだ！ 2024シーズンの重大ニュースベスト3（ポキフト） #1760",
+     "（サッカー）担当記者全員で選んだ！ 2024シーズンの重大ニュースベスト3  #1760"
+    ],
+    "publishedAt": [
+     "2025-01-17T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2BiWxXaji0SDgLhLgUoeHn"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1766",
+    "categories": "genba+houdan",
+    "titles": [
+     "アナウンサーとテレビ報道、　「政治とカネ」を忘れる空気　今回は2題でお届けします #1766",
+     "アナウンサーとテレビ報道、　「政治とカネ」を忘れる空気　今回は2題でお届けします #1766"
+    ],
+    "publishedAt": [
+     "2025-01-23T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4bnQt1EiMdyUfNcWsTudjq"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1767",
+    "categories": "genba+sports",
+    "titles": [
+     "受け身をやめた福岡大大濠　周りを頼って極めた完成度（バスクラ・男子） #1767",
+     "（バスケ）受け身をやめた福岡大大濠　周りを頼って極めた完成度（男子） #1767"
+    ],
+    "publishedAt": [
+     "2025-01-24T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0hfnnV6aKjuHQW2lZ5Z5iV"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1773",
+    "categories": "genba+houdan",
+    "titles": [
+     "デジタル版の新聞に「勝ち筋」ありますか？　同期だけれど縁遠い、冨名腰隆が奥山晶二郎と話します #1773",
+     "デジタル版の新聞に「勝ち筋」ありますか？　同期だけれど縁遠い、冨名腰隆が奥山晶二郎と話します #1773"
+    ],
+    "publishedAt": [
+     "2025-01-30T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1yqDdLwbDUkMYFHZJm8FFa"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1774",
+    "categories": "genba+sports",
+    "titles": [
+     "氷上の格闘技アイスホッケーのいま　ベテラン選手が選んだデュアルキャリア #1774",
+     "氷上の格闘技アイスホッケーのいま　ベテラン選手が選んだデュアルキャリア #1774"
+    ],
+    "publishedAt": [
+     "2025-01-31T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5h7AHCjQovqf3D8s8nUNBg"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1780",
+    "categories": "genba+houdan",
+    "titles": [
+     "違和感だらけのフジテレビ問題　問題はどこにあるのか、丁寧に考えたい #1780",
+     "違和感だらけのフジテレビ問題　問題はどこにあるのか、丁寧に考えたい #1780"
+    ],
+    "publishedAt": [
+     "2025-02-06T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1oFigW3Jj8sClCIylSdKR9"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1787",
+    "categories": "genba+houdan",
+    "titles": [
+     "「旧姓の通称使用」が取って代わる？　同姓も選べる夫婦別姓、拒む理由とは #1787",
+     "「旧姓の通称使用」が取って代わる？　同姓も選べる夫婦別姓、拒む理由とは #1787"
+    ],
+    "publishedAt": [
+     "2025-02-13T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1105JFITAxe37VmQb6JGT9"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1788",
+    "categories": "genba+sports",
+    "titles": [
+     "Bプレミアへ新アリーナ続々　豊橋の計画めぐり揺れる三遠（バスクラ） #1788",
+     "（バスケ）Bプレミアへ新アリーナ続々　豊橋の計画めぐり揺れる三遠  #1788"
+    ],
+    "publishedAt": [
+     "2025-02-14T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4y9jlQu7rr297B73WX9Jd6"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1789",
+    "categories": "genba+sports",
+    "titles": [
+     "「5年で日本一」黒船レッドブルの戦略　気候変動でサッカーがなくなる？（ポキフト）  #1789",
+     "（サッカー）「5年で日本一」黒船レッドブルの戦略　気候変動でサッカーがなくなる？  #1789"
+    ],
+    "publishedAt": [
+     "2025-02-15T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1GEhEDGpaZorBcOFPmiKTK"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1794",
+    "categories": "genba+houdan",
+    "titles": [
+     "中国AI「ディープシーク」はゲームチェンジャーか　日本にとって、実は福音？ #1794",
+     "中国AI「ディープシーク」はゲームチェンジャーか　日本にとって、実は福音？ #1794"
+    ],
+    "publishedAt": [
+     "2025-02-20T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1NG2iRBF51yTHsOXLv6IUP"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1801",
+    "categories": "genba+houdan",
+    "titles": [
+     "トランプさんと石破さん、2人並んですまし顔？　日米関係ごきげんいかが #1801",
+     "トランプさんと石破さん、2人並んですまし顔？　日米関係ごきげんいかが #1801"
+    ],
+    "publishedAt": [
+     "2025-02-27T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "7KvrFQSDqvy4hQghxp9SlB"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1802",
+    "categories": "genba+sports",
+    "titles": [
+     "巴戦を制して豊昇龍が逆転V、横綱に昇進　おじさん・朝青龍への思いは… #1802",
+     "（相撲）巴戦を制して豊昇龍が逆転V、横綱に昇進　おじさん・朝青龍への思いは #1802"
+    ],
+    "publishedAt": [
+     "2025-02-28T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2patY573NUANLo3Lc1FGK8"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1808",
+    "categories": "genba+houdan",
+    "titles": [
+     "世紀の口げんか、トランプ・ゼレンスキー会談を考える　日本国会の予算を巡る攻防も #1808",
+     "世紀の口げんか、トランプ・ゼレンスキー会談を考える　日本国会の予算を巡る攻防も #1808"
+    ],
+    "publishedAt": [
+     "2025-03-06T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "3t6DIyX1w31LueUUeCUqj9"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1815",
+    "categories": "genba+houdan",
+    "titles": [
+     "記者の「取材力」を考える　どうすればうまくインタビューできますか #1815",
+     "記者の「取材力」を考える　どうすればうまくインタビューできますか #1815"
+    ],
+    "publishedAt": [
+     "2025-03-13T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5j8YAG0aw7JXqLqsWSIzDA"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1816",
+    "categories": "genba+sports",
+    "titles": [
+     "部活とユース、どちらの道へ？ いちからわかる高校サッカーの世界 #1816",
+     "（サッカー）部活とユース、どちらの道へ？ いちからわかる高校サッカーの世界 #1816"
+    ],
+    "publishedAt": [
+     "2025-03-14T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0ZR6suP4dpL5GrFaZMkXTZ"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1822",
+    "categories": "genba+houdan",
+    "titles": [
+     "石破首相の商品券問題　特報を手がけたデスク本人が、表も裏も語ります #1822",
+     "石破首相の商品券問題　特報を手がけたデスク本人が、表も裏も語ります #1822"
+    ],
+    "publishedAt": [
+     "2025-03-20T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "7jSbcSw2TiETmaGLZORezo"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1823",
+    "categories": "genba+sports",
+    "titles": [
+     "憧れだったNBAを挑む場所に　現地で感じた河村勇輝の現在地（バスクラ） #1823",
+     "（バスケ）憧れだったNBAを挑む場所に　現地で感じた河村勇輝の現在地  #1823"
+    ],
+    "publishedAt": [
+     "2025-03-21T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0Calfrlkw1gADm7I2e6goK"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1829",
+    "categories": "genba+houdan",
+    "titles": [
+     "いちからわかるイラン核問題　誰も頼れない国の生存戦略 #1829",
+     "いちからわかるイラン核問題　誰も頼れない国の生存戦略 #1829"
+    ],
+    "publishedAt": [
+     "2025-03-27T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1zVqwB3bKsywmDrlIa4DXn"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1836",
+    "categories": "genba+houdan",
+    "titles": [
+     "年度の初めはなぜ4月？　意外な理由と、日中外相会談と #1836",
+     "年度の初めはなぜ4月？　意外な理由と、日中外相会談と #1836"
+    ],
+    "publishedAt": [
+     "2025-04-03T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2Wl1J4bwE37gMhDdi7V2uX"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1837",
+    "categories": "genba+sports",
+    "titles": [
+     "安定の宇都宮・勢い止まらない三遠・天皇杯Vの琉球　Bリーグ終盤（バスクラ） #1837",
+     "（バスケ）安定の宇都宮・勢い止まらない三遠・天皇杯Vの琉球　Bリーグ終盤 #1837"
+    ],
+    "publishedAt": [
+     "2025-04-04T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "7t4HT6B1YvVqbQlC1HhiXd"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1843",
+    "categories": "genba+houdan",
+    "titles": [
+     "韓国のYouTuber、ターゲットは中国　大統領の罷免を深掘りします #1843",
+     "韓国のYouTuber、ターゲットは中国　大統領の罷免を深掘りします #1843"
+    ],
+    "publishedAt": [
+     "2025-04-10T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "7METygS9mWuBsvWRfF5hlr"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1850",
+    "categories": "genba+houdan",
+    "titles": [
+     "フジテレビ問題は、経営の問題だ　第三者委員会の報告書を読んでみた #1850",
+     "フジテレビ問題は、経営の問題だ　第三者委員会の報告書を読んでみた #1850"
+    ],
+    "publishedAt": [
+     "2025-04-17T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4kmBaXa05M7KqP9eLwAzLI"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1851",
+    "categories": "genba+sports",
+    "titles": [
+     "日本代表、W杯最速出場への道のり　ドーハの悲劇から「史上最強」になるまで（ポキフト） #1851",
+     "（サッカー）日本代表、W杯最速出場への道のり　ドーハの悲劇から「史上最強」になるまで  #1851"
+    ],
+    "publishedAt": [
+     "2025-04-18T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2CsJEcBX1EnfXchpXN8nLS"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1857",
+    "categories": "genba+houdan",
+    "titles": [
+     "この夏、内閣不信任案にドキッ　参院選前に政局あるかも？ #1857",
+     "この夏、内閣不信任案にドキッ　参院選前に政局あるかも？ #1857"
+    ],
+    "publishedAt": [
+     "2025-04-24T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "74pD2wzq5vaHxOV8hGl6p1"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1858",
+    "categories": "genba+sports",
+    "titles": [
+     "荒れる春場所、制したのは大の里　高安が逃した〝9度目〟の正直 #1858",
+     "（相撲）荒れる春場所、制したのは大の里　高安が逃した〝9度目〟の正直 #1858"
+    ],
+    "publishedAt": [
+     "2025-04-25T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2wT0d5i4tCM6ACSB2C35AL"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1861",
+    "categories": "genba+sports",
+    "titles": [
+     "MVで羽生結弦さんが神ワザ連発　世界選手権での坂本花織選手の行動に心打たれた #1861",
+     "（フィギュア）MVで羽生結弦さんが神ワザ連発　世界選手権での坂本花織選手の行動に心打たれた #1861"
+    ],
+    "publishedAt": [
+     "2025-04-28T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "15cKm3A3PAR5hbXpV5Rocf"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1864",
+    "categories": "genba+houdan",
+    "titles": [
+     "社会を変えるって、私たちが変わること　働き方について考えてみた #1864",
+     "社会を変えるって、私たちが変わること　働き方について考えてみた #1864"
+    ],
+    "publishedAt": [
+     "2025-05-01T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6VelBg3G1p9Norsg9ANDa5"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1866",
+    "categories": "donuts+genba",
+    "titles": [
+     "2.26事件と朝日新聞（前編） 反乱の背景、行き詰まる政党政治と失業・不況 #1866",
+     "2.26事件と朝日新聞（前編） 反乱の背景、行き詰まる政党政治と失業・不況 #1866"
+    ],
+    "publishedAt": [
+     "2025-05-03T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "3irLXIFwOmPcxnxaeS8tpt",
+     "18KgmgmdOcdGgfgLcPuDnl"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1867",
+    "categories": "donuts+genba",
+    "titles": [
+     "2.26事件と朝日新聞（中編） 東京朝日新聞社を襲う反乱軍、対峙した主筆 #1867",
+     "2.26事件と朝日新聞（中編） 東京朝日新聞社を襲う反乱軍、対峙した主筆 #1867"
+    ],
+    "publishedAt": [
+     "2025-05-04T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5qH3mKFtpgpDR9LivT15Hn",
+     "4crusQldMX4Ti5LtttcHQv"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1868",
+    "categories": "donuts+genba",
+    "titles": [
+     "2.26事件と朝日新聞（後編） 逓信省が盗聴、「電話」が決した反乱軍の運命 #1868",
+     "2.26事件と朝日新聞（後編） 逓信省が盗聴、「電話」が決した反乱軍の運命 #1868"
+    ],
+    "publishedAt": [
+     "2025-05-05T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6fRxRR0c0TV9vZgQyVTKca",
+     "1VLC7g4VD7Fv3F46jYpOj5"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1871",
+    "categories": "genba+houdan",
+    "titles": [
+     "アンパンマンと令和のふな　やなせたかし氏の父、実は朝日記者だった #1871",
+     "アンパンマンと令和のふな　やなせたかし氏の父、実は朝日記者だった #1871"
+    ],
+    "publishedAt": [
+     "2025-05-08T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1haWRm0qjGSGYFRzlBXy3D"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1872",
+    "categories": "genba+sports",
+    "titles": [
+     "富士通が2連覇　ファイナル5試合、紙一重の攻防（バスクラ・Wリーグ） ＃1872",
+     "（バスケ・Wリーグ）富士通が2連覇　ファイナル5試合、紙一重の攻防 ＃1872"
+    ],
+    "publishedAt": [
+     "2025-05-09T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "7c1O5r48biDlZ83Fpr6eop"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1878",
+    "categories": "genba+houdan",
+    "titles": [
+     "「ひめゆり発言」、プーチン氏と習氏のお茶会　2題を中心にお送りします #1878",
+     "「ひめゆり発言」、プーチン氏と習氏のお茶会　2題を中心にお送りします #1878"
+    ],
+    "publishedAt": [
+     "2025-05-15T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "3TnO4K2nNHHMyiTclHGisQ"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1885",
+    "categories": "genba+houdan",
+    "titles": [
+     "キーワードで知る中東　今回は「ムスリム同胞団」を取り上げます #1885",
+     "キーワードで知る中東　今回は「ムスリム同胞団」を取り上げます #1885"
+    ],
+    "publishedAt": [
+     "2025-05-22T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0pWH9XQsWSuSraT9e5xiji"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1899",
+    "categories": "genba+houdan",
+    "titles": [
+     "「失言」とは何かを考えた　問題は、言葉の中身じゃないのかも #1899",
+     "「失言」とは何かを考えた　問題は、言葉の中身じゃないのかも #1899"
+    ],
+    "publishedAt": [
+     "2025-06-05T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1Y6D1GrWZ9eJOFu8LDhDsJ"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1900",
+    "categories": "genba+sports",
+    "titles": [
+     "琉球が4年連続ファイナル　さらなる激闘の幕開けは「奇跡の右手」から（バスクラ・Bリーグ前編） #1900",
+     "（バスケ・・Bリーグ前編）琉球が4年連続ファイナル　さらなる激闘の幕開けは「奇跡の右手」から  #1900"
+    ],
+    "publishedAt": [
+     "2025-06-06T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6sjNFs3vvS0pB3sylqPOjB"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1906",
+    "categories": "genba+houdan",
+    "titles": [
+     "万博行ってきました　「並ばない万博」というか、並べませんでした #1906",
+     "万博行ってきました　「並ばない万博」というか、並べませんでした #1906"
+    ],
+    "publishedAt": [
+     "2025-06-12T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "7rsdgSAmMzgxgJuKpcaZjC"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1907",
+    "categories": "genba+sports",
+    "titles": [
+     "打ち続けた比江島、合言葉はケビンHCの「HABIT」　宇都宮が3度目V（バスクラ・Bリーグ後編） #1907",
+     "（バスケ・Bリーグ後編）打ち続けた比江島、合言葉はケビンHCの「HABIT」　宇都宮が3度目V #1907"
+    ],
+    "publishedAt": [
+     "2025-06-13T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "7erD4sIUkywfTygv8gammm"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1913",
+    "categories": "genba+houdan",
+    "titles": [
+     "国会終盤の3日連続スクープ、お気づきでしょうか　舞台裏をお伝えします #1913",
+     "国会終盤の3日連続スクープ、お気づきでしょうか　舞台裏をお伝えします #1913"
+    ],
+    "publishedAt": [
+     "2025-06-19T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "26Tqfx12Rctv69e3fQS8tA"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1920",
+    "categories": "genba+houdan",
+    "titles": [
+     "（最終回）引っ越します、報談 【HOU-DAN】をフォローしてください！　あと都議選の話もします #1920",
+     "（最終回）引っ越します、報談 【HOU-DAN】をフォローしてください！　あと都議選の話もします #1920"
+    ],
+    "publishedAt": [
+     "2025-06-26T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "198XHrun9hKwYMFpubJtD7"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1921",
+    "categories": "genba+sports",
+    "titles": [
+     "「りくりゅう」の素顔は　「四回転の神」が日本選手に伝授した秘訣は　担当記者に聞いた #1921",
+     "（フィギュア）「りくりゅう」の素顔は　「四回転の神」が日本選手に伝授した秘訣は　担当記者に聞いた #1921"
+    ],
+    "publishedAt": [
+     "2025-06-27T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4ncBPrYJUAy0P7xxc7x0EM"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1928",
+    "categories": "genba+sports",
+    "titles": [
+     "白鵬の退職の背景は？　大の里の横綱昇進でモヤモヤ、「日本出身横綱」という表現 #1928",
+     "（相撲）白鵬の退職の背景は？　大の里の横綱昇進でモヤモヤ、「日本出身横綱」という表現 #1928"
+    ],
+    "publishedAt": [
+     "2025-07-04T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "7ewn2YGx3iopXuS7FfbYCk"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1950",
+    "categories": "genba+sports",
+    "titles": [
+     "女子アジアカップ準優勝　日本代表に19歳新星、試合しながら成長（バスクラ） #1950",
+     "（バスケ）女子アジアカップ準優勝　日本代表に19歳新星、試合しながら成長 #1950"
+    ],
+    "publishedAt": [
+     "2025-07-25T19:10:00.000Z"
+    ],
+    "spotifyIds": [
+     "5LQb684osSb8S5bvPmoY4X"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1978",
+    "categories": "genba+sports",
+    "titles": [
+     "8強逃した日本　勝負どころでミス多発、徹底マークされた富永啓生（バスクラ・アジアカップ） #1978",
+     "（バスケ）8強逃した日本　勝負どころでミス多発、徹底マークされた富永啓生 #1978"
+    ],
+    "publishedAt": [
+     "2025-08-22T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1Upa7FqwrX9CCPiMMJlalq"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1979",
+    "categories": "donuts+genba",
+    "titles": [
+     "満州事変と朝日新聞　社論「転換」した朝日新聞　その要因は軍部の圧力だけではなかった…隠れた主役「在郷軍人会」 #1979",
+     "満州事変と朝日新聞　社論「転換」した朝日新聞　その要因は軍部の圧力だけではなかった…隠れた主役「在郷軍人会」 #1979"
+    ],
+    "publishedAt": [
+     "2025-08-23T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4PPrsBsGcg211I4U9vm5Rz",
+     "1FZv2GUr0lJwt2E8aEfphp"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1986",
+    "categories": "genba+sports",
+    "titles": [
+     "名将・高嶋仁さんがみた夏の甲子園2025　沖縄尚学初V、強さ裏付ける「無欲」 #1986",
+     "（高校野球）名将・高嶋仁さんがみた夏の甲子園2025　沖縄尚学初V、強さ裏付ける「無欲」 #1986"
+    ],
+    "publishedAt": [
+     "2025-08-30T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5W3RqZkRTRaSqW3fDBLU0r"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1992",
+    "categories": "genba+sports",
+    "titles": [
+     "混戦の名古屋場所を制した琴勝峰　新入幕の弟が刺激に…　横綱・大関の今後は？ #1992",
+     "（相撲）混戦の名古屋場所を制した琴勝峰　新入幕の弟が刺激に…　横綱・大関の今後は？ #1992"
+    ],
+    "publishedAt": [
+     "2025-09-05T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2NvpZqigkKhX6WSbESIhgE"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1999",
+    "categories": "genba+sports",
+    "titles": [
+     "河村勇輝、トップ10アシスト動画上位3位を独占　ブルズとツーウェー契約（バスクラ・NBAサマーリーグ） #1999",
+     "（バスケ・NBAサマーリーグ）河村勇輝、トップ10アシスト動画上位3位を独占　ブルズとツーウェー契約 #1999"
+    ],
+    "publishedAt": [
+     "2025-09-12T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2ziD8ZXWmvuMcVgjYy7VUE"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2020",
+    "categories": "genba+sports",
+    "titles": [
+     "鍵山優真選手を指導するイタリアの国民的スターのまさかの行動　フィギュア担当記者の心に響いた #2020",
+     "（フィギュア）鍵山優真選手を指導するイタリアの国民的スターのまさかの行動　担当記者の心に響いた #2020"
+    ],
+    "publishedAt": [
+     "2025-10-03T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4yn8gvdjCXN3U2AjGgUEWT"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2034",
+    "categories": "genba+sports",
+    "titles": [
+     "Bリーグ10季目は東西2地区制　新アリーナや注目選手、開幕から見どころ満載（バスクラ） #2034",
+     "（バスケ）Bリーグ10季目は東西2地区制　新アリーナや注目選手、開幕から見どころ満載  #2034"
+    ],
+    "publishedAt": [
+     "2025-10-17T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4y8BjF5B4NKZK9eoe38GFM"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2041",
+    "categories": "genba+sports",
+    "titles": [
+     "日本代表、ブラジルに歴史的初勝利　歓喜の裏にサッカー王国のたそがれ（ポキフト） #2041",
+     "（サッカー）日本代表、ブラジルに歴史的初勝利　歓喜の裏にサッカー王国のたそがれ  #2041"
+    ],
+    "publishedAt": [
+     "2025-10-24T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0BVmTWF7Oab76DQqE14AsV"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2048",
+    "categories": "genba+sports",
+    "titles": [
+     "16年ぶり横綱の優勝決定戦、制した大の里　九月場所で見えた「大豊時代」の到来 #2048",
+     "（相撲）16年ぶり横綱の優勝決定戦、制した大の里　九月場所で見えた「大豊時代」の到来 #2048"
+    ],
+    "publishedAt": [
+     "2025-10-31T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "7z353O43i5aZLV0F2H0Rn1"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2062",
+    "categories": "genba+sports",
+    "titles": [
+     "Ｗリーグ、外国籍選手の枠拡大　男子日本代表候補を分析（バスクラ）＃2062",
+     "（バスケ）Ｗリーグ、外国籍選手の枠拡大　男子日本代表候補を分析 ＃2062"
+    ],
+    "publishedAt": [
+     "2025-11-14T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "39G08UcWbOFSyTMKqHNp27"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1-2077",
+    "categories": "genba+sports",
+    "titles": [
+     "フィギュア世界最強6人の闘い、GPファイナルの見どころ解説　珍ハプニング話も #2077",
+     "（フィギュア）世界最強6人の闘い、GPファイナルの見どころ解説　珍ハプニング話も #2077"
+    ],
+    "publishedAt": [
+     "2025-11-29T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "7mK3FYoXKM17lp64MX3swK"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2083",
+    "categories": "genba+sports",
+    "titles": [
+     "ウインターカップ2025、男女とも大混戦　チケットキャンペーンは12/14まで（バスクラ） #2083",
+     "（バスケ）ウインターカップ2025、男女とも大混戦　チケットキャンペーンは12/14まで  #2083"
+    ],
+    "publishedAt": [
+     "2025-12-05T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1lbnmUUAghnvYNB0TEOcQ4"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2100",
+    "categories": "genba+sports",
+    "titles": [
+     "2026W杯、日本の初戦は強豪オランダ　FIFAがトランプ大統領に平和賞？？（ポキフト） #2100",
+     "（サッカー）2026W杯、日本の初戦は強豪オランダ　FIFAがトランプ大統領に平和賞？？ #2100"
+    ],
+    "publishedAt": [
+     "2025-12-22T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "70OcpKtjYllViuFYnlGiEa"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2111",
+    "categories": "genba+sports",
+    "titles": [
+     "安青錦の初V、大関昇進で幕を閉じた1年　2026年の大相撲はどうなる？　#2111",
+     "（相撲）安青錦の初V、大関昇進で幕を閉じた1年　2026年の大相撲はどうなる？　#2111"
+    ],
+    "publishedAt": [
+     "2026-01-02T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "7iscIaEFpZ4E3vHdpg3JvT"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2132",
+    "categories": "genba+sports",
+    "titles": [
+     "大阪薫英が初優勝　今度はハマったディフェンス戦略（バスクラ・ウインターカップ女子）  #2132",
+     "（バスケ・ウインターカップ女子）大阪薫英が初優勝　今度はハマったディフェンス戦略  #2132"
+    ],
+    "publishedAt": [
+     "2026-01-23T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4pZrlUUDY8ym8j9ye6rdez"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2139",
+    "categories": "genba+sports",
+    "titles": [
+     "フィギュア「関東三羽がらす」いざミラノ五輪へ、団体戦もある五輪の楽しみ方 #2139",
+     "（フィギュア）「関東三羽がらす」いざミラノ五輪へ、団体戦もある五輪の楽しみ方 #2139"
+    ],
+    "publishedAt": [
+     "2026-01-30T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1VsWQNBd48tqVD6JJcqNte"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2160",
+    "categories": "genba+sports",
+    "titles": [
+     "Bリーグ初ドラフト　高水準の年俸と相次ぐ指名回避（バスクラ） #2160",
+     "（バスケ）Bリーグ初ドラフト　高水準の年俸と相次ぐ指名回避  #2160"
+    ],
+    "publishedAt": [
+     "2026-02-20T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6O0ISDamXw8Mv9ISGZoZ5g"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2174",
+    "categories": "genba+sports",
+    "titles": [
+     "綱とりがかかる三月場所、安青錦は淡々と…「自分の力を試したい」　#2174",
+     "（相撲）綱とりがかかる三月場所、安青錦は淡々と…「自分の力を試したい」　#2174"
+    ],
+    "publishedAt": [
+     "2026-03-06T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2CBIFHccXdCmBDgQeSSF1O"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2181",
+    "categories": "genba+sports",
+    "titles": [
+     "PKで決着つけるJリーグ、ってどう思う？　今年限りの特別大会はここが違う（ポキフト） #2181",
+     "（サッカー）PKで決着つけるJリーグ、ってどう思う？　今年限りの特別大会はここが違う  #2181"
+    ],
+    "publishedAt": [
+     "2026-03-13T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "7kuQgIhohxqDgDo0s41Rbh"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2182",
+    "categories": "genba+sports",
+    "titles": [
+     "りくりゅう金にコーチの秘話、坂本花織が記者へ泣ける行動　フィギュア冬季五輪振り返り #2182",
+     "（フィギュア）りくりゅう金にコーチの秘話、坂本花織が記者へ泣ける行動　冬季五輪振り返り #2182"
+    ],
+    "publishedAt": [
+     "2026-03-14T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "61wpYDesTRKDrJnFVT5Bek"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2188",
+    "categories": "genba+sports",
+    "titles": [
+     "みんなが常に動くバスケ　桶谷新HC、2試合でみえてきた景色（バスクラ・日本代表） #2188",
+     "（バスケ・日本代表）みんなが常に動くバスケ　桶谷新HC、2試合でみえてきた景色  #2188"
+    ],
+    "publishedAt": [
+     "2026-03-20T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "32LThSWW0IOS4vKgLek3FA"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2189",
+    "categories": "genba+sports",
+    "titles": [
+     "WBCの進化と真価、日本の本気度に世界が追いついてきた ネトフリでしか見られなくても #2189",
+     "（野球）WBCの進化と真価、日本の本気度に世界が追いついてきた ネトフリでしか見られなくても #2189"
+    ],
+    "publishedAt": [
+     "2026-03-21T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5R7IRckTRAh88m20ctrQOu"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2195",
+    "categories": "genba+sports",
+    "titles": [
+     "新体操の代表選手が「脱走」、指導者は改心したが…　スポーツ界に与える教訓とは #2195",
+     "（新体操）代表選手が「脱走」、指導者は改心したが…　スポーツ界に与える教訓とは #2195"
+    ],
+    "publishedAt": [
+     "2026-03-27T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "3HWVsj540hSGrKo5W9Bs3l"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2216",
+    "categories": "genba+sports",
+    "titles": [
+     "デンソー初V　高田真希「成功する人は、成功するまで続けた人」（バスクラ・Wリーグ） ＃2216",
+     "（バスケ・Wリーグ）デンソー初V　高田真希「成功する人は成功するまで続けた人」  ＃2216"
+    ],
+    "publishedAt": [
+     "2026-04-17T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "414corRuxE80N6ffActGlb"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2223",
+    "categories": "genba+sports",
+    "titles": [
+     "坂本花織選手が有終の美、験担ぎの「#カオリのスコーン」とは？　フィギュア世界選手権 #2223",
+     "（フィギュア世界選手権）坂本花織選手が有終の美、験担ぎの「#カオリのスコーン」とは？ #2223"
+    ],
+    "publishedAt": [
+     "2026-04-24T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2HpEWAXoooPpgc8bQSoMCP"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/pokifuto0427",
+    "categories": "genba+sports",
+    "titles": [
+     "W杯日本代表のメンバーは？　「当確」22～23人か、ボランチとFWに注目（ポキフト）",
+     "（サッカー）W杯日本代表のメンバーは？　「当確」22～23人か、ボランチとFWに注目"
+    ],
+    "publishedAt": [
+     "2026-05-01T10:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5ops94bXVgsGtpsobVSCU5"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2230",
+    "categories": "genba+sports",
+    "titles": [
+     "霧島、2年半ぶりVで大関に返り咲き　安青錦が綱とりを逃したのは #2230",
+     "（相撲）霧島、2年半ぶりVで大関に返り咲き　安青錦が綱とりを逃したのは #2230"
+    ],
+    "publishedAt": [
+     "2026-05-01T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "3d2JLqXlqFej36icfVyDfh"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/basukura260512",
+    "categories": "genba+sports",
+    "titles": [
+     "名古屋D、流れ引き寄せたキーパーソン　激闘制した千葉J（バスクラ・BリーグCS準々決勝）",
+     "（バスケ・BリーグCS準々決勝）名古屋D、流れ引き寄せたキーパーソン　激闘制した千葉J"
+    ],
+    "publishedAt": [
+     "2026-05-14T03:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "72UGh8JlbPyjPKlAuqJP2Y"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/figure0520",
+    "categories": "genba+sports",
+    "titles": [
+     "フィギュア引退会見　りくりゅう涙の理由とペアの関係性、坂本花織さんのこぼれ話",
+     "（フィギュア）引退会見　りくりゅう涙の理由とペアの関係性、坂本花織さんのこぼれ話"
+    ],
+    "publishedAt": [
+     "2026-05-22T11:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4abhQoLNMwuu93vnR2eoRS"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2258",
+    "categories": "genba+sports",
+    "titles": [
+     "五輪で涙するライバルに寄り添った選手、女性への暴力反対を訴える選手　結果だけじゃなく伝えたいアスリートの姿 #2258",
+     "（フィギュア）五輪で涙するライバルに寄り添った選手、女性への暴力反対を訴える選手　結果だけじゃなく伝えたいアスリートの姿 #2258"
+    ],
+    "publishedAt": [
+     "2026-05-29T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "431LKo07Wig4KG3SmxLrld"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/pokifuto0601",
+    "categories": "genba+sports",
+    "titles": [
+     "三笘不在の左サイド、伊東・中村コンビに手応え　新ルールの影響は？（ポキフト）",
+     "（サッカー）三笘不在の左サイド、伊東・中村コンビに手応え　新ルールの影響は？"
+    ],
+    "publishedAt": [
+     "2026-06-01T13:40:00.000Z"
+    ],
+    "spotifyIds": [
+     "2PNSd0bFYLKo2d4ftry560"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/figure0602",
+    "categories": "genba+sports",
+    "titles": [
+     "「しょまりん」宇野昌磨・本田真凜が復帰するアイスダンスとは　4年後の五輪どうなる？",
+     "（フィギュア）「しょまりん」宇野昌磨・本田真凜が復帰するアイスダンスとは　4年後の五輪どうなる？"
+    ],
+    "publishedAt": [
+     "2026-06-04T09:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6pmuvROFwvMHQ6C1qtbypu"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2265",
+    "categories": "genba+sports",
+    "titles": [
+     "長崎、創設5季目で優勝　勝負を分けたリバウンドとディフェンス（バスクラ・BリーグCS） ＃2265",
+     "（バスケ・BリーグCS）長崎、創設5季目で優勝　勝負を分けたリバウンドとディフェンス  ＃2265"
+    ],
+    "publishedAt": [
+     "2026-06-05T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "3IyFYFEqfi4y6UfoeiJZda"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/pokifuto0615",
+    "categories": "genba+sports",
+    "titles": [
+     "オランダに感じた日本へのリスペクト　2度追いつき、価値ある勝ち点1（ポキフト）",
+     "（サッカーW杯）オランダに感じた日本へのリスペクト　2度追いつき、価値ある勝ち点1"
+    ],
+    "publishedAt": [
+     "2026-06-15T09:30:00.000Z"
+    ],
+    "spotifyIds": [
+     "1mQpGRSKjKPoC5izRfsfPu"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/pokifuto0621",
+    "categories": "genba+sports",
+    "titles": [
+     "チュニジア戦で生きた4年前の教訓　スウェーデン戦のゲームプランは？（ポキフト）",
+     "（サッカーW杯）チュニジア戦で生きた4年前の教訓　スウェーデン戦のゲームプランは？"
+    ],
+    "publishedAt": [
+     "2026-06-22T06:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0Afp0GsOsTbK1wdZMIlpYE",
+     "3jkHoBPSVCFZm4fLjQPaNx"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2284",
+    "categories": "genba+sports",
+    "titles": [
+     "フィギュアの素朴なギモンに答える回なのに、MCの涙が止まらない理由 #2284",
+     "（フィギュア）素朴なギモンに答える回なのに、MCの涙が止まらない理由 #2284"
+    ],
+    "publishedAt": [
+     "2026-06-24T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5u9pkkm55byfCBvYiHx4FJ",
+     "3dAvdIJddj1qSROMfxhuyh"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/pokifuto0626",
+    "categories": "genba+sports",
+    "titles": [
+     "スウェーデンにドローで2位突破　次は本気のブラジル、組織的な守りで対抗を（ポキフト・W杯）",
+     "（サッカーW杯）スウェーデンにドローで2位突破　次は本気のブラジル、組織的な守りで対抗を"
+    ],
+    "publishedAt": [
+     "2026-06-26T08:15:00.000Z"
+    ],
+    "spotifyIds": [
+     "0GabfxiQpFs1tUJ4luNS2J",
+     "5MTp5YNSVtviWPDVjwJdcv"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/pokifuto0630",
+    "categories": "genba+sports",
+    "titles": [
+     "試合巧者ブラジルの壁、最後に響いた南野・三笘の不在　まだまだ強くなれる（ポキフト・W杯）",
+     "（サッカーW杯）試合巧者ブラジルの壁、最後に響いた南野・三笘の不在　まだまだ強くなれる"
+    ],
+    "publishedAt": [
+     "2026-06-30T07:24:16.000Z"
+    ],
+    "spotifyIds": [
+     "126f6KbYS7hPmA7i2NEahd",
+     "74ngfkIDR2NGucds0VVhtX"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2293",
+    "categories": "genba+sports",
+    "titles": [
+     "若隆景4年ぶりV、3兄弟の末っ子　幕下転落から復活…故郷・福島もわいた #2293",
+     "（相撲）若隆景4年ぶりV、3兄弟の末っ子　幕下転落から復活…故郷・福島もわいた #2293"
+    ],
+    "publishedAt": [
+     "2026-07-03T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6SazB6uN4kpZXoo6n8LtvL",
+     "4MGRs1Xwli1jNIh72cKovO"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2300",
+    "categories": "genba+sports",
+    "titles": [
+     "速攻いかせた中国戦　怒濤のラスト、ミス響いた韓国戦（バスクラ・Ｗ杯アジア予選） #2300",
+     "（バスケ・Ｗ杯アジア予選）速攻いかせた中国戦　怒濤のラスト、ミス響いた韓国戦  #2300"
+    ],
+    "publishedAt": [
+     "2026-07-10T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "74IOImPKxpwAhmVEo2WQPD",
+     "0TZZZUWrkZI36QYTwMi1CY"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/pokifuto0717",
+    "categories": "genba+sports",
+    "titles": [
+     "（サッカー・W杯）スペイン VS. アルゼンチン 　決勝展望とルールをねじ曲げたFIFA決定に思うこと",
+     "（サッカー・W杯）スペイン VS. アルゼンチン 　決勝展望とルールをねじ曲げたFIFA決定に思うこと"
+    ],
+    "publishedAt": [
+     "2026-07-17T08:15:00.000Z"
+    ],
+    "spotifyIds": [
+     "2Ta8xAMff5Jo6ca0kYDWlr",
+     "4BDksmdPPtwvuMEUPRSfEa"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/2307",
+    "categories": "genba+sports",
+    "titles": [
+     "（フィギュア）衣装、露出なのか表現なのか　女性アスリートの言えない悩み #2307",
+     "（フィギュア）衣装、露出なのか表現なのか　女性アスリートの言えない悩み #2307"
+    ],
+    "publishedAt": [
+     "2026-07-17T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1it6lqzxsXsO10BlZJPlwJ",
+     "0zh2HyJpqTQd6fl65xNmUm"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/pokifuto0720",
+    "categories": "genba+sports",
+    "titles": [
+     "（サッカー・W杯）無敵スペイン、進化したパスサッカーで16年ぶり頂点　日本が優勝するためには",
+     "（サッカー・W杯）無敵スペイン、進化したパスサッカーで16年ぶり頂点　日本が優勝するためには"
+    ],
+    "publishedAt": [
+     "2026-07-20T11:18:20.000Z"
+    ],
+    "spotifyIds": [
+     "6eyscGY6jCh2n5kUID043O",
+     "3Rt9xrUbTtlwCKxyLEzFd8"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/basukura0807",
+    "categories": "genba+sports",
+    "titles": [
+     "【スポーツ系プレイリスト準備中】 バスケ・サッカー・フィギュア・相撲など9月にお引っ越し",
+     "【スポーツ系プレイリスト準備中】 バスケ・サッカー・フィギュア・相撲など9月にお引っ越し"
+    ],
+    "publishedAt": [
+     "2026-08-08T03:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2rix2DDJWfjVJeINrU7qLJ",
+     "62O0dgrL9m6UAKHmt6UFqy"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/figure0829",
+    "categories": "genba+sports",
+    "titles": [
+     "（フィギュア）9月から「スポンジ　Sports Lounge」にお引っ越し　最後にフィギュアクイズも",
+     "（フィギュア）9月から「スポンジ　Sports Lounge」にお引っ越し　最後にフィギュアクイズも"
+    ],
+    "publishedAt": [
+     "2026-08-29T03:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0dPU55yBgTPkanbms7ylp0",
+     "07rdfDkx61swxNA173WvRG"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/50-269",
+    "categories": "media+sports",
+    "titles": [
+     "バスケワールドカップ効果　人気高まるBリーグ、チケットが取れない試合も ＃50-269",
+     "（バスケ）ワールドカップ効果　人気高まるBリーグ、チケットが取れない試合も ＃50-269"
+    ],
+    "publishedAt": [
+     "2023-11-15T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6F3bYBh1IHgLr0mlVHBVxZ"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/50-369",
+    "categories": "media+sports",
+    "titles": [
+     "フィジカルゲームだった決勝　見つめ直す日本の現在地（バスクラ・パリ五輪女子） #50-369",
+     "（バスケ）フィジカルゲームだった決勝　見つめ直す日本の現在地（パリ五輪女子） #50-369"
+    ],
+    "publishedAt": [
+     "2024-09-04T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1lg9qSIKv70BXIZLU0oo3Q"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/50-404",
+    "categories": "media+sports",
+    "titles": [
+     "双子対決や日本代表選手の母校対決…序盤から見どころ満載（バスクラ・ウインターカップ） #50-404",
+     "（バスケ）双子対決や日本代表選手の母校対決…序盤から見どころ満載（ウインターカップ） #50-404"
+    ],
+    "publishedAt": [
+     "2024-12-12T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1OcvYw2fVTz0QOln4Y4RYp"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/50-421",
+    "categories": "media+sports",
+    "titles": [
+     "3人で補い合うリーダー　これが私たちの京都精華（バスクラ・女子）#50-421",
+     "（バスケ）3人で補い合うリーダー　これが私たちの京都精華（女子）#50-421"
+    ],
+    "publishedAt": [
+     "2025-01-25T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1ifbyWAD4DM5WTbbxSEkiq"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/50-568",
+    "categories": "media+sports",
+    "titles": [
+     "完成した福岡大大濠のパズル　荒療治で目覚めた3年生（バスクラ・ウインターカップ男子） #50-568",
+     "（バスケ・ウインターカップ男子）完成した福岡大大濠のパズル　荒療治で目覚めた3年生  #50-568"
+    ],
+    "publishedAt": [
+     "2026-01-27T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6931DeShZx2C1O9nHkDMeV"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/us1-1",
+    "categories": "donuts+media",
+    "titles": [
+     "（右往左往）前編：靖国神社、右翼団体、そして朝日新聞社",
+     "（右往左往）前編：靖国神社、右翼団体、そして朝日新聞社"
+    ],
+    "publishedAt": [
+     "2026-05-03T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "1AmNTLgHtIqxto1f4rn3o8",
+     "0cjtCup4MAOAqczs0vlRbW"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/us1-2",
+    "categories": "donuts+media",
+    "titles": [
+     "（右往左往）中編：ACGしか勝たん、中国へ行って強く思った",
+     "（右往左往）中編：ACGしか勝たん、中国へ行って強く思った"
+    ],
+    "publishedAt": [
+     "2026-05-04T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "3O2WoO4K06orDIq7QfMooX",
+     "0bosnh1Vxa1LaoAWpcThhj"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/us1-3",
+    "categories": "donuts+media",
+    "titles": [
+     "（右往左往）後編：インターネット、性という深淵　人を動かすもの",
+     "（右往左往）後編：インターネット、性という深淵　人を動かすもの"
+    ],
+    "publishedAt": [
+     "2026-05-05T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2UXBrztu433u8QXxAdkBZ5",
+     "4GUDkqY494pOCgq9fZeZLB"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/20260616",
+    "categories": "donuts+media",
+    "titles": [
+     "（朝レキ）朝日新聞の紙面からみたラジオ・テレビ史　久米宏さんがつくった「フォーマット」、今も随所に　放送100年の「光」と「陰」",
+     "（朝レキ）朝日新聞の紙面からみたラジオ・テレビ史　久米宏さんがつくった「フォーマット」、今も随所に　放送100年の「光」と「陰」"
+    ],
+    "publishedAt": [
+     "2026-06-15T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "3hPnjsfYXQtwQTKKFiOosV",
+     "0tuZorKQm9os6rsJkbprZ7"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/20260707",
+    "categories": "donuts+media",
+    "titles": [
+     "（右往左往）民族派としての目覚め、それは小学校で　一水会・海野学さん①",
+     "（右往左往）民族派の目覚め、それは小学生で　一水会・海野学さん①"
+    ],
+    "publishedAt": [
+     "2026-07-06T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5oJ8LmVyIg73BGAeHSB7Vy",
+     "4Vsk9MnrJe9MMASMLdfp2M"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/20260708",
+    "categories": "donuts+media",
+    "titles": [
+     "（右往左往）三島由紀夫のおにぎりと天皇制　一水会・海野学さん②",
+     "（右往左往）三島由紀夫のおにぎりと天皇制　一水会・海野学さん②"
+    ],
+    "publishedAt": [
+     "2026-07-07T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "20LUsluXpnIBCsT4anLTnF",
+     "5ywdDdx5AfHmCldiSUglPO"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/20260709",
+    "categories": "donuts+media",
+    "titles": [
+     "（右往左往）夫婦別姓、同性婚の話をしよう　一水会・海野学さん③",
+     "（右往左往）夫婦別姓、同性婚の話をしよう　一水会・海野学さん③"
+    ],
+    "publishedAt": [
+     "2026-07-08T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "6NpSaCMqb9TZO92bnwTMCX",
+     "2aapZvfkGBNj7pZtIr9Vmm"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/20260710",
+    "categories": "donuts+media",
+    "titles": [
+     "（右往左往）スジを通す、アップデート、融通無碍　一水会・海野学さん④",
+     "（右往左往）スジを通す、アップデート、融通無碍　一水会・海野学さん④"
+    ],
+    "publishedAt": [
+     "2026-07-09T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "02LNGeRgMjCOuwxgzW5lyW",
+     "7mJgTViBoizUYGI2SmO3Bo"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/20260818",
+    "categories": "donuts+media",
+    "titles": [
+     "（楽屋裏）虫が好かない、なんて言わないで",
+     "（さんぽ）虫が好かない、なんて言わないで"
+    ],
+    "publishedAt": [
+     "2026-08-17T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5lxqI0xHQs1uZ1h1eHhvye",
+     "4AsBGYHylNtsUf9470eEaZ"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/315-1",
+    "categories": "sdgs+sports",
+    "titles": [
+     "羽生結弦選手が紡いだ2つの言葉の力　新しいアイスショー「GIFT」への思い #315",
+     "（フィギュア）羽生結弦選手が紡いだ2つの言葉の力　新しいアイスショー「GIFT」への思い #315"
+    ],
+    "publishedAt": [
+     "2023-02-12T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0q5QaTqRF7Hx1pgv4Osvrq",
+     "4eDdRojvOOutYWwg0gM5yM"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/316-1",
+    "categories": "sdgs+sports",
+    "titles": [
+     "フィギュアスケーターが性的少数者と公表する理由　スポーツと多様性を考える #316",
+     "フィギュアスケーターが性的少数者と公表する理由　スポーツと多様性を考える #316"
+    ],
+    "publishedAt": [
+     "2023-02-13T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "7wUiR5Y0rH8tpvPNCOLQNX",
+     "3ftpyjzHKdw6nkkleC36xt"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/100-712",
+    "categories": "sdgs+sports",
+    "titles": [
+     "初めて知った父と甲子園　元球児の記者が共感　甲子園球場100年（前編） #712",
+     "（甲子園球場100年・前編）初めて知った父と甲子園　元球児の記者が共感　甲子園球場100年 #712"
+    ],
+    "publishedAt": [
+     "2024-09-17T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "5bW9bULgM4AHEdNA0ISN2O",
+     "5PpSbwWxIZjypOuIbpWCZu"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/757-1",
+    "categories": "sdgs+sports",
+    "titles": [
+     "「伝統だとか言ってられない」迫られるスポーツ現場の熱中症対策　進む温暖化、来夏に向け考える #757",
+     "「伝統だとか言ってられない」迫られるスポーツ現場の熱中症対策　進む温暖化、来夏に向け考える #757"
+    ],
+    "publishedAt": [
+     "2024-11-24T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "4FRdkCIDv8XPqFgz7kE8BY",
+     "261WmTer2nGLpN6wDGxedp"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/901-1",
+    "categories": "sdgs+sports",
+    "titles": [
+     "上手くならなくてもいい　スケボーやブレイキンがもたらす変化　不登校とスポーツ（前編） #901",
+     "（不登校とスポーツ・前編）上手くならなくてもいい　スケボーやブレイキンがもたらす変化 #901"
+    ],
+    "publishedAt": [
+     "2025-06-24T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "636iYr5B6FiQFm1UgK5bvL",
+     "4IlCbzHnfpmmgrx9Ky0kVE"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/902-1",
+    "categories": "sdgs+sports",
+    "titles": [
+     "「卓球、バド、バレー」が多い理由は　回復期の背中を押すきっかけに　不登校とスポーツ（後編） #902",
+     "（不登校とスポーツ・後編）「卓球、バド、バレー」が多い理由は　回復期の背中を押すきっかけに #902"
+    ],
+    "publishedAt": [
+     "2025-06-25T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "13eLAlv8krXlNgGx2cnYpb",
+     "4OUO7vNBcwBXfa7tvqwJzb"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1017-1",
+    "categories": "sdgs+sports",
+    "titles": [
+     "聴覚障害の当事者と振り返るデフリンピック　ショート動画に出演、会場でスタッフとして活動も(前編) #1017",
+     "聴覚障害の当事者と振り返るデフリンピック　ショート動画に出演、会場でスタッフとして活動も(前編) #1017"
+    ],
+    "publishedAt": [
+     "2026-01-12T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "2yT4zUuvpet9Ic1XlPErpK",
+     "59wIVet6HsRuDtWedkmTEY"
+    ]
+   },
+   {
+    "link": "https://omny.fm/shows/asahi/1018-1",
+    "categories": "sdgs+sports",
+    "titles": [
+     "社内でのコミュニケーションや手話勉強会　聴覚障害のある社員がデフリンピックを機に考えたこと（後編） #1018",
+     "社内でのコミュニケーションや手話勉強会　聴覚障害のある社員がデフリンピックを機に考えたこと（後編） #1018"
+    ],
+    "publishedAt": [
+     "2026-01-13T19:00:00.000Z"
+    ],
+    "spotifyIds": [
+     "0cG4b8wGHvKHWaayrb27Wy",
+     "2nKnMtfUlwIcAvW4K6cj9J"
+    ]
+   }
+  ],
+  "note": "画面(speakers3.js)は重複を除かない。APIが除くかは未確認。ここでの除去は比較用のユニークlinkであり、画面件数ではない。"
+ },
+ "matching": {
+  "population": "uniqueLink",
+  "items": 5495,
+  "resolvedLedgerDuplicateRows": {
+   "count": 131,
+   "byShow": {
+    "報談": 119,
+    "MEDIA TALK": 8,
+    "SDGsを話そう": 4
+   },
+   "rows": [
+    {
+     "strongEp": "EP-01934",
+     "duplicateLedgerRow": "EP-01068",
+     "show": "報談",
+     "title": "（テスト企画）あのニュース、君にはどう映った？　特派員とゆったり語り合ってみた"
+    },
+    {
+     "strongEp": "EP-01972",
+     "duplicateLedgerRow": "EP-01067",
+     "show": "報談",
+     "title": "北京で、最大の引き締めが始まった？　記者が見る「ゼロコロナ」政策の難しさ #666"
+    },
+    {
+     "strongEp": "EP-02045",
+     "duplicateLedgerRow": "EP-01065",
+     "show": "報談",
+     "title": "名前は沖縄ルーツ、でも僕は大阪育ち　ルポに感じた同じ迷い #736"
+    },
+    {
+     "strongEp": "EP-02089",
+     "duplicateLedgerRow": "EP-01064",
+     "show": "報談",
+     "title": "選挙期間中に走った衝撃　安倍元首相襲撃事件を考える #779"
+    },
+    {
+     "strongEp": "EP-02132",
+     "duplicateLedgerRow": "EP-01063",
+     "show": "報談",
+     "title": "「選挙って本当に優秀な人を選べるの？」　中国で問われ、考えた #821"
+    },
+    {
+     "strongEp": "EP-02177",
+     "duplicateLedgerRow": "EP-01062",
+     "show": "報談",
+     "title": "パンダが日本にやってきた日　中国の宝、50年のインパクト #864"
+    },
+    {
+     "strongEp": "EP-02211",
+     "duplicateLedgerRow": "EP-01061",
+     "show": "報談",
+     "title": "側近で固められた指導部、胡錦濤氏の退出騒動　中国共産党大会を読む #895"
+    },
+    {
+     "strongEp": "EP-02220",
+     "duplicateLedgerRow": "EP-01060",
+     "show": "報談",
+     "title": "習近平体制と監視社会　継ぎ足しのタレ、引き継ぐべきか #902"
+    },
+    {
+     "strongEp": "EP-02247",
+     "duplicateLedgerRow": "EP-01059",
+     "show": "報談",
+     "title": "書かれたら終わりな新党立ち上げ会議　記者を呼んだ政治家のすごさ #925"
+    },
+    {
+     "strongEp": "EP-02290",
+     "duplicateLedgerRow": "EP-01058",
+     "show": "報談",
+     "title": "2.5億人が感染？　隔離のはずが「もう帰れ」　中国のコロナ政策激変 #960"
+    },
+    {
+     "strongEp": "EP-02325",
+     "duplicateLedgerRow": "EP-01057",
+     "show": "報談",
+     "title": "「で、家持ってんの？」　中国の人口減をたどれば、悩ましい結婚習慣が #990"
+    },
+    {
+     "strongEp": "EP-02369",
+     "duplicateLedgerRow": "EP-01056",
+     "show": "報談",
+     "title": "中国の気球、結局なんだった？　アメリカとの駆け引きの裏を探る　#1026"
+    },
+    {
+     "strongEp": "EP-02404",
+     "duplicateLedgerRow": "EP-01055",
+     "show": "報談",
+     "title": "ロシア、サウジ、イラン…中国が動かす国際社会　ところで私、ジャニーズ問題取材してました #1055"
+    },
+    {
+     "strongEp": "EP-02446",
+     "duplicateLedgerRow": "EP-01054",
+     "show": "報談",
+     "title": "①BOOWY派かTM NETWORK派か　懐メロ合戦は突然に #1091"
+    },
+    {
+     "strongEp": "EP-02447",
+     "duplicateLedgerRow": "EP-01053",
+     "show": "報談",
+     "title": "②上に政策あれば下に対策あり　中国の監視をすり抜ける投稿術 #1092"
+    },
+    {
+     "strongEp": "EP-02448",
+     "duplicateLedgerRow": "EP-01052",
+     "show": "報談",
+     "title": "③「ちょっとお茶飲もう」は中国の常套手段　監視下の取材を語ります #1093"
+    },
+    {
+     "strongEp": "EP-02449",
+     "duplicateLedgerRow": "EP-01051",
+     "show": "報談",
+     "title": "④選挙はTOKIOの「宙船」に通ず　おまえのオールをまかせるな #1094"
+    },
+    {
+     "strongEp": "EP-02497",
+     "duplicateLedgerRow": "EP-01050",
+     "show": "報談",
+     "title": "①7年ぶりの日本生活　コンビニ楽しい、手続き多すぎ、通勤しんどい #1137"
+    },
+    {
+     "strongEp": "EP-02498",
+     "duplicateLedgerRow": "EP-01049",
+     "show": "報談",
+     "title": "②首相公邸で記念撮影、する？　しない？　政治部時代の私は… #1138"
+    },
+    {
+     "strongEp": "EP-02499",
+     "duplicateLedgerRow": "EP-01048",
+     "show": "報談",
+     "title": "③自民 vs. 公明？　  東京選挙区で何が　すれ違いの原因は岸田政権に #1139"
+    },
+    {
+     "strongEp": "EP-02500",
+     "duplicateLedgerRow": "EP-01047",
+     "show": "報談",
+     "title": "④日本に足りない「したたかさ」　投票行ったら、お好み焼き屋へ  #1140"
+    },
+    {
+     "strongEp": "EP-02530",
+     "duplicateLedgerRow": "EP-01046",
+     "show": "報談",
+     "title": "街角で感じた中国との違い　人との距離、積極的でもいいじゃない #1167"
+    },
+    {
+     "strongEp": "EP-02540",
+     "duplicateLedgerRow": "EP-01045",
+     "show": "報談",
+     "title": "白熱！重大ニュースはどれ　ロシアのワグネル、中国、アメリカ　自分のものさしが揺らぐとき #1176"
+    },
+    {
+     "strongEp": "EP-02548",
+     "duplicateLedgerRow": "EP-01044",
+     "show": "報談",
+     "title": "有利だから解散・総選挙、それでいいの？　6月の騒動はなんだったのか #1183"
+    },
+    {
+     "strongEp": "EP-02558",
+     "duplicateLedgerRow": "EP-01043",
+     "show": "報談",
+     "title": "男同士でジェンダー格差を語ろう、結婚生活の難しさも　リスナーさんの質問に答えます #1192"
+    },
+    {
+     "strongEp": "EP-02566",
+     "duplicateLedgerRow": "EP-01042",
+     "show": "報談",
+     "title": "分割配信　ワンピースではなく、こち亀スタイルでいこうじゃないか #1199"
+    },
+    {
+     "strongEp": "EP-02577",
+     "duplicateLedgerRow": "EP-01041",
+     "show": "報談",
+     "title": "総理番、新入りが受ける洗礼と駆け引き　政治部あるある言いたい #1209"
+    },
+    {
+     "strongEp": "EP-02585",
+     "duplicateLedgerRow": "EP-01040",
+     "show": "報談",
+     "title": "岸田首相の最側近、木原誠二氏ってどんな人？　牛肉とワインの夜に #1216"
+    },
+    {
+     "strongEp": "EP-02594",
+     "duplicateLedgerRow": "EP-01039",
+     "show": "報談",
+     "title": "終電ギスギスどうすれば　半導体のかけひき、中国の関係者に聞きました #1225"
+    },
+    {
+     "strongEp": "EP-02603",
+     "duplicateLedgerRow": "EP-01038",
+     "show": "報談",
+     "title": "「台湾有事」どう思いますか　安全保障、食わず嫌いしないで語ろうよ #1233"
+    },
+    {
+     "strongEp": "EP-02613",
+     "duplicateLedgerRow": "EP-01037",
+     "show": "報談",
+     "title": "中国と日本のホンネの対話、細っているようで心配です　処理水放出で深まる溝　#1242"
+    },
+    {
+     "strongEp": "EP-02621",
+     "duplicateLedgerRow": "EP-01036",
+     "show": "報談",
+     "title": "茂木氏・石破氏・河野氏の処遇は　駆け引き始まる内閣改造 #1249"
+    },
+    {
+     "strongEp": "EP-02632",
+     "duplicateLedgerRow": "EP-01035",
+     "show": "報談",
+     "title": "銅が世界で奪い合いに　EVだと1台につき80キロ超必要 #1259"
+    },
+    {
+     "strongEp": "EP-02638",
+     "duplicateLedgerRow": "EP-01034",
+     "show": "報談",
+     "title": "そもそも解説、内閣改造って何のため　岸田首相は何をしたいの？ #1266"
+    },
+    {
+     "strongEp": "EP-02648",
+     "duplicateLedgerRow": "EP-01033",
+     "show": "報談",
+     "title": "芸術の秋ですね　ところで、ジャニーズ事務所の会見どう思った？ #1276"
+    },
+    {
+     "strongEp": "EP-02656",
+     "duplicateLedgerRow": "EP-01032",
+     "show": "報談",
+     "title": "インボイス制度、わかりやすく伝えます　負担のしわ寄せは誰に #1283"
+    },
+    {
+     "strongEp": "EP-02666",
+     "duplicateLedgerRow": "EP-01031",
+     "show": "報談",
+     "title": "少年Fの青春記　野球に熱中、学習塾は出禁、階段落ちても元気に登校 #1292"
+    },
+    {
+     "strongEp": "EP-02674",
+     "duplicateLedgerRow": "EP-01030",
+     "show": "報談",
+     "title": "中国の国防相はなぜ消えた　魚の禁輸も外交カード #1299"
+    },
+    {
+     "strongEp": "EP-02682",
+     "duplicateLedgerRow": "EP-01029",
+     "show": "報談",
+     "title": "スーパー視察と不支持率　岸田さん、「クリスマス選挙」はご勘弁 #1306"
+    },
+    {
+     "strongEp": "EP-02690",
+     "duplicateLedgerRow": "EP-01028",
+     "show": "報談",
+     "title": "中国とイスラエル・パレスチナの距離　「一帯一路」の陰で #1313"
+    },
+    {
+     "strongEp": "EP-02698",
+     "duplicateLedgerRow": "EP-01027",
+     "show": "報談",
+     "title": "李克強・前首相、こだわった「真実」　武漢から広がった新型コロナの陰で #1320"
+    },
+    {
+     "strongEp": "EP-02714",
+     "duplicateLedgerRow": "EP-01026",
+     "show": "報談",
+     "title": "期待を超えない米中、意外と良かった日中　APECの舞台裏で #1335"
+    },
+    {
+     "strongEp": "EP-02722",
+     "duplicateLedgerRow": "EP-01025",
+     "show": "報談",
+     "title": "創価学会、公明党の過去と未来　池田大作氏の死去で考える #1342"
+    },
+    {
+     "strongEp": "EP-02730",
+     "duplicateLedgerRow": "EP-01024",
+     "show": "報談",
+     "title": "パーティー券と派閥の裏金疑惑、を話すまで30分ほど待ってくれますか #1349"
+    },
+    {
+     "strongEp": "EP-02738",
+     "duplicateLedgerRow": "EP-01023",
+     "show": "報談",
+     "title": "「女性ならでは」ダメ？　存在を言えない金山の資料　2題でお届けします #1356"
+    },
+    {
+     "strongEp": "EP-02746",
+     "duplicateLedgerRow": "EP-01022",
+     "show": "報談",
+     "title": "語られ始めた「岸田政権の終わり」　禅譲シナリオ、なんてアリなの #1363"
+    },
+    {
+     "strongEp": "EP-02754",
+     "duplicateLedgerRow": "EP-01021",
+     "show": "報談",
+     "title": "殺人事件から考えるコミュニケーション　腹を割る、ってどういうこと #1370"
+    },
+    {
+     "strongEp": "EP-02779",
+     "duplicateLedgerRow": "EP-01020",
+     "show": "報談",
+     "title": "能登半島地震　国会議員は「現地入り自粛」で良かったんでしょうか #1392"
+    },
+    {
+     "strongEp": "EP-02787",
+     "duplicateLedgerRow": "EP-01019",
+     "show": "報談",
+     "title": "台湾総統選、中国からはどう見えた？　2024年は選挙イヤーです #1399"
+    },
+    {
+     "strongEp": "EP-02795",
+     "duplicateLedgerRow": "EP-01018",
+     "show": "報談",
+     "title": "ダウンタウン・松本人志氏の件　「4時ですよ～だ」を見ていた僕は  #1406"
+    },
+    {
+     "strongEp": "EP-02803",
+     "duplicateLedgerRow": "EP-01017",
+     "show": "報談",
+     "title": "能登半島地震、取材で見えた「想定外」　避難したくても道路がなければ #1413"
+    },
+    {
+     "strongEp": "EP-02811",
+     "duplicateLedgerRow": "EP-01016",
+     "show": "報談",
+     "title": "大臣がカンニングでは困ります　会見前日の「質問取り」なんなの？ #1420"
+    },
+    {
+     "strongEp": "EP-02819",
+     "duplicateLedgerRow": "EP-01015",
+     "show": "報談",
+     "title": "サッカー中国、監督も選手もワイロまみれでした　恒例「テレビ懺悔」で告白 #1427"
+    },
+    {
+     "strongEp": "EP-02827",
+     "duplicateLedgerRow": "EP-01014",
+     "show": "報談",
+     "title": "就職活動、今さらですがアドバイス　「武装」しなくても大丈夫です #1434"
+    },
+    {
+     "strongEp": "EP-02835",
+     "duplicateLedgerRow": "EP-01013",
+     "show": "報談",
+     "title": "知っておきたい「セキュリティークリアランス」　経済安全保障の問題です #1441"
+    },
+    {
+     "strongEp": "EP-02843",
+     "duplicateLedgerRow": "EP-01012",
+     "show": "報談",
+     "title": "駐夫（ちゅうおっと）という生き方　「闇落ち」を経験したジャーナリストが話します #1448"
+    },
+    {
+     "strongEp": "EP-02851",
+     "duplicateLedgerRow": "EP-01011",
+     "show": "報談",
+     "title": "次期戦闘機、輸出へ向けて自公が合意　「殺傷兵器」と公明党の距離感 #1455"
+    },
+    {
+     "strongEp": "EP-02859",
+     "duplicateLedgerRow": "EP-01010",
+     "show": "報談",
+     "title": "春は別れの季節です　あるのかないのか「4月解散」、そして #1462"
+    },
+    {
+     "strongEp": "EP-02868",
+     "duplicateLedgerRow": "EP-01009",
+     "show": "報談",
+     "title": "二階俊博氏にみる政治家の生き様、あり方　すみません本編は30分くらいで始まります #1470"
+    },
+    {
+     "strongEp": "EP-02875",
+     "duplicateLedgerRow": "EP-01008",
+     "show": "報談",
+     "title": "「ふしぎ発見」で記者になりました　今こそ語ろう、冨名腰隆のミーハーだましい #1476"
+    },
+    {
+     "strongEp": "EP-02885",
+     "duplicateLedgerRow": "EP-01007",
+     "show": "報談",
+     "title": "「5人衆」の明暗を何が分けたのか　自民党、派閥の裏金問題で処分 #1485"
+    },
+    {
+     "strongEp": "EP-02893",
+     "duplicateLedgerRow": "EP-01006",
+     "show": "報談",
+     "title": "岸田首相の訪米、なんのため？　議会スピーチから読み解いた #1492"
+    },
+    {
+     "strongEp": "EP-02901",
+     "duplicateLedgerRow": "EP-01005",
+     "show": "報談",
+     "title": "核ごみ、揺れ動く自治体とカネと　私たちも新聞をめくってみました #1499"
+    },
+    {
+     "strongEp": "EP-02918",
+     "duplicateLedgerRow": "EP-01003",
+     "show": "報談",
+     "title": "中国政府、補助金やりすぎ？　習近平氏のヨーロッパ歴訪を読む #1514"
+    },
+    {
+     "strongEp": "EP-02926",
+     "duplicateLedgerRow": "EP-01002",
+     "show": "報談",
+     "title": "カスハラには、言い返しも必要です　イワシの値段が高いんです #1521"
+    },
+    {
+     "strongEp": "EP-02934",
+     "duplicateLedgerRow": "EP-01001",
+     "show": "報談",
+     "title": "思惑それぞれ違うけど、4年半ぶりの開催が成果　日中韓首脳会談 #1528"
+    },
+    {
+     "strongEp": "EP-02942",
+     "duplicateLedgerRow": "EP-01000",
+     "show": "報談",
+     "title": "遠い国で起きている戦争　当事者になれない私たちの苦しさ #1535"
+    },
+    {
+     "strongEp": "EP-02950",
+     "duplicateLedgerRow": "EP-00999",
+     "show": "報談",
+     "title": "これはひどい、政治資金規正法の改正案　なお冒頭の約20分は飛ばしていただいても… #1542"
+    },
+    {
+     "strongEp": "EP-02958",
+     "duplicateLedgerRow": "EP-00998",
+     "show": "報談",
+     "title": "「いい文章」ってなんでしょう　みなさんの考えもぜひ教えてください #1549"
+    },
+    {
+     "strongEp": "EP-02966",
+     "duplicateLedgerRow": "EP-00997",
+     "show": "報談",
+     "title": "金正恩氏は見抜いていた？　G7→ロ朝会談→NATO首脳会議から浮かぶキーワード #1556"
+    },
+    {
+     "strongEp": "EP-02974",
+     "duplicateLedgerRow": "EP-00996",
+     "show": "報談",
+     "title": "「セクシー田中さん」問題、私たちが学べること　大事なものはなんですか #1563"
+    },
+    {
+     "strongEp": "EP-02982",
+     "duplicateLedgerRow": "EP-00995",
+     "show": "報談",
+     "title": "東京都知事選を語ろう　風は誰に吹いたのか、国政への影響は #1570"
+    },
+    {
+     "strongEp": "EP-02990",
+     "duplicateLedgerRow": "EP-00994",
+     "show": "報談",
+     "title": "川崎重工の海自接待疑惑、安倍昭恵さん、自治体マッチングアプリ　今回はアラカルトで #1577"
+    },
+    {
+     "strongEp": "EP-02998",
+     "duplicateLedgerRow": "EP-00993",
+     "show": "報談",
+     "title": "「3中全会」で決まったこと　不動産不況の中国、どうなるんですか #1584"
+    },
+    {
+     "strongEp": "EP-03006",
+     "duplicateLedgerRow": "EP-00992",
+     "show": "報談",
+     "title": "ケータイとロックの話で、ふな記者にまさかの事態　何が琴線に触れちゃったの #1591"
+    },
+    {
+     "strongEp": "EP-03014",
+     "duplicateLedgerRow": "EP-00991",
+     "show": "報談",
+     "title": "核兵器のない世界を考える　「傘の下」にいる限界、潜在的な保有国としての日本 #1598"
+    },
+    {
+     "strongEp": "EP-03022",
+     "duplicateLedgerRow": "EP-00990",
+     "show": "報談",
+     "title": "テーマは日本共産党　柔軟さとかたくなさ、その境界線はどこに #1605"
+    },
+    {
+     "strongEp": "EP-03037",
+     "duplicateLedgerRow": "EP-00989",
+     "show": "報談",
+     "title": "岸田首相、退陣表明の舞台裏　パレスホテルで何があったのか #1619"
+    },
+    {
+     "strongEp": "EP-03045",
+     "duplicateLedgerRow": "EP-00988",
+     "show": "報談",
+     "title": "中国人旅行者「日本は安全じゃない」　監視社会は快適だけど #1626"
+    },
+    {
+     "strongEp": "EP-03053",
+     "duplicateLedgerRow": "EP-00987",
+     "show": "報談",
+     "title": "自民党総裁選が始まりました　混戦を抜け出すのは誰なんでしょうか #1633"
+    },
+    {
+     "strongEp": "EP-03061",
+     "duplicateLedgerRow": "EP-00986",
+     "show": "報談",
+     "title": "江戸幕府「最大の汚点」　司馬遼太郎の指摘、無視するような政府の発表 #1640"
+    },
+    {
+     "strongEp": "EP-03069",
+     "duplicateLedgerRow": "EP-00985",
+     "show": "報談",
+     "title": "中国・深圳の事件、処理水巡る禁輸の緩和　そしてきょう総裁選 #1647"
+    },
+    {
+     "strongEp": "EP-03077",
+     "duplicateLedgerRow": "EP-00984",
+     "show": "報談",
+     "title": "「弱者男性」から考えるジェンダー　男性専用車両は、あった方がいいですか #1654"
+    },
+    {
+     "strongEp": "EP-03085",
+     "duplicateLedgerRow": "EP-00983",
+     "show": "報談",
+     "title": "大急ぎで振り返る総裁選、組閣、公認問題　「ふな祭り」の告知もありますよ #1661"
+    },
+    {
+     "strongEp": "EP-03093",
+     "duplicateLedgerRow": "EP-00982",
+     "show": "報談",
+     "title": "髪を洗わないシャンプーCM、減反と高齢化、袴田さん事件　ふなと新聞をめくろう #1668"
+    },
+    {
+     "strongEp": "EP-03101",
+     "duplicateLedgerRow": "EP-00981",
+     "show": "報談",
+     "title": "もうすぐ投開票！ 衆院選2024の情勢調査、注目選挙区をお伝えします #1675"
+    },
+    {
+     "strongEp": "EP-03108",
+     "duplicateLedgerRow": "EP-00980",
+     "show": "報談",
+     "title": "石破首相は退陣せず、議席増の立憲は渋い顔　ふりかえる総選挙の舞台裏 #1682"
+    },
+    {
+     "strongEp": "EP-03116",
+     "duplicateLedgerRow": "EP-00979",
+     "show": "報談",
+     "title": "「すねる大人」にならないために　らんまとめぞん、バイトの話も #1689"
+    },
+    {
+     "strongEp": "EP-03123",
+     "duplicateLedgerRow": "EP-00978",
+     "show": "報談",
+     "title": "思い出す前トランプ政権、アメリカ変わってなくない？　「ふな祭り」からお届けします #1696"
+    },
+    {
+     "strongEp": "EP-03132",
+     "duplicateLedgerRow": "EP-00977",
+     "show": "報談",
+     "title": "兵庫・斎藤県政「評価する」76％の意味を考える　日中首脳会談の嚙み合わなさとは #1703"
+    },
+    {
+     "strongEp": "EP-03140",
+     "duplicateLedgerRow": "EP-00976",
+     "show": "報談",
+     "title": "（シャッフル企画）あいさつ代わりに「ご飯食べた？」　　この時期欠かせない激推し中国グルメ #1710"
+    },
+    {
+     "strongEp": "EP-03148",
+     "duplicateLedgerRow": "EP-00975",
+     "show": "報談",
+     "title": "税と財務省を考える　かつての「最強官庁」に、アベノミクスで起きたこと #1717"
+    },
+    {
+     "strongEp": "EP-03156",
+     "duplicateLedgerRow": "EP-00974",
+     "show": "報談",
+     "title": "え、来年また衆院選？　政治部長・松田京平と政治の未来を考えた #1724"
+    },
+    {
+     "strongEp": "EP-03164",
+     "duplicateLedgerRow": "EP-00973",
+     "show": "報談",
+     "title": "年の瀬、激動の国際社会　内向き志向と自己責任がキーワードかも #1731"
+    },
+    {
+     "strongEp": "EP-03172",
+     "duplicateLedgerRow": "EP-00972",
+     "show": "報談",
+     "title": "リベラルと保守、違いあいまい　「ラジオ屋さんごっこ」つかささんと考えた #1738"
+    },
+    {
+     "strongEp": "EP-03188",
+     "duplicateLedgerRow": "EP-00971",
+     "show": "報談",
+     "title": "「ナベツネ」とは何だったのか　読売主筆・渡辺恒雄氏の功罪を（開始25分ごろから）考えた #1752"
+    },
+    {
+     "strongEp": "EP-03196",
+     "duplicateLedgerRow": "EP-00970",
+     "show": "報談",
+     "title": "阪神・淡路大震災から30年　そして戦後80年、ふりかえる「安倍談話」 の曲折 #1759"
+    },
+    {
+     "strongEp": "EP-03204",
+     "duplicateLedgerRow": "EP-00969",
+     "show": "報談",
+     "title": "アナウンサーとテレビ報道、　「政治とカネ」を忘れる空気　今回は2題でお届けします #1766"
+    },
+    {
+     "strongEp": "EP-03211",
+     "duplicateLedgerRow": "EP-00968",
+     "show": "報談",
+     "title": "デジタル版の新聞に「勝ち筋」ありますか？　同期だけれど縁遠い、冨名腰隆が奥山晶二郎と話します #1773"
+    },
+    {
+     "strongEp": "EP-03219",
+     "duplicateLedgerRow": "EP-00967",
+     "show": "報談",
+     "title": "違和感だらけのフジテレビ問題　問題はどこにあるのか、丁寧に考えたい #1780"
+    },
+    {
+     "strongEp": "EP-03227",
+     "duplicateLedgerRow": "EP-00966",
+     "show": "報談",
+     "title": "「旧姓の通称使用」が取って代わる？　同姓も選べる夫婦別姓、拒む理由とは #1787"
+    },
+    {
+     "strongEp": "EP-03235",
+     "duplicateLedgerRow": "EP-00965",
+     "show": "報談",
+     "title": "中国AI「ディープシーク」はゲームチェンジャーか　日本にとって、実は福音？ #1794"
+    },
+    {
+     "strongEp": "EP-03243",
+     "duplicateLedgerRow": "EP-00964",
+     "show": "報談",
+     "title": "トランプさんと石破さん、2人並んですまし顔？　日米関係ごきげんいかが #1801"
+    },
+    {
+     "strongEp": "EP-03251",
+     "duplicateLedgerRow": "EP-00963",
+     "show": "報談",
+     "title": "世紀の口げんか、トランプ・ゼレンスキー会談を考える　日本国会の予算を巡る攻防も #1808"
+    },
+    {
+     "strongEp": "EP-03259",
+     "duplicateLedgerRow": "EP-00962",
+     "show": "報談",
+     "title": "記者の「取材力」を考える　どうすればうまくインタビューできますか #1815"
+    },
+    {
+     "strongEp": "EP-03267",
+     "duplicateLedgerRow": "EP-00961",
+     "show": "報談",
+     "title": "石破首相の商品券問題　特報を手がけたデスク本人が、表も裏も語ります #1822"
+    },
+    {
+     "strongEp": "EP-03275",
+     "duplicateLedgerRow": "EP-00960",
+     "show": "報談",
+     "title": "いちからわかるイラン核問題　誰も頼れない国の生存戦略 #1829"
+    },
+    {
+     "strongEp": "EP-03283",
+     "duplicateLedgerRow": "EP-00959",
+     "show": "報談",
+     "title": "年度の初めはなぜ4月？　意外な理由と、日中外相会談と #1836"
+    },
+    {
+     "strongEp": "EP-03291",
+     "duplicateLedgerRow": "EP-00958",
+     "show": "報談",
+     "title": "韓国のYouTuber、ターゲットは中国　大統領の罷免を深掘りします #1843"
+    },
+    {
+     "strongEp": "EP-03297",
+     "duplicateLedgerRow": "EP-00957",
+     "show": "報談",
+     "title": "フジテレビ問題は、経営の問題だ　第三者委員会の報告書を読んでみた #1850"
+    },
+    {
+     "strongEp": "EP-03304",
+     "duplicateLedgerRow": "EP-00956",
+     "show": "報談",
+     "title": "この夏、内閣不信任案にドキッ　参院選前に政局あるかも？ #1857"
+    },
+    {
+     "strongEp": "EP-03311",
+     "duplicateLedgerRow": "EP-00955",
+     "show": "報談",
+     "title": "社会を変えるって、私たちが変わること　働き方について考えてみた #1864"
+    },
+    {
+     "strongEp": "EP-03318",
+     "duplicateLedgerRow": "EP-00954",
+     "show": "報談",
+     "title": "アンパンマンと令和のふな　やなせたかし氏の父、実は朝日記者だった #1871"
+    },
+    {
+     "strongEp": "EP-03325",
+     "duplicateLedgerRow": "EP-00953",
+     "show": "報談",
+     "title": "「ひめゆり発言」、プーチン氏と習氏のお茶会　2題を中心にお送りします #1878"
+    },
+    {
+     "strongEp": "EP-03332",
+     "duplicateLedgerRow": "EP-00952",
+     "show": "報談",
+     "title": "キーワードで知る中東　今回は「ムスリム同胞団」を取り上げます #1885"
+    },
+    {
+     "strongEp": "EP-03346",
+     "duplicateLedgerRow": "EP-00951",
+     "show": "報談",
+     "title": "「失言」とは何かを考えた　問題は、言葉の中身じゃないのかも #1899"
+    },
+    {
+     "strongEp": "EP-03353",
+     "duplicateLedgerRow": "EP-00950",
+     "show": "報談",
+     "title": "万博行ってきました　「並ばない万博」というか、並べませんでした #1906"
+    },
+    {
+     "strongEp": "EP-03360",
+     "duplicateLedgerRow": "EP-00949",
+     "show": "報談",
+     "title": "国会終盤の3日連続スクープ、お気づきでしょうか　舞台裏をお伝えします #1913"
+    },
+    {
+     "strongEp": "EP-03367",
+     "duplicateLedgerRow": "EP-00946",
+     "show": "報談",
+     "title": "（最終回）引っ越します、報談 【HOU-DAN】をフォローしてください！　あと都議選の話もします #1920"
+    },
+    {
+     "strongEp": "EP-01185",
+     "duplicateLedgerRow": "EP-04809",
+     "show": "MEDIA TALK",
+     "title": "バスケワールドカップ効果　人気高まるBリーグ、チケットが取れない試合も ＃50-269"
+    },
+    {
+     "strongEp": "EP-00307",
+     "duplicateLedgerRow": "EP-05486",
+     "show": "MEDIA TALK",
+     "title": "（右往左往）前編：靖国神社、右翼団体、そして朝日新聞社"
+    },
+    {
+     "strongEp": "EP-00306",
+     "duplicateLedgerRow": "EP-05487",
+     "show": "MEDIA TALK",
+     "title": "（右往左往）中編：ACGしか勝たん、中国へ行って強く思った"
+    },
+    {
+     "strongEp": "EP-00305",
+     "duplicateLedgerRow": "EP-05488",
+     "show": "MEDIA TALK",
+     "title": "（右往左往）後編：インターネット、性という深淵　人を動かすもの"
+    },
+    {
+     "strongEp": "EP-01227",
+     "duplicateLedgerRow": "EP-05514",
+     "show": "MEDIA TALK",
+     "title": "（朝レキ）朝日新聞の紙面からみたラジオ・テレビ史　久米宏さんがつくった「フォーマット」、今も随所に　放送100年の「光」と「陰」"
+    },
+    {
+     "strongEp": "EP-00303",
+     "duplicateLedgerRow": "EP-05534",
+     "show": "MEDIA TALK",
+     "title": "（右往左往）三島由紀夫のおにぎりと天皇制　一水会・海野学さん②"
+    },
+    {
+     "strongEp": "EP-00302",
+     "duplicateLedgerRow": "EP-05535",
+     "show": "MEDIA TALK",
+     "title": "（右往左往）夫婦別姓、同性婚の話をしよう　一水会・海野学さん③"
+    },
+    {
+     "strongEp": "EP-00287",
+     "duplicateLedgerRow": "EP-05536",
+     "show": "MEDIA TALK",
+     "title": "（右往左往）スジを通す、アップデート、融通無碍　一水会・海野学さん④"
+    },
+    {
+     "strongEp": "EP-01198",
+     "duplicateLedgerRow": "EP-05803",
+     "show": "SDGsを話そう",
+     "title": "フィギュアスケーターが性的少数者と公表する理由　スポーツと多様性を考える #316"
+    },
+    {
+     "strongEp": "EP-01145",
+     "duplicateLedgerRow": "EP-06244",
+     "show": "SDGsを話そう",
+     "title": "「伝統だとか言ってられない」迫られるスポーツ現場の熱中症対策　進む温暖化、来夏に向け考える #757"
+    },
+    {
+     "strongEp": "EP-01104",
+     "duplicateLedgerRow": "EP-06504",
+     "show": "SDGsを話そう",
+     "title": "聴覚障害の当事者と振り返るデフリンピック　ショート動画に出演、会場でスタッフとして活動も(前編) #1017"
+    },
+    {
+     "strongEp": "EP-01103",
+     "duplicateLedgerRow": "EP-06505",
+     "show": "SDGsを話そう",
+     "title": "社内でのコミュニケーションや手話勉強会　聴覚障害のある社員がデフリンピックを機に考えたこと（後編） #1018"
+    }
+   ]
+  },
+  "strongKeyAvailability": {
+   "STRONG": 5387,
+   "AMBIGUOUS": 0,
+   "CONFLICT": 0,
+   "KEY_NO_HIT": 108,
+   "NO_KEY": 0
+  },
+  "agreement": {
+   "強=弱(一致)": 5204,
+   "強=弱(旧重複行を解消)": 131,
+   "強≠弱(矛盾→HOLD)": 6,
+   "強のみ": 46,
+   "弱のみ(旧側に強ID無し)": 84,
+   "弱のみ(旧側に強IDあるが不一致→HOLD)": 7,
+   "どちらも無し": 17
+  },
+  "byQuality": {
+   "弱一致": 84,
+   "強一致": 5381,
+   "未一致": 17,
+   "HOLD": 13
+  },
+  "holdCount": 13,
+  "note": "強一致=Omny URL/Spotify episode ID/朝日公式item ID/GUID。弱一致=題名+JST日付のみ（旧側に強IDが無い618件等）。HOLDは確定数に入れない。"
+ },
+ "diffCategoriesByTier": {
+  "旧保留(同一性保留)": {
+   "strong": 1,
+   "weak": 83
+  },
+  "期間・日時差分": {
+   "strong": 111,
+   "weak": 0
+  },
+  "新着(EP-06592以降)": {
+   "strong": 69,
+   "weak": 0
+  },
+  "旧SDGs": {
+   "strong": 0,
+   "weak": 1
+  }
+ },
+ "unmatchedOnsa": {
+  "count": 17,
+  "byPriority": {
+   "P1": 17
+  },
+  "queue": [
+   {
+    "show": "ニュースの現場から",
+    "title": "（大阪目線#6）共産が支援する町長がかじをとる町は　 「天王山」の地、二分する選挙",
+    "publishedAt": "2026-10-10T19:00:00.000Z",
+    "link": "https://omny.fm/shows/asahi/oosaka6",
+    "strongTier": "KEY_NO_HIT",
+    "priority": "P1",
+    "reason": "強IDはあるが台帳側に対応EPなし（台帳未収蔵 or ID相違）",
+    "candidates": []
+   },
+   {
+    "show": "ニュースの現場から",
+    "title": "その見た目、小型ねぶたと呼ばれ…還暦超え男性記者のヘアドネ挑戦記",
+    "publishedAt": "2026-10-11T19:00:00.000Z",
+    "link": "https://omny.fm/shows/asahi/hairdonation1012",
+    "strongTier": "KEY_NO_HIT",
+    "priority": "P1",
+    "reason": "強IDはあるが台帳側に対応EPなし（台帳未収蔵 or ID相違）",
+    "candidates": []
+   },
+   {
+    "show": "ニュースの現場から",
+    "title": "（地球会議 #2）認知症1千万人の時代…超高齢化社会の日本　AIの登場でどう変化？",
+    "publishedAt": "2026-10-12T19:00:00.000Z",
+    "link": "https://omny.fm/shows/asahi/worldforum2",
+    "strongTier": "KEY_NO_HIT",
+    "priority": "P1",
+    "reason": "強IDはあるが台帳側に対応EPなし（台帳未収蔵 or ID相違）",
+    "candidates": []
+   },
+   {
+    "show": "ニュースの現場から",
+    "title": "（GLOBE）たたかう図書館　本を守り、記憶をつなぎ、街をつくる",
+    "publishedAt": "2026-10-13T19:00:00.000Z",
+    "link": "https://omny.fm/shows/asahi/gcast154",
+    "strongTier": "KEY_NO_HIT",
+    "priority": "P1",
+    "reason": "強IDはあるが台帳側に対応EPなし（台帳未収蔵 or ID相違）",
+    "candidates": []
+   },
+   {
+    "show": "ニュースの現場から",
+    "title": "（ON GOING）東京は無償だけど、千葉では「けっこうな額」　保育料格差に悩む親たち",
+    "publishedAt": "2026-10-14T19:00:00.000Z",
+    "link": "https://omny.fm/shows/asahi/childcarefee1015",
+    "strongTier": "KEY_NO_HIT",
+    "priority": "P1",
+    "reason": "強IDはあるが台帳側に対応EPなし（台帳未収蔵 or ID相違）",
+    "candidates": []
+   },
+   {
+    "show": "ニュースの現場から",
+    "title": "（ゆるっと経済 #21）きょうは「ぐびっと」経済？変わるビール市場徹底解説　残業45時間規制についても考えます",
+    "publishedAt": "2026-10-15T19:00:00.000Z",
+    "link": "https://omny.fm/shows/asahi/yurukei21",
+    "strongTier": "KEY_NO_HIT",
+    "priority": "P1",
+    "reason": "強IDはあるが台帳側に対応EPなし（台帳未収蔵 or ID相違）",
+    "candidates": []
+   },
+   {
+    "show": "ニュースの現場から",
+    "title": "（ポリレビ #15）簗大臣の更迭、問題の本質はここだ／米国がロシアに肩入れし問われる日本外交",
+    "publishedAt": "2026-10-16T19:00:00.000Z",
+    "link": "https://omny.fm/shows/asahi/polirebi15",
+    "strongTier": "KEY_NO_HIT",
+    "priority": "P1",
+    "reason": "強IDはあるが台帳側に対応EPなし（台帳未収蔵 or ID相違）",
+    "candidates": []
+   },
+   {
+    "show": "MEDIA TALK",
+    "title": "（MT）なんでも話せる場所はどこにある",
+    "publishedAt": "2026-10-11T19:00:00.000Z",
+    "link": "https://omny.fm/shows/asahi/20261012",
+    "strongTier": "KEY_NO_HIT",
+    "priority": "P1",
+    "reason": "強IDはあるが台帳側に対応EPなし（台帳未収蔵 or ID相違）",
+    "candidates": []
+   },
+   {
+    "show": "MEDIA TALK",
+    "title": "（N4U#46）夫婦なら当然？週2の“義務”に耐えた妻—20年後の衝撃　夫婦の性的同意（前編）",
+    "publishedAt": "2026-10-12T19:00:00.000Z",
+    "link": "https://omny.fm/shows/asahi/n4u46-1",
+    "strongTier": "KEY_NO_HIT",
+    "priority": "P1",
+    "reason": "強IDはあるが台帳側に対応EPなし（台帳未収蔵 or ID相違）",
+    "candidates": []
+   },
+   {
+    "show": "MEDIA TALK",
+    "title": "（N4U#47）夫婦でも「NO」が言えない、性を語る言葉を持たぬ私たち　夫婦の性的同意（後編）",
+    "publishedAt": "2026-10-12T19:01:00.000Z",
+    "link": "https://omny.fm/shows/asahi/n4u47-1",
+    "strongTier": "KEY_NO_HIT",
+    "priority": "P1",
+    "reason": "強IDはあるが台帳側に対応EPなし（台帳未収蔵 or ID相違）",
+    "candidates": []
+   },
+   {
+    "show": "MEDIA TALK",
+    "title": "（天声人語6）天声人語ができるまで、不思議なローテーション",
+    "publishedAt": "2026-10-13T15:00:00.000Z",
+    "link": "https://omny.fm/shows/asahi/tenjin006",
+    "strongTier": "KEY_NO_HIT",
+    "priority": "P1",
+    "reason": "強IDはあるが台帳側に対応EPなし（台帳未収蔵 or ID相違）",
+    "candidates": []
+   },
+   {
+    "show": "報談",
+    "title": "なぜサウジの空港は爆撃されたのか　知っておきたいイエメン情勢 #192",
+    "publishedAt": "2026-10-15T19:00:00.000Z",
+    "link": "https://pdst.fm/e/traffic.megaphone.fm/TASC4477967796.mp3",
+    "strongTier": "KEY_NO_HIT",
+    "priority": "P1",
+    "reason": "強IDはあるが台帳側に対応EPなし（台帳未収蔵 or ID相違）",
+    "candidates": []
+   },
+   {
+    "show": "ドーナツ",
+    "title": "（親モヤ #129）妊活・妊娠中の妻にプレッシャーでは…関わり方に迷います",
+    "publishedAt": "2026-10-14T19:00:00.000Z",
+    "link": "https://omny.fm/shows/asahi/oyamoya129",
+    "strongTier": "KEY_NO_HIT",
+    "priority": "P1",
+    "reason": "強IDはあるが台帳側に対応EPなし（台帳未収蔵 or ID相違）",
+    "candidates": []
+   },
+   {
+    "show": "ドーナツ",
+    "title": "イスで座らないと歌っちゃいけないの？　退園求められた先に見つけた希望",
+    "publishedAt": "2026-10-15T19:00:00.000Z",
+    "link": "https://omny.fm/shows/asahi/takeishi1016",
+    "strongTier": "KEY_NO_HIT",
+    "priority": "P1",
+    "reason": "強IDはあるが台帳側に対応EPなし（台帳未収蔵 or ID相違）",
+    "candidates": []
+   },
+   {
+    "show": "ドーナツ",
+    "title": "（ノーミライ #9）ひとりでやっとるチキンレースにライバル登場？というお話",
+    "publishedAt": "2026-10-16T21:35:00.000Z",
+    "link": "https://omny.fm/shows/asahi/music-life-vol-9",
+    "strongTier": "KEY_NO_HIT",
+    "priority": "P1",
+    "reason": "強IDはあるが台帳側に対応EPなし（台帳未収蔵 or ID相違）",
+    "candidates": []
+   },
+   {
+    "show": "スポンジ",
+    "title": "（バスケ #50） Bプレミア始動　外国出身選手の出場枠緩和、巻き起こる変革",
+    "publishedAt": "2026-10-13T19:00:00.000Z",
+    "link": "https://omny.fm/shows/asahi/basukura50",
+    "strongTier": "KEY_NO_HIT",
+    "priority": "P1",
+    "reason": "強IDはあるが台帳側に対応EPなし（台帳未収蔵 or ID相違）",
+    "candidates": []
+   },
+   {
+    "show": "スポンジ",
+    "title": "（フィギュア #37）島田麻央の初陣は、「ロシア三人娘」一角が出産1年で4回転　GPシリーズ開幕展望後編",
+    "publishedAt": "2026-10-15T19:00:00.000Z",
+    "link": "https://omny.fm/shows/asahi/figure37",
+    "strongTier": "KEY_NO_HIT",
+    "priority": "P1",
+    "reason": "強IDはあるが台帳側に対応EPなし（台帳未収蔵 or ID相違）",
+    "candidates": []
+   }
+  ]
+ },
+ "oldComparisonOnly": {
+  "count": 19,
+  "byPriority": {
+   "P1": 4,
+   "P2": 15
+  },
+  "queue": [
+   {
+    "ep": "EP-01121",
+    "show": "スポンジ",
+    "title": "（不登校とスポーツ・後編）「卓球、バド、バレー」が多い理由は　回復期の背中を押すきっかけに #902",
+    "strongKeysKnown": 4,
+    "foundIn": [
+     "sports"
+    ],
+    "reason": "強IDがシートにあるが他EP/重複除去側と対応",
+    "priority": "P1"
+   },
+   {
+    "ep": "EP-01122",
+    "show": "スポンジ",
+    "title": "（不登校とスポーツ・前編）上手くならなくてもいい　スケボーやブレイキンがもたらす変化 #901",
+    "strongKeysKnown": 4,
+    "foundIn": [
+     "sports"
+    ],
+    "reason": "強IDがシートにあるが他EP/重複除去側と対応",
+    "priority": "P1"
+   },
+   {
+    "ep": "EP-01153",
+    "show": "スポンジ",
+    "title": "（甲子園球場100年・前編）初めて知った父と甲子園　元球児の記者が共感　甲子園球場100年 #712",
+    "strongKeysKnown": 4,
+    "foundIn": [
+     "sports"
+    ],
+    "reason": "強IDがシートにあるが他EP/重複除去側と対応",
+    "priority": "P1"
+   },
+   {
+    "ep": "EP-01199",
+    "show": "スポンジ",
+    "title": "（フィギュア）羽生結弦選手が紡いだ2つの言葉の力　新しいアイスショー「GIFT」への思い #315",
+    "strongKeysKnown": 4,
+    "foundIn": [
+     "sports"
+    ],
+    "reason": "強IDがシートにあるが他EP/重複除去側と対応",
+    "priority": "P1"
+   },
+   {
+    "ep": "EP-04771",
+    "show": "MEDIA TALK",
+    "title": "【ネタバレあり】皮肉、ディス、ディストピア　映画「バービー」の茶化しがすごい #100-120",
+    "strongKeysKnown": 4,
+    "foundIn": [
+     "media"
+    ],
+    "reason": "強IDがシートにあるが画面規則で非計数(actualDuration=0（再/ふりかえり/深掘り/再放送/duration<=0）)",
+    "priority": "P2"
+   },
+   {
+    "ep": "EP-04772",
+    "show": "MEDIA TALK",
+    "title": "外へいざなうセミの声 　音声だからこそ届けられたゲームルポ（前編）#52-180",
+    "strongKeysKnown": 4,
+    "foundIn": [
+     "media"
+    ],
+    "reason": "強IDがシートにあるが画面規則で非計数(actualDuration=0（再/ふりかえり/深掘り/再放送/duration<=0）)",
+    "priority": "P2"
+   },
+   {
+    "ep": "EP-04773",
+    "show": "MEDIA TALK",
+    "title": "ルポのきっかけになった後悔　白黒つけないグレーの歩み寄り（後編）#52-181",
+    "strongKeysKnown": 4,
+    "foundIn": [
+     "media"
+    ],
+    "reason": "強IDがシートにあるが画面規則で非計数(actualDuration=0（再/ふりかえり/深掘り/再放送/duration<=0）)",
+    "priority": "P2"
+   },
+   {
+    "ep": "EP-04827",
+    "show": "MEDIA TALK",
+    "title": "語学の扉をノックしよう　国際報道部員に聞く、留学の思い出と勉強法 #50-277",
+    "strongKeysKnown": 4,
+    "foundIn": [
+     "media"
+    ],
+    "reason": "強IDがシートにあるが画面規則で非計数(actualDuration=0（再/ふりかえり/深掘り/再放送/duration<=0）)",
+    "priority": "P2"
+   },
+   {
+    "ep": "EP-04828",
+    "show": "MEDIA TALK",
+    "title": "上海語を操る弓長理佳　ラルクに衝撃、バンギャだった学生時代（前編）#52-193",
+    "strongKeysKnown": 4,
+    "foundIn": [
+     "media"
+    ],
+    "reason": "強IDがシートにあるが画面規則で非計数(actualDuration=0（再/ふりかえり/深掘り/再放送/duration<=0）)",
+    "priority": "P2"
+   },
+   {
+    "ep": "EP-04829",
+    "show": "MEDIA TALK",
+    "title": "「意識高いね」冷たい視線にモヤモヤ　若者の平和運動を取材した長崎時代（後編）#52-194",
+    "strongKeysKnown": 4,
+    "foundIn": [
+     "media"
+    ],
+    "reason": "強IDがシートにあるが画面規則で非計数(actualDuration=0（再/ふりかえり/深掘り/再放送/duration<=0）)",
+    "priority": "P2"
+   },
+   {
+    "ep": "EP-04830",
+    "show": "MEDIA TALK",
+    "title": "朝リスグッズは誰の手に　 プレゼント企画は全3問のクイズ形式に #51-53",
+    "strongKeysKnown": 4,
+    "foundIn": [
+     "media"
+    ],
+    "reason": "強IDがシートにあるが画面規則で非計数(actualDuration=0（再/ふりかえり/深掘り/再放送/duration<=0）)",
+    "priority": "P2"
+   },
+   {
+    "ep": "EP-04831",
+    "show": "MEDIA TALK",
+    "title": "依存と居場所　アボリジナルピープルの「酒狩り」から考えた #100-132",
+    "strongKeysKnown": 4,
+    "foundIn": [
+     "media"
+    ],
+    "reason": "強IDがシートにあるが画面規則で非計数(actualDuration=0（再/ふりかえり/深掘り/再放送/duration<=0）)",
+    "priority": "P2"
+   },
+   {
+    "ep": "EP-04833",
+    "show": "MEDIA TALK",
+    "title": "雑誌ニュートンは「全然難しくない」　編集部員が語る科学の面白さ#50-278",
+    "strongKeysKnown": 4,
+    "foundIn": [
+     "media"
+    ],
+    "reason": "強IDがシートにあるが画面規則で非計数(actualDuration=0（再/ふりかえり/深掘り/再放送/duration<=0）)",
+    "priority": "P2"
+   },
+   {
+    "ep": "EP-04835",
+    "show": "MEDIA TALK",
+    "title": "芸術祭だらけになった日本　「映え」重視のいま、地元はどう見る？#52-195",
+    "strongKeysKnown": 4,
+    "foundIn": [
+     "media"
+    ],
+    "reason": "強IDがシートにあるが画面規則で非計数(actualDuration=0（再/ふりかえり/深掘り/再放送/duration<=0）)",
+    "priority": "P2"
+   },
+   {
+    "ep": "EP-04836",
+    "show": "MEDIA TALK",
+    "title": "移住者は、観光客とは違いますよね　こんな視点もご参考まで #100-133",
+    "strongKeysKnown": 4,
+    "foundIn": [
+     "media"
+    ],
+    "reason": "強IDがシートにあるが画面規則で非計数(actualDuration=0（再/ふりかえり/深掘り/再放送/duration<=0）)",
+    "priority": "P2"
+   },
+   {
+    "ep": "EP-04838",
+    "show": "MEDIA TALK",
+    "title": "困っている誰かに「声をかける」ってハードル高い？ いちおしウニュ！(前編) #50-281",
+    "strongKeysKnown": 4,
+    "foundIn": [
+     "media"
+    ],
+    "reason": "強IDがシートにあるが画面規則で非計数(actualDuration=0（再/ふりかえり/深掘り/再放送/duration<=0）)",
+    "priority": "P2"
+   },
+   {
+    "ep": "EP-04839",
+    "show": "MEDIA TALK",
+    "title": "骨髄バンク「ドナー登録しました」…番組の反響にも涙　いちおしウニュ！(後編) #50-282",
+    "strongKeysKnown": 4,
+    "foundIn": [
+     "media"
+    ],
+    "reason": "強IDがシートにあるが画面規則で非計数(actualDuration=0（再/ふりかえり/深掘り/再放送/duration<=0）)",
+    "priority": "P2"
+   },
+   {
+    "ep": "EP-04840",
+    "show": "MEDIA TALK",
+    "title": "朝ポキ忘年会ご視聴御礼！本当にスペシャルな1日でした　クイズの解答と解説も #51-54",
+    "strongKeysKnown": 4,
+    "foundIn": [
+     "media"
+    ],
+    "reason": "強IDがシートにあるが画面規則で非計数(actualDuration=0（再/ふりかえり/深掘り/再放送/duration<=0）)",
+    "priority": "P2"
+   },
+   {
+    "ep": "EP-04853",
+    "show": "MEDIA TALK",
+    "title": "能登半島地震　朝ポキの役割を語り合いました　出演した記者も取材中です #51-55",
+    "strongKeysKnown": 4,
+    "foundIn": [
+     "media"
+    ],
+    "reason": "強IDがシートにあるが画面規則で非計数(actualDuration=0（再/ふりかえり/深掘り/再放送/duration<=0）)",
+    "priority": "P2"
+   }
+  ]
+ },
+ "hold": {
+  "count": 13,
+  "byKind": {
+   "IDENTIFIER_CONFLICT": 6,
+   "KEY_TYPE_MISMATCH_MEGAPHONE": 7
+  },
+  "rows": [
+   {
+    "show": "SDGsを話そう",
+    "title": "羽生結弦選手が紡いだ2つの言葉の力　新しいアイスショー「GIFT」への思い #315",
+    "publishedAt": "2023-02-12T19:00:00.000Z",
+    "link": "https://omny.fm/shows/asahi/315-1",
+    "strong": "STRONG",
+    "strongHits": [
+     {
+      "key": "omny:asahi/315-1",
+      "eps": [
+       "EP-01199"
+      ]
+     }
+    ],
+    "strongEp": "EP-01199",
+    "weakEp": "EP-05802",
+    "holdKind": "IDENTIFIER_CONFLICT",
+    "possibleLedgerDuplicate": false
+   },
+   {
+    "show": "SDGsを話そう",
+    "title": "初めて知った父と甲子園　元球児の記者が共感　甲子園球場100年（前編） #712",
+    "publishedAt": "2024-09-17T19:00:00.000Z",
+    "link": "https://omny.fm/shows/asahi/100-712",
+    "strong": "STRONG",
+    "strongHits": [
+     {
+      "key": "omny:asahi/100-712",
+      "eps": [
+       "EP-01153"
+      ]
+     }
+    ],
+    "strongEp": "EP-01153",
+    "weakEp": "EP-06199",
+    "holdKind": "IDENTIFIER_CONFLICT",
+    "possibleLedgerDuplicate": false
+   },
+   {
+    "show": "SDGsを話そう",
+    "title": "上手くならなくてもいい　スケボーやブレイキンがもたらす変化　不登校とスポーツ（前編） #901",
+    "publishedAt": "2025-06-24T19:00:00.000Z",
+    "link": "https://omny.fm/shows/asahi/901-1",
+    "strong": "STRONG",
+    "strongHits": [
+     {
+      "key": "omny:asahi/901-1",
+      "eps": [
+       "EP-01122"
+      ]
+     }
+    ],
+    "strongEp": "EP-01122",
+    "weakEp": "EP-06388",
+    "holdKind": "IDENTIFIER_CONFLICT",
+    "possibleLedgerDuplicate": false
+   },
+   {
+    "show": "SDGsを話そう",
+    "title": "「卓球、バド、バレー」が多い理由は　回復期の背中を押すきっかけに　不登校とスポーツ（後編） #902",
+    "publishedAt": "2025-06-25T19:00:00.000Z",
+    "link": "https://omny.fm/shows/asahi/902-1",
+    "strong": "STRONG",
+    "strongHits": [
+     {
+      "key": "omny:asahi/902-1",
+      "eps": [
+       "EP-01121"
+      ]
+     }
+    ],
+    "strongEp": "EP-01121",
+    "weakEp": "EP-06389",
+    "holdKind": "IDENTIFIER_CONFLICT",
+    "possibleLedgerDuplicate": false
+   },
+   {
+    "show": "報談",
+    "title": "靖国参拝、「公人」なら憲法違反な件　A級合祀させなかった宮司 #184",
+    "publishedAt": "2026-08-26T19:00:00.000Z",
+    "link": "https://pdst.fm/e/traffic.megaphone.fm/TASC8711915389.mp3",
+    "strong": "STRONG",
+    "strongHits": [
+     {
+      "key": "megaphone:TASC8711915389",
+      "eps": [
+       "EP-00130"
+      ]
+     }
+    ],
+    "strongEp": "EP-00130",
+    "weakEp": "EP-06589",
+    "holdKind": "IDENTIFIER_CONFLICT",
+    "possibleLedgerDuplicate": true
+   },
+   {
+    "show": "報談",
+    "title": "内閣改造について考えました　ひよこのひよこっこはひよこのこ♪ #187",
+    "publishedAt": "2026-09-09T19:00:00.000Z",
+    "link": "https://pdst.fm/e/traffic.megaphone.fm/TASC9983241905.mp3",
+    "strong": "STRONG",
+    "strongHits": [
+     {
+      "key": "megaphone:TASC9983241905",
+      "eps": [
+       "EP-00128"
+      ]
+     }
+    ],
+    "strongEp": "EP-00128",
+    "weakEp": "EP-06590",
+    "holdKind": "IDENTIFIER_CONFLICT",
+    "possibleLedgerDuplicate": true
+   },
+   {
+    "show": "報談",
+    "title": "（カロリーオフ）官房長官って、どのくらい偉いのか問題",
+    "publishedAt": "2026-10-18T19:00:00.000Z",
+    "link": "https://pdst.fm/e/traffic.megaphone.fm/TASC6676399474.mp3",
+    "strong": "KEY_NO_HIT",
+    "strongHits": [],
+    "strongEp": "",
+    "weakEp": "EP-06603",
+    "holdKind": "KEY_TYPE_MISMATCH_MEGAPHONE",
+    "possibleLedgerDuplicate": false
+   },
+   {
+    "show": "報談",
+    "title": "「プルゴリ」は実在する　生命保険業界、「営業」の光と影 #193",
+    "publishedAt": "2026-10-22T19:00:00.000Z",
+    "link": "https://pdst.fm/e/traffic.megaphone.fm/TASC8960913077.mp3",
+    "strong": "KEY_NO_HIT",
+    "strongHits": [],
+    "strongEp": "",
+    "weakEp": "EP-06620",
+    "holdKind": "KEY_TYPE_MISMATCH_MEGAPHONE",
+    "possibleLedgerDuplicate": false
+   },
+   {
+    "show": "報談",
+    "title": "（カロリーオフ）外国勢力は本当に選挙を動かすのか問題",
+    "publishedAt": "2026-10-25T19:00:00.000Z",
+    "link": "https://pdst.fm/e/traffic.megaphone.fm/TASC5167193255.mp3",
+    "strong": "KEY_NO_HIT",
+    "strongHits": [],
+    "strongEp": "",
+    "weakEp": "EP-06629",
+    "holdKind": "KEY_TYPE_MISMATCH_MEGAPHONE",
+    "possibleLedgerDuplicate": false
+   },
+   {
+    "show": "報談",
+    "title": "VIVANT、モンゴル火災、福田康夫氏死去　近づかない中国との距離",
+    "publishedAt": "2026-10-29T19:00:00.000Z",
+    "link": "https://pdst.fm/e/traffic.megaphone.fm/TASC1085000418.mp3",
+    "strong": "KEY_NO_HIT",
+    "strongHits": [],
+    "strongEp": "",
+    "weakEp": "EP-06647",
+    "holdKind": "KEY_TYPE_MISMATCH_MEGAPHONE",
+    "possibleLedgerDuplicate": false
+   },
+   {
+    "show": "報談",
+    "title": "（カロリーオフ）法案を審議する優先順位、誰が決めているのか問題",
+    "publishedAt": "2026-11-01T19:00:00.000Z",
+    "link": "https://pdst.fm/e/traffic.megaphone.fm/TASC5687581031.mp3",
+    "strong": "KEY_NO_HIT",
+    "strongHits": [],
+    "strongEp": "",
+    "weakEp": "EP-06657",
+    "holdKind": "KEY_TYPE_MISMATCH_MEGAPHONE",
+    "possibleLedgerDuplicate": false
+   },
+   {
+    "show": "報談",
+    "title": "アメリカ中間選挙は、何が歴史的だった？　ルート66から考えよう #195",
+    "publishedAt": "2026-11-05T19:00:00.000Z",
+    "link": "https://pdst.fm/e/traffic.megaphone.fm/TASC6086065854.mp3",
+    "strong": "KEY_NO_HIT",
+    "strongHits": [],
+    "strongEp": "",
+    "weakEp": "EP-06677",
+    "holdKind": "KEY_TYPE_MISMATCH_MEGAPHONE",
+    "possibleLedgerDuplicate": false
+   },
+   {
+    "show": "報談",
+    "title": "（カロリーオフ）首相動静欄にあるメディアとの懇談が気になる問題",
+    "publishedAt": "2026-11-08T19:00:00.000Z",
+    "link": "https://pdst.fm/e/traffic.megaphone.fm/TASC8449201254.mp3",
+    "strong": "KEY_NO_HIT",
+    "strongHits": [],
+    "strongEp": "",
+    "weakEp": "EP-06686",
+    "holdKind": "KEY_TYPE_MISMATCH_MEGAPHONE",
+    "possibleLedgerDuplicate": false
+   }
+  ]
+ },
+ "sourceComparison": {
+  "evidence": {
+   "lookupEvidence": [
+    {
+     "ep": "EP-05109",
+     "column": "I",
+     "url": "https://omny.fm/shows/asahi/50-402-1",
+     "source": "司令塔READ_ONLY実測 2026-11-10・PR #277 第8指令（本番台帳I列のOmny URLがおんさ側と完全一致。台帳タイトル末尾は「#50-402t」で余分なtあり）"
+    }
+   ],
+   "ledgerColumns": null
+  },
+  "publicJsonOnly": {
+   "unmatched": 18,
+   "hold": 13,
+   "oldOnly": 19,
+   "byQuality": {
+    "弱一致": 84,
+    "強一致": 5380,
+    "未一致": 18,
+    "HOLD": 13
+   }
+  },
+  "withLedgerColumns": {
+   "unmatched": 17,
+   "hold": 13,
+   "oldOnly": 19,
+   "byQuality": {
+    "弱一致": 84,
+    "強一致": 5381,
+    "未一致": 17,
+    "HOLD": 13
+   }
+  },
+  "changedItems": [
+   {
+    "item": "MEDIA TALK|サウジの王子、幕張メッセでゲームを語る　東京ゲームショウ（前編）#50-402|2024-12-10T19:00:00.000Z",
+    "publicJsonOnly": "未一致",
+    "withLedgerColumns": "照合済み(強一致)"
+   }
+  ],
+  "note": "公開JSON由来の識別子は公開済み5,848件のlinks＋旧GUID証拠のみ。本番台帳のG/I/J/L列を加えると、公開されていない保留・除外の行も強識別子で照合できる。"
+ }
+}
