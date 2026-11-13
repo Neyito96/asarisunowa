@@ -61,6 +61,10 @@ function syncListenerPodcastPlatforms() {
 
       const updates = [];
 
+      podcastRepairUpdates_(existing, resolved).forEach(function(repair) {
+        updates.push({ row: rowNumber, column: repair.column, value: repair.value });
+        console.log("朝リスPodcast修復: 行" + rowNumber + " " + repair.field + " " + repair.from + " → " + repair.value);
+      });
       queuePodcastCellUpdate_(updates, rowNumber, 6, existing.spotify, resolved.spotify);
       queuePodcastCellUpdate_(updates, rowNumber, 7, existing.apple, resolved.apple);
       queuePodcastCellUpdate_(updates, rowNumber, 8, existing.listen, resolved.listen);
@@ -123,6 +127,7 @@ function syncRecommendedPodcastPlatforms() {
     const values = sheet.getRange(2, 1, lastRow - 1, 18).getDisplayValues();
     let updatedRows = 0;
     let updatedCells = 0;
+    const spotifyUnresolved = [];
 
     for (let i = 0; i < values.length; i++) {
       const rowNumber = i + 2;
@@ -152,6 +157,9 @@ function syncRecommendedPodcastPlatforms() {
 
       const resolved = resolveListenerPodcastPlatforms_(title, host, sourceUrl, rss);
       const updates = [];
+      if (!String(row[9] || "").trim() && !resolved.spotify && resolved.spotifyStatus) {
+        spotifyUnresolved.push({ row: rowNumber, title: title, status: resolved.spotifyStatus });
+      }
 
       queuePodcastCellUpdate_(updates, rowNumber, 6, row[5], artwork || resolved.artwork);
       queuePodcastCellUpdate_(updates, rowNumber, 7, row[6], host);
@@ -178,13 +186,15 @@ function syncRecommendedPodcastPlatforms() {
     console.log(
       "おすすめPodcast配信先同期: checked=" + values.length +
       " updatedRows=" + updatedRows +
-      " updatedCells=" + updatedCells
+      " updatedCells=" + updatedCells +
+      " spotifyUnresolved=" + spotifyUnresolved.length
     );
 
     return {
       checked: values.length,
       updatedRows: updatedRows,
-      updatedCells: updatedCells
+      updatedCells: updatedCells,
+      spotifyUnresolved: spotifyUnresolved
     };
   } finally {
     lock.releaseLock();
@@ -196,6 +206,51 @@ function syncAllPodcastPlatforms() {
     listenerPodcasts: syncListenerPodcastPlatforms(),
     recommendedPodcasts: syncRecommendedPodcastPlatforms()
   };
+}
+
+// 既にある値の修復（空欄の補完とは別）。直すのは次の2つだけで、どちらも確かめた値でしか置き換えない:
+//  ① LISTEN 欄にフィードURL（rss.listen.style など）が入っていて、RSS の <link> から LISTEN の番組ページが取れた時
+//  ② Spotify 欄が短縮URLで、たどった先が open.spotify.com/show/ だった時
+function podcastRepairUpdates_(existing, resolved, shortResolver) {
+  const out = [];
+  if (existing.listen && isPodcastFeedUrl_(existing.listen) && /^https:\/\/listen\.style\/p\/[^/?#]+\/?$/i.test(String(resolved.listen || ""))) {
+    out.push({ field: "LISTEN", column: 8, from: existing.listen, value: resolved.listen });
+    existing.listen = resolved.listen;
+    if (!existing.rss) existing.rss = "";
+  }
+  if (existing.spotify && PODCAST_SHORT_URL_HOSTS_.test(existing.spotify)) {
+    const target = (shortResolver || resolvePodcastShortUrl_)(existing.spotify);
+    if (/^https:\/\/open\.spotify\.com\/show\/[A-Za-z0-9]{22}/.test(target)) {
+      const value = canonicalPodcastUrl_(target);
+      out.push({ field: "Spotify", column: 6, from: existing.spotify, value: value });
+      existing.spotify = value;
+    }
+  }
+  return out;
+}
+
+// 定期巡回（1日1回）。旧コードには巡回を設置する処理が無く、投稿時に見つからなかった Spotify などは、誰かが手で同期を実行しない限り補完されなかった。
+// 設置は管理人の承認（スクリプトプロパティ APPROVE_PODCAST_PLATFORM_DAILY=yes）の後だけ。同じ関数のトリガーが既にあれば作らない。
+const PODCAST_PLATFORM_DAILY_HANDLER_ = "syncAllPodcastPlatforms";
+function installPodcastPlatformDailyTrigger() {
+  if (PropertiesService.getScriptProperties().getProperty("APPROVE_PODCAST_PLATFORM_DAILY") !== "yes") {
+    return { status: "NOT_APPROVED", note: "スクリプトプロパティ APPROVE_PODCAST_PLATFORM_DAILY=yes を管理人が設定してから実行" };
+  }
+  const existing = ScriptApp.getProjectTriggers().filter(function(t) { return t.getHandlerFunction() === PODCAST_PLATFORM_DAILY_HANDLER_; });
+  if (existing.length) return { status: "ALREADY_INSTALLED", count: existing.length };
+  ScriptApp.newTrigger(PODCAST_PLATFORM_DAILY_HANDLER_).timeBased().everyDays(1).atHour(5).nearMinute(10).create();
+  return { status: "INSTALLED", handler: PODCAST_PLATFORM_DAILY_HANDLER_, at: "毎日5時台" };
+}
+function podcastPlatformTriggerStatus() {
+  const all = ScriptApp.getProjectTriggers().map(function(t) { return t.getHandlerFunction() + ":" + String(t.getEventType()); });
+  const mine = all.filter(function(x) { return x.indexOf(PODCAST_PLATFORM_DAILY_HANDLER_ + ":") === 0; });
+  console.log(JSON.stringify({ podcastDaily: mine, allTriggers: all }));
+  return { podcastDaily: mine, allTriggers: all };
+}
+function removePodcastPlatformDailyTrigger() {
+  let n = 0;
+  ScriptApp.getProjectTriggers().forEach(function(t) { if (t.getHandlerFunction() === PODCAST_PLATFORM_DAILY_HANDLER_) { ScriptApp.deleteTrigger(t); n++; } });
+  return { status: "OK", deleted: n };
 }
 
 function listenerPodcastPlatformRowComplete_(existing) {
@@ -237,7 +292,14 @@ function queuePodcastGenreUpdate_(updates, row, column, currentValue, candidateV
   }
 }
 
+// Official links (source URL, RSS) are applied first; the Spotify search only runs when none gave a Spotify show link,
+// and only an unambiguous exact match is accepted (PodcastSpotifyResolve.js). Failures are classified in resolved.spotifyStatus.
 function resolveListenerPodcastPlatforms_(title, maker, sourceUrl, explicitRss) {
+  const resolved = resolveListenerPodcastPlatformsBase_(title, maker, sourceUrl, explicitRss);
+  return podSpCompleteResolved_(resolved, title, maker);
+}
+
+function resolveListenerPodcastPlatformsBase_(title, maker, sourceUrl, explicitRss) {
   const resolved = {
     spotify: "",
     apple: "",
@@ -263,11 +325,6 @@ function resolveListenerPodcastPlatforms_(title, maker, sourceUrl, explicitRss) 
   const listenSlug = String(sourceUrl || "").match(/^https?:\/\/listen\.style\/p\/([^/?#]+)/i);
   if (!resolved.rss && listenSlug && listenSlug[1]) {
     resolved.rss = "https://rss.listen.style/p/" + listenSlug[1] + "/rss";
-  }
-
-  if (!resolved.spotify && typeof findSpotifyShowByTitle_ === "function") {
-    const spotifyUrl = findSpotifyShowByTitle_(title);
-    if (spotifyUrl) resolved.spotify = spotifyUrl;
   }
 
   const apple = findExactApplePodcast_(title, maker);
@@ -387,9 +444,46 @@ function readPodcastFeedLinks_(feedUrl) {
   return out;
 }
 
-function applyKnownPodcastUrl_(resolved, value) {
+// Issue #274（2026-11-14）: RSS で投稿された番組（例: ポッドキャスト茶会 https://rss.listen.style/p/podthakai/rss）は、
+// 旧コードが /listen\.style\// に当たるため RSS を「LISTEN」欄に入れていた。その結果、正しい LISTEN 番組ページ（RSS の <link>）が後から来ても
+// 「既に値あり」で入らなかった。フィードURLは RSS としてだけ扱い、LISTEN・Spotify・番組HP には入れない。
+function isPodcastFeedUrl_(value) {
   const url = String(value || "").trim();
+  return /^https?:\/\/rss\.listen\.style\//i.test(url) ||
+    /^https?:\/\/(?:feeds?\.|rss\.)/i.test(url) ||
+    /^https?:\/\/anchor\.fm\/s\/[^/]+\/podcast\/rss/i.test(url) ||
+    /^https?:\/\/stand\.fm\/rss\//i.test(url) ||
+    /\/podcast\.rss(?:[?#]|$)|\.(?:rss|rdf|xml)(?:[?#]|$)|\/feed(?:\/|$)|\/rss\/?(?:[?#]|$)/i.test(url);
+}
+// 短縮URL（x.gd・bit.ly など）は、転送先を3回まで実際にたどって確かめてから分類する。たどれなければ使わない（推測しない）
+const PODCAST_SHORT_URL_HOSTS_ = /^https?:\/\/(?:x\.gd|bit\.ly|t\.co|buff\.ly|lnkd\.in|amzn\.to|spoti\.fi|tinyurl\.com|is\.gd|ow\.ly)\//i;
+function resolvePodcastShortUrl_(value, fetcher) {
+  let url = String(value || "").trim();
+  if (!PODCAST_SHORT_URL_HOSTS_.test(url)) return url;
+  const fetch = fetcher || function(u) { return UrlFetchApp.fetch(u, { muteHttpExceptions: true, followRedirects: false }); };
+  for (let hop = 0; hop < 3 && PODCAST_SHORT_URL_HOSTS_.test(url); hop++) {
+    try {
+      const response = fetch(url), code = response.getResponseCode();
+      if (code < 300 || code >= 400) return "";
+      const headers = response.getHeaders() || {}, location = String(headers.Location || headers.location || "").trim();
+      if (!/^https?:\/\//i.test(location)) return "";
+      url = location;
+    } catch (_) {
+      return "";
+    }
+  }
+  return PODCAST_SHORT_URL_HOSTS_.test(url) ? "" : url;
+}
+
+function applyKnownPodcastUrl_(resolved, value) {
+  let url = String(value || "").trim();
   if (!/^https?:\/\//i.test(url)) return;
+  if (PODCAST_SHORT_URL_HOSTS_.test(url)) url = resolvePodcastShortUrl_(url);
+  if (!url) return;
+  if (isPodcastFeedUrl_(url)) {
+    resolved.rss = resolved.rss || url;
+    return;
+  }
 
   if (/open\.spotify\.com\/show\//i.test(url)) {
     resolved.spotify = resolved.spotify || canonicalPodcastUrl_(url);
@@ -438,14 +532,8 @@ function applyKnownPodcastUrl_(resolved, value) {
 
 function canonicalPodcastUrl_(value) {
   const url = String(value || "").trim();
-  try {
-    const parsed = new URL(url);
-    parsed.search = "";
-    parsed.hash = "";
-    return parsed.toString();
-  } catch (_) {
-    return url;
-  }
+  // GAS（V8）には URL クラスが無く、旧コードは常に例外→元の値（?si= 付き）を返していた。番組URLの ? と # 以降だけを落とす
+  return url.replace(/[?#].*$/, "");
 }
 
 
