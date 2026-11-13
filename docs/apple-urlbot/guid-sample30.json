@@ -1,0 +1,216 @@
+{
+ "source": "Issue #280 comment 6843932715（司令塔がV2・公開台帳H列とV2・統合台帳H列をEP-IDで結合して抽出、2026-11-13）",
+ "note": "事前期待値。Apple APIで照合済みの値ではない",
+ "rows": [
+  {
+   "epId": "EP-00081",
+   "show": "ニュースの学校",
+   "collectionId": "1551595534",
+   "trackId": "1000793917483",
+   "guid": "10db704a-c2c6-11f1-a71b-9b4fb2918b53"
+  },
+  {
+   "epId": "EP-00082",
+   "show": "ニュースの学校",
+   "collectionId": "1551595534",
+   "trackId": "1000793711961",
+   "guid": "67348954-c235-11f1-93b3-f753c32ffb28"
+  },
+  {
+   "epId": "EP-00083",
+   "show": "ニュースの学校",
+   "collectionId": "1551595534",
+   "trackId": "1000793505826",
+   "guid": "a893af48-be33-11f1-ab49-336c3cc26575"
+  },
+  {
+   "epId": "EP-00480",
+   "show": "ニュースの学校",
+   "collectionId": "1551595534",
+   "trackId": "1000769373340",
+   "guid": "6d7f633c-a1fd-4277-bf01-b42e0171960b"
+  },
+  {
+   "epId": "EP-00571",
+   "show": "ニュースの学校",
+   "collectionId": "1551595534",
+   "trackId": "1000744015007",
+   "guid": "425c8819-1df3-47e4-81e1-b3b70082bca8"
+  },
+  {
+   "epId": "EP-00572",
+   "show": "ニュースの学校",
+   "collectionId": "1551595534",
+   "trackId": "1000743864039",
+   "guid": "dd5518c6-727a-4fdc-849c-b3c800648dcc"
+  },
+  {
+   "epId": "EP-00062",
+   "show": "スポンジ",
+   "collectionId": "6803013072",
+   "trackId": "1000793711527",
+   "guid": "7d1da19b-0391-427e-a28c-b4dc001721e7"
+  },
+  {
+   "epId": "EP-00063",
+   "show": "スポンジ",
+   "collectionId": "6803013072",
+   "trackId": "1000793505705",
+   "guid": "4e164a5b-71bd-49f6-a32b-b4d9004c5989"
+  },
+  {
+   "epId": "EP-00064",
+   "show": "スポンジ",
+   "collectionId": "6803013072",
+   "trackId": "1000792625932",
+   "guid": "d45089b0-b07e-4dd9-bad0-b4d100def174"
+  },
+  {
+   "epId": "EP-01136",
+   "show": "スポンジ",
+   "collectionId": "6803013072",
+   "trackId": "1000784332283",
+   "guid": "8fcadcf5-09f4-4063-afb1-b266008b0652"
+  },
+  {
+   "epId": "EP-01220",
+   "show": "スポンジ",
+   "collectionId": "6803013072",
+   "trackId": "1000784332919",
+   "guid": "d4c4e0f8-da70-4cd2-b2c4-acea01805ca6"
+  },
+  {
+   "epId": "EP-01221",
+   "show": "スポンジ",
+   "collectionId": "6803013072",
+   "trackId": "1000784333264",
+   "guid": "3bace6f2-9e08-41ff-b8b5-acea01805c7b"
+  },
+  {
+   "epId": "EP-00121",
+   "show": "報談",
+   "collectionId": "1822960480",
+   "trackId": "1000793918384",
+   "guid": "e82f586e-c2fc-11f1-a921-1f4c4e7d2443"
+  },
+  {
+   "epId": "EP-00122",
+   "show": "報談",
+   "collectionId": "1822960480",
+   "trackId": "1000793131630",
+   "guid": "85eebb1e-be4b-11f1-8a69-07bb952b44bc"
+  },
+  {
+   "epId": "EP-00123",
+   "show": "報談",
+   "collectionId": "1822960480",
+   "trackId": "1000792626073",
+   "guid": "0246bb26-bd70-11f1-a3d5-0bffd407adc0"
+  },
+  {
+   "epId": "EP-00900",
+   "show": "報談",
+   "collectionId": "1822960480",
+   "trackId": "1000759416283",
+   "guid": "0a6eb176-c3c2-4c78-ba9f-b4200074e518"
+  },
+  {
+   "epId": "EP-00948",
+   "show": "報談",
+   "collectionId": "1822960480",
+   "trackId": "1000714637382",
+   "guid": "12555d93-d64a-4893-9d02-b302005bc6ea"
+  },
+  {
+   "epId": "EP-01004",
+   "show": "報談",
+   "collectionId": "1822960480",
+   "trackId": "1000779035210",
+   "guid": "0feff340-bd01-4b58-825a-b16200183a70"
+  },
+  {
+   "epId": "EP-00101",
+   "show": "ドーナツ",
+   "collectionId": "6798131655",
+   "trackId": "1000794517093",
+   "guid": "9dcf4636-e6a3-4318-b47e-b47c00bb2095"
+  },
+  {
+   "epId": "EP-00102",
+   "show": "ドーナツ",
+   "collectionId": "6798131655",
+   "trackId": "1000793916960",
+   "guid": "2a368739-524f-442d-808e-b4c300ed41c8"
+  },
+  {
+   "epId": "EP-00103",
+   "show": "ドーナツ",
+   "collectionId": "6798131655",
+   "trackId": "1000793712093",
+   "guid": "0cec162f-a7d4-4164-bf12-b4da0028c462"
+  },
+  {
+   "epId": "EP-00291",
+   "show": "ドーナツ",
+   "collectionId": "6798131655",
+   "trackId": "1000788903662",
+   "guid": "5063a07f-dad8-466c-943c-b4bf007c9146"
+  },
+  {
+   "epId": "EP-01233",
+   "show": "ドーナツ",
+   "collectionId": "6798131655",
+   "trackId": "1000781972671",
+   "guid": "12166bd0-ffe1-46e9-a9ac-b05c01097cf7"
+  },
+  {
+   "epId": "EP-01234",
+   "show": "ドーナツ",
+   "collectionId": "6798131655",
+   "trackId": "1000781972570",
+   "guid": "3f958242-f91f-4fef-9555-b05c01035461"
+  },
+  {
+   "epId": "EP-00021",
+   "show": "MEDIA TALK",
+   "collectionId": "1527037575",
+   "trackId": "1000794517231",
+   "guid": "a27d92eb-0a6f-408d-baf9-b4dc0086f04a"
+  },
+  {
+   "epId": "EP-00022",
+   "show": "MEDIA TALK",
+   "collectionId": "1527037575",
+   "trackId": "1000793917461",
+   "guid": "b89d4505-e84a-4990-80b3-b4dc007956c7"
+  },
+  {
+   "epId": "EP-00023",
+   "show": "MEDIA TALK",
+   "collectionId": "1527037575",
+   "trackId": "1000793711769",
+   "guid": "e7d0a211-d802-4f39-b97c-b4da00811703"
+  },
+  {
+   "epId": "EP-00036",
+   "show": "MEDIA TALK",
+   "collectionId": "1527037575",
+   "trackId": "1000788900997",
+   "guid": "3df0e49a-43ca-4341-a442-b47c00b5344c"
+  },
+  {
+   "epId": "EP-05584",
+   "show": "MEDIA TALK",
+   "collectionId": "1527037575",
+   "trackId": "1000787041552",
+   "guid": "1207a3fd-a031-4f5c-b28b-b4b7010a6c30"
+  },
+  {
+   "epId": "EP-05585",
+   "show": "MEDIA TALK",
+   "collectionId": "1527037575",
+   "trackId": "1000787708841",
+   "guid": "0e595389-12ce-4cf5-b3e1-b47c00b29f20"
+  }
+ ]
+}
