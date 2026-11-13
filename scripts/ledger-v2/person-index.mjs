@@ -40,10 +40,13 @@ export function personHold(name) {
 }
 // 出演者欄の1行に複数人が「/」「、」で並んでいる時（「今永諒 / 神田大介 / 安田桂子」「飯沼優仁、杢田光（MC）、望月愛実（音源編集）」）は1人ずつに分ける。
 // 全部の切れ端が人名らしい時だけ分ける（「ふらいと先生/小児科医・今西洋介」のように決められない行はそのまま）
+// PI-3 までの判定で「文なので人名ではない」と保留していた行（読点・カンマ入り、21字以上）。出演者欄からの回収は司令塔の判断待ちなので、ここは従来どおり保留のまま
+export function legacyHeld(name) { const k = String(name ?? '').normalize('NFKC').replace(/[\s\u3000]+/g, ''); return k.length > 20 || /[。！？!?、，,]/.test(k); }
 const PLAUSIBLE_NAME = /^[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}ー々]{2,8}$/u;
 export function castLines(cast, parse) {
   const out = [];
   String(cast ?? '').split('\n').forEach((l) => {
+    if (legacyHeld(parse(l).name)) { out.push(l); return; }   // 従来も索引に載らなかった行（文として保留）は今回は増やさない。回収は別判断
     const seg = l.split(/\s*[\/／、]\s*/).filter((x) => x.trim());
     if (seg.length >= 2 && seg.every((x) => { const n = personKey(parse(x).name); return PLAUSIBLE_NAME.test(n) && !/(?:先生|医|部|局|社)$/.test(n); })) out.push(...seg); else out.push(l);
   });
@@ -64,7 +67,7 @@ export function personRows(ep, raw) {
 // 原文に名前が無い回で、台帳の出演者列に名前がある場合（旧台帳からの既存値）は消さずに索引へ載せ、状態で区別する（出典なし・未検証）
 export function ledgerRows(ep, ledgerCast, parse) {
   const seen = new Set(), rows = [];
-  castLines(ledgerCast, parse).forEach((l) => { const c = parse(l); if (!c.name || personHold(c.name)) return; const k = personKey(c.name); if (seen.has(k)) return; seen.add(k);
+  castLines(ledgerCast, parse).forEach((l) => { const c = parse(l); if (!c.name || legacyHeld(c.name) || personHold(c.name)) return; const k = personKey(c.name); if (seen.has(k)) return; seen.add(k);
     rows.push({ ep, key: k, display: String(c.name).trim(), note: noteOf(c.name, c.role, c.note), links: c.links.join(' '), source: '統合台帳 出演者列（既存値）', state: '原文に出典なし・未検証' }); });
   return rows;
 }
@@ -102,7 +105,7 @@ export function mergeIndex(existing, updates, removed) {
 }
 // 出演者欄と原文の名前の差（人の値は直さず、差として残すだけ）
 export function castDifference(ep, rawKeys, ledgerCast, parse) {
-  const led = castLines(ledgerCast, parse).map((l) => parse(l).name).filter((n) => n && !personHold(n)).map(personKey);
+  const led = castLines(ledgerCast, parse).map((l) => parse(l).name).filter((n) => n && !legacyHeld(n) && !personHold(n)).map(personKey);
   const r = [...new Set(rawKeys)], l = [...new Set(led)];
   if (!r.length && !l.length) return null;
   if (!r.length) return { ep, kind: '台帳にだけ名前（原文に出典なし）', raw: '', ledger: l.join('、') };
