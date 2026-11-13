@@ -66,3 +66,11 @@ test('PI-4 氏名と肩書きの分離（EP-00005「ナビゲーター／科学�
   assert.equal(personKey('ふらいと先生/小児科医・今西洋介'), 'ふらいと先生/小児科医・今西洋介');   // どちらが名前か決められない時は外さない
   assert.equal(personKey('記者'), '記者'); assert.equal(personHold('記者'), 'ROLE_WORD_ONLY'); assert.equal(personHold('・ゲスト】'), 'ROLE_WORD_ONLY'); assert.equal(personHold('・スタッフ】'), 'ROLE_WORD_ONLY');
 });
+
+test('PI-4 出演者欄の1行に並んだ複数人は1人ずつ（未検証の名前を1つにまとめない）・決められない行はそのまま', async () => {
+  const { ledgerRows } = await import('../scripts/ledger-v2/person-index.mjs'); const { parseCastLine } = await import('../scripts/ledger-v2/summary-cleaner-v4.mjs');
+  const k = (c) => ledgerRows('E', c, parseCastLine).map((r) => r.key);
+  assert.deepEqual(k('今永諒 / 神田大介 / 安田桂子'), ['今永諒', '神田大介', '安田桂子']); assert.deepEqual(k('飯沼優仁、杢田光（MC）、望月愛実（音源編集）'), ['飯沼優仁', '杢田光', '望月愛実']);
+  assert.deepEqual(k('下地達也 / 石倉徹也,科学記者'), ['下地達也', '石倉徹也']); assert.deepEqual(k('ふらいと先生/小児科医・今西洋介'), ['ふらいと先生/小児科医・今西洋介']);
+  assert.ok(ledgerRows('E', '飯沼優仁、杢田光（MC）', parseCastLine).every((r) => r.state === '原文に出典なし・未検証'));
+});

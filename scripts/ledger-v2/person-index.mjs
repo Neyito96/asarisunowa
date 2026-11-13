@@ -9,7 +9,7 @@ const ROLE_WORDS = 'ナビゲーター|アシスタント|パーソナリティ|
 // 役割語が氏名の前に付いたまま（「ナビゲーター石倉徹也」「MC・音源編集岸上渉」「ナビゲーター／科学記者 石倉徹也」）でも同じ人として引けるように。外した語は肩書きへ回す
 const LEAD_ROLE = new RegExp('^(?:(?:' + ROLE_WORDS + ')[・/:、]*)+');
 const TITLE_WORDS = '記者|編集委員|論説委員|特別編集委員|デスク|キャップ|部長|次長|局長|支局長|総局長|特派員|特任教授|准教授|教授|講師|研究員|主任研究員|キャスター|MC|音源編集';
-const TAIL_AFFIL_TITLE = new RegExp('[・/](.{1,24}?(?:' + TITLE_WORDS + '))$');   // 「清水唯一朗・慶応大教授」「副島英樹・編集委員」
+const TAIL_AFFIL_TITLE = new RegExp('[・/,，](.{1,24}?(?:' + TITLE_WORDS + '))$');   // 「清水唯一朗・慶応大教授」「副島英樹・編集委員」
 const TAIL_TITLE = new RegExp('(?:' + TITLE_WORDS + ')$');                         // 「筒井次郎記者」「小山聡子教授」
 const LEAD_AFFIL = /^[^※()（）・/]{2,16}?(?:総局長|支局長|総局|支局|放送|新聞社)(?=[^※()（）・/]{2,6}$)/;                  // 「朝日新聞松山総局戸田拓」「KSB瀬戸内海放送山下洋平」（名前が2〜6字残る時だけ）
 const HONORIFIC = /(?:さん|氏|様|さま|君|くん|ちゃん)$/;
@@ -37,6 +37,17 @@ export function personHold(name) {
   if (new RegExp('^[・/:、【】\\[\\]]*(?:' + ROLE_WORDS + '|出演者?|スタッフ)[・/:、【】\\[\\]]*$').test(k)) return 'ROLE_WORD_ONLY';   // 「・ゲスト】」など見出しの切れ端
   return '';
 }
+// 出演者欄の1行に複数人が「/」「、」で並んでいる時（「今永諒 / 神田大介 / 安田桂子」「飯沼優仁、杢田光（MC）、望月愛実（音源編集）」）は1人ずつに分ける。
+// 全部の切れ端が人名らしい時だけ分ける（「ふらいと先生/小児科医・今西洋介」のように決められない行はそのまま）
+const PLAUSIBLE_NAME = /^[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}ー々]{2,8}$/u;
+export function castLines(cast, parse) {
+  const out = [];
+  String(cast ?? '').split('\n').forEach((l) => {
+    const seg = l.split(/\s*[\/／、]\s*/).filter((x) => x.trim());
+    if (seg.length >= 2 && seg.every((x) => { const n = personKey(parse(x).name); return PLAUSIBLE_NAME.test(n) && !/(?:先生|医|部|局|社)$/.test(n); })) out.push(...seg); else out.push(l);
+  });
+  return out;
+}
 // 1話分: 原文 → 索引行（同じ話の中で同じ索引名は1行）
 export function personRows(ep, raw) {
   if (!String(raw ?? '').trim()) return { rows: [], hold: [], status: 'RAW_NONE' };
@@ -52,7 +63,7 @@ export function personRows(ep, raw) {
 // 原文に名前が無い回で、台帳の出演者列に名前がある場合（旧台帳からの既存値）は消さずに索引へ載せ、状態で区別する（出典なし・未検証）
 export function ledgerRows(ep, ledgerCast, parse) {
   const seen = new Set(), rows = [];
-  String(ledgerCast ?? '').split('\n').forEach((l) => { const c = parse(l); if (!c.name || personHold(c.name)) return; const k = personKey(c.name); if (seen.has(k)) return; seen.add(k);
+  castLines(ledgerCast, parse).forEach((l) => { const c = parse(l); if (!c.name || personHold(c.name)) return; const k = personKey(c.name); if (seen.has(k)) return; seen.add(k);
     rows.push({ ep, key: k, display: String(c.name).trim(), note: noteOf(c.name, c.role, c.note), links: c.links.join(' '), source: '統合台帳 出演者列（既存値）', state: '原文に出典なし・未検証' }); });
   return rows;
 }
@@ -90,7 +101,7 @@ export function mergeIndex(existing, updates, removed) {
 }
 // 出演者欄と原文の名前の差（人の値は直さず、差として残すだけ）
 export function castDifference(ep, rawKeys, ledgerCast, parse) {
-  const led = String(ledgerCast ?? '').split('\n').map((l) => parse(l).name).filter((n) => n && !personHold(n)).map(personKey);
+  const led = castLines(ledgerCast, parse).map((l) => parse(l).name).filter((n) => n && !personHold(n)).map(personKey);
   const r = [...new Set(rawKeys)], l = [...new Set(led)];
   if (!r.length && !l.length) return null;
   if (!r.length) return { ep, kind: '台帳にだけ名前（原文に出典なし）', raw: '', ledger: l.join('、') };

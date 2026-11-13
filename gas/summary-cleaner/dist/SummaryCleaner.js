@@ -793,7 +793,7 @@ const ROLE_WORDS = 'ナビゲーター|アシスタント|パーソナリティ|
 // 役割語が氏名の前に付いたまま（「ナビゲーター石倉徹也」「MC・音源編集岸上渉」「ナビゲーター／科学記者 石倉徹也」）でも同じ人として引けるように。外した語は肩書きへ回す
 const LEAD_ROLE = new RegExp('^(?:(?:' + ROLE_WORDS + ')[・/:、]*)+');
 const TITLE_WORDS = '記者|編集委員|論説委員|特別編集委員|デスク|キャップ|部長|次長|局長|支局長|総局長|特派員|特任教授|准教授|教授|講師|研究員|主任研究員|キャスター|MC|音源編集';
-const TAIL_AFFIL_TITLE = new RegExp('[・/](.{1,24}?(?:' + TITLE_WORDS + '))$');   // 「清水唯一朗・慶応大教授」「副島英樹・編集委員」
+const TAIL_AFFIL_TITLE = new RegExp('[・/,，](.{1,24}?(?:' + TITLE_WORDS + '))$');   // 「清水唯一朗・慶応大教授」「副島英樹・編集委員」
 const TAIL_TITLE = new RegExp('(?:' + TITLE_WORDS + ')$');                         // 「筒井次郎記者」「小山聡子教授」
 const LEAD_AFFIL = /^[^※()（）・/]{2,16}?(?:総局長|支局長|総局|支局|放送|新聞社)(?=[^※()（）・/]{2,6}$)/;                  // 「朝日新聞松山総局戸田拓」「KSB瀬戸内海放送山下洋平」（名前が2〜6字残る時だけ）
 const HONORIFIC = /(?:さん|氏|様|さま|君|くん|ちゃん)$/;
@@ -821,6 +821,17 @@ function personHold(name) {
   if (new RegExp('^[・/:、【】\\[\\]]*(?:' + ROLE_WORDS + '|出演者?|スタッフ)[・/:、【】\\[\\]]*$').test(k)) return 'ROLE_WORD_ONLY';   // 「・ゲスト】」など見出しの切れ端
   return '';
 }
+// 出演者欄の1行に複数人が「/」「、」で並んでいる時（「今永諒 / 神田大介 / 安田桂子」「飯沼優仁、杢田光（MC）、望月愛実（音源編集）」）は1人ずつに分ける。
+// 全部の切れ端が人名らしい時だけ分ける（「ふらいと先生/小児科医・今西洋介」のように決められない行はそのまま）
+const PLAUSIBLE_NAME = /^[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}ー々]{2,8}$/u;
+function castLines(cast, parse) {
+  const out = [];
+  String(cast ?? '').split('\n').forEach((l) => {
+    const seg = l.split(/\s*[\/／、]\s*/).filter((x) => x.trim());
+    if (seg.length >= 2 && seg.every((x) => { const n = personKey(parse(x).name); return PLAUSIBLE_NAME.test(n) && !/(?:先生|医|部|局|社)$/.test(n); })) out.push(...seg); else out.push(l);
+  });
+  return out;
+}
 // 1話分: 原文 → 索引行（同じ話の中で同じ索引名は1行）
 function personRows(ep, raw) {
   if (!String(raw ?? '').trim()) return { rows: [], hold: [], status: 'RAW_NONE' };
@@ -836,7 +847,7 @@ function personRows(ep, raw) {
 // 原文に名前が無い回で、台帳の出演者列に名前がある場合（旧台帳からの既存値）は消さずに索引へ載せ、状態で区別する（出典なし・未検証）
 function ledgerRows(ep, ledgerCast, parse) {
   const seen = new Set(), rows = [];
-  String(ledgerCast ?? '').split('\n').forEach((l) => { const c = parse(l); if (!c.name || personHold(c.name)) return; const k = personKey(c.name); if (seen.has(k)) return; seen.add(k);
+  castLines(ledgerCast, parse).forEach((l) => { const c = parse(l); if (!c.name || personHold(c.name)) return; const k = personKey(c.name); if (seen.has(k)) return; seen.add(k);
     rows.push({ ep, key: k, display: String(c.name).trim(), note: noteOf(c.name, c.role, c.note), links: c.links.join(' '), source: '統合台帳 出演者列（既存値）', state: '原文に出典なし・未検証' }); });
   return rows;
 }
@@ -874,7 +885,7 @@ function mergeIndex(existing, updates, removed) {
 }
 // 出演者欄と原文の名前の差（人の値は直さず、差として残すだけ）
 function castDifference(ep, rawKeys, ledgerCast, parse) {
-  const led = String(ledgerCast ?? '').split('\n').map((l) => parse(l).name).filter((n) => n && !personHold(n)).map(personKey);
+  const led = castLines(ledgerCast, parse).map((l) => parse(l).name).filter((n) => n && !personHold(n)).map(personKey);
   const r = [...new Set(rawKeys)], l = [...new Set(led)];
   if (!r.length && !l.length) return null;
   if (!r.length) return { ep, kind: '台帳にだけ名前（原文に出典なし）', raw: '', ledger: l.join('、') };
@@ -884,7 +895,7 @@ function castDifference(ep, rawKeys, ledgerCast, parse) {
   return { ep, kind: '名前が一部違う', raw: r.join('、'), ledger: l.join('、'), missingInLedger: miss.join('、'), notInRaw: extra.join('、') };
 }
 
-return { PERSON_INDEX_VERSION, PERSON_INDEX_HEADERS, splitPersonTitle, personKey, personHold, personRows, ledgerRows, buildPersonIndex, epFingerprintText, mergeIndex, castDifference };
+return { PERSON_INDEX_VERSION, PERSON_INDEX_HEADERS, splitPersonTitle, personKey, personHold, castLines, personRows, ledgerRows, buildPersonIndex, epFingerprintText, mergeIndex, castDifference };
 })();
 
 // ===== 概要欄清掃ロボ（Issue #308）— 入口 =====
@@ -1455,7 +1466,7 @@ function piWriteAll_(sh, H, vals) {   // 上書きしてから余った末尾行
   return bad;
 }
 var PI_BACKUP_ = '人物索引_直前', PI_HIST_ = '人物索引_更新履歴', PI_HIST_HEADERS_ = ['日時', 'EP-ID', '前の索引名', '新しい索引名', '前の行数', '新しい行数', '索引版', '環境'];
-function piIncremental_(env, fn, dry) {   // dry=true: 何も書かず（シートも作らず）、変わる話と件数だけ返す
+function piIncremental_(env, fn, dry, budgetMs) {   // dry=true: 何も書かず（シートも作らず）、変わる話と件数だけ返す
   var t0 = Date.now(), E = piEnv_(env), ver = PersonIndex.PERSON_INDEX_VERSION + '/' + CleanerV4.CLEANER_VERSION, pre = scPreservedRaw_(), L = scLedger_(E.sh);
   var H = PersonIndex.PERSON_INDEX_HEADERS, getS = function (n, h) { return dry ? E.ss.getSheetByName(n) : piSheet_(E.ss, n, h); }, ix = getS(E.indexName, H), st = getS(PI_STATE_, PI_STATE_HEADERS_);
   var state = {}; piReadRows_(st, PI_STATE_HEADERS_).forEach(function (r) { state[r[0]] = r; });
@@ -1464,7 +1475,7 @@ function piIncremental_(env, fn, dry) {   // dry=true: 何も書かず（シー�
   var removed = Object.keys(state).filter(function (ep) { return !inLedger[ep]; });
   var updates = new Map(), done = [], partial = false;
   for (var i = 0; i < todo.length; i++) {
-    if (Date.now() - t0 > PI_TIME_BUDGET_MS_) { partial = true; break; }
+    if (Date.now() - t0 > (budgetMs || PI_TIME_BUDGET_MS_)) { partial = true; break; }
     var t = todo[i], b = PersonIndex.buildPersonIndex([{ ep: t.r.ep, raw: t.raw, ledgerCast: t.r.cast, parse: CleanerV4.parseCastLine }]);
     updates.set(t.r.ep, b.rows); done.push([t.r.ep, t.fp, String(b.rows.length), b.stat.withNames ? '原文で確認' : b.rows.length ? '原文に出典なし・未検証' : (t.raw ? '原文に人名なし' : '原文なし'), now]);
   }
@@ -1474,8 +1485,12 @@ function piIncremental_(env, fn, dry) {   // dry=true: 何も書かず（シー�
   var oldBy = {}, newBy = {}; cur.forEach(function (r) { (oldBy[r.ep] = oldBy[r.ep] || []).push(r.key); }); m.rows.forEach(function (r) { (newBy[r.ep] = newBy[r.ep] || []).push(r.key + (r.state === '原文で確認' ? '' : '(未検証)')); });
   cur.forEach(function (r) { if (r.state !== '原文で確認') { var a = oldBy[r.ep]; a[a.indexOf(r.key)] = r.key + '(未検証)'; } });
   var changedEps = []; Object.keys(Object.assign({}, oldBy, newBy)).forEach(function (ep) { var o = (oldBy[ep] || []).join('、'), n = (newBy[ep] || []).join('、'); if (o !== n) changedEps.push([now, ep, o, n, String((oldBy[ep] || []).length), String((newBy[ep] || []).length), PersonIndex.PERSON_INDEX_VERSION, env]); });
+  // 未検証（原文に出典なし）の名前が1つも消えていないか: 旧行の索引名（「/」で並んだものは1人ずつ）が、同じ話の新しい索引名に全部あるか
+  var newKeys = {}; m.rows.forEach(function (r) { (newKeys[r.ep] = newKeys[r.ep] || {})[r.key] = 1; }), lostUnverified = [];
+  cur.forEach(function (r) { if (r.state === '原文で確認' || !updates.has(r.ep)) return; String(r.key).split(/\s*[\/、]\s*/).forEach(function (p) { var k = PersonIndex.personKey(p); if (k && !(newKeys[r.ep] || {})[k] && !PersonIndex.personHold(p)) lostUnverified.push(r.ep + ':' + r.key); }); });
   var byState = function (rows) { var c = {}; rows.forEach(function (r) { c[r.state] = (c[r.state] || 0) + 1; }); return c; }, people = function (rows) { var k = {}; rows.forEach(function (r) { k[r.key] = 1; }); return Object.keys(k).length; };
-  var summary = { env: env, changedEpisodes: todo.length, processed: done.length, removedEpisodes: partial ? 0 : removed.length, merge: m.stat, rowsBefore: cur.length, rowsAfter: m.rows.length, peopleBefore: people(cur), peopleAfter: people(m.rows), stateBefore: byState(cur), stateAfter: byState(m.rows), indexChangedEpisodes: changedEps.length };
+  var summary = { env: env, changedEpisodes: todo.length, processed: done.length, removedEpisodes: partial ? 0 : removed.length, merge: m.stat, rowsBefore: cur.length, rowsAfter: m.rows.length, peopleBefore: people(cur), peopleAfter: people(m.rows), stateBefore: byState(cur), stateAfter: byState(m.rows), indexChangedEpisodes: changedEps.length, lostUnverified: lostUnverified.length, lostUnverifiedExamples: lostUnverified.slice(0, 20) };
+  if (lostUnverified.length && !dry) return scLog_(fn, Object.assign({ status: 'STOP_UNVERIFIED_WOULD_BE_LOST' }, summary));   // 未検証の名前を消す更新は書かない
   if (m.stat.duplicatePairs) return scLog_(fn, Object.assign({ status: 'STOP_DUPLICATE' }, summary));
   if (dry) { summary.status = partial ? 'DRYRUN_PARTIAL' : 'DRYRUN_OK'; summary.examples = changedEps.slice(0, 250).map(function (c) { return c[1] + ': ' + c[2] + ' → ' + c[3]; }); summary.ms = Date.now() - t0; return scLog_(fn, summary); }
   if (m.changed) {
@@ -1497,6 +1512,7 @@ function piIncremental_(env, fn, dry) {   // dry=true: 何も書かず（シー�
   return scLog_(fn, summary);
 }
 function P5_人物索引_予行() { return piIncremental_('V2', 'P5_人物索引_予行', true); }   // V2を読むだけ（書かない・シートも作らない）
+function P5T_途中停止の試験_COPY() { return piIncremental_('COPY', 'P5T_途中停止の試験_COPY', false, 15000); }   // わざと15秒で止めて、続きから再開できるか確かめる
 function P5_人物索引_予行_COPY() { return piIncremental_('COPY', 'P5_人物索引_予行_COPY', true); }
 function P8_人物索引_直前に戻す() {   // P5 の直前の写しから V2 索引を戻す（承認キーは P5 と同じ）。戻した後は状態を空にして次の P5 で全話を再確認
   var fn = 'P8_人物索引_直前に戻す'; if (PropertiesService.getScriptProperties().getProperty('APPROVE_PI_INCREMENTAL_V2') !== 'yes') return scLog_(fn, { status: 'NOT_APPROVED' });
@@ -1512,7 +1528,7 @@ function P6_人物索引_COPYとV2の突合() {
   var lc = {}, lv = {}; scLedger_(c.sh).rows.forEach(function (r) { lc[r.ep] = r.cast; }); scLedger_(v.sh).rows.forEach(function (r) { lv[r.ep] = r.cast; });
   var hist = {}, hs = c.ss.getSheetByName('出演者修正履歴'); if (hs && hs.getLastRow() > 1) { var hv = hs.getRange(1, 1, hs.getLastRow(), hs.getLastColumn()).getDisplayValues(), he = hv[0].indexOf('EP-ID'), hk = hv[0].indexOf('種類'); hv.slice(1).forEach(function (r) { hist[r[he]] = hk >= 0 ? r[hk] : 'あり'; }); }
   var eps = {}; onlyC.concat(onlyV).forEach(function (r) { eps[r[0]] = 1; });
-  var why = Object.keys(eps).sort().map(function (ep) { return { ep: ep, ledgerSame: lc[ep] === lv[ep], c2History: hist[ep] || '', copyOnly: onlyC.filter(function (r) { return r[0] === ep; }).map(function (r) { return r[1] + '[' + r[6] + ']'; }), v2Only: onlyV.filter(function (r) { return r[0] === ep; }).map(function (r) { return r[1] + '[' + r[6] + ']'; }) }; });
+  var why = Object.keys(eps).sort().map(function (ep) { return { ep: ep, ledgerSame: lc[ep] === lv[ep], c2History: hist[ep] || '', copyCast: String(lc[ep] || '').slice(0, 80), v2Cast: String(lv[ep] || '').slice(0, 80), copyOnly: onlyC.filter(function (r) { return r[0] === ep; }).map(function (r) { return r[1] + '[' + r[6] + ']'; }), v2Only: onlyV.filter(function (r) { return r[0] === ep; }).map(function (r) { return r[1] + '[' + r[6] + ']'; }) }; });
   var pc = {}, pv = {}; ci.forEach(function (r) { pc[r[1]] = 1; }); vi.forEach(function (r) { pv[r[1]] = 1; });
   return scLog_('P6_人物索引_COPYとV2の突合', { status: 'OK', copyRows: ci.length, v2Rows: vi.length, onlyInCopy: onlyC.length, onlyInV2: onlyV.length, episodes: why.length, episodesWithLedgerDiff: why.filter(function (w) { return !w.ledgerSame; }).length, episodesWithC2History: why.filter(function (w) { return w.c2History; }).length,
     peopleCopy: Object.keys(pc).length, peopleV2: Object.keys(pv).length, peopleOnlyCopy: Object.keys(pc).filter(function (x) { return !pv[x]; }), peopleOnlyV2: Object.keys(pv).filter(function (x) { return !pc[x]; }), detail: why });
