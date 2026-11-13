@@ -28,3 +28,9 @@ test('#309 索引名: 空白・敬称を除いて重複判定、役割は列に�
   assert.equal(ix.stat.rows, 6); assert.equal(ix.stat.noNamesInRaw, 1); assert.equal(ix.stat.rawNone, 1);
   assert.ok(ix.rows.every((r) => !('role' in r)));
 });
+test('#309 原文に名前が無い回の台帳既存値は消さず「出典なし・未検証」で載せる／役割語つき氏名は同じ索引名', async () => {
+  const { parseCastLine } = await import('../scripts/ledger-v2/summary-cleaner-v4.mjs');
+  const ix = buildPersonIndex([{ ep: 'E9', raw: NO_NAMES, ledgerCast: '神田七子\nSpotify https://buff.ly/1', parse: parseCastLine }]);
+  assert.deepEqual(ix.rows.map((r) => [r.key, r.state]), [['神田七子', '原文に出典なし・未検証']]);
+  assert.equal(personKey('ナビゲーター・石倉七郎'), personKey('ナビゲーター石倉七郎')); assert.equal(personKey('ナビゲーター石倉七郎'), '石倉七郎');
+});

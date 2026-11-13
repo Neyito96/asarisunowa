@@ -784,8 +784,9 @@ var PersonIndex = (function () {
 // 出どころは保全済みの概要原文（公式RSS）から清掃器 cleanV4 が取り出した出演者行。原文に無い名前は作らない（推測しない）。
 // 表記: 氏名の空白・敬称（さん・氏・様・君・ちゃん）を除いた「索引名」で検索・重複判定し、原文の書き方（表記原文）と肩書き・リンクは根拠として残す。
 const { cleanV4, PLATFORM_NAME } = CleanerV4;
-const PERSON_INDEX_VERSION = 'PI-1';
+const PERSON_INDEX_VERSION = 'PI-2';
 const PERSON_INDEX_HEADERS = ['EP-ID', '索引名', '表記原文', '肩書き・注記', 'リンク', '出典', '検証状態', '索引版'];
+const LEAD_ROLE = /^(?:ナビゲーター|アシスタント|進行|語り手?|朗読|案内役|解説|コメンテーター|リポーター|レポーター)[・:：]?/;   // 役割語が氏名に付いたまま（「ナビゲーター石倉徹也」）でも同じ人として引けるように。役割は保存しない
 const HONORIFIC = /(?:さん|氏|様|さま|君|くん|ちゃん)$/;
 // 索引名: NFKC、空白除去、末尾の敬称を除く。漢字の異体字は変えない（同一人物か断定できないため）
 function personKey(name) {
@@ -813,10 +814,18 @@ function personRows(ep, raw) {
   return { rows, hold, status: rows.length ? 'OK' : 'NO_NAMES_IN_RAW' };
 }
 // 全話: 表記ゆれ候補（索引名が違うのに空白・敬称以外で一致しそうなもの）は自動で統合せず、一覧に出すだけ
+// 原文に名前が無い回で、台帳の出演者列に名前がある場合（旧台帳からの既存値）は消さずに索引へ載せ、状態で区別する（出典なし・未検証）
+function ledgerRows(ep, ledgerCast, parse) {
+  const seen = new Set(), rows = [];
+  String(ledgerCast ?? '').split('\n').forEach((l) => { const c = parse(l); if (!c.name || personHold(c.name)) return; const k = personKey(c.name); if (seen.has(k)) return; seen.add(k);
+    rows.push({ ep, key: k, display: String(c.name).trim(), note: [c.role, c.note].filter(Boolean).join(' / '), links: c.links.join(' '), source: '統合台帳 出演者列（既存値）', state: '原文に出典なし・未検証' }); });
+  return rows;
+}
 function buildPersonIndex(episodes) {
   const rows = [], hold = [], stat = { episodes: 0, withNames: 0, noNamesInRaw: 0, rawNone: 0, rows: 0, hold: 0 };
   for (const e of episodes) { stat.episodes++; const r = personRows(e.ep, e.raw); rows.push(...r.rows); hold.push(...r.hold);
-    if (r.status === 'OK') stat.withNames++; else if (r.status === 'RAW_NONE') stat.rawNone++; else stat.noNamesInRaw++; }
+    if (r.status === 'OK') stat.withNames++; else if (r.status === 'RAW_NONE') stat.rawNone++; else stat.noNamesInRaw++;
+    if (r.status !== 'OK' && e.ledgerCast && e.parse) { const lr = ledgerRows(e.ep, e.ledgerCast, e.parse); if (lr.length) { rows.push(...lr); stat.ledgerOnlyEpisodes = (stat.ledgerOnlyEpisodes || 0) + 1; stat.ledgerOnlyRows = (stat.ledgerOnlyRows || 0) + lr.length; } } }
   stat.rows = rows.length; stat.hold = hold.length;
   const byKey = new Map(); rows.forEach((r) => byKey.set(r.key, (byKey.get(r.key) || 0) + 1));
   const keys = [...byKey.keys()], loose = (k) => k.replace(/[・=＝.．]/g, '').replace(/[ヶケ]/g, 'ケ'), groups = new Map();
@@ -826,7 +835,7 @@ function buildPersonIndex(episodes) {
   return { rows, hold, stat, variants };
 }
 
-return { PERSON_INDEX_VERSION, PERSON_INDEX_HEADERS, personKey, personHold, personRows, buildPersonIndex };
+return { PERSON_INDEX_VERSION, PERSON_INDEX_HEADERS, personKey, personHold, personRows, ledgerRows, buildPersonIndex };
 })();
 
 // ===== 概要欄清掃ロボ（Issue #308）— 入口 =====
@@ -1281,8 +1290,8 @@ function S9C_COPY反映の取消_20261112() {
 // P1 予行（書込なし）→ P2 COPYに試験作成 → （承認）P0 → P3 V2作業用に作成。P9 でV2の索引シートを空に戻す。台帳の列（出演者O列・公開P列）は変えない。
 var PI_SHEET_COPY_ = '人物索引(試験)', PI_SHEET_V2_ = 'V2・人物索引';
 function piBuild_() {
-  var pre = scPreservedRaw_(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = scLedger_(v.sh), eps = L.rows.map(function (r) { return { ep: r.ep, raw: pre[r.ep] ? pre[r.ep].text : '', cast: r.cast }; });
-  var ix = PersonIndex.buildPersonIndex(eps), byEp = {}; ix.rows.forEach(function (r) { (byEp[r.ep] = byEp[r.ep] || []).push(r.key); });
+  var pre = scPreservedRaw_(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = scLedger_(v.sh), eps = L.rows.map(function (r) { return { ep: r.ep, raw: pre[r.ep] ? pre[r.ep].text : '', cast: r.cast, ledgerCast: r.cast, parse: CleanerV4.parseCastLine }; });
+  var ix = PersonIndex.buildPersonIndex(eps), byEp = {}; ix.rows.forEach(function (r) { if (r.state === '原文で確認') (byEp[r.ep] = byEp[r.ep] || []).push(r.key); });
   var cmp = { same: 0, ledgerOnly_noSource: 0, rawOnly_ledgerEmpty: 0, ledgerHasPlatform: 0, differ: 0, bothEmpty: 0 }, ex = { ledgerOnly_noSource: [], rawOnly_ledgerEmpty: [], ledgerHasPlatform: [] };
   eps.forEach(function (e) {
     var led = String(e.cast || '').split('\n').map(function (l) { return CleanerV4.parseCastLine(l).name; }).filter(Boolean), ledKeys = led.filter(function (n) { return !PersonIndex.personHold(n); }).map(PersonIndex.personKey).sort(), raw = (byEp[e.ep] || []).slice().sort();
