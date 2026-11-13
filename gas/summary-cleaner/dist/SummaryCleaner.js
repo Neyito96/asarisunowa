@@ -803,6 +803,7 @@ function splitPersonTitle(name) {
   const memo = k.match(/※.*$/); if (memo && memo.index >= 2) { titles.push(memo[0].replace(/^※/, '')); k = k.slice(0, memo.index); }   // 「清水祐司さん ※番組第一回放送出演者」
   const take = (re, g = 0) => { const m = k.match(re); if (!m) return false; const rest = k.slice(0, m.index) + k.slice(m.index + m[0].length); if (rest.replace(/[・/:]/g, '').length < 2) return false; titles.push((m[g] || m[0]).replace(/^[・/:、]+|[・/:、]+$/g, '')); k = rest; return true; };
   if (/\//.test(k)) { const seg = k.split('/').filter(Boolean), keep = seg.filter((x) => !/:$/.test(x) && !new RegExp('^(?:(?:' + ROLE_WORDS + ')[・:、]*)+$').test(x)); if (keep.length === 1 && keep[0] !== k) { titles.push(...seg.filter((x) => x !== keep[0]).map((x) => x.replace(/:$/, ''))); k = keep[0]; } }
+  { const cm = k.match(/^([\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}ー々]{2,8})[,，](.+)$/u); if (cm) { titles.push(cm[2]); k = cm[1]; } }   // 「井上翔太,朝日新聞スポーツ部」＝名前,所属
   take(LEAD_ROLE); for (let i = 0; i < 3 && (take(TAIL_AFFIL_TITLE, 1) || take(TAIL_TITLE)); i++); take(LEAD_AFFIL);
   k = k.replace(HONORIFIC, '').replace(/^[・/:、]+|[・/:、]+$/g, '').trim();
   return { name: k, title: titles.filter(Boolean).join(' / ') };
@@ -1487,7 +1488,7 @@ function piIncremental_(env, fn, dry, budgetMs, maxEps) {   // dry=true: 何も�
   var changedEps = []; Object.keys(Object.assign({}, oldBy, newBy)).forEach(function (ep) { var o = (oldBy[ep] || []).join('、'), n = (newBy[ep] || []).join('、'); if (o !== n) changedEps.push([now, ep, o, n, String((oldBy[ep] || []).length), String((newBy[ep] || []).length), PersonIndex.PERSON_INDEX_VERSION, env]); });
   // 未検証（原文に出典なし）の名前が1つも消えていないか: 旧行の索引名（「/」で並んだものは1人ずつ）が、同じ話の新しい索引名に全部あるか
   var newKeys = {}; m.rows.forEach(function (r) { (newKeys[r.ep] = newKeys[r.ep] || {})[r.key] = 1; }), lostUnverified = [];
-  cur.forEach(function (r) { if (r.state === '原文で確認' || !updates.has(r.ep)) return; String(r.key).split(/\s*[\/、]\s*/).forEach(function (p) { var k = PersonIndex.personKey(p); if (k && !(newKeys[r.ep] || {})[k] && !PersonIndex.personHold(p)) lostUnverified.push(r.ep + ':' + r.key); }); });
+  cur.forEach(function (r) { if (r.state === '原文で確認' || !updates.has(r.ep) || (newKeys[r.ep] || {})[r.key]) return; String(r.key).split(/\s*[\/、]\s*/).forEach(function (p) { var k = PersonIndex.personKey(p); if (k && !(newKeys[r.ep] || {})[k] && !PersonIndex.personHold(p)) lostUnverified.push(r.ep + ':' + r.key); }); });
   var byState = function (rows) { var c = {}; rows.forEach(function (r) { c[r.state] = (c[r.state] || 0) + 1; }); return c; }, people = function (rows) { var k = {}; rows.forEach(function (r) { k[r.key] = 1; }); return Object.keys(k).length; };
   var summary = { env: env, changedEpisodes: todo.length, processed: done.length, removedEpisodes: partial ? 0 : removed.length, merge: m.stat, rowsBefore: cur.length, rowsAfter: m.rows.length, peopleBefore: people(cur), peopleAfter: people(m.rows), stateBefore: byState(cur), stateAfter: byState(m.rows), indexChangedEpisodes: changedEps.length, lostUnverified: lostUnverified.length, lostUnverifiedExamples: lostUnverified.slice(0, 20) };
   if (lostUnverified.length && !dry) return scLog_(fn, Object.assign({ status: 'STOP_UNVERIFIED_WOULD_BE_LOST' }, summary));   // 未検証の名前を消す更新は書かない

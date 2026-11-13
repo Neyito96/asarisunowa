@@ -19,6 +19,7 @@ export function splitPersonTitle(name) {
   const memo = k.match(/※.*$/); if (memo && memo.index >= 2) { titles.push(memo[0].replace(/^※/, '')); k = k.slice(0, memo.index); }   // 「清水祐司さん ※番組第一回放送出演者」
   const take = (re, g = 0) => { const m = k.match(re); if (!m) return false; const rest = k.slice(0, m.index) + k.slice(m.index + m[0].length); if (rest.replace(/[・/:]/g, '').length < 2) return false; titles.push((m[g] || m[0]).replace(/^[・/:、]+|[・/:、]+$/g, '')); k = rest; return true; };
   if (/\//.test(k)) { const seg = k.split('/').filter(Boolean), keep = seg.filter((x) => !/:$/.test(x) && !new RegExp('^(?:(?:' + ROLE_WORDS + ')[・:、]*)+$').test(x)); if (keep.length === 1 && keep[0] !== k) { titles.push(...seg.filter((x) => x !== keep[0]).map((x) => x.replace(/:$/, ''))); k = keep[0]; } }
+  { const cm = k.match(/^([\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}ー々]{2,8})[,，](.+)$/u); if (cm) { titles.push(cm[2]); k = cm[1]; } }   // 「井上翔太,朝日新聞スポーツ部」＝名前,所属
   take(LEAD_ROLE); for (let i = 0; i < 3 && (take(TAIL_AFFIL_TITLE, 1) || take(TAIL_TITLE)); i++); take(LEAD_AFFIL);
   k = k.replace(HONORIFIC, '').replace(/^[・/:、]+|[・/:、]+$/g, '').trim();
   return { name: k, title: titles.filter(Boolean).join(' / ') };

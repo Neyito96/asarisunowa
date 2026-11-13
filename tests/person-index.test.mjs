@@ -71,6 +71,6 @@ test('PI-4 出演者欄の1行に並んだ複数人は1人ずつ（未検証の�
   const { ledgerRows } = await import('../scripts/ledger-v2/person-index.mjs'); const { parseCastLine } = await import('../scripts/ledger-v2/summary-cleaner-v4.mjs');
   const k = (c) => ledgerRows('E', c, parseCastLine).map((r) => r.key);
   assert.deepEqual(k('今永諒 / 神田大介 / 安田桂子'), ['今永諒', '神田大介', '安田桂子']); assert.deepEqual(k('飯沼優仁、杢田光（MC）、望月愛実（音源編集）'), ['飯沼優仁', '杢田光', '望月愛実']);
-  assert.deepEqual(k('下地達也 / 石倉徹也,科学記者'), ['下地達也', '石倉徹也']); assert.deepEqual(k('ふらいと先生/小児科医・今西洋介'), ['ふらいと先生/小児科医・今西洋介']);
+  assert.deepEqual(k('下地達也 / 石倉徹也,科学記者'), ['下地達也', '石倉徹也']); assert.deepEqual(k('大野由衣 / 井上翔太,朝日新聞スポーツ部 / 松林康徳,常総学院野球部部長'), ['大野由衣', '井上翔太', '松林康徳']); assert.deepEqual(k('ふらいと先生/小児科医・今西洋介'), ['ふらいと先生/小児科医・今西洋介']);
   assert.ok(ledgerRows('E', '飯沼優仁、杢田光（MC）', parseCastLine).every((r) => r.state === '原文に出典なし・未検証'));
 });
