@@ -1903,7 +1903,7 @@ function X3_公開台帳_警告保護() { if (PropertiesService.getScriptPropert
 // ---------- 日次入口（清掃ロボ側）。トリガーは承認後に D8 で1本だけ ----------
 function D2_清掃と人物_日次() {
   var P = PropertiesService.getScriptProperties(), fn = 'D2_清掃と人物_日次'; if (P.getProperty('AUTORUN_STOP')) return scLog_(fn, { status: 'STOPPED', reason: P.getProperty('AUTORUN_STOP') });
-  var stop = function (why, res) { P.setProperty('AUTORUN_STOP', new Date().toISOString() + ' ' + why); return scLog_(fn, { status: 'STOP', reason: why, res: res }); }, out = {};
+  var out = {}, stop = function (why, res) { P.setProperty('AUTORUN_STOP', new Date().toISOString() + ' ' + why); laDashboard_('D2_清掃と人物_日次', 'STOP ' + why, out); return scLog_(fn, { status: 'STOP', reason: why, res: res }); };
   out.s6a = S6A_V2新着_清掃監査().status; if (!/^OK/.test(out.s6a)) return stop('S6A_' + out.s6a);
   var b = S6B_V2新着_反映(); out.s6b = b.status; if (/MISMATCH|ERROR/.test(b.status)) return stop('S6B_' + b.status, b);
   if (P.getProperty('APPROVE_CAST_FIX_V2') === 'yes') { var c = C2_出演者_反映(); out.c2 = c.status; if (/MISMATCH/.test(c.status)) return stop('C2_' + c.status, c); }
@@ -1911,6 +1911,7 @@ function D2_清掃と人物_日次() {
   if (P.getProperty('APPROVE_OFFICIAL_URL_V2') === 'yes') { var u1 = ouCheck_('U1_公式URL_確認', 120000); out.u1 = u1.status; var u2 = ouApply_('V2', 'U2_公式URL補完_V2'); out.u2 = u2.status; if (/MISMATCH/.test(u2.status)) return stop('U2_' + u2.status, u2); }   // 新着の公式個別URL（確認できたものだけ）
   if (P.getProperty('APPROVE_RELATED_INDEX_V2') === 'yes') { var r3 = rlBuild_('V2', 'R3_関連記事索引_V2作成'); out.r3 = r3.status; if (/MISMATCH/.test(r3.status)) return stop('R3_' + r3.status, r3); }
   var x = xInspect_('V2'); out.x1 = x.status; if (x.status !== 'PUBLIC_OK') return stop('PUBLIC_' + x.status, { errors: x.errors, rows: x.rows, expected: x.expected, castMismatch: x.castMismatch, blockers: x.blockers });
+  laDashboard_('D2_清掃と人物_日次', 'OK', out);
   return scLog_(fn, { status: 'OK', steps: out });
 }
 function D0_承認_清掃日次トリガー() { PropertiesService.getScriptProperties().setProperty('APPROVE_CLEANER_DAILY_TRIGGER', 'yes'); return scLog_('D0_承認_清掃日次トリガー', { status: 'APPROVED' }); }
@@ -1985,10 +1986,20 @@ var OU_STATE_ = '公式URL確認', OU_STATE_H_ = ['EP-ID', '公式GUID', '確認
 //       ③ 10件ごとに確認結果を書き足す（途中で止まっても確かめた分は残り、次は続きから）
 //       ④ ERROR は次回もう一度確かめる。同じ GUID で3回続けて ERROR なら HOLD（REPEATED_FETCH_ERROR）にして止めない
 var OU_MAX_ERRORS_ = 3;
+// 429（回数制限）・5xx（相手の一時障害）は少し待って2回まで取り直す。Retry-After があれば最大10秒まで従う。それでも駄目ならその応答を返し、呼び出し側が ERROR として次回に回す
+function laFetchRetry_(url, opts) {
+  var r = null;
+  for (var i = 0; i < 3; i++) {
+    r = UrlFetchApp.fetch(url, opts); var code = r.getResponseCode();
+    if (code !== 429 && code < 500) return r;
+    if (i < 2) { var h = r.getHeaders() || {}, ra = Number(h['Retry-After'] || h['retry-after'] || 0); Utilities.sleep(Math.min(10000, ra > 0 ? ra * 1000 : 1500 * (i + 1))); }
+  }
+  return r;
+}
 function ouFetchOne_(url) {   // 1件取得。例外は投げずに { code, html, location, error } で返す
   try {
     for (var hop = 0; hop < 4; hop++) {
-      var r = UrlFetchApp.fetch(url, { muteHttpExceptions: true, followRedirects: false }), code = r.getResponseCode();
+      var r = laFetchRetry_(url, { muteHttpExceptions: true, followRedirects: false }), code = r.getResponseCode();
       if (code < 300 || code >= 400) return { code: code, html: code === 200 ? r.getContentText() : '' };
       var h = r.getHeaders() || {}, loc = String(h.Location || h.location || '');
       if (!/^https:\/\/www\.asahi\.com\//.test(loc) || hop === 3) return { code: code, html: '', location: loc };
@@ -2146,7 +2157,7 @@ function L2_全台帳_差分監査() {
 var LA3_H_ = ['EP-ID', '区分', '公式個別URL', '公式ページ', '公式ページの理由', '音声URL', '音声', '音声の理由', 'Content-Type', 'Content-Length', '再生時間 秒', '原回EP-ID', '原回の再生時間 秒', '原回の音声 Content-Length', '確認日時'];
 function la3Audio_(url) {   // 音声の実在: 先頭2バイトだけ取る（Range）。200/206 で audio/* なら OK
   if (!/^https:\/\//.test(String(url || ''))) return { status: 'NO_AUDIO_URL' };
-  try { var r = UrlFetchApp.fetch(url, { muteHttpExceptions: true, followRedirects: true, headers: { Range: 'bytes=0-1' } }), code = r.getResponseCode(), h = r.getHeaders() || {}, ct = String(h['Content-Type'] || h['content-type'] || ''), cr = String(h['Content-Range'] || h['content-range'] || ''), len = cr.split('/')[1] || String(h['Content-Length'] || h['content-length'] || '');
+  try { var r = laFetchRetry_(url, { muteHttpExceptions: true, followRedirects: true, headers: { Range: 'bytes=0-1' } }), code = r.getResponseCode(), h = r.getHeaders() || {}, ct = String(h['Content-Type'] || h['content-type'] || ''), cr = String(h['Content-Range'] || h['content-range'] || ''), len = cr.split('/')[1] || String(h['Content-Length'] || h['content-length'] || '');
     if ((code === 200 || code === 206) && /^audio\/|mpeg|mp4|octet-stream/i.test(ct)) return { status: 'AUDIO_OK', reason: 'HTTP_' + code, ct: ct, len: len };
     return { status: code === 404 || code === 410 ? 'NOT_FOUND' : 'NG', reason: 'HTTP_' + code, ct: ct, len: len };
   } catch (e) { return { status: 'ERROR', reason: String(e && e.message || e).slice(0, 100) }; }
@@ -2215,4 +2226,45 @@ function E1_V2公開データ_予行() {
   var fields = {}; d.changed.forEach(function (x) { x.fields.forEach(function (f) { fields[f] = (fields[f] || 0) + 1; }); });
   return scLog_('E1_V2公開データ_予行', { status: d.removed.length ? 'HAS_REMOVALS' : 'DRYRUN_OK', publicNow: old.manifest.total, adopted: res.scope.adopted, held: res.scope.held, excluded: res.scope.excluded, added: d.added.length, removed: d.removed.length, changed: d.changed.length, changedFields: fields, unchanged: d.same,
     relatedSource: related.length ? 'V2・関連記事索引' : '統合台帳の関連記事URL（見出しなし・V2索引が未作成のため）', scopeVersion: res.scope.version.slice(0, 16), wroteTo: 'COPY「E1・予行差分」（公開・main・V2には書いていない）', ms: Date.now() - t0 });
+}
+
+// ---------- 運用ダッシュボード（COPY「運用ダッシュボード」に1回1行。日次の結果と止まった理由が一目で分かる） ----------
+function laDashboard_(fn, status, steps) {
+  try { var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), H = ['日時', '処理', '結果', '各工程'], sh = c.ss.getSheetByName('運用ダッシュボード') || c.ss.insertSheet('運用ダッシュボード');
+    if (sh.getLastRow() === 0) sh.getRange(1, 1, 1, H.length).setValues([H]);
+    sh.getRange(sh.getLastRow() + 1, 1, 1, H.length).setNumberFormat('@').setValues([[new Date().toISOString(), fn, String(status), JSON.stringify(steps || {}).slice(0, 4000)]]);
+  } catch (e) { console.log('DASHBOARD_WRITE_FAILED ' + e); }   // 記録の失敗で本処理を止めない
+}
+
+// ---------- K1 空欄棚卸し（読むだけ）: 項目ごとに「空欄の理由」と「埋める方法」を分類する。推測で埋めない ----------
+var K1_SUM_ = '監査・空欄棚卸し', K1_ROWS_ = '監査・空欄個票';
+function K1_空欄棚卸し() {
+  var t0 = Date.now(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), D = laRead_(v.sh), h = D.h, col = function (n) { return h.indexOf(n); };
+  var pub = function (r) { return r.ep && r.judge === '対象' && r.rep === r.ep; }, pre = scPreservedRaw_();
+  var readMap = function (ss, name, keyCol, valCols) { var sh = ss.getSheetByName(name), m = {}; if (!sh || sh.getLastRow() < 2) return m; var vv = sh.getRange(1, 1, sh.getLastRow(), sh.getLastColumn()).getDisplayValues(), hh = vv[0], k = hh.indexOf(keyCol); vv.slice(1).forEach(function (r) { m[r[k]] = valCols.map(function (n) { return r[hh.indexOf(n)]; }); }); return m; };
+  var det = readMap(v.ss, SC_V2DETAIL_, 'EP-ID', ['判定', '理由', '原文状態']), pst = readMap(v.ss, PI_STATE_, 'EP-ID', ['状態']), ou = readMap(c.ss, OU_STATE_, '公式GUID', ['状態', '理由']);
+  var rl = {}, rsh = v.ss.getSheetByName(RL_SHEET_V2_); if (rsh && rsh.getLastRow() > 1) rsh.getRange(2, 1, rsh.getLastRow() - 1, 3).getDisplayValues().forEach(function (r) { var o = rl[r[0]] = rl[r[0]] || { n: 0, nt: 0 }; o.n++; if (r[2] === '未取得') o.nt++; });
+  var PLAT = { Spotify: '補完器（#280）未接続のため未処理', Apple: '#280 の GUID 照合待ち', Amazon: '公開の取得経路が未確認（作らない）', 'Pocket Casts': '補完器（#280）未接続のため未処理', LISTEN: '補完器（#280）未接続のため未処理', Pody: '公開の取得経路が未確認（作らない）' };
+  var cells = [], sum = {}, tally = function (field, state, cause, how, r) { var k = field + '｜' + state + '｜' + cause; sum[k] = sum[k] || { field: field, state: state, cause: cause, how: how, all: 0, pub: 0 }; sum[k].all++; if (pub(r)) sum[k].pub++; if (state !== '入力あり' && pub(r)) cells.push([r.ep, r.row, field, cause, how]); };
+  D.rows.forEach(function (r) { if (!r.ep) return; var R = r._r, raw = pre[r.ep], dt = det[r.ep];
+    tally('概要原文', raw ? '入力あり' : '空欄', raw ? '' : '保全原文なし（RSS に無い回・未保全）', raw ? '' : 'S5B で保全（RSS に残っている回だけ）', r);
+    var clean = String(R[col('概要（清掃済）')] || '').trim();
+    tally('概要（清掃済）', clean ? '入力あり' : '空欄', clean ? '' : !raw ? '原文が無い' : dt ? '清掃判定=' + dt[0] : '清掃未実施', clean ? '' : raw ? 'S6A→S6B（日次 D2）' : '原文の保全が先', r);
+    var cast = String(R[col('出演者')] || '').trim(), ps = (pst[r.ep] || [''])[0];
+    tally('出演者', cast ? '入力あり' : '空欄', cast ? '' : ps === '原文に人名なし' ? '原文に人名なし（空欄が正しい）' : ps === '原文なし' ? '原文なし' : ps ? '索引=' + ps : '人物索引が未処理', cast ? '' : ps === '原文に人名なし' ? '不要' : 'P5（日次 D2）・C2', r);
+    var rel = String(R[col('関連記事URL')] || '').trim(), ri = rl[r.ep];
+    tally('関連記事', rel || ri ? '入力あり' : '空欄', rel || ri ? '' : raw ? '原文に関連記事なし（空欄が正しい可能性）' : '原文なし', rel || ri ? '' : '不要または原文の保全が先', r);
+    if (ri && ri.nt) tally('関連記事の見出し', '一部未取得', '原文に見出しが無い記事', '作らない（URL だけ表示）', r);
+    var off = String(r.officialUrl || '').trim(), oc = LedgerAudit.officialUrlCandidate(r), os = ou[oc.guid];
+    tally('公式個別URL', off ? '入力あり' : '空欄', off ? '' : oc.status === 'NO_GUID' ? 'GUIDなし' : !os ? '未確認' : os[0] === 'VERIFIED' ? '確認済み・書込待ち' : os[0] === 'NOT_FOUND' ? '公式ページなし（404）' : os[0] + ' ' + os[1], off ? '' : oc.status === 'NO_GUID' ? 'GUID 補完（G系）が先' : !os ? 'U1' : os[0] === 'VERIFIED' ? 'U2（承認後）' : os[0] === 'NOT_FOUND' ? '作らない' : 'U1 再実行', r);
+    Object.keys(PLAT).forEach(function (p) { var j = col(p); if (j < 0) return; var u = R[j], k = LedgerAudit.classifyPlatformUrl(p, u);
+      tally(p, k === 'EMPTY' ? '空欄' : k === 'EPISODE' ? '入力あり' : '要確認', k === 'EMPTY' ? PLAT[p] : k === 'EPISODE' ? '' : k === 'SHOW_TOP' ? '番組トップURL（個別EPではない）' : '形が不明', k === 'EMPTY' ? '#280 の工程' : k === 'EPISODE' ? '' : '人が確認', r); });
+    tally('掲載判定', r.judge === '対象' || r.judge === '対象外' ? '入力あり' : '空欄', r.judge === '対象' || r.judge === '対象外' ? '' : '掲載判定=' + (r.judge || '空') + (r.reason ? '（' + r.reason + '）' : ''), r.judge === '対象' || r.judge === '対象外' ? '' : 'J1/J2（承認後）または人が判断', r);
+    tally('テーマ・二重分類・地理', '列なし', 'V2 台帳に列が無い（未設計）', 'データ基盤の後に設計（今は作らない）', r);
+  });
+  var S = Object.keys(sum).sort().map(function (k) { var x = sum[k]; return [x.field, x.state, x.cause, x.how, x.all, x.pub]; });
+  laWriteSheet_(c.ss, K1_SUM_, ['項目', '状態', '理由', '埋める方法', '全行', '公開候補'], S);
+  laWriteSheet_(c.ss, K1_ROWS_, ['EP-ID', '台帳行', '項目', '理由', '埋める方法'], cells);
+  var byField = {}; S.forEach(function (x) { var f = byField[x[0]] = byField[x[0]] || { filled: 0, blank: 0 }; if (x[1] === '入力あり') f.filled += x[5]; else f.blank += x[5]; });
+  return scLog_('K1_空欄棚卸し', { status: 'OK', publicCandidates: D.rows.filter(pub).length, byFieldPublic: byField, wroteTo: 'COPY「' + K1_SUM_ + '」「' + K1_ROWS_ + '」（公開候補の空欄だけ個票）', ms: Date.now() - t0 });
 }

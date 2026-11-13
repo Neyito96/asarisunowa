@@ -103,7 +103,7 @@ const FEED = (G) => `<rss><channel><item><title>A</title><guid>${G(1)}</guid><pu
 test('配布GAS: 再生成と一致・実行一覧・収蔵の入口は出さない・トリガー作成は承認後のD8だけ', () => {
   assert.equal(SRC, buildCleanerGas()['SummaryCleaner.js']);
   const pub = [...SRC.matchAll(/^function ([^\s(]+)\(/gm)].map((m) => m[1]).filter((n) => /^[A-Z]/.test(n) && !/_$/.test(n));   // モジュール内部（即時関数の中）の関数は実行一覧に出ない
-  assert.deepEqual(pub, ['S0_進捗', 'S1_点検', 'S2_清掃監査', 'S3A_COPYへ反映_試験10件', 'S3B_COPYへ反映_全件', 'S4_V2作業用へ反映', 'S9_直前の反映を取消', 'S8_診断', 'S7_抜き取り', 'S5A_V2詳細保全_試験10件', 'S5B_V2詳細保全_全件', 'S6A_V2新着_清掃監査', 'S6B_V2新着_反映', 'S10R_非公式S10の書換を取消', 'S4B_V2作業用へ反映_未合格分のみ', 'S9C_COPY反映の取消_20261112', 'P1_人物索引_予行', 'P2_人物索引_COPY作成', 'P0_承認_人物索引V2', 'P3_人物索引_V2作成', 'P9_人物索引_V2を空に戻す', 'C1_出演者_予行', 'C0_承認_出演者修正', 'C2_出演者_反映', 'C9_出演者修正の取消', 'P5_人物索引_予行', 'P5T_途中停止の試験_COPY', 'P5_人物索引_予行_COPY', 'P8_人物索引_直前に戻す', 'P6_人物索引_COPYとV2の突合', 'P5_人物索引_差分更新_COPY', 'P5_人物索引_差分更新', 'P4_承認_人物索引差分更新V2', 'X1_公開台帳_点検', 'X1_公開台帳_点検_COPY', 'X0_承認_公開台帳の修復', 'X2_公開台帳_塞ぎセル除去_COPY', 'X2_公開台帳_塞ぎセル除去', 'X3_公開台帳_警告保護_COPY', 'X3_公開台帳_警告保護', 'D2_清掃と人物_日次', 'D0_承認_清掃日次トリガー', 'D8_清掃日次トリガー設置', 'D9_清掃日次停止', 'D7_停止旗を外す', 'L1_台帳総合監査', 'U1_公式URL_確認', 'U1T_公式URL_確認_試験20件', 'U2_公式URL補完_COPY', 'U0_承認_公式URL補完V2', 'U2_公式URL補完_V2', 'U9_公式URL補完の取消', 'R4_関連記事索引_V2とCOPYの差', 'R1_関連記事索引_予行', 'R2_関連記事索引_COPY作成', 'R0_承認_関連記事索引V2', 'R3_関連記事索引_V2作成', 'R9_関連記事索引_直前に戻す', 'L2_全台帳_差分監査', 'L3_公式音声_確認', 'L4_採否_集計レポート', 'E1_V2公開データ_予行']);
+  assert.deepEqual(pub, ['S0_進捗', 'S1_点検', 'S2_清掃監査', 'S3A_COPYへ反映_試験10件', 'S3B_COPYへ反映_全件', 'S4_V2作業用へ反映', 'S9_直前の反映を取消', 'S8_診断', 'S7_抜き取り', 'S5A_V2詳細保全_試験10件', 'S5B_V2詳細保全_全件', 'S6A_V2新着_清掃監査', 'S6B_V2新着_反映', 'S10R_非公式S10の書換を取消', 'S4B_V2作業用へ反映_未合格分のみ', 'S9C_COPY反映の取消_20261112', 'P1_人物索引_予行', 'P2_人物索引_COPY作成', 'P0_承認_人物索引V2', 'P3_人物索引_V2作成', 'P9_人物索引_V2を空に戻す', 'C1_出演者_予行', 'C0_承認_出演者修正', 'C2_出演者_反映', 'C9_出演者修正の取消', 'P5_人物索引_予行', 'P5T_途中停止の試験_COPY', 'P5_人物索引_予行_COPY', 'P8_人物索引_直前に戻す', 'P6_人物索引_COPYとV2の突合', 'P5_人物索引_差分更新_COPY', 'P5_人物索引_差分更新', 'P4_承認_人物索引差分更新V2', 'X1_公開台帳_点検', 'X1_公開台帳_点検_COPY', 'X0_承認_公開台帳の修復', 'X2_公開台帳_塞ぎセル除去_COPY', 'X2_公開台帳_塞ぎセル除去', 'X3_公開台帳_警告保護_COPY', 'X3_公開台帳_警告保護', 'D2_清掃と人物_日次', 'D0_承認_清掃日次トリガー', 'D8_清掃日次トリガー設置', 'D9_清掃日次停止', 'D7_停止旗を外す', 'L1_台帳総合監査', 'U1_公式URL_確認', 'U1T_公式URL_確認_試験20件', 'U2_公式URL補完_COPY', 'U0_承認_公式URL補完V2', 'U2_公式URL補完_V2', 'U9_公式URL補完の取消', 'R4_関連記事索引_V2とCOPYの差', 'R1_関連記事索引_予行', 'R2_関連記事索引_COPY作成', 'R0_承認_関連記事索引V2', 'R3_関連記事索引_V2作成', 'R9_関連記事索引_直前に戻す', 'L2_全台帳_差分監査', 'L3_公式音声_確認', 'L4_採否_集計レポート', 'E1_V2公開データ_予行', 'K1_空欄棚卸し']);
   assert.ok(!/DriveApp|MailApp/.test(SRC)); assert.ok(!/function\s+do(Get|Post)\b/.test(SRC));
   // トリガー作成は D8 だけ、しかも承認確認と「他のトリガーがあれば断る」の後。削除は D9 だけ
   const fnOf = (re) => [...SRC.matchAll(/function\s+([^\s(]+)\s*\([^)]*\)\s*\{/g)].map((m) => ({ name: m[1], at: m.index })).filter((f, i, a) => re.test(SRC.slice(f.at, (a[i + 1] || { at: SRC.length }).at))).map((f) => f.name);
@@ -376,4 +376,16 @@ test('関連記事索引: 先頭がアポストロフィの見出しも再実行
   assert.equal(ri[0][2], "'ケヅレー一家'でビブリオバトル"); assert.equal(ri.length, 1); assert.equal(a.headlineNotFetched, 0);   // 台帳の ?iref=omny 付きと原文の記事を二重に数えない（COPY 台帳だけの EP-2 は材料にしない）
   const b = e.run('R2_関連記事索引_COPY作成'); assert.equal(b.status, 'OK_NO_CHANGE'); assert.equal(b.changed, false);
   const r4 = e.run('R4_関連記事索引_V2とCOPYの差'); assert.equal(r4.diffRows, 1); assert.deepEqual(r4.episodesOnlyCopy, ['EP-2']); assert.match(r4.examples[0], /COPYだけ EP-2 https:\/\/www\.asahi\.com\/articles\/ONLYCOPY\.html/);
+});
+
+test('K1 空欄棚卸し（V2は読むだけ）: 項目ごとに理由と埋める方法・公開候補の空欄だけ個票／429・5xx は待って取り直す', () => {
+  const e = env(FEED), V = e.books[V2W].sheets['V2・統合台帳'].st.rows, H = e.H, JU = H.indexOf('掲載判定'), R = H.indexOf('代表EP-ID');
+  V.forEach((r, i) => { if (i) { r[JU] = '対象'; r[R] = r[0]; } }); V[1][H.indexOf('Spotify')] = 'https://open.spotify.com/show/2rNtRw2rNtRw2rNtRw2rNt';
+  const snap = JSON.stringify(V), k = e.run('K1_空欄棚卸し'); assert.equal(k.status, 'OK'); assert.equal(JSON.stringify(V), snap);
+  const S = e.books[COPY].sheets['監査・空欄棚卸し'].st.rows.slice(1).map((r) => r.slice(0, 3).join('｜'));
+  assert.ok(S.includes('Spotify｜要確認｜番組トップURL（個別EPではない）')); assert.ok(S.some((x) => x.startsWith('Amazon｜空欄｜公開の取得経路が未確認'))); assert.ok(S.some((x) => x.startsWith('テーマ・二重分類・地理｜列なし')));
+  assert.ok(e.books[COPY].sheets['監査・空欄個票'].st.rows.length > 1);
+  let n = 0; const sleeps = []; e.g.Utilities.sleep = (ms) => sleeps.push(ms);
+  e.g.UrlFetchApp.fetch = () => { n++; return { getResponseCode: () => (n < 3 ? (n === 1 ? 429 : 503) : 200), getHeaders: () => (n === 1 ? { 'Retry-After': '2' } : {}), getContentText: () => '' }; };
+  assert.equal(vm.runInNewContext('laFetchRetry_("https://x", {}).getResponseCode()', e.g), 200); assert.equal(n, 3); assert.deepEqual(sleeps, [2000, 3000]);
 });
