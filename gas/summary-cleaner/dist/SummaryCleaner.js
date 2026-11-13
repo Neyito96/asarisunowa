@@ -1874,8 +1874,10 @@ var RL_SHEET_V2_ = 'V2・関連記事索引', RL_SHEET_COPY_ = '関連記事索�
 // 文字列の印として消すため、読み戻すと1文字短くなり、毎回「違う」と判定していた（読み戻し検査は見出しを見ていなかったので 0 のままだった）。
 // 修正: 書く時は sheetText（先頭 ' を二重にする）、比べる時は表示どおりの値（元の文字列）と全列を比べる。違いがあれば最初の10件をログに出す
 var RL_CMP_COLS_ = [0, 1, 2, 3, 5, 6];
-function rlCompute_(env) {
-  var pre = scPreservedRaw_(), E = piEnv_(env), L = laRead_(E.sh), rows = [], k = { eps: 0, withHeadline: 0, notFetched: 0, fromLedgerOnly: 0 };
+// 材料の台帳は常に V2（正本）を読む。COPY の統合台帳の関連記事URL列は古く（11/14 司令塔の直接照合で URL のある話が V2 4,935／COPY 2,495）、試験の材料にしない。
+// COPY に書くのは試験用の索引シートだけ。R4 だけは COPY 台帳を材料にして差を見せる（src='COPY'）
+function rlCompute_(env, src) {
+  var pre = scPreservedRaw_(), E = piEnv_(env), L = laRead_((src === 'COPY' ? E : piEnv_('V2')).sh), rows = [], k = { eps: 0, withHeadline: 0, notFetched: 0, fromLedgerOnly: 0 };
   L.rows.forEach(function (r) { if (!r.ep) return; var raw = pre[r.ep] ? pre[r.ep].text : '', rel = raw ? CleanerV4.cleanV4(raw).related : []; var rr = LedgerAudit.relatedRows(r.ep, rel, r.related); if (rr.length) k.eps++; rr.forEach(function (x) { if (x[2] === '未取得') k.notFetched++; else k.withHeadline++; if (/^統合台帳/.test(x[5])) k.fromLedgerOnly++; }); rows = rows.concat(rr); });
   return { E: E, rows: rows, k: k };
 }
@@ -1902,7 +1904,7 @@ function rlBuild_(env, fn, dry) {
 }
 // 差の監査（読むだけ）: V2 の台帳から作る索引と COPY の台帳から作る索引を、EP-ID・記事URL 単位で比べ、COPY の「関連記事索引_差分」に書く
 function R4_関連記事索引_V2とCOPYの差() {
-  var t0 = Date.now(), a = rlCompute_('V2'), b = rlCompute_('COPY'), key = function (r) { return r[0] + '\u0001' + LedgerAudit.articleKey(r[3]); }, A = {}, B = {};
+  var t0 = Date.now(), a = rlCompute_('V2', 'V2'), b = rlCompute_('COPY', 'COPY'), key = function (r) { return r[0] + '\u0001' + LedgerAudit.articleKey(r[3]); }, A = {}, B = {};
   a.rows.forEach(function (r) { A[key(r)] = r; }); b.rows.forEach(function (r) { B[key(r)] = r; });
   var lv = {}, lc = {}; laRead_(a.E.sh).rows.forEach(function (r) { lv[r.ep] = r.related; }); laRead_(b.E.sh).rows.forEach(function (r) { lc[r.ep] = r.related; });
   var out = [];

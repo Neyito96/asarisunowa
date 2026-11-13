@@ -338,7 +338,7 @@ test('L1監査はV2を読むだけでCOPYに監査シート／U1は公式ペー�
   V[3][G] = g(3); const u1b = e.run('U1_公式URL_確認'); assert.equal(u1b.result.HOLD, 1);
   const sha = (t) => crypto.createHash('sha256').update(t, 'utf8').digest('hex'), raw = RAWX('一');
   e.books[V2W].sheets['V2・収蔵詳細'] = mkSheet([['EP-ID', '公式GUID', '取得元', '取得日時', '概要原文', '概要原文SHA256'], ['EP-1', g(1), '', '', raw, sha(raw)]]);
-  C[2][H.indexOf('関連記事URL')] = 'https://www.asahi.com/articles/OLD1.html';
+  V[2][H.indexOf('関連記事URL')] = 'https://www.asahi.com/articles/OLD1.html';   // 材料は V2 の台帳（COPY の台帳は古いので使わない）
   const r2 = e.run('R2_関連記事索引_COPY作成'); assert.equal(r2.status, 'OK'); const ri = e.books[COPY].sheets['関連記事索引(試験)'].st.rows;
   assert.deepEqual(ri.slice(1).map((r) => [r[0], r[2], r[3]]), [['EP-1', '一の記事見出し', 'https://www.asahi.com/articles/ASX1.html'], ['EP-2', '未取得', 'https://www.asahi.com/articles/OLD1.html']]);
   assert.match(ri[1][4], /^=HYPERLINK\("https:\/\/www\.asahi\.com\/articles\/ASX1\.html","一の記事見出し"\)$/);
@@ -371,9 +371,9 @@ test('関連記事索引: 先頭がアポストロフィの見出しも再実行
   const raw = "<p>本文。</p><p>【関連記事】<br>'ケヅレー一家'でビブリオバトル<br><a href=\"https://www.asahi.com/articles/ASX9.html?iref=omny\">https://www.asahi.com/articles/ASX9.html?iref=omny</a></p>";
   e.books[V2W].sheets['V2・収蔵詳細'] = mkSheet([['EP-ID', '公式GUID', '取得元', '取得日時', '概要原文', '概要原文SHA256'], ['EP-1', 'g', '', '', raw, sha(raw)]]);
   const C = e.books[COPY].sheets['V2・統合台帳'].st.rows, V = e.books[V2W].sheets['V2・統合台帳'].st.rows;
-  C[1][P] = 'https://www.asahi.com/articles/ASX9.html?iref=omny'; C[2][P] = 'https://www.asahi.com/articles/ONLYCOPY.html'; V[1][P] = 'https://www.asahi.com/articles/ASX9.html';
+  V[1][P] = 'https://www.asahi.com/articles/ASX9.html?iref=omny'; C[1][P] = 'https://www.asahi.com/articles/ASX9.html'; C[2][P] = 'https://www.asahi.com/articles/ONLYCOPY.html';   // R2 の材料は V2 台帳、R4 は COPY 台帳との差を出す
   const a = e.run('R2_関連記事索引_COPY作成'); assert.equal(a.status, 'OK'); const ri = e.books[COPY].sheets['関連記事索引(試験)'].st.rows.slice(1);
-  assert.equal(ri[0][2], "'ケヅレー一家'でビブリオバトル"); assert.equal(ri.length, 2); assert.equal(a.headlineNotFetched, 1);   // 同じ記事を二重に数えない
+  assert.equal(ri[0][2], "'ケヅレー一家'でビブリオバトル"); assert.equal(ri.length, 1); assert.equal(a.headlineNotFetched, 0);   // 台帳の ?iref=omny 付きと原文の記事を二重に数えない（COPY 台帳だけの EP-2 は材料にしない）
   const b = e.run('R2_関連記事索引_COPY作成'); assert.equal(b.status, 'OK_NO_CHANGE'); assert.equal(b.changed, false);
   const r4 = e.run('R4_関連記事索引_V2とCOPYの差'); assert.equal(r4.diffRows, 1); assert.deepEqual(r4.episodesOnlyCopy, ['EP-2']); assert.match(r4.examples[0], /COPYだけ EP-2 https:\/\/www\.asahi\.com\/articles\/ONLYCOPY\.html/);
 });
