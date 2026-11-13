@@ -80,12 +80,23 @@ export function auditSdgs(rows, official = SDGS_OFFICIAL, show = 'SDGsを話そ�
 
 // 関連記事索引: 1記事1行。見出しは保全原文の清掃結果をそのまま使い、無ければ「未取得」（作らない）。URL は台帳と原文の両方を残す
 export const RELATED_HEADERS = ['EP-ID', '番号', '見出し', 'URL', 'リンク', '出典', '元URL（原文の表記）'];
-export function relatedRows(ep, related, ledgerUrls) {
-  const out = [], seen = new Set();
-  (related || []).forEach((r) => { const u = String(r.url || '').trim(); if (!u || seen.has(u)) return; seen.add(u); out.push({ ep, url: u, title: String(r.title || '').trim() || '未取得', source: '概要原文（公式RSS）', original: r.originalUrl || u }); });
-  String(ledgerUrls || '').split(/[\s\n]+/).filter((u) => /^https?:\/\//.test(u)).forEach((u) => { if (seen.has(u)) return; seen.add(u); out.push({ ep, url: u, title: '未取得', source: '統合台帳 関連記事URL（既存値）', original: u }); });
-  return out.map((r, i) => [r.ep, String(i + 1), r.title, r.url, hyperlink(r.url, r.title === '未取得' ? r.url : r.title), r.source, r.original]);
+// 記事URLの照合キー: 追跡用の付け足し（iref・utm_*・「?irefomny」の書き損じ）と # 以降だけ外す。他の ? 付き（rensai の id= など）は別記事として残す
+export function articleKey(u) {
+  let s = String(u ?? '').trim().replace(/^http:\/\//i, 'https://'), hash = s.indexOf('#'); if (hash >= 0) s = s.slice(0, hash);
+  const q = s.indexOf('?'); if (q < 0) return s;
+  const keep = s.slice(q + 1).split('&').filter((p) => p && !/^(?:i?ref(?:omny)?(?:=omny|=.*)?|utm_[a-z]+=.*|cid=.*)$/i.test(p));
+  return s.slice(0, q) + (keep.length ? '?' + keep.join('&') : '');
 }
+// 関連記事索引: 1記事1行。見出しは保全原文の清掃結果をそのまま使い、無ければ「未取得」（作らない）。
+// 原文の記事と台帳の関連記事URL列の記事は articleKey で同じ記事と見なし1行にまとめる（台帳だけ ?iref=omny が付く等で二重に数えない）。台帳の表記が違う時は元URL欄に残す
+export function relatedRows(ep, related, ledgerUrls) {
+  const out = [], byKey = new Map();
+  (related || []).forEach((r) => { const u = String(r.url || '').trim(); if (!u) return; const k = articleKey(u); if (byKey.has(k)) return; const row = { ep, url: u, title: String(r.title || '').trim() || '未取得', source: '概要原文（公式RSS）', original: [r.originalUrl || u] }; byKey.set(k, row); if (r.originalUrl) byKey.set(articleKey(r.originalUrl), row); out.push(row); });
+  String(ledgerUrls || '').split(/[\s\n]+/).filter((u) => /^https?:\/\//.test(u)).forEach((u) => { const k = articleKey(u), hit = byKey.get(k); if (hit) { if (hit.original.indexOf(u) < 0 && hit.url !== u) hit.original.push('台帳: ' + u); return; } const row = { ep, url: u, title: '未取得', source: '統合台帳 関連記事URL（既存値）', original: [u] }; byKey.set(k, row); out.push(row); });
+  return out.map((r, i) => [r.ep, String(i + 1), r.title, r.url, hyperlink(r.url, r.title === '未取得' ? r.url : r.title), r.source, r.original.join(' / ')]);
+}
+// シートに文字として書く時、先頭の「'」は Sheets が「文字列の印」として消してしまう（表示が1文字短くなり毎回差分になる）。先頭が ' なら ' をもう1つ付けて原文どおり表示させる
+export function sheetText(s) { const t = String(s ?? ''); return t.charAt(0) === "'" ? "'" + t : t; }
 // シートのリンク表示。式の中の " は "" に、長すぎる見出しは切る（式は 50,000 字まで・見出しは表示用）
 export function hyperlink(url, label) { const q = (s) => String(s).replace(/"/g, '""'); return '=HYPERLINK("' + q(url) + '","' + q(String(label).slice(0, 200)) + '")'; }
 

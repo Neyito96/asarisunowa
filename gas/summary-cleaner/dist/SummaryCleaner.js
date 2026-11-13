@@ -993,12 +993,23 @@ function auditSdgs(rows, official = SDGS_OFFICIAL, show = 'SDGsを話そう') {
 
 // 関連記事索引: 1記事1行。見出しは保全原文の清掃結果をそのまま使い、無ければ「未取得」（作らない）。URL は台帳と原文の両方を残す
 const RELATED_HEADERS = ['EP-ID', '番号', '見出し', 'URL', 'リンク', '出典', '元URL（原文の表記）'];
-function relatedRows(ep, related, ledgerUrls) {
-  const out = [], seen = new Set();
-  (related || []).forEach((r) => { const u = String(r.url || '').trim(); if (!u || seen.has(u)) return; seen.add(u); out.push({ ep, url: u, title: String(r.title || '').trim() || '未取得', source: '概要原文（公式RSS）', original: r.originalUrl || u }); });
-  String(ledgerUrls || '').split(/[\s\n]+/).filter((u) => /^https?:\/\//.test(u)).forEach((u) => { if (seen.has(u)) return; seen.add(u); out.push({ ep, url: u, title: '未取得', source: '統合台帳 関連記事URL（既存値）', original: u }); });
-  return out.map((r, i) => [r.ep, String(i + 1), r.title, r.url, hyperlink(r.url, r.title === '未取得' ? r.url : r.title), r.source, r.original]);
+// 記事URLの照合キー: 追跡用の付け足し（iref・utm_*・「?irefomny」の書き損じ）と # 以降だけ外す。他の ? 付き（rensai の id= など）は別記事として残す
+function articleKey(u) {
+  let s = String(u ?? '').trim().replace(/^http:\/\//i, 'https://'), hash = s.indexOf('#'); if (hash >= 0) s = s.slice(0, hash);
+  const q = s.indexOf('?'); if (q < 0) return s;
+  const keep = s.slice(q + 1).split('&').filter((p) => p && !/^(?:i?ref(?:omny)?(?:=omny|=.*)?|utm_[a-z]+=.*|cid=.*)$/i.test(p));
+  return s.slice(0, q) + (keep.length ? '?' + keep.join('&') : '');
 }
+// 関連記事索引: 1記事1行。見出しは保全原文の清掃結果をそのまま使い、無ければ「未取得」（作らない）。
+// 原文の記事と台帳の関連記事URL列の記事は articleKey で同じ記事と見なし1行にまとめる（台帳だけ ?iref=omny が付く等で二重に数えない）。台帳の表記が違う時は元URL欄に残す
+function relatedRows(ep, related, ledgerUrls) {
+  const out = [], byKey = new Map();
+  (related || []).forEach((r) => { const u = String(r.url || '').trim(); if (!u) return; const k = articleKey(u); if (byKey.has(k)) return; const row = { ep, url: u, title: String(r.title || '').trim() || '未取得', source: '概要原文（公式RSS）', original: [r.originalUrl || u] }; byKey.set(k, row); if (r.originalUrl) byKey.set(articleKey(r.originalUrl), row); out.push(row); });
+  String(ledgerUrls || '').split(/[\s\n]+/).filter((u) => /^https?:\/\//.test(u)).forEach((u) => { const k = articleKey(u), hit = byKey.get(k); if (hit) { if (hit.original.indexOf(u) < 0 && hit.url !== u) hit.original.push('台帳: ' + u); return; } const row = { ep, url: u, title: '未取得', source: '統合台帳 関連記事URL（既存値）', original: [u] }; byKey.set(k, row); out.push(row); });
+  return out.map((r, i) => [r.ep, String(i + 1), r.title, r.url, hyperlink(r.url, r.title === '未取得' ? r.url : r.title), r.source, r.original.join(' / ')]);
+}
+// シートに文字として書く時、先頭の「'」は Sheets が「文字列の印」として消してしまう（表示が1文字短くなり毎回差分になる）。先頭が ' なら ' をもう1つ付けて原文どおり表示させる
+function sheetText(s) { const t = String(s ?? ''); return t.charAt(0) === "'" ? "'" + t : t; }
 // シートのリンク表示。式の中の " は "" に、長すぎる見出しは切る（式は 50,000 字まで・見出しは表示用）
 function hyperlink(url, label) { const q = (s) => String(s).replace(/"/g, '""'); return '=HYPERLINK("' + q(url) + '","' + q(String(label).slice(0, 200)) + '")'; }
 
@@ -1012,7 +1023,7 @@ function playlistCounts(rows) {
   return [...m].sort((a, b) => b[1].all - a[1].all).map(([k, c]) => [k, c.all, c.pub, c.dup, c.out, c.hold, c.none, c.other, c.noEp, c.first, c.last]);
 }
 
-return { LEDGER_AUDIT_VERSION, PLATFORM_COLUMNS, classifyPlatformUrl, OFFICIAL_ITEM_BASE, officialItemId, officialUrlCandidate, verifyOfficialPage, SDGS_AUDIT_HEADERS, auditSdgs, RELATED_HEADERS, relatedRows, hyperlink, PLAYLIST_HEADERS, playlistCounts };
+return { LEDGER_AUDIT_VERSION, PLATFORM_COLUMNS, classifyPlatformUrl, OFFICIAL_ITEM_BASE, officialItemId, officialUrlCandidate, verifyOfficialPage, SDGS_AUDIT_HEADERS, auditSdgs, RELATED_HEADERS, articleKey, relatedRows, sheetText, hyperlink, PLAYLIST_HEADERS, playlistCounts };
 })();
 
 // ===== 概要欄清掃ロボ（Issue #308）— 入口 =====
@@ -1859,21 +1870,49 @@ function U9_公式URL補完の取消() {   // 直前の実行（実行ID）で�
 
 // ---------- 関連記事索引（1記事1行の別シート） ----------
 var RL_SHEET_V2_ = 'V2・関連記事索引', RL_SHEET_COPY_ = '関連記事索引(試験)', RL_BACKUP_ = '関連記事索引_直前';
+// 再実行で毎回 changed:true になっていた原因（2026-11-13）: 見出しが「'」で始まる記事（EP-04536 「'ケヅレー一家'で…」）は、Sheets が先頭の ' を
+// 文字列の印として消すため、読み戻すと1文字短くなり、毎回「違う」と判定していた（読み戻し検査は見出しを見ていなかったので 0 のままだった）。
+// 修正: 書く時は sheetText（先頭 ' を二重にする）、比べる時は表示どおりの値（元の文字列）と全列を比べる。違いがあれば最初の10件をログに出す
+var RL_CMP_COLS_ = [0, 1, 2, 3, 5, 6];
+function rlCompute_(env) {
+  var pre = scPreservedRaw_(), E = piEnv_(env), L = laRead_(E.sh), rows = [], k = { eps: 0, withHeadline: 0, notFetched: 0, fromLedgerOnly: 0 };
+  L.rows.forEach(function (r) { if (!r.ep) return; var raw = pre[r.ep] ? pre[r.ep].text : '', rel = raw ? CleanerV4.cleanV4(raw).related : []; var rr = LedgerAudit.relatedRows(r.ep, rel, r.related); if (rr.length) k.eps++; rr.forEach(function (x) { if (x[2] === '未取得') k.notFetched++; else k.withHeadline++; if (/^統合台帳/.test(x[5])) k.fromLedgerOnly++; }); rows = rows.concat(rr); });
+  return { E: E, rows: rows, k: k };
+}
+function rlDiff_(cur, rows) {   // 表示どおりの値で全列比較
+  var d = [], n = Math.max(cur.length, rows.length);
+  for (var i = 0; i < n && d.length < 10; i++) { var a = cur[i], b = rows[i]; if (!a || !b) { d.push({ row: i + 2, field: !a ? '行が増える' : '行が減る', old: a ? a[0] + ' ' + a[3] : '', new: b ? b[0] + ' ' + b[3] : '' }); continue; }
+    for (var j = 0; j < RL_CMP_COLS_.length; j++) { var c = RL_CMP_COLS_[j]; if (String(a[c]) !== String(b[c])) { d.push({ row: i + 2, ep: b[0], field: LedgerAudit.RELATED_HEADERS[c], old: String(a[c]).slice(0, 60), new: String(b[c]).slice(0, 60) }); break; } } }
+  var diffCount = Math.abs(cur.length - rows.length); for (var x = 0; x < Math.min(cur.length, rows.length); x++) { for (var y = 0; y < RL_CMP_COLS_.length; y++) { if (String(cur[x][RL_CMP_COLS_[y]]) !== String(rows[x][RL_CMP_COLS_[y]])) { diffCount++; break; } } }
+  return { count: diffCount, examples: d };
+}
 function rlBuild_(env, fn, dry) {
-  var t0 = Date.now(), pre = scPreservedRaw_(), E = piEnv_(env), L = laRead_(E.sh), H = LedgerAudit.RELATED_HEADERS, rows = [], k = { eps: 0, withHeadline: 0, notFetched: 0 };
-  L.rows.forEach(function (r) { if (!r.ep) return; var raw = pre[r.ep] ? pre[r.ep].text : '', rel = raw ? CleanerV4.cleanV4(raw).related : []; var rr = LedgerAudit.relatedRows(r.ep, rel, r.related); if (rr.length) k.eps++; rr.forEach(function (x) { if (x[2] === '未取得') k.notFetched++; else k.withHeadline++; }); rows = rows.concat(rr); });
+  var t0 = Date.now(), C = rlCompute_(env), E = C.E, rows = C.rows, k = C.k, H = LedgerAudit.RELATED_HEADERS;
   var name = env === 'V2' ? RL_SHEET_V2_ : RL_SHEET_COPY_, sh = E.ss.getSheetByName(name), cur = sh && sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, H.length).getDisplayValues() : [];
-  var same = cur.length === rows.length && cur.every(function (r, i) { return r[0] === rows[i][0] && r[2] === rows[i][2] && r[3] === rows[i][3]; });
-  var res = { env: env, rows: rows.length, episodes: k.eps, withHeadline: k.withHeadline, headlineNotFetched: k.notFetched, changed: !same };
-  if (dry || same) return scLog_(fn, Object.assign({ status: dry ? 'DRYRUN_OK' : 'OK_NO_CHANGE', ms: Date.now() - t0 }, res));
+  var df = rlDiff_(cur, rows), res = { env: env, rows: rows.length, episodes: k.eps, withHeadline: k.withHeadline, headlineNotFetched: k.notFetched, ledgerOnlyRows: k.fromLedgerOnly, changed: df.count > 0, changedRows: df.count, changeExamples: df.examples };
+  if (dry || !df.count) return scLog_(fn, Object.assign({ status: dry ? 'DRYRUN_OK' : 'OK_NO_CHANGE', ms: Date.now() - t0 }, res));
   if (env === 'V2' && sh && sh.getLastRow() > 1) { var old = E.ss.getSheetByName(RL_BACKUP_); if (old) E.ss.deleteSheet(old); sh.copyTo(E.ss).setName(RL_BACKUP_); }
   sh = sh || E.ss.insertSheet(name); if (sh.getLastRow() === 0) sh.getRange(1, 1, 1, H.length).setValues([H]);
-  var before = sh.getLastRow();
-  for (var i = 0; i < rows.length; i += 5000) { var p = rows.slice(i, i + 5000); sh.getRange(2 + i, 1, p.length, 4).setNumberFormat('@').setValues(p.map(function (r) { return r.slice(0, 4); })); sh.getRange(2 + i, 5, p.length, 1).setFormulas(p.map(function (r) { return [r[4]]; })); sh.getRange(2 + i, 6, p.length, 2).setNumberFormat('@').setValues(p.map(function (r) { return r.slice(5, 7); })); }
+  var before = sh.getLastRow(), tx = function (r, a, b) { return r.slice(a, b).map(LedgerAudit.sheetText); };
+  for (var i = 0; i < rows.length; i += 5000) { var p = rows.slice(i, i + 5000); sh.getRange(2 + i, 1, p.length, 4).setNumberFormat('@').setValues(p.map(function (r) { return tx(r, 0, 4); })); sh.getRange(2 + i, 5, p.length, 1).setFormulas(p.map(function (r) { return [r[4]]; })); sh.getRange(2 + i, 6, p.length, 2).setNumberFormat('@').setValues(p.map(function (r) { return tx(r, 5, 7); })); }
   if (before > rows.length + 1) sh.getRange(rows.length + 2, 1, before - rows.length - 1, H.length).clearContent();
   sh.setFrozenRows(1); SpreadsheetApp.flush();
-  var back = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, 4).getDisplayValues() : [], bad = Math.abs(back.length - rows.length); back.forEach(function (r, i) { if (rows[i] && (r[0] !== rows[i][0] || r[3] !== rows[i][3])) bad++; });
-  return scLog_(fn, Object.assign({ status: bad ? 'READBACK_MISMATCH' : 'OK', readbackMismatch: bad, ms: Date.now() - t0 }, res));
+  var back = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, H.length).getDisplayValues() : [], bad = rlDiff_(back, rows);   // 読み戻しも全列（表示どおり）
+  return scLog_(fn, Object.assign({ status: bad.count ? 'READBACK_MISMATCH' : 'OK', readbackMismatch: bad.count, readbackExamples: bad.examples, ms: Date.now() - t0 }, res));
+}
+// 差の監査（読むだけ）: V2 の台帳から作る索引と COPY の台帳から作る索引を、EP-ID・記事URL 単位で比べ、COPY の「関連記事索引_差分」に書く
+function R4_関連記事索引_V2とCOPYの差() {
+  var t0 = Date.now(), a = rlCompute_('V2'), b = rlCompute_('COPY'), key = function (r) { return r[0] + '\u0001' + LedgerAudit.articleKey(r[3]); }, A = {}, B = {};
+  a.rows.forEach(function (r) { A[key(r)] = r; }); b.rows.forEach(function (r) { B[key(r)] = r; });
+  var lv = {}, lc = {}; laRead_(a.E.sh).rows.forEach(function (r) { lv[r.ep] = r.related; }); laRead_(b.E.sh).rows.forEach(function (r) { lc[r.ep] = r.related; });
+  var out = [];
+  b.rows.forEach(function (r) { if (!A[key(r)]) out.push(['COPYだけ', r[0], r[3], r[2], r[5], String(lv[r[0]] === undefined ? '(V2に行なし)' : lv[r[0]]).slice(0, 300), String(lc[r[0]] || '').slice(0, 300)]); });
+  a.rows.forEach(function (r) { if (!B[key(r)]) out.push(['V2だけ', r[0], r[3], r[2], r[5], String(lv[r[0]] || '').slice(0, 300), String(lc[r[0]] === undefined ? '(COPYに行なし)' : lc[r[0]]).slice(0, 300)]); });
+  var epA = {}, epB = {}; a.rows.forEach(function (r) { epA[r[0]] = 1; }); b.rows.forEach(function (r) { epB[r[0]] = 1; });
+  var epOnlyCopy = Object.keys(epB).filter(function (e) { return !epA[e]; }), epOnlyV2 = Object.keys(epA).filter(function (e) { return !epB[e]; });
+  laWriteSheet_(b.E.ss, '関連記事索引_差分', ['側', 'EP-ID', '記事URL', '見出し', '出典', 'V2 台帳の関連記事URL', 'COPY 台帳の関連記事URL'], out);
+  var bySrc = {}; out.forEach(function (o) { var kk = o[0] + '・' + o[4]; bySrc[kk] = (bySrc[kk] || 0) + 1; });
+  return scLog_('R4_関連記事索引_V2とCOPYの差', { status: 'OK', v2Rows: a.rows.length, copyRows: b.rows.length, diffRows: out.length, bySideAndSource: bySrc, episodesOnlyCopy: epOnlyCopy, episodesOnlyV2: epOnlyV2, examples: out.slice(0, 8).map(function (o) { return o[0] + ' ' + o[1] + ' ' + o[2]; }), wroteTo: 'COPY「関連記事索引_差分」', ms: Date.now() - t0 });
 }
 function R1_関連記事索引_予行() { return rlBuild_('V2', 'R1_関連記事索引_予行', true); }
 function R2_関連記事索引_COPY作成() { return rlBuild_('COPY', 'R2_関連記事索引_COPY作成'); }

@@ -44,3 +44,12 @@ test('関連記事索引: 見出しは原文から・無ければ「未取得」
   const pc = playlistCounts([{ ep: 'E1', show: 'X', judge: '対象', rep: 'E1', date: '2026/1/2' }, { ep: 'E2', show: 'X', judge: '対象', rep: 'E1', date: '2026/1/3' }, { ep: 'E3', show: 'X', judge: '対象外', rep: 'E3' }, { ep: '', show: 'X', judge: '保留' }]);
   assert.deepEqual(pc[0], ['X', 4, 1, 1, 1, 0, 0, 0, 1, '2026-01-02', '2026-01-03']);
 });
+
+test('関連記事の照合キー: iref・ref=omny・utm・#は外すが、id= など記事を分ける ? は残す／先頭のアポストロフィは二重にして書く', async () => {
+  const { articleKey, relatedRows, sheetText } = await import('../scripts/ledger-v2/ledger-audit.mjs');
+  assert.equal(articleKey('https://www.asahi.com/articles/A.html?iref=omny'), 'https://www.asahi.com/articles/A.html'); assert.equal(articleKey('http://www.asahi.com/articles/A.html?irefomny#x'), 'https://www.asahi.com/articles/A.html');
+  assert.equal(articleKey('https://www.asahi.com/articles/A.html?ref=omny&utm_source=x'), 'https://www.asahi.com/articles/A.html'); assert.equal(articleKey('https://www.asahi.com/rensai/list.html?id=2019'), 'https://www.asahi.com/rensai/list.html?id=2019');
+  const rr = relatedRows('E', [{ title: 'T', url: 'https://a/A.html', originalUrl: 'https://a/A.html?iref=omny' }], 'https://a/A.html?ref=omny https://a/B.html');
+  assert.deepEqual(rr.map((r) => [r[2], r[3], r[6]]), [['T', 'https://a/A.html', 'https://a/A.html?iref=omny / 台帳: https://a/A.html?ref=omny'], ['未取得', 'https://a/B.html', 'https://a/B.html']]);
+  assert.equal(sheetText("'abc"), "''abc"); assert.equal(sheetText('abc'), 'abc');
+});

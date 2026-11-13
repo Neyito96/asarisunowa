@@ -78,7 +78,7 @@ test('既存値の保護: 旧自動清掃と同じ値・空欄だけ書換可。
 
 // ---- 配布GASの模擬通し ----
 const SRC = fs.readFileSync('gas/summary-cleaner/dist/SummaryCleaner.js', 'utf8'), COPY = '1WTLcaveWG0mr9F0dIjyCL8daxFnpo4q4yADN_bnK1PY', V2W = '1ZAl4QpQ4i5ycyPy1qVNtT-Ke2nsSHhWGFkAH3xedAbc';
-function mkSheet(rows) { const st = { rows: rows.map((r) => [...r]) }, get = (r, c) => String((st.rows[r - 1] || [])[c - 1] ?? ''), put = (r, c, x) => { while (st.rows.length < r) st.rows.push([]); st.rows[r - 1][c - 1] = x; };
+function mkSheet(rows) { const st = { rows: rows.map((r) => [...r]) }, get = (r, c) => String((st.rows[r - 1] || [])[c - 1] ?? ''), put = (r, c, x) => { while (st.rows.length < r) st.rows.push([]); st.rows[r - 1][c - 1] = typeof x === 'string' && x.charAt(0) === "'" ? x.slice(1) : x; };   // Sheets と同じく先頭の ' は文字列の印として消える
   const rng = (r, c, nr = 1, nc = 1) => { const o = ({ setFormulas: (v) => v.forEach((row, i) => row.forEach((x, j) => put(r + i, c + j, x))), getDisplayValues: () => Array.from({ length: nr }, (_, i) => Array.from({ length: nc }, (_, j) => get(r + i, c + j))), getDisplayValue: () => get(r, c), setValues: (v) => v.forEach((row, i) => row.forEach((x, j) => put(r + i, c + j, x))), setValue: (x) => put(r, c, x), setNumberFormat() { return o; }, clearContent() { for (let i = 0; i < nr; i++) for (let j = 0; j < nc; j++) if (st.rows[r - 1 + i]) st.rows[r - 1 + i][c - 1 + j] = ''; trim(); }, getFormula: () => (st.formulas || {})[r + ':' + c] || '' }); return o; };
   const trim = () => { while (st.rows.length && st.rows[st.rows.length - 1].every((x) => x === '' || x == null)) st.rows.pop(); };
   st.protections = [];
@@ -103,7 +103,7 @@ const FEED = (G) => `<rss><channel><item><title>A</title><guid>${G(1)}</guid><pu
 test('配布GAS: 再生成と一致・実行一覧・収蔵の入口は出さない・トリガー作成は承認後のD8だけ', () => {
   assert.equal(SRC, buildCleanerGas()['SummaryCleaner.js']);
   const pub = [...SRC.matchAll(/^function ([^\s(]+)\(/gm)].map((m) => m[1]).filter((n) => /^[A-Z]/.test(n) && !/_$/.test(n));   // モジュール内部（即時関数の中）の関数は実行一覧に出ない
-  assert.deepEqual(pub, ['S0_進捗', 'S1_点検', 'S2_清掃監査', 'S3A_COPYへ反映_試験10件', 'S3B_COPYへ反映_全件', 'S4_V2作業用へ反映', 'S9_直前の反映を取消', 'S8_診断', 'S7_抜き取り', 'S5A_V2詳細保全_試験10件', 'S5B_V2詳細保全_全件', 'S6A_V2新着_清掃監査', 'S6B_V2新着_反映', 'S10R_非公式S10の書換を取消', 'S4B_V2作業用へ反映_未合格分のみ', 'S9C_COPY反映の取消_20261112', 'P1_人物索引_予行', 'P2_人物索引_COPY作成', 'P0_承認_人物索引V2', 'P3_人物索引_V2作成', 'P9_人物索引_V2を空に戻す', 'C1_出演者_予行', 'C0_承認_出演者修正', 'C2_出演者_反映', 'C9_出演者修正の取消', 'P5_人物索引_予行', 'P5T_途中停止の試験_COPY', 'P5_人物索引_予行_COPY', 'P8_人物索引_直前に戻す', 'P6_人物索引_COPYとV2の突合', 'P5_人物索引_差分更新_COPY', 'P5_人物索引_差分更新', 'P4_承認_人物索引差分更新V2', 'X1_公開台帳_点検', 'X1_公開台帳_点検_COPY', 'X0_承認_公開台帳の修復', 'X2_公開台帳_塞ぎセル除去_COPY', 'X2_公開台帳_塞ぎセル除去', 'X3_公開台帳_警告保護_COPY', 'X3_公開台帳_警告保護', 'D2_清掃と人物_日次', 'D0_承認_清掃日次トリガー', 'D8_清掃日次トリガー設置', 'D9_清掃日次停止', 'D7_停止旗を外す', 'L1_台帳総合監査', 'U1_公式URL_確認', 'U1T_公式URL_確認_試験20件', 'U2_公式URL補完_COPY', 'U0_承認_公式URL補完V2', 'U2_公式URL補完_V2', 'U9_公式URL補完の取消', 'R1_関連記事索引_予行', 'R2_関連記事索引_COPY作成', 'R0_承認_関連記事索引V2', 'R3_関連記事索引_V2作成', 'R9_関連記事索引_直前に戻す']);
+  assert.deepEqual(pub, ['S0_進捗', 'S1_点検', 'S2_清掃監査', 'S3A_COPYへ反映_試験10件', 'S3B_COPYへ反映_全件', 'S4_V2作業用へ反映', 'S9_直前の反映を取消', 'S8_診断', 'S7_抜き取り', 'S5A_V2詳細保全_試験10件', 'S5B_V2詳細保全_全件', 'S6A_V2新着_清掃監査', 'S6B_V2新着_反映', 'S10R_非公式S10の書換を取消', 'S4B_V2作業用へ反映_未合格分のみ', 'S9C_COPY反映の取消_20261112', 'P1_人物索引_予行', 'P2_人物索引_COPY作成', 'P0_承認_人物索引V2', 'P3_人物索引_V2作成', 'P9_人物索引_V2を空に戻す', 'C1_出演者_予行', 'C0_承認_出演者修正', 'C2_出演者_反映', 'C9_出演者修正の取消', 'P5_人物索引_予行', 'P5T_途中停止の試験_COPY', 'P5_人物索引_予行_COPY', 'P8_人物索引_直前に戻す', 'P6_人物索引_COPYとV2の突合', 'P5_人物索引_差分更新_COPY', 'P5_人物索引_差分更新', 'P4_承認_人物索引差分更新V2', 'X1_公開台帳_点検', 'X1_公開台帳_点検_COPY', 'X0_承認_公開台帳の修復', 'X2_公開台帳_塞ぎセル除去_COPY', 'X2_公開台帳_塞ぎセル除去', 'X3_公開台帳_警告保護_COPY', 'X3_公開台帳_警告保護', 'D2_清掃と人物_日次', 'D0_承認_清掃日次トリガー', 'D8_清掃日次トリガー設置', 'D9_清掃日次停止', 'D7_停止旗を外す', 'L1_台帳総合監査', 'U1_公式URL_確認', 'U1T_公式URL_確認_試験20件', 'U2_公式URL補完_COPY', 'U0_承認_公式URL補完V2', 'U2_公式URL補完_V2', 'U9_公式URL補完の取消', 'R4_関連記事索引_V2とCOPYの差', 'R1_関連記事索引_予行', 'R2_関連記事索引_COPY作成', 'R0_承認_関連記事索引V2', 'R3_関連記事索引_V2作成', 'R9_関連記事索引_直前に戻す']);
   assert.ok(!/DriveApp|MailApp/.test(SRC)); assert.ok(!/function\s+do(Get|Post)\b/.test(SRC));
   // トリガー作成は D8 だけ、しかも承認確認と「他のトリガーがあれば断る」の後。削除は D9 だけ
   const fnOf = (re) => [...SRC.matchAll(/function\s+([^\s(]+)\s*\([^)]*\)\s*\{/g)].map((m) => ({ name: m[1], at: m.index })).filter((f, i, a) => re.test(SRC.slice(f.at, (a[i + 1] || { at: SRC.length }).at))).map((f) => f.name);
@@ -364,4 +364,16 @@ test('U1 例外対応: まとめて取得が例外でも1件ずつ取り直し�
   const d = e.run('U1_公式URL_確認'); assert.equal(d.result.HOLD, 1); assert.match(st().slice(-1)[0].join(' '), /HOLD CANONICAL_MISMATCH/);
   const C = e.books[COPY].sheets['V2・統合台帳'].st.rows; C[3][G] = id(3); C[3][J] = ''; C[1][G] = id(1); C[1][J] = '';
   const u2 = e.run('U2_公式URL補完_COPY'); assert.equal(u2.written, 1); assert.equal(C[1][J], '');   // 書くのは VERIFIED（GUID一致）の1件だけ。ERROR→HOLDの EP-1 は書かない
+});
+
+test('関連記事索引: 先頭がアポストロフィの見出しも再実行で差分0（OK_NO_CHANGE）・台帳の ?iref=omny 付きURLは原文の同じ記事と1行にまとめ元URL欄に残す・R4はEP-ID×記事URLで差を出す', () => {
+  const e = env(FEED), sha = (t) => crypto.createHash('sha256').update(t, 'utf8').digest('hex'), H = e.H, P = H.indexOf('関連記事URL');
+  const raw = "<p>本文。</p><p>【関連記事】<br>'ケヅレー一家'でビブリオバトル<br><a href=\"https://www.asahi.com/articles/ASX9.html?iref=omny\">https://www.asahi.com/articles/ASX9.html?iref=omny</a></p>";
+  e.books[V2W].sheets['V2・収蔵詳細'] = mkSheet([['EP-ID', '公式GUID', '取得元', '取得日時', '概要原文', '概要原文SHA256'], ['EP-1', 'g', '', '', raw, sha(raw)]]);
+  const C = e.books[COPY].sheets['V2・統合台帳'].st.rows, V = e.books[V2W].sheets['V2・統合台帳'].st.rows;
+  C[1][P] = 'https://www.asahi.com/articles/ASX9.html?iref=omny'; C[2][P] = 'https://www.asahi.com/articles/ONLYCOPY.html'; V[1][P] = 'https://www.asahi.com/articles/ASX9.html';
+  const a = e.run('R2_関連記事索引_COPY作成'); assert.equal(a.status, 'OK'); const ri = e.books[COPY].sheets['関連記事索引(試験)'].st.rows.slice(1);
+  assert.equal(ri[0][2], "'ケヅレー一家'でビブリオバトル"); assert.equal(ri.length, 2); assert.equal(a.headlineNotFetched, 1);   // 同じ記事を二重に数えない
+  const b = e.run('R2_関連記事索引_COPY作成'); assert.equal(b.status, 'OK_NO_CHANGE'); assert.equal(b.changed, false);
+  const r4 = e.run('R4_関連記事索引_V2とCOPYの差'); assert.equal(r4.diffRows, 1); assert.deepEqual(r4.episodesOnlyCopy, ['EP-2']); assert.match(r4.examples[0], /COPYだけ EP-2 https:\/\/www\.asahi\.com\/articles\/ONLYCOPY\.html/);
 });
