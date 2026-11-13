@@ -332,9 +332,12 @@ function p25v2FetchFeeds_(feeds) {
   });
   return { items: items, errors: errors, stats: stats };
 }
+// 承認ボタンの後に設置する日次の時間主導トリガー（各プロジェクト1本）だけは隔離チェックの対象外。それ以外のトリガーが1本でもあれば停止
+var P25V2_ALLOWED_TRIGGER_HANDLERS_ = ['P25V2_D1_日次実行', 'D2_清掃と人物_日次'];
+function p25v2ForeignTriggers_() { return ScriptApp.getProjectTriggers().filter(function (t) { return P25V2_ALLOWED_TRIGGER_HANDLERS_.indexOf(t.getHandlerFunction()) < 0 || String(t.getEventType()) !== 'CLOCK'; }).length; }
 // 手動実行（COPY専用プロジェクト）。同時実行はスクリプトロックで1本に限定。
 function P25V2_INGEST_COPY(config, items, write) {
-  p25v2AssertIsolated_({ hasDoGet: typeof doGet === 'function', hasDoPost: typeof doPost === 'function', triggerCount: ScriptApp.getProjectTriggers().length });
+  p25v2AssertIsolated_({ hasDoGet: typeof doGet === 'function', hasDoPost: typeof doPost === 'function', triggerCount: p25v2ForeignTriggers_() });
   var lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return { status: 'LOCKED' };
   try {
     var src = items || p25v2FetchFeeds_(config.feeds);

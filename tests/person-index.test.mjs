@@ -34,3 +34,21 @@ test('#309 原文に名前が無い回の台帳既存値は消さず「出典な
   assert.deepEqual(ix.rows.map((r) => [r.key, r.state]), [['神田七子', '原文に出典なし・未検証']]);
   assert.equal(personKey('ナビゲーター・石倉七郎'), personKey('ナビゲーター石倉七郎')); assert.equal(personKey('ナビゲーター石倉七郎'), '石倉七郎');
 });
+
+test('PI-3 差分更新: 変わった話だけ差し替え・新しい話は末尾・消えた話は削除・同じ内容なら変更なし・重複0', async () => {
+  const { mergeIndex } = await import('../scripts/ledger-v2/person-index.mjs');
+  const R = (ep, key, state = '原文で確認') => ({ ep, key, display: key, note: '', links: '', source: 's', state });
+  const cur = [R('E1', '甲'), R('E1', '乙'), R('E2', '丙'), R('E3', '丁')];
+  const up = new Map([['E1', [R('E1', '甲'), R('E1', '乙')]], ['E2', [R('E2', '戊')]], ['E9', [R('E9', '己')]]]);
+  const m = mergeIndex(cur, up, ['E3']);
+  assert.deepEqual(m.rows.map((r) => r.ep + r.key), ['E1甲', 'E1乙', 'E2戊', 'E9己']);
+  assert.equal(m.stat.unchangedEpisodes, 1); assert.equal(m.stat.duplicatePairs, 0); assert.equal(m.changed, true);
+  const again = mergeIndex(m.rows, new Map([['E2', [R('E2', '戊')]]]), []); assert.equal(again.changed, false);   // 再実行で差分0
+});
+test('PI-3 出演者欄との差は記録するだけ（人の値を直さない）', async () => {
+  const { castDifference } = await import('../scripts/ledger-v2/person-index.mjs');
+  const { parseCastLine } = await import('../scripts/ledger-v2/summary-cleaner-v4.mjs');
+  assert.equal(castDifference('E', ['山田花子'], '山田花子（教授）', parseCastLine), null);
+  assert.equal(castDifference('E', ['山田花子', '鈴木一郎'], '山田花子', parseCastLine).missingInLedger, '鈴木一郎');
+  assert.equal(castDifference('E', [], '神田七子', parseCastLine).kind, '台帳にだけ名前（原文に出典なし）');
+});

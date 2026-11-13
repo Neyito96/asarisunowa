@@ -79,8 +79,10 @@ test('既存値の保護: 旧自動清掃と同じ値・空欄だけ書換可。
 // ---- 配布GASの模擬通し ----
 const SRC = fs.readFileSync('gas/summary-cleaner/dist/SummaryCleaner.js', 'utf8'), COPY = '1WTLcaveWG0mr9F0dIjyCL8daxFnpo4q4yADN_bnK1PY', V2W = '1ZAl4QpQ4i5ycyPy1qVNtT-Ke2nsSHhWGFkAH3xedAbc';
 function mkSheet(rows) { const st = { rows: rows.map((r) => [...r]) }, get = (r, c) => String((st.rows[r - 1] || [])[c - 1] ?? ''), put = (r, c, x) => { while (st.rows.length < r) st.rows.push([]); st.rows[r - 1][c - 1] = x; };
-  const rng = (r, c, nr = 1, nc = 1) => ({ getDisplayValues: () => Array.from({ length: nr }, (_, i) => Array.from({ length: nc }, (_, j) => get(r + i, c + j))), getDisplayValue: () => get(r, c), setValues: (v) => v.forEach((row, i) => row.forEach((x, j) => put(r + i, c + j, x))), setValue: (x) => put(r, c, x), setNumberFormat() {} });
-  return { st, getLastRow: () => st.rows.length, getLastColumn: () => Math.max(1, ...st.rows.map((r) => r.length)), getRange: rng, setFrozenRows() {}, clear: () => { st.rows = []; } }; }
+  const rng = (r, c, nr = 1, nc = 1) => ({ getDisplayValues: () => Array.from({ length: nr }, (_, i) => Array.from({ length: nc }, (_, j) => get(r + i, c + j))), getDisplayValue: () => get(r, c), setValues: (v) => v.forEach((row, i) => row.forEach((x, j) => put(r + i, c + j, x))), setValue: (x) => put(r, c, x), setNumberFormat() {}, clearContent() { for (let i = 0; i < nr; i++) for (let j = 0; j < nc; j++) if (st.rows[r - 1 + i]) st.rows[r - 1 + i][c - 1 + j] = ''; trim(); }, getFormula: () => (st.formulas || {})[r + ':' + c] || '' });
+  const trim = () => { while (st.rows.length && st.rows[st.rows.length - 1].every((x) => x === '' || x == null)) st.rows.pop(); };
+  st.protections = [];
+  return { st, getLastRow: () => st.rows.length, getLastColumn: () => Math.max(1, ...st.rows.map((r) => r.length)), getRange: rng, setFrozenRows() {}, clear: () => { st.rows = []; }, getProtections: () => st.protections, protect: () => { const p = { d: '', w: false, setDescription(x) { p.d = x; return p; }, getDescription: () => p.d, setWarningOnly(x) { p.w = x; return p; } }; st.protections.push(p); return p; } }; }
 function env(feedXml) {
   const box = { module: { exports: {} } }; vm.runInNewContext(fs.readFileSync('scripts/google-apps-script/P25V2IngestAdapter.js', 'utf8'), box); const H = [...box.module.exports.HEADERS];
   const row = (ep, g, n) => { const r = H.map(() => ''); r[0] = ep; r[H.indexOf('番組')] = 'ニュースの学校'; r[H.indexOf('公式GUID')] = g; r[H.indexOf('概要（清掃済）')] = n || ''; return r; };
@@ -98,11 +100,15 @@ function env(feedXml) {
 const RAWX = (t) => `<p>${t}の本文です。</p><p>ほかにも多彩な番組を配信中！ http://t.asahi.com/w</p><p>【関連記事】<br>${t}の記事見出し<br>https://www.asahi.com/articles/AS${t === '一' ? 'X1' : 'X2'}.html?iref=omny</p>`;
 const FEED = (G) => `<rss><channel><item><title>A</title><guid>${G(1)}</guid><pubDate>Tue, 10 Nov 2026 19:00:00 GMT</pubDate><description><![CDATA[${RAWX('一')}]]></description></item><item><title>B</title><guid>${G(2)}</guid><pubDate>Tue, 10 Nov 2026 19:00:00 GMT</pubDate><description><![CDATA[${RAWX('二')}]]></description></item></channel></rss>`;
 
-test('配布GAS: 再生成と一致・実行一覧は S0〜S9 だけ・収蔵の入口は出さない・トリガー作成なし', () => {
+test('配布GAS: 再生成と一致・実行一覧・収蔵の入口は出さない・トリガー作成は承認後のD8だけ', () => {
   assert.equal(SRC, buildCleanerGas()['SummaryCleaner.js']);
   const pub = [...SRC.matchAll(/^function ([^\s(]+)\(/gm)].map((m) => m[1]).filter((n) => /^[A-Z]/.test(n) && !/_$/.test(n));   // モジュール内部（即時関数の中）の関数は実行一覧に出ない
-  assert.deepEqual(pub, ['S0_進捗', 'S1_点検', 'S2_清掃監査', 'S3A_COPYへ反映_試験10件', 'S3B_COPYへ反映_全件', 'S4_V2作業用へ反映', 'S9_直前の反映を取消', 'S8_診断', 'S7_抜き取り', 'S5A_V2詳細保全_試験10件', 'S5B_V2詳細保全_全件', 'S6A_V2新着_清掃監査', 'S6B_V2新着_反映', 'S10R_非公式S10の書換を取消', 'S4B_V2作業用へ反映_未合格分のみ', 'S9C_COPY反映の取消_20261112', 'P1_人物索引_予行', 'P2_人物索引_COPY作成', 'P0_承認_人物索引V2', 'P3_人物索引_V2作成', 'P9_人物索引_V2を空に戻す', 'C1_出演者_予行', 'C0_承認_出演者修正', 'C2_出演者_反映', 'C9_出演者修正の取消']);
-  assert.ok(!/newTrigger|DriveApp|MailApp/.test(SRC)); assert.ok(!/function\s+do(Get|Post)\b/.test(SRC));
+  assert.deepEqual(pub, ['S0_進捗', 'S1_点検', 'S2_清掃監査', 'S3A_COPYへ反映_試験10件', 'S3B_COPYへ反映_全件', 'S4_V2作業用へ反映', 'S9_直前の反映を取消', 'S8_診断', 'S7_抜き取り', 'S5A_V2詳細保全_試験10件', 'S5B_V2詳細保全_全件', 'S6A_V2新着_清掃監査', 'S6B_V2新着_反映', 'S10R_非公式S10の書換を取消', 'S4B_V2作業用へ反映_未合格分のみ', 'S9C_COPY反映の取消_20261112', 'P1_人物索引_予行', 'P2_人物索引_COPY作成', 'P0_承認_人物索引V2', 'P3_人物索引_V2作成', 'P9_人物索引_V2を空に戻す', 'C1_出演者_予行', 'C0_承認_出演者修正', 'C2_出演者_反映', 'C9_出演者修正の取消', 'P5_人物索引_差分更新_COPY', 'P5_人物索引_差分更新', 'P4_承認_人物索引差分更新V2', 'X1_公開台帳_点検', 'X1_公開台帳_点検_COPY', 'X0_承認_公開台帳の修復', 'X2_公開台帳_塞ぎセル除去_COPY', 'X2_公開台帳_塞ぎセル除去', 'X3_公開台帳_警告保護_COPY', 'X3_公開台帳_警告保護', 'D2_清掃と人物_日次', 'D0_承認_清掃日次トリガー', 'D8_清掃日次トリガー設置', 'D9_清掃日次停止', 'D7_停止旗を外す']);
+  assert.ok(!/DriveApp|MailApp/.test(SRC)); assert.ok(!/function\s+do(Get|Post)\b/.test(SRC));
+  // トリガー作成は D8 だけ、しかも承認確認と「他のトリガーがあれば断る」の後。削除は D9 だけ
+  const fnOf = (re) => [...SRC.matchAll(/function\s+([^\s(]+)\s*\([^)]*\)\s*\{/g)].map((m) => ({ name: m[1], at: m.index })).filter((f, i, a) => re.test(SRC.slice(f.at, (a[i + 1] || { at: SRC.length }).at))).map((f) => f.name);
+  assert.deepEqual(fnOf(/newTrigger/), ['D8_清掃日次トリガー設置']); assert.deepEqual(fnOf(/deleteTrigger/), ['D9_清掃日次停止']);
+  const d8 = SRC.slice(SRC.indexOf('function D8_清掃日次トリガー設置')); assert.ok(d8.indexOf("'APPROVE_CLEANER_DAILY_TRIGGER'") < d8.indexOf('REFUSED_OTHER_TRIGGERS')); assert.ok(d8.indexOf('REFUSED_OTHER_TRIGGERS') < d8.indexOf('newTrigger'));
 });
 
 test('配布GAS模擬: 点検→清掃監査（結果シート・進捗）→再実行は差分0→COPY反映（手動値は守る）→V2作業用は人の確認OKだけ→取消で元に戻る', () => {
@@ -265,4 +271,48 @@ test('SC4-11 人が書き足した文は従来どおり保護', () => {
 });
 test('SQA-10 名前付き文字参照（&darr; 等）を清掃後の本文に残さない', () => {
   const c = cleanV4(RAW11); assert.ok(!/&[a-z]+;/i.test(c.text), c.text); assert.ok(c.text.includes('視聴できます↓') || !c.text.includes('視聴できます'));
+});
+
+// ---- 人物索引の差分更新・公開台帳の点検・日次入口（模擬） ----
+test('P5差分更新（COPY）: 新しい話は追加・変わった話だけ作り直し・再実行は差分0・重複なし・人の出演者欄は直さず差異に記録・途中停止から再開', () => {
+  const e = env(FEED); e.g.SpreadsheetApp.ProtectionType = { SHEET: 'SHEET' };
+  const sha = (t) => crypto.createHash('sha256').update(t, 'utf8').digest('hex');
+  const DH = ['EP-ID', '公式GUID', '取得元', '取得日時', '概要原文', '概要原文SHA256'];
+  const raw1 = '<p>本文。</p><p>【出演・スタッフ】<br>朝日太郎（記者）<br>日比花子（ナビゲーター）</p>', raw2 = '<p>人名のない本文。</p>';
+  e.books[V2W].sheets['V2・収蔵詳細'] = mkSheet([DH, ['EP-1', 'g1', '', '', raw1, sha(raw1)], ['EP-2', 'g2', '', '', raw2, sha(raw2)]]);
+  const L = e.books[COPY].sheets['V2・統合台帳'].st.rows, C = e.H.indexOf('出演者'); L[3][C] = '手入力一郎';   // EP-3: 原文なし・台帳だけに名前（未検証のまま残す）
+  const a = e.run('P5_人物索引_差分更新_COPY'); assert.equal(a.status, 'OK'); assert.equal(a.changedEpisodes, 3); assert.equal(a.merge.duplicatePairs, 0);
+  const ix = () => e.books[COPY].sheets['人物索引(試験)'].st.rows.slice(1).filter((r) => r[0]);
+  assert.deepEqual(ix().map((r) => [r[0], r[1], r[6]]), [['EP-1', '朝日太郎', '原文で確認'], ['EP-1', '日比花子', '原文で確認'], ['EP-3', '手入力一郎', '原文に出典なし・未検証']]);
+  const stRows = e.books[COPY].sheets['人物索引_状態'].st.rows.slice(1); assert.deepEqual(stRows.map((r) => [r[0], r[3]]), [['EP-1', '原文で確認'], ['EP-2', '原文に人名なし'], ['EP-3', '原文に出典なし・未検証']]);
+  const diff = e.books[COPY].sheets['人物・差異'].st.rows.slice(1); assert.deepEqual(diff.map((r) => [r[0], r[1]]), [['EP-1', '出演者欄が空（原文には名前あり）'], ['EP-3', '台帳にだけ名前（原文に出典なし）']]);
+  assert.equal(L[3][C], '手入力一郎'); assert.equal(L[1][C], '');   // 出演者欄は書かない
+  const snap = JSON.stringify(ix()), b = e.run('P5_人物索引_差分更新_COPY'); assert.equal(b.status, 'OK_NO_CHANGE'); assert.equal(b.changedEpisodes, 0); assert.equal(JSON.stringify(ix()), snap);
+  L[1][C] = '朝日太郎（記者）'; const c = e.run('P5_人物索引_差分更新_COPY'); assert.equal(c.changedEpisodes, 1); assert.equal(c.merge.replacedEpisodes, 0); assert.equal(JSON.stringify(ix()), snap);   // 出演者欄だけ変わった→索引は同じ
+  assert.deepEqual(e.books[COPY].sheets['人物・差異'].st.rows.slice(1).map((r) => [r[0], r[1], r[4]]), [['EP-1', '名前が一部違う', '日比花子'], ['EP-3', '台帳にだけ名前（原文に出典なし）', '']]);
+  // 新しい話（EP-4）を足す → 末尾に追加、既存行は動かない
+  const r4 = e.H.map(() => ''); r4[0] = 'EP-4'; L.push(r4); const raw4 = '<p>本文。</p><p>【出演】<br>新顔次郎（記者）</p>'; e.books[V2W].sheets['V2・収蔵詳細'].st.rows.push(['EP-4', 'g4', '', '', raw4, sha(raw4)]);
+  const d = e.run('P5_人物索引_差分更新_COPY'); assert.equal(d.changedEpisodes, 1); assert.deepEqual(ix().slice(-1).map((r) => [r[0], r[1]]), [['EP-4', '新顔次郎']]); assert.equal(JSON.stringify(ix().slice(0, 3)), snap);
+  // 途中停止→再開: 予算0で1件も処理せず PARTIAL、指紋は保存されない → 予算を戻すと続きから
+  const r5 = e.H.map(() => ''); r5[0] = 'EP-5'; r5[C] = '後藤五郎'; L.push(r5);
+  vm.runInNewContext('PI_TIME_BUDGET_MS_ = -1', e.g); const p = e.run('P5_人物索引_差分更新_COPY'); assert.equal(p.status, 'PARTIAL_RESUME_NEEDED'); assert.equal(p.processed, 0);
+  vm.runInNewContext('PI_TIME_BUDGET_MS_ = 240000', e.g); const q = e.run('P5_人物索引_差分更新_COPY'); assert.equal(q.status, 'OK'); assert.equal(q.processed, 1); assert.equal(e.run('P5_人物索引_差分更新_COPY').status, 'OK_NO_CHANGE');
+  assert.equal(new Set(ix().map((r) => r[0] + '|' + r[1])).size, ix().length);
+  assert.equal(e.run('P5_人物索引_差分更新').status, 'NOT_APPROVED');   // V2は承認ボタンの後だけ
+});
+
+test('X1公開台帳の点検（読むだけ）・X2は統合台帳と同じ値の塞ぎセルだけ空にする・X3は警告だけの保護・D2は異常で停止旗', () => {
+  const e = env(FEED); e.g.SpreadsheetApp.ProtectionType = { SHEET: 'SHEET' };
+  const L = e.books[COPY].sheets['V2・統合台帳'].st.rows, J = e.H.indexOf('掲載判定'), R = e.H.indexOf('代表EP-ID'), C = e.H.indexOf('出演者');
+  [1, 2].forEach((i) => { L[i][J] = '対象'; L[i][R] = L[i][0]; }); L[1][C] = '朝日太郎';
+  const PH = ['EP-ID', '出演者'], pub = mkSheet([PH, ['EP-1', '朝日太郎'], ['EP-2', '']]); pub.st.formulas = { '2:1': '=FILTER(V2・統合台帳!A2:AH,…)' }; e.books[COPY].sheets['V2・公開台帳'] = pub;
+  const ok = e.run('X1_公開台帳_点検_COPY'); assert.equal(ok.status, 'PUBLIC_OK'); assert.equal(ok.rows, 2); assert.equal(ok.expected, 2); assert.equal(ok.castMismatch, 0);
+  const before = JSON.stringify(pub.st.rows); e.run('X1_公開台帳_点検_COPY'); assert.equal(JSON.stringify(pub.st.rows), before);   // 読むだけ
+  pub.st.rows = [PH, ['#REF!', ''], ['', ''], ['', '朝日太郎'], ['', '人が書いた何か']];   // 手入力セルが式の展開を塞いだ状態
+  const bad = e.run('X1_公開台帳_点検_COPY'); assert.equal(bad.status, 'PUBLIC_ANOMALY'); assert.equal(bad.errors, 1); assert.equal(bad.blockers, 2);
+  const fix = e.run('X2_公開台帳_塞ぎセル除去_COPY'); assert.equal(fix.status, 'PARTIAL_HELD'); assert.deepEqual(fix.cleared, ['4:2']); assert.equal(pub.st.rows[4][1], '人が書いた何か');   // 台帳と違う値は残して報告
+  assert.equal(e.run('X2_公開台帳_塞ぎセル除去').status, 'NOT_APPROVED'); assert.equal(e.run('X3_公開台帳_警告保護').status, 'NOT_APPROVED');
+  assert.equal(e.run('X3_公開台帳_警告保護_COPY').status, 'PROTECTED_WARNING_ONLY'); assert.equal(pub.st.protections[0].w, true); assert.equal(e.run('X3_公開台帳_警告保護_COPY').status, 'ALREADY_PROTECTED');
+  assert.equal(e.run('D8_清掃日次トリガー設置').status, 'NOT_APPROVED');
+  vm.runInNewContext("PropertiesService.getScriptProperties().setProperty('AUTORUN_STOP', 'x')", e.g); assert.equal(e.run('D2_清掃と人物_日次').status, 'STOPPED');
 });

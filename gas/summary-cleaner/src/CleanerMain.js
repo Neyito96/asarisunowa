@@ -38,7 +38,7 @@ function scVersion_() { return CleanerV4.CLEANER_VERSION + '|' + QualityAudit.AU
 function scLog_(fn, o) { Logger.log(fn + ' ' + JSON.stringify(o, null, 1)); return o; }
 function scOpen_(id, nameIncludes) {
   if (SC_REFUSE_IDS_.indexOf(id) >= 0) throw new Error('PROTECTED_TARGET_REFUSED');
-  p25v2AssertIsolated_({ hasDoGet: typeof doGet === 'function', hasDoPost: typeof doPost === 'function', triggerCount: ScriptApp.getProjectTriggers().length });
+  p25v2AssertIsolated_({ hasDoGet: typeof doGet === 'function', hasDoPost: typeof doPost === 'function', triggerCount: p25v2ForeignTriggers_() });
   var ss = SpreadsheetApp.openById(id); if (ss.getId() !== id) throw new Error('OPENED_ID_MISMATCH');
   if (nameIncludes && ss.getName().indexOf(nameIncludes) < 0) throw new Error('TARGET_NAME_NOT_EXPECTED');
   var sh = ss.getSheetByName(SC_CONFIG.ledgerSheet); if (!sh) throw new Error('LEDGER_SHEET_NOT_FOUND');
@@ -541,3 +541,127 @@ function C9_出演者修正の取消() {   // 書いた値が今もそのまま�
     if (v.sh.getRange(row, L.ix.ep + 1).getDisplayValue() === r[2] && cell.getDisplayValue() === r[6]) { cell.setValue(r[5]); hs.getRange(k + 2, 8).setValue('取消済'); n++; } else kept++; });
   return scLog_('C9_出演者修正の取消', { status: 'OK', undone: n, keptBecauseChanged: kept });
 }
+
+// =====================================================================
+// 人物索引・出演者欄の日常運用（2026-11-13）。新しいロボではなく、清掃ロボの P系・C系に「差分更新」「公開台帳の点検」「日次入口」を足したもの。
+// P5 差分更新: 話ごとの指紋（原文SHA・出演者欄・索引版）を「人物索引_状態」に持ち、変わった話だけ索引を作り直す。書くのは差がある時だけ。
+//   途中で時間切れになっても、処理済みの話の指紋だけ保存するので、同じボタンで続きから再開できる（冪等）。
+// X1 公開台帳の点検（読むだけ）: 式の有無・#REF!・行数・出演者列の一致・式を塞ぐ手入力セル。X2 は塞いでいるセルのうち統合台帳と同じ値のものだけ空にする（承認後）。
+// D2 日次: 停止旗 → S6A → S6B → C2（承認済みなら）→ P5 → X1。異常で停止旗。トリガーは承認ボタン後の D8 で1本だけ。
+// =====================================================================
+var PI_STATE_ = '人物索引_状態', PI_STATE_HEADERS_ = ['EP-ID', '指紋', '索引行数', '状態', '更新日時'], PI_DIFF_ = '人物・差異', PI_DIFF_HEADERS_ = ['EP-ID', '種類', '原文の名前', '出演者欄の名前', '出演者欄に無い名前', '原文に無い名前', '記録日時'];
+var PI_TIME_BUDGET_MS_ = 240000;
+function piEnv_(env) {
+  var copy = env === 'COPY', ledgerSs = copy ? scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes) : scOpen_(SC_CONFIG.v2WorkingId, '');
+  return { env: env, ss: ledgerSs.ss, sh: ledgerSs.sh, indexName: copy ? PI_SHEET_COPY_ : PI_SHEET_V2_ };
+}
+function piReadRows_(sh, H) { if (!sh || sh.getLastRow() < 2) return []; return sh.getRange(2, 1, sh.getLastRow() - 1, H.length).getDisplayValues(); }
+function piSheet_(ss, name, H) { var sh = ss.getSheetByName(name) || ss.insertSheet(name); if (sh.getLastRow() === 0) sh.getRange(1, 1, 1, H.length).setValues([H]); return sh; }
+function piWriteAll_(sh, H, vals) {   // 中身を差し替える（見出しは残す）。書いたら件数と先頭2列を読み戻す
+  if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, sh.getLastColumn()).clearContent();
+  for (var i = 0; i < vals.length; i += 5000) { var part = vals.slice(i, i + 5000), rg = sh.getRange(2 + i, 1, part.length, H.length); rg.setNumberFormat('@'); rg.setValues(part); }
+  SpreadsheetApp.flush();
+  var back = piReadRows_(sh, H), bad = Math.abs(back.length - vals.length); back.forEach(function (r, i) { if (vals[i] && (r[0] !== String(vals[i][0]) || r[1] !== String(vals[i][1]))) bad++; });
+  return bad;
+}
+function piIncremental_(env, fn) {
+  var t0 = Date.now(), E = piEnv_(env), ver = PersonIndex.PERSON_INDEX_VERSION + '/' + CleanerV4.CLEANER_VERSION, pre = scPreservedRaw_(), L = scLedger_(E.sh);
+  var H = PersonIndex.PERSON_INDEX_HEADERS, ix = piSheet_(E.ss, E.indexName, H), st = piSheet_(E.ss, PI_STATE_, PI_STATE_HEADERS_);
+  var state = {}; piReadRows_(st, PI_STATE_HEADERS_).forEach(function (r) { state[r[0]] = r; });
+  var inLedger = {}, todo = [], now = new Date().toISOString();
+  L.rows.forEach(function (r) { inLedger[r.ep] = 1; var raw = pre[r.ep] ? pre[r.ep].text : '', fp = p25v2GasSha256_(PersonIndex.epFingerprintText(raw, r.cast, ver)); if (!state[r.ep] || state[r.ep][1] !== fp) todo.push({ r: r, raw: raw, fp: fp }); });
+  var removed = Object.keys(state).filter(function (ep) { return !inLedger[ep]; });
+  var updates = new Map(), done = [], partial = false;
+  for (var i = 0; i < todo.length; i++) {
+    if (Date.now() - t0 > PI_TIME_BUDGET_MS_) { partial = true; break; }
+    var t = todo[i], b = PersonIndex.buildPersonIndex([{ ep: t.r.ep, raw: t.raw, ledgerCast: t.r.cast, parse: CleanerV4.parseCastLine }]);
+    updates.set(t.r.ep, b.rows); done.push([t.r.ep, t.fp, String(b.rows.length), b.stat.withNames ? '原文で確認' : b.rows.length ? '原文に出典なし・未検証' : (t.raw ? '原文に人名なし' : '原文なし'), now]);
+  }
+  var cur = piReadRows_(ix, H).map(function (r) { return { ep: r[0], key: r[1], display: r[2], note: r[3], links: r[4], source: r[5], state: r[6], ver: r[7] }; });
+  var m = PersonIndex.mergeIndex(cur, updates, partial ? [] : removed), bad = 0;
+  if (m.stat.duplicatePairs) return scLog_(fn, { status: 'STOP_DUPLICATE', stat: m.stat });
+  if (m.changed) bad = piWriteAll_(ix, H, m.rows.map(function (r) { return [r.ep, r.key, r.display, r.note, r.links, r.source, r.state, r.ver || PersonIndex.PERSON_INDEX_VERSION]; }));
+  if (!bad) {   // 指紋は索引の書込が読み戻しで一致した後にだけ保存（途中で失敗しても次回やり直せる）
+    done.forEach(function (d) { state[d[0]] = d; }); if (!partial) removed.forEach(function (ep) { delete state[ep]; });
+    var sv = Object.keys(state).map(function (k) { return state[k]; }); if (done.length || removed.length) bad += piWriteAll_(st, PI_STATE_HEADERS_, sv);
+  }
+  // 出演者欄と原文の名前の差（記録だけ。人の値は直さない）
+  var byEp = {}; m.rows.forEach(function (r) { if (r.state === '原文で確認') (byEp[r.ep] = byEp[r.ep] || []).push(r.key); });
+  var diffs = []; L.rows.forEach(function (r) { var d = PersonIndex.castDifference(r.ep, byEp[r.ep] || [], r.cast, CleanerV4.parseCastLine); if (d) diffs.push([d.ep, d.kind, d.raw, d.ledger, d.missingInLedger || '', d.notInRaw || '', now]); });
+  var ds = piSheet_(E.ss, PI_DIFF_, PI_DIFF_HEADERS_), prevDiff = piReadRows_(ds, PI_DIFF_HEADERS_).map(function (r) { return r.slice(0, 6).join('\u0001'); }).join('\n');
+  if (prevDiff !== diffs.map(function (r) { return r.slice(0, 6).join('\u0001'); }).join('\n')) piWriteAll_(ds, PI_DIFF_HEADERS_, diffs);
+  var dk = {}; diffs.forEach(function (d) { dk[d[1]] = (dk[d[1]] || 0) + 1; });
+  return scLog_(fn, { status: bad ? 'READBACK_MISMATCH' : partial ? 'PARTIAL_RESUME_NEEDED' : (m.changed ? 'OK' : 'OK_NO_CHANGE'), env: env, changedEpisodes: todo.length, processed: done.length, removedEpisodes: partial ? 0 : removed.length,
+    merge: m.stat, people: Object.keys(m.rows.reduce(function (a, r) { a[r.key] = 1; return a; }, {})).length, differences: dk, ms: Date.now() - t0 });
+}
+function P5_人物索引_差分更新_COPY() { return piIncremental_('COPY', 'P5_人物索引_差分更新_COPY'); }
+function P5_人物索引_差分更新() {
+  if (PropertiesService.getScriptProperties().getProperty('APPROVE_PI_INCREMENTAL_V2') !== 'yes') return scLog_('P5_人物索引_差分更新', { status: 'NOT_APPROVED', note: '先に P4_承認_人物索引差分更新V2' });
+  return piIncremental_('V2', 'P5_人物索引_差分更新');
+}
+function P4_承認_人物索引差分更新V2() { PropertiesService.getScriptProperties().setProperty('APPROVE_PI_INCREMENTAL_V2', 'yes'); return scLog_('P4_承認_人物索引差分更新V2', { status: 'APPROVED' }); }
+
+// ---------- 公開台帳の点検（読むだけ）／塞いでいる手入力セルの除去（承認後）／警告つき保護（承認後） ----------
+var PUB_SHEET_ = 'V2・公開台帳';
+function xInspect_(env) {
+  var E = piEnv_(env), ps = E.ss.getSheetByName(PUB_SHEET_); if (!ps) return { status: 'NO_PUBLIC_SHEET' };
+  var formula = ps.getRange(2, 1).getFormula(), n = ps.getLastRow(), w = ps.getLastColumn(), v = n > 1 ? ps.getRange(2, 1, n - 1, w).getDisplayValues() : [];
+  var hp = ps.getRange(1, 1, 1, w).getDisplayValues()[0], cP = hp.indexOf('出演者'), errs = v.filter(function (r) { return /^#(REF|N\/A|VALUE|ERROR|NAME)/.test(r[0]); }).length;
+  var L = scLedger_(E.sh), Lv = E.sh.getRange(1, 1, E.sh.getLastRow(), E.sh.getLastColumn()).getDisplayValues(), lh = Lv[0], cJ = lh.indexOf('掲載判定'), cR = lh.indexOf('代表EP-ID');
+  var expected = Lv.slice(1).filter(function (r) { return r[0] && r[cJ] === '対象' && r[0] === r[cR]; }).length, castByEp = {}; L.rows.forEach(function (r) { castByEp[r.ep] = r.cast; });
+  var rows = v.filter(function (r) { return r[0] && !/^#/.test(r[0]); }), castMismatch = rows.filter(function (r) { return cP >= 0 && String(castByEp[r[0]] || '') !== r[cP]; }).length;
+  var blockers = [];   // 式が展開できない時、2行目以降に値があるセル＝手入力で塞いでいるセル
+  if (errs && v.length) v.forEach(function (r, i) { r.forEach(function (x, j) { if (x !== '' && !(i === 0 && j === 0)) blockers.push({ row: i + 2, col: j + 1, value: x, header: hp[j] }); }); });
+  var ok = !!formula && /^=FILTER\(/i.test(formula) && !errs && rows.length === expected && !castMismatch;
+  return { status: ok ? 'PUBLIC_OK' : 'PUBLIC_ANOMALY', env: env, hasFormula: !!formula, errors: errs, rows: rows.length, expected: expected, castMismatch: castMismatch, blockers: blockers.length, blockerExamples: blockers.slice(0, 10).map(function (b) { return [b.row, b.header, b.value.slice(0, 40)]; }), _blockers: blockers, _castByEp: castByEp, _sheet: ps, _E: E };
+}
+function X1_公開台帳_点検() { var r = xInspect_('V2'); delete r._blockers; delete r._castByEp; delete r._sheet; delete r._E; return scLog_('X1_公開台帳_点検', r); }
+function X1_公開台帳_点検_COPY() { var r = xInspect_('COPY'); delete r._blockers; delete r._castByEp; delete r._sheet; delete r._E; return scLog_('X1_公開台帳_点検_COPY', r); }
+function X0_承認_公開台帳の修復() { PropertiesService.getScriptProperties().setProperty('APPROVE_PUBLIC_REPAIR_V2', 'yes'); return scLog_('X0_承認_公開台帳の修復', { status: 'APPROVED' }); }
+function xRepair_(env, fn) {   // 塞いでいるセルのうち、出演者列で統合台帳と同じ値のものだけ空にする。それ以外は触らず報告（自動で大量削除・再生成しない）
+  var r = xInspect_(env); if (!r._blockers || !r._blockers.length) return scLog_(fn, { status: 'NOTHING_TO_REPAIR', inspect: r.status });
+  var ps = r._sheet, hp = ps.getRange(1, 1, 1, ps.getLastColumn()).getDisplayValues()[0], Lv = r._E.sh.getRange(1, 1, r._E.sh.getLastRow(), r._E.sh.getLastColumn()).getDisplayValues();
+  var castSet = {}; Lv.slice(1).forEach(function (x) { var c = x[Lv[0].indexOf('出演者')]; if (c) castSet[c] = 1; });
+  var cleared = [], kept = [];
+  r._blockers.forEach(function (b) { if (b.header === '出演者' && castSet[b.value]) { ps.getRange(b.row, b.col).clearContent(); cleared.push(b.row + ':' + b.col); } else kept.push([b.row, b.header]); });
+  SpreadsheetApp.flush(); var after = xInspect_(env);
+  return scLog_(fn, { status: kept.length ? 'PARTIAL_HELD' : (after.status === 'PUBLIC_OK' ? 'OK' : 'STILL_ANOMALY'), cleared: cleared, kept: kept.slice(0, 20), after: { status: after.status, rows: after.rows, expected: after.expected, castMismatch: after.castMismatch } });
+}
+function X2_公開台帳_塞ぎセル除去_COPY() { return xRepair_('COPY', 'X2_公開台帳_塞ぎセル除去_COPY'); }
+function X2_公開台帳_塞ぎセル除去() { if (PropertiesService.getScriptProperties().getProperty('APPROVE_PUBLIC_REPAIR_V2') !== 'yes') return scLog_('X2_公開台帳_塞ぎセル除去', { status: 'NOT_APPROVED' }); return xRepair_('V2', 'X2_公開台帳_塞ぎセル除去'); }
+function xProtect_(env, fn) {   // 公開台帳シートに「編集時に警告」の保護を付ける（権限は変えない。誤って手入力するのを防ぐ）
+  var E = piEnv_(env), ps = E.ss.getSheetByName(PUB_SHEET_); if (!ps) return scLog_(fn, { status: 'NO_PUBLIC_SHEET' });
+  var has = ps.getProtections(SpreadsheetApp.ProtectionType.SHEET).filter(function (p) { return p.getDescription() === '公開台帳は統合台帳から生成（直接編集しない）'; });
+  if (has.length) return scLog_(fn, { status: 'ALREADY_PROTECTED' });
+  var p = ps.protect().setDescription('公開台帳は統合台帳から生成（直接編集しない）'); p.setWarningOnly(true);
+  return scLog_(fn, { status: 'PROTECTED_WARNING_ONLY', sheet: PUB_SHEET_ });
+}
+function X3_公開台帳_警告保護_COPY() { return xProtect_('COPY', 'X3_公開台帳_警告保護_COPY'); }
+function X3_公開台帳_警告保護() { if (PropertiesService.getScriptProperties().getProperty('APPROVE_PUBLIC_REPAIR_V2') !== 'yes') return scLog_('X3_公開台帳_警告保護', { status: 'NOT_APPROVED' }); return xProtect_('V2', 'X3_公開台帳_警告保護'); }
+
+// ---------- 日次入口（清掃ロボ側）。トリガーは承認後に D8 で1本だけ ----------
+function D2_清掃と人物_日次() {
+  var P = PropertiesService.getScriptProperties(), fn = 'D2_清掃と人物_日次'; if (P.getProperty('AUTORUN_STOP')) return scLog_(fn, { status: 'STOPPED', reason: P.getProperty('AUTORUN_STOP') });
+  var stop = function (why, res) { P.setProperty('AUTORUN_STOP', new Date().toISOString() + ' ' + why); return scLog_(fn, { status: 'STOP', reason: why, res: res }); }, out = {};
+  out.s6a = S6A_V2新着_清掃監査().status; if (!/^OK/.test(out.s6a)) return stop('S6A_' + out.s6a);
+  var b = S6B_V2新着_反映(); out.s6b = b.status; if (/MISMATCH|ERROR/.test(b.status)) return stop('S6B_' + b.status, b);
+  if (P.getProperty('APPROVE_CAST_FIX_V2') === 'yes') { var c = C2_出演者_反映(); out.c2 = c.status; if (/MISMATCH/.test(c.status)) return stop('C2_' + c.status, c); }
+  if (P.getProperty('APPROVE_PI_INCREMENTAL_V2') === 'yes') { var p = P5_人物索引_差分更新(); out.p5 = p.status; if (/MISMATCH|STOP/.test(p.status)) return stop('P5_' + p.status, p); }
+  var x = xInspect_('V2'); out.x1 = x.status; if (x.status !== 'PUBLIC_OK') return stop('PUBLIC_' + x.status, { errors: x.errors, rows: x.rows, expected: x.expected, castMismatch: x.castMismatch, blockers: x.blockers });
+  return scLog_(fn, { status: 'OK', steps: out });
+}
+function D0_承認_清掃日次トリガー() { PropertiesService.getScriptProperties().setProperty('APPROVE_CLEANER_DAILY_TRIGGER', 'yes'); return scLog_('D0_承認_清掃日次トリガー', { status: 'APPROVED' }); }
+function D8_清掃日次トリガー設置() {
+  var fn = 'D8_清掃日次トリガー設置'; if (PropertiesService.getScriptProperties().getProperty('APPROVE_CLEANER_DAILY_TRIGGER') !== 'yes') return scLog_(fn, { status: 'NOT_APPROVED' });
+  var ts = ScriptApp.getProjectTriggers(), other = ts.filter(function (t) { return t.getHandlerFunction() !== 'D2_清掃と人物_日次'; });
+  if (other.length) return scLog_(fn, { status: 'REFUSED_OTHER_TRIGGERS', handlers: other.map(function (t) { return t.getHandlerFunction(); }) });
+  if (ts.length) return scLog_(fn, { status: 'ALREADY_INSTALLED' });
+  ScriptApp.newTrigger('D2_清掃と人物_日次').timeBased().everyDays(1).atHour(7).nearMinute(20).create();   // 収蔵ボットの日次（6時台）の後
+  return scLog_(fn, { status: 'INSTALLED', at: '毎日 7時台（日本時間）' });
+}
+function D9_清掃日次停止() {
+  var n = 0; ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'D2_清掃と人物_日次') { ScriptApp.deleteTrigger(t); n++; } });
+  var P = PropertiesService.getScriptProperties(); P.setProperty('AUTORUN_STOP', new Date().toISOString() + ' 手動停止'); P.deleteProperty('APPROVE_CLEANER_DAILY_TRIGGER');
+  return scLog_('D9_清掃日次停止', { status: 'OK', deletedTriggers: n });
+}
+function D7_停止旗を外す() { PropertiesService.getScriptProperties().deleteProperty('AUTORUN_STOP'); return scLog_('D7_停止旗を外す', { status: 'OK' }); }
