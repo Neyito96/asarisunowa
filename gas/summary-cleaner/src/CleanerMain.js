@@ -489,3 +489,55 @@ function P9_人物索引_V2を空に戻す() {
   var v = scOpen_(SC_CONFIG.v2WorkingId, ''), sh = v.ss.getSheetByName(PI_SHEET_V2_); if (!sh) return scLog_('P9_人物索引_V2を空に戻す', { status: 'NO_SHEET' });
   sh.clearContents(); return scLog_('P9_人物索引_V2を空に戻す', { status: 'OK', note: '索引シートの中身だけ消した（台帳は無変更）' });
 }
+
+// ===== 出演者列（O列）の限定修正（Issue #309・SC4-12）。概要・関連記事列は触らない =====
+// 書くのは次の2種類だけ: ①出演者列に配信サービス名が混入し、かつ現在値が原文から機械的に取れる値（＝人が直していない）→ SC4-12 の出演者へ
+//                        ②出演者列が空で、SC4-12 が原文から出演者を取り出せた → 埋める
+// それ以外（原文に名前が無い回・台帳にだけ名前がある543話・人が直した値・SC4-12でも空）は書かない。書いた行は履歴に旧値・新値を残し、C9で戻せる。
+var CF_HIST_ = '出演者修正履歴', CF_HIST_HEADERS_ = ['日時', '実行ID', 'EP-ID', '台帳行', '種類', '旧値', '新値', '状態'];
+function cfPlan_() {
+  var pre = scPreservedRaw_(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = scLedger_(v.sh), plan = [], hold = {}, holdEx = [], kinds = {};
+  var hasPlat = function (cell) { return String(cell || '').split('\n').some(function (l) { return CleanerV4.PLATFORM_NAME.test(String(CleanerV4.parseCastLine(l).name || '').trim()); }); };
+  L.rows.forEach(function (r) {
+    var raw = pre[r.ep] ? pre[r.ep].text : '', cur = String(r.cast || ''), plat = hasPlat(cur);
+    if (!plat && cur.trim()) return;                                   // 既に値があり混入なし → 触らない
+    if (!raw) { if (plat) { hold.RAW_NONE = (hold.RAW_NONE || 0) + 1; holdEx.push([r.ep, 'RAW_NONE']); } return; }
+    var c = CleanerV4.cleanV4(raw), cast = c.cast.filter(function (x) { return !PersonIndex.personHold(x.name); }), nw = CleanerV4.castCell(cast);
+    if (!nw) { if (plat) { hold.NO_CAST_AFTER_FIX = (hold.NO_CAST_AFTER_FIX || 0) + 1; holdEx.push([r.ep, 'NO_CAST_AFTER_FIX']); } return; }   // 空欄で原文にも名前なし → 何もしない
+    var kind = plat ? 'PLATFORM_REMOVED' : 'FILLED_EMPTY';
+    if (plat && !CleanerV4.derivedFromRaw(cur, raw)) { hold.MANUAL_EDIT_PROTECTED = (hold.MANUAL_EDIT_PROTECTED || 0) + 1; holdEx.push([r.ep, 'MANUAL_EDIT_PROTECTED']); return; }
+    if (nw === cur) return;
+    kinds[kind] = (kinds[kind] || 0) + 1; plan.push({ row: r.row, ep: r.ep, kind: kind, old: cur, nw: nw });
+  });
+  return { v: v, L: L, plan: plan, hold: hold, holdEx: holdEx.slice(0, 40), kinds: kinds };
+}
+function C1_出演者_予行() {
+  var p = cfPlan_();
+  return scLog_('C1_出演者_予行', { status: 'OK', version: scVersion_(), toWrite: p.plan.length, kinds: p.kinds, hold: p.hold, holdExamples: p.holdEx,
+    plan: p.plan.slice(0, 60).map(function (x) { return [x.ep, x.kind, x.old.replace(/https?:\/\/\S+/g, '<URL>').replace(/\n/g, ' / ').slice(0, 80), '→', x.nw.replace(/https?:\/\/\S+/g, '<URL>').replace(/\n/g, ' / ').slice(0, 80)]; }) });
+}
+function C0_承認_出演者修正() { PropertiesService.getScriptProperties().setProperty('APPROVE_CAST_FIX_V2', 'yes'); return scLog_('C0_承認_出演者修正', { status: 'APPROVED' }); }
+function C2_出演者_反映() {
+  if (PropertiesService.getScriptProperties().getProperty('APPROVE_CAST_FIX_V2') !== 'yes') return scLog_('C2_出演者_反映', { status: 'NOT_APPROVED', note: '先に C0_承認_出演者修正' });
+  var lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return scLog_('C2_出演者_反映', { status: 'LOCKED' });
+  try {
+    var p = cfPlan_(), col = p.L.ix.cast + 1, now = new Date().toISOString(), id = now + '/CAST', c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes);
+    if (!p.plan.length) return scLog_('C2_出演者_反映', { status: 'OK_NO_CHANGE', hold: p.hold });
+    var hs = c.ss.getSheetByName(CF_HIST_) || c.ss.insertSheet(CF_HIST_); if (hs.getLastRow() === 0) hs.getRange(1, 1, 1, CF_HIST_HEADERS_.length).setValues([CF_HIST_HEADERS_]);
+    var hr = hs.getRange(hs.getLastRow() + 1, 1, p.plan.length, CF_HIST_HEADERS_.length); hr.setNumberFormat('@');
+    hr.setValues(p.plan.map(function (x) { return [now, id, x.ep, x.row, x.kind, x.old, x.nw, '書込中']; })); SpreadsheetApp.flush();   // 先に履歴
+    p.plan.forEach(function (x) { var cell = p.v.sh.getRange(x.row, col); cell.setNumberFormat('@'); cell.setValue(x.nw); });
+    SpreadsheetApp.flush();
+    var back = p.v.sh.getRange(1, col, p.v.sh.getLastRow(), 1).getDisplayValues(), eps = p.v.sh.getRange(1, p.L.ix.ep + 1, p.v.sh.getLastRow(), 1).getDisplayValues(), bad = 0;
+    hr.offset(0, 7, p.plan.length, 1).setValues(p.plan.map(function (x) { var ok = back[x.row - 1][0] === x.nw && eps[x.row - 1][0] === x.ep; if (!ok) bad++; return [ok ? 'OK' : 'READBACK_MISMATCH']; }));
+    return scLog_('C2_出演者_反映', { status: bad ? 'READBACK_MISMATCH' : 'OK', written: p.plan.length, kinds: p.kinds, readbackMismatch: bad, hold: p.hold, runId: id });
+  } finally { lock.releaseLock(); }
+}
+function C9_出演者修正の取消() {   // 書いた値が今もそのままのセルだけ旧値へ
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), hs = c.ss.getSheetByName(CF_HIST_), v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = scLedger_(v.sh), col = L.ix.cast + 1;
+  if (!hs || hs.getLastRow() < 2) return scLog_('C9_出演者修正の取消', { status: 'NOTHING_TO_UNDO' });
+  var hv = hs.getRange(2, 1, hs.getLastRow() - 1, CF_HIST_HEADERS_.length).getDisplayValues(), n = 0, kept = 0;
+  hv.forEach(function (r, k) { if (r[7] !== 'OK') return; var row = Number(r[3]), cell = v.sh.getRange(row, col);
+    if (v.sh.getRange(row, L.ix.ep + 1).getDisplayValue() === r[2] && cell.getDisplayValue() === r[6]) { cell.setValue(r[5]); hs.getRange(k + 2, 8).setValue('取消済'); n++; } else kept++; });
+  return scLog_('C9_出演者修正の取消', { status: 'OK', undone: n, keptBecauseChanged: kept });
+}
