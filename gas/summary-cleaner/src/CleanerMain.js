@@ -592,7 +592,16 @@ function piIncremental_(env, fn, dry, budgetMs) {   // dry=true: 何も書かず
   var summary = { env: env, changedEpisodes: todo.length, processed: done.length, removedEpisodes: partial ? 0 : removed.length, merge: m.stat, rowsBefore: cur.length, rowsAfter: m.rows.length, peopleBefore: people(cur), peopleAfter: people(m.rows), stateBefore: byState(cur), stateAfter: byState(m.rows), indexChangedEpisodes: changedEps.length, lostUnverified: lostUnverified.length, lostUnverifiedExamples: lostUnverified.slice(0, 20) };
   if (lostUnverified.length && !dry) return scLog_(fn, Object.assign({ status: 'STOP_UNVERIFIED_WOULD_BE_LOST' }, summary));   // 未検証の名前を消す更新は書かない
   if (m.stat.duplicatePairs) return scLog_(fn, Object.assign({ status: 'STOP_DUPLICATE' }, summary));
-  if (dry) { summary.status = partial ? 'DRYRUN_PARTIAL' : 'DRYRUN_OK'; summary.examples = changedEps.slice(0, 250).map(function (c) { return c[1] + ': ' + c[2] + ' → ' + c[3]; }); summary.ms = Date.now() - t0; return scLog_(fn, summary); }
+  if (dry) {   // 変わる話を「原文の名前の分離」「出演者欄（未検証）の分割・回収」「注記だけ」に分けて示す（ログが切れないよう例は少なめ）
+    var full = function (rows) { var o = {}; rows.forEach(function (r) { (o[r.ep] = o[r.ep] || []).push([r.key, r.display, r.note, r.links, r.source, r.state].join('|')); }); return o; }, fo = full(cur), fn2 = full(m.rows), cat = { raw: [], ledger: [], noteOnly: [] };
+    var keysOf = function (rows, ep, verified) { return rows.filter(function (r) { return r.ep === ep && (r.state === '原文で確認') === verified; }).map(function (r) { return r.key; }).join('、'); };
+    var curBy = {}, newBy2 = {}; cur.forEach(function (r) { (curBy[r.ep] = curBy[r.ep] || []).push(r); }); m.rows.forEach(function (r) { (newBy2[r.ep] = newBy2[r.ep] || []).push(r); });
+    Object.keys(Object.assign({}, fo, fn2)).forEach(function (ep) { if ((fo[ep] || []).join('\n') === (fn2[ep] || []).join('\n')) return; var a = curBy[ep] || [], b = newBy2[ep] || [];
+      if (keysOf(a, ep, true) !== keysOf(b, ep, true)) cat.raw.push(ep + ': ' + keysOf(a, ep, true) + ' → ' + keysOf(b, ep, true)); else if (keysOf(a, ep, false) !== keysOf(b, ep, false)) cat.ledger.push(ep + ': ' + keysOf(a, ep, false) + ' → ' + keysOf(b, ep, false)); else cat.noteOnly.push(ep); });
+    summary.status = partial ? 'DRYRUN_PARTIAL' : 'DRYRUN_OK'; summary.categories = { rawNameSplit: cat.raw.length, ledgerUnverified: cat.ledger.length, noteOnly: cat.noteOnly.length };
+    summary.rawExamples = cat.raw.slice(0, 40); summary.ledgerExamples = cat.ledger.slice(0, 25); summary.noteOnlyIds = cat.noteOnly.slice(0, 40).join(',');
+    summary.rawIds = cat.raw.map(function (x) { return x.slice(0, 8); }).join(','); summary.ms = Date.now() - t0; return scLog_(fn, summary);
+  }
   if (m.changed) {
     if (env === 'V2' && ix.getLastRow() > 1) { var old = E.ss.getSheetByName(PI_BACKUP_); if (old) E.ss.deleteSheet(old); ix.copyTo(E.ss).setName(PI_BACKUP_); }   // 戻し用の写し（直前の索引）
     bad = piWriteAll_(ix, H, m.rows.map(function (r) { return [r.ep, r.key, r.display, r.note, r.links, r.source, r.state, r.ver || PersonIndex.PERSON_INDEX_VERSION]; }));

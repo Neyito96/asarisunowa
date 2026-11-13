@@ -25,7 +25,7 @@ export function splitPersonTitle(name) {
 }
 // 索引名: NFKC、空白除去、役割語・肩書き・末尾の敬称を除く。漢字の異体字は変えない（同一人物か断定できないため）
 export function personKey(name) { return splitPersonTitle(name).name; }
-const noteOf = (name, role, note) => [role, note, splitPersonTitle(name).title].filter(Boolean).filter((x, i, a) => a.indexOf(x) === i).join(' / ');
+const noteOf = (name, role, note) => { const base = [role, note].filter(Boolean).join(' / '), t = splitPersonTitle(name).title; return t && base.indexOf(t) < 0 ? [base, t].filter(Boolean).join(' / ') : base; };   // 従来の書き方はそのまま、外した肩書きだけ足す
 // 人名として扱わないもの → HOLD（書かずに理由を残す）
 export function personHold(name) {
   const n = String(name ?? '').trim(), k = personKey(n);
