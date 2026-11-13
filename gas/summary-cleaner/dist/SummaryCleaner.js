@@ -1466,7 +1466,7 @@ function piWriteAll_(sh, H, vals) {   // 上書きしてから余った末尾行
   return bad;
 }
 var PI_BACKUP_ = '人物索引_直前', PI_HIST_ = '人物索引_更新履歴', PI_HIST_HEADERS_ = ['日時', 'EP-ID', '前の索引名', '新しい索引名', '前の行数', '新しい行数', '索引版', '環境'];
-function piIncremental_(env, fn, dry, budgetMs) {   // dry=true: 何も書かず（シートも作らず）、変わる話と件数だけ返す
+function piIncremental_(env, fn, dry, budgetMs, maxEps) {   // dry=true: 何も書かず（シートも作らず）、変わる話と件数だけ返す
   var t0 = Date.now(), E = piEnv_(env), ver = PersonIndex.PERSON_INDEX_VERSION + '/' + CleanerV4.CLEANER_VERSION, pre = scPreservedRaw_(), L = scLedger_(E.sh);
   var H = PersonIndex.PERSON_INDEX_HEADERS, getS = function (n, h) { return dry ? E.ss.getSheetByName(n) : piSheet_(E.ss, n, h); }, ix = getS(E.indexName, H), st = getS(PI_STATE_, PI_STATE_HEADERS_);
   var state = {}; piReadRows_(st, PI_STATE_HEADERS_).forEach(function (r) { state[r[0]] = r; });
@@ -1475,7 +1475,7 @@ function piIncremental_(env, fn, dry, budgetMs) {   // dry=true: 何も書かず
   var removed = Object.keys(state).filter(function (ep) { return !inLedger[ep]; });
   var updates = new Map(), done = [], partial = false;
   for (var i = 0; i < todo.length; i++) {
-    if (Date.now() - t0 > (budgetMs || PI_TIME_BUDGET_MS_)) { partial = true; break; }
+    if (Date.now() - t0 > (budgetMs || PI_TIME_BUDGET_MS_) || (maxEps && i >= maxEps)) { partial = true; break; }
     var t = todo[i], b = PersonIndex.buildPersonIndex([{ ep: t.r.ep, raw: t.raw, ledgerCast: t.r.cast, parse: CleanerV4.parseCastLine }]);
     updates.set(t.r.ep, b.rows); done.push([t.r.ep, t.fp, String(b.rows.length), b.stat.withNames ? '原文で確認' : b.rows.length ? '原文に出典なし・未検証' : (t.raw ? '原文に人名なし' : '原文なし'), now]);
   }
@@ -1521,7 +1521,7 @@ function piIncremental_(env, fn, dry, budgetMs) {   // dry=true: 何も書かず
   return scLog_(fn, summary);
 }
 function P5_人物索引_予行() { return piIncremental_('V2', 'P5_人物索引_予行', true); }   // V2を読むだけ（書かない・シートも作らない）
-function P5T_途中停止の試験_COPY() { return piIncremental_('COPY', 'P5T_途中停止の試験_COPY', false, 35000); }   // わざと35秒（読み込み込み）で止めて、続きから再開できるか確かめる
+function P5T_途中停止の試験_COPY() { return piIncremental_('COPY', 'P5T_途中停止の試験_COPY', false, 0, 2000); }   // わざと2,000話で止めて、続きから再開できるか確かめる
 function P5_人物索引_予行_COPY() { return piIncremental_('COPY', 'P5_人物索引_予行_COPY', true); }
 function P8_人物索引_直前に戻す() {   // P5 の直前の写しから V2 索引を戻す（承認キーは P5 と同じ）。戻した後は状態を空にして次の P5 で全話を再確認
   var fn = 'P8_人物索引_直前に戻す'; if (PropertiesService.getScriptProperties().getProperty('APPROVE_PI_INCREMENTAL_V2') !== 'yes') return scLog_(fn, { status: 'NOT_APPROVED' });
