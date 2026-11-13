@@ -9,7 +9,7 @@ const LEAD_ROLE = /^(?:ナビゲーター|アシスタント|進行|語り手?|�
 const HONORIFIC = /(?:さん|氏|様|さま|君|くん|ちゃん)$/;
 // 索引名: NFKC、空白除去、末尾の敬称を除く。漢字の異体字は変えない（同一人物か断定できないため）
 export function personKey(name) {
-  return String(name ?? '').normalize('NFKC').replace(/[\s　]+/g, '').replace(HONORIFIC, '').trim();
+  return String(name ?? '').normalize('NFKC').replace(/[\s　]+/g, '').replace(LEAD_ROLE, '').replace(HONORIFIC, '').trim();
 }
 // 人名として扱わないもの → HOLD（書かずに理由を残す）
 export function personHold(name) {
