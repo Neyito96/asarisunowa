@@ -103,7 +103,7 @@ const FEED = (G) => `<rss><channel><item><title>A</title><guid>${G(1)}</guid><pu
 test('配布GAS: 再生成と一致・実行一覧・収蔵の入口は出さない・トリガー作成は承認後のD8だけ', () => {
   assert.equal(SRC, buildCleanerGas()['SummaryCleaner.js']);
   const pub = [...SRC.matchAll(/^function ([^\s(]+)\(/gm)].map((m) => m[1]).filter((n) => /^[A-Z]/.test(n) && !/_$/.test(n));   // モジュール内部（即時関数の中）の関数は実行一覧に出ない
-  assert.deepEqual(pub, ['S0_進捗', 'S1_点検', 'S2_清掃監査', 'S3A_COPYへ反映_試験10件', 'S3B_COPYへ反映_全件', 'S4_V2作業用へ反映', 'S9_直前の反映を取消', 'S8_診断', 'S7_抜き取り', 'S5A_V2詳細保全_試験10件', 'S5B_V2詳細保全_全件', 'S6A_V2新着_清掃監査', 'S6B_V2新着_反映', 'S10R_非公式S10の書換を取消', 'S4B_V2作業用へ反映_未合格分のみ', 'S9C_COPY反映の取消_20261112', 'P1_人物索引_予行', 'P2_人物索引_COPY作成', 'P0_承認_人物索引V2', 'P3_人物索引_V2作成', 'P9_人物索引_V2を空に戻す', 'C1_出演者_予行', 'C0_承認_出演者修正', 'C2_出演者_反映', 'C9_出演者修正の取消', 'P5_人物索引_差分更新_COPY', 'P5_人物索引_差分更新', 'P4_承認_人物索引差分更新V2', 'X1_公開台帳_点検', 'X1_公開台帳_点検_COPY', 'X0_承認_公開台帳の修復', 'X2_公開台帳_塞ぎセル除去_COPY', 'X2_公開台帳_塞ぎセル除去', 'X3_公開台帳_警告保護_COPY', 'X3_公開台帳_警告保護', 'D2_清掃と人物_日次', 'D0_承認_清掃日次トリガー', 'D8_清掃日次トリガー設置', 'D9_清掃日次停止', 'D7_停止旗を外す']);
+  assert.deepEqual(pub, ['S0_進捗', 'S1_点検', 'S2_清掃監査', 'S3A_COPYへ反映_試験10件', 'S3B_COPYへ反映_全件', 'S4_V2作業用へ反映', 'S9_直前の反映を取消', 'S8_診断', 'S7_抜き取り', 'S5A_V2詳細保全_試験10件', 'S5B_V2詳細保全_全件', 'S6A_V2新着_清掃監査', 'S6B_V2新着_反映', 'S10R_非公式S10の書換を取消', 'S4B_V2作業用へ反映_未合格分のみ', 'S9C_COPY反映の取消_20261112', 'P1_人物索引_予行', 'P2_人物索引_COPY作成', 'P0_承認_人物索引V2', 'P3_人物索引_V2作成', 'P9_人物索引_V2を空に戻す', 'C1_出演者_予行', 'C0_承認_出演者修正', 'C2_出演者_反映', 'C9_出演者修正の取消', 'P5_人物索引_予行', 'P5_人物索引_予行_COPY', 'P8_人物索引_直前に戻す', 'P6_人物索引_COPYとV2の突合', 'P5_人物索引_差分更新_COPY', 'P5_人物索引_差分更新', 'P4_承認_人物索引差分更新V2', 'X1_公開台帳_点検', 'X1_公開台帳_点検_COPY', 'X0_承認_公開台帳の修復', 'X2_公開台帳_塞ぎセル除去_COPY', 'X2_公開台帳_塞ぎセル除去', 'X3_公開台帳_警告保護_COPY', 'X3_公開台帳_警告保護', 'D2_清掃と人物_日次', 'D0_承認_清掃日次トリガー', 'D8_清掃日次トリガー設置', 'D9_清掃日次停止', 'D7_停止旗を外す']);
   assert.ok(!/DriveApp|MailApp/.test(SRC)); assert.ok(!/function\s+do(Get|Post)\b/.test(SRC));
   // トリガー作成は D8 だけ、しかも承認確認と「他のトリガーがあれば断る」の後。削除は D9 だけ
   const fnOf = (re) => [...SRC.matchAll(/function\s+([^\s(]+)\s*\([^)]*\)\s*\{/g)].map((m) => ({ name: m[1], at: m.index })).filter((f, i, a) => re.test(SRC.slice(f.at, (a[i + 1] || { at: SRC.length }).at))).map((f) => f.name);
@@ -281,7 +281,8 @@ test('P5差分更新（COPY）: 新しい話は追加・変わった話だけ作
   const raw1 = '<p>本文。</p><p>【出演・スタッフ】<br>朝日太郎（記者）<br>日比花子（ナビゲーター）</p>', raw2 = '<p>人名のない本文。</p>';
   e.books[V2W].sheets['V2・収蔵詳細'] = mkSheet([DH, ['EP-1', 'g1', '', '', raw1, sha(raw1)], ['EP-2', 'g2', '', '', raw2, sha(raw2)]]);
   const L = e.books[COPY].sheets['V2・統合台帳'].st.rows, C = e.H.indexOf('出演者'); L[3][C] = '手入力一郎';   // EP-3: 原文なし・台帳だけに名前（未検証のまま残す）
-  const a = e.run('P5_人物索引_差分更新_COPY'); assert.equal(a.status, 'OK'); assert.equal(a.changedEpisodes, 3); assert.equal(a.merge.duplicatePairs, 0);
+  const sheetsBefore = Object.keys(e.books[COPY].sheets).join(), dr = e.run('P5_人物索引_予行_COPY'); assert.equal(dr.status, 'DRYRUN_OK'); assert.equal(dr.indexChangedEpisodes, 2); assert.equal(Object.keys(e.books[COPY].sheets).join(), sheetsBefore);   // 予行は何も作らない・書かない
+  const a = e.run('P5_人物索引_差分更新_COPY'); assert.equal(a.status, 'OK'); assert.equal(e.books[COPY].sheets['人物索引_更新履歴'].st.rows.length, 3); assert.equal(a.changedEpisodes, 3); assert.equal(a.merge.duplicatePairs, 0);
   const ix = () => e.books[COPY].sheets['人物索引(試験)'].st.rows.slice(1).filter((r) => r[0]);
   assert.deepEqual(ix().map((r) => [r[0], r[1], r[6]]), [['EP-1', '朝日太郎', '原文で確認'], ['EP-1', '日比花子', '原文で確認'], ['EP-3', '手入力一郎', '原文に出典なし・未検証']]);
   const stRows = e.books[COPY].sheets['人物索引_状態'].st.rows.slice(1); assert.deepEqual(stRows.map((r) => [r[0], r[3]]), [['EP-1', '原文で確認'], ['EP-2', '原文に人名なし'], ['EP-3', '原文に出典なし・未検証']]);

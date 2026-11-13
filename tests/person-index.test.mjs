@@ -52,3 +52,17 @@ test('PI-3 出演者欄との差は記録するだけ（人の値を直さない
   assert.equal(castDifference('E', ['山田花子', '鈴木一郎'], '山田花子', parseCastLine).missingInLedger, '鈴木一郎');
   assert.equal(castDifference('E', [], '神田七子', parseCastLine).kind, '台帳にだけ名前（原文に出典なし）');
 });
+
+test('PI-4 氏名と肩書きの分離（EP-00005「ナビゲーター／科学記者 石倉徹也」ほか）・誤統合しない', async () => {
+  const { personKey, splitPersonTitle, personHold, personRows } = await import('../scripts/ledger-v2/person-index.mjs');
+  assert.deepEqual(splitPersonTitle('ナビゲーター／科学記者 石倉徹也'), { name: '石倉徹也', title: 'ナビゲーター / 科学記者' });
+  const r = personRows('EP-X', '<p>本文。</p><p>【出演者】<br>ナビゲーター／科学記者 石倉徹也&nbsp;<a href="https://buff.ly/x">https://buff.ly/x</a><br>MC・音源編集 下地達也</p>');
+  assert.deepEqual(r.rows.map((x) => x.key), ['石倉徹也', '下地達也']); assert.match(r.rows[0].note, /科学記者/); assert.equal(r.rows[0].display.includes('科学記者'), true);   // 表記原文は残す
+  const cases = { '中小路徹編集委員': '中小路徹', '副島英樹・編集委員': '副島英樹', '清水唯一朗・慶応大教授': '清水唯一朗', '矢守克也・京都大防災研究所教授': '矢守克也', '筒井次郎記者': '筒井次郎', '芳賀竜也デスク': '芳賀竜也',
+    'MC・音源編集岸上渉': '岸上渉', '音源編集久保智祥': '久保智祥', 'ゲスト佐久間道大': '佐久間道大', '下地達也 MC 音源編集': '下地達也', '朝日新聞松山総局戸田拓記者': '戸田拓', 'サンパウロ支局長軽部理人': '軽部理人', 'KSB瀬戸内海放送山下洋平記者': '山下洋平',
+    '清水祐司さん ※番組第一回放送出演者': '清水祐司', '小林直子/ニュースレター:': '小林直子', 'ジョン・スミス': 'ジョン・スミス', 'ナビゲーター石倉徹也': '石倉徹也', '神田大介さん': '神田大介' };
+  for (const [k, v] of Object.entries(cases)) assert.equal(personKey(k), v, k);
+  assert.equal(personKey('中小路編集委員'), '中小路');   // 名字だけは「中小路徹」と同一と断定しない（別の索引名のまま）
+  assert.equal(personKey('ふらいと先生/小児科医・今西洋介'), 'ふらいと先生/小児科医・今西洋介');   // どちらが名前か決められない時は外さない
+  assert.equal(personKey('記者'), '記者'); assert.equal(personHold('記者'), 'ROLE_WORD_ONLY'); assert.equal(personHold('・ゲスト】'), 'ROLE_WORD_ONLY'); assert.equal(personHold('・スタッフ】'), 'ROLE_WORD_ONLY');
+});

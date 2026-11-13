@@ -787,14 +787,29 @@ var PersonIndex = (function () {
 // 出どころは保全済みの概要原文（公式RSS）から清掃器 cleanV4 が取り出した出演者行。原文に無い名前は作らない（推測しない）。
 // 表記: 氏名の空白・敬称（さん・氏・様・君・ちゃん）を除いた「索引名」で検索・重複判定し、原文の書き方（表記原文）と肩書き・リンクは根拠として残す。
 const { cleanV4, PLATFORM_NAME } = CleanerV4;
-const PERSON_INDEX_VERSION = 'PI-3';
+const PERSON_INDEX_VERSION = 'PI-4';
 const PERSON_INDEX_HEADERS = ['EP-ID', '索引名', '表記原文', '肩書き・注記', 'リンク', '出典', '検証状態', '索引版'];
-const LEAD_ROLE = /^(?:ナビゲーター|アシスタント|進行|語り手?|朗読|案内役|解説|コメンテーター|リポーター|レポーター)[・:：]?/;   // 役割語が氏名に付いたまま（「ナビゲーター石倉徹也」）でも同じ人として引けるように。役割は保存しない
+const ROLE_WORDS = 'ナビゲーター|アシスタント|パーソナリティ|チーフパーソナリティ|進行|語り手?|朗読|案内役|解説|コメンテーター|リポーター|レポーター|MC|司会|聞き手|ゲスト|音源編集|編集|構成|制作|ディレクター|プロデューサー|科学記者|記者';
+// 役割語が氏名の前に付いたまま（「ナビゲーター石倉徹也」「MC・音源編集岸上渉」「ナビゲーター／科学記者 石倉徹也」）でも同じ人として引けるように。外した語は肩書きへ回す
+const LEAD_ROLE = new RegExp('^(?:(?:' + ROLE_WORDS + ')[・/:、]*)+');
+const TITLE_WORDS = '記者|編集委員|論説委員|特別編集委員|デスク|キャップ|部長|次長|局長|支局長|総局長|特派員|特任教授|准教授|教授|講師|研究員|主任研究員|キャスター|MC|音源編集';
+const TAIL_AFFIL_TITLE = new RegExp('[・/](.{1,24}?(?:' + TITLE_WORDS + '))$');   // 「清水唯一朗・慶応大教授」「副島英樹・編集委員」
+const TAIL_TITLE = new RegExp('(?:' + TITLE_WORDS + ')$');                         // 「筒井次郎記者」「小山聡子教授」
+const LEAD_AFFIL = /^[^※()（）・/]{2,16}?(?:総局長|支局長|総局|支局|放送|新聞社)(?=[^※()（）・/]{2,6}$)/;                  // 「朝日新聞松山総局戸田拓」「KSB瀬戸内海放送山下洋平」（名前が2〜6字残る時だけ）
 const HONORIFIC = /(?:さん|氏|様|さま|君|くん|ちゃん)$/;
-// 索引名: NFKC、空白除去、末尾の敬称を除く。漢字の異体字は変えない（同一人物か断定できないため）
-function personKey(name) {
-  return String(name ?? '').normalize('NFKC').replace(/[\s　]+/g, '').replace(LEAD_ROLE, '').replace(HONORIFIC, '').trim();
+// 氏名と肩書きを分ける（NFKC・空白除去後）。名前が2字未満になる時は外さない（誤って削らない）
+function splitPersonTitle(name) {
+  let k = String(name ?? '').normalize('NFKC').replace(/[\s　]+/g, ''), titles = [];
+  const memo = k.match(/※.*$/); if (memo && memo.index >= 2) { titles.push(memo[0].replace(/^※/, '')); k = k.slice(0, memo.index); }   // 「清水祐司さん ※番組第一回放送出演者」
+  const take = (re, g = 0) => { const m = k.match(re); if (!m) return false; const rest = k.slice(0, m.index) + k.slice(m.index + m[0].length); if (rest.replace(/[・/:]/g, '').length < 2) return false; titles.push((m[g] || m[0]).replace(/^[・/:、]+|[・/:、]+$/g, '')); k = rest; return true; };
+  if (/\//.test(k)) { const seg = k.split('/').filter(Boolean), keep = seg.filter((x) => !/:$/.test(x) && !new RegExp('^(?:(?:' + ROLE_WORDS + ')[・:、]*)+$').test(x)); if (keep.length === 1 && keep[0] !== k) { titles.push(...seg.filter((x) => x !== keep[0]).map((x) => x.replace(/:$/, ''))); k = keep[0]; } }
+  take(LEAD_ROLE); for (let i = 0; i < 3 && (take(TAIL_AFFIL_TITLE, 1) || take(TAIL_TITLE)); i++); take(LEAD_AFFIL);
+  k = k.replace(HONORIFIC, '').replace(/^[・/:、]+|[・/:、]+$/g, '').trim();
+  return { name: k, title: titles.filter(Boolean).join(' / ') };
 }
+// 索引名: NFKC、空白除去、役割語・肩書き・末尾の敬称を除く。漢字の異体字は変えない（同一人物か断定できないため）
+function personKey(name) { return splitPersonTitle(name).name; }
+const noteOf = (name, role, note) => [role, note, splitPersonTitle(name).title].filter(Boolean).filter((x, i, a) => a.indexOf(x) === i).join(' / ');
 // 人名として扱わないもの → HOLD（書かずに理由を残す）
 function personHold(name) {
   const n = String(name ?? '').trim(), k = personKey(n);
@@ -803,6 +818,7 @@ function personHold(name) {
   if (/https?:|www\.|@|＠/.test(n)) return 'LINK_OR_ACCOUNT';
   if (k.length > 20 || /[。！？!?、，,]/.test(k)) return 'NOT_A_NAME_SENTENCE';
   if (/^[\p{N}\p{P}\p{S}\s_]+$/u.test(k)) return 'NO_LETTERS';
+  if (new RegExp('^[・/:、【】\\[\\]]*(?:' + ROLE_WORDS + '|出演者?|スタッフ)[・/:、【】\\[\\]]*$').test(k)) return 'ROLE_WORD_ONLY';   // 「・ゲスト】」など見出しの切れ端
   return '';
 }
 // 1話分: 原文 → 索引行（同じ話の中で同じ索引名は1行）
@@ -812,7 +828,7 @@ function personRows(ep, raw) {
   for (const x of c.cast) {
     const why = personHold(x.name); if (why) { hold.push({ ep, name: x.name, why }); continue; }
     const k = personKey(x.name); if (seen.has(k)) continue; seen.add(k);
-    rows.push({ ep, key: k, display: String(x.name).trim(), note: [x.role, x.note].filter(Boolean).join(' / '), links: x.links.join(' '), source: '概要原文（公式RSS）', state: '原文で確認' });
+    rows.push({ ep, key: k, display: String(x.name).trim(), note: noteOf(x.name, x.role, x.note), links: x.links.join(' '), source: '概要原文（公式RSS）', state: '原文で確認' });
   }
   return { rows, hold, status: rows.length ? 'OK' : 'NO_NAMES_IN_RAW' };
 }
@@ -821,7 +837,7 @@ function personRows(ep, raw) {
 function ledgerRows(ep, ledgerCast, parse) {
   const seen = new Set(), rows = [];
   String(ledgerCast ?? '').split('\n').forEach((l) => { const c = parse(l); if (!c.name || personHold(c.name)) return; const k = personKey(c.name); if (seen.has(k)) return; seen.add(k);
-    rows.push({ ep, key: k, display: String(c.name).trim(), note: [c.role, c.note].filter(Boolean).join(' / '), links: c.links.join(' '), source: '統合台帳 出演者列（既存値）', state: '原文に出典なし・未検証' }); });
+    rows.push({ ep, key: k, display: String(c.name).trim(), note: noteOf(c.name, c.role, c.note), links: c.links.join(' '), source: '統合台帳 出演者列（既存値）', state: '原文に出典なし・未検証' }); });
   return rows;
 }
 function buildPersonIndex(episodes) {
@@ -868,7 +884,7 @@ function castDifference(ep, rawKeys, ledgerCast, parse) {
   return { ep, kind: '名前が一部違う', raw: r.join('、'), ledger: l.join('、'), missingInLedger: miss.join('、'), notInRaw: extra.join('、') };
 }
 
-return { PERSON_INDEX_VERSION, PERSON_INDEX_HEADERS, personKey, personHold, personRows, ledgerRows, buildPersonIndex, epFingerprintText, mergeIndex, castDifference };
+return { PERSON_INDEX_VERSION, PERSON_INDEX_HEADERS, splitPersonTitle, personKey, personHold, personRows, ledgerRows, buildPersonIndex, epFingerprintText, mergeIndex, castDifference };
 })();
 
 // ===== 概要欄清掃ロボ（Issue #308）— 入口 =====
@@ -1430,16 +1446,18 @@ function piEnv_(env) {
 }
 function piReadRows_(sh, H) { if (!sh || sh.getLastRow() < 2) return []; return sh.getRange(2, 1, sh.getLastRow() - 1, H.length).getDisplayValues(); }
 function piSheet_(ss, name, H) { var sh = ss.getSheetByName(name) || ss.insertSheet(name); if (sh.getLastRow() === 0) sh.getRange(1, 1, 1, H.length).setValues([H]); return sh; }
-function piWriteAll_(sh, H, vals) {   // 中身を差し替える（見出しは残す）。書いたら件数と先頭2列を読み戻す
-  if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, sh.getLastColumn()).clearContent();
+function piWriteAll_(sh, H, vals) {   // 上書きしてから余った末尾行だけ消す（先に全消ししない＝途中で止まっても空にならない）。書いたら件数と先頭2列を読み戻す
+  var before = sh.getLastRow();
   for (var i = 0; i < vals.length; i += 5000) { var part = vals.slice(i, i + 5000), rg = sh.getRange(2 + i, 1, part.length, H.length); rg.setNumberFormat('@'); rg.setValues(part); }
+  if (before > vals.length + 1) sh.getRange(vals.length + 2, 1, before - vals.length - 1, Math.max(H.length, sh.getLastColumn())).clearContent();
   SpreadsheetApp.flush();
   var back = piReadRows_(sh, H), bad = Math.abs(back.length - vals.length); back.forEach(function (r, i) { if (vals[i] && (r[0] !== String(vals[i][0]) || r[1] !== String(vals[i][1]))) bad++; });
   return bad;
 }
-function piIncremental_(env, fn) {
+var PI_BACKUP_ = '人物索引_直前', PI_HIST_ = '人物索引_更新履歴', PI_HIST_HEADERS_ = ['日時', 'EP-ID', '前の索引名', '新しい索引名', '前の行数', '新しい行数', '索引版', '環境'];
+function piIncremental_(env, fn, dry) {   // dry=true: 何も書かず（シートも作らず）、変わる話と件数だけ返す
   var t0 = Date.now(), E = piEnv_(env), ver = PersonIndex.PERSON_INDEX_VERSION + '/' + CleanerV4.CLEANER_VERSION, pre = scPreservedRaw_(), L = scLedger_(E.sh);
-  var H = PersonIndex.PERSON_INDEX_HEADERS, ix = piSheet_(E.ss, E.indexName, H), st = piSheet_(E.ss, PI_STATE_, PI_STATE_HEADERS_);
+  var H = PersonIndex.PERSON_INDEX_HEADERS, getS = function (n, h) { return dry ? E.ss.getSheetByName(n) : piSheet_(E.ss, n, h); }, ix = getS(E.indexName, H), st = getS(PI_STATE_, PI_STATE_HEADERS_);
   var state = {}; piReadRows_(st, PI_STATE_HEADERS_).forEach(function (r) { state[r[0]] = r; });
   var inLedger = {}, todo = [], now = new Date().toISOString();
   L.rows.forEach(function (r) { inLedger[r.ep] = 1; var raw = pre[r.ep] ? pre[r.ep].text : '', fp = p25v2GasSha256_(PersonIndex.epFingerprintText(raw, r.cast, ver)); if (!state[r.ep] || state[r.ep][1] !== fp) todo.push({ r: r, raw: raw, fp: fp }); });
@@ -1452,8 +1470,19 @@ function piIncremental_(env, fn) {
   }
   var cur = piReadRows_(ix, H).map(function (r) { return { ep: r[0], key: r[1], display: r[2], note: r[3], links: r[4], source: r[5], state: r[6], ver: r[7] }; });
   var m = PersonIndex.mergeIndex(cur, updates, partial ? [] : removed), bad = 0;
-  if (m.stat.duplicatePairs) return scLog_(fn, { status: 'STOP_DUPLICATE', stat: m.stat });
-  if (m.changed) bad = piWriteAll_(ix, H, m.rows.map(function (r) { return [r.ep, r.key, r.display, r.note, r.links, r.source, r.state, r.ver || PersonIndex.PERSON_INDEX_VERSION]; }));
+  // 変わる話の一覧（前→後の索引名）。履歴と予行の両方に使う
+  var oldBy = {}, newBy = {}; cur.forEach(function (r) { (oldBy[r.ep] = oldBy[r.ep] || []).push(r.key); }); m.rows.forEach(function (r) { (newBy[r.ep] = newBy[r.ep] || []).push(r.key + (r.state === '原文で確認' ? '' : '(未検証)')); });
+  cur.forEach(function (r) { if (r.state !== '原文で確認') { var a = oldBy[r.ep]; a[a.indexOf(r.key)] = r.key + '(未検証)'; } });
+  var changedEps = []; Object.keys(Object.assign({}, oldBy, newBy)).forEach(function (ep) { var o = (oldBy[ep] || []).join('、'), n = (newBy[ep] || []).join('、'); if (o !== n) changedEps.push([now, ep, o, n, String((oldBy[ep] || []).length), String((newBy[ep] || []).length), PersonIndex.PERSON_INDEX_VERSION, env]); });
+  var byState = function (rows) { var c = {}; rows.forEach(function (r) { c[r.state] = (c[r.state] || 0) + 1; }); return c; }, people = function (rows) { var k = {}; rows.forEach(function (r) { k[r.key] = 1; }); return Object.keys(k).length; };
+  var summary = { env: env, changedEpisodes: todo.length, processed: done.length, removedEpisodes: partial ? 0 : removed.length, merge: m.stat, rowsBefore: cur.length, rowsAfter: m.rows.length, peopleBefore: people(cur), peopleAfter: people(m.rows), stateBefore: byState(cur), stateAfter: byState(m.rows), indexChangedEpisodes: changedEps.length };
+  if (m.stat.duplicatePairs) return scLog_(fn, Object.assign({ status: 'STOP_DUPLICATE' }, summary));
+  if (dry) { summary.status = partial ? 'DRYRUN_PARTIAL' : 'DRYRUN_OK'; summary.examples = changedEps.slice(0, 250).map(function (c) { return c[1] + ': ' + c[2] + ' → ' + c[3]; }); summary.ms = Date.now() - t0; return scLog_(fn, summary); }
+  if (m.changed) {
+    if (env === 'V2' && ix.getLastRow() > 1) { var old = E.ss.getSheetByName(PI_BACKUP_); if (old) E.ss.deleteSheet(old); ix.copyTo(E.ss).setName(PI_BACKUP_); }   // 戻し用の写し（直前の索引）
+    bad = piWriteAll_(ix, H, m.rows.map(function (r) { return [r.ep, r.key, r.display, r.note, r.links, r.source, r.state, r.ver || PersonIndex.PERSON_INDEX_VERSION]; }));
+    if (!bad && changedEps.length) { var hs = piSheet_(E.ss, PI_HIST_, PI_HIST_HEADERS_), hr = hs.getLastRow(); for (var j = 0; j < changedEps.length; j += 5000) { var part = changedEps.slice(j, j + 5000), rg = hs.getRange(hr + 1 + j, 1, part.length, PI_HIST_HEADERS_.length); rg.setNumberFormat('@'); rg.setValues(part); } }
+  }
   if (!bad) {   // 指紋は索引の書込が読み戻しで一致した後にだけ保存（途中で失敗しても次回やり直せる）
     done.forEach(function (d) { state[d[0]] = d; }); if (!partial) removed.forEach(function (ep) { delete state[ep]; });
     var sv = Object.keys(state).map(function (k) { return state[k]; }); if (done.length || removed.length) bad += piWriteAll_(st, PI_STATE_HEADERS_, sv);
@@ -1464,8 +1493,29 @@ function piIncremental_(env, fn) {
   var ds = piSheet_(E.ss, PI_DIFF_, PI_DIFF_HEADERS_), prevDiff = piReadRows_(ds, PI_DIFF_HEADERS_).map(function (r) { return r.slice(0, 6).join('\u0001'); }).join('\n');
   if (prevDiff !== diffs.map(function (r) { return r.slice(0, 6).join('\u0001'); }).join('\n')) piWriteAll_(ds, PI_DIFF_HEADERS_, diffs);
   var dk = {}; diffs.forEach(function (d) { dk[d[1]] = (dk[d[1]] || 0) + 1; });
-  return scLog_(fn, { status: bad ? 'READBACK_MISMATCH' : partial ? 'PARTIAL_RESUME_NEEDED' : (m.changed ? 'OK' : 'OK_NO_CHANGE'), env: env, changedEpisodes: todo.length, processed: done.length, removedEpisodes: partial ? 0 : removed.length,
-    merge: m.stat, people: Object.keys(m.rows.reduce(function (a, r) { a[r.key] = 1; return a; }, {})).length, differences: dk, ms: Date.now() - t0 });
+  summary.status = bad ? 'READBACK_MISMATCH' : partial ? 'PARTIAL_RESUME_NEEDED' : (m.changed ? 'OK' : 'OK_NO_CHANGE'); summary.differences = dk; summary.changedExamples = changedEps.slice(0, 30).map(function (c) { return c[1]; }); summary.ms = Date.now() - t0;
+  return scLog_(fn, summary);
+}
+function P5_人物索引_予行() { return piIncremental_('V2', 'P5_人物索引_予行', true); }   // V2を読むだけ（書かない・シートも作らない）
+function P5_人物索引_予行_COPY() { return piIncremental_('COPY', 'P5_人物索引_予行_COPY', true); }
+function P8_人物索引_直前に戻す() {   // P5 の直前の写しから V2 索引を戻す（承認キーは P5 と同じ）。戻した後は状態を空にして次の P5 で全話を再確認
+  var fn = 'P8_人物索引_直前に戻す'; if (PropertiesService.getScriptProperties().getProperty('APPROVE_PI_INCREMENTAL_V2') !== 'yes') return scLog_(fn, { status: 'NOT_APPROVED' });
+  var E = piEnv_('V2'), bk = E.ss.getSheetByName(PI_BACKUP_), H = PersonIndex.PERSON_INDEX_HEADERS; if (!bk || bk.getLastRow() < 2) return scLog_(fn, { status: 'NO_BACKUP' });
+  var vals = piReadRows_(bk, H), bad = piWriteAll_(E.ss.getSheetByName(E.indexName), H, vals), st = E.ss.getSheetByName(PI_STATE_); if (!bad && st && st.getLastRow() > 1) st.getRange(2, 1, st.getLastRow() - 1, PI_STATE_HEADERS_.length).clearContent();
+  return scLog_(fn, { status: bad ? 'READBACK_MISMATCH' : 'OK', restoredRows: vals.length });
+}
+// 突合（読むだけ）: COPY の索引と V2 の索引の違いを EP-ID・索引名・出典で並べ、出演者欄の違いと C2 履歴の有無で理由を付ける
+function P6_人物索引_COPYとV2の突合() {
+  var H = PersonIndex.PERSON_INDEX_HEADERS, c = piEnv_('COPY'), v = piEnv_('V2'), ci = piReadRows_(c.ss.getSheetByName(PI_SHEET_COPY_), H), vi = piReadRows_(v.ss.getSheetByName(PI_SHEET_V2_), H);
+  var k = function (r) { return [r[0], r[1], r[5], r[6]].join(' | '); }, cs = {}, vs = {}; ci.forEach(function (r) { cs[k(r)] = r; }); vi.forEach(function (r) { vs[k(r)] = r; });
+  var onlyC = ci.filter(function (r) { return !vs[k(r)]; }), onlyV = vi.filter(function (r) { return !cs[k(r)]; });
+  var lc = {}, lv = {}; scLedger_(c.sh).rows.forEach(function (r) { lc[r.ep] = r.cast; }); scLedger_(v.sh).rows.forEach(function (r) { lv[r.ep] = r.cast; });
+  var hist = {}, hs = c.ss.getSheetByName('出演者修正履歴'); if (hs && hs.getLastRow() > 1) { var hv = hs.getRange(1, 1, hs.getLastRow(), hs.getLastColumn()).getDisplayValues(), he = hv[0].indexOf('EP-ID'), hk = hv[0].indexOf('種類'); hv.slice(1).forEach(function (r) { hist[r[he]] = hk >= 0 ? r[hk] : 'あり'; }); }
+  var eps = {}; onlyC.concat(onlyV).forEach(function (r) { eps[r[0]] = 1; });
+  var why = Object.keys(eps).sort().map(function (ep) { return { ep: ep, ledgerSame: lc[ep] === lv[ep], c2History: hist[ep] || '', copyOnly: onlyC.filter(function (r) { return r[0] === ep; }).map(function (r) { return r[1] + '[' + r[6] + ']'; }), v2Only: onlyV.filter(function (r) { return r[0] === ep; }).map(function (r) { return r[1] + '[' + r[6] + ']'; }) }; });
+  var pc = {}, pv = {}; ci.forEach(function (r) { pc[r[1]] = 1; }); vi.forEach(function (r) { pv[r[1]] = 1; });
+  return scLog_('P6_人物索引_COPYとV2の突合', { status: 'OK', copyRows: ci.length, v2Rows: vi.length, onlyInCopy: onlyC.length, onlyInV2: onlyV.length, episodes: why.length, episodesWithLedgerDiff: why.filter(function (w) { return !w.ledgerSame; }).length, episodesWithC2History: why.filter(function (w) { return w.c2History; }).length,
+    peopleCopy: Object.keys(pc).length, peopleV2: Object.keys(pv).length, peopleOnlyCopy: Object.keys(pc).filter(function (x) { return !pv[x]; }), peopleOnlyV2: Object.keys(pv).filter(function (x) { return !pc[x]; }), detail: why });
 }
 function P5_人物索引_差分更新_COPY() { return piIncremental_('COPY', 'P5_人物索引_差分更新_COPY'); }
 function P5_人物索引_差分更新() {

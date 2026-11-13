@@ -3,14 +3,29 @@
 // 表記: 氏名の空白・敬称（さん・氏・様・君・ちゃん）を除いた「索引名」で検索・重複判定し、原文の書き方（表記原文）と肩書き・リンクは根拠として残す。
 import { cleanV4, PLATFORM_NAME } from './summary-cleaner-v4.mjs';
 
-export const PERSON_INDEX_VERSION = 'PI-3';
+export const PERSON_INDEX_VERSION = 'PI-4';
 export const PERSON_INDEX_HEADERS = ['EP-ID', '索引名', '表記原文', '肩書き・注記', 'リンク', '出典', '検証状態', '索引版'];
-const LEAD_ROLE = /^(?:ナビゲーター|アシスタント|進行|語り手?|朗読|案内役|解説|コメンテーター|リポーター|レポーター)[・:：]?/;   // 役割語が氏名に付いたまま（「ナビゲーター石倉徹也」）でも同じ人として引けるように。役割は保存しない
+const ROLE_WORDS = 'ナビゲーター|アシスタント|パーソナリティ|チーフパーソナリティ|進行|語り手?|朗読|案内役|解説|コメンテーター|リポーター|レポーター|MC|司会|聞き手|ゲスト|音源編集|編集|構成|制作|ディレクター|プロデューサー|科学記者|記者';
+// 役割語が氏名の前に付いたまま（「ナビゲーター石倉徹也」「MC・音源編集岸上渉」「ナビゲーター／科学記者 石倉徹也」）でも同じ人として引けるように。外した語は肩書きへ回す
+const LEAD_ROLE = new RegExp('^(?:(?:' + ROLE_WORDS + ')[・/:、]*)+');
+const TITLE_WORDS = '記者|編集委員|論説委員|特別編集委員|デスク|キャップ|部長|次長|局長|支局長|総局長|特派員|特任教授|准教授|教授|講師|研究員|主任研究員|キャスター|MC|音源編集';
+const TAIL_AFFIL_TITLE = new RegExp('[・/](.{1,24}?(?:' + TITLE_WORDS + '))$');   // 「清水唯一朗・慶応大教授」「副島英樹・編集委員」
+const TAIL_TITLE = new RegExp('(?:' + TITLE_WORDS + ')$');                         // 「筒井次郎記者」「小山聡子教授」
+const LEAD_AFFIL = /^[^※()（）・/]{2,16}?(?:総局長|支局長|総局|支局|放送|新聞社)(?=[^※()（）・/]{2,6}$)/;                  // 「朝日新聞松山総局戸田拓」「KSB瀬戸内海放送山下洋平」（名前が2〜6字残る時だけ）
 const HONORIFIC = /(?:さん|氏|様|さま|君|くん|ちゃん)$/;
-// 索引名: NFKC、空白除去、末尾の敬称を除く。漢字の異体字は変えない（同一人物か断定できないため）
-export function personKey(name) {
-  return String(name ?? '').normalize('NFKC').replace(/[\s　]+/g, '').replace(LEAD_ROLE, '').replace(HONORIFIC, '').trim();
+// 氏名と肩書きを分ける（NFKC・空白除去後）。名前が2字未満になる時は外さない（誤って削らない）
+export function splitPersonTitle(name) {
+  let k = String(name ?? '').normalize('NFKC').replace(/[\s　]+/g, ''), titles = [];
+  const memo = k.match(/※.*$/); if (memo && memo.index >= 2) { titles.push(memo[0].replace(/^※/, '')); k = k.slice(0, memo.index); }   // 「清水祐司さん ※番組第一回放送出演者」
+  const take = (re, g = 0) => { const m = k.match(re); if (!m) return false; const rest = k.slice(0, m.index) + k.slice(m.index + m[0].length); if (rest.replace(/[・/:]/g, '').length < 2) return false; titles.push((m[g] || m[0]).replace(/^[・/:、]+|[・/:、]+$/g, '')); k = rest; return true; };
+  if (/\//.test(k)) { const seg = k.split('/').filter(Boolean), keep = seg.filter((x) => !/:$/.test(x) && !new RegExp('^(?:(?:' + ROLE_WORDS + ')[・:、]*)+$').test(x)); if (keep.length === 1 && keep[0] !== k) { titles.push(...seg.filter((x) => x !== keep[0]).map((x) => x.replace(/:$/, ''))); k = keep[0]; } }
+  take(LEAD_ROLE); for (let i = 0; i < 3 && (take(TAIL_AFFIL_TITLE, 1) || take(TAIL_TITLE)); i++); take(LEAD_AFFIL);
+  k = k.replace(HONORIFIC, '').replace(/^[・/:、]+|[・/:、]+$/g, '').trim();
+  return { name: k, title: titles.filter(Boolean).join(' / ') };
 }
+// 索引名: NFKC、空白除去、役割語・肩書き・末尾の敬称を除く。漢字の異体字は変えない（同一人物か断定できないため）
+export function personKey(name) { return splitPersonTitle(name).name; }
+const noteOf = (name, role, note) => [role, note, splitPersonTitle(name).title].filter(Boolean).filter((x, i, a) => a.indexOf(x) === i).join(' / ');
 // 人名として扱わないもの → HOLD（書かずに理由を残す）
 export function personHold(name) {
   const n = String(name ?? '').trim(), k = personKey(n);
@@ -19,6 +34,7 @@ export function personHold(name) {
   if (/https?:|www\.|@|＠/.test(n)) return 'LINK_OR_ACCOUNT';
   if (k.length > 20 || /[。！？!?、，,]/.test(k)) return 'NOT_A_NAME_SENTENCE';
   if (/^[\p{N}\p{P}\p{S}\s_]+$/u.test(k)) return 'NO_LETTERS';
+  if (new RegExp('^[・/:、【】\\[\\]]*(?:' + ROLE_WORDS + '|出演者?|スタッフ)[・/:、【】\\[\\]]*$').test(k)) return 'ROLE_WORD_ONLY';   // 「・ゲスト】」など見出しの切れ端
   return '';
 }
 // 1話分: 原文 → 索引行（同じ話の中で同じ索引名は1行）
@@ -28,7 +44,7 @@ export function personRows(ep, raw) {
   for (const x of c.cast) {
     const why = personHold(x.name); if (why) { hold.push({ ep, name: x.name, why }); continue; }
     const k = personKey(x.name); if (seen.has(k)) continue; seen.add(k);
-    rows.push({ ep, key: k, display: String(x.name).trim(), note: [x.role, x.note].filter(Boolean).join(' / '), links: x.links.join(' '), source: '概要原文（公式RSS）', state: '原文で確認' });
+    rows.push({ ep, key: k, display: String(x.name).trim(), note: noteOf(x.name, x.role, x.note), links: x.links.join(' '), source: '概要原文（公式RSS）', state: '原文で確認' });
   }
   return { rows, hold, status: rows.length ? 'OK' : 'NO_NAMES_IN_RAW' };
 }
@@ -37,7 +53,7 @@ export function personRows(ep, raw) {
 export function ledgerRows(ep, ledgerCast, parse) {
   const seen = new Set(), rows = [];
   String(ledgerCast ?? '').split('\n').forEach((l) => { const c = parse(l); if (!c.name || personHold(c.name)) return; const k = personKey(c.name); if (seen.has(k)) return; seen.add(k);
-    rows.push({ ep, key: k, display: String(c.name).trim(), note: [c.role, c.note].filter(Boolean).join(' / '), links: c.links.join(' '), source: '統合台帳 出演者列（既存値）', state: '原文に出典なし・未検証' }); });
+    rows.push({ ep, key: k, display: String(c.name).trim(), note: noteOf(c.name, c.role, c.note), links: c.links.join(' '), source: '統合台帳 出演者列（既存値）', state: '原文に出典なし・未検証' }); });
   return rows;
 }
 export function buildPersonIndex(episodes) {
