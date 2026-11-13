@@ -1784,21 +1784,50 @@ function L1_台帳総合監査() {
 
 // ---------- 公式個別URL: 確認（公式ページを取得）→ 承認後に空欄だけ書く → 取消 ----------
 var OU_STATE_ = '公式URL確認', OU_STATE_H_ = ['EP-ID', '公式GUID', '確認したURL', '状態', '理由', '確認日時'], OU_HIST_ = '公式URL補完履歴', OU_HIST_H_ = ['日時', '実行ID', '環境', 'EP-ID', '台帳行', '旧値', '新値', '状態'];
-function ouCheck_(fn, budgetMs, maxN) {   // V2を読むだけ。確認結果は COPY の「公式URL確認」に追記（済みのものは再取得しない＝途中で止まっても続きから）
+// 原因（2026-11-13 19:14）: UrlFetchApp.fetchAll は、まとめた10件のうち1件でも通信そのものが失敗すると（「使用できないアドレス」など。muteHttpExceptions は HTTP の失敗しか抑えない）
+// 全体を例外で止める。さらに結果を最後にまとめて書いていたので、その回に確かめた分も残らなかった。
+// 修正: ① 転送は自動で追わず（followRedirects:false）、朝日の同じページ内の転送だけ自分で3回まで追う。他所への転送は HOLD
+//       ② まとめて取得が例外なら1件ずつ取り直し、1件の例外はその EP だけ ERROR（理由つき）にして続ける
+//       ③ 10件ごとに確認結果を書き足す（途中で止まっても確かめた分は残り、次は続きから）
+//       ④ ERROR は次回もう一度確かめる。同じ GUID で3回続けて ERROR なら HOLD（REPEATED_FETCH_ERROR）にして止めない
+var OU_MAX_ERRORS_ = 3;
+function ouFetchOne_(url) {   // 1件取得。例外は投げずに { code, html, location, error } で返す
+  try {
+    for (var hop = 0; hop < 4; hop++) {
+      var r = UrlFetchApp.fetch(url, { muteHttpExceptions: true, followRedirects: false }), code = r.getResponseCode();
+      if (code < 300 || code >= 400) return { code: code, html: code === 200 ? r.getContentText() : '' };
+      var h = r.getHeaders() || {}, loc = String(h.Location || h.location || '');
+      if (!/^https:\/\/www\.asahi\.com\//.test(loc) || hop === 3) return { code: code, html: '', location: loc };
+      url = loc;
+    }
+  } catch (e) { return { error: String(e && e.message || e).slice(0, 120) }; }
+}
+function ouResults_(part) {   // 10件をまとめて取得。例外なら1件ずつ取り直す
+  var reqs = part.map(function (x) { return { url: x.c.url, muteHttpExceptions: true, followRedirects: false }; }), res;
+  try { res = UrlFetchApp.fetchAll(reqs); } catch (e) { return part.map(function (x) { return ouFetchOne_(x.c.url); }); }
+  return res.map(function (r, j) { var code = r.getResponseCode(); if (code >= 300 && code < 400) return ouFetchOne_(part[j].c.url); return { code: code, html: code === 200 ? r.getContentText() : '' }; });
+}
+function ouCheck_(fn, budgetMs, maxN) {   // V2を読むだけ。確認結果は COPY の「公式URL確認」に書き足す（確かめ済みは取り直さない＝途中で止まっても続きから）
   var t0 = Date.now(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), D = laRead_(v.sh);
   var st = c.ss.getSheetByName(OU_STATE_) || c.ss.insertSheet(OU_STATE_); if (st.getLastRow() === 0) st.getRange(1, 1, 1, OU_STATE_H_.length).setValues([OU_STATE_H_]);
-  var done = {}; if (st.getLastRow() > 1) st.getRange(2, 1, st.getLastRow() - 1, OU_STATE_H_.length).getDisplayValues().forEach(function (r) { if (r[3] !== 'ERROR') done[r[1]] = r[3]; });
+  var done = {}, errs = {}; if (st.getLastRow() > 1) st.getRange(2, 1, st.getLastRow() - 1, OU_STATE_H_.length).getDisplayValues().forEach(function (r) { if (r[3] === 'ERROR') errs[r[1]] = (errs[r[1]] || 0) + 1; else done[r[1]] = r[3]; });
   var todo = D.rows.map(function (r) { return { r: r, c: LedgerAudit.officialUrlCandidate(r) }; }).filter(function (x) { return x.r.ep && x.c.status === 'CANDIDATE' && !done[x.c.guid]; });
-  var out = [], n = 0, k = { VERIFIED: 0, NOT_FOUND: 0, HOLD: 0, ERROR: 0 };
+  var n = 0, k = { VERIFIED: 0, NOT_FOUND: 0, HOLD: 0, ERROR: 0 }, ex = [];
   for (var i = 0; i < todo.length; i += 10) {
     if (Date.now() - t0 > (budgetMs || 240000) || (maxN && n >= maxN)) break;
-    var part = todo.slice(i, i + 10), res = UrlFetchApp.fetchAll(part.map(function (x) { return { url: x.c.url, muteHttpExceptions: true, followRedirects: true }; }));
-    part.forEach(function (x, j) { var vr; try { vr = LedgerAudit.verifyOfficialPage(res[j].getResponseCode(), res[j].getContentText(), x.c.guid); } catch (e) { vr = { status: 'ERROR', reason: String(e).slice(0, 80) }; } k[vr.status]++; n++; out.push([x.r.ep, x.c.guid, x.c.url, vr.status, vr.reason, new Date().toISOString()]); });
+    var part = todo.slice(i, i + 10), res = ouResults_(part), out = [];
+    part.forEach(function (x, j) {
+      var f = res[j] || { error: 'NO_RESPONSE' }, vr;
+      if (f.error) vr = (errs[x.c.guid] || 0) + 1 >= OU_MAX_ERRORS_ ? { status: 'HOLD', reason: 'REPEATED_FETCH_ERROR ' + f.error } : { status: 'ERROR', reason: 'FETCH_EXCEPTION ' + f.error };
+      else if (f.code >= 300 && f.code < 400) vr = { status: 'HOLD', reason: 'REDIRECT ' + (f.location || '(転送先なし)').slice(0, 100) };
+      else { try { vr = LedgerAudit.verifyOfficialPage(f.code, f.html, x.c.guid); } catch (e) { vr = { status: 'ERROR', reason: 'VERIFY_EXCEPTION ' + String(e).slice(0, 80) }; } }
+      k[vr.status]++; n++; out.push([x.r.ep, x.c.guid, x.c.url, vr.status, vr.reason, new Date().toISOString()]); if (vr.status !== 'VERIFIED' && ex.length < 10) ex.push(x.r.ep + ' ' + vr.status + ' ' + vr.reason);
+    });
+    var r0 = st.getLastRow() + 1, rg = st.getRange(r0, 1, out.length, OU_STATE_H_.length); rg.setNumberFormat('@'); rg.setValues(out); SpreadsheetApp.flush();   // 10件ごとに保存
     Utilities.sleep(300);
   }
-  if (out.length) { var r0 = st.getLastRow() + 1, rg = st.getRange(r0, 1, out.length, OU_STATE_H_.length); rg.setNumberFormat('@'); rg.setValues(out); }
   var left = todo.length - n;
-  return scLog_(fn, { status: left ? 'PARTIAL_RESUME_NEEDED' : 'OK', candidates: todo.length, checked: n, left: left, result: k, examples: out.slice(0, 5).map(function (o) { return o[0] + ' ' + o[3] + ' ' + o[4]; }), ms: Date.now() - t0 });
+  return scLog_(fn, { status: left ? 'PARTIAL_RESUME_NEEDED' : 'OK', candidates: todo.length, checked: n, left: left, result: k, notVerifiedExamples: ex, ms: Date.now() - t0 });
 }
 function U1_公式URL_確認() { return ouCheck_('U1_公式URL_確認'); }
 function U1T_公式URL_確認_試験20件() { return ouCheck_('U1T_公式URL_確認_試験20件', 0, 20); }

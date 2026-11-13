@@ -344,3 +344,24 @@ test('L1監査はV2を読むだけでCOPYに監査シート／U1は公式ペー�
   assert.match(ri[1][4], /^=HYPERLINK\("https:\/\/www\.asahi\.com\/articles\/ASX1\.html","一の記事見出し"\)$/);
   assert.equal(e.run('R2_関連記事索引_COPY作成').status, 'OK_NO_CHANGE'); assert.equal(e.run('R3_関連記事索引_V2作成').status, 'NOT_APPROVED');
 });
+
+test('U1 例外対応: まとめて取得が例外でも1件ずつ取り直し、通信例外はそのEPだけERROR（NOT_FOUNDにしない）・他所への転送はHOLD・10件ごとに保存・ERRORは次回再確認し3回でHOLD', () => {
+  const e = env(FEED), V = e.books[V2W].sheets['V2・統合台帳'].st.rows, H = e.H, J = H.indexOf('公式個別URL'), G = H.indexOf('公式GUID');
+  const id = (i) => 'dddddddd-0000-4000-8000-00000000000' + i; V[1][G] = id(1); V[2][G] = id(2); V[3][G] = id(3); [1, 2, 3].forEach((i) => { V[i][J] = ''; });
+  const page = (u) => '<link rel="canonical" href="https://www.asahi.com/special/podcasts/item/?itemid=' + u.split('itemid=')[1] + '">';
+  const resp = (code, html, loc) => ({ getResponseCode: () => code, getContentText: () => html, getHeaders: () => (loc ? { Location: loc } : {}) });
+  const one = (u) => { if (u.endsWith(id(1))) throw new Error('使用できないアドレス: ' + u); if (u.endsWith(id(2))) return resp(302, '', 'https://example.com/elsewhere'); return resp(200, page(u)); };
+  e.g.UrlFetchApp.fetchAll = (reqs) => { assert.ok(reqs.every((q) => q.followRedirects === false)); if (reqs.some((q) => q.url.endsWith(id(1)))) throw new Error('使用できないアドレス'); return reqs.map((q) => one(q.url)); };
+  e.g.UrlFetchApp.fetch = (u, o) => { assert.equal(o.followRedirects, false); return one(u); };
+  const a = e.run('U1_公式URL_確認'); assert.equal(a.status, 'OK'); assert.deepEqual(a.result, { VERIFIED: 1, NOT_FOUND: 0, HOLD: 1, ERROR: 1 });
+  const st = () => e.books[COPY].sheets['公式URL確認'].st.rows.slice(1).map((r) => [r[0], r[3], r[4].split(' ')[0]]);
+  assert.deepEqual(st(), [['EP-1', 'ERROR', 'FETCH_EXCEPTION'], ['EP-2', 'HOLD', 'REDIRECT'], ['EP-3', 'VERIFIED', 'CANONICAL_ITEMID_MATCH']]);
+  const b = e.run('U1_公式URL_確認'); assert.equal(b.candidates, 1); assert.equal(b.result.ERROR, 1);   // ERRORだけ再確認（確認済みは取り直さない）
+  const c = e.run('U1_公式URL_確認'); assert.equal(c.result.HOLD, 1); assert.equal(st().slice(-1)[0][2], 'REPEATED_FETCH_ERROR');
+  assert.equal(e.run('U1_公式URL_確認').candidates, 0);
+  e.g.UrlFetchApp.fetch = (u) => (u.endsWith(id(9)) ? resp(200, page(u)) : resp(301, '', 'https://www.asahi.com/special/podcasts/item/?itemid=' + id(9)));   // 朝日の中の転送は追うが、別の itemid なら HOLD
+  V[1][G] = id(4); e.g.UrlFetchApp.fetchAll = (reqs) => reqs.map((q) => resp(301, '', 'https://www.asahi.com/special/podcasts/item/?itemid=' + id(9)));
+  const d = e.run('U1_公式URL_確認'); assert.equal(d.result.HOLD, 1); assert.match(st().slice(-1)[0].join(' '), /HOLD CANONICAL_MISMATCH/);
+  const C = e.books[COPY].sheets['V2・統合台帳'].st.rows; C[3][G] = id(3); C[3][J] = ''; C[1][G] = id(1); C[1][J] = '';
+  const u2 = e.run('U2_公式URL補完_COPY'); assert.equal(u2.written, 1); assert.equal(C[1][J], '');   // 書くのは VERIFIED（GUID一致）の1件だけ。ERROR→HOLDの EP-1 は書かない
+});
