@@ -394,7 +394,7 @@ function p25v2Cfg_(over) {
   if (c.globalReservation !== false) { var r = p25v2GlobalReservation_(); c.reservedMaxEpNo = Math.max(Number(c.reservedMaxEpNo || 0), r.max); c.global = r; c.guidReserve = {}; c.reservation = r.summary; }   // 採番の単一経路（COPY も同じ予約を使う）
   return c;
 }
-function p25v2Env_() { return { hasDoGet: typeof doGet === 'function', hasDoPost: typeof doPost === 'function', triggerCount: ScriptApp.getProjectTriggers().length }; }
+function p25v2Env_() { return { hasDoGet: typeof doGet === 'function', hasDoPost: typeof doPost === 'function', triggerCount: p25v2ForeignTriggers_() }; }   // 承認済みの日次トリガー（P25V2_D1_日次実行・時間主導）だけは許す。それ以外が1本でもあれば停止
 // 開く前・開いた後の両方で対象を確認する（書込なし）
 function p25v2OpenChecked_(cfg, forWrite) {
   p25v2AssertIsolated_(p25v2Env_());

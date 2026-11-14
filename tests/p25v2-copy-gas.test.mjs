@@ -32,7 +32,7 @@ function env({ id = COPY, name = '【COPY試験】V2収蔵ボット', triggers =
       assert.equal(x, COPY); return { getId: () => id, getName: () => name, getSheetByName: (n) => sheets[n] || null, insertSheet: (n) => (sheets[n] = mkSheet(n, [])) }; }, flush() {} },
     UrlFetchApp: { fetch: (u) => { fetched.push(u); return feed(u); } },
     LockService: { getScriptLock: () => ({ tryLock: () => true, releaseLock() {} }) },
-    ScriptApp: { getProjectTriggers: () => Array(triggers).fill({}), newTrigger: () => { throw new Error('TRIGGER_FORBIDDEN'); } },
+    ScriptApp: { getProjectTriggers: () => (typeof triggers === 'number' ? Array(triggers).fill({ getHandlerFunction: () => 'someOther', getEventType: () => 'CLOCK' }) : triggers), newTrigger: () => { throw new Error('TRIGGER_FORBIDDEN'); } },
     PropertiesService: { getScriptProperties: () => ({ getProperty: (k) => props[k] ?? null, setProperty: (k, v) => { props[k] = v; } }) },
     Utilities: { sleep() {}, DigestAlgorithm: { SHA_256: 1 }, Charset: { UTF_8: 1 }, computeDigest: (_a, s) => [...crypto.createHash('sha256').update(s, 'utf8').digest()].map((b) => (b > 127 ? b - 256 : b)) } };
   vm.runInNewContext(SRC, g);
@@ -165,4 +165,12 @@ test('COPY一括: 未収蔵3件を古い順に1回で収蔵→検証OK→再実�
   const led = e.sheets['V2・統合台帳'].st.rows; assert.equal(led.length, 5);
   assert.equal(e.run('P25V2_4_VERIFY').status, 'VERIFY_OK');
   const snap = JSON.stringify(led); const w2 = e.run('P25V2_3B_WRITE_BATCH_COPY'); assert.equal(w2.added, 0); assert.equal(JSON.stringify(led), snap);
+});
+
+test('日次トリガー（P25V2_D1_日次実行・時間主導）だけなら書込できる。他のトリガーがあれば停止', () => {
+  const items = [{ title: '新着A', guid: G1, pub: 'Fri, 13 Nov 2026 19:00:00 GMT', raw: RAW }];
+  const ok = env({ feed: okFeed(items), triggers: [{ getHandlerFunction: () => 'P25V2_D1_日次実行', getEventType: () => 'CLOCK' }] });
+  assert.equal(ok.run('P25V2_3_WRITE_ONE').added, 1);
+  const ng = env({ feed: okFeed(items), triggers: [{ getHandlerFunction: () => 'P25V2_D1_日次実行', getEventType: () => 'CLOCK' }, { getHandlerFunction: () => 'foo', getEventType: () => 'CLOCK' }] });
+  assert.throws(() => ng.run('P25V2_3_WRITE_ONE'), /TRIGGERS_PRESENT/);
 });
