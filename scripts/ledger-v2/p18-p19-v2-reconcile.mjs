@@ -46,14 +46,20 @@ export function planV2UrlCandidates(rows, candidates) {
     if (!SERVICES.includes(service)) { fail("UNKNOWN_SERVICE"); continue; }
     if (matches.length !== 1) { fail(matches.length ? "AMBIGUOUS_GUID" : "GUID_NOT_FOUND"); continue; }
     if (!isEpisodeUrl(service,url)) { fail("EPISODE_URL_NOT_VERIFIED"); continue; }
+    // URL syntax does not prove this URL belongs to this GUID.
+    if (candidate.identityVerified !== true) { fail("IDENTITY_NOT_INDEPENDENTLY_VERIFIED"); continue; }
     const row = matches[0], current = norm(row.urls?.[service]);
     if (current && current !== url) { fail("EXISTING_URL_CONFLICT"); continue; }
     if (current === url) continue;
     const slot = norm(row.epId) + "\u001f" + service;
-    if (seen.has(slot) && seen.get(slot) !== url) { fail("MULTIPLE_CANDIDATES"); continue; }
+    if (seen.has(slot) && seen.get(slot) !== url) { fail("MULTIPLE_CANDIDATES"); seen.set(slot, null); continue; }
+    if (seen.has(slot) && seen.get(slot) === null) { fail("MULTIPLE_CANDIDATES"); continue; }
     if (seen.has(slot)) continue;
     seen.set(slot,url);
     proposals.push({epId:row.epId,show:row.show,guid:row.guid,service,url});
   }
-  return {proposals,holds};
+  // A conflict invalidates every proposal for that EP-ID/service slot.
+  const accepted = proposals.filter(p => seen.get(norm(p.epId) + "\\u001f" + p.service) !== null);
+  for (const p of proposals) if (!accepted.includes(p)) holds.push({candidate:p,reason:"MULTIPLE_CANDIDATES"});
+  return {proposals:accepted,holds};
 }
