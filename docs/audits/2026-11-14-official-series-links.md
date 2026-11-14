@@ -1,88 +1,70 @@
-# トップページのプレイリスト ↔ 朝日公式 番組・連載ページ 対応表（2026-11-14）
+# 番組カード内の連載名 ↔ 朝日公式 連載ページ 照合表（2026-11-14）
 
-出どころ: 朝日新聞ポッドキャスト公式トップ（asahi.com/special/podcasts）の番組・連載一覧を1回読み取り（81連載・テーマ＋11番組）。URLは一覧のリンク先そのまま。推測で作っていない。
+出どころ: 朝日新聞ポッドキャスト公式トップ（asahi.com/special/podcasts）の連載一覧。URLは一覧のリンク先そのまま。
 
-| 状態 | 件数 |
+※ 司令塔指示の「管理人提示の30件対応表」はこの作業環境に届いていないため、公式サイトの一覧で照合した。30件表が届いたら差分を確認して表を合わせる。
+
+| 区分 | 件数 |
 |---|---|
-| 対象外（テーマ別まとめ） | 22 |
-| 採用（連載） | 21 |
-| 未確認 | 21 |
-| 対象外（出演者別まとめ） | 7 |
-| 採用（番組） | 3 |
+| 通常テキスト（対応なし） | 23 |
+| リンク | 20 |
+| 表記揺れを吸収してリンク | 6 |
 
-| # | プレイリスト | 作成者 | 状態 | 公式ページ／メモ |
+| 番組カード | カードの表記 | 区分 | 公式の連載名 | 公式ページ |
 |---|---|---|---|---|
-| 1 | 一緒に新聞をめくろう！ | ダブルスタンダード半年割 | 採用（連載） | [一緒に新聞をめくろう！](https://www.asahi.com/special/podcasts/?pgid=mekuro) |
-| 2 | IOK 伊藤大地・奥山晶二郎・神田大介 | I'm OK | 採用（連載） | [伊藤大地・奥山晶二郎・神田大介](https://www.asahi.com/special/podcasts/?pgid=ito_okuyama_kanda) |
-| 3 | #ふな 冨名腰隆　旧【報談】 | ふね | 未確認 | 候補: pgid=funa（公式の各回説明文に記載。現行の公式一覧には無い）／報談の番組トップ |
-| 4 | 議員になんでも聞いてみよう　秋山訓子の政治家インタビュー | 朝日新聞ポッドキャスト | 未確認 | 候補: pgid=akiyamanoriko（公式の各回説明文に記載。現行の公式一覧には無い） |
-| 5 | 親モヤ | Tommy | 採用（連載） | [親モヤ](https://www.asahi.com/special/podcasts/?pgid=chichioya_moyamoya) |
-| 6 | 東日本大震災 | cobaltore12 | 対象外（テーマ別まとめ） | 公式の連載ではない（公式のテーマ別一覧はあるが連載ではないため採用しない） |
-| 7 | お坊さんに聞け | 杤木ふみ | 採用（連載）※プレイリストURLが空のためカードには出ない | [お坊さんに聞け](https://www.asahi.com/special/podcasts/?pgid=obosannikike) |
-| 8 | ニュースチャット 1on1 | ルッキー | 未確認 | 候補: ニュースチャット（名称一部一致。「1on1」と同一連載か未確認） |
-| 9 | ニュースの現場から #1000 で紹介されたエピソード | かにこ | 採用（番組） | [ニュースの現場から](https://www.asahi.com/special/podcasts/?pgid=684015f9-2396-4ac4-bc1f-ac0f0033d08c) |
-| 10 | 建モノがたり | regency | 未確認 | 公式一覧に該当する連載名なし |
-| 11 | 朝日新聞社の歴史 | さ | 採用（連載） | [朝日新聞社の歴史](https://www.asahi.com/special/podcasts/?pgid=asahishinbunsha_rekishi) |
-| 12 | 秋山訓子　【日本語と英語で取材】 | 不思議の国会 | 未確認 | 候補: pgid=akiyamanoriko（同上） |
-| 13 | アラサー会 | Tommy | 未確認 | 公式一覧に該当する連載名なし |
-| 14 | 太田匡彦 出演回 | リース | 対象外（出演者別まとめ） | 出演者別の公式ページなし |
-| 15 | 食と料理 | bigstone1977 | 対象外（テーマ別まとめ） | 公式の連載ではない（公式のテーマ別一覧はあるが連載ではないため採用しない） |
-| 16 | 司法制度 | bigstone1977 | 対象外（テーマ別まとめ） | 公式の連載ではない（公式のテーマ別一覧はあるが連載ではないため採用しない） |
-| 17 | 世界の車窓から | bigstone1977 | 対象外（テーマ別まとめ） | 公式の連載ではない（公式のテーマ別一覧はあるが連載ではないため採用しない） |
-| 18 | 中東 | bigstone1977 | 対象外（テーマ別まとめ） | 公式の連載ではない（公式のテーマ別一覧はあるが連載ではないため採用しない） |
-| 19 | 中国の周辺 | bigstone1977 | 対象外（テーマ別まとめ） | 公式の連載ではない（公式のテーマ別一覧はあるが連載ではないため採用しない） |
-| 20 | 東南アジア・インド | bigstone1977 | 対象外（テーマ別まとめ） | 公式の連載ではない（公式のテーマ別一覧はあるが連載ではないため採用しない） |
-| 21 | ミャンマー | bigstone1977 | 対象外（テーマ別まとめ） | 公式の連載ではない（公式のテーマ別一覧はあるが連載ではないため採用しない） |
-| 22 | 生命倫理 | bigstone1977 | 対象外（テーマ別まとめ） | 公式の連載ではない（公式のテーマ別一覧はあるが連載ではないため採用しない） |
-| 23 | サイバー事件簿 | bigstone1977 | 対象外（テーマ別まとめ） | 公式の連載ではない（公式のテーマ別一覧はあるが連載ではないため採用しない） |
-| 24 | アフガニスタン | bigstone1977 | 対象外（テーマ別まとめ） | 公式の連載ではない（公式のテーマ別一覧はあるが連載ではないため採用しない） |
-| 25 | 民主主義と憲法 | bigstone1977 | 対象外（テーマ別まとめ） | 公式の連載ではない（公式のテーマ別一覧はあるが連載ではないため採用しない） |
-| 26 | 労働 | bigstone1977 | 対象外（テーマ別まとめ） | 公式の連載ではない（公式のテーマ別一覧はあるが連載ではないため採用しない） |
-| 27 | ビッグテック | bigstone1977 | 対象外（テーマ別まとめ） | 公式の連載ではない（公式のテーマ別一覧はあるが連載ではないため採用しない） |
-| 28 | 動物 | bigstone1977 | 対象外（テーマ別まとめ） | 公式の連載ではない（公式のテーマ別一覧はあるが連載ではないため採用しない） |
-| 29 | SNS・ネット世論 | bigstone1977 | 対象外（テーマ別まとめ） | 公式の連載ではない（公式のテーマ別一覧はあるが連載ではないため採用しない） |
-| 30 | 多国籍共生 | bigstone1977 | 対象外（テーマ別まとめ） | 公式の連載ではない（公式のテーマ別一覧はあるが連載ではないため採用しない） |
-| 31 | オリンピック | bigstone1977 | 対象外（テーマ別まとめ） | 公式の連載ではない（公式のテーマ別一覧はあるが連載ではないため採用しない） |
-| 32 | ロシア・ウクライナ戦争 | bigstone1977 | 対象外（テーマ別まとめ） | 公式の連載ではない（公式のテーマ別一覧はあるが連載ではないため採用しない） |
-| 33 | オーディオルポ（沖縄編・広島編） | cobaltore12 | 未確認 | 特別ルポ・ドキュメンタリーに含まれるか未確認 |
-| 34 | メディアを語る　伊藤大地x奥山晶二郎x神田大介 | 朝日新聞ポッドキャスト | 採用（連載） | [伊藤大地・奥山晶二郎・神田大介](https://www.asahi.com/special/podcasts/?pgid=ito_okuyama_kanda) |
-| 35 | 朝ポキ制作会議！　皆さんもご参加ください | 朝日新聞ポッドキャスト | 採用（連載） | [制作会議](https://www.asahi.com/special/podcasts/?pgid=seisakukaigi) |
-| 36 | ウェルビーイングは寺にあり　お坊さんに聞け！ | 朝日新聞ポッドキャスト | 採用（連載） | [お坊さんに聞け](https://www.asahi.com/special/podcasts/?pgid=obosannikike) |
-| 37 | 3.11特別編　記者の取材を追体験　「福島のいま」 | 朝日新聞ポッドキャスト | 未確認 | 公式一覧に該当する連載名なし |
-| 38 | 東日本大震災から10年　ポッドキャストで考える | 朝日新聞ポッドキャスト | 未確認 | 公式一覧に該当する連載名なし |
-| 39 | 子供への性暴力　大久保真紀 | 朝日新聞ポッドキャスト | 未確認 | 公式一覧に該当する連載名なし |
-| 40 | 藤えりか　シネマニア経済サロン | 朝日新聞ポッドキャスト | 未確認 | 公式一覧の「朝ポキシネマ」とは別企画の可能性（未確認） |
-| 41 | 新聞社員の「楽屋裏」 | 朝日新聞ポッドキャスト | 採用（連載） | [楽屋裏](https://www.asahi.com/special/podcasts/?pgid=gakuyaura) |
-| 42 | 「SDGsを話そう」厳選エピソード | 朝日新聞ポッドキャスト | 採用（番組） | [SDGsを話そう アーカイブ](https://www.asahi.com/special/podcasts/?pgid=91b696fe-c723-4bd1-95ed-b4aa00909997) |
-| 43 | ポキ-1グランプリ 2023 | 朝日新聞ポッドキャスト | 未確認 | 公式一覧に該当する連載名なし |
-| 44 | 「MEDIA TALK」 2023厳選エピソード | 朝日新聞ポッドキャスト | 採用（番組） | [MEDIA TALK](https://www.asahi.com/special/podcasts/?pgid=07a1de49-67cf-4714-8581-ac1000059302) |
-| 45 | 楽屋裏2023　厳選エピソード | 朝日新聞ポッドキャスト | 採用（連載） | [楽屋裏](https://www.asahi.com/special/podcasts/?pgid=gakuyaura) |
-| 46 | バスケ通信―クラッチタイム（バスクラ） | 朝日新聞ポッドキャスト | 採用（連載） | [バスクラ](https://www.asahi.com/special/podcasts/?pgid=basketball_tsushin) |
-| 47 | ディープ日本史 | Tommy | 未確認 | 公式一覧に該当する連載名なし |
-| 48 | サイバー事件簿 | ルッキー | 未確認 | 公式一覧に該当する連載名なし |
-| 49 | 豊秀一　教えて豊さん！他 | LUNA | 未確認 | 候補: 憲法トーク（名称不一致・未確認） |
-| 50 | GLOBE CAST | Tommy | 採用（連載） | [GLOBE CAST](https://www.asahi.com/special/podcasts/?pgid=globecast) |
-| 51 | #懐メロ（#朝ポキ 楽屋裏）＋おじさんのメロディ | koike | 採用（連載） | [楽屋裏](https://www.asahi.com/special/podcasts/?pgid=gakuyaura) |
-| 52 | #ジャニーズ性加害問題（#朝ポキ） | koike | 未確認 | 公式一覧に該当する連載名なし |
-| 53 | #きのどう「木下君、あの動画みた？」 | VHS | 採用（連載） | [木下君、あの動画みた？](https://www.asahi.com/special/podcasts/?pgid=kinoshitakun) |
-| 54 | PRIDE CODE その声が、世界を変える。世界をポジティブに変えていく声を祝福するプレイリスト。 | 朝日新聞社 x Spotify | 採用（連載） | [PRIDE CODE](https://www.asahi.com/special/podcasts/?pgid=pride_code) |
-| 55 | 神田大介がゲスト出演した番組 | 神田大介 | 対象外（出演者別まとめ） | 出演者別の公式ページなし |
-| 56 | #最終回特集（#朝ポキ） | koike | 未確認 | 公式一覧に該当する連載名なし |
-| 57 | バスクラ | たんたん | 採用（連載） | [バスクラ](https://www.asahi.com/special/podcasts/?pgid=basketball_tsushin) |
-| 58 | #初登場特集（#朝ポキ） | koike | 未確認 | 公式一覧に該当する連載名なし |
-| 59 | 8がけ社会 | カンダ ・マサキ | 採用（連載） | [8がけ社会](https://www.asahi.com/special/podcasts/?pgid=hachigakeshakai) |
-| 60 | 編集マニア | カンダ ・マサキ | 採用（連載） | [編集マニア](https://www.asahi.com/special/podcasts/?pgid=henshu_mania) |
-| 61 | 朝日新聞社の歴史 | カンダ ・マサキ | 採用（連載） | [朝日新聞社の歴史](https://www.asahi.com/special/podcasts/?pgid=asahishinbunsha_rekishi) |
-| 62 | まなび場天声人語　見出しづくりにチャレンジ | 朝日新聞ポッドキャスト | 採用（連載） | [まなび場天声人語](https://www.asahi.com/special/podcasts/?pgid=manabiba_tenseijingo) |
-| 63 | #朝ポキ 他流試合 +PCWE2024 +α | koike | 未確認 | 公式一覧に該当する連載名なし |
-| 64 | ニュースチャット1on1 | Sachi | 未確認 | 候補: ニュースチャット（同上） |
-| 65 | 佐藤陽 出演回 | アミーゴ | 対象外（出演者別まとめ） | 出演者別の公式ページなし |
-| 66 | 農MUSIC 猟ライフ（ノーミライ） | ハザ干し | 未確認 | 公式一覧に「ノーミライ」の連載ページなし（ドーナツ内の企画か未確認） |
-| 67 | ポリレビ | 田田田（デンデンデン） | 採用（連載） | [ポリレビ](https://www.asahi.com/special/podcasts/?pgid=porirebi) |
-| 68 | 中南米 | マリオ | 対象外（テーマ別まとめ） | 公式の連載ではない（公式のテーマ別一覧はあるが連載ではないため採用しない） |
-| 69 | 寺下真理加　出演回 | 招き猫 | 対象外（出演者別まとめ） | 出演者別の公式ページなし |
-| 70 | 北欧 | Simo Heinäkenkä | 対象外（テーマ別まとめ） | 公式の連載ではない（公式のテーマ別一覧はあるが連載ではないため採用しない） |
-| 71 | 斎藤健一郎　出演回 | ぽくぽく | 対象外（出演者別まとめ） | 出演者別の公式ページなし |
-| 72 | 台湾 | 小籠包 | 対象外（テーマ別まとめ） | 公式の連載ではない（公式のテーマ別一覧はあるが連載ではないため採用しない） |
-| 73 | 小林友花　出演回 | マチ | 対象外（出演者別まとめ） | 出演者別の公式ページなし |
-| 74 | 小林友花　出演回 | 森 | 対象外（出演者別まとめ） | 出演者別の公式ページなし |
+| ドーナツ～このポッドキャストはSNSです | 日曜版 | 通常テキスト（対応なし） |  |  |
+| ドーナツ～このポッドキャストはSNSです | さんぽ | 通常テキスト（対応なし） |  |  |
+| ドーナツ～このポッドキャストはSNSです | 対話 | 通常テキスト（対応なし） |  |  |
+| ドーナツ～このポッドキャストはSNSです | 1on1 | 通常テキスト（対応なし） |  |  |
+| ドーナツ～このポッドキャストはSNSです | ポすすめ | 通常テキスト（対応なし） |  |  |
+| ドーナツ～このポッドキャストはSNSです | 親モヤ | リンク | 親モヤ | https://www.asahi.com/special/podcasts/?pgid=chichioya_moyamoya |
+| ドーナツ～このポッドキャストはSNSです | スナックよりみ知 | 通常テキスト（対応なし） |  |  |
+| ドーナツ～このポッドキャストはSNSです | アラサーかいわい | 通常テキスト（対応なし） |  |  |
+| ドーナツ～このポッドキャストはSNSです | 農MUSIC 猟ライフ | 通常テキスト（対応なし） |  |  |
+| スポンジ Sports Lounge | ポキフト | 表記揺れを吸収してリンク | ポキフト（朝ポキフットボール） | https://www.asahi.com/special/podcasts/?pgid=asahipodcasts_football |
+| スポンジ Sports Lounge | バスクラ | リンク | バスクラ | https://www.asahi.com/special/podcasts/?pgid=basketball_tsushin |
+| スポンジ Sports Lounge | フィギュアスケートストーリー | リンク | フィギュアスケートストーリー | https://www.asahi.com/special/podcasts/?pgid=figureskate |
+| スポンジ Sports Lounge | お相撲ちゃんねる | リンク | お相撲ちゃんねる | https://www.asahi.com/special/podcasts/?pgid=osumochannel |
+| スポンジ Sports Lounge | 球談 | 通常テキスト（対応なし） |  |  |
+| MEDIA TALK | 骨格 | 通常テキスト（対応なし） |  |  |
+| MEDIA TALK | TMT | 通常テキスト（対応なし） |  |  |
+| MEDIA TALK | 推し記事 | 通常テキスト（対応なし） |  |  |
+| MEDIA TALK | 吹奏楽・高校編 | 通常テキスト（対応なし） |  |  |
+| MEDIA TALK | MEDIA TALK | 通常テキスト（対応なし） |  |  |
+| MEDIA TALK | 木下くんあの動画見た？ | 表記揺れを吸収してリンク | 木下君、あの動画みた？ | https://www.asahi.com/special/podcasts/?pgid=kinoshitakun |
+| MEDIA TALK | いちおしウニュ！ | リンク | いちおしウニュ！ | https://www.asahi.com/special/podcasts/?pgid=ichioshi_withnews |
+| MEDIA TALK | 読書会 | 通常テキスト（対応なし） |  |  |
+| MEDIA TALK | 楽屋裏 | リンク | 楽屋裏 | https://www.asahi.com/special/podcasts/?pgid=gakuyaura |
+| MEDIA TALK | サステナブルHUBスタジオ | リンク | サステナブルHUBスタジオ | https://www.asahi.com/special/podcasts/?pgid=hub |
+| MEDIA TALK | 制作会議 | リンク | 制作会議 | https://www.asahi.com/special/podcasts/?pgid=seisakukaigi |
+| MEDIA TALK | 天声人語 | 表記揺れを吸収してリンク | まなび場天声人語 | https://www.asahi.com/special/podcasts/?pgid=manabiba_tenseijingo |
+| MEDIA TALK | ニュース4U | リンク | ニュース4U | https://www.asahi.com/special/podcasts/?pgid=n4u |
+| MEDIA TALK | 記者サロンTALK | リンク | 記者サロンTALK | https://www.asahi.com/special/podcasts/?pgid=kishasalon |
+| MEDIA TALK | 編集マニア | リンク | 編集マニア | https://www.asahi.com/special/podcasts/?pgid=henshu_mania |
+| MEDIA TALK | 朝ポキシネマ | リンク | 朝ポキシネマ | https://www.asahi.com/special/podcasts/?pgid=cinema |
+| MEDIA TALK | web編集の教科書 | 通常テキスト（対応なし） |  |  |
+| ニュースの現場から | Q&A | 通常テキスト（対応なし） |  |  |
+| ニュースの現場から | 地球会議 | 通常テキスト（対応なし） |  |  |
+| ニュースの現場から | withyou | 通常テキスト（対応なし） |  |  |
+| ニュースの現場から | 8がけ社会 | リンク | 8がけ社会 | https://www.asahi.com/special/podcasts/?pgid=hachigakeshakai |
+| ニュースの現場から | 一緒に新聞をめくろう！ | リンク | 一緒に新聞をめくろう！ | https://www.asahi.com/special/podcasts/?pgid=mekuro |
+| ニュースの現場から | カガクをひらく | 表記揺れを吸収してリンク | カガクをヒラク | https://www.asahi.com/special/podcasts/?pgid=kagakuwohiraku |
+| ニュースの現場から | そなえトーク | 表記揺れを吸収してリンク | もしもに、そなえとーく | https://www.asahi.com/special/podcasts/?pgid=moshimonisonaetalk |
+| ニュースの現場から | World Insight | リンク | World Insight | https://www.asahi.com/special/podcasts/?pgid=worldInsight |
+| ニュースの現場から | GLOBE CAST | リンク | GLOBE CAST | https://www.asahi.com/special/podcasts/?pgid=globecast |
+| ニュースの現場から | PUERTA | リンク | PUERTA | https://www.asahi.com/special/podcasts/?pgid=puerta |
+| ニュースの現場から | ゆるっと経済 | リンク | ゆるっと経済 | https://www.asahi.com/special/podcasts/?pgid=yuruttokeizai |
+| ニュースの現場から | ポリレビ | リンク | ポリレビ | https://www.asahi.com/special/podcasts/?pgid=porirebi |
+| ニュースの現場から | ニュース大阪目線 | リンク | ニュース大阪目線 | https://www.asahi.com/special/podcasts/?pgid=newsosaka |
+| ニュースの現場から | ON GOING | 表記揺れを吸収してリンク | ON GOING！ | https://www.asahi.com/special/podcasts/?pgid=ongoing |
+| 報談【HOU-DAN】 | カロリーオフ | 通常テキスト（対応なし） |  |  |
+| 報談【HOU-DAN】 | 報談本編 | 通常テキスト（対応なし） |  |  |
+| こどもそうだんしつ | 本編 | 通常テキスト（対応なし） |  |  |
+| こどもそうだんしつ | もっと話そう | 通常テキスト（対応なし） |  |  |
+
+## 表記揺れ・要確認（リンクしていないもの）
+
+- MEDIA TALK カードの「MEDIA TALK」: 公式に「MT」(pgid=mt) があるが、同じものか確かめられないため通常テキスト。30件表で MT の表示名が分かれば追加する。
+- 「吹奏楽・高校編」: 公式「吹奏楽」(pgid=brass) の一部か未確認のため通常テキスト。
+- 「球談」: 公式に連載ページなし（「野球」はテーマ一覧で連載ではない）。
+- 「農MUSIC 猟ライフ（ノーミライ）」「アラサーかいわい」「スナックよりみ知」「ポすすめ」など: 公式一覧に連載ページなし。
