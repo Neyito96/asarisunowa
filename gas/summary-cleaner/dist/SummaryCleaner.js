@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = '9c0f668ea39b61e1e9d93d577489f19016861de1ce8dcce991ffd3e7041247e4';
+var CLEANER_BUILD_SOURCE_SHA256 = '242fcb6f2cbf0f99d5750a58e15e84873a3f4d98cd28345f6ac11c6412f532ea';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -963,7 +963,14 @@ function hostIdFromAudio(url) { const m = String(url ?? '').match(/megaphone\.fm
 // 公式個別ページの候補（確認前）。優先順: おんさ共有台帳の Asahi.com URL（他人の記録なので必ずこちらでも確かめる）→ Megaphone の配信ホストID → UUID 形式の GUID。
 // Megaphone の回は GUID が UUID でも GUID を itemid に使わない（公式ページは配信ホストIDで引くため）。key は照合に使う itemid
 function officialUrlCandidate(row) {
-  if (String(row.officialUrl ?? '').trim()) return { status: 'HAS_VALUE' };
+  // 公式個別URL欄に朝日の公式ページURLがあれば確認済みの値として扱う。Omny のページURLなど別の形が入っている時は（82件の共通原因）、
+  // 空欄と同じく GUID 等から候補を作り replaces=true を付ける（U2 の空欄補完では書かない。置き換えは別承認）
+  const cur = String(row.officialUrl ?? '').trim();
+  if (cur && officialItemId(cur)) return { status: 'HAS_VALUE' };
+  const r = officialUrlCandidateFromIds(row);
+  return cur && r.status === 'CANDIDATE' ? { ...r, replaces: true, kind: r.kind + '（公式URL欄は別形式: ' + cur.replace(/^(https?:\/\/[^/]+).*$/, '$1') + '）' } : r;
+}
+function officialUrlCandidateFromIds(row) {
   const onsaId = officialItemId(row.onsaAsahiUrl), host = hostIdFromAudio(row.audioUrl), g = String(row.guid ?? '').trim();
   if (onsaId) return { status: 'CANDIDATE', url: OFFICIAL_ITEM_BASE + onsaId, key: onsaId, guid: onsaId, kind: 'おんさ記録のURL' };
   if (host) return { status: 'CANDIDATE', url: OFFICIAL_ITEM_BASE + host, key: host, guid: host, kind: 'Megaphone配信ID' };
@@ -992,7 +999,7 @@ function verifyOfficialPage(code, html, expectedId, title, opts = {}) {
   if ('show' in opts) {
     const sh = flat(opts.show); if (!sh) return { status: 'HOLD', reason: 'NO_SHOW_TO_MATCH' };
     const prog = (h.match(/"position"\s*:\s*4\s*,\s*"name"\s*:\s*"([^"]+)"/) || [])[1] || '';
-    if (prog) {
+    if (prog && prog !== '記事') {   // パンくず4段目が「記事」のページは番組名が載らない作り（9件の共通原因）→ 本文の番組名で照合
       if (flat(prog).indexOf(sh) === 0) ok.push('SHOW');
       else if ((SHOW_SITE_PARENTS[opts.show] || []).indexOf(prog) >= 0) ok.push('SHOW(親番組:' + prog + ')');
       else return { status: 'HOLD', reason: 'SHOW_MISMATCH ' + prog };
@@ -2113,7 +2120,7 @@ function ouApply_(env, fn) {   // 確認済み（VERIFIED）の URL を、公式
   var t0 = Date.now(), runId = new Date().toISOString() + '/OFFICIAL_URL', c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), target = env === 'V2' ? scOpen_(SC_CONFIG.v2WorkingId, '') : c, D = laRead_(target.sh);
   var st = c.ss.getSheetByName(OU_STATE_); if (!st || st.getLastRow() < 2) return scLog_(fn, { status: 'NO_VERIFIED', note: '先に U1_公式URL_確認' });
   var ok = {}; st.getRange(2, 1, st.getLastRow() - 1, OU_STATE_H_.length).getDisplayValues().forEach(function (r) { if (r[3] === 'VERIFIED') ok[r[1]] = r[2]; });
-  var onsa = laOnsaAsahiByEp_(D.rows), col = D.I.url + 1, plan = D.rows.map(function (r) { return { r: r, c: laOfficialCandidate_(r, onsa) }; }).filter(function (x) { return x.r.ep && x.c.status === 'CANDIDATE' && ok[x.c.key] && ok[x.c.key] === x.c.url; }).map(function (x) { return { row: x.r.row, ep: x.r.ep, url: x.c.url }; });
+  var onsa = laOnsaAsahiByEp_(D.rows), col = D.I.url + 1, plan = D.rows.map(function (r) { return { r: r, c: laOfficialCandidate_(r, onsa) }; }).filter(function (x) { return x.r.ep && x.c.status === 'CANDIDATE' && !x.c.replaces && ok[x.c.key] && ok[x.c.key] === x.c.url; }).map(function (x) { return { row: x.r.row, ep: x.r.ep, url: x.c.url }; });
   if (!plan.length) return scLog_(fn, { status: 'OK_NO_CHANGE', env: env });
   var hs = c.ss.getSheetByName(OU_HIST_) || c.ss.insertSheet(OU_HIST_); if (hs.getLastRow() === 0) hs.getRange(1, 1, 1, OU_HIST_H_.length).setValues([OU_HIST_H_]);
   var h0 = hs.getLastRow() + 1, hr = plan.map(function (p) { return [runId, runId, env, p.ep, String(p.row), '', p.url, '予定']; }), hrg = hs.getRange(h0, 1, hr.length, OU_HIST_H_.length); hrg.setNumberFormat('@'); hrg.setValues(hr);   // 先に履歴

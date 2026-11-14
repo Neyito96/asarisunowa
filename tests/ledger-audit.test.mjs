@@ -22,7 +22,7 @@ test('公式個別URL: 候補はGUIDがある空欄だけ・canonicalのitemid�
   const pg = (id, body = '') => '<link rel="canonical" href="https://www.asahi.com/special/podcasts/item/?itemid=' + id + '"><h1>' + body + '</h1>';
   assert.equal(verifyOfficialPage(200, pg('TASC4073670976', 'ICC赤根知子所長への制裁'), 'TASC4073670976', 'ICC赤根知子所長への制裁').status, 'VERIFIED');
   assert.equal(verifyOfficialPage(200, pg('TASC4073670976', '別の回'), 'TASC4073670976', 'ICC赤根知子所長への制裁').reason, 'TITLE_NOT_ON_PAGE');   // ID が合ってもタイトルが無ければ HOLD
-  assert.equal(officialUrlCandidate({ officialUrl: 'https://x', guid: g }).status, 'HAS_VALUE'); assert.equal(officialUrlCandidate({ officialUrl: '', guid: '' }).status, 'NO_GUID');
+  assert.equal(officialUrlCandidate({ officialUrl: 'https://www.asahi.com/special/podcasts/item/?itemid=' + g, guid: g }).status, 'HAS_VALUE'); assert.equal(officialUrlCandidate({ officialUrl: 'https://x', guid: g }).replaces, true); assert.equal(officialUrlCandidate({ officialUrl: '', guid: '' }).status, 'NO_GUID');
   const page = (id) => '<html><link rel="canonical" href="https://www.asahi.com/special/podcasts/item/?itemid=' + id + '"></html>';
   assert.equal(verifyOfficialPage(200, page(g), g).status, 'VERIFIED'); assert.equal(verifyOfficialPage(200, page('00000000-0000-4000-8000-000000000000'), g).status, 'HOLD');
   assert.equal(verifyOfficialPage(200, '<html>no canonical</html>', g).status, 'HOLD'); assert.equal(verifyOfficialPage(404, '', g).status, 'NOT_FOUND'); assert.equal(verifyOfficialPage(500, '', g).status, 'ERROR');
@@ -119,4 +119,14 @@ test('おんさの日付（RFC形式・UTC）は日本時間の日付で照合�
   const url = 'https://www.asahi.com/special/podcasts/item/?itemid=' + id;
   const r = onsaMatch([{ ep: 'EP-1', title: 't', officialUrl: url }], [{ sheet: '報談', row: 3, asahi: url, title: 't' }, { sheet: 'ニュースの現場から', row: 9, asahi: url, title: 't' }, { sheet: 'スポンジ', row: 4, asahi: 'https://www.asahi.com/special/podcasts/item/?itemid=TASC1111111111', title: 'x' }]);
   assert.deepEqual(r.count, { '一致': 1, 'おんさ内の重複（台帳にあり）': 1, 'おんさにあり台帳に無い': 1 });
+});
+
+test('公式個別URL欄に Omny のURLが入っている行も GUID から候補を作る（replaces=true・空欄補完では書かない）／パンくず4段目が「記事」なら本文で番組照合', async () => {
+  const { officialUrlCandidate, verifyOfficialPage } = await import('../scripts/ledger-v2/ledger-audit.mjs');
+  const g = '5218b5c5-7f21-4089-a000-000000000001';
+  const c = officialUrlCandidate({ officialUrl: 'https://omny.fm/shows/asahi/puerta25', guid: g });
+  assert.equal(c.status, 'CANDIDATE'); assert.equal(c.replaces, true); assert.equal(c.key, g); assert.match(c.kind, /omny\.fm/);
+  assert.equal(officialUrlCandidate({ officialUrl: 'https://www.asahi.com/special/podcasts/item/?itemid=' + g, guid: g }).status, 'HAS_VALUE');
+  const page = '<link rel="canonical" href="https://www.asahi.com/special/podcasts/item/?itemid=' + g + '"><script>{"position":4,"name":"記事"}</script><p>ニュースの現場から 2023/1/5</p>';
+  assert.equal(verifyOfficialPage(200, page, g, '', { show: 'ニュースの現場から', date: '2023-01-05' }).status, 'VERIFIED');
 });

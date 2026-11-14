@@ -38,7 +38,14 @@ export function hostIdFromAudio(url) { const m = String(url ?? '').match(/megaph
 // 公式個別ページの候補（確認前）。優先順: おんさ共有台帳の Asahi.com URL（他人の記録なので必ずこちらでも確かめる）→ Megaphone の配信ホストID → UUID 形式の GUID。
 // Megaphone の回は GUID が UUID でも GUID を itemid に使わない（公式ページは配信ホストIDで引くため）。key は照合に使う itemid
 export function officialUrlCandidate(row) {
-  if (String(row.officialUrl ?? '').trim()) return { status: 'HAS_VALUE' };
+  // 公式個別URL欄に朝日の公式ページURLがあれば確認済みの値として扱う。Omny のページURLなど別の形が入っている時は（82件の共通原因）、
+  // 空欄と同じく GUID 等から候補を作り replaces=true を付ける（U2 の空欄補完では書かない。置き換えは別承認）
+  const cur = String(row.officialUrl ?? '').trim();
+  if (cur && officialItemId(cur)) return { status: 'HAS_VALUE' };
+  const r = officialUrlCandidateFromIds(row);
+  return cur && r.status === 'CANDIDATE' ? { ...r, replaces: true, kind: r.kind + '（公式URL欄は別形式: ' + cur.replace(/^(https?:\/\/[^/]+).*$/, '$1') + '）' } : r;
+}
+function officialUrlCandidateFromIds(row) {
   const onsaId = officialItemId(row.onsaAsahiUrl), host = hostIdFromAudio(row.audioUrl), g = String(row.guid ?? '').trim();
   if (onsaId) return { status: 'CANDIDATE', url: OFFICIAL_ITEM_BASE + onsaId, key: onsaId, guid: onsaId, kind: 'おんさ記録のURL' };
   if (host) return { status: 'CANDIDATE', url: OFFICIAL_ITEM_BASE + host, key: host, guid: host, kind: 'Megaphone配信ID' };
@@ -67,7 +74,7 @@ export function verifyOfficialPage(code, html, expectedId, title, opts = {}) {
   if ('show' in opts) {
     const sh = flat(opts.show); if (!sh) return { status: 'HOLD', reason: 'NO_SHOW_TO_MATCH' };
     const prog = (h.match(/"position"\s*:\s*4\s*,\s*"name"\s*:\s*"([^"]+)"/) || [])[1] || '';
-    if (prog) {
+    if (prog && prog !== '記事') {   // パンくず4段目が「記事」のページは番組名が載らない作り（9件の共通原因）→ 本文の番組名で照合
       if (flat(prog).indexOf(sh) === 0) ok.push('SHOW');
       else if ((SHOW_SITE_PARENTS[opts.show] || []).indexOf(prog) >= 0) ok.push('SHOW(親番組:' + prog + ')');
       else return { status: 'HOLD', reason: 'SHOW_MISMATCH ' + prog };
