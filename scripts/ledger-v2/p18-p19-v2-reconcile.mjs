@@ -59,7 +59,7 @@ export function planV2UrlCandidates(rows, candidates) {
     proposals.push({epId:row.epId,show:row.show,guid:row.guid,service,url});
   }
   // A conflict invalidates every proposal for that EP-ID/service slot.
-  const accepted = proposals.filter(p => seen.get(norm(p.epId) + "\\u001f" + p.service) !== null);
+  const accepted = proposals.filter(p => seen.get(norm(p.epId) + "\u001f" + p.service) !== null);
   for (const p of proposals) if (!accepted.includes(p)) holds.push({candidate:p,reason:"MULTIPLE_CANDIDATES"});
   return {proposals:accepted,holds};
 }
