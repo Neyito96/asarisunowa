@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {planV2UrlCandidates} from "../scripts/ledger-v2/p18-p19-v2-reconcile.mjs";
 const base = {epId:"EP-06726",show:"MEDIA TALK",guid:"guid-1",urls:{Spotify:""}};
-const c = {show:"MEDIA TALK",guid:"guid-1",service:"Spotify",url:"https://open.spotify.com/episode/ABC123"};
+const c = {show:"MEDIA TALK",guid:"guid-1",service:"Spotify",url:"https://open.spotify.com/episode/ABC123",identityVerified:true};
 test("valid GUID match yields one proposal",()=>{
  const r=planV2UrlCandidates([base],[c]);assert.equal(r.proposals.length,1);assert.equal(r.holds.length,0);
 });
@@ -33,4 +33,14 @@ test("duplicate identical candidates yield one proposal",()=>{
 test("input data is not mutated",()=>{
  const rows=[structuredClone(base)], candidates=[structuredClone(c)];
  planV2UrlCandidates(rows,candidates);assert.deepEqual(rows,[base]);assert.deepEqual(candidates,[c]);
+});
+
+test("independent verification required",()=>{
+ const r=planV2UrlCandidates([base],[{...c,identityVerified:false}]);assert.equal(r.proposals.length,0);assert.equal(r.holds[0].reason,"IDENTITY_NOT_INDEPENDENTLY_VERIFIED");
+});
+test("conflicting new candidates invalidate earlier proposal",()=>{
+ const r=planV2UrlCandidates([base],[c,{...c,url:"https://open.spotify.com/episode/OTHER"}]);assert.equal(r.proposals.length,0);assert.equal(r.holds.length,2);
+});
+test("lookalike domain rejected",()=>{
+ const r=planV2UrlCandidates([base],[{...c,url:"https://open.spotify.com.evil.org/episode/ABC123"}]);assert.equal(r.proposals.length,0);
 });
