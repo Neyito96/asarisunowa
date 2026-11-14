@@ -110,3 +110,13 @@ test('番組照合: パンくずの番組名と前方一致、または公式ペ
   assert.equal(v('MEDIA TALK', 'スポンジ').reason, 'SHOW_MISMATCH MEDIA TALK');
   assert.equal(v('ニュースの現場から', 'MEDIA TALK').status, 'HOLD');
 });
+
+test('おんさの日付（RFC形式・UTC）は日本時間の日付で照合／おんさ内の重複行は「台帳に無い」にしない', async () => {
+  const { verifyOfficialPage, onsaMatch } = await import('../scripts/ledger-v2/ledger-audit.mjs');
+  const id = 'aaaaaaaa-0000-4000-8000-000000000003', page = '<link rel="canonical" href="https://www.asahi.com/special/podcasts/item/?itemid=' + id + '"><p>2023/5/5</p>';
+  assert.equal(verifyOfficialPage(200, page, id, '', { date: 'Thu, 04 May 2023 19:05:00 +0000' }).status, 'VERIFIED');   // UTC 5/4 19:05 = JST 5/5
+  assert.match(verifyOfficialPage(200, page, id, '', { date: 'Wed, 03 May 2023 10:00:00 +0000' }).reason, /^DATE_MISMATCH/);
+  const url = 'https://www.asahi.com/special/podcasts/item/?itemid=' + id;
+  const r = onsaMatch([{ ep: 'EP-1', title: 't', officialUrl: url }], [{ sheet: '報談', row: 3, asahi: url, title: 't' }, { sheet: 'ニュースの現場から', row: 9, asahi: url, title: 't' }, { sheet: 'スポンジ', row: 4, asahi: 'https://www.asahi.com/special/podcasts/item/?itemid=TASC1111111111', title: 'x' }]);
+  assert.deepEqual(r.count, { '一致': 1, 'おんさ内の重複（台帳にあり）': 1, 'おんさにあり台帳に無い': 1 });
+});

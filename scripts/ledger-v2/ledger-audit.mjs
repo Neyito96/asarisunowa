@@ -53,7 +53,8 @@ const flat = (t) => String(t ?? '').normalize('NFKC').replace(/[\s　「」『�
 // 公式サイトで別番組の下に載る回がある（その番組の配信枠で流れた回）。2026-11-14 に公式ページのパンくずで確認した組だけを書く。
 // 例: スポンジ・旧報談・一部ドーナツ → 「ニュースの現場から」(pgid 684015f9)。新しい報談は「報談 【HOU-DAN】」、ドーナツは「ドーナツ ～…」で本来名と前方一致
 export const SHOW_SITE_PARENTS = { 'スポンジ': ['ニュースの現場から'], '報談': ['ニュースの現場から'], 'ドーナツ': ['ニュースの現場から'] };
-const dayUtc = (d) => { const m = String(d ?? '').match(/(20\d\d)\D(\d{1,2})\D(\d{1,2})/); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) : NaN; };
+// 日付→UTC 0時の数値。「Thu, 04 May 2023 19:05:00 +0000」形式（おんさ記録）は日本時間に直して日付を取る
+const dayUtc = (d) => { const t = String(d ?? '').trim(); if (/^[A-Za-z]{3},?\s+\d{1,2}\s+[A-Za-z]{3}\s+\d{4}/.test(t)) { const ms = Date.parse(t); if (isNaN(ms)) return NaN; const j = new Date(ms + 9 * 3600000); return Date.UTC(j.getUTCFullYear(), j.getUTCMonth(), j.getUTCDate()); } const m = t.match(/(20\d\d)[-/年.](\d{1,2})[-/月.](\d{1,2})/); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) : NaN; };
 export function verifyOfficialPage(code, html, expectedId, title, opts = {}) {
   if (code === 404 || code === 410) return { status: 'NOT_FOUND', reason: 'HTTP_' + code };
   if (code !== 200) return { status: 'ERROR', reason: 'HTTP_' + code };
@@ -99,7 +100,11 @@ export function onsaMatch(v2, onsa) {
     const o = onsa[hits[0]]; used.add(hits[0]); const diff = [flat(o.title) !== flat(r.title) ? 'タイトル' : '', o.seconds && r.seconds && Math.abs(Number(o.seconds) - Number(r.seconds)) > 2 ? '再生時間' : ''].filter(Boolean).join('・');
     add([r.ep, diff ? '一致（差異あり）' : '一致', ids.map((x) => x[0]).join('・'), o.sheet, String(o.row), o.title, o.date, o.seconds, o.asahi, r.title, diff, ''], diff ? '一致（差異あり）' : '一致');
   });
-  onsa.forEach((o, i) => { if (!used.has(i) && (omnyKey(o.omny) || officialItemId(o.asahi) || spotifyKey(o.spotify))) add(['', 'おんさにあり台帳に無い', '', o.sheet, String(o.row), o.title, o.date, o.seconds, o.asahi, '', '', '未収蔵の可能性（エピソードの不存在ではない）。公式ページ・音声で確かめる'], 'おんさにあり台帳に無い'); });
+  // 照合で使われなかったおんさ行でも、台帳のどれかの行と識別子が一致すれば「おんさ内の重複（台帳にあり）」（おんさで同じ回が別シートにも記録されている）
+  const led = { omny: new Map(), asahi: new Map(), spotify: new Map() };
+  v2.filter((r) => r.ep).forEach((r) => { const k1 = omnyKey(r.sourceUrl), k3 = spotifyKey(r.spotify); if (k1) led.omny.set(k1, r.ep); [officialItemId(r.officialUrl), normId(r.guid), hostIdFromAudio(r.audioUrl)].forEach((k) => { if (k && !led.asahi.has(k)) led.asahi.set(k, r.ep); }); if (k3) led.spotify.set(k3, r.ep); });
+  onsa.forEach((o, i) => { if (used.has(i)) return; const ep = led.omny.get(omnyKey(o.omny)) || led.asahi.get(officialItemId(o.asahi)) || led.spotify.get(spotifyKey(o.spotify)); if (ep) add([ep, 'おんさ内の重複（台帳にあり）', '', o.sheet, String(o.row), o.title, o.date, o.seconds, o.asahi, '', '', 'おんさの別シートにも同じ回の記録あり。台帳の行は ' + ep], 'おんさ内の重複（台帳にあり）'); });
+  onsa.forEach((o, i) => { if (!used.has(i) && !(led.omny.get(omnyKey(o.omny)) || led.asahi.get(officialItemId(o.asahi)) || led.spotify.get(spotifyKey(o.spotify))) && (omnyKey(o.omny) || officialItemId(o.asahi) || spotifyKey(o.spotify))) add(['', 'おんさにあり台帳に無い', '', o.sheet, String(o.row), o.title, o.date, o.seconds, o.asahi, '', '', '未収蔵の可能性（エピソードの不存在ではない）。公式ページ・音声で確かめる'], 'おんさにあり台帳に無い'); });
   return { rows: out, count };
 }
 
