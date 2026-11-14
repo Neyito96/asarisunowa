@@ -85,7 +85,7 @@ function mkSheet(rows) { const st = { rows: rows.map((r) => [...r]) }, get = (r,
   return { st, getLastRow: () => st.rows.length, getLastColumn: () => Math.max(1, ...st.rows.map((r) => r.length)), getRange: rng, setFrozenRows() {}, clear: () => { st.rows = []; }, clearContents: () => { st.rows = []; }, getProtections: () => st.protections, protect: () => { const p = { d: '', w: false, setDescription(x) { p.d = x; return p; }, getDescription: () => p.d, setWarningOnly(x) { p.w = x; return p; } }; st.protections.push(p); return p; } }; }
 function env(feedXml) {
   const box = { module: { exports: {} } }; vm.runInNewContext(fs.readFileSync('scripts/google-apps-script/P25V2IngestAdapter.js', 'utf8'), box); const H = [...box.module.exports.HEADERS];
-  const row = (ep, g, n) => { const r = H.map(() => ''); r[0] = ep; r[H.indexOf('番組')] = 'ニュースの学校'; r[H.indexOf('公式GUID')] = g; r[H.indexOf('概要（清掃済）')] = n || ''; return r; };
+  const row = (ep, g, n) => { const r = H.map(() => ''); r[0] = ep; r[H.indexOf('番組')] = 'ニュースの学校'; r[H.indexOf('配信日時 JST')] = '2026-10-10 06:00'; r[H.indexOf('公式GUID')] = g; r[H.indexOf('概要（清掃済）')] = n || ''; return r; };
   const G = (i) => 'cccccccc-0000-4000-8000-00000000000' + i;
   const mkBook = (id, name) => ({ id, name, sheets: { 'V2・統合台帳': mkSheet([H, row('EP-1', G(1)), row('EP-2', G(2), '人が直した概要'), row('EP-3', G(3))]) } });
   const books = { [COPY]: mkBook(COPY, '【COPY試験】X'), [V2W]: mkBook(V2W, 'V2作業用') }, props = {}, logs = [];
@@ -324,7 +324,7 @@ test('L1監査はV2を読むだけでCOPYに監査シート／U1は公式ペー�
   const g = (i) => 'cccccccc-0000-4000-8000-00000000000' + i;
   [V, C].forEach((L) => { L[1][J] = 'https://www.asahi.com/special/podcasts/item/?itemid=' + g(1); L[2][J] = ''; L[3][J] = ''; L[3][G] = ''; L.forEach((r, i) => { if (i) { r[JU] = '対象'; r[R] = r[0]; } }); });
   const v2snap = JSON.stringify(V);
-  const fetched = []; e.g.UrlFetchApp.fetchAll = (reqs) => reqs.map((q) => { fetched.push(q.url); const id = q.url.split('itemid=')[1]; return { getResponseCode: () => 200, getContentText: () => '<link rel="canonical" href="https://www.asahi.com/special/podcasts/item/?itemid=' + id + '">' }; });
+  const fetched = []; e.g.UrlFetchApp.fetchAll = (reqs) => reqs.map((q) => { fetched.push(q.url); const id = q.url.split('itemid=')[1]; return { getResponseCode: () => 200, getContentText: () => '<link rel="canonical" href="https://www.asahi.com/special/podcasts/item/?itemid=' + id + '"><p>ニュースの学校 2026/10/10</p>' }; });
   const a = e.run('L1_台帳総合監査'); assert.equal(a.status, 'OK'); assert.equal(a.officialUrlEmpty, 2); assert.equal(JSON.stringify(V), v2snap);   // V2は読むだけ
   const miss = e.books[COPY].sheets['監査・公式URL欠落'].st.rows; assert.deepEqual(miss.slice(1).map((r) => [r[0], r[8]]), [['EP-2', '確認待ち（GUIDあり）'], ['EP-3', 'GUIDなし（補完不可）']]);
   assert.ok(e.books[COPY].sheets['監査・SDGs1092'].st.rows.length > 1000); assert.ok(e.books[COPY].sheets['監査・番組別件数'].st.rows.length >= 2);
@@ -348,14 +348,14 @@ test('L1監査はV2を読むだけでCOPYに監査シート／U1は公式ペー�
 test('U1 例外対応: まとめて取得が例外でも1件ずつ取り直し、通信例外はそのEPだけERROR（NOT_FOUNDにしない）・他所への転送はHOLD・10件ごとに保存・ERRORは次回再確認し3回でHOLD', () => {
   const e = env(FEED), V = e.books[V2W].sheets['V2・統合台帳'].st.rows, H = e.H, J = H.indexOf('公式個別URL'), G = H.indexOf('公式GUID');
   const id = (i) => 'dddddddd-0000-4000-8000-00000000000' + i; V[1][G] = id(1); V[2][G] = id(2); V[3][G] = id(3); [1, 2, 3].forEach((i) => { V[i][J] = ''; });
-  const page = (u) => '<link rel="canonical" href="https://www.asahi.com/special/podcasts/item/?itemid=' + u.split('itemid=')[1] + '">';
+  const page = (u) => '<link rel="canonical" href="https://www.asahi.com/special/podcasts/item/?itemid=' + u.split('itemid=')[1] + '"><p>ニュースの学校 2026/10/10</p>';
   const resp = (code, html, loc) => ({ getResponseCode: () => code, getContentText: () => html, getHeaders: () => (loc ? { Location: loc } : {}) });
   const one = (u) => { if (u.endsWith(id(1))) throw new Error('使用できないアドレス: ' + u); if (u.endsWith(id(2))) return resp(302, '', 'https://example.com/elsewhere'); return resp(200, page(u)); };
   e.g.UrlFetchApp.fetchAll = (reqs) => { assert.ok(reqs.every((q) => q.followRedirects === false)); if (reqs.some((q) => q.url.endsWith(id(1)))) throw new Error('使用できないアドレス'); return reqs.map((q) => one(q.url)); };
   e.g.UrlFetchApp.fetch = (u, o) => { assert.equal(o.followRedirects, false); return one(u); };
   const a = e.run('U1_公式URL_確認'); assert.equal(a.status, 'OK'); assert.deepEqual(a.result, { VERIFIED: 1, NOT_FOUND: 0, HOLD: 1, ERROR: 1 });
   const st = () => e.books[COPY].sheets['公式URL確認'].st.rows.slice(1).map((r) => [r[0], r[3], r[4].split(' ')[0]]);
-  assert.deepEqual(st(), [['EP-1', 'ERROR', 'FETCH_EXCEPTION'], ['EP-2', 'HOLD', 'REDIRECT'], ['EP-3', 'VERIFIED', 'CANONICAL_ITEMID_MATCH']]);
+  assert.deepEqual(st(), [['EP-1', 'ERROR', 'FETCH_EXCEPTION'], ['EP-2', 'HOLD', 'REDIRECT'], ['EP-3', 'VERIFIED', 'ID_SHOW_DATE_MATCH']]);
   const b = e.run('U1_公式URL_確認'); assert.equal(b.candidates, 1); assert.equal(b.result.ERROR, 1);   // ERRORだけ再確認（確認済みは取り直さない）
   const c = e.run('U1_公式URL_確認'); assert.equal(c.result.HOLD, 1); assert.equal(st().slice(-1)[0][2], 'REPEATED_FETCH_ERROR');
   assert.equal(e.run('U1_公式URL_確認').candidates, 0);
@@ -394,7 +394,7 @@ test('Megaphone対応: GUIDがUUIDでなくても音声URLの配信ID(TASC…)�
   const e = env(FEED), V = e.books[V2W].sheets['V2・統合台帳'].st.rows, H = e.H, J = H.indexOf('公式個別URL'), G = H.indexOf('公式GUID'), A = H.indexOf('音声URL'), T = H.indexOf('タイトル');
   [1, 2, 3].forEach((i) => { V[i][J] = ''; V[i][G] = 'not-a-uuid-' + i; V[i][T] = '合成の回その' + i; });
   V[1][A] = 'https://traffic.megaphone.fm/TASC1234567890.mp3?updated=1'; V[2][A] = 'https://traffic.megaphone.fm/TASC2222222222.mp3'; V[3][A] = '';
-  const page = (id, t) => ({ getResponseCode: () => 200, getHeaders: () => ({}), getContentText: () => '<link rel="canonical" href="https://www.asahi.com/special/podcasts/item/?itemid=' + id + '"><h1>' + t + '</h1>' });
+  const page = (id, t) => ({ getResponseCode: () => 200, getHeaders: () => ({}), getContentText: () => '<link rel="canonical" href="https://www.asahi.com/special/podcasts/item/?itemid=' + id + '"><h1>' + t + '</h1><p>ニュースの学校 2026/10/10</p>' });
   const one = (u) => (u.endsWith('TASC1234567890') ? page('TASC1234567890', '合成の回その1') : page('TASC2222222222', '別の回'));
   e.g.UrlFetchApp.fetchAll = (reqs) => reqs.map((q) => one(q.url)); e.g.UrlFetchApp.fetch = (u) => one(u);
   const a = e.run('U1_公式URL_確認'); assert.equal(a.candidates, 2);   // EP-3 は音声URLもUUIDも無いので候補にしない（推測URLを作らない）
@@ -412,4 +412,17 @@ test('L3対象の拡大: L2追加・V2保留・未判定・対象外（重複）
   assert.ok(L); assert.deepEqual(out.map((x) => [x.ep, x.labels.join('・'), x.other]), [['EP-1', 'V2にあり旧公開にない・V2保留', ''], ['EP-2', 'V2対象外（10/22の重複判定）', 'EP-3'], ['EP-3', 'V2にあり旧公開にない（再配信候補）', ''], ['ONSA:スポンジ:12', 'おんさにあり台帳に無い', '']]);
   const src = fs.readFileSync('gas/summary-cleaner/src/CleanerMain.js', 'utf8'), body = src.slice(src.indexOf('function laOnsaReadOnly_'), src.indexOf('function laOnsaAsahiByEp_'));
   assert.ok(body.includes('getDisplayValues')); assert.ok(!/setValue|setValues|insertSheet|clear|deleteRow|appendRow|setFormula/.test(body));   // おんさ原本へは書かない
+});
+
+test('L4: 再生時間と音声の長さが一致しても、番組・タイトル・公式ページがそろわなければ重複と確定しない', () => {
+  const e = env(FEED), V = e.books[V2W].sheets['V2・統合台帳'].st.rows, H = e.H, T = H.indexOf('タイトル');
+  V[1][T] = '（再）合成の回'; V[2][T] = '合成の回'; V[3][T] = '別の回';
+  const C = e.books[COPY]; C.sheets['監査・全台帳集計'] = mkSheet([['項目', '値'], ['両方にある公開EP', '0']]);
+  const row = (ep, lab, page, other) => [ep, lab, '', page, '', '', 'AUDIO_OK', '', '', '1000', '600', other, '601', '1000', '', ''];
+  C.sheets['監査・公式音声確認'] = mkSheet([['h'], row('EP-1', 'V2にあり旧公開にない（再配信候補）', 'VERIFIED', 'EP-2'), row('EP-3', 'V2にあり旧公開にない（再配信候補）', 'VERIFIED', 'EP-2'), row('EP-2', 'V2対象外（10/22の重複判定）', 'HOLD', 'EP-1')]);
+  const r = e.run('L4_採否_集計レポート'); assert.equal(r.status, 'OK');
+  const out = Object.fromEntries(C.sheets['監査・採否集計'].st.rows.slice(1).map((x) => [x[0], x]));
+  assert.equal(out['EP-1'][2], 'DUPLICATE（統合案）');   // 番組・題・公式ページ・時間・長さ すべて一致
+  assert.equal(out['EP-3'][2], 'HOLD'); assert.match(out['EP-3'][3], /不一致・未確認=タイトル/);   // 時間と長さは同じでも題が違う
+  assert.equal(out['EP-2'][2], 'HOLD'); assert.match(out['EP-2'][3], /公式ページ/);   // 公式ページ未確認なら確定しない
 });

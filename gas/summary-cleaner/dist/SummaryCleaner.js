@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = 'fc93d52d329165c952fd8ccbab20d0880e3f64849117c3a4a3689ac74af4e2e8';
+var CLEANER_BUILD_SOURCE_SHA256 = '09db41de6b7807847cd463233b9e60d46416408f13d85562d32fc2148d2d5dae';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -964,15 +964,27 @@ function officialUrlCandidate(row) {
 const pageText = (h) => String(h ?? '').replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
 const flat = (t) => String(t ?? '').normalize('NFKC').replace(/[\s　「」『』"“”'’（）()【】\[\]・、。,.!！?？:：/／#＃-]/g, '').toLowerCase();
 // 取得した公式ページが本物か: HTTP 200・canonical（または og:url）の itemid が期待するIDと一致・（タイトルを渡した時は）ページにそのタイトルがある、の全部を満たす時だけ VERIFIED
-function verifyOfficialPage(code, html, expectedId, title) {
+// 公式ページの照合: ID（canonical の itemid）・タイトル・番組・配信日の4つ。渡された条件は全部そろった時だけ VERIFIED。
+// 番組はページ内（パンくず）に番組名があること、配信日はページの日付（YYYY/MM/DD）が台帳の日付と±1日以内（JST と配信基準日のずれ）
+const dayUtc = (d) => { const m = String(d ?? '').match(/(20\d\d)\D(\d{1,2})\D(\d{1,2})/); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) : NaN; };
+function verifyOfficialPage(code, html, expectedId, title, opts = {}) {
   if (code === 404 || code === 410) return { status: 'NOT_FOUND', reason: 'HTTP_' + code };
   if (code !== 200) return { status: 'ERROR', reason: 'HTTP_' + code };
   const h = String(html ?? ''), can = (h.match(/<link[^>]+rel=["']canonical["'][^>]*href=["']([^"']+)["']/i) || h.match(/<meta[^>]+property=["']og:url["'][^>]*content=["']([^"']+)["']/i) || [])[1] || '';
   const id = officialItemId(can.replace(/&amp;/g, '&'));
   if (!id) return { status: 'HOLD', reason: 'NO_CANONICAL_ITEMID' };
   if (id !== normId(expectedId)) return { status: 'HOLD', reason: 'CANONICAL_MISMATCH ' + id };
-  if (title) { const want = flat(title).replace(/^再/, '').slice(0, 24); if (want.length >= 4 && flat(pageText(h)).indexOf(want) < 0) return { status: 'HOLD', reason: 'TITLE_NOT_ON_PAGE' }; }
-  return { status: 'VERIFIED', reason: title ? 'CANONICAL_ITEMID_AND_TITLE_MATCH' : 'CANONICAL_ITEMID_MATCH' };
+  const ok = ['ID'], txt = flat(pageText(h)), rawFlat = flat(h);
+  if (title) { const want = flat(title).replace(/^再/, '').slice(0, 24); if (want.length >= 4 && txt.indexOf(want) < 0) return { status: 'HOLD', reason: 'TITLE_NOT_ON_PAGE' }; ok.push('TITLE'); }
+  if ('show' in opts) { const sh = flat(opts.show); if (!sh) return { status: 'HOLD', reason: 'NO_SHOW_TO_MATCH' }; if (rawFlat.indexOf(sh) < 0) return { status: 'HOLD', reason: 'SHOW_NOT_ON_PAGE' }; ok.push('SHOW'); }
+  if ('date' in opts) {
+    const want = dayUtc(opts.date); if (isNaN(want)) return { status: 'HOLD', reason: 'NO_DATE_TO_MATCH' };
+    const page = (h.match(/20\d\d\/\d{1,2}\/\d{1,2}/g) || []).map(dayUtc);
+    if (!page.length) return { status: 'HOLD', reason: 'NO_DATE_ON_PAGE' };
+    if (!page.some((t) => Math.abs(t - want) <= 86400000)) return { status: 'HOLD', reason: 'DATE_MISMATCH ' + new Date(page[0]).toISOString().slice(0, 10) };
+    ok.push('DATE');
+  }
+  return { status: 'VERIFIED', reason: ok.length === 1 ? 'CANONICAL_ITEMID_MATCH' : ok.length === 2 && ok[1] === 'TITLE' ? 'CANONICAL_ITEMID_AND_TITLE_MATCH' : ok.join('_') + '_MATCH' };
 }
 
 // ---------- おんさ共有台帳との照合（読むだけ）。Omny URL・Asahi.com の itemid・Spotify エピソードID のどれかが一致した時だけ同じ回と見なす（タイトルだけでは結び付けない） ----------
@@ -2060,7 +2072,7 @@ function ouCheck_(fn, budgetMs, maxN) {   // V2を読むだけ。確認結果は
       var f = res[j] || { error: 'NO_RESPONSE' }, vr;
       if (f.error) vr = (errs[x.c.guid] || 0) + 1 >= OU_MAX_ERRORS_ ? { status: 'HOLD', reason: 'REPEATED_FETCH_ERROR ' + f.error } : { status: 'ERROR', reason: 'FETCH_EXCEPTION ' + f.error };
       else if (f.code >= 300 && f.code < 400) vr = { status: 'HOLD', reason: 'REDIRECT ' + (f.location || '(転送先なし)').slice(0, 100) };
-      else { try { vr = LedgerAudit.verifyOfficialPage(f.code, f.html, x.c.key, x.r.title); } catch (e) { vr = { status: 'ERROR', reason: 'VERIFY_EXCEPTION ' + String(e).slice(0, 80) }; } }
+      else { try { vr = LedgerAudit.verifyOfficialPage(f.code, f.html, x.c.key, x.r.title, { show: x.r.show, date: x.r.date }); } catch (e) { vr = { status: 'ERROR', reason: 'VERIFY_EXCEPTION ' + String(e).slice(0, 80) }; } }
       k[vr.status]++; n++; out.push([x.r.ep, x.c.key, x.c.url, vr.status, vr.reason + (x.c.kind ? ' [' + x.c.kind + ']' : ''), new Date().toISOString()]); if (vr.status !== 'VERIFIED' && ex.length < 10) ex.push(x.r.ep + ' ' + vr.status + ' ' + vr.reason);
     });
     var r0 = st.getLastRow() + 1, rg = st.getRange(r0, 1, out.length, OU_STATE_H_.length); rg.setNumberFormat('@'); rg.setValues(out); SpreadsheetApp.flush();   // 10件ごとに保存
@@ -2223,7 +2235,7 @@ function la3Candidates_(c, D) {
   D.rows.forEach(function (r) { by[r.ep] = r; });
   var l2 = c.ss.getSheetByName(LA2_SHEET_); if (l2 && l2.getLastRow() > 1) l2.getRange(2, 1, l2.getLastRow() - 1, LedgerAudit.LEDGER_DIFF_HEADERS.length).getDisplayValues().forEach(function (r) { if (/^V2にあり旧公開にない/.test(r[1])) add(r[0], r[1], String(r[17] || '').split(' ')[0]); else if (/^旧公開にありV2で非公開/.test(r[1])) add(r[0], '旧公開にありV2で非公開', r[17]); });
   D.rows.forEach(function (r) { if (!r.ep) return; if (r.judge === '保留') add(r.ep, 'V2保留'); else if (r.judge === '未判定' || !r.judge) add(r.ep, 'V2未判定'); else if (r.judge === '対象外') add(r.ep, 'V2対象外（10/22の重複判定）', r.rep && r.rep !== r.ep ? r.rep : ''); });
-  var os = c.ss.getSheetByName(LA_ONSA_SHEET_); if (os && os.getLastRow() > 1) os.getRange(2, 1, os.getLastRow() - 1, LedgerAudit.ONSA_MATCH_HEADERS.length).getDisplayValues().forEach(function (r) { if (r[1] === 'おんさにあり台帳に無い') { var id = 'ONSA:' + r[3] + ':' + r[4]; cand[id] = { ep: id, labels: ['おんさにあり台帳に無い'], other: '', onsa: { title: r[5], asahi: r[8], seconds: r[7] } }; } });
+  var os = c.ss.getSheetByName(LA_ONSA_SHEET_); if (os && os.getLastRow() > 1) os.getRange(2, 1, os.getLastRow() - 1, LedgerAudit.ONSA_MATCH_HEADERS.length).getDisplayValues().forEach(function (r) { if (r[1] === 'おんさにあり台帳に無い') { var id = 'ONSA:' + r[3] + ':' + r[4]; cand[id] = { ep: id, labels: ['おんさにあり台帳に無い'], other: '', onsa: { sheet: r[3], title: r[5], date: r[6], asahi: r[8], seconds: r[7] } }; } });
   return { by: by, list: Object.keys(cand).sort().map(function (k) { return cand[k]; }) };
 }
 function L3_公式音声_確認() {   // V2・おんさは読むだけ。確かめた結果を COPY に書き足す（済みは取り直さない。ERROR は次回もう一度）
@@ -2237,7 +2249,7 @@ function L3_公式音声_確認() {   // V2・おんさは読むだけ。確か�
     if (Date.now() - t0 > 240000) break;
     var x = todo[i], r = C.by[x.ep] || { _r: [], title: x.onsa ? x.onsa.title : '' }, cand = x.onsa ? { status: LedgerAudit.officialItemId(x.onsa.asahi) ? 'CANDIDATE' : 'NO_GUID', url: x.onsa.asahi, key: LedgerAudit.officialItemId(x.onsa.asahi) } : (LedgerAudit.officialItemId(r.officialUrl) ? { status: 'CANDIDATE', url: r.officialUrl, key: LedgerAudit.officialItemId(r.officialUrl) } : laOfficialCandidate_(r, onsa));
     var page = { status: 'NO_OFFICIAL_URL', reason: '候補なし（GUID・配信ID・おんさ記録なし）' };
-    if (cand.status === 'CANDIDATE') { var f = ouFetchOne_(cand.url); page = f.error ? { status: 'ERROR', reason: f.error } : (f.code >= 300 && f.code < 400 ? { status: 'HOLD', reason: 'REDIRECT ' + (f.location || '') } : LedgerAudit.verifyOfficialPage(f.code, f.html, cand.key, r.title)); }
+    if (cand.status === 'CANDIDATE') { var f = ouFetchOne_(cand.url); page = f.error ? { status: 'ERROR', reason: f.error } : (f.code >= 300 && f.code < 400 ? { status: 'HOLD', reason: 'REDIRECT ' + (f.location || '') } : LedgerAudit.verifyOfficialPage(f.code, f.html, cand.key, r.title, { show: x.onsa ? x.onsa.sheet : r.show, date: x.onsa ? x.onsa.date : r.date })); }
     var au = x.onsa ? { status: 'NO_AUDIO_URL', reason: '台帳に行が無い' } : la3Audio_(r.audioUrl), o = x.other ? C.by[x.other] : null, oa = o ? la3Audio_(o.audioUrl) : null;
     buf.push([x.ep, x.labels.join('・'), cand.url || '', page.status, (page.reason || '') + (cand.kind ? ' [' + cand.kind + ']' : ''), r.audioUrl || '', au.status, au.reason || '', au.ct || '', au.len || '', r.seconds || (x.onsa ? x.onsa.seconds : ''), x.other || '', o ? o.seconds : '', oa ? oa.len || '' : '', onsa[x.ep] ? 'おんさと一致（Asahi URLあり）' : '', new Date().toISOString()]);
     k[page.status + '/' + au.status] = (k[page.status + '/' + au.status] || 0) + 1; n++;
@@ -2247,21 +2259,35 @@ function L3_公式音声_確認() {   // V2・おんさは読むだけ。確か�
   var labels = {}; C.list.forEach(function (x) { x.labels.forEach(function (l) { labels[l] = (labels[l] || 0) + 1; }); });
   return scLog_('L3_公式音声_確認', { status: todo.length - n ? 'PARTIAL_RESUME_NEEDED' : 'OK', candidates: C.list.length, byLabel: labels, checked: n, left: todo.length - n, result: k, ms: Date.now() - t0 });
 }
-function L4_採否_集計レポート() {   // 読むだけ（COPY の L2・L3 から計算し、COPY に書く）。根拠が足りない回は HOLD のまま
+function L4_採否_集計レポート() {   // 読むだけ（COPY の L2・L3 と V2 作業用台帳から計算し、COPY に書く）。根拠が足りない回は HOLD のまま
   var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), l3 = c.ss.getSheetByName(LA3_SHEET_), sumSh = c.ss.getSheetByName(LA2_SUM_);
   if (!sumSh || sumSh.getLastRow() < 2) return scLog_('L4_採否_集計レポート', { status: 'NO_L2' });
+  var by = {}; laRead_(scOpen_(SC_CONFIG.v2WorkingId, '').sh).rows.forEach(function (r) { by[r.ep] = r; });
   var sv = {}; sumSh.getRange(2, 1, sumSh.getLastRow() - 1, 2).getDisplayValues().forEach(function (r) { sv[r[0]] = r[1]; });
   var L3 = l3 && l3.getLastRow() > 1 ? l3.getRange(2, 1, l3.getLastRow() - 1, LA3_H_.length).getDisplayValues() : [], last = {}; L3.forEach(function (r) { last[r[0]] = r; });
   var out = [], k = {}, cnt = function (key) { k[key] = (k[key] || 0) + 1; };
+  // 重複（同じ回）の確定条件: 番組が同じ・タイトル（「再」等を除いた題）が同じ・自分の公式ページが VERIFIED・再生時間±2秒・音声の長さ一致。
+  // 再生時間と音声の長さだけ一致しても確定しない（HOLD・理由に一致した項目を書く）
+  var dupCheck = function (x) {
+    var me = by[x[0]] || {}, ot = by[x[11]] || {}, m = [], miss = [];
+    (x[10] && x[12] && Math.abs(Number(x[10]) - Number(x[12])) <= 2 ? m : miss).push('再生時間±2秒');
+    (x[9] && x[13] && x[9] === x[13] ? m : miss).push('音声の長さ');
+    (me.show && me.show === ot.show ? m : miss).push('番組');
+    (me.title && ot.title && LedgerAudit.rerunBaseTitle(me.title) === LedgerAudit.rerunBaseTitle(ot.title) ? m : miss).push('タイトル');
+    (x[3] === 'VERIFIED' ? m : miss).push('公式ページ');
+    return { all: !miss.length, why: '一致=' + (m.join('・') || 'なし') + (miss.length ? '／不一致・未確認=' + miss.join('・') : '') };
+  };
   Object.keys(last).sort().forEach(function (ep) {
     var x = last[ep], lab = x[1], pageOk = x[3] === 'VERIFIED', audioOk = x[6] === 'AUDIO_OK', err = x[3] === 'ERROR' || x[6] === 'ERROR';
-    var sameAudio = x[11] && x[12] && x[10] && Math.abs(Number(x[10]) - Number(x[12])) <= 2 && x[9] && x[13] && x[9] === x[13];
     var verdict = 'HOLD', why = '公式ページ=' + x[3] + '・音声=' + x[6];
     if (err) verdict = 'ERROR';
-    else if (/再配信/.test(lab)) { verdict = /DUPLICATE候補/.test(lab) || sameAudio ? (sameAudio ? 'DUPLICATE（統合案）' : 'HOLD') : 'HOLD'; why = sameAudio ? '相手 ' + x[11] + ' と再生時間・音声の長さが一致し、タイトルも原回と一致' : '再配信。音声の一致を確かめられない、または原回なし（司令塔の判断待ち）'; }
-    else if (/対象外（10\/22の重複判定）/.test(lab)) { verdict = sameAudio ? 'DUPLICATE（10/22判定を裏付け）' : 'HOLD'; why = sameAudio ? '代表 ' + x[11] + ' と再生時間・音声の長さが一致' : '10/22 の重複判定を音声で裏付けられない（除外は維持、再審査の候補）'; }
-    else if (/おんさにあり台帳に無い/.test(lab)) { verdict = pageOk ? '未収蔵候補（公式ページあり）' : 'HOLD'; why = pageOk ? '公式ページで実在を確認。台帳への収蔵は別承認' : 'おんさの記録だけでは実在を確定しない'; }
-    else if (pageOk && audioOk) { verdict = /V2保留|V2未判定/.test(lab) ? 'HOLD解消候補（採用案）' : 'VERIFIED'; }
+    else if (/再配信|対象外（10\/22の重複判定）/.test(lab)) {
+      if (!x[11]) why = '比較相手（原回・代表EP）が無い。司令塔の判断待ち';
+      else { var d = dupCheck(x); why = '相手 ' + x[11] + '：' + d.why; verdict = d.all ? (/再配信/.test(lab) ? 'DUPLICATE（統合案）' : 'DUPLICATE（10/22判定を裏付け）') : 'HOLD'; }
+    }
+    else if (/おんさにあり台帳に無い/.test(lab)) { verdict = pageOk ? '未収蔵候補（公式ページあり）' : 'HOLD'; why = pageOk ? '公式ページでID・タイトル・番組・配信日を確認。台帳への収蔵は別承認' : 'おんさの記録だけでは実在を確定しない（' + x[4] + '）'; }
+    else if (pageOk && audioOk) { verdict = /V2保留|V2未判定/.test(lab) ? 'HOLD解消候補（採用案）' : 'VERIFIED'; why = '公式ページ（ID・タイトル・番組・配信日）と音声の応答を確認'; }
+    else why += '（' + x[4] + '）';
     cnt(verdict); out.push([ep, lab, verdict, why, x[2], x[3], x[6]]);
   });
   laWriteSheet_(c.ss, LA4_SHEET_, ['EP-ID', '監査区分', '採否案', '根拠', '照合した公式URL', '公式ページ', '音声'], out);

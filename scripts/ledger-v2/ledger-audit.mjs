@@ -48,15 +48,27 @@ export function officialUrlCandidate(row) {
 const pageText = (h) => String(h ?? '').replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
 const flat = (t) => String(t ?? '').normalize('NFKC').replace(/[\s　「」『』"“”'’（）()【】\[\]・、。,.!！?？:：/／#＃-]/g, '').toLowerCase();
 // 取得した公式ページが本物か: HTTP 200・canonical（または og:url）の itemid が期待するIDと一致・（タイトルを渡した時は）ページにそのタイトルがある、の全部を満たす時だけ VERIFIED
-export function verifyOfficialPage(code, html, expectedId, title) {
+// 公式ページの照合: ID（canonical の itemid）・タイトル・番組・配信日の4つ。渡された条件は全部そろった時だけ VERIFIED。
+// 番組はページ内（パンくず）に番組名があること、配信日はページの日付（YYYY/MM/DD）が台帳の日付と±1日以内（JST と配信基準日のずれ）
+const dayUtc = (d) => { const m = String(d ?? '').match(/(20\d\d)\D(\d{1,2})\D(\d{1,2})/); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) : NaN; };
+export function verifyOfficialPage(code, html, expectedId, title, opts = {}) {
   if (code === 404 || code === 410) return { status: 'NOT_FOUND', reason: 'HTTP_' + code };
   if (code !== 200) return { status: 'ERROR', reason: 'HTTP_' + code };
   const h = String(html ?? ''), can = (h.match(/<link[^>]+rel=["']canonical["'][^>]*href=["']([^"']+)["']/i) || h.match(/<meta[^>]+property=["']og:url["'][^>]*content=["']([^"']+)["']/i) || [])[1] || '';
   const id = officialItemId(can.replace(/&amp;/g, '&'));
   if (!id) return { status: 'HOLD', reason: 'NO_CANONICAL_ITEMID' };
   if (id !== normId(expectedId)) return { status: 'HOLD', reason: 'CANONICAL_MISMATCH ' + id };
-  if (title) { const want = flat(title).replace(/^再/, '').slice(0, 24); if (want.length >= 4 && flat(pageText(h)).indexOf(want) < 0) return { status: 'HOLD', reason: 'TITLE_NOT_ON_PAGE' }; }
-  return { status: 'VERIFIED', reason: title ? 'CANONICAL_ITEMID_AND_TITLE_MATCH' : 'CANONICAL_ITEMID_MATCH' };
+  const ok = ['ID'], txt = flat(pageText(h)), rawFlat = flat(h);
+  if (title) { const want = flat(title).replace(/^再/, '').slice(0, 24); if (want.length >= 4 && txt.indexOf(want) < 0) return { status: 'HOLD', reason: 'TITLE_NOT_ON_PAGE' }; ok.push('TITLE'); }
+  if ('show' in opts) { const sh = flat(opts.show); if (!sh) return { status: 'HOLD', reason: 'NO_SHOW_TO_MATCH' }; if (rawFlat.indexOf(sh) < 0) return { status: 'HOLD', reason: 'SHOW_NOT_ON_PAGE' }; ok.push('SHOW'); }
+  if ('date' in opts) {
+    const want = dayUtc(opts.date); if (isNaN(want)) return { status: 'HOLD', reason: 'NO_DATE_TO_MATCH' };
+    const page = (h.match(/20\d\d\/\d{1,2}\/\d{1,2}/g) || []).map(dayUtc);
+    if (!page.length) return { status: 'HOLD', reason: 'NO_DATE_ON_PAGE' };
+    if (!page.some((t) => Math.abs(t - want) <= 86400000)) return { status: 'HOLD', reason: 'DATE_MISMATCH ' + new Date(page[0]).toISOString().slice(0, 10) };
+    ok.push('DATE');
+  }
+  return { status: 'VERIFIED', reason: ok.length === 1 ? 'CANONICAL_ITEMID_MATCH' : ok.length === 2 && ok[1] === 'TITLE' ? 'CANONICAL_ITEMID_AND_TITLE_MATCH' : ok.join('_') + '_MATCH' };
 }
 
 // ---------- おんさ共有台帳との照合（読むだけ）。Omny URL・Asahi.com の itemid・Spotify エピソードID のどれかが一致した時だけ同じ回と見なす（タイトルだけでは結び付けない） ----------

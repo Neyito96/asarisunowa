@@ -88,3 +88,15 @@ test('おんさ照合: Omny・Asahi itemid・Spotify のどれかが一致した
   assert.deepEqual(by('一致（差異あり）'), ['EP-1']); assert.deepEqual(by('一致'), ['EP-2']); assert.deepEqual(by('おんさに無い'), ['EP-3', 'EP-4']); assert.deepEqual(by('おんさにあり台帳に無い'), ['5']);   // タイトルが同じでも識別子が無ければ結び付けない
   assert.match(r.rows.find((x) => x[0] === 'EP-3')[11], /これだけで除外しない/);
 });
+
+test('公式ページはID・タイトル・番組・配信日の4つで照合（どれか欠けたらHOLD、日付は±1日まで）', async () => {
+  const { verifyOfficialPage } = await import('../scripts/ledger-v2/ledger-audit.mjs');
+  const id = 'aaaaaaaa-0000-4000-8000-000000000001', page = (d, s) => '<link rel="canonical" href="https://www.asahi.com/special/podcasts/item/?itemid=' + id + '"><script type="application/ld+json">{"name":"' + s + '"}</script><h1>合成の回のタイトル</h1><p>' + d + '</p>';
+  const v = (d, s, o) => verifyOfficialPage(200, page(d, s), id, '合成の回のタイトル', o);
+  assert.equal(v('2026/10/10', 'ニュースの現場から', { show: 'ニュースの現場から', date: '2026-10-10 06:00' }).reason, 'ID_TITLE_SHOW_DATE_MATCH');
+  assert.equal(v('2026/10/11', 'ニュースの現場から', { show: 'ニュースの現場から', date: '2026-10-10' }).status, 'VERIFIED');
+  assert.match(v('2026/10/13', 'ニュースの現場から', { show: 'ニュースの現場から', date: '2026-10-10' }).reason, /^DATE_MISMATCH/);
+  assert.equal(v('2026/10/10', 'メディアトーク', { show: 'ニュースの現場から', date: '2026-10-10' }).reason, 'SHOW_NOT_ON_PAGE');
+  assert.equal(v('2026/10/10', 'ニュースの現場から', { show: 'ニュースの現場から', date: '' }).reason, 'NO_DATE_TO_MATCH');
+  assert.equal(v('', 'ニュースの現場から', { show: 'ニュースの現場から', date: '2026-10-10' }).reason, 'NO_DATE_ON_PAGE');
+});
