@@ -103,7 +103,7 @@ const FEED = (G) => `<rss><channel><item><title>A</title><guid>${G(1)}</guid><pu
 test('配布GAS: 再生成と一致・実行一覧・収蔵の入口は出さない・トリガー作成は承認後のD8だけ', () => {
   assert.equal(SRC, buildCleanerGas()['SummaryCleaner.js']);
   const pub = [...SRC.matchAll(/^function ([^\s(]+)\(/gm)].map((m) => m[1]).filter((n) => /^[A-Z]/.test(n) && !/_$/.test(n));   // モジュール内部（即時関数の中）の関数は実行一覧に出ない
-  assert.deepEqual(pub, ['S0_進捗', 'S1_点検', 'S2_清掃監査', 'S3A_COPYへ反映_試験10件', 'S3B_COPYへ反映_全件', 'S4_V2作業用へ反映', 'S9_直前の反映を取消', 'S8_診断', 'S7_抜き取り', 'S5A_V2詳細保全_試験10件', 'S5B_V2詳細保全_全件', 'S6A_V2新着_清掃監査', 'S6B_V2新着_反映', 'S10R_非公式S10の書換を取消', 'S4B_V2作業用へ反映_未合格分のみ', 'S9C_COPY反映の取消_20261112', 'P1_人物索引_予行', 'P2_人物索引_COPY作成', 'P0_承認_人物索引V2', 'P3_人物索引_V2作成', 'P9_人物索引_V2を空に戻す', 'C1_出演者_予行', 'C0_承認_出演者修正', 'C2_出演者_反映', 'C9_出演者修正の取消', 'P5_人物索引_予行', 'P5T_途中停止の試験_COPY', 'P5_人物索引_予行_COPY', 'P8_人物索引_直前に戻す', 'P6_人物索引_COPYとV2の突合', 'P5_人物索引_差分更新_COPY', 'P5_人物索引_差分更新', 'P4_承認_人物索引差分更新V2', 'X1_公開台帳_点検', 'X1_公開台帳_点検_COPY', 'X0_承認_公開台帳の修復', 'X2_公開台帳_塞ぎセル除去_COPY', 'X2_公開台帳_塞ぎセル除去', 'X3_公開台帳_警告保護_COPY', 'X3_公開台帳_警告保護', 'D2_清掃と人物_日次', 'D0_承認_清掃日次トリガー', 'D8_清掃日次トリガー設置', 'D9_清掃日次停止', 'D7_停止旗を外す', 'L1_台帳総合監査', 'U1_公式URL_確認', 'U1T_公式URL_確認_試験20件', 'U2_公式URL補完_COPY', 'U0_承認_公式URL補完V2', 'U2_公式URL補完_V2', 'U9_公式URL補完の取消', 'R4_関連記事索引_V2とCOPYの差', 'R1_関連記事索引_予行', 'R2_関連記事索引_COPY作成', 'R0_承認_関連記事索引V2', 'R3_関連記事索引_V2作成', 'R9_関連記事索引_直前に戻す', 'L2_全台帳_差分監査', 'L3_公式音声_確認', 'L3R_対象限定_再確認', 'L4_採否_集計レポート', 'E1_V2公開データ_予行', 'K1_空欄棚卸し', 'LA0_監査一式_実行', 'LA9_監査一式_最初から']);
+  assert.deepEqual(pub, ['S0_進捗', 'S1_点検', 'S2_清掃監査', 'S3A_COPYへ反映_試験10件', 'S3B_COPYへ反映_全件', 'S4_V2作業用へ反映', 'S9_直前の反映を取消', 'S8_診断', 'S7_抜き取り', 'S5A_V2詳細保全_試験10件', 'S5B_V2詳細保全_全件', 'S6A_V2新着_清掃監査', 'S6B_V2新着_反映', 'S10R_非公式S10の書換を取消', 'S4B_V2作業用へ反映_未合格分のみ', 'S9C_COPY反映の取消_20261112', 'P1_人物索引_予行', 'P2_人物索引_COPY作成', 'P0_承認_人物索引V2', 'P3_人物索引_V2作成', 'P9_人物索引_V2を空に戻す', 'C1_出演者_予行', 'C0_承認_出演者修正', 'C2_出演者_反映', 'C9_出演者修正の取消', 'P5_人物索引_予行', 'P5T_途中停止の試験_COPY', 'P5_人物索引_予行_COPY', 'P8_人物索引_直前に戻す', 'P6_人物索引_COPYとV2の突合', 'P5_人物索引_差分更新_COPY', 'P5_人物索引_差分更新', 'P4_承認_人物索引差分更新V2', 'X1_公開台帳_点検', 'X1_公開台帳_点検_COPY', 'X0_承認_公開台帳の修復', 'X2_公開台帳_塞ぎセル除去_COPY', 'X2_公開台帳_塞ぎセル除去', 'X3_公開台帳_警告保護_COPY', 'X3_公開台帳_警告保護', 'D2_清掃と人物_日次', 'D0_承認_清掃日次トリガー', 'D8_清掃日次トリガー設置', 'D9_清掃日次停止', 'D7_停止旗を外す', 'L1_台帳総合監査', 'U1_公式URL_確認', 'U1T_公式URL_確認_試験20件', 'U2_公式URL補完_COPY', 'U0_承認_公式URL補完V2', 'U2_公式URL補完_V2', 'U9_公式URL補完の取消', 'R4_関連記事索引_V2とCOPYの差', 'R1_関連記事索引_予行', 'R2_関連記事索引_COPY作成', 'R0_承認_関連記事索引V2', 'R3_関連記事索引_V2作成', 'R9_関連記事索引_直前に戻す', 'L2_全台帳_差分監査', 'L3_公式音声_確認', 'L3R_対象限定_再確認', 'L4_採否_集計レポート', 'E1_V2公開データ_予行', 'K1_空欄棚卸し', 'LA0_監査一式_実行', 'LA9_監査一式_最初から', 'QA0_品質監査_全体開始', 'QA1_URL監査', 'QA2_概要欄監査', 'QA3_関連記事監査', 'QA8_中断位置から再開', 'QA9_結果確認']);
   assert.ok(!/DriveApp|MailApp/.test(SRC)); assert.ok(!/function\s+do(Get|Post)\b/.test(SRC));
   // トリガー作成は D8 だけ、しかも承認確認と「他のトリガーがあれば断る」の後。削除は D9 だけ
   const fnOf = (re) => [...SRC.matchAll(/function\s+([^\s(]+)\s*\([^)]*\)\s*\{/g)].map((m) => ({ name: m[1], at: m.index })).filter((f, i, a) => re.test(SRC.slice(f.at, (a[i + 1] || { at: SRC.length }).at))).map((f) => f.name);
@@ -425,4 +425,23 @@ test('L4: 再生時間と音声の長さが一致しても、番組・タイト�
   assert.equal(out['EP-1'][2], 'DUPLICATE（統合案）');   // 番組・題・公式ページ・時間・長さ すべて一致
   assert.equal(out['EP-3'][2], 'HOLD'); assert.match(out['EP-3'][3], /不一致・未確認=タイトル/);   // 時間と長さは同じでも題が違う
   assert.equal(out['EP-2'][2], 'HOLD'); assert.match(out['EP-2'][3], /公式ページ/);   // 公式ページ未確認なら確定しない
+});
+
+test('品質監査QA: V2は読むだけ・COPYの監査タブだけに書く・分割→再開でDONE・再実行で同じ結果', () => {
+  const e = env(FEED), sha = (t) => crypto.createHash('sha256').update(t, 'utf8').digest('hex');
+  const V = e.books[V2W].sheets['V2・統合台帳'].st.rows, H = e.H, S = H.indexOf('Spotify'), A = H.indexOf('Apple'), N = H.indexOf('概要（清掃済）'), P = H.indexOf('関連記事URL'), R = H.indexOf('代表EP-ID');
+  const raw1 = '<p>本文です。2026年10月10日に収録。</p><p>【関連記事】<br>▽一の記事見出し<br>https://www.asahi.com/articles/ASV1A1111.html</p>', raw2 = '<p>二の本文</p>';
+  e.books[V2W].sheets['V2・収蔵詳細'] = mkSheet([['EP-ID', '公式GUID', '取得元', '取得日時', '概要原文', '概要原文SHA256'], ['EP-1', 'g1', '', '', raw1, sha(raw1)], ['EP-2', 'g2', '', '', raw2, 'bad']]);
+  V[1][S] = 'https://open.spotify.com/episode/AAAAAAAAAAAAAAAAAAAAAA'; V[2][S] = 'https://open.spotify.com/show/XYZ'; V[3][S] = V[1][S]; V[1][A] = 'https://podcasts.apple.com/jp/podcast/x/id1?i=2';
+  V[1][N] = '本文です。'; V[1][P] = 'https://www.asahi.com/articles/ASV1A1111.html https://www.asahi.com/articles/ASV1A1111.html'; V.forEach((r, i) => { if (i) r[R] = r[0]; });
+  const snap = JSON.stringify(e.books[V2W].sheets);
+  vm.runInNewContext('QA_CHUNK_MS_ = -1', e.g); const a = e.run('QA0_品質監査_全体開始'); assert.equal(a.status, 'PARTIAL_RESUME_NEEDED'); assert.equal(a.processed, 0); assert.match(a.readFrom, /1ZAl4Q/); assert.match(a.wroteTo, /1WTLca/);
+  assert.equal(a.url.counts['Spotify/SHOW_TOP'], 1); assert.equal(a.url.counts['Spotify/共有・要確認'], 2);
+  vm.runInNewContext('QA_CHUNK_MS_ = 240000', e.g); const b = e.run('QA8_中断位置から再開'); assert.equal(b.status, 'DONE'); assert.equal(b.processed, 3);
+  assert.equal(JSON.stringify(e.books[V2W].sheets), snap);   // V2 は1セルも変わらない
+  const sm = e.books[COPY].sheets['監査・品質_概要'].st.rows.slice(1), rl = e.books[COPY].sheets['監査・品質_関連記事'].st.rows.slice(1);
+  assert.equal(sm.length, 3); assert.equal(sm[0][3], sha(raw1)); assert.match(sm[1][2], /ハッシュ不一致/); assert.match(sm[2][2], /原文なし/);
+  assert.match(rl[0][2], /台帳の同じ記事URLが重複/); assert.match(rl[0][2], /原文の記事が索引にない/);
+  const first = JSON.stringify([sm, rl]); e.run('QA0_品質監査_全体開始'); assert.equal(JSON.stringify([e.books[COPY].sheets['監査・品質_概要'].st.rows.slice(1), e.books[COPY].sheets['監査・品質_関連記事'].st.rows.slice(1)]), first);   // 再実行で同じ結果（追記で増えない）
+  const t = e.run('QA9_結果確認'); assert.equal(t.status, 'OK'); assert.equal(t.summary.rows, 3); assert.ok(e.books[COPY].sheets['監査・品質_集計']);
 });

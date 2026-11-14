@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = 'dd238b36c9c1ac97d877d8fd119465e976a0fbc3c97a562e48f17ea391283d96';
+var CLEANER_BUILD_SOURCE_SHA256 = 'fe16da3da6d62125cfef63f8e98a3372660a6c4e59c5ecaec5c6f3ae0520be3f';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -1139,7 +1139,63 @@ function ledgerDiff({ oldPub = [], v2 = [], v1 = [], since = '2026-11-13' }) {
   return { rows, count, n, equation };
 }
 
-return { LEDGER_AUDIT_VERSION, PLATFORM_COLUMNS, classifyPlatformUrl, OFFICIAL_ITEM_BASE, officialItemId, hostIdFromAudio, officialUrlCandidate, SHOW_SITE_PARENTS, verifyOfficialPage, ONSA_MATCH_HEADERS, onsaMatch, SDGS_AUDIT_HEADERS, auditSdgs, RELATED_HEADERS, articleKey, relatedRows, sheetText, hyperlink, PLAYLIST_HEADERS, playlistCounts, isRerunTitle, rerunBaseTitle, LEDGER_DIFF_HEADERS, ledgerDiff };
+// ===== V2データ品質監査（2026-11-14 司令塔「V2データ品質・統合GAS監査」）。読むだけ。判定だけを返し、台帳には書かない =====
+const QA_VERSION = 'QA-1';
+const QA_URL_HEADERS = ['EP-ID', 'サービス', '判定', 'URL', '代表EP-ID', '掲載判定', 'メモ'];
+const QA_SUMMARY_HEADERS = ['EP-ID', '判定', '原因', '原文SHA256', '原文文字数', '清掃済み文字数（台帳）', '再清掃文字数', '残存率', '清掃監査', '詳細'];
+const QA_RELATED_HEADERS = ['EP-ID', '判定', '原因', '原文の記事数', '台帳URL数', '索引の行数', '見出しなし', '詳細'];
+// URL: 形（EPISODE/SHOW_TOP/OTHER/EMPTY）と、同じURLを別の回が持っていないか（代表EP-IDで束ねた回どうしは正常）。実際のリンク先の同一性は別の判定（ここでは「未照合」）
+function qaPlatformUrls(rows, platforms = PLATFORM_COLUMNS) {
+  const out = [], counts = {}, byUrl = new Map();
+  rows.forEach((r) => platforms.forEach((p) => { const u = String((r.links || {})[p] || '').trim(); if (u) { const k = p + '\u0001' + u; (byUrl.get(k) || byUrl.set(k, []).get(k)).push(r); } }));
+  rows.forEach((r) => platforms.forEach((p) => {
+    const u = String((r.links || {})[p] || '').trim(), c = classifyPlatformUrl(p, u), key = p + '/' + c; counts[key] = (counts[key] || 0) + 1;
+    if (c === 'EMPTY') return;
+    let st = c === 'EPISODE' ? '形OK・同一性未照合' : c === 'SHOW_TOP' ? '番組トップ（個別EPではない）' : '形が不明', note = '';
+    const same = (byUrl.get(p + '\u0001' + u) || []).filter((x) => x.ep !== r.ep);
+    if (same.length) { const grouped = same.every((x) => (x.rep || x.ep) === (r.rep || r.ep)); if (grouped) note = '同一内容として束ねた回と共有（' + same.map((x) => x.ep).join(' ') + '）'; else { st = '別の回と同じURL（要確認）'; note = same.map((x) => x.ep).join(' '); } counts[p + '/共有' + (grouped ? '・束ね済み' : '・要確認')] = (counts[p + '/共有' + (grouped ? '・束ね済み' : '・要確認')] || 0) + 1; }
+    if (c !== 'EPISODE' || note) out.push([r.ep, p, st, u, r.rep || '', r.judge || '', note]);
+  }));
+  return { rows: out, counts };
+}
+const QA_HTML = /<\/?(?:a|p|br|div|span|strong|b|i|em|ul|li|img)\b[^>]*>/i, QA_ENTITY = /&(?:amp|lt|gt|quot|nbsp|#\d+|#x[0-9a-f]+|[a-z]{2,8});/i, QA_MOJIBAKE = /�|ã[\u0080-¿]|â€|Ã./;
+const QA_DATE = /(?:\d{4}年)?\d{1,2}月\d{1,2}日/g, QA_URL = /https?:\/\/[^\s<>"'）)」』】]+/g;
+const qaNz = (s) => String(s ?? '').normalize('NFKC').replace(/\s+/g, '');
+// 概要欄: 原文（保全・SHA一致）・台帳の清掃済み・同じ原文の再清掃・清掃監査（judgeEpisode）の結果を比べ、原因で分類する。文字数が減っただけでは異常にしない
+function qaSummary({ ep, raw, rawSha, shaOk, ledger, reclean, judge }) {
+  const causes = [], r = String(raw ?? ''), l = String(ledger ?? ''), c = String(reclean ?? ''), det = [];
+  if (!r.trim()) causes.push(shaOk === false ? '原文のハッシュ不一致（保全が壊れている疑い）' : '原文なし（未保全）');
+  else {
+    if (!l.trim()) causes.push(c.trim() ? '清掃済みが空欄（再清掃なら本文あり）' : '清掃後も本文なし（原文が告知・リンクのみ）');
+    if (l.trim() && qaNz(l) === qaNz(r) && qaNz(c) !== qaNz(r)) causes.push('清掃済み欄が原文のまま（未清掃）');
+    if (l.trim() && c.trim() && qaNz(l) !== qaNz(c)) causes.push('再清掃で結果が変わる（清掃版の差・手直し）');
+    if (QA_HTML.test(l)) causes.push('HTMLタグ残り'); if (QA_ENTITY.test(l)) causes.push('文字参照残り'); if (QA_MOJIBAKE.test(l)) causes.push('文字化けの疑い');
+    const dates = [...new Set((r.replace(/<[^>]*>/g, ' ').match(QA_DATE) || []))].filter((d) => !qaNz(l).includes(qaNz(d)) && !qaNz(c).includes(qaNz(d)));
+    if (l.trim() && dates.length) { causes.push('日付表記の消失'); det.push('日付: ' + dates.slice(0, 3).join(' ')); }
+    (judge && judge.findings || []).forEach((f) => { if (!/^MANUAL_EDIT_PROTECTED/.test(f)) causes.push('清掃監査: ' + f); else causes.push('手入力の値を保護中'); });
+  }
+  const ratio = r.trim() && l.trim() ? Math.round(l.length / r.replace(/<[^>]*>/g, '').length * 100) / 100 : '';
+  const verdict = !causes.length ? '問題なし' : causes.some((x) => /ハッシュ不一致|原文なし|空欄|HTML|文字化け/.test(x)) ? '要修復' : '要確認';
+  return { ep, verdict, causes, row: [ep, verdict, causes.join(' / '), rawSha || '', r.length, l.length, c.length, ratio, judge ? judge.verdict : '', det.join(' ')] };
+}
+// 関連記事: 原文から抽出した記事（見出し＋URL）、台帳の関連記事URL、V2・関連記事索引の行を EP-ID ごとに突き合わせる
+function qaRelated({ ep, fromRaw = [], ledgerUrls = '', indexRows = [] }) {
+  const causes = [], det = [], key = articleKey, rawArt = fromRaw.filter((a) => (a.kind || 'article') === 'article');
+  const rawKeys = new Map(); rawArt.forEach((a) => { if (a.url) rawKeys.set(key(a.url), a); });
+  const led = String(ledgerUrls || '').split(/[\s\n]+/).filter((u) => /^https?:\/\//.test(u)), ledKeys = led.map(key), idx = indexRows.map((x) => ({ url: x[3], title: x[2], k: key(x[3]) }));
+  const dupLed = ledKeys.filter((k, i) => ledKeys.indexOf(k) !== i); if (dupLed.length) causes.push('台帳の同じ記事URLが重複');
+  const titleOnly = rawArt.filter((a) => !a.url && a.title); if (titleOnly.length) causes.push('見出しだけ（URLなし）');
+  const noHead = idx.filter((x) => !x.title || x.title === '未取得'); if (noHead.length) causes.push('URLだけ（見出し未取得）');
+  const idxKeys = new Set(idx.map((x) => x.k)), missIdx = [...rawKeys.keys()].filter((k) => !idxKeys.has(k)); if (missIdx.length) { causes.push('原文の記事が索引にない'); det.push('索引なし: ' + missIdx.slice(0, 2).join(' ')); }
+  const missLed = [...rawKeys.keys()].filter((k) => !ledKeys.includes(k)); if (missLed.length) causes.push('原文の記事が台帳の関連記事URLにない');
+  const ledOnly = ledKeys.filter((k) => !rawKeys.has(k)); if (ledOnly.length && rawKeys.size) causes.push('台帳だけにある記事URL（原文に無い）'); else if (ledOnly.length) causes.push('台帳だけにある記事URL（原文に記事欄なし）');
+  const idxDup = idx.map((x) => x.k).filter((k, i, a) => a.indexOf(k) !== i); if (idxDup.length) causes.push('索引の同じ記事が重複');
+  const titleConflict = idx.filter((x) => rawKeys.has(x.k) && x.title && x.title !== '未取得' && rawKeys.get(x.k).title && qaNz(rawKeys.get(x.k).title) !== qaNz(x.title)); if (titleConflict.length) causes.push('見出しが原文と違う（別記事との結合の疑い）');
+  const verdict = !rawArt.length && !led.length && !idx.length ? '記事なし' : !causes.length ? '問題なし' : causes.some((x) => /索引にない|台帳の関連記事URLにない|結合/.test(x)) ? '要修復' : '要確認';
+  return { ep, verdict, causes, row: [ep, verdict, causes.join(' / '), rawArt.length, led.length, idx.length, noHead.length, det.join(' ')] };
+}
+
+return { LEDGER_AUDIT_VERSION, PLATFORM_COLUMNS, classifyPlatformUrl, OFFICIAL_ITEM_BASE, officialItemId, hostIdFromAudio, officialUrlCandidate, SHOW_SITE_PARENTS, verifyOfficialPage, ONSA_MATCH_HEADERS, onsaMatch, SDGS_AUDIT_HEADERS, auditSdgs, RELATED_HEADERS, articleKey, relatedRows, sheetText, hyperlink, PLAYLIST_HEADERS, playlistCounts, isRerunTitle, rerunBaseTitle, LEDGER_DIFF_HEADERS, ledgerDiff, QA_VERSION, QA_URL_HEADERS, QA_SUMMARY_HEADERS, QA_RELATED_HEADERS, qaPlatformUrls, qaSummary, qaRelated };
 })();
 
 var LibraryCore = (function () {
@@ -2425,3 +2481,70 @@ function LA0_監査一式_実行() {
   return scLog_('LA0_監査一式_実行', { status: 'DONE', runId: st.runId, build: typeof CLEANER_BUILD_SOURCE_SHA256 === 'string' ? CLEANER_BUILD_SOURCE_SHA256.slice(0, 16) : '', results: st.results, wroteTo: 'COPY「' + LA0_MANIFEST_ + '」ほか監査シート', ms: Date.now() - t0 });
 }
 function LA9_監査一式_最初から() { PropertiesService.getScriptProperties().deleteProperty('LA0_STATE'); return scLog_('LA9_監査一式_最初から', { status: 'OK' }); }
+
+// ===== V2データ品質監査 QA（2026-11-14 司令塔「V2データ品質・統合GAS監査」）=====
+// 読むだけ: V2（正本）の「V2・統合台帳」「V2・収蔵詳細」「V2・関連記事索引」。書くのは COPY の監査タブ（監査・品質_URL／_概要／_関連記事／_集計）だけ。
+// 本番台帳・公開JSON・Spotify・外部サービスには書かない（外部へのアクセスもしない）。6,000件超を分割（1回 約4分）し、続きは QA8 で再開。
+// 押す順: QA0_品質監査_全体開始 → （PARTIAL なら）QA8_中断位置から再開 を DONE まで → QA9_結果確認。個別に回すときは QA1／QA2／QA3。
+var QA_SHEETS_ = { url: '監査・品質_URL', summary: '監査・品質_概要', related: '監査・品質_関連記事', total: '監査・品質_集計' };
+var QA_STATE_KEY_ = 'QA_STATE', QA_CHUNK_MS_ = 240000;
+function qaOpen_() { var v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes); if (c.ss.getId() === v.ss.getId()) throw new Error('QA_TARGET_IS_V2'); return { v: v, c: c }; }
+function qaHeader_(ss, name, H) { var sh = ss.getSheetByName(name) || ss.insertSheet(name); sh.clearContents(); sh.getRange(1, 1, 1, H.length).setValues([H]); sh.setFrozenRows(1); return sh; }
+function qaAppend_(sh, rows, n) { if (!rows.length) return; sh.getRange(sh.getLastRow() + 1, 1, rows.length, n).setNumberFormat('@').setValues(rows.map(function (r) { return r.map(function (x) { return LedgerAudit.sheetText(String(x)); }); })); }
+function qaWhere_(o, extra) { return Object.assign({ readFrom: 'V2 ' + SC_CONFIG.v2WorkingId + '（読むだけ）', wroteTo: 'COPY ' + SC_CONFIG.copyId + ' の監査タブ', version: LedgerAudit.QA_VERSION }, extra || {}); }
+function qaUrlRun_(o) {
+  var D = laRead_(o.v.sh), P = LedgerAudit.PLATFORM_COLUMNS, idx = P.map(function (p) { return D.h.indexOf(p); });
+  var rows = D.rows.filter(function (r) { return r.ep; }).map(function (r) { var links = {}; P.forEach(function (p, j) { if (idx[j] >= 0) links[p] = r._r[idx[j]]; }); return { ep: r.ep, rep: r.rep, judge: r.judge, links: links }; });
+  var res = LedgerAudit.qaPlatformUrls(rows), sh = qaHeader_(o.c.ss, QA_SHEETS_.url, LedgerAudit.QA_URL_HEADERS); qaAppend_(sh, res.rows, LedgerAudit.QA_URL_HEADERS.length);
+  return { episodes: rows.length, missingColumns: P.filter(function (p, j) { return idx[j] < 0; }), counts: res.counts, issueRows: res.rows.length };
+}
+function qaStart_(fn, modes) {
+  var o = qaOpen_(), out = {}, P = PropertiesService.getScriptProperties();
+  if (modes.indexOf('url') >= 0) out.url = qaUrlRun_(o);
+  var deep = modes.filter(function (m) { return m === 'summary' || m === 'related'; });
+  if (!deep.length) return scLog_(fn, qaWhere_(o, { status: 'DONE', url: out.url }));
+  if (deep.indexOf('summary') >= 0) qaHeader_(o.c.ss, QA_SHEETS_.summary, LedgerAudit.QA_SUMMARY_HEADERS);
+  if (deep.indexOf('related') >= 0) qaHeader_(o.c.ss, QA_SHEETS_.related, LedgerAudit.QA_RELATED_HEADERS);
+  P.setProperty(QA_STATE_KEY_, JSON.stringify({ modes: deep, cursor: 0, startedAt: new Date().toISOString(), fn: fn }));
+  var r = qaChunk_(o); r.url = out.url; return scLog_(fn, r);
+}
+function qaChunk_(o) {
+  var t0 = Date.now(), P = PropertiesService.getScriptProperties(), st = JSON.parse(P.getProperty(QA_STATE_KEY_) || 'null');
+  if (!st) return { status: 'NO_STATE', note: '先に QA0／QA2／QA3 で開始' };
+  var lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return { status: 'LOCKED' };
+  try {
+    var D = laRead_(o.v.sh), sumCol = D.h.indexOf('概要（清掃済）'), eps = D.rows.filter(function (r) { return r.ep; }), pre = scPreservedRaw_();
+    var ds = o.v.ss.getSheetByName(P25V2_DETAIL_SHEET_), shaBy = {};   // 原文のハッシュ一致を確かめる（不一致は pre に入らない）
+    if (ds && ds.getLastRow() > 1) { var dv = ds.getRange(1, 1, ds.getLastRow(), 6).getDisplayValues(), he = dv[0].indexOf('EP-ID'), hs = dv[0].indexOf('概要原文SHA256'), ht = dv[0].indexOf('概要原文'); dv.slice(1).forEach(function (x) { shaBy[x[he]] = { sha: x[hs], has: !!x[ht] }; }); }
+    var idxBy = {}, rl = o.v.ss.getSheetByName(RL_SHEET_V2_); if (st.modes.indexOf('related') >= 0 && rl && rl.getLastRow() > 1) rl.getRange(2, 1, rl.getLastRow() - 1, LedgerAudit.RELATED_HEADERS.length).getDisplayValues().forEach(function (x) { (idxBy[x[0]] = idxBy[x[0]] || []).push(x); });
+    var sS = o.c.ss.getSheetByName(QA_SHEETS_.summary), sR = o.c.ss.getSheetByName(QA_SHEETS_.related), bufS = [], bufR = [], i = st.cursor;
+    for (; i < eps.length; i++) {
+      if (Date.now() - t0 > QA_CHUNK_MS_) break;
+      var r = eps[i], p = pre[r.ep], raw = p ? p.text : '', cl = raw ? CleanerV4.cleanV4(raw) : { text: '', related: [] };
+      if (st.modes.indexOf('summary') >= 0) { var j = raw ? CleanerV4.judgeEpisode(raw, { summary: sumCol >= 0 ? r._r[sumCol] : '', related: r.related }) : null, s = shaBy[r.ep];
+        bufS.push(LedgerAudit.qaSummary({ ep: r.ep, raw: raw, rawSha: s ? s.sha : '', shaOk: s && s.has ? !!p : undefined, ledger: sumCol >= 0 ? r._r[sumCol] : '', reclean: cl.text, judge: j }).row); }
+      if (st.modes.indexOf('related') >= 0) bufR.push(LedgerAudit.qaRelated({ ep: r.ep, fromRaw: cl.related, ledgerUrls: r.related, indexRows: idxBy[r.ep] || [] }).row);
+      if (bufS.length + bufR.length >= 400) { qaAppend_(sS, bufS, LedgerAudit.QA_SUMMARY_HEADERS.length); qaAppend_(sR, bufR, LedgerAudit.QA_RELATED_HEADERS.length); bufS = []; bufR = []; st.cursor = i + 1; P.setProperty(QA_STATE_KEY_, JSON.stringify(st)); }
+    }
+    if (sS) qaAppend_(sS, bufS, LedgerAudit.QA_SUMMARY_HEADERS.length); if (sR) qaAppend_(sR, bufR, LedgerAudit.QA_RELATED_HEADERS.length);
+    st.cursor = i; var done = i >= eps.length; if (done) P.deleteProperty(QA_STATE_KEY_); else P.setProperty(QA_STATE_KEY_, JSON.stringify(st));
+    return qaWhere_(o, { status: done ? 'DONE' : 'PARTIAL_RESUME_NEEDED', modes: st.modes, processed: i, total: eps.length, left: eps.length - i, preservedRaw: Object.keys(pre).length, indexEpisodes: Object.keys(idxBy).length, next: done ? 'QA9_結果確認' : 'QA8_中断位置から再開', ms: Date.now() - t0 });
+  } finally { lock.releaseLock(); }
+}
+function QA0_品質監査_全体開始() { return qaStart_('QA0_品質監査_全体開始', ['url', 'summary', 'related']); }
+function QA1_URL監査() { return qaStart_('QA1_URL監査', ['url']); }
+function QA2_概要欄監査() { return qaStart_('QA2_概要欄監査', ['summary']); }
+function QA3_関連記事監査() { return qaStart_('QA3_関連記事監査', ['related']); }
+function QA8_中断位置から再開() { return scLog_('QA8_中断位置から再開', qaChunk_(qaOpen_())); }
+function QA9_結果確認() {
+  var o = qaOpen_(), out = { status: 'OK', state: JSON.parse(PropertiesService.getScriptProperties().getProperty(QA_STATE_KEY_) || 'null') }, tot = [];
+  [['url', 2], ['summary', 1], ['related', 1]].forEach(function (k) {
+    var sh = o.c.ss.getSheetByName(QA_SHEETS_[k[0]]); if (!sh || sh.getLastRow() < 2) { out[k[0]] = '未実行'; return; }
+    var v = sh.getRange(2, 1, sh.getLastRow() - 1, 3).getDisplayValues(), byV = {}, byC = {};
+    v.forEach(function (r) { var vv = (k[0] === 'url' ? r[1] + '・' : '') + r[k[1]]; byV[vv] = (byV[vv] || 0) + 1; String(r[2]).split(' / ').filter(Boolean).forEach(function (c) { if (k[0] !== 'url') byC[c] = (byC[c] || 0) + 1; }); });
+    out[k[0]] = { rows: v.length, byVerdict: byV, byCause: byC };
+    Object.keys(byV).forEach(function (x) { tot.push([k[0], '判定', x, byV[x]]); }); Object.keys(byC).forEach(function (x) { tot.push([k[0], '原因', x, byC[x]]); });
+  });
+  laWriteSheet_(o.c.ss, QA_SHEETS_.total, ['領域', '区分', '値', '件数'], tot);
+  return scLog_('QA9_結果確認', qaWhere_(o, out));
+}

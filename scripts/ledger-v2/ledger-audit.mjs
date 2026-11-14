@@ -213,3 +213,59 @@ export function ledgerDiff({ oldPub = [], v2 = [], v1 = [], since = '2026-11-13'
   const equation = { '旧公開 = 両方 + 旧公開だけ': n.oldPublic === n.both + n.oldOnly, 'V2公開候補 = 両方 + 追加': n.v2Public === n.both + n.added, '追加 = 分類済みの追加行': n.added === addedKinds };
   return { rows, count, n, equation };
 }
+
+// ===== V2データ品質監査（2026-11-14 司令塔「V2データ品質・統合GAS監査」）。読むだけ。判定だけを返し、台帳には書かない =====
+export const QA_VERSION = 'QA-1';
+export const QA_URL_HEADERS = ['EP-ID', 'サービス', '判定', 'URL', '代表EP-ID', '掲載判定', 'メモ'];
+export const QA_SUMMARY_HEADERS = ['EP-ID', '判定', '原因', '原文SHA256', '原文文字数', '清掃済み文字数（台帳）', '再清掃文字数', '残存率', '清掃監査', '詳細'];
+export const QA_RELATED_HEADERS = ['EP-ID', '判定', '原因', '原文の記事数', '台帳URL数', '索引の行数', '見出しなし', '詳細'];
+// URL: 形（EPISODE/SHOW_TOP/OTHER/EMPTY）と、同じURLを別の回が持っていないか（代表EP-IDで束ねた回どうしは正常）。実際のリンク先の同一性は別の判定（ここでは「未照合」）
+export function qaPlatformUrls(rows, platforms = PLATFORM_COLUMNS) {
+  const out = [], counts = {}, byUrl = new Map();
+  rows.forEach((r) => platforms.forEach((p) => { const u = String((r.links || {})[p] || '').trim(); if (u) { const k = p + '\u0001' + u; (byUrl.get(k) || byUrl.set(k, []).get(k)).push(r); } }));
+  rows.forEach((r) => platforms.forEach((p) => {
+    const u = String((r.links || {})[p] || '').trim(), c = classifyPlatformUrl(p, u), key = p + '/' + c; counts[key] = (counts[key] || 0) + 1;
+    if (c === 'EMPTY') return;
+    let st = c === 'EPISODE' ? '形OK・同一性未照合' : c === 'SHOW_TOP' ? '番組トップ（個別EPではない）' : '形が不明', note = '';
+    const same = (byUrl.get(p + '\u0001' + u) || []).filter((x) => x.ep !== r.ep);
+    if (same.length) { const grouped = same.every((x) => (x.rep || x.ep) === (r.rep || r.ep)); if (grouped) note = '同一内容として束ねた回と共有（' + same.map((x) => x.ep).join(' ') + '）'; else { st = '別の回と同じURL（要確認）'; note = same.map((x) => x.ep).join(' '); } counts[p + '/共有' + (grouped ? '・束ね済み' : '・要確認')] = (counts[p + '/共有' + (grouped ? '・束ね済み' : '・要確認')] || 0) + 1; }
+    if (c !== 'EPISODE' || note) out.push([r.ep, p, st, u, r.rep || '', r.judge || '', note]);
+  }));
+  return { rows: out, counts };
+}
+const QA_HTML = /<\/?(?:a|p|br|div|span|strong|b|i|em|ul|li|img)\b[^>]*>/i, QA_ENTITY = /&(?:amp|lt|gt|quot|nbsp|#\d+|#x[0-9a-f]+|[a-z]{2,8});/i, QA_MOJIBAKE = /�|ã[\u0080-¿]|â€|Ã./;
+const QA_DATE = /(?:\d{4}年)?\d{1,2}月\d{1,2}日/g, QA_URL = /https?:\/\/[^\s<>"'）)」』】]+/g;
+const qaNz = (s) => String(s ?? '').normalize('NFKC').replace(/\s+/g, '');
+// 概要欄: 原文（保全・SHA一致）・台帳の清掃済み・同じ原文の再清掃・清掃監査（judgeEpisode）の結果を比べ、原因で分類する。文字数が減っただけでは異常にしない
+export function qaSummary({ ep, raw, rawSha, shaOk, ledger, reclean, judge }) {
+  const causes = [], r = String(raw ?? ''), l = String(ledger ?? ''), c = String(reclean ?? ''), det = [];
+  if (!r.trim()) causes.push(shaOk === false ? '原文のハッシュ不一致（保全が壊れている疑い）' : '原文なし（未保全）');
+  else {
+    if (!l.trim()) causes.push(c.trim() ? '清掃済みが空欄（再清掃なら本文あり）' : '清掃後も本文なし（原文が告知・リンクのみ）');
+    if (l.trim() && qaNz(l) === qaNz(r) && qaNz(c) !== qaNz(r)) causes.push('清掃済み欄が原文のまま（未清掃）');
+    if (l.trim() && c.trim() && qaNz(l) !== qaNz(c)) causes.push('再清掃で結果が変わる（清掃版の差・手直し）');
+    if (QA_HTML.test(l)) causes.push('HTMLタグ残り'); if (QA_ENTITY.test(l)) causes.push('文字参照残り'); if (QA_MOJIBAKE.test(l)) causes.push('文字化けの疑い');
+    const dates = [...new Set((r.replace(/<[^>]*>/g, ' ').match(QA_DATE) || []))].filter((d) => !qaNz(l).includes(qaNz(d)) && !qaNz(c).includes(qaNz(d)));
+    if (l.trim() && dates.length) { causes.push('日付表記の消失'); det.push('日付: ' + dates.slice(0, 3).join(' ')); }
+    (judge && judge.findings || []).forEach((f) => { if (!/^MANUAL_EDIT_PROTECTED/.test(f)) causes.push('清掃監査: ' + f); else causes.push('手入力の値を保護中'); });
+  }
+  const ratio = r.trim() && l.trim() ? Math.round(l.length / r.replace(/<[^>]*>/g, '').length * 100) / 100 : '';
+  const verdict = !causes.length ? '問題なし' : causes.some((x) => /ハッシュ不一致|原文なし|空欄|HTML|文字化け/.test(x)) ? '要修復' : '要確認';
+  return { ep, verdict, causes, row: [ep, verdict, causes.join(' / '), rawSha || '', r.length, l.length, c.length, ratio, judge ? judge.verdict : '', det.join(' ')] };
+}
+// 関連記事: 原文から抽出した記事（見出し＋URL）、台帳の関連記事URL、V2・関連記事索引の行を EP-ID ごとに突き合わせる
+export function qaRelated({ ep, fromRaw = [], ledgerUrls = '', indexRows = [] }) {
+  const causes = [], det = [], key = articleKey, rawArt = fromRaw.filter((a) => (a.kind || 'article') === 'article');
+  const rawKeys = new Map(); rawArt.forEach((a) => { if (a.url) rawKeys.set(key(a.url), a); });
+  const led = String(ledgerUrls || '').split(/[\s\n]+/).filter((u) => /^https?:\/\//.test(u)), ledKeys = led.map(key), idx = indexRows.map((x) => ({ url: x[3], title: x[2], k: key(x[3]) }));
+  const dupLed = ledKeys.filter((k, i) => ledKeys.indexOf(k) !== i); if (dupLed.length) causes.push('台帳の同じ記事URLが重複');
+  const titleOnly = rawArt.filter((a) => !a.url && a.title); if (titleOnly.length) causes.push('見出しだけ（URLなし）');
+  const noHead = idx.filter((x) => !x.title || x.title === '未取得'); if (noHead.length) causes.push('URLだけ（見出し未取得）');
+  const idxKeys = new Set(idx.map((x) => x.k)), missIdx = [...rawKeys.keys()].filter((k) => !idxKeys.has(k)); if (missIdx.length) { causes.push('原文の記事が索引にない'); det.push('索引なし: ' + missIdx.slice(0, 2).join(' ')); }
+  const missLed = [...rawKeys.keys()].filter((k) => !ledKeys.includes(k)); if (missLed.length) causes.push('原文の記事が台帳の関連記事URLにない');
+  const ledOnly = ledKeys.filter((k) => !rawKeys.has(k)); if (ledOnly.length && rawKeys.size) causes.push('台帳だけにある記事URL（原文に無い）'); else if (ledOnly.length) causes.push('台帳だけにある記事URL（原文に記事欄なし）');
+  const idxDup = idx.map((x) => x.k).filter((k, i, a) => a.indexOf(k) !== i); if (idxDup.length) causes.push('索引の同じ記事が重複');
+  const titleConflict = idx.filter((x) => rawKeys.has(x.k) && x.title && x.title !== '未取得' && rawKeys.get(x.k).title && qaNz(rawKeys.get(x.k).title) !== qaNz(x.title)); if (titleConflict.length) causes.push('見出しが原文と違う（別記事との結合の疑い）');
+  const verdict = !rawArt.length && !led.length && !idx.length ? '記事なし' : !causes.length ? '問題なし' : causes.some((x) => /索引にない|台帳の関連記事URLにない|結合/.test(x)) ? '要修復' : '要確認';
+  return { ep, verdict, causes, row: [ep, verdict, causes.join(' / '), rawArt.length, led.length, idx.length, noHead.length, det.join(' ')] };
+}

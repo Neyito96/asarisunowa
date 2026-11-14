@@ -1135,3 +1135,70 @@ function LA0_監査一式_実行() {
   return scLog_('LA0_監査一式_実行', { status: 'DONE', runId: st.runId, build: typeof CLEANER_BUILD_SOURCE_SHA256 === 'string' ? CLEANER_BUILD_SOURCE_SHA256.slice(0, 16) : '', results: st.results, wroteTo: 'COPY「' + LA0_MANIFEST_ + '」ほか監査シート', ms: Date.now() - t0 });
 }
 function LA9_監査一式_最初から() { PropertiesService.getScriptProperties().deleteProperty('LA0_STATE'); return scLog_('LA9_監査一式_最初から', { status: 'OK' }); }
+
+// ===== V2データ品質監査 QA（2026-11-14 司令塔「V2データ品質・統合GAS監査」）=====
+// 読むだけ: V2（正本）の「V2・統合台帳」「V2・収蔵詳細」「V2・関連記事索引」。書くのは COPY の監査タブ（監査・品質_URL／_概要／_関連記事／_集計）だけ。
+// 本番台帳・公開JSON・Spotify・外部サービスには書かない（外部へのアクセスもしない）。6,000件超を分割（1回 約4分）し、続きは QA8 で再開。
+// 押す順: QA0_品質監査_全体開始 → （PARTIAL なら）QA8_中断位置から再開 を DONE まで → QA9_結果確認。個別に回すときは QA1／QA2／QA3。
+var QA_SHEETS_ = { url: '監査・品質_URL', summary: '監査・品質_概要', related: '監査・品質_関連記事', total: '監査・品質_集計' };
+var QA_STATE_KEY_ = 'QA_STATE', QA_CHUNK_MS_ = 240000;
+function qaOpen_() { var v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes); if (c.ss.getId() === v.ss.getId()) throw new Error('QA_TARGET_IS_V2'); return { v: v, c: c }; }
+function qaHeader_(ss, name, H) { var sh = ss.getSheetByName(name) || ss.insertSheet(name); sh.clearContents(); sh.getRange(1, 1, 1, H.length).setValues([H]); sh.setFrozenRows(1); return sh; }
+function qaAppend_(sh, rows, n) { if (!rows.length) return; sh.getRange(sh.getLastRow() + 1, 1, rows.length, n).setNumberFormat('@').setValues(rows.map(function (r) { return r.map(function (x) { return LedgerAudit.sheetText(String(x)); }); })); }
+function qaWhere_(o, extra) { return Object.assign({ readFrom: 'V2 ' + SC_CONFIG.v2WorkingId + '（読むだけ）', wroteTo: 'COPY ' + SC_CONFIG.copyId + ' の監査タブ', version: LedgerAudit.QA_VERSION }, extra || {}); }
+function qaUrlRun_(o) {
+  var D = laRead_(o.v.sh), P = LedgerAudit.PLATFORM_COLUMNS, idx = P.map(function (p) { return D.h.indexOf(p); });
+  var rows = D.rows.filter(function (r) { return r.ep; }).map(function (r) { var links = {}; P.forEach(function (p, j) { if (idx[j] >= 0) links[p] = r._r[idx[j]]; }); return { ep: r.ep, rep: r.rep, judge: r.judge, links: links }; });
+  var res = LedgerAudit.qaPlatformUrls(rows), sh = qaHeader_(o.c.ss, QA_SHEETS_.url, LedgerAudit.QA_URL_HEADERS); qaAppend_(sh, res.rows, LedgerAudit.QA_URL_HEADERS.length);
+  return { episodes: rows.length, missingColumns: P.filter(function (p, j) { return idx[j] < 0; }), counts: res.counts, issueRows: res.rows.length };
+}
+function qaStart_(fn, modes) {
+  var o = qaOpen_(), out = {}, P = PropertiesService.getScriptProperties();
+  if (modes.indexOf('url') >= 0) out.url = qaUrlRun_(o);
+  var deep = modes.filter(function (m) { return m === 'summary' || m === 'related'; });
+  if (!deep.length) return scLog_(fn, qaWhere_(o, { status: 'DONE', url: out.url }));
+  if (deep.indexOf('summary') >= 0) qaHeader_(o.c.ss, QA_SHEETS_.summary, LedgerAudit.QA_SUMMARY_HEADERS);
+  if (deep.indexOf('related') >= 0) qaHeader_(o.c.ss, QA_SHEETS_.related, LedgerAudit.QA_RELATED_HEADERS);
+  P.setProperty(QA_STATE_KEY_, JSON.stringify({ modes: deep, cursor: 0, startedAt: new Date().toISOString(), fn: fn }));
+  var r = qaChunk_(o); r.url = out.url; return scLog_(fn, r);
+}
+function qaChunk_(o) {
+  var t0 = Date.now(), P = PropertiesService.getScriptProperties(), st = JSON.parse(P.getProperty(QA_STATE_KEY_) || 'null');
+  if (!st) return { status: 'NO_STATE', note: '先に QA0／QA2／QA3 で開始' };
+  var lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return { status: 'LOCKED' };
+  try {
+    var D = laRead_(o.v.sh), sumCol = D.h.indexOf('概要（清掃済）'), eps = D.rows.filter(function (r) { return r.ep; }), pre = scPreservedRaw_();
+    var ds = o.v.ss.getSheetByName(P25V2_DETAIL_SHEET_), shaBy = {};   // 原文のハッシュ一致を確かめる（不一致は pre に入らない）
+    if (ds && ds.getLastRow() > 1) { var dv = ds.getRange(1, 1, ds.getLastRow(), 6).getDisplayValues(), he = dv[0].indexOf('EP-ID'), hs = dv[0].indexOf('概要原文SHA256'), ht = dv[0].indexOf('概要原文'); dv.slice(1).forEach(function (x) { shaBy[x[he]] = { sha: x[hs], has: !!x[ht] }; }); }
+    var idxBy = {}, rl = o.v.ss.getSheetByName(RL_SHEET_V2_); if (st.modes.indexOf('related') >= 0 && rl && rl.getLastRow() > 1) rl.getRange(2, 1, rl.getLastRow() - 1, LedgerAudit.RELATED_HEADERS.length).getDisplayValues().forEach(function (x) { (idxBy[x[0]] = idxBy[x[0]] || []).push(x); });
+    var sS = o.c.ss.getSheetByName(QA_SHEETS_.summary), sR = o.c.ss.getSheetByName(QA_SHEETS_.related), bufS = [], bufR = [], i = st.cursor;
+    for (; i < eps.length; i++) {
+      if (Date.now() - t0 > QA_CHUNK_MS_) break;
+      var r = eps[i], p = pre[r.ep], raw = p ? p.text : '', cl = raw ? CleanerV4.cleanV4(raw) : { text: '', related: [] };
+      if (st.modes.indexOf('summary') >= 0) { var j = raw ? CleanerV4.judgeEpisode(raw, { summary: sumCol >= 0 ? r._r[sumCol] : '', related: r.related }) : null, s = shaBy[r.ep];
+        bufS.push(LedgerAudit.qaSummary({ ep: r.ep, raw: raw, rawSha: s ? s.sha : '', shaOk: s && s.has ? !!p : undefined, ledger: sumCol >= 0 ? r._r[sumCol] : '', reclean: cl.text, judge: j }).row); }
+      if (st.modes.indexOf('related') >= 0) bufR.push(LedgerAudit.qaRelated({ ep: r.ep, fromRaw: cl.related, ledgerUrls: r.related, indexRows: idxBy[r.ep] || [] }).row);
+      if (bufS.length + bufR.length >= 400) { qaAppend_(sS, bufS, LedgerAudit.QA_SUMMARY_HEADERS.length); qaAppend_(sR, bufR, LedgerAudit.QA_RELATED_HEADERS.length); bufS = []; bufR = []; st.cursor = i + 1; P.setProperty(QA_STATE_KEY_, JSON.stringify(st)); }
+    }
+    if (sS) qaAppend_(sS, bufS, LedgerAudit.QA_SUMMARY_HEADERS.length); if (sR) qaAppend_(sR, bufR, LedgerAudit.QA_RELATED_HEADERS.length);
+    st.cursor = i; var done = i >= eps.length; if (done) P.deleteProperty(QA_STATE_KEY_); else P.setProperty(QA_STATE_KEY_, JSON.stringify(st));
+    return qaWhere_(o, { status: done ? 'DONE' : 'PARTIAL_RESUME_NEEDED', modes: st.modes, processed: i, total: eps.length, left: eps.length - i, preservedRaw: Object.keys(pre).length, indexEpisodes: Object.keys(idxBy).length, next: done ? 'QA9_結果確認' : 'QA8_中断位置から再開', ms: Date.now() - t0 });
+  } finally { lock.releaseLock(); }
+}
+function QA0_品質監査_全体開始() { return qaStart_('QA0_品質監査_全体開始', ['url', 'summary', 'related']); }
+function QA1_URL監査() { return qaStart_('QA1_URL監査', ['url']); }
+function QA2_概要欄監査() { return qaStart_('QA2_概要欄監査', ['summary']); }
+function QA3_関連記事監査() { return qaStart_('QA3_関連記事監査', ['related']); }
+function QA8_中断位置から再開() { return scLog_('QA8_中断位置から再開', qaChunk_(qaOpen_())); }
+function QA9_結果確認() {
+  var o = qaOpen_(), out = { status: 'OK', state: JSON.parse(PropertiesService.getScriptProperties().getProperty(QA_STATE_KEY_) || 'null') }, tot = [];
+  [['url', 2], ['summary', 1], ['related', 1]].forEach(function (k) {
+    var sh = o.c.ss.getSheetByName(QA_SHEETS_[k[0]]); if (!sh || sh.getLastRow() < 2) { out[k[0]] = '未実行'; return; }
+    var v = sh.getRange(2, 1, sh.getLastRow() - 1, 3).getDisplayValues(), byV = {}, byC = {};
+    v.forEach(function (r) { var vv = (k[0] === 'url' ? r[1] + '・' : '') + r[k[1]]; byV[vv] = (byV[vv] || 0) + 1; String(r[2]).split(' / ').filter(Boolean).forEach(function (c) { if (k[0] !== 'url') byC[c] = (byC[c] || 0) + 1; }); });
+    out[k[0]] = { rows: v.length, byVerdict: byV, byCause: byC };
+    Object.keys(byV).forEach(function (x) { tot.push([k[0], '判定', x, byV[x]]); }); Object.keys(byC).forEach(function (x) { tot.push([k[0], '原因', x, byC[x]]); });
+  });
+  laWriteSheet_(o.c.ss, QA_SHEETS_.total, ['領域', '区分', '値', '件数'], tot);
+  return scLog_('QA9_結果確認', qaWhere_(o, out));
+}

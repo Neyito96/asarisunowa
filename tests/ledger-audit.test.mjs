@@ -130,3 +130,21 @@ test('公式個別URL欄に Omny のURLが入っている行も GUID から候�
   const page = '<link rel="canonical" href="https://www.asahi.com/special/podcasts/item/?itemid=' + g + '"><script>{"position":4,"name":"記事"}</script><p>ニュースの現場から 2023/1/5</p>';
   assert.equal(verifyOfficialPage(200, page, g, '', { show: 'ニュースの現場から', date: '2023-01-05' }).status, 'VERIFIED');
 });
+
+test('品質監査: 関連記事は複数の見出し＋URLを保持し、見出し違い（別記事との結合）を検出', async () => {
+  const LA = await import('../scripts/ledger-v2/ledger-audit.mjs');
+  const fromRaw = [{ title: '一', url: 'https://www.asahi.com/articles/A1.html' }, { title: '二', url: 'https://www.asahi.com/articles/A2.html' }];
+  const ok = LA.qaRelated({ ep: 'E', fromRaw, ledgerUrls: 'https://www.asahi.com/articles/A1.html https://www.asahi.com/articles/A2.html', indexRows: [['E', '1', '一', 'https://www.asahi.com/articles/A1.html'], ['E', '2', '二', 'https://www.asahi.com/articles/A2.html']] });
+  assert.equal(ok.verdict, '問題なし'); assert.equal(ok.row[3], 2); assert.equal(ok.row[5], 2);
+  const bad = LA.qaRelated({ ep: 'E', fromRaw, ledgerUrls: 'https://www.asahi.com/articles/A1.html?iref=x https://www.asahi.com/articles/A2.html', indexRows: [['E', '1', '別の見出し', 'https://www.asahi.com/articles/A1.html'], ['E', '2', '未取得', 'https://www.asahi.com/articles/A2.html']] });
+  assert.match(bad.causes.join(), /結合の疑い/); assert.match(bad.causes.join(), /見出し未取得/); assert.ok(!/台帳の関連記事URLにない/.test(bad.causes.join()));   // iref 付きは同じ記事
+});
+test('品質監査: 概要は文字数減だけでは異常にしない・HTML残り/空欄/未清掃を原因別に', async () => {
+  const LA = await import('../scripts/ledger-v2/ledger-audit.mjs');
+  assert.equal(LA.qaSummary({ ep: 'E', raw: '<p>長い本文。' + 'あ'.repeat(500) + '</p><p>告知</p>', ledger: '長い本文。', reclean: '長い本文。', shaOk: true }).verdict, '問題なし');
+  assert.match(LA.qaSummary({ ep: 'E', raw: '<p>x</p>', ledger: '<p>x</p>', reclean: 'x' }).causes.join(), /HTMLタグ残り/);
+  assert.match(LA.qaSummary({ ep: 'E', raw: '<p>x</p>', ledger: '', reclean: 'x' }).causes.join(), /清掃済みが空欄/);
+  assert.match(LA.qaSummary({ ep: 'E', raw: 'abc', ledger: 'abc', reclean: 'ab' }).causes.join(), /原文のまま/);
+  const u = LA.qaPlatformUrls([{ ep: 'A', rep: 'A', links: { Spotify: 'https://open.spotify.com/episode/AAAAAAAAAAAAAAAAAAAAAA' } }, { ep: 'B', rep: 'A', links: { Spotify: 'https://open.spotify.com/episode/AAAAAAAAAAAAAAAAAAAAAA' } }]);
+  assert.equal(u.counts['Spotify/共有・束ね済み'], 2); assert.equal(u.counts['Spotify/EPISODE'], 2);
+});

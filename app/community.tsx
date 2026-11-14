@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Playlist } from "./data";
 import { recommendedPodcastSnapshot } from "./recommended-podcasts-data";
+import { officialSeriesForPlaylist, platformLinksForPlaylist } from "./official-series-links";
 import {
   isSpotifyCollaborativeInviteUrl,
   submitAutoUpdateRequestConfirmed,
@@ -1702,6 +1703,25 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                       </div>
                       <h3>{p.title}</h3>
                       <p>by {p.maker}</p>
+                      {(() => {
+                        const os = officialSeriesForPlaylist(p.url);
+                        const pl = platformLinksForPlaylist(p.url);
+                        if (!os && !pl.length) return null;
+                        return (
+                          <div className="playlistOfficialLinks" style={{ display: "flex", flexWrap: "wrap", gap: 4, margin: "4px 0" }}>
+                            {os && (
+                              <a href={os.url} target="_blank" rel="noopener noreferrer" aria-label={`朝日新聞ポッドキャスト公式の${os.kind}ページ「${os.name}」を開く`} style={{ display: "inline-flex", alignItems: "center", maxWidth: "100%", padding: "3px 8px", borderRadius: 999, background: "#f4f1ea", border: "1px solid #d8cfbd", color: "#5a4632", fontSize: "0.78rem", fontWeight: 700, lineHeight: 1.3, textDecoration: "none" }}>
+                                📰 朝日公式{os.kind}：{os.name} ↗
+                              </a>
+                            )}
+                            {pl.map((l) => (
+                              <a key={l.key} href={l.url} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", padding: "3px 8px", borderRadius: 999, border: "1px solid #d8cfbd", fontSize: "0.78rem", textDecoration: "none" }}>
+                                {l.label} ↗
+                              </a>
+                            ))}
+                          </div>
+                        );
+                      })()}
                       {p.url?.includes("/playlist/4FBXSFf2nLjLb3qaRoSdoD") && (
                         <a href="https://open.spotify.com/playlist/5JCSyeMy3LNJNR86b72Ag1" target="_blank" rel="noopener noreferrer" aria-label="inoさん作のノーミライ紹介楽曲プレイリストをSpotifyで聴く" style={{ display: "inline-flex", alignItems: "center", alignSelf: "flex-start", maxWidth: "100%", margin: "4px 0", padding: "3px 8px", borderRadius: 999, background: "#f3f8ef", border: "1px solid #cbdcbe", color: "#286c46", fontSize: "0.78rem", fontWeight: 700, lineHeight: 1.3, textDecoration: "none", whiteSpace: "nowrap" }}>
                           🎵 紹介楽曲 by ino ↗
