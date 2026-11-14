@@ -100,3 +100,13 @@ test('公式ページはID・タイトル・番組・配信日の4つで照合�
   assert.equal(v('2026/10/10', 'ニュースの現場から', { show: 'ニュースの現場から', date: '' }).reason, 'NO_DATE_TO_MATCH');
   assert.equal(v('', 'ニュースの現場から', { show: 'ニュースの現場から', date: '2026-10-10' }).reason, 'NO_DATE_ON_PAGE');
 });
+
+test('番組照合: パンくずの番組名と前方一致、または公式ページで確かめた親番組（スポンジ等→ニュースの現場から）だけ一致。別番組はHOLD', async () => {
+  const { verifyOfficialPage } = await import('../scripts/ledger-v2/ledger-audit.mjs');
+  const id = 'aaaaaaaa-0000-4000-8000-000000000002', page = (prog) => '<link rel="canonical" href="https://www.asahi.com/special/podcasts/item/?itemid=' + id + '"><script type="application/ld+json">{"itemListElement":[{"@type":"ListItem","position":4,"name":"' + prog + '","item":"x"}]}</script><p>2026/10/10</p>';
+  const v = (prog, show) => verifyOfficialPage(200, page(prog), id, '', { show, date: '2026-10-10' });
+  assert.equal(v('ドーナツ ～このポッドキャストはSNSです', 'ドーナツ').reason, 'ID_SHOW_DATE_MATCH');
+  assert.equal(v('ニュースの現場から', 'スポンジ').reason, 'ID_SHOW_DATE_MATCH (親番組:ニュースの現場から)');
+  assert.equal(v('MEDIA TALK', 'スポンジ').reason, 'SHOW_MISMATCH MEDIA TALK');
+  assert.equal(v('ニュースの現場から', 'MEDIA TALK').status, 'HOLD');
+});

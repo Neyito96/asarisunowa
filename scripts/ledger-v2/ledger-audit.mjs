@@ -50,6 +50,9 @@ const flat = (t) => String(t ?? '').normalize('NFKC').replace(/[\s　「」『�
 // 取得した公式ページが本物か: HTTP 200・canonical（または og:url）の itemid が期待するIDと一致・（タイトルを渡した時は）ページにそのタイトルがある、の全部を満たす時だけ VERIFIED
 // 公式ページの照合: ID（canonical の itemid）・タイトル・番組・配信日の4つ。渡された条件は全部そろった時だけ VERIFIED。
 // 番組はページ内（パンくず）に番組名があること、配信日はページの日付（YYYY/MM/DD）が台帳の日付と±1日以内（JST と配信基準日のずれ）
+// 公式サイトで別番組の下に載る回がある（その番組の配信枠で流れた回）。2026-11-14 に公式ページのパンくずで確認した組だけを書く。
+// 例: スポンジ・旧報談・一部ドーナツ → 「ニュースの現場から」(pgid 684015f9)。新しい報談は「報談 【HOU-DAN】」、ドーナツは「ドーナツ ～…」で本来名と前方一致
+export const SHOW_SITE_PARENTS = { 'スポンジ': ['ニュースの現場から'], '報談': ['ニュースの現場から'], 'ドーナツ': ['ニュースの現場から'] };
 const dayUtc = (d) => { const m = String(d ?? '').match(/(20\d\d)\D(\d{1,2})\D(\d{1,2})/); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) : NaN; };
 export function verifyOfficialPage(code, html, expectedId, title, opts = {}) {
   if (code === 404 || code === 410) return { status: 'NOT_FOUND', reason: 'HTTP_' + code };
@@ -60,7 +63,15 @@ export function verifyOfficialPage(code, html, expectedId, title, opts = {}) {
   if (id !== normId(expectedId)) return { status: 'HOLD', reason: 'CANONICAL_MISMATCH ' + id };
   const ok = ['ID'], txt = flat(pageText(h)), rawFlat = flat(h);
   if (title) { const want = flat(title).replace(/^再/, '').slice(0, 24); if (want.length >= 4 && txt.indexOf(want) < 0) return { status: 'HOLD', reason: 'TITLE_NOT_ON_PAGE' }; ok.push('TITLE'); }
-  if ('show' in opts) { const sh = flat(opts.show); if (!sh) return { status: 'HOLD', reason: 'NO_SHOW_TO_MATCH' }; if (rawFlat.indexOf(sh) < 0) return { status: 'HOLD', reason: 'SHOW_NOT_ON_PAGE' }; ok.push('SHOW'); }
+  if ('show' in opts) {
+    const sh = flat(opts.show); if (!sh) return { status: 'HOLD', reason: 'NO_SHOW_TO_MATCH' };
+    const prog = (h.match(/"position"\s*:\s*4\s*,\s*"name"\s*:\s*"([^"]+)"/) || [])[1] || '';
+    if (prog) {
+      if (flat(prog).indexOf(sh) === 0) ok.push('SHOW');
+      else if ((SHOW_SITE_PARENTS[opts.show] || []).indexOf(prog) >= 0) ok.push('SHOW(親番組:' + prog + ')');
+      else return { status: 'HOLD', reason: 'SHOW_MISMATCH ' + prog };
+    } else if (rawFlat.indexOf(sh) >= 0) ok.push('SHOW'); else return { status: 'HOLD', reason: 'SHOW_NOT_ON_PAGE' };
+  }
   if ('date' in opts) {
     const want = dayUtc(opts.date); if (isNaN(want)) return { status: 'HOLD', reason: 'NO_DATE_TO_MATCH' };
     const page = (h.match(/20\d\d\/\d{1,2}\/\d{1,2}/g) || []).map(dayUtc);
@@ -68,7 +79,8 @@ export function verifyOfficialPage(code, html, expectedId, title, opts = {}) {
     if (!page.some((t) => Math.abs(t - want) <= 86400000)) return { status: 'HOLD', reason: 'DATE_MISMATCH ' + new Date(page[0]).toISOString().slice(0, 10) };
     ok.push('DATE');
   }
-  return { status: 'VERIFIED', reason: ok.length === 1 ? 'CANONICAL_ITEMID_MATCH' : ok.length === 2 && ok[1] === 'TITLE' ? 'CANONICAL_ITEMID_AND_TITLE_MATCH' : ok.join('_') + '_MATCH' };
+  const via = ok.find((x) => /^SHOW\(/.test(x)), keys = ok.map((x) => (/^SHOW\(/.test(x) ? 'SHOW' : x));
+  return { status: 'VERIFIED', reason: (keys.length === 1 ? 'CANONICAL_ITEMID_MATCH' : keys.length === 2 && keys[1] === 'TITLE' ? 'CANONICAL_ITEMID_AND_TITLE_MATCH' : keys.join('_') + '_MATCH') + (via ? ' ' + via.slice(4) : '') };
 }
 
 // ---------- おんさ共有台帳との照合（読むだけ）。Omny URL・Asahi.com の itemid・Spotify エピソードID のどれかが一致した時だけ同じ回と見なす（タイトルだけでは結び付けない） ----------
