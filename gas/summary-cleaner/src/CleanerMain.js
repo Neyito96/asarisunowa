@@ -981,13 +981,23 @@ function la3Candidates_(c, D) {
   var os = c.ss.getSheetByName(LA_ONSA_SHEET_); if (os && os.getLastRow() > 1) os.getRange(2, 1, os.getLastRow() - 1, LedgerAudit.ONSA_MATCH_HEADERS.length).getDisplayValues().forEach(function (r) { if (r[1] === 'おんさにあり台帳に無い') { var id = 'ONSA:' + r[3] + ':' + r[4]; cand[id] = { ep: id, labels: ['おんさにあり台帳に無い'], other: '', onsa: { sheet: r[3], title: r[5], date: r[6], asahi: r[8], seconds: r[7] } }; } });
   return { by: by, list: Object.keys(cand).sort().map(function (k) { return cand[k]; }) };
 }
-function L3_公式音声_確認() {   // V2・おんさは読むだけ。確かめた結果を COPY に書き足す（済みは取り直さない。ERROR は次回もう一度）
+function L3_公式音声_確認() { return la3Run_('L3_公式音声_確認', LA3_SHEET_, null); }   // V2・おんさは読むだけ。確かめた結果を COPY に書き足す（済みは取り直さない。ERROR は次回もう一度）
+// L3R（2026-11-14 司令塔「公式候補なし82件と番組照合9件の修正を対象限定で再測定」）: 元の L3 結果で「候補なし」「番組不一致（記事）」だった行だけを、
+//   別シート「監査・L3再確認」に取り直す。元の L3 シートは書き換えない。V2・おんさは読むだけ。
+var LA3R_SHEET_ = '監査・L3再確認';
+function L3R_対象限定_再確認() {
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), st = c.ss.getSheetByName(LA3_SHEET_); if (!st || st.getLastRow() < 2) return scLog_('L3R_対象限定_再確認', { status: 'NO_L3' });
+  var only = {}, why = { NO_OFFICIAL_URL: 0, SHOW_MISMATCH_ARTICLE: 0 };
+  st.getRange(2, 1, st.getLastRow() - 1, LA3_H_.length).getDisplayValues().forEach(function (r) { if (r[3] === 'NO_OFFICIAL_URL') { only[r[0]] = 1; why.NO_OFFICIAL_URL++; } else if (/SHOW/.test(r[3] + ' ' + r[4]) && /記事/.test(r[4])) { only[r[0]] = 1; why.SHOW_MISMATCH_ARTICLE++; } });
+  return la3Run_('L3R_対象限定_再確認', LA3R_SHEET_, only, why);
+}
+function la3Run_(name, sheetName, only, why) {
   var t0 = Date.now(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), D = laRead_(v.sh);
-  if (!c.ss.getSheetByName(LA2_SHEET_)) return scLog_('L3_公式音声_確認', { status: 'NO_L2', note: '先に L2_全台帳_差分監査' });
+  if (!c.ss.getSheetByName(LA2_SHEET_)) return scLog_(name, { status: 'NO_L2', note: '先に L2_全台帳_差分監査' });
   var C = la3Candidates_(c, D), onsa = laOnsaAsahiByEp_(D.rows);
-  var st = c.ss.getSheetByName(LA3_SHEET_) || c.ss.insertSheet(LA3_SHEET_); if (st.getLastRow() === 0) st.getRange(1, 1, 1, LA3_H_.length).setValues([LA3_H_]);
+  var st = c.ss.getSheetByName(sheetName) || c.ss.insertSheet(sheetName); if (st.getLastRow() === 0) st.getRange(1, 1, 1, LA3_H_.length).setValues([LA3_H_]);
   var done = {}; if (st.getLastRow() > 1) st.getRange(2, 1, st.getLastRow() - 1, LA3_H_.length).getDisplayValues().forEach(function (r) { if (r[3] !== 'ERROR' && r[6] !== 'ERROR') done[r[0]] = 1; });
-  var todo = C.list.filter(function (x) { return !done[x.ep]; }), n = 0, k = {}, buf = [], flush = function () { if (!buf.length) return; var r0 = st.getLastRow() + 1; st.getRange(r0, 1, buf.length, LA3_H_.length).setNumberFormat('@').setValues(buf); buf = []; SpreadsheetApp.flush(); };
+  var todo = C.list.filter(function (x) { return !done[x.ep] && (!only || only[x.ep]); }), n = 0, k = {}, buf = [], flush = function () { if (!buf.length) return; var r0 = st.getLastRow() + 1; st.getRange(r0, 1, buf.length, LA3_H_.length).setNumberFormat('@').setValues(buf); buf = []; SpreadsheetApp.flush(); };
   for (var i = 0; i < todo.length; i++) {
     if (Date.now() - t0 > 240000) break;
     var x = todo[i], r = C.by[x.ep] || { _r: [], title: x.onsa ? x.onsa.title : '' }, cand = x.onsa ? { status: LedgerAudit.officialItemId(x.onsa.asahi) ? 'CANDIDATE' : 'NO_GUID', url: x.onsa.asahi, key: LedgerAudit.officialItemId(x.onsa.asahi) } : (LedgerAudit.officialItemId(r.officialUrl) ? { status: 'CANDIDATE', url: r.officialUrl, key: LedgerAudit.officialItemId(r.officialUrl) } : laOfficialCandidate_(r, onsa));
@@ -1000,7 +1010,7 @@ function L3_公式音声_確認() {   // V2・おんさは読むだけ。確か�
   }
   flush();
   var labels = {}; C.list.forEach(function (x) { x.labels.forEach(function (l) { labels[l] = (labels[l] || 0) + 1; }); });
-  return scLog_('L3_公式音声_確認', { status: todo.length - n ? 'PARTIAL_RESUME_NEEDED' : 'OK', candidates: C.list.length, byLabel: labels, checked: n, left: todo.length - n, result: k, ms: Date.now() - t0 });
+  return scLog_(name, { status: todo.length - n ? 'PARTIAL_RESUME_NEEDED' : 'OK', candidates: C.list.length, targets: only ? Object.keys(only).length : undefined, targetWhy: why, byLabel: labels, checked: n, left: todo.length - n, result: k, ms: Date.now() - t0 });
 }
 function L4_採否_集計レポート() {   // 読むだけ（COPY の L2・L3 と V2 作業用台帳から計算し、COPY に書く）。根拠が足りない回は HOLD のまま
   var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), l3 = c.ss.getSheetByName(LA3_SHEET_), sumSh = c.ss.getSheetByName(LA2_SUM_);

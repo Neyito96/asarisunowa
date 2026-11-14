@@ -60,7 +60,7 @@ test('静的検査: doGet/doPost なし・トリガー作成なし・使うGAS�
   assert.deepEqual([...used].sort(), ['LockService', 'Logger', 'PropertiesService', 'ScriptApp', 'SpreadsheetApp', 'UrlFetchApp', 'Utilities']);
   assert.deepEqual([...SRC.matchAll(/ScriptApp\.(\w+)/g)].map((m) => m[1]).filter((x, i, a) => a.indexOf(x) === i), ['getProjectTriggers', 'newTrigger', 'deleteTrigger']);
   const e = env({ feed: okFeed([]) }), cfg = JSON.parse(JSON.stringify(vm.runInNewContext('P25V2_COPY_CONFIG', e.g)));
-  assert.equal(cfg.targetSpreadsheetId, COPY); assert.equal(cfg.expectedTargetId, COPY); assert.ok(!e.A.PROTECTED.includes(COPY)); assert.equal(cfg.maxRowsCap, 1);
+  assert.equal(cfg.targetSpreadsheetId, COPY); assert.equal(cfg.expectedTargetId, COPY); assert.ok(!e.A.PROTECTED.includes(COPY)); assert.equal(cfg.maxRowsCap, 10);
   const feeds = JSON.parse(fs.readFileSync('scripts/ledger-v2/v2-feeds.json', 'utf8')).feeds;
   assert.deepEqual(cfg.feeds.map((f) => [f.show, f.url]), feeds.map((f) => [f.show, f.url]));
   const scopes = JSON.parse(fs.readFileSync('gas/p25v2-copy/appsscript.json', 'utf8')).oauthScopes;
@@ -147,4 +147,22 @@ test('採番の単一経路: 旧本番が別の回に使った番号は振らな
 test('採番の単一経路: 旧本番が読めなければ止まる（推測で採番しない）', () => {
   const e = env({ feed: okFeed([]), v1Rows: [] });
   assert.throws(() => e.run('P25V2_2_DRYRUN'), /RESERVATION_V1_EMPTY/);
+});
+
+test('最終設計: COPYは本番番号を予約・消費しない（V2の予約にCOPY台帳の番号を数えない）。COPYの中ではCOPYも数える', () => {
+  const e = env({ feed: okFeed([]), ledgerExtra: [['EP-06740', 'eeeeeeee-0000-4000-8000-000000000001']], v1Rows: [['EP-06710', G2]], v2Rows: [['EP-06725', 'dddddddd-0000-4000-8000-000000000002']] });
+  const v2 = JSON.parse(JSON.stringify(e.g.p25v2GlobalReservation_({ includeCopy: false })));
+  assert.equal(v2.max, 6725); assert.equal(v2.summary.includeCopy, false); assert.deepEqual(v2.guidReserve, {}); assert.equal(v2.used['EP-06740'], undefined);
+  const cp = JSON.parse(JSON.stringify(e.g.p25v2GlobalReservation_()));
+  assert.equal(cp.max, 6740); assert.equal(cp.summary.includeCopy, true);
+  const chk = JSON.parse(JSON.stringify(e.run('P25V2_0_採番点検'))); assert.equal(chk.nextIfNew || (chk.result && chk.result.nextIfNew), 'EP-06726');
+});
+test('COPY一括: 未収蔵3件を古い順に1回で収蔵→検証OK→再実行は0件（COPYだけに書く）', () => {
+  const G3 = 'bbbbbbbb-0000-4000-8000-000000000033';
+  const items = [{ title: '新着B', guid: G2, pub: 'Sat, 14 Nov 2026 19:00:00 GMT', raw: RAW }, { title: '新着A', guid: G1, pub: 'Fri, 13 Nov 2026 19:00:00 GMT', raw: RAW }, { title: '新着C', guid: G3, pub: 'Sat, 14 Nov 2026 21:00:00 GMT', raw: RAW }];
+  const e = env({ feed: okFeed(items) });
+  const w = JSON.parse(JSON.stringify(e.run('P25V2_3B_WRITE_BATCH_COPY'))); assert.equal(w.status, 'OK', JSON.stringify(w)); assert.equal(w.added, 3);
+  const led = e.sheets['V2・統合台帳'].st.rows; assert.equal(led.length, 5);
+  assert.equal(e.run('P25V2_4_VERIFY').status, 'VERIFY_OK');
+  const snap = JSON.stringify(led); const w2 = e.run('P25V2_3B_WRITE_BATCH_COPY'); assert.equal(w2.added, 0); assert.equal(JSON.stringify(led), snap);
 });

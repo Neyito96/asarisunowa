@@ -1,7 +1,7 @@
 // ===== V2作業用台帳への新着一括収蔵（PR #306）=====
 // 既存の収蔵処理（P25V2_INGEST_COPY・検証）をそのまま使い、書き込み先だけ V2作業用に切り替える。トリガーは作らない。
 // 採番衝突の防止: 実行のたびに V2作業用の「V2・統合台帳」「固定ID採番履歴」「削除・除外履歴」「エピソード台帳」と、COPY試験の台帳・採番履歴から
-//   使用済みの最大番号を読み、それより大きい番号だけを新規に振る。COPY試験で同じGUIDに振った番号は、V2作業用で未使用ならそのまま使う（GUIDと番号を揃える）。
+//   使用済みの最大番号を読み、それより大きい番号だけを新規に振る。2026-11-14 最終設計: 本番番号を振るのは V2 だけ。COPY の番号は V2 の予約に数えない・引き継がない（COPYは本番番号を予約・消費しない）。
 // 押す順: P25V2_V2_1_CHECK → P25V2_V2_2_DRYRUN → P25V2_V2_3_WRITE_BATCH（1回最大10件・古い順）→ P25V2_V2_4_VERIFY。候補が残れば 3→4 を繰り返す。
 
 var P25V2_V2_CONFIG = {
@@ -18,7 +18,7 @@ var P25V2_V2_CONFIG = {
 function p25v2V2Cfg_(over) {
   var c = p25v2Cfg_({ globalReservation: false }), v = JSON.parse(JSON.stringify(P25V2_V2_CONFIG));
   Object.keys(v).forEach(function (k) { c[k] = v[k]; }); Object.keys(over || {}).forEach(function (k) { c[k] = over[k]; });
-  var r = p25v2GlobalReservation_(); c.reservedMaxEpNo = r.max; c.guidReserve = r.guidReserve; c.global = r; c.reservation = r.summary;
+  var r = p25v2GlobalReservation_({ includeCopy: false }); c.reservedMaxEpNo = r.max; c.guidReserve = {}; c.global = r; c.reservation = r.summary;   // V2 は COPY を数えない
   return c;
 }
 // ===== 採番の単一経路（2026-11-14 司令塔「採番一本化」）=====
@@ -27,7 +27,8 @@ function p25v2V2Cfg_(over) {
 // ・旧本番に同じGUIDの回があれば、その番号がどこでも空いていれば揃え、空いていなければ新番号＋「元EP-ID」に旧本番の番号を残す
 // ・読めない台帳があれば止まる（推測で採番しない）
 var P25V2_V1_PROD_ID_ = '1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4', P25V2_COPY_ID_ = '1WTLcaveWG0mr9F0dIjyCL8daxFnpo4q4yADN_bnK1PY';
-function p25v2GlobalReservation_() {
+function p25v2GlobalReservation_(opts) {
+  var includeCopy = !opts || opts.includeCopy !== false;   // COPY 試験の中だけ COPY も数える（COPY 内の重複防止）。V2 は false
   var num = function (s) { var m = String(s || '').match(/^EP-(\d{5})$/); return m ? +m[1] : 0; }, max = 0, used = {}, summary = {}, v1ByGuid = {};
   var col = function (ss, sheet, header, optional) {
     var sh = ss.getSheetByName(sheet); if (!sh || sh.getLastRow() < 2) return [];
@@ -43,16 +44,20 @@ function p25v2GlobalReservation_() {
   var v1 = SpreadsheetApp.openById(P25V2_V1_PROD_ID_), v1Ids = col(v1, 'エピソード台帳', '台帳ID'), v1G = col(v1, 'エピソード台帳', '外部ID');   // 旧本番は読むだけ
   if (!v1Ids.length) throw new Error('RESERVATION_V1_EMPTY');
   take('旧本番', v1Ids, v1G); v1Ids.forEach(function (id, i) { var g = String(v1G[i] || '').toLowerCase(); if (num(id) && g && !v1ByGuid[g]) v1ByGuid[g] = id; });
+  var guidReserve = {};
+  if (includeCopy) {
   var copy = SpreadsheetApp.openById(P25V2_COPY_ID_);   // COPY は固定ID（設定の書き換えに左右されない）
   var cIds = col(copy, '固定ID採番履歴', '固定ID'), cGuids = col(copy, '固定ID採番履歴', 'GUID'), cState = col(copy, '固定ID採番履歴', '状態');
   take('COPY・採番履歴', cIds, cGuids); take('COPY・統合台帳', col(copy, 'V2・統合台帳', 'EP-ID'), col(copy, 'V2・統合台帳', '公式GUID'));
-  var guidReserve = {}; cIds.forEach(function (id, i) { var g = String(cGuids[i]).toLowerCase(); if (cState[i] === '登録完了' && num(id) && used[id] === '|' + g + '|') guidReserve[g] = id; });   // その番号を使っているのが同じGUIDだけのとき
+  cIds.forEach(function (id, i) { var g = String(cGuids[i]).toLowerCase(); if (cState[i] === '登録完了' && num(id) && used[id] === '|' + g + '|') guidReserve[g] = id; });   // その番号を使っているのが同じGUIDだけのとき
+  }
+  summary.includeCopy = includeCopy;
   var collisions = Object.keys(used).filter(function (id) { return used[id].split('|').filter(Boolean).length > 1; }).sort();
   summary.max = max; summary.copyReservable = Object.keys(guidReserve).length; summary.collisions = collisions.length; summary.collisionIds = collisions.slice(0, 40).join(' ');
   return { max: max, used: used, v1ByGuid: v1ByGuid, guidReserve: guidReserve, summary: summary };
 }
 // 0) 採番の点検（書込なし）: 全台帳の予約最大・番号衝突の数と番号・旧本番のGUID数
-function P25V2_0_採番点検() { var r = p25v2GlobalReservation_(); return p25v2Report_('P25V2_0_採番点検', { status: 'OK', reservation: r.summary, v1Guids: Object.keys(r.v1ByGuid).length, nextIfNew: 'EP-' + ('0000' + (r.max + 1)).slice(-5) }); }
+function P25V2_0_採番点検() { var r = p25v2GlobalReservation_({ includeCopy: false }); return p25v2Report_('P25V2_0_採番点検', { status: 'OK', reservation: r.summary, v1Guids: Object.keys(r.v1ByGuid).length, nextIfNew: 'EP-' + ('0000' + (r.max + 1)).slice(-5) }); }
 // 1) 点検（書込なし）
 function P25V2_V2_1_CHECK() {
   var cfg = p25v2V2Cfg_(), o = p25v2OpenChecked_(cfg, false), out = { target: o.actual, triggers: 0, reservation: cfg.reservation };

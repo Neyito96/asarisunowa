@@ -10,7 +10,7 @@ var P25V2_COPY_CONFIG = {
   expectedNameIncludes: '【COPY試験】',
   sheetName: 'V2・統合台帳',
   scope: 'V2_INGEST_APPEND_ONLY',
-  maxRowsCap: 1,            // 1回の追記上限（絶対上限10。引き上げは別承認）
+  maxRowsCap: 10,           // 1回の追記上限（絶対上限10）。2026-11-14 司令塔「COPYで未収蔵8件の全件収蔵」により 1→10
   reservedMaxEpNo: 6720,    // 本番・削除済みを含めた既知の最大番号（これ以下は採番しない）
   feedLimit: 30,            // 1フィードあたり新しい順に見る件数（取りこぼし再探索は P25V2_6_RESCAN_READONLY）
   feeds: [
@@ -91,6 +91,16 @@ function P25V2_3_WRITE_ONE() {
   p25v2Log_(o.ss, 'P25V2_3_WRITE_ONE', res, res.error || '');
   if (res.added > 0) PropertiesService.getScriptProperties().setProperty('P25V2_LAST_WRITE', JSON.stringify({ at: new Date().toISOString(), addedEpIds: res.addedEpIds || [], guids: (res.plan || []).map(function (p) { return p.guid; }), status: res.status }));
   return p25v2Report_('P25V2_3_WRITE_ONE', res);
+}
+// 3B) COPY 一括（2026-11-14 司令塔「COPYで未収蔵8件の全件収蔵と再実行安全性を検証」）: 1回最大10件・古い順。書くのは COPY だけ
+function P25V2_3B_WRITE_BATCH_COPY() {
+  var cfg = p25v2Cfg_({ write: true }); cfg.maxRows = Math.min(10, cfg.maxRowsCap); var o = p25v2OpenChecked_(cfg, true), res, src = p25v2FetchFeeds_(cfg.feeds);
+  if (src.errors.length) { res = { mode: 'COPY_WRITE', status: 'STOP_FEED_ERRORS', added: 0, feedErrors: src.errors }; p25v2Log_(o.ss, 'P25V2_3B_WRITE_BATCH_COPY', res, '取得エラーのため書込なし'); return p25v2Report_('P25V2_3B_WRITE_BATCH_COPY', res); }
+  try { res = P25V2_INGEST_COPY(cfg, src, true); }
+  catch (e) { res = e.result || { mode: 'COPY_WRITE', status: 'ERROR' }; res.status = 'ERROR'; res.error = String(e.message || e); }
+  p25v2Log_(o.ss, 'P25V2_3B_WRITE_BATCH_COPY', res, res.error || '');
+  if (res.added > 0) PropertiesService.getScriptProperties().setProperty('P25V2_LAST_WRITE', JSON.stringify({ at: new Date().toISOString(), addedEpIds: res.addedEpIds || [], guids: (res.plan || []).map(function (p) { return p.guid; }), status: res.status }));
+  return p25v2Report_('P25V2_3B_WRITE_BATCH_COPY', res);
 }
 // 4) 読み戻し検証（書込なし）: 直前の追加分が 台帳(GUID一致)・採番(登録完了)・収蔵詳細(原文SHA256一致) に揃い、再実行では「既収蔵」になること
 function P25V2_4_VERIFY() { return p25v2Verify_(p25v2Cfg_(), 'P25V2_LAST_WRITE', 'P25V2_4_VERIFY'); }
