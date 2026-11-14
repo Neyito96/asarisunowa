@@ -1,0 +1,79 @@
+{
+ "listen": {
+  "rowsChecked": 11,
+  "readbackMatch": 11,
+  "written": 10,
+  "otherCellsChanged": 0
+ },
+ "raw": [
+  {
+   "ep": "EP-06704",
+   "len": 580,
+   "shaMatch": true,
+   "state": "清掃済",
+   "version": "P25V2-V3-public-sections-1+v2rules-1"
+  },
+  {
+   "ep": "EP-06708",
+   "len": 595,
+   "shaMatch": true,
+   "state": "清掃済",
+   "version": "P25V2-V3-public-sections-1+v2rules-1"
+  },
+  {
+   "ep": "EP-06706",
+   "len": 610,
+   "shaMatch": true,
+   "state": "清掃済",
+   "version": "P25V2-V3-public-sections-1+v2rules-1"
+  },
+  {
+   "ep": "EP-06698",
+   "len": 1878,
+   "shaMatch": true,
+   "state": "清掃済",
+   "version": "P25V2-V3-public-sections-1+v2rules-1"
+  }
+ ],
+ "rerunRawBackfill": {
+  "updatesForTheFour": 0,
+  "pendingOthers": 21,
+  "hold": 0
+ },
+ "rerunCleaning": {
+  "updatesForTheFour": 0
+ },
+ "rerunListen": {
+  "cells": 0,
+  "alreadySame": 10,
+  "hold": 0
+ },
+ "rerunIngest": {
+  "counts": {
+   "CANDIDATE": 0,
+   "HOLD": 0,
+   "BLOCK": 5,
+   "ALREADY_INGESTED": 269,
+   "METADATA_CHANGE": 6
+  },
+  "rowsNow": 6581,
+  "publicCount": 6033,
+  "nextIfNew": "なし（候補0）"
+ },
+ "numbering": {
+  "rows": 157,
+  "p25v2Completed": 26,
+  "p25v2Pending": 0
+ },
+ "details": {
+  "rows": 25,
+  "rawStored": 4,
+  "hashOnly": 21,
+  "cleaned": 4
+ },
+ "urlState": {
+  "rows": 11,
+  "confirmed": 10,
+  "hold": 1
+ }
+}

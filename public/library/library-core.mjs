@@ -20,5 +20,5 @@ export function publicEpisode(row, verified = {}) {
 }
 export function filterEpisodes(items, { query='', show='', order='newest', from='', to='' } = {}) {
   const terms = normal(query).split(' ').filter(Boolean);
-  return items.filter(x => (!show || x.show === show) && (!from || x.date.slice(0,10) >= from) && (!to || x.date.slice(0,10) <= to) && terms.every(t => normal(`${x.title} ${x.cast} ${x.keywords || x.description || ''} ${x.id}`).includes(t))).sort((a,b) => (order === 'oldest' ? 1 : -1) * a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+  return items.filter(x => (!show || x.show === show) && (!from || x.date.slice(0,10) >= from) && (!to || x.date.slice(0,10) <= to) && terms.every(t => normal(`${x.title} ${x.cast} ${x.keywords || ''} ${x.description || ''} ${x.id}`).includes(t))).sort((a,b) => (order === 'oldest' ? 1 : -1) * a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
 }

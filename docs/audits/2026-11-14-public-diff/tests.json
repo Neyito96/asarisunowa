@@ -1,0 +1,21 @@
+{
+  "generatedAt": "2026-11-13T22:26:17.231Z",
+  "baseCommit": "6e1d367a7ac6d9b892a5ae46a49fdb3e64465958",
+  "workingTreeClean": true,
+  "node": "v22.23.4",
+  "tests": 170,
+  "pass": 168,
+  "fail": 2,
+  "failures": [
+    "renders development preview metadata",
+    "tests/ui-components.test.mjs"
+  ],
+  "knownEnvironmentFailures": {
+    "tests/ui-components.test.mjs": "この環境に react が無い（ERR_MODULE_NOT_FOUND）。PR #306 は app/ と UI に触れていない"
+  },
+  "dist": {
+    "gas/summary-cleaner/dist/SummaryCleaner.js": "ec62c6223729f77717a1e79cf9233c8fe418e6a2f4c588c9fe5cd3571f22030e",
+    "gas/p25v2-copy/dist/P25V2CopyIngest.js": "7ad84dcc81c5975f6b8c4c20c70f01394166f00ce6f426d0f5285de6347b7c66"
+  },
+  "cleanerBuildSourceSha256": "8dc7e92d6b7baefeaed493cb4b4fb6ffda36b6e04d0ab2c5c14884dfa4eb23bc"
+}

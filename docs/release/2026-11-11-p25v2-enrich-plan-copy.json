@@ -1,0 +1,168 @@
+{
+ "rows": 11,
+ "listenPlan": {
+  "cells": 10,
+  "column": [
+   "V"
+  ],
+  "hold": 0,
+  "notFound": 1,
+  "epIds": [
+   "EP-06695",
+   "EP-06696",
+   "EP-06697",
+   "EP-06698",
+   "EP-06699",
+   "EP-06700",
+   "EP-06701",
+   "EP-06702",
+   "EP-06703",
+   "EP-06705"
+  ]
+ },
+ "pending": [
+  {
+   "epId": "EP-06695",
+   "need": [
+    "URL:spotify(未探索)",
+    "URL:apple(未探索)",
+    "URL:amazon(未探索)",
+    "URL:pocketcasts(未探索)",
+    "URL:pody(未探索)",
+    "詳細:未作成",
+    "出演者",
+    "関連記事"
+   ]
+  },
+  {
+   "epId": "EP-06696",
+   "need": [
+    "URL:spotify(未探索)",
+    "URL:apple(未探索)",
+    "URL:amazon(未探索)",
+    "URL:pocketcasts(未探索)",
+    "URL:pody(未探索)",
+    "概要原文:原文未取得（長さ・ハッシュのみ確認）",
+    "出演者",
+    "関連記事"
+   ]
+  },
+  {
+   "epId": "EP-06697",
+   "need": [
+    "URL:spotify(未探索)",
+    "URL:apple(未探索)",
+    "URL:amazon(未探索)",
+    "URL:pocketcasts(未探索)",
+    "URL:pody(未探索)",
+    "概要原文:原文未取得（長さ・ハッシュのみ確認）",
+    "出演者",
+    "関連記事"
+   ]
+  },
+  {
+   "epId": "EP-06698",
+   "need": [
+    "URL:spotify(未探索)",
+    "URL:apple(未探索)",
+    "URL:amazon(未探索)",
+    "URL:pocketcasts(未探索)",
+    "URL:pody(未探索)",
+    "概要原文:原文未取得（長さ・ハッシュのみ確認）",
+    "出演者",
+    "関連記事"
+   ]
+  },
+  {
+   "epId": "EP-06699",
+   "need": [
+    "URL:spotify(未探索)",
+    "URL:apple(未探索)",
+    "URL:amazon(未探索)",
+    "URL:pocketcasts(未探索)",
+    "URL:pody(未探索)",
+    "概要原文:原文未取得（長さ・ハッシュのみ確認）",
+    "出演者",
+    "関連記事"
+   ]
+  },
+  {
+   "epId": "EP-06700",
+   "need": [
+    "URL:spotify(未探索)",
+    "URL:apple(未探索)",
+    "URL:amazon(未探索)",
+    "URL:pocketcasts(未探索)",
+    "URL:pody(未探索)",
+    "概要原文:原文未取得（長さ・ハッシュのみ確認）",
+    "出演者",
+    "関連記事"
+   ]
+  },
+  {
+   "epId": "EP-06701",
+   "need": [
+    "URL:spotify(未探索)",
+    "URL:apple(未探索)",
+    "URL:amazon(未探索)",
+    "URL:pocketcasts(未探索)",
+    "URL:pody(未探索)",
+    "概要原文:原文未取得（長さ・ハッシュのみ確認）",
+    "出演者",
+    "関連記事"
+   ]
+  },
+  {
+   "epId": "EP-06702",
+   "need": [
+    "URL:spotify(未探索)",
+    "URL:apple(未探索)",
+    "URL:amazon(未探索)",
+    "URL:pocketcasts(未探索)",
+    "URL:pody(未探索)",
+    "概要原文:原文未取得（長さ・ハッシュのみ確認）",
+    "出演者",
+    "関連記事"
+   ]
+  },
+  {
+   "epId": "EP-06703",
+   "need": [
+    "URL:spotify(未探索)",
+    "URL:apple(未探索)",
+    "URL:amazon(未探索)",
+    "URL:pocketcasts(未探索)",
+    "URL:pody(未探索)",
+    "概要原文:原文未取得（長さ・ハッシュのみ確認）",
+    "出演者",
+    "関連記事"
+   ]
+  },
+  {
+   "epId": "EP-06704",
+   "need": [
+    "URL:spotify(未探索)",
+    "URL:apple(未探索)",
+    "URL:amazon(未探索)",
+    "URL:pocketcasts(未探索)",
+    "URL:pody(未探索)",
+    "概要原文:原文未取得（長さ・ハッシュのみ確認）",
+    "出演者",
+    "関連記事"
+   ]
+  },
+  {
+   "epId": "EP-06705",
+   "need": [
+    "URL:spotify(未探索)",
+    "URL:apple(未探索)",
+    "URL:amazon(未探索)",
+    "URL:pocketcasts(未探索)",
+    "URL:pody(未探索)",
+    "概要原文:原文未取得（長さ・ハッシュのみ確認）",
+    "出演者",
+    "関連記事"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,63 @@
+{
+ "total": 6580,
+ "published": 6033,
+ "byJudge": {
+  "対象": 6033,
+  "保留": 257,
+  "対象外": 161,
+  "未判定": 129
+ },
+ "details": {
+  "rows": 26,
+  "rawStored": 5,
+  "hashOnly": 21,
+  "cleaned": 5,
+  "cleanHold": 0,
+  "missingDetailRow": []
+ },
+ "summaryProjected": 90,
+ "services": {
+  "spotify": {
+   "filled": 98,
+   "verifiedInStateTable": 0,
+   "hold": 0,
+   "notFound": 0
+  },
+  "apple": {
+   "filled": 72,
+   "verifiedInStateTable": 0,
+   "hold": 0,
+   "notFound": 0
+  },
+  "amazon": {
+   "filled": 0,
+   "verifiedInStateTable": 0,
+   "hold": 0,
+   "notFound": 0
+  },
+  "pocketcasts": {
+   "filled": 98,
+   "verifiedInStateTable": 0,
+   "hold": 0,
+   "notFound": 0
+  },
+  "listen": {
+   "filled": 90,
+   "verifiedInStateTable": 0,
+   "hold": 0,
+   "notFound": 0
+  },
+  "pody": {
+   "filled": 0,
+   "verifiedInStateTable": 0,
+   "hold": 0,
+   "notFound": 0
+  }
+ },
+ "numbering": {
+  "rows": 0,
+  "pending": [],
+  "lastCompletedAt": ""
+ },
+ "note": "A:Jは第4段階スナップショット、末尾133行は最新、収蔵詳細は今回の読み戻しと一致。サービス列は末尾133行以外は未読（未確認）。採番表は未読。"
+}

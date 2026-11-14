@@ -1,0 +1,2550 @@
+// 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
+var CLEANER_BUILD_SOURCE_SHA256 = 'fe16da3da6d62125cfef63f8e98a3372660a6c4e59c5ecaec5c6f3ae0520be3f';
+// Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
+// - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
+// - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
+// - 保護対象（V1原本・V2作業用正本・本番59列・旧GAS参照シート）への書込は ID 一致に関係なく拒否。
+// - 新着は 掲載判定=未判定 で入れる → V2・公開台帳(FILTER 対象かつ代表=自分)に出ない。再配信・重複は HOLD/BLOCK。
+// GAS では本ファイルのみを COPY 専用の独立プロジェクトに置く。本番プロジェクト・トリガーは変更しない。
+
+var P25V2_PROTECTED_IDS_ = [
+  '1I0fm8iBM6BMeLgBDdvQ4HLitlGy4sTm7Njjy50J-8BA', // V1 完全保全
+  '1ZAl4QpQ4i5ycyPy1qVNtT-Ke2nsSHhWGFkAH3xedAbc', // V2 作業用（正本）
+  '1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4', // 本番 59列台帳
+  '1KSzoIkOsjUagNBLt3IbKIvgWEmez4f0XISQ-jkUjmwQ'  // 既存GAS SPREADSHEET_ID
+];
+var P25V2_V2_WORKING_ID_ = '1ZAl4QpQ4i5ycyPy1qVNtT-Ke2nsSHhWGFkAH3xedAbc';   // V2作業用: environment='V2_WORKING' かつ明示承認のときだけ書込を許す（他の保護IDは常に拒否）
+var P25V2_SHEET_ = 'V2・統合台帳';
+var P25V2_SCOPE_ = 'V2_INGEST_APPEND_ONLY';
+var P25V2_HEADERS_ = ['EP-ID', '番組', 'タイトル', '配信日時 JST', '掲載判定', '代表EP-ID', '同一内容ID', '公式GUID', '公式JSON UUID', '公式個別URL', 'Omny埋込URL', '旧元ページURL', '再生時間 秒', '概要（清掃済）', '出演者', '関連記事URL', '音声URL', 'Spotify', 'Apple', 'Amazon', 'Pocket Casts', 'LISTEN', 'Pody', 'YouTube', '番組RSS', '画像URL', '文字起こし出典URL', '所属ID', '公式JSON取得元', '元EP-ID', '除外・保留理由', '判定根拠', '備考', '再生状態'];
+var P25V2_LINKS_ = ['Spotify', 'Apple', 'Amazon', 'Pocket Casts', 'LISTEN', 'Pody', 'YouTube'];
+// 入力 item のキー → V2 見出し（ここに無い見出しは空欄で書く。保全対象は既存行に一切触れないことで守る）
+var P25V2_ITEM_MAP_ = { show: '番組', title: 'タイトル', date: '配信日時 JST', guid: '公式GUID', jsonUuid: '公式JSON UUID', officialUrl: '公式個別URL', embedUrl: 'Omny埋込URL', sourceUrl: '旧元ページURL', duration: '再生時間 秒', summaryCleaned: '概要（清掃済）', cast: '出演者', relatedUrls: '関連記事URL', audioUrl: '音声URL', rss: '番組RSS', image: '画像URL', playlistId: '所属ID', note: '備考' };
+
+// ---- 公式RSS → item（第1段階: 基本収蔵に必要な識別子＋後日補完用の原文を保持）----
+// 許可ホストは P25CopyAdapter.readSources と同じ（公式フィードのみ）。
+var P25V2_FEED_HOST_ = /^https:\/\/(?:omny\.fm|www\.omnycontent\.com|feeds\.megaphone\.fm)\//;
+function p25v2XmlText_(s) {
+  s = String(s == null ? '' : s);
+  var cd = s.match(/^\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*$/); if (cd) return cd[1].trim();
+  return s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&#(\d+);/g, function (_, n) { return String.fromCharCode(+n); }).replace(/&amp;/g, '&').trim();
+}
+function p25v2Tag_(block, tag) { var m = block.match(new RegExp('<' + tag + '(?:\\s[^>]*)?>([\\s\\S]*?)</' + tag + '>')); return m ? p25v2XmlText_(m[1]) : ''; }
+function p25v2Attr_(block, tag, attr) { var m = block.match(new RegExp('<' + tag + '\\s[^>]*' + attr + '="([^"]*)"')); return m ? p25v2XmlText_(m[1]) : ''; }
+// RFC822 → V2形式 "YYYY/M/D HH:mm"（JST）
+function p25v2JstDate_(rfc) {
+  var t = Date.parse(rfc); if (isNaN(t)) return '';
+  var d = new Date(t + 9 * 3600e3), p = function (n) { return ('0' + n).slice(-2); };
+  return d.getUTCFullYear() + '/' + (d.getUTCMonth() + 1) + '/' + d.getUTCDate() + ' ' + p(d.getUTCHours()) + ':' + p(d.getUTCMinutes());
+}
+function p25v2DateKey_(v) { var m = p25v2T_(v).match(/^(\d{4})\/(\d{1,2})\/(\d{1,2}) (\d{1,2}):(\d{2})/); return m ? [m[1], +m[2], +m[3], +m[4], m[5]].join('-') : p25v2T_(v); }
+function p25v2Seconds_(v) { var s = p25v2T_(v); if (/^\d+$/.test(s)) return s; var a = s.split(':').map(Number); if (a.some(isNaN)) return ''; return String(a.reduce(function (x, y) { return x * 60 + y; }, 0)); }
+// feedUrl は台帳 V2「番組RSS」に記録されている公式URL。show は V2 の番組名（設定で対応付け）。limit は新しい順の最大件数（差分取得）。
+function p25v2ParseRss_(xml, feedUrl, show, limit) {
+  if (!P25V2_FEED_HOST_.test(String(feedUrl))) throw new Error('UNVERIFIED_FEED_HOST');
+  var x = String(xml || ''); if (x.indexOf('<channel') < 0) throw new Error('FEED_INVALID');
+  var blocks = x.match(/<item[\s>][\s\S]*?<\/item>/g) || [];
+  var chanImg = p25v2Attr_(x.split('<item')[0], 'itunes:image', 'href');
+  var out = blocks.map(function (b) {
+    var g = p25v2Tag_(b, 'guid');
+    return { show: show, title: p25v2Tag_(b, 'title'), date: p25v2JstDate_(p25v2Tag_(b, 'pubDate')), pubDate: p25v2Tag_(b, 'pubDate'),
+      guid: (g.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i) || [g])[0].toLowerCase(),
+      sourceUrl: p25v2Tag_(b, 'link'), audioUrl: p25v2Attr_(b, 'enclosure', 'url'), duration: p25v2Seconds_(p25v2Tag_(b, 'itunes:duration')),
+      image: p25v2Attr_(b, 'itunes:image', 'href') || chanImg, rss: feedUrl,
+      descriptionRaw: p25v2Tag_(b, 'content:encoded') || p25v2Tag_(b, 'description') };
+  });
+  return typeof limit === 'number' ? out.slice(0, limit) : out;
+}
+
+function p25v2T_(v) { return String(v == null ? '' : v).trim(); }
+function p25v2Schema_(header) {
+  var h = (header || []).map(p25v2T_), idx = {};
+  h.forEach(function (name, i) { if (name) { if (idx[name] !== undefined) throw new Error('V2_SCHEMA_DUPLICATE ' + name); idx[name] = i; } });
+  var missing = P25V2_HEADERS_.filter(function (n) { return idx[n] === undefined; });
+  var extra = Object.keys(idx).filter(function (n) { return P25V2_HEADERS_.indexOf(n) < 0; });
+  if (missing.length || extra.length) throw new Error('V2_SCHEMA_MISMATCH missing=' + missing.join('|') + ' extra=' + extra.join('|'));
+  return { idx: idx, width: h.length };
+}
+function p25v2UrlKey_(x) {
+  var s = p25v2T_(x); if (!/^https?:\/\//i.test(s)) return '';
+  s = s.replace(/#.*$/, '').replace(/([?&])(utm_[a-z]+|iref|si)=[^&]*/gi, '$1').replace(/[?&]+$/, '').replace(/\?&/, '?').replace(/\/$/, '');
+  return s.toLowerCase();
+}
+function p25v2Guids_(rec) {
+  var out = [];
+  [rec.guid, rec.jsonUuid, rec.officialUrl].forEach(function (v) {
+    var m = p25v2T_(v).toLowerCase().match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g); if (m) out = out.concat(m);
+  });
+  return out.filter(function (g, i) { return out.indexOf(g) === i; });
+}
+var P25V2_RERUN_ = /[（(【\[]\s*再(放送|配信)?\s*[）)】\]]|再配信|再放送/;
+function p25v2TitleKey_(show, title) { return p25v2T_(show) + '\u0000' + p25v2T_(title).normalize('NFKC').replace(P25V2_RERUN_, '').replace(/\s+/g, '').toLowerCase(); }
+function p25v2Records_(values) {
+  var s = p25v2Schema_(values[0]);
+  var rows = values.slice(1).map(function (r, i) {
+    var g = function (n) { return p25v2T_(r[s.idx[n]]); };
+    return { row: i + 2, epId: g('EP-ID'), show: g('番組'), title: g('タイトル'), judge: g('掲載判定'), rep: g('代表EP-ID'), guid: g('公式GUID'), jsonUuid: g('公式JSON UUID'), officialUrl: g('公式個別URL') };
+  });
+  return { schema: s, rows: rows };
+}
+// 新着の判定。ALREADY_INGESTED（同GUID・同番組・同題）は再実行時の正常系（追加0）。
+function p25v2Classify_(rows, items) {
+  var byId = {}, byGuid = {}, byUrl = {}, byTitle = {};
+  rows.forEach(function (r) {
+    if (r.epId) byId[r.epId] = r;
+    p25v2Guids_(r).forEach(function (g) { (byGuid[g] = byGuid[g] || []).push(r); });
+    var u = p25v2UrlKey_(r.officialUrl); if (u) byUrl[u] = r;
+    if (r.title) byTitle[p25v2TitleKey_(r.show, r.title)] = r;
+  });
+  var seenG = {}, seenU = {};
+  return items.map(function (it) {
+    var reasons = [], gs = p25v2Guids_(it), u = p25v2UrlKey_(it.officialUrl);
+    if (!p25v2T_(it.show) || !p25v2T_(it.title) || !p25v2T_(it.date) || !gs.length) reasons.push('MISSING_REQUIRED');
+    if (it.epId && byId[it.epId]) reasons.push('EP_ID_EXISTS');
+    var hit = []; gs.forEach(function (g) { (byGuid[g] || []).forEach(function (r) { hit.push(r); }); });
+    if (hit.length) {
+      var same = hit.every(function (r) { return r.show === p25v2T_(it.show) && p25v2TitleKey_(r.show, r.title) === p25v2TitleKey_(it.show, it.title); });
+      if (same) return { item: it, decision: 'ALREADY_INGESTED', reasons: ['GUID_PRESENT_SAME_SHOW_TITLE'], existing: hit[0].epId };
+      var own = p25v2T_(it.guid).toLowerCase(), hg = hit.length === 1 ? p25v2Guids_(hit[0]) : [];
+      var sameShow = hit.length === 1 && hit[0].show === p25v2T_(it.show) && hg.indexOf(own) >= 0 && gs.every(function (g) { return !byGuid[g] || byGuid[g][0] === hit[0]; });
+      if (sameShow) return { item: it, decision: 'METADATA_CHANGE', reasons: ['GUID_PRESENT_TITLE_CHANGED'], existing: hit[0].epId };   // 記録のみ・書かない
+      reasons.push('GUID_EXISTS');
+    }
+    if (gs.some(function (g) { return seenG[g]; })) reasons.push('GUID_REPEATED_IN_INPUT');
+    if (u && byUrl[u]) reasons.push('OFFICIAL_URL_EXISTS');
+    if (u && seenU[u]) reasons.push('OFFICIAL_URL_REPEATED_IN_INPUT');
+    var hold = [];
+    if (!/^\d{4}\/\d{1,2}\/\d{1,2} \d{2}:\d{2}$/.test(p25v2T_(it.date))) reasons.push('DATE_FORMAT');
+    if (P25V2_RERUN_.test(p25v2T_(it.title).normalize('NFKC'))) hold.push('RERUN_MARK');
+    if (byTitle[p25v2TitleKey_(it.show, it.title)]) hold.push('SAME_SHOW_TITLE');
+    gs.forEach(function (g) { seenG[g] = 1; }); if (u) seenU[u] = 1;
+    var decision = reasons.length ? 'BLOCK' : hold.length ? 'HOLD' : 'CANDIDATE';
+    return { item: it, decision: decision, reasons: reasons.concat(hold) };
+  });
+}
+// 採番正本「固定ID採番履歴」: [GUID, 固定ID, 番組, タイトル, 状態, 採番日時, 登録完了日時, 台帳行番号, エラー・備考]
+var P25V2_NUM_SHEET_ = '固定ID採番履歴';
+var P25V2_NUM_HEADERS_ = ['GUID', '固定ID', '番組', 'タイトル', '状態', '採番日時', '登録完了日時', '台帳行番号', 'エラー・備考'];
+function p25v2Numbering_(values) {
+  var h = (values[0] || []).map(p25v2T_);
+  P25V2_NUM_HEADERS_.forEach(function (n, i) { if (h[i] !== n) throw new Error('NUMBERING_SCHEMA_MISMATCH ' + n); });
+  return values.slice(1).map(function (r, i) { return { row: i + 2, guid: p25v2T_(r[0]).toLowerCase(), epId: p25v2T_(r[1]), state: p25v2T_(r[4]) }; }).filter(function (r) { return r.guid || r.epId; });
+}
+// 同GUIDに採番済みならその番号を再利用（中断復旧）。無ければ 台帳・採番履歴・予約下限 の最大+1。衝突は停止。
+// global（p25v2GlobalReservation_ の結果）: 旧本番・V2作業用・COPY のすべての「番号→GUID」。別のGUIDが使っている番号は、どの台帳のものでも振らない
+function p25v2Allocate_(ledgerRows, numbering, guid, reservedMax, guidReserve, global) {
+  var g = p25v2T_(guid).toLowerCase(), prior = numbering.filter(function (n) { return n.guid === g; });
+  if (prior.length > 1) throw new Error('NUMBERING_GUID_DUPLICATE');
+  var used = {}; ledgerRows.forEach(function (r) { if (r.epId) used[r.epId] = r; });
+  global = global || { used: {}, v1ByGuid: {}, max: 0 };
+  var otherGuid = function (id) { var u = global.used[id]; return u !== undefined && u.slice(1, -1).split('|').some(function (x) { return x !== g; }); };   // その番号を自分以外のGUID（不明を含む）が使っている
+  if (prior.length === 1) {
+    var u = used[prior[0].epId];
+    if (u && p25v2Guids_(u).indexOf(g) < 0) throw new Error('NUMBERING_ID_COLLISION ' + prior[0].epId);
+    return { epId: prior[0].epId, reused: true, numberingRow: prior[0].row };
+  }
+  var taken = function (id) { return !!used[id] || numbering.some(function (n) { return n.epId === id; }) || otherGuid(id); };
+  var ids = ledgerRows.map(function (r) { return { epId: r.epId }; }).concat(numbering);
+  var rsv = guidReserve && guidReserve[g];   // 別台帳（COPY試験など）で同じGUIDに振った番号があれば、どこでも未使用なら同じ番号を使う
+  if (rsv && !taken(rsv)) return { epId: rsv, reused: false, fromReserve: true };
+  var v1 = global.v1ByGuid && global.v1ByGuid[g];   // 旧本番に同じGUIDの回があり、その番号がどこでも空いていれば揃える
+  if (v1 && !taken(v1)) return { epId: v1, reused: false, fromV1: true };
+  var next = p25v2NextEpId_(ids, Math.max(Number(reservedMax || 0), Number(global.max || 0)));
+  if (numbering.some(function (n) { return n.epId === next; })) throw new Error('NUMBERING_ID_COLLISION ' + next);
+  for (var k = 0; taken(next); k++) { if (k > 1000) throw new Error('NUMBERING_NO_FREE_ID'); next = 'EP-' + ('0000' + (+next.slice(3) + 1)).slice(-5); }
+  return { epId: next, reused: false };
+}
+function p25v2NextEpId_(rows, reservedMax) {
+  var max = Number(reservedMax || 0);
+  rows.forEach(function (r) { var m = r.epId.match(/^EP-(\d{5})$/); if (m) max = Math.max(max, +m[1]); });
+  return 'EP-' + ('0000' + (max + 1)).slice(-5);
+}
+function p25v2BuildRow_(schema, item, epId, originId) {
+  var row = []; for (var i = 0; i < schema.width; i++) row.push('');
+  row[schema.idx['EP-ID']] = epId; row[schema.idx['代表EP-ID']] = epId; row[schema.idx['掲載判定']] = '未判定';
+  Object.keys(P25V2_ITEM_MAP_).forEach(function (k) { if (item[k] !== undefined) row[schema.idx[P25V2_ITEM_MAP_[k]]] = p25v2T_(item[k]); });
+  P25V2_LINKS_.forEach(function (n) { if (item.links && item.links[n]) row[schema.idx[n]] = p25v2T_(item.links[n]); });
+  row[schema.idx['判定根拠']] = 'P25V2収蔵: 公式GUID新規・未審査（公開は人の判定後）';
+  if (originId && originId !== epId && schema.idx['元EP-ID'] !== undefined) row[schema.idx['元EP-ID']] = originId;   // 旧本番で同じGUIDに振られていた番号（読み替え用）
+  return row;
+}
+// 公開計数（V2・公開台帳 FILTER と同じ条件）。未判定・保留・対象外・再配信は入らない。
+function p25v2PublicCount_(rows) { return rows.filter(function (r) { return r.judge === '対象' && r.rep === r.epId; }).length; }
+
+// 書込先の検証（純関数）。actual = 実際に開いたファイルの {id, name, sheetName}
+function p25v2AssertCopyTarget_(config, actual, forWrite) {
+  config = config || {}; actual = actual || {};
+  var t = p25v2T_(config.targetSpreadsheetId), v2w = config.environment === 'V2_WORKING';
+  var prot = function (id) { return P25V2_PROTECTED_IDS_.indexOf(id) >= 0 && !(v2w && id === P25V2_V2_WORKING_ID_); };
+  if (prot(t) || prot(p25v2T_(actual.id))) throw new Error('PROTECTED_TARGET_REFUSED');
+  if (config.environment !== 'COPY' && !v2w) throw new Error('COPY_ENV_REQUIRED');
+  if (!t || t !== p25v2T_(config.expectedTargetId)) throw new Error('TARGET_ID_UNCONFIRMED');
+  if (p25v2T_(actual.id) !== t) throw new Error('OPENED_ID_MISMATCH');
+  if (v2w) {   // V2作業用: IDが固定値と一致・名前に「基本台帳 V2 作業用」・書込は承認フラグ必須
+    if (t !== P25V2_V2_WORKING_ID_) throw new Error('V2_WORKING_ID_MISMATCH');
+    if (p25v2T_(actual.name).indexOf('基本台帳 V2 作業用') < 0) throw new Error('TARGET_NAME_NOT_V2_WORKING');
+    if (forWrite && config.v2WorkingApproved !== true) throw new Error('V2_WORKING_NOT_APPROVED');
+  } else if (!/COPY/.test(p25v2T_(actual.name))) throw new Error('TARGET_NAME_NOT_COPY');
+  if (config.sheetName !== P25V2_SHEET_ || actual.sheetName !== P25V2_SHEET_) throw new Error('SHEET_NAME_MISMATCH');
+  if (config.scope !== P25V2_SCOPE_) throw new Error('SCOPE_MISMATCH');
+  if (forWrite && config.write !== true) throw new Error('WRITE_FLAG_OFF');
+  return true;
+}
+
+// ---- 別表（V2本体34列は変えない。後日補完・清掃・索引をここで管理）----
+// 収蔵詳細: 1EP=1行。概要原文はここだけに保全し、清掃結果は別列（原文は上書きしない）。
+var P25V2_DETAIL_SHEET_ = 'V2・収蔵詳細';
+var P25V2_DETAIL_HEADERS_ = ['EP-ID', '公式GUID', '取得元', '取得日時', '概要原文', '概要原文SHA256', '概要原文文字数', '清掃状態', '清掃版', '清掃日時', '清掃結果', '出典URL', '清掃済み本文', '関連記事(抽出)', '出演者候補(抽出)', '抽出保留', '原文取得方法'];   // 13列目以降は第4段階で末尾に追加
+// URL状態: 1EP×1サービス=1行（縦持ち）。サービス追加で列は増えない。PR #281 resolveOne の返り値をそのまま記録できる形。
+var P25V2_URLSTATE_SHEET_ = 'V2・URL状態';
+var P25V2_URLSTATE_HEADERS_ = ['EP-ID', '公式GUID', 'サービス', 'URL', '状態', '理由', '確認日時', '根拠', '再試行予定'];
+var P25V2_HARD_CAP_ = 10;   // 1回の追記上限の絶対値（設定 maxRowsCap はこれ以下。既定1。引き上げは別承認）
+function p25v2DetailRow_(epId, item, at, sha) {
+  var raw = String(item.descriptionRaw == null ? '' : item.descriptionRaw);
+  var len = raw ? raw.length : Number(item.descLen || 0);
+  var state = raw ? '未清掃' : (len ? '原文未取得（長さ・ハッシュのみ確認）' : '原文なし');
+  return [epId, p25v2Guids_(item)[0] || '', p25v2T_(item.rss), at, raw, raw ? (sha ? sha(raw) : '') : p25v2T_(item.descSha256), String(len), state, '', '', '', p25v2T_(item.sourceUrl || item.rss), '', '', '', '', raw ? p25v2T_(item.rawVia || '公式RSS直接') : (len ? '未取得（長さ・ハッシュのみ）' : 'なし')];
+}
+function p25v2SheetHeaderCheck_(values, headers, name) {
+  var h = (values && values[0] || []).map(p25v2T_);
+  headers.forEach(function (n, i) { if (h[i] !== n) throw new Error('SHEET_SCHEMA_MISMATCH ' + name + ':' + n); });
+}
+// 本番GASプロジェクトに混入していないか（doGet/doPost が同居していたら停止）・トリガーが無いか
+function p25v2AssertIsolated_(env) {
+  env = env || {};
+  if (env.hasDoGet || env.hasDoPost) throw new Error('NOT_ISOLATED_PROJECT');
+  if (env.triggerCount > 0) throw new Error('TRIGGERS_PRESENT');
+  return true;
+}
+var P25V2_DATE_SORT_ = function (a, b) { var x = p25v2DateKey_(a.item.date), y = p25v2DateKey_(b.item.date); var f = function (k) { return k.split('-').map(function (n) { return ('0000' + n).slice(-4); }).join(''); }; return f(x) < f(y) ? -1 : f(x) > f(y) ? 1 : 0; };
+
+// 中核処理（I/O 注入・小バッチ）。
+// io: open() -> {id,name,sheetName}, readAll(), appendRows(rows)->先頭行, readRows(n,k), readNumbering(), appendNumberingRows(rows)->先頭行,
+//     markNumberingRows([{row,state,at,ledgerRow}]), [readDetails(), appendDetails(rows)]
+// 順序（チェックポイント）: 採番履歴「採番済」(一括) → 台帳追記(一括) → 読み戻し → 収蔵詳細 → 採番履歴「登録完了」(読み戻し一致分のみ)。
+// どこで止まっても、再実行で 採番済の番号を再利用／台帳にある分は ALREADY_INGESTED＋採番修復 となり、二重登録も欠番も生じない。
+function p25v2Ingest_(io, config, items, opts) {
+  opts = opts || {};
+  var write = opts.write === true;
+  var cap = Math.min(Number(config.maxRowsCap || 1), P25V2_HARD_CAP_);
+  var maxRows = Math.max(0, Math.min(Number(opts.maxRows || 1), cap));
+  var nowF = opts.now || function () { return new Date().toISOString(); };
+  var actual = io.open();
+  p25v2AssertCopyTarget_(config, actual, write);
+  var before = io.readAll(), recs = p25v2Records_(before);
+  var decisions = p25v2Classify_(recs.rows, items || []);
+  var count = function (d) { return decisions.filter(function (x) { return x.decision === d; }).length; };
+  var res = { mode: write ? 'COPY_WRITE' : 'READ_ONLY_DRY_RUN', status: 'OK', rowsBefore: recs.rows.length, publicBefore: p25v2PublicCount_(recs.rows),
+    counts: { CANDIDATE: count('CANDIDATE'), HOLD: count('HOLD'), BLOCK: count('BLOCK'), ALREADY_INGESTED: count('ALREADY_INGESTED'), METADATA_CHANGE: count('METADATA_CHANGE') },
+    decisions: decisions.map(function (d) { return { guid: p25v2Guids_(d.item)[0] || '', show: p25v2T_(d.item.show), date: p25v2T_(d.item.date), decision: d.decision, reasons: d.reasons, existing: d.existing || '' }; }),
+    added: 0, addedEpIds: [], numberingRepaired: [], plan: [] };
+  var numbering = io.readNumbering ? p25v2Numbering_(io.readNumbering()) : null;
+  if (!numbering && config.requireNumbering !== false) throw new Error('NUMBERING_SOURCE_REQUIRED');
+  var reserved = Number(config.reservedMaxEpNo || 0);
+  var todo = decisions.filter(function (d) { return d.decision === 'CANDIDATE'; }).sort(P25V2_DATE_SORT_).slice(0, (!write && opts.planAll) ? Infinity : maxRows);   // 古い順に採番（READ_ONLY+planAll は全候補の予定採番）
+  // 予定採番（READ_ONLYでも出す）
+  var simNum = (numbering || []).map(function (n) { return { row: n.row, guid: n.guid, epId: n.epId, state: n.state }; }), simRows = recs.rows.slice();
+  var allocs = todo.map(function (d) {
+    var g = p25v2Guids_(d.item)[0];
+    var al = numbering ? p25v2Allocate_(simRows, simNum, g, reserved, config.guidReserve, config.global) : { epId: p25v2NextEpId_(simRows, reserved), reused: false };
+    if (!al.reused) simNum.push({ row: 0, guid: g, epId: al.epId, state: '採番済' });
+    simRows.push({ epId: al.epId, show: d.item.show, title: d.item.title, guid: g, jsonUuid: '', officialUrl: '' });
+    al.origin = (config.global && config.global.v1ByGuid && config.global.v1ByGuid[g]) || '';
+    res.plan.push({ epId: al.epId, reused: !!al.reused, fromReserve: !!al.fromReserve, fromV1: !!al.fromV1, originV1: al.origin, guid: g, show: p25v2T_(d.item.show), date: p25v2T_(d.item.date) });
+    return al;
+  });
+  // 中断復旧: 台帳にあるのに採番履歴が「採番済」→「登録完了」に修復（書込モードのみ）
+  if (write && numbering) {
+    var fix = [];
+    decisions.filter(function (d) { return d.decision === 'ALREADY_INGESTED'; }).forEach(function (d) {
+      var g = p25v2Guids_(d.item)[0], n = numbering.filter(function (x) { return x.guid === g; })[0];
+      var led = recs.rows.filter(function (r) { return r.epId === d.existing; })[0];
+      if (n && led && n.epId === d.existing && n.state === '採番済') fix.push({ row: n.row, state: '登録完了', at: nowF(), ledgerRow: led.row, epId: n.epId });
+    });
+    if (fix.length) { io.markNumberingRows(fix); res.numberingRepaired = fix.map(function (f) { return f.epId; }); }
+  }
+  if (!write || !todo.length) { res.publicAfter = res.publicBefore; return res; }
+  if (opts.deadlineMs && Date.now() > opts.deadlineMs) { res.status = 'PARTIAL_TIME'; return res; }
+  var at = nowF();
+  var rows = todo.map(function (d, i) { return p25v2BuildRow_(recs.schema, d.item, allocs[i].epId, allocs[i].origin); });
+  // 1) 採番履歴「採番済」（再利用分は書かない）
+  var newNum = []; todo.forEach(function (d, i) { if (!allocs[i].reused) newNum.push(i); });
+  if (newNum.length) {
+    var first = io.appendNumberingRows(newNum.map(function (i) { return [p25v2Guids_(todo[i].item)[0], allocs[i].epId, p25v2T_(todo[i].item.show), p25v2T_(todo[i].item.title), '採番済', at, '', '', 'P25V2'] }));
+    newNum.forEach(function (i, k) { allocs[i].numberingRow = first + k; });
+  }
+  // 2) 書込直前の再検証（対象・台帳の不変・見出し）
+  p25v2AssertCopyTarget_(config, io.open(), true);
+  var after = io.readAll();
+  if (after.length !== before.length || JSON.stringify(after) !== JSON.stringify(before)) throw new Error('LEDGER_CHANGED_SINCE_READ');
+  p25v2Schema_(after[0]);
+  // 3) 台帳へ一括追記
+  var n0 = io.appendRows(rows);
+  if (n0 !== before.length + 1) throw new Error('APPEND_POSITION_UNEXPECTED');
+  // 4) 読み戻し（日時は値で比較）
+  var di = recs.schema.idx['配信日時 JST'];
+  var norm = function (r) { return r.map(function (v, i) { return i === di ? p25v2DateKey_(v) : p25v2T_(v); }); };
+  var back = io.readRows(n0, rows.length) || [], okIdx = [], bad = [];
+  rows.forEach(function (r, i) { var w = norm(r), b = norm(back[i] || []).slice(0, w.length); if (JSON.stringify(b) === JSON.stringify(w)) okIdx.push(i); else bad.push(allocs[i].epId); });
+  // 5) 収蔵詳細（概要原文の保全）: 読み戻し一致分のみ。既にあるEP-IDには書かない
+  if (io.appendDetails && okIdx.length) {
+    var dv = io.readDetails(); p25v2SheetHeaderCheck_(dv, P25V2_DETAIL_HEADERS_, P25V2_DETAIL_SHEET_);
+    var have = {}; dv.slice(1).forEach(function (r) { have[p25v2T_(r[0])] = 1; });
+    var drows = okIdx.filter(function (i) { return !have[allocs[i].epId]; }).map(function (i) { return p25v2DetailRow_(allocs[i].epId, todo[i].item, at, opts.sha256); });
+    if (drows.length) io.appendDetails(drows);
+    res.detailsAdded = drows.length;
+  }
+  // 6) 採番履歴「登録完了」
+  if (numbering && okIdx.length) io.markNumberingRows(okIdx.map(function (i) { return { row: allocs[i].numberingRow, state: '登録完了', at: at, ledgerRow: n0 + i }; }));
+  okIdx.forEach(function (i) {
+    res.added++; res.addedEpIds.push(allocs[i].epId);
+    recs.rows.push({ row: n0 + i, epId: allocs[i].epId, show: todo[i].item.show, title: todo[i].item.title, judge: '未判定', rep: allocs[i].epId, guid: todo[i].item.guid, jsonUuid: '', officialUrl: '' });
+  });
+  res.firstRow = n0; res.readbackOk = bad.length === 0; res.numberingReused = allocs.some(function (a) { return a.reused; });
+  res.publicAfter = p25v2PublicCount_(recs.rows);
+  if (bad.length) { res.status = 'HALT_READBACK_MISMATCH'; res.readbackFailed = bad; throw Object.assign(new Error('READBACK_MISMATCH ' + bad.join(',')), { result: res }); }
+  return res;
+}
+
+// GAS 用 I/O（COPY 専用プロジェクトで手動実行。トリガーは作らない）
+function p25v2GasIo_(config) {
+  var ss = null, sh = null;
+  var sheet = function (name) { var x = ss.getSheetByName(name); if (!x) throw new Error('SHEET_NOT_FOUND ' + name); return x; };
+  var appendBlock = function (x, rows, copyFormat) { var n = x.getLastRow() + 1; if (copyFormat && n > 2) x.getRange(n - 1, 1, 1, rows[0].length).copyFormatToRange(x, 1, rows[0].length, n, n + rows.length - 1); x.getRange(n, 1, rows.length, rows[0].length).setValues(rows); SpreadsheetApp.flush(); return n; };
+  return {
+    open: function () { ss = SpreadsheetApp.openById(config.targetSpreadsheetId); sh = ss.getSheetByName(config.sheetName); return { id: ss.getId(), name: ss.getName(), sheetName: sh ? sh.getName() : '' }; },
+    readAll: function () { return sh.getRange(1, 1, sh.getLastRow(), sh.getLastColumn()).getDisplayValues(); },
+    appendRows: function (rows) { return appendBlock(sh, rows, true); },
+    readRows: function (n, k) { return sh.getRange(n, 1, k, sh.getLastColumn()).getDisplayValues(); },
+    readNumbering: function () { var ns = sheet(P25V2_NUM_SHEET_); return ns.getRange(1, 1, Math.max(ns.getLastRow(), 1), 9).getDisplayValues(); },
+    appendNumberingRows: function (rows) { return appendBlock(sheet(P25V2_NUM_SHEET_), rows, false); },
+    markNumberingRows: function (list) { var ns = sheet(P25V2_NUM_SHEET_); list.forEach(function (m) { ns.getRange(m.row, 5).setValue(m.state); ns.getRange(m.row, 7, 1, 2).setValues([[m.at, m.ledgerRow]]); }); SpreadsheetApp.flush(); },
+    readDetails: function () { var d = sheet(P25V2_DETAIL_SHEET_); return d.getRange(1, 1, Math.max(d.getLastRow(), 1), P25V2_DETAIL_HEADERS_.length).getDisplayValues(); },
+    appendDetails: function (rows) { return appendBlock(sheet(P25V2_DETAIL_SHEET_), rows, false); }
+  };
+}
+function p25v2GasSha256_(s) { return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, s, Utilities.Charset.UTF_8).map(function (b) { return ('0' + (b & 255).toString(16)).slice(-2); }).join(''); }
+function p25v2Sleep_(ms) { if (typeof Utilities !== 'undefined' && Utilities.sleep) Utilities.sleep(ms); }
+// 収蔵工程は清掃・出演者・関連記事を書かない（品質未検証の値を台帳本体に入れない）。原文は収蔵詳細にだけ保全する。
+function p25v2StripUnverified_(items) { return (items || []).map(function (x) { var y = {}; Object.keys(x).forEach(function (k) { if (['summaryCleaned', 'cast', 'relatedUrls'].indexOf(k) < 0) y[k] = x[k]; }); return y; }); }
+// 公式RSSの取得（GAS）。feeds: [{show, url, limit}]（limit 省略=30件、0=全件）。1フィードの失敗で全体を止めず、失敗は記録する。
+function p25v2FetchFeeds_(feeds) {
+  var items = [], errors = [], stats = [], empty = [];
+  (feeds || []).forEach(function (f) {
+    var last = '', t0 = Date.now(), bytes = 0, before = items.length;
+    for (var attempt = 0; attempt < 2; attempt++) {   // 一時障害（5xx・通信例外）は1回だけ再試行。4xxは再試行しない
+      try { var r = UrlFetchApp.fetch(f.url, { muteHttpExceptions: true }), code = r.getResponseCode();
+        if (code !== 200) { last = 'FEED_HTTP_' + code; if (code >= 500 && attempt === 0) { p25v2Sleep_(2000); continue; } break; }
+        var body = r.getContentText(); bytes = body.length; var got = p25v2ParseRss_(body, f.url, f.show, f.limit == null ? 30 : (f.limit > 0 ? f.limit : undefined));
+        if (!got.length) empty.push(f.show);   // 公式フィードは常に過去回を含む。0件は「新着0」ではなく異常の印（日次 D1 はこれで止まる）
+        items = items.concat(got); last = ''; break; }
+      catch (e) { last = String(e.message || e); if (/UNVERIFIED_FEED_HOST|FEED_INVALID/.test(last) || attempt > 0) break; p25v2Sleep_(2000); }
+    }
+    if (last) errors.push({ show: f.show, error: last });
+    stats.push({ show: f.show, ms: Date.now() - t0, chars: bytes, items: items.length - before });   // 実行時間・サイズの実測（本文は含めない）
+  });
+  return { items: items, errors: errors, stats: stats, empty: empty };
+}
+// 承認ボタンの後に設置する日次の時間主導トリガー（各プロジェクト1本）だけは隔離チェックの対象外。それ以外のトリガーが1本でもあれば停止
+var P25V2_ALLOWED_TRIGGER_HANDLERS_ = ['P25V2_D1_日次実行', 'D2_清掃と人物_日次'];
+function p25v2ForeignTriggers_() { return ScriptApp.getProjectTriggers().filter(function (t) { return P25V2_ALLOWED_TRIGGER_HANDLERS_.indexOf(t.getHandlerFunction()) < 0 || String(t.getEventType()) !== 'CLOCK'; }).length; }
+// 手動実行（COPY専用プロジェクト）。同時実行はスクリプトロックで1本に限定。
+function p25v2IngestCopyNotInCleaner_(config, items, write) {
+  p25v2AssertIsolated_({ hasDoGet: typeof doGet === 'function', hasDoPost: typeof doPost === 'function', triggerCount: p25v2ForeignTriggers_() });
+  var lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return { status: 'LOCKED' };
+  try {
+    var src = items || p25v2FetchFeeds_(config.feeds);
+    var res = p25v2Ingest_(p25v2GasIo_(config), config, p25v2StripUnverified_(src.items || src), { write: write === true, maxRows: config.maxRows || 1, deadlineMs: Date.now() + 4 * 60 * 1000, sha256: p25v2GasSha256_ });
+    res.feedErrors = src.errors || []; return res;
+  } finally { lock.releaseLock(); }
+}
+
+
+var LibClean = (function () {
+// Reused unchanged from LibraryV3.js (PR #234, 2026-10-18).
+function libV3Clean_(text){
+ // Mechanical rendering only: preserve words, URLs and names, never summarize.
+ return String(text||'').replace(/<a\b[^>]*href\s*=\s*(["'])(.*?)\1[^>]*>([\s\S]*?)<\/a>/gi,(_,q,url,label)=>label===url?label:label+' '+url).replace(/\\r\\n|\\n|\\r|\r\n?|\n/g,' ').replace(/<br\s*\/?\s*>|<\/(?:p|div|li)>/gi,' ')
+ .replace(/<(https?:\/\/[^<>\s]+)>/g,'$1').replace(/<[^>]*>/g,' ').replace(/&(?:amp|lt|gt|quot|apos|nbsp);/g,x=>({'&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"','&apos;':"'",'&nbsp;':' '})[x])
+ .replace(/&#(x[0-9a-f]+|[0-9]+);/gi,(x,n)=>{const c=n[0].toLowerCase()==='x'?parseInt(n.slice(1),16):Number(n);return c>0&&c<=0x10ffff?String.fromCodePoint(c):x;}).replace(/\s+/g,' ').trim();
+}
+
+
+return { cleanDescription: libV3Clean_ };
+})();
+
+var DescEditor = (function () {
+// Phase 11 publication layer over V3 mechanical rendering. Never mutates raw text.
+const { cleanDescription } = LibClean;
+const DESCRIPTION_VERSION = 'V3-public-sections-1';
+const urlPattern = /https?:\/\/[^\s<>「」『』（）()"'、]+/g;
+function publicationUrl(raw) {
+  try {
+    const u=new URL(raw); if(!['https:','http:'].includes(u.protocol)||u.username||u.password)return '';
+    for(const k of [...u.searchParams.keys()])if(/^(utm_.+|iref|ref|fbclid|gclid|si)$/i.test(k))u.searchParams.delete(k);
+    return u.href;
+  } catch { return ''; }
+}
+function descriptionLines(raw) {
+  return String(raw||'').replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi,'')
+    .replace(/\\r\\n|\\n|\\r|\r\n?/g,'\n').replace(/<br\s*\/?\s*>|<\/?(?:p|div|li)\b[^>]*>/gi,'\n')
+    .split('\n').map(s=>cleanDescription(s).replace(/&(hellip|ndash|mdash|lsquo|rsquo|ldquo|rdquo);/g,(_,n)=>({hellip:'…',ndash:'–',mdash:'—',lsquo:'‘',rsquo:'’',ldquo:'“',rdquo:'”'}[n]))).filter(Boolean);
+}
+function extractLinks(text, kind='article') {
+  const out=[]; let previous=0;
+  for(const m of text.matchAll(urlPattern)) {
+    const originalUrl=m[0].replace(/[.,;]+$/,''); const url=publicationUrl(originalUrl);if(!url)continue;
+    const title=text.slice(previous,m.index).replace(/^[\s▽・／/）)]+/,'').replace(/[\s（(]+$/,'').trim();
+    out.push({title:title||originalUrl,originalUrl,url,kind,linkStatus:'NOT_CHECKED',checkedAt:null}); previous=m.index+m[0].length;
+  } return out;
+}
+function editDescription(raw, {relatedUrls=[],linkEvidence={}}={}) {
+  const body=[],staff=[],recording=[],removed=[],related=[],unclassified=[];let section='body';
+  for(let line of descriptionLines(raw)) {
+    // Split common footer from a recording date, even when stored in one paragraph.
+    line=line.replace(/朝日新聞ポッドキャスト[（(][\s\S]*?では他にも様々な番組を配信、テキストでも読めます。?/g,m=>{removed.push({reason:'COMMON_FOOTER',text:m});return '';});
+    if(!line.trim())continue;
+    if(/^[★※]?過去の.*(?:シリーズ|配信リスト)|^藤田知也記者による連載/.test(line)&&/https?:/.test(line)){related.push(...extractLinks(line,'reference'));continue;}
+    if((/^★/.test(line)&&/姉妹番組|記者サロン|移管|チャンネル|イベント|申し込み|詳細はこちら|展|講座|生配信|強化ウイーク|昨日配信|この番組|この続き|クラウドファンディング|生出演/.test(line))||(/^※/.test(line)&&/(?:開催|登録|応募フォーム|お申し込み)/.test(line))){removed.push({reason:'EXPLICIT_PROMOTION',text:line});continue;}
+    if(/^※(?:【連載】|朝日新聞デジタルの連載|連載「)/.test(line)&&/https?:/.test(line)){related.push(...extractLinks(line.replace(/^※/,''),'reference'));continue;}
+    const date=line.match(/この番組は\d{4}年[^。]*?に収録しました。?/g);
+    if(date){recording.push(...date);line=line.replace(/この番組は\d{4}年[^。]*?に収録しました。?/g,'').trim();if(!line)continue;}
+    if(/^(?:ご意見|フォーム|おたよりフォーム|ツイッター|メール|【ご意見・ご感想】|【ツイッター】)/.test(line)&&/(?:forms\.gle|twitter\.com|@asahi\.com|【ご意見・ご感想】|【ツイッター】)/i.test(line)){removed.push({reason:'CONTACT',text:line});continue;}
+    if(/^See .*omnystudio\.com\/listener.*privacy information\.?$/i.test(line)){removed.push({reason:'COMMON_PRIVACY',text:line});continue;}
+    if(/^(?:【番組内容】|【内容】)/.test(line)){section='body';line=line.replace(/^【[^】]+】/,'').trim();}
+    else if(/^(?:【関連記事】|【関連リンク】|【写真まとめ】|【ドキュメンタリー動画】|【特集ページ】|【withnewsの記事一覧はこちら】)/.test(line)){section='related';line=line.replace(/^【[^】]+】/,'').trim();}
+    else if(/^【出演[・／/]スタッフ】|^【出演者】|^【スタッフ】/.test(line)){section='staff';line=line.replace(/^【[^】]+】/,'').trim();}
+    else if(/^(?:【お知らせ】|＜お知らせ＞|<お知らせ>|【イベント|【GOOD LIFE|PR[:：]|PRESENTED BY[:：]|【SPONSORED】)/i.test(line)){section='notice';removed.push({reason:'NOTICE_OR_PROMOTION',text:line});continue;}
+    if(section==='notice'){removed.push({reason:'NOTICE_OR_PROMOTION',text:line});continue;}
+    if(section==='related'){
+      const pending=unclassified.at(-1);if(/^https?:/.test(line)&&pending?.section==='related'){line=pending.text+' '+line;unclassified.pop();}
+      related.push(...extractLinks(line));if(!/https?:/.test(line)&&line)unclassified.push({section,text:line});continue;
+    }
+    if(section==='staff'){staff.push(line);continue;}
+    // Only explicit contact URLs/addresses are removed inside otherwise useful content.
+    line=line.replace(/(?:mailto:)?[A-Z0-9._%+-]+@asahi\.com/gi,'').replace(/https?:\/\/(?:forms\.gle|docs\.google\.com\/forms)[^\s）)]+/gi,'');
+    if(/^Official Site\s*\|/i.test(line)||/^番組内で紹介されたエピソードはこちら/.test(line)){related.push(...extractLinks(line,'reference'));continue;}
+    line=line.replace(/(?:この番組は|※)?毎週[月火水木金土日]曜日に配信します。?/g,m=>{removed.push({reason:'COMMON_SCHEDULE',text:m});return '';});
+    line=line.replace(urlPattern,u=>publicationUrl(u)||'').trim();if(line&&!body.includes(line))body.push(line);
+  }
+  // Preserve ledger article URLs even if raw section markup is missing or unusual.
+  for(const originalUrl of relatedUrls){const url=publicationUrl(originalUrl);if(url&&!related.some(r=>r.url===url))related.push({title:originalUrl,originalUrl,url,kind:'article',linkStatus:'NOT_CHECKED',checkedAt:null});}
+  const unique=new Map();for(const r of related){if(/\/special\/podcasts\/?(?:\?|$)|forms\.gle|omnystudio\.com\/listener/.test(r.url))continue;const old=unique.get(r.url);if(!old||old.title===old.originalUrl)unique.set(r.url,r);}
+  for(const r of unique.values()){const proof=linkEvidence[r.originalUrl]||linkEvidence[r.url];if(proof)Object.assign(r,{linkStatus:proof.status,checkedAt:proof.checkedAt,httpStatus:proof.httpStatus});}
+  const description=body.join('\n\n');const holds=[];
+  if(!description)holds.push('CONTENT_EMPTY');
+  if(unclassified.length)holds.push('RELATED_TEXT_WITHOUT_URL_REVIEW');
+  if(/@asahi\.com|forms\.gle|<\/?[a-z][^>]*>/i.test(description))holds.push('PUBLIC_RESIDUE');
+  return {version:DESCRIPTION_VERSION,description,relatedArticles:[...unique.values()],staff,recording:[...new Set(recording)],removed,unclassified,holds};
+}
+
+return { DESCRIPTION_VERSION, publicationUrl, descriptionLines, editDescription };
+})();
+
+var QualityAudit = (function () {
+// 概要清掃の品質監査（READ_ONLY）。比較基準は公式RSSの概要原文だけ。既存の清掃文・新しい清掃案は「検査対象」であって正解ではない。
+// 監査側の行分類は清掃器とは独立に、保守的に作る（迷う行は AMBIGUOUS として採点しない＝消し過ぎ・残し過ぎのどちらにも数えない）。
+// 出力は件数・分類・EP-ID・行番号・文字数だけ。本文は出さない（leak-guard を通す前提）。
+const { descriptionLines } = DescEditor;
+// 追跡パラメータ（utm_*・iref・ref・fbclid・gclid・si）だけを外す。URL クラスを使わない（GAS には無い）。それ以外の部分は変えない
+function cleanUrl(u) {
+  const s = String(u || ''), h = s.indexOf('#'), base = h >= 0 ? s.slice(0, h) : s, hash = h >= 0 ? s.slice(h) : '', q = base.indexOf('?');
+  if (q < 0) return s;
+  const keep = base.slice(q + 1).split('&').filter((kv) => kv && !/^(utm_[^=]*|iref|ref|fbclid|gclid|si)(=|$)/i.test(kv));
+  return base.slice(0, q) + (keep.length ? '?' + keep.join('&') : '') + hash;
+}
+const publicationUrl = cleanUrl;
+// 段落（</p>）ごとに行へ分ける。段落の区切りを残すため（★の告知ブロックは段落の終わりまで）。<p> の無い原文は全体で1段落＝hasParas=false
+// 共通ライブラリが訳さない名前付き文字参照（&darr; &times; など）を文字に戻す。原文側と出力側の両方に同じ変換がかかる（SQA-10）
+const NAMED_ENTITIES = { darr: '↓', uarr: '↑', rarr: '→', larr: '←', harr: '↔', times: '×', divide: '÷', infin: '∞', copy: '©', reg: '®', trade: '™', deg: '°', middot: '·', bull: '•', laquo: '«', raquo: '»', yen: '¥', euro: '€', Oslash: 'Ø', oslash: 'ø', eacute: 'é', Eacute: 'É', aacute: 'á', uuml: 'ü', ouml: 'ö', auml: 'ä', ccedil: 'ç', ntilde: 'ñ', hearts: '♥', star: '☆', sect: '§', para: '¶', plusmn: '±', frac12: '½', minus: '−', ensp: ' ', emsp: ' ', thinsp: ' ' };
+const decodeNamedEntities = (t) => String(t).replace(/&([A-Za-z][A-Za-z0-9]{1,7});/g, (m, n) => NAMED_ENTITIES[n] ?? m);
+function paraLines(raw) {
+  const src = String(raw ?? '').replace(/<!\[CDATA\[|\]\]>/g, ''), parts = src.split(/<\/p\s*>/i), out = [];
+  parts.forEach((chunk, p) => descriptionLines(chunk).forEach((text) => out.push({ text: decodeNamedEntities(text.replace(/[\u200B\u2060\uFEFF]/g, '')), p })));
+  return { lines: out, hasParas: parts.length > 1 };
+}
+// ★/☆ で始まる告知（フォロー・募集・イベント・新番組・感想募集など）。その段落の残りの行も告知として扱う
+const STAR_NOTICE = /^[★☆].*(?:読み放題|月額|円で|初回限定|フォロー|お寄せ|募集|お待ち|申し込|申込|配信あり|新番組|はじめます|キャンペーン|イベント|プレゼント|ご感想|ご意見|アンケート|質問)/;
+// 見出しの後に文が続く告知（【秋トクキャンペーン …】本文…）
+const INLINE_NOTICE_HEAD = /^【[^】]*(?:キャンペーン|イベント|祝|募集|プレゼント|お知らせ|告知|チケット|参加者)[^】]*】/;
+
+const AUDIT_VERSION = 'SQA-10';   // SQA-9 は所在不明の版（2026-11-12）と衝突させないため欠番
+// 清掃状態（処理済みと品質確認済みを分離）。品質確認済は人の目視確認と記録があるときだけ付く。自動検査の合格は「自動検査合格・目視未確認」。
+const QUALITY_STATES = Object.freeze(['未処理', '自動処理済・未検証', '自動検査合格・目視未確認', '品質確認済', '要確認', '不合格']);
+const QUALITY_LOG_HEADERS = Object.freeze(['EP-ID', '公式GUID', '概要原文SHA256', '検査対象', '清掃版', '監査版', '判定', '誤り分類', '検証方法', '検証者', '検証日時', '理由']);
+
+const N = (t) => String(t ?? '').normalize('NFKC').replace(/https?:\/\/\S+/g, '').replace(/[\s　、。，．・「」『』（）()【】\[\]！？!?…:：;；"'“”‘’〜~ー—–-]/g, '').toLowerCase();
+const URL_RE = /https?:\/\/[^\s<>「」『』（）()"'、]+/g;
+const ARTICLE_RE = /^https?:\/\/(?:www\.asahi\.com\/(?:articles|[a-z]+\/articles)\/|digital\.asahi\.com\/articles\/|withnews\.jp\/article\/|globe\.asahi\.com\/article\/|book\.asahi\.com\/article\/|www\.asahi\.com\/special\/(?!podcasts))/;
+// 消してよいと監査側が確信できる定型だけ。迷うものは入れない。
+const DROP_LINE = /過去(?:の)?回は(?:下記|こちら)|読み放題|スタンダードコース|初回限定|初月無料|月額\s*[\d０-９,，]+円|^See .*omnystudio\.com\/listener|Learn more about your ad choices|会員登録をお願い|購読料で配信|交流はdiscord|^ご意見・感想・リクエスト|おたよりフォーム|^メルマガ|広告ご検討の企業様|^番組検索ツール|^最新情報はX|^番組カレンダー|全話あります公式サイト|アプリで記者と対話|^朝ポキTV|ほかにも(?:多彩な)?番組を配信中|^★?ご感想はこちら|discord|をフォロー|フォロー[、,]?\s*お願い|お待ちしています|申し込みはこちら|申込はこちら/i;
+const DROP_SECTION = /^【(?:おねがい|朝ポキ情報|お知らせ|イベント)|^【[^】]*(?:参加|フェス|募集|告知|プレゼント|チケット|キャンペーン|イベント)[^】]*】\s*$/;
+const STAFF_SECTION = /^【(?:出演[・／/]スタッフ|出演者|スタッフ|出演)】/;
+const RELATED_SECTION = /^【(?:関連記事|関連リンク|写真まとめ|特集ページ|まとめてわかる)|^【[^】]*(?:関連|参考|アーカイブ)[^】]*】\s*$/;
+const AMBIG_LINE = /^[★※▼■◆]|募集|お寄せください|応募|申し込み|配信します|収録しました|プレゼント|イベント|フォロー/;
+
+// 原文を行に分け、監査側の期待（KEEP/DROP/STAFF/RELATED/AMBIGUOUS）を付ける。
+function classifyRawLines(raw) {
+  const out = []; let section = 'body', notice = -1;   // notice = ★告知・見出し付き告知が続いている段落番号
+  const pl = paraLines(raw);
+  const groups = new Map(); pl.lines.forEach(({text,p}) => groups.set(p, (groups.get(p) || '') + '\n' + text));
+  const invitations = new Set([...groups].filter(([p,t]) => pl.hasParas && /(?:^|\n)(?:【ご案内】|【リアルで新聞をめくろう】|[★☆]「PODCAST MEETING)/.test(t) && /PODCAST MEETING/.test(t) && /申し込|申込|応募|参加|開催|対象はデジタル版有料会員/.test(t) && /https?:\/\/(?:ciy\.digital\.asahi\.com\/ciy\/|que\.digital\.asahi\.com\/question\/|forms\.gle\/|t\.asahi\.com\/wr7n)/.test(t)).map(([p])=>p));
+  pl.lines.forEach(({ text, p }, i) => {
+    const urlOnly = /^\s*(?:https?:\/\/\S+\s*)+$/.test(text);
+    if (notice >= 0 && (p !== notice || /^[【★☆※]/.test(text))) { notice = -1; if (section === 'notice') section = 'body'; }
+    if (pl.hasParas && (STAR_NOTICE.test(text) || (INLINE_NOTICE_HEAD.test(text) && !/^【[^】]+】\s*$/.test(text)))) { section = 'notice'; notice = p; }
+    else if (/^【朝日新聞アプリで(?:つぶやきの)?フォローしてください】/.test(text)) section = 'drop';
+    else if (DROP_SECTION.test(text)) section = 'drop'; else if (STAFF_SECTION.test(text)) section = 'staff'; else if (RELATED_SECTION.test(text)) section = 'related'; else if (/^【[^】]{1,40}】\s*$/.test(text)) section = 'body';   // 名前の決まっていない見出しで節が切り替わる
+    const headerOnly = /^【[^】]+】\s*$/.test(text);
+    let expect;
+    if (/^(?:【(?:ご案内|締め切り迫る)】)?9月23日に 朝ポキ 初の対面イベント「PODCAST MEETING 2022」を開催！皆さんと会いたいです！$/.test(text) || (String(raw).includes('対面イベント「PODCAST MEETING 2022」を開催') && /^※応募締切は9月4日です。$/.test(text)) || invitations.has(p) || /^(?:・\s*)?(?:メールマガジン)?「朝ポキおたより」(?:が|に|、).*?(?:ご登録|始まり|始まります)/.test(text) || /^(?:過去回は、「連載」→「伊藤・奥山・神田」からお聞きいただけます。)?朝ポキ7番組の更新情報・アーカイブはこちら！$/.test(text.replace(URL_RE, '').trim()) || /^(?:https?:\/\/(?:twitter\.com|x\.com)\/[^\s（）()]+\s*[（(][^）)]+[）)]\s*)+$/i.test(text) || DROP_LINE.test(text) || /^(?:ご意見・ご要望|フォーム|ツイッター|メール).*?(?:forms\.gle|twitter\.com|podcast@asahi)/i.test(text) || /^(?:ご登録フォーム\s+https?:|https?:\/\/que\.digital\.asahi\.com\/question\/11008783\s+（ご登録フォーム）)/.test(text) || /^(?:有料会員、)?始めるなら今[、。].*朝日新聞デジタル.*キャンペーン/.test(text) || /^朝日新聞ポッドキャスト[（(].*では他にも様々な番組を配信[、。]テキストでも読めます/.test(text) || /^[３3]STEPで朝リスちゃんグッズGet！/.test(text)) expect = 'DROP';
+    else if (section === 'drop' || section === 'notice') expect = 'DROP';
+    else if (section === 'staff') expect = 'STAFF';
+    else if (section === 'related' || (/https?:/.test(text) && [...text.matchAll(URL_RE)].some((m) => ARTICLE_RE.test(m[0])))) expect = 'RELATED';
+    else if (urlOnly || headerOnly) expect = 'DROP';
+    else if (AMBIG_LINE.test(text)) expect = 'AMBIGUOUS';
+    else expect = 'KEEP';
+    out.push({ i, text, len: text.length, expect, section });
+  });
+  for (let k = 0; k + 1 < out.length; k++) {   // 見出し行の直後がURLだけの行なら、その見出しは関連リンクの見出し（本文として採点しない）
+    if (/^\s*(?:https?:\/\/\S+\s*)+$/.test(out[k + 1].text) && out[k].expect === 'KEEP') out[k].expect = 'RELATED';
+  }
+  return out;
+}
+const grams = (t, k = 3) => { const s = new Set(); for (let i = 0; i + k <= t.length; i++) s.add(t.slice(i, i + k)); return s; };
+// 行が清掃文に残っている割合（0..1）。完全一致でなくても、3文字片の重なりで測る。
+function coverage(line, cleaned) {
+  const a = N(line), b = N(cleaned); if (!a) return 1; if (b.includes(a)) return 1;
+  const g = grams(a), h = grams(b); if (!g.size) return b.includes(a) ? 1 : 0;
+  let hit = 0; for (const x of g) if (h.has(x)) hit++; return hit / g.size;
+}
+const PROPER = /「[^」]{2,30}」|[ァ-ヴー]{3,}|[A-Za-z][A-Za-z0-9&.\-]{2,}|#\d+/g;
+const CAST_BAD = /会員登録|discord|おたより|お便り|フォーム|購読|配信中|メルマガ|ご意見|フォロー/i;   // 出演者の個人リンク（URL）は混入ではない
+function articleUrls(text) { return [...String(text || '').matchAll(URL_RE)].map((m) => m[0].replace(/[.,;]+$/, '')).filter((u) => ARTICLE_RE.test(u)).map((u) => publicationUrl(u) || u); }
+
+// 1件の監査。candidate = { description, cast(文字列 or 配列), related(URL配列 or {url,title}配列) }
+function auditPair(raw, candidate, { minKeepCoverage = 0.85, partialFloor = 0.3 } = {}) {
+  const findings = [], lines = classifyRawLines(raw), desc = String(candidate?.description ?? ''), add = (type, extra = {}) => findings.push({ type, ...extra });
+  if (!String(raw || '').trim()) return { verdict: 'HOLD', findings: [{ type: 'RAW_EMPTY' }], stats: {} };
+  const keep = lines.filter((l) => l.expect === 'KEEP');
+  if (keep.length && !desc.trim()) add('EMPTY_OUTPUT');
+  for (const l of keep) {
+    const c = coverage(l.text, desc);
+    if (c < partialFloor) add('OVER_DELETION', { line: l.i, len: l.len }); else if (c < minKeepCoverage) add('PARTIAL_DELETION', { line: l.i, len: l.len, coverage: +c.toFixed(2) });
+    else for (const m of l.text.replace(URL_RE, '').matchAll(PROPER)) if (!N(desc).includes(N(m[0])) && N(m[0])) { add('LOST_PROPER_NOUN', { line: l.i, len: m[0].length }); break; }
+  }
+  for (const l of lines.filter((x) => x.expect === 'DROP' && N(x.text).length >= 6)) if (coverage(l.text, desc) >= 0.9) add('UNDER_DELETION', { line: l.i, len: l.len });
+  const descLines = desc.split(/\n+/).map(N).filter(Boolean);   // 出演者の行が本文に「行として」残っているか（本文中で名前に触れるのは正常）
+  for (const l of lines.filter((x) => x.expect === 'STAFF' && !STAFF_SECTION.test(x.text) && N(x.text).length >= 2)) if (descLines.some((d) => d === N(l.text) || (d.length <= N(l.text).length * 1.3 && coverage(l.text, d) >= 0.95))) add('STAFF_IN_BODY', { line: l.i, len: l.len });
+  if (/<\/?[a-z][^>]*>|<!\[CDATA\[|\]\]>|&(?:nbsp|amp|lt|gt|hellip|quot|#\d+);/i.test(desc)) add('HTML_RESIDUE');
+  if (/https?:\/\//.test(desc)) add('URL_IN_BODY');
+  if (/[?&](?:iref|utm_[a-z]+)=/.test(desc)) add('TRACKING_PARAM');
+  // 関連記事: 原文の記事URLが清掃後（本文か関連記事欄）に残っているか。見出しの結合違いも見る。
+  const rel = (candidate?.related || []).map((r) => (typeof r === 'string' ? { url: r } : r)), relUrls = new Set(rel.map((r) => publicationUrl(r.url) || r.url));
+  const rawLines = lines.map((l) => l.text);
+  for (const l of lines) for (const u of articleUrls(l.text)) {
+    if (!relUrls.has(u)) { add('LOST_ARTICLE_URL', { line: l.i }); continue; }
+    const r = rel.find((x) => (publicationUrl(x.url) || x.url) === u);
+    if (r?.title && r.title !== r.url) {
+      const segment = l.text.includes('▽') ? l.text.split('▽').find((part) => articleUrls(part).includes(u)) || l.text : l.text;
+      const same = segment.replace(URL_RE, '').trim(), prev = l.i > 0 ? rawLines[l.i - 1] : '';
+      const head = N(same).length > 0 ? same : prev.replace(URL_RE, '').trim();
+      if (head && coverage(r.title, head) < 0.8 && coverage(head, r.title) < 0.8) add('ARTICLE_TITLE_MISMATCH', { line: l.i });
+    }
+  }
+  // 出演者: 原文【出演・スタッフ】の各行の名前部分が出演者欄にあるか。出演者欄に宣伝や連絡先が混ざっていないか。
+  const castArr = Array.isArray(candidate?.cast) ? candidate.cast.map((x) => (typeof x === 'string' ? x : x.text || '')) : String(candidate?.cast || '').split(/\n|、|,|／/).filter(Boolean);
+  const castAll = castArr.join(' ');
+  if (candidate?.cast !== undefined) {
+    for (const l of lines.filter((x) => x.expect === 'STAFF' && !STAFF_SECTION.test(x.text) && !/^\s*(?:https?:\/\/\S+\s*)+$/.test(x.text))) {
+      const name = l.text.replace(URL_RE, '').replace(/[（(][^）)]*[）)]/g, '').replace(/^(?:MC|司会|音源編集|出演|ゲスト|聞き手|パーソナリティー?)[\s　:：]*/, '').replace(/[／/|｜]\s*$/, '').trim();
+      if (N(name).length >= 2 && !N(castAll).includes(N(name))) add('CAST_MISSING', { line: l.i });
+    }
+    if (castArr.some((c) => CAST_BAD.test(c))) add('CAST_CONTAMINATED');
+  }
+  const keepParas = keep.length, descParas = desc.split(/\n+/).filter(Boolean).length;
+  if (keepParas >= 3 && descParas === 1) add('LINEBREAK_LOST');
+  if (rel.some((r) => !ARTICLE_RE.test(r.url) && (CAST_BAD.test(r.title || '') || !r.title))) add('RELATED_CONTAMINATED');
+  // 明示的な案内が残る候補は合格させない（曖昧な本文を推測削除しない）。
+  if (desc.split(/\n+/).some((line) => /PODCAST MEETING|朝ポキおたより.*(?:登録|始ま)|朝ポキ[0-9７7]*番組の更新情報・アーカイブはこちら|^[★☆].*クラウドファンディング.*こちら/.test(line) && !(/開催しました|開催された|収録した内容|収録した印刷工場|振り返|大盛況で終了/.test(line) && !/開催します|お申し込|応募|ご参加|募集/.test(line)))) add('PROMO_REMAINS_REVIEW');
+  const ambiguous = lines.filter((l) => l.expect === 'AMBIGUOUS').length;
+  const severe = findings.some((f) => /OVER_DELETION|EMPTY_OUTPUT|LOST_ARTICLE_URL|CAST_CONTAMINATED|STAFF_IN_BODY|HTML_RESIDUE|RELATED_CONTAMINATED/.test(f.type));
+  const verdict = severe ? '不合格' : findings.length ? '要確認' : '自動検査合格・目視未確認';
+  return { verdict, findings, stats: { rawLen: String(raw).length, outLen: desc.length, keepLines: keepParas, ambiguousLines: ambiguous, deletedRatio: +(1 - desc.length / Math.max(1, keep.reduce((a, l) => a + l.len, 0))).toFixed(2) } };
+}
+
+// 層化（番組・ホスト・長さ・新着/過去）
+function stratum(item) {
+  const host = /megaphone/.test(item.rss || item.audioUrl || '') ? 'Megaphone' : /omny/.test(item.rss || item.audioUrl || '') ? 'Omny' : 'その他';
+  const L = Number(item.descLen || String(item.descriptionRaw || '').length), len = L < 300 ? '短' : L < 1500 ? '中' : '長';
+  const d = String(item.date || '').replace(/\//g, '-'), age = d >= '2026-10-01' ? '新着' : '過去';
+  return { show: item.show || '', host, len, age };
+}
+// 公開データ（既存の清掃済み）と RSS item を照合する鍵: Omny は音声URL内のクリップID、Megaphone は TASC 番号。
+function joinKey(audio) { const s = String(audio || ''); return (s.match(/\/clips\/[^/]+\/[^/]+\/([0-9a-f-]{36})\//i) || s.match(/(TASC\d+)\.mp3/) || [])[1] || ''; }
+function parseListField(v) { if (Array.isArray(v)) return v; return [...String(v || '').matchAll(URL_RE)].map((m) => m[0].replace(/['",\]]+$/, '')); }
+
+// 全体集計。pairs: [{ epId, item(RSS, descriptionRaw付き), candidates: { existing, v2 } }]
+function summarize(pairs, { samplePerType = 5 } = {}) {
+  const out = { auditVersion: AUDIT_VERSION, pairs: pairs.length, byCandidate: {} };
+  for (const pair of pairs) for (const [name, res] of Object.entries(pair.results)) {
+    const b = (out.byCandidate[name] = out.byCandidate[name] || { audited: 0, verdict: {}, findingTypes: {}, itemsWithType: {}, samples: {}, strata: {} });
+    b.audited++; b.verdict[res.verdict] = (b.verdict[res.verdict] || 0) + 1;
+    const st = stratum(pair.item), sk = [st.host, st.len, st.age].join('/'), sh = (b.strata[st.show] = b.strata[st.show] || { audited: 0, fail: 0, review: 0 }), sx = (b.strata[sk] = b.strata[sk] || { audited: 0, fail: 0, review: 0 });
+    for (const s of [sh, sx]) { s.audited++; if (res.verdict === '不合格') s.fail++; if (res.verdict === '要確認') s.review++; }
+    const types = new Set(res.findings.map((f) => f.type));
+    for (const f of res.findings) b.findingTypes[f.type] = (b.findingTypes[f.type] || 0) + 1;
+    for (const t of types) { b.itemsWithType[t] = (b.itemsWithType[t] || 0) + 1; const s = (b.samples[t] = b.samples[t] || []); if (s.length < samplePerType) s.push(pair.epId); }
+  }
+  return out;
+}
+// 人の目視確認用の層化サンプル（EP-IDのみ）。各層から最大 k 件、決定的に選ぶ。
+function stratifiedSample(pairs, k = 2) {
+  const by = new Map(); for (const p of pairs) { const s = stratum(p.item), key = [s.show, s.host, s.len, s.age].join('/'); if (!by.has(key)) by.set(key, []); by.get(key).push(p.epId); }
+  return [...by.entries()].sort().map(([key, ids]) => ({ stratum: key, epIds: ids.sort().slice(0, k) }));
+}
+
+return { cleanUrl, decodeNamedEntities, paraLines, STAR_NOTICE, INLINE_NOTICE_HEAD, AUDIT_VERSION, QUALITY_STATES, QUALITY_LOG_HEADERS, classifyRawLines, coverage, articleUrls, auditPair, stratum, joinKey, parseListField, summarize, stratifiedSample };
+})();
+
+var CleanerV4 = (function () {
+// 概要欄清掃ロボ V4（Issue #308）。Node と GAS で同じコードを使う（build-cleaner-gas.mjs で GAS 用に1ファイル化）。
+// 原則: 原文は変えない。原文だけを基準に、本文・出演者（リンク付き）・関連記事（見出し＋URLのペア）を分ける。
+// 迷うもの（見出しなし記事URL・非記事リンク・本文の大幅減少・監査で重大所見）は 要確認。品質確認済は人だけが付ける。
+const { descriptionLines, DESCRIPTION_VERSION } = DescEditor;
+const { auditPair, AUDIT_VERSION, cleanUrl, paraLines, STAR_NOTICE, INLINE_NOTICE_HEAD, decodeNamedEntities } = QualityAudit;
+const CLEANER_VERSION = 'SC4-12(' + DESCRIPTION_VERSION + ')';   // SC4-10 は所在不明の版（2026-11-12）と衝突させないため欠番
+const T = (v) => String(v ?? '').trim();
+const NZ = (t) => String(t ?? '').normalize('NFKC').replace(/\s+/g, '');
+const URL_RE = /https?:\/\/[^\s<>「」『』（）()"'、]+/g;
+const ARTICLE_URL = /^https?:\/\/(?:www\.asahi\.com\/(?:[a-z]+\/)?articles\/|digital\.asahi\.com\/articles\/|withnews\.jp\/article\/|globe\.asahi\.com\/article\/|book\.asahi\.com\/article\/|www\.asahi\.com\/special\/(?!podcasts))/;
+const SNS_URL = /^https?:\/\/(?:www\.)?(?:x\.com|twitter\.com|instagram\.com|tiktok\.com|facebook\.com|threads\.net|youtube\.com\/@|note\.com|bsky\.app)\//i;
+// 見出しの揺れ（全半角・括弧・コロン）。本文系の見出しは「見出しだけ」を落として中身は残す。
+const H = (names) => new RegExp('^\\s*(?:【|\\[|［|〔|■|◆|▼|●)?\\s*(?:' + names + ')\\s*(?:】|\\]|］|〕)?\\s*[:：]?\\s*', 'i');
+const BODY_HEAD = H('番組内容|番組説明|番組紹介|内容|概要|今回のテーマ|今回の内容|テーマ|あらすじ');
+const STAFF_HEAD = H('出演[・／/]?スタッフ|出演者|出演|スタッフ|ゲスト|パーソナリティー?|MC');
+const RELATED_HEAD = H('関連記事|関連リンク|関連URL|参考記事|写真まとめ|特集ページ|まとめてわかる');
+const DROP_HEAD = H('おねがい|お願い|朝ポキ情報|お知らせ|イベント|告知|募集|プレゼント|お便り募集|おたより募集|SNS');
+// 定型の宣伝・広告（行ごと除去）。本編の話題（Xの騒動・イベントの報道）を誤って消さないよう、宣伝の言い回しに限る。
+const PROMO = /読み放題|スタンダードコース|初回限定|初月無料|月額\s*[\d０-９,，]+円|See .*omnystudio\.com\/listener|Learn more about your ad choices|購読料で配信|会員登録をお願い|^交流はdiscord|^ご意見・感想・リクエスト|おたよりフォーム|^メルマガ|広告ご検討の企業様|^番組検索ツール|^最新情報はX|^番組カレンダー|全話あります公式サイト|アプリで記者と対話|^朝ポキTV|ほかにも(?:多彩な)?番組を配信中|^★?ご感想はこちら|フォローをお願い|フォローしてね|チャンネル登録|^(?:X|Twitter|Instagram|インスタ)(?:\s*[:：]|\s*はこちら|\s*https?:)|配信、テキストでも読めます|フォロー[、,]?\s*お願い|をフォロー|お便りは(?:こちら|下記|フォーム)|お便りを(?:お待ち|お寄せ|募集|送って|どうぞ)|discord|ディスコード|お待ちしています|申し込みはこちら|申込はこちら|^[★☆※]\s*(?:お便り|おたより|ご感想|ご意見)/i;
+// 原文で確認した独立した案内行だけ。本文中のフォーム・キャンペーン報道には適用しない。
+const CONTACT_LINE = /^(?:ご意見・ご要望|フォーム|ツイッター|メール).*?(?:forms\.gle|twitter\.com|podcast@asahi)/i;
+const EXTRA_PROMO = /^(?:ご登録フォーム\s+https?:|https?:\/\/que\.digital\.asahi\.com\/question\/11008783\s+（ご登録フォーム）)|^(?:有料会員、)?始めるなら今[、。].*朝日新聞デジタル.*キャンペーン|^[３3]STEPで朝リスちゃんグッズGet！/;
+const SOCIAL_LABEL_LINE = /^(?:https?:\/\/(?:twitter\.com|x\.com)\/[^\s（）()]+\s*[（(][^）)]+[）)]\s*)+$/i;
+const NEWSLETTER_LINE = /^(?:・\s*)?(?:メールマガジン)?「朝ポキおたより」(?:が|に|、).*?(?:ご登録|始まり|始まります)/;
+const ARCHIVE_LINE = /^(?:過去回は、「連載」→「伊藤・奥山・神田」からお聞きいただけます。)?朝ポキ7番組の更新情報・アーカイブはこちら！$/;
+const INVITE_2022 = /^(?:【(?:ご案内|締め切り迫る)】)?9月23日に 朝ポキ 初の対面イベント「PODCAST MEETING 2022」を開催！皆さんと会いたいです！$/;
+const EVENT_PROMO = /(?:募集|応募|申し込み|申込|お申し込み|参加者|チケット|エントリー|アンケート|フォーム|お寄せください|お待ちしています)/;
+
+const PROMO_START = /^(?:【ご案内】|【リアルで新聞をめくろう】|[★☆]\s*「?PODCAST MEETING|[★☆]\s*お得なキャンペーン)/;
+// 配信サービス名（人名ではない）。出演者に入れない（SC4-12, Issue #309 EP-06723）。URLは告知リンクとして保全する
+const PLATFORM_NAME = /^(?:Spotify|Apple(?:\s*Podcasts?)?|Pocket\s*Casts|Amazon(?:\s*Music)?|Amazon\s*music|YouTube(?:\s*Music)?|LISTEN|Pody|Google\s*Podcasts|Voicy|stand\.fm|X|Twitter|Instagram|note|TikTok|Podcast|ポッドキャスト|アプリ|公式サイト)$/i;
+// 原文を見出しで区切った節に分ける（見出しを境界として扱う。全削除の正規表現にしない）
+function sections(raw) {
+  const pl = paraLines(raw), out = []; let cur = { kind: 'body', head: '', lines: [] }, notice = -1;
+  const paras = new Map(); pl.lines.forEach(({text,p}) => paras.set(p, (paras.get(p) || '') + '\n' + text));
+  const promoParas = new Set([...paras].filter(([p,t]) => pl.hasParas && /(?:^|\n)(?:【ご案内】|【リアルで新聞をめくろう】|[★☆]「PODCAST MEETING)/.test(t) && /PODCAST MEETING/.test(t) && /申し込|申込|応募|参加|開催|対象はデジタル版有料会員/.test(t) && /https?:\/\/(?:ciy\.digital\.asahi\.com\/ciy\/|que\.digital\.asahi\.com\/question\/|forms\.gle\/|t\.asahi\.com\/wr7n)/.test(t)).map(([p])=>p));
+  let promoP = -1;
+  const start = (kind, head, rest) => { out.push(cur); cur = { kind, head, lines: rest ? [rest] : [] }; };
+  for (const { text: l, p } of pl.lines) {
+    let m;
+    if (promoParas.has(p) && (promoP === p || PROMO_START.test(l))) { if (promoP !== p) { start('notice', 'PODCAST_MEETING_INVITATION', ''); promoP = p; } cur.lines.push(l); continue; }   // SC4-12: 段落の途中から始まる告知は、その行から（同じ段落の前にある出演・スタッフ等を巻き込まない）
+    if (promoP >= 0) { start('body', '', ''); promoP = -1; }
+    if (notice >= 0 && (p !== notice || /^[【★☆※]/.test(l))) { notice = -1; if (cur.kind === 'notice') start('body', '', ''); }   // ★告知は段落の終わりまで
+    if (pl.hasParas && STAR_NOTICE.test(l)) { start('notice', '★告知', l); notice = p; }
+    else if (pl.hasParas && INLINE_NOTICE_HEAD.test(l) && !/^【[^】]+】\s*$/.test(l)) { start('notice', (l.match(INLINE_NOTICE_HEAD) || [''])[0], l); notice = p; }
+    else if ((m = l.match(STAFF_HEAD)) && /^\s*(?:【|\[|［|〔|■|◆|▼|●)/.test(l)) start('staff', m[0].trim(), l.slice(m[0].length).trim());
+    else if ((m = l.match(RELATED_HEAD)) && /^\s*(?:【|\[|［|〔|■|◆|▼|●)/.test(l)) start('related', m[0].trim(), l.slice(m[0].length).trim());
+    else if ((m = l.match(DROP_HEAD)) && /^\s*(?:【|\[|［|〔|■|◆|▼|●)/.test(l)) start('drop', m[0].trim(), l.slice(m[0].length).trim());
+    else if ((m = l.match(BODY_HEAD)) && /^\s*(?:【|\[|［|〔|■|◆|▼|●)/.test(l)) start('body', m[0].trim(), l.slice(m[0].length).trim());
+    else if (/^\s*【[^】]{1,40}】\s*$/.test(l)) start(/関連|参考|記事|リンク|アーカイブ/.test(l) ? 'related' : /参加|イベント|フェス|募集|お知らせ|告知|プレゼント|チケット|会員|キャンペーン|SNS|フォロー/.test(l) ? 'drop' : 'body', l.trim(), '');   // 名前の決まっていない見出しだけの行も境界にする
+    else cur.lines.push(l);
+  }
+  out.push(cur); return out.filter((s) => s.lines.length || s.head);
+}
+const urlsOf = (t) => [...String(t).matchAll(URL_RE)].map((m) => m[0].replace(/[.,;、。]+$/, ''));
+const stripUrls = (t) => String(t).replace(URL_RE, '').replace(/[ 　]*[／/|｜][ 　]*$/, '').replace(/[ 　]{2,}/g, ' ').trim();
+const ROLE = /^(MC[・、,]?音源編集|MC|司会|聞き手|パーソナリティー?|ゲスト|出演|音源編集|編集|制作|構成|ナレーション|プロデューサー|ディレクター)[\s　:：・、]+/;   // 役割の後に区切りがあるときだけ（「ゲスト1さん」等の氏名を削らない）
+
+// 出演者1行 → {role, name, note, links, raw}。氏名の推定はしない（原文の文字列をそのまま分けるだけ）
+function parseCastLine(line) {
+  const raw = T(line), links = urlsOf(raw); let text = stripUrls(raw), role = '';
+  const m = text.match(ROLE); if (m) { role = m[1]; text = text.slice(m[0].length).trim(); }
+  const note = (text.match(/[（(]([^）)]*)[）)]/) || [])[1] || '';
+  if (!role && /MC|司会|聞き手|音源編集|ゲスト/.test(note)) role = note;
+  const name = text.replace(/[（(][^）)]*[）)]/g, '').trim();
+  return { role, name, note, links, raw };
+}
+
+function cleanV4(raw) {
+  const src = String(raw ?? '');
+  if (!src.trim()) return { ok: false, holds: ['RAW_EMPTY'], text: '', cast: [], related: [], socials: [], removed: [] };
+  const secs = sections(src), follow = [], body = [], cast = [], related = [], removed = [], socials = [], holds = [], notes = [];
+  const pushRel = (title, url, kind) => { const clean = cleanUrl(url), old = related.find((r) => r.url === clean); if (old) { if (!old.title && T(title)) old.title = T(title); return; } related.push({ title: T(title).replace(/\s*[（(]\s*[）)]\s*$/, '').replace(/\s*[（(]\s*$/, '').trim(), url: clean, originalUrl: url, kind: kind || 'article', source: '概要原文' }); };
+  for (const s of secs) {
+    if (s.kind === 'related') s.lines = s.lines.flatMap((l) => l.includes('▽') && urlsOf(l).filter((u) => ARTICLE_URL.test(u)).length > 1 ? l.split('▽').filter(Boolean) : [l]);
+    if (s.kind === 'drop') { removed.push({ reason: 'SECTION_' + s.head, lines: s.lines.length }); continue; }
+    if (s.kind === 'notice') {   // ★告知・見出し付き告知: 本文に入れない。「氏名＋URL」の行（アプリでフォロー等）は出演者に無ければ出演者へ保全
+      removed.push({ reason: 'NOTICE', lines: s.lines.length });
+      (s.head === 'PODCAST_MEETING_INVITATION' ? [] : s.lines.slice(1)).forEach((l) => { const c = parseCastLine(l); if (!PROMO.test(l) && !CONTACT_LINE.test(l) && c.name && c.links.length && c.name.length <= 20 && !/[。！？!?、]/.test(c.name)) follow.push({ ...c, note: c.note || '告知欄で紹介' }); });
+      continue;
+    }
+    if (s.kind === 'staff') {
+      for (const l of s.lines) { if (PROMO.test(l) || CONTACT_LINE.test(l) || EXTRA_PROMO.test(l) || NEWSLETTER_LINE.test(l) || ARCHIVE_LINE.test(stripUrls(l)) || INVITE_2022.test(l) || (src.includes('対面イベント「PODCAST MEETING 2022」を開催') && /^※応募締切は9月4日です。$/.test(l))) { removed.push({ reason: 'PROMO_IN_STAFF' }); continue; } const c = parseCastLine(l); if (c.name || c.role) cast.push(c); }
+      continue;
+    }
+    for (let i = 0; i < s.lines.length; i++) {
+      const l = s.lines[i], us = urlsOf(l), text = stripUrls(l);
+      if (SOCIAL_LABEL_LINE.test(l)) { socials.push(...us); removed.push({ reason: 'SOCIAL_LABEL' }); continue; }
+      if (PROMO.test(l) || CONTACT_LINE.test(l) || EXTRA_PROMO.test(l) || NEWSLETTER_LINE.test(l) || ARCHIVE_LINE.test(stripUrls(l)) || INVITE_2022.test(l) || (src.includes('対面イベント「PODCAST MEETING 2022」を開催') && /^※応募締切は9月4日です。$/.test(l))) { removed.push({ reason: 'PROMO' }); continue; }
+      const art = us.filter((u) => ARTICLE_URL.test(u));
+      if (art.length) {   // 見出しと同じ行 or 直前の行（URLだけの行）
+        let title = text; if (!T(title) && i > 0 && body.length && body[body.length - 1] === stripUrls(s.lines[i - 1])) title = body.pop();   // 直前の行が見出し
+        art.forEach((u) => pushRel(title, u)); if (!T(title) && art.some((u) => !related.find((r) => r.url === cleanUrl(u) && r.title))) holds.push('RELATED_URL_WITHOUT_TITLE');
+        continue;
+      }
+      if (s.kind === 'related') {   // 関連節の中の見出し行（次行がURL）は body に一時置き、次の記事URLで回収
+        if (us.length && !art.length) {
+          if (EVENT_PROMO.test(l) || us.some((u) => SNS_URL.test(u))) { removed.push({ reason: 'RELATED_PROMO' }); continue; }
+          let title = text; if (!T(title) && i > 0 && body.length && body[body.length - 1] === stripUrls(s.lines[i - 1])) title = body.pop();
+          if (T(title)) { us.forEach((u) => pushRel(title, u, 'link')); continue; }   // 見出しつきの非記事リンク（動画・特集・短縮URL等）は種類 link として組で保存
+          holds.push('RELATED_NONARTICLE_REVIEW'); removed.push({ reason: 'RELATED_NONARTICLE_HELD' }); continue; }
+        const nx = s.lines[i + 1] || ''; if (urlsOf(nx).length && !stripUrls(nx)) { body.push(text); continue; }   // 次の行がURLだけ→見出しとして一時置き
+        if (text) notes.push(text); continue;   // 関連節の説明文は本文に混ぜず、関連記事JSONに note として保存
+      }
+      if (us.length) {
+        if (us.every((u) => SNS_URL.test(u))) { socials.push(...us); removed.push({ reason: 'SNS_LINK' }); if (text && !/^[@＠]?\w+$/.test(text)) body.push(text); continue; }
+        if (EVENT_PROMO.test(l)) { removed.push({ reason: 'EVENT_OR_FORM' }); continue; }
+        if (!text) { removed.push({ reason: 'URL_ONLY' }); continue; }
+        body.push(text); removed.push({ reason: 'URL_STRIPPED_FROM_BODY' }); continue;
+      }
+      if (text) body.push(text);
+    }
+  }
+  // SC4-12 予備: 原文に【出演…】見出しがあるのに節として取れなかった時（段落の区切り方で見出し行が消える型 EP-02520 等）、原文の文字だけから出演者行を拾う
+  if (!cast.length && !secs.some((x) => x.kind === 'staff')) {
+    const plain = src.replace(/<!\[CDATA\[|\]\]>/g, '').replace(/<br\s*\/?>|<\/p>|<\/div>|<\/li>/gi, '\n').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&');
+    const L = plain.split('\n').map((x) => x.replace(/[\u200B\u2060\uFEFF]/g, '').trim()), h = L.findIndex((x) => /^【[^】]*(?:出演|スタッフ)[^】]*】$/.test(x));
+    if (h >= 0) for (let i = h + 1; i < L.length && i <= h + 12; i++) { const l = L[i]; if (!l) { if (cast.length) break; continue; } if (/^[【★☆※]/.test(l) || PROMO.test(l)) break;
+      const c = parseCastLine(l); if (!c.name || c.name.length > 24 || /[。！？!?]/.test(c.name) || PLATFORM_NAME.test(c.name)) break;
+      if (!cast.some((x) => NZ(x.name) === NZ(c.name))) cast.push(c); }
+    if (cast.length) { const gone = new Set(cast.map((c) => NZ(stripUrls(c.raw)))); for (let i = notes.length - 1; i >= 0; i--) if (gone.has(NZ(notes[i]))) notes.splice(i, 1); for (let i = body.length - 1; i >= 0; i--) if (gone.has(NZ(body[i]))) body.splice(i, 1); }
+  }
+  // 閉じていない見出し行（関連節で回収されなかった見出し）が本文末尾に残らないよう、関連節由来の行は本文から外さない＝そのまま（要確認で拾う）
+  const text = body.join('\n').replace(/(?:※\s*)?(?:「[^」]{1,20}」の)?過去(?:の)?回は(?:下記|こちら)(?:から)?[^。\n]*[。．]?/g, '').split('\n').filter((x) => T(x)).join('\n').replace(/\s*(?:ご意見・感想・リクエスト|ほかにも(?:多彩な)?番組を配信中|Learn more about your ad choices)[\s\S]*$/i, '').replace(/[ 　]{2,}/g, ' ').trim();
+  if (!text) holds.push('CONTENT_EMPTY');
+  follow.forEach((c) => { if (PLATFORM_NAME.test(T(c.name))) { socials.push(...c.links); removed.push({ reason: 'PLATFORM_LINK' }); return; } if (!cast.some((x) => NZ(x.name) === NZ(c.name))) cast.push(c); });
+  for (let i = cast.length - 1; i >= 0; i--) if (PLATFORM_NAME.test(T(cast[i].name))) { socials.push(...cast[i].links); removed.push({ reason: 'PLATFORM_LINK' }); cast.splice(i, 1); }
+  notes.forEach((n) => related.push({ title: n, url: '', kind: 'note', source: '概要原文' }));
+  return { ok: !holds.length, holds: [...new Set(holds)].filter((h) => h !== 'RELATED_URL_WITHOUT_TITLE' || related.some((r) => r.kind === 'article' && !r.title)), text, cast, related, socials: [...new Set(socials)], removed };
+}
+
+// 台帳の書式に合わせる: 出演者=原文の行（リンク付き）を改行区切り、関連記事URL=記事URLを空白区切り
+const castCell = (cast) => cast.map((c) => c.raw.replace(/\s+/g, ' ').trim()).join('\n');
+const relatedCell = (related) => related.filter((r) => (r.kind || 'article') === 'article' && r.url).map((r) => r.url).join(' ');
+
+// 既存値が「原文から機械的に取り出しただけ」か（＝自動値。更新してよい）。原文に無い文字・URLを含むなら人の手が入った可能性→保護
+// SC4-11: 旧清掃器の出力の痕跡を自動値として認める（2026-11-13 V2実データ1,675件の分析）。
+//   ①旧清掃器が足した節見出しだけの行（【関連記事】〖出演・スタッフ〗等）②URLを消した跡の空かっこ「（ ）」・矢印（↓→▽）・「mailto:」
+//   ③リンクの表示文字・href の値（原文のタグの中にある文字）④名前付き文字参照（&darr; 等）。
+//   原文に無い文・URLが1つでもあれば従来どおり保護（人が書き足した文は自動値にならない）。
+const SECTION_WORD = /^(?:関連記事|関連リンク|出演|出演者|出演・スタッフ|出演スタッフ|スタッフ|ゲスト|MC|音源編集|ご意見・ご感想|ご意見ご感想)$/;
+const URL_ANY = /(?:https?:\/\/|mailto:|www\.)[^\s<>"'）)」』】]+|\b[a-z0-9.-]+\.(?:com|co\.jp|jp|fm|me|net|org|st|style)(?:\/[^\s<>"'）)」』】]*)?/gi;
+const PD = (t) => NZ(decodeNamedEntities(t)).replace(/[、。，．・「」『』（）()【】〖〗\[\]！？!?…:：;；"'“”‘’〜~ー—–\-,／/|｜↓→▽▼▶►➡＞>＜<※★☆■□◆◇●○♪]/g, '');
+function rawSource(raw) {
+  const plain = String(raw ?? '').replace(/<!\[CDATA\[|\]\]>/g, ''), hrefs = [...plain.matchAll(/href\s*=\s*["']([^"']+)["']/gi)].map((m) => m[1]);
+  return [descriptionLines(plain).join('\n'), plain.replace(/<[^>]*>/g, '\n'), hrefs.join('\n')].join('\n');
+}
+const urlKey = (u) => cleanUrl(String(u).replace(/[.,;、。]+$/, ''));
+function firstNotDerived(existing, raw) {
+  const ex = T(existing); if (!ex) return null;
+  const src = rawSource(raw), srcUrls = new Set(urlsOf(src).map(urlKey));
+  const u = urlsOf(ex).find((x) => !srcUrls.has(urlKey(x))); if (u) return { type: 'URL_NOT_IN_RAW', sample: u.slice(0, 80), rawUrls: [...srcUrls].slice(0, 3).map((x) => x.slice(0, 60)) };
+  const srcP = PD(src.replace(URL_ANY, ' '));
+  const frags = ex.replace(URL_ANY, '\n').replace(/[（(]\s*[)）]/g, '\n').replace(/[↓→▽▼▶►➡]+/g, '\n')
+    .replace(/[【〖]([^】〗]{1,20})[】〗]/g, (m, h) => (SECTION_WORD.test(h.trim()) ? '\n' : '\n' + h + '\n')).split(/[\n。！？／/|｜,、]+/);
+  const l = frags.find((x) => { const n = PD(x); return n.length >= 2 && !srcP.includes(n); });
+  return l ? { type: 'TEXT_NOT_IN_RAW', sample: l.trim().slice(0, 80) } : null;
+}
+function derivedFromRaw(existing, raw) { return !firstNotDerived(existing, raw); }
+// 診断用: 自動値とみなせなかった最初の理由（短く切る）
+function explainDerived(existing, raw) { return firstNotDerived(existing, raw); }
+
+// 1件の判定。existing = 台帳の現在値 {summary, cast, related}
+function judgeEpisode(raw, existing = {}, sha256) {
+  const c = cleanV4(raw), findings = [];
+  if (!String(raw ?? '').trim()) return { verdict: 'HOLD', reason: 'RAW_EMPTY', clean: c, findings: [], compare: '', writable: {}, manual: [] };
+  const a = auditPair(raw, { description: c.text, cast: c.cast.map((x) => [x.role, x.name, x.note].join(' ')), related: c.related.map((r) => ({ url: r.url, title: r.title })) });
+  findings.push(...a.findings.map((f) => f.type));
+  const ex = { summary: T(existing.summary), cast: T(existing.cast), related: T(existing.related) }, nw = { summary: c.text, cast: castCell(c.cast), related: relatedCell(c.related) };
+  const same = (k) => NZ(ex[k]) === NZ(nw[k]) || (k === 'related' && ex[k] && NZ(ex[k].split(/\s+/).map(cleanUrl).join(' ')) === NZ(nw[k]));
+  const manual = ['summary', 'cast', 'related'].filter((k) => ex[k] && !same(k) && !derivedFromRaw(ex[k], raw));
+  const severe = a.verdict === '不合格' || c.holds.includes('CONTENT_EMPTY');
+  let verdict = severe ? '不合格' : (c.holds.length || a.verdict === '要確認') ? '要確認' : '自動検査合格・目視未確認';
+  const cmp = !ex.summary ? '旧空欄' : same('summary') ? '同一' : '差分あり';
+  const writable = {};
+  ['summary', 'cast', 'related'].forEach((k) => { writable[k] = !manual.includes(k) && !same(k) && (k === 'summary' ? !!nw.summary : !!nw[k]); });   // 新しい値が空の列は書かない（既存を消さない）
+  // 概要自体が原文由来で品質合格なら、他列の手動値を保持したまま概要を反映できる。概要の手動値は常に要確認。
+  if (manual.length) { findings.push('MANUAL_EDIT_PROTECTED:' + manual.join('+')); if (verdict === '自動検査合格・目視未確認' && (manual.includes('summary') || !writable.summary)) verdict = '要確認'; }
+  if (ex.cast && !c.cast.length) findings.push('CAST_NOT_IN_RAW');   // 既存の出演者が原文に無い（既定値の疑い）。消さずに記録
+  if (verdict === '不合格') ['summary', 'cast', 'related'].forEach((k) => { writable[k] = false; });
+  return { verdict, reason: [...new Set([...c.holds, ...findings])].join(','), clean: c, findings, compare: cmp, writable, manual, rawSha: sha256 ? sha256(String(raw)) : '', auditVersion: AUDIT_VERSION };
+}
+
+return { CLEANER_VERSION, PLATFORM_NAME, sections, parseCastLine, cleanV4, castCell, relatedCell, derivedFromRaw, explainDerived, judgeEpisode };
+})();
+
+var PersonIndex = (function () {
+// 人物索引（Issue #309）: 検索の正本は「1行 = 1人 × 1エピソード」。役割（MC・音源編集・ゲスト）では分けない。
+// 出どころは保全済みの概要原文（公式RSS）から清掃器 cleanV4 が取り出した出演者行。原文に無い名前は作らない（推測しない）。
+// 表記: 氏名の空白・敬称（さん・氏・様・君・ちゃん）を除いた「索引名」で検索・重複判定し、原文の書き方（表記原文）と肩書き・リンクは根拠として残す。
+const { cleanV4, PLATFORM_NAME } = CleanerV4;
+const PERSON_INDEX_VERSION = 'PI-4';
+const PERSON_INDEX_HEADERS = ['EP-ID', '索引名', '表記原文', '肩書き・注記', 'リンク', '出典', '検証状態', '索引版'];
+const ROLE_WORDS = 'ナビゲーター|アシスタント|パーソナリティ|チーフパーソナリティ|進行|語り手?|朗読|案内役|解説|コメンテーター|リポーター|レポーター|MC|司会|聞き手|ゲスト|音源編集|編集|構成|制作|ディレクター|プロデューサー|科学記者|記者';
+// 役割語が氏名の前に付いたまま（「ナビゲーター石倉徹也」「MC・音源編集岸上渉」「ナビゲーター／科学記者 石倉徹也」）でも同じ人として引けるように。外した語は肩書きへ回す
+const LEAD_ROLE = new RegExp('^(?:(?:' + ROLE_WORDS + ')[・/:、]*)+');
+const TITLE_WORDS = '記者|編集委員|論説委員|特別編集委員|デスク|キャップ|部長|次長|局長|支局長|総局長|特派員|特任教授|准教授|教授|講師|研究員|主任研究員|キャスター|MC|音源編集';
+const TAIL_AFFIL_TITLE = new RegExp('[・/,，](.{1,24}?(?:' + TITLE_WORDS + '))$');   // 「清水唯一朗・慶応大教授」「副島英樹・編集委員」
+const TAIL_TITLE = new RegExp('(?:' + TITLE_WORDS + ')$');                         // 「筒井次郎記者」「小山聡子教授」
+const LEAD_AFFIL = /^[^※()（）・/]{2,16}?(?:総局長|支局長|総局|支局|放送|新聞社)(?=[^※()（）・/]{2,6}$)/;                  // 「朝日新聞松山総局戸田拓」「KSB瀬戸内海放送山下洋平」（名前が2〜6字残る時だけ）
+const HONORIFIC = /(?:さん|氏|様|さま|君|くん|ちゃん)$/;
+// 氏名と肩書きを分ける（NFKC・空白除去後）。名前が2字未満になる時は外さない（誤って削らない）
+function splitPersonTitle(name) {
+  let k = String(name ?? '').normalize('NFKC').replace(/[\s　]+/g, ''), titles = [];
+  const memo = k.match(/※.*$/); if (memo && memo.index >= 2) { titles.push(memo[0].replace(/^※/, '')); k = k.slice(0, memo.index); }   // 「清水祐司さん ※番組第一回放送出演者」
+  const take = (re, g = 0) => { const m = k.match(re); if (!m) return false; const rest = k.slice(0, m.index) + k.slice(m.index + m[0].length); if (rest.replace(/[・/:]/g, '').length < 2) return false; titles.push((m[g] || m[0]).replace(/^[・/:、]+|[・/:、]+$/g, '')); k = rest; return true; };
+  if (/\//.test(k)) { const seg = k.split('/').filter(Boolean), keep = seg.filter((x) => !/:$/.test(x) && !new RegExp('^(?:(?:' + ROLE_WORDS + ')[・:、]*)+$').test(x)); if (keep.length === 1 && keep[0] !== k) { titles.push(...seg.filter((x) => x !== keep[0]).map((x) => x.replace(/:$/, ''))); k = keep[0]; } }
+  { const cm = k.match(/^([\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}ー々]{2,8})[,，](.+)$/u); if (cm) { titles.push(cm[2]); k = cm[1]; } }   // 「井上翔太,朝日新聞スポーツ部」＝名前,所属
+  take(LEAD_ROLE); for (let i = 0; i < 3 && (take(TAIL_AFFIL_TITLE, 1) || take(TAIL_TITLE)); i++); take(LEAD_AFFIL);
+  k = k.replace(HONORIFIC, '').replace(/^[・/:、]+|[・/:、]+$/g, '').trim();
+  return { name: k, title: titles.filter(Boolean).join(' / ') };
+}
+// 索引名: NFKC、空白除去、役割語・肩書き・末尾の敬称を除く。漢字の異体字は変えない（同一人物か断定できないため）
+function personKey(name) { return splitPersonTitle(name).name; }
+const noteOf = (name, role, note) => { const base = [role, note].filter(Boolean).join(' / '), t = splitPersonTitle(name).title; return t && base.indexOf(t) < 0 ? [base, t].filter(Boolean).join(' / ') : base; };   // 従来の書き方はそのまま、外した肩書きだけ足す
+// 人名として扱わないもの → HOLD（書かずに理由を残す）
+function personHold(name) {
+  const n = String(name ?? '').trim(), k = personKey(n);
+  if (!k) return 'EMPTY';
+  if (PLATFORM_NAME.test(n) || PLATFORM_NAME.test(k)) return 'PLATFORM_NAME';
+  if (/https?:|www\.|@|＠/.test(n)) return 'LINK_OR_ACCOUNT';
+  if (k.length > 20 || /[。！？!?、，,]/.test(k)) return 'NOT_A_NAME_SENTENCE';
+  if (/^[\p{N}\p{P}\p{S}\s_]+$/u.test(k)) return 'NO_LETTERS';
+  if (new RegExp('^[・/:、【】\\[\\]]*(?:' + ROLE_WORDS + '|出演者?|スタッフ)[・/:、【】\\[\\]]*$').test(k)) return 'ROLE_WORD_ONLY';   // 「・ゲスト】」など見出しの切れ端
+  return '';
+}
+// 出演者欄の1行に複数人が「/」「、」で並んでいる時（「今永諒 / 神田大介 / 安田桂子」「飯沼優仁、杢田光（MC）、望月愛実（音源編集）」）は1人ずつに分ける。
+// 全部の切れ端が人名らしい時だけ分ける（「ふらいと先生/小児科医・今西洋介」のように決められない行はそのまま）
+// PI-3 までの判定で「文なので人名ではない」と保留していた行（読点・カンマ入り、21字以上）。出演者欄からの回収は司令塔の判断待ちなので、ここは従来どおり保留のまま
+function legacyHeld(name) { const k = String(name ?? '').normalize('NFKC').replace(/[\s\u3000]+/g, ''); return k.length > 20 || /[。！？!?、，,]/.test(k); }
+const PLAUSIBLE_NAME = /^[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}ー々]{2,8}$/u;
+function castLines(cast, parse) {
+  const out = [];
+  String(cast ?? '').split('\n').forEach((l) => {
+    if (legacyHeld(parse(l).name)) { out.push(l); return; }   // 従来も索引に載らなかった行（文として保留）は今回は増やさない。回収は別判断
+    const seg = l.split(/\s*[\/／、]\s*/).filter((x) => x.trim());
+    if (seg.length >= 2 && seg.every((x) => { const n = personKey(parse(x).name); return PLAUSIBLE_NAME.test(n) && !/(?:先生|医|部|局|社)$/.test(n); })) out.push(...seg); else out.push(l);
+  });
+  return out;
+}
+// 1話分: 原文 → 索引行（同じ話の中で同じ索引名は1行）
+function personRows(ep, raw) {
+  if (!String(raw ?? '').trim()) return { rows: [], hold: [], status: 'RAW_NONE' };
+  const c = cleanV4(raw), seen = new Set(), rows = [], hold = [];
+  for (const x of c.cast) {
+    const why = personHold(x.name); if (why) { hold.push({ ep, name: x.name, why }); continue; }
+    const k = personKey(x.name); if (seen.has(k)) continue; seen.add(k);
+    rows.push({ ep, key: k, display: String(x.name).trim(), note: noteOf(x.name, x.role, x.note), links: x.links.join(' '), source: '概要原文（公式RSS）', state: '原文で確認' });
+  }
+  return { rows, hold, status: rows.length ? 'OK' : 'NO_NAMES_IN_RAW' };
+}
+// 全話: 表記ゆれ候補（索引名が違うのに空白・敬称以外で一致しそうなもの）は自動で統合せず、一覧に出すだけ
+// 原文に名前が無い回で、台帳の出演者列に名前がある場合（旧台帳からの既存値）は消さずに索引へ載せ、状態で区別する（出典なし・未検証）
+function ledgerRows(ep, ledgerCast, parse) {
+  const seen = new Set(), rows = [];
+  castLines(ledgerCast, parse).forEach((l) => { const c = parse(l); if (!c.name || legacyHeld(c.name) || personHold(c.name)) return; const k = personKey(c.name); if (seen.has(k)) return; seen.add(k);
+    rows.push({ ep, key: k, display: String(c.name).trim(), note: noteOf(c.name, c.role, c.note), links: c.links.join(' '), source: '統合台帳 出演者列（既存値）', state: '原文に出典なし・未検証' }); });
+  return rows;
+}
+function buildPersonIndex(episodes) {
+  const rows = [], hold = [], stat = { episodes: 0, withNames: 0, noNamesInRaw: 0, rawNone: 0, rows: 0, hold: 0 };
+  for (const e of episodes) { stat.episodes++; const r = personRows(e.ep, e.raw); rows.push(...r.rows); hold.push(...r.hold);
+    if (r.status === 'OK') stat.withNames++; else if (r.status === 'RAW_NONE') stat.rawNone++; else stat.noNamesInRaw++;
+    if (r.status !== 'OK' && e.ledgerCast && e.parse) { const lr = ledgerRows(e.ep, e.ledgerCast, e.parse); if (lr.length) { rows.push(...lr); stat.ledgerOnlyEpisodes = (stat.ledgerOnlyEpisodes || 0) + 1; stat.ledgerOnlyRows = (stat.ledgerOnlyRows || 0) + lr.length; } } }
+  stat.rows = rows.length; stat.hold = hold.length;
+  const byKey = new Map(); rows.forEach((r) => byKey.set(r.key, (byKey.get(r.key) || 0) + 1));
+  const keys = [...byKey.keys()], loose = (k) => k.replace(/[・=＝.．]/g, '').replace(/[ヶケ]/g, 'ケ'), groups = new Map();
+  keys.forEach((k) => { const g = loose(k); groups.set(g, [...(groups.get(g) || []), k]); });
+  const variants = [...groups.values()].filter((v) => v.length > 1);
+  stat.people = keys.length; stat.variantGroups = variants.length;
+  return { rows, hold, stat, variants };
+}
+
+// ===== 差分更新（PI-3）: 1話ごとの指紋（原文・出演者欄・版）が変わった話だけ作り直し、索引の他の行はそのまま残す =====
+function epFingerprintText(raw, ledgerCast, ver) { return [String(raw ?? ''), String(ledgerCast ?? ''), String(ver ?? '')].join('\u0001'); }
+// existing: 索引の現在行（{ep,...} の配列）、updates: Map(ep → 新しい行の配列。[] は「この話は0行」)、removed: 台帳から消えた話
+function mergeIndex(existing, updates, removed) {
+  const gone = new Set(removed || []), out = [], seen = new Set(), stat = { kept: 0, replacedEpisodes: 0, rowsAdded: 0, rowsRemoved: 0, unchangedEpisodes: 0 };
+  const same = (a, b) => a.length === b.length && a.every((x, i) => ['ep', 'key', 'display', 'note', 'links', 'source', 'state'].every((k) => String(x[k] ?? '') === String(b[i][k] ?? '')));
+  const byEp = new Map(); existing.forEach((r) => { if (!byEp.has(r.ep)) byEp.set(r.ep, []); byEp.get(r.ep).push(r); });
+  for (const r of existing) {
+    if (seen.has(r.ep)) continue; seen.add(r.ep);
+    const old = byEp.get(r.ep);
+    if (gone.has(r.ep)) { stat.rowsRemoved += old.length; continue; }
+    if (updates.has(r.ep)) { const nw = updates.get(r.ep); if (same(old, nw)) { stat.unchangedEpisodes++; out.push(...old); } else { stat.replacedEpisodes++; stat.rowsRemoved += old.length; stat.rowsAdded += nw.length; out.push(...nw); } }
+    else { stat.kept += old.length; out.push(...old); }
+  }
+  for (const [ep, nw] of updates) if (!seen.has(ep) && nw.length) { stat.replacedEpisodes++; stat.rowsAdded += nw.length; out.push(...nw); }   // 新しい話は末尾へ
+  const dup = new Set(), d = out.filter((r) => { const k = r.ep + '\u0001' + r.key; if (dup.has(k)) return true; dup.add(k); return false; }).length;
+  return { rows: out, stat: { ...stat, total: out.length, duplicatePairs: d }, changed: stat.replacedEpisodes > 0 || stat.rowsRemoved > 0 };
+}
+// 出演者欄と原文の名前の差（人の値は直さず、差として残すだけ）
+function castDifference(ep, rawKeys, ledgerCast, parse) {
+  const led = castLines(ledgerCast, parse).map((l) => parse(l).name).filter((n) => n && !legacyHeld(n) && !personHold(n)).map(personKey);
+  const r = [...new Set(rawKeys)], l = [...new Set(led)];
+  if (!r.length && !l.length) return null;
+  if (!r.length) return { ep, kind: '台帳にだけ名前（原文に出典なし）', raw: '', ledger: l.join('、') };
+  if (!l.length) return { ep, kind: '出演者欄が空（原文には名前あり）', raw: r.join('、'), ledger: '' };
+  const miss = r.filter((k) => !l.includes(k)), extra = l.filter((k) => !r.includes(k));
+  if (!miss.length && !extra.length) return null;
+  return { ep, kind: '名前が一部違う', raw: r.join('、'), ledger: l.join('、'), missingInLedger: miss.join('、'), notInRaw: extra.join('、') };
+}
+
+return { PERSON_INDEX_VERSION, PERSON_INDEX_HEADERS, splitPersonTitle, personKey, personHold, legacyHeld, castLines, personRows, ledgerRows, buildPersonIndex, epFingerprintText, mergeIndex, castDifference };
+})();
+
+var SdgsOfficial = (function () {
+// SDGs公式アーカイブ 1,092件（Phase 9・2026-10-21 公式JSON 19ページから取得、docs/audits/2026-10-21-phase9/integration-plan.json の records を写したもの）。
+// [公式UUID, 公式タイトル, 公式配信日時 JST, 公式個別URL]。台帳の監査で照合の基準に使うだけで、これ自体を台帳に書かない。
+const SDGS_OFFICIAL_SOURCE = "docs/audits/2026-10-21-phase9/integration-plan.json records (planHash 49d727a19eef8a7100600f51a7463dcd4bbaaaeacfcdcb9513df092d97cb2a39)";
+const SDGS_OFFICIAL = [["a7182b72-b53c-44f4-a7dc-b4aa00925b77","【番組から大事なお知らせ】「こどもそうだんしつ」にリニューアルします","2026-06-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a7182b72-b53c-44f4-a7dc-b4aa00925b77"],["783d0384-9da6-4129-b2c3-b4aa0092686e","誰かに怒られ、無視されたら　思い出してほしい、私のことを　反響編（後編） #1089","2026-06-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=783d0384-9da6-4129-b2c3-b4aa0092686e"],["4fecae92-00e9-49a5-8aec-b4aa00926ad9","満員電車で体が限界･･･　ヘルプマークの乗客が助けてくれました　反響編（前編）#1088","2026-06-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4fecae92-00e9-49a5-8aec-b4aa00926ad9"],["09458754-c2fe-4818-8814-b4aa00926fe5","空をみつめ、5文字を必死で考えた　ゲーム「Wordleにほんご」に大興奮 #1087","2026-06-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=09458754-c2fe-4818-8814-b4aa00926fe5"],["52c46541-9d40-49f5-8b6e-b4aa0092741e","「びっくり離職」を防ぎたい　がんで退職した男性社員へ　人事部だった私の後悔 #1086","2026-06-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=52c46541-9d40-49f5-8b6e-b4aa0092741e"],["8eebbb23-dcc1-457b-a167-b4aa00927a66","銀座を走るKK線、アンテナショップをめぐろう　築地～日比谷あるき #1085","2026-06-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8eebbb23-dcc1-457b-a167-b4aa00927a66"],["da33678a-46d5-4630-987e-b4aa009282d1","「海外赴任中の過労死」を防ぐ　見えにくい実態、声上げ始めた遺族  #1084","2026-06-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=da33678a-46d5-4630-987e-b4aa009282d1"],["7bbb405f-7cfd-42dc-86c0-b4aa00928e1b","「もったいない」から生まれたおいしいつながり　規格外の見えない果実が商品になった #1083","2026-06-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7bbb405f-7cfd-42dc-86c0-b4aa00928e1b"],["e6e5b4e9-8954-4cb8-8233-b4aa00929df8","サイクリストなら、きっとなれるよお手本に　青切符の取材で芽生えた思い #1082","2026-05-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e6e5b4e9-8954-4cb8-8233-b4aa00929df8"],["a112e1b2-ac95-4fed-a743-b4aa0092c155","SDGs ACTION!に新メンバー　ペンギン推し活やアクアポニックスを語る　M-1挑戦の過去も #1081","2026-05-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a112e1b2-ac95-4fed-a743-b4aa0092c155"],["1a9011db-02f0-4340-909e-b4aa009336d3","そのラテの抹茶は本物？  世界的な「MATCHA」ブームの裏で起きている異変 #1080","2026-05-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1a9011db-02f0-4340-909e-b4aa009336d3"],["b4b54118-78b9-4246-a4b5-b4aa009356f8","中国に行ってでも会いたいパンダ　各国で違う「パン活」の形（後編） #1079","2026-05-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b4b54118-78b9-4246-a4b5-b4aa009356f8"],["0386c470-5dee-4a29-89a3-b4aa00936127","日本にパンダはいつ来る？　中国で暮らす上野のパンダたちに会ってきた（前編）#1078","2026-05-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0386c470-5dee-4a29-89a3-b4aa00936127"],["e49f32dc-ccbe-4c2d-af2c-b4aa009385cd","スーパーの包み、減らせるとこから　ネギをリュックに刺すとカッコいい？ #1077","2026-05-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e49f32dc-ccbe-4c2d-af2c-b4aa009385cd"],["5c3dcbca-5ccc-4bff-8f82-b4aa0093947e","患者を生きる、それはタンゴを踊ること　時には医師をリードする気持ちで　患者を生きる② #1076","2026-05-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5c3dcbca-5ccc-4bff-8f82-b4aa0093947e"],["6032fc21-3ab7-4a0a-b02c-b4aa0093a652","知ってる？円形脱毛症をめぐる誤解　「ヘアロス」に込められた思い　患者を生きる① #1075","2026-05-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6032fc21-3ab7-4a0a-b02c-b4aa0093a652"],["aa275724-017f-4f56-a29e-b4aa0093a6c8","コンサートの「お作法」　自由に楽しむのがもちろん一番、なんだけど… #1074","2026-05-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=aa275724-017f-4f56-a29e-b4aa0093a6c8"],["236d1760-d703-42ab-8b0a-b4aa0093f2f0","ベビーカーづれの親子を助けた、はずなのに　私の悔いを話します（後編）  #1073","2026-05-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=236d1760-d703-42ab-8b0a-b4aa0093f2f0"],["44f88bcb-6439-4ed9-abf5-b4aa00940aa0","車イスから杖歩行になった記者　バス停であふれた涙　ありがたい、でも悔しかった（前編） #1072","2026-05-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=44f88bcb-6439-4ed9-abf5-b4aa00940aa0"],["e72714a0-a0ee-45eb-8f90-b4aa00944d06","「ガクチカ」何書いてた？　10年以上前だけど、振り返ってみる #1071","2026-05-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e72714a0-a0ee-45eb-8f90-b4aa00944d06"],["c7caecc7-be46-444b-bd24-b4aa00945c70","気ままな毛玉に救われよう　ネコちゃんズと漫画家とモフリンと編集 #1070","2026-05-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c7caecc7-be46-444b-bd24-b4aa00945c70"],["e2246d1e-b57a-4d84-ba49-b4aa00947103","どなたか…怒ったヒョウモンダコ見た人いませんか？　研究棟かけ回り作ったぬいぐるみ（超危険生物展・後編） #1069","2026-05-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e2246d1e-b57a-4d84-ba49-b4aa00947103"],["e52b61c5-5875-42d7-bbe3-b4aa009473ea","「死の抱擁」に「嫌な成人式」　気になった生き物の必殺技（超危険生物展・前編） #1068","2026-04-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e52b61c5-5875-42d7-bbe3-b4aa009473ea"],["e45153a4-e9f9-4515-bc34-b4aa00949b4b","思いがより伝わるような気がする　手書き文字の不思議な魅力 #1067","2026-04-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e45153a4-e9f9-4515-bc34-b4aa00949b4b"],["e4cb1315-ba17-4d14-a5b0-b4aa0094a392","ウェディングドレスでプレゼン 日本初？フェアトレード婚で伝えたかったこと（後編） #1066","2026-04-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e4cb1315-ba17-4d14-a5b0-b4aa0094a392"],["7485227a-a99c-47b4-9d41-b4aa0094b0c9","母の日にはフェアトレードの花を贈ろう 国際協力の夢をかなえた「突破する力」（前編） #1065","2026-04-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7485227a-a99c-47b4-9d41-b4aa0094b0c9"],["20452c16-1a51-47eb-8602-b4aa0094dc06","ズッキーニの初登場は1988年　時代をうつすレシピ欄（食のへぇ～） #1064","2026-04-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=20452c16-1a51-47eb-8602-b4aa0094dc06"],["88588d33-dad9-4991-9634-b4aa0094df9c","背徳感、やみつき、マシマシ…　ギルティ消費、なかなかハードルが高そう #1063","2026-04-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=88588d33-dad9-4991-9634-b4aa0094df9c"],["ff7ff6b5-863b-4dbd-bcb0-b4aa00956c03","ケアやクィア、社会運動も学び直せる　「ダイバーシティ科学」埼玉大学院で（後編） #1062","2026-04-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ff7ff6b5-863b-4dbd-bcb0-b4aa00956c03"],["5dace917-804b-471c-afeb-b4aa00956acb","ダイバーシティ科学を知ろう　それって儲かるの？の声に流されないために（前編） #1061","2026-04-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5dace917-804b-471c-afeb-b4aa00956acb"],["5f39de1a-af52-423d-9b62-b4aa0095a11f","公園でえさをあげる「友」に話を聞いた　研究者がそっと伝えたリスの死 #1060","2026-04-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5f39de1a-af52-423d-9b62-b4aa0095a11f"],["39f1f964-21f6-49b4-a6b4-b4aa0095aecf","えさやりの落とし穴　街が汚れるだけじゃない　野生動物とのほどよい距離は #1059","2026-04-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=39f1f964-21f6-49b4-a6b4-b4aa0095aecf"],["e7336975-e018-49b7-9a73-b4aa0095ba86","馬や動物、自然や音楽　心を落ち着かせてくれる言葉のない世界 #1058","2026-04-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e7336975-e018-49b7-9a73-b4aa0095ba86"],["aa0a0a44-6e57-40a2-b368-b4aa0095bf92","枯れ木こそが森なんだ、ムダじゃなくて財産だ　「ネクロマス」を知るとラクになる（後編） #1057","2026-04-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=aa0a0a44-6e57-40a2-b368-b4aa0095bf92"],["207799a9-383c-4fc9-8a45-b4aa0095cc73","ナウシカに憧れ、漫画家の道へ　森の地下にある「見えない森」をのぞいてみよう（前編） #1056","2026-04-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=207799a9-383c-4fc9-8a45-b4aa0095cc73"],["595438da-2c26-42aa-a881-b4aa0096033f","独占配信でサブスク加入　気づかぬまま課金、時々見直すのも大事 #1055","2026-04-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=595438da-2c26-42aa-a881-b4aa0096033f"],["35bf2efd-93d8-45ed-ab3a-b4aa0096048f","ポケモンもマリオも、三国志すら日本から世界へ　ゲームの魅力をもっと伝えたい #1054","2026-04-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=35bf2efd-93d8-45ed-ab3a-b4aa0096048f"],["3805748a-b89e-49f3-bd55-b4aa00962a8b","スーパーの魚はなぜ頭が左なの？　盛りつけを意識、由来をさかのぼってみると（食のへぇ〜） #1053","2026-04-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3805748a-b89e-49f3-bd55-b4aa00962a8b"],["ee843781-57a5-4f2d-ab71-b4aa00965120","新年と新年度、区切りを感じるのは？　手帳や環境、それぞれの心機一転 #1052","2026-03-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ee843781-57a5-4f2d-ab71-b4aa00965120"],["51275950-0caf-4597-b575-b4aa00967bed","子どもがいなければ過労死していたかも　NPOへのバイアスにどう向き合えばいいのか（後編） #1051","2026-03-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=51275950-0caf-4597-b575-b4aa00967bed"],["17ecc8be-5248-4fa5-8a05-b4aa00967db0","手帳の住所録をめくって探した仲間　児童労働ゼロを目指して歩み続けた28年（前編） #1050","2026-03-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=17ecc8be-5248-4fa5-8a05-b4aa00967db0"],["43028919-0a7c-4775-8bd0-b4aa00967bcd","家系、とんこつ、あっさり…ラーメン愛を語る　取り組みやすい減塩対策は #1049","2026-03-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=43028919-0a7c-4775-8bd0-b4aa00967bcd"],["a7981042-4690-4403-8aa2-b4aa0096ad55","少しの水でも、子どもは溺れる　家の中にひそむ危険　くらしのヒヤッ② #1048","2026-03-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a7981042-4690-4403-8aa2-b4aa0096ad55"],["7c9b31dc-e193-41c0-9517-b4aa0096aeb7","困ったときは「188番」　消費者トラブル、記者もだまされる　くらしのヒヤッ① #1047","2026-03-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7c9b31dc-e193-41c0-9517-b4aa0096aeb7"],["23c58d00-2284-49ee-a000-b4aa0097410c","「ハーフ」への差別、自虐ネタにするのはあり？　笑いのプロと出会って救われた #1046","2026-03-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=23c58d00-2284-49ee-a000-b4aa0097410c"],["fbfa9f2d-821c-4c38-96cc-b4aa00974842","助けを求める力、あるかな　できるだけ迷惑かけたくないと思ってしまう #1045","2026-03-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=fbfa9f2d-821c-4c38-96cc-b4aa00974842"],["34911202-14ba-4257-b0bd-b4aa00976f4c","国ごとに異なる定義　データを重視したアプローチ、ノルウェーでは呼び方も議論 （不登校と海外） #1044","2026-03-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=34911202-14ba-4257-b0bd-b4aa00976f4c"],["9e07183b-55b9-4bf6-8db0-b4aa00977061","園での経験を小学校でパワーアップ　学びも話し合いも主役は子どもたち（不登校と幼児教育） #1043","2026-03-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=9e07183b-55b9-4bf6-8db0-b4aa00977061"],["0b0554f7-a1c9-4866-bf3e-b4aa0097777f","花粉への恨みつらみが止まらない　夏の間も忘れず計画的に #1042","2026-03-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0b0554f7-a1c9-4866-bf3e-b4aa0097777f"],["b4f950bf-b680-4193-b2c4-b4aa00979c6c","大好きなピアノの前で正直になれなかった日　別れは突然に #1041","2026-03-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b4f950bf-b680-4193-b2c4-b4aa00979c6c"],["b9857207-7b26-4dce-a4e4-b4aa00979fbe","AIは福音？それとも脅威？ 社内の「AI伝道師」と考えてみた　#1040","2026-03-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b9857207-7b26-4dce-a4e4-b4aa00979fbe"],["4b10beb5-d6cf-4d25-963c-b4aa00980682","挑戦を続ける選手へのリスペクト、染みる言葉　オリンピックを語る一般人 #1039","2026-02-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4b10beb5-d6cf-4d25-963c-b4aa00980682"],["15a46042-69ad-43b3-9809-b4aa00981810","音声読み上げ対応なのにヨコ書きをタテ読み 「そこにアクセシビリティはあるのかい？」 #1038","2026-02-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=15a46042-69ad-43b3-9809-b4aa00981810"],["5d38062a-11e9-40e2-89b9-b4aa009846dc","ネコが笑っているように見えるのはなぜ　科学雑誌「Newton」の別冊、今年もネコを大特集 #1037","2026-02-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5d38062a-11e9-40e2-89b9-b4aa009846dc"],["4620b858-c4e6-4873-be8c-b4aa00986441","つながる便利さ、もちろんあるけど　スマホを持たないオフラインの大切さ #1036","2026-02-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4620b858-c4e6-4873-be8c-b4aa00986441"],["35313941-9058-4dd5-a486-b4aa009872e8","東西しょうゆバトル　銚子の濃口、愛知のたまり、鹿児島の甘口を食べ比べ（食のへぇ〜） #1035","2026-02-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=35313941-9058-4dd5-a486-b4aa009872e8"],["0a029be5-ce01-40cb-a9f7-b4aa0098cd24","服選びの最適解は　白黒じゃないグラデーションが面白い #1034","2026-02-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0a029be5-ce01-40cb-a9f7-b4aa0098cd24"],["bfe52d3a-c466-4fb3-98fd-b4aa0098e00a","きんとん、餃子、おはぎもあるよ　わが家のアレンジ、なつかしの味（後編） #1033","2026-02-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bfe52d3a-c466-4fb3-98fd-b4aa0098e00a"],["c258c3de-3868-413f-936a-b4aa00991c20","ご当地グルメ、しゃべり出すと止まらない　がね、かぶらずし、ババヘラアイス（前編） #1032","2026-02-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c258c3de-3868-413f-936a-b4aa00991c20"],["2d2b5240-7554-478a-b5c3-b4aa009929d5","仲間の乗った空母は炎に包まれた　あこがれだった海軍兵学校の制服　100歳の伝言 #1031","2026-02-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2d2b5240-7554-478a-b5c3-b4aa009929d5"],["85e78a8a-ee94-46b0-862c-b4aa0099732d","風呂の日、湯煙に涙も包まれて　話しにくいこともしっとり話せるかも #1030","2026-02-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=85e78a8a-ee94-46b0-862c-b4aa0099732d"],["1848bd52-3925-422d-9519-b4aa009975df","（再）SOSは具体的に　津波てんでんこをアップデート　車いす避難（後編） #1029","2026-02-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1848bd52-3925-422d-9519-b4aa009975df"],["e850a81a-ae66-4776-a563-b4aa0099dda7","（再）電車の中で大地震が起きたらどうする？　車いす避難（前編） #1028","2026-02-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e850a81a-ae66-4776-a563-b4aa0099dda7"],["051488fb-fb94-4d37-9ae9-b4aa0099dfd2","雨の日に立ちはだかる壁　障害で変わったこと、社会で変えられること #1027","2026-02-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=051488fb-fb94-4d37-9ae9-b4aa0099dfd2"],["7c558acd-6b15-44b1-aabc-b4aa0099f683","会って話してみる大切さ　浮かぶ顔が一人でもいたら #1026","2026-01-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7c558acd-6b15-44b1-aabc-b4aa0099f683"],["dc8f8ae5-82a1-4dab-b836-b4aa009a0b0f","「ビヨンドSDGsって何ですか?」 もやもやと問いかけから考える「その先」（後編） #1025","2026-01-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=dc8f8ae5-82a1-4dab-b836-b4aa009a0b0f"],["86369686-3807-4043-8599-b4aa009a106b","「自分が人生かけて向き合わないと人は動かない」 SDGs日本語版の仕掛け人に聞く（前編） #1024","2026-01-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=86369686-3807-4043-8599-b4aa009a106b"],["a842ec2b-09b2-41cf-9e12-b4aa009a2727","長距離運転、禅の学び、複数同時視聴　それぞれの年末年始 #1023","2026-01-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a842ec2b-09b2-41cf-9e12-b4aa009a2727"],["f535b5ef-aaae-4d0c-86db-b4aa009a6e34","旅立ったワンちゃん、ありがとう　ぬいぐるみに想いを託して　ひととき（後編） #1022","2026-01-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f535b5ef-aaae-4d0c-86db-b4aa009a6e34"],["56c6d4c3-c87b-45a0-9f4a-b4aa009a8d64","イヌやネコと暮らす、別れのあとに　庭のスズメは甘えん坊？　ひととき（前編） #1021","2026-01-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=56c6d4c3-c87b-45a0-9f4a-b4aa009a8d64"],["9af2d234-9c03-462f-a117-b4aa009a9bd9","緊張は誰でもしてしまうもの　ドキドキをポジティブにとらえてみる #1020","2026-01-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=9af2d234-9c03-462f-a117-b4aa009a9bd9"],["18073b1d-6231-42d7-a7c3-b4aa009ab390","ミカン山がアボカドに変わる日が来るかも？　納豆やマグロとの相性ばつぐん（食のへぇ～） #1019","2026-01-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=18073b1d-6231-42d7-a7c3-b4aa009ab390"],["9ae22825-0a02-4a47-97df-b4aa009ac2aa","社内でのコミュニケーションや手話勉強会　聴覚障害のある社員がデフリンピックを機に考えたこと（後編） #1018","2026-01-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=9ae22825-0a02-4a47-97df-b4aa009ac2aa"],["bc6045d6-7bef-4b49-9d67-b4aa009aca5d","聴覚障害の当事者と振り返るデフリンピック　ショート動画に出演、会場でスタッフとして活動も(前編) #1017","2026-01-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bc6045d6-7bef-4b49-9d67-b4aa009aca5d"],["fe1a53cb-b612-4f4b-b2b8-b4aa009b184a","寝付きは良い？眠れてる？　数えても数えても、ひたすら羊が溜まっていく #1016","2026-01-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=fe1a53cb-b612-4f4b-b2b8-b4aa009b184a"],["fdd77079-d499-4d2b-b7d1-b4aa009b1981","海を越えた「リーチ麻雀」の文化　卓を囲めば友達ができる（後編） #1015","2026-01-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=fdd77079-d499-4d2b-b7d1-b4aa009b1981"],["8cb9698b-04b6-43d5-80b1-b4aa009b1d92","麻雀に青春を燃やす高校生たち　全国大会の熱量に圧倒（前編） #1014","2026-01-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8cb9698b-04b6-43d5-80b1-b4aa009b1d92"],["18f1c341-1675-4438-b87d-b4aa009b7a95","AIのお世辞いらん　ほめられたい？　絵をこの手で描きたくなったよ #1013","2025-12-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=18f1c341-1675-4438-b87d-b4aa009b7a95"],["d9e7317b-cf26-4458-bf09-b4aa009b8cf5","国連なければどんな世界に？　ゲストは国連広報センター所長・根本かおるさん #1012","2025-12-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d9e7317b-cf26-4458-bf09-b4aa009b8cf5"],["01ab3b83-4d72-48a4-9346-b4aa009bae76","365日どこかで祭りだわっしょい　お囃子を聴きながら語り合おう #1011","2025-12-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=01ab3b83-4d72-48a4-9346-b4aa009bae76"],["f19217c2-1bee-4e20-86ac-b4aa009bc507","牛がお肉になるとき　職員はなぜ牛の瞳をよく観察するの（食のへぇ〜） #1010","2025-12-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f19217c2-1bee-4e20-86ac-b4aa009bc507"],["5fd95dc4-0aee-497a-a9b9-b4aa009bcda6","コンセント事情を話してみた　差し込み口のホコリ、ゆるゆるにも気をつけて #1009","2025-12-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5fd95dc4-0aee-497a-a9b9-b4aa009bcda6"],["9492eab6-c100-4924-beae-b4aa009bdb21","わたしたち「SDGs ACTION!」編集部です　サステナをテーマに語る番組がスタート #1008","2025-12-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=9492eab6-c100-4924-beae-b4aa009bdb21"],["4cb32729-549d-4c89-92fb-b4aa009beb71","ゆっくり、じっくり、悲しもう　玄関に彼の靴はおいたまま　喪の旅③ #1007","2025-12-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4cb32729-549d-4c89-92fb-b4aa009beb71"],["ffff25ab-16b4-49e8-9f5f-b4aa009c1aa5","みんなとは違う時間を生きている　年末年始のせわしさの中で　喪の旅② #1006","2025-12-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ffff25ab-16b4-49e8-9f5f-b4aa009c1aa5"],["a8711788-8f6b-420f-9212-b4aa009c2ae6","亡くなってもここにいるよ　バーで出合った夫の特製チューハイ　喪の旅① #1005","2025-12-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a8711788-8f6b-420f-9212-b4aa009c2ae6"],["c37f4dda-2bb1-436c-b48e-b4aa009c4a4d","友達の定義ってなんだろう　まずダチ、ソウルメイト、ズッ友…踏み越える怖さも #1004","2025-12-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c37f4dda-2bb1-436c-b48e-b4aa009c4a4d"],["bbc88c20-5e5e-4da6-8b43-b4aa009c7851","がん取材歴20年の中で忘れられない存在　副題は「悲しみも味方に」（後編）#1003","2025-12-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bbc88c20-5e5e-4da6-8b43-b4aa009c7851"],["24d228d9-2313-498d-89e3-b4aa009c93b2","大切な人を亡くした悲しみと向き合うには　「がんとともに」記者サロンで語ります（前編）#1002","2025-12-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=24d228d9-2313-498d-89e3-b4aa009c93b2"],["5501d916-5029-4fc1-8541-b4aa009cf0f9","感じた違和感、変わる結婚式　あれ？もしやパーティーが好きなだけ？ #1001","2025-11-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5501d916-5029-4fc1-8541-b4aa009cf0f9"],["843d61e4-f28a-43d0-9bac-b4aa009d1802","なんかモヤる「女性だから入って」と言われると　ジェンダー比率の改善、大事だからこそ考えたい（後編） #1000","2025-11-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=843d61e4-f28a-43d0-9bac-b4aa009d1802"],["6d25392a-cfa8-4b4f-88c7-b4aa009d1af1","経営会議に同席、ジョブシャドーイング研修がおもしろい　男性だけの会議、減ってきたけど（前編） #999","2025-11-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6d25392a-cfa8-4b4f-88c7-b4aa009d1af1"],["aa960df4-e35d-46a0-ab44-b4aa009d1e54","新語・流行語、今年の漢字予想は？　国宝（観た）のでネタバレあります #998","2025-11-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=aa960df4-e35d-46a0-ab44-b4aa009d1e54"],["c6c7cae7-889f-45a9-ae93-b4aa009d22e3","おいしいパスタの極意、物理の論文に　カチョ・エ・ペペを作ろう（食のへぇ〜） #997","2025-11-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c6c7cae7-889f-45a9-ae93-b4aa009d22e3"],["6b22976c-ca82-4e85-bc05-b4aa009d66f9","病院、新幹線、宿泊、飲食店　予約社会だけど、失敗する自由を持っていたい #996","2025-11-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6b22976c-ca82-4e85-bc05-b4aa009d66f9"],["11dbd09e-0bdf-4d19-a7c9-b4aa009d923d","靴下をはいて、新たな人生へ　不便だけど不幸じゃない　認知症とともに（後編） #995","2025-11-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=11dbd09e-0bdf-4d19-a7c9-b4aa009d923d"],["d2c6d892-7c28-496a-95c2-b4aa009deb5a","主役なのに置いてきぼり　家族じゃなく、私を見て　認知症とともに（前編） #994","2025-11-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d2c6d892-7c28-496a-95c2-b4aa009deb5a"],["8b6757ca-6448-4726-b62a-b4aa009e01dd","日常を忘れ、世界観に浸る･･･没入してますか？　語りたくて話したくて仕方ない「国宝」 #993","2025-11-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8b6757ca-6448-4726-b62a-b4aa009e01dd"],["d254fc19-5706-42e4-9076-b4aa009e01e2","ベトナム戦争の前線にいた父　当事者の記憶、聞いて育った記者が思うこと（後編） #992","2025-11-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d254fc19-5706-42e4-9076-b4aa009e01e2"],["455d7936-87de-408c-8db5-b4aa009e0a24","特攻隊は美談になったのか　単純でない物語、100年後にも伝えるには（前編） #991","2025-11-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=455d7936-87de-408c-8db5-b4aa009e0a24"],["8c141c37-5bf9-460a-a52c-b4aa009e2921","雑踏事故、まったく人ごとじゃない　退場は焦らずに急がずにゆったりと #990","2025-10-31 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8c141c37-5bf9-460a-a52c-b4aa009e2921"],["5404f673-1012-4277-b58e-b4aa009e3048","（再）住宅裏に掘られた違法な鉱山　命の危険を感じ、取材を断念　コバルト生産の闇（後編） #989","2025-10-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5404f673-1012-4277-b58e-b4aa009e3048"],["b8bc7759-34fa-4a61-8dfa-b4aa009e3527","（再）数千人がびっしり…響く金づち　バッテリーの原材料が生まれる現場　コバルト生産の闇（前編） #988","2025-10-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b8bc7759-34fa-4a61-8dfa-b4aa009e3527"],["21fc3b4b-2f3f-4462-af08-b4aa009e5ec4","（再）「アフリカ人はどんな服でも着ると？」　ガーナで大量廃棄されている古着 #987","2025-10-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=21fc3b4b-2f3f-4462-af08-b4aa009e5ec4"],["1eb8e29d-2018-4727-bee2-b4aa009e8053","イヌのかわいさ、賢さの秘密　あのNewtonが科学した #986","2025-10-27 09:37","https://www.asahi.com/special/podcasts/item/?itemid=1eb8e29d-2018-4727-bee2-b4aa009e8053"],["e2ac4b25-b0e0-4287-9854-b4aa009ea51d","ノーベル賞でわくわく高まる学習意欲　心動いた吹奏楽の演奏 #985","2025-10-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e2ac4b25-b0e0-4287-9854-b4aa009ea51d"],["f2897a93-59a7-4262-90db-b4aa009ec135","狭い檻の中の母豚、尾を切られる子豚　アニマルウェルフェアを考えよう #984","2025-10-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f2897a93-59a7-4262-90db-b4aa009ec135"],["cb406a3d-46aa-4837-8383-b4aa009efae2","卵を割るとき、どっち向き？　見えない私が伝える料理のワクワク（食のへぇ～） #983","2025-10-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=cb406a3d-46aa-4837-8383-b4aa009efae2"],["2dbb0eed-72d3-4983-9565-b4aa009efe54","セックスは恥ずかしいことじゃない　相手と幸せになる方法は　20代のセックスレス（後編） #982","2025-10-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2dbb0eed-72d3-4983-9565-b4aa009efe54"],["4b104b69-d4e9-4336-8076-b4aa009f12cf","海外で性教育を受けた記者　帰国後、日本で感じた違和感　20代のセックスレス（前編） #981","2025-10-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4b104b69-d4e9-4336-8076-b4aa009f12cf"],["3a26a882-0276-4b8d-b7b7-b4aa009f1249","あれ？かわいい？いつの間にか人気者のミャクミャク　万博閉幕、検証は冷静に #980","2025-10-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3a26a882-0276-4b8d-b7b7-b4aa009f1249"],["a8913dd3-1e4d-4b8d-b2fc-b4aa009f2485","車イスでフラダンス　囲碁教室に導いてくれたあなたへ　新たなチャレンジはじめました #979","2025-10-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a8913dd3-1e4d-4b8d-b2fc-b4aa009f2485"],["f960a39b-fc9a-40df-a98f-b4aa009f4844","「多重被災」を想定外にしない　備えだけでなく、慣れることも大事!?（後編） #978","2025-10-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f960a39b-fc9a-40df-a98f-b4aa009f4844"],["e36c7c71-d516-42f2-ab35-b4aa009f8646","短期間に複数の自然災害に遭う可能性も？「多重被災」を考える（前編） #977","2025-10-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e36c7c71-d516-42f2-ab35-b4aa009f8646"],["7e5503e8-a025-45dc-a22b-b4aa009f8bf5","ノスタルジックなかっけえクルマや、たまごっち　過去を糧に今を生きるんだ #976","2025-10-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7e5503e8-a025-45dc-a22b-b4aa009f8bf5"],["1bb7be4b-80f3-4463-b2a1-b4aa009fd594","デジタルデータ、延命するには？　「世界で最も安全」北極圏の地下に眠る　記憶と記録② #975","2025-10-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1bb7be4b-80f3-4463-b2a1-b4aa009fd594"],["7d404a5c-7b1f-403b-8150-b4aa009ff679","AIで実現、ホロコースト生存者と話そう　2千の質問を投げかけた　記憶と記録① #974","2025-10-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7d404a5c-7b1f-403b-8150-b4aa009ff679"],["63051d4c-2129-4687-8f57-b4aa00a0135b","複雑な思いと、旅先でふれた優しさと　「抗日勝利80周年」の瀋陽で（後編）#973","2025-10-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=63051d4c-2129-4687-8f57-b4aa00a0135b"],["0beebb15-76ad-46a3-8d87-b4aa00a022f7","なぜ中国から日本へ？増える「新移民」の波　発生源がわかれば、解像度が上がるかも（前編）#972","2025-10-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0beebb15-76ad-46a3-8d87-b4aa00a022f7"],["92671458-188d-465b-be0f-b4aa00a026f4","高知でわら焼き、香川でうどん打ち　体験型の修学旅行っていいかも #971","2025-10-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=92671458-188d-465b-be0f-b4aa00a026f4"],["82a7bd68-0c21-46d1-997c-b4aa00a0698f","スカートの日には先生のスマホが　塾で盗撮被害、少女の違和感と決断　ジェンダートーク10月号（後編） #970","2025-10-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=82a7bd68-0c21-46d1-997c-b4aa00a0698f"],["bd7d61a8-eb05-44f8-9dd9-b4aa00a097b6","子どもの性被害、「排除」で防げるか　加害者への治療なぜ必要？　ジェンダートーク10月号（前編） #969","2025-10-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bd7d61a8-eb05-44f8-9dd9-b4aa00a097b6"],["5f588a7a-6b72-4bd7-a61e-b4aa00a0e88c","ノーベル賞でシェフも奮闘　晩餐会のおもてなし（食のへぇ〜） #968","2025-09-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5f588a7a-6b72-4bd7-a61e-b4aa00a0e88c"],["56aec7e1-c277-4c4e-a990-b4aa00a0ed56","核被害とジェンダー問題、根っこはつながっている　カザフスタンの映画から #967","2025-09-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=56aec7e1-c277-4c4e-a990-b4aa00a0ed56"],["c509c106-3d49-4d8f-a883-b4aa00a0edde","自分のなかの無意識のバイアス、時が経って変わってきた　とっさに助け舟を出せるように #966","2025-09-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c509c106-3d49-4d8f-a883-b4aa00a0edde"],["f554b1da-0b4a-4af1-8abe-b4aa00a0f0a3","（再）飲んだらシメは、ステーキでしょ！　沖縄が店舗数「日本一」なわけ #965","2025-09-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f554b1da-0b4a-4af1-8abe-b4aa00a0f0a3"],["474b1af1-d914-415b-abcc-b4aa00a10166","万博がつないだ縁、55年前の仲間と再会　投稿欄「ひととき」のエピソードから #964","2025-09-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=474b1af1-d914-415b-abcc-b4aa00a10166"],["bfb2f6ec-908d-4ecc-b313-b4aa00a129b5","体験ブームに見える、「親はこうすべきだ」論　専門家が危惧　体験格差（後編） #963","2025-09-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bfb2f6ec-908d-4ecc-b313-b4aa00a129b5"],["3182fe55-63be-46c5-9b77-b4aa00a17bf7","受験で「体験」に課金、100万円の講座も…子どもの本音は  体験格差（前編） #962","2025-09-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3182fe55-63be-46c5-9b77-b4aa00a17bf7"],["0a3791e2-c8b8-4579-a437-b4aa00a17bad","防災グッズ、買ってはあるものの　助けられたご近所さんからのLINE #961","2025-09-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0a3791e2-c8b8-4579-a437-b4aa00a17bad"],["643546b0-da38-4e72-a3f9-b4aa00a1b740","世界で愛される揚げ物料理　科学者がトリコになった油の物理（食のへぇ〜） #960","2025-09-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=643546b0-da38-4e72-a3f9-b4aa00a1b740"],["7c9e30e3-fa64-4bf7-baa8-b4aa00a1c0f8","〈ピカソあらば 渾身の作 「ガザ」描け〉　自由求めた先人のバトン　川柳と戦争② #959","2025-09-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7c9e30e3-fa64-4bf7-baa8-b4aa00a1c0f8"],["ab5408ac-e5f4-4161-9d4e-b4aa00a1c2c2","〈特攻隊 神よ神よと おだてられ〉　抵抗の一行詩つむいだ先に　川柳と戦争① #958","2025-09-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ab5408ac-e5f4-4161-9d4e-b4aa00a1c2c2"],["e472fe72-eaec-4f68-b03b-b4aa00a1ea6a","やっぱりあこがれた宇宙飛行士　流れ星は流れてる、上を向いて歩こう #957","2025-09-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e472fe72-eaec-4f68-b03b-b4aa00a1ea6a"],["db455016-1bdc-4481-ae4b-b4aa00a222c6","未踏の絶壁で遭難した、最強の登山家ペアがいた　追悼・平出和也さん、中島健郎さん #956","2025-09-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=db455016-1bdc-4481-ae4b-b4aa00a222c6"],["ff68ea47-6b13-439a-825b-b4aa00a2253b","寝かしつけて深夜出勤・早朝3時から仕事……　余裕なくみんな疲弊（子育て教員のリアル） #955","2025-09-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ff68ea47-6b13-439a-825b-b4aa00a2253b"],["76d1e239-8d9f-4705-832a-b4aa00a26226","命がけの観測を続けた気象台職員　戦後世代の気象予報士が伝える戦争とは（後編）#954","2025-09-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=76d1e239-8d9f-4705-832a-b4aa00a26226"],["14b92e44-63a9-4756-b023-b4aa00a2699c","天気予報と戦争　軍の「マル秘」資料をめくってみると…（前編）#953","2025-09-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=14b92e44-63a9-4756-b023-b4aa00a2699c"],["f54a3f26-8e47-4fef-9d01-b4aa00a288ad","多種多様な学校の上履き　職場や家での履物事情って、意外と話したことないかも #952","2025-09-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f54a3f26-8e47-4fef-9d01-b4aa00a288ad"],["9cbb19df-98c9-46ff-bf5e-b4aa00a2959b","どこからが差別か、境界わけるのは　哲学者が見つめる「ルッキズム」　ジェンダートーク9月号（後編） #951","2025-09-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=9cbb19df-98c9-46ff-bf5e-b4aa00a2959b"],["1fc4d6e7-72d7-4d31-954f-b4aa00a2d797","インスタに目がとまり美容手術　眼球の筋肉「切断」、医師はミス否定　ジェンダートーク9月号（前編） #950","2025-09-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1fc4d6e7-72d7-4d31-954f-b4aa00a2d797"],["aee9c019-df1b-4246-9169-b4aa00a31b71","沖縄戦の記憶と80年後の米軍基地　政治取材で大切にしたいこと（後編） #949","2025-09-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=aee9c019-df1b-4246-9169-b4aa00a31b71"],["c023ee39-6830-4257-a917-b4aa00a31d70","新聞記者もYouTuberみたいに話すべき？　政治部キャップも悩んでいます（前編） #948","2025-09-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c023ee39-6830-4257-a917-b4aa00a31d70"],["1bf43b77-78b8-4d36-8097-b4aa00a33123","本を愛する司書さんにほっこり　そういえば自由研究、何してた？ #947","2025-08-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1bf43b77-78b8-4d36-8097-b4aa00a33123"],["a77af585-0c78-44e5-8f08-b4aa00a33e7c","よみがえったインドの「死にゆく湖」　　参考にしたのはサロマ湖だった　湿地（後編） #946","2025-08-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a77af585-0c78-44e5-8f08-b4aa00a33e7c"],["18910acd-7604-4e67-9c3f-b4aa00a33f48","生き物愛する記者が語る湿地の恵み　ビーバーが勝手にダムつくり2億円浮いた国　湿地（前編） #945","2025-08-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=18910acd-7604-4e67-9c3f-b4aa00a33f48"],["313429d8-05df-4b28-8427-b4aa00a360e9","へんてこなクラゲ、若返りも合体も　雑誌「Newton」のイラスト描いてます　細部も見てね #944","2025-08-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=313429d8-05df-4b28-8427-b4aa00a360e9"],["3875b683-6af8-4eec-aa82-b4aa00a368aa","（再）「ランリック」って、なんでっか？　京都や滋賀ではおなじみなんです #943","2025-08-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3875b683-6af8-4eec-aa82-b4aa00a368aa"],["9917efbd-75f8-477e-a0eb-b4aa00a3c242","怖い、痛い、それが現実だったからこそ　地続きの今、平和を願う #942","2025-08-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=9917efbd-75f8-477e-a0eb-b4aa00a3c242"],["66caae73-af50-4353-be32-b4aa00a3d0ae","子どもの主体性や独創性、摘んでいるのは大人かも？　こどものまち（後編）#941","2025-08-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=66caae73-af50-4353-be32-b4aa00a3d0ae"],["d5cd20d9-4123-4f04-b1dc-b4aa00a42a90","「こどものまち」で見えた子どもの可能性　大人がいなくても実は何でもできる？　こどものまち（前編）#940","2025-08-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d5cd20d9-4123-4f04-b1dc-b4aa00a42a90"],["f16a43ea-f40f-430b-8412-b4aa00a43788","私の肩書きって？　主婦、自由人、なんて名乗ろうかな　投稿の輪ひろがる #939","2025-08-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f16a43ea-f40f-430b-8412-b4aa00a43788"],["d48d576c-6ec3-440e-b619-b4aa00a44589","英語で伝えたい、8歳の僕がみた原爆　川遊びの約束をした友だちはどこへ　長崎市の計屋道夫さん #938","2025-08-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d48d576c-6ec3-440e-b619-b4aa00a44589"],["ace453ff-6976-4aa3-9bd9-b4aa00a44afa","酷暑の夏、車内や直射日光に要注意　桃でひと息つくのはいかが #937","2025-08-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ace453ff-6976-4aa3-9bd9-b4aa00a44afa"],["2f8a8251-b801-42bf-8f05-b4aa00a462e9","トマトやオクラ、丸ごと冷凍しちゃってOK　夏の冷凍保存術（食のへぇ〜） #936","2025-08-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2f8a8251-b801-42bf-8f05-b4aa00a462e9"],["ca00e1e0-3d75-4d11-bf4b-b4aa00a4695a","「流れる水には近づくな」　豪雨への備えと、早めの避難を（後編）#935","2025-08-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ca00e1e0-3d75-4d11-bf4b-b4aa00a4695a"],["0479a311-7164-4e6f-8741-b4aa00a47754","大雨に気をつけて　増える豪雨、中小河川にも洪水のリスク（前編） #934","2025-08-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0479a311-7164-4e6f-8741-b4aa00a47754"],["4bd52967-b641-4a2d-a7bd-b4aa00a4773b","長距離移動好きに共感、うれしいです　夏の旅行に穴場はあるのか #933","2025-08-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4bd52967-b641-4a2d-a7bd-b4aa00a4773b"],["ee1311ea-169f-41fa-9b4b-b4aa00a4e870","「なかったことにはしない」　引き揚げ時の性暴力、思いを継いだ監督　ジェンダートーク8月号（後編） #932","2025-08-07 16:50","https://www.asahi.com/special/podcasts/item/?itemid=ee1311ea-169f-41fa-9b4b-b4aa00a4e870"],["d314d256-68a9-4418-a4d9-b4aa00a528de","ルワンダ虐殺30年　性暴力で生まれた子どもたち、繰り返す「呪い」　ジェンダートーク8月号（前編） #931","2025-08-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d314d256-68a9-4418-a4d9-b4aa00a528de"],["3571e6ca-3f8c-4719-bf1f-b4aa00a53960","ワンオペ4人育児、聖徳太子状態だった日々　取材した「3人親」に救われて（後編） #930","2025-08-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3571e6ca-3f8c-4719-bf1f-b4aa00a53960"],["53d23643-fcfe-4e65-8a3f-b4aa00a55373","朝ポキより記者サロンの方が緊張する理由　MC経験者たちが振り返ります（前編） #929","2025-08-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=53d23643-fcfe-4e65-8a3f-b4aa00a55373"],["66aa8afa-c079-41df-90fa-b4aa00a55c3b","「しゃ～～～す」と「しゃす！」は月とスッポン　雰囲気あいさつ、聞き取れなくても口にしたい #928","2025-08-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=66aa8afa-c079-41df-90fa-b4aa00a55c3b"],["5d9abe97-9b92-48f2-9145-b4aa00a57d30","「地獄の訓練」で管理職へと脱皮する　富士山麓の合宿所をのぞいてみた③ #927","2025-07-31 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5d9abe97-9b92-48f2-9145-b4aa00a57d30"],["00467095-a8ae-4473-8157-b4aa00a5d8d4","元気ですか、あなたの職場の管理職　悩んだらアリの行列を眺めよう② #926","2025-07-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=00467095-a8ae-4473-8157-b4aa00a5d8d4"],["d0745721-ed4d-425e-9760-b4aa00a5f198","中間管理職なんてまっぴら？　拒む若者のホンネ　そもそもゼロの会社もあるよ① #925","2025-07-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d0745721-ed4d-425e-9760-b4aa00a5f198"],["fb2e5269-adae-464e-8df6-b4aa00a6024d","なんて愉快なご当地ソング　田んぼの祖父が目に浮かぶ　読者とつながる投稿欄 #924","2025-07-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=fb2e5269-adae-464e-8df6-b4aa00a6024d"],["fc97a39a-6280-4731-9aac-b4aa00a60739","まつげはスプーンで上げる　お菓子ケースは薬入れに　代用品で臨機応変にいこう #923","2025-07-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=fc97a39a-6280-4731-9aac-b4aa00a60739"],["a1cafed9-58e4-4729-a224-b4aa00a63895","授業中「何で僕はできないんだ！」叫んだ自閉スペクトラム症の長男　保護者の一言が救いに　発達障害の子を育てる（後編） #922","2025-07-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a1cafed9-58e4-4729-a224-b4aa00a63895"],["5863f4da-abdf-4184-bc2b-b4aa00a66cd5","深夜に帰宅…自閉スペクトラム症の長男がパニック、妻は難聴に「父親は自分しか」決意した日　発達障害の子を育てる（前編） #921","2025-07-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5863f4da-abdf-4184-bc2b-b4aa00a66cd5"],["c8114db6-f175-4399-be55-b4aa00a677bc","親友の被爆者からもらったパワー　8月2日広島シンポに登壇します　古賀野々華さん（後編） #920","2025-07-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c8114db6-f175-4399-be55-b4aa00a677bc"],["20a828ba-cd43-4f9c-a202-b4aa00a69c8d","キノコ雲の校章、原爆への誇り？　違和感が私を動かした　古賀野々華さん（前編） #919","2025-07-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=20a828ba-cd43-4f9c-a202-b4aa00a69c8d"],["515426ab-bb96-4825-b59b-b4aa00a6b705","和歌山・白浜の4頭、中国へ　パンダトークをしようとしたら、またまた列車の話に #918","2025-07-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=515426ab-bb96-4825-b59b-b4aa00a6b705"],["b49189d5-1bed-4356-a91f-b4aa00a6c8f3","ニセモノの絵でもうけた「伝説の贋作師」　の巧妙な手口　日本の美術館も被害に #917","2025-07-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b49189d5-1bed-4356-a91f-b4aa00a6c8f3"],["155305c4-6503-4ae4-accd-b4aa00a6dd24","あら簡単、トウモロコシのみそ汁　甘みじわっ　レシピ1万件以上から検索できます（食のへぇ～） #916","2025-07-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=155305c4-6503-4ae4-accd-b4aa00a6dd24"],["cecc1c0e-4f02-45bc-954d-b4aa00a70531","大規模噴火が起きたらどうする？　歴史に学び、必要な備えを考える（後編）#915","2025-07-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=cecc1c0e-4f02-45bc-954d-b4aa00a70531"],["2946771e-7192-4a96-bdf7-b4aa00a70c05","火山灰が降ったらどうなるの？　防災担当記者が鹿児島・桜島の日常をリポート（前編）#914","2025-07-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2946771e-7192-4a96-bdf7-b4aa00a70c05"],["44d023ee-334f-46e7-a074-b4aa00a71be4","旅の移動はゆっくり楽しむ派？最短距離派？　心を整理するため、移動の時間って大切 #913","2025-07-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=44d023ee-334f-46e7-a074-b4aa00a71be4"],["ba52c206-38f2-4522-9115-b4aa00a78867","なんでアイツは兵役免除？高まる不公平感　よみがえる徴兵制（後編） #912","2025-07-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ba52c206-38f2-4522-9115-b4aa00a78867"],["56afb9a7-0cb1-440b-b2f8-b4aa00a7a875","兵舎は男女同室、ノルウェー軍のジェンダー平等　よみがえる徴兵制（前編） #911","2025-07-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=56afb9a7-0cb1-440b-b2f8-b4aa00a7a875"],["35f0491e-1496-43a8-8a36-b4aa00a7eef0","カンヌ映画祭、まるで音楽フェス　映画を見ることと映画を書くこと （後編） #910","2025-07-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=35f0491e-1496-43a8-8a36-b4aa00a7eef0"],["07297652-11ad-4eaa-853c-b4aa00a82495","是枝裕和監督が記者サロンで語ったこと　新聞記者との共通点（前編） #909","2025-07-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=07297652-11ad-4eaa-853c-b4aa00a82495"],["d60c1819-697b-477b-9457-b4aa00a8304b","今年の夏も暑そう･･･すそ出しや、あみあみのススメ　登山する場合はお気を付けて #908","2025-07-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d60c1819-697b-477b-9457-b4aa00a8304b"],["8c263a18-722c-4fae-8b35-b4aa00a84539","避妊リングで得た「自己決定権」　上間陽子さん語る沖縄少女らの現実　ジェンダートーク7月号（後編） #907","2025-07-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8c263a18-722c-4fae-8b35-b4aa00a84539"],["e2f3fe4a-a0cf-49d2-9f59-b4aa00a86dae","電車で一人涙した　米兵の性暴力ニュース、沖縄から離れて知った落差　ジェンダートーク7月号（前編） #906","2025-07-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e2f3fe4a-a0cf-49d2-9f59-b4aa00a86dae"],["4160eb33-5d57-4710-802d-b4aa00a87ccd","政治学者がPTA会長になってみたら…「不幸の平等」から脱するためには　「変わる！PTA」（後編） #905","2025-07-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4160eb33-5d57-4710-802d-b4aa00a87ccd"],["0749687f-ed4a-4c64-9718-b4aa00a90cff","PTA「言えない」雰囲気破った一言　「ピラミッド」型組織やめた結果…　「変わる！PTA」（前編） #904","2025-06-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0749687f-ed4a-4c64-9718-b4aa00a90cff"],["4ebdb5bf-f621-4bdb-9a4b-b4aa00a91b16","新人記者あるある「体験してみた」　やりました　声援に支えられたマラソンの思い出 #903","2025-06-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4ebdb5bf-f621-4bdb-9a4b-b4aa00a91b16"],["4de81a02-2440-4519-b5bc-b4aa00a97281","「卓球、バド、バレー」が多い理由は　回復期の背中を押すきっかけに　不登校とスポーツ（後編） #902","2025-06-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4de81a02-2440-4519-b5bc-b4aa00a97281"],["6c829dd1-b838-4baa-9abe-b4aa00a99bef","上手くならなくてもいい　スケボーやブレイキンがもたらす変化　不登校とスポーツ（前編） #901","2025-06-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6c829dd1-b838-4baa-9abe-b4aa00a99bef"],["58bf0c2b-1e1c-43be-a113-b4aa00a9a70d","盗まれた絵を取り戻す「美術探偵」　元悪党に弟子入り、裏社会のコネがあってこそ #900","2025-06-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=58bf0c2b-1e1c-43be-a113-b4aa00a9a70d"],["640fe14c-220c-4dcd-9acf-b4aa00a9c798","万博会場に「カームダウンルーム」？　感覚過敏の当事者と視察して気づいたこと #899","2025-06-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=640fe14c-220c-4dcd-9acf-b4aa00a9c798"],["1edf4aa5-fc1f-4780-8df8-b4aa00a9d971","聞く力が試される･･･電話が怖い？　タレコミを聞き取る緊張感、ありました #898","2025-06-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1edf4aa5-fc1f-4780-8df8-b4aa00a9d971"],["c1da834e-1621-4ea6-98fe-b4aa00aa0dec","美術館からゴッホを盗んだ男　「オランダのルパン」の話を聞こう　なぜ、なんのために手を染めた？ #897","2025-06-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c1da834e-1621-4ea6-98fe-b4aa00aa0dec"],["23da8cb6-7d8b-4d5b-a6ac-b4aa00aa2cd1","氷河期世代対策、政府の支援で足りるのか　労働担当記者・南日慶子と考える《後編》 #896","2025-06-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=23da8cb6-7d8b-4d5b-a6ac-b4aa00aa2cd1"],["30592608-bf6d-4a91-b6c2-b4aa00aa889e","氷河期世代に迫る老後、求められるのは　労働担当記者・南日慶子と考える《前編》 #895","2025-06-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=30592608-bf6d-4a91-b6c2-b4aa00aa889e"],["02c7beb7-0947-461f-8ea9-b4aa00aaa16b","鶏肉産業で働く子どもたち、低賃金で搾取されていた　先進国にもある児童労働 #894","2025-06-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=02c7beb7-0947-461f-8ea9-b4aa00aaa16b"],["dca15f2a-4457-4dd6-9358-b4aa00aaa20e","最近、回してますか？　見かけるとついつい近寄ってしまう、カプセルトイの魅力 #893","2025-06-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=dca15f2a-4457-4dd6-9358-b4aa00aaa20e"],["8952ba9a-7c2c-4871-91de-b4aa00ab0de0","（再）「ゲイの友だちが欲しかったの」って？　ピンクウォッシュを超えていこう　アウティング（後編） #892","2025-06-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8952ba9a-7c2c-4871-91de-b4aa00ab0de0"],["ce301ff4-1ffb-44fb-91de-b4aa00ab0f3e","（再）「あいつゲイやねん」から22年、同級生と語り合った　アウティング（前編） #891","2025-06-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ce301ff4-1ffb-44fb-91de-b4aa00ab0f3e"],["d099594a-5eab-4054-90f2-b4aa00ab33cd","ひとつまみと少々、どっちが少ないの　ひたひた、グラグラ、料理のことば（食のへぇ～） #890","2025-06-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d099594a-5eab-4054-90f2-b4aa00ab33cd"],["b52bdc01-eb95-49aa-9ede-b4aa00ab9d1a","今の時期こそ気をつけて　増える「梅雨型熱中症」の特徴と対策は？ #889","2025-06-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b52bdc01-eb95-49aa-9ede-b4aa00ab9d1a"],["3ff665c3-09e0-4a1b-b7e9-b4aa00aba42f","できるだけ荷物は軽くしたい　5代目の止まらない自転車トーク #888","2025-06-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3ff665c3-09e0-4a1b-b7e9-b4aa00aba42f"],["6787844c-40a0-409e-8fe0-b4aa00abb6cd","「男性以外」の歴史、どう展示？　台湾の博物館に記者が見た希望　ジェンダートーク6月号② #887","2025-06-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6787844c-40a0-409e-8fe0-b4aa00abb6cd"],["33f30c4a-b850-4aa5-9fba-b4aa00abcf2a","差し出され、さげすまれた女性たち　今に続く性的搾取の構図を追って　ジェンダートーク6月号① #886","2025-06-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=33f30c4a-b850-4aa5-9fba-b4aa00abcf2a"],["5c466cbf-2cab-4487-8938-b4aa00abd2fe","ロンドンとワシントンで培った仕事術　専門家の生のコメントをニュースに＋（後編）#885","2025-06-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5c466cbf-2cab-4487-8938-b4aa00abd2fe"],["d00b9c70-2bdb-4251-86c9-b4aa00abef54","50代を迎えたロスジェネの思い　芝浦で語り合った現在と未来（前編）#884","2025-06-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d00b9c70-2bdb-4251-86c9-b4aa00abef54"],["55343f09-47ef-4262-a558-b4aa00ac152e","雑談って必要？タイミングや相手も大事　鉄板の話題「キドニタチカケシ」とは #883","2025-05-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=55343f09-47ef-4262-a558-b4aa00ac152e"],["067b671a-1667-442a-819a-b4aa00ac242f","AIはブッダと似ている？　Re:Ron「抜苦与楽」松本紹圭さんに聞く（後編） #882","2025-05-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=067b671a-1667-442a-819a-b4aa00ac242f"],["1e778e69-a04a-49df-8d25-b4aa00ac422d","働くことはなぜ苦しいのか？　仏教からのヒント　Re:Ron「抜苦与楽」松本紹圭さんに聞く（前編） #881","2025-05-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1e778e69-a04a-49df-8d25-b4aa00ac422d"],["0a490ca0-6a72-4eb7-aaf8-b4aa00ac431e","性被害をなくすため、第三者にもできることがあるはず　フジテレビの報告書、私はこう読んだ② #880","2025-05-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0a490ca0-6a72-4eb7-aaf8-b4aa00ac431e"],["0b80a5c1-cec0-4366-a73d-b4aa00ac8d55","空気のようにセクハラがあった　働く女性たちから「私も」の声　フジテレビの報告書、私はこう読んだ①  #879","2025-05-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0b80a5c1-cec0-4366-a73d-b4aa00ac8d55"],["47e8a069-7da1-49a9-adaf-b4aa00acceae","テクノロジーで限界突破　希望にもなるけど、心配もあるかも #878","2025-05-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=47e8a069-7da1-49a9-adaf-b4aa00acceae"],["c95893ad-525f-4246-9eb2-b4aa00acedc1","（再）子どもの生きづらさ、なくしたい　学習支援から広がったサポートの最前線 #877","2025-05-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c95893ad-525f-4246-9eb2-b4aa00acedc1"],["735fe848-1a2c-48a5-a8a2-b4aa00acf5c7","女性の科学者が切りひらいた道、数はまだ少ないけれど　ノーベル賞の元選考委員長に聞く #876","2025-05-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=735fe848-1a2c-48a5-a8a2-b4aa00acf5c7"],["fa0be1ff-9143-44e9-8726-b4aa00acf803","おいでよ、ジャズ教室へ　人生いろいろあるけどさ　ウチナージャズ・沖縄とアメリカの80年② #875","2025-05-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=fa0be1ff-9143-44e9-8726-b4aa00acf803"],["ce6648c0-41b2-4237-9cbf-b4aa00acfd01","沖縄戦を生き抜いた少年は、基地でドラマーになった　ウチナージャズ・沖縄とアメリカの80年① #874","2025-05-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ce6648c0-41b2-4237-9cbf-b4aa00acfd01"],["c4285cdf-14d2-46f4-a4d8-b4aa00ad2b11","岐阜で商店街取材がライフワークに　福岡では「ITじいさん弁護士」との出会い #873","2025-05-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c4285cdf-14d2-46f4-a4d8-b4aa00ad2b11"],["33859343-750d-4d7b-90bd-b4aa00ad3495","暴力をふるう小学生、大人の声かけ次第で変わるかも　親には見せない顔もある #871","2025-05-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=33859343-750d-4d7b-90bd-b4aa00ad3495"],["3dd0ba37-8bf0-493d-a49e-b4aa00ad68e7","忙しい日々に一服の清涼剤を　新しい視点、世界中から？届けます（後編） #870","2025-05-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3dd0ba37-8bf0-493d-a49e-b4aa00ad68e7"],["b334d782-58a6-4f08-9d32-b4aa00ad6ced","日々の食卓で身近な鶏、日本に入ってきた頃は神聖だった？　鶏と人の関わりをたどる #872","2025-05-12 15:23","https://www.asahi.com/special/podcasts/item/?itemid=b334d782-58a6-4f08-9d32-b4aa00ad6ced"],["09890eaa-ce72-4a2f-b22c-b4aa00ad7b5f","記者たちのサロンへようこそ　今年度も読者と一緒に語らいます（前編） #869","2025-05-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=09890eaa-ce72-4a2f-b22c-b4aa00ad7b5f"],["f34c5b22-b433-49a7-b932-b4aa00adb763","キャッチボールしようぜ　5代目新メンバーは冒険・突端・車が好きな30歳 #868","2025-05-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f34c5b22-b433-49a7-b932-b4aa00adb763"],["94cbc927-7c5a-4827-8e82-b4aa00addd7b","ジャニー氏から性被害、告白した夫は亡くなった　終わらない誹謗中傷　ジェンダートーク5月号（後編） #867","2025-05-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=94cbc927-7c5a-4827-8e82-b4aa00addd7b"],["28f5ff12-9ed0-41bd-b14b-b4aa00adf5d5","「そんな人じゃない」「才能ある」　性加害男性に集まる「ヒムパシー」　ジェンダートーク5月号（前編） #866","2025-05-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=28f5ff12-9ed0-41bd-b14b-b4aa00adf5d5"],["729be611-09d2-4bca-8461-b4aa00adfa3a","「くもーむに」の昔話、クラウドファンディングで絵本に　ことばを次世代へ　消滅危機言語③ #865","2025-05-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=729be611-09d2-4bca-8461-b4aa00adfa3a"],["664234a5-6d3c-4739-9961-b4aa00ae42bc","「大学の先生には話せない」　島民に言われた研究者の葛藤、何年もかけて得た信頼　消滅危機言語② #864","2025-04-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=664234a5-6d3c-4739-9961-b4aa00ae42bc"],["1c0f1450-5740-423c-a39d-b4aa00ae76b9","島のことば、絵本であざやかに　なぜ存続の危機にあるのか、歴史をおさらいします　消滅危機言語① #863","2025-04-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1c0f1450-5740-423c-a39d-b4aa00ae76b9"],["2fb4a9dd-f245-4102-bcc5-b4aa00ae7fa6","「麻雀は人生」また会いましょう　飯島啓史がリスナーさんからの質問に答えます #862","2025-04-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2fb4a9dd-f245-4102-bcc5-b4aa00ae7fa6"],["1b4c622d-a028-4674-88b9-b4aa00aeadca","（再）「ベトナム戦争の教訓は、消えてしまった」　アメリカの退役軍人がいま、思うこと #861","2025-04-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1b4c622d-a028-4674-88b9-b4aa00aeadca"],["60913075-faa7-44e6-88b5-b4aa00aebcf0","どんだけ好きやねん　人口減の村に、若者もつどって舞う　神楽に酔いしれて（後編） #860","2025-04-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=60913075-faa7-44e6-88b5-b4aa00aebcf0"],["70f35c6c-30ff-42e6-8089-b4aa00aed35c","大人もおおはしゃぎ、避難所でも愛された　岩手の神楽がおもしろい　神楽に酔いしれて（前編） #859","2025-04-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=70f35c6c-30ff-42e6-8089-b4aa00aed35c"],["96388016-4f42-49aa-9e11-b4aa00aedf6f","ヘビにかまれたら、3人乗りバイクで助けよう　ネパールのボランティアが命を救う #858","2025-04-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=96388016-4f42-49aa-9e11-b4aa00aedf6f"],["6cceba03-df1c-4090-9e09-b4aa00af0459","暇と退屈ってなんだろう？　人生をバラで飾るとは　哲学者が読んだ課題図書を紹介 #857","2025-04-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6cceba03-df1c-4090-9e09-b4aa00af0459"],["6f03c3d5-7d07-466d-9576-b4aa00af295d","ガマンしない避難生活、どうやって実現する　TKB48がカギになりそう #856","2025-04-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6f03c3d5-7d07-466d-9576-b4aa00af295d"],["aedaba65-8de4-4bbb-b31f-b4aa00af3893","（再）手洗いがやめられない③　克服したかと思いきや、コロナ生活であの兆候がまた #855","2025-04-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=aedaba65-8de4-4bbb-b31f-b4aa00af3893"],["ce00a51b-c0a0-449c-858d-b4aa00af5990","（再）手洗いがやめられない②　修羅場の新婚生活、おむつをして仕事に #854","2025-04-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ce00a51b-c0a0-449c-858d-b4aa00af5990"],["e32eec9d-7f34-4f1a-ab08-b4aa00afaaf7","（再）手洗いがやめられない①　強迫性障害の記者、向き合う妻の証言 #853","2025-04-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e32eec9d-7f34-4f1a-ab08-b4aa00afaaf7"],["d36d26ee-1e6d-46b4-9c18-b4aa00afba86","記憶はなくても、伝えたい　小中学生の「語り部」が被災地で活躍しています #852","2025-04-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d36d26ee-1e6d-46b4-9c18-b4aa00afba86"],["d8703443-4281-46db-bbf0-b4aa00afcaa6","車いすユーザーの記者が感じた避難の課題　参加するからみえたこと　透明な被災者（後編） #851","2025-04-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d8703443-4281-46db-bbf0-b4aa00afcaa6"],["9741e682-2def-49c6-8569-b4aa00aff5f0","誰も取り残さない避難を考える　命を救うためにできること　透明な被災者（前編） #850","2025-04-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=9741e682-2def-49c6-8569-b4aa00aff5f0"],["002565dd-65d5-4536-b83c-b4aa00b00010","「身勝手くらいで、ちょうどいい」　安仁周が江向彩也夏に贈ることば（後編） #849","2025-04-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=002565dd-65d5-4536-b83c-b4aa00b00010"],["32195395-035e-4368-a1c9-b4aa00b02ad4","ようこそ飯島啓史、さらば江向彩也夏　記者サロンは春から変わります（前編） #848","2025-04-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=32195395-035e-4368-a1c9-b4aa00b02ad4"],["b69519bb-c643-4c13-9790-b4aa00b0476d","週に3日休めたら何したい？　人生にプラスアルファの彩りを #847","2025-04-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b69519bb-c643-4c13-9790-b4aa00b0476d"],["ce73eca4-5460-4e9e-855c-b4aa00b05823","家にいるのは当たり前？　主婦と引きこもりを考える　ジェンダートーク4月号② #846","2025-04-03 16:00","https://www.asahi.com/special/podcasts/item/?itemid=ce73eca4-5460-4e9e-855c-b4aa00b05823"],["2e23034b-de94-46ea-8412-b4aa00b097b8","女性管理職はどこにいる？　2900ポスト調べてみたら　ジェンダートーク4月号① #845","2025-04-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2e23034b-de94-46ea-8412-b4aa00b097b8"],["e48754e9-95bc-4ea0-aa19-b4aa00b0a47d","「万博行きたい」は少数派？　開幕直前、アンケートから見えた不安 #844","2025-04-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e48754e9-95bc-4ea0-aa19-b4aa00b0a47d"],["bbf470f4-8af3-4160-965c-b4aa00b0ab36","（再）イスラエル・パレスチナ問題を徹底解説　何が、なぜ、どうなっている #843","2025-03-31 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bbf470f4-8af3-4160-965c-b4aa00b0ab36"],["15a8e037-bf7c-44e0-aaf9-b4aa00b0bbc5","新感覚！スマホで投票しながら映画観た　SFアニメも語りたい #842","2025-03-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=15a8e037-bf7c-44e0-aaf9-b4aa00b0bbc5"],["7e609b32-8323-4a76-b174-b4aa00b137e2","パンダのお金の話をしよう　フィンランドは資金がつきて返還　パンダを追って20カ国へ（後編） #841","2025-03-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7e609b32-8323-4a76-b174-b4aa00b137e2"],["a1db9577-8edd-42cd-a30d-b4aa00b15862","西へ東へ世界に広がるパンダ　地図を眺めると、中国の外交がみえてくる　パンダを追って20カ国へ（前編） #840","2025-03-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a1db9577-8edd-42cd-a30d-b4aa00b15862"],["395a7e2f-8d4b-4da9-b441-b4aa00b176b0","買い物の景色、思想信条で変わる？　消費者ニーズを取り込むアメリカの起業家　買い物② #839","2025-03-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=395a7e2f-8d4b-4da9-b441-b4aa00b176b0"],["1d530a30-8eef-4ec7-aebb-b4aa00b18533","フェアトレードで暮らしが上向きに　子どもが学校に通える、それが幸せ　コーヒー農家を訪ねて　買い物① #838","2025-03-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1d530a30-8eef-4ec7-aebb-b4aa00b18533"],["d8e7fb79-0dd3-4de0-852d-b4aa00b19695","切り詰めすぎず、楽しめることは　チャーシュー1枚やトマトが彩るプチぜいたく #837","2025-03-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d8e7fb79-0dd3-4de0-852d-b4aa00b19695"],["d93d5591-5596-4997-b790-b4aa00b1b47c","観光客でにぎわう熊野古道、地元の受け止めは？　長く連なる参詣道に期待する「出会い」 #836","2025-03-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d93d5591-5596-4997-b790-b4aa00b1b47c"],["e0436280-d83b-47be-9004-b4aa00b1c102","「ウチの裏山」でいいんです。熊野古道から見えてくる、持続可能な未来の観光のカタチ  #835","2025-03-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e0436280-d83b-47be-9004-b4aa00b1c102"],["d11056b8-5605-4420-aa6a-b4aa00b2729b","テレビがもしオワコンでも、希望は捨てない　誰ひとり取り残さないメディア（後編） #834","2025-03-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d11056b8-5605-4420-aa6a-b4aa00b2729b"],["92a690bc-b158-4037-b868-b4aa00b2a265","「兵庫は過疎地」なの？　誰ひとり取り残さないメディア（前編） #833","2025-03-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=92a690bc-b158-4037-b868-b4aa00b2a265"],["e9c7c1c9-db59-467f-9134-b4aa00b2b62c","震度7「すぐ帰ろう」としてしまう気持ちもあるけど　あの日から14年 #832","2025-03-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e9c7c1c9-db59-467f-9134-b4aa00b2b62c"],["448d5be8-f800-4506-b645-b4aa00b2ee46","迷走期って愛おしい　人生をお絵かきにたとえると、ラクになるかも　ゆとたわコラボ② #831","2025-03-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=448d5be8-f800-4506-b645-b4aa00b2ee46"],["2f00ce3f-c55e-4f0b-bfc0-b4aa00b32785","アラサーの漠然とした不安　「あるある」の声に救われました　ゆとたわコラボ① #830","2025-03-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2f00ce3f-c55e-4f0b-bfc0-b4aa00b32785"],["04fe5df8-0f75-4839-bd71-b4aa00b33e46","（再）保育園探しで、目の当たりにした部落差別　水平社宣言100年 #829","2025-03-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=04fe5df8-0f75-4839-bd71-b4aa00b33e46"],["fc100f9a-f049-4b3c-992f-b4aa00b38242","「怪しいお金の動きがあるらしい」　PTAの全国組織、取材を進めて感じた闇 #828","2025-03-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=fc100f9a-f049-4b3c-992f-b4aa00b38242"],["04e7115a-5802-4248-b07b-b4aa00b3b774","春ですね　花粉の季節でもあり、別れの季節でもあり　四代目が旅立ちます #827","2025-03-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=04e7115a-5802-4248-b07b-b4aa00b3b774"],["9b018bd1-9cbd-439f-8987-b4aa00b3b8bb","「死」を当たり前に話せる社会へ　悲しみは癒えなくても　知っておきたいグリーフケアのこと（後編） #826","2025-03-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=9b018bd1-9cbd-439f-8987-b4aa00b3b8bb"],["e5e4c1ce-8ce1-408f-b435-b4aa00b3c60b","大切な人を亡くしたら　悲しみに寄り添う伴走者　知っておきたいグリーフケアのこと（前編） #825","2025-03-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e5e4c1ce-8ce1-408f-b435-b4aa00b3c60b"],["e96ae5a2-aed5-4f26-b88f-b4aa00b3f90b","障がいや凸凹もすべて「個性」になる　誰もが幸せに生きるヒントとは（後編） #824","2025-03-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e96ae5a2-aed5-4f26-b88f-b4aa00b3f90b"],["3f6b9b3f-2e21-4428-9b64-b4aa00b40d50","発達凸凹でも生きづらくない未来とは　宮坂麻子が長年の取材で見た鍵（前編） #823","2025-03-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3f6b9b3f-2e21-4428-9b64-b4aa00b40d50"],["4f3ce8c5-8ac2-4ca5-a1f2-b4aa00b4470e","やる気って、どうやって生まれるんだろう　「楽しい」とつながっている気がする #822","2025-02-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4f3ce8c5-8ac2-4ca5-a1f2-b4aa00b4470e"],["b467d1bc-02f9-4523-a14a-b4aa00b4c03b","辻立ちや選挙カーは必要？「選挙の風景」若者が変えることで政治も変わるかも　被選挙権（後編） #821","2025-02-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b467d1bc-02f9-4523-a14a-b4aa00b4c03b"],["d72edae2-747a-465c-b99a-b4aa00b4d608","投票は18歳なのに、立候補は25歳や30歳からでいいの？取材班に賛否殺到　被選挙権（前編） #820","2025-02-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d72edae2-747a-465c-b99a-b4aa00b4d608"],["dea7e2d3-8f35-4b3a-af94-b4aa00b4d4f5","火力発電が脱炭素化？　再エネ拡大で電気代どうなる？　エネルギー政策のこれから（後編） #819","2025-02-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=dea7e2d3-8f35-4b3a-af94-b4aa00b4d4f5"],["b8cd2213-e11a-4c59-9035-b4aa00b5363b","「原発依存度の低減」なぜ削除された？　エネルギー政策のこれから（前編） #818","2025-02-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b8cd2213-e11a-4c59-9035-b4aa00b5363b"],["c707c972-bbe9-4541-b6b2-b4aa00b53815","見上げてごらん肉球の星雲を　能登半島の猫はいま　雑誌NewtonとAERA、猫の日を盛り上げます #817","2025-02-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c707c972-bbe9-4541-b6b2-b4aa00b53815"],["b69cd168-6159-432c-bcdb-b4aa00b58b2c","なぜ女性トイレだけ行列？　当たり前に並んでいたけど、当たり前じゃないのかも #816","2025-02-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b69cd168-6159-432c-bcdb-b4aa00b58b2c"],["3fd33318-47d3-49cd-b7e2-b4aa00b59250","バナナの大量廃棄、なぜ生まれるの　「もったいない」を減らす取り組みも　フードロス（後編） #815","2025-02-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3fd33318-47d3-49cd-b7e2-b4aa00b59250"],["226de41b-61f9-4c44-9115-b4aa00b5ac08","夜の街のゴミ漁り、ついて行ってイイですか　拾いもので暮らす元教師と出会った　フードロス（前編） #814","2025-02-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=226de41b-61f9-4c44-9115-b4aa00b5ac08"],["ba150c8a-ab5a-4bfc-bfa1-b4aa00b5bbf0","同性カップルの住民票、女性ゼロワン議会の取材から　ジェンダー課題を考えよう #813","2025-02-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ba150c8a-ab5a-4bfc-bfa1-b4aa00b5bbf0"],["8efd940f-58ee-428f-8394-b4aa00b5d9a1","鉄道好きの徳永ゆうきさん、3/22に大阪本社でトークイベント！  ひと足先にポッドキャストで語ります #812","2025-02-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8efd940f-58ee-428f-8394-b4aa00b5d9a1"],["b282e966-d549-428c-a7af-b4aa00b63bc1","話し方や苦手な発音は人によって違う　最後まで話を聞くことの大切さ #811","2025-02-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b282e966-d549-428c-a7af-b4aa00b63bc1"],["6068069c-a2ff-4793-9805-b4aa00b671d1","国内初の牧場は大阪だった　海を越え日本へ、大切な存在になった馬 #810","2025-02-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6068069c-a2ff-4793-9805-b4aa00b671d1"],["9d015e9c-2281-4395-b725-b4aa00b67657","サービス名は「ヘブンズ・ドアー」で決まり？　「聞く力」を考える③ #809","2025-02-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=9d015e9c-2281-4395-b725-b4aa00b67657"],["f80d25c4-2695-4f47-9796-b4aa00b67748","右目でファインダーをのぞき、左目で全体を見る　「聞く力」を考える② #808","2025-02-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f80d25c4-2695-4f47-9796-b4aa00b67748"],["50aaeb91-f0c4-4bd4-96bc-b4aa00b6b07b","取材の席に着いたとき、勝負は終わっているのだ　「聞く力」を考える① #807","2025-02-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=50aaeb91-f0c4-4bd4-96bc-b4aa00b6b07b"],["06cfdb19-ad32-46aa-aeef-b4aa00b6c567","バンド組むならスッタモンダーズ？　即払いのバイトの思い出、現金の大切さも #806","2025-02-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=06cfdb19-ad32-46aa-aeef-b4aa00b6c567"],["38f7ba24-5d98-41bb-8794-b4aa00b6e74f","（再）「それでも隣人」彼女は言った　私は知ることから始めたい　沖縄1972（後編） #805","2025-02-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=38f7ba24-5d98-41bb-8794-b4aa00b6e74f"],["2035bb8c-414c-49f9-a695-b4aa00b75dbf","（再）50年前のネオン街、写真にうつる少女4人をさがした　沖縄1972（前編） #804","2025-02-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2035bb8c-414c-49f9-a695-b4aa00b75dbf"],["ea45e434-180b-437d-ad99-b4aa00b77870","女子プロレスが教えてくれた「生き抜く力」　人はリングに、人生を見る（後編） #803","2025-02-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ea45e434-180b-437d-ad99-b4aa00b77870"],["cc3e7df1-1a75-41e9-b5f0-b4aa00b77869","闘う女の美しさを見て「電流に打たれた」　女子プロレスと秋山訓子の半世紀（前編） #802","2025-02-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=cc3e7df1-1a75-41e9-b5f0-b4aa00b77869"],["08091a20-61a2-49e6-8376-b4aa00b7a39f","褒めるって難しい？原体験は？　褒めチャンスがあったら、積極的に褒めよう #801","2025-01-31 04:00","https://www.asahi.com/special/podcasts/item/?itemid=08091a20-61a2-49e6-8376-b4aa00b7a39f"],["97482a3f-f8b7-49d3-a7e1-b4aa00b7a835","（再）データの海を泳いで見えた、身近に潜む危険　みえない交差点（後編） #800","2025-01-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=97482a3f-f8b7-49d3-a7e1-b4aa00b7a835"],["7fd009da-b27c-4430-a861-b4aa00b7b024","（再）独自取材で警察も動いた、交通事故データの死角　みえない交差点（前編） #799","2025-01-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7fd009da-b27c-4430-a861-b4aa00b7b024"],["89ba7473-cb62-4d2a-bed3-b4aa00b7baf6","平和活動を仕事にする道、みえてきた　核問題を伝える「太陽」のアプローチ　ゲスト中村涼香さん（後編） #798","2025-01-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=89ba7473-cb62-4d2a-bed3-b4aa00b7baf6"],["6de94c62-beb8-4fa9-92b3-b4aa00b8177b","スマホをかざすとキノコ雲　被爆者・ふみさんの「うふふ」に学んだこと　ゲスト中村涼香さん（前編） #797","2025-01-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6de94c62-beb8-4fa9-92b3-b4aa00b8177b"],["a1c290d6-3e26-4d92-8d22-b4aa00b82003","2拠点生活、移住へのあこがれはあるけど　結局ないものねだりになってしまう #796","2025-01-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a1c290d6-3e26-4d92-8d22-b4aa00b82003"],["0c5af932-6849-4c5d-a063-b4aa00b84332","「快適なトイレを求めることは贅沢ではない」被災者にとっては命にも関わるトイレ問題（後編） #795","2025-01-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0c5af932-6849-4c5d-a063-b4aa00b84332"],["b7896d87-4f3a-40f8-9124-b4aa00b86c43","多目的トイレ「誰でも」好きに使っていい？車いす利用者から届いた切実な声（前編） #794","2025-01-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b7896d87-4f3a-40f8-9124-b4aa00b86c43"],["9672e035-8d81-45e3-9826-b4aa00b87747","（再）吃音について考えた　言葉に詰まることって、誰にでもある #793","2025-01-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=9672e035-8d81-45e3-9826-b4aa00b87747"],["4086bc2a-dc8d-4846-b618-b4aa00b8b4bb","罪を犯した僕に届いた1通の手紙、あの人がいたから変われた　ボランティアの保護司とは #792","2025-01-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4086bc2a-dc8d-4846-b618-b4aa00b8b4bb"],["085c8be0-f0f3-46f3-bca3-b4aa00b8b519","能登半島地震から1年　珠洲で言われた、心に残る「ありがとう」 #791","2025-01-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=085c8be0-f0f3-46f3-bca3-b4aa00b8b519"],["5eda1023-79ab-4546-8073-b4aa00b8f416","（再）3Dプリンターで、お寿司ができる？　フードテックが未来の食を支えるかも #790","2025-01-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5eda1023-79ab-4546-8073-b4aa00b8f416"],["2d2d5195-da3a-4ea3-9236-b4aa00b8ffd8","羽を休め、いつかまた飛べるように　男性のDV被害者を支える「白鳥の森」、あたたかな居場所づくり #789","2025-01-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2d2d5195-da3a-4ea3-9236-b4aa00b8ffd8"],["9222128a-ad81-437d-b3f2-b4aa00b907de","「これってDVかも」気づき始めた男性被害者たち　相談しても信じてもらえず、「男らしさ」の呪縛 #788","2025-01-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=9222128a-ad81-437d-b3f2-b4aa00b907de"],["e4e7ff94-eaca-4472-befe-b4aa00b954d1","アラサーの定義っていつまで？改名を検討する時がきた？　手紙にまつわる思い出話も #787","2025-01-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e4e7ff94-eaca-4472-befe-b4aa00b954d1"],["e182f083-8c2f-419e-8c2f-b4aa00b96cf0","ドラマ「リエゾン」が訴える力　「発達障害に興味がない人」の心にも届いた（後編） #786","2025-01-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e182f083-8c2f-419e-8c2f-b4aa00b96cf0"],["c8394a94-2fcc-4510-89a2-b4aa00b9a732","「ちゃんとしよう」としなくていい　児童精神科医が保護者に必ず伝えること（前編） #785","2025-01-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c8394a94-2fcc-4510-89a2-b4aa00b9a732"],["da2834e2-c5c5-4576-a140-b4aa00b9a95a","「学んだ事を仕事に生かそうと思わないで」　言葉の真意にあったもの（後編）#784","2025-01-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=da2834e2-c5c5-4576-a140-b4aa00b9a95a"],["f4f22514-3b20-4bde-b37b-b4aa00b9b15c","あなたはいつまで、何のために働く？　変わりゆく、仕事と社会と働く私（前編） #783","2025-01-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f4f22514-3b20-4bde-b37b-b4aa00b9b15c"],["88045b1b-5376-4422-b26d-b4aa00b9b701","世界のファッションを支える「SHIMA」、それは和歌山発の機械　「まるでF1カー」誰もが使えるわけじゃない（後編） #782","2024-12-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=88045b1b-5376-4422-b26d-b4aa00b9b701"],["be460183-028a-42e6-b2b4-b4aa00b9bfd8","高級ブランド、素材をたどれば実は日本製　知られざるファッションの裏側語ります（前編） #781","2024-12-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=be460183-028a-42e6-b2b4-b4aa00b9bfd8"],["6a0fd941-82ea-4a49-aad2-b4aa00b9c6f4","子育て一年生、夫も煩う産後うつ　夫婦の目線を合わせるため大切なこと　男性育休（後編）　#780","2024-12-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6a0fd941-82ea-4a49-aad2-b4aa00b9c6f4"],["3415ebff-3cc9-44d3-a0fe-b4aa00b9c7ac","男性の育休、取りやすくはなったけど…「毎日仕事」「人員補充なし」男性育休(前編) #779","2024-12-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3415ebff-3cc9-44d3-a0fe-b4aa00b9c7ac"],["80eb9d42-cee0-4b2a-9c23-b4aa00b9dca9","出生率は社会への信頼度　産むだけでなく産まない選択も　日韓女性記者フォーラムから（後編） #778","2024-12-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=80eb9d42-cee0-4b2a-9c23-b4aa00b9dca9"],["ec3eb984-a1e8-4eeb-bf0f-b4aa00ba5d18","望まぬ妊娠の責任、女性だけ？　ピルが遠い日本　日韓女性記者フォーラムから（前編） #777","2024-12-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ec3eb984-a1e8-4eeb-bf0f-b4aa00ba5d18"],["395bfeab-bb51-45a5-8263-b4aa00ba8b3e","絶対やらない、と思うけど･･･闇バイトをしてしまうのはどんな時？　リスクを自分ごとでとらえる #776","2024-12-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=395bfeab-bb51-45a5-8263-b4aa00ba8b3e"],["2eb68849-c1fb-4394-8e46-b4aa00ba99de","核廃絶のこれから、切り開く若者たち　ノーベル賞「おめでとう」で終わりじゃない④ #775","2024-12-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2eb68849-c1fb-4394-8e46-b4aa00ba99de"],["63453cc5-497a-4283-bb31-b4aa00baab94","真実なき和解に未来はあるのか　ノーベル賞「おめでとう」で終わりじゃない③ #774","2024-12-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=63453cc5-497a-4283-bb31-b4aa00baab94"],["dbae80d1-7e2e-415f-a943-b4aa00babe66","唯一の被爆国、自画像と異なる世界の目　ノーベル賞「おめでとう」で終わりじゃない② #773","2024-12-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=dbae80d1-7e2e-415f-a943-b4aa00babe66"],["1183e681-267f-4307-86d6-b4aa00bad273","世界の紛争地にあの頃のヒロシマがある　ノーベル賞「おめでとう」で終わりじゃない① #772","2024-12-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1183e681-267f-4307-86d6-b4aa00bad273"],["2ca3cac0-9027-413d-9071-b4aa00bb222d","海苔はパリパリ派？しっとり派？好きな具材は？　止まらないおにぎりトーク #771","2024-12-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2ca3cac0-9027-413d-9071-b4aa00bb222d"],["4d875445-d190-4fee-891a-b4aa00bb349e","渋谷幕張流ニュースの読み方　　「小学生にスマホ持たせたくない」浜学園学園長の思い（後編） #770","2024-12-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4d875445-d190-4fee-891a-b4aa00bb349e"],["b6bcb70c-46be-4509-ae2e-b4aa00bb441e","SNSで話題になった社会の入試　どう解くの？　渋谷幕張の先生に聞く（前編） #769","2024-12-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b6bcb70c-46be-4509-ae2e-b4aa00bb441e"],["cf045c48-8c77-4669-a4f4-b4aa00bb8c3a","「森のようちえん」から見えてきた生き方の哲学　親モヤ交じりの本音も（後編） #768","2024-12-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=cf045c48-8c77-4669-a4f4-b4aa00bb8c3a"],["8a8fd70b-55bf-45a2-af83-b4aa00bbc325","「森のようちえん」ってどんなとこ？　記者目線、保護者目線で語ります（前編） #767","2024-12-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8a8fd70b-55bf-45a2-af83-b4aa00bbc325"],["69d5e070-8bb4-4f3f-8a73-b4aa00bbcebc","アサイーボウル、界隈･･･言葉から2024年を振り返る 　「ミーム」ってなに？ #766","2024-12-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=69d5e070-8bb4-4f3f-8a73-b4aa00bbcebc"],["44e11451-8022-4378-b571-b4aa00bbd76c","（再）火事被災者の思い　黒こげで水浸しの自宅、きょう寝るところがない #765","2024-12-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=44e11451-8022-4378-b571-b4aa00bbd76c"],["c58b04f7-c9d1-4321-8df5-b4aa00bbdc80","ブタの祖先はイノシシだった！？　はじまりをたどり、家畜化を考える #764","2024-12-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c58b04f7-c9d1-4321-8df5-b4aa00bbdc80"],["8e0489de-35d9-4a22-9040-b4aa00bbf567","加害者を生みたくないけれど…　実名報道が生む、家族へのバッシング（後編）#763","2024-12-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8e0489de-35d9-4a22-9040-b4aa00bbf567"],["c802b5dc-495a-47fc-899a-b4aa00bc2fba","「息子さんを逮捕しました」と言われたら　詐欺を防ぐために何ができる？（前編）#762","2024-12-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c802b5dc-495a-47fc-899a-b4aa00bc2fba"],["3c15f80c-e40c-4c8a-a1b4-b4aa00bc37b6","（シャッフル企画）転生したい？　不老不死はいかが　未来はこの手でつくるんだ　with 伊藤大地  #761","2024-11-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3c15f80c-e40c-4c8a-a1b4-b4aa00bc37b6"],["c3b47e3e-5321-42dc-90e9-b4aa00bc5692","（再）目指すは、この連載をやめること？　「#となりの外国人」　いちおしウニュ！ ② #760","2024-11-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c3b47e3e-5321-42dc-90e9-b4aa00bc5692"],["ddaeea6b-584c-49eb-9673-b4aa00bc6004","（再）「#となりの外国人」　日本の「フツウ」って、何ですか　いちおしウニュ！① #759","2024-11-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ddaeea6b-584c-49eb-9673-b4aa00bc6004"],["885ebde7-0839-4e15-b589-b4aa00bc6912","えっ、あのSFが現実に？　雑誌「Newton」コラボ回　ワープ、人工冬眠、恐竜の復活は #758","2024-11-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=885ebde7-0839-4e15-b589-b4aa00bc6912"],["b0a5031e-9522-4030-9f3c-b4aa00bc7488","「伝統だとか言ってられない」迫られるスポーツ現場の熱中症対策　進む温暖化、来夏に向け考える #757","2024-11-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b0a5031e-9522-4030-9f3c-b4aa00bc7488"],["4c996935-0c50-4103-96a7-b4aa00bca0fe","真空パックにして保存したい瞬間、ありますか？　ライブや卓上の熱気、まだまだありそう #756","2024-11-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4c996935-0c50-4103-96a7-b4aa00bca0fe"],["48e95eb0-c4a0-4310-9690-b4aa00bcaa84","シュプレヒコールもOK、当事者の声を尊重する学会　国際エイズ学会に息づくアクティビズム #755","2024-11-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=48e95eb0-c4a0-4310-9690-b4aa00bcaa84"],["f07bd889-60fa-47aa-9e2a-b4aa00bcd5ee","終わらないエイズ　感染知りながらコンドームつけず　そんな相手でも切れない、別れられない #754","2024-11-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f07bd889-60fa-47aa-9e2a-b4aa00bcd5ee"],["b4d17661-2293-4d9e-84d0-b4aa00bcf291","「石油、ガスを、掘りまくれ」　トランプ氏、なぜ支持された　トラックに乗って語り合った #753","2024-11-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b4d17661-2293-4d9e-84d0-b4aa00bcf291"],["53b2dd6e-e60e-41a5-af2f-b4aa00bd190c","ドラマ巻き起こるCOP29の現場から　気候変動のニュース、届けるには？　ゲスト名取由佳さん #752","2024-11-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=53b2dd6e-e60e-41a5-af2f-b4aa00bd190c"],["eb1d2515-3e75-42b8-b8a5-b4aa00bd2e56","ぐりとぐら、おばけのてんぷら、ねないこ　だれだ　数々の絵本の名作、今読んでも面白い #751","2024-11-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=eb1d2515-3e75-42b8-b8a5-b4aa00bd2e56"],["74f5935d-985d-4045-a225-b4aa00bd3b73","勧告は道しるべ　変わっていくために私たちも　国連の女性差別撤廃委員会（後編） #750","2024-11-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=74f5935d-985d-4045-a225-b4aa00bd3b73"],["c8288924-e6ce-47a6-a53f-b4aa00bd4031","国連が「駆け込み寺」に　女性差別撤廃委員会、8年ぶりの日本審査（前編） #749","2024-11-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c8288924-e6ce-47a6-a53f-b4aa00bd4031"],["c9d7cb57-22f9-49ff-8c65-b4aa00bd5a79","プラモデルのごみ、捨てずに回収ボックスへ　脱プラ生活やってみた　新聞紙も役に立つ（後編） #748","2024-11-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c9d7cb57-22f9-49ff-8c65-b4aa00bd5a79"],["5c0d85eb-b4e7-4f80-a3ae-b4aa00bdba08","枯れゆくマングローブ　人体にも蓄積　プラスチックごみを拾って考えた（前編） #747","2024-11-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5c0d85eb-b4e7-4f80-a3ae-b4aa00bdba08"],["bdb9c448-58d0-439c-9558-b4aa00bdc42b","自分の声、好き？嫌い？　体調や生き方までも映し出す声の奥深さ #746","2024-11-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bdb9c448-58d0-439c-9558-b4aa00bdc42b"],["dda59920-7f1d-4fd3-a310-b4aa00bdd0ed","（再）100万円をだまし取られた祖母　記者は犯人に会いに行った  #745","2024-11-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=dda59920-7f1d-4fd3-a310-b4aa00bdd0ed"],["ee24da46-530d-417d-b805-b4aa00be02d6","話せない「空気」はなぜ起こる　アメリカ大統領選で見えた沈黙と反感（後編） #744","2024-11-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ee24da46-530d-417d-b805-b4aa00be02d6"],["1e840c49-af0d-497c-b9ff-b4aa00be126c","コーヒーを手に語った「あの日」が生んだもの　藤えりかが挑んだ軌跡（前編）#743","2024-11-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1e840c49-af0d-497c-b9ff-b4aa00be126c"],["41412064-232a-4a7d-8a4f-b4aa00be1beb","「家電は相棒」に共感者　平和賞と記憶の継承についても話します #742","2024-11-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=41412064-232a-4a7d-8a4f-b4aa00be1beb"],["a6d26b88-40d7-44e5-a395-b4aa00be3361","宝くじはギャンブルなのか、事実上の課税ではないのか　宝くじと人生④ #741","2024-10-31 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a6d26b88-40d7-44e5-a395-b4aa00be3361"],["05918a0b-5a25-44fd-bc7c-b4aa00be705f","宝くじの必勝法？「全部買い」やった人たちの顚末　宝くじと人生③ #740","2024-10-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=05918a0b-5a25-44fd-bc7c-b4aa00be705f"],["c65fb35d-73ac-4ff1-979a-b4aa00beacbc","宝くじ、万里の長城もトレビの泉も作ってました　宝くじと人生② #739","2024-10-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c65fb35d-73ac-4ff1-979a-b4aa00beacbc"],["891381b6-2c6d-4353-92b2-b4aa00beb01b","「200億円」の宝くじ、当たった村で起きたこと　宝くじと人生① #738","2024-10-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=891381b6-2c6d-4353-92b2-b4aa00beb01b"],["2ed81174-bf50-4cc5-9e5c-b4aa00beb9b7","孤独を感じる時はどんな時？　社会的にふわふわ、将来への不安･･･和らげるヒントは #737","2024-10-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2ed81174-bf50-4cc5-9e5c-b4aa00beb9b7"],["d1844001-93b3-43d5-9df1-b4aa00bee86e","（再）「か弱い可憐な花」を求め、病気が放置される　ペットの遺伝性疾患（後編） #736","2024-10-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d1844001-93b3-43d5-9df1-b4aa00bee86e"],["a98e70b1-3a82-407e-88df-b4aa00bee9c9","（再）スコティッシュフォールド、実は「病気の猫」　ペットの遺伝性疾患（前編） #735","2024-10-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a98e70b1-3a82-407e-88df-b4aa00bee9c9"],["7b946198-f4ec-42b8-b13d-b4aa00bf2995","メルボルンでは7万本の木にメアド？　街路樹の世界事情（後編） #734","2024-10-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7b946198-f4ec-42b8-b13d-b4aa00bf2995"],["a6fae610-ba56-419e-a77b-b4aa00bf406a","切られて消えていく街路樹　その知られざる役割（前編） #733","2024-10-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a6fae610-ba56-419e-a77b-b4aa00bf406a"],["2c332257-6ada-4277-93ec-b4aa00bf68f2","本読んでる？書店行ってる？　貸し借りってコミュニケーションだったんだ #732","2024-10-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2c332257-6ada-4277-93ec-b4aa00bf68f2"],["8c3557a4-7bed-4219-b614-b4aa00bf9abb","（再）「避難経路・器具の確認を」取材記者が鳴らす警鐘　千日デパート火災（後編） #731","2024-10-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8c3557a4-7bed-4219-b614-b4aa00bf9abb"],["e337282d-e1a5-4c3d-acd7-b4aa00bfa965","（再）戦後最悪のビル火災、知ってほしい煙の怖さ　千日デパート火災（前編） #730","2024-10-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e337282d-e1a5-4c3d-acd7-b4aa00bfa965"],["5853a30e-1075-448a-abca-b4aa00bfb862","荒野に巨大バッテリーがあらわれた　電気を貯めて、ビジネスチャンスに #729","2024-10-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5853a30e-1075-448a-abca-b4aa00bfb862"],["cbb63fdd-da6a-4d9c-9165-b4aa00bfcf2b","「SHOGUN」見て改めて考えた　根深いステレオタイプや思い込み #728","2024-10-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=cbb63fdd-da6a-4d9c-9165-b4aa00bfcf2b"],["5be9827f-0271-4e8e-905d-b4aa00bfd114","きっかけは社内メール、週3回のウォーキングで回復　男性の更年期障害（後編） #727","2024-10-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5be9827f-0271-4e8e-905d-b4aa00bfd114"],["be319a32-025a-4846-a37f-b4aa00bfd2f2","30代で発症する可能性も　症状や治療法は　男性の更年期障害（前編） #726","2024-10-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=be319a32-025a-4846-a37f-b4aa00bfd2f2"],["32aba0cd-d855-4987-9447-b4aa00bfdc63","なぜ8年半ぶりに再び奈良へ？　中国・韓国・シンガポールで暮らして気づいたこと （後編）#725","2024-10-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=32aba0cd-d855-4987-9447-b4aa00bfdc63"],["68277866-1b8c-431b-aef2-b4aa00bff0ee","300本超の記者サロンに携わった塚本和人　働きながら学び直したきっかけは？ （前編）#724","2024-10-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=68277866-1b8c-431b-aef2-b4aa00bff0ee"],["2848cbc8-7dc4-4abe-9fd4-b4aa00c005d6","食洗機がやってくれてるから、自分もがんばろう　モチベーションくれる家電は相棒？ #723","2024-10-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2848cbc8-7dc4-4abe-9fd4-b4aa00c005d6"],["c5f21113-3c71-4ae9-be48-b4aa00c04ca8","ローンは変動か固定か、NISAはオルカンでいいのか　金利のある世界④ #722","2024-10-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c5f21113-3c71-4ae9-be48-b4aa00c04ca8"],["1d1e3808-5ea5-4a25-b6a7-b4aa00c077e8","住宅ローン金利、上がったスウェーデンに学ぶ　金利のある世界③ #721","2024-10-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1d1e3808-5ea5-4a25-b6a7-b4aa00c077e8"],["34eb4872-0a58-4efe-906c-b4aa00c0794b","世界が「日本化」した、リーマンショックで　金利のある世界② #720","2024-10-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=34eb4872-0a58-4efe-906c-b4aa00c0794b"],["bd574aa1-eb5c-45f5-9ca2-b4aa00c087c8","30年ぶりの変化に、不安がいっぱいなんです　金利のある世界① #719","2024-09-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bd574aa1-eb5c-45f5-9ca2-b4aa00c087c8"],["370ae074-b86f-41fc-9747-b4aa00c09d42","最先端のトイレ機能から、家事について考える　結局は時間を買ってるのかも #718","2024-09-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=370ae074-b86f-41fc-9747-b4aa00c09d42"],["452333a2-b0e8-4223-8e58-b4aa00c0b0bd","（再）「生き残って申しわけない」　教え子に再会した市場、足すくんだ　沖縄を考える③ #717","2024-09-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=452333a2-b0e8-4223-8e58-b4aa00c0b0bd"],["d10309ae-1956-4617-946d-b4aa00c0e1a4","（再）米軍基地、沖縄から動かせますか　沖縄を考える② #716","2024-09-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d10309ae-1956-4617-946d-b4aa00c0e1a4"],["4300022f-304c-4f97-8e90-b4aa00c0ffff","（再）渋谷にも米軍施設があった　消えた基地、生まれた「いびつさ」　沖縄を考える① #715","2024-09-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4300022f-304c-4f97-8e90-b4aa00c0ffff"],["0ca6132b-7f89-489e-8bf3-b4aa00c11093","資産形成・新NISAやってますか？　経済ニュースを読むようになった #714","2024-09-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0ca6132b-7f89-489e-8bf3-b4aa00c11093"],["b12d4043-e669-4f4b-b4ff-b4aa00c12496","甲子園にもう一つの青春　姉妹がかなえた「聖地」での演奏　甲子園球場100年（後編） #713","2024-09-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b12d4043-e669-4f4b-b4ff-b4aa00c12496"],["103f8f83-a428-4692-a6c5-b4aa00c1336c","初めて知った父と甲子園　元球児の記者が共感　甲子園球場100年（前編） #712","2024-09-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=103f8f83-a428-4692-a6c5-b4aa00c1336c"],["d350b4a6-59bb-45ff-9ef2-b4aa00c14e1a","つらすぎる育児に「もうやめたい」と涙　パパ歴2カ月のモヤモヤ（後編） #711","2024-09-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d350b4a6-59bb-45ff-9ef2-b4aa00c14e1a"],["2d788c41-a4a3-49d9-b903-b4aa00c15dd0","「妻の出産時も仕事」を誇る社会、やめませんか　パパ歴2カ月のモヤモヤ（前編） #710","2024-09-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2d788c41-a4a3-49d9-b903-b4aa00c15dd0"],["aa5cb17f-f7ee-4b82-8f18-b4aa00c17630","なんとなく緊張する？アートや美術館　「博物館浴」という考え方があるみたい #709","2024-09-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=aa5cb17f-f7ee-4b82-8f18-b4aa00c17630"],["a2a6ee43-8008-4833-a43d-b4aa00c17eff","（再）里親制度で親子になった　家族のかたち、色々あっていいよね（後編） #708","2024-09-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a2a6ee43-8008-4833-a43d-b4aa00c17eff"],["4eabe3e5-733a-4891-afa4-b4aa00c18fa2","（再）里親制度で親子になった　一緒に心地よく暮らせる距離とは（前編） #707","2024-09-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4eabe3e5-733a-4891-afa4-b4aa00c18fa2"],["a5a4228a-79fc-4970-b22f-b4aa00c1f40f","危ない飲み方？　「ラウンド」に遭遇　お酒のラベル表示が変わります（後編） #706","2024-09-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a5a4228a-79fc-4970-b22f-b4aa00c1f40f"],["ed38128d-5af3-44b5-bdfc-b4aa00c20dc1","ノンアルコールのクラブで踊る　旅もパーティーも、酒なしがトレンド（前編） #705","2024-09-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ed38128d-5af3-44b5-bdfc-b4aa00c20dc1"],["2612f1d8-32e8-4d68-a984-b4aa00c2276f","南海トラフ地震「注意」どう過ごした？　海に行ったら赤白の旗に注目 #704","2024-09-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2612f1d8-32e8-4d68-a984-b4aa00c2276f"],["192b43f3-bca8-45a8-87fa-b4aa00c2749c","（再）ウクライナ選手とともにした新聞社のパラリンピアン　痛感した平和の尊さ② #703","2024-09-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=192b43f3-bca8-45a8-87fa-b4aa00c2749c"],["1b787ac8-9117-4a0c-b3ff-b4aa00c279a2","（再）新聞社で働くパラリンピアン森宏明　義足の元球児が見つけた次の夢① #702","2024-09-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1b787ac8-9117-4a0c-b3ff-b4aa00c279a2"],["2b047ce1-371e-4a91-8554-b4aa00c28641","出演者の表情を見ると、視聴者は違う印象を受ける？　大野由衣の模索（後編）#701","2024-09-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2b047ce1-371e-4a91-8554-b4aa00c28641"],["cc852e7b-b2e4-4f67-821e-b4aa00c2a3e4","スマホ1台で録音したあの日　初代キャップ・大野由衣が語る朝ポキの黎明期（前編）#700","2024-09-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=cc852e7b-b2e4-4f67-821e-b4aa00c2a3e4"],["37460439-813c-4e6f-87b1-b4aa00c2ab62","つい気になっちゃう☆評価　VS　口コミに踊らされない人生を #699","2024-08-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=37460439-813c-4e6f-87b1-b4aa00c2ab62"],["de4017d2-76a8-4470-a02c-b4aa00c2b6e4","（再）スーパーの店頭で社会は変わる　やればできるぞ、エシカル消費② #698","2024-08-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=de4017d2-76a8-4470-a02c-b4aa00c2b6e4"],["c5fe2904-5eec-4faa-a7ac-b4aa00c2cc05","（再）エシカル消費、キリマンジャロで決意した　代表理事はミステリーハンター① #697","2024-08-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c5fe2904-5eec-4faa-a7ac-b4aa00c2cc05"],["99b14e3b-e315-49f1-952d-b4aa00c2da47","忘れられた紛争、スーダン　兵器として使われる性暴力 #696","2024-08-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=99b14e3b-e315-49f1-952d-b4aa00c2da47"],["59f18a1b-f503-4a92-880d-b4aa00c329cf","ようこそ雑誌ニュートンの世界へ　遠く離れていても、もつれ合う　量子の奇妙なカンケイ #695","2024-08-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=59f18a1b-f503-4a92-880d-b4aa00c329cf"],["8d9f2373-b2eb-470d-82e2-b4aa00c33839","納豆好きだからこそ　気にせずにはいられない100円の壁  #694","2024-08-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8d9f2373-b2eb-470d-82e2-b4aa00c33839"],["783155aa-0400-4673-847e-b4aa00c34474","（再）阪神大震災　身にしみた人の恩、優しさにいまも涙　桑原征平さん（後編） #693","2024-08-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=783155aa-0400-4673-847e-b4aa00c34474"],["e4cbd4dd-fc74-4eb8-918a-b4aa00c34ee2","（再）阪神大震災　真っ暗の国道を5時間、たどり着いた自宅は…　桑原征平さん（前編） #692","2024-08-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e4cbd4dd-fc74-4eb8-918a-b4aa00c34ee2"],["ae4b6c05-9584-4e12-b5ca-b4aa00c35a48","液体街路樹ってなんだ　大気汚染の解決に、アートも一役買ってます（後編） #691","2024-08-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ae4b6c05-9584-4e12-b5ca-b4aa00c35a48"],["a333bb80-7304-4c98-9b68-b4aa00c35ab5","毎年700万人死亡との推計も　深刻な大気汚染、赤ちゃんも病院へ（前編） #690","2024-08-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a333bb80-7304-4c98-9b68-b4aa00c35ab5"],["facd16ab-4f51-4f23-a319-b4aa00c36b7a","気候変動に抗うならば、民主主義が必要です　セネガルと「緑の長城」 #689","2024-08-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=facd16ab-4f51-4f23-a319-b4aa00c36b7a"],["04746d54-1952-4717-9e2c-b4aa00c3c0de","連日の危険な高温… 水冷服やポロシャツ、服装の工夫例を紹介します #688","2024-08-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=04746d54-1952-4717-9e2c-b4aa00c3c0de"],["dd65377f-330c-4b80-b9b5-b4aa00c3d926","（再）アフガニスタン、沈黙の裏事情　中村哲さん殺害の主犯格はマークされていた #687","2024-08-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=dd65377f-330c-4b80-b9b5-b4aa00c3d926"],["55328c84-b21f-454b-b0e9-b4aa00c3e110","（再）中村哲さん「殺してしまった」　容疑者を追い詰めた執念の取材 #686","2024-08-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=55328c84-b21f-454b-b0e9-b4aa00c3e110"],["31630821-b59c-42d5-8a40-b4aa00c3e537","人魚のミイラから「もしトラ」まで　「朝デジ×記者サロン」を振り返る（後編）#685","2024-08-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=31630821-b59c-42d5-8a40-b4aa00c3e537"],["e64e7c12-a7c6-4710-9120-b4aa00c40239","なぜ美大から政治記者へ？　注目の記者サロンMC・前田直人と語る（前編） #684","2024-08-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e64e7c12-a7c6-4710-9120-b4aa00c40239"],["9dc11e9d-9c67-467d-9637-b4aa00c41967","100年ぶりのパリ五輪開幕　そのメダルの裏側のことも考える #683","2024-08-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=9dc11e9d-9c67-467d-9637-b4aa00c41967"],["44ba6774-8ed1-4b00-b333-b4aa00c45715","夏は親心も揺れる季節　中学受験が「全てではない」と思える心構えを #682","2024-08-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=44ba6774-8ed1-4b00-b333-b4aa00c45715"],["11e1a35f-b336-421f-8cdf-b4aa00c46a63","中学受験を「やめたい」　小6の夏、娘の決断がプラスに変わるまで #681","2024-07-31 04:00","https://www.asahi.com/special/podcasts/item/?itemid=11e1a35f-b336-421f-8cdf-b4aa00c46a63"],["bf007edf-8246-43f5-b469-b4aa00c478a0","「バスおじちゃん」にできた小さな友達　手紙がつないだ縁　「想いをつづって」後編 #680","2024-07-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bf007edf-8246-43f5-b469-b4aa00c478a0"],["c5fcf456-8289-4e8f-adbc-b4aa00c4824a","天国の娘に語りかける手紙　「漂流郵便局」に託し癒えていく心　「想いをつづって」前編 #679","2024-07-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c5fcf456-8289-4e8f-adbc-b4aa00c4824a"],["46007b14-d2c3-4b76-8060-b4aa00c49290","店先のレジ打ちも、レンジ料理も　力を抜いて良いところは抜こう #678","2024-07-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=46007b14-d2c3-4b76-8060-b4aa00c49290"],["8efa94e5-d6ba-4269-b3e9-b4aa00c4972c","親が前向きなら子も前向きに　中学受験は「通過点」という意味　浜学園・松本学園長×サクラハラハラ② #677","2024-07-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8efa94e5-d6ba-4269-b3e9-b4aa00c4972c"],["fe47c0d4-ed7b-4353-89d3-b4aa00c49a6d","夏は中学受験の天王山と言いますが…不合格を「失敗」としないために　浜学園・松本学園長×サクラハラハラ① #676","2024-07-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=fe47c0d4-ed7b-4353-89d3-b4aa00c49a6d"],["4b94b3eb-9566-4613-8c7d-b4aa00c4ce7d","美術品の避難訓練、ボランティアが担う　地震国イタリアの知恵　そして再び珠洲へ（後編） #675","2024-07-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4b94b3eb-9566-4613-8c7d-b4aa00c4ce7d"],["59ac1507-98d7-4cc9-8cf8-b4aa00c50da5","珠洲焼に恋して、黒っぽくなった私の部屋　地震で崩れた窯、みんなで直した（前編） #674","2024-07-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=59ac1507-98d7-4cc9-8cf8-b4aa00c50da5"],["e0aa70f2-50af-48fc-9246-b4aa00c555a6","「サヨナラ」はポジティブ？ネガティブ？　過去の縁や業務連絡から考える  #673","2024-07-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e0aa70f2-50af-48fc-9246-b4aa00c555a6"],["02b04fca-32a1-41f1-af59-b4aa00c57883","買い物に変化、昼夜逆転　カウンセリングでみえた戦争の影響　ウクライナには帰れない（後編） #672","2024-07-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=02b04fca-32a1-41f1-af59-b4aa00c57883"],["cd7493d8-156b-43d9-b4ee-b4aa00c58cf8","来日した高校生、1年ぶりに学校へ　母は渋谷で号泣した　ウクライナには帰れない（前編） #671","2024-07-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=cd7493d8-156b-43d9-b4ee-b4aa00c58cf8"],["420345c0-85e2-4ac8-a720-b4aa00c58e81","がれき処理だけじゃない　ボランティアの最前線でいま求められること　能登地震半年の現在地④ #670","2024-07-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=420345c0-85e2-4ac8-a720-b4aa00c58e81"],["290f055c-620b-4d11-8432-b4aa00c5b0aa","被災者のニーズをまずは聞き出すこと　支援につなげるために　能登地震半年の現在地③ #669","2024-07-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=290f055c-620b-4d11-8432-b4aa00c5b0aa"],["33e7ddf7-8afe-4438-b976-b4aa00c5c7c6","なぜ無邪気に差別？「コロンブス」問題に気づけたか　関心領域を広げるには #668","2024-07-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=33e7ddf7-8afe-4438-b976-b4aa00c5c7c6"],["143e6e9d-e173-4734-8933-b4aa00c5ee69","（再）公衆電話、守り続ける喫茶店主　きっかけは1995年に #667","2024-07-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=143e6e9d-e173-4734-8933-b4aa00c5ee69"],["ad77ba97-cf51-4620-990d-b4aa00c6220b","ゴミが大量に流れ着く島で目にした光景　プラスチックのこれからを考えよう #666","2024-07-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ad77ba97-cf51-4620-990d-b4aa00c6220b"],["ec9cea37-4317-42f3-a1eb-b4aa00c63004","スーパーの魚、郵便局再開…小さな日常の「復興」に希望の光　能登地震半年の現在地② #665","2024-07-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ec9cea37-4317-42f3-a1eb-b4aa00c63004"],["46540d27-a58b-4e29-85c1-b4aa00c634ad","半島先端のまち、「孤立」したあの日から…　能登地震半年の現在地① #664","2024-07-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=46540d27-a58b-4e29-85c1-b4aa00c634ad"],["1e1f63d9-89c3-459b-8b4b-b4aa00c639b5","地震から半年　能登の記事や紙面、音声をこれからも紹介します #663","2024-07-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1e1f63d9-89c3-459b-8b4b-b4aa00c639b5"],["b3f34183-7045-4848-8959-b4aa00c649d8","自然を守るためと思っても、ホタルの放流は逆効果に　ふるさとなき外来種たち（後編） #662","2024-07-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b3f34183-7045-4848-8959-b4aa00c649d8"],["32b37a4c-b910-4a7b-ae83-b4aa00c65f18","沖縄に自生するドラゴンフルーツ、南国風に見えるけど　ふるさとなき外来種たち（前編） #661","2024-07-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=32b37a4c-b910-4a7b-ae83-b4aa00c65f18"],["eef37e6e-bf40-41c8-95d7-b4aa00c6ad67","「推し」がいたから激務に耐えられた　仕事に勤しむ私たちの労働讃歌（後編）#660","2024-07-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=eef37e6e-bf40-41c8-95d7-b4aa00c6ad67"],["13838606-94af-4fad-8251-b4aa00c6c8ee","超円安の日本でどう暮らせばいい？　難しいけどすごく大事なお金の話（前編）#659","2024-07-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=13838606-94af-4fad-8251-b4aa00c6c8ee"],["3062c5dc-95a2-4535-a31a-b4aa00c6e4dd","「職場で泣いたらだめですか」久々に涙の話　意外と身近な数学についても語ります #658","2024-06-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3062c5dc-95a2-4535-a31a-b4aa00c6e4dd"],["0f0ebdde-f9fb-4f32-ae32-b4aa00c71a33","「神戸のお嬢様」パンダのタンタン追悼　年に100回会いに通ったファンを引きつけた瞳 #657","2024-06-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0f0ebdde-f9fb-4f32-ae32-b4aa00c71a33"],["95ca8862-2042-4954-982c-b4aa00c73758","生活の場に観光客が殺到　富士山隠す幕から考えるオーバーツーリズム #656","2024-06-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=95ca8862-2042-4954-982c-b4aa00c73758"],["cf0af886-8efa-441e-91a7-b4aa00c73921","Mリーグに熱中、小学校にも「健康麻雀クラブ」　親はどう思ってる？　子どもたちの麻雀ブーム（後編） #655","2024-06-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=cf0af886-8efa-441e-91a7-b4aa00c73921"],["b7c467e0-d6c2-4a48-9749-b4aa00c764ff","麻雀教室に朝から列、少女雑誌の付録は雀牌　子どもたちの麻雀ブーム（前編） #654","2024-06-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b7c467e0-d6c2-4a48-9749-b4aa00c764ff"],["5931d641-925f-4e42-b823-b4aa00c77158","一回課金すると止めどなさそう　ゲームのやりすぎには気をつけよう #653","2024-06-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5931d641-925f-4e42-b823-b4aa00c77158"],["c28cc44a-eceb-448a-b41a-b4aa00c7834a","（再）降りそそぐ焼夷弾の雨、逃げまどった母親　東京大空襲を語りつぐ（後編） #652","2024-06-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c28cc44a-eceb-448a-b41a-b4aa00c7834a"],["fafda410-e404-48a5-9573-b4aa00c78abf","（再）学童疎開、泣きながら米を炊いた　東京大空襲を語りつぐ（前編） #651","2024-06-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=fafda410-e404-48a5-9573-b4aa00c78abf"],["912fe7c7-5485-40ba-80ea-b4aa00c7d623","若さイコール美しさ、ではないでしょう　エイジズムを考えよう（後編） #650","2024-06-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=912fe7c7-5485-40ba-80ea-b4aa00c7d623"],["387b94ec-ff19-4b47-bd7c-b4aa00c7f746","役職定年ってそれ、差別じゃない？　エイジズムを考えよう（前編） #649","2024-06-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=387b94ec-ff19-4b47-bd7c-b4aa00c7f746"],["125bdff4-a0f7-4cb5-9c8e-b4aa00c7f970","猟友会の報酬に差があるとは　山に入る時、クマに出会わないために #648","2024-06-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=125bdff4-a0f7-4cb5-9c8e-b4aa00c7f970"],["c73a3669-745e-45ce-a20f-b4aa00c8013d","TSMC進出で高まる土地需要　虫食い状に進む開発と酪農家の不安　半導体バブルの裏側で（後編） #647","2024-06-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c73a3669-745e-45ce-a20f-b4aa00c8013d"],["c0dd135f-b02a-4497-8c7f-b4aa00c811f3","街角に台湾料理、念願の新駅誕生　TSMC進出で変わる熊本　半導体バブルの裏側で(前編) #646","2024-06-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c0dd135f-b02a-4497-8c7f-b4aa00c811f3"],["53668e3f-5696-43ec-ae14-b4aa00c824e0","映画に出てくる宇宙人が表す世相　AIの登場で探査は新たな時代へ（後半） #645","2024-06-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=53668e3f-5696-43ec-ae14-b4aa00c824e0"],["1e0f1dcd-7a90-4b23-88b8-b4aa00c82f97","「宇宙人」は本当にいるのか?　探査開始から約60年の歴史と現状（前編） #644","2024-06-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1e0f1dcd-7a90-4b23-88b8-b4aa00c82f97"],["ea6ade3a-4f92-4770-8ef9-b4aa00c83697","一言一句を大切に読みたいガザのルポ　富士山隠す幕についても話します #643","2024-06-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ea6ade3a-4f92-4770-8ef9-b4aa00c83697"],["7496db70-b2c6-4080-a875-b4aa00c84355","「自分の国がいかにひどいか…」取材を断らなかった移民たち　記者が見た「死のジャングル」（後編） #642","2024-06-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7496db70-b2c6-4080-a875-b4aa00c84355"],["c25d4344-bc46-4b18-94ad-b4aa00c8a41a","命をかけてアメリカへ向かう移民たち　記者が見た「死のジャングル」（前編） #641","2024-06-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c25d4344-bc46-4b18-94ad-b4aa00c8a41a"],["cdceacc3-8ccf-4369-8678-b4aa00c8f386","3人産めば「超愛国者」の韓国で起きた、少子化社会のちょっと良い変化（後編） #640","2024-06-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=cdceacc3-8ccf-4369-8678-b4aa00c8f386"],["6b81082f-36a0-4936-a86a-b4aa00c8f562","韓国の教育ママに流された私　安仁周が振り返る記者サロンのこぼれ話（前編） #639","2024-06-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6b81082f-36a0-4936-a86a-b4aa00c8f562"],["a7f2a452-6ce0-4d7f-8a4e-b4aa00c91d19","2041年は日本が「子育てしやすい国」世界一に？　未来空想新聞をめくってみた #638","2024-05-31 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a7f2a452-6ce0-4d7f-8a4e-b4aa00c91d19"],["1acbcd33-79fa-4a1d-804b-b4aa00c92990","（再）手つかずの自然、ではない奄美　原生林は既になくなっていた（後編） #637","2024-05-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1acbcd33-79fa-4a1d-804b-b4aa00c92990"],["891a073b-990d-4c4c-9756-b4aa00c958a6","（再）奄美で記者、楽しそうだけど大変なんです　貴重な自然が世界遺産に（前編） #636","2024-05-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=891a073b-990d-4c4c-9756-b4aa00c958a6"],["610af1bd-1ec1-4b48-8d6e-b4aa00c97413","受刑者も「さん」づけ、ほめて伸ばす　刑務所の教室で学んだこと（後編） #635","2024-05-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=610af1bd-1ec1-4b48-8d6e-b4aa00c97413"],["7ba3d5da-f1e4-428b-952e-b4aa00c98dd0","ひらがなを学んだ83歳　刑務所で芽生えた小さな自信（前編） #634","2024-05-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7ba3d5da-f1e4-428b-952e-b4aa00c98dd0"],["0921bf95-74cc-47de-84ee-b4aa00c99abb","いとこだと疑わなかった電話　だまされない自信を捨てることって大事 #633","2024-05-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0921bf95-74cc-47de-84ee-b4aa00c99abb"],["f14ad4e2-eeef-499e-8a04-b4aa00c9c239","（再）民謡だってラップバトル　秋田白熱、Z世代にひけはとらない #631","2024-05-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f14ad4e2-eeef-499e-8a04-b4aa00c9c239"],["ad8b8d17-bc4b-4c4d-84e2-b4aa00ca14b7","移民の子たちに寄り添って③　当事者として追い続けて10年、「共生」の意味を考えた #631","2024-05-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ad8b8d17-bc4b-4c4d-84e2-b4aa00ca14b7"],["6420204e-5fce-4790-98fd-b4aa00ca2616","移民の子たちに寄り添って②　無理心中で失われた6歳の命、もう二度と #630","2024-05-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6420204e-5fce-4790-98fd-b4aa00ca2616"],["98b01f75-f075-46d2-afef-b4aa00ca5035","移民の子たちに寄り添って①　事件取材に疲れた記者はボランティアの門をたたいた #629","2024-05-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=98b01f75-f075-46d2-afef-b4aa00ca5035"],["cfafb4b4-ad9e-4679-b595-b4aa00ca52ca","「PRIDE CODE」燃え尽きたメインMC　アラサー会のおすすめ回も紹介します #628","2024-05-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=cfafb4b4-ad9e-4679-b595-b4aa00ca52ca"],["b0ee16b7-1347-4b01-a5f0-b4aa00ca5f83","（再）仕事のノルマはやめられない？　給料と直結、追い詰められる営業職 #627","2024-05-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b0ee16b7-1347-4b01-a5f0-b4aa00ca5f83"],["b757b3d9-bd11-41ac-a78d-b4aa00ca89ae","ダニの種類は5万種以上　その多様性が生態系を支えています　ミライテラス #626","2024-05-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b757b3d9-bd11-41ac-a78d-b4aa00ca89ae"],["17e5121d-8dac-4c3b-b637-b4aa00caa7f4","定年後に再び結婚式をした夫婦　「定期点検」で見えた円満の鍵 「ふたりのかたち」後編 #625","2024-05-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=17e5121d-8dac-4c3b-b637-b4aa00caa7f4"],["a7dc43ec-de43-4fb7-af3d-b4aa00caadd0","離婚するか、しないか…夫婦としてやり直す突破口はK-POP　「ふたりのかたち」前編 #624","2024-05-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a7dc43ec-de43-4fb7-af3d-b4aa00caadd0"],["b2186d30-f612-4bf2-871f-b4aa00cacf24","行くことももちろんだけど、輪島塗や九谷焼･･･うつわを通して石川を応援できるかも #623","2024-05-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b2186d30-f612-4bf2-871f-b4aa00cacf24"],["0bdb036e-2d31-4b8a-8372-b4aa00cb4469","（再）ダウン症の次男と暮らす奥山佳恵さん　出生前検査の前に知ってほしいこと #622","2024-05-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0bdb036e-2d31-4b8a-8372-b4aa00cb4469"],["86c00787-73df-44bf-91ac-b4aa00cb56b0","（再）出生前検査（NIPT）ってなに　気軽な血液検査から、重い決断をすることも #621","2024-05-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=86c00787-73df-44bf-91ac-b4aa00cb56b0"],["b6111e0f-230c-48aa-a90d-b4aa00cb6b56","拒絶を伝える強い言葉を持っていない　「女ことば」を考える #620","2024-05-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b6111e0f-230c-48aa-a90d-b4aa00cb6b56"],["0b57b43c-8c2b-474b-b795-b4aa00cbb5f1","（再）フォーだけじゃない！　食べてみたい、ベトナム麺類の奥深き世界 #619","2024-05-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0b57b43c-8c2b-474b-b795-b4aa00cbb5f1"],["7823abbb-7c9e-4acf-90ba-b4aa00cbbfd9","アフリカの土の家　伝統生かす若手たち　住まい、地球沸騰の時代に（後編）#618","2024-05-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7823abbb-7c9e-4acf-90ba-b4aa00cbbfd9"],["362b09f0-2e04-4b5c-8d2a-b4aa00cbdc5e","人類初の「浮かぶ都市」はカラフル？　住まい、地球沸騰の時代に（前編）#617","2024-04-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=362b09f0-2e04-4b5c-8d2a-b4aa00cbdc5e"],["b217808b-159a-43e3-87a0-b4aa00cbe600","評価ってなかなか好きになれないけど　「承認欲求」は恥ずかしくない #616","2024-04-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b217808b-159a-43e3-87a0-b4aa00cbe600"],["55d23050-e51e-419c-9ac0-b4aa00cbf1fe","（再）悩み多きムスリム、知れば日本が見えてくる　埼玉モスク探訪（後編） #615","2024-04-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=55d23050-e51e-419c-9ac0-b4aa00cbf1fe"],["a90370dc-3d1e-4c70-be0d-b4aa00cc00a5","（再）埼玉モスク探訪　見た目は町工場　意外なところに礼拝所が（前編） #614","2024-04-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a90370dc-3d1e-4c70-be0d-b4aa00cc00a5"],["cc2f0f65-e455-432d-8a3a-b4aa00cc19e5","日本のリーダーシップ、国際貢献ここにあり　マラリア（後編） #613","2024-04-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=cc2f0f65-e455-432d-8a3a-b4aa00cc19e5"],["683fcd08-d587-4ffc-8e83-b4aa00cc4721","光源氏も、クレオパトラもかかったという難病　マラリア（前編） #612","2024-04-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=683fcd08-d587-4ffc-8e83-b4aa00cc4721"],["3b4e617e-6579-4065-861e-b4aa00cc74e8","映画もカフェも「異日常」かも　最近見た作品やおすすめのお店を語ります #611","2024-04-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3b4e617e-6579-4065-861e-b4aa00cc74e8"],["991e35fd-2c41-49d7-9762-b4aa00cc9442","3月1日を語り継ぐため「何か出来ることは」若者が集まってきた　第五福竜丸展示館を訪ねて④ #610","2024-04-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=991e35fd-2c41-49d7-9762-b4aa00cc9442"],["da0b933a-4ca8-4d54-a864-b4aa00ccd77f","「核を使うのは私たちではない」マーシャルの静かな怒り　第五福竜丸展示館を訪ねて③ #609","2024-04-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=da0b933a-4ca8-4d54-a864-b4aa00ccd77f"],["12be6811-929a-4b0a-b45a-b4aa00ccd9eb","「原水爆の犠牲者は私を最後に」幼い3人の娘を残し無線長は…　第五福竜丸展示館を訪ねて② #608","2024-04-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=12be6811-929a-4b0a-b45a-b4aa00ccd9eb"],["3f5c658b-bbb1-4e0e-b1f3-b4aa00ccec1c","「原爆ドームを守った私たちの力で」すべては一通の投書から始まった 第五福竜丸展示館を訪ねて① #607","2024-04-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3f5c658b-bbb1-4e0e-b1f3-b4aa00ccec1c"],["56252dd2-a8dd-4e0e-abe4-b4aa00ccf57f","ミモザの花で彩られた題字　女性も「うるせえな」と怒ったっていい #606","2024-04-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=56252dd2-a8dd-4e0e-abe4-b4aa00ccf57f"],["3200e6ba-c20e-47ba-a3ca-b4aa00cd11dd","暴力、大麻…運動部の不祥事、なぜ起きる？40大学のアンケートから見えたこと #605","2024-04-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3200e6ba-c20e-47ba-a3ca-b4aa00cd11dd"],["e6be1edc-92ba-42e4-8c39-b4aa00cd274d","（再）男性の育休、長く取れば質もあがる？　アンケートで見えた根深い課題 #604","2024-04-10 07:40","https://www.asahi.com/special/podcasts/item/?itemid=e6be1edc-92ba-42e4-8c39-b4aa00cd274d"],["f1edcc0e-b80c-4aac-a5b1-b4aa00cd44d5","「子どもを産んだら愛国者」、1億ウォンをプレゼント　出生率0.72、韓国のリアル（後編） #603","2024-04-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f1edcc0e-b80c-4aac-a5b1-b4aa00cd44d5"],["2c67b76a-c5c1-4def-9405-b4aa00cd8b93","母親は「虫」と呼ばれ、ノーキッズゾーンが増える　出生率0.72、韓国のリアル（前編） #602","2024-04-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2c67b76a-c5c1-4def-9405-b4aa00cd8b93"],["6b1814d0-470c-4812-b545-b4aa00cd8c92","お花見ってなぜするの？とにかく春を感じたい　刹那感も魅力ですね #601","2024-04-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6b1814d0-470c-4812-b545-b4aa00cd8c92"],["826074d5-d37c-4ae3-b5a6-b4aa00cd93bf","（再）素材をエコに変えても、足りない？　脱・使い捨て容器包装のススメ #600","2024-04-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=826074d5-d37c-4ae3-b5a6-b4aa00cd93bf"],["7a5252a1-bd4c-40cb-ad75-b4aa00cd9cd2","給食「ふりかけ持参OK」に賛否　生徒の要望に市長がGO、栄養面では大丈夫？ #599","2024-04-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7a5252a1-bd4c-40cb-ad75-b4aa00cd9cd2"],["1b18ad53-5acb-40fc-8ac2-b4aa00cdd38f","SNS投稿するには　画像つきなら読みやすい（やさしい日本語②） #598","2024-04-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1b18ad53-5acb-40fc-8ac2-b4aa00cdd38f"],["aa27d1a1-3df9-4124-b74c-b4aa00cdd411","大きな津波がきても　「高台に避難」だと伝わらない（やさしい日本語①）  #597","2024-04-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=aa27d1a1-3df9-4124-b74c-b4aa00cdd411"],["0ae2a7de-b98e-4923-9e2b-b4aa00ce6410","「計画」に縛られる不健全さ　思い通りにならない人生…だから面白い #596","2024-03-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0ae2a7de-b98e-4923-9e2b-b4aa00ce6410"],["f0bb3483-313e-46ed-815c-b4aa00ce64ee","ポテチのパリパリ音で新鮮味アップ？　音の調味料を駆使するレストラン（後編） #595","2024-03-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f0bb3483-313e-46ed-815c-b4aa00ce64ee"],["e003610a-aa5d-4281-bb54-b4aa00ce671e","人の声から作られた、電気自動車の「ブーン」音　世界の音を聞いてみよう（前編） #594","2024-03-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e003610a-aa5d-4281-bb54-b4aa00ce671e"],["6235b1d5-b50f-418e-b0ce-b4aa00ce7dca","農作物を荒らす奈良の鹿、駆除か生け捕りか　鹿との共生を考える（後編）#593","2024-03-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6235b1d5-b50f-418e-b0ce-b4aa00ce7dca"],["54c2f825-9eee-420f-a4be-b4aa00ceaedf","骨が浮き出た奈良の鹿、「虐待」の告発はなぜ起きた　鹿との共生を考える（前編） #592","2024-03-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=54c2f825-9eee-420f-a4be-b4aa00ceaedf"],["881920e6-87cf-422c-ba31-b4aa00ceaf44","誰かの使った中古品、素敵だから買ってみた　「もの」に潜んだ裏話#591","2024-03-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=881920e6-87cf-422c-ba31-b4aa00ceaf44"],["e9a344b5-9b99-4800-a4da-b4aa00cecab1","（再）「子がかわいそう」「戸籍制度を変えるの？」　その疑問に答えます　選択的夫婦別姓とは（後編） #590","2024-03-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e9a344b5-9b99-4800-a4da-b4aa00cecab1"],["61d81dba-900c-4312-ab6b-b4aa00ced358","（再）名前を変える「地獄」グチったら、仲間がどんどん集まった　選択的夫婦別姓とは（前編） #589","2024-03-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=61d81dba-900c-4312-ab6b-b4aa00ced358"],["4490dc3e-8b93-47f8-80de-b4aa00cef16a","赤米、黒米、イタリア米…　どんな米でも酒にする杜氏が奈良にいた　神仏習合の酒（後編） #588","2024-03-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4490dc3e-8b93-47f8-80de-b4aa00cef16a"],["da6ed41d-71c5-45e1-a746-b4aa00cefff9","500年前の酒造りを再現？　5％しか磨かない日本酒、そのお味は　神仏習合の酒（前編） #587","2024-03-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=da6ed41d-71c5-45e1-a746-b4aa00cefff9"],["717c4447-31d6-4edc-b691-b4aa00cf1030","仕事と支援、どうすれば両立できる？　被災地を支える人も悩んでいる #586","2024-03-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=717c4447-31d6-4edc-b691-b4aa00cf1030"],["e3fff423-5c67-47b3-8c5e-b4aa00cf11d0","（再）【ふるさとは被災地 4】主婦が戦い抜いた10年訴訟　「元に戻して」最後に見せた本音 #585","2024-03-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e3fff423-5c67-47b3-8c5e-b4aa00cf11d0"],["1ec4f753-6f12-4ed7-84a5-b4aa00cf3409","（再）【ふるさとは被災地 3】商店街は更地になった　復興途上の町に何を思う #584","2024-03-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1ec4f753-6f12-4ed7-84a5-b4aa00cf3409"],["153d57f8-ff7c-4471-8362-b4aa00cf685b","（再）【ふるさとは被災地 2】原発事故で壊された町　石碑に刻まれた「2045年3月12日」 #583","2024-03-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=153d57f8-ff7c-4471-8362-b4aa00cf685b"],["5d6752e6-f81a-4dc8-aef3-b4aa00cf8874","（再）【ふるさとは被災地 1】避難所で罵倒されていた東電社員は友達だった　被災者とめぐる福島 #582","2024-03-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5d6752e6-f81a-4dc8-aef3-b4aa00cf8874"],["842d821a-f0d5-4413-a35b-b4aa00cf95c0","「北陸応援割」はやっぱり早い？　現地で聞いた、復興へのジレンマ#581","2024-03-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=842d821a-f0d5-4413-a35b-b4aa00cf95c0"],["79d52274-c39a-4d1b-a1e6-b4aa00cfd2e9","（再）桑原征平さん「親父を変えた戦争」　苛烈な中国戦線、父は敵兵に銃口を向けた#580","2024-03-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=79d52274-c39a-4d1b-a1e6-b4aa00cfd2e9"],["711b4bf8-d77a-406a-b118-b4aa00cfd654","「ウィズ災害の時代」南海トラフ地震に備える海辺の町の知恵　京大防災研で聞いてみた③ #579","2024-03-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=711b4bf8-d77a-406a-b118-b4aa00cfd654"],["205e43cd-ebcf-4dfb-89bb-b4aa00cfe58d","突然の揺れ「落ち着け」と言われても…パニックと向き合う心構え　京大防災研で聞いてみた② #578","2024-03-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=205e43cd-ebcf-4dfb-89bb-b4aa00cfe58d"],["07f96214-6ea7-4da2-8ece-b4aa00cffaab","地震で崩れた木造家屋、うちは大丈夫？耐震化のいま　京大防災研で聞いてみた① #577","2024-03-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=07f96214-6ea7-4da2-8ece-b4aa00cffaab"],["7615ec91-ad0b-487b-af10-b4aa00d039dd","緑を介したゆるいつながり、何もしない大切さ　カタカナ語ですが紹介させてください #576","2024-03-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7615ec91-ad0b-487b-af10-b4aa00d039dd"],["0d5d7c24-a54c-4567-9d3e-b4aa00d03ccc","寒さ暑さをガマンするのは美徳じゃない　将来トクする断熱（後編） #575","2024-02-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0d5d7c24-a54c-4567-9d3e-b4aa00d03ccc"],["c156b971-013b-4894-b183-b4aa00d11287","日本の寒い家、健康にダメージ　交通事故より、家のお風呂で死ぬ人が多い　断熱（前編） #574","2024-02-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c156b971-013b-4894-b183-b4aa00d11287"],["3c4cc1f3-89a2-4a49-8659-b4aa00d126b7","（再）在日コリアンとして、ハリウッドで生きる　朴昭熙（パクソヒ）さんと「ソウジ・アライ」 #573","2024-02-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3c4cc1f3-89a2-4a49-8659-b4aa00d126b7"],["a2575093-4bfb-41d1-a10d-b4aa00d12d0d","女性管理職、増えてほしいけど「私はなりたくない」　矛盾を越えるには #572","2024-02-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a2575093-4bfb-41d1-a10d-b4aa00d12d0d"],["04331d48-342c-4446-8cf9-b4aa00d16026","ゲームと勉強は両立可能？大学受験の思い出　「今しかできないこと」とは #571","2024-02-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=04331d48-342c-4446-8cf9-b4aa00d16026"],["b9733ad3-d4be-4f39-a5a2-b4aa00d169cb","卒業おめでとう、で片付けられない　障がい児を育てて思い知る手薄な両立支援（後編） #570","2024-02-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b9733ad3-d4be-4f39-a5a2-b4aa00d169cb"],["5e3b2489-d87c-4bf6-a60f-b4aa00d16ac2","障がい児を育てながら働く　「発達が遅れています」医師から告げられ（前編） #569","2024-02-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5e3b2489-d87c-4bf6-a60f-b4aa00d16ac2"],["5673f320-2dd6-44ee-bb34-b4aa00d1953e","グーグル労組、下請け企業からも参加OK　会社との交渉権より大事なこと #568","2024-02-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5673f320-2dd6-44ee-bb34-b4aa00d1953e"],["a4f37241-4c1b-48ad-9f8e-b4aa00d194fd","労働組合は組合員だけのものじゃない　学校を拠点に地域を潤す、シカゴの教職員組合 #567","2024-02-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a4f37241-4c1b-48ad-9f8e-b4aa00d194fd"],["e0746249-32f1-461d-8df9-b4aa00d20b35","2週間後の年賀状、1時間限定の「居酒屋」･･･ 能登半島地震で気になった記事 #566","2024-02-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e0746249-32f1-461d-8df9-b4aa00d20b35"],["d4b490a7-8d57-4a09-acf7-b4aa00d2431f","（再）後継者不足の猟友会　でも、若者には狩猟免許が人気？ #565","2024-02-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d4b490a7-8d57-4a09-acf7-b4aa00d2431f"],["40317d8f-4504-4690-b4b1-b4aa00d24350","「逮捕された新入生にセカンドチャンスを！」訴えた米大学のコーチ　大学スポーツと薬物問題（後編） #564","2024-02-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=40317d8f-4504-4690-b4b1-b4aa00d24350"],["50f6fe29-2567-4f36-a445-b4aa00d275ea","「スポーツの世界に閉じこもるのは危険」元阪神・マートンの言葉の意味　大学スポーツと薬物問題（前編） #563","2024-02-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=50f6fe29-2567-4f36-a445-b4aa00d275ea"],["7e487957-9fc9-4573-b59d-b4aa00d276c5","カタカナ語について考える　言い換えられるときもあるけど、そうじゃないときも #562","2024-02-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7e487957-9fc9-4573-b59d-b4aa00d276c5"],["87295279-7c92-42d3-a4db-b4aa00d27fd2","（再）前例なき男性記者の育休5カ月　妻や職場にもたらした「勇気の伝染」 #561","2024-02-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=87295279-7c92-42d3-a4db-b4aa00d27fd2"],["67380e9d-a8a4-4406-b1d3-b4aa00d28d38","看板俳優「おかじい」は97歳　演じることと介護は相性がいい　老いとアート② #560","2024-02-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=67380e9d-a8a4-4406-b1d3-b4aa00d28d38"],["d022e76a-ed3f-4f38-9c61-b4aa00d297d0","アートな処方箋が健康のカギに　介護を終えた娘がみつけた居場所　老いとアート① #559","2024-02-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d022e76a-ed3f-4f38-9c61-b4aa00d297d0"],["ffa7412c-da28-49e9-9156-b4aa00d2de4c","横浜の銭湯、ルーツは能登半島にあり　現役バリバリの90歳にも会いました #558","2024-02-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ffa7412c-da28-49e9-9156-b4aa00d2de4c"],["6aac9dc9-7411-4e78-9662-b4aa00d2f632","天才ってどんな存在？　大事なのは「好き」という気持ちなのかも #557","2024-02-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6aac9dc9-7411-4e78-9662-b4aa00d2f632"],["3ab126fe-ac83-45ab-adbd-b4aa00d321c7","（再）「筋肉ちくわ」ってなんなんだ　マッチョを超えるシルバー人気 #556","2024-02-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3ab126fe-ac83-45ab-adbd-b4aa00d321c7"],["11210719-ce2b-4b83-9840-b4aa00d325a9","人生後半を生きるヒント、分かち合おう　山登りも終活もご一緒に　Reライフ #555","2024-01-31 04:00","https://www.asahi.com/special/podcasts/item/?itemid=11210719-ce2b-4b83-9840-b4aa00d325a9"],["7beec0c6-be39-46e2-a837-b4aa00d3452a","（再）外食に困り、表示を見落とし…ヴィーガン生活で気づいた多様性（後編） #554","2024-01-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7beec0c6-be39-46e2-a837-b4aa00d3452a"],["8ca1db14-c1ec-4add-94e2-b4aa00d376ca","（再）ヴィーガン生活チャレンジ　インドカレーもピザまでも食べられた（前編）  #553","2024-01-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8ca1db14-c1ec-4add-94e2-b4aa00d376ca"],["129c3f57-6de0-47c5-b259-b4aa00d39085","1分1秒もったいないと感じるのはなんでだろう　いいんですよ、ゆっくりで。 #552","2024-01-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=129c3f57-6de0-47c5-b259-b4aa00d39085"],["ddf11c29-2acc-433c-be3e-b4aa00d39021","国家は憲法が縛る、巨大IT企業はどうする　デジタル立憲主義（後編） #551","2024-01-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ddf11c29-2acc-433c-be3e-b4aa00d39021"],["4879fb16-6212-4211-b647-b4aa00d3b28e","親も知らない妊娠、AIにバラされるなんて　デジタル立憲主義（前編） #550","2024-01-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4879fb16-6212-4211-b647-b4aa00d3b28e"],["8912cde2-8d93-41f0-9fad-b4aa00d3cf9a","（再）津軽弁をAIで翻訳　円滑なコミュニケーションに向けた挑戦  #549","2024-01-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8912cde2-8d93-41f0-9fad-b4aa00d3cf9a"],["9f59ad6c-5966-4c7e-8ad6-b4aa00d3d18d","（再）非常食をおいしくたべる　「もしも」のときも、元気が出るレシピ #548","2024-01-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=9f59ad6c-5966-4c7e-8ad6-b4aa00d3d18d"],["c3fde4c3-3130-4918-838e-b4aa00d3fdca","答えの出ない事態に耐える　「ネガティブ・ケイパビリティ」鍛える番組、目指してみよう #547","2024-01-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c3fde4c3-3130-4918-838e-b4aa00d3fdca"],["58383262-e02a-40fa-a022-b4aa00d4065a","その広告、見せかけかも　「環境にやさしい」「エコ」の表示に要注意（生分解性プラを探る④） #545","2024-01-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=58383262-e02a-40fa-a022-b4aa00d4065a"],["f93a6689-f9f9-469f-be5b-b4aa00d42614","世界の10人に1人が苦しむ飢餓　栄養治療食で子どもたちを救う #546","2024-01-17 11:55","https://www.asahi.com/special/podcasts/item/?itemid=f93a6689-f9f9-469f-be5b-b4aa00d42614"],["227d93f2-075d-41e5-a311-b4aa00d433cb","海で分解されるプラスチック　開発に挑むのはラップで有名なあの会社（生分解性プラを探る③） #544","2024-01-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=227d93f2-075d-41e5-a311-b4aa00d433cb"],["91817d76-a3b5-4ebc-b687-b4aa00d45b20","植物由来のプラスチックは自然界で分解される？　実際、そうとも限りません（生分解性プラを探る②） #543","2024-01-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=91817d76-a3b5-4ebc-b687-b4aa00d45b20"],["6816c786-d1c1-4ae1-aef9-b4aa00d47d19","自然に還るプラスチックは環境問題の救世主か　車の部品、Wi-Fiルーターも試作中（生分解性プラを探る①） #542","2024-01-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6816c786-d1c1-4ae1-aef9-b4aa00d47d19"],["eb7827ed-cc6e-4bcd-9a7e-b4aa00d49b4d","それぞれが見直した防災　気づかないうちに心がすり減ってしまった時は #541","2024-01-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=eb7827ed-cc6e-4bcd-9a7e-b4aa00d49b4d"],["01f6dd3e-18a3-4ea9-bf9c-b4aa00d4b12e","（再）誰にでも優しい温泉街へ　バリアフリーへ歩み出した伊香保温泉  #540","2024-01-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=01f6dd3e-18a3-4ea9-bf9c-b4aa00d4b12e"],["ea98b09e-a93d-4fd5-8876-b4aa00d4befb","ボランティアの大人が子どもの「バディー」に　社会ではぐくむオランダ （後編）#539","2024-01-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ea98b09e-a93d-4fd5-8876-b4aa00d4befb"],["d42b2c46-685b-4d51-a884-b4aa00d4d4a2","3人親が認められるアメリカ　密着取材して見えた、多様な家族のかたち（前編） #538","2024-01-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d42b2c46-685b-4d51-a884-b4aa00d4d4a2"],["b3ca3187-0c7a-4a14-8204-b4aa00d4d4ed","女性が増えれば、政治は変わる　スウェーデンの裏庭交渉はいま　民主主義のつくり方② #537","2024-01-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b3ca3187-0c7a-4a14-8204-b4aa00d4d4ed"],["bed58e7c-bd4f-4baf-ac5d-b4aa00d4ed22","市民の手で、予算をつくろう　ピザを食べつつカジュアルに　民主主義のつくり方① #536","2024-01-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bed58e7c-bd4f-4baf-ac5d-b4aa00d4ed22"],["2fee4229-d9c0-48f9-a688-b4aa00d50e50","笑いも悲しみも分かち合おう　年を重ねても　「SDGsを話そう」ベスト盤② #535","2023-12-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2fee4229-d9c0-48f9-a688-b4aa00d50e50"],["cf0bccc5-ee5c-4dbf-bfaf-b4aa00d57fad","聴いてみて、とっておきの裏話　「SDGsを話そう」ベスト盤① #534","2023-12-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=cf0bccc5-ee5c-4dbf-bfaf-b4aa00d57fad"],["e40d0eb1-95ed-4046-8821-b4aa00d58fbc","「愛のムチ」が正当化されてきたスポーツ指導の現場　暴力を根絶する鍵は「人権」 #533","2023-12-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e40d0eb1-95ed-4046-8821-b4aa00d58fbc"],["68153ebb-1f86-4835-af88-b4aa00d5a78b","「質の高い教育」新聞やポッドキャストもお役に立てますか？　浜学園トップと考える（後編） #532","2023-12-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=68153ebb-1f86-4835-af88-b4aa00d5a78b"],["24943bc0-0e10-4970-89da-b4aa00d5b66b","SDGsが目指す「質の高い教育」公立校でも受けられますか？　浜学園トップと考える（前編） #531","2023-12-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=24943bc0-0e10-4970-89da-b4aa00d5b66b"],["c2890846-60c8-40b8-ad26-b4aa00d5b8ff","正直わかるよ、ニュース離れ　足りないものを見つめよう #530","2023-12-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c2890846-60c8-40b8-ad26-b4aa00d5b8ff"],["92e3dcb7-bdd6-4259-a31e-b4aa00d5b82b","映画を語り、酒を酌み交わした仲間たち　みんな特攻で死んでいった　語りつぐ戦争② #529","2023-12-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=92e3dcb7-bdd6-4259-a31e-b4aa00d5b82b"],["35883b6b-56c0-4eba-9941-b4aa00d61522","「ああ、これは死ぬんだな」　戦争に巻き込まれた大学生　語りつぐ戦争① #528","2023-12-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=35883b6b-56c0-4eba-9941-b4aa00d61522"],["21d5ca70-3d77-4ab6-8765-b4aa00d6be3f","中立じゃ足りない　化石になーれ　x チルいジェンダートーク② #527","2023-12-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=21d5ca70-3d77-4ab6-8765-b4aa00d6be3f"],["aeb3f8b2-a7fd-43ed-a4f7-b4aa00d6cd6c","セイファーな居場所、聴いて感じて　x チルいジェンダートーク① #526","2023-12-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=aeb3f8b2-a7fd-43ed-a4f7-b4aa00d6cd6c"],["26daa667-320f-4c76-bd3e-b4aa00d6ed77","チャリでイヤホン、危ないよ　呼びかけられてもノイキャンでスルー #525","2023-12-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=26daa667-320f-4c76-bd3e-b4aa00d6ed77"],["ff9b40d9-67b9-4211-accd-b4aa00d6f733","（再）引退競走馬が馬肉に「使い捨て」おかしい　元騎手始めた養老牧場 #524","2023-12-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ff9b40d9-67b9-4211-accd-b4aa00d6f733"],["b2fa1c47-3e1d-4eb9-b925-b4aa00d70076","途上国にしわ寄せが、どうする気候変動　ドバイから報告します　COP28③ #523","2023-12-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b2fa1c47-3e1d-4eb9-b925-b4aa00d70076"],["e60f55ce-0362-4fa2-a7cf-b4aa00d748ce","それゆけメタンハンター　気候変動と闘う「暑さ対策官」　COP28② #522","2023-12-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e60f55ce-0362-4fa2-a7cf-b4aa00d748ce"],["22460e51-23f1-4a0f-8b46-b4aa00d758ec","焼け落ちたハワイの街で目にしたものは　沸騰する地球　COP28① #521","2023-12-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=22460e51-23f1-4a0f-8b46-b4aa00d758ec"],["7e8f6743-ea74-419a-b665-b4aa00d77f58","旅の理由はなんですか　心が不便を求めてる #520","2023-12-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7e8f6743-ea74-419a-b665-b4aa00d77f58"],["56829723-059d-4138-a865-b4aa00d7a578","非正規もフリーランスも労働者の権利はある　日本の働きがいはいま（後編） #519","2023-12-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=56829723-059d-4138-a865-b4aa00d7a578"],["5afb72b1-8205-4c70-bd5f-b4aa00d7c87e","万博工事の残業規制に「超法規的措置」って大丈夫ですか？　日本の働きがいはいま（前編） #518","2023-12-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5afb72b1-8205-4c70-bd5f-b4aa00d7c87e"],["2f75d1e6-1476-4a26-a726-b4aa00d7d50b","ヨーロッパでは飛び恥？　飛行機を制限する国も　SAFってなに（後編） #517","2023-12-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2f75d1e6-1476-4a26-a726-b4aa00d7d50b"],["ed111cb1-9528-451a-b5e5-b4aa00d7dc0b","天ぷら油が飛行機のエコ燃料に大変身　SAFってなに（前編） #516","2023-12-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ed111cb1-9528-451a-b5e5-b4aa00d7dc0b"],["ab3d9fec-e4d1-401c-9331-b4aa00d7e510","「したっけ」は別れのときに　脱オーバーツーリズム　次の一手 #515","2023-12-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ab3d9fec-e4d1-401c-9331-b4aa00d7e510"],["69bdb0ee-6132-4598-a1d2-b4aa00d8327e","（再）ベトナムの観光地に立つ、物売りの少女たち　貧困がジェンダーを直撃する #514","2023-11-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=69bdb0ee-6132-4598-a1d2-b4aa00d8327e"],["bb57765c-dd1d-4214-b86d-b4aa00d834d6","秘密の戦争ビラづくり、家族にも言えなかった　脳裏に残る彼のこと　ある捕虜の足跡③ #513","2023-11-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bb57765c-dd1d-4214-b86d-b4aa00d834d6"],["1c6d633b-f4be-4034-a6bf-b4aa00d83c6e","「命は保障しない」それでもNOを貫いた　イギリスの若者はなぜ長野へ　ある捕虜の足跡② #512","2023-11-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1c6d633b-f4be-4034-a6bf-b4aa00d83c6e"],["1d01bc6b-6793-4393-b147-b4aa00d85935","亡き父が大切にしていた1着の上着　敵国の男性からの贈り物だった　ある捕虜の足跡① #511","2023-11-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1d01bc6b-6793-4393-b147-b4aa00d85935"],["6f082217-0c89-4318-829c-b4aa00d886c6","食べない、ではなく食べられないこともある　それぞれの給食の思い出 #510","2023-11-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6f082217-0c89-4318-829c-b4aa00d886c6"],["db635224-bd04-421d-95d1-b4aa00d887e2","（再）「プラゴミは、お宝だ」　東南アジアで広がるトレンド #509","2023-11-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=db635224-bd04-421d-95d1-b4aa00d887e2"],["5ebde570-06d5-46c3-8ffa-b4aa00d8b3a3","落語は大人のUSJだ　伊藤史隆さんが語る年重ねてこそ響く笑い（後編 ）#508","2023-11-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5ebde570-06d5-46c3-8ffa-b4aa00d8b3a3"],["15948b90-d29c-4a61-86fb-b4aa00d8bd4a","アナウンサーから落語の世界へ 　伊藤史隆さんに学ぶ定年後の転身（前編） #507","2023-11-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=15948b90-d29c-4a61-86fb-b4aa00d8bd4a"],["5111321b-85f7-4e10-8645-b4aa00d8cd20","蛙化現象、ちゅき、はにゃ、ギョプる･･･　面白がれるっていいな #506","2023-11-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5111321b-85f7-4e10-8645-b4aa00d8cd20"],["dfe59850-12a6-4e92-9260-b4aa00d8db3c","（再）ごみだらけの海、私とつながっていた　瀬戸内海で漁船に同乗 #505","2023-11-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=dfe59850-12a6-4e92-9260-b4aa00d8db3c"],["bf078a89-a4b9-467c-b974-b4aa00d8fb2c","（再）「女言葉」というステレオタイプ　言葉の性差は、変わりゆく #504","2023-11-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bf078a89-a4b9-467c-b974-b4aa00d8fb2c"],["b0b4cf03-a936-4714-bdee-b4aa00d90785","思い出の「鍋」はある？　「だし」の昆布は大きめに　名前のない鍋（後編）#503","2023-11-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b0b4cf03-a936-4714-bdee-b4aa00d90785"],["620ea4b2-e7cf-4573-8d2b-b4aa00d91ebc","日々の食卓にも、おもてなしにも…暮らしが浮かび上がる「鍋」　名前のない鍋（前編） #502","2023-11-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=620ea4b2-e7cf-4573-8d2b-b4aa00d91ebc"],["8d6baef3-c79a-40ae-b160-b4aa00d92fba","藤井聡太さんとの共通点を見つけよう　雨の日のタクシー、並ぶ？待つ？ #501","2023-11-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8d6baef3-c79a-40ae-b160-b4aa00d92fba"],["0e96dd62-1ca4-423e-b4a6-b4aa00d93cf0","「戦争のことは見たくない」そんな声もあるけれど　マンガで知る沖縄戦（後編） #500","2023-11-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0e96dd62-1ca4-423e-b4a6-b4aa00d93cf0"],["8c0357c7-1b9e-4840-a5a9-b4aa00d96b36","戦死した人の魂が描かせている…劇画家・新里堅進さん　マンガで知る沖縄戦（前編） #499","2023-11-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8c0357c7-1b9e-4840-a5a9-b4aa00d96b36"],["153cfa9f-0b7f-4258-ab6a-b4aa00d99312","ヒグマにご注意、機内アナウンスで　食べ物とゴミに気をつけよう（後編） #498","2023-11-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=153cfa9f-0b7f-4258-ab6a-b4aa00d99312"],["d00929fc-9bc7-4c7f-b71c-b4aa00d9ada4","夜道は人よりヒグマが怖い　北海道の教訓、ソーセージって何？（前編） #497","2023-11-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d00929fc-9bc7-4c7f-b71c-b4aa00d9ada4"],["e42e7723-8f01-497f-83dd-b4aa00d9be11","やけ酒するならノンアルで　哀愁のBGMを流して語り合いました #496","2023-11-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e42e7723-8f01-497f-83dd-b4aa00d9be11"],["30cac6f8-dc64-4ba9-8a79-b4aa00d9f7b2","（再）捨てないで！そのリーバイス501　町工場が挑んだ大量生産・廃棄の壁 #495","2023-11-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=30cac6f8-dc64-4ba9-8a79-b4aa00d9f7b2"],["a1b46032-c69a-4795-8383-b4aa00da00f9","最期の迎え方、記者も悩んでます　人生の「たそがれゾーン」（後編） #494","2023-10-31 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a1b46032-c69a-4795-8383-b4aa00da00f9"],["e882eb30-c950-46d2-98c0-b4aa00da0969","安楽死のチョイス、あった方がいい？　カナダや韓国の歩む道（前編） #493","2023-10-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e882eb30-c950-46d2-98c0-b4aa00da0969"],["4338c86d-5b5f-4d06-a5cc-b4aa00da0dd3","授業への集中度を脈拍で「見える化」どう思う？　先生の脱線話、楽しかったよね #492","2023-10-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4338c86d-5b5f-4d06-a5cc-b4aa00da0dd3"],["80f2f353-3894-486c-b2aa-b4aa00da3a30","紙おむつは資源です　環境問題、「意識高い系」超えていこう（後編） #491","2023-10-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=80f2f353-3894-486c-b2aa-b4aa00da3a30"],["a7a5b87e-41dd-4a1f-b166-b4aa00da3c64","どうして銅が大事なの　風力・太陽光・EV、いま不可欠なんです（前編） #490","2023-10-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a7a5b87e-41dd-4a1f-b166-b4aa00da3c64"],["dd7ede96-5ba6-4317-8e51-b4aa00da76c6","（再）水産異変③　秋田県民が愛すハタハタ、大衆魚とはもう言えない？ #489","2023-10-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=dd7ede96-5ba6-4317-8e51-b4aa00da76c6"],["fde735ea-7665-468d-bcdd-b4aa00da8ee5","（再）水産異変②　忍び寄る 魚が消える日 　食卓を支えてきた漁村のいま #488","2023-10-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=fde735ea-7665-468d-bcdd-b4aa00da8ee5"],["43faf5c6-4b84-4959-b12b-b4aa00da9fa4","人の素顔ってなんだろう　加工やメイク、見た目について考える #487","2023-10-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=43faf5c6-4b84-4959-b12b-b4aa00da9fa4"],["53291342-db73-41a4-a9f1-b4aa00dacd88","（再）水産異変①　鮭が捕れない　東北で増える南の魚  #486","2023-10-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=53291342-db73-41a4-a9f1-b4aa00dacd88"],["94f20d33-cfb5-4ce6-8807-b4aa00daf031","北海道のシシャモが減っています　実は貴重な魚なんです #485","2023-10-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=94f20d33-cfb5-4ce6-8807-b4aa00daf031"],["fbdc0120-df5f-42a5-826f-b4aa00dafcdb","ストラディバリウスと餃子を愛す　バッハが楽譜に隠した暗号は　バイオリニスト松田理奈さん（後編） #484","2023-10-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=fbdc0120-df5f-42a5-826f-b4aa00dafcdb"],["1e76dab3-926a-475e-9ef9-b4aa00db1358","学校になじめなくても、モーツァルトに救われた　バイオリニスト松田理奈さん（前編） #483","2023-10-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1e76dab3-926a-475e-9ef9-b4aa00db1358"],["ec0e955a-3e18-46b7-8b61-b4aa00db2dda","「日本は嫌いだけど」感じた希望　冷静に対話を試みる大切さ #482","2023-10-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ec0e955a-3e18-46b7-8b61-b4aa00db2dda"],["32872a47-1b63-4f68-bcfd-b4aa00db3158","（再）娘には誕生日が2つある　臓器提供のこと話そうよ③ #481","2023-10-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=32872a47-1b63-4f68-bcfd-b4aa00db3158"],["7e4b7a59-9137-468c-a4c3-b4aa00db3720","（再）フライト中に緊急手術を迫られた　もう一つの家族を思う② #480","2023-10-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7e4b7a59-9137-468c-a4c3-b4aa00db3720"],["d3b1b5ba-dbed-4a0f-a9c9-b4aa00db53b1","（再）臓器移植、「98％の絶望」　意思表示はハードルが高い？① #479","2023-10-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d3b1b5ba-dbed-4a0f-a9c9-b4aa00db53b1"],["3b31360a-0475-40c1-b6dc-b4aa00db6d5d","ハイになったMC、生きた塾講師経験、わくわく接客　それぞれのイベント反省 #478","2023-10-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3b31360a-0475-40c1-b6dc-b4aa00db6d5d"],["5235b8e6-be99-4a00-98fb-b4aa00db7cb1","「助けてほしい」暴力団傘下の店長から相談がありまして（後編） #477","2023-10-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5235b8e6-be99-4a00-98fb-b4aa00db7cb1"],["b4dc46f1-c0e2-423d-b3a4-b4aa00dba24d","暴力団を抜けても生活できますか　ソフトボールチームの問いかけ（前編） #476","2023-10-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b4dc46f1-c0e2-423d-b3a4-b4aa00dba24d"],["cdf6b5cb-26e1-47e2-b576-b4aa00dbf780","会社を休み、病院経営のしんどさを知りました　差額ベッドのなぞ（後編） #475","2023-10-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=cdf6b5cb-26e1-47e2-b576-b4aa00dbf780"],["f58fe56f-b1fa-40dd-a000-b4aa00dc0c0d","「えーっ」入院で1泊3万3千円？　差額ベッドのなぞ（前編） #474","2023-10-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f58fe56f-b1fa-40dd-a000-b4aa00dc0c0d"],["653f57ff-a1c5-411a-8a09-b4aa00dc2131","SNS、どう向き合ってる？　ずっと見ていたこともあったけど #473","2023-09-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=653f57ff-a1c5-411a-8a09-b4aa00dc2131"],["b9fefa3f-3f28-4ef1-8faf-b4aa00dc3d75","（再）女性研究者の生きづらさ、どうしたらいいのか　リケジョがなくなる日（後編） #472","2023-09-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b9fefa3f-3f28-4ef1-8faf-b4aa00dc3d75"],["7f7c5d7f-b5fa-4e70-80c8-b4aa00dc472b","（再）まるで絶対君主、教授のハラスメント　リケジョがなくなる日（前編） #471","2023-09-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7f7c5d7f-b5fa-4e70-80c8-b4aa00dc472b"],["beb50b4d-b499-4b48-9765-b4aa00dc4963","理想のパートナーを見つけるのはパンダも大変みたい　ピーチスカッシュ #470","2023-09-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=beb50b4d-b499-4b48-9765-b4aa00dc4963"],["007fb2ee-d714-4315-9c09-b4aa00dc64ab","寂しいけれど…仲良し双子パンダはいつか離ればなれ　ピーチスカッシュ #469","2023-09-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=007fb2ee-d714-4315-9c09-b4aa00dc64ab"],["44e709f3-d0bb-4dd4-a0eb-b4aa00dc6ef2","子どもの声は「騒音」？　相手を想像することで聞こえ方が変わるかも #468","2023-09-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=44e709f3-d0bb-4dd4-a0eb-b4aa00dc6ef2"],["f6b02344-5689-43f0-9b20-b4aa00dc9183","（再）歩きスマホが行列を乱す　当然のようで、実は奥深い研究なんです #467","2023-09-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f6b02344-5689-43f0-9b20-b4aa00dc9183"],["cc54d48a-5a82-4563-84ca-b4aa00dca5b6","AI翻訳、外国語教育に実はお役立ち？　使い始めた学校も（後編） #466","2023-09-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=cc54d48a-5a82-4563-84ca-b4aa00dca5b6"],["79be046c-f51c-401f-80d0-b4aa00dcd608","AIでマンガを訳すサービスができました　世界のアニメ好きも活躍するベンチャー #465","2023-09-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=79be046c-f51c-401f-80d0-b4aa00dcd608"],["a58bae2d-96e0-4eb3-a262-b4aa00dcdaaa","お墓、どうするか考えたことある？　散骨や樹木葬、改葬も気になる #464","2023-09-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a58bae2d-96e0-4eb3-a262-b4aa00dcdaaa"],["d73d9a20-b4fb-494e-9230-b4aa00dd09c3","（再）パンソリ、それは韓国の伝統芸能　私にしかできない物語を紡ぐ #463","2023-09-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d73d9a20-b4fb-494e-9230-b4aa00dd09c3"],["610a8d1f-1c16-4a69-a424-b4aa00dd0ee6","結局、核シェルターに入って意味はあるのか？　存在意義を考える（方舟をたどって③） ＃462","2023-09-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=610a8d1f-1c16-4a69-a424-b4aa00dd0ee6"],["72370921-3da4-4a38-bab5-b4aa00dd11a5","ポーランドの核シェルター　防護服やガスマスクなど冷戦時代の備品も（方舟をたどって②） #461","2023-09-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=72370921-3da4-4a38-bab5-b4aa00dd11a5"],["1073d403-a3aa-42af-840a-b4aa00dd1e47","侵略受けた歴史から備えるフィンランド　人口の大半をカバー（方舟をたどって①） #460","2023-09-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1073d403-a3aa-42af-840a-b4aa00dd1e47"],["5a144030-65ca-4f26-a888-b4aa00dd42fb","球児の髪形、選択肢があるのはいい　紙面編集しながらも感じた変化 #459","2023-09-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5a144030-65ca-4f26-a888-b4aa00dd42fb"],["b05cb9bd-bd4d-41c9-a5e5-b4aa00dd4cb3","消えゆく本屋、ノスタルジーに浸る前に　ローソンは地方に熱視線（後編） #458","2023-09-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b05cb9bd-bd4d-41c9-a5e5-b4aa00dd4cb3"],["93c0e134-579e-4466-9a58-b4aa00dd55a8","新刊書店ゼロ自治体、全国の4分の1　変わる読者のニーズにどう応える？（前編） #457","2023-09-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=93c0e134-579e-4466-9a58-b4aa00dd55a8"],["ec126034-80dc-4483-b360-b4aa00dd582b","手づくり弁当愛情論の落とし穴　祭り、戦、花見のそばに（後編）  #456","2023-09-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ec126034-80dc-4483-b360-b4aa00dd582b"],["c9d878aa-c62d-423d-94a7-b4aa00dd70c6","世界の弁当箱をみてみたら　フランスやタイで驚きの進化（前編） #455","2023-09-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c9d878aa-c62d-423d-94a7-b4aa00dd70c6"],["f892d4fc-f8de-4b42-9f79-b4aa00ddc6be","最近泣いてますか？　涙の理由は自分が失ったまぶしさ、ピュアさ、なのか #454","2023-09-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f892d4fc-f8de-4b42-9f79-b4aa00ddc6be"],["14132d29-7b2b-4f7e-8dc2-b4aa00ddd053","（再）障害児に生きる喜びを　ケニアを支える公文和子さん、次は私たちが支えよう #453","2023-08-31 04:00","https://www.asahi.com/special/podcasts/item/?itemid=14132d29-7b2b-4f7e-8dc2-b4aa00ddd053"],["e02cb1af-bedf-463c-af70-b4aa00dde052","姓と名の順番、なんでもありな国　夫婦別姓OK　もっと名前の選択肢を #452","2023-08-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e02cb1af-bedf-463c-af70-b4aa00dde052"],["d822c432-c773-47e9-9038-b4aa00dde4d5","魚のはねる田んぼ、琵琶湖の恵　「無理なくいきましょう」（後編） #451","2023-08-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d822c432-c773-47e9-9038-b4aa00dde4d5"],["d56cc892-2e9e-4d5c-a7b1-b4aa00ddea5d","卵の値上げ、そのからくり話します　小さな養鶏で逆転する世界（前編） #450","2023-08-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d56cc892-2e9e-4d5c-a7b1-b4aa00ddea5d"],["1feac1dc-76b6-4a22-b765-b4aa00de0bcd","地球沸騰の時代　エアコンはぜいたくじゃない、価値観を変えないと #449","2023-08-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1feac1dc-76b6-4a22-b765-b4aa00de0bcd"],["946156f1-73e5-4e50-9d42-b4aa00de3124","（再）アメリカで「素数ゼミ」を食べてみた　で、素数ゼミってなんですか？ #448","2023-08-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=946156f1-73e5-4e50-9d42-b4aa00de3124"],["d0996b86-a425-40aa-b4eb-b4aa00de389c","ネズミ捕りのエキスパート　農耕文化とともに広がった猫たち #447","2023-08-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d0996b86-a425-40aa-b4eb-b4aa00de389c"],["dc1df52b-f743-4505-9c54-b4aa00de7532","薬物依存からの回復支援　「やめろ」ではなく、信頼関係から始めよう（with Planet）後編 #446","2023-08-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=dc1df52b-f743-4505-9c54-b4aa00de7532"],["3b1ca1c6-6764-4015-b783-b4aa00de7fdc","違法薬物ビジネス、広がるミャンマー　越境する脅威の実態（with Planet）前編 #445","2023-08-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3b1ca1c6-6764-4015-b783-b4aa00de7fdc"],["9fe3e326-9d39-4b10-972b-b4aa00de8a5b","朝早いのは苦手だけど･･･混雑と暑さをしのぐため「ずらし旅」いいかも #444","2023-08-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=9fe3e326-9d39-4b10-972b-b4aa00de8a5b"],["8d881318-ebf5-4ea6-a373-b4aa00deb9b0","空襲で命を落とした先輩へ　花がつないだ縁、マンガで伝える　声・語りつぐ戦争④ #443","2023-08-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8d881318-ebf5-4ea6-a373-b4aa00deb9b0"],["63bcdaa6-576b-4826-a621-b4aa00dece27","軍需工場の仕事にやりがいも　ノートに残る生々しい証言　声・語りつぐ戦争③ #442","2023-08-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=63bcdaa6-576b-4826-a621-b4aa00dece27"],["0b268733-de24-499e-be13-b4aa00dee872","歩いてたどる学徒動員　学校に軍需工場がやってきた　声・語りつぐ戦争② #441","2023-08-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0b268733-de24-499e-be13-b4aa00dee872"],["3e27c970-cd74-4e41-9d1e-b4aa00deeed7","特攻兵器を作らされていたなんて　戦後に知った私　声・語りつぐ戦争① #440","2023-08-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3e27c970-cd74-4e41-9d1e-b4aa00deeed7"],["8051f7c8-233b-4703-aa1e-b4aa00def25a","4年ぶりに夏の風物詩が復活　楽しみたいけど、人混みは苦手 #439","2023-08-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8051f7c8-233b-4703-aa1e-b4aa00def25a"],["b85b7e50-0815-408f-91d7-b4aa00def9c5","（再）MINAMATAに出る　ジョニー・デップは迷わなかった　この悪夢は昔話じゃない #438","2023-08-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b85b7e50-0815-408f-91d7-b4aa00def9c5"],["e675f624-e4c2-4d24-acbb-b4aa00defc22","アニマルウェルフェア、偽善じゃないですか？　養豚農家に教わった哲学　食卓にのぼる動物③ #437","2023-08-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e675f624-e4c2-4d24-acbb-b4aa00defc22"],["0bcbfdf3-c66f-42c9-a579-b4aa00df17fa","ベターチキンへの切り替え、KFCも乗り出した　食卓にのぼる動物② #436","2023-08-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0bcbfdf3-c66f-42c9-a579-b4aa00df17fa"],["a3f4fd34-a295-4f5a-a3fa-b4aa00df450f","その卵、ぎゅう詰めのニワトリが産んでいるかも　アニマルウェルフェア、知っていますか　食卓にのぼる動物① #435","2023-08-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a3f4fd34-a295-4f5a-a3fa-b4aa00df450f"],["c60b7655-ad07-40cd-885a-b4aa00df8081","盲牌するほどハマったあの頃　4代目新メンバーは麻雀好きの30歳 #434","2023-08-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c60b7655-ad07-40cd-885a-b4aa00df8081"],["587c441d-6330-49b5-b1fc-b4aa00df81e7","核廃絶はSDGsだ！持続可能な地球のため、若者に刺さるアプローチ（後編） #433","2023-08-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=587c441d-6330-49b5-b1fc-b4aa00df81e7"],["bc29906b-453f-40bc-871f-b4aa00df912f","核兵器って環境に悪いですよね　核廃絶の道、SDGsで考えてみた（前編）  #432","2023-08-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bc29906b-453f-40bc-871f-b4aa00df912f"],["1f46349b-8eb1-4781-9abf-b4aa00dfab37","北極と南極を行き来する鳥に出会った　「おしょろ丸」に乗って（後編） #431","2023-08-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1f46349b-8eb1-4781-9abf-b4aa00dfab37"],["5659fdd2-0c1b-4e32-9b7e-b4aa00dfc5dd","北極海へ行ってきました　流氷に感動　「おしょろ丸」に乗って（前編） #430","2023-07-31 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5659fdd2-0c1b-4e32-9b7e-b4aa00dfc5dd"],["aa10131e-7be0-49c5-ab17-b4aa00dfc962","マイル修行も推し活も…全て趣味でOK！　またすぐ呼んでね朝ポキに #429","2023-07-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=aa10131e-7be0-49c5-ab17-b4aa00dfc962"],["798853f8-6691-4b74-96c1-b4aa00dfdbc6","（再）「コーヒーかす」集める京都の夫婦　月1トン、自転車こいで農家のもとへ #428","2023-07-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=798853f8-6691-4b74-96c1-b4aa00dfdbc6"],["27a1c7d7-6a6e-436c-9bff-b4aa00dffdda","縄文時代から日本に犬はいた　キツネ顔で筋肉質？　現代に息づく系統 #427","2023-07-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=27a1c7d7-6a6e-436c-9bff-b4aa00dffdda"],["f95ff771-099e-4210-90a2-b4aa00e00819","自分なりでいい信仰の形　寛容と助け合いが育む独自の世界　日本人イスラム教徒（後編） #426","2023-07-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f95ff771-099e-4210-90a2-b4aa00e00819"],["01d02686-00d9-4205-be85-b4aa00e0293a","なぜ私はモスクに行くのか　着物姿で誓った自分なりの信仰　日本人イスラム教徒（前編） #425","2023-07-24 23:00","https://www.asahi.com/special/podcasts/item/?itemid=01d02686-00d9-4205-be85-b4aa00e0293a"],["647fbff6-2823-49fa-92ab-b4aa00e05591","「おちゃちゃ」を飲んで熱中症を防ごう　今年も暑い…それぞれの対策 #424","2023-07-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=647fbff6-2823-49fa-92ab-b4aa00e05591"],["6bdf46ce-e1f3-4862-b6e2-b4aa00e08328","宿題に追われて眠れない　変化した質と量　できない家庭の事情に目を向けて #423","2023-07-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6bdf46ce-e1f3-4862-b6e2-b4aa00e08328"],["c9901ee0-9dc5-4ff0-bf18-b4aa00e0829b","トイレに困らない私の特権って？　共用トイレが当たり前の国で見た工夫（後編） #422","2023-07-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c9901ee0-9dc5-4ff0-bf18-b4aa00e0829b"],["b9d73e4c-3e45-4b9e-9371-b4aa00e082a5","介護とカミングアウト　デンマークで考えた　多様な性、見えていますか（前編） #421","2023-07-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b9d73e4c-3e45-4b9e-9371-b4aa00e082a5"],["ecfb0541-69a6-4f1a-adec-b4aa00e08635","「お連れ合い」は粋だけど…伝わらない？　相手の配偶者、何て呼べば #420","2023-07-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ecfb0541-69a6-4f1a-adec-b4aa00e08635"],["d4bd9557-e63e-4247-ad75-b4aa00e092e9","逃げろツチノコ、賞金131万円　夢とロマンを捨てちゃいかん #419","2023-07-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d4bd9557-e63e-4247-ad75-b4aa00e092e9"],["d34a74b1-d04f-4ade-a819-b4aa00e09837","「人に言っちゃいけないよ」　封印されたツチノコ伝説、記録映画に #418","2023-07-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d34a74b1-d04f-4ade-a819-b4aa00e09837"],["b0864b47-9f1e-47fd-978c-b4aa00e0a8c7","プールの子どもたち、AIが見守る？　技術発達しても結局必要なのは #417","2023-07-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b0864b47-9f1e-47fd-978c-b4aa00e0a8c7"],["18c99e24-796b-44a6-9e43-b4aa00e0adde","安全なはずのプールで幼い命がなぜ…悲劇は「問題ない態勢」でも起きた #416","2023-07-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=18c99e24-796b-44a6-9e43-b4aa00e0adde"],["c6714830-3f40-46da-bf87-b4aa00e0dc5f","ええ、もういなくなるの？また来ます　暗めの影山遼が明るく語る転職 #415","2023-07-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c6714830-3f40-46da-bf87-b4aa00e0dc5f"],["566f3b5e-a9f2-42c5-99dd-b4aa00e123b4","（再）出稼ぎベトナム人が、犠牲になるシステム　誰が得をしているのか #414","2023-07-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=566f3b5e-a9f2-42c5-99dd-b4aa00e123b4"],["36dbebfd-18d0-4d62-b56c-b4aa00e13423","宇久島のメガソーラー　制度のひずみ、数々の事件　経緯をひもとくと（後編） #413","2023-07-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=36dbebfd-18d0-4d62-b56c-b4aa00e13423"],["8c2164d4-e9a3-4fc1-96f6-b4aa00e1364d","巨大メガソーラー、離島でぼろ儲けの計画　浮かぶいくつもの疑問（前編） #412","2023-07-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8c2164d4-e9a3-4fc1-96f6-b4aa00e1364d"],["1ceafa0c-250d-4d10-93bc-b4aa00e1385f","香りに襲われ体調不良に…　その時、仲間は動いた　化学物質過敏症 #411","2023-07-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1ceafa0c-250d-4d10-93bc-b4aa00e1385f"],["36b3d782-c6db-4899-9aeb-b4aa00e14399","なんでもかんでもデジタル　マイナンバー、気にする人に気にしない人 #410","2023-06-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=36b3d782-c6db-4899-9aeb-b4aa00e14399"],["98a7153d-4249-41cf-a8c1-b4aa00e14b89","（再）たまごかけごはん　岡山県美咲町が「聖地」と呼ばれるわけ #409","2023-06-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=98a7153d-4249-41cf-a8c1-b4aa00e14b89"],["c0845d8d-c903-4bc6-bd5a-b4aa00e15b88","「遺体に会えない愛する人の死」と観音信仰、殯の過ごし方 　長浜に移住した2人が語る③ #408","2023-06-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c0845d8d-c903-4bc6-bd5a-b4aa00e15b88"],["071a6436-7541-470f-90d0-b4aa00e1695a","井上靖さんの小説「星と祭」の舞台にもなった滋賀・長浜　「観音の里」に移住し、独自のガイドブック出版② #407","2023-06-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=071a6436-7541-470f-90d0-b4aa00e1695a"],["ad74b326-8bb9-4e59-9662-b4aa00e17141","観音さまに魅せられて滋賀に移住　井上靖さんの「星と祭」復刊にも想い① #406","2023-06-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ad74b326-8bb9-4e59-9662-b4aa00e17141"],["937c61ad-28e9-4692-b7c8-b4aa00e1d559","出社と在宅の勤務、重要なのは選べるか　強制されると起きちゃう反発 #405","2023-06-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=937c61ad-28e9-4692-b7c8-b4aa00e1d559"],["6ac4a628-e584-4a33-8ea0-b4aa00e1ddc0","朝日新聞記者→地域おこし協力隊　女性たちの移住　新しい視点で発信（後編）#404","2023-06-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6ac4a628-e584-4a33-8ea0-b4aa00e1ddc0"],["022fb044-6b8b-4ea4-b25f-b4aa00e1e510","地方移住の魅力と本音　元朝日新聞記者の先輩後輩が語る（前編） #403","2023-06-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=022fb044-6b8b-4ea4-b25f-b4aa00e1e510"],["e7b54e23-9c79-413f-8e7f-b4aa00e1ef76","カニの子どもが溶けてしまう　海洋酸性化ってなに　食生活と海の温暖化（後編） #402","2023-06-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e7b54e23-9c79-413f-8e7f-b4aa00e1ef76"],["d02c6906-b0f0-4f31-9ea0-b4aa00e22a88","海底で目にした楽園、なんとかしなきゃ　スーパーマンはいないから　海の温暖化（前編） #401","2023-06-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d02c6906-b0f0-4f31-9ea0-b4aa00e22a88"],["c122e811-1396-4f4d-a06d-b4aa00e23d26","1杯2千円は高いのか　ラーメンは次のステージに、止まらない思い出 #400","2023-06-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c122e811-1396-4f4d-a06d-b4aa00e23d26"],["241cbc2a-c91b-441a-89d4-b4aa00e23de9","（再）「満員電車に乗るため、就職先を決めた」　痴漢はあなたの隣にいる #399","2023-06-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=241cbc2a-c91b-441a-89d4-b4aa00e23de9"],["687c1797-7b99-43cc-a5a1-b4aa00e24155","日本を二分？「町」の読みはマチかチョウか　地域により違うあれこれ #398","2023-06-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=687c1797-7b99-43cc-a5a1-b4aa00e24155"],["e7d4dd7e-7820-487b-90c1-b4aa00e245ea","性の知識、障害者にも学ぶチャンスを　報道も模索しています　供述弱者（後編） #397","2023-06-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e7d4dd7e-7820-487b-90c1-b4aa00e245ea"],["ff28d5c3-d789-40d8-a486-b4aa00e2744b","妊娠に誰も気づけなかった　障害者と性について裁判で考えた　供述弱者（前編） #396","2023-06-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ff28d5c3-d789-40d8-a486-b4aa00e2744b"],["78c8e6a0-7c57-45a0-83ab-b4aa00e2800e","差別発言、どう対処する？制止はできる？　主催者が絶対やるべきこと #395","2023-06-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=78c8e6a0-7c57-45a0-83ab-b4aa00e2800e"],["ee864551-ee06-45bf-9da8-b4aa00e2b11e","（再）「運転は男性」「女性は苦手」の偏見、笑い事じゃない　死傷リスクに直結していた #394","2023-06-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ee864551-ee06-45bf-9da8-b4aa00e2b11e"],["0928ca5a-b9cb-400f-adb8-b4aa00e2c5e0","盆踊りを歌いながら、難民について語り合った　垣根を越える子どものパワー（後編） #393","2023-06-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0928ca5a-b9cb-400f-adb8-b4aa00e2c5e0"],["3dd8b76c-e2f6-4de9-ab31-b4aa00e2d7e7","日本一外国人の多い川口市　昔ながらの青果店に共生のヒントを学ぼう（前編） #392","2023-06-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3dd8b76c-e2f6-4de9-ab31-b4aa00e2d7e7"],["df13fc13-1c9a-46be-a0db-b4aa00e2ed4e","吃音芸人「僕のしゃべり方は個性」　炎上騒動と、話すということ #391","2023-06-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=df13fc13-1c9a-46be-a0db-b4aa00e2ed4e"],["9a683e1b-d011-4e99-80a3-b4aa00e2f34c","ジャニーズ性被害問題　 記者として、推してきて、保護者として思うこと #390","2023-06-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=9a683e1b-d011-4e99-80a3-b4aa00e2f34c"],["808ba434-0c38-4295-a316-b4aa00e2fcde","日本の国土の6割相当が焼失　山火事の脅威、対処法はまさかの火　オーストラリア先住民に学ぶ知恵（後編） #389","2023-06-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=808ba434-0c38-4295-a316-b4aa00e2fcde"],["031c2c11-eb96-453e-9059-b4aa00e326e0","オフロードを走り抜け、たどり着いた世界遺産　オーストラリア先住民に学ぶ知恵（前編） #388","2023-05-31 04:00","https://www.asahi.com/special/podcasts/item/?itemid=031c2c11-eb96-453e-9059-b4aa00e326e0"],["a42647d7-2de2-4c72-ba2c-b4aa00e328a3","「家に居ないで」と妻に言われないために　定年クライシス後編 #387","2023-05-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a42647d7-2de2-4c72-ba2c-b4aa00e328a3"],["55047b9b-9010-4d27-b0d9-b4aa00e34eba","空白のスケジュール帳、焦るあなたは要注意　定年クライシス前編 #386","2023-05-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=55047b9b-9010-4d27-b0d9-b4aa00e34eba"],["b8f1e1e3-f15b-4869-b50b-b4aa00e36e9b","二度寝するほど心地よい？聞き取りにくい？　声も個性なのでは #385","2023-05-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b8f1e1e3-f15b-4869-b50b-b4aa00e36e9b"],["00d7a918-3505-4f6f-b7a7-b4aa00e37c02","性別の揺らぎ、そのままに　安心できる居場所、きっとどこかにあるから（後編） #384","2023-05-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=00d7a918-3505-4f6f-b7a7-b4aa00e37c02"],["4d8d3257-5b6e-4908-ab2b-b4aa00e3862c","ワンピースを「趣味」と言われる痛み　悲しみは笑いでごまかして（前編） #383","2023-05-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4d8d3257-5b6e-4908-ab2b-b4aa00e3862c"],["1ceae3a5-f86e-4077-a804-b4aa00e389ef","マンション住民の新常識　「もの忘れ」だけじゃない認知症、SOSに気づくには（後編） #382","2023-05-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1ceae3a5-f86e-4077-a804-b4aa00e389ef"],["53f8a5c1-0b8e-4aef-92c4-b4aa00e3b422","ついのすみかになるマンション　建物も住民も「老い」と向き合う(前編)  #381","2023-05-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=53f8a5c1-0b8e-4aef-92c4-b4aa00e3b422"],["a5891a49-1067-4c03-be34-b4aa00e3bd66","こんなお土産はいやだ　ウキウキで買ったのに、受け取ってもらえない #380","2023-05-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a5891a49-1067-4c03-be34-b4aa00e3bd66"],["aaa47baa-a20a-4d37-9e79-b4aa00e3e6cd","お酒やめた方がいい？　心あたりのあるあなたへ　アルコール依存症④ #379","2023-05-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=aaa47baa-a20a-4d37-9e79-b4aa00e3e6cd"],["f4df6340-05ea-436b-a002-b4aa00e3f59f","「アイメッセージ」で断酒のすすめ　家族も悩んでます　アルコール依存症③ #378","2023-05-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f4df6340-05ea-436b-a002-b4aa00e3f59f"],["0187623b-b4ca-4d50-a7ef-b4aa00e40e17","隠れて飲酒、家族は知っていた　大事なのは「尻ぬぐいをしないこと」　アルコール依存症② #377","2023-05-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0187623b-b4ca-4d50-a7ef-b4aa00e40e17"],["aad3bdcb-0deb-428a-bbef-b4aa00e435f0","なんで酒に強いオレが依存症に...　「いい人」演じたその裏で　アルコール依存症① #376","2023-05-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=aad3bdcb-0deb-428a-bbef-b4aa00e435f0"],["7d4cc905-0cb8-41e3-82e1-b4aa00e4382a","パーテーションじゃなくパーティション？　必要なくても変身し活用中 #375","2023-05-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7d4cc905-0cb8-41e3-82e1-b4aa00e4382a"],["7c038fd7-75d0-49c7-b8ba-b4aa00e43a90","肉や魚が食卓から消える日、本当に来るの？　代替食品がつくる未来（後編） #374","2023-05-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7c038fd7-75d0-49c7-b8ba-b4aa00e43a90"],["03109959-3dc2-461e-bcc0-b4aa00e43fbd","夢にまで出てきた巨大なカニ　リアルすぎるカニカマができるまで　代替食品がつくる未来（前編） #373","2023-05-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=03109959-3dc2-461e-bcc0-b4aa00e43fbd"],["360526d4-e91e-4b8b-acc4-b4aa00e44686","タクシー、バス運転手への嫌がらせ　名札廃止で減らしたい #372","2023-05-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=360526d4-e91e-4b8b-acc4-b4aa00e44686"],["93fe2467-dfea-4d4f-aa89-b4aa00e455be","お客様は神様ですか　カスハラに悩んだバス会社の問いかけ #371","2023-05-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=93fe2467-dfea-4d4f-aa89-b4aa00e455be"],["16b1a0ee-76f2-43a7-8585-b4aa00e476a8","移民に相次いだ苦情、共生のヒントはどこに　小さな異国「イミズスタン」に潜入（後編） #370","2023-05-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=16b1a0ee-76f2-43a7-8585-b4aa00e476a8"],["ffd90bdd-ff87-42b2-a5f6-b4aa00e4880c","田んぼの真ん中にできたモスク　小さな異国「イミズスタン」に潜入（前編） #369","2023-05-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ffd90bdd-ff87-42b2-a5f6-b4aa00e4880c"],["78ddd24c-b64e-4f5e-8623-b4aa00e4bcb1","30代、キャリアについて考える　終身雇用にあこがれはあるけど #368","2023-04-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=78ddd24c-b64e-4f5e-8623-b4aa00e4bcb1"],["7e077ab0-94e5-4aa9-91ae-b4aa00e4bfe9","「あー」「うー」から言葉を取り戻す　出口治明さん、失語症との闘い #367","2023-04-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7e077ab0-94e5-4aa9-91ae-b4aa00e4bfe9"],["0899e026-ed63-4e17-b0a4-b4aa00e4c6af","ロボットが変える働き方と「猫型」最強説　人類はアンドロイドに夢を見るか（後編） #366","2023-04-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0899e026-ed63-4e17-b0a4-b4aa00e4c6af"],["8df48044-5570-4c3d-af36-b4aa00e4ddb2","ロボットの「愛想笑い」に批判が殺到した理由　人類はアンドロイドに夢を見るか（前編） #365","2023-04-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8df48044-5570-4c3d-af36-b4aa00e4ddb2"],["75150efe-676d-4dc8-a156-b4aa00e4dfaa","ほっとしたいのに気になるスマホ　他人を気にせず生きるコツ#364","2023-04-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=75150efe-676d-4dc8-a156-b4aa00e4dfaa"],["301df991-af3a-4adf-b392-b4aa00e4ef54","育児のこと、心のどこかでなめてたのかも　育ててるだけですごい #363","2023-04-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=301df991-af3a-4adf-b392-b4aa00e4ef54"],["f642bbbd-3323-4c7f-a3f8-b4aa00e4fb9f","同性カップルにも格差がある　「エゴイスト」が描くリアル　 　隣の同性愛差別③ #362","2023-04-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f642bbbd-3323-4c7f-a3f8-b4aa00e4fb9f"],["3b7857bd-f00e-439b-b0a0-b4aa00e51b41","恋人は「彼」なのに、彼女だとウソついた　自分も加害者だった･･･　隣の同性愛差別② #361","2023-04-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3b7857bd-f00e-439b-b0a0-b4aa00e51b41"],["7d730dc8-3c3b-405d-a29f-b4aa00e54864","生きるのが怖い、それでも　ゲイの先達がくれた希望　隣の同性愛差別① #360","2023-04-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7d730dc8-3c3b-405d-a29f-b4aa00e54864"],["93cdaafc-0939-4420-96fc-b4aa00e55ee2","「誰か助けて」と言えなかった　心の傷を伝えるには勇気がいる #359","2023-04-17 00:00","https://www.asahi.com/special/podcasts/item/?itemid=93cdaafc-0939-4420-96fc-b4aa00e55ee2"],["a0e9a3dc-4fef-4992-860d-b4aa00e5674e","きょうも咲きませんでしたねえ　楽しかった桜の開花取材 #358","2023-04-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a0e9a3dc-4fef-4992-860d-b4aa00e5674e"],["47321c69-d6ec-4814-bccf-b4aa00e586d9","新サイト「with Planet」がアツい　メディアの新しいモデルってどういうこと？ #357","2023-04-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=47321c69-d6ec-4814-bccf-b4aa00e586d9"],["a1be32aa-6121-4dfe-a3d2-b4aa00e58b12","教室に泊まろう　ご当地ソフトで炭を味わう　道の駅を旅して② #356","2023-04-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a1be32aa-6121-4dfe-a3d2-b4aa00e58b12"],["4b0b76b3-37cd-4942-9fb5-b4aa00e58c33","空中いちご園、絶品グルメ、温泉で癒やされよう　道の駅を旅して① #355","2023-04-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4b0b76b3-37cd-4942-9fb5-b4aa00e58c33"],["bf3ae3b3-4ee5-490d-80f1-b4aa00e5c8c7","公園から漂う草花の香り　長かったマスク生活を経て気がついた #354","2023-04-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bf3ae3b3-4ee5-490d-80f1-b4aa00e5c8c7"],["5cf43226-0fdc-42f9-b921-b4aa00e5f921","高校生の「謎ルール」に迫る　学生時代の話、つい長引きます #353","2023-04-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5cf43226-0fdc-42f9-b921-b4aa00e5f921"],["c17fa974-7037-46fb-89c2-b4aa00e6009a","死後は海へ、桜の木の下へ、真珠へ　日本でも増える選択肢　葬のかたち③ #352","2023-04-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c17fa974-7037-46fb-89c2-b4aa00e6009a"],["33c5b7a6-af99-419e-be50-b4aa00e607ca","火を使わない「水火葬」　アメリカ人が考える還り方　葬のかたち② #351","2023-04-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=33c5b7a6-af99-419e-be50-b4aa00e607ca"],["5e5e8f23-a780-4ea8-bcd6-b4aa00e61cbd","2カ月かけて土に還る　アメリカ西海岸生まれの「還元葬」　 葬のかたち① #350","2023-04-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5e5e8f23-a780-4ea8-bcd6-b4aa00e61cbd"],["c02a1a81-d14a-4305-bf92-b4aa00e6211e","津波被災からの事業再開　3つの工場を失った社長の決断 #349","2023-04-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c02a1a81-d14a-4305-bf92-b4aa00e6211e"],["1773eecc-5ca5-42bc-aaf9-b4aa00e634d1","さようなら、また会えるかな　飯沼優仁がリスナーさんの声に応えます #348","2023-03-31 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1773eecc-5ca5-42bc-aaf9-b4aa00e634d1"],["2d858816-3faa-4ca8-b2db-b4aa00e640d3","「何をしてほしいですか？」の一言が大きな助けに　車いす生活の気づき（後編） #347","2023-03-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2d858816-3faa-4ca8-b2db-b4aa00e640d3"],["e40eb52f-efe5-4598-acbc-b4aa00e65a59","スロープはあればいいわけじゃない　車いす生活の気づき（前編） #346","2023-03-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e40eb52f-efe5-4598-acbc-b4aa00e65a59"],["d97221b1-65df-4740-b2ff-b4aa00e6877b","ひとり出版、大変だけれど誰でも始められる　魅力と苦労を語り尽くす（後編） #345","2023-03-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d97221b1-65df-4740-b2ff-b4aa00e6877b"],["881bd371-d9c1-48f8-b1d4-b4aa00e6a3f5","ひとりで出版社を立ち上げた　失敗も苦労も多いけれど、本作りって楽しい(前編）#344","2023-03-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=881bd371-d9c1-48f8-b1d4-b4aa00e6a3f5"],["880f0e0c-64ec-4894-ae7b-b4aa00e6af6e","親しき仲にも苦言あり　奨学金が結婚の足かせになるなんて #343","2023-03-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=880f0e0c-64ec-4894-ae7b-b4aa00e6af6e"],["99d3b4a5-62bc-4620-86b2-b4aa00e6b720","寒い教室をなんとかしたい　高校生は動いた　我慢しない省エネ② #342","2023-03-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=99d3b4a5-62bc-4620-86b2-b4aa00e6b720"],["7b191280-6e37-4886-9285-b4aa00e6c4f2","光熱費を抑えるヒント、窓にあり　我慢しない省エネ① #341","2023-03-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7b191280-6e37-4886-9285-b4aa00e6c4f2"],["a95ca1f8-4e9a-4dbe-9396-b4aa00e71499","（ネタバレあり）断固たる決意　楽曲やグッズまで妥協しないスラムダンク #340","2023-03-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a95ca1f8-4e9a-4dbe-9396-b4aa00e71499"],["e3007bfe-4f61-452a-80c6-b4aa00e7356e","子どもの結婚を急かさない親はおかしい？　リスナーさんのもやもやを考えました #339","2023-03-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e3007bfe-4f61-452a-80c6-b4aa00e7356e"],["ec3598b9-567e-44cc-b0d7-b4aa00e75119","SOSは具体的に　津波てんでんこをアップデート　車いす避難（後編） #338","2023-03-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ec3598b9-567e-44cc-b0d7-b4aa00e75119"],["996ede0d-fc5c-45b5-98d7-b4aa00e75b84","電車の中で大地震が起きたらどうする？　車いす避難（前編） #337","2023-03-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=996ede0d-fc5c-45b5-98d7-b4aa00e75b84"],["138bfb88-f4b4-46ed-9735-b4aa00e76b37","「安全保障を女性の問題にするな」　戦後の沖縄で見えなくなったこと #336","2023-03-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=138bfb88-f4b4-46ed-9735-b4aa00e76b37"],["26ec75f7-cf79-4383-b364-b4aa00e78f12","懐かしくて新しいスラムダンク　何度でも蘇らせる興奮と熱狂 ＃335","2023-03-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=26ec75f7-cf79-4383-b364-b4aa00e78f12"],["e4feef2b-8d0f-4a4b-86ca-b4aa00e7b07a","最後の野球談義　ダルビッシュ有、大谷翔平…WBCは見どころ満載 #334","2023-03-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e4feef2b-8d0f-4a4b-86ca-b4aa00e7b07a"],["e4621063-dcac-4e9a-9718-b4aa00e7d2d3","「戦術」としての性暴力、世界各地で　戦争と性暴力③ #333","2023-03-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e4621063-dcac-4e9a-9718-b4aa00e7d2d3"],["e2622559-19a2-4cd2-bd49-b4aa00e7f209","列車が突然止まった　女性は畑の中へ　戦争と性暴力② #332","2023-03-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e2622559-19a2-4cd2-bd49-b4aa00e7f209"],["4a64a412-a4c2-4b10-b43c-b4aa00e7f2ee","元兵士から受けた性暴力　軍国時代を生き延びて　戦争と性暴力① #331","2023-03-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4a64a412-a4c2-4b10-b43c-b4aa00e7f2ee"],["2fc772f4-8b3c-4f2c-912f-b4aa00e7f4b7","見つかったのはViViならぬmimi？　ユーミン企画奮闘記 ＃330","2023-03-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2fc772f4-8b3c-4f2c-912f-b4aa00e7f4b7"],["b9df8781-b53a-4f65-b3c8-b4aa00e807ec","最近、眠れていますか　その居眠り、体のSOSかも #329","2023-03-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b9df8781-b53a-4f65-b3c8-b4aa00e807ec"],["48a3c58c-3b13-4363-94df-b4aa00e82344","企業や地域と考えるSDGs　「ミライテラス」で海外中継も #328","2023-03-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=48a3c58c-3b13-4363-94df-b4aa00e82344"],["bdbba9e6-5ab7-4334-a08b-b4aa00e89180","国宝だからって感動しなくていい　鑑賞は思いのままに　常設展の魅力② #327","2023-03-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bdbba9e6-5ab7-4334-a08b-b4aa00e89180"],["853be82e-e52b-43b3-80af-b4aa00e894c5","美術展行っていますか？　1万3000歩、トーハク開館から回ってみたら　常設展の魅力① #326","2023-02-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=853be82e-e52b-43b3-80af-b4aa00e894c5"],["21b4057d-324e-4cce-971a-b4aa00e8a71e","MCのナイスアシスト、華麗にスルー　1on1振り返り ＃325","2023-02-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=21b4057d-324e-4cce-971a-b4aa00e8a71e"],["0a35d29d-87fb-42b0-ad74-b4aa00e8bf7e","赤ちゃんの性別聞かない手もあるよ　君、ちゃん呼びを反省 #324","2023-02-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0a35d29d-87fb-42b0-ad74-b4aa00e8bf7e"],["a4053c16-bc69-400b-9a6f-b4aa00e8d1c3","競争社会から距離を取ろう　図書館や砂浜で充電を　伊藤洋志さん④ #323","2023-02-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a4053c16-bc69-400b-9a6f-b4aa00e8d1c3"],["b7cc5b88-17ee-4d0e-8f66-b4aa00e8df0e","心地よい「イドコロ」はありますか　支出を削って、広がる世界　伊藤洋志さん③ #322","2023-02-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b7cc5b88-17ee-4d0e-8f66-b4aa00e8df0e"],["ce305ae8-ffb6-41e0-8ac7-b4aa00e92b5f","床張りを自力でやるの楽しいよ　モンゴルで強者探し　伊藤洋志さん② #321","2023-02-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ce305ae8-ffb6-41e0-8ac7-b4aa00e92b5f"],["d0bc231f-2e18-4d59-8a5a-b4aa00e931bf","ついに見つけたオンボロ物件　会社をやめ、仲間と再生　伊藤洋志さん① #320","2023-02-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d0bc231f-2e18-4d59-8a5a-b4aa00e931bf"],["bf187c3f-a5d2-4066-8db0-b4aa00e94223","スマホに届いた詐欺のワナ　お酒やコロナとどう付き合う #319","2023-02-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bf187c3f-a5d2-4066-8db0-b4aa00e94223"],["77f8bbed-8a2e-4e2b-8834-b4aa00e9623a","障害者報道、どうすれば構えずに済む？　全盲ユーチューバー（後編）#318","2023-02-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=77f8bbed-8a2e-4e2b-8834-b4aa00e9623a"],["a848657e-73bf-4340-8324-b4aa00e96f01","「普通に生きる私」の声伝えたい　全盲ユーチューバー（前編）#317","2023-02-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a848657e-73bf-4340-8324-b4aa00e96f01"],["125bf208-ddb0-475f-ac58-b4aa00e97d33","フィギュアスケーターが性的少数者と公表する理由　スポーツと多様性を考える #316","2023-02-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=125bf208-ddb0-475f-ac58-b4aa00e97d33"],["647e77d4-dc13-4ee8-886d-b4aa00e9ac03","羽生結弦選手が紡いだ2つの言葉の力　新しいアイスショー「GIFT」への思い #315","2023-02-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=647e77d4-dc13-4ee8-886d-b4aa00e9ac03"],["d163d931-00e3-47d7-90f9-b4aa00ea088f","リスキリングしてみたい　育児に疎い自分にハッとした #314","2023-02-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d163d931-00e3-47d7-90f9-b4aa00ea088f"],["1dabf7cc-0e8f-4290-b029-b4aa00ea2724","絵文字は言葉の壁を越える　コミュニケーションをあきらめない #313","2023-02-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1dabf7cc-0e8f-4290-b029-b4aa00ea2724"],["8d388ba3-8b31-49da-b3dc-b4aa00ea2d95","貧富の差、小学校で学んだ　アメリカ、韓国、イランの子育て事情③ #312","2023-02-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8d388ba3-8b31-49da-b3dc-b4aa00ea2d95"],["420e1f16-be19-45e8-bd86-b4aa00ea68c6","赤ちゃんに優しい社会って？　人助け指数、日本はビリ　子育て国際事情② #311","2023-02-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=420e1f16-be19-45e8-bd86-b4aa00ea68c6"],["85a341af-e29f-4bf4-bff8-b4aa00ea888f","過剰な「褒め」が母を追いつめる　自然分娩の礼賛　子育て国際事情① #310","2023-02-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=85a341af-e29f-4bf4-bff8-b4aa00ea888f"],["d7208d8d-7899-483b-9893-b4aa00ea9cd2","白浜のビッグダディ、中国へ　パンダは会いに行けるアイドルかも #309","2023-02-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d7208d8d-7899-483b-9893-b4aa00ea9cd2"],["c50d437b-65d5-442d-8b3a-b4aa00eab6c4","（再）ビジネス＝人権の時代　社会の不平等、不公正を変えるのは誰だ #308","2023-02-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c50d437b-65d5-442d-8b3a-b4aa00eab6c4"],["a4e27e68-3223-4ddd-bf82-b4aa00eac35c","金融教育、なんで大切？「お金」を切り口にしたらニュースの解像度が上がった話 #307","2023-02-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a4e27e68-3223-4ddd-bf82-b4aa00eac35c"],["dc0c0d05-869f-4dc9-a99f-b4aa00eadbd8","激務や過労に悩んでいたけど　畑に出て人生変わった　農業② #306","2023-01-31 04:00","https://www.asahi.com/special/podcasts/item/?itemid=dc0c0d05-869f-4dc9-a99f-b4aa00eadbd8"],["46303a22-c057-4e03-a393-b4aa00eb16d5","牛乳がピンチ、音声で伝えたい　収支も赤裸々に　農業① #305","2023-01-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=46303a22-c057-4e03-a393-b4aa00eb16d5"],["6b48ef5f-972d-4be8-9655-b4aa00eb4692","イライラしてる人への声かけ　自分にできることは何だろう #304","2023-01-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6b48ef5f-972d-4be8-9655-b4aa00eb4692"],["ba570596-8bed-4ea6-9d69-b4aa00eb7043","しおり代わりに挟んだ昭和の誰かのハガキがそのまま…江北図書館の魅力紹介、番外編（後編）#303","2023-01-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ba570596-8bed-4ea6-9d69-b4aa00eb7043"],["bba71a32-9bd9-4d35-842c-b4aa00eb7540","大正～昭和の蔵書からみえる歴史とロマン　江北図書館の魅力紹介、番外編（前編） #302","2023-01-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bba71a32-9bd9-4d35-842c-b4aa00eb7540"],["217fe377-19e2-4ab8-8122-b4aa00eb8406","アルゴリズムの名の下に編集・発信　じゃあメディアの責任も負わないと　 プラットフォーマー規制② #301","2023-01-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=217fe377-19e2-4ab8-8122-b4aa00eb8406"],["da2f26d4-13c8-4f4d-8c80-b4aa00eb94f2","GAFAが握るデータ、公共のために使う道はないのか　プラットフォーマー規制① #300","2023-01-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=da2f26d4-13c8-4f4d-8c80-b4aa00eb94f2"],["34b7fe9c-4898-405b-b51b-b4aa00eb9e0a","「すずめの戸締まり」見て泣いた　美しいと思う場所、そこは #299","2023-01-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=34b7fe9c-4898-405b-b51b-b4aa00eb9e0a"],["892b006b-b7bb-4471-ad26-b4aa00ebc040","（再）まるでタイムスリップ　南極にいた私、戻ったら世界が変わっていた #298","2023-01-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=892b006b-b7bb-4471-ad26-b4aa00ebc040"],["6f86f628-2c00-4c73-811f-b4aa00ebc29d","ボツになった「毒キノコ」に大反響　新聞に載る記事だけがニュースですか ＃297","2023-01-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6f86f628-2c00-4c73-811f-b4aa00ebc29d"],["cb5fa7c5-0911-40cb-b2cd-b4aa00ebe170","野間出版文化賞特別賞に選ばれた私設図書館　明治から昭和…タイムスリップできる魅力（後編） #296","2023-01-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=cb5fa7c5-0911-40cb-b2cd-b4aa00ebe170"],["be7685e3-41e9-471c-a9a9-b4aa00ec4ff2","小さな町の私設図書館が「他に類をみない」と野間出版文化賞特別賞に（前編） #295","2023-01-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=be7685e3-41e9-471c-a9a9-b4aa00ec4ff2"],["65546dc9-52af-4929-b65f-b4aa00ec5519","蕎麦打ちは年末年始あるある？　それぞれのお正月の過ごし方 #294","2023-01-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=65546dc9-52af-4929-b65f-b4aa00ec5519"],["3a6449e8-edb6-4b5e-9361-b4aa00ec9c0e","2030年、時代はジャミング　虚無僧ファッションが流行るかも　未来年表をつくる #293","2023-01-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3a6449e8-edb6-4b5e-9361-b4aa00ec9c0e"],["777b73ab-5968-4484-a15a-b4aa00ecc96b","コンクリートに沖縄が咲く　花ブロックをのぞいて戦後が見えた #292","2023-01-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=777b73ab-5968-4484-a15a-b4aa00ecc96b"],["78de7a9a-140a-4f4b-b3dc-b4aa00ecd085","540gの子宮筋腫と戦った伊調馨さんからの言葉　アスリートの月経を考える #291","2023-01-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=78de7a9a-140a-4f4b-b3dc-b4aa00ecd085"],["3051d6e1-2d08-4c98-9ef1-b4aa00ecd21f","（再）SDGsとは、矛盾を受け入れることかも　竹下隆一郎さんと話した（後編） #290","2023-01-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3051d6e1-2d08-4c98-9ef1-b4aa00ecd21f"],["2465dd8a-19fc-49c8-97eb-b4aa00ecdd6d","（再）SDGs、大企業がいいように使ってない？　竹下隆一郎さんと話した（中編） #289","2023-01-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2465dd8a-19fc-49c8-97eb-b4aa00ecdd6d"],["33b12ce1-f77c-4809-a78a-b4aa00ece08a","（再）SDGsって、きれいごと？　元ハフポスト編集長の竹下隆一郎さんと話した（前編） #288","2023-01-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=33b12ce1-f77c-4809-a78a-b4aa00ece08a"],["26d74cc0-6ebf-4974-9291-b4aa00ed2245","狙われる障害　施設の職員につけこまれ　変わる性犯罪の刑法② #287","2022-12-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=26d74cc0-6ebf-4974-9291-b4aa00ed2245"],["41a970cf-a7d6-4de6-a625-b4aa00ed467b","先生から抱きつかれ　あれは性暴力だったのに　変わる性犯罪の刑法① #286","2022-12-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=41a970cf-a7d6-4de6-a625-b4aa00ed467b"],["a2d1377c-5b15-4bdd-8659-b4aa00ed671f","（再）ウィシュマさんを、死に追い詰めたのは何か　面会を重ねた支援者に聞く #285","2022-12-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a2d1377c-5b15-4bdd-8659-b4aa00ed671f"],["0f4419d2-f352-4662-bca1-b4aa00ed7e04","今年の漢字は？　きんに君、ヤクルト、お世話になりました #284","2022-12-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0f4419d2-f352-4662-bca1-b4aa00ed7e04"],["e040e3bc-2dfa-44e8-ac5d-b4aa00edb908","ある朝、ツイッターをのぞいてみたら　地域発のニュースに込める宇治支局長の思い #283","2022-12-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e040e3bc-2dfa-44e8-ac5d-b4aa00edb908"],["31833b4c-4c08-4bb0-b986-b4aa00edba9e","21年ぶりに国内で復活「放ち鵜飼」（後編）逃亡することもあったウッティー、特訓の末に #282","2022-12-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=31833b4c-4c08-4bb0-b986-b4aa00edba9e"],["c5ecf1cd-176a-48b6-a488-b4aa00edba70","21年ぶりに国内で復活「放ち鵜飼」（前編）鵜匠さんに聞く、京都・宇治の鵜飼い #281","2022-12-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c5ecf1cd-176a-48b6-a488-b4aa00edba70"],["810b1a3f-ca8a-4700-9ed0-b4aa00edc629","（再）「入管問題」、なぜ終わらない　安田菜津紀さんと考える #280","2022-12-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=810b1a3f-ca8a-4700-9ed0-b4aa00edc629"],["4e123a54-ba82-4ec8-af4e-b4aa00edf65a","現金くれたサンタさん　ずっと一緒って言ったじゃん　夢見てたいのに #279","2022-12-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4e123a54-ba82-4ec8-af4e-b4aa00edf65a"],["d1a06419-bfb0-4d6a-9515-b4aa00edf765","フタを開けると「オェッ」　道端のペットボトルに気をつけて　ランナー記者② #278","2022-12-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d1a06419-bfb0-4d6a-9515-b4aa00edf765"],["53d32f2d-dae6-44ba-9a48-b4aa00edfd50","走りたい、足の爪はがれても　徹夜のマラソン　襲われた幻覚　ランナー記者① #277","2022-12-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=53d32f2d-dae6-44ba-9a48-b4aa00edfd50"],["0e77452d-2d91-46dc-ab82-b4aa00ee073e","新聞記者をやめて滋賀の過疎地域に移住、堀江昌史さんを紹介（後編）いまはどんな暮らしを？ #276","2022-12-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0e77452d-2d91-46dc-ab82-b4aa00ee073e"],["360220b6-eb47-4a06-bc1f-b4aa00ee278d","新聞記者をやめて滋賀の過疎集落に移住、堀江昌史さんを紹介（前編）記者時代の思い出は？ #275","2022-12-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=360220b6-eb47-4a06-bc1f-b4aa00ee278d"],["f8a0624d-e736-4a0f-a795-b4aa00ee7464","天声人語はおじさんが書くもの？　次につなぐために語ろう #274","2022-12-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f8a0624d-e736-4a0f-a795-b4aa00ee7464"],["f1be07db-ddcb-4dfd-9f6b-b4aa00ee7538","寝癖がつく？だがそれがいい　かつら工場最前線　たかが髪、されど髪② #273","2022-12-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f1be07db-ddcb-4dfd-9f6b-b4aa00ee7538"],["985e5bd8-f8fa-42ea-81b3-b4aa00ee8aad","カエサル、お前もか　薄毛の悩みは時代を超えて　たかが髪、されど髪① #272","2022-12-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=985e5bd8-f8fa-42ea-81b3-b4aa00ee8aad"],["bf22b02e-4962-4362-a6e1-b4aa00eea4bc","「どこかのだれかの人生のにおいがする」　SDGsを音声番組で身近に #271","2022-12-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bf22b02e-4962-4362-a6e1-b4aa00eea4bc"],["59f87ed7-91e6-4246-9921-b4aa00eecef7","曲がりくねった道の先に　あなたの人生という轍ができる #270","2022-12-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=59f87ed7-91e6-4246-9921-b4aa00eecef7"],["5f7cff61-9a22-44cc-9ddb-b4aa00eed9bd","顔写真不要のESやサウナ面接　就活も進化してるんだ #269","2022-12-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5f7cff61-9a22-44cc-9ddb-b4aa00eed9bd"],["29d95de3-5765-4ab0-bc62-b4aa00ef0a5b","SOGIはみんなの問題です　重ねた対話、トランス女性とともに学ぶ女子大（後編） #268","2022-12-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=29d95de3-5765-4ab0-bc62-b4aa00ef0a5b"],["8cf01d47-e2ae-4e0c-9add-b4aa00ef243c","トランス女性とともに学ぶ女子大　言葉の裏の不安に耳をすませて（前編） #267","2022-11-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8cf01d47-e2ae-4e0c-9add-b4aa00ef243c"],["d5a2324a-38ac-49a5-b04e-b4aa00ef2640","2650ｍ泳いでギネス認定　知的障害のスイマー、顔を上げたクロールで挑んだ記録 #266","2022-11-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d5a2324a-38ac-49a5-b04e-b4aa00ef2640"],["b1c64e69-bfac-41d2-b94d-b4aa00ef5d68","偏見こそが最大の障害　「これだからゆとりは」と言われた私たちは #265","2022-11-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b1c64e69-bfac-41d2-b94d-b4aa00ef5d68"],["5a9579d6-0641-430a-9604-b4aa00ef7626","新聞1面じゃなくても大事なこと -SDGsを話そう-（2分で番組紹介）","2022-11-25 10:59","https://www.asahi.com/special/podcasts/item/?itemid=5a9579d6-0641-430a-9604-b4aa00ef7626"],["4a94d2bd-8ec6-423a-95d1-b4aa00ef78bc","カミングアウトを考える　美味しそうな作品がきっかけになるかも #264","2022-11-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4a94d2bd-8ec6-423a-95d1-b4aa00ef78bc"],["a57be924-d5b6-4b3c-9399-b4aa00ef7ace","（再）ベトナム石炭火力、進める日本　「自国だけクリーン」でいい？ #263","2022-11-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a57be924-d5b6-4b3c-9399-b4aa00ef7ace"],["7d8b50c7-bd35-46e4-a69b-b4aa00ef8f40","ハーイヤッ！鶴見の沖縄角力　それぞれの「うちなー」に出会う #262","2022-11-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7d8b50c7-bd35-46e4-a69b-b4aa00ef8f40"],["de611813-1b1f-409a-bf6a-b4aa00efbdfa","一夫一妻制ではない家族のあり方　想像力を膨らませてみる #261","2022-11-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=de611813-1b1f-409a-bf6a-b4aa00efbdfa"],["48eb9414-80d0-48c8-982a-b4aa00efc719","漠然とした不安「私はなぜここに？」　哲学に走る時期、あります #260","2022-11-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=48eb9414-80d0-48c8-982a-b4aa00efc719"],["cd954741-10c8-456e-92d4-b4aa00efea99","取りすぎない漁、千葉で半世紀　魚を食べるとき考えたいこと（後編） #259","2022-11-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=cd954741-10c8-456e-92d4-b4aa00efea99"],["ff80640f-c644-4b7c-9fcd-b4aa00eff788","その魚、安さだけで選んで大丈夫？　漁業の悪循環をたち切るには（前編） #258","2022-11-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ff80640f-c644-4b7c-9fcd-b4aa00eff788"],["18df4c3b-1c5e-4bcb-b8a7-b4aa00effba0","（再）女性ツートップの地方議会　パイオニアの熱気と、28年後の自然体 #257","2022-11-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=18df4c3b-1c5e-4bcb-b8a7-b4aa00effba0"],["c9e91bbe-7396-4895-b611-b4aa00f01246","それって「すみません」なの？　「ありがとう」と言い換えれば優しくなれる #256","2022-11-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c9e91bbe-7396-4895-b611-b4aa00f01246"],["1765e88c-39f5-4343-9adb-b4aa00f02320","話のあんばいが難しい　脇道にそれる余裕　私たちも悩んでます #255","2022-11-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1765e88c-39f5-4343-9adb-b4aa00f02320"],["0dc73d89-33ee-4f2f-b059-b4aa00f04977","国力に見合わない借り入れでデフォルトに　中国マネー揺れるアフリカ #254","2022-11-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0dc73d89-33ee-4f2f-b059-b4aa00f04977"],["d3c79500-a827-4e3f-a51f-b4aa00f0658e","「アフリカ人はどんな服でも着ると？」　ガーナで大量廃棄されている古着 #253","2022-11-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d3c79500-a827-4e3f-a51f-b4aa00f0658e"],["31ae171a-cec1-45f3-bca7-b4aa00f06e07","かつての集落が海の底に　海岸浸食で姿を消す村 #252","2022-11-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=31ae171a-cec1-45f3-bca7-b4aa00f06e07"],["ac682fd8-91b8-4dcc-a34e-b4aa00f08e90","住宅裏に掘られた違法な鉱山　命の危険を感じ、取材を断念　コバルト生産の闇（後編） #251","2022-11-07 11:55","https://www.asahi.com/special/podcasts/item/?itemid=ac682fd8-91b8-4dcc-a34e-b4aa00f08e90"],["c732e29f-a282-4621-aea4-b4aa00f0abac","数千人がびっしり…響く金づち　バッテリーの原材料が生まれる現場　コバルト生産の闇（前編） #250","2022-11-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c732e29f-a282-4621-aea4-b4aa00f0abac"],["11f3ea84-4e1b-4bfd-9f0a-b4aa00f0ae9e","自衛を叫ぶその前に　性被害の記事で悔やんでいること #249","2022-11-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=11f3ea84-4e1b-4bfd-9f0a-b4aa00f0ae9e"],["1f006158-1c78-4720-888a-b4aa00f0bdd4","黒歴史語学編③語学勉強は「黒歴史も必要」　1番大事なのは楽しさ #248","2022-11-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1f006158-1c78-4720-888a-b4aa00f0bdd4"],["b94876cf-3e1e-4b3a-9394-b4aa00f0f13b","黒歴史語学編②英語力を悟られないように…帰国子女は苦悩　続いた語学への苦手意識 #247","2022-11-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b94876cf-3e1e-4b3a-9394-b4aa00f0f13b"],["7128ace0-b1df-4575-95d2-b4aa00f0fc22","黒歴史語学編①語学習得は「努力で何とかなる」？　人に言わないつらかった留学生活 #246","2022-10-31 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7128ace0-b1df-4575-95d2-b4aa00f0fc22"],["5d1c3bd7-98be-47bd-8420-b4aa00f108b9","「推し」のライブで記憶が飛んだ　王子様は空を飛ぶ #245","2022-10-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5d1c3bd7-98be-47bd-8420-b4aa00f108b9"],["1fe38392-b3d2-41ca-82c6-b4aa00f1251c","紋切り型の言葉に「おやっ」　性の語りづらさを超えるには×毎日新聞 #244","2022-10-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1fe38392-b3d2-41ca-82c6-b4aa00f1251c"],["cbeaf6e9-9db5-45f8-8879-b4aa00f13fd1","「誰かの足を踏んでいたかも」力関係をみつめ、ジェンダーを語ろう×毎日新聞 #243","2022-10-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=cbeaf6e9-9db5-45f8-8879-b4aa00f13fd1"],["757a6bb7-d78b-4a8b-ae6b-b4aa00f15057","妻に助言…じゃなくて、ただ聴いて　子育てのモヤモヤは夫婦のモヤモヤ #242","2022-10-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=757a6bb7-d78b-4a8b-ae6b-b4aa00f15057"],["81ae8ce8-c947-47bd-8a14-b4aa00f16d2b","手放したから見つけた時間　父親が「戦線離脱」してもほしかったもの #241","2022-10-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=81ae8ce8-c947-47bd-8a14-b4aa00f16d2b"],["fab314cc-5577-403a-9db5-b4aa00f19cfc","オンラインでも一緒にいたい？　通話つなぎっぱとコロナ禍 #240","2022-10-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=fab314cc-5577-403a-9db5-b4aa00f19cfc"],["02314533-8117-4c80-a8c5-b4aa00f1e7e0","臭くない牧場、実現する？　牧場巡りで「堆肥を食べた」ら…　いちおしウニュ！ミルクスタンド③ #239","2022-10-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=02314533-8117-4c80-a8c5-b4aa00f1e7e0"],["4245822e-7050-40e1-a3f5-b4aa00f1f289","「放牧牛乳」ってなに　レバーをひねって牛乳を出す、の壁　いちおしウニュ！ミルクスタンド② #238","2022-10-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4245822e-7050-40e1-a3f5-b4aa00f1f289"],["3495581a-e3a2-4d30-a2ab-b4aa00f1faef","牛乳嫌いだったけど、父と始めたミルクスタンド　巡った牧場100カ所　いちおしウニュ！① #237","2022-10-18 08:09","https://www.asahi.com/special/podcasts/item/?itemid=3495581a-e3a2-4d30-a2ab-b4aa00f1faef"],["29349dd4-808f-4e06-8490-b4aa00f1ff58","（再）「ネコバス問題」を考える　自分が好きな生きもの、だけじゃない世界 #236","2022-10-17 10:00","https://www.asahi.com/special/podcasts/item/?itemid=29349dd4-808f-4e06-8490-b4aa00f1ff58"],["4c25ca36-188c-4446-97a1-b4aa00f20748","職場での装い　どこまで自由？　スタバ、ドンキ、新聞社は #235","2022-10-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4c25ca36-188c-4446-97a1-b4aa00f20748"],["66c73fcc-9f0c-49a1-b17e-b4aa00f23d68","気候変動対策にもなる不耕起栽培、叫ばれる農業変革　耕さない農業③ #234","2022-10-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=66c73fcc-9f0c-49a1-b17e-b4aa00f23d68"],["d5821528-6849-4bb3-91df-b4aa00f23f4d","不耕起栽培は土壌の劣化を防ぐ、途上国にメリットも　耕さない農業② #233","2022-10-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d5821528-6849-4bb3-91df-b4aa00f23f4d"],["dc9c2aad-ea84-4319-bfa5-b4aa00f24227","耕さないのに、土が柔らかい　環境に優しい6原則とは　耕さない農業① #232","2022-10-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=dc9c2aad-ea84-4319-bfa5-b4aa00f24227"],["b65ca98e-6538-4ce8-be37-b4aa00f24d3e","（再）女子校は「女性専用車両のようなものよ」　上野千鶴子さん、生徒たちと討論 #231","2022-10-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b65ca98e-6538-4ce8-be37-b4aa00f24d3e"],["45474daf-413f-4de9-86b7-b4aa00f271bb","愛想笑いする自分もヨシ！　未完成の対話から始めよう #230","2022-10-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=45474daf-413f-4de9-86b7-b4aa00f271bb"],["dfb6d3ec-ec69-48a4-a07f-b4aa00f29c6b","砂浜が消えてゆく　 サザン名曲で知られる映画ロケ地がいまは…  #229","2022-10-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=dfb6d3ec-ec69-48a4-a07f-b4aa00f29c6b"],["eed980ac-7ad3-4a12-bf78-b4aa00f2b428","刺さる人、刺さらない人それぞれでいい　大きな石を動かすには？　気候変動を知ろう③ #228","2022-10-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=eed980ac-7ad3-4a12-bf78-b4aa00f2b428"],["6b0799e9-dcd9-458e-94a9-b4aa00f2bb6c","「我慢」じゃなくて、暮らしを豊かに　温暖化対策のイメージは？　気候変動を知ろう② #227","2022-10-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6b0799e9-dcd9-458e-94a9-b4aa00f2bb6c"],["12f40856-da50-49a3-aaef-b4aa00f2c37e","温暖化という「ドーピング」　途上国にしわ寄せが…　気候変動を知ろう① #226","2022-10-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=12f40856-da50-49a3-aaef-b4aa00f2c37e"],["2944e97e-537e-4afc-bf56-b4aa00f2cf5c","懲らしめる処遇は本当に必要なのか？　服役者の更生に必要なものとは  変わる刑務所③ #225","2022-09-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2944e97e-537e-4afc-bf56-b4aa00f2cf5c"],["97f172d0-f51e-429b-b3ec-b4aa00f2decc","受刑者の社会復帰を重んじる運営に被害者は…　返ってきた意外な答え　変わる刑務所② #224","2022-09-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=97f172d0-f51e-429b-b3ec-b4aa00f2decc"],["29e18a90-e0c0-4a28-8b84-b4aa00f31f50","「世界一人道的な刑務所」 まるで大学、図書室もジムも完備　変わる刑務所① #223","2022-09-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=29e18a90-e0c0-4a28-8b84-b4aa00f31f50"],["397ffdd8-e113-4698-816a-b4aa00f3223e","育休は本当に「休み」ですか？　男性が１カ月育休を取って考えたこと　＃222","2022-09-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=397ffdd8-e113-4698-816a-b4aa00f3223e"],["2495a4db-7f4e-4c96-899a-b4aa00f3230b","（再）池の水、抜くのは誰のため？　外来種はなぜ敵視されてしまうの #221","2022-09-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2495a4db-7f4e-4c96-899a-b4aa00f3230b"],["d7668301-1a20-490e-907d-b4aa00f33bdf","「いじめていたこと、謝りたい」リスナーさんの相談に答えます #220","2022-09-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d7668301-1a20-490e-907d-b4aa00f33bdf"],["b9016576-6460-4783-834f-b4aa00f33cdc","愛想笑い、いじめを生き抜く術だった　図書館へ逃げて「ほっ」 #219","2022-09-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b9016576-6460-4783-834f-b4aa00f33cdc"],["837f62f5-628b-4679-9110-b4aa00f35dcf","（再）別姓カップル、削られる心　「要するに内縁でしょ」「結婚の意味あるの」 #218","2022-09-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=837f62f5-628b-4679-9110-b4aa00f35dcf"],["91876b07-0f62-430b-9b0c-b4aa00f36a52","「あいうえお」の源流をたどって山代温泉へ　50音のふしぎ② #217","2022-09-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=91876b07-0f62-430b-9b0c-b4aa00f36a52"],["cdd38dc6-78b9-45f4-a46b-b4aa00f37e55","「あいうえお…」って何音ある？　言葉の森で救世主あらわる　50音のふしぎ① #216","2022-09-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=cdd38dc6-78b9-45f4-a46b-b4aa00f37e55"],["894f3cde-7b60-4cc2-b2f2-b4aa00f3963c","キャンピングカーの必須アイテム　災害への備えにも　車中泊② #215","2022-09-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=894f3cde-7b60-4cc2-b2f2-b4aa00f3963c"],["32563b2a-51ad-462f-89ac-b4aa00f39665","自由を求めキャンピングカーへ　チェックすべきは走行性能　車中泊① #214","2022-09-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=32563b2a-51ad-462f-89ac-b4aa00f39665"],["adb9886b-9ea5-4316-8d36-b4aa00f3b05f","（再）危篤の母に、会いに行けない　国籍のない日本の子どもたち #213","2022-09-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=adb9886b-9ea5-4316-8d36-b4aa00f3b05f"],["2b87d994-ee46-4d23-9b24-b4aa00f3bdfe","生きた動物を使わずに命の教育　動物園の新しい取り組み　動物介在教育のいま（後編） #212","2022-09-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2b87d994-ee46-4d23-9b24-b4aa00f3bdfe"],["2044ab8a-a12f-4fe4-9cae-b4aa00f3f88e","命の大切さを考える学校飼育動物　お世話が先生の負担に？ 　動物介在教育のいま（前編） #211","2022-09-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2044ab8a-a12f-4fe4-9cae-b4aa00f3f88e"],["f8349b22-a216-4dc8-8427-b4aa00f424ba","（再）私は帰れない③　サッカー選手の夢か、正義か　3本指を掲げるまで #210","2022-09-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f8349b22-a216-4dc8-8427-b4aa00f424ba"],["635fc729-5956-487b-be9c-b4aa00f446a5","（再）私は帰れない②　抵抗の「3本指」、ミャンマーからの警告、そして監視網からの脱出 #209","2022-09-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=635fc729-5956-487b-be9c-b4aa00f446a5"],["2a82baac-0c84-4115-9516-b4aa00f44e6b","（再）私は帰れない①　難民申請したサッカー・ミャンマー代表GKが語る #208","2022-09-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2a82baac-0c84-4115-9516-b4aa00f44e6b"],["3dc8f068-4a27-455b-b5cb-b4aa00f47115","秋田が大阪のような暑さに...　子どもの熱中症を防ぐには　気候変動② #207","2022-09-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3dc8f068-4a27-455b-b5cb-b4aa00f47115"],["431bf089-f4e9-4ed0-80b8-b4aa00f47eff","暑くて外で遊べない　自然と触れ合える夏なのに… 気候変動① #206","2022-09-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=431bf089-f4e9-4ed0-80b8-b4aa00f47eff"],["f0dc8ba3-6af6-4a68-9cd9-b4aa00f4857e","結婚を急かす親には言えない　私のホンネ　私の悩み、社会を変える？② #205","2022-08-31 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f0dc8ba3-6af6-4a68-9cd9-b4aa00f4857e"],["4de64604-fdec-4db2-865e-b4aa00f4a7d2","彼氏と2人で泣いた　一緒にいたいだけなのに　私の悩み、社会を変える？① #204","2022-08-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4de64604-fdec-4db2-865e-b4aa00f4a7d2"],["6d5b4522-52f7-4a48-973d-b4aa00f4a948","（再）すべてジェンダーだったのか！　「マジョリティー男性」はどうする #203","2022-08-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6d5b4522-52f7-4a48-973d-b4aa00f4a948"],["48b6288f-d078-4202-8f6e-b4aa00f4e312","夜通しトラックのハンドルを握る　ピアノの音色を届けるため（耳で聞く広島） #202","2022-08-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=48b6288f-d078-4202-8f6e-b4aa00f4e312"],["d3853ea6-b492-4b99-8dc4-b4aa00f4ef6c","キラキラ輝く音がする　広島の被爆ピアノを演奏すると...（耳で聞く広島） #201","2022-08-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d3853ea6-b492-4b99-8dc4-b4aa00f4ef6c"],["b4038f70-a522-4f57-be19-b4aa00f52276","同性婚判決にマジレスしたら、昔の自分が頭をかすめた 　5点ラジオと語る② #200","2022-08-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b4038f70-a522-4f57-be19-b4aa00f52276"],["63c6f5c3-5526-4aa0-99a0-b4aa00f52357","ゲイへの固定観念どこから？　告白断るとアウティングされ...　5点ラジオと語る① #199","2022-08-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=63c6f5c3-5526-4aa0-99a0-b4aa00f52357"],["b309a41c-2fe5-4275-92f5-b4aa00f53cea","（再）彼女の名はオコンジョイウェアラ　WTOの新リーダー #198","2022-08-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b309a41c-2fe5-4275-92f5-b4aa00f53cea"],["0af528d4-cce9-4b33-a916-b4aa00f5497a","AV出演契約取り消すには　法改正で変わったこと　こぼれ落ちる子どもたち③ #197","2022-08-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0af528d4-cce9-4b33-a916-b4aa00f5497a"],["2ccdeb02-8837-485a-b73c-b4aa00f55846","奨学金には「時差」がある　バイト漬けの高校時代　こぼれ落ちる子どもたち② #196","2022-08-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2ccdeb02-8837-485a-b73c-b4aa00f55846"],["fa680057-200c-4170-87d4-b4aa00f57381","嘔吐し、震える子ども　保育園の不適切保育　こぼれ落ちる子どもたち① #195","2022-08-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=fa680057-200c-4170-87d4-b4aa00f57381"],["f0d73065-4469-4cd3-801e-b4aa00f5852c","（再）「パンツ戦争」勃発中　生理からすべてが見えてくる #194","2022-08-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f0d73065-4469-4cd3-801e-b4aa00f5852c"],["cad25d84-8b08-457b-8b37-b4aa00f58fad","（再）がらがら「大西洋のハワイ」　移民・難民とコロナ危機 #193","2022-08-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=cad25d84-8b08-457b-8b37-b4aa00f58fad"],["37ac58ac-bb29-4089-8cce-b4aa00f5bacc","「憲法はお月さま」…ってどういうこと？　条文フェチを脱しよう（後編） #192","2022-08-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=37ac58ac-bb29-4089-8cce-b4aa00f5bacc"],["1def2274-378e-4934-b484-b4aa00f5de20","憲法ってなんだっけ　同性婚、知る権利の裁判でも争われたけど（前編） #191","2022-08-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1def2274-378e-4934-b484-b4aa00f5de20"],["b0fc8085-cd3f-44b3-a818-b4aa00f5e838","核兵器どうしてく？　自分ごととして捉える若者たち　ウィーン会議 #190","2022-08-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b0fc8085-cd3f-44b3-a818-b4aa00f5e838"],["afa6dbda-e284-46a0-9aeb-b4aa00f5f5df","【速報】リスナーのみなさんに大切なお知らせです #189","2022-08-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=afa6dbda-e284-46a0-9aeb-b4aa00f5f5df"],["986210ac-3d1b-49de-921e-b4aa00f614dd","（再）つらい生理、政治家も動いた　いま考える「生理と政治」 #188","2022-08-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=986210ac-3d1b-49de-921e-b4aa00f614dd"],["6cf167d9-8ab1-48d3-ba68-b4aa00f619cf","（再）チベットで見たアメとムチ 　収入6倍、でも「話せない」 #187","2022-08-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6cf167d9-8ab1-48d3-ba68-b4aa00f619cf"],["d7e7666a-e3db-49d0-9b5e-b4aa00f623b0","むかし広島にも「アメリカ村」があった　移民県の知られざる苦労話 #186","2022-08-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d7e7666a-e3db-49d0-9b5e-b4aa00f623b0"],["17c52fea-b950-4d5c-8923-b4aa00f627dc","友人から衝撃の言葉　記者は問い続ける「私は何者なのか」　南米のウチナーンチュ（後編） #185","2022-08-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=17c52fea-b950-4d5c-8923-b4aa00f627dc"],["0ce2321e-4d64-4917-a762-b4aa00f62872","夢見た海外、過酷な現実　子ども連れて逃げた　南米のウチナーンチュ（前編） #184","2022-08-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0ce2321e-4d64-4917-a762-b4aa00f62872"],["69fc8a73-401a-419b-911c-b4aa00f6467d","（再） 英語も演技も「日米ギャップ」　でもその違い、超えられる #183","2022-07-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=69fc8a73-401a-419b-911c-b4aa00f6467d"],["ad45bb39-7f77-48b0-aedd-b4aa00f6909e","高専生に「10億円」の評価　日本のジョブズが生まれるかも？（後編） #182","2022-07-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ad45bb39-7f77-48b0-aedd-b4aa00f6909e"],["6adf846e-442f-4237-9792-b4aa00f6997f","高専？いいえKOSENです　世界がうらやむ高等専門学校（前編） #181","2022-07-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6adf846e-442f-4237-9792-b4aa00f6997f"],["e415a8e1-77eb-4665-9cff-b4aa00f69cdf","手つかずの蔵の奥から　ハチの新種を発見？　もんじょこむしの世界② #180","2022-07-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e415a8e1-77eb-4665-9cff-b4aa00f69cdf"],["e0d6d545-f3b2-46df-93b6-b4aa00f6d167","虫愛が強すぎて･･･ 古文書をめくってレスキュー　もんじょこむしの世界① #179","2022-07-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e0d6d545-f3b2-46df-93b6-b4aa00f6d167"],["87c2cad2-fc8e-4d32-8ee4-b4aa00f6d2e5","（再）経産省側、透ける筋書き　狙いは「核のごみ」批判の分散か #178","2022-07-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=87c2cad2-fc8e-4d32-8ee4-b4aa00f6d2e5"],["eaa5becd-0089-4255-bd83-b4aa00f6dc08","（再）寿都町長、狙いはビジネス　「核のごみ」めぐる舞台裏 #177","2022-07-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=eaa5becd-0089-4255-bd83-b4aa00f6dc08"],["2eb50009-265b-4c77-b7da-b4aa00f70b67","赦しがトラウマからの回復に　退役軍人は謝罪した　ナパーム弾の少女② #176","2022-07-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2eb50009-265b-4c77-b7da-b4aa00f70b67"],["a3a68ef6-a0c1-4aaf-b62d-b4aa00f7205f","あの写真の少女は2度逃げた　ベトナム戦争を生き延びて　ナパーム弾の少女① #175","2022-07-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a3a68ef6-a0c1-4aaf-b62d-b4aa00f7205f"],["d0917bcf-7b0a-4a27-b73e-b4aa00f738cc","「ベトナム戦争の教訓は、消えてしまった」　米退役軍人がいま、思うこと #174","2022-07-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d0917bcf-7b0a-4a27-b73e-b4aa00f738cc"],["dede5eb9-fd3b-46ba-b05f-b4aa00f76db5","（再）経産省側、透ける筋書き　狙いは「核のごみ」批判の分散か #173","2022-07-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=dede5eb9-fd3b-46ba-b05f-b4aa00f76db5"],["620f28dd-b0ef-4c07-a2c9-b4aa00f7847a","（再）謎の未来都市、富士山のふもとに　トヨタの夢と生存戦略 #172","2022-07-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=620f28dd-b0ef-4c07-a2c9-b4aa00f7847a"],["8561bd77-6509-40ad-9758-b4aa00f7f38d","遺族は記者に言葉を託した　レディー・ガガの歌に宿る美しさ　摂食障害のリアル③ #171","2022-07-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8561bd77-6509-40ad-9758-b4aa00f7f38d"],["c0468a34-ea53-4070-8d6c-b4aa00f80624","見た目重視のルッキズム　報道の罪深さ「私も傍観者だった」　摂食障害のリアル② #170","2022-07-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c0468a34-ea53-4070-8d6c-b4aa00f80624"],["03903503-6226-4f2c-9a9b-b4aa00f80816","食事が怖い、カロリーで頭いっぱい　記者に届いた1通のハガキ　摂食障害のリアル① #169","2022-07-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=03903503-6226-4f2c-9a9b-b4aa00f80816"],["a5ffde2c-b594-4b6b-8998-b4aa00f815db","兵役どうなる？アイドルの持続可能性　BTSの問いかけ #168","2022-07-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a5ffde2c-b594-4b6b-8998-b4aa00f815db"],["a30eae7c-3ff5-4b87-8f99-b4aa00f81c80","弱さも葛藤も音楽に　BTS、7色の個性で世界を魅了 #167","2022-07-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a30eae7c-3ff5-4b87-8f99-b4aa00f81c80"],["7bdae59a-7e61-434f-8873-b4aa00f82432","環境省に集まる、大量の個人情報　「マイクロチップありき」だった？ #166","2022-07-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7bdae59a-7e61-434f-8873-b4aa00f82432"],["e1865249-755d-4bfd-861f-b4aa00f83848","子犬・子猫にマイクロチップ　義務化の裏に透ける「構造」 #165","2022-07-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e1865249-755d-4bfd-861f-b4aa00f83848"],["32a41459-c0c6-4ec9-9f2c-b4aa00f870b8","アルツハイマー病の新薬「アデュカヌマブ」　画期的なのに、なぜ普及しない？ #164","2022-07-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=32a41459-c0c6-4ec9-9f2c-b4aa00f870b8"],["3304b0bd-95c8-445e-a095-b4aa00f888f7","（再）ハリウッドの壁、YouTubeで挑め　扉を開けた日本人たち #163","2022-07-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3304b0bd-95c8-445e-a095-b4aa00f888f7"],["346a55b1-cd14-4c54-9946-b4aa00f8cb0c","レーザー光で網膜に映像を投影、乱視でも鮮明に　「補う」を超える（後編） #162","2022-06-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=346a55b1-cd14-4c54-9946-b4aa00f8cb0c"],["51672584-59bc-4848-aec3-b4aa00f8e6f8","ディープラーニングする補聴器、進化する人工感覚器　「補う」を超える（前編） #161","2022-06-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=51672584-59bc-4848-aec3-b4aa00f8e6f8"],["7ff67608-08af-4025-b155-b4aa00f90477","「PFOSって知ってる？」と沖縄で問われ、取材が始まった　消された水汚染（後編） #160","2022-06-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7ff67608-08af-4025-b155-b4aa00f90477"],["bbbf7cd6-eeb3-4ed3-9753-b4aa00f90885","化学物質、東京や沖縄の水から検出　消された水汚染（前編） #159","2022-06-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bbbf7cd6-eeb3-4ed3-9753-b4aa00f90885"],["3ed59d08-ced8-4f3c-a434-b4aa00f9144b","（再）母が感謝した「大坂なおみのプラットフォーム」　BLMは終わらない #158","2022-06-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3ed59d08-ced8-4f3c-a434-b4aa00f9144b"],["fc9f03a3-f13c-4a14-bd74-b4aa00f93d14","子どもの生きづらさ、なくしたい　学習支援から広がったサポートの最前線 #157","2022-06-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=fc9f03a3-f13c-4a14-bd74-b4aa00f93d14"],["bb634484-08c3-4e95-83d6-b4aa00f94935","スニーカー沸騰　転売だけで年商2億円、履けなくても140万円 #156","2022-06-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bb634484-08c3-4e95-83d6-b4aa00f94935"],["ed32f4e1-94ed-4f28-8670-b4aa00f96813","かわいい「ウサギ島」が背負う過去、楽しみも学びも　ダークツーリズム（後編） #155","2022-06-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ed32f4e1-94ed-4f28-8670-b4aa00f96813"],["23a96f7d-6c64-45c8-ad4f-b4aa00f98a2a","現地を見る意味、チョルノービリ原発で感じた　ダークツーリズム（前編） #154","2022-06-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=23a96f7d-6c64-45c8-ad4f-b4aa00f98a2a"],["bb91a1b7-7629-4394-80ed-b4aa00f99610","（再）わずか15軒、全国と戦う　島根のアジサイに見るイノベーション #153","2022-06-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bb91a1b7-7629-4394-80ed-b4aa00f99610"],["92cd6b51-f8df-4fd5-b50a-b4aa00f997da","保育園探しで、目の当たりにした部落差別　水平社宣言100年 #152","2022-06-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=92cd6b51-f8df-4fd5-b50a-b4aa00f997da"],["5abc475f-db75-4e93-8710-b4aa00f9adf6","吃音について考えた　言葉に詰まることって、誰にでもある #151","2022-06-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5abc475f-db75-4e93-8710-b4aa00f9adf6"],["91225cf3-feba-4f76-9e64-b4aa00f9c52b","人間の不思議に近づきたくて　井上荒野さんに聞く「生皮　あるセクシャルハラスメントの光景」（後編） #150","2022-06-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=91225cf3-feba-4f76-9e64-b4aa00f9c52b"],["ec00e6a7-881b-4e7e-b9bd-b4aa00f9d256","グロテスクさ、自分の中にも　井上荒野さんに聞く「生皮　あるセクシャルハラスメントの光景」（前編） #149","2022-06-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ec00e6a7-881b-4e7e-b9bd-b4aa00f9d256"],["7c9e92a0-486a-4efc-b24e-b4aa00fa42af","（再）女性役員はなぜ少ないのか　内部昇格は100人に1人 #148","2022-06-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7c9e92a0-486a-4efc-b24e-b4aa00fa42af"],["2d954db1-494a-4878-96f0-b4aa00fa508e","値上げのコツ（後編）　中小企業の方が、大企業より強いこともあるから #147","2022-06-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2d954db1-494a-4878-96f0-b4aa00fa508e"],["b0103457-d30d-4e53-9cf0-b4aa00fa649c","値上げのコツ（前編）　まずは提案してみて、意外と通るから #146","2022-06-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b0103457-d30d-4e53-9cf0-b4aa00fa649c"],["2835e930-4c82-45b9-8ac8-b4aa00fa659e","「ゲイの友だちが欲しかったの」って？　ピンクウォッシュを超えていこう　アウティング（後編） #145","2022-06-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2835e930-4c82-45b9-8ac8-b4aa00fa659e"],["c4746b0e-0d62-4c78-91d5-b4aa00fa76a0","「あいつゲイやねん」から22年、同級生と語り合った　アウティング（前編） #144","2022-06-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c4746b0e-0d62-4c78-91d5-b4aa00fa76a0"],["0e415751-05ac-49c8-8205-b4aa00faa369","（再）ゴールデングローブ賞に批判集中　アカデミー賞と比べても #143","2022-06-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0e415751-05ac-49c8-8205-b4aa00faa369"],["f2c0df8d-4276-4bf0-9038-b4aa00faae00","（再）「幸せの国」ブータン、もう一つの現実　去りゆく若者たち #142","2022-06-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f2c0df8d-4276-4bf0-9038-b4aa00faae00"],["a87f2746-7a67-4bfe-bdaa-b4aa00fadd69","かわいいカエルを駆除したくない、でもしなきゃ　「かわいそう」の現場から（後編） #141","2022-06-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a87f2746-7a67-4bfe-bdaa-b4aa00fadd69"],["4d81f86e-05ec-498a-9956-b4aa00fafc1d","交通事故で死んだネコ、殺処分の10倍もいたなんて　「かわいそう」の現場から（前編） #140","2022-05-31 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4d81f86e-05ec-498a-9956-b4aa00fafc1d"],["bb742668-f0fa-44d5-a315-b4aa00faff6a","強権的なリーダーに、ひかれる理由を考えた　民主主義の裂け目が見えた #139","2022-05-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bb742668-f0fa-44d5-a315-b4aa00faff6a"],["822febb7-6ba9-4d37-983b-b4aa00fb1a23","（再）クラファンで、司法はもっと身近になる　聖人じゃない私たちだから #138","2022-05-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=822febb7-6ba9-4d37-983b-b4aa00fb1a23"],["dc6b4fb4-a4a1-405d-94ff-b4aa00fb7b6b","園児の置き去り、保護者はどうすればいい？　3つのポイント #137","2022-05-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=dc6b4fb4-a4a1-405d-94ff-b4aa00fb7b6b"],["307a69d9-430d-4833-ac68-b4aa00fb84f8","園児が置き去りになっている　その実態、誰も把握できていない #136","2022-05-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=307a69d9-430d-4833-ac68-b4aa00fb84f8"],["4c24f244-1679-4a52-8a3d-b4aa00fb87a0","政治家の妻、夫、子どもという生き方　その葛藤にみる民主主義 #135","2022-05-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4c24f244-1679-4a52-8a3d-b4aa00fb87a0"],["96c40c4a-6a2c-4294-986f-b4aa00fbaa1e","「いい病院」ってどう選ぶ？　ランキング本づくりは調査報道だった #134","2022-05-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=96c40c4a-6a2c-4294-986f-b4aa00fbaa1e"],["8ccdcc07-2f74-4df1-8fb3-b4aa00fbc5db","ナチスにも共産政権にも負けず　最後の一枚、脱ぎ捨て感じた「平等」 #133","2022-05-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8ccdcc07-2f74-4df1-8fb3-b4aa00fbc5db"],["c40a6595-65d3-4148-b2b6-b4aa00fbe6f8","湖畔で全員、スッポンポン…　ドイツ「裸の宴」で記者が見た別世界 #132","2022-05-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c40a6595-65d3-4148-b2b6-b4aa00fbe6f8"],["aac449cb-90cf-4e7b-96a6-b4aa00fc170b","SFじゃない！火星移住③　早い者勝ち？　火星に「理想国家」樹立のもくろみ #131","2022-05-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=aac449cb-90cf-4e7b-96a6-b4aa00fc170b"],["2d15b92f-1f5f-47ac-87ff-b4aa00fc2226","SFじゃない！火星移住②　30年前の「ミニ地球」 、最新技術で再挑戦中 #130","2022-05-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2d15b92f-1f5f-47ac-87ff-b4aa00fc2226"],["c805dc0c-94fb-44f0-a81c-b4aa00fc2360","SFじゃない！火星移住①　案外すぐに住めるかもしれない　砂漠のまんなかで訓練 #129","2022-05-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c805dc0c-94fb-44f0-a81c-b4aa00fc2360"],["92dd5ae1-f32b-42d9-828a-b4aa00fc2cc4","（再）永田町を変える若者　あなたの居場所、わたしと作ろう #128","2022-05-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=92dd5ae1-f32b-42d9-828a-b4aa00fc2cc4"],["e21f1b3b-deab-4187-9f2e-b4aa00fc33c4","3Dプリンターで、お寿司ができる？　フードテックが未来の食を支えるかも #127","2022-05-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e21f1b3b-deab-4187-9f2e-b4aa00fc33c4"],["8fa36c46-c875-44ff-8080-b4aa00fc96ad","手洗いがやめられない③　克服したかと思いきや、コロナ生活であの兆候がまた #126","2022-05-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8fa36c46-c875-44ff-8080-b4aa00fc96ad"],["3704cc69-20d7-4352-a360-b4aa00fc9d24","手洗いがやめられない②　修羅場の新婚生活、おむつをして仕事に #125","2022-05-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3704cc69-20d7-4352-a360-b4aa00fc9d24"],["8f435c6e-bd6c-4410-96b5-b4aa00fca158","手洗いがやめられない①　強迫性障害の記者、向き合う妻の証言 #124","2022-05-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8f435c6e-bd6c-4410-96b5-b4aa00fca158"],["418fcb25-a35e-40ae-a85b-b4aa00fcdcd3","（再） なぜ日本は難民に冷たいのか　いま考えたい、入管法の問題 #123","2022-05-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=418fcb25-a35e-40ae-a85b-b4aa00fcdcd3"],["878c16bb-be70-4694-9f5b-b4aa00fcdf1d","（再）ジェンダー投資、VC注目　フェムテックに「2兆円効果」 #122","2022-05-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=878c16bb-be70-4694-9f5b-b4aa00fcdf1d"],["9853b090-600a-48e1-8263-b4aa00fcf0d9","素材をエコに変えても、足りない？　脱・使い捨て容器包装のススメ #121","2022-04-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=9853b090-600a-48e1-8263-b4aa00fcf0d9"],["f13e8f53-0a78-4e60-b3ef-b4aa00fcf712","パラリンピック、ドラマ秘めたアスリートたち　北京五輪のリアル（後編） #120","2022-04-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f13e8f53-0a78-4e60-b3ef-b4aa00fcf712"],["0c2b627f-8bd8-4a7d-89b0-b4aa00fd1dae","「スポーツを楽しむ雰囲気は、なかった」　北京五輪のリアル（前編） #119","2022-04-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0c2b627f-8bd8-4a7d-89b0-b4aa00fd1dae"],["e45d88c3-5fdc-42b0-a72e-b4aa00fd1fd1","宇宙デブリ、猛スピードの粗大ごみ　増え続けちゃって大丈夫？ #118","2022-04-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e45d88c3-5fdc-42b0-a72e-b4aa00fd1fd1"],["8a6d14eb-fc55-43a0-b9ca-b4aa00fd5408","1位じゃないとダメですか（後編） 「銀河英雄伝説」田中芳樹氏、ナンバー2不要論 #117","2022-04-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8a6d14eb-fc55-43a0-b9ca-b4aa00fd5408"],["45857b04-6e4b-42ba-94bd-b4aa00fd7ae9","1位じゃないとダメですか（前編） 歴史も会社も「ナンバー2」が左右する？ #116","2022-04-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=45857b04-6e4b-42ba-94bd-b4aa00fd7ae9"],["d2c17410-225b-4f17-85ed-b4aa00fdaa2d","くぬ世はじみたる「天人」　沖縄に伝わる巨人は、どこから来たのか #115","2022-04-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=d2c17410-225b-4f17-85ed-b4aa00fdaa2d"],["9a4776a6-2fcc-4c9e-88e1-b4aa00fdead6","その武士は、巨人だったのか　「百合若大臣」を追ってたどり着いた答え #114","2022-04-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=9a4776a6-2fcc-4c9e-88e1-b4aa00fdead6"],["29c4e9d3-f92e-4c7f-9ecf-b4aa00fdeb53","阿蘇に残る巨神の伝説　自然災害に対峙した先人たちの姿が見えた #113","2022-04-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=29c4e9d3-f92e-4c7f-9ecf-b4aa00fdeb53"],["808bb641-1824-4b4a-ad6e-b4aa00fdf0c1","ウクライナ選手とともにした新聞社のパラリンピアン　痛感した平和の尊さ②#112","2022-04-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=808bb641-1824-4b4a-ad6e-b4aa00fdf0c1"],["a2c9530d-fd4f-42c3-bb26-b4aa00fdf524","新聞社で働くパラリンピアン森宏明　義足の元球児が見つけた次の夢①#111","2022-04-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a2c9530d-fd4f-42c3-bb26-b4aa00fdf524"],["51dc6705-be04-4fbd-a975-b4aa00fe113c","「男性育休」取るか、取らないか　もう問題はそこじゃないのだ #110","2022-04-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=51dc6705-be04-4fbd-a975-b4aa00fe113c"],["b6c99b3c-4f04-4d7b-b2e7-b4aa00fe3a85","細胞培養→新しい食文化　シュタゲ・PSYCHO-PASS超えてゆけ #109","2022-04-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b6c99b3c-4f04-4d7b-b2e7-b4aa00fe3a85"],["b730b084-4a86-46dd-9aaf-b4aa00fe7374","OTAKUが自宅で培養肉　コレSFかよ、研究者の経歴が濃すぎる件 #108","2022-04-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b730b084-4a86-46dd-9aaf-b4aa00fe7374"],["f21c22e3-a3b7-4c84-a64d-b4aa00fe8724","女医、女子アナ…って「女」は必要？　現役記者たちの気付きとは #107","2022-04-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f21c22e3-a3b7-4c84-a64d-b4aa00fe8724"],["76ecc106-0921-4ac7-b425-b4aa00feca88","つい「奥さん」と言っちゃうけど　ジェンダー表現、本当にこれでいい？ #106","2022-04-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=76ecc106-0921-4ac7-b425-b4aa00feca88"],["b5d6a9df-fdee-4640-a7b1-b4aa00feefa7","女性議員、なぜ日本では増えないの　長野智子さんと常見陽平さんに聞く #105","2022-04-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b5d6a9df-fdee-4640-a7b1-b4aa00feefa7"],["bc7cfd4a-32e2-4e5c-9b08-b4aa00fef163","内密出産、ハッピーエンドではなくても　姿が見えない女性たちの声を聴く（後編） #104","2022-04-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bc7cfd4a-32e2-4e5c-9b08-b4aa00fef163"],["fe0bcd53-097d-4742-a8ae-b4aa00fefca6","「知られてはならない妊娠、どうすれば」　内密出産、1通のメールから始まった（前編） #103","2022-04-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=fe0bcd53-097d-4742-a8ae-b4aa00fefca6"],["8fad6548-fd4b-460d-9372-b4aa00ff0c64","ホームレス支援YouTuber、チャンネル登録20万人　Z世代とは（後編） #102","2022-04-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8fad6548-fd4b-460d-9372-b4aa00ff0c64"],["2352ec67-e418-42fd-809c-b4aa00ff0f3e","顔出しNGで、あえて「ミスコン」に出てみる　Z世代とは（前編） #101","2022-03-31 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2352ec67-e418-42fd-809c-b4aa00ff0f3e"],["eca9115b-0548-4432-a68e-b4aa00ff391b","（再） 電気自動車、サッカーボールも　児童労働で作られている ＃100","2022-03-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=eca9115b-0548-4432-a68e-b4aa00ff391b"],["c443ae7f-b0a6-40e1-a0d1-b4aa00ff54ad","スーパーの店頭で社会は変わる　やればできるぞ、エシカル消費 #99","2022-03-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c443ae7f-b0a6-40e1-a0d1-b4aa00ff54ad"],["84c79d09-c430-49de-bc55-b4aa00ff79e5","エシカル消費、キリマンジャロで決意した　代表理事はミステリーハンター #98","2022-03-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=84c79d09-c430-49de-bc55-b4aa00ff79e5"],["e266b7ea-1c47-4b62-8778-b4aa00ff9069","（再）「引き出しビジネス」が映す社会　ひきこもり100万人時代 #97","2022-03-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e266b7ea-1c47-4b62-8778-b4aa00ff9069"],["c5c0a559-ebd9-41f1-9ae6-b4aa00ffc136","（再）ひきこもりのリアル　「自立のプロ」に託した長男は、孤独死した #96","2022-03-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c5c0a559-ebd9-41f1-9ae6-b4aa00ffc136"],["e9ba3e2e-07b6-4be3-8f92-b4aa00ffd2bc","注目の米ボストン市長選　初当選の陣営、仕切った28歳の日系人 #95","2022-03-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e9ba3e2e-07b6-4be3-8f92-b4aa00ffd2bc"],["30156a9b-1460-41c0-9973-b4aa00ffd5c9","押し寄せる難民、緊迫のベラルーシ国境　現場を見た記者が読み解く #94","2022-03-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=30156a9b-1460-41c0-9973-b4aa00ffd5c9"],["77561ccb-9c64-4071-927b-b4aa0100052b","（再）魔女狩りの風習、続くインド　スケープゴートにされる女性たち #93","2022-03-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=77561ccb-9c64-4071-927b-b4aa0100052b"],["95b09893-76f6-42e0-93cc-b4aa01000ace","里親制度で親子になった（後編）　家族のかたち、色々あっていいよね #92","2022-03-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=95b09893-76f6-42e0-93cc-b4aa01000ace"],["f779b2f8-f714-49ec-839e-b4aa01000d72","里親制度で親子になった（前編）　一緒に心地よく暮らせる距離とは #91","2022-03-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f779b2f8-f714-49ec-839e-b4aa01000d72"],["07c52123-1ca5-4a4a-8aad-b4aa01001c2a","フィリピン大統領選（後編）国外追放された一家の長男が有力候補　人気の理由 #90","2022-03-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=07c52123-1ca5-4a4a-8aad-b4aa01001c2a"],["301133cd-5b2d-4a8e-a777-b4aa0100481c","フィリピン大統領選（前編）日本で熱を帯びる選挙活動　カギ握る「OFW」 #89","2022-03-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=301133cd-5b2d-4a8e-a777-b4aa0100481c"],["a34a0f71-3565-41f9-9b4b-b4aa01004cbf","（再）接待プレーじゃ、タンメン食えねェ　ブラサカは要コミュ能力な格闘技 #88","2022-03-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a34a0f71-3565-41f9-9b4b-b4aa01004cbf"],["a82ff0ff-56d5-426c-905b-b4aa01005d5a","（再）ブラインドサッカーが魅力的すぎる　芸人さんもハマる楽しさ、難しさ #87","2022-03-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a82ff0ff-56d5-426c-905b-b4aa01005d5a"],["4ad17692-0b09-433b-9990-b4aa01008c60","後継者不足の猟友会　でも、若者には狩猟免許が人気？ #86","2022-03-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4ad17692-0b09-433b-9990-b4aa01008c60"],["6f1ad875-c35e-493b-956e-b4aa0100b8d5","夜行列車の進む道は、明るいか　選ばれるのは「スマートさ」ゆえ #85","2022-03-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6f1ad875-c35e-493b-956e-b4aa0100b8d5"],["809c2b54-2593-451a-84db-b4aa0100e2a2","ヨーロッパで夜行列車復活の兆し　ノスタルジーだけが理由じゃない #84","2022-03-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=809c2b54-2593-451a-84db-b4aa0100e2a2"],["de3692e7-44d5-4e78-83e1-b4aa0100f9cf","両親が別姓だと「子どもはかわいそう」？　当事者に聞いてみたら…（後編） #83","2022-03-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=de3692e7-44d5-4e78-83e1-b4aa0100f9cf"],["21e8369f-aaa1-4f3d-8450-b4aa01010448","夫が改姓し「加害者の気持ち」、名前を失う恐怖…　別姓婚を望む理由とは（前編） #82","2022-03-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=21e8369f-aaa1-4f3d-8450-b4aa01010448"],["a232de42-76ac-4d01-bfaf-b4aa0101120a","エネルギー自給100％、夢のマイホームで仲間とほくほく　5アンペア生活やめました（後編） #81","2022-03-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a232de42-76ac-4d01-bfaf-b4aa0101120a"],["f2614fd9-1c49-499d-ae8f-b4aa01012ee7","エアコンついに解禁…悔しい、そして決意した　5アンペア生活やめました（中編） #80","2022-03-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f2614fd9-1c49-499d-ae8f-b4aa01012ee7"],["019f3017-d599-458a-9aa1-b4aa010150b7","洗濯機をハラハラ見つめ、行水して扇風機で涼んだ日々　5アンペア生活やめました（前編） #79","2022-02-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=019f3017-d599-458a-9aa1-b4aa010150b7"],["3b0a70b2-3d01-4e2d-99e4-b4aa0101566f","埼玉モスク探訪（後編）悩み多きムスリム、知れば日本が見えてくる #78","2022-02-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3b0a70b2-3d01-4e2d-99e4-b4aa0101566f"],["e7948117-def7-4678-875f-b4aa01015b37","埼玉モスク探訪（前編）見た目は町工場　意外なところに礼拝所が #77","2022-02-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e7948117-def7-4678-875f-b4aa01015b37"],["710afc50-b7b8-486c-a28a-b4aa01016550","（再）ワクチン特許、解放できるか　「反対＝カネほしさ」とは言い切れず #76","2022-02-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=710afc50-b7b8-486c-a28a-b4aa01016550"],["393fa552-40fd-424b-84f2-b4aa01017bda","売春防止法が時代にそぐわない　支援が必要な女性が処罰対象に  #75","2022-02-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=393fa552-40fd-424b-84f2-b4aa01017bda"],["e3a03995-b707-48ef-b380-b4aa0101bc60","（再）仕事人間が「主夫」になってみた　思っていたのと全然違った #74","2022-02-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e3a03995-b707-48ef-b380-b4aa0101bc60"],["e9c6723d-8aa1-4681-b3d9-b4aa0101c905","（再）「タッパー神経衰弱」…ってなに？　名もなき家事に名前をつけよう #73","2022-02-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e9c6723d-8aa1-4681-b3d9-b4aa0101c905"],["07765733-152d-4c67-93ee-b4aa0101cf64","前例なき男性記者の育休5カ月　妻や職場にもたらした「勇気の伝染」 #72","2022-02-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=07765733-152d-4c67-93ee-b4aa0101cf64"],["afdbeef1-af54-47b5-88d6-b4aa0101cfa1","流行がないのが、はやりの時代　消費者に求められる覚悟とは　モードの世界（後編） #71","2022-02-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=afdbeef1-af54-47b5-88d6-b4aa0101cfa1"],["63bc185b-f529-43b1-9d27-b4aa0101e05b","ブランドの価値ってどこにある？　まとうのは、ものづくりにかける精神　モードの世界（前編） #70","2022-02-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=63bc185b-f529-43b1-9d27-b4aa0101e05b"],["1954d61f-ca00-4e71-88a3-b4aa0101e0fc","（再）そのペット、どこから？　あなたは犯罪の片棒を担がされているかも #69","2022-02-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1954d61f-ca00-4e71-88a3-b4aa0101e0fc"],["0d0f6a12-ec0e-40c4-a279-b4aa0101f16d","（再）動物園・シンジケート・当局・政治家…　動物密売、広がる闇のネットワーク #68","2022-02-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0d0f6a12-ec0e-40c4-a279-b4aa0101f16d"],["388027be-aefb-45a3-b039-b4aa01022490","「子がかわいそう」「戸籍制度を変えるの？」　その疑問に答えます　選択的夫婦別姓とは（後編） #67","2022-02-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=388027be-aefb-45a3-b039-b4aa01022490"],["0ef080d2-5703-4cd3-83ba-b4aa01023b8b","名前を変える「地獄」グチったら、仲間がどんどん集まった　選択的夫婦別姓とは（前編） #66","2022-02-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0ef080d2-5703-4cd3-83ba-b4aa01023b8b"],["ca1de4cd-4fec-4053-b3b5-b4aa01024988","（再）夏季オリンピック、極寒の町が名乗り　ビーチバレーは雪の上？ #65","2022-02-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=ca1de4cd-4fec-4053-b3b5-b4aa01024988"],["1a54b80d-345e-44c6-8bbd-b4aa0102544b","（再）マタハラ教授「子どもで言い訳？」　上司に夫、人生のガチャもうやめたい #64","2022-02-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1a54b80d-345e-44c6-8bbd-b4aa0102544b"],["3587eab3-f266-4865-aa20-b4aa0102729f","（再）仕事に時間を割けない、それがガラスの天井　リケジョを阻む構造 #63","2022-02-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3587eab3-f266-4865-aa20-b4aa0102729f"],["70e49fc6-bba2-42cf-b210-b4aa01027791","（再）研究職を離れても幸せは手に入る　でも、なぜ選べないの #62","2022-02-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=70e49fc6-bba2-42cf-b210-b4aa01027791"],["43c18afa-22c1-429d-9198-b4aa01028a78","（再）「このままだと、研究者としては死ぬ…」　リケジョがなくなる日 #61","2022-01-31 04:00","https://www.asahi.com/special/podcasts/item/?itemid=43c18afa-22c1-429d-9198-b4aa01028a78"],["5fc3bf3d-dce9-47ad-8d84-b4aa01029688","（再）鶏肉を「つくる」時代がやってきた　リアクターで細胞を培養 #60","2022-01-28 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5fc3bf3d-dce9-47ad-8d84-b4aa01029688"],["81249c50-5d0f-4fe2-8248-b4aa0102b186","津軽弁をAIで翻訳　円滑なコミュニケーションに向けた挑戦 #59","2022-01-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=81249c50-5d0f-4fe2-8248-b4aa0102b186"],["beab082c-9ccf-4ad7-9c91-b4aa0102de8f","フェーズ変わるSDGs　国連広報センター所長・根本かおるさんに聞いた #58","2022-01-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=beab082c-9ccf-4ad7-9c91-b4aa0102de8f"],["0e3db35d-7629-41a3-92c3-b4aa0102ea5a","誰にでも優しい温泉街へ　バリアフリーへ歩み出した伊香保温泉  #57","2022-01-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0e3db35d-7629-41a3-92c3-b4aa0102ea5a"],["da60d3f2-cb93-49f4-b77f-b4aa0102ff41","引退競走馬が馬肉に  「使い捨て」おかしい、元騎手始めた養老牧場 #56","2022-01-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=da60d3f2-cb93-49f4-b77f-b4aa0102ff41"],["c7e83d93-8130-47e5-9cf8-b4aa010338e4","ベトナムの観光地に立つ、物売りの少女たち　貧困がジェンダーを直撃する #50","2022-01-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c7e83d93-8130-47e5-9cf8-b4aa010338e4"],["02ea9f56-ebe0-4481-b428-b4aa0103447c","「プラゴミは、お宝だ」　東南アジアで広がるトレンド #49","2022-01-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=02ea9f56-ebe0-4481-b428-b4aa0103447c"],["1fea08a0-d2ee-4faa-bbe6-b4aa010346db","男性の育休、長く取れば質もあがる？　アンケートで見えた根深い課題 #53","2022-01-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1fea08a0-d2ee-4faa-bbe6-b4aa010346db"],["cd2dbd5f-35c7-4cda-8787-b4aa01035413","外食に困り、表示を見落とし…ヴィーガン生活で気づいた多様性（後編） #52","2022-01-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=cd2dbd5f-35c7-4cda-8787-b4aa01035413"],["55149577-5e5c-46d2-ae6f-b4aa010371b5","ヴィーガン生活チャレンジ　インドカレーもピザまでも食べられた（前編） #51","2022-01-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=55149577-5e5c-46d2-ae6f-b4aa010371b5"],["fc841b1b-9285-4dc7-b248-b4aa010377b9","障害者の「理想」は、私にもプラスかも　テレワークが変えた働き方 #50","2022-01-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=fc841b1b-9285-4dc7-b248-b4aa010377b9"],["0e13675b-fda0-4514-b6b5-b4aa01039170","水産異変③　秋田県民が愛すハタハタ、大衆魚とはもう言えない？ #49","2022-01-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=0e13675b-fda0-4514-b6b5-b4aa01039170"],["3cd3aac2-5ae2-4904-88e2-b4aa0103a505","水産異変②　忍び寄る\"魚が消える日\"　食卓を支えてきた漁村のいま #48","2022-01-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3cd3aac2-5ae2-4904-88e2-b4aa0103a505"],["de72e0ef-45ec-48da-98f4-b4aa0103cb04","水産異変①　鮭が捕れない　東北で増える南の魚 #47","2022-01-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=de72e0ef-45ec-48da-98f4-b4aa0103cb04"],["5e5a02f3-f488-4e6a-8393-b4aa0103d20a","（再）「花柄！」「いやストライプ」　夫婦はなぜ衝突してしまうの？ #46","2022-01-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5e5a02f3-f488-4e6a-8393-b4aa0103d20a"],["78baae33-a09c-4362-a900-b4aa0103ed2f","（再）転勤ってほんとに必要？　専門家「いらないでしょ」 #45","2022-01-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=78baae33-a09c-4362-a900-b4aa0103ed2f"],["2f86b398-4e4a-49a1-85a4-b4aa010415c2","（再）謝罪求める上司、妻の「大丈夫」待つ夫　男性育休の現実 #44","2022-01-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=2f86b398-4e4a-49a1-85a4-b4aa010415c2"],["a5f03323-afcf-4160-a80b-b4aa01042f48","（再）「パパ友」どうしてできにくい？　モヤモヤ、もっと話そうよ #43","2022-01-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=a5f03323-afcf-4160-a80b-b4aa01042f48"],["3e2c8e91-836a-4e2e-b47e-b4aa01043a66","（再）父親のモヤモヤ　育児や家事の分担、仕事とのバランスどうする？ ＃42","2022-01-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3e2c8e91-836a-4e2e-b47e-b4aa01043a66"],["90b48ed6-ae9d-4b65-978a-b4aa01045486","（再）除草ならヤギさんにおまかせ　三重でレンタル、注文殺到 #41","2021-12-27 04:00","https://www.asahi.com/special/podcasts/item/?itemid=90b48ed6-ae9d-4b65-978a-b4aa01045486"],["5e1aca30-4ab2-41a5-acd1-b4aa0104574f","（再）優等生ぶるわけじゃない　黒人女性への差別、いま考える理由 #40","2021-12-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=5e1aca30-4ab2-41a5-acd1-b4aa0104574f"],["98fc2057-27e5-4a72-bb53-b4aa01045c6d","（再）彼女は忘れられた　ボルト、ルイスより早かった100m連覇 #39","2021-12-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=98fc2057-27e5-4a72-bb53-b4aa01045c6d"],["c8d7a763-a8ca-4030-b933-b4aa0104604b","（再）中絶は、本当に罪なのか　アルゼンチンを変えた女性たち #38","2021-12-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c8d7a763-a8ca-4030-b933-b4aa0104604b"],["aa8e943b-cd7a-45fb-8178-b4aa010498aa","老化を抑える生活習慣　ディナーは「物乞いのように」　世界的権威に聞く② #37","2021-12-21 04:00","https://www.asahi.com/special/podcasts/item/?itemid=aa8e943b-cd7a-45fb-8178-b4aa010498aa"],["deb65905-d8e5-4d2c-af2f-b4aa0104bb6e","老化にはあらがえる、小太りが「長生き」のナゾ　世界的権威に聞く① #36","2021-12-20 04:00","https://www.asahi.com/special/podcasts/item/?itemid=deb65905-d8e5-4d2c-af2f-b4aa0104bb6e"],["78311762-6450-4c0a-8d9f-b4aa0104c2d2","（再）政治とセクハラ、本質はパワハラ　「票ハラ」そして飲み会はしご #35","2021-12-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=78311762-6450-4c0a-8d9f-b4aa0104c2d2"],["6557ffd3-ada1-4126-abdf-b4aa0104dcfa","（再）「森発言」に潜むムラ論理　オールド・ボーイズ・ネットワーク #34","2021-12-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6557ffd3-ada1-4126-abdf-b4aa0104dcfa"],["287a8cdd-3a49-4d65-91b8-b4aa010505d7","（再）監督は女性、しかも日系人　ハリウッドでいま起きている変化 #33","2021-12-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=287a8cdd-3a49-4d65-91b8-b4aa010505d7"],["3a935a15-199e-42ba-a5a0-b4aa01050f9b","SDGsは、「べからず集」じゃない　3人でシンプルに話してみた #32","2021-12-14 04:00","https://www.asahi.com/special/podcasts/item/?itemid=3a935a15-199e-42ba-a5a0-b4aa01050f9b"],["50dab7e7-0fca-4075-9403-b4aa01051b64","「女言葉」というステレオタイプ　言葉の性差は、変わりゆく #31","2021-12-13 04:00","https://www.asahi.com/special/podcasts/item/?itemid=50dab7e7-0fca-4075-9403-b4aa01051b64"],["b429cf0a-abf2-4bb4-b658-b4aa01053c4e","（再）恋愛禁止、妊娠は中絶　追い詰められるベトナム人女性 #30","2021-12-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b429cf0a-abf2-4bb4-b658-b4aa01053c4e"],["f747b417-d10f-41db-810d-b4aa01055db1","（再）オリンピック絡みでも…　日本でベトナム人が搾取されるシステム #29","2021-12-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f747b417-d10f-41db-810d-b4aa01055db1"],["fbffb526-6335-4870-9fce-b4aa010562b8","（再）「食い物」にされる実習生　ベトナム人犯罪の裏側を辿る #28","2021-12-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=fbffb526-6335-4870-9fce-b4aa010562b8"],["29877e80-ac8f-4885-a7d2-b4aa010566f5","（再）命を絶ったベトナム人留学生　何が彼を追い詰めたのか #27","2021-12-07 04:00","https://www.asahi.com/special/podcasts/item/?itemid=29877e80-ac8f-4885-a7d2-b4aa010566f5"],["f95ff700-f15d-4799-8ecf-b4aa01056928","（再）その弁当もネット通販も　他人事ではないベトナム人の「地獄」 #26","2021-12-06 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f95ff700-f15d-4799-8ecf-b4aa01056928"],["9fb606b6-6721-4466-b915-b4aa0105a70d","（再）ギグワーカーは本当に自由？　新しい働き方が抱える古い問題 #25","2021-12-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=9fb606b6-6721-4466-b915-b4aa0105a70d"],["de5a4d54-be5b-43a4-994b-b4aa0105ada4","（再）シングルマザーと永田町　思想も忖度も越えた「共感力」 #24","2021-12-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=de5a4d54-be5b-43a4-994b-b4aa0105ada4"],["138ca7b1-ab5a-4f2a-b13c-b4aa0105d806","（再）そういえば、昔は男声だったのに　AIはなぜ女性化した #23","2021-12-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=138ca7b1-ab5a-4f2a-b13c-b4aa0105d806"],["837c8313-dcb5-4fa2-920b-b4aa0105db82","同性婚、「日本」が壁になっている　台湾で見たジェンダーのいま #22","2021-11-30 04:00","https://www.asahi.com/special/podcasts/item/?itemid=837c8313-dcb5-4fa2-920b-b4aa0105db82"],["885635a7-4dcb-4e83-b0fb-b4aa0105dd42","ベーシックインカム、オランダの社会実験　自由より大事なものとは #21","2021-11-29 04:00","https://www.asahi.com/special/podcasts/item/?itemid=885635a7-4dcb-4e83-b0fb-b4aa0105dd42"],["f7c895a0-cd29-460d-a696-b4aa0105dddd","（再）そのペット、本当に飼える？　コロナでバブル、あおるメディア #20","2021-11-26 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f7c895a0-cd29-460d-a696-b4aa0105dddd"],["bdb5d6b4-4c81-4362-81b0-b4aa0105e9b9","（再）動物園はノアの箱舟か　選別される命、人間のエゴ #19","2021-11-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bdb5d6b4-4c81-4362-81b0-b4aa0105e9b9"],["780916c4-6edc-412a-a0b6-b4aa01060d62","（再）動物園で生まれ、でも私たちの食卓へ？　「余剰動物」たちの悲劇 #18","2021-11-24 04:00","https://www.asahi.com/special/podcasts/item/?itemid=780916c4-6edc-412a-a0b6-b4aa01060d62"],["397bcc93-b0d7-4aea-bc38-b4aa01061a07","捨てないで！そのリーバイス501　町工場が挑んだ大量生産・廃棄の壁 #17","2021-11-23 04:00","https://www.asahi.com/special/podcasts/item/?itemid=397bcc93-b0d7-4aea-bc38-b4aa01061a07"],["6710df3c-81d7-4909-86b9-b4aa01063e7f","ごみだらけの海、私とつながっていた　瀬戸内海で漁船に同乗 #16","2021-11-22 04:00","https://www.asahi.com/special/podcasts/item/?itemid=6710df3c-81d7-4909-86b9-b4aa01063e7f"],["511df5c0-082d-4fd1-bb76-b4aa01063de2","（再）ひとの最期を予知できる犬　ペットに看取られる幸せ #15","2021-11-19 04:00","https://www.asahi.com/special/podcasts/item/?itemid=511df5c0-082d-4fd1-bb76-b4aa01063de2"],["c457569f-4d27-454b-ad10-b4aa01068534","（再）口から食べたい、旅立ちの日まで　ケーキも酒も味わえる #14","2021-11-18 04:00","https://www.asahi.com/special/podcasts/item/?itemid=c457569f-4d27-454b-ad10-b4aa01068534"],["bbc535ed-81e1-4002-bc29-b4aa01069d12","（再）医師は「大丈夫」でも「持たない！」　おばぁたちは見抜いた #13","2021-11-17 04:00","https://www.asahi.com/special/podcasts/item/?itemid=bbc535ed-81e1-4002-bc29-b4aa01069d12"],["86e4c2c6-2447-4695-b4d9-b4aa01069dc2","（再）笑顔咲いた God bless you　人生の最期は歌とともに #12","2021-11-16 04:00","https://www.asahi.com/special/podcasts/item/?itemid=86e4c2c6-2447-4695-b4d9-b4aa01069dc2"],["f509b57b-524d-478a-866e-b4aa0106aaf5","（再）こんな夜更けにパクチーかよ　手渡された約束の花束 #11","2021-11-15 04:00","https://www.asahi.com/special/podcasts/item/?itemid=f509b57b-524d-478a-866e-b4aa0106aaf5"],["611d840b-e16c-4da7-9aa4-b4aa0106c455","（再）「野球少女」から見えた分断　兵役は男性差別なのか #10","2021-11-12 04:00","https://www.asahi.com/special/podcasts/item/?itemid=611d840b-e16c-4da7-9aa4-b4aa0106c455"],["097660e5-d266-4e9a-a4d3-b4aa0106d7a6","（再）「ブラックパンサー」成功の影響　私たちも無関係ではなかった #9","2021-11-11 04:00","https://www.asahi.com/special/podcasts/item/?itemid=097660e5-d266-4e9a-a4d3-b4aa0106d7a6"],["9072617e-df0a-47a1-bcb0-b4aa0106dac1","（再）アカデミー賞、なぜマイノリティー枠？　単なる「ポリコレ」ではなかった #8","2021-11-10 04:00","https://www.asahi.com/special/podcasts/item/?itemid=9072617e-df0a-47a1-bcb0-b4aa0106dac1"],["4e0c72d5-1cbd-4d1b-a306-b4aa0106de25","じつは既に、やってるのかも　SDGsを「活用」したいという話② #7","2021-11-09 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4e0c72d5-1cbd-4d1b-a306-b4aa0106de25"],["1d58e44e-6e68-4a18-ab04-b4aa0106f0ce","不格好な野菜も、原爆も　SDGsを「活用」したいという話① #6","2021-11-08 04:00","https://www.asahi.com/special/podcasts/item/?itemid=1d58e44e-6e68-4a18-ab04-b4aa0106f0ce"],["9386f7cb-f3c4-415e-8bb8-b4aa0106f28d","（再）スポーツとLGBT②　人に言えない「自分」は、誰にでもある #5","2021-11-05 04:00","https://www.asahi.com/special/podcasts/item/?itemid=9386f7cb-f3c4-415e-8bb8-b4aa0106f28d"],["4e13cfaf-d97e-4a5e-9837-b4aa01070661","（再）スポーツとLGBT①　トランスジェンダー女性、五輪に初出場 #4","2021-11-04 04:00","https://www.asahi.com/special/podcasts/item/?itemid=4e13cfaf-d97e-4a5e-9837-b4aa01070661"],["e72861b7-3666-4191-95bf-b4aa01071311","SDGsとは、矛盾を受け入れることかも　竹下隆一郎さんと話した（後編） #3","2021-11-03 04:00","https://www.asahi.com/special/podcasts/item/?itemid=e72861b7-3666-4191-95bf-b4aa01071311"],["7c2d4eaa-f0d0-4b41-9bf2-b4aa01071fc4","SDGs、大企業がいいように使ってない？　竹下隆一郎さんと話した（中編） #2","2021-11-02 04:00","https://www.asahi.com/special/podcasts/item/?itemid=7c2d4eaa-f0d0-4b41-9bf2-b4aa01071fc4"],["8170f3a8-b0e7-4889-88ff-b4aa010756a9","SDGsって、きれいごと？　ハフポスト前編集長の竹下隆一郎さんと話した（前編） #1","2021-11-01 04:00","https://www.asahi.com/special/podcasts/item/?itemid=8170f3a8-b0e7-4889-88ff-b4aa010756a9"],["b8642140-af20-49ac-8e90-b4aa01075682","SDGsのこと、シンプルに話そう　11月1日スタート #0","2021-10-25 04:00","https://www.asahi.com/special/podcasts/item/?itemid=b8642140-af20-49ac-8e90-b4aa01075682"]];
+
+return { SDGS_OFFICIAL_SOURCE, SDGS_OFFICIAL };
+})();
+
+var LedgerAudit = (function () {
+// V2統合台帳の総合監査（2026-11-13 司令塔指令）。読むだけの判定ロジック。GAS（清掃ロボ）と Node テストの両方から使う。
+// 方針: 推測でURLを作らない。番組トップURLを個別エピソードURLとして数えない。件数一致だけで合格にしない。
+const { SDGS_OFFICIAL } = SdgsOfficial;
+const LEDGER_AUDIT_VERSION = 'LA-1';
+const PLATFORM_COLUMNS = ['Spotify', 'Apple', 'Amazon', 'Pocket Casts', 'LISTEN', 'Pody', 'YouTube'];
+// 個別エピソードURLの形（番組トップ・検索結果は episode にしない）
+const EPISODE_RE = {
+  Spotify: /^https:\/\/open\.spotify\.com\/episode\/[A-Za-z0-9]{22}(?:[?#].*)?$/,
+  Apple: /^https:\/\/podcasts\.apple\.com\/[a-z]{2}\/podcast\/[^?#]*\/id\d+\?(?:.*&)?i=\d+/,
+  Amazon: /^https:\/\/music\.amazon\.[a-z.]+\/podcasts\/[0-9a-f-]{36}\/episodes\/[0-9a-f-]{36}/i,
+  'Pocket Casts': /^https:\/\/pca\.st\/episode\/[0-9a-f-]{36}/i,
+  LISTEN: /^https:\/\/listen\.style\/p\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+\/?(?:[?#].*)?$/,
+  Pody: /^https:\/\/pody\.jp\/[^?#]*(?:episode|episodes|e)\/[A-Za-z0-9_-]+/i,
+  YouTube: /^https:\/\/(?:www\.youtube\.com\/watch\?(?:.*&)?v=|youtu\.be\/)[A-Za-z0-9_-]{11}/,
+};
+const SHOW_RE = {
+  Spotify: /^https:\/\/open\.spotify\.com\/show\//, Apple: /^https:\/\/podcasts\.apple\.com\/[a-z]{2}\/podcast\/[^?#]*\/id\d+\/?(?:\?(?!(?:.*&)?i=).*)?$/,
+  Amazon: /^https:\/\/music\.amazon\.[a-z.]+\/podcasts\/[0-9a-f-]{36}\/?(?:[?#].*)?$/i, 'Pocket Casts': /^https:\/\/pca\.st\/(?:podcast\/)?[A-Za-z0-9_-]+\/?$/,
+  LISTEN: /^https:\/\/listen\.style\/p\/[A-Za-z0-9_-]+\/?$/, Pody: /^https:\/\/pody\.jp\//i, YouTube: /^https:\/\/www\.youtube\.com\/(?:@|channel\/|playlist\?)/,
+};
+// 1セルの判定: EMPTY（未処理・空欄）／EPISODE（個別EPの形）／SHOW_TOP（番組トップ等＝個別EPの代用は不可）／OTHER（形が不明・要確認）
+function classifyPlatformUrl(platform, url) {
+  const u = String(url ?? '').trim(); if (!u) return 'EMPTY';
+  if (EPISODE_RE[platform] && EPISODE_RE[platform].test(u)) return 'EPISODE';
+  if (SHOW_RE[platform] && SHOW_RE[platform].test(u)) return 'SHOW_TOP';
+  return 'OTHER';
+}
+
+// 公式個別URL: 朝日新聞ポッドキャストの個別ページ（itemid=公式GUID）。台帳の既存値の形を確かめるだけで、ここでは作らない
+const OFFICIAL_ITEM_BASE = 'https://www.asahi.com/special/podcasts/item/?itemid=';
+// itemid は UUID（Omny 配信）だけでなく、Megaphone 配信の回（ニュースの学校など）は配信ホスト固有ID（例 TASC4073670976）になる
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const normId = (id) => (UUID_RE.test(String(id)) ? String(id).toLowerCase() : String(id));
+function officialItemId(url) { const m = String(url ?? '').match(/^https:\/\/www\.asahi\.com\/special\/podcasts\/item\/\?itemid=([A-Za-z0-9-]{6,64})(?:&.*)?$/i); return m ? normId(m[1]) : ''; }
+// 音声URLから配信ホスト固有IDを取る（Megaphone: traffic.megaphone.fm/TASC4073670976.mp3。pdst.fm などの計測用前置きも許す）
+function hostIdFromAudio(url) { const m = String(url ?? '').match(/megaphone\.fm\/([A-Z]{2,10}\d{6,})\.mp3/); return m ? m[1] : ''; }
+// 公式個別ページの候補（確認前）。優先順: おんさ共有台帳の Asahi.com URL（他人の記録なので必ずこちらでも確かめる）→ Megaphone の配信ホストID → UUID 形式の GUID。
+// Megaphone の回は GUID が UUID でも GUID を itemid に使わない（公式ページは配信ホストIDで引くため）。key は照合に使う itemid
+function officialUrlCandidate(row) {
+  // 公式個別URL欄に朝日の公式ページURLがあれば確認済みの値として扱う。Omny のページURLなど別の形が入っている時は（82件の共通原因）、
+  // 空欄と同じく GUID 等から候補を作り replaces=true を付ける（U2 の空欄補完では書かない。置き換えは別承認）
+  const cur = String(row.officialUrl ?? '').trim();
+  if (cur && officialItemId(cur)) return { status: 'HAS_VALUE' };
+  const r = officialUrlCandidateFromIds(row);
+  return cur && r.status === 'CANDIDATE' ? { ...r, replaces: true, kind: r.kind + '（公式URL欄は別形式: ' + cur.replace(/^(https?:\/\/[^/]+).*$/, '$1') + '）' } : r;
+}
+function officialUrlCandidateFromIds(row) {
+  const onsaId = officialItemId(row.onsaAsahiUrl), host = hostIdFromAudio(row.audioUrl), g = String(row.guid ?? '').trim();
+  if (onsaId) return { status: 'CANDIDATE', url: OFFICIAL_ITEM_BASE + onsaId, key: onsaId, guid: onsaId, kind: 'おんさ記録のURL' };
+  if (host) return { status: 'CANDIDATE', url: OFFICIAL_ITEM_BASE + host, key: host, guid: host, kind: 'Megaphone配信ID' };
+  if (UUID_RE.test(g)) return { status: 'CANDIDATE', url: OFFICIAL_ITEM_BASE + g.toLowerCase(), key: g.toLowerCase(), guid: g.toLowerCase(), kind: '公式GUID' };
+  return { status: 'NO_GUID' };
+}
+const pageText = (h) => String(h ?? '').replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+const flat = (t) => String(t ?? '').normalize('NFKC').replace(/[\s　「」『』"“”'’（）()【】\[\]・、。,.!！?？:：/／#＃-]/g, '').toLowerCase();
+// 取得した公式ページが本物か: HTTP 200・canonical（または og:url）の itemid が期待するIDと一致・（タイトルを渡した時は）ページにそのタイトルがある、の全部を満たす時だけ VERIFIED
+// 公式ページの照合: ID（canonical の itemid）・タイトル・番組・配信日の4つ。渡された条件は全部そろった時だけ VERIFIED。
+// 番組はページ内（パンくず）に番組名があること、配信日はページの日付（YYYY/MM/DD）が台帳の日付と±1日以内（JST と配信基準日のずれ）
+// 公式サイトで別番組の下に載る回がある（その番組の配信枠で流れた回）。2026-11-14 に公式ページのパンくずで確認した組だけを書く。
+// 例: スポンジ・旧報談・一部ドーナツ → 「ニュースの現場から」(pgid 684015f9)。新しい報談は「報談 【HOU-DAN】」、ドーナツは「ドーナツ ～…」で本来名と前方一致
+const SHOW_SITE_PARENTS = { 'スポンジ': ['ニュースの現場から'], '報談': ['ニュースの現場から'], 'ドーナツ': ['ニュースの現場から'] };
+// 日付→UTC 0時の数値。「Thu, 04 May 2023 19:05:00 +0000」形式（おんさ記録）は日本時間に直して日付を取る
+const dayUtc = (d) => { const t = String(d ?? '').trim(); if (/^[A-Za-z]{3},?\s+\d{1,2}\s+[A-Za-z]{3}\s+\d{4}/.test(t)) { const ms = Date.parse(t); if (isNaN(ms)) return NaN; const j = new Date(ms + 9 * 3600000); return Date.UTC(j.getUTCFullYear(), j.getUTCMonth(), j.getUTCDate()); } const m = t.match(/(20\d\d)[-/年.](\d{1,2})[-/月.](\d{1,2})/); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) : NaN; };
+function verifyOfficialPage(code, html, expectedId, title, opts = {}) {
+  if (code === 404 || code === 410) return { status: 'NOT_FOUND', reason: 'HTTP_' + code };
+  if (code !== 200) return { status: 'ERROR', reason: 'HTTP_' + code };
+  const h = String(html ?? ''), can = (h.match(/<link[^>]+rel=["']canonical["'][^>]*href=["']([^"']+)["']/i) || h.match(/<meta[^>]+property=["']og:url["'][^>]*content=["']([^"']+)["']/i) || [])[1] || '';
+  const id = officialItemId(can.replace(/&amp;/g, '&'));
+  if (!id) return { status: 'HOLD', reason: 'NO_CANONICAL_ITEMID' };
+  if (id !== normId(expectedId)) return { status: 'HOLD', reason: 'CANONICAL_MISMATCH ' + id };
+  const ok = ['ID'], txt = flat(pageText(h)), rawFlat = flat(h);
+  if (title) { const want = flat(title).replace(/^再/, '').slice(0, 24); if (want.length >= 4 && txt.indexOf(want) < 0) return { status: 'HOLD', reason: 'TITLE_NOT_ON_PAGE' }; ok.push('TITLE'); }
+  if ('show' in opts) {
+    const sh = flat(opts.show); if (!sh) return { status: 'HOLD', reason: 'NO_SHOW_TO_MATCH' };
+    const prog = (h.match(/"position"\s*:\s*4\s*,\s*"name"\s*:\s*"([^"]+)"/) || [])[1] || '';
+    if (prog && prog !== '記事') {   // パンくず4段目が「記事」のページは番組名が載らない作り（9件の共通原因）→ 本文の番組名で照合
+      if (flat(prog).indexOf(sh) === 0) ok.push('SHOW');
+      else if ((SHOW_SITE_PARENTS[opts.show] || []).indexOf(prog) >= 0) ok.push('SHOW(親番組:' + prog + ')');
+      else return { status: 'HOLD', reason: 'SHOW_MISMATCH ' + prog };
+    } else if (rawFlat.indexOf(sh) >= 0) ok.push('SHOW'); else return { status: 'HOLD', reason: 'SHOW_NOT_ON_PAGE' };
+  }
+  if ('date' in opts) {
+    const want = dayUtc(opts.date); if (isNaN(want)) return { status: 'HOLD', reason: 'NO_DATE_TO_MATCH' };
+    const page = (h.match(/20\d\d\/\d{1,2}\/\d{1,2}/g) || []).map(dayUtc);
+    if (!page.length) return { status: 'HOLD', reason: 'NO_DATE_ON_PAGE' };
+    if (!page.some((t) => Math.abs(t - want) <= 86400000)) return { status: 'HOLD', reason: 'DATE_MISMATCH ' + new Date(page[0]).toISOString().slice(0, 10) };
+    ok.push('DATE');
+  }
+  const via = ok.find((x) => /^SHOW\(/.test(x)), keys = ok.map((x) => (/^SHOW\(/.test(x) ? 'SHOW' : x));
+  return { status: 'VERIFIED', reason: (keys.length === 1 ? 'CANONICAL_ITEMID_MATCH' : keys.length === 2 && keys[1] === 'TITLE' ? 'CANONICAL_ITEMID_AND_TITLE_MATCH' : keys.join('_') + '_MATCH') + (via ? ' ' + via.slice(4) : '') };
+}
+
+// ---------- おんさ共有台帳との照合（読むだけ）。Omny URL・Asahi.com の itemid・Spotify エピソードID のどれかが一致した時だけ同じ回と見なす（タイトルだけでは結び付けない） ----------
+const omnyKey = (u) => { const m = String(u ?? '').match(/omny\.fm\/shows\/([^/?#]+)\/([^/?#]+)/i); return m ? (m[1] + '/' + m[2]).toLowerCase() : ''; };
+const spotifyKey = (u) => { const m = String(u ?? '').match(/open\.spotify\.com\/episode\/([A-Za-z0-9]{22})/); return m ? m[1] : ''; };
+const ONSA_MATCH_HEADERS = ['EP-ID', '区分', '一致方法', 'おんさシート', 'おんさ行', 'おんさタイトル', 'おんさ日付', 'おんさ秒', 'おんさ Asahi.com URL', 'V2タイトル', '差異', 'メモ'];
+// onsa: [{sheet,row,omny,date,title,seconds,spotify,asahi}]、v2: laRead_ の行（omny=旧元ページURL, spotify=Spotify列, officialUrl, guid, audioUrl）
+function onsaMatch(v2, onsa) {
+  const idx = { omny: new Map(), asahi: new Map(), spotify: new Map() }, used = new Set(), out = [], count = {};
+  onsa.forEach((o, i) => { const k1 = omnyKey(o.omny), k2 = officialItemId(o.asahi), k3 = spotifyKey(o.spotify); if (k1) idx.omny.set(k1, i); if (k2) idx.asahi.set(k2, i); if (k3) idx.spotify.set(k3, i); });
+  const add = (row, kind) => { count[kind] = (count[kind] || 0) + 1; out.push(row); };
+  v2.filter((r) => r.ep).forEach((r) => {
+    const ids = [['旧元ページURL(Omny)', idx.omny.get(omnyKey(r.sourceUrl))], ['公式itemid', idx.asahi.get(officialItemId(r.officialUrl)) ?? idx.asahi.get(normId(r.guid)) ?? idx.asahi.get(hostIdFromAudio(r.audioUrl))], ['Spotify', idx.spotify.get(spotifyKey(r.spotify))]].filter((x) => x[1] !== undefined);
+    if (!ids.length) { add([r.ep, 'おんさに無い', '', '', '', '', '', '', '', r.title, '', 'おんさの収録範囲外（YouTube・ニュースの学校の扱いなど）か未記録の可能性。これだけで除外しない'], 'おんさに無い'); return; }
+    const hits = [...new Set(ids.map((x) => x[1]))]; if (hits.length > 1) { add([r.ep, '識別子が別々のおんさ行を指す', ids.map((x) => x[0]).join('・'), '', '', '', '', '', '', r.title, '', 'おんさ行 ' + hits.map((h) => onsa[h].sheet + ':' + onsa[h].row).join(' / ')], '識別子矛盾'); return; }
+    const o = onsa[hits[0]]; used.add(hits[0]); const diff = [flat(o.title) !== flat(r.title) ? 'タイトル' : '', o.seconds && r.seconds && Math.abs(Number(o.seconds) - Number(r.seconds)) > 2 ? '再生時間' : ''].filter(Boolean).join('・');
+    add([r.ep, diff ? '一致（差異あり）' : '一致', ids.map((x) => x[0]).join('・'), o.sheet, String(o.row), o.title, o.date, o.seconds, o.asahi, r.title, diff, ''], diff ? '一致（差異あり）' : '一致');
+  });
+  // 照合で使われなかったおんさ行でも、台帳のどれかの行と識別子が一致すれば「おんさ内の重複（台帳にあり）」（おんさで同じ回が別シートにも記録されている）
+  const led = { omny: new Map(), asahi: new Map(), spotify: new Map() };
+  v2.filter((r) => r.ep).forEach((r) => { const k1 = omnyKey(r.sourceUrl), k3 = spotifyKey(r.spotify); if (k1) led.omny.set(k1, r.ep); [officialItemId(r.officialUrl), normId(r.guid), hostIdFromAudio(r.audioUrl)].forEach((k) => { if (k && !led.asahi.has(k)) led.asahi.set(k, r.ep); }); if (k3) led.spotify.set(k3, r.ep); });
+  onsa.forEach((o, i) => { if (used.has(i)) return; const ep = led.omny.get(omnyKey(o.omny)) || led.asahi.get(officialItemId(o.asahi)) || led.spotify.get(spotifyKey(o.spotify)); if (ep) add([ep, 'おんさ内の重複（台帳にあり）', '', o.sheet, String(o.row), o.title, o.date, o.seconds, o.asahi, '', '', 'おんさの別シートにも同じ回の記録あり。台帳の行は ' + ep], 'おんさ内の重複（台帳にあり）'); });
+  onsa.forEach((o, i) => { if (!used.has(i) && !(led.omny.get(omnyKey(o.omny)) || led.asahi.get(officialItemId(o.asahi)) || led.spotify.get(spotifyKey(o.spotify))) && (omnyKey(o.omny) || officialItemId(o.asahi) || spotifyKey(o.spotify))) add(['', 'おんさにあり台帳に無い', '', o.sheet, String(o.row), o.title, o.date, o.seconds, o.asahi, '', '', '未収蔵の可能性（エピソードの不存在ではない）。公式ページ・音声で確かめる'], 'おんさにあり台帳に無い'); });
+  return { rows: out, count };
+}
+
+// SDGs 1,092件の採用監査: 公式1件ごとに台帳の行を GUID → 公式個別URLの itemid → 公式JSON UUID の順で探す。タイトルだけでは結び付けない
+const num = (t) => { const m = String(t ?? '').match(/#\s*(\d+)\s*$/); return m ? m[1] : ''; };
+const day = (d) => { const m = String(d ?? '').match(/(\d{4})[-/](\d{1,2})[-/](\d{1,2})/); return m ? m[1] + '-' + m[2].padStart(2, '0') + '-' + m[3].padStart(2, '0') : ''; };
+const normTitle = (t) => String(t ?? '').normalize('NFKC').replace(/[\s　"“”「」『』]/g, '');
+const SDGS_AUDIT_HEADERS = ['区分', '判定', '理由', '公式UUID', '公式番号', '公式タイトル', '公式配信日', '公式個別URL', 'EP-ID', '台帳行', '台帳番組', '台帳タイトル', '台帳配信日', '掲載判定', '代表EP-ID', '台帳GUID', '台帳公式個別URL', '一致方法', '差異'];
+function auditSdgs(rows, official = SDGS_OFFICIAL, show = 'SDGsを話そう') {
+  const byGuid = new Map(), byItem = new Map(), byUuid = new Map(), used = new Set(), out = [];
+  const add = (m, k, r) => { if (!k) return; if (!m.has(k)) m.set(k, []); m.get(k).push(r); };
+  rows.forEach((r) => { add(byGuid, String(r.guid || '').toLowerCase(), r); add(byItem, officialItemId(r.officialUrl), r); add(byUuid, String(r.jsonUuid || '').toLowerCase(), r); });
+  for (const [uuid, title, date, url] of official) {
+    let hit = byGuid.get(uuid), how = 'GUID'; if (!hit) { hit = byItem.get(uuid); how = '公式個別URL'; } if (!hit) { hit = byUuid.get(uuid); how = '公式JSON UUID'; }
+    const base = { uuid, no: num(title), title, date, url };
+    if (!hit) { out.push(row('公式', '要確認', '台帳に該当行なし（未収蔵か、GUID・URLが未記録）', base, null, '')); continue; }
+    if (hit.length > 1) { hit.forEach((h) => used.add(h)); out.push(row('公式', '要確認', '台帳に同じ公式UUIDの行が' + hit.length + '行', base, hit[0], how, hit.map((h) => (h.ep || '(EP-IDなし)') + '@' + h.row).join(' '))); continue; }
+    const h = hit[0]; used.add(h);
+    const diff = [h.show !== show ? '番組=' + h.show : '', normTitle(h.title) !== normTitle(title) ? 'タイトル' : '', day(h.date) && day(h.date) !== day(date) ? '配信日' : '', h.officialUrl && officialItemId(h.officialUrl) !== uuid ? '公式個別URL' : '', !h.officialUrl ? '公式個別URL空欄' : ''].filter(Boolean).join('・');
+    let verdict, why;
+    if (!h.ep) { verdict = '要確認'; why = 'EP-IDのない行'; }
+    else if (h.judge === '対象' && h.rep === h.ep) { verdict = '採用'; why = '公開対象（代表EP）'; }
+    else if (h.judge === '対象') { verdict = '除外'; why = '同一内容の代表は ' + h.rep; }
+    else if (h.judge === '対象外') { verdict = '除外'; why = '掲載判定=対象外' + (h.reason ? '（' + h.reason + '）' : ''); }
+    else { verdict = '保留'; why = '掲載判定=' + (h.judge || '空') + (h.reason ? '（' + h.reason + '）' : ''); }
+    out.push(row('公式', verdict, why, base, h, how, diff));
+  }
+  rows.filter((r) => r.show === show && !used.has(r)).forEach((h) => out.push(row('台帳のみ', h.judge === '対象' && h.rep === h.ep ? '要確認' : (h.judge === '対象外' ? '除外' : '保留'), '公式1,092件に一致しない' + show + 'の行（旧データ・再配信・未照合）', { uuid: '', no: num(h.title), title: '', date: '', url: '' }, h, '', '')));
+  const count = {}; out.forEach((o) => { const k = o[0] + '・' + o[1]; count[k] = (count[k] || 0) + 1; });
+  return { rows: out, count, official: official.length };
+  function row(kind, verdict, why, b, h, how, diff) { return [kind, verdict, why, b.uuid, b.no, b.title, b.date, b.url, h ? h.ep : '', h ? String(h.row) : '', h ? h.show : '', h ? h.title : '', h ? h.date : '', h ? h.judge : '', h ? h.rep : '', h ? h.guid : '', h ? h.officialUrl : '', how, diff || '']; }
+}
+
+// 関連記事索引: 1記事1行。見出しは保全原文の清掃結果をそのまま使い、無ければ「未取得」（作らない）。URL は台帳と原文の両方を残す
+const RELATED_HEADERS = ['EP-ID', '番号', '見出し', 'URL', 'リンク', '出典', '元URL（原文の表記）'];
+// 記事URLの照合キー: 追跡用の付け足し（iref・utm_*・「?irefomny」の書き損じ）と # 以降だけ外す。他の ? 付き（rensai の id= など）は別記事として残す
+function articleKey(u) {
+  let s = String(u ?? '').trim().replace(/^http:\/\//i, 'https://'), hash = s.indexOf('#'); if (hash >= 0) s = s.slice(0, hash);
+  const q = s.indexOf('?'); if (q < 0) return s;
+  const keep = s.slice(q + 1).split('&').filter((p) => p && !/^(?:i?ref(?:omny)?(?:=omny|=.*)?|utm_[a-z]+=.*|cid=.*)$/i.test(p));
+  return s.slice(0, q) + (keep.length ? '?' + keep.join('&') : '');
+}
+// 関連記事索引: 1記事1行。見出しは保全原文の清掃結果をそのまま使い、無ければ「未取得」（作らない）。
+// 原文の記事と台帳の関連記事URL列の記事は articleKey で同じ記事と見なし1行にまとめる（台帳だけ ?iref=omny が付く等で二重に数えない）。台帳の表記が違う時は元URL欄に残す
+function relatedRows(ep, related, ledgerUrls) {
+  const out = [], byKey = new Map();
+  (related || []).forEach((r) => { const u = String(r.url || '').trim(); if (!u) return; const k = articleKey(u); if (byKey.has(k)) return; const row = { ep, url: u, title: String(r.title || '').trim() || '未取得', source: '概要原文（公式RSS）', original: [r.originalUrl || u] }; byKey.set(k, row); if (r.originalUrl) byKey.set(articleKey(r.originalUrl), row); out.push(row); });
+  String(ledgerUrls || '').split(/[\s\n]+/).filter((u) => /^https?:\/\//.test(u)).forEach((u) => { const k = articleKey(u), hit = byKey.get(k); if (hit) { if (hit.original.indexOf(u) < 0 && hit.url !== u) hit.original.push('台帳: ' + u); return; } const row = { ep, url: u, title: '未取得', source: '統合台帳 関連記事URL（既存値）', original: [u] }; byKey.set(k, row); out.push(row); });
+  return out.map((r, i) => [r.ep, String(i + 1), r.title, r.url, hyperlink(r.url, r.title === '未取得' ? r.url : r.title), r.source, r.original.join(' / ')]);
+}
+// シートに文字として書く時、先頭の「'」は Sheets が「文字列の印」として消してしまう（表示が1文字短くなり毎回差分になる）。先頭が ' なら ' をもう1つ付けて原文どおり表示させる
+function sheetText(s) { const t = String(s ?? ''); return t.charAt(0) === "'" ? "'" + t : t; }
+// シートのリンク表示。式の中の " は "" に、長すぎる見出しは切る（式は 50,000 字まで・見出しは表示用）
+function hyperlink(url, label) { const q = (s) => String(s).replace(/"/g, '""'); return '=HYPERLINK("' + q(url) + '","' + q(String(label).slice(0, 200)) + '")'; }
+
+// 番組（B列）別の件数。公開対象は「掲載判定=対象 かつ 代表EP」だけ数える（再配信・重複の二重計上を防ぐ）
+const PLAYLIST_HEADERS = ['番組', '全行', '公開対象（代表EP）', '対象（代表でない）', '対象外', '保留', '未判定', 'その他', 'EP-IDなし', '最初の配信日', '最後の配信日'];
+function playlistCounts(rows) {
+  const m = new Map();
+  rows.forEach((r) => { const k = r.show || '(番組なし)'; if (!m.has(k)) m.set(k, { all: 0, pub: 0, dup: 0, out: 0, hold: 0, none: 0, other: 0, noEp: 0, first: '', last: '' }); const c = m.get(k); c.all++;
+    if (!r.ep) c.noEp++; else if (r.judge === '対象') { if (r.rep === r.ep) c.pub++; else c.dup++; } else if (r.judge === '対象外') c.out++; else if (r.judge === '保留') c.hold++; else if (r.judge === '未判定' || !r.judge) c.none++; else c.other++;
+    const d = day(r.date); if (d) { if (!c.first || d < c.first) c.first = d; if (!c.last || d > c.last) c.last = d; } });
+  return [...m].sort((a, b) => b[1].all - a[1].all).map(([k, c]) => [k, c.all, c.pub, c.dup, c.out, c.hold, c.none, c.other, c.noEp, c.first, c.last]);
+}
+
+// ---------- 全台帳の差分監査（L2）。旧公開図書館・V2・旧本番台帳を EP-ID と GUID で突き合わせる（読むだけ） ----------
+const isRerunTitle = (t) => /^[（(]再[)）]/.test(String(t ?? '').trim());
+const rerunBaseTitle = (t) => String(t ?? '').normalize('NFKC').replace(/^[(（]再[)）]\s*/, '').replace(/#\s*\d+\s*$/, '').replace(/[\s　「」『』"“”]/g, '');
+const normT = (t) => String(t ?? '').normalize('NFKC').replace(/[\s　]/g, '');
+const ymd = (d) => { const m = String(d ?? '').match(/(\d{4})[-/](\d{1,2})[-/](\d{1,2})/); return m ? m[1] + '-' + m[2].padStart(2, '0') + '-' + m[3].padStart(2, '0') : ''; };
+const LEDGER_DIFF_HEADERS = ['EP-ID', '区分', '採否案', '根拠', '番組', 'タイトル（V2）', '配信日（V2）', 'V2掲載判定', 'V2代表EP', 'GUID（V2）', '旧公開', '旧公開タイトル', '旧公開配信日', '旧本番台帳', '旧本番タイトル', '旧本番配信日', '旧本番GUID', '重複・原回EP-ID', '差異'];
+// oldPub: [{id,show,title,date}]、v2: laRead_ の行、v1: [{id,show,title,date,guid,excluded}]、since: 新着を別枠で数える日付（YYYY-MM-DD）
+function ledgerDiff({ oldPub = [], v2 = [], v1 = [], since = '2026-11-13' }) {
+  const O = new Map(oldPub.map((e) => [e.id, e])), V = new Map(v2.filter((r) => r.ep).map((r) => [r.ep, r])), P = new Map(v1.filter((r) => r.id).map((r) => [r.id, r]));
+  const pub = (r) => r && r.judge === '対象' && r.rep === r.ep, orig = new Map(), byGuid = new Map();
+  for (const r of V.values()) { if (!isRerunTitle(r.title)) { const k = r.show + '|' + rerunBaseTitle(r.title); (orig.get(k) || orig.set(k, []).get(k)).push(r.ep); } const g = String(r.guid || '').toLowerCase(); if (g) (byGuid.get(g) || byGuid.set(g, []).get(g)).push(r.ep); }
+  const v1Guid = new Map(); for (const r of P.values()) { const g = String(r.guid || '').toLowerCase(); if (g) (v1Guid.get(g) || v1Guid.set(g, []).get(g)).push(r.id); }
+  const rows = [], count = {}, add = (ep, kind, verdict, why, extra = {}) => { const r = V.get(ep) || {}, o = O.get(ep), p = P.get(ep); count[kind + '｜' + verdict] = (count[kind + '｜' + verdict] || 0) + 1;
+    rows.push([ep, kind, verdict, why, r.show || (o && o.show) || (p && p.show) || '', r.title || '', r.date || '', r.judge || '', r.rep || '', r.guid || '', o ? '公開' : '', o ? o.title : '', o ? ymd(o.date) : '', p ? (p.excluded ? '人間除外' : 'あり') : '', p ? p.title : '', p ? ymd(p.date) : '', p ? p.guid : '', extra.dup || '', extra.diff || '']); };
+  const ids = new Set([...O.keys(), ...V.keys(), ...P.keys()]);
+  for (const ep of [...ids].sort()) {
+    const r = V.get(ep), o = O.get(ep), p = P.get(ep), g = String(r && r.guid || '').toLowerCase();
+    const diff = [o && r && normT(o.title) !== normT(r.title) ? 'タイトル(旧公開)' : '', o && r && ymd(o.date) && ymd(r.date) && ymd(o.date) !== ymd(r.date) ? '配信日(旧公開)' : '', p && r && normT(p.title) !== normT(r.title) ? 'タイトル(旧本番)' : '', p && r && ymd(p.date) && ymd(r.date) && ymd(p.date) !== ymd(r.date) ? '配信日(旧本番)' : '', p && r && p.guid && g && String(p.guid).toLowerCase() !== g ? 'GUID(旧本番)' : ''].filter(Boolean).join('・');
+    const sameGuid = g ? (byGuid.get(g) || []).filter((x) => x !== ep) : [], v1Other = g ? (v1Guid.get(g) || []).filter((x) => x !== ep) : [];
+    if (sameGuid.length || v1Other.length) add(ep, '同じGUIDが別EP-ID', 'DUPLICATE', '公式GUIDが同じ', { dup: [...sameGuid, ...v1Other].join(' '), diff });
+    if (o && !r) { add(ep, '旧公開にありV2にない', 'ERROR', 'V2台帳にEP-IDがない', { diff }); continue; }
+    if (o && r && !pub(r)) { add(ep, '旧公開にありV2で非公開', r.rep && r.rep !== ep ? 'DUPLICATE' : r.judge === '対象外' ? 'EXCLUDE' : 'HOLD', 'V2 掲載判定=' + r.judge + (r.rep && r.rep !== ep ? '・代表=' + r.rep : ''), { dup: r.rep !== ep ? r.rep : '', diff }); continue; }
+    if (o && r) { if (diff) add(ep, '両方にあり表記・日付が違う', 'HOLD', '台帳ごとに値が違う', { diff }); continue; }
+    if (r && pub(r)) {
+      if (isRerunTitle(r.title)) { const os = (orig.get(r.show + '|' + rerunBaseTitle(r.title)) || []).filter((x) => x !== ep), opub = os.filter((x) => O.has(x));
+        add(ep, 'V2にあり旧公開にない・再配信', opub.length ? 'DUPLICATE候補' : 'HOLD', opub.length ? '原回 ' + opub.join(' ') + ' が公開済み（タイトル一致のみ。GUID・音源で確定させる）' : '原回が台帳に無い再配信（一括採用・一括削除しない）', { dup: os.join(' '), diff }); continue; }
+      add(ep, ymd(r.date) >= since ? 'V2にあり旧公開にない・' + since + '以降の新着' : 'V2にあり旧公開にない・新規', 'HOLD', '公式ページ・音声の確認待ち（L3）', { diff }); }
+    if (p && !r) add(ep, '旧本番台帳にありV2にない', p.excluded ? 'EXCLUDE' : 'ERROR', p.excluded ? '旧本番で人間除外' : 'V2台帳にEP-IDがない');
+    else if (r && !p && pub(r)) count['（参考）V2公開候補で旧本番台帳にない'] = (count['（参考）V2公開候補で旧本番台帳にない'] || 0) + 1;
+  }
+  const n = { oldPublic: O.size, v2Public: [...V.values()].filter(pub).length, both: [...O.keys()].filter((e) => pub(V.get(e))).length };
+  n.added = n.v2Public - n.both; n.oldOnly = n.oldPublic - n.both;
+  const addedKinds = rows.filter((x) => /^V2にあり旧公開にない/.test(x[1])).length;
+  const equation = { '旧公開 = 両方 + 旧公開だけ': n.oldPublic === n.both + n.oldOnly, 'V2公開候補 = 両方 + 追加': n.v2Public === n.both + n.added, '追加 = 分類済みの追加行': n.added === addedKinds };
+  return { rows, count, n, equation };
+}
+
+// ===== V2データ品質監査（2026-11-14 司令塔「V2データ品質・統合GAS監査」）。読むだけ。判定だけを返し、台帳には書かない =====
+const QA_VERSION = 'QA-1';
+const QA_URL_HEADERS = ['EP-ID', 'サービス', '判定', 'URL', '代表EP-ID', '掲載判定', 'メモ'];
+const QA_SUMMARY_HEADERS = ['EP-ID', '判定', '原因', '原文SHA256', '原文文字数', '清掃済み文字数（台帳）', '再清掃文字数', '残存率', '清掃監査', '詳細'];
+const QA_RELATED_HEADERS = ['EP-ID', '判定', '原因', '原文の記事数', '台帳URL数', '索引の行数', '見出しなし', '詳細'];
+// URL: 形（EPISODE/SHOW_TOP/OTHER/EMPTY）と、同じURLを別の回が持っていないか（代表EP-IDで束ねた回どうしは正常）。実際のリンク先の同一性は別の判定（ここでは「未照合」）
+function qaPlatformUrls(rows, platforms = PLATFORM_COLUMNS) {
+  const out = [], counts = {}, byUrl = new Map();
+  rows.forEach((r) => platforms.forEach((p) => { const u = String((r.links || {})[p] || '').trim(); if (u) { const k = p + '\u0001' + u; (byUrl.get(k) || byUrl.set(k, []).get(k)).push(r); } }));
+  rows.forEach((r) => platforms.forEach((p) => {
+    const u = String((r.links || {})[p] || '').trim(), c = classifyPlatformUrl(p, u), key = p + '/' + c; counts[key] = (counts[key] || 0) + 1;
+    if (c === 'EMPTY') return;
+    let st = c === 'EPISODE' ? '形OK・同一性未照合' : c === 'SHOW_TOP' ? '番組トップ（個別EPではない）' : '形が不明', note = '';
+    const same = (byUrl.get(p + '\u0001' + u) || []).filter((x) => x.ep !== r.ep);
+    if (same.length) { const grouped = same.every((x) => (x.rep || x.ep) === (r.rep || r.ep)); if (grouped) note = '同一内容として束ねた回と共有（' + same.map((x) => x.ep).join(' ') + '）'; else { st = '別の回と同じURL（要確認）'; note = same.map((x) => x.ep).join(' '); } counts[p + '/共有' + (grouped ? '・束ね済み' : '・要確認')] = (counts[p + '/共有' + (grouped ? '・束ね済み' : '・要確認')] || 0) + 1; }
+    if (c !== 'EPISODE' || note) out.push([r.ep, p, st, u, r.rep || '', r.judge || '', note]);
+  }));
+  return { rows: out, counts };
+}
+const QA_HTML = /<\/?(?:a|p|br|div|span|strong|b|i|em|ul|li|img)\b[^>]*>/i, QA_ENTITY = /&(?:amp|lt|gt|quot|nbsp|#\d+|#x[0-9a-f]+|[a-z]{2,8});/i, QA_MOJIBAKE = /�|ã[\u0080-¿]|â€|Ã./;
+const QA_DATE = /(?:\d{4}年)?\d{1,2}月\d{1,2}日/g, QA_URL = /https?:\/\/[^\s<>"'）)」』】]+/g;
+const qaNz = (s) => String(s ?? '').normalize('NFKC').replace(/\s+/g, '');
+// 概要欄: 原文（保全・SHA一致）・台帳の清掃済み・同じ原文の再清掃・清掃監査（judgeEpisode）の結果を比べ、原因で分類する。文字数が減っただけでは異常にしない
+function qaSummary({ ep, raw, rawSha, shaOk, ledger, reclean, judge }) {
+  const causes = [], r = String(raw ?? ''), l = String(ledger ?? ''), c = String(reclean ?? ''), det = [];
+  if (!r.trim()) causes.push(shaOk === false ? '原文のハッシュ不一致（保全が壊れている疑い）' : '原文なし（未保全）');
+  else {
+    if (!l.trim()) causes.push(c.trim() ? '清掃済みが空欄（再清掃なら本文あり）' : '清掃後も本文なし（原文が告知・リンクのみ）');
+    if (l.trim() && qaNz(l) === qaNz(r) && qaNz(c) !== qaNz(r)) causes.push('清掃済み欄が原文のまま（未清掃）');
+    if (l.trim() && c.trim() && qaNz(l) !== qaNz(c)) causes.push('再清掃で結果が変わる（清掃版の差・手直し）');
+    if (QA_HTML.test(l)) causes.push('HTMLタグ残り'); if (QA_ENTITY.test(l)) causes.push('文字参照残り'); if (QA_MOJIBAKE.test(l)) causes.push('文字化けの疑い');
+    const dates = [...new Set((r.replace(/<[^>]*>/g, ' ').match(QA_DATE) || []))].filter((d) => !qaNz(l).includes(qaNz(d)) && !qaNz(c).includes(qaNz(d)));
+    if (l.trim() && dates.length) { causes.push('日付表記の消失'); det.push('日付: ' + dates.slice(0, 3).join(' ')); }
+    (judge && judge.findings || []).forEach((f) => { if (!/^MANUAL_EDIT_PROTECTED/.test(f)) causes.push('清掃監査: ' + f); else causes.push('手入力の値を保護中'); });
+  }
+  const ratio = r.trim() && l.trim() ? Math.round(l.length / r.replace(/<[^>]*>/g, '').length * 100) / 100 : '';
+  const verdict = !causes.length ? '問題なし' : causes.some((x) => /ハッシュ不一致|原文なし|空欄|HTML|文字化け/.test(x)) ? '要修復' : '要確認';
+  return { ep, verdict, causes, row: [ep, verdict, causes.join(' / '), rawSha || '', r.length, l.length, c.length, ratio, judge ? judge.verdict : '', det.join(' ')] };
+}
+// 関連記事: 原文から抽出した記事（見出し＋URL）、台帳の関連記事URL、V2・関連記事索引の行を EP-ID ごとに突き合わせる
+function qaRelated({ ep, fromRaw = [], ledgerUrls = '', indexRows = [] }) {
+  const causes = [], det = [], key = articleKey, rawArt = fromRaw.filter((a) => (a.kind || 'article') === 'article');
+  const rawKeys = new Map(); rawArt.forEach((a) => { if (a.url) rawKeys.set(key(a.url), a); });
+  const led = String(ledgerUrls || '').split(/[\s\n]+/).filter((u) => /^https?:\/\//.test(u)), ledKeys = led.map(key), idx = indexRows.map((x) => ({ url: x[3], title: x[2], k: key(x[3]) }));
+  const dupLed = ledKeys.filter((k, i) => ledKeys.indexOf(k) !== i); if (dupLed.length) causes.push('台帳の同じ記事URLが重複');
+  const titleOnly = rawArt.filter((a) => !a.url && a.title); if (titleOnly.length) causes.push('見出しだけ（URLなし）');
+  const noHead = idx.filter((x) => !x.title || x.title === '未取得'); if (noHead.length) causes.push('URLだけ（見出し未取得）');
+  const idxKeys = new Set(idx.map((x) => x.k)), missIdx = [...rawKeys.keys()].filter((k) => !idxKeys.has(k)); if (missIdx.length) { causes.push('原文の記事が索引にない'); det.push('索引なし: ' + missIdx.slice(0, 2).join(' ')); }
+  const missLed = [...rawKeys.keys()].filter((k) => !ledKeys.includes(k)); if (missLed.length) causes.push('原文の記事が台帳の関連記事URLにない');
+  const ledOnly = ledKeys.filter((k) => !rawKeys.has(k)); if (ledOnly.length && rawKeys.size) causes.push('台帳だけにある記事URL（原文に無い）'); else if (ledOnly.length) causes.push('台帳だけにある記事URL（原文に記事欄なし）');
+  const idxDup = idx.map((x) => x.k).filter((k, i, a) => a.indexOf(k) !== i); if (idxDup.length) causes.push('索引の同じ記事が重複');
+  const titleConflict = idx.filter((x) => rawKeys.has(x.k) && x.title && x.title !== '未取得' && rawKeys.get(x.k).title && qaNz(rawKeys.get(x.k).title) !== qaNz(x.title)); if (titleConflict.length) causes.push('見出しが原文と違う（別記事との結合の疑い）');
+  const verdict = !rawArt.length && !led.length && !idx.length ? '記事なし' : !causes.length ? '問題なし' : causes.some((x) => /索引にない|台帳の関連記事URLにない|結合/.test(x)) ? '要修復' : '要確認';
+  return { ep, verdict, causes, row: [ep, verdict, causes.join(' / '), rawArt.length, led.length, idx.length, noHead.length, det.join(' ')] };
+}
+
+return { LEDGER_AUDIT_VERSION, PLATFORM_COLUMNS, classifyPlatformUrl, OFFICIAL_ITEM_BASE, officialItemId, hostIdFromAudio, officialUrlCandidate, SHOW_SITE_PARENTS, verifyOfficialPage, ONSA_MATCH_HEADERS, onsaMatch, SDGS_AUDIT_HEADERS, auditSdgs, RELATED_HEADERS, articleKey, relatedRows, sheetText, hyperlink, PLAYLIST_HEADERS, playlistCounts, isRerunTitle, rerunBaseTitle, LEDGER_DIFF_HEADERS, ledgerDiff, QA_VERSION, QA_URL_HEADERS, QA_SUMMARY_HEADERS, QA_RELATED_HEADERS, qaPlatformUrls, qaSummary, qaRelated };
+})();
+
+var LibraryCore = (function () {
+const { cleanDescription } = LibClean;
+const normal = value => String(value ?? '').normalize('NFKC').toLowerCase().replace(/\s+/g, ' ').trim();
+// Same exclusion rule as the existing libV2CpBlocked_; unknown states fail closed.
+const blocked = value => !!normal(value) && !['未指定', 'なし', 'false', '0', 'no'].includes(normal(value));
+function safeUrl(value, hosts) {
+  try { const u = new URL(value); return u.protocol === 'https:' && !u.username && !u.password && (!hosts || hosts.includes(u.hostname)) ? u.href : ''; } catch { return ''; }
+}
+function plainDescription(value) {
+  return cleanDescription(String(value ?? '').replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, ''));
+}
+function publicEpisode(row, verified = {}) {
+  const urls = [row[8], row[9], row[11], row[12], row[10], row[43]].map(x => safeUrl(x)).filter(Boolean);
+  const audioUrl = safeUrl(row[14], ['traffic.omny.fm', 'www.omnycontent.com', 'traffic.megaphone.fm', 'dcs.megaphone.fm', 'pdst.fm']);
+  const audio = audioUrl && verified[row[0]]?.url === audioUrl ? audioUrl : '';
+  const cast = [...new Set([row[23], ...row.slice(45,50)].filter(Boolean).map(String))].join(' / ');
+  const description = plainDescription(row[22] || row[21]);
+  const dateMatch = String(row[3] || '').match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})(?:[ T](\d{2}):(\d{2}))?/);
+  const date = dateMatch ? `${dateMatch[1]}-${dateMatch[2].padStart(2,'0')}-${dateMatch[3].padStart(2,'0')}T${dateMatch[4] || '00'}:${dateMatch[5] || '00'}:00+09:00` : '';
+  return { id: row[0], show: row[1], title: String(row[2] || ''), date, cast, description, descriptionSource: row[22] ? 'clean' : row[21] ? 'raw-rendered' : 'missing', duration: Number(row[15]) || 0, audio, audioAvailable: !!audioUrl, links: [...new Set(urls.length ? urls : audioUrl ? [audioUrl] : [])], related: String(row[28] || '').split(/\s+/).map(x=>safeUrl(x)).filter(Boolean) };
+}
+function filterEpisodes(items, { query='', show='', order='newest', from='', to='' } = {}) {
+  const terms = normal(query).split(' ').filter(Boolean);
+  return items.filter(x => (!show || x.show === show) && (!from || x.date.slice(0,10) >= from) && (!to || x.date.slice(0,10) <= to) && terms.every(t => normal(`${x.title} ${x.cast} ${x.keywords || ''} ${x.description || ''} ${x.id}`).includes(t))).sort((a,b) => (order === 'oldest' ? 1 : -1) * a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+}
+
+return { normal, blocked, safeUrl, plainDescription, publicEpisode, filterEpisodes };
+})();
+
+var PubScope = (function () {
+/** Shared publication membership for library and universe. Never mutates ledger data. */
+const validId = id => /^EP-\d{5}$/.test(id || '');
+function buildPublicationScope(snapshot) {
+ if(snapshot?.schema!==1 || !Array.isArray(snapshot.decisions) || !/^[a-f0-9]{64}$/.test(snapshot.source?.rawReadSHA256||'')) throw Error('INVALID_PUBLICATION_DECISIONS');
+ const ids=new Set(),publishedIds=[],shows=new Map(),counts={source:0,adopted:0,excluded:0,held:0},cross={};let decisionDate='';
+ for(const r of snapshot.decisions){
+  if(!validId(r.id)||ids.has(r.id)||!r.show||!['対象','対象外','除外','保留'].includes(r.publication)||!['対象','対象外','除外','保留'].includes(r.comparison))throw Error('INVALID_OR_DUPLICATE_SCOPE_ID');
+  ids.add(r.id);counts.source++;
+  const s=shows.get(r.show)||{name:r.show,total:0,count:0,excluded:0,held:0,comparison:0};shows.set(r.show,s);s.total++;
+  if(r.comparison==='対象')s.comparison++;
+  const key=r.comparison+'/'+r.publication;cross[key]=(cross[key]||0)+1;
+  if(r.publication==='対象'){
+   if(r.review!=='確認済み')throw Error('ADOPTED_EPISODE_NOT_REVIEWED');
+   if(!Number.isFinite(Date.parse(r.decidedAt)))throw Error('INVALID_DECISION_DATE');
+   const date=new Date(Date.parse(r.decidedAt)+9*3600000).toISOString().slice(0,10);if(date>decisionDate)decisionDate=date;
+   publishedIds.push(r.id);counts.adopted++;s.count++;
+  }else if(r.publication==='保留'){counts.held++;s.held++;}else{counts.excluded++;s.excluded++;}
+ }
+ if(!publishedIds.length)throw Error('EMPTY_PUBLICATION_SCOPE');
+ return {schema:1,policy:'REVIEWED_D_TARGET',version:snapshot.source.rawReadSHA256,decisionDate,...counts,shows:[...shows.values()],comparisonCrossTab:cross,publishedIds:publishedIds.sort()};
+}
+function selectPublishedEpisodes(items,scope,{requireComplete=false}={}){
+ if(scope?.schema!==1||scope.policy!=='REVIEWED_D_TARGET'||!Array.isArray(scope.publishedIds)||scope.adopted!==scope.publishedIds.length||scope.source!==scope.adopted+scope.excluded+scope.held)throw Error('INVALID_PUBLICATION_SCOPE');
+ const allowed=new Set(scope.publishedIds);if(allowed.size!==scope.adopted||scope.publishedIds.some(id=>!validId(id)))throw Error('INVALID_PUBLICATION_SCOPE_IDS');
+ const seen=new Set(),result=[];for(const item of items){if(!validId(item.id)||seen.has(item.id))throw Error('DUPLICATE_OR_INVALID_PUBLIC_ID');seen.add(item.id);if(allowed.has(item.id))result.push(item);}
+ if(requireComplete){
+  if(result.length!==scope.adopted)throw Error('INCOMPLETE_PUBLICATION_SCOPE');
+  const shows=new Map();for(const e of result)shows.set(e.show,(shows.get(e.show)||0)+1);
+  for(const s of scope.shows)if((shows.get(s.name)||0)!==s.count)throw Error('PUBLICATION_SHOW_COUNT_MISMATCH');
+  if([...shows.keys()].some(name=>!scope.shows.some(s=>s.name===name)))throw Error('PUBLICATION_UNKNOWN_SHOW');
+ }
+ return result;
+}
+function publicationLabel(manifest){
+ const scope=manifest.publicationScope;
+ if(!scope)return `収録 ${manifest.total.toLocaleString()}件 · ${manifest.snapshotDate}更新`;
+ if(manifest.total!==scope.adopted||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(scope.decisionDate||''))throw Error('PUBLICATION_MANIFEST_MISMATCH');
+ return `掲載対象${manifest.total.toLocaleString()}件・${Number(scope.decisionDate.slice(0,4))}年${Number(scope.decisionDate.slice(5,7))}月${Number(scope.decisionDate.slice(8,10))}日掲載判定`;
+}
+
+return { buildPublicationScope, selectPublishedEpisodes, publicationLabel };
+})();
+
+var V2LibCore = (function () {
+// E1 の中身（Node と GAS の両方で使う。ファイル・暗号モジュールに依存しない）。V2 → 公開図書館データ（2026-11-14）。既存の V1 用 export-library-public.mjs は残し（旧データへの復旧経路）、V2 用はこの変換器を使う。
+// 入力: V2・公開台帳 / V2・人物索引 / V2・関連記事索引（任意）の CSV（見出し付き）。出力は既存と同じ公開 JSON 形式（writePublicLibrarySnapshot）。
+// 守ること: 掲載判定=対象かつ代表EPだけ／タイトルが（再）の再配信は原回が公開済みなら DUPLICATE、原回が無ければ HOLD（どちらも公開しない・司令塔の判断待ち）
+//           人名は人物索引の「原文で確認」だけ／見出し「未取得」の関連記事は URL だけ／音声は確認済みの証拠がある時だけ再生可にする。
+const { buildPublicationScope } = PubScope;
+const { plainDescription, safeUrl } = LibraryCore;
+const { isRerunTitle, rerunBaseTitle } = LedgerAudit;
+function parseCsv(text) {
+  const rows = [], s = String(text).replace(/^﻿/, ''); let row = [], f = '', q = false;
+  for (let i = 0; i < s.length; i++) { const c = s[i];
+    if (q) { if (c === '"') { if (s[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; continue; }
+    if (c === '"') q = true; else if (c === ',') { row.push(f); f = ''; } else if (c === '\n' || c === '\r') { if (c === '\r' && s[i + 1] === '\n') i++; row.push(f); rows.push(row); row = []; f = ''; } else f += c; }
+  if (f !== '' || row.length) { row.push(f); rows.push(row); }
+  return rows.filter((r) => r.some((x) => x !== ''));
+}
+const objects = (rows) => { const [h, ...b] = rows; return b.map((r) => Object.fromEntries(h.map((k, i) => [k, r[i] ?? '']))); };
+const LEDGER_REQUIRED = ['EP-ID', '番組', 'タイトル', '配信日時 JST', '掲載判定', '代表EP-ID', '公式GUID', '公式個別URL', '概要（清掃済）', '出演者', '関連記事URL', '再生時間 秒', '音声URL'];
+const LINK_COLUMNS = ['公式個別URL', 'Spotify', 'Apple', 'Amazon', 'Pocket Casts', 'LISTEN', 'Pody', 'YouTube', 'Omny埋込URL'];
+const AUDIO_HOSTS = ['traffic.omny.fm', 'www.omnycontent.com', 'traffic.megaphone.fm', 'dcs.megaphone.fm', 'pdst.fm'];
+const isRerun = isRerunTitle, baseTitle = rerunBaseTitle;
+const isoDate = (d) => { const m = String(d || '').match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})(?:[ T](\d{1,2}):(\d{2}))?/); return m ? `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}T${(m[4] || '0').padStart(2, '0')}:${m[5] || '00'}:00+09:00` : ''; };
+
+// previousPublicIds: 現在の公開データの EP-ID 集合（再配信の原回が公開済みかの判定に使う）。verifiedAudio: { EP-ID: { url } }（既存と同じ形）
+// newEpisodeAllowList: 旧公開に無い回のうち、L4 で VERIFIED（公式ページ・音声とも確認済み）になった EP-ID だけを渡す。渡さない回は自動公開しない（保留）
+function buildV2Library({ ledger, persons = [], related = [], previousPublicIds = new Set(), verifiedAudio = {}, newEpisodeAllowList = new Set(), decidedAt, hash }) {
+  const L = objects(ledger); LEDGER_REQUIRED.forEach((k) => { if (!(k in (L[0] || {}))) throw Error('V2_LEDGER_COLUMN_MISSING ' + k); });
+  const byEp = new Map(), originals = new Map(), seen = new Set();
+  for (const r of L) { if (!/^EP-\d{5}$/.test(r['EP-ID'])) throw Error('INVALID_EP_ID ' + r['EP-ID']); if (seen.has(r['EP-ID'])) throw Error('DUPLICATE_EP_ID ' + r['EP-ID']); seen.add(r['EP-ID']); byEp.set(r['EP-ID'], r); if (!isRerun(r['タイトル'])) { const k = r['番組'] + '|' + baseTitle(r['タイトル']); (originals.get(k) || originals.set(k, []).get(k)).push(r['EP-ID']); } }
+  const castBy = new Map(); objects(persons).forEach((p) => { if (p['検証状態'] !== '原文で確認') return; (castBy.get(p['EP-ID']) || castBy.set(p['EP-ID'], []).get(p['EP-ID'])).push(p['索引名']); });
+  const relBy = new Map(); objects(related).forEach((a) => { (relBy.get(a['EP-ID']) || relBy.set(a['EP-ID'], []).get(a['EP-ID'])).push({ title: a['見出し'] === '未取得' ? '' : a['見出し'], url: a['URL'] }); });
+  const decisions = [], episodes = [], audit = [], guidSeen = new Map();
+  for (const r of L) {
+    const id = r['EP-ID'], show = r['番組'], title = r['タイトル']; let publication = '対象外', classification = '通常', why = '';
+    if (r['掲載判定'] === '対象' && r['代表EP-ID'] === id) { publication = '対象'; why = 'V2 掲載判定=対象・代表EP'; }
+    else if (r['掲載判定'] === '対象') { publication = '除外'; classification = '同一内容'; why = '代表は ' + r['代表EP-ID']; }
+    else if (r['掲載判定'] === '保留' || r['掲載判定'] === '未判定' || !r['掲載判定']) { publication = '保留'; why = 'V2 掲載判定=' + (r['掲載判定'] || '空'); }
+    else why = 'V2 掲載判定=' + r['掲載判定'];
+    const g = String(r['公式GUID'] || '').toLowerCase();
+    if (publication === '対象' && g && guidSeen.has(g)) { publication = '除外'; classification = '重複'; why = '公式GUIDが ' + guidSeen.get(g) + ' と同じ'; }
+    if (publication === '対象' && isRerun(title)) { const o = (originals.get(show + '|' + baseTitle(title)) || []).filter((x) => x !== id), pub = o.filter((x) => previousPublicIds.has(x));
+      publication = pub.length ? '除外' : '保留'; classification = '再配信'; why = pub.length ? '原回 ' + pub.join(' ') + ' が公開済み（再配信を新規として数えない）' : '原回が台帳に無い再配信（司令塔の判断待ち）'; }
+    if (publication === '対象' && !previousPublicIds.has(id) && !newEpisodeAllowList.has(id)) { publication = '保留'; classification = '新規・未確認'; why = '旧公開に無い回。公式ページ・音声が確認済み（L4 VERIFIED）になるまで公開しない'; }
+    if (publication === '対象' && g) guidSeen.set(g, id);
+    if (publication === '対象' && !isoDate(r['配信日時 JST'])) { publication = '保留'; why = '配信日時なし'; }
+    decisions.push({ id, show, comparison: publication === '対象' ? '対象' : publication, publication, classification, review: '確認済み', decidedAt });
+    audit.push({ id, show, title, publication, classification, why, previous: previousPublicIds.has(id) ? '公開' : '非公開' });
+    if (publication !== '対象') continue;
+    const audioUrl = safeUrl(r['音声URL'], AUDIO_HOSTS), rel = relBy.has(id) ? relBy.get(id) : String(r['関連記事URL'] || '').split(/\s+/).filter(Boolean).map((u) => ({ title: '', url: u }));
+    const relatedArticles = rel.map((a) => ({ title: a.title, url: safeUrl(a.url) })).filter((a) => a.url);
+    episodes.push({ id, show, title, date: isoDate(r['配信日時 JST']), cast: [...new Set(castBy.get(id) || [])].join(' / '), description: plainDescription(r['概要（清掃済）']), descriptionSource: r['概要（清掃済）'] ? 'v2-clean' : 'missing',
+      duration: Number(r['再生時間 秒']) || 0, audio: audioUrl && (verifiedAudio[id] && verifiedAudio[id].url) === audioUrl ? audioUrl : '', audioAvailable: !!(audioUrl && (verifiedAudio[id] && verifiedAudio[id].url) === audioUrl),   // URL があるだけでは再生可能にしない
+      links: [...new Set(LINK_COLUMNS.map((c) => safeUrl(r[c])).filter(Boolean))], related: relatedArticles.map((a) => a.url), relatedArticles });
+  }
+  if (typeof hash !== 'function') throw Error('HASH_FUNCTION_REQUIRED');
+  const sha = hash(JSON.stringify(decisions));
+  const snapshot = { schema: 1, source: { rawReadSHA256: sha, ledger: 'V2・公開台帳', persons: 'V2・人物索引（原文で確認のみ）', related: related.length ? 'V2・関連記事索引' : '統合台帳 関連記事URL' }, decisions };
+  const scope = buildPublicationScope(snapshot); scope.version = sha;
+  return { episodes, decisions, scope, audit };
+}
+
+// 公開中のデータと比べる（EP-ID 単位）。summaries: 公開中の pages/all-*.json の中身
+function compareWithPublic(episodes, previous) {
+  const prev = new Map(previous.map((e) => [e.id, e])), next = new Map(episodes.map((e) => [e.id, e])), out = { added: [], removed: [], changed: [], same: 0 };
+  for (const [id, e] of next) { const p = prev.get(id); if (!p) { out.added.push(id); continue; } const ch = ['show', 'title', 'date', 'cast'].filter((k) => String(p[k] ?? '') !== String(e[k] ?? '')); if (!!p.audio !== !!e.audio) ch.push('audio'); if (ch.length) out.changed.push({ id, fields: ch }); else out.same++; }
+  for (const id of prev.keys()) if (!next.has(id)) out.removed.push(id);
+  return out;
+}
+
+
+return { parseCsv, buildV2Library, compareWithPublic };
+})();
+
+// ===== 概要欄清掃ロボ（Issue #308）— 入口 =====
+// 管理人が押すのは番号付き関数だけ: S1_点検 → S2_清掃監査（全件・時間切れなら続きから）→ S3A_COPYへ反映_試験10件 → S3B_COPYへ反映_全件 →（確認後）S4_V2作業用へ反映。S0_進捗 はいつでも。
+// 守ること: 原文は読むだけ（公式RSSから毎回取得し、SHA256で照合）。V1原本・本番59列・旧GAS参照シートは開かない。トリガーは作らない。
+// 台帳へ書くのは「概要（清掃済）・出演者・関連記事URL」の3列だけ。手動訂正の可能性がある値・監査時から変わった値は書かない。
+
+var SC_CONFIG = {
+  copyId: '1WTLcaveWG0mr9F0dIjyCL8daxFnpo4q4yADN_bnK1PY',     // 【COPY試験】V2収蔵ボット …（本番ではない）。結果・進捗・反映履歴のシートもここに作る
+  copyNameIncludes: '【COPY試験】',
+  v2WorkingId: '1ZAl4QpQ4i5ycyPy1qVNtT-Ke2nsSHhWGFkAH3xedAbc',  // V2作業用台帳（S4 だけが書く）
+  // S4 で V2作業用へ反映する範囲: 'HUMAN_OK' = 結果シートの「人の確認」が OK の行だけ（既定）／'AUTO_PASS' = 自動検査合格も含める（COPYで抜き取り確認した後に管理人が切り替える）
+  v2ApplyLevel: 'AUTO_PASS',   // 2026-11-12 司令塔指示で AUTO_PASS（COPYで抜き取り20件確認後）。'HUMAN_OK' に戻すと人の確認OKの行だけ
+  ledgerSheet: 'V2・統合台帳',
+  timeBudgetMs: 270000,     // 1回の実行で処理に使う時間（GASの上限6分に余裕を残す）
+  applyMaxPerRun: 1200, // 600セル約65秒の実測に基づき1200セル程度ずつ。履歴と現在値で重複書込を防ぐ
+  feeds: P25V2_COPY_FEEDS_()
+};
+var SC_REFUSE_IDS_ = ['1I0fm8iBM6BMeLgBDdvQ4HLitlGy4sTm7Njjy50J-8BA', '1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4', '1KSzoIkOsjUagNBLt3IbKIvgWEmez4f0XISQ-jkUjmwQ'];   // V1原本・本番59列・旧GAS参照
+var SC_RESULT_ = '清掃・結果', SC_PROGRESS_ = '清掃・進捗', SC_HISTORY_ = '清掃・反映履歴';
+var SC_HEADERS_ = ['EP-ID', '公式GUID', '番組', '原文SHA256', '原文文字数', '原文取得', '判定', '比較', '理由', '書換可', '新・概要', '新・出演者', '新・関連記事URL', '関連記事JSON(見出し+URL)', '出演者JSON', 'SNS等保全URL', '除去内訳', '旧・概要', '旧・出演者', '旧・関連記事URL', '旧値SHA', '清掃版', '処理日時', '人の確認', '確認メモ', '反映先', '反映日時'];
+var SC_HIST_HEADERS_ = ['反映日時', '反映ID', '対象', 'EP-ID', '列', '旧値', '新値', '状態'];
+// V2作業用台帳（34列）は列を増やさず、同じファイルの別タブに構造化データ（見出し＋URLの組・出演者の内訳）を保持する
+// 台帳3列を書いたかどうかに依存せず、V2作業用台帳の全EPを1行ずつ保存する（S5）。S4 は書いた回だけ更新する
+var SC_V2DETAIL_ = 'V2・清掃詳細', SC_V2DETAIL_HEADERS_ = ['EP-ID', '公式GUID', '関連記事JSON(見出し+URL)', '出演者JSON', 'SNS等保全URL', '原文SHA256', '清掃版', '判定', '理由', '原文状態', '更新日時'];
+// 収蔵詳細（P25V2と同じ17列）に保全済みの原文と、公式RSSの現在の原文が違うときの記録（原文は上書きしない）
+var SC_RAWHIST_ = 'V2・原文変化履歴', SC_RAWHIST_HEADERS_ = ['検出日時', 'EP-ID', '公式GUID', '保全済SHA256', 'RSS現在SHA256', 'RSS現在文字数', 'RSS現在原文'];
+var SC_CELL_MAX_ = 49000;   // シートの1セル上限（5万字）未満
+var SC_COLS_ = { summary: '概要（清掃済）', cast: '出演者', related: '関連記事URL' };
+function P25V2_COPY_FEEDS_() { return [
+  { show: 'ニュースの現場から', url: 'https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/684015f9-2396-4ac4-bc1f-ac0f0033d08c/podcast.rss', limit: 0 },
+  { show: 'MEDIA TALK', url: 'https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/07a1de49-67cf-4714-8581-ac1000059302/podcast.rss', limit: 0 },
+  { show: 'こどもそうだんしつ', url: 'https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/693cfdd6-f5a9-4308-9025-adb10164b5b1/podcast.rss', limit: 0 },
+  { show: 'スポンジ', url: 'https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/8ceab8ef-af5f-44e9-9545-b4ab0024434b/podcast.rss', limit: 0 },
+  { show: 'ニュースの学校', url: 'https://feeds.megaphone.fm/TASC5851398719', limit: 0 },
+  { show: 'ドーナツ', url: 'https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/c373aac9-fb6a-4172-8a8f-b498003d9389/podcast.rss', limit: 0 },
+  { show: '報談', url: 'https://feeds.megaphone.fm/TASC9421488254', limit: 0 }]; }
+
+function scVersion_() { return CleanerV4.CLEANER_VERSION + '|' + QualityAudit.AUDIT_VERSION; }
+function scLog_(fn, o) { Logger.log(fn + ' ' + JSON.stringify(o, null, 1)); return o; }
+function scOpen_(id, nameIncludes) {
+  if (SC_REFUSE_IDS_.indexOf(id) >= 0) throw new Error('PROTECTED_TARGET_REFUSED');
+  p25v2AssertIsolated_({ hasDoGet: typeof doGet === 'function', hasDoPost: typeof doPost === 'function', triggerCount: p25v2ForeignTriggers_() });
+  var ss = SpreadsheetApp.openById(id); if (ss.getId() !== id) throw new Error('OPENED_ID_MISMATCH');
+  if (nameIncludes && ss.getName().indexOf(nameIncludes) < 0) throw new Error('TARGET_NAME_NOT_EXPECTED');
+  var sh = ss.getSheetByName(SC_CONFIG.ledgerSheet); if (!sh) throw new Error('LEDGER_SHEET_NOT_FOUND');
+  return { ss: ss, sh: sh };
+}
+function scSheet_(ss, name, headers) {
+  var s = ss.getSheetByName(name);
+  if (!s) { s = ss.insertSheet(name); s.getRange(1, 1, 1, headers.length).setValues([headers]); s.setFrozenRows(1); }
+  var h = s.getRange(1, 1, 1, headers.length).getDisplayValues()[0];
+  if (h.join('\u0001') !== headers.join('\u0001')) throw new Error('SHEET_HEADER_MISMATCH ' + name);
+  return s;
+}
+function scLedger_(sh) {   // 台帳を見出し名で読む（列番号は決め打ちしない）
+  var v = sh.getRange(1, 1, sh.getLastRow(), sh.getLastColumn()).getDisplayValues(), h = v[0], I = function (n) { var i = h.indexOf(n); if (i < 0) throw new Error('LEDGER_COLUMN_NOT_FOUND ' + n); return i; };
+  var ix = { ep: I('EP-ID'), show: I('番組'), guid: I('公式GUID'), uuid: I('公式JSON UUID'), url: I('公式個別URL'), summary: I(SC_COLS_.summary), cast: I(SC_COLS_.cast), related: I(SC_COLS_.related) };
+  var rows = v.slice(1).map(function (r, i) {
+    var g = p25v2Guids_({ guid: r[ix.guid], jsonUuid: r[ix.uuid], officialUrl: r[ix.url] });
+    return { row: i + 2, ep: r[ix.ep], show: r[ix.show], guid: String(r[ix.guid] || '').toLowerCase(), guids: g, summary: r[ix.summary], cast: r[ix.cast], related: r[ix.related] };
+  }).filter(function (r) { return r.ep; });
+  return { values: v, ix: ix, rows: rows };
+}
+function scRawMap_() {
+  var f = p25v2FetchFeeds_(SC_CONFIG.feeds), m = {};
+  var item = {};
+  f.items.forEach(function (it) { if (it.guid && it.descriptionRaw) { m[String(it.guid).toLowerCase()] = it.descriptionRaw; item[String(it.guid).toLowerCase()] = it; } });
+  return { map: m, item: item, errors: f.errors, stats: f.stats, items: f.items.length };
+}
+
+// S0: 進捗の表示（書込なし）
+function S0_進捗() {
+  var o = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), p = o.ss.getSheetByName(SC_PROGRESS_);
+  return scLog_('S0_進捗', p ? p.getRange(1, 1, p.getLastRow(), 2).getDisplayValues() : '未実行');
+}
+// S1: 点検（書込なし）。対象・列・トリガー0・RSS取得・原文と台帳の突き合わせ件数
+function S1_点検() {
+  var t0 = Date.now(), o = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), L = scLedger_(o.sh), raw = scRawMap_();
+  var withRaw = L.rows.filter(function (r) { return r.guids.some(function (g) { return raw.map[g]; }); }).length;
+  return scLog_('S1_点検', { status: raw.errors.length ? 'CHECK_WITH_FEED_ERRORS' : 'CHECK_OK', target: o.ss.getName(), ledgerRows: L.rows.length, rssItems: raw.items, ledgerWithRaw: withRaw, ledgerWithoutRaw: L.rows.length - withRaw, existingSummary: L.rows.filter(function (r) { return r.summary; }).length, feedErrors: raw.errors, ms: Date.now() - t0, version: scVersion_() });
+}
+// S2: 清掃・監査（全件）。原文と既存値を比べ、結果シートに保存。時間切れなら続きから（もう一度押す）。同じ原文・同じ既存値・同じ版の行は処理しない＝再実行で差分0
+function S2_清掃監査() {
+  var t0 = Date.now(), lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return scLog_('S2_清掃監査', { status: 'LOCKED' });
+  try {
+    var o = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), res = scSheet_(o.ss, SC_RESULT_, SC_HEADERS_), L = scLedger_(o.sh), raw = scRawMap_();
+    if (raw.errors.length) return scLog_('S2_清掃監査', { status: 'STOP_FEED_ERRORS', feedErrors: raw.errors });   // 一部の番組だけで判定を進めない
+    var cur = res.getLastRow() > 1 ? res.getRange(2, 1, res.getLastRow() - 1, SC_HEADERS_.length).getDisplayValues() : [], at = {}, H = {};
+    SC_HEADERS_.forEach(function (n, i) { H[n] = i; }); cur.forEach(function (r, i) { at[r[0]] = i; });
+    var pre = scPreservedRaw_();
+    var props = PropertiesService.getScriptProperties(), start = Number(props.getProperty('SC_CURSOR') || 0), ver = scVersion_(), now = new Date().toISOString();
+    var updated = 0, skipped = 0, i = start, done = false;
+    for (; i < L.rows.length; i++) {
+      if (i % 50 === 0 && Date.now() - t0 > SC_CONFIG.timeBudgetMs) break;
+      var r = L.rows[i], g = r.guids.filter(function (x) { return raw.map[x]; })[0], text = g ? raw.map[g] : '';
+      if (!text && pre[r.ep] && r.guids.indexOf(pre[r.ep].guid) >= 0) { g = pre[r.ep].guid; text = pre[r.ep].text; }   // 今のRSSに無い回は、V2・収蔵詳細に保全済みの公式RSS原文（SHA256照合済み）を使う
+      var exSha = p25v2GasSha256_([r.summary, r.cast, r.related].join('\u0001')), rawSha = text ? p25v2GasSha256_(text) : '';
+      var k = at[r.ep], old = k != null ? cur[k] : null;
+      if (old && old[H['原文SHA256']] === rawSha && old[H['清掃版']] === ver && old[H['旧値SHA']] === exSha) { skipped++; continue; }
+      var row = scJudgeRow_(r, text, g, rawSha, exSha, ver, now, H);
+      if (old) { row[H['人の確認']] = old[H['人の確認']]; row[H['確認メモ']] = old[H['確認メモ']]; row[H['反映先']] = old[H['反映先']]; row[H['反映日時']] = old[H['反映日時']]; cur[k] = row; }   // 人の記入は保持
+      else { at[r.ep] = cur.length; cur.push(row); }
+      updated++;
+    }
+    if (i >= L.rows.length) { done = true; i = 0; }
+    if (updated) { var rg = res.getRange(2, 1, cur.length, SC_HEADERS_.length); rg.setNumberFormat('@'); rg.setValues(cur); }   // 文字列のまま保存（日付・数式に化けさせない）
+    props.setProperty('SC_CURSOR', String(i));
+    var summary = scProgress_(o.ss, cur, H, { done: done, cursor: i, total: L.rows.length, updated: updated, skipped: skipped, ms: Date.now() - t0, version: ver, at: now });
+    return scLog_('S2_清掃監査', summary);
+  } finally { lock.releaseLock(); }
+}
+function scJudgeRow_(r, text, g, rawSha, exSha, ver, now, H) {
+  var row = SC_HEADERS_.map(function () { return ''; });
+  row[H['EP-ID']] = r.ep; row[H['公式GUID']] = g || r.guid; row[H['番組']] = r.show; row[H['原文SHA256']] = rawSha; row[H['原文文字数']] = text ? String(text.length) : '0';
+  row[H['原文取得']] = text ? '公式RSS' : 'なし'; row[H['旧・概要']] = r.summary; row[H['旧・出演者']] = r.cast; row[H['旧・関連記事URL']] = r.related; row[H['旧値SHA']] = exSha; row[H['清掃版']] = ver; row[H['処理日時']] = now;
+  if (!text) { row[H['判定']] = 'HOLD'; row[H['理由']] = 'RAW_NOT_IN_RSS（公式RSSに原文なし。推測で補完しない）'; row[H['比較']] = r.summary ? '旧値のみ' : '旧空欄'; return row; }
+  var j;
+  try { j = CleanerV4.judgeEpisode(text, { summary: r.summary, cast: r.cast, related: r.related }); }
+  catch (e) { row[H['判定']] = '要確認'; row[H['理由']] = 'CLEANER_ERROR ' + String(e.message || e).slice(0, 200); return row; }
+  var c = j.clean;
+  row[H['判定']] = j.verdict; row[H['比較']] = j.compare; row[H['理由']] = j.reason.slice(0, 500);
+  row[H['書換可']] = ['summary', 'cast', 'related'].filter(function (k) { return j.writable && j.writable[k]; }).join('+');
+  row[H['新・概要']] = c.text; row[H['新・出演者']] = CleanerV4.castCell(c.cast); row[H['新・関連記事URL']] = CleanerV4.relatedCell(c.related);
+  row[H['関連記事JSON(見出し+URL)']] = JSON.stringify(c.related); row[H['出演者JSON']] = JSON.stringify(c.cast); row[H['SNS等保全URL']] = c.socials.join(' ');
+  var rm = {}; c.removed.forEach(function (x) { rm[x.reason] = (rm[x.reason] || 0) + 1; }); row[H['除去内訳']] = JSON.stringify(rm);
+  return row;
+}
+function scProgress_(ss, cur, H, s) {
+  var cnt = {}, cmp = {}, writable = 0; cur.forEach(function (r) { cnt[r[H['判定']]] = (cnt[r[H['判定']]] || 0) + 1; cmp[r[H['比較']]] = (cmp[r[H['比較']]] || 0) + 1; if (r[H['書換可']]) writable++; });
+  var human = cur.filter(function (r) { return String(r[H['人の確認']]).toUpperCase() === 'OK'; }).length;
+  var p = ss.getSheetByName(SC_PROGRESS_) || ss.insertSheet(SC_PROGRESS_);
+  var rows = [['項目', '値'], ['最終実行', s.at], ['状態', s.done ? '全件完了（もう一度押すと変更分だけ再処理）' : '途中（もう一度 S2 を押すと続きから）'], ['処理位置', s.cursor + ' / ' + s.total], ['今回 更新', s.updated], ['今回 変更なし', s.skipped], ['所要ミリ秒', s.ms], ['清掃版', s.version], ['結果行数', cur.length]];
+  Object.keys(cnt).sort().forEach(function (k) { rows.push(['判定: ' + k, cnt[k]]); });
+  Object.keys(cmp).sort().forEach(function (k) { rows.push(['比較: ' + k, cmp[k]]); });
+  rows.push(['書換可能な行', writable], ['人の確認 OK', human]);
+  p.clear(); p.getRange(1, 1, rows.length, 2).setValues(rows);
+  return { done: s.done, cursor: s.cursor, total: s.total, updated: s.updated, skipped: s.skipped, ms: s.ms, verdicts: cnt, compare: cmp, writable: writable, humanOk: human };
+}
+
+// 反映（共通）: 結果シートの「新・…」を台帳に書く。条件: 書換可・判定が許可範囲・台帳の現在値が監査時の旧値と同じ（変わっていたら人の編集とみなし書かない）・EP-IDとGUIDが一致
+function scApply_(targetId, nameIncludes, level, label, maxEpisodes, resName, onlyEps) {
+  var t0 = Date.now(), lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return { status: 'LOCKED' };
+  try {
+    var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), res = scSheet_(c.ss, resName || SC_RESULT_, SC_HEADERS_), hist = scSheet_(c.ss, SC_HISTORY_, SC_HIST_HEADERS_);
+    var t = targetId === SC_CONFIG.copyId ? c : scOpen_(targetId, nameIncludes), L = scLedger_(t.sh), byEp = {}; L.rows.forEach(function (r) { byEp[r.ep] = r; });
+    var H = {}; SC_HEADERS_.forEach(function (n, i) { H[n] = i; });
+    var cur = res.getLastRow() > 1 ? res.getRange(2, 1, res.getLastRow() - 1, SC_HEADERS_.length).getDisplayValues() : [];
+    var cols = { summary: L.ix.summary, cast: L.ix.cast, related: L.ix.related }, NEW = { summary: '新・概要', cast: '新・出演者', related: '新・関連記事URL' }, OLD = { summary: '旧・概要', cast: '旧・出演者', related: '旧・関連記事URL' };
+    var last = {}; if (hist.getLastRow() > 1) hist.getRange(2, 1, hist.getLastRow() - 1, SC_HIST_HEADERS_.length).getDisplayValues().forEach(function (h) { if (/^OK/.test(h[7])) last[h[2] + '\u0001' + h[3] + '\u0001' + h[4]] = h[6]; else if (h[7] === 'UNDO') delete last[h[2] + '\u0001' + h[3] + '\u0001' + h[4]]; });   // このロボが最後に書いた値（人の編集と区別する）
+    var recovered = [], epCount = 0, applyId = new Date().toISOString() + '/' + label, now = new Date().toISOString(), writes = [], skip = {}, sk = function (w) { skip[w] = (skip[w] || 0) + 1; };
+    cur.forEach(function (r, ri) {
+      if (writes.length >= SC_CONFIG.applyMaxPerRun || (maxEpisodes && epCount >= maxEpisodes)) return;
+      var ok = String(r[H['人の確認']]).toUpperCase() === 'OK', v = r[H['判定']];
+      if (!(ok || (level === 'AUTO_PASS' && v === '自動検査合格・目視未確認'))) { sk('NOT_APPROVED_LEVEL'); return; }
+      if (!r[H['書換可']]) { sk('NOTHING_TO_WRITE'); return; }
+      if (onlyEps && !onlyEps[r[H['EP-ID']]]) { sk('OUT_OF_SCOPE'); return; }
+      var x = byEp[r[H['EP-ID']]]; if (!x) { sk('EP_NOT_IN_TARGET'); return; }
+      if (r[H['公式GUID']] && x.guids.indexOf(String(r[H['公式GUID']]).toLowerCase()) < 0) { sk('GUID_MISMATCH'); return; }
+      var ks = String(r[H['書換可']]).split('+'), st = {};
+      ks.forEach(function (k) { st[k] = String(x[k]) === String(r[H[NEW[k]]]) ? 'done' : (String(x[k]) === String(r[H[OLD[k]]]) || last[label + '\u0001' + x.ep + '\u0001' + SC_COLS_[k]] === String(x[k])) ? 'old' : 'changed'; });   // 列単位: 最新値は書かず、監査旧値またはロボ最終反映値との一致だけ更新を許す
+      if (r[H['反映先']] === label && ks.every(function (k) { return String(x[k]) === String(r[H[NEW[k]]]); })) { sk('ALREADY_APPLIED'); return; }
+      var hasChanged = ks.some(function (k) { return st[k] === 'changed'; }); if (hasChanged) sk('CHANGED_SINCE_AUDIT');   // 手動変更の可能性がある列は後段の old フィルタで保護し、他の安全な列は進める
+      ks.filter(function (k) { return st[k] === 'done' && !r[H['反映先']]; }).forEach(function (k) { recovered.push([now, applyId, label, x.ep, SC_COLS_[k], String(r[H[OLD[k]]]), String(r[H[NEW[k]]]), 'OK(回収)']); });   // 反映記録のない一致列だけ履歴を回収（既存記録の重複は作らない）
+      ks = ks.filter(function (k) { return st[k] === 'old'; });
+      if (!ks.length) { if (!hasChanged) { cur[ri][H['反映先']] = label; cur[ri][H['反映日時']] = now; } return; }
+      if (ks.some(function (k) { return /^[=+]/.test(String(r[H[NEW[k]]])); })) { sk('FORMULA_LIKE_VALUE_HOLD'); return; }
+      epCount++;
+      ks.forEach(function (k) { writes.push({ ri: ri, ep: x.ep, row: x.row, col: cols[k] + 1, colName: SC_COLS_[k], oldV: String(x[k]), newV: r[H[NEW[k]]] }); });
+    });
+    var histRows = [], bad = 0, byCol = {};
+    var pend = writes.map(function (w) { return [now, applyId, label, w.ep, w.colName, w.oldV, w.newV, '書込中']; }).concat(recovered), hStart = hist.getLastRow() + 1;
+    if (pend.length) { var pr = hist.getRange(hStart, 1, pend.length, SC_HIST_HEADERS_.length); pr.setNumberFormat('@'); pr.setValues(pend); SpreadsheetApp.flush(); PropertiesService.getScriptProperties().setProperty('SC_LAST_APPLY', applyId); }   // 先に履歴（旧値）を残してから書く＝途中で止まっても取消できる
+    writes.forEach(function (w) { (byCol[w.col] = byCol[w.col] || []).push(w); });
+    Object.keys(byCol).forEach(function (col) {   // 連続する行をまとめて書く（1セルずつ書くと遅く、時間切れで履歴が残らない恐れ）
+      var ws = byCol[col].sort(function (a, b) { return a.row - b.row; }), i = 0;
+      while (i < ws.length) { var j = i; while (j + 1 < ws.length && ws[j + 1].row === ws[j].row + 1) j++;
+        t.sh.getRange(ws[i].row, Number(col), j - i + 1, 1).setValues(ws.slice(i, j + 1).map(function (w) { return [w.newV]; })); i = j + 1; }
+    });
+    SpreadsheetApp.flush();
+    var lastRow = t.sh.getLastRow(), back = {};
+    Object.keys(byCol).forEach(function (col) { back[col] = t.sh.getRange(1, Number(col), lastRow, 1).getDisplayValues(); });   // 読み戻しは列ごとに1回
+    writes.forEach(function (w) { var b = back[w.col][w.row - 1][0], st = b === String(w.newV) ? 'OK' : 'READBACK_MISMATCH'; if (st !== 'OK') bad++; histRows.push([now, applyId, label, w.ep, w.colName, w.oldV, w.newV, st]); cur[w.ri][H['反映先']] = label; cur[w.ri][H['反映日時']] = now; });
+    if (histRows.length) hist.getRange(hStart, 8, histRows.length, 1).setValues(histRows.map(function (h) { return [h[7]]; }));   // 書込中 → OK / READBACK_MISMATCH
+    var detailWritten = 0;
+    if (targetId !== SC_CONFIG.copyId) {   // V2作業用: 反映した行の構造化データを別タブに保存（EP-IDで上書き更新）
+      var eps = {}; writes.forEach(function (w) { eps[w.ep] = 1; }); recovered.forEach(function (h) { eps[h[3]] = 1; });
+      if (Object.keys(eps).length) detailWritten = scV2DetailUpsert_(t.ss, L, cur, H, eps, now).changed;
+    }
+    if (pend.length) res.getRange(2, 1, cur.length, SC_HEADERS_.length).setValues(cur);
+    if (pend.length) PropertiesService.getScriptProperties().setProperty('SC_LAST_APPLY', applyId);   // 書込が無い回で取消対象を上書きしない
+    return { status: bad ? 'READBACK_MISMATCH' : writes.length ? 'OK' : 'OK_NO_CHANGE', target: label, level: level, cellsWritten: writes.length, recoveredHistory: recovered.length, detailRows: detailWritten, episodes: Object.keys(writes.reduce(function (a, w) { a[w.ep] = 1; return a; }, {})).length, skipped: skip, applyId: applyId, ms: Date.now() - t0 };
+  } finally { lock.releaseLock(); }
+}
+// S3: COPYの台帳へ反映（自動検査合格＋人の確認OK）。まず10件だけ（S3A）→ 結果シート・反映履歴で確認 → 全件（S3B）
+function S3A_COPYへ反映_試験10件() { return scLog_('S3A_COPYへ反映_試験10件', scApply_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes, 'AUTO_PASS', 'COPY', 10)); }
+function S3B_COPYへ反映_全件() { return scLog_('S3B_COPYへ反映_全件', scApply_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes, 'AUTO_PASS', 'COPY', 0)); }
+// S4: V2作業用台帳へ反映（既定は「人の確認=OK」の行だけ。SC_CONFIG.v2ApplyLevel を 'AUTO_PASS' にすると自動検査合格も含める）
+function S4_V2作業用へ反映() { return scLog_('S4_V2作業用へ反映', scApply_(SC_CONFIG.v2WorkingId, '', SC_CONFIG.v2ApplyLevel, 'V2作業用', 0, null, scV2NotPassedScope_())); }
+// V2へ書いてよい範囲: V2・清掃詳細で「自動検査合格」になっていない回（または行がない回）だけ。
+// 既に合格して反映済みのロボ出力は、清掃版が変わっても書き直さない（2026-11-12: 版の古い規則で新しい出力を上書きした事故の再発防止）
+function scV2NotPassedScope_() {
+  var v = scOpen_(SC_CONFIG.v2WorkingId, ''), ds = v.ss.getSheetByName(SC_V2DETAIL_), L = scLedger_(v.sh), pass = {}, scope = {};
+  if (ds && ds.getLastRow() > 1) { var dv = ds.getRange(1, 1, ds.getLastRow(), SC_V2DETAIL_HEADERS_.length).getDisplayValues(), e = dv[0].indexOf('EP-ID'), j = dv[0].indexOf('判定');
+    dv.slice(1).forEach(function (x) { if (x[j] === '自動検査合格・目視未確認') pass[x[e]] = 1; }); }
+  L.rows.forEach(function (r) { if (!pass[r.ep]) scope[r.ep] = 1; });
+  return scope;
+}
+// S9: 直前の反映を取り消す（反映履歴の旧値に戻す。反映後に人が直したセルは戻さない）
+function S9_直前の反映を取消() {
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), hist = scSheet_(c.ss, SC_HISTORY_, SC_HIST_HEADERS_), id = PropertiesService.getScriptProperties().getProperty('SC_LAST_APPLY');
+  if (!id || hist.getLastRow() < 2) return scLog_('S9_直前の反映を取消', { status: 'NOTHING_TO_UNDO' });
+  var rows = hist.getRange(2, 1, hist.getLastRow() - 1, SC_HIST_HEADERS_.length).getDisplayValues().filter(function (r) { return r[1] === id && /^OK|^書込中$/.test(r[7]); });
+  if (!rows.length) return scLog_('S9_直前の反映を取消', { status: 'NOTHING_TO_UNDO' });
+  var t = rows[0][2] === 'COPY' ? c : scOpen_(SC_CONFIG.v2WorkingId, ''), L = scLedger_(t.sh), byEp = {}, h = L.values[0], undone = 0, kept = 0, out = [];
+  L.rows.forEach(function (r) { byEp[r.ep] = r; });
+  rows.forEach(function (r) { var x = byEp[r[3]]; if (!x) return; var col = h.indexOf(r[4]) + 1, cell = t.sh.getRange(x.row, col);
+    if (cell.getDisplayValue() === r[6]) { cell.setValue(r[5]); undone++; out.push([new Date().toISOString(), id + '/UNDO', r[2], r[3], r[4], r[6], r[5], 'UNDO']); } else kept++; });
+  if (out.length) hist.getRange(hist.getLastRow() + 1, 1, out.length, SC_HIST_HEADERS_.length).setValues(out);
+  PropertiesService.getScriptProperties().deleteProperty('SC_LAST_APPLY');
+  return scLog_('S9_直前の反映を取消', { status: 'OK', undone: undone, keptBecauseEditedAfter: kept });
+}
+
+// S8: 診断（書込なし）。判定理由ごとに数件、原因の行を短く表示する（不具合の調査用）
+function S8_診断() {
+  var o = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), res = o.ss.getSheetByName(SC_RESULT_), L = scLedger_(o.sh), raw = scRawMap_(), byEp = {};
+  L.rows.forEach(function (r) { byEp[r.ep] = r; });
+  var H = {}; SC_HEADERS_.forEach(function (n, i) { H[n] = i; }); var cur = res.getRange(2, 1, res.getLastRow() - 1, SC_HEADERS_.length).getDisplayValues();
+  var want = (PropertiesService.getScriptProperties().getProperty('SC_DIAG') || 'OVER_DELETION,STAFF_IN_BODY').split(','), out = {};
+  want.forEach(function (w) { out[w] = []; });
+  cur.forEach(function (r) {
+    var x = byEp[r[0]]; if (!x) return; var g = x.guids.filter(function (k) { return raw.map[k]; })[0]; if (!g) return; var text = raw.map[g];
+    want.forEach(function (w) {
+      if (out[w].length >= 3 || String(r[H['理由']]).indexOf(w) < 0) return;
+      var d = { ep: r[0], show: r[2] };
+      if (w === 'MANUAL_EDIT_PROTECTED') d.why = ['summary', 'cast', 'related'].map(function (k) { return [k, CleanerV4.explainDerived(x[k], text)]; }).filter(function (p) { return p[1]; });
+      else { var c = CleanerV4.cleanV4(text), lines = QualityAudit.classifyRawLines(text), a = QualityAudit.auditPair(text, { description: c.text, cast: c.cast.map(function (q) { return [q.role, q.name, q.note].join(' '); }), related: c.related });
+        d.findings = a.findings.filter(function (f) { return f.type === w; }).slice(0, 1).map(function (f) { var l = lines.filter(function (q) { return q.i === f.line; })[0], pv = lines.filter(function (q) { return q.i === f.line - 1; })[0]; return { line: f.line, expect: l && l.expect, text: l ? l.text.slice(0, 50) : '', prev: pv ? pv.text.slice(0, 40) : '' }; });
+        d.secs = CleanerV4.sections(text).map(function (q) { return q.kind + ':' + String(q.head).slice(0, 14) + '(' + q.lines.length + ')'; }).join(' | ').slice(0, 160); d.out = c.text.slice(0, 60);
+        if (w === 'CAST_CONTAMINATED') d.cast = c.cast.slice(0, 4).map(function (q) { return q.raw.slice(0, 60); });
+        if (/RELATED/.test(w)) d.related = c.related.slice(0, 3).map(function (q) { return [q.title.slice(0, 30), q.url.slice(0, 60)]; }), d.removed = c.removed.slice(0, 6).map(function (q) { return q.reason; }); }
+      out[w].push(d);
+    });
+  });
+  return scLog_('S8_診断', out);
+}
+
+// S7: 抜き取り確認（書込なし）。自動検査合格から番組ごとに均等に n 件、原文の行分類と清掃結果（本文・出演者・関連記事の見出し＋URL）を短く並べる
+function S7_抜き取り() {
+  var n = 20, o = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), res = o.ss.getSheetByName(SC_RESULT_), L = scLedger_(o.sh), raw = scRawMap_(), byEp = {}, H = {};
+  L.rows.forEach(function (r) { byEp[r.ep] = r; }); SC_HEADERS_.forEach(function (k, i) { H[k] = i; });
+  var cur = res.getRange(2, 1, res.getLastRow() - 1, SC_HEADERS_.length).getDisplayValues().filter(function (r) { return r[H['判定']] === '自動検査合格・目視未確認'; });
+  var byShow = {}; cur.forEach(function (r) { (byShow[r[H['番組']]] = byShow[r[H['番組']]] || []).push(r); });
+  var pick = [], shows = Object.keys(byShow).sort(), k = 0; while (pick.length < n && k < 200) { shows.forEach(function (sh) { var a = byShow[sh], r = a[Math.floor((k * 7919) % a.length)]; if (pick.length < n && r && pick.indexOf(r) < 0) pick.push(r); }); k++; }
+  var out = pick.map(function (r) { var x = byEp[r[0]], g = x.guids.filter(function (q) { return raw.map[q]; })[0], text = raw.map[g] || '';
+    var lines = QualityAudit.classifyRawLines(text).filter(function (l) { return l.expect !== 'DROP'; }).map(function (l) { return l.expect[0] + ':' + l.text.slice(0, 28); });
+    var rel = JSON.parse(r[H['関連記事JSON(見出し+URL)']] || '[]').map(function (q) { return (q.kind || 'a')[0] + ':' + String(q.title).slice(0, 18) + '|' + String(q.url).replace(/^https?:\/\/(www\.)?/, '').slice(0, 34); });
+    var cast = JSON.parse(r[H['出演者JSON']] || '[]').map(function (q) { return [q.role, q.name, q.links && q.links.length ? 'L' + q.links.length : ''].filter(Boolean).join(' '); });
+    return { ep: r[0], show: r[2], raw: lines.slice(0, 12), sum: r[H['新・概要']].slice(0, 50) + '…(' + r[H['新・概要']].length + ')', cast: cast, rel: rel }; });
+  return scLog_('S7_抜き取り', out);
+}
+
+// ---- S5: V2作業用の別タブへ保全（台帳34列は触らない） ----
+function scChunkWrite_(sh, startRow, rows, width) {   // 大量行を500行ずつ書く（文字列として。=で始まる値も式にしない）
+  for (var i = 0; i < rows.length; i += 500) { var part = rows.slice(i, i + 500), r = sh.getRange(startRow + i, 1, part.length, width); r.setNumberFormat('@'); r.setValues(part); }
+}
+// 清掃詳細: 清掃・結果（COPY）の行を V2作業用台帳のEPごとに保存。結果が無い・GUIDが合わない回も HOLD として残す。内容が同じ行は書かない＝再実行差分0
+function scV2DetailUpsert_(ss, L, resRows, H, onlyEps, now) {
+  var n = SC_V2DETAIL_HEADERS_.length, ds = scSheet_(ss, SC_V2DETAIL_, SC_V2DETAIL_HEADERS_), dv = ds.getLastRow() > 1 ? ds.getRange(2, 1, ds.getLastRow() - 1, n).getDisplayValues() : [], at = {}, byEp = {}, c = { rows: 0, changed: 0, rawMissing: 0, hold: 0, readbackMismatch: 0 };
+  dv.forEach(function (r, i) { at[r[0]] = i; }); resRows.forEach(function (r) { byEp[r[H['EP-ID']]] = r; });
+  L.rows.forEach(function (x) {
+    if (onlyEps && !onlyEps[x.ep]) return;
+    var r = byEp[x.ep], row;
+    if (!r) row = [x.ep, x.guid, '', '', '', '', '', 'HOLD', 'NO_AUDIT_RESULT（清掃・結果に行なし）', '未判定'];
+    else if (r[H['公式GUID']] && x.guids.indexOf(String(r[H['公式GUID']]).toLowerCase()) < 0) row = [x.ep, x.guid, '', '', '', '', r[H['清掃版']], 'HOLD', 'GUID_MISMATCH（台帳と清掃結果のGUIDが違う）', '未判定'];
+    else row = [x.ep, r[H['公式GUID']] || x.guid, r[H['関連記事JSON(見出し+URL)']], r[H['出演者JSON']], r[H['SNS等保全URL']], r[H['原文SHA256']], r[H['清掃版']], r[H['判定']], r[H['理由']], r[H['原文取得']] === '公式RSS' ? '取得' : '欠損'];
+    row = row.map(function (q) { return String(q == null ? '' : q); }); c.rows++;
+    if (row[9] !== '取得') c.rawMissing++; if (row[7] === 'HOLD') c.hold++;
+    var i = at[x.ep]; if (i != null && dv[i].slice(0, n - 1).join('\u0001') === row.join('\u0001')) return;
+    row.push(now); c.changed++; if (i != null) dv[i] = row; else { at[x.ep] = dv.length; dv.push(row); }
+  });
+  if (c.changed) { scChunkWrite_(ds, 2, dv, n); SpreadsheetApp.flush();
+    var back = ds.getRange(2, 1, dv.length, n).getDisplayValues(); back.forEach(function (b, i) { if (b.join('\u0001') !== dv[i].join('\u0001')) c.readbackMismatch++; }); }
+  return c;
+}
+// 収蔵詳細: 公式RSSの原文を EP-ID＋GUID で保存。既にある原文は上書きしない（RSS側が変わったら原文変化履歴へ）。空欄の原文は、記録済みSHAと一致する場合だけ埋める。RSSに無い回は「原文なし（欠損）」
+function scV2RawPreserve_(ss, L, raw, maxNew, now, t0) {
+  var n = P25V2_DETAIL_HEADERS_.length, d = ss.getSheetByName(P25V2_DETAIL_SHEET_);
+  if (!d) { d = ss.insertSheet(P25V2_DETAIL_SHEET_); d.getRange(1, 1, 1, n).setValues([P25V2_DETAIL_HEADERS_]); d.setFrozenRows(1); }
+  var v = d.getRange(1, 1, Math.max(d.getLastRow(), 1), n).getDisplayValues(); p25v2SheetHeaderCheck_(v, P25V2_DETAIL_HEADERS_, P25V2_DETAIL_SHEET_);
+  var at = {}; v.forEach(function (r, i) { if (i && r[0]) at[r[0]] = i; });
+  var hs = scSheet_(ss, SC_RAWHIST_, SC_RAWHIST_HEADERS_), seen = {}; (hs.getLastRow() > 1 ? hs.getRange(2, 1, hs.getLastRow() - 1, 5).getDisplayValues() : []).forEach(function (r) { seen[r[1] + '|' + r[4]] = 1; });
+  var add = [], fill = [], hist = [], eps = {}, c = { added: 0, addedMissing: 0, filled: 0, kept: 0, stillMissing: 0, rssChangedLogged: 0, tooLong: 0, readbackMismatch: 0, partial: false };
+  L.rows.forEach(function (x) {
+    if (c.partial) return;
+    if (Date.now() - t0 > SC_CONFIG.timeBudgetMs - 60000) { c.partial = true; return; }
+    var g = x.guids.filter(function (q) { return raw.map[q]; })[0], text = g ? String(raw.map[g]) : '', sha = text ? p25v2GasSha256_(text) : '', i = at[x.ep];
+    if (text.length > SC_CELL_MAX_) { c.tooLong++; }
+    if (i == null) {
+      if (maxNew && add.length >= maxNew) return;
+      var row = text && text.length <= SC_CELL_MAX_ ? p25v2DetailRow_(x.ep, raw.item[g], now, p25v2GasSha256_)
+        : [x.ep, g || x.guid, '', now, '', sha, String(text.length), text ? '原文過大（保存不可・ハッシュのみ）' : '原文なし（欠損）', '', '', '', '', '', '', '', '', text ? '公式RSS（長さ・ハッシュのみ）' : 'なし（公式RSSに無し）'];
+      if (row[4]) row[16] = '公式RSS（清掃GAS S5）'; else c.addedMissing++;
+      add.push(row.map(function (q) { return String(q == null ? '' : q); })); eps[x.ep] = 1; return;
+    }
+    var cur = v[i];
+    if (cur[4]) { if (text && sha !== cur[5] && sha.indexOf(cur[5]) !== 0) { if (!seen[x.ep + '|' + sha]) { hist.push([now, x.ep, g, cur[5], sha, String(text.length), text.length <= SC_CELL_MAX_ ? text : '']); seen[x.ep + '|' + sha] = 1; } } else c.kept++; return; }
+    if (!text || text.length > SC_CELL_MAX_) { c.stillMissing++; return; }
+    if (cur[5] && sha.indexOf(cur[5]) !== 0) { if (!seen[x.ep + '|' + sha]) { hist.push([now, x.ep, g, cur[5], sha, String(text.length), text]); seen[x.ep + '|' + sha] = 1; } return; }   // 記録済みハッシュと違う原文では埋めない
+    fill.push({ row: i + 1, text: text, sha: sha });
+  });
+  if (add.length) { var s0 = d.getLastRow() + 1; scChunkWrite_(d, s0, add, n); SpreadsheetApp.flush();
+    d.getRange(s0, 1, add.length, n).getDisplayValues().forEach(function (b, k) { if (b[0] !== add[k][0] || b[4] !== add[k][4] || (b[4] && p25v2GasSha256_(b[4]) !== add[k][5])) c.readbackMismatch++; }); c.added = add.length; }
+  fill.forEach(function (f) { var r = d.getRange(f.row, 5, 1, 3); r.setNumberFormat('@'); r.setValues([[f.text, f.sha, String(f.text.length)]]); d.getRange(f.row, 17).setValue('公式RSS（清掃GAS S5・後日補完）'); });
+  if (fill.length) { SpreadsheetApp.flush(); fill.forEach(function (f) { if (p25v2GasSha256_(d.getRange(f.row, 5).getDisplayValue()) !== f.sha) c.readbackMismatch++; }); c.filled = fill.length; }
+  if (hist.length) { scChunkWrite_(hs, hs.getLastRow() + 1, hist, SC_RAWHIST_HEADERS_.length); c.rssChangedLogged = hist.length; }
+  c.totalRows = d.getLastRow() - 1; c.addedEps = eps;
+  return c;
+}
+function scV2Preserve_(fn, maxNew) {
+  var t0 = Date.now(), lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return scLog_(fn, { status: 'LOCKED' });
+  try {
+    var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), res = c.ss.getSheetByName(SC_RESULT_); if (!res) return scLog_(fn, { status: 'STOP_NO_AUDIT_RESULT（先に S2）' });
+    var t = scOpen_(SC_CONFIG.v2WorkingId, ''), L = scLedger_(t.sh), raw = scRawMap_();
+    if (raw.errors.length) return scLog_(fn, { status: 'STOP_FEED_ERRORS', feedErrors: raw.errors });   // 一部の番組だけで保全しない
+    var H = {}; SC_HEADERS_.forEach(function (k, i) { H[k] = i; });
+    var cur = res.getLastRow() > 1 ? res.getRange(2, 1, res.getLastRow() - 1, SC_HEADERS_.length).getDisplayValues() : [], now = new Date().toISOString();
+    var a = scV2RawPreserve_(t.ss, L, raw, maxNew, now, t0), eps = a.addedEps; delete a.addedEps;
+    var b = scV2DetailUpsert_(t.ss, L, cur, H, maxNew ? eps : null, now);
+    var bad = a.readbackMismatch + b.readbackMismatch;
+    return scLog_(fn, { status: bad ? 'READBACK_MISMATCH' : a.partial ? 'PARTIAL_TIME（もう一度押すと続きから）' : (a.added + a.filled + a.rssChangedLogged + b.changed) ? 'OK' : 'OK_NO_CHANGE', ledgerEps: L.rows.length, raw: a, detail: b, ms: Date.now() - t0 });
+  } finally { lock.releaseLock(); }
+}
+// S5A: まず10件だけ（収蔵詳細に原文、清掃詳細に構造化データ）→ V2作業用の2タブで確認 → S5B で全件。何度押しても差分0
+function S5A_V2詳細保全_試験10件() { return scV2Preserve_('S5A_V2詳細保全_試験10件', 10); }
+function S5B_V2詳細保全_全件() { return scV2Preserve_('S5B_V2詳細保全_全件', 0); }
+
+// ===== S6: V2作業用に新しく収蔵された回の清掃（P25V2 一括収蔵の後に押す）=====
+// 対象: V2作業用台帳で「概要（清掃済）・出演者・関連記事URL」がすべて空の回（＝新着）と、既にS6の結果がある回。原文はRSSを取り直さず、
+//   V2・収蔵詳細に保全済みの概要原文を使う（SHA256が記録値と一致する場合だけ）。原文・EP-ID・GUIDは書かない。
+// S6A（書込なし・判定を保存）→ 結果を見る → S6B（自動検査合格／人の確認OKだけ台帳3列へ）。取消は S9。
+var SC_V2NEW_RESULT_ = '清掃・結果(V2新着)';
+function S6A_V2新着_清掃監査() {
+  var t0 = Date.now(), lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return scLog_('S6A_V2新着_清掃監査', { status: 'LOCKED' });
+  try {
+    var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), res = scSheet_(c.ss, SC_V2NEW_RESULT_, SC_HEADERS_), v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = scLedger_(v.sh);
+    var H = {}; SC_HEADERS_.forEach(function (n, i) { H[n] = i; });
+    var cur = res.getLastRow() > 1 ? res.getRange(2, 1, res.getLastRow() - 1, SC_HEADERS_.length).getDisplayValues() : [], at = {}; cur.forEach(function (r, i) { at[r[0]] = i; });
+    var ds = v.ss.getSheetByName(P25V2_DETAIL_SHEET_); if (!ds) throw new Error('SHEET_NOT_FOUND ' + P25V2_DETAIL_SHEET_);
+    var dv = ds.getRange(1, 1, ds.getLastRow(), P25V2_DETAIL_HEADERS_.length).getDisplayValues(), dh = dv[0], D = function (n) { var i = dh.indexOf(n); if (i < 0) throw new Error('DETAIL_COLUMN_NOT_FOUND ' + n); return i; };
+    var raw = {}; dv.slice(1).forEach(function (r) { raw[r[D('EP-ID')]] = { guid: String(r[D('公式GUID')]).toLowerCase(), text: r[D('概要原文')], sha: r[D('概要原文SHA256')] }; });
+    var ver = scVersion_(), now = new Date().toISOString(), cnt = { target: 0, updated: 0, skipped: 0, rawMissing: 0, rawShaMismatch: 0, guidMismatch: 0 }, eps = {};
+    L.rows.forEach(function (r) {
+      if (!(at[r.ep] != null || (!r.summary && !r.cast && !r.related))) return;
+      cnt.target++; eps[r.ep] = 1;
+      var d = raw[r.ep], text = '', g = r.guid;
+      if (!d || !d.text) cnt.rawMissing++;
+      else if (r.guids.indexOf(d.guid) < 0) cnt.guidMismatch++;
+      else if (p25v2GasSha256_(d.text) !== d.sha) cnt.rawShaMismatch++;
+      else { text = d.text; g = d.guid; }
+      var exSha = p25v2GasSha256_([r.summary, r.cast, r.related].join('\u0001')), rawSha = text ? p25v2GasSha256_(text) : '', k = at[r.ep], old = k != null ? cur[k] : null;
+      if (old && old[H['原文SHA256']] === rawSha && old[H['清掃版']] === ver && old[H['旧値SHA']] === exSha) { cnt.skipped++; return; }
+      var row = scJudgeRow_(r, text, g, rawSha, exSha, ver, now, H);
+      if (!text) row[H['理由']] = 'RAW_NOT_PRESERVED（V2・収蔵詳細に検証済みの原文なし。推測で補完しない）';
+      if (old) { ['人の確認', '確認メモ', '反映先', '反映日時'].forEach(function (n) { row[H[n]] = old[H[n]]; }); cur[k] = row; } else { at[r.ep] = cur.length; cur.push(row); }
+      cnt.updated++;
+    });
+    if (cnt.updated) { var rg = res.getRange(2, 1, cur.length, SC_HEADERS_.length); rg.setNumberFormat('@'); rg.setValues(cur); }
+    var det = Object.keys(eps).length ? scV2DetailUpsert_(v.ss, L, cur, H, eps, now) : { changed: 0 };   // 判定・出演者JSON・関連記事JSONを V2・清掃詳細へ（台帳3列は書かない）
+    var vc = {}; cur.forEach(function (r) { if (eps[r[0]]) vc[r[H['判定']]] = (vc[r[H['判定']]] || 0) + 1; });
+    return scLog_('S6A_V2新着_清掃監査', { status: 'OK', counts: cnt, verdicts: vc, writable: cur.filter(function (r) { return eps[r[0]] && r[H['書換可']]; }).length, v2DetailChanged: det.changed, v2DetailReadbackMismatch: det.readbackMismatch || 0, eps: Object.keys(eps).join(' ').slice(0, 600), version: ver, ms: Date.now() - t0 });
+  } finally { lock.releaseLock(); }
+}
+function S6B_V2新着_反映() { return scLog_('S6B_V2新着_反映', scApply_(SC_CONFIG.v2WorkingId, '', SC_CONFIG.v2ApplyLevel, 'V2作業用(新着)', 0, SC_V2NEW_RESULT_)); }
+
+// ===== S10R: 非公式S10（2026-11-12 13:13Z、PR #306 外）による概要の強制書換を元に戻す =====
+// 「V2・強制概要反映履歴」の状態 OK の行だけ対象。V2台帳の概要が履歴の新概要と完全一致する場合に限り旧概要へ戻す（人がその後に直した行は HOLD）。
+// 書込前に COPY の清掃・反映履歴へ旧値・新値を記録 → 書込 → 読み戻し → 履歴行の状態を「取消済(S10R)」に更新。再実行は差分0。
+function S10R_非公式S10の書換を取消() {
+  var lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return scLog_('S10R_非公式S10の書換を取消', { status: 'LOCKED' });
+  try {
+    var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), v = scOpen_(SC_CONFIG.v2WorkingId, ''), hs = v.ss.getSheetByName('V2・強制概要反映履歴');
+    if (!hs || hs.getLastRow() < 2) return scLog_('S10R_非公式S10の書換を取消', { status: 'NO_HISTORY' });
+    var hv = hs.getRange(1, 1, hs.getLastRow(), hs.getLastColumn()).getValues(), hh = hv[0].map(String), X = function (n) { var i = hh.indexOf(n); if (i < 0) throw new Error('S10_HISTORY_COLUMN_NOT_FOUND ' + n); return i; };
+    var iEp = X('EP-ID'), iOld = X('旧概要'), iNew = X('新概要'), iSt = X('状態'), L = scLedger_(v.sh), byEp = {}; L.rows.forEach(function (r) { byEp[r.ep] = r; });
+    var col = L.ix.summary + 1, now = new Date().toISOString(), id = now + '/S10R', todo = [], cnt = { okRows: 0, restored: 0, alreadyUndone: 0, holdChanged: 0, holdNoRow: 0, readbackMismatch: 0, untouchedNotOk: 0 }, hold = [];
+    hv.slice(1).forEach(function (r, k) {
+      var st = String(r[iSt]); if (st === '取消済(S10R)') { cnt.alreadyUndone++; return; } if (st !== 'OK') { cnt.untouchedNotOk++; return; }
+      cnt.okRows++; var x = byEp[String(r[iEp])]; if (!x) { cnt.holdNoRow++; hold.push(r[iEp] + ':台帳に行なし'); return; }
+      var cur = x.summary, nw = String(r[iNew]), od = String(r[iOld]);
+      if (cur === od) { todo.push({ k: k, x: x, od: od, nw: nw, skipWrite: true }); return; }   // 既に旧値（手で戻された等）→ 状態だけ更新
+      if (cur !== nw) { cnt.holdChanged++; hold.push(r[iEp] + ':S10後に変更あり'); return; }
+      todo.push({ k: k, x: x, od: od, nw: nw });
+    });
+    var hist = scSheet_(c.ss, SC_HISTORY_, SC_HIST_HEADERS_), w = todo.filter(function (t) { return !t.skipWrite; });
+    if (w.length) { var pr = hist.getRange(hist.getLastRow() + 1, 1, w.length, SC_HIST_HEADERS_.length); pr.setNumberFormat('@'); pr.setValues(w.map(function (t) { return [now, id, 'V2作業用(S10取消)', t.x.ep, SC_COLS_.summary, t.nw, t.od, '書込中']; })); SpreadsheetApp.flush(); }
+    w.forEach(function (t) { v.sh.getRange(t.x.row, col).setValue(t.od); });
+    SpreadsheetApp.flush();
+    w.forEach(function (t) { if (v.sh.getRange(t.x.row, col).getDisplayValue() === t.od) cnt.restored++; else cnt.readbackMismatch++; });
+    if (w.length) hist.getRange(hist.getLastRow() - w.length + 1, 8, w.length, 1).setValues(w.map(function (t) { return [v.sh.getRange(t.x.row, col).getDisplayValue() === t.od ? 'OK' : 'READBACK_MISMATCH']; }));
+    if (!cnt.readbackMismatch) todo.forEach(function (t) { hs.getRange(t.k + 2, iSt + 1).setValue('取消済(S10R)'); });
+    return scLog_('S10R_非公式S10の書換を取消', { status: cnt.readbackMismatch ? 'READBACK_MISMATCH' : (w.length || todo.length) ? 'OK' : 'OK_NO_CHANGE', counts: cnt, restoredEps: w.map(function (t) { return t.x.ep; }), hold: hold, applyId: id });
+  } finally { lock.releaseLock(); }
+}
+
+// V2・収蔵詳細に保全済みの概要原文（EP-ID → GUID・原文）。記録済みSHA256と一致するものだけ返す（読むだけ）
+function scPreservedRaw_() {
+  var v = scOpen_(SC_CONFIG.v2WorkingId, ''), ds = v.ss.getSheetByName(P25V2_DETAIL_SHEET_), out = {};
+  if (!ds || ds.getLastRow() < 2) return out;
+  var dv = ds.getRange(1, 1, ds.getLastRow(), P25V2_DETAIL_HEADERS_.length).getDisplayValues(), h = dv[0], e = h.indexOf('EP-ID'), g = h.indexOf('公式GUID'), t = h.indexOf('概要原文'), s = h.indexOf('概要原文SHA256');
+  if (e < 0 || g < 0 || t < 0 || s < 0) throw new Error('DETAIL_COLUMN_NOT_FOUND');
+  dv.slice(1).forEach(function (r) { if (r[t] && p25v2GasSha256_(r[t]) === r[s]) out[r[e]] = { guid: String(r[g]).toLowerCase(), text: r[t] }; });
+  return out;
+}
+
+// S4B: V2作業用へ反映（V2・清掃詳細で「未合格」だった回だけ）。既に合格・反映済みの回（ロボの前回出力）は書き直さない＝既存の成果を維持。
+// 対象は最初の実行時に固定し（スクリプトプロパティ SC_S4B_SCOPE）、以後の実行でも同じ範囲だけを扱う（反映で清掃詳細が更新されても範囲は広がらない）。
+function S4B_V2作業用へ反映_未合格分のみ() {
+  var props = PropertiesService.getScriptProperties(), scope = JSON.parse(props.getProperty('SC_S4B_SCOPE') || 'null');
+  if (!scope) {
+    var v = scOpen_(SC_CONFIG.v2WorkingId, ''), ds = v.ss.getSheetByName(SC_V2DETAIL_); if (!ds) throw new Error('SHEET_NOT_FOUND ' + SC_V2DETAIL_);
+    var dv = ds.getRange(1, 1, ds.getLastRow(), SC_V2DETAIL_HEADERS_.length).getDisplayValues(), h = dv[0], e = h.indexOf('EP-ID'), j = h.indexOf('判定'), r = h.indexOf('原文状態');
+    scope = {}; dv.slice(1).forEach(function (x) { if (x[e] && x[j] !== '自動検査合格・目視未確認' && x[r] === '取得') scope[x[e]] = 1; });
+    props.setProperty('SC_S4B_SCOPE', JSON.stringify(scope));
+  }
+  var out = scApply_(SC_CONFIG.v2WorkingId, '', SC_CONFIG.v2ApplyLevel, 'V2作業用', 0, null, scope);
+  out.scopeEpisodes = Object.keys(scope).length;
+  return scLog_('S4B_V2作業用へ反映_未合格分のみ', out);
+}
+
+// S9C: 2026-11-12 13:29〜13:31Z の S3B（COPY）3回分を取消。旧規則SC4-9の出力で、新しい清掃出力を上書きしたため。現在値が新値と一致するセルだけ旧値へ（列ごとにまとめて書く）
+var SC_UNDO_IDS_20261112_ = ['2026-11-12T13:29:00.209Z/COPY', '2026-11-12T13:30:15.934Z/COPY', '2026-11-12T13:31:17.946Z/COPY'];
+function S9C_COPY反映の取消_20261112() {
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), hist = scSheet_(c.ss, SC_HISTORY_, SC_HIST_HEADERS_);
+  var hv = hist.getRange(2, 1, hist.getLastRow() - 1, SC_HIST_HEADERS_.length).getDisplayValues().filter(function (r) { return SC_UNDO_IDS_20261112_.indexOf(r[1]) >= 0 && /^OK/.test(r[7]); });
+  var done = {}; hist.getRange(2, 1, hist.getLastRow() - 1, SC_HIST_HEADERS_.length).getDisplayValues().forEach(function (r) { if (/\/UNDO$/.test(r[1])) done[r[1].replace(/\/UNDO$/, '') + '\u0001' + r[3] + '\u0001' + r[4]] = 1; });
+  var L = scLedger_(c.sh), byEp = {}, h = L.values[0], cols = {}, out = [], kept = 0, now = new Date().toISOString(); L.rows.forEach(function (r) { byEp[r.ep] = r; });
+  hv.forEach(function (r) { if (done[r[1] + '\u0001' + r[3] + '\u0001' + r[4]]) return; var x = byEp[r[3]], ci = h.indexOf(r[4]); if (!x || ci < 0) { kept++; return; }
+    var colv = cols[ci] = cols[ci] || L.values.map(function (row) { return [row[ci]]; });
+    if (colv[x.row - 1][0] === r[6]) { colv[x.row - 1][0] = r[5]; out.push([now, r[1] + '/UNDO', r[2], r[3], r[4], r[6], r[5], 'UNDO']); } else kept++; });
+  if (out.length) { var pr = hist.getRange(hist.getLastRow() + 1, 1, out.length, SC_HIST_HEADERS_.length); pr.setNumberFormat('@'); pr.setValues(out); SpreadsheetApp.flush(); }
+  var chg = {}; out.forEach(function (o) { var ci = h.indexOf(o[4]); (chg[ci] = chg[ci] || []).push(byEp[o[3]].row); });
+  Object.keys(chg).forEach(function (ci) { var rows = chg[ci].sort(function (a, b) { return a - b; }), i = 0;   // 変えた行だけ、連続する行をまとめて書く
+    while (i < rows.length) { var j = i; while (j + 1 < rows.length && rows[j + 1] === rows[j] + 1) j++;
+      c.sh.getRange(rows[i], Number(ci) + 1, j - i + 1, 1).setValues(rows.slice(i, j + 1).map(function (rw) { return [cols[ci][rw - 1][0]]; })); i = j + 1; } });
+  SpreadsheetApp.flush();
+  var bad = 0; Object.keys(chg).forEach(function (ci) { var b = c.sh.getRange(1, Number(ci) + 1, c.sh.getLastRow(), 1).getDisplayValues(); chg[ci].forEach(function (rw) { if (b[rw - 1][0] !== String(cols[ci][rw - 1][0])) bad++; }); });
+  return scLog_('S9C_COPY反映の取消_20261112', { status: bad ? 'READBACK_MISMATCH' : out.length ? 'OK' : 'OK_NO_CHANGE', undoneCells: out.length, keptBecauseChanged: kept, readbackMismatch: bad });
+}
+
+// ===== 人物索引（Issue #309）: 1行 = 1人 × 1エピソード。役割で分けない。原文（保全済み公式RSS）にある名前だけ =====
+// P1 予行（書込なし）→ P2 COPYに試験作成 → （承認）P0 → P3 V2作業用に作成。P9 でV2の索引シートを空に戻す。台帳の列（出演者O列・公開P列）は変えない。
+var PI_SHEET_COPY_ = '人物索引(試験)', PI_SHEET_V2_ = 'V2・人物索引';
+function piBuild_() {
+  var pre = scPreservedRaw_(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = scLedger_(v.sh), eps = L.rows.map(function (r) { return { ep: r.ep, raw: pre[r.ep] ? pre[r.ep].text : '', cast: r.cast, ledgerCast: r.cast, parse: CleanerV4.parseCastLine }; });
+  var ix = PersonIndex.buildPersonIndex(eps), byEp = {}; ix.rows.forEach(function (r) { if (r.state === '原文で確認') (byEp[r.ep] = byEp[r.ep] || []).push(r.key); });
+  var cmp = { same: 0, ledgerOnly_noSource: 0, rawOnly_ledgerEmpty: 0, ledgerHasPlatform: 0, differ: 0, bothEmpty: 0 }, ex = { ledgerOnly_noSource: [], rawOnly_ledgerEmpty: [], ledgerHasPlatform: [] };
+  eps.forEach(function (e) {
+    var led = String(e.cast || '').split('\n').map(function (l) { return CleanerV4.parseCastLine(l).name; }).filter(Boolean), ledKeys = led.filter(function (n) { return !PersonIndex.personHold(n); }).map(PersonIndex.personKey).sort(), raw = (byEp[e.ep] || []).slice().sort();
+    var k = led.some(function (n) { return PersonIndex.personHold(n) === 'PLATFORM_NAME'; }) ? 'ledgerHasPlatform' : !led.length && !raw.length ? 'bothEmpty' : !raw.length ? 'ledgerOnly_noSource' : !led.length ? 'rawOnly_ledgerEmpty' : ledKeys.join('|') === raw.join('|') ? 'same' : 'differ';
+    cmp[k]++; if (ex[k] && ex[k].length < 8) ex[k].push(e.ep);
+  });
+  return { ix: ix, cmp: cmp, ex: ex };
+}
+function P1_人物索引_予行() {
+  var t0 = Date.now(), b = piBuild_(), holdWhy = {}; b.ix.hold.forEach(function (h) { holdWhy[h.why] = (holdWhy[h.why] || 0) + 1; });
+  return scLog_('P1_人物索引_予行', { status: 'OK', version: PersonIndex.PERSON_INDEX_VERSION + '/' + scVersion_(), stat: b.ix.stat, holdReasons: holdWhy, ledgerCompare: b.cmp, examples: b.ex,
+    variantExamples: b.ix.variants.slice(0, 10), ms: Date.now() - t0 });
+}
+function piWrite_(ss, name, rows, ver) {
+  var sh = ss.getSheetByName(name) || ss.insertSheet(name), H = PersonIndex.PERSON_INDEX_HEADERS;
+  sh.clearContents(); sh.getRange(1, 1, 1, H.length).setValues([H]);
+  var vals = rows.map(function (r) { return [r.ep, r.key, r.display, r.note, r.links, r.source, r.state, ver]; });
+  for (var i = 0; i < vals.length; i += 5000) { var part = vals.slice(i, i + 5000), rg = sh.getRange(2 + i, 1, part.length, H.length); rg.setNumberFormat('@'); rg.setValues(part); }
+  SpreadsheetApp.flush();
+  var back = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, 2).getDisplayValues() : [], bad = 0;
+  back.forEach(function (r, i) { if (r[0] !== vals[i][0] || r[1] !== vals[i][1]) bad++; });
+  return { written: vals.length, readBack: back.length, readbackMismatch: bad + Math.abs(back.length - vals.length) };
+}
+function P2_人物索引_COPY作成() {
+  var b = piBuild_(), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), ver = PersonIndex.PERSON_INDEX_VERSION + '/' + CleanerV4.CLEANER_VERSION, w = piWrite_(c.ss, PI_SHEET_COPY_, b.ix.rows, ver);
+  return scLog_('P2_人物索引_COPY作成', { status: w.readbackMismatch ? 'READBACK_MISMATCH' : 'OK', sheet: PI_SHEET_COPY_, stat: b.ix.stat, write: w });
+}
+function P0_承認_人物索引V2() { PropertiesService.getScriptProperties().setProperty('APPROVE_PERSON_INDEX_V2', 'yes'); return scLog_('P0_承認_人物索引V2', { status: 'APPROVED' }); }
+function P3_人物索引_V2作成() {
+  if (PropertiesService.getScriptProperties().getProperty('APPROVE_PERSON_INDEX_V2') !== 'yes') return scLog_('P3_人物索引_V2作成', { status: 'NOT_APPROVED', note: '先に P0_承認_人物索引V2' });
+  var b = piBuild_(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), ver = PersonIndex.PERSON_INDEX_VERSION + '/' + CleanerV4.CLEANER_VERSION, w = piWrite_(v.ss, PI_SHEET_V2_, b.ix.rows, ver);
+  return scLog_('P3_人物索引_V2作成', { status: w.readbackMismatch ? 'READBACK_MISMATCH' : 'OK', sheet: PI_SHEET_V2_, stat: b.ix.stat, write: w, note: '台帳の出演者列・公開台帳P列は変えていない' });
+}
+function P9_人物索引_V2を空に戻す() {
+  var v = scOpen_(SC_CONFIG.v2WorkingId, ''), sh = v.ss.getSheetByName(PI_SHEET_V2_); if (!sh) return scLog_('P9_人物索引_V2を空に戻す', { status: 'NO_SHEET' });
+  sh.clearContents(); return scLog_('P9_人物索引_V2を空に戻す', { status: 'OK', note: '索引シートの中身だけ消した（台帳は無変更）' });
+}
+
+// ===== 出演者列（O列）の限定修正（Issue #309・SC4-12）。概要・関連記事列は触らない =====
+// 書くのは次の2種類だけ: ①出演者列に配信サービス名が混入し、かつ現在値が原文から機械的に取れる値（＝人が直していない）→ SC4-12 の出演者へ
+//                        ②出演者列が空で、SC4-12 が原文から出演者を取り出せた → 埋める
+// それ以外（原文に名前が無い回・台帳にだけ名前がある543話・人が直した値・SC4-12でも空）は書かない。書いた行は履歴に旧値・新値を残し、C9で戻せる。
+var CF_HIST_ = '出演者修正履歴', CF_HIST_HEADERS_ = ['日時', '実行ID', 'EP-ID', '台帳行', '種類', '旧値', '新値', '状態'];
+function cfPlan_() {
+  var pre = scPreservedRaw_(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = scLedger_(v.sh), plan = [], hold = {}, holdEx = [], kinds = {};
+  var hasPlat = function (cell) { return String(cell || '').split('\n').some(function (l) { return CleanerV4.PLATFORM_NAME.test(String(CleanerV4.parseCastLine(l).name || '').trim()); }); };
+  L.rows.forEach(function (r) {
+    var raw = pre[r.ep] ? pre[r.ep].text : '', cur = String(r.cast || ''), plat = hasPlat(cur);
+    if (!plat && cur.trim()) return;                                   // 既に値があり混入なし → 触らない
+    if (!raw) { if (plat) { hold.RAW_NONE = (hold.RAW_NONE || 0) + 1; holdEx.push([r.ep, 'RAW_NONE']); } return; }
+    var c = CleanerV4.cleanV4(raw), cast = c.cast.filter(function (x) { return !PersonIndex.personHold(x.name); }), nw = CleanerV4.castCell(cast);
+    if (!nw) { if (plat) { hold.NO_CAST_AFTER_FIX = (hold.NO_CAST_AFTER_FIX || 0) + 1; holdEx.push([r.ep, 'NO_CAST_AFTER_FIX']); } return; }   // 空欄で原文にも名前なし → 何もしない
+    var kind = plat ? 'PLATFORM_REMOVED' : 'FILLED_EMPTY';
+    if (plat && !CleanerV4.derivedFromRaw(cur, raw)) { hold.MANUAL_EDIT_PROTECTED = (hold.MANUAL_EDIT_PROTECTED || 0) + 1; holdEx.push([r.ep, 'MANUAL_EDIT_PROTECTED']); return; }
+    if (nw === cur) return;
+    kinds[kind] = (kinds[kind] || 0) + 1; plan.push({ row: r.row, ep: r.ep, kind: kind, old: cur, nw: nw });
+  });
+  return { v: v, L: L, plan: plan, hold: hold, holdEx: holdEx.slice(0, 40), kinds: kinds };
+}
+function C1_出演者_予行() {
+  var p = cfPlan_();
+  return scLog_('C1_出演者_予行', { status: 'OK', version: scVersion_(), toWrite: p.plan.length, kinds: p.kinds, hold: p.hold, holdExamples: p.holdEx,
+    plan: p.plan.slice(0, 60).map(function (x) { return [x.ep, x.kind, x.old.replace(/https?:\/\/\S+/g, '<URL>').replace(/\n/g, ' / ').slice(0, 80), '→', x.nw.replace(/https?:\/\/\S+/g, '<URL>').replace(/\n/g, ' / ').slice(0, 80)]; }) });
+}
+function C0_承認_出演者修正() { PropertiesService.getScriptProperties().setProperty('APPROVE_CAST_FIX_V2', 'yes'); return scLog_('C0_承認_出演者修正', { status: 'APPROVED' }); }
+function C2_出演者_反映() {
+  if (PropertiesService.getScriptProperties().getProperty('APPROVE_CAST_FIX_V2') !== 'yes') return scLog_('C2_出演者_反映', { status: 'NOT_APPROVED', note: '先に C0_承認_出演者修正' });
+  var lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return scLog_('C2_出演者_反映', { status: 'LOCKED' });
+  try {
+    var p = cfPlan_(), col = p.L.ix.cast + 1, now = new Date().toISOString(), id = now + '/CAST', c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes);
+    if (!p.plan.length) return scLog_('C2_出演者_反映', { status: 'OK_NO_CHANGE', hold: p.hold });
+    var hs = c.ss.getSheetByName(CF_HIST_) || c.ss.insertSheet(CF_HIST_); if (hs.getLastRow() === 0) hs.getRange(1, 1, 1, CF_HIST_HEADERS_.length).setValues([CF_HIST_HEADERS_]);
+    var hr = hs.getRange(hs.getLastRow() + 1, 1, p.plan.length, CF_HIST_HEADERS_.length); hr.setNumberFormat('@');
+    hr.setValues(p.plan.map(function (x) { return [now, id, x.ep, x.row, x.kind, x.old, x.nw, '書込中']; })); SpreadsheetApp.flush();   // 先に履歴
+    p.plan.forEach(function (x) { var cell = p.v.sh.getRange(x.row, col); cell.setNumberFormat('@'); cell.setValue(x.nw); });
+    SpreadsheetApp.flush();
+    var back = p.v.sh.getRange(1, col, p.v.sh.getLastRow(), 1).getDisplayValues(), eps = p.v.sh.getRange(1, p.L.ix.ep + 1, p.v.sh.getLastRow(), 1).getDisplayValues(), bad = 0;
+    hr.offset(0, 7, p.plan.length, 1).setValues(p.plan.map(function (x) { var ok = back[x.row - 1][0] === x.nw && eps[x.row - 1][0] === x.ep; if (!ok) bad++; return [ok ? 'OK' : 'READBACK_MISMATCH']; }));
+    return scLog_('C2_出演者_反映', { status: bad ? 'READBACK_MISMATCH' : 'OK', written: p.plan.length, kinds: p.kinds, readbackMismatch: bad, hold: p.hold, runId: id });
+  } finally { lock.releaseLock(); }
+}
+function C9_出演者修正の取消() {   // 書いた値が今もそのままのセルだけ旧値へ
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), hs = c.ss.getSheetByName(CF_HIST_), v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = scLedger_(v.sh), col = L.ix.cast + 1;
+  if (!hs || hs.getLastRow() < 2) return scLog_('C9_出演者修正の取消', { status: 'NOTHING_TO_UNDO' });
+  var hv = hs.getRange(2, 1, hs.getLastRow() - 1, CF_HIST_HEADERS_.length).getDisplayValues(), n = 0, kept = 0;
+  hv.forEach(function (r, k) { if (r[7] !== 'OK') return; var row = Number(r[3]), cell = v.sh.getRange(row, col);
+    if (v.sh.getRange(row, L.ix.ep + 1).getDisplayValue() === r[2] && cell.getDisplayValue() === r[6]) { cell.setValue(r[5]); hs.getRange(k + 2, 8).setValue('取消済'); n++; } else kept++; });
+  return scLog_('C9_出演者修正の取消', { status: 'OK', undone: n, keptBecauseChanged: kept });
+}
+
+// =====================================================================
+// 人物索引・出演者欄の日常運用（2026-11-13）。新しいロボではなく、清掃ロボの P系・C系に「差分更新」「公開台帳の点検」「日次入口」を足したもの。
+// P5 差分更新: 話ごとの指紋（原文SHA・出演者欄・索引版）を「人物索引_状態」に持ち、変わった話だけ索引を作り直す。書くのは差がある時だけ。
+//   途中で時間切れになっても、処理済みの話の指紋だけ保存するので、同じボタンで続きから再開できる（冪等）。
+// X1 公開台帳の点検（読むだけ）: 式の有無・#REF!・行数・出演者列の一致・式を塞ぐ手入力セル。X2 は塞いでいるセルのうち統合台帳と同じ値のものだけ空にする（承認後）。
+// D2 日次: 停止旗 → S6A → S6B → C2（承認済みなら）→ P5 → X1。異常で停止旗。トリガーは承認ボタン後の D8 で1本だけ。
+// =====================================================================
+var PI_STATE_ = '人物索引_状態', PI_STATE_HEADERS_ = ['EP-ID', '指紋', '索引行数', '状態', '更新日時'], PI_DIFF_ = '人物・差異', PI_DIFF_HEADERS_ = ['EP-ID', '種類', '原文の名前', '出演者欄の名前', '出演者欄に無い名前', '原文に無い名前', '記録日時'];
+var PI_TIME_BUDGET_MS_ = 240000;
+function piEnv_(env) {
+  var copy = env === 'COPY', ledgerSs = copy ? scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes) : scOpen_(SC_CONFIG.v2WorkingId, '');
+  return { env: env, ss: ledgerSs.ss, sh: ledgerSs.sh, indexName: copy ? PI_SHEET_COPY_ : PI_SHEET_V2_ };
+}
+function piReadRows_(sh, H) { if (!sh || sh.getLastRow() < 2) return []; return sh.getRange(2, 1, sh.getLastRow() - 1, H.length).getDisplayValues(); }
+function piSheet_(ss, name, H) { var sh = ss.getSheetByName(name) || ss.insertSheet(name); if (sh.getLastRow() === 0) sh.getRange(1, 1, 1, H.length).setValues([H]); return sh; }
+function piWriteAll_(sh, H, vals) {   // 上書きしてから余った末尾行だけ消す（先に全消ししない＝途中で止まっても空にならない）。書いたら件数と先頭2列を読み戻す
+  var before = sh.getLastRow();
+  for (var i = 0; i < vals.length; i += 5000) { var part = vals.slice(i, i + 5000), rg = sh.getRange(2 + i, 1, part.length, H.length); rg.setNumberFormat('@'); rg.setValues(part); }
+  if (before > vals.length + 1) sh.getRange(vals.length + 2, 1, before - vals.length - 1, Math.max(H.length, sh.getLastColumn())).clearContent();
+  SpreadsheetApp.flush();
+  var back = piReadRows_(sh, H), bad = Math.abs(back.length - vals.length); back.forEach(function (r, i) { if (vals[i] && (r[0] !== String(vals[i][0]) || r[1] !== String(vals[i][1]))) bad++; });
+  return bad;
+}
+var PI_BACKUP_ = '人物索引_直前', PI_HIST_ = '人物索引_更新履歴', PI_HIST_HEADERS_ = ['日時', 'EP-ID', '前の索引名', '新しい索引名', '前の行数', '新しい行数', '索引版', '環境'];
+function piIncremental_(env, fn, dry, budgetMs, maxEps) {   // dry=true: 何も書かず（シートも作らず）、変わる話と件数だけ返す
+  var t0 = Date.now(), E = piEnv_(env), ver = PersonIndex.PERSON_INDEX_VERSION + '/' + CleanerV4.CLEANER_VERSION, pre = scPreservedRaw_(), L = scLedger_(E.sh);
+  var H = PersonIndex.PERSON_INDEX_HEADERS, getS = function (n, h) { return dry ? E.ss.getSheetByName(n) : piSheet_(E.ss, n, h); }, ix = getS(E.indexName, H), st = getS(PI_STATE_, PI_STATE_HEADERS_);
+  var state = {}; piReadRows_(st, PI_STATE_HEADERS_).forEach(function (r) { state[r[0]] = r; });
+  var inLedger = {}, todo = [], now = new Date().toISOString();
+  L.rows.forEach(function (r) { inLedger[r.ep] = 1; var raw = pre[r.ep] ? pre[r.ep].text : '', fp = p25v2GasSha256_(PersonIndex.epFingerprintText(raw, r.cast, ver)); if (!state[r.ep] || state[r.ep][1] !== fp) todo.push({ r: r, raw: raw, fp: fp }); });
+  var removed = Object.keys(state).filter(function (ep) { return !inLedger[ep]; });
+  var updates = new Map(), done = [], partial = false;
+  for (var i = 0; i < todo.length; i++) {
+    if (Date.now() - t0 > (budgetMs || PI_TIME_BUDGET_MS_) || (maxEps && i >= maxEps)) { partial = true; break; }
+    var t = todo[i], b = PersonIndex.buildPersonIndex([{ ep: t.r.ep, raw: t.raw, ledgerCast: t.r.cast, parse: CleanerV4.parseCastLine }]);
+    updates.set(t.r.ep, b.rows); done.push([t.r.ep, t.fp, String(b.rows.length), b.stat.withNames ? '原文で確認' : b.rows.length ? '原文に出典なし・未検証' : (t.raw ? '原文に人名なし' : '原文なし'), now]);
+  }
+  var cur = piReadRows_(ix, H).map(function (r) { return { ep: r[0], key: r[1], display: r[2], note: r[3], links: r[4], source: r[5], state: r[6], ver: r[7] }; });
+  var m = PersonIndex.mergeIndex(cur, updates, partial ? [] : removed), bad = 0;
+  // 変わる話の一覧（前→後の索引名）。履歴と予行の両方に使う
+  var oldBy = {}, newBy = {}; cur.forEach(function (r) { (oldBy[r.ep] = oldBy[r.ep] || []).push(r.key); }); m.rows.forEach(function (r) { (newBy[r.ep] = newBy[r.ep] || []).push(r.key + (r.state === '原文で確認' ? '' : '(未検証)')); });
+  cur.forEach(function (r) { if (r.state !== '原文で確認') { var a = oldBy[r.ep]; a[a.indexOf(r.key)] = r.key + '(未検証)'; } });
+  var changedEps = []; Object.keys(Object.assign({}, oldBy, newBy)).forEach(function (ep) { var o = (oldBy[ep] || []).join('、'), n = (newBy[ep] || []).join('、'); if (o !== n) changedEps.push([now, ep, o, n, String((oldBy[ep] || []).length), String((newBy[ep] || []).length), PersonIndex.PERSON_INDEX_VERSION, env]); });
+  // 未検証（原文に出典なし）の名前が1つも消えていないか: 旧行の索引名（「/」で並んだものは1人ずつ）が、同じ話の新しい索引名に全部あるか
+  var newKeys = {}; m.rows.forEach(function (r) { (newKeys[r.ep] = newKeys[r.ep] || {})[r.key] = 1; }), lostUnverified = [];
+  // 「消えた」と数えるのは、その名前が今の出演者欄（従来から索引の対象だった行）にまだ書かれているのに索引から落ちた時だけ。出演者欄の名前を人が変えた・消した場合は消えて正しい
+  var castBy = {}; L.rows.forEach(function (r) { castBy[r.ep] = String(r.cast || '').split('\n').filter(function (l) { return !PersonIndex.legacyHeld(CleanerV4.parseCastLine(l).name); }).join('\n').normalize('NFKC').replace(/[\s\u3000]+/g, ''); });
+  cur.forEach(function (r) { if (r.state === '原文で確認' || !updates.has(r.ep) || (newKeys[r.ep] || {})[r.key]) return; String(r.key).split(/\s*[\/、]\s*/).forEach(function (p) { var k = PersonIndex.personKey(p); if (k && !(newKeys[r.ep] || {})[k] && !PersonIndex.personHold(p) && String(castBy[r.ep] || '').indexOf(k) >= 0) lostUnverified.push(r.ep + ':' + r.key); }); });
+  var byState = function (rows) { var c = {}; rows.forEach(function (r) { c[r.state] = (c[r.state] || 0) + 1; }); return c; }, people = function (rows) { var k = {}; rows.forEach(function (r) { k[r.key] = 1; }); return Object.keys(k).length; };
+  var summary = { env: env, changedEpisodes: todo.length, processed: done.length, removedEpisodes: partial ? 0 : removed.length, merge: m.stat, rowsBefore: cur.length, rowsAfter: m.rows.length, peopleBefore: people(cur), peopleAfter: people(m.rows), stateBefore: byState(cur), stateAfter: byState(m.rows), indexChangedEpisodes: changedEps.length, lostUnverified: lostUnverified.length, lostUnverifiedExamples: lostUnverified.slice(0, 20) };
+  if (lostUnverified.length && !dry) return scLog_(fn, Object.assign({ status: 'STOP_UNVERIFIED_WOULD_BE_LOST' }, summary));   // 未検証の名前を消す更新は書かない
+  if (m.stat.duplicatePairs) return scLog_(fn, Object.assign({ status: 'STOP_DUPLICATE' }, summary));
+  if (dry) {   // 変わる話を「原文の名前の分離」「出演者欄（未検証）の分割・回収」「注記だけ」に分けて示す（ログが切れないよう例は少なめ）
+    var full = function (rows) { var o = {}; rows.forEach(function (r) { (o[r.ep] = o[r.ep] || []).push([r.key, r.display, r.note, r.links, r.source, r.state].join('|')); }); return o; }, fo = full(cur), fn2 = full(m.rows), cat = { raw: [], ledger: [], noteOnly: [] };
+    var keysOf = function (rows, ep, verified) { return rows.filter(function (r) { return r.ep === ep && (r.state === '原文で確認') === verified; }).map(function (r) { return r.key; }).join('、'); };
+    var curBy = {}, newBy2 = {}; cur.forEach(function (r) { (curBy[r.ep] = curBy[r.ep] || []).push(r); }); m.rows.forEach(function (r) { (newBy2[r.ep] = newBy2[r.ep] || []).push(r); });
+    Object.keys(Object.assign({}, fo, fn2)).forEach(function (ep) { if ((fo[ep] || []).join('\n') === (fn2[ep] || []).join('\n')) return; var a = curBy[ep] || [], b = newBy2[ep] || [];
+      if (keysOf(a, ep, true) !== keysOf(b, ep, true)) cat.raw.push(ep + ': ' + keysOf(a, ep, true) + ' → ' + keysOf(b, ep, true)); else if (keysOf(a, ep, false) !== keysOf(b, ep, false)) cat.ledger.push(ep + ': ' + keysOf(a, ep, false) + ' → ' + keysOf(b, ep, false)); else cat.noteOnly.push(ep); });
+    summary.status = partial ? 'DRYRUN_PARTIAL' : 'DRYRUN_OK'; summary.categories = { rawNameSplit: cat.raw.length, ledgerUnverified: cat.ledger.length, noteOnly: cat.noteOnly.length };
+    summary.rawExamples = cat.raw.slice(0, 40); summary.ledgerExamples = cat.ledger.slice(0, 25); summary.noteOnlyIds = cat.noteOnly.slice(0, 40).join(',');
+    summary.rawIds = cat.raw.map(function (x) { return x.slice(0, 8); }).join(','); summary.ms = Date.now() - t0; return scLog_(fn, summary);
+  }
+  if (m.changed) {
+    if (env === 'V2' && ix.getLastRow() > 1) { var old = E.ss.getSheetByName(PI_BACKUP_); if (old) E.ss.deleteSheet(old); ix.copyTo(E.ss).setName(PI_BACKUP_); }   // 戻し用の写し（直前の索引）
+    bad = piWriteAll_(ix, H, m.rows.map(function (r) { return [r.ep, r.key, r.display, r.note, r.links, r.source, r.state, r.ver || PersonIndex.PERSON_INDEX_VERSION]; }));
+    if (!bad && changedEps.length) { var hs = piSheet_(E.ss, PI_HIST_, PI_HIST_HEADERS_), hr = hs.getLastRow(); for (var j = 0; j < changedEps.length; j += 5000) { var part = changedEps.slice(j, j + 5000), rg = hs.getRange(hr + 1 + j, 1, part.length, PI_HIST_HEADERS_.length); rg.setNumberFormat('@'); rg.setValues(part); } }
+  }
+  if (!bad) {   // 指紋は索引の書込が読み戻しで一致した後にだけ保存（途中で失敗しても次回やり直せる）
+    done.forEach(function (d) { state[d[0]] = d; }); if (!partial) removed.forEach(function (ep) { delete state[ep]; });
+    var sv = Object.keys(state).map(function (k) { return state[k]; }); if (done.length || removed.length) bad += piWriteAll_(st, PI_STATE_HEADERS_, sv);
+  }
+  // 出演者欄と原文の名前の差（記録だけ。人の値は直さない）
+  var byEp = {}; m.rows.forEach(function (r) { if (r.state === '原文で確認') (byEp[r.ep] = byEp[r.ep] || []).push(r.key); });
+  var diffs = []; L.rows.forEach(function (r) { var d = PersonIndex.castDifference(r.ep, byEp[r.ep] || [], r.cast, CleanerV4.parseCastLine); if (d) diffs.push([d.ep, d.kind, d.raw, d.ledger, d.missingInLedger || '', d.notInRaw || '', now]); });
+  var ds = piSheet_(E.ss, PI_DIFF_, PI_DIFF_HEADERS_), prevDiff = piReadRows_(ds, PI_DIFF_HEADERS_).map(function (r) { return r.slice(0, 6).join('\u0001'); }).join('\n');
+  if (prevDiff !== diffs.map(function (r) { return r.slice(0, 6).join('\u0001'); }).join('\n')) piWriteAll_(ds, PI_DIFF_HEADERS_, diffs);
+  var dk = {}; diffs.forEach(function (d) { dk[d[1]] = (dk[d[1]] || 0) + 1; });
+  summary.status = bad ? 'READBACK_MISMATCH' : partial ? 'PARTIAL_RESUME_NEEDED' : (m.changed ? 'OK' : 'OK_NO_CHANGE'); summary.differences = dk; summary.changedExamples = changedEps.slice(0, 30).map(function (c) { return c[1]; }); summary.ms = Date.now() - t0;
+  return scLog_(fn, summary);
+}
+function P5_人物索引_予行() { return piIncremental_('V2', 'P5_人物索引_予行', true); }   // V2を読むだけ（書かない・シートも作らない）
+function P5T_途中停止の試験_COPY() { return piIncremental_('COPY', 'P5T_途中停止の試験_COPY', false, 0, 2000); }   // わざと2,000話で止めて、続きから再開できるか確かめる
+function P5_人物索引_予行_COPY() { return piIncremental_('COPY', 'P5_人物索引_予行_COPY', true); }
+function P8_人物索引_直前に戻す() {   // P5 の直前の写しから V2 索引を戻す（承認キーは P5 と同じ）。戻した後は状態を空にして次の P5 で全話を再確認
+  var fn = 'P8_人物索引_直前に戻す'; if (PropertiesService.getScriptProperties().getProperty('APPROVE_PI_INCREMENTAL_V2') !== 'yes') return scLog_(fn, { status: 'NOT_APPROVED' });
+  var E = piEnv_('V2'), bk = E.ss.getSheetByName(PI_BACKUP_), H = PersonIndex.PERSON_INDEX_HEADERS; if (!bk || bk.getLastRow() < 2) return scLog_(fn, { status: 'NO_BACKUP' });
+  var vals = piReadRows_(bk, H), bad = piWriteAll_(E.ss.getSheetByName(E.indexName), H, vals), st = E.ss.getSheetByName(PI_STATE_); if (!bad && st && st.getLastRow() > 1) st.getRange(2, 1, st.getLastRow() - 1, PI_STATE_HEADERS_.length).clearContent();
+  return scLog_(fn, { status: bad ? 'READBACK_MISMATCH' : 'OK', restoredRows: vals.length });
+}
+// 突合（読むだけ）: COPY の索引と V2 の索引の違いを EP-ID・索引名・出典で並べ、出演者欄の違いと C2 履歴の有無で理由を付ける
+function P6_人物索引_COPYとV2の突合() {
+  var H = PersonIndex.PERSON_INDEX_HEADERS, c = piEnv_('COPY'), v = piEnv_('V2'), ci = piReadRows_(c.ss.getSheetByName(PI_SHEET_COPY_), H), vi = piReadRows_(v.ss.getSheetByName(PI_SHEET_V2_), H);
+  var k = function (r) { return [r[0], r[1], r[5], r[6]].join(' | '); }, cs = {}, vs = {}; ci.forEach(function (r) { cs[k(r)] = r; }); vi.forEach(function (r) { vs[k(r)] = r; });
+  var onlyC = ci.filter(function (r) { return !vs[k(r)]; }), onlyV = vi.filter(function (r) { return !cs[k(r)]; });
+  var lc = {}, lv = {}; scLedger_(c.sh).rows.forEach(function (r) { lc[r.ep] = r.cast; }); scLedger_(v.sh).rows.forEach(function (r) { lv[r.ep] = r.cast; });
+  var hist = {}, hs = c.ss.getSheetByName('出演者修正履歴'); if (hs && hs.getLastRow() > 1) { var hv = hs.getRange(1, 1, hs.getLastRow(), hs.getLastColumn()).getDisplayValues(), he = hv[0].indexOf('EP-ID'), hk = hv[0].indexOf('種類'); hv.slice(1).forEach(function (r) { hist[r[he]] = hk >= 0 ? r[hk] : 'あり'; }); }
+  var eps = {}; onlyC.concat(onlyV).forEach(function (r) { eps[r[0]] = 1; });
+  var why = Object.keys(eps).sort().map(function (ep) { return { ep: ep, ledgerSame: lc[ep] === lv[ep], c2History: hist[ep] || '', copyCast: String(lc[ep] || '').slice(0, 80), v2Cast: String(lv[ep] || '').slice(0, 80), copyOnly: onlyC.filter(function (r) { return r[0] === ep; }).map(function (r) { return r[1] + '[' + r[6] + ']'; }), v2Only: onlyV.filter(function (r) { return r[0] === ep; }).map(function (r) { return r[1] + '[' + r[6] + ']'; }) }; });
+  var pc = {}, pv = {}; ci.forEach(function (r) { pc[r[1]] = 1; }); vi.forEach(function (r) { pv[r[1]] = 1; });
+  return scLog_('P6_人物索引_COPYとV2の突合', { status: 'OK', copyRows: ci.length, v2Rows: vi.length, onlyInCopy: onlyC.length, onlyInV2: onlyV.length, episodes: why.length, episodesWithLedgerDiff: why.filter(function (w) { return !w.ledgerSame; }).length, episodesWithC2History: why.filter(function (w) { return w.c2History; }).length,
+    peopleCopy: Object.keys(pc).length, peopleV2: Object.keys(pv).length, peopleOnlyCopy: Object.keys(pc).filter(function (x) { return !pv[x]; }), peopleOnlyV2: Object.keys(pv).filter(function (x) { return !pc[x]; }), detail: why });
+}
+function P5_人物索引_差分更新_COPY() { return piIncremental_('COPY', 'P5_人物索引_差分更新_COPY'); }
+function P5_人物索引_差分更新() {
+  if (PropertiesService.getScriptProperties().getProperty('APPROVE_PI_INCREMENTAL_V2') !== 'yes') return scLog_('P5_人物索引_差分更新', { status: 'NOT_APPROVED', note: '先に P4_承認_人物索引差分更新V2' });
+  return piIncremental_('V2', 'P5_人物索引_差分更新');
+}
+function P4_承認_人物索引差分更新V2() { PropertiesService.getScriptProperties().setProperty('APPROVE_PI_INCREMENTAL_V2', 'yes'); return scLog_('P4_承認_人物索引差分更新V2', { status: 'APPROVED' }); }
+
+// ---------- 公開台帳の点検（読むだけ）／塞いでいる手入力セルの除去（承認後）／警告つき保護（承認後） ----------
+var PUB_SHEET_ = 'V2・公開台帳';
+function xInspect_(env) {
+  var E = piEnv_(env), ps = E.ss.getSheetByName(PUB_SHEET_); if (!ps) return { status: 'NO_PUBLIC_SHEET' };
+  var formula = ps.getRange(2, 1).getFormula(), n = ps.getLastRow(), w = ps.getLastColumn(), v = n > 1 ? ps.getRange(2, 1, n - 1, w).getDisplayValues() : [];
+  var hp = ps.getRange(1, 1, 1, w).getDisplayValues()[0], cP = hp.indexOf('出演者'), errs = v.filter(function (r) { return /^#(REF|N\/A|VALUE|ERROR|NAME)/.test(r[0]); }).length;
+  var L = scLedger_(E.sh), Lv = E.sh.getRange(1, 1, E.sh.getLastRow(), E.sh.getLastColumn()).getDisplayValues(), lh = Lv[0], cJ = lh.indexOf('掲載判定'), cR = lh.indexOf('代表EP-ID');
+  var expected = Lv.slice(1).filter(function (r) { return r[0] && r[cJ] === '対象' && r[0] === r[cR]; }).length, castByEp = {}; L.rows.forEach(function (r) { castByEp[r.ep] = r.cast; });
+  var rows = v.filter(function (r) { return r[0] && !/^#/.test(r[0]); }), castMismatch = rows.filter(function (r) { return cP >= 0 && String(castByEp[r[0]] || '') !== r[cP]; }).length;
+  var blockers = [];   // 式が展開できない時、2行目以降に値があるセル＝手入力で塞いでいるセル
+  if (errs && v.length) v.forEach(function (r, i) { r.forEach(function (x, j) { if (x !== '' && !(i === 0 && j === 0)) blockers.push({ row: i + 2, col: j + 1, value: x, header: hp[j] }); }); });
+  var ok = !!formula && /^=FILTER\(/i.test(formula) && !errs && rows.length === expected && !castMismatch;
+  return { status: ok ? 'PUBLIC_OK' : 'PUBLIC_ANOMALY', env: env, hasFormula: !!formula, errors: errs, rows: rows.length, expected: expected, castMismatch: castMismatch, blockers: blockers.length, blockerExamples: blockers.slice(0, 10).map(function (b) { return [b.row, b.header, b.value.slice(0, 40)]; }), _blockers: blockers, _castByEp: castByEp, _sheet: ps, _E: E };
+}
+function X1_公開台帳_点検() { var r = xInspect_('V2'); delete r._blockers; delete r._castByEp; delete r._sheet; delete r._E; return scLog_('X1_公開台帳_点検', r); }
+function X1_公開台帳_点検_COPY() { var r = xInspect_('COPY'); delete r._blockers; delete r._castByEp; delete r._sheet; delete r._E; return scLog_('X1_公開台帳_点検_COPY', r); }
+function X0_承認_公開台帳の修復() { PropertiesService.getScriptProperties().setProperty('APPROVE_PUBLIC_REPAIR_V2', 'yes'); return scLog_('X0_承認_公開台帳の修復', { status: 'APPROVED' }); }
+function xRepair_(env, fn) {   // 塞いでいるセルのうち、出演者列で統合台帳と同じ値のものだけ空にする。それ以外は触らず報告（自動で大量削除・再生成しない）
+  var r = xInspect_(env); if (!r._blockers || !r._blockers.length) return scLog_(fn, { status: 'NOTHING_TO_REPAIR', inspect: r.status });
+  var ps = r._sheet, hp = ps.getRange(1, 1, 1, ps.getLastColumn()).getDisplayValues()[0], Lv = r._E.sh.getRange(1, 1, r._E.sh.getLastRow(), r._E.sh.getLastColumn()).getDisplayValues();
+  var castSet = {}; Lv.slice(1).forEach(function (x) { var c = x[Lv[0].indexOf('出演者')]; if (c) castSet[c] = 1; });
+  var cleared = [], kept = [];
+  r._blockers.forEach(function (b) { if (b.header === '出演者' && castSet[b.value]) { ps.getRange(b.row, b.col).clearContent(); cleared.push(b.row + ':' + b.col); } else kept.push([b.row, b.header]); });
+  SpreadsheetApp.flush(); var after = xInspect_(env);
+  return scLog_(fn, { status: kept.length ? 'PARTIAL_HELD' : (after.status === 'PUBLIC_OK' ? 'OK' : 'STILL_ANOMALY'), cleared: cleared, kept: kept.slice(0, 20), after: { status: after.status, rows: after.rows, expected: after.expected, castMismatch: after.castMismatch } });
+}
+function X2_公開台帳_塞ぎセル除去_COPY() { return xRepair_('COPY', 'X2_公開台帳_塞ぎセル除去_COPY'); }
+function X2_公開台帳_塞ぎセル除去() { if (PropertiesService.getScriptProperties().getProperty('APPROVE_PUBLIC_REPAIR_V2') !== 'yes') return scLog_('X2_公開台帳_塞ぎセル除去', { status: 'NOT_APPROVED' }); return xRepair_('V2', 'X2_公開台帳_塞ぎセル除去'); }
+function xProtect_(env, fn) {   // 公開台帳シートに「編集時に警告」の保護を付ける（権限は変えない。誤って手入力するのを防ぐ）
+  var E = piEnv_(env), ps = E.ss.getSheetByName(PUB_SHEET_); if (!ps) return scLog_(fn, { status: 'NO_PUBLIC_SHEET' });
+  var has = ps.getProtections(SpreadsheetApp.ProtectionType.SHEET).filter(function (p) { return p.getDescription() === '公開台帳は統合台帳から生成（直接編集しない）'; });
+  if (has.length) return scLog_(fn, { status: 'ALREADY_PROTECTED' });
+  var p = ps.protect().setDescription('公開台帳は統合台帳から生成（直接編集しない）'); p.setWarningOnly(true);
+  return scLog_(fn, { status: 'PROTECTED_WARNING_ONLY', sheet: PUB_SHEET_ });
+}
+function X3_公開台帳_警告保護_COPY() { return xProtect_('COPY', 'X3_公開台帳_警告保護_COPY'); }
+function X3_公開台帳_警告保護() { if (PropertiesService.getScriptProperties().getProperty('APPROVE_PUBLIC_REPAIR_V2') !== 'yes') return scLog_('X3_公開台帳_警告保護', { status: 'NOT_APPROVED' }); return xProtect_('V2', 'X3_公開台帳_警告保護'); }
+
+// ---------- 日次入口（清掃ロボ側）。トリガーは承認後に D8 で1本だけ ----------
+function D2_清掃と人物_日次() {
+  var P = PropertiesService.getScriptProperties(), fn = 'D2_清掃と人物_日次'; if (P.getProperty('AUTORUN_STOP')) return scLog_(fn, { status: 'STOPPED', reason: P.getProperty('AUTORUN_STOP') });
+  var out = {}, stop = function (why, res) { P.setProperty('AUTORUN_STOP', new Date().toISOString() + ' ' + why); laDashboard_('D2_清掃と人物_日次', 'STOP ' + why, out); return scLog_(fn, { status: 'STOP', reason: why, res: res }); };
+  out.s6a = S6A_V2新着_清掃監査().status; if (!/^OK/.test(out.s6a)) return stop('S6A_' + out.s6a);
+  var b = S6B_V2新着_反映(); out.s6b = b.status; if (/MISMATCH|ERROR/.test(b.status)) return stop('S6B_' + b.status, b);
+  if (P.getProperty('APPROVE_CAST_FIX_V2') === 'yes') { var c = C2_出演者_反映(); out.c2 = c.status; if (/MISMATCH/.test(c.status)) return stop('C2_' + c.status, c); }
+  if (P.getProperty('APPROVE_PI_INCREMENTAL_V2') === 'yes') { var p = P5_人物索引_差分更新(); out.p5 = p.status; if (/MISMATCH|STOP/.test(p.status)) return stop('P5_' + p.status, p); }
+  if (P.getProperty('APPROVE_OFFICIAL_URL_V2') === 'yes') { var u1 = ouCheck_('U1_公式URL_確認', 120000); out.u1 = u1.status; var u2 = ouApply_('V2', 'U2_公式URL補完_V2'); out.u2 = u2.status; if (/MISMATCH/.test(u2.status)) return stop('U2_' + u2.status, u2); }   // 新着の公式個別URL（確認できたものだけ）
+  if (P.getProperty('APPROVE_RELATED_INDEX_V2') === 'yes') { var r3 = rlBuild_('V2', 'R3_関連記事索引_V2作成'); out.r3 = r3.status; if (/MISMATCH/.test(r3.status)) return stop('R3_' + r3.status, r3); }
+  var x = xInspect_('V2'); out.x1 = x.status; if (x.status !== 'PUBLIC_OK') return stop('PUBLIC_' + x.status, { errors: x.errors, rows: x.rows, expected: x.expected, castMismatch: x.castMismatch, blockers: x.blockers });
+  laDashboard_('D2_清掃と人物_日次', 'OK', out);
+  return scLog_(fn, { status: 'OK', steps: out });
+}
+function D0_承認_清掃日次トリガー() { PropertiesService.getScriptProperties().setProperty('APPROVE_CLEANER_DAILY_TRIGGER', 'yes'); return scLog_('D0_承認_清掃日次トリガー', { status: 'APPROVED' }); }
+function D8_清掃日次トリガー設置() {
+  var fn = 'D8_清掃日次トリガー設置'; if (PropertiesService.getScriptProperties().getProperty('APPROVE_CLEANER_DAILY_TRIGGER') !== 'yes') return scLog_(fn, { status: 'NOT_APPROVED' });
+  var ts = ScriptApp.getProjectTriggers(), other = ts.filter(function (t) { return t.getHandlerFunction() !== 'D2_清掃と人物_日次'; });
+  if (other.length) return scLog_(fn, { status: 'REFUSED_OTHER_TRIGGERS', handlers: other.map(function (t) { return t.getHandlerFunction(); }) });
+  if (ts.length) return scLog_(fn, { status: 'ALREADY_INSTALLED' });
+  ScriptApp.newTrigger('D2_清掃と人物_日次').timeBased().everyDays(1).atHour(7).nearMinute(20).create();   // 収蔵ボットの日次（6時台）の後
+  return scLog_(fn, { status: 'INSTALLED', at: '毎日 7時台（日本時間）' });
+}
+function D9_清掃日次停止() {
+  var n = 0; ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'D2_清掃と人物_日次') { ScriptApp.deleteTrigger(t); n++; } });
+  var P = PropertiesService.getScriptProperties(); P.setProperty('AUTORUN_STOP', new Date().toISOString() + ' 手動停止'); P.deleteProperty('APPROVE_CLEANER_DAILY_TRIGGER');
+  return scLog_('D9_清掃日次停止', { status: 'OK', deletedTriggers: n });
+}
+function D7_停止旗を外す() { PropertiesService.getScriptProperties().deleteProperty('AUTORUN_STOP'); return scLog_('D7_停止旗を外す', { status: 'OK' }); }
+
+// =====================================================================
+// V2統合台帳 総合監査・改善（2026-11-13 司令塔指令 LA-1）。新しいロボは作らず清掃ロボに足す。
+// L1 総合監査: V2を読むだけ。結果は COPY の「監査・…」シートに書く（V2には書かない）。
+// U系 公式個別URL: 空欄で GUID がある行だけ、公式ページを取得して canonical の itemid が GUID と一致したものだけ書く（作った URL をそのまま書かない）。
+// R系 関連記事索引: 1記事1行の別シート（見出し・URL・リンク）。統合台帳の関連記事URL列は変えない。
+// =====================================================================
+var LA_COPY_SHEETS_ = { summary: '監査・概要', cols: '監査・列充足', url: '監査・公式URL欠落', plat: '監査・各サービスURL', platCells: '監査・各サービスURL_要確認', sdgs: '監査・SDGs1092', show: '監査・番組別件数', odd: '監査・要確認行' };
+function laRead_(sh) {   // 台帳を見出し名で読む（全列）
+  var v = sh.getRange(1, 1, sh.getLastRow(), sh.getLastColumn()).getDisplayValues(), h = v[0], c = function (n) { return h.indexOf(n); };
+  var I = { ep: c('EP-ID'), show: c('番組'), title: c('タイトル'), date: c('配信日時 JST'), judge: c('掲載判定'), rep: c('代表EP-ID'), guid: c('公式GUID'), uuid: c('公式JSON UUID'), url: c('公式個別URL'), src: c('旧元ページURL'), reason: c('除外・保留理由'), related: c('関連記事URL'), audio: c('音声URL'), spotify: c('Spotify'), sec: c('再生時間 秒') };
+  ['ep', 'show', 'judge', 'rep', 'guid', 'url'].forEach(function (k) { if (I[k] < 0) throw new Error('LEDGER_COLUMN_NOT_FOUND ' + k); });
+  var rows = v.slice(1).map(function (r, i) { return { row: i + 2, ep: r[I.ep], show: r[I.show], title: r[I.title], date: r[I.date], judge: r[I.judge], rep: r[I.rep], guid: String(r[I.guid] || '').toLowerCase(), jsonUuid: I.uuid >= 0 ? r[I.uuid] : '', officialUrl: r[I.url], sourceUrl: I.src >= 0 ? r[I.src] : '', reason: I.reason >= 0 ? r[I.reason] : '', related: I.related >= 0 ? r[I.related] : '', audioUrl: I.audio >= 0 ? r[I.audio] : '', spotify: I.spotify >= 0 ? r[I.spotify] : '', seconds: I.sec >= 0 ? r[I.sec] : '', _r: r }; }).filter(function (r) { return r._r.some(function (x) { return x !== ''; }); });
+  return { h: h, I: I, rows: rows, values: v };
+}
+function laWriteSheet_(ss, name, H, vals) { var sh = ss.getSheetByName(name) || ss.insertSheet(name); sh.clearContents(); sh.getRange(1, 1, 1, H.length).setValues([H]); for (var i = 0; i < vals.length; i += 5000) { var p = vals.slice(i, i + 5000), rg = sh.getRange(2 + i, 1, p.length, H.length); rg.setNumberFormat('@'); rg.setValues(p.map(function (r) { return r.map(function (x) { return String(x); }); })); } sh.setFrozenRows(1); return vals.length; }
+function L1_台帳総合監査() {
+  var t0 = Date.now(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), D = laRead_(v.sh), rows = D.rows, pub = function (r) { return r.ep && r.judge === '対象' && r.rep === r.ep; };
+  // 列充足（全行・公開対象）
+  var cols = D.h.map(function (name, j) { var all = 0, p = 0, np = 0; rows.forEach(function (r) { if (String(r._r[j]).trim()) { all++; if (pub(r)) p++; } if (pub(r)) np++; }); return [name, rows.length, all, rows.length - all, np, p, np - p]; });
+  // 公式個別URL 欠落
+  var miss = rows.filter(function (r) { return !String(r.officialUrl).trim(); }).map(function (r) { var cand = LedgerAudit.officialUrlCandidate(r); return [r.ep || '(EP-IDなし)', r.row, r.show, r.date, r.judge, pub(r) ? '公開対象' : '', r.guid, r.sourceUrl, cand.status === 'CANDIDATE' ? '確認待ち（GUIDあり）' : 'GUIDなし（補完不可）']; });
+  var missPub = miss.filter(function (m) { return m[5]; }).length, firstGap = '';   // 最新側から空欄が続く範囲
+  for (var i = rows.length - 1; i >= 0; i--) { if (!rows[i].ep) continue; if (String(rows[i].officialUrl).trim()) break; firstGap = rows[i].ep; }
+  // 各サービスURL
+  var platRows = [], platCells = [];
+  LedgerAudit.PLATFORM_COLUMNS.forEach(function (p) { var j = D.h.indexOf(p); if (j < 0) { platRows.push([p, '列なし', '', '', '', '', '', '']); return; } var k = { EMPTY: 0, EPISODE: 0, SHOW_TOP: 0, OTHER: 0 }, emptyPub = 0, seen = {}, dup = 0;
+    rows.forEach(function (r) { var u = r._r[j], s = LedgerAudit.classifyPlatformUrl(p, u); k[s]++; if (s === 'EMPTY' && pub(r)) emptyPub++; if (s === 'SHOW_TOP' || s === 'OTHER') platCells.push([r.ep || '(EP-IDなし)', r.row, p, s === 'SHOW_TOP' ? '番組トップ等（個別EPではない）' : '形が不明', u]); if (u) { if (seen[u] && pub(r) && pub(seen[u])) dup++; seen[u] = seen[u] || r; } });
+    platRows.push([p, rows.length, k.EPISODE, k.SHOW_TOP, k.OTHER, k.EMPTY, emptyPub, dup]); });
+  // SDGs
+  var sd = LedgerAudit.auditSdgs(rows);
+  // 番組別・要確認行
+  var shows = LedgerAudit.playlistCounts(rows), epSeen = {}, odd = [];
+  rows.forEach(function (r) { if (!r.ep) odd.push(['EP-IDなし', '', r.row, r.show, r.title, r.judge, r.guid]); else if (epSeen[r.ep]) odd.push(['EP-ID重複', r.ep, r.row, r.show, r.title, r.judge, '最初は行' + epSeen[r.ep]]); else epSeen[r.ep] = r.row; if (r.ep && r.judge === '対象' && !r.rep) odd.push(['代表EP-IDなし', r.ep, r.row, r.show, r.title, r.judge, '']); if (String(r.officialUrl).trim() && !LedgerAudit.officialItemId(r.officialUrl)) odd.push(['公式個別URLの形が違う（朝日の個別ページではない）', r.ep, r.row, r.show, r.title, r.judge, r.officialUrl]); else if (LedgerAudit.officialItemId(r.officialUrl) && r.guid && LedgerAudit.officialItemId(r.officialUrl) !== r.guid) odd.push(['公式個別URLのitemidとGUIDが違う', r.ep, r.row, r.show, r.title, r.judge, r.officialUrl]); });
+  var summary = [['監査版', LedgerAudit.LEDGER_AUDIT_VERSION], ['実行日時', new Date().toISOString()], ['台帳行（空行除く）', rows.length], ['公開対象（対象かつ代表EP）', rows.filter(pub).length], ['公式個別URL 空欄', miss.length], ['うち公開対象', missPub], ['最新側から公式個別URLの空欄が続く最初のEP-ID', firstGap], ['SDGs 公式件数', sd.official]]
+    .concat(Object.keys(sd.count).sort().map(function (k) { return ['SDGs ' + k, sd.count[k]]; })).concat([['EP-IDなし・重複などの要確認行', odd.length]]);
+  var S = LA_COPY_SHEETS_, ss = c.ss;
+  laWriteSheet_(ss, S.summary, ['項目', '値'], summary);
+  laWriteSheet_(ss, S.cols, ['列', '全行', '入力あり', '空欄', '公開対象', '公開対象で入力あり', '公開対象で空欄'], cols);
+  laWriteSheet_(ss, S.url, ['EP-ID', '台帳行', '番組', '配信日時', '掲載判定', '公開', '公式GUID', '旧元ページURL', '補完の可否'], miss);
+  laWriteSheet_(ss, S.plat, ['サービス', '全行', '個別EP形式', '番組トップ等', '形が不明', '空欄', '公開対象で空欄', '公開対象どうしで同じURL'], platRows);
+  laWriteSheet_(ss, S.platCells, ['EP-ID', '台帳行', 'サービス', '判定', 'URL'], platCells);
+  laWriteSheet_(ss, S.sdgs, LedgerAudit.SDGS_AUDIT_HEADERS, sd.rows);
+  laWriteSheet_(ss, S.show, LedgerAudit.PLAYLIST_HEADERS, shows);
+  laWriteSheet_(ss, S.odd, ['種類', 'EP-ID', '台帳行', '番組', 'タイトル', '掲載判定', 'メモ'], odd);
+  return scLog_('L1_台帳総合監査', { status: 'OK', wroteTo: 'COPY の「監査・…」シート（V2には書いていない）', rows: rows.length, officialUrlEmpty: miss.length, officialUrlEmptyPublic: missPub, gapFrom: firstGap, platforms: platRows.map(function (p) { return p[0] + ' 個別' + p[2] + '/空欄' + p[5]; }), sdgs: sd.count, oddRows: odd.length, ms: Date.now() - t0 });
+}
+
+// ---------- 公式個別URL: 確認（公式ページを取得）→ 承認後に空欄だけ書く → 取消 ----------
+// 公式URL確認の2列目は照合キー（itemid）: UUID の GUID、Megaphone 配信ID、おんさ記録の itemid のどれか
+var OU_STATE_ = '公式URL確認', OU_STATE_H_ = ['EP-ID', '公式GUID', '確認したURL', '状態', '理由', '確認日時'], OU_HIST_ = '公式URL補完履歴', OU_HIST_H_ = ['日時', '実行ID', '環境', 'EP-ID', '台帳行', '旧値', '新値', '状態'];
+// 原因（2026-11-13 19:14）: UrlFetchApp.fetchAll は、まとめた10件のうち1件でも通信そのものが失敗すると（「使用できないアドレス」など。muteHttpExceptions は HTTP の失敗しか抑えない）
+// 全体を例外で止める。さらに結果を最後にまとめて書いていたので、その回に確かめた分も残らなかった。
+// 修正: ① 転送は自動で追わず（followRedirects:false）、朝日の同じページ内の転送だけ自分で3回まで追う。他所への転送は HOLD
+//       ② まとめて取得が例外なら1件ずつ取り直し、1件の例外はその EP だけ ERROR（理由つき）にして続ける
+//       ③ 10件ごとに確認結果を書き足す（途中で止まっても確かめた分は残り、次は続きから）
+//       ④ ERROR は次回もう一度確かめる。同じ GUID で3回続けて ERROR なら HOLD（REPEATED_FETCH_ERROR）にして止めない
+var OU_MAX_ERRORS_ = 3;
+// 429（回数制限）・5xx（相手の一時障害）は少し待って2回まで取り直す。Retry-After があれば最大10秒まで従う。それでも駄目ならその応答を返し、呼び出し側が ERROR として次回に回す
+function laFetchRetry_(url, opts) {
+  var r = null;
+  for (var i = 0; i < 3; i++) {
+    r = UrlFetchApp.fetch(url, opts); var code = r.getResponseCode();
+    if (code !== 429 && code < 500) return r;
+    if (i < 2) { var h = r.getHeaders() || {}, ra = Number(h['Retry-After'] || h['retry-after'] || 0); Utilities.sleep(Math.min(10000, ra > 0 ? ra * 1000 : 1500 * (i + 1))); }
+  }
+  return r;
+}
+function ouFetchOne_(url) {   // 1件取得。例外は投げずに { code, html, location, error } で返す
+  try {
+    for (var hop = 0; hop < 4; hop++) {
+      var r = laFetchRetry_(url, { muteHttpExceptions: true, followRedirects: false }), code = r.getResponseCode();
+      if (code < 300 || code >= 400) return { code: code, html: code === 200 ? r.getContentText() : '' };
+      var h = r.getHeaders() || {}, loc = String(h.Location || h.location || '');
+      if (!/^https:\/\/www\.asahi\.com\//.test(loc) || hop === 3) return { code: code, html: '', location: loc };
+      url = loc;
+    }
+  } catch (e) { return { error: String(e && e.message || e).slice(0, 120) }; }
+}
+function ouResults_(part) {   // 10件をまとめて取得。例外なら1件ずつ取り直す
+  var reqs = part.map(function (x) { return { url: x.c.url, muteHttpExceptions: true, followRedirects: false }; }), res;
+  try { res = UrlFetchApp.fetchAll(reqs); } catch (e) { return part.map(function (x) { return ouFetchOne_(x.c.url); }); }
+  return res.map(function (r, j) { var code = r.getResponseCode(); if (code >= 300 && code < 400) return ouFetchOne_(part[j].c.url); return { code: code, html: code === 200 ? r.getContentText() : '' }; });
+}
+function ouCheck_(fn, budgetMs, maxN) {   // V2を読むだけ。確認結果は COPY の「公式URL確認」に書き足す（確かめ済みは取り直さない＝途中で止まっても続きから）
+  var t0 = Date.now(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), D = laRead_(v.sh);
+  var st = c.ss.getSheetByName(OU_STATE_) || c.ss.insertSheet(OU_STATE_); if (st.getLastRow() === 0) st.getRange(1, 1, 1, OU_STATE_H_.length).setValues([OU_STATE_H_]);
+  var done = {}, errs = {}; if (st.getLastRow() > 1) st.getRange(2, 1, st.getLastRow() - 1, OU_STATE_H_.length).getDisplayValues().forEach(function (r) { if (r[3] === 'ERROR') errs[r[1]] = (errs[r[1]] || 0) + 1; else done[r[1]] = r[3]; });
+  var onsa = laOnsaAsahiByEp_(D.rows), todo = D.rows.map(function (r) { return { r: r, c: laOfficialCandidate_(r, onsa) }; }).filter(function (x) { return x.r.ep && x.c.status === 'CANDIDATE' && !done[x.c.key]; });
+  var n = 0, k = { VERIFIED: 0, NOT_FOUND: 0, HOLD: 0, ERROR: 0 }, ex = [];
+  for (var i = 0; i < todo.length; i += 10) {
+    if (Date.now() - t0 > (budgetMs || 240000) || (maxN && n >= maxN)) break;
+    var part = todo.slice(i, i + 10), res = ouResults_(part), out = [];
+    part.forEach(function (x, j) {
+      var f = res[j] || { error: 'NO_RESPONSE' }, vr;
+      if (f.error) vr = (errs[x.c.guid] || 0) + 1 >= OU_MAX_ERRORS_ ? { status: 'HOLD', reason: 'REPEATED_FETCH_ERROR ' + f.error } : { status: 'ERROR', reason: 'FETCH_EXCEPTION ' + f.error };
+      else if (f.code >= 300 && f.code < 400) vr = { status: 'HOLD', reason: 'REDIRECT ' + (f.location || '(転送先なし)').slice(0, 100) };
+      else { try { vr = LedgerAudit.verifyOfficialPage(f.code, f.html, x.c.key, x.r.title, { show: x.r.show, date: x.r.date }); } catch (e) { vr = { status: 'ERROR', reason: 'VERIFY_EXCEPTION ' + String(e).slice(0, 80) }; } }
+      k[vr.status]++; n++; out.push([x.r.ep, x.c.key, x.c.url, vr.status, vr.reason + (x.c.kind ? ' [' + x.c.kind + ']' : ''), new Date().toISOString()]); if (vr.status !== 'VERIFIED' && ex.length < 10) ex.push(x.r.ep + ' ' + vr.status + ' ' + vr.reason);
+    });
+    var r0 = st.getLastRow() + 1, rg = st.getRange(r0, 1, out.length, OU_STATE_H_.length); rg.setNumberFormat('@'); rg.setValues(out); SpreadsheetApp.flush();   // 10件ごとに保存
+    Utilities.sleep(300);
+  }
+  var left = todo.length - n;
+  return scLog_(fn, { status: left ? 'PARTIAL_RESUME_NEEDED' : 'OK', candidates: todo.length, checked: n, left: left, result: k, notVerifiedExamples: ex, ms: Date.now() - t0 });
+}
+function U1_公式URL_確認() { return ouCheck_('U1_公式URL_確認'); }
+function U1T_公式URL_確認_試験20件() { return ouCheck_('U1T_公式URL_確認_試験20件', 0, 20); }
+function ouApply_(env, fn) {   // 確認済み（VERIFIED）の URL を、公式個別URLが空で GUID が同じ行にだけ書く。書いた後に読み戻す
+  var t0 = Date.now(), runId = new Date().toISOString() + '/OFFICIAL_URL', c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), target = env === 'V2' ? scOpen_(SC_CONFIG.v2WorkingId, '') : c, D = laRead_(target.sh);
+  var st = c.ss.getSheetByName(OU_STATE_); if (!st || st.getLastRow() < 2) return scLog_(fn, { status: 'NO_VERIFIED', note: '先に U1_公式URL_確認' });
+  var ok = {}; st.getRange(2, 1, st.getLastRow() - 1, OU_STATE_H_.length).getDisplayValues().forEach(function (r) { if (r[3] === 'VERIFIED') ok[r[1]] = r[2]; });
+  var onsa = laOnsaAsahiByEp_(D.rows), col = D.I.url + 1, plan = D.rows.map(function (r) { return { r: r, c: laOfficialCandidate_(r, onsa) }; }).filter(function (x) { return x.r.ep && x.c.status === 'CANDIDATE' && !x.c.replaces && ok[x.c.key] && ok[x.c.key] === x.c.url; }).map(function (x) { return { row: x.r.row, ep: x.r.ep, url: x.c.url }; });
+  if (!plan.length) return scLog_(fn, { status: 'OK_NO_CHANGE', env: env });
+  var hs = c.ss.getSheetByName(OU_HIST_) || c.ss.insertSheet(OU_HIST_); if (hs.getLastRow() === 0) hs.getRange(1, 1, 1, OU_HIST_H_.length).setValues([OU_HIST_H_]);
+  var h0 = hs.getLastRow() + 1, hr = plan.map(function (p) { return [runId, runId, env, p.ep, String(p.row), '', p.url, '予定']; }), hrg = hs.getRange(h0, 1, hr.length, OU_HIST_H_.length); hrg.setNumberFormat('@'); hrg.setValues(hr);   // 先に履歴
+  var cur = target.sh.getRange(1, col, target.sh.getLastRow(), 1).getDisplayValues(), wrote = 0, skipped = 0;
+  plan.forEach(function (p) { if (String(cur[p.row - 1][0]).trim()) { p.skip = true; skipped++; return; } target.sh.getRange(p.row, col).setValue(p.url); wrote++; });
+  SpreadsheetApp.flush();
+  var back = target.sh.getRange(1, col, target.sh.getLastRow(), 1).getDisplayValues(), bad = 0, stat = plan.map(function (p) { if (p.skip) return ['直前に値あり・書かず']; var okb = back[p.row - 1][0] === p.url; if (!okb) bad++; return [okb ? 'OK' : 'READBACK_MISMATCH']; });
+  hs.getRange(h0, 8, stat.length, 1).setValues(stat);
+  return scLog_(fn, { status: bad ? 'READBACK_MISMATCH' : 'OK', env: env, runId: runId, written: wrote, skippedBecauseFilled: skipped, readbackMismatch: bad, examples: plan.slice(0, 5).map(function (p) { return p.ep; }), ms: Date.now() - t0 });
+}
+function U2_公式URL補完_COPY() { return ouApply_('COPY', 'U2_公式URL補完_COPY'); }
+function U0_承認_公式URL補完V2() { PropertiesService.getScriptProperties().setProperty('APPROVE_OFFICIAL_URL_V2', 'yes'); return scLog_('U0_承認_公式URL補完V2', { status: 'APPROVED' }); }
+function U2_公式URL補完_V2() { if (PropertiesService.getScriptProperties().getProperty('APPROVE_OFFICIAL_URL_V2') !== 'yes') return scLog_('U2_公式URL補完_V2', { status: 'NOT_APPROVED', note: '先に U0_承認_公式URL補完V2' }); return ouApply_('V2', 'U2_公式URL補完_V2'); }
+function U9_公式URL補完の取消() {   // 直前の実行（実行ID）で書いたセルを、今もその値のままの時だけ空に戻す。人が書き換えたセルは触らない
+  var fn = 'U9_公式URL補完の取消', c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), hs = c.ss.getSheetByName(OU_HIST_); if (!hs || hs.getLastRow() < 2) return scLog_(fn, { status: 'NO_HISTORY' });
+  var hv = hs.getRange(2, 1, hs.getLastRow() - 1, OU_HIST_H_.length).getDisplayValues(), last = ''; hv.forEach(function (r) { if (r[7] === 'OK') last = r[1]; }); if (!last) return scLog_(fn, { status: 'NOTHING_TO_UNDO' });
+  var env = hv.filter(function (r) { return r[1] === last; })[0][2], target = env === 'V2' ? scOpen_(SC_CONFIG.v2WorkingId, '') : c, D = laRead_(target.sh), col = D.I.url + 1, n = 0, kept = 0;
+  hv.forEach(function (r, i) { if (r[1] !== last || r[7] !== 'OK') return; var row = Number(r[4]), cell = target.sh.getRange(row, col); if (cell.getDisplayValue() === r[6] && target.sh.getRange(row, D.I.ep + 1).getDisplayValue() === r[3]) { cell.setValue(''); hs.getRange(i + 2, 8).setValue('取消済み'); n++; } else kept++; });
+  return scLog_(fn, { status: 'OK', runId: last, env: env, restored: n, keptBecauseChanged: kept });
+}
+
+// ---------- 関連記事索引（1記事1行の別シート） ----------
+var RL_SHEET_V2_ = 'V2・関連記事索引', RL_SHEET_COPY_ = '関連記事索引(試験)', RL_BACKUP_ = '関連記事索引_直前';
+// 再実行で毎回 changed:true になっていた原因（2026-11-13）: 見出しが「'」で始まる記事（EP-04536 「'ケヅレー一家'で…」）は、Sheets が先頭の ' を
+// 文字列の印として消すため、読み戻すと1文字短くなり、毎回「違う」と判定していた（読み戻し検査は見出しを見ていなかったので 0 のままだった）。
+// 修正: 書く時は sheetText（先頭 ' を二重にする）、比べる時は表示どおりの値（元の文字列）と全列を比べる。違いがあれば最初の10件をログに出す
+var RL_CMP_COLS_ = [0, 1, 2, 3, 5, 6];
+// 材料の台帳は常に V2（正本）を読む。COPY の統合台帳の関連記事URL列は古く（11/14 司令塔の直接照合で URL のある話が V2 4,935／COPY 2,495）、試験の材料にしない。
+// COPY に書くのは試験用の索引シートだけ。R4 だけは COPY 台帳を材料にして差を見せる（src='COPY'）
+function rlCompute_(env, src) {
+  var pre = scPreservedRaw_(), E = piEnv_(env), L = laRead_((src === 'COPY' ? E : piEnv_('V2')).sh), rows = [], k = { eps: 0, withHeadline: 0, notFetched: 0, fromLedgerOnly: 0 };
+  L.rows.forEach(function (r) { if (!r.ep) return; var raw = pre[r.ep] ? pre[r.ep].text : '', rel = raw ? CleanerV4.cleanV4(raw).related : []; var rr = LedgerAudit.relatedRows(r.ep, rel, r.related); if (rr.length) k.eps++; rr.forEach(function (x) { if (x[2] === '未取得') k.notFetched++; else k.withHeadline++; if (/^統合台帳/.test(x[5])) k.fromLedgerOnly++; }); rows = rows.concat(rr); });
+  return { E: E, rows: rows, k: k };
+}
+function rlDiff_(cur, rows) {   // 表示どおりの値で全列比較
+  var d = [], n = Math.max(cur.length, rows.length);
+  for (var i = 0; i < n && d.length < 10; i++) { var a = cur[i], b = rows[i]; if (!a || !b) { d.push({ row: i + 2, field: !a ? '行が増える' : '行が減る', old: a ? a[0] + ' ' + a[3] : '', new: b ? b[0] + ' ' + b[3] : '' }); continue; }
+    for (var j = 0; j < RL_CMP_COLS_.length; j++) { var c = RL_CMP_COLS_[j]; if (String(a[c]) !== String(b[c])) { d.push({ row: i + 2, ep: b[0], field: LedgerAudit.RELATED_HEADERS[c], old: String(a[c]).slice(0, 60), new: String(b[c]).slice(0, 60) }); break; } } }
+  var diffCount = Math.abs(cur.length - rows.length); for (var x = 0; x < Math.min(cur.length, rows.length); x++) { for (var y = 0; y < RL_CMP_COLS_.length; y++) { if (String(cur[x][RL_CMP_COLS_[y]]) !== String(rows[x][RL_CMP_COLS_[y]])) { diffCount++; break; } } }
+  return { count: diffCount, examples: d };
+}
+function rlBuild_(env, fn, dry) {
+  var t0 = Date.now(), C = rlCompute_(env), E = C.E, rows = C.rows, k = C.k, H = LedgerAudit.RELATED_HEADERS;
+  var name = env === 'V2' ? RL_SHEET_V2_ : RL_SHEET_COPY_, sh = E.ss.getSheetByName(name), cur = sh && sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, H.length).getDisplayValues() : [];
+  var df = rlDiff_(cur, rows), res = { env: env, rows: rows.length, episodes: k.eps, withHeadline: k.withHeadline, headlineNotFetched: k.notFetched, ledgerOnlyRows: k.fromLedgerOnly, changed: df.count > 0, changedRows: df.count, changeExamples: df.examples };
+  if (dry || !df.count) return scLog_(fn, Object.assign({ status: dry ? 'DRYRUN_OK' : 'OK_NO_CHANGE', ms: Date.now() - t0 }, res));
+  if (env === 'V2' && sh && sh.getLastRow() > 1) { var old = E.ss.getSheetByName(RL_BACKUP_); if (old) E.ss.deleteSheet(old); sh.copyTo(E.ss).setName(RL_BACKUP_); }
+  sh = sh || E.ss.insertSheet(name); if (sh.getLastRow() === 0) sh.getRange(1, 1, 1, H.length).setValues([H]);
+  var before = sh.getLastRow(), tx = function (r, a, b) { return r.slice(a, b).map(LedgerAudit.sheetText); };
+  for (var i = 0; i < rows.length; i += 5000) { var p = rows.slice(i, i + 5000); sh.getRange(2 + i, 1, p.length, 4).setNumberFormat('@').setValues(p.map(function (r) { return tx(r, 0, 4); })); sh.getRange(2 + i, 5, p.length, 1).setFormulas(p.map(function (r) { return [r[4]]; })); sh.getRange(2 + i, 6, p.length, 2).setNumberFormat('@').setValues(p.map(function (r) { return tx(r, 5, 7); })); }
+  if (before > rows.length + 1) sh.getRange(rows.length + 2, 1, before - rows.length - 1, H.length).clearContent();
+  sh.setFrozenRows(1); SpreadsheetApp.flush();
+  var back = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, H.length).getDisplayValues() : [], bad = rlDiff_(back, rows);   // 読み戻しも全列（表示どおり）
+  return scLog_(fn, Object.assign({ status: bad.count ? 'READBACK_MISMATCH' : 'OK', readbackMismatch: bad.count, readbackExamples: bad.examples, ms: Date.now() - t0 }, res));
+}
+// 差の監査（読むだけ）: V2 の台帳から作る索引と COPY の台帳から作る索引を、EP-ID・記事URL 単位で比べ、COPY の「関連記事索引_差分」に書く
+function R4_関連記事索引_V2とCOPYの差() {
+  var t0 = Date.now(), a = rlCompute_('V2', 'V2'), b = rlCompute_('COPY', 'COPY'), key = function (r) { return r[0] + '\u0001' + LedgerAudit.articleKey(r[3]); }, A = {}, B = {};
+  a.rows.forEach(function (r) { A[key(r)] = r; }); b.rows.forEach(function (r) { B[key(r)] = r; });
+  var lv = {}, lc = {}; laRead_(a.E.sh).rows.forEach(function (r) { lv[r.ep] = r.related; }); laRead_(b.E.sh).rows.forEach(function (r) { lc[r.ep] = r.related; });
+  var out = [];
+  b.rows.forEach(function (r) { if (!A[key(r)]) out.push(['COPYだけ', r[0], r[3], r[2], r[5], String(lv[r[0]] === undefined ? '(V2に行なし)' : lv[r[0]]).slice(0, 300), String(lc[r[0]] || '').slice(0, 300)]); });
+  a.rows.forEach(function (r) { if (!B[key(r)]) out.push(['V2だけ', r[0], r[3], r[2], r[5], String(lv[r[0]] || '').slice(0, 300), String(lc[r[0]] === undefined ? '(COPYに行なし)' : lc[r[0]]).slice(0, 300)]); });
+  var epA = {}, epB = {}; a.rows.forEach(function (r) { epA[r[0]] = 1; }); b.rows.forEach(function (r) { epB[r[0]] = 1; });
+  var epOnlyCopy = Object.keys(epB).filter(function (e) { return !epA[e]; }), epOnlyV2 = Object.keys(epA).filter(function (e) { return !epB[e]; });
+  laWriteSheet_(b.E.ss, '関連記事索引_差分', ['側', 'EP-ID', '記事URL', '見出し', '出典', 'V2 台帳の関連記事URL', 'COPY 台帳の関連記事URL'], out);
+  var bySrc = {}; out.forEach(function (o) { var kk = o[0] + '・' + o[4]; bySrc[kk] = (bySrc[kk] || 0) + 1; });
+  return scLog_('R4_関連記事索引_V2とCOPYの差', { status: 'OK', v2Rows: a.rows.length, copyRows: b.rows.length, diffRows: out.length, bySideAndSource: bySrc, episodesOnlyCopy: epOnlyCopy, episodesOnlyV2: epOnlyV2, examples: out.slice(0, 8).map(function (o) { return o[0] + ' ' + o[1] + ' ' + o[2]; }), wroteTo: 'COPY「関連記事索引_差分」', ms: Date.now() - t0 });
+}
+function R1_関連記事索引_予行() { return rlBuild_('V2', 'R1_関連記事索引_予行', true); }
+function R2_関連記事索引_COPY作成() { return rlBuild_('COPY', 'R2_関連記事索引_COPY作成'); }
+function R0_承認_関連記事索引V2() { PropertiesService.getScriptProperties().setProperty('APPROVE_RELATED_INDEX_V2', 'yes'); return scLog_('R0_承認_関連記事索引V2', { status: 'APPROVED' }); }
+function R3_関連記事索引_V2作成() { if (PropertiesService.getScriptProperties().getProperty('APPROVE_RELATED_INDEX_V2') !== 'yes') return scLog_('R3_関連記事索引_V2作成', { status: 'NOT_APPROVED', note: '先に R0_承認_関連記事索引V2' }); return rlBuild_('V2', 'R3_関連記事索引_V2作成'); }
+function R9_関連記事索引_直前に戻す() {
+  var fn = 'R9_関連記事索引_直前に戻す'; if (PropertiesService.getScriptProperties().getProperty('APPROVE_RELATED_INDEX_V2') !== 'yes') return scLog_(fn, { status: 'NOT_APPROVED' });
+  var E = piEnv_('V2'), bk = E.ss.getSheetByName(RL_BACKUP_); if (!bk) return scLog_(fn, { status: 'NO_BACKUP', note: '初回作成の取消は V2・関連記事索引 シートを削除するだけでよい（台帳は変えていない）' });
+  var sh = E.ss.getSheetByName(RL_SHEET_V2_); if (sh) E.ss.deleteSheet(sh); bk.copyTo(E.ss).setName(RL_SHEET_V2_);
+  return scLog_(fn, { status: 'OK' });
+}
+
+// =====================================================================
+// 全台帳の統合監査（2026-11-14 司令塔「持続可能な運用」パッケージA）。L1（構造点検）は既存の L1_台帳総合監査 を使う。
+// L2 差分監査: 旧公開図書館（GitHub Pages の公開JSON）・V2・旧本番59列台帳を EP-ID と GUID で突き合わせる。どれにも書かない（結果は COPY の「監査・…」だけ）
+// L3 公式・音声: 追加候補の公式個別ページ（canonical の itemid 一致）と音声（HTTP・Content-Type・長さ）を確かめる。途中で止まっても続きから
+// L4 採否集計: L2 と L3 から採否案と「公開できる数」を計算し、計算式が合わない時は該当 EP を全部出す
+// =====================================================================
+var LA2_PUBLIC_BASE_ = 'https://neyito96.github.io/asarisunowa/library/data/', LA2_V1_ID_ = '1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4';
+var LA2_SHEET_ = '監査・全台帳差分', LA2_SUM_ = '監査・全台帳集計', LA3_SHEET_ = '監査・公式音声確認', LA4_SHEET_ = '監査・採否集計';
+function la2OldPublic_() {   // 公開中の図書館（GitHub Pages）を読む
+  var man = JSON.parse(UrlFetchApp.fetch(LA2_PUBLIC_BASE_ + 'manifest.json', { muteHttpExceptions: true }).getContentText()), out = [];
+  var pages = man.pages || [];
+  for (var i = 0; i < pages.length; i += 20) { UrlFetchApp.fetchAll(pages.slice(i, i + 20).map(function (p) { return { url: LA2_PUBLIC_BASE_ + p, muteHttpExceptions: true }; })).forEach(function (r) { if (r.getResponseCode() !== 200) throw new Error('PUBLIC_PAGE_FETCH_FAILED ' + r.getResponseCode()); out = out.concat(JSON.parse(r.getContentText())); }); }
+  if (out.length !== man.total) throw new Error('PUBLIC_COUNT_MISMATCH manifest=' + man.total + ' pages=' + out.length);
+  return { rows: out, manifest: { generatedAt: man.generatedAt, snapshotDate: man.snapshotDate, total: man.total } };
+}
+function la2V1ReadOnly_() {   // 旧本番59列台帳を読むだけ（getValues だけ。書込・挿入・削除は一切しない）
+  var ss = SpreadsheetApp.openById(LA2_V1_ID_), sh = null;
+  ss.getSheets().some(function (s) { if (s.getLastRow() > 1 && s.getRange(1, 1, 1, Math.min(60, s.getLastColumn())).getDisplayValues()[0].indexOf('台帳ID') >= 0) { sh = s; return true; } return false; });
+  if (!sh) throw new Error('V1_LEDGER_SHEET_NOT_FOUND');
+  var v = sh.getRange(1, 1, sh.getLastRow(), sh.getLastColumn()).getDisplayValues(), h = v[0], c = function (n, d) { var i = h.indexOf(n); return i >= 0 ? i : d; };
+  var I = { id: c('台帳ID'), show: c('番組名'), title: c('タイトル'), date: c('配信日時（JST）'), guid: h.findIndex(function (x) { return /GUID/i.test(x); }), ex: c('人間除外') };
+  var hist = ss.getSheets().filter(function (s) { return /新着受入履歴/.test(s.getName()); })[0];
+  return { sheet: sh.getName(), rows: v.slice(1).map(function (r) { return { id: r[I.id], show: r[I.show], title: r[I.title], date: r[I.date], guid: I.guid >= 0 ? r[I.guid] : '', excluded: I.ex >= 0 && /除外|^TRUE$|^true$|^1$/.test(String(r[I.ex])) }; }), intakeHistoryRows: hist ? Math.max(0, hist.getLastRow() - 1) : null };
+}
+function L2_全台帳_差分監査() {
+  var t0 = Date.now(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), D = laRead_(v.sh), old = la2OldPublic_(), v1 = la2V1ReadOnly_();
+  var r = LedgerAudit.ledgerDiff({ oldPub: old.rows, v2: D.rows, v1: v1.rows, since: '2026-11-13' });
+  laWriteSheet_(c.ss, LA2_SHEET_, LedgerAudit.LEDGER_DIFF_HEADERS, r.rows);
+  var om = { count: { note: 'おんさ共有台帳を読めなかった' } }; try { om = LedgerAudit.onsaMatch(D.rows, laOnsaReadOnly_()); laWriteSheet_(c.ss, LA_ONSA_SHEET_, LedgerAudit.ONSA_MATCH_HEADERS, om.rows); } catch (e) { om.count.error = String(e).slice(0, 120); }
+  var snap = new Date().toISOString(), sum = [['実行日時', snap], ['旧公開（GitHub Pages）', old.manifest.total + '（生成 ' + old.manifest.generatedAt + '・基準日 ' + old.manifest.snapshotDate + '）'], ['V2 統合台帳の行', D.rows.length], ['V2 公開候補（対象かつ代表EP）', r.n.v2Public], ['旧本番台帳の行（' + v1.sheet + '）', v1.rows.length], ['旧本番 新着受入履歴の行', v1.intakeHistoryRows === null ? 'シートなし' : v1.intakeHistoryRows], ['両方にある公開EP', r.n.both], ['V2で追加', r.n.added], ['旧公開だけ', r.n.oldOnly]]
+    .concat(Object.keys(r.equation).map(function (k) { return ['計算式: ' + k, r.equation[k] ? '一致' : '不一致']; })).concat(Object.keys(r.count).sort().map(function (k) { return [k, r.count[k]]; })).concat(Object.keys(om.count).map(function (k) { return ['おんさ照合: ' + k, om.count[k]]; }));
+  laWriteSheet_(c.ss, LA2_SUM_, ['項目', '値'], sum);
+  return scLog_('L2_全台帳_差分監査', { status: Object.keys(r.equation).every(function (k) { return r.equation[k]; }) ? 'OK' : 'EQUATION_MISMATCH', counts: r.n, equation: r.equation, kinds: r.count, onsa: om.count, wroteTo: 'COPY「' + LA2_SHEET_ + '」「' + LA2_SUM_ + '」（V1・V2・公開には書いていない）', ms: Date.now() - t0 });
+}
+// ---------- おんさ共有台帳（朝ポキ出演者 共同編集用・永久 READ ONLY）。getValues だけ ----------
+var LA_ONSA_ID_ = '1CvRyWLQb7YyonGyRSNKtc_liRrgtiWE5yDGI3R48Xfk', LA_ONSA_SKIP_ = /^(YouTube|出演者|記者ページ|プレイリスト|朝ポキメンバー)$/, LA_ONSA_SHEET_ = '監査・おんさ照合', laOnsaCache_ = null;
+function laOnsaReadOnly_() {
+  if (laOnsaCache_) return laOnsaCache_;
+  var out = [];
+  SpreadsheetApp.openById(LA_ONSA_ID_).getSheets().forEach(function (sh) {
+    if (LA_ONSA_SKIP_.test(sh.getName()) || sh.getLastRow() < 3) return;
+    var v = sh.getRange(1, 1, sh.getLastRow(), Math.min(14, sh.getLastColumn())).getDisplayValues(), h = v[0].map(function (x) { return String(x).toLowerCase(); });
+    var c = function (re, d) { var i = h.findIndex(function (x) { return re.test(x); }); return i >= 0 ? i : d; }, A = c(/omny/, 0), D = c(/日付/, 1), T = c(/タイトル/, 2), S = 3, SP = c(/spotify/, 11), AS = c(/asahi/, 12);
+    v.slice(2).forEach(function (r, i) { if (r[A] || r[AS] || r[SP]) out.push({ sheet: sh.getName(), row: i + 3, omny: r[A], date: r[D], title: r[T], seconds: r[S], spotify: r[SP], asahi: r[AS] }); });
+  });
+  laOnsaCache_ = out; return out;
+}
+function laOnsaAsahiByEp_(rows) {   // EP-ID → おんさの Asahi.com URL（識別子で一致した行だけ）。おんさが読めない時は空（止めない）
+  try { var m = {}; LedgerAudit.onsaMatch(rows, laOnsaReadOnly_()).rows.forEach(function (x) { if (x[0] && /^一致/.test(x[1]) && x[8]) m[x[0]] = x[8]; }); return m; } catch (e) { console.log('ONSA_READ_FAILED ' + e); return {}; }
+}
+function laOfficialCandidate_(r, onsaMap) { return LedgerAudit.officialUrlCandidate({ officialUrl: r.officialUrl, guid: r.guid, audioUrl: r.audioUrl, onsaAsahiUrl: (onsaMap || {})[r.ep] || '' }); }
+
+var LA3_H_ = ['EP-ID', '監査区分', '照合した公式URL', '公式ページ', '公式ページの理由', '音声URL', '音声', '音声の理由', 'Content-Type', 'Content-Length', '再生時間 秒', '比較相手EP-ID', '相手の再生時間 秒', '相手の音声 Content-Length', 'おんさ照合', '確認日時'];
+function la3Audio_(url) {   // 音声の実在: 先頭2バイトだけ取る（Range）。200/206 で audio/* なら AUDIO_OK（再生の確認ではない。応答と形式の確認）
+  if (!/^https:\/\//.test(String(url || ''))) return { status: 'NO_AUDIO_URL' };
+  try { var r = laFetchRetry_(url, { muteHttpExceptions: true, followRedirects: true, headers: { Range: 'bytes=0-1' } }), code = r.getResponseCode(), h = r.getHeaders() || {}, ct = String(h['Content-Type'] || h['content-type'] || ''), cr = String(h['Content-Range'] || h['content-range'] || ''), len = cr.split('/')[1] || String(h['Content-Length'] || h['content-length'] || '');
+    if ((code === 200 || code === 206) && /^audio\/|mpeg|mp4|octet-stream/i.test(ct)) return { status: 'AUDIO_OK', reason: 'HTTP_' + code, ct: ct, len: len };
+    return { status: code === 404 || code === 410 ? 'NOT_FOUND' : 'NG', reason: 'HTTP_' + code, ct: ct, len: len };
+  } catch (e) { return { status: 'ERROR', reason: String(e && e.message || e).slice(0, 100) }; }
+}
+// 監査の対象（EP-ID で重複を除く）: L2 の「V2にあり旧公開にない」213件前後・V2 の保留・未判定・対象外（10/22 の重複判定）・旧公開にありV2で非公開。
+// ほかに、おんさにあって台帳に無い行（EP-ID なし）も「ONSA:シート:行」として公式ページを確かめる
+function la3Candidates_(c, D) {
+  var by = {}, cand = {}, add = function (ep, label, other) { var x = cand[ep] = cand[ep] || { ep: ep, labels: [], other: '' }; if (x.labels.indexOf(label) < 0) x.labels.push(label); if (other && !x.other) x.other = other; };
+  D.rows.forEach(function (r) { by[r.ep] = r; });
+  var l2 = c.ss.getSheetByName(LA2_SHEET_); if (l2 && l2.getLastRow() > 1) l2.getRange(2, 1, l2.getLastRow() - 1, LedgerAudit.LEDGER_DIFF_HEADERS.length).getDisplayValues().forEach(function (r) { if (/^V2にあり旧公開にない/.test(r[1])) add(r[0], r[1], String(r[17] || '').split(' ')[0]); else if (/^旧公開にありV2で非公開/.test(r[1])) add(r[0], '旧公開にありV2で非公開', r[17]); });
+  D.rows.forEach(function (r) { if (!r.ep) return; if (r.judge === '保留') add(r.ep, 'V2保留'); else if (r.judge === '未判定' || !r.judge) add(r.ep, 'V2未判定'); else if (r.judge === '対象外') add(r.ep, 'V2対象外（10/22の重複判定）', r.rep && r.rep !== r.ep ? r.rep : ''); });
+  var os = c.ss.getSheetByName(LA_ONSA_SHEET_); if (os && os.getLastRow() > 1) os.getRange(2, 1, os.getLastRow() - 1, LedgerAudit.ONSA_MATCH_HEADERS.length).getDisplayValues().forEach(function (r) { if (r[1] === 'おんさにあり台帳に無い') { var id = 'ONSA:' + r[3] + ':' + r[4]; cand[id] = { ep: id, labels: ['おんさにあり台帳に無い'], other: '', onsa: { sheet: r[3], title: r[5], date: r[6], asahi: r[8], seconds: r[7] } }; } });
+  return { by: by, list: Object.keys(cand).sort().map(function (k) { return cand[k]; }) };
+}
+function L3_公式音声_確認() { return la3Run_('L3_公式音声_確認', LA3_SHEET_, null); }   // V2・おんさは読むだけ。確かめた結果を COPY に書き足す（済みは取り直さない。ERROR は次回もう一度）
+// L3R（2026-11-14 司令塔「公式候補なし82件と番組照合9件の修正を対象限定で再測定」）: 元の L3 結果で「候補なし」「番組不一致（記事）」だった行だけを、
+//   別シート「監査・L3再確認」に取り直す。元の L3 シートは書き換えない。V2・おんさは読むだけ。
+var LA3R_SHEET_ = '監査・L3再確認';
+function L3R_対象限定_再確認() {
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), st = c.ss.getSheetByName(LA3_SHEET_); if (!st || st.getLastRow() < 2) return scLog_('L3R_対象限定_再確認', { status: 'NO_L3' });
+  var only = {}, why = { NO_OFFICIAL_URL: 0, SHOW_MISMATCH_ARTICLE: 0 };
+  st.getRange(2, 1, st.getLastRow() - 1, LA3_H_.length).getDisplayValues().forEach(function (r) { if (r[3] === 'NO_OFFICIAL_URL') { only[r[0]] = 1; why.NO_OFFICIAL_URL++; } else if (/SHOW/.test(r[3] + ' ' + r[4]) && /記事/.test(r[4])) { only[r[0]] = 1; why.SHOW_MISMATCH_ARTICLE++; } });
+  return la3Run_('L3R_対象限定_再確認', LA3R_SHEET_, only, why);
+}
+function la3Run_(name, sheetName, only, why) {
+  var t0 = Date.now(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), D = laRead_(v.sh);
+  if (!c.ss.getSheetByName(LA2_SHEET_)) return scLog_(name, { status: 'NO_L2', note: '先に L2_全台帳_差分監査' });
+  var C = la3Candidates_(c, D), onsa = laOnsaAsahiByEp_(D.rows);
+  var st = c.ss.getSheetByName(sheetName) || c.ss.insertSheet(sheetName); if (st.getLastRow() === 0) st.getRange(1, 1, 1, LA3_H_.length).setValues([LA3_H_]);
+  var done = {}; if (st.getLastRow() > 1) st.getRange(2, 1, st.getLastRow() - 1, LA3_H_.length).getDisplayValues().forEach(function (r) { if (r[3] !== 'ERROR' && r[6] !== 'ERROR') done[r[0]] = 1; });
+  var todo = C.list.filter(function (x) { return !done[x.ep] && (!only || only[x.ep]); }), n = 0, k = {}, buf = [], flush = function () { if (!buf.length) return; var r0 = st.getLastRow() + 1; st.getRange(r0, 1, buf.length, LA3_H_.length).setNumberFormat('@').setValues(buf); buf = []; SpreadsheetApp.flush(); };
+  for (var i = 0; i < todo.length; i++) {
+    if (Date.now() - t0 > 240000) break;
+    var x = todo[i], r = C.by[x.ep] || { _r: [], title: x.onsa ? x.onsa.title : '' }, cand = x.onsa ? { status: LedgerAudit.officialItemId(x.onsa.asahi) ? 'CANDIDATE' : 'NO_GUID', url: x.onsa.asahi, key: LedgerAudit.officialItemId(x.onsa.asahi) } : (LedgerAudit.officialItemId(r.officialUrl) ? { status: 'CANDIDATE', url: r.officialUrl, key: LedgerAudit.officialItemId(r.officialUrl) } : laOfficialCandidate_(r, onsa));
+    var page = { status: 'NO_OFFICIAL_URL', reason: '候補なし（GUID・配信ID・おんさ記録なし）' };
+    if (cand.status === 'CANDIDATE') { var f = ouFetchOne_(cand.url); page = f.error ? { status: 'ERROR', reason: f.error } : (f.code >= 300 && f.code < 400 ? { status: 'HOLD', reason: 'REDIRECT ' + (f.location || '') } : LedgerAudit.verifyOfficialPage(f.code, f.html, cand.key, r.title, { show: x.onsa ? x.onsa.sheet : r.show, date: x.onsa ? x.onsa.date : r.date })); }
+    var au = x.onsa ? { status: 'NO_AUDIO_URL', reason: '台帳に行が無い' } : la3Audio_(r.audioUrl), o = x.other ? C.by[x.other] : null, oa = o ? la3Audio_(o.audioUrl) : null;
+    buf.push([x.ep, x.labels.join('・'), cand.url || '', page.status, (page.reason || '') + (cand.kind ? ' [' + cand.kind + ']' : ''), r.audioUrl || '', au.status, au.reason || '', au.ct || '', au.len || '', r.seconds || (x.onsa ? x.onsa.seconds : ''), x.other || '', o ? o.seconds : '', oa ? oa.len || '' : '', onsa[x.ep] ? 'おんさと一致（Asahi URLあり）' : '', new Date().toISOString()]);
+    k[page.status + '/' + au.status] = (k[page.status + '/' + au.status] || 0) + 1; n++;
+    if (buf.length >= 10) flush();
+  }
+  flush();
+  var labels = {}; C.list.forEach(function (x) { x.labels.forEach(function (l) { labels[l] = (labels[l] || 0) + 1; }); });
+  return scLog_(name, { status: todo.length - n ? 'PARTIAL_RESUME_NEEDED' : 'OK', candidates: C.list.length, targets: only ? Object.keys(only).length : undefined, targetWhy: why, byLabel: labels, checked: n, left: todo.length - n, result: k, ms: Date.now() - t0 });
+}
+function L4_採否_集計レポート() {   // 読むだけ（COPY の L2・L3 と V2 作業用台帳から計算し、COPY に書く）。根拠が足りない回は HOLD のまま
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), l3 = c.ss.getSheetByName(LA3_SHEET_), sumSh = c.ss.getSheetByName(LA2_SUM_);
+  if (!sumSh || sumSh.getLastRow() < 2) return scLog_('L4_採否_集計レポート', { status: 'NO_L2' });
+  var by = {}; laRead_(scOpen_(SC_CONFIG.v2WorkingId, '').sh).rows.forEach(function (r) { by[r.ep] = r; });
+  var sv = {}; sumSh.getRange(2, 1, sumSh.getLastRow() - 1, 2).getDisplayValues().forEach(function (r) { sv[r[0]] = r[1]; });
+  var L3 = l3 && l3.getLastRow() > 1 ? l3.getRange(2, 1, l3.getLastRow() - 1, LA3_H_.length).getDisplayValues() : [], last = {}; L3.forEach(function (r) { last[r[0]] = r; });
+  var out = [], k = {}, cnt = function (key) { k[key] = (k[key] || 0) + 1; };
+  // 重複（同じ回）の確定条件: 番組が同じ・タイトル（「再」等を除いた題）が同じ・自分の公式ページが VERIFIED・再生時間±2秒・音声の長さ一致。
+  // 再生時間と音声の長さだけ一致しても確定しない（HOLD・理由に一致した項目を書く）
+  var dupCheck = function (x) {
+    var me = by[x[0]] || {}, ot = by[x[11]] || {}, m = [], miss = [];
+    (x[10] && x[12] && Math.abs(Number(x[10]) - Number(x[12])) <= 2 ? m : miss).push('再生時間±2秒');
+    (x[9] && x[13] && x[9] === x[13] ? m : miss).push('音声の長さ');
+    (me.show && me.show === ot.show ? m : miss).push('番組');
+    (me.title && ot.title && LedgerAudit.rerunBaseTitle(me.title) === LedgerAudit.rerunBaseTitle(ot.title) ? m : miss).push('タイトル');
+    (x[3] === 'VERIFIED' ? m : miss).push('公式ページ');
+    return { all: !miss.length, why: '一致=' + (m.join('・') || 'なし') + (miss.length ? '／不一致・未確認=' + miss.join('・') : '') };
+  };
+  Object.keys(last).sort().forEach(function (ep) {
+    var x = last[ep], lab = x[1], pageOk = x[3] === 'VERIFIED', audioOk = x[6] === 'AUDIO_OK', err = x[3] === 'ERROR' || x[6] === 'ERROR';
+    var verdict = 'HOLD', why = '公式ページ=' + x[3] + '・音声=' + x[6];
+    if (err) verdict = 'ERROR';
+    else if (/再配信|対象外（10\/22の重複判定）/.test(lab)) {
+      if (!x[11]) why = '比較相手（原回・代表EP）が無い。司令塔の判断待ち';
+      else { var d = dupCheck(x); why = '相手 ' + x[11] + '：' + d.why; verdict = d.all ? (/再配信/.test(lab) ? 'DUPLICATE（統合案）' : 'DUPLICATE（10/22判定を裏付け）') : 'HOLD'; }
+    }
+    else if (/おんさにあり台帳に無い/.test(lab)) { verdict = pageOk ? '未収蔵候補（公式ページあり）' : 'HOLD'; why = pageOk ? '公式ページでID・タイトル・番組・配信日を確認。台帳への収蔵は別承認' : 'おんさの記録だけでは実在を確定しない（' + x[4] + '）'; }
+    else if (pageOk && audioOk) { verdict = /V2保留|V2未判定/.test(lab) ? 'HOLD解消候補（採用案）' : 'VERIFIED'; why = '公式ページ（ID・タイトル・番組・配信日）と音声の応答を確認'; }
+    else why += '（' + x[4] + '）';
+    cnt(verdict); out.push([ep, lab, verdict, why, x[2], x[3], x[6]]);
+  });
+  laWriteSheet_(c.ss, LA4_SHEET_, ['EP-ID', '監査区分', '採否案', '根拠', '照合した公式URL', '公式ページ', '音声'], out);
+  var both = Number(sv['両方にある公開EP'] || 0), verifiedAdded = out.filter(function (r) { return r[2] === 'VERIFIED' && /V2にあり旧公開にない/.test(r[1]); }).length;
+  return scLog_('L4_採否_集計レポート', { status: 'OK', oldPublic: sv['旧公開（GitHub Pages）'], v2Public: sv['V2 公開候補（対象かつ代表EP）'], both: both, checkedEpisodes: out.length, verdicts: k, publishableIfApproved: both + verifiedAdded,
+    formula: '公開できる数 = 両方にある公開EP(' + both + ') + 追加のうち VERIFIED(' + verifiedAdded + ')。HOLD解消候補・未収蔵候補・統合案はすべて人の承認待ち', wroteTo: 'COPY「' + LA4_SHEET_ + '」' });
+}
+// ---------- E1 予行（読むだけ）: V2 統合台帳＋人物索引（＋関連記事索引があれば）から公開図書館データを作り、公開中のデータと EP-ID 単位で比べる ----------
+// 作るだけで公開しない。結果は COPY「E1・予行差分」。旧公開に無い回は L4 で VERIFIED のものだけ採用候補にする（それ以外は保留）
+function E1_V2公開データ_予行() {
+  var t0 = Date.now(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), old = la2OldPublic_();
+  var ledger = v.sh.getRange(1, 1, v.sh.getLastRow(), v.sh.getLastColumn()).getDisplayValues().filter(function (r, i) { return i === 0 || r[0]; });
+  var pi = v.ss.getSheetByName(PI_SHEET_V2_), persons = pi ? pi.getRange(1, 1, pi.getLastRow(), PersonIndex.PERSON_INDEX_HEADERS.length).getDisplayValues() : [];
+  var rl = v.ss.getSheetByName(RL_SHEET_V2_), related = rl && rl.getLastRow() > 1 ? rl.getRange(1, 1, rl.getLastRow(), LedgerAudit.RELATED_HEADERS.length).getDisplayValues() : [];
+  var allow = {}, l4 = c.ss.getSheetByName(LA4_SHEET_); if (l4 && l4.getLastRow() > 1) l4.getRange(2, 1, l4.getLastRow() - 1, 3).getDisplayValues().forEach(function (r) { if (r[2] === 'VERIFIED') allow[r[0]] = 1; });
+  var prevIds = {}, audioPrev = {}; old.rows.forEach(function (e) { prevIds[e.id] = 1; if (e.audio) audioPrev[e.id] = 1; });
+  var h = ledger[0], A = h.indexOf('音声URL'), verifiedAudio = {}; ledger.slice(1).forEach(function (r) { if (audioPrev[r[0]] && r[A]) verifiedAudio[r[0]] = { url: r[A] }; });   // 旧公開で再生できた回は、同じ音声URLなら確認済みを引き継ぐ
+  var l3 = c.ss.getSheetByName(LA3_SHEET_); if (l3 && l3.getLastRow() > 1) l3.getRange(2, 1, l3.getLastRow() - 1, LA3_H_.length).getDisplayValues().forEach(function (r) { if (r[6] === 'AUDIO_OK' && r[5]) verifiedAudio[r[0]] = { url: r[5] }; });
+  var res = V2LibCore.buildV2Library({ ledger: ledger, persons: persons, related: related, previousPublicIds: new Set(Object.keys(prevIds)), verifiedAudio: verifiedAudio, newEpisodeAllowList: new Set(Object.keys(allow)), decidedAt: new Date().toISOString(), hash: p25v2GasSha256_ });
+  var d = V2LibCore.compareWithPublic(res.episodes, old.rows), rows = [];
+  d.added.forEach(function (id) { rows.push([id, '追加', '', '']); }); d.removed.forEach(function (id) { var a = res.audit.filter(function (x) { return x.id === id; })[0]; rows.push([id, '削除', '', a ? a.publication + '/' + a.classification + ' ' + a.why : 'V2に行なし']); });
+  d.changed.forEach(function (x) { rows.push([x.id, '変更', x.fields.join('・'), '']); });
+  res.audit.filter(function (a) { return a.publication !== '対象' && a.previous === '非公開' && (a.classification !== '通常'); }).forEach(function (a) { rows.push([a.id, a.publication, a.classification, a.why]); });
+  laWriteSheet_(c.ss, 'E1・予行差分', ['EP-ID', '区分', '変わる項目・分類', '理由'], rows);
+  var fields = {}; d.changed.forEach(function (x) { x.fields.forEach(function (f) { fields[f] = (fields[f] || 0) + 1; }); });
+  return scLog_('E1_V2公開データ_予行', { status: d.removed.length ? 'HAS_REMOVALS' : 'DRYRUN_OK', publicNow: old.manifest.total, adopted: res.scope.adopted, held: res.scope.held, excluded: res.scope.excluded, added: d.added.length, removed: d.removed.length, changed: d.changed.length, changedFields: fields, unchanged: d.same,
+    relatedSource: related.length ? 'V2・関連記事索引' : '統合台帳の関連記事URL（見出しなし・V2索引が未作成のため）', scopeVersion: res.scope.version.slice(0, 16), wroteTo: 'COPY「E1・予行差分」（公開・main・V2には書いていない）', ms: Date.now() - t0 });
+}
+
+// ---------- 運用ダッシュボード（COPY「運用ダッシュボード」に1回1行。日次の結果と止まった理由が一目で分かる） ----------
+function laDashboard_(fn, status, steps) {
+  try { var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), H = ['日時', '処理', '結果', '各工程'], sh = c.ss.getSheetByName('運用ダッシュボード') || c.ss.insertSheet('運用ダッシュボード');
+    if (sh.getLastRow() === 0) sh.getRange(1, 1, 1, H.length).setValues([H]);
+    sh.getRange(sh.getLastRow() + 1, 1, 1, H.length).setNumberFormat('@').setValues([[new Date().toISOString(), fn, String(status), JSON.stringify(steps || {}).slice(0, 4000)]]);
+  } catch (e) { console.log('DASHBOARD_WRITE_FAILED ' + e); }   // 記録の失敗で本処理を止めない
+}
+
+// ---------- K1 空欄棚卸し（読むだけ）: 項目ごとに「空欄の理由」と「埋める方法」を分類する。推測で埋めない ----------
+var K1_SUM_ = '監査・空欄棚卸し', K1_ROWS_ = '監査・空欄個票';
+function K1_空欄棚卸し() {
+  var t0 = Date.now(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), D = laRead_(v.sh), h = D.h, col = function (n) { return h.indexOf(n); };
+  var pub = function (r) { return r.ep && r.judge === '対象' && r.rep === r.ep; }, pre = scPreservedRaw_();
+  var readMap = function (ss, name, keyCol, valCols) { var sh = ss.getSheetByName(name), m = {}; if (!sh || sh.getLastRow() < 2) return m; var vv = sh.getRange(1, 1, sh.getLastRow(), sh.getLastColumn()).getDisplayValues(), hh = vv[0], k = hh.indexOf(keyCol); vv.slice(1).forEach(function (r) { m[r[k]] = valCols.map(function (n) { return r[hh.indexOf(n)]; }); }); return m; };
+  var det = readMap(v.ss, SC_V2DETAIL_, 'EP-ID', ['判定', '理由', '原文状態']), pst = readMap(v.ss, PI_STATE_, 'EP-ID', ['状態']), ou = readMap(c.ss, OU_STATE_, '公式GUID', ['状態', '理由']);
+  var rl = {}, rsh = v.ss.getSheetByName(RL_SHEET_V2_); if (rsh && rsh.getLastRow() > 1) rsh.getRange(2, 1, rsh.getLastRow() - 1, 3).getDisplayValues().forEach(function (r) { var o = rl[r[0]] = rl[r[0]] || { n: 0, nt: 0 }; o.n++; if (r[2] === '未取得') o.nt++; });
+  var PLAT = { Spotify: '補完器（#280）未接続のため未処理', Apple: '#280 の GUID 照合待ち', Amazon: '公開の取得経路が未確認（作らない）', 'Pocket Casts': '補完器（#280）未接続のため未処理', LISTEN: '補完器（#280）未接続のため未処理', Pody: '公開の取得経路が未確認（作らない）' };
+  var cells = [], sum = {}, tally = function (field, state, cause, how, r) { var k = field + '｜' + state + '｜' + cause; sum[k] = sum[k] || { field: field, state: state, cause: cause, how: how, all: 0, pub: 0 }; sum[k].all++; if (pub(r)) sum[k].pub++; if (state !== '入力あり' && pub(r)) cells.push([r.ep, r.row, field, cause, how]); };
+  D.rows.forEach(function (r) { if (!r.ep) return; var R = r._r, raw = pre[r.ep], dt = det[r.ep];
+    tally('概要原文', raw ? '入力あり' : '空欄', raw ? '' : '保全原文なし（RSS に無い回・未保全）', raw ? '' : 'S5B で保全（RSS に残っている回だけ）', r);
+    var clean = String(R[col('概要（清掃済）')] || '').trim();
+    tally('概要（清掃済）', clean ? '入力あり' : '空欄', clean ? '' : !raw ? '原文が無い' : dt ? '清掃判定=' + dt[0] : '清掃未実施', clean ? '' : raw ? 'S6A→S6B（日次 D2）' : '原文の保全が先', r);
+    var cast = String(R[col('出演者')] || '').trim(), ps = (pst[r.ep] || [''])[0];
+    tally('出演者', cast ? '入力あり' : '空欄', cast ? '' : ps === '原文に人名なし' ? '原文に人名なし（空欄が正しい）' : ps === '原文なし' ? '原文なし' : ps ? '索引=' + ps : '人物索引が未処理', cast ? '' : ps === '原文に人名なし' ? '不要' : 'P5（日次 D2）・C2', r);
+    var rel = String(R[col('関連記事URL')] || '').trim(), ri = rl[r.ep];
+    tally('関連記事', rel || ri ? '入力あり' : '空欄', rel || ri ? '' : raw ? '原文に関連記事なし（空欄が正しい可能性）' : '原文なし', rel || ri ? '' : '不要または原文の保全が先', r);
+    if (ri && ri.nt) tally('関連記事の見出し', '一部未取得', '原文に見出しが無い記事', '作らない（URL だけ表示）', r);
+    var off = String(r.officialUrl || '').trim(), oc = LedgerAudit.officialUrlCandidate(r), os = ou[oc.guid];
+    tally('公式個別URL', off ? '入力あり' : '空欄', off ? '' : oc.status === 'NO_GUID' ? 'GUIDなし' : !os ? '未確認' : os[0] === 'VERIFIED' ? '確認済み・書込待ち' : os[0] === 'NOT_FOUND' ? '公式ページなし（404）' : os[0] + ' ' + os[1], off ? '' : oc.status === 'NO_GUID' ? 'GUID 補完（G系）が先' : !os ? 'U1' : os[0] === 'VERIFIED' ? 'U2（承認後）' : os[0] === 'NOT_FOUND' ? '作らない' : 'U1 再実行', r);
+    Object.keys(PLAT).forEach(function (p) { var j = col(p); if (j < 0) return; var u = R[j], k = LedgerAudit.classifyPlatformUrl(p, u);
+      tally(p, k === 'EMPTY' ? '空欄' : k === 'EPISODE' ? '入力あり' : '要確認', k === 'EMPTY' ? PLAT[p] : k === 'EPISODE' ? '' : k === 'SHOW_TOP' ? '番組トップURL（個別EPではない）' : '形が不明', k === 'EMPTY' ? '#280 の工程' : k === 'EPISODE' ? '' : '人が確認', r); });
+    tally('掲載判定', r.judge === '対象' || r.judge === '対象外' ? '入力あり' : '空欄', r.judge === '対象' || r.judge === '対象外' ? '' : '掲載判定=' + (r.judge || '空') + (r.reason ? '（' + r.reason + '）' : ''), r.judge === '対象' || r.judge === '対象外' ? '' : 'J1/J2（承認後）または人が判断', r);
+    tally('テーマ・二重分類・地理', '列なし', 'V2 台帳に列が無い（未設計）', 'データ基盤の後に設計（今は作らない）', r);
+  });
+  var S = Object.keys(sum).sort().map(function (k) { var x = sum[k]; return [x.field, x.state, x.cause, x.how, x.all, x.pub]; });
+  laWriteSheet_(c.ss, K1_SUM_, ['項目', '状態', '理由', '埋める方法', '全行', '公開候補'], S);
+  laWriteSheet_(c.ss, K1_ROWS_, ['EP-ID', '台帳行', '項目', '理由', '埋める方法'], cells);
+  var byField = {}; S.forEach(function (x) { var f = byField[x[0]] = byField[x[0]] || { filled: 0, blank: 0 }; if (x[1] === '入力あり') f.filled += x[5]; else f.blank += x[5]; });
+  return scLog_('K1_空欄棚卸し', { status: 'OK', publicCandidates: D.rows.filter(pub).length, byFieldPublic: byField, wroteTo: 'COPY「' + K1_SUM_ + '」「' + K1_ROWS_ + '」（公開候補の空欄だけ個票）', ms: Date.now() - t0 });
+}
+
+// ---------- LA0 監査一式（L2→L3→L4→E1→K1）。押すたびに時間の許す所まで進み、止まった所から続ける。最後に監査マニフェストを残す ----------
+// 結果はすべて COPY（非公開）。マニフェスト: 実行ID・配布物の SHA256・データ取得日時・対象台帳・各工程の結果と主な件数
+var LA0_STEPS_ = ['L2', 'L3', 'L4', 'E1', 'K1'], LA0_MANIFEST_ = '監査・マニフェスト';
+function LA0_監査一式_実行() {
+  var t0 = Date.now(), P = PropertiesService.getScriptProperties(), st = JSON.parse(P.getProperty('LA0_STATE') || 'null');
+  if (!st || st.step >= LA0_STEPS_.length) st = { runId: new Date().toISOString(), step: 0, results: {} };
+  var run = { L2: L2_全台帳_差分監査, L3: L3_公式音声_確認, L4: L4_採否_集計レポート, E1: E1_V2公開データ_予行, K1: K1_空欄棚卸し };
+  while (st.step < LA0_STEPS_.length) {
+    if (Date.now() - t0 > 90000 && LA0_STEPS_[st.step] !== 'L4') { P.setProperty('LA0_STATE', JSON.stringify(st)); return scLog_('LA0_監査一式_実行', { status: 'PRESS_AGAIN', next: LA0_STEPS_[st.step], runId: st.runId, done: st.results }); }
+    var name = LA0_STEPS_[st.step], r = run[name]();
+    st.results[name] = { status: r.status, at: new Date().toISOString() };
+    if (name === 'L3' && r.status === 'PARTIAL_RESUME_NEEDED') { st.results.L3.left = r.left; P.setProperty('LA0_STATE', JSON.stringify(st)); return scLog_('LA0_監査一式_実行', { status: 'PRESS_AGAIN', next: 'L3（続き）', left: r.left, runId: st.runId }); }
+    if (/MISMATCH|ERROR|NO_L2/.test(r.status)) { P.setProperty('LA0_STATE', JSON.stringify(st)); return scLog_('LA0_監査一式_実行', { status: 'STOPPED_AT_' + name, result: r.status, runId: st.runId }); }
+    if (name === 'L2') st.results.L2.counts = r.counts; if (name === 'L4') { st.results.L4.verdicts = r.verdicts; st.results.L4.publishable = r.publishableIfApproved; }
+    if (name === 'E1') { st.results.E1.adopted = r.adopted; st.results.E1.removed = r.removed; st.results.E1.added = r.added; } if (name === 'K1') st.results.K1.byFieldPublic = r.byFieldPublic;
+    st.step++; P.setProperty('LA0_STATE', JSON.stringify(st));
+  }
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), H = ['実行ID', '終了日時', '配布物SHA256(本体)', 'V2台帳', 'COPY', '旧公開の基準', '工程の結果(JSON)'], sh = c.ss.getSheetByName(LA0_MANIFEST_) || c.ss.insertSheet(LA0_MANIFEST_);
+  if (sh.getLastRow() === 0) sh.getRange(1, 1, 1, H.length).setValues([H]);
+  var sum = c.ss.getSheetByName(LA2_SUM_), base = sum ? sum.getRange(3, 2).getDisplayValues()[0][0] : '';
+  sh.getRange(sh.getLastRow() + 1, 1, 1, H.length).setNumberFormat('@').setValues([[st.runId, new Date().toISOString(), typeof CLEANER_BUILD_SOURCE_SHA256 === 'string' ? CLEANER_BUILD_SOURCE_SHA256 : '(不明)', SC_CONFIG.v2WorkingId, SC_CONFIG.copyId, base, JSON.stringify(st.results).slice(0, 45000)]]);
+  return scLog_('LA0_監査一式_実行', { status: 'DONE', runId: st.runId, build: typeof CLEANER_BUILD_SOURCE_SHA256 === 'string' ? CLEANER_BUILD_SOURCE_SHA256.slice(0, 16) : '', results: st.results, wroteTo: 'COPY「' + LA0_MANIFEST_ + '」ほか監査シート', ms: Date.now() - t0 });
+}
+function LA9_監査一式_最初から() { PropertiesService.getScriptProperties().deleteProperty('LA0_STATE'); return scLog_('LA9_監査一式_最初から', { status: 'OK' }); }
+
+// ===== V2データ品質監査 QA（2026-11-14 司令塔「V2データ品質・統合GAS監査」）=====
+// 読むだけ: V2（正本）の「V2・統合台帳」「V2・収蔵詳細」「V2・関連記事索引」。書くのは COPY の監査タブ（監査・品質_URL／_概要／_関連記事／_集計）だけ。
+// 本番台帳・公開JSON・Spotify・外部サービスには書かない（外部へのアクセスもしない）。6,000件超を分割（1回 約4分）し、続きは QA8 で再開。
+// 押す順: QA0_品質監査_全体開始 → （PARTIAL なら）QA8_中断位置から再開 を DONE まで → QA9_結果確認。個別に回すときは QA1／QA2／QA3。
+var QA_SHEETS_ = { url: '監査・品質_URL', summary: '監査・品質_概要', related: '監査・品質_関連記事', total: '監査・品質_集計' };
+var QA_STATE_KEY_ = 'QA_STATE', QA_CHUNK_MS_ = 240000;
+function qaOpen_() { var v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes); if (c.ss.getId() === v.ss.getId()) throw new Error('QA_TARGET_IS_V2'); return { v: v, c: c }; }
+function qaHeader_(ss, name, H) { var sh = ss.getSheetByName(name) || ss.insertSheet(name); sh.clearContents(); sh.getRange(1, 1, 1, H.length).setValues([H]); sh.setFrozenRows(1); return sh; }
+function qaAppend_(sh, rows, n) { if (!rows.length) return; sh.getRange(sh.getLastRow() + 1, 1, rows.length, n).setNumberFormat('@').setValues(rows.map(function (r) { return r.map(function (x) { return LedgerAudit.sheetText(String(x)); }); })); }
+function qaWhere_(o, extra) { return Object.assign({ readFrom: 'V2 ' + SC_CONFIG.v2WorkingId + '（読むだけ）', wroteTo: 'COPY ' + SC_CONFIG.copyId + ' の監査タブ', version: LedgerAudit.QA_VERSION }, extra || {}); }
+function qaUrlRun_(o) {
+  var D = laRead_(o.v.sh), P = LedgerAudit.PLATFORM_COLUMNS, idx = P.map(function (p) { return D.h.indexOf(p); });
+  var rows = D.rows.filter(function (r) { return r.ep; }).map(function (r) { var links = {}; P.forEach(function (p, j) { if (idx[j] >= 0) links[p] = r._r[idx[j]]; }); return { ep: r.ep, rep: r.rep, judge: r.judge, links: links }; });
+  var res = LedgerAudit.qaPlatformUrls(rows), sh = qaHeader_(o.c.ss, QA_SHEETS_.url, LedgerAudit.QA_URL_HEADERS); qaAppend_(sh, res.rows, LedgerAudit.QA_URL_HEADERS.length);
+  return { episodes: rows.length, missingColumns: P.filter(function (p, j) { return idx[j] < 0; }), counts: res.counts, issueRows: res.rows.length };
+}
+function qaStart_(fn, modes) {
+  var o = qaOpen_(), out = {}, P = PropertiesService.getScriptProperties();
+  if (modes.indexOf('url') >= 0) out.url = qaUrlRun_(o);
+  var deep = modes.filter(function (m) { return m === 'summary' || m === 'related'; });
+  if (!deep.length) return scLog_(fn, qaWhere_(o, { status: 'DONE', url: out.url }));
+  if (deep.indexOf('summary') >= 0) qaHeader_(o.c.ss, QA_SHEETS_.summary, LedgerAudit.QA_SUMMARY_HEADERS);
+  if (deep.indexOf('related') >= 0) qaHeader_(o.c.ss, QA_SHEETS_.related, LedgerAudit.QA_RELATED_HEADERS);
+  P.setProperty(QA_STATE_KEY_, JSON.stringify({ modes: deep, cursor: 0, startedAt: new Date().toISOString(), fn: fn }));
+  var r = qaChunk_(o); r.url = out.url; return scLog_(fn, r);
+}
+function qaChunk_(o) {
+  var t0 = Date.now(), P = PropertiesService.getScriptProperties(), st = JSON.parse(P.getProperty(QA_STATE_KEY_) || 'null');
+  if (!st) return { status: 'NO_STATE', note: '先に QA0／QA2／QA3 で開始' };
+  var lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return { status: 'LOCKED' };
+  try {
+    var D = laRead_(o.v.sh), sumCol = D.h.indexOf('概要（清掃済）'), eps = D.rows.filter(function (r) { return r.ep; }), pre = scPreservedRaw_();
+    var ds = o.v.ss.getSheetByName(P25V2_DETAIL_SHEET_), shaBy = {};   // 原文のハッシュ一致を確かめる（不一致は pre に入らない）
+    if (ds && ds.getLastRow() > 1) { var dv = ds.getRange(1, 1, ds.getLastRow(), 6).getDisplayValues(), he = dv[0].indexOf('EP-ID'), hs = dv[0].indexOf('概要原文SHA256'), ht = dv[0].indexOf('概要原文'); dv.slice(1).forEach(function (x) { shaBy[x[he]] = { sha: x[hs], has: !!x[ht] }; }); }
+    var idxBy = {}, rl = o.v.ss.getSheetByName(RL_SHEET_V2_); if (st.modes.indexOf('related') >= 0 && rl && rl.getLastRow() > 1) rl.getRange(2, 1, rl.getLastRow() - 1, LedgerAudit.RELATED_HEADERS.length).getDisplayValues().forEach(function (x) { (idxBy[x[0]] = idxBy[x[0]] || []).push(x); });
+    var sS = o.c.ss.getSheetByName(QA_SHEETS_.summary), sR = o.c.ss.getSheetByName(QA_SHEETS_.related), bufS = [], bufR = [], i = st.cursor;
+    for (; i < eps.length; i++) {
+      if (Date.now() - t0 > QA_CHUNK_MS_) break;
+      var r = eps[i], p = pre[r.ep], raw = p ? p.text : '', cl = raw ? CleanerV4.cleanV4(raw) : { text: '', related: [] };
+      if (st.modes.indexOf('summary') >= 0) { var j = raw ? CleanerV4.judgeEpisode(raw, { summary: sumCol >= 0 ? r._r[sumCol] : '', related: r.related }) : null, s = shaBy[r.ep];
+        bufS.push(LedgerAudit.qaSummary({ ep: r.ep, raw: raw, rawSha: s ? s.sha : '', shaOk: s && s.has ? !!p : undefined, ledger: sumCol >= 0 ? r._r[sumCol] : '', reclean: cl.text, judge: j }).row); }
+      if (st.modes.indexOf('related') >= 0) bufR.push(LedgerAudit.qaRelated({ ep: r.ep, fromRaw: cl.related, ledgerUrls: r.related, indexRows: idxBy[r.ep] || [] }).row);
+      if (bufS.length + bufR.length >= 400) { qaAppend_(sS, bufS, LedgerAudit.QA_SUMMARY_HEADERS.length); qaAppend_(sR, bufR, LedgerAudit.QA_RELATED_HEADERS.length); bufS = []; bufR = []; st.cursor = i + 1; P.setProperty(QA_STATE_KEY_, JSON.stringify(st)); }
+    }
+    if (sS) qaAppend_(sS, bufS, LedgerAudit.QA_SUMMARY_HEADERS.length); if (sR) qaAppend_(sR, bufR, LedgerAudit.QA_RELATED_HEADERS.length);
+    st.cursor = i; var done = i >= eps.length; if (done) P.deleteProperty(QA_STATE_KEY_); else P.setProperty(QA_STATE_KEY_, JSON.stringify(st));
+    return qaWhere_(o, { status: done ? 'DONE' : 'PARTIAL_RESUME_NEEDED', modes: st.modes, processed: i, total: eps.length, left: eps.length - i, preservedRaw: Object.keys(pre).length, indexEpisodes: Object.keys(idxBy).length, next: done ? 'QA9_結果確認' : 'QA8_中断位置から再開', ms: Date.now() - t0 });
+  } finally { lock.releaseLock(); }
+}
+function QA0_品質監査_全体開始() { return qaStart_('QA0_品質監査_全体開始', ['url', 'summary', 'related']); }
+function QA1_URL監査() { return qaStart_('QA1_URL監査', ['url']); }
+function QA2_概要欄監査() { return qaStart_('QA2_概要欄監査', ['summary']); }
+function QA3_関連記事監査() { return qaStart_('QA3_関連記事監査', ['related']); }
+function QA8_中断位置から再開() { return scLog_('QA8_中断位置から再開', qaChunk_(qaOpen_())); }
+function QA9_結果確認() {
+  var o = qaOpen_(), out = { status: 'OK', state: JSON.parse(PropertiesService.getScriptProperties().getProperty(QA_STATE_KEY_) || 'null') }, tot = [];
+  [['url', 2], ['summary', 1], ['related', 1]].forEach(function (k) {
+    var sh = o.c.ss.getSheetByName(QA_SHEETS_[k[0]]); if (!sh || sh.getLastRow() < 2) { out[k[0]] = '未実行'; return; }
+    var v = sh.getRange(2, 1, sh.getLastRow() - 1, 3).getDisplayValues(), byV = {}, byC = {};
+    v.forEach(function (r) { var vv = (k[0] === 'url' ? r[1] + '・' : '') + r[k[1]]; byV[vv] = (byV[vv] || 0) + 1; String(r[2]).split(' / ').filter(Boolean).forEach(function (c) { if (k[0] !== 'url') byC[c] = (byC[c] || 0) + 1; }); });
+    out[k[0]] = { rows: v.length, byVerdict: byV, byCause: byC };
+    Object.keys(byV).forEach(function (x) { tot.push([k[0], '判定', x, byV[x]]); }); Object.keys(byC).forEach(function (x) { tot.push([k[0], '原因', x, byC[x]]); });
+  });
+  laWriteSheet_(o.c.ss, QA_SHEETS_.total, ['領域', '区分', '値', '件数'], tot);
+  return scLog_('QA9_結果確認', qaWhere_(o, out));
+}

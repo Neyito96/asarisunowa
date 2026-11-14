@@ -2,10 +2,27 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Playlist } from "./data";
 import { recommendedPodcastSnapshot } from "./recommended-podcasts-data";
+import { seriesLinkSegments } from "./official-series-links";
 import {
   isSpotifyCollaborativeInviteUrl,
   submitAutoUpdateRequestConfirmed,
 } from "./autoUpdateSubmit";
+// 番組カード内の連載名を朝日公式の連載ページへのリンクにする（対応表 app/official-series-links.ts にある表記だけ。ほかは普通の文字）
+function SeriesText({ text }: { text: string }) {
+  return (
+    <>
+      {seriesLinkSegments(text).map((seg, i) =>
+        typeof seg === "string" ? (
+          <span key={i}>{seg}</span>
+        ) : (
+          <a key={i} className="seriesLink" href={seg.url} target="_blank" rel="noopener noreferrer" title={`朝日新聞ポッドキャスト公式「${seg.name}」`} style={{ color: "inherit", textDecoration: "underline", textDecorationThickness: "1px", textUnderlineOffset: "2px" }}>
+            {seg.text}
+          </a>
+        ),
+      )}
+    </>
+  );
+}
 type OfficialProgram = {
   name: string;
   mark?: string;
@@ -1968,8 +1985,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <div className="officialBody">
                   {p.mark && <em>{p.mark}</em>}
                   <h3>{p.name}</h3>
-                  {p.detail && (p.name === "MEDIA TALK" || p.name === "ニュースの現場から" ? <p>{p.detail.split("、").map((item, i) => { const isNew = p.name === "MEDIA TALK" ? (["骨格", "TMT", "推し記事", "吹奏楽・高校編"].includes(item)) : ["Q&A", "地球会議"].includes(item); return <span key={item}>{i > 0 ? "、" : ""}{isNew && <span style={{ display: "inline-block", background: "#d62839", color: "#fff", fontSize: "0.72em", fontWeight: 800, padding: "1px 6px", borderRadius: "4px", marginRight: "4px" }}>NEW</span>}{item}</span>; })}</p> : <p>{p.detail}</p>)}
-                  {p.schedule && <p className="schedule">{p.name === "ニュースの現場から" ? p.schedule.split("日：ニュース大阪目線").map((part, i) => <span key={i}>{i > 0 && <>日：<span style={{ display: "inline-block", background: "#d62839", color: "#fff", fontSize: "0.72em", fontWeight: 800, padding: "1px 6px", borderRadius: "4px", marginRight: "4px" }}>NEW</span>ニュース大阪目線</>}{part}</span>) : p.schedule}</p>}
+                  {p.detail && (p.name === "MEDIA TALK" || p.name === "ニュースの現場から" ? <p>{p.detail.split("、").map((item, i) => { const isNew = p.name === "MEDIA TALK" ? (["骨格", "TMT", "推し記事", "吹奏楽・高校編"].includes(item)) : ["Q&A", "地球会議"].includes(item); return <span key={item}>{i > 0 ? "、" : ""}{isNew && <span style={{ display: "inline-block", background: "#d62839", color: "#fff", fontSize: "0.72em", fontWeight: 800, padding: "1px 6px", borderRadius: "4px", marginRight: "4px" }}>NEW</span>}<SeriesText text={item} /></span>; })}</p> : <p><SeriesText text={p.detail} /></p>)}
+                  {p.schedule && <p className="schedule">{p.name === "ニュースの現場から" ? p.schedule.split("日：ニュース大阪目線").map((part, i) => <span key={i}>{i > 0 && <>日：<span style={{ display: "inline-block", background: "#d62839", color: "#fff", fontSize: "0.72em", fontWeight: 800, padding: "1px 6px", borderRadius: "4px", marginRight: "4px" }}>NEW</span><SeriesText text="ニュース大阪目線" /></>}<SeriesText text={part} /></span>) : <SeriesText text={p.schedule} />}</p>}
                   <div className="serviceLinks">
                       {[
                         ...(p.links ?? []).filter(([label]) => label !== "LISTEN"),
