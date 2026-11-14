@@ -28,7 +28,11 @@ var P25V2_FETCH_BUDGET_MS_ = 120000;   // 全件取得がこれを超えたら�
 var P25V2_RUN_BUDGET_MS_ = 240000;     // 書込開始の締切（実行開始から4分）
 var P25V2_LOG_HEADERS_ = ['実行日時', '関数', 'モード', '状態', '追加件数', '候補', 'HOLD', 'BLOCK', '既収蔵', '取得エラー', '追加EP-ID', '備考'];
 
-function p25v2Cfg_(over) { var c = JSON.parse(JSON.stringify(P25V2_COPY_CONFIG)); Object.keys(over || {}).forEach(function (k) { c[k] = over[k]; }); c.feeds = c.feeds.map(function (f) { return { show: f.show, url: f.url, limit: f.limit || c.feedLimit }; }); return c; }
+function p25v2Cfg_(over) {
+  var c = JSON.parse(JSON.stringify(P25V2_COPY_CONFIG)); Object.keys(over || {}).forEach(function (k) { c[k] = over[k]; }); c.feeds = c.feeds.map(function (f) { return { show: f.show, url: f.url, limit: f.limit || c.feedLimit }; });
+  if (c.globalReservation !== false) { var r = p25v2GlobalReservation_(); c.reservedMaxEpNo = Math.max(Number(c.reservedMaxEpNo || 0), r.max); c.global = r; c.guidReserve = {}; c.reservation = r.summary; }   // 採番の単一経路（COPY も同じ予約を使う）
+  return c;
+}
 function p25v2Env_() { return { hasDoGet: typeof doGet === 'function', hasDoPost: typeof doPost === 'function', triggerCount: ScriptApp.getProjectTriggers().length }; }
 // 開く前・開いた後の両方で対象を確認する（書込なし）
 function p25v2OpenChecked_(cfg, forWrite) {

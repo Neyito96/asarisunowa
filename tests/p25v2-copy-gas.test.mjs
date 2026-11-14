@@ -18,14 +18,18 @@ function mkSheet(name, rows, maxCols) {
     getDisplayValue: () => get(r, c), getValue: () => get(r, c), setValues: (v) => v.forEach((row, i) => row.forEach((x, j) => put(r + i, c + j, x))), setValue: (x) => put(r, c, x), copyFormatToRange: () => {} });
   return { st, getName: () => name, getLastRow: () => st.rows.length, getLastColumn: () => w(), getMaxColumns: () => w(), getRange: rng, appendRow: (row) => st.rows.push([...row]) };
 }
-function env({ id = COPY, name = '【COPY試験】V2収蔵ボット', triggers = 0, feed, details = [], ledgerExtra = [] } = {}) {
+const V1 = '1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4', V2W = '1ZAl4QpQ4i5ycyPy1qVNtT-Ke2nsSHhWGFkAH3xedAbc';
+function env({ id = COPY, name = '【COPY試験】V2収蔵ボット', triggers = 0, feed, details = [], ledgerExtra = [], v1Rows = [['EP-00001', 'aaaaaaaa-0000-4000-8000-000000000000']], v2Rows = [] } = {}) {
   const box = { module: { exports: {} } }; vm.runInNewContext(fs.readFileSync('scripts/google-apps-script/P25V2IngestAdapter.js', 'utf8'), box); const A = box.module.exports;
   const H = [...A.HEADERS], led = H.map(() => ''); led[0] = 'EP-00010'; led[H.indexOf('番組')] = 'ニュースの学校'; led[H.indexOf('タイトル')] = '既存'; led[H.indexOf('配信日時 JST')] = '2026/11/01 04:00'; led[H.indexOf('掲載判定')] = '対象'; led[H.indexOf('代表EP-ID')] = 'EP-00010'; led[H.indexOf('公式GUID')] = 'aaaaaaaa-0000-4000-8000-000000000010';
   const extra = ledgerExtra.map(([ep, gd]) => { const r = H.map(() => ''); r[0] = ep; r[H.indexOf('番組')] = 'ニュースの学校'; r[H.indexOf('タイトル')] = 't' + ep; r[H.indexOf('配信日時 JST')] = '2026/11/02 04:00'; r[H.indexOf('掲載判定')] = '未判定'; r[H.indexOf('代表EP-ID')] = ep; r[H.indexOf('公式GUID')] = gd; return r; });
   const sheets = { 'V2・統合台帳': mkSheet('V2・統合台帳', [H, led, ...extra]), '固定ID採番履歴': mkSheet('固定ID採番履歴', [[...A.NUM_HEADERS]], 9), 'V2・収蔵詳細': mkSheet('V2・収蔵詳細', [[...A.DETAIL_HEADERS], ...details], 17) };
   const props = {}, logs = [], fetched = [];
   const g = { Date, JSON, Math, Logger: { log: (s) => logs.push(s) },
-    SpreadsheetApp: { openById: (x) => { assert.equal(x, COPY); return { getId: () => id, getName: () => name, getSheetByName: (n) => sheets[n] || null, insertSheet: (n) => (sheets[n] = mkSheet(n, [])) }; }, flush() {} },
+    SpreadsheetApp: { openById: (x) => {
+      if (x === V1) { const v1 = { 'エピソード台帳': mkSheet('エピソード台帳', [['台帳ID', '番組名', 'タイトル', '配信日時（JST）', '媒体', '取得元', '外部ID'], ...v1Rows.map(([e, gd]) => [e, '', '', '', '', '', gd])]) }; return { getId: () => V1, getName: () => '本番', getSheetByName: (n) => v1[n] || null, insertSheet: () => { throw new Error('V1_WRITE_FORBIDDEN'); } }; }
+      if (x === V2W) { const v2 = { 'V2・統合台帳': mkSheet('V2・統合台帳', [['EP-ID', '公式GUID'], ...v2Rows]) }; return { getId: () => V2W, getName: () => 'V2', getSheetByName: (n) => v2[n] || null, insertSheet: () => { throw new Error('V2_WRITE_FORBIDDEN'); } }; }
+      assert.equal(x, COPY); return { getId: () => id, getName: () => name, getSheetByName: (n) => sheets[n] || null, insertSheet: (n) => (sheets[n] = mkSheet(n, [])) }; }, flush() {} },
     UrlFetchApp: { fetch: (u) => { fetched.push(u); return feed(u); } },
     LockService: { getScriptLock: () => ({ tryLock: () => true, releaseLock() {} }) },
     ScriptApp: { getProjectTriggers: () => Array(triggers).fill({}), newTrigger: () => { throw new Error('TRIGGER_FORBIDDEN'); } },
@@ -128,4 +132,19 @@ test('原文の後日補完: 取得エラーが1本でもあれば書込0で停�
   const e = bfEnv((u) => (/TASC9421488254/.test(u) ? { getResponseCode: () => 404, getContentText: () => '' } : okFeed([{ title: 'A', guid: G1, pub: 'Tue, 10 Nov 2026 19:00:00 GMT', raw: RAW }])(u)));
   const snap = JSON.stringify(e.sheets['V2・収蔵詳細'].st.rows), r = e.run('P25V2_5_BACKFILL_RAW');
   assert.equal(r.status, 'STOP_FEED_ERRORS'); assert.equal(JSON.stringify(e.sheets['V2・収蔵詳細'].st.rows), snap);
+});
+
+
+test('採番の単一経路: 旧本番が別の回に使った番号は振らない・旧本番と同じGUIDは空いていれば同じ番号、埋まっていれば新番号＋元EP-ID（旧本番・V2は読むだけ）', () => {
+  // 旧本番: EP-06725 は別GUID、EP-06703 は G1 と同じ回（ただし V2 で EP-06703 は別の回）。V2: EP-06703 と EP-06725 を使用
+  const items = [{ title: '新着1', guid: G1, pub: 'Fri, 13 Nov 2026 19:00:00 GMT', raw: RAW }, { title: '新着2', guid: G2, pub: 'Sat, 14 Nov 2026 19:00:00 GMT', raw: RAW }];
+  const e = env({ feed: okFeed(items), v1Rows: [['EP-06703', G1], ['EP-06725', 'cccccccc-0000-4000-8000-000000000009'], ['EP-06710', G2]], v2Rows: [['EP-06703', 'dddddddd-0000-4000-8000-000000000001'], ['EP-06725', 'dddddddd-0000-4000-8000-000000000002']] });
+  const r = JSON.parse(JSON.stringify(e.run('P25V2_2_DRYRUN')));
+  const plan = Object.fromEntries((r.plan || r.result && r.result.plan || []).map((p) => [p.guid, p]));
+  assert.equal(plan[G1].epId, 'EP-06726'); assert.equal(plan[G1].originV1, 'EP-06703');   // 旧本番の番号は V2 で別の回 → 新番号、元EP-IDに旧本番
+  assert.equal(plan[G2].epId, 'EP-06710'); assert.equal(plan[G2].fromV1, true);          // 旧本番の番号がどこでも空いている → 揃える
+});
+test('採番の単一経路: 旧本番が読めなければ止まる（推測で採番しない）', () => {
+  const e = env({ feed: okFeed([]), v1Rows: [] });
+  assert.throws(() => e.run('P25V2_2_DRYRUN'), /RESERVATION_V1_EMPTY/);
 });

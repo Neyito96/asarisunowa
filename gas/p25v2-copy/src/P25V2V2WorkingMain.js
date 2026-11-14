@@ -16,32 +16,43 @@ var P25V2_V2_CONFIG = {
   reservationSources: ['固定ID採番履歴', '削除・除外履歴', 'エピソード台帳']
 };
 function p25v2V2Cfg_(over) {
-  var c = p25v2Cfg_({}), v = JSON.parse(JSON.stringify(P25V2_V2_CONFIG));
+  var c = p25v2Cfg_({ globalReservation: false }), v = JSON.parse(JSON.stringify(P25V2_V2_CONFIG));
   Object.keys(v).forEach(function (k) { c[k] = v[k]; }); Object.keys(over || {}).forEach(function (k) { c[k] = over[k]; });
-  var r = p25v2V2Reservation_(c); c.reservedMaxEpNo = r.max; c.guidReserve = r.guidReserve; c.reservation = r.summary;
+  var r = p25v2GlobalReservation_(); c.reservedMaxEpNo = r.max; c.guidReserve = r.guidReserve; c.global = r; c.reservation = r.summary;
   return c;
 }
-// 使用済み番号の最大値と、COPY試験の GUID→番号 対応（V2作業用で別GUIDに使われていない番号だけ）
-function p25v2V2Reservation_(c) {
-  var num = function (s) { var m = String(s || '').match(/^EP-(\d{5})$/); return m ? +m[1] : 0; }, max = 0, used = {}, summary = {};
-  var take = function (label, ids) { var m = 0; ids.forEach(function (id) { var n = num(id); if (n) { used[id] = true; m = Math.max(m, n); } }); summary[label] = m; max = Math.max(max, m); };
-  var v2 = SpreadsheetApp.openById(c.targetSpreadsheetId), col = function (ss, sheet, header) {
+// ===== 採番の単一経路（2026-11-14 司令塔「採番一本化」）=====
+// 旧本番（読むだけ）・V2作業用・COPY の台帳と採番履歴から「番号→GUID」を毎回集める。COPY 試験も V2 作業用もこの関数だけを使う。
+// ・どの台帳でも別のGUIDが使っている番号は振らない（旧本番が並行して採番していても重ならない）
+// ・旧本番に同じGUIDの回があれば、その番号がどこでも空いていれば揃え、空いていなければ新番号＋「元EP-ID」に旧本番の番号を残す
+// ・読めない台帳があれば止まる（推測で採番しない）
+var P25V2_V1_PROD_ID_ = '1lLgLzgDNkLN_8ok967u9lu9i1S3yRJTMibXFO5-2FG4', P25V2_COPY_ID_ = '1WTLcaveWG0mr9F0dIjyCL8daxFnpo4q4yADN_bnK1PY';
+function p25v2GlobalReservation_() {
+  var num = function (s) { var m = String(s || '').match(/^EP-(\d{5})$/); return m ? +m[1] : 0; }, max = 0, used = {}, summary = {}, v1ByGuid = {};
+  var col = function (ss, sheet, header, optional) {
     var sh = ss.getSheetByName(sheet); if (!sh || sh.getLastRow() < 2) return [];
-    var h = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0], i = h.indexOf(header); if (i < 0) throw new Error('RESERVATION_COLUMN_NOT_FOUND ' + sheet + ':' + header);
+    var h = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0], i = h.indexOf(header); if (i < 0) { if (optional) return []; throw new Error('RESERVATION_COLUMN_NOT_FOUND ' + sheet + ':' + header); }
     return sh.getRange(2, i + 1, sh.getLastRow() - 1, 1).getDisplayValues().map(function (r) { return r[0]; });
   };
-  take('V2・統合台帳', col(v2, 'V2・統合台帳', 'EP-ID'));
-  take('固定ID採番履歴', col(v2, '固定ID採番履歴', '固定ID'));
-  take('削除・除外履歴', col(v2, '削除・除外履歴', '固定ID'));
-  take('エピソード台帳', col(v2, 'エピソード台帳', '台帳ID'));
-  var copy = SpreadsheetApp.openById(P25V2_COPY_CONFIG.targetSpreadsheetId);
+  var take = function (label, ids, guids) { var m = 0; ids.forEach(function (id, i) { var n = num(id); if (!n) return; var g = String((guids || [])[i] || '').toLowerCase(); used[id] = used[id] || '|'; if (used[id].indexOf('|' + g + '|') < 0) used[id] += g + '|'; m = Math.max(m, n); }); summary[label] = m; max = Math.max(max, m); };   // used[id] = '|guid1|guid2|'（GUID不明は空）
+  var v2 = SpreadsheetApp.openById(P25V2_V2_CONFIG.targetSpreadsheetId);
+  take('V2・統合台帳', col(v2, 'V2・統合台帳', 'EP-ID'), col(v2, 'V2・統合台帳', '公式GUID'));
+  take('V2・採番履歴', col(v2, '固定ID採番履歴', '固定ID'), col(v2, '固定ID採番履歴', 'GUID'));
+  take('V2・削除除外履歴', col(v2, '削除・除外履歴', '固定ID'));
+  take('V2内エピソード台帳', col(v2, 'エピソード台帳', '台帳ID'), col(v2, 'エピソード台帳', '外部ID', true));
+  var v1 = SpreadsheetApp.openById(P25V2_V1_PROD_ID_), v1Ids = col(v1, 'エピソード台帳', '台帳ID'), v1G = col(v1, 'エピソード台帳', '外部ID');   // 旧本番は読むだけ
+  if (!v1Ids.length) throw new Error('RESERVATION_V1_EMPTY');
+  take('旧本番', v1Ids, v1G); v1Ids.forEach(function (id, i) { var g = String(v1G[i] || '').toLowerCase(); if (num(id) && g && !v1ByGuid[g]) v1ByGuid[g] = id; });
+  var copy = SpreadsheetApp.openById(P25V2_COPY_ID_);   // COPY は固定ID（設定の書き換えに左右されない）
   var cIds = col(copy, '固定ID採番履歴', '固定ID'), cGuids = col(copy, '固定ID採番履歴', 'GUID'), cState = col(copy, '固定ID採番履歴', '状態');
-  var copyMax = 0; cIds.concat(col(copy, 'V2・統合台帳', 'EP-ID')).forEach(function (id) { copyMax = Math.max(copyMax, num(id)); });
-  summary['COPY試験'] = copyMax; max = Math.max(max, copyMax);
-  var guidReserve = {}; cIds.forEach(function (id, i) { if (cState[i] === '登録完了' && num(id) && !used[id]) guidReserve[String(cGuids[i]).toLowerCase()] = id; });
-  summary.max = max; summary.copyReservable = Object.keys(guidReserve).length;
-  return { max: max, guidReserve: guidReserve, summary: summary };
+  take('COPY・採番履歴', cIds, cGuids); take('COPY・統合台帳', col(copy, 'V2・統合台帳', 'EP-ID'), col(copy, 'V2・統合台帳', '公式GUID'));
+  var guidReserve = {}; cIds.forEach(function (id, i) { var g = String(cGuids[i]).toLowerCase(); if (cState[i] === '登録完了' && num(id) && used[id] === '|' + g + '|') guidReserve[g] = id; });   // その番号を使っているのが同じGUIDだけのとき
+  var collisions = Object.keys(used).filter(function (id) { return used[id].split('|').filter(Boolean).length > 1; }).sort();
+  summary.max = max; summary.copyReservable = Object.keys(guidReserve).length; summary.collisions = collisions.length; summary.collisionIds = collisions.slice(0, 40).join(' ');
+  return { max: max, used: used, v1ByGuid: v1ByGuid, guidReserve: guidReserve, summary: summary };
 }
+// 0) 採番の点検（書込なし）: 全台帳の予約最大・番号衝突の数と番号・旧本番のGUID数
+function P25V2_0_採番点検() { var r = p25v2GlobalReservation_(); return p25v2Report_('P25V2_0_採番点検', { status: 'OK', reservation: r.summary, v1Guids: Object.keys(r.v1ByGuid).length, nextIfNew: 'EP-' + ('0000' + (r.max + 1)).slice(-5) }); }
 // 1) 点検（書込なし）
 function P25V2_V2_1_CHECK() {
   var cfg = p25v2V2Cfg_(), o = p25v2OpenChecked_(cfg, false), out = { target: o.actual, triggers: 0, reservation: cfg.reservation };
