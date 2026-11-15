@@ -46,3 +46,29 @@ test('P26: 書込の上限は予行全体で3件（2回目以降は CAP_REACHED 
   assert.equal(vm.runInContext('P26_2_COPY反映_少数()', e.g).wrote.length, 3);
   const w2 = vm.runInContext('P26_2_COPY反映_少数()', e.g); assert.equal(w2.status, 'CAP_REACHED'); assert.equal(w2.wrote.length, 0);
 });
+const many = () => { const urls = ['A', 'B', 'C', 'D', 'E'].map((x) => 'https://open.spotify.com/episode/OK' + x); const e = env({ verified: urls }); const cand = e.books[V1].P15_PLATFORM_CANDIDATES.st.rows, v2 = e.books[V2]['V2・統合台帳'].st.rows, cp = e.books[COPY]['V2・統合台帳'].st.rows;
+  cand.length = 1; v2.length = 1; cp.length = 1; urls.forEach((u, i) => { const t = '題' + i; v2.push(row('EP-' + i, t, 'g' + i)); cp.push(row('EP-' + i, t, 'g' + i)); cand.push(['ニュースの現場から', 'Spotify', t, u, '']); });
+  e.g.P15_PLATFORMS.resolve = (src, o) => { const r = o.references[0]; return { links: { 12: r.url }, results: [{ service: r.service, state: 'VERIFIED', method: 'GUID_TITLE_DATE', url: r.url }] }; };
+  vm.runInContext('P26_1_照合_READ_ONLY()', e.g); return e; };
+test('P26上限: 途中で止まったPENDINGは上限に数え、後始末するまで書かない（後始末で取消/OKに確定）', () => {
+  const e = many(), log = () => e.books[COPY]['P26・COPY反映履歴'];
+  vm.runInContext("p26LogSheet_(p26Copy_(), P26_LOG_).appendRow(['t','EP-0','Spotify','','https://open.spotify.com/episode/OKA','x','PENDING',''])", e.g);
+  assert.equal(vm.runInContext('P26_2_COPY反映_少数()', e.g).status, 'PENDING_EXISTS');
+  const f = vm.runInContext('P26_8_未完了の確認()', e.g); assert.equal(JSON.stringify(f.fixed), JSON.stringify(['EP-0:取消']));
+  const w = vm.runInContext('P26_2_COPY反映_少数()', e.g); assert.equal(w.wrote.length, 3); assert.ok(!w.wrote.some((x) => x.ep === 'EP-0'));   // 取消した枠は書き直さない
+  assert.equal(vm.runInContext('P26_2_COPY反映_少数()', e.g).status, 'CAP_REACHED');
+  assert.equal(log().st.rows.slice(1).filter((x) => !x[7]).length, 3);
+});
+test('P26上限: 同時実行はロックで拒否・読み戻し不一致で停止旗→以後すべて拒否→解除まで書かない', () => {
+  const e = many();
+  e.g.LockService = { getScriptLock: () => ({ tryLock: () => false, releaseLock() {} }) }; assert.equal(vm.runInContext('P26_2_COPY反映_少数()', e.g).status, 'LOCKED');
+  e.g.LockService = { getScriptLock: () => ({ tryLock: () => true, releaseLock() {} }) };
+  const sh = e.books[COPY]['V2・統合台帳'], orig = sh.getRange; sh.getRange = (r, c, nr, nc) => { const g = orig(r, c, nr, nc); return { ...g, setValue: () => {} }; };   // 書いても反映されない異常
+  const w = vm.runInContext('P26_2_COPY反映_少数()', e.g); assert.equal(w.status, 'STOPPED_READBACK_MISMATCH'); assert.equal(w.wrote.length, 0);
+  sh.getRange = orig; assert.equal(vm.runInContext('P26_2_COPY反映_少数()', e.g).status, 'STOPPED');
+  vm.runInContext('P26_9_停止解除()', e.g); assert.notEqual(vm.runInContext('P26_2_COPY反映_少数()', e.g).status, 'STOPPED');
+});
+test('P26上限: 本番V2への書込は承認の印（コード上のフラグ＋上限）が無ければ0件', () => {
+  const e = many(); const v2 = JSON.stringify(e.books[V2]);
+  const w = vm.runInContext("p26Write_('V2')", e.g); assert.equal(w.status, 'V2_WRITE_NOT_APPROVED'); assert.equal(JSON.stringify(e.books[V2]), v2);
+});
