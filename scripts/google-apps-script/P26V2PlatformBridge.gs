@@ -123,6 +123,13 @@ function P26_8_未完了の確認(mode) {
 }
 // 停止旗を外す（原因を確かめた後に人が押す）
 function P26_9_停止解除() { var P = PropertiesService.getScriptProperties(), was = P.getProperty('P26_STOP_WHY'); P.deleteProperty('P26_STOP'); P.deleteProperty('P26_STOP_WHY'); Logger.log('P26_9_停止解除 ' + was); return { status: 'CLEARED', was: was }; }
+// ページから見える番組名などを読む（診断専用。P15_PLATFORMS.parsePage と同じ場所を見る: Spotify は JSON-LD の説明文と music: メタ、LISTEN は og:title）
+function p26Meta_(html, prop) { var m = String(html).match(new RegExp('<meta[^>]+(?:property|name)=["\']' + prop.replace(/[.:]/g, '\\$&') + '["\'][^>]*content=["\']([^"\']*)', 'i')); return m ? m[1] : ''; }
+function p26PeekPage_(service, html) {
+  if (service === 'Spotify') { var d = (String(html).match(/Listen to this episode from (.+?) on Spotify\./) || [])[1] || ''; return { show: d, title: p26Meta_(html, 'og:title'), published: p26Meta_(html, 'music:release_date'), duration: p26Meta_(html, 'music:duration') }; }
+  if (service === 'LISTEN') { var t = p26Meta_(html, 'og:title'), k = t.lastIndexOf(' - '); return { show: k > 0 ? t.slice(k + 3) : '', title: k > 0 ? t.slice(0, k) : t, published: '', duration: null, audios: (String(html).match(/\bconst\s+audioUrl\s*=/g) || []).length }; }
+  return null;
+}
 // 保留の診断（読むだけ。結果は COPY の「P26・保留診断」）: 候補ページから読めた番組名・題名・配信時刻・長さ・GUID を、V2 の値と並べる
 function P26_4_保留診断_READ_ONLY() {
   var copy = p26Copy_(), r = p26Read_(copy, P26_RESULT_).v, ledger = p26Read_(SpreadsheetApp.openById(P26_V2_ID_), P26_LEDGER_).v, cand = p26Read_(SpreadsheetApp.openById(P26_V1_ID_), P26_CAND_).v, plan = p26Plan_(ledger, cand);
@@ -130,7 +137,7 @@ function P26_4_保留診断_READ_ONLY() {
   sh.clearContents(); sh.getRange(1, 1, 1, H.length).setValues([H]);
   r.slice(1).filter(function (x) { return x[6] !== 'VERIFIED' && !/別のURL/.test(x[6]); }).forEach(function (x) {
     var p = plan.filter(function (q) { return q.ep === x[0] && q.service === x[3]; })[0]; if (!p || Date.now() > ctx.deadline) return;
-    var page = P15_PLATFORMS.fetchPage(p.url, ctx), rec = page && page.html ? P15_PLATFORMS.parsePage(page.html, page.url, p.source) : null;
+    var page = P15_PLATFORMS.fetchPage(p.url, ctx), rec = page && page.html ? p26PeekPage_(p.service, page.html) : null;
     if (!rec) { out.push([x[0], x[3], x[6], '', p.source.show, '', '', '', '', '', page ? (page.reason || page.http || 'PARSE_NULL') : 'NO_PAGE']); return; }
     var dt = Date.parse(rec.published) - Date.parse(p.source.published);
     out.push([x[0], x[3], x[6], String(rec.show || ''), p.source.show, String(rec.show || '') === p.source.show ? 'はい' : 'いいえ', p26Nz_(rec.title) === p26Nz_(p.source.title) ? 'はい' : 'いいえ', isFinite(dt) ? Math.round(dt / 1000) : '', rec.duration != null && p.source.duration ? Math.round(Number(rec.duration) - p.source.duration) : '', rec.guid ? 'はい' : 'いいえ', page.http || '']);
