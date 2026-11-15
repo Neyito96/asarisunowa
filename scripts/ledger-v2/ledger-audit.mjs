@@ -215,10 +215,10 @@ export function ledgerDiff({ oldPub = [], v2 = [], v1 = [], since = '2026-11-13'
 }
 
 // ===== V2データ品質監査（2026-11-14 司令塔「V2データ品質・統合GAS監査」）。読むだけ。判定だけを返し、台帳には書かない =====
-export const QA_VERSION = 'QA-1';
+export const QA_VERSION = 'QA-2';   // QA-2: 関連記事索引の出どころ（V2正本／COPY試験）を記録し、索引が無いときは「索引にない」と数えない
 export const QA_URL_HEADERS = ['EP-ID', 'サービス', '判定', 'URL', '代表EP-ID', '掲載判定', 'メモ'];
 export const QA_SUMMARY_HEADERS = ['EP-ID', '判定', '原因', '原文SHA256', '原文文字数', '清掃済み文字数（台帳）', '再清掃文字数', '残存率', '清掃監査', '詳細'];
-export const QA_RELATED_HEADERS = ['EP-ID', '判定', '原因', '原文の記事数', '台帳URL数', '索引の行数', '見出しなし', '詳細'];
+export const QA_RELATED_HEADERS = ['EP-ID', '判定', '原因', '原文の記事数', '台帳URL数', '索引の行数', '見出しなし', '詳細', '索引の出どころ'];
 // URL: 形（EPISODE/SHOW_TOP/OTHER/EMPTY）と、同じURLを別の回が持っていないか（代表EP-IDで束ねた回どうしは正常）。実際のリンク先の同一性は別の判定（ここでは「未照合」）
 export function qaPlatformUrls(rows, platforms = PLATFORM_COLUMNS) {
   const out = [], counts = {}, byUrl = new Map();
@@ -254,18 +254,18 @@ export function qaSummary({ ep, raw, rawSha, shaOk, ledger, reclean, judge }) {
   return { ep, verdict, causes, row: [ep, verdict, causes.join(' / '), rawSha || '', r.length, l.length, c.length, ratio, judge ? judge.verdict : '', det.join(' ')] };
 }
 // 関連記事: 原文から抽出した記事（見出し＋URL）、台帳の関連記事URL、V2・関連記事索引の行を EP-ID ごとに突き合わせる
-export function qaRelated({ ep, fromRaw = [], ledgerUrls = '', indexRows = [] }) {
+export function qaRelated({ ep, fromRaw = [], ledgerUrls = '', indexRows = [], indexSource = '' }) {   // indexSource が空＝索引シートが無い（照合不能。索引にないとは数えない）
   const causes = [], det = [], key = articleKey, rawArt = fromRaw.filter((a) => (a.kind || 'article') === 'article');
   const rawKeys = new Map(); rawArt.forEach((a) => { if (a.url) rawKeys.set(key(a.url), a); });
   const led = String(ledgerUrls || '').split(/[\s\n]+/).filter((u) => /^https?:\/\//.test(u)), ledKeys = led.map(key), idx = indexRows.map((x) => ({ url: x[3], title: x[2], k: key(x[3]) }));
   const dupLed = ledKeys.filter((k, i) => ledKeys.indexOf(k) !== i); if (dupLed.length) causes.push('台帳の同じ記事URLが重複');
   const titleOnly = rawArt.filter((a) => !a.url && a.title); if (titleOnly.length) causes.push('見出しだけ（URLなし）');
   const noHead = idx.filter((x) => !x.title || x.title === '未取得'); if (noHead.length) causes.push('URLだけ（見出し未取得）');
-  const idxKeys = new Set(idx.map((x) => x.k)), missIdx = [...rawKeys.keys()].filter((k) => !idxKeys.has(k)); if (missIdx.length) { causes.push('原文の記事が索引にない'); det.push('索引なし: ' + missIdx.slice(0, 2).join(' ')); }
+  const idxKeys = new Set(idx.map((x) => x.k)), missIdx = indexSource ? [...rawKeys.keys()].filter((k) => !idxKeys.has(k)) : []; if (missIdx.length) { causes.push('原文の記事が索引にない'); det.push('索引なし: ' + missIdx.slice(0, 2).join(' ')); } else if (!indexSource && rawKeys.size) causes.push('索引シートなし（照合不能）');
   const missLed = [...rawKeys.keys()].filter((k) => !ledKeys.includes(k)); if (missLed.length) causes.push('原文の記事が台帳の関連記事URLにない');
   const ledOnly = ledKeys.filter((k) => !rawKeys.has(k)); if (ledOnly.length && rawKeys.size) causes.push('台帳だけにある記事URL（原文に無い）'); else if (ledOnly.length) causes.push('台帳だけにある記事URL（原文に記事欄なし）');
   const idxDup = idx.map((x) => x.k).filter((k, i, a) => a.indexOf(k) !== i); if (idxDup.length) causes.push('索引の同じ記事が重複');
   const titleConflict = idx.filter((x) => rawKeys.has(x.k) && x.title && x.title !== '未取得' && rawKeys.get(x.k).title && qaNz(rawKeys.get(x.k).title) !== qaNz(x.title)); if (titleConflict.length) causes.push('見出しが原文と違う（別記事との結合の疑い）');
   const verdict = !rawArt.length && !led.length && !idx.length ? '記事なし' : !causes.length ? '問題なし' : causes.some((x) => /索引にない|台帳の関連記事URLにない|結合/.test(x)) ? '要修復' : '要確認';
-  return { ep, verdict, causes, row: [ep, verdict, causes.join(' / '), rawArt.length, led.length, idx.length, noHead.length, det.join(' ')] };
+  return { ep, verdict, causes, row: [ep, verdict, causes.join(' / '), rawArt.length, led.length, idx.length, noHead.length, det.join(' '), indexSource || '索引シートなし'] };
 }

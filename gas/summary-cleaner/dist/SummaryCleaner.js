@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = 'fe16da3da6d62125cfef63f8e98a3372660a6c4e59c5ecaec5c6f3ae0520be3f';
+var CLEANER_BUILD_SOURCE_SHA256 = 'f99cc2d7940a7c7ce99b0b69cd844d759140b737040715c6b10527d23e53acaf';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -1140,10 +1140,10 @@ function ledgerDiff({ oldPub = [], v2 = [], v1 = [], since = '2026-11-13' }) {
 }
 
 // ===== V2データ品質監査（2026-11-14 司令塔「V2データ品質・統合GAS監査」）。読むだけ。判定だけを返し、台帳には書かない =====
-const QA_VERSION = 'QA-1';
+const QA_VERSION = 'QA-2';   // QA-2: 関連記事索引の出どころ（V2正本／COPY試験）を記録し、索引が無いときは「索引にない」と数えない
 const QA_URL_HEADERS = ['EP-ID', 'サービス', '判定', 'URL', '代表EP-ID', '掲載判定', 'メモ'];
 const QA_SUMMARY_HEADERS = ['EP-ID', '判定', '原因', '原文SHA256', '原文文字数', '清掃済み文字数（台帳）', '再清掃文字数', '残存率', '清掃監査', '詳細'];
-const QA_RELATED_HEADERS = ['EP-ID', '判定', '原因', '原文の記事数', '台帳URL数', '索引の行数', '見出しなし', '詳細'];
+const QA_RELATED_HEADERS = ['EP-ID', '判定', '原因', '原文の記事数', '台帳URL数', '索引の行数', '見出しなし', '詳細', '索引の出どころ'];
 // URL: 形（EPISODE/SHOW_TOP/OTHER/EMPTY）と、同じURLを別の回が持っていないか（代表EP-IDで束ねた回どうしは正常）。実際のリンク先の同一性は別の判定（ここでは「未照合」）
 function qaPlatformUrls(rows, platforms = PLATFORM_COLUMNS) {
   const out = [], counts = {}, byUrl = new Map();
@@ -1179,20 +1179,20 @@ function qaSummary({ ep, raw, rawSha, shaOk, ledger, reclean, judge }) {
   return { ep, verdict, causes, row: [ep, verdict, causes.join(' / '), rawSha || '', r.length, l.length, c.length, ratio, judge ? judge.verdict : '', det.join(' ')] };
 }
 // 関連記事: 原文から抽出した記事（見出し＋URL）、台帳の関連記事URL、V2・関連記事索引の行を EP-ID ごとに突き合わせる
-function qaRelated({ ep, fromRaw = [], ledgerUrls = '', indexRows = [] }) {
+function qaRelated({ ep, fromRaw = [], ledgerUrls = '', indexRows = [], indexSource = '' }) {   // indexSource が空＝索引シートが無い（照合不能。索引にないとは数えない）
   const causes = [], det = [], key = articleKey, rawArt = fromRaw.filter((a) => (a.kind || 'article') === 'article');
   const rawKeys = new Map(); rawArt.forEach((a) => { if (a.url) rawKeys.set(key(a.url), a); });
   const led = String(ledgerUrls || '').split(/[\s\n]+/).filter((u) => /^https?:\/\//.test(u)), ledKeys = led.map(key), idx = indexRows.map((x) => ({ url: x[3], title: x[2], k: key(x[3]) }));
   const dupLed = ledKeys.filter((k, i) => ledKeys.indexOf(k) !== i); if (dupLed.length) causes.push('台帳の同じ記事URLが重複');
   const titleOnly = rawArt.filter((a) => !a.url && a.title); if (titleOnly.length) causes.push('見出しだけ（URLなし）');
   const noHead = idx.filter((x) => !x.title || x.title === '未取得'); if (noHead.length) causes.push('URLだけ（見出し未取得）');
-  const idxKeys = new Set(idx.map((x) => x.k)), missIdx = [...rawKeys.keys()].filter((k) => !idxKeys.has(k)); if (missIdx.length) { causes.push('原文の記事が索引にない'); det.push('索引なし: ' + missIdx.slice(0, 2).join(' ')); }
+  const idxKeys = new Set(idx.map((x) => x.k)), missIdx = indexSource ? [...rawKeys.keys()].filter((k) => !idxKeys.has(k)) : []; if (missIdx.length) { causes.push('原文の記事が索引にない'); det.push('索引なし: ' + missIdx.slice(0, 2).join(' ')); } else if (!indexSource && rawKeys.size) causes.push('索引シートなし（照合不能）');
   const missLed = [...rawKeys.keys()].filter((k) => !ledKeys.includes(k)); if (missLed.length) causes.push('原文の記事が台帳の関連記事URLにない');
   const ledOnly = ledKeys.filter((k) => !rawKeys.has(k)); if (ledOnly.length && rawKeys.size) causes.push('台帳だけにある記事URL（原文に無い）'); else if (ledOnly.length) causes.push('台帳だけにある記事URL（原文に記事欄なし）');
   const idxDup = idx.map((x) => x.k).filter((k, i, a) => a.indexOf(k) !== i); if (idxDup.length) causes.push('索引の同じ記事が重複');
   const titleConflict = idx.filter((x) => rawKeys.has(x.k) && x.title && x.title !== '未取得' && rawKeys.get(x.k).title && qaNz(rawKeys.get(x.k).title) !== qaNz(x.title)); if (titleConflict.length) causes.push('見出しが原文と違う（別記事との結合の疑い）');
   const verdict = !rawArt.length && !led.length && !idx.length ? '記事なし' : !causes.length ? '問題なし' : causes.some((x) => /索引にない|台帳の関連記事URLにない|結合/.test(x)) ? '要修復' : '要確認';
-  return { ep, verdict, causes, row: [ep, verdict, causes.join(' / '), rawArt.length, led.length, idx.length, noHead.length, det.join(' ')] };
+  return { ep, verdict, causes, row: [ep, verdict, causes.join(' / '), rawArt.length, led.length, idx.length, noHead.length, det.join(' '), indexSource || '索引シートなし'] };
 }
 
 return { LEDGER_AUDIT_VERSION, PLATFORM_COLUMNS, classifyPlatformUrl, OFFICIAL_ITEM_BASE, officialItemId, hostIdFromAudio, officialUrlCandidate, SHOW_SITE_PARENTS, verifyOfficialPage, ONSA_MATCH_HEADERS, onsaMatch, SDGS_AUDIT_HEADERS, auditSdgs, RELATED_HEADERS, articleKey, relatedRows, sheetText, hyperlink, PLAYLIST_HEADERS, playlistCounts, isRerunTitle, rerunBaseTitle, LEDGER_DIFF_HEADERS, ledgerDiff, QA_VERSION, QA_URL_HEADERS, QA_SUMMARY_HEADERS, QA_RELATED_HEADERS, qaPlatformUrls, qaSummary, qaRelated };
@@ -2492,6 +2492,12 @@ function qaOpen_() { var v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_
 function qaHeader_(ss, name, H) { var sh = ss.getSheetByName(name) || ss.insertSheet(name); sh.clearContents(); sh.getRange(1, 1, 1, H.length).setValues([H]); sh.setFrozenRows(1); return sh; }
 function qaAppend_(sh, rows, n) { if (!rows.length) return; sh.getRange(sh.getLastRow() + 1, 1, rows.length, n).setNumberFormat('@').setValues(rows.map(function (r) { return r.map(function (x) { return LedgerAudit.sheetText(String(x)); }); })); }
 function qaWhere_(o, extra) { return Object.assign({ readFrom: 'V2 ' + SC_CONFIG.v2WorkingId + '（読むだけ）', wroteTo: 'COPY ' + SC_CONFIG.copyId + ' の監査タブ', version: LedgerAudit.QA_VERSION }, extra || {}); }
+function qaIndexSource_(o) {
+  var v2 = o.v.ss.getSheetByName(RL_SHEET_V2_), cp = o.c.ss.getSheetByName(RL_SHEET_COPY_), at = new Date().toISOString();
+  var pick = v2 && v2.getLastRow() > 1 ? { sheet: v2, label: 'V2正本索引', id: o.v.ss.getId(), tab: RL_SHEET_V2_ } : cp && cp.getLastRow() > 1 ? { sheet: cp, label: 'COPY試験索引（V2正本の索引は未作成）', id: o.c.ss.getId(), tab: RL_SHEET_COPY_ } : { sheet: null, label: '', id: '', tab: '' };
+  pick.info = { used: pick.label || '索引シートなし', sheetId: pick.id, tab: pick.tab, rows: pick.sheet ? pick.sheet.getLastRow() - 1 : 0, readAt: at, v2IndexRows: v2 ? Math.max(0, v2.getLastRow() - 1) : '（シートなし）', copyIndexRows: cp ? Math.max(0, cp.getLastRow() - 1) : '（シートなし）' };
+  return pick;
+}
 function qaUrlRun_(o) {
   var D = laRead_(o.v.sh), P = LedgerAudit.PLATFORM_COLUMNS, idx = P.map(function (p) { return D.h.indexOf(p); });
   var rows = D.rows.filter(function (r) { return r.ep; }).map(function (r) { var links = {}; P.forEach(function (p, j) { if (idx[j] >= 0) links[p] = r._r[idx[j]]; }); return { ep: r.ep, rep: r.rep, judge: r.judge, links: links }; });
@@ -2516,19 +2522,20 @@ function qaChunk_(o) {
     var D = laRead_(o.v.sh), sumCol = D.h.indexOf('概要（清掃済）'), eps = D.rows.filter(function (r) { return r.ep; }), pre = scPreservedRaw_();
     var ds = o.v.ss.getSheetByName(P25V2_DETAIL_SHEET_), shaBy = {};   // 原文のハッシュ一致を確かめる（不一致は pre に入らない）
     if (ds && ds.getLastRow() > 1) { var dv = ds.getRange(1, 1, ds.getLastRow(), 6).getDisplayValues(), he = dv[0].indexOf('EP-ID'), hs = dv[0].indexOf('概要原文SHA256'), ht = dv[0].indexOf('概要原文'); dv.slice(1).forEach(function (x) { shaBy[x[he]] = { sha: x[hs], has: !!x[ht] }; }); }
-    var idxBy = {}, rl = o.v.ss.getSheetByName(RL_SHEET_V2_); if (st.modes.indexOf('related') >= 0 && rl && rl.getLastRow() > 1) rl.getRange(2, 1, rl.getLastRow() - 1, LedgerAudit.RELATED_HEADERS.length).getDisplayValues().forEach(function (x) { (idxBy[x[0]] = idxBy[x[0]] || []).push(x); });
+    // 関連記事索引の出どころ（QA-2）: V2正本の「V2・関連記事索引」があればそれ。無ければ COPY の「関連記事索引(試験)」を読み、結果に「COPY試験索引」と明記する（正本の索引が完成したとは扱わない）
+    var idxBy = {}, src = qaIndexSource_(o); if (st.modes.indexOf('related') >= 0 && src.sheet) src.sheet.getRange(2, 1, src.sheet.getLastRow() - 1, LedgerAudit.RELATED_HEADERS.length).getDisplayValues().forEach(function (x) { (idxBy[x[0]] = idxBy[x[0]] || []).push(x); });
     var sS = o.c.ss.getSheetByName(QA_SHEETS_.summary), sR = o.c.ss.getSheetByName(QA_SHEETS_.related), bufS = [], bufR = [], i = st.cursor;
     for (; i < eps.length; i++) {
       if (Date.now() - t0 > QA_CHUNK_MS_) break;
       var r = eps[i], p = pre[r.ep], raw = p ? p.text : '', cl = raw ? CleanerV4.cleanV4(raw) : { text: '', related: [] };
       if (st.modes.indexOf('summary') >= 0) { var j = raw ? CleanerV4.judgeEpisode(raw, { summary: sumCol >= 0 ? r._r[sumCol] : '', related: r.related }) : null, s = shaBy[r.ep];
         bufS.push(LedgerAudit.qaSummary({ ep: r.ep, raw: raw, rawSha: s ? s.sha : '', shaOk: s && s.has ? !!p : undefined, ledger: sumCol >= 0 ? r._r[sumCol] : '', reclean: cl.text, judge: j }).row); }
-      if (st.modes.indexOf('related') >= 0) bufR.push(LedgerAudit.qaRelated({ ep: r.ep, fromRaw: cl.related, ledgerUrls: r.related, indexRows: idxBy[r.ep] || [] }).row);
+      if (st.modes.indexOf('related') >= 0) bufR.push(LedgerAudit.qaRelated({ ep: r.ep, fromRaw: cl.related, ledgerUrls: r.related, indexRows: idxBy[r.ep] || [], indexSource: src.label }).row);
       if (bufS.length + bufR.length >= 400) { qaAppend_(sS, bufS, LedgerAudit.QA_SUMMARY_HEADERS.length); qaAppend_(sR, bufR, LedgerAudit.QA_RELATED_HEADERS.length); bufS = []; bufR = []; st.cursor = i + 1; P.setProperty(QA_STATE_KEY_, JSON.stringify(st)); }
     }
     if (sS) qaAppend_(sS, bufS, LedgerAudit.QA_SUMMARY_HEADERS.length); if (sR) qaAppend_(sR, bufR, LedgerAudit.QA_RELATED_HEADERS.length);
     st.cursor = i; var done = i >= eps.length; if (done) P.deleteProperty(QA_STATE_KEY_); else P.setProperty(QA_STATE_KEY_, JSON.stringify(st));
-    return qaWhere_(o, { status: done ? 'DONE' : 'PARTIAL_RESUME_NEEDED', modes: st.modes, processed: i, total: eps.length, left: eps.length - i, preservedRaw: Object.keys(pre).length, indexEpisodes: Object.keys(idxBy).length, next: done ? 'QA9_結果確認' : 'QA8_中断位置から再開', ms: Date.now() - t0 });
+    return qaWhere_(o, { status: done ? 'DONE' : 'PARTIAL_RESUME_NEEDED', modes: st.modes, processed: i, total: eps.length, left: eps.length - i, preservedRaw: Object.keys(pre).length, indexEpisodes: Object.keys(idxBy).length, indexSource: src.info, next: done ? 'QA9_結果確認' : 'QA8_中断位置から再開', ms: Date.now() - t0 });
   } finally { lock.releaseLock(); }
 }
 function QA0_品質監査_全体開始() { return qaStart_('QA0_品質監査_全体開始', ['url', 'summary', 'related']); }
@@ -2545,6 +2552,7 @@ function QA9_結果確認() {
     out[k[0]] = { rows: v.length, byVerdict: byV, byCause: byC };
     Object.keys(byV).forEach(function (x) { tot.push([k[0], '判定', x, byV[x]]); }); Object.keys(byC).forEach(function (x) { tot.push([k[0], '原因', x, byC[x]]); });
   });
+  var si = qaIndexSource_(o).info; out.indexSource = si; Object.keys(si).forEach(function (k) { tot.push(['related', '索引の出どころ', k, String(si[k])]); }); tot.push(['all', '監査', '集計日時', new Date().toISOString()]);
   laWriteSheet_(o.c.ss, QA_SHEETS_.total, ['領域', '区分', '値', '件数'], tot);
   return scLog_('QA9_結果確認', qaWhere_(o, out));
 }

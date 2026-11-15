@@ -441,7 +441,19 @@ test('品質監査QA: V2は読むだけ・COPYの監査タブだけに書く・�
   assert.equal(JSON.stringify(e.books[V2W].sheets), snap);   // V2 は1セルも変わらない
   const sm = e.books[COPY].sheets['監査・品質_概要'].st.rows.slice(1), rl = e.books[COPY].sheets['監査・品質_関連記事'].st.rows.slice(1);
   assert.equal(sm.length, 3); assert.equal(sm[0][3], sha(raw1)); assert.match(sm[1][2], /ハッシュ不一致/); assert.match(sm[2][2], /原文なし/);
-  assert.match(rl[0][2], /台帳の同じ記事URLが重複/); assert.match(rl[0][2], /原文の記事が索引にない/);
+  assert.match(rl[0][2], /台帳の同じ記事URLが重複/); assert.match(rl[0][2], /索引シートなし（照合不能）/); assert.ok(!/索引にない/.test(rl[0][2])); assert.equal(rl[0][8], '索引シートなし');
   const first = JSON.stringify([sm, rl]); e.run('QA0_品質監査_全体開始'); assert.equal(JSON.stringify([e.books[COPY].sheets['監査・品質_概要'].st.rows.slice(1), e.books[COPY].sheets['監査・品質_関連記事'].st.rows.slice(1)]), first);   // 再実行で同じ結果（追記で増えない）
   const t = e.run('QA9_結果確認'); assert.equal(t.status, 'OK'); assert.equal(t.summary.rows, 3); assert.ok(e.books[COPY].sheets['監査・品質_集計']);
+});
+
+test('品質監査QA-2: V2正本に索引が無ければCOPY試験索引を読み、出どころを明記。索引にある記事は「索引にない」と数えない', () => {
+  const e = env(FEED), sha = (t) => crypto.createHash('sha256').update(t, 'utf8').digest('hex');
+  const raw1 = '<p>本文です。</p><p>【関連記事】<br>▽一の記事見出し<br>https://www.asahi.com/articles/ASV1A1111.html</p>';
+  e.books[V2W].sheets['V2・収蔵詳細'] = mkSheet([['EP-ID', '公式GUID', '取得元', '取得日時', '概要原文', '概要原文SHA256'], ['EP-1', 'g1', '', '', raw1, sha(raw1)]]);
+  e.books[COPY].sheets['関連記事索引(試験)'] = mkSheet([['EP-ID', '番号', '見出し', 'URL', 'リンク', '出典', '元URL（原文の表記）'], ['EP-1', '1', '一の記事見出し', 'https://www.asahi.com/articles/ASV1A1111.html', '', '概要原文（公式RSS）', '']]);
+  const snap = JSON.stringify(e.books[V2W].sheets);
+  const r = e.run('QA3_関連記事監査'); assert.equal(r.status, 'DONE'); assert.equal(r.indexSource.used, 'COPY試験索引（V2正本の索引は未作成）'); assert.equal(r.indexSource.tab, '関連記事索引(試験)'); assert.equal(r.indexSource.rows, 1); assert.equal(r.indexSource.v2IndexRows, '（シートなし）');
+  const rl = e.books[COPY].sheets['監査・品質_関連記事'].st.rows.slice(1); assert.ok(!/索引にない/.test(rl[0][2])); assert.equal(String(rl[0][5]), '1'); assert.match(rl[0][8], /COPY試験索引/);
+  assert.equal(JSON.stringify(e.books[V2W].sheets), snap);
+  const t = e.run('QA9_結果確認'); assert.equal(t.indexSource.used, 'COPY試験索引（V2正本の索引は未作成）');
 });

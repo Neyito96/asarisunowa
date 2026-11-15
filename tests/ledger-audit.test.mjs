@@ -134,9 +134,9 @@ test('公式個別URL欄に Omny のURLが入っている行も GUID から候�
 test('品質監査: 関連記事は複数の見出し＋URLを保持し、見出し違い（別記事との結合）を検出', async () => {
   const LA = await import('../scripts/ledger-v2/ledger-audit.mjs');
   const fromRaw = [{ title: '一', url: 'https://www.asahi.com/articles/A1.html' }, { title: '二', url: 'https://www.asahi.com/articles/A2.html' }];
-  const ok = LA.qaRelated({ ep: 'E', fromRaw, ledgerUrls: 'https://www.asahi.com/articles/A1.html https://www.asahi.com/articles/A2.html', indexRows: [['E', '1', '一', 'https://www.asahi.com/articles/A1.html'], ['E', '2', '二', 'https://www.asahi.com/articles/A2.html']] });
+  const ok = LA.qaRelated({ ep: 'E', fromRaw, ledgerUrls: 'https://www.asahi.com/articles/A1.html https://www.asahi.com/articles/A2.html', indexRows: [['E', '1', '一', 'https://www.asahi.com/articles/A1.html'], ['E', '2', '二', 'https://www.asahi.com/articles/A2.html']], indexSource: 'V2正本索引' });
   assert.equal(ok.verdict, '問題なし'); assert.equal(ok.row[3], 2); assert.equal(ok.row[5], 2);
-  const bad = LA.qaRelated({ ep: 'E', fromRaw, ledgerUrls: 'https://www.asahi.com/articles/A1.html?iref=x https://www.asahi.com/articles/A2.html', indexRows: [['E', '1', '別の見出し', 'https://www.asahi.com/articles/A1.html'], ['E', '2', '未取得', 'https://www.asahi.com/articles/A2.html']] });
+  const bad = LA.qaRelated({ ep: 'E', fromRaw, ledgerUrls: 'https://www.asahi.com/articles/A1.html?iref=x https://www.asahi.com/articles/A2.html', indexRows: [['E', '1', '別の見出し', 'https://www.asahi.com/articles/A1.html'], ['E', '2', '未取得', 'https://www.asahi.com/articles/A2.html']], indexSource: 'V2正本索引' });
   assert.match(bad.causes.join(), /結合の疑い/); assert.match(bad.causes.join(), /見出し未取得/); assert.ok(!/台帳の関連記事URLにない/.test(bad.causes.join()));   // iref 付きは同じ記事
 });
 test('品質監査: 概要は文字数減だけでは異常にしない・HTML残り/空欄/未清掃を原因別に', async () => {
