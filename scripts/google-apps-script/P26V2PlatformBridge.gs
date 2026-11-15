@@ -116,6 +116,22 @@ function p26Write_(mode) {
   } finally { lock.releaseLock(); }
 }
 function P26_2_COPY反映_少数() { var res = p26Write_('COPY'); Logger.log('P26_2_COPY反映_少数 ' + JSON.stringify(res)); return res; }
+// 本番V2への反映（承認後だけ動く。P26_V2_WRITE_ENABLED_ と P26_TARGETS_.V2.cap がコード上で設定されていなければ0件）
+function P26_5_V2反映_承認後() { var res = p26Write_('V2'); Logger.log('P26_5_V2反映_承認後 ' + JSON.stringify(res)); return res; }
+// 戻し: 履歴の行（取消していない OK 行）を、書き先の値が履歴の「変更後」と同じときだけ「変更前」（空欄）に戻す。値が変わっていれば触らない
+function P26_7_戻す(mode) {
+  mode = mode || 'COPY'; var T = P26_TARGETS_[mode]; if (mode === 'V2' && !P26_V2_WRITE_ENABLED_) return { status: 'V2_WRITE_NOT_APPROVED' };
+  var lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return { status: 'LOCKED' };
+  try {
+    var copy = p26Copy_(), log = p26LogSheet_(copy, T.log), rows = p26LogRows_(log), target = mode === 'V2' ? SpreadsheetApp.openById(P26_V2_ID_) : copy, led = p26Read_(target, P26_LEDGER_), c = p26Cols_(led.v[0], P26_NEED_), rowOf = {}, out = [];
+    led.v.forEach(function (x, i) { if (i) rowOf[String(x[c['EP-ID']]).trim()] = i + 1; });
+    rows.forEach(function (x, k) { if (x[6] !== 'OK' || String(x[7] || '').trim()) return; var rn = rowOf[x[1]]; if (!rn) { out.push(x[1] + ':行なし'); return; }
+      var cell = led.sh.getRange(rn, c[x[2]] + 1), cur = String(cell.getValue() || '');
+      if (cur !== String(x[4])) { out.push(x[1] + '/' + x[2] + ':値が変わっているので触らない'); return; }
+      cell.setValue(String(x[3] || '')); SpreadsheetApp.flush(); log.getRange(k + 2, 8).setValue('取消: P26_7で戻した ' + new Date().toISOString()); out.push(x[1] + '/' + x[2] + ':戻した'); });
+    var res = { status: 'OK', mode: mode, result: out }; Logger.log('P26_7_戻す ' + JSON.stringify(res)); return res;
+  } finally { lock.releaseLock(); }
+}
 // 途中で止まった PENDING 行の後始末（書き先のセルを見て、URLが入っていれば OK、空欄なら取消、別の値なら停止）
 function P26_8_未完了の確認(mode) {
   mode = mode || 'COPY'; var T = P26_TARGETS_[mode], copy = p26Copy_(), log = p26LogSheet_(copy, T.log), rows = p26LogRows_(log), target = mode === 'V2' ? SpreadsheetApp.openById(P26_V2_ID_) : copy;

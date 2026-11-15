@@ -79,3 +79,11 @@ test('P26: 配信先の番組名の呼び方を合わせて照合に渡す（一
   vm.runInContext("PropertiesService.getScriptProperties().deleteProperty('P26_STATE'); p26Copy_().getSheetByName(P26_RESULT_).clearContents()", e.g);
   vm.runInContext('P26_1_照合_READ_ONLY()', e.g); assert.ok(seen.length > 0); assert.ok(seen.every((x) => x === 'MEDIA TALK メディアトーク'));
 });
+
+test('P26: 戻す（P26_7）は自分が書いた値のときだけ空欄へ戻し、上限の枠も空く。本番V2は承認前0件', () => {
+  const e = many(); vm.runInContext('P26_2_COPY反映_少数()', e.g);
+  const cp = e.books[COPY]['V2・統合台帳'].st.rows; cp[2][7] = 'https://open.spotify.com/episode/HUMAN';   // 人が後から直した値
+  const r = vm.runInContext('P26_7_戻す()', e.g); assert.equal(r.result.filter((x) => /戻した/.test(x)).length, 2); assert.ok(r.result.some((x) => /触らない/.test(x)));
+  assert.equal(cp[1][7], ''); assert.equal(cp[2][7], 'https://open.spotify.com/episode/HUMAN');
+  assert.equal(vm.runInContext("P26_7_戻す('V2')", e.g).status, 'V2_WRITE_NOT_APPROVED'); assert.equal(vm.runInContext('P26_5_V2反映_承認後()', e.g).status, 'V2_WRITE_NOT_APPROVED');
+});
