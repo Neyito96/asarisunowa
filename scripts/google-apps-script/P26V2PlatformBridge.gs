@@ -83,7 +83,8 @@ function P26_2_COPY反映_少数() {
 // 再実行の確認: COPY の台帳コピーに対して計画をもう一度立て、書いた枠が「既に同じURL」になって対象から外れること・他のセルが変わっていないことを見る（書かない）
 function P26_3_再実行確認() {
   var copy = p26Copy_(), led = p26Read_(copy, P26_LEDGER_).v, cand = p26Read_(SpreadsheetApp.openById(P26_V1_ID_), P26_CAND_).v, plan = p26Plan_(led, cand);
-  var log = copy.getSheetByName(P26_LOG_), written = log && log.getLastRow() > 1 ? log.getRange(2, 1, log.getLastRow() - 1, 7).getValues() : [];
+  var log = copy.getSheetByName(P26_LOG_), written = (log && log.getLastRow() > 1 ? log.getRange(2, 1, log.getLastRow() - 1, 8).getValues() : []).filter(function (w) { return !String(w[7] || '').trim(); });   // 取消した行は除く
   var still = written.filter(function (w) { return plan.some(function (p) { return p.ep === w[1] && p.service === w[2]; }); });
-  var res = { status: still.length ? 'NG_STILL_PLANNED' : 'OK', writtenSlots: written.length, replannedForWrittenSlots: still.length, planNow: plan.length }; Logger.log('P26_3_再実行確認 ' + JSON.stringify(res)); return res;
+  var unchanged = written.filter(function (w) { var rn = -1; led.forEach(function (x, i) { if (i && String(x[led[0].indexOf('EP-ID')]).trim() === w[1]) rn = i; }); return rn > 0 && String(led[rn][led[0].indexOf(w[2])]) === String(w[4]); }).length;
+  var res = { status: still.length || unchanged !== written.length ? 'NG' : 'OK', writtenSlots: written.length, stillEqualInCopy: unchanged, replannedForWrittenSlots: still.length, planNow: plan.length }; Logger.log('P26_3_再実行確認 ' + JSON.stringify(res)); return res;
 }
