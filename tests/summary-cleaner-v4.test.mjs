@@ -457,3 +457,18 @@ test('品質監査QA-2: V2正本に索引が無ければCOPY試験索引を読�
   assert.equal(JSON.stringify(e.books[V2W].sheets), snap);
   const t = e.run('QA9_結果確認'); assert.equal(t.indexSource.used, 'COPY試験索引（V2正本の索引は未作成）');
 });
+
+test('SC4-13: 本文欠損の3原因（見出しに付いた空リンクURL・本文中の「ディスコード」・末尾のお便り募集）で本文を消さない。宣伝は従来どおり消す', async () => {
+  const C = await import('../scripts/ledger-v2/summary-cleaner-v4.mjs');
+  const glued = C.cleanV4('<p>【イベントのお知らせ】<br>会場で会いましょう。<br>https://example.com/ev</p><p><a href="https://example.com/x"></a>【番組内容】<br>家族のことを話しました。</p>');
+  assert.match(glued.text, /家族のことを話しました/); assert.ok(!/会場で会いましょう/.test(glued.text));
+  const disc = C.cleanV4('<p>（20分）音声SNSの拡大が続き、ディスコードなどのサービスに若い世代が集まっています。その背景を記者に聞きました。</p><p>※「報談」専用のdiscordもぜひどうぞ</p>');
+  assert.match(disc.text, /ディスコードなどのサービス/); assert.ok(!/専用のdiscord/.test(disc.text));
+  const chap = C.cleanV4('<p>◆コミュニティはXからDiscordへ（33:01）<br>◆まとめ(40:00)</p>');
+  assert.match(chap.text, /Discordへ（33:01）/);
+  const tail = C.cleanV4('<p>悩みを抱えるリスナーさんたちの相談に、出演者みんなで答えてみました。あなたもぜひ、お便りを送ってください！</p>');
+  assert.match(tail.text, /答えてみました。$/); assert.ok(!/お便り/.test(tail.text));
+  assert.match(C.cleanV4('<p>チャンネル登録者は20万人を超え、全国から食材が届くそうです。</p>').text, /チャンネル登録者は20万人/);
+  assert.equal(C.cleanV4('<p>チャンネル登録をお願いします</p>').text, '');
+  assert.match(C.CLEANER_VERSION, /^SC4-13/);
+});

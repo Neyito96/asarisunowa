@@ -24,7 +24,7 @@ export const STAR_NOTICE = /^[★☆].*(?:読み放題|月額|円で|初回限�
 // 見出しの後に文が続く告知（【秋トクキャンペーン …】本文…）
 export const INLINE_NOTICE_HEAD = /^【[^】]*(?:キャンペーン|イベント|祝|募集|プレゼント|お知らせ|告知|チケット|参加者)[^】]*】/;
 
-export const AUDIT_VERSION = 'SQA-10';   // SQA-9 は所在不明の版（2026-11-12）と衝突させないため欠番
+export const AUDIT_VERSION = 'SQA-11';   // SQA-11: 出演者欄へ移った行・矢印行を過剰削除と数えない／【公式サイト】【ツイッター】【ご意見・ご感想】は告知の節（2026-11-15）。SQA-10 まで:   // SQA-9 は所在不明の版（2026-11-12）と衝突させないため欠番
 // 清掃状態（処理済みと品質確認済みを分離）。品質確認済は人の目視確認と記録があるときだけ付く。自動検査の合格は「自動検査合格・目視未確認」。
 export const QUALITY_STATES = Object.freeze(['未処理', '自動処理済・未検証', '自動検査合格・目視未確認', '品質確認済', '要確認', '不合格']);
 export const QUALITY_LOG_HEADERS = Object.freeze(['EP-ID', '公式GUID', '概要原文SHA256', '検査対象', '清掃版', '監査版', '判定', '誤り分類', '検証方法', '検証者', '検証日時', '理由']);
@@ -34,7 +34,7 @@ const URL_RE = /https?:\/\/[^\s<>「」『』（）()"'、]+/g;
 const ARTICLE_RE = /^https?:\/\/(?:www\.asahi\.com\/(?:articles|[a-z]+\/articles)\/|digital\.asahi\.com\/articles\/|withnews\.jp\/article\/|globe\.asahi\.com\/article\/|book\.asahi\.com\/article\/|www\.asahi\.com\/special\/(?!podcasts))/;
 // 消してよいと監査側が確信できる定型だけ。迷うものは入れない。
 const DROP_LINE = /過去(?:の)?回は(?:下記|こちら)|読み放題|スタンダードコース|初回限定|初月無料|月額\s*[\d０-９,，]+円|^See .*omnystudio\.com\/listener|Learn more about your ad choices|会員登録をお願い|購読料で配信|交流はdiscord|^ご意見・感想・リクエスト|おたよりフォーム|^メルマガ|広告ご検討の企業様|^番組検索ツール|^最新情報はX|^番組カレンダー|全話あります公式サイト|アプリで記者と対話|^朝ポキTV|ほかにも(?:多彩な)?番組を配信中|^★?ご感想はこちら|discord|をフォロー|フォロー[、,]?\s*お願い|お待ちしています|申し込みはこちら|申込はこちら/i;
-const DROP_SECTION = /^【(?:おねがい|朝ポキ情報|お知らせ|イベント)|^【[^】]*(?:参加|フェス|募集|告知|プレゼント|チケット|キャンペーン|イベント)[^】]*】\s*$/;
+const DROP_SECTION = /^【(?:おねがい|朝ポキ情報|お知らせ|イベント|公式サイト】|ツイッター】|ご意見・ご感想】|ご意見ご感想】|ご感想】)|^【[^】]*(?:参加|フェス|募集|告知|プレゼント|チケット|キャンペーン|イベント)[^】]*】\s*$/;
 const STAFF_SECTION = /^【(?:出演[・／/]スタッフ|出演者|スタッフ|出演)】/;
 const RELATED_SECTION = /^【(?:関連記事|関連リンク|写真まとめ|特集ページ|まとめてわかる)|^【[^】]*(?:関連|参考|アーカイブ)[^】]*】\s*$/;
 const AMBIG_LINE = /^[★※▼■◆]|募集|お寄せください|応募|申し込み|配信します|収録しました|プレゼント|イベント|フォロー/;
@@ -84,8 +84,12 @@ export function auditPair(raw, candidate, { minKeepCoverage = 0.85, partialFloor
   if (!String(raw || '').trim()) return { verdict: 'HOLD', findings: [{ type: 'RAW_EMPTY' }], stats: {} };
   const keep = lines.filter((l) => l.expect === 'KEEP');
   if (keep.length && !desc.trim()) add('EMPTY_OUTPUT');
+  // 2026-11-15 QA9: 本文から消えても「出演者欄へ移った名前の行」「矢印だけの行」は過剰削除と数えない（241件中229件がこの誤検知だった）
+  const castNames = (Array.isArray(candidate?.cast) ? candidate.cast.map((x) => (typeof x === 'string' ? x : [x.role, x.name, x.note, x.raw].join(' '))) : String(candidate?.cast || '').split(/\n/)).join(' ');
+  const movedToCast = (t) => { const nm = t.replace(URL_RE, '').replace(/[（(][^）)]*[）)]/g, '').replace(/^(?:MC・音源編集|MC|音源編集|司会|出演|ゲスト|聞き手)[\s　:：・]*/, '').trim(); return N(nm).length >= 2 && N(castNames).includes(N(nm)); };
   for (const l of keep) {
     const c = coverage(l.text, desc);
+    if (c < partialFloor && (/^[↓→▽▼\s]+$/.test(l.text) || /投票(?:を)?お願い|投票してください/.test(l.text) || movedToCast(l.text))) continue;
     if (c < partialFloor) add('OVER_DELETION', { line: l.i, len: l.len }); else if (c < minKeepCoverage) add('PARTIAL_DELETION', { line: l.i, len: l.len, coverage: +c.toFixed(2) });
     else for (const m of l.text.replace(URL_RE, '').matchAll(PROPER)) if (!N(desc).includes(N(m[0])) && N(m[0])) { add('LOST_PROPER_NOUN', { line: l.i, len: m[0].length }); break; }
   }
