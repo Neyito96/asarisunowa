@@ -31,7 +31,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#ふな 冨名腰隆　旧【報談】",
     "ふね",
     "https://open.spotify.com/playlist/48tpuTjiqGdJrvkX8R1OkI",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e",
     "2025-07-11",
     null,
     true
@@ -58,7 +58,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "東日本大震災",
     "cobaltore12",
     "https://open.spotify.com/playlist/4nptiHJbbsjKS37kykLkNF",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694",
     null,
     null,
     false
@@ -355,7 +355,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "子供への性暴力　大久保真紀",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/0qTp4leNc1yThyoPCMoRBi",
-    "https://mosaic.scdn.co/300/ab67656300005f1f21ec2856d7e2affbe49bab65ab67656300005f1f5121257e7907349907b5cabbab67656300005f1f9bd2f8d1012cb8190a6fdea1ab67656300005f1ffdb916667b3f3c5b79f2467f",
+    "https://mosaic.scdn.co/640/ab67656300005f1f21ec2856d7e2affbe49bab65ab67656300005f1f5121257e7907349907b5cabbab67656300005f1f9bd2f8d1012cb8190a6fdea1ab67656300005f1ffdb916667b3f3c5b79f2467f",
     null,
     null,
     false
@@ -382,7 +382,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "「SDGsを話そう」厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/4styp7b6VpZThsevXCRDla",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84a1ed8e9ca1ad0f9a7c2b7b07",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84a1ed8e9ca1ad0f9a7c2b7b07",
     null,
     null,
     false
@@ -391,7 +391,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "ポキ-1グランプリ 2023",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/5xUDKa3r5arvKSx4gqjwI3",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9",
     null,
     null,
     false
@@ -463,7 +463,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#懐メロ（#朝ポキ 楽屋裏）＋おじさんのメロディ",
     "koike",
     "https://open.spotify.com/playlist/0vItsmD8tW7fsv18NkZKzh",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600",
     null,
     null,
     false
@@ -526,7 +526,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#初登場特集（#朝ポキ）",
     "koike",
     "https://open.spotify.com/playlist/3WLp56ohdZs2AqDoUwNNWd",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef",
     null,
     null,
     false
@@ -616,7 +616,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "中南米",
     "マリオ",
     "https://open.spotify.com/playlist/2Org6cCBgVas4d9OwzzxAv",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37",
     "2026-09-08",
     "2026-09-18",
     true
