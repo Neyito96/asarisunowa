@@ -36,3 +36,13 @@ test('P26: 書き先はCOPYに固定・トリガーを作らない・旧P18/P19�
   assert.ok(!/newTrigger|deleteTrigger|P18_process_|P19_scan_|writeRow|P18_URL_ENABLED/.test(SRC));
   assert.match(SRC, /P26_TARGET_NOT_COPY/);
 });
+
+test('P26: 書込の上限は予行全体で3件（2回目以降は CAP_REACHED で0件）', () => {
+  const urls = ['https://open.spotify.com/episode/OK1', 'https://open.spotify.com/episode/OK2', 'https://open.spotify.com/episode/OK3', 'https://open.spotify.com/episode/OK4'];
+  const e = env({ verified: urls }); const cand = e.books[V1].P15_PLATFORM_CANDIDATES.st.rows, v2 = e.books[V2]['V2・統合台帳'].st.rows, cp = e.books[COPY]['V2・統合台帳'].st.rows;
+  ['題D', '題E', '題F'].forEach((t, i) => { v2.push(row('EP-' + (6 + i), t, 'g' + (6 + i))); cp.push(row('EP-' + (6 + i), t, 'g' + (6 + i))); cand.push(['ニュースの現場から', 'Spotify', t, urls[1 + Math.min(i, 2)].replace('OK', 'OK' + i), '']); });
+  e.g.P15_PLATFORMS.resolve = (src, o) => { const r = o.references[0]; return { links: { 12: r.url }, results: [{ service: r.service, state: 'VERIFIED', method: 'GUID_TITLE_DATE', url: r.url }] }; };
+  vm.runInContext('P26_1_照合_READ_ONLY()', e.g);
+  assert.equal(vm.runInContext('P26_2_COPY反映_少数()', e.g).wrote.length, 3);
+  const w2 = vm.runInContext('P26_2_COPY反映_少数()', e.g); assert.equal(w2.status, 'CAP_REACHED'); assert.equal(w2.wrote.length, 0);
+});

@@ -12,7 +12,7 @@ var P26_SERVICES_ = { 'Spotify': 'Spotify', 'Apple Podcasts': 'Apple', 'Apple': 
 var P26_RESOLVE_NAME_ = { 'Spotify': 'Spotify', 'Apple': 'Apple Podcasts', 'Amazon': 'Amazon Music', 'Pocket Casts': 'Pocket Casts', 'LISTEN': 'LISTEN', 'Pody': 'Pody' };
 var P26_RESULT_H_ = ['EP-ID', '番組', 'タイトル', 'サービス', '候補URL', 'V2の現在値', '判定', '確認根拠', '確認日時'];
 var P26_LOG_H_ = ['日時', 'EP-ID', 'サービス', '変更前', '変更後', '確認根拠', '読み戻し'];
-var P26_STATE_ = 'P26_STATE', P26_MAX_WRITES_ = 3;
+var P26_STATE_ = 'P26_STATE', P26_MAX_WRITES_ = 3;   // 予行全体の上限（2026-11-15 修正: 1回ごとではなく合計）
 
 function p26Nz_(s) { return String(s == null ? '' : s).normalize('NFKC').replace(/\s+/g, ''); }
 function p26Utc_(s) { if (Object.prototype.toString.call(s) === '[object Date]') return isNaN(s.getTime()) ? '' : s.toISOString(); var d; try { d = Utilities.parseDate(String(s || '').trim(), 'Asia/Tokyo', 'yyyy/M/d H:mm'); } catch (e) { return ''; } return d && !isNaN(d.getTime()) ? d.toISOString() : ''; }
@@ -64,10 +64,12 @@ function P26_2_COPY反映_少数() {
   try {
     var copy = p26Copy_(), r = p26Read_(copy, P26_RESULT_).v, led = p26Read_(copy, P26_LEDGER_), c = p26Cols_(led.v[0], P26_NEED_), log = copy.getSheetByName(P26_LOG_) || copy.insertSheet(P26_LOG_);
     if (log.getLastRow() === 0) log.getRange(1, 1, 1, P26_LOG_H_.length).setValues([P26_LOG_H_]);
-    var done = {}; if (log.getLastRow() > 1) log.getRange(2, 1, log.getLastRow() - 1, 3).getValues().forEach(function (x) { done[x[1] + '/' + x[2]] = 1; });
+    // 上限は「予行全体で3件」（1回ごとではない）。取消した行（H列に記録）は上限に数えないが、同じ枠には書き直さない
+    var done = {}, used = 0; if (log.getLastRow() > 1) log.getRange(2, 1, log.getLastRow() - 1, 8).getValues().forEach(function (x) { done[x[1] + '/' + x[2]] = 1; if (!String(x[7] || '').trim()) used++; });
+    if (used >= P26_MAX_WRITES_) { var cap = { status: 'CAP_REACHED', wrote: [], used: used, max: P26_MAX_WRITES_ }; Logger.log('P26_2_COPY反映_少数 ' + JSON.stringify(cap)); return cap; }
     var rowOf = {}; led.v.forEach(function (x, i) { if (i) rowOf[String(x[c['EP-ID']]).trim()] = i + 1; });
     var wrote = [], skipped = [];
-    for (var i = 1; i < r.length && wrote.length < P26_MAX_WRITES_; i++) {
+    for (var i = 1; i < r.length && used + wrote.length < P26_MAX_WRITES_; i++) {
       var ep = r[i][0], service = r[i][3], url = r[i][4]; if (r[i][6] !== 'VERIFIED' || done[ep + '/' + service]) continue;
       var rn = rowOf[ep]; if (!rn) { skipped.push(ep + ':COPYに行なし'); continue; }
       var cell = led.sh.getRange(rn, c[service] + 1), before = String(cell.getValue() || '').trim();
