@@ -2,9 +2,9 @@
 // 原則: 原文は変えない。原文だけを基準に、本文・出演者（リンク付き）・関連記事（見出し＋URLのペア）を分ける。
 // 迷うもの（見出しなし記事URL・非記事リンク・本文の大幅減少・監査で重大所見）は 要確認。品質確認済は人だけが付ける。
 import { descriptionLines, DESCRIPTION_VERSION } from '../../public/library/description-editor.mjs';
-import { auditPair, AUDIT_VERSION, cleanUrl, paraLines, STAR_NOTICE, INLINE_NOTICE_HEAD, decodeNamedEntities } from './summary-quality-audit.mjs';
+import { auditPair, accountLines, AUDIT_VERSION, cleanUrl, paraLines, STAR_NOTICE, INLINE_NOTICE_HEAD, decodeNamedEntities } from './summary-quality-audit.mjs';
 
-export const CLEANER_VERSION = 'SC4-13(' + DESCRIPTION_VERSION + ')';   // SC4-13: 空リンクのURLと見出しの連結を分ける・本文中の「ディスコード」「チャンネル登録者」等を宣伝扱いしない・長い本文の末尾の「お便りを送ってください」は文だけ落とす（2026-11-15 QA9）   // SC4-10 は所在不明の版（2026-11-12）と衝突させないため欠番
+export const CLEANER_VERSION = 'SC4-14(' + DESCRIPTION_VERSION + ')';   // SC4-14: 宣伝の行に付いた収録日の一文を残す。SC4-13: 空リンクのURLと見出しの連結を分ける・本文中の「ディスコード」「チャンネル登録者」等を宣伝扱いしない・長い本文の末尾の「お便りを送ってください」は文だけ落とす（2026-11-15 QA9）   // SC4-10 は所在不明の版（2026-11-12）と衝突させないため欠番
 const T = (v) => String(v ?? '').trim();
 const NZ = (t) => String(t ?? '').normalize('NFKC').replace(/\s+/g, '');
 const URL_RE = /https?:\/\/[^\s<>「」『』（）()"'、]+/g;
@@ -23,6 +23,7 @@ const PROMO = /読み放題|スタンダードコース|初回限定|初月無�
 // 章立ての行と、案内の言い回しを含まない長い説明文は残す（EP-04043・EP-04948）。
 const SOFT_PROMO = /discord|ディスコード|お待ちしています/i, CHAPTER_LINE = /^[◆◇■・▶︎▶]?.{1,80}[(（]\d{1,2}:\d{2}(?::\d{2})?[)）]\s*$/, INVITE_WORDS = /参加|登録|こちら|コチラ|どうぞ|招待|開設|投稿|紹介中|共有中|ぜひ|↓|開催|できました|へ$/;
 const isPromo = (l) => PROMO.test(l) || (SOFT_PROMO.test(l) && !CHAPTER_LINE.test(l) && !(stripUrlsLite(l).length >= 40 && !INVITE_WORDS.test(l)));
+const RECORD_NOTE = /(?:この|今回の)?(?:番組|回|エピソード|音声)は[^。<]{0,20}?(?:\d{4}年)?\d{1,2}月\d{1,2}日[^。<]{0,20}?収録(?:しました|しています|です|されました)?[。．]?/g;
 const TAIL_ASK = /\s*(?:あなたも)?ぜひ[、,]?\s*お便りを(?:送って|お寄せ)[^。！!]*[。！!]?\s*$|\s*お便りを(?:お待ち|お寄せ|募集|送って|どうぞ)[^。！!]*[。！!]?\s*$/;
 const stripUrlsLite = (t) => String(t).replace(/https?:\/\/\S+/g, '').trim();
 // 原文で確認した独立した案内行だけ。本文中のフォーム・キャンペーン報道には適用しない。
@@ -133,6 +134,10 @@ export function cleanV4(raw) {
     if (cast.length) { const gone = new Set(cast.map((c) => NZ(stripUrls(c.raw)))); for (let i = notes.length - 1; i >= 0; i--) if (gone.has(NZ(notes[i]))) notes.splice(i, 1); for (let i = body.length - 1; i >= 0; i--) if (gone.has(NZ(body[i]))) body.splice(i, 1); }
   }
   // 閉じていない見出し行（関連節で回収されなかった見出し）が本文末尾に残らないよう、関連節由来の行は本文から外さない＝そのまま（要確認で拾う）
+  // SC4-14: 収録日の一文（「この番組は2021年10月1日に収録しました。」）は宣伝の行の末尾にくっついていることが多い（約900話）。
+  // 行ごと宣伝として落ちても、原文にあるこの一文だけは本文の最後に残す（原文にある文だけ。作らない）
+  { const plainSrc = src.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' '), have = NZ(body.join(''));
+    (plainSrc.match(RECORD_NOTE) || []).map((x) => T(x)).filter((x, i, a) => x && a.indexOf(x) === i && !have.includes(NZ(x))).forEach((x) => { body.push(x); removed.push({ reason: 'RECORD_NOTE_KEPT' }); }); }
   const text = body.join('\n').replace(/(?:※\s*)?(?:「[^」]{1,20}」の)?過去(?:の)?回は(?:下記|こちら)(?:から)?[^。\n]*[。．]?/g, '').split('\n').filter((x) => T(x)).join('\n').replace(/\s*(?:ご意見・感想・リクエスト|ほかにも(?:多彩な)?番組を配信中|Learn more about your ad choices)[\s\S]*$/i, '').replace(/[ 　]{2,}/g, ' ').trim();
   if (!text) holds.push('CONTENT_EMPTY');
   follow.forEach((c) => { if (PLATFORM_NAME.test(T(c.name))) { socials.push(...c.links); removed.push({ reason: 'PLATFORM_LINK' }); return; } if (!cast.some((x) => NZ(x.name) === NZ(c.name))) cast.push(c); });
@@ -178,11 +183,12 @@ export function judgeEpisode(raw, existing = {}, sha256) {
   if (!String(raw ?? '').trim()) return { verdict: 'HOLD', reason: 'RAW_EMPTY', clean: c, findings: [], compare: '', writable: {}, manual: [] };
   const a = auditPair(raw, { description: c.text, cast: c.cast.map((x) => [x.role, x.name, x.note].join(' ')), related: c.related.map((r) => ({ url: r.url, title: r.title })) });
   findings.push(...a.findings.map((f) => f.type));
+  const acc = accountLines(raw, { description: c.text }); if (acc.保留) findings.push('UNACCOUNTED_LINE');   // 行き先を判断できない原文行がある回は自動合格にしない
   const ex = { summary: T(existing.summary), cast: T(existing.cast), related: T(existing.related) }, nw = { summary: c.text, cast: castCell(c.cast), related: relatedCell(c.related) };
   const same = (k) => NZ(ex[k]) === NZ(nw[k]) || (k === 'related' && ex[k] && NZ(ex[k].split(/\s+/).map(cleanUrl).join(' ')) === NZ(nw[k]));
   const manual = ['summary', 'cast', 'related'].filter((k) => ex[k] && !same(k) && !derivedFromRaw(ex[k], raw));
   const severe = a.verdict === '不合格' || c.holds.includes('CONTENT_EMPTY');
-  let verdict = severe ? '不合格' : (c.holds.length || a.verdict === '要確認') ? '要確認' : '自動検査合格・目視未確認';
+  let verdict = severe ? '不合格' : (c.holds.length || a.verdict === '要確認' || acc.保留) ? '要確認' : '自動検査合格・目視未確認';
   const cmp = !ex.summary ? '旧空欄' : same('summary') ? '同一' : '差分あり';
   const writable = {};
   ['summary', 'cast', 'related'].forEach((k) => { writable[k] = !manual.includes(k) && !same(k) && (k === 'summary' ? !!nw.summary : !!nw[k]); });   // 新しい値が空の列は書かない（既存を消さない）
@@ -190,5 +196,5 @@ export function judgeEpisode(raw, existing = {}, sha256) {
   if (manual.length) { findings.push('MANUAL_EDIT_PROTECTED:' + manual.join('+')); if (verdict === '自動検査合格・目視未確認' && (manual.includes('summary') || !writable.summary)) verdict = '要確認'; }
   if (ex.cast && !c.cast.length) findings.push('CAST_NOT_IN_RAW');   // 既存の出演者が原文に無い（既定値の疑い）。消さずに記録
   if (verdict === '不合格') ['summary', 'cast', 'related'].forEach((k) => { writable[k] = false; });
-  return { verdict, reason: [...new Set([...c.holds, ...findings])].join(','), clean: c, findings, compare: cmp, writable, manual, rawSha: sha256 ? sha256(String(raw)) : '', auditVersion: AUDIT_VERSION };
+  return { verdict, reason: [...new Set([...c.holds, ...findings])].join(','), clean: c, findings, compare: cmp, writable, manual, lines: { 保持: acc.保持, 移動: acc.移動, 除外: acc.除外, 保留: acc.保留 }, rawSha: sha256 ? sha256(String(raw)) : '', auditVersion: AUDIT_VERSION };
 }

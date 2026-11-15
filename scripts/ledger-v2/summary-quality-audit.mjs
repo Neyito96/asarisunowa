@@ -163,3 +163,19 @@ export function stratifiedSample(pairs, k = 2) {
   const by = new Map(); for (const p of pairs) { const s = stratum(p.item), key = [s.show, s.host, s.len, s.age].join('/'); if (!by.has(key)) by.set(key, []); by.get(key).push(p.epId); }
   return [...by.entries()].sort().map(([key, ids]) => ({ stratum: key, epIds: ids.sort().slice(0, k) }));
 }
+
+// 原文の各行の行き先（2026-11-15 司令塔「分類不能な原文行を黙って削除しない」）。
+// 保持＝本文に残る／移動＝出演者欄・関連記事欄へ／除外＝規則で落とす（告知の節・URLだけ・見出しだけ）／保留＝判断できない（AMBIGUOUS、または本文の行なのに清掃後に見当たらない）。
+// 保留が1行でもある回は、判定が「自動検査合格」にならない（auditPair の OVER_DELETION＝不合格、AMBIGUOUS＝要確認）。
+export function accountLines(raw, candidate = {}) {
+  const lines = classifyRawLines(raw), desc = String(candidate.description || ''), out = { 保持: 0, 移動: 0, 除外: 0, 保留: 0, rows: [] };
+  for (const l of lines) {
+    let to;
+    if (l.expect === 'STAFF' || l.expect === 'RELATED') to = '移動';
+    else if (l.expect === 'DROP') to = coverage(l.text, desc) >= 0.9 ? '保持' : '除外';
+    else if (l.expect === 'AMBIGUOUS') to = coverage(l.text, desc) >= 0.9 ? '保持' : '保留';
+    else to = coverage(l.text, desc) >= 0.6 ? '保持' : '保留';
+    out[to]++; out.rows.push({ i: l.i, to, why: l.expect + (l.section ? '/' + l.section : '') });
+  }
+  return out;
+}

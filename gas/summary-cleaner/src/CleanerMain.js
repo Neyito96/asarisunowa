@@ -137,7 +137,7 @@ function scProgress_(ss, cur, H, s) {
 }
 
 // 反映（共通）: 結果シートの「新・…」を台帳に書く。条件: 書換可・判定が許可範囲・台帳の現在値が監査時の旧値と同じ（変わっていたら人の編集とみなし書かない）・EP-IDとGUIDが一致
-function scApply_(targetId, nameIncludes, level, label, maxEpisodes, resName, onlyEps) {
+function scApply_(targetId, nameIncludes, level, label, maxEpisodes, resName, onlyEps, dryRun) {
   var t0 = Date.now(), lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return { status: 'LOCKED' };
   try {
     var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), res = scSheet_(c.ss, resName || SC_RESULT_, SC_HEADERS_), hist = scSheet_(c.ss, SC_HISTORY_, SC_HIST_HEADERS_);
@@ -148,7 +148,7 @@ function scApply_(targetId, nameIncludes, level, label, maxEpisodes, resName, on
     var last = {}; if (hist.getLastRow() > 1) hist.getRange(2, 1, hist.getLastRow() - 1, SC_HIST_HEADERS_.length).getDisplayValues().forEach(function (h) { if (/^OK/.test(h[7])) last[h[2] + '\u0001' + h[3] + '\u0001' + h[4]] = h[6]; else if (h[7] === 'UNDO') delete last[h[2] + '\u0001' + h[3] + '\u0001' + h[4]]; });   // このロボが最後に書いた値（人の編集と区別する）
     var recovered = [], epCount = 0, applyId = new Date().toISOString() + '/' + label, now = new Date().toISOString(), writes = [], skip = {}, sk = function (w) { skip[w] = (skip[w] || 0) + 1; };
     cur.forEach(function (r, ri) {
-      if (writes.length >= SC_CONFIG.applyMaxPerRun || (maxEpisodes && epCount >= maxEpisodes)) return;
+      if ((!dryRun && writes.length >= SC_CONFIG.applyMaxPerRun) || (maxEpisodes && epCount >= maxEpisodes)) return;
       var ok = String(r[H['人の確認']]).toUpperCase() === 'OK', v = r[H['判定']];
       if (!(ok || (level === 'AUTO_PASS' && v === '自動検査合格・目視未確認'))) { sk('NOT_APPROVED_LEVEL'); return; }
       if (!r[H['書換可']]) { sk('NOTHING_TO_WRITE'); return; }
@@ -166,6 +166,7 @@ function scApply_(targetId, nameIncludes, level, label, maxEpisodes, resName, on
       epCount++;
       ks.forEach(function (k) { writes.push({ ri: ri, ep: x.ep, row: x.row, col: cols[k] + 1, colName: SC_COLS_[k], oldV: String(x[k]), newV: r[H[NEW[k]]] }); });
     });
+    if (dryRun) return { status: 'DRYRUN', target: label, level: level, cellsPlanned: writes.length, episodes: Object.keys(writes.reduce(function (a, w) { a[w.ep] = 1; return a; }, {})).length, byColumn: writes.reduce(function (a, w) { a[w.colName] = (a[w.colName] || 0) + 1; return a; }, {}), skipped: skip, writes: writes.map(function (w) { return { ep: w.ep, col: w.colName, oldV: w.oldV, newV: String(w.newV) }; }), ms: Date.now() - t0 };   // 予行: 何も書かない
     var histRows = [], bad = 0, byCol = {};
     var pend = writes.map(function (w) { return [now, applyId, label, w.ep, w.colName, w.oldV, w.newV, '書込中']; }).concat(recovered), hStart = hist.getLastRow() + 1;
     if (pend.length) { var pr = hist.getRange(hStart, 1, pend.length, SC_HIST_HEADERS_.length); pr.setNumberFormat('@'); pr.setValues(pend); SpreadsheetApp.flush(); PropertiesService.getScriptProperties().setProperty('SC_LAST_APPLY', applyId); }   // 先に履歴（旧値）を残してから書く＝途中で止まっても取消できる
@@ -1209,4 +1210,52 @@ function QA9_結果確認() {
   var si = qaIndexSource_(o).info; out.indexSource = si; Object.keys(si).forEach(function (k) { tot.push(['related', '索引の出どころ', k, String(si[k])]); }); tot.push(['all', '監査', '集計日時', new Date().toISOString()]);
   laWriteSheet_(o.c.ss, QA_SHEETS_.total, ['領域', '区分', '値', '件数'], tot);
   return scLog_('QA9_結果確認', qaWhere_(o, out));
+}
+
+
+// ===== 概要欄 統合整備（2026-11-15 司令塔「概要欄清掃GAS 統合整備指令」）=====
+// 既存の部品をそのまま使う: 監査 QA2・判定 S2・COPY反映 S3B・V2反映 S4（scApply_）・取消 S9・新着 D2（S6A/S6B）。
+// 原文（V2・収蔵詳細の概要原文＋SHA256）は読むだけ。V2台帳へ書くのは 概要欄_4 だけで、当日の承認（概要欄_0）が無ければ0件。
+var SUM_PLAN_SHEET_ = '概要欄・反映予定', SUM_APPROVE_KEY_ = 'APPROVE_SUMMARY_V2';
+function sumToday_() { return Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd'); }
+// 1) 現状監査（読むだけ。結果は COPY「監査・品質_概要」→ 概要欄_1 を DONE まで押す）
+function 概要欄_1_現状監査() { var P = PropertiesService.getScriptProperties(); return P.getProperty(QA_STATE_KEY_) ? QA8_中断位置から再開() : QA2_概要欄監査(); }
+// 2) COPY全件試験: 判定（S2、途中なら続きから）→ 判定が全件済んだら COPY の台帳コピーへ反映（S3B）
+function 概要欄_2_COPY全件試験() {
+  var s2 = S2_清掃監査(); if (!s2.done) return scLog_('概要欄_2_COPY全件試験', { status: 'PARTIAL_RESUME_NEEDED', step: 'S2', cursor: s2.cursor, total: s2.total, note: 'もう一度 概要欄_2 を押す' });
+  var s3 = scApply_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes, 'AUTO_PASS', 'COPY', 0);
+  return scLog_('概要欄_2_COPY全件試験', { status: s3.status, s2: { verdicts: s2.verdicts, writable: s2.writable }, copyCellsWritten: s3.cellsWritten, copyEpisodes: s3.episodes, skipped: s3.skipped });
+}
+// 3) 差分検証（読むだけ）: 原文のハッシュ全件照合・V2へ書く予定（予行）・保護対象が予定に入っていないこと
+function 概要欄_3_差分検証() {
+  var v = scOpen_(SC_CONFIG.v2WorkingId, ''), ds = v.ss.getSheetByName(P25V2_DETAIL_SHEET_), rawBad = [], rawEmpty = 0, rawRows = 0;
+  if (ds && ds.getLastRow() > 1) { var dv = ds.getDataRange().getValues(), h = dv[0], e = h.indexOf('EP-ID'), t = h.indexOf('概要原文'), sh = h.indexOf('概要原文SHA256');
+    dv.slice(1).forEach(function (x) { rawRows++; var raw = String(x[t] || ''); if (!raw) { rawEmpty++; return; } if (p25v2GasSha256_(raw) !== String(x[sh])) rawBad.push(x[e]); }); }
+  var plan = scApply_(SC_CONFIG.v2WorkingId, '', SC_CONFIG.v2ApplyLevel, 'V2作業用', 0, null, scV2NotPassedScope_(), true);
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), res = c.ss.getSheetByName(SC_RESULT_), H = {}; SC_HEADERS_.forEach(function (n, i) { H[n] = i; });
+  var why = {}; if (res && res.getLastRow() > 1) res.getRange(2, 1, res.getLastRow() - 1, SC_HEADERS_.length).getDisplayValues().forEach(function (r) { why[r[H['EP-ID']]] = r[H['理由']] + ' ' + r[H['判定']]; });
+  var bad = (plan.writes || []).filter(function (w) { return /MANUAL_EDIT_PROTECTED:[^,]*summary|UNACCOUNTED_LINE|不合格|要確認/.test(why[w.ep] || '') && w.col === '概要（清掃済）'; });
+  var out = [['EP-ID', '列', '旧値（先頭80字）', '新値（先頭80字）', '判定・理由']].concat((plan.writes || []).map(function (w) { return [w.ep, w.col, w.oldV.slice(0, 80), w.newV.slice(0, 80), String(why[w.ep] || '').slice(0, 120)]; }));
+  laWriteSheet_(c.ss, SUM_PLAN_SHEET_, out[0], out.slice(1));
+  return scLog_('概要欄_3_差分検証', { status: rawBad.length || bad.length ? 'NG' : 'OK', raw: { rows: rawRows, empty: rawEmpty, shaMismatch: rawBad.length, shaMismatchEps: rawBad.slice(0, 10) }, planned: { cells: plan.cellsPlanned, episodes: plan.episodes, byColumn: plan.byColumn, skipped: plan.skipped }, protectedInPlan: bad.length, planSheet: 'COPY「' + SUM_PLAN_SHEET_ + '」' });
+}
+// 0) 承認（管理人が押す。当日だけ有効）
+function 概要欄_0_承認_V2本番反映() { PropertiesService.getScriptProperties().setProperty(SUM_APPROVE_KEY_, sumToday_()); return scLog_('概要欄_0_承認_V2本番反映', { status: 'APPROVED', validOn: sumToday_() }); }
+// 4) V2本番反映（承認当日だけ。差分検証が OK でなければ書かない）
+function 概要欄_4_V2本番反映() {
+  var P = PropertiesService.getScriptProperties(); if (P.getProperty(SUM_APPROVE_KEY_) !== sumToday_()) return scLog_('概要欄_4_V2本番反映', { status: 'NOT_APPROVED_TODAY', note: '先に 概要欄_0_承認_V2本番反映' });
+  var chk = 概要欄_3_差分検証(); if (chk.status !== 'OK') return scLog_('概要欄_4_V2本番反映', { status: 'STOP_PRECHECK_NG', precheck: chk });
+  var r = scApply_(SC_CONFIG.v2WorkingId, '', SC_CONFIG.v2ApplyLevel, 'V2作業用', 0, null, scV2NotPassedScope_());
+  if (r.status !== 'OK' || r.cellsWritten < SC_CONFIG.applyMaxPerRun) P.deleteProperty(SUM_APPROVE_KEY_); else r.note = '上限まで書いたので続きあり: もう一度 概要欄_4 を押す（承認は当日中有効）';   // 全件書き終えたら承認を使い切る
+  return scLog_('概要欄_4_V2本番反映', r);
+}
+// 5) 反映後監査（読むだけ）: 直前の反映の読み戻し・原文ハッシュ・取消可能か
+function 概要欄_5_反映後監査() {
+  var id = PropertiesService.getScriptProperties().getProperty('SC_LAST_APPLY'), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), hist = scSheet_(c.ss, SC_HISTORY_, SC_HIST_HEADERS_);
+  var rows = id && hist.getLastRow() > 1 ? hist.getRange(2, 1, hist.getLastRow() - 1, SC_HIST_HEADERS_.length).getDisplayValues().filter(function (r) { return r[1] === id; }) : [];
+  var v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = scLedger_(v.sh), byEp = {}; L.rows.forEach(function (r) { byEp[r.ep] = r; });
+  var keyOf = { '概要（清掃済）': 'summary', '出演者': 'cast', '関連記事URL': 'related' }, same = 0, diff = [];
+  rows.forEach(function (r) { var x = byEp[r[3]], k = keyOf[r[4]]; if (x && k && String(x[k]) === r[6]) same++; else diff.push(r[3] + '/' + r[4]); });
+  var chk = 概要欄_3_差分検証();
+  return scLog_('概要欄_5_反映後監査', { status: diff.length || chk.raw.shaMismatch ? 'NG' : 'OK', applyId: id || '', historyRows: rows.length, stillAsWritten: same, changedSinceWrite: diff.slice(0, 20), rawShaMismatch: chk.raw.shaMismatch, remainingPlanned: chk.planned.cells, undo: 'S9_直前の反映を取消' });
 }

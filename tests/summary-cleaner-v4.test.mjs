@@ -470,5 +470,36 @@ test('SC4-13: 本文欠損の3原因（見出しに付いた空リンクURL・�
   assert.match(tail.text, /答えてみました。$/); assert.ok(!/お便り/.test(tail.text));
   assert.match(C.cleanV4('<p>チャンネル登録者は20万人を超え、全国から食材が届くそうです。</p>').text, /チャンネル登録者は20万人/);
   assert.equal(C.cleanV4('<p>チャンネル登録をお願いします</p>').text, '');
-  assert.match(C.CLEANER_VERSION, /^SC4-13/);
+  assert.match(C.CLEANER_VERSION, /^SC4-1[3-9]/);
+});
+
+test('SC4-14: 宣伝の行に付いた収録日の一文は本文へ残す（宣伝は消す）', () => {
+  const raw = '<p>今回はAIと選挙について話しました。</p><p>朝日新聞ポッドキャストはアプリで配信、テキストでも読めます。この番組は2026年10月3日に収録しました。</p>';
+  const r = cleanV4(raw);
+  assert.match(r.text, /今回はAIと選挙/);
+  assert.match(r.text, /2026年10月3日に収録しました/);
+  assert.doesNotMatch(r.text, /テキストでも読めます/);
+});
+
+test('SC4-14: 原文の全行に「保持／移動／除外／保留」が付き、保留があれば自動合格にしない', async () => {
+  const { accountLines } = await import('../scripts/ledger-v2/summary-quality-audit.mjs');
+  const raw = '<p>今回は宇宙の話です。</p><p>出演：山田太郎（朝日新聞記者）</p><p>番組のフォローをお願いします</p>';
+  const j = judgeEpisode(raw, {});
+  const acc = accountLines(raw, j.candidate || {});
+  const sum = acc.保持 + acc.移動 + acc.除外 + acc.保留;
+  assert.ok(sum >= 3, '各行が数えられる');
+  assert.deepEqual(Object.keys(j.lines).sort(), ['保持', '保留', '移動', '除外'].sort());
+  if (j.lines.保留 > 0) assert.notEqual(j.verdict, '自動検査合格');
+});
+
+test('概要欄_ 系: 予行(dryRun)は書かない・承認は当日限り・V2書込は概要欄_4のみ', () => {
+  const src = fs.readFileSync('gas/summary-cleaner/src/CleanerMain.js', 'utf8');
+  assert.match(src, /if \(dryRun\) return \{ status: 'DRYRUN'/);
+  const dry = src.indexOf("if (dryRun) return"), firstWrite = src.indexOf('setValue', src.indexOf('function scApply_('));
+  assert.ok(dry > 0 && dry < firstWrite, '書き込みより前に予行で戻る');
+  for (const n of ['概要欄_1_現状監査', '概要欄_2_COPY全件試験', '概要欄_3_差分検証', '概要欄_0_承認_V2本番反映', '概要欄_4_V2本番反映', '概要欄_5_反映後監査']) assert.match(src, new RegExp('function ' + n + '\\('));
+  const body3 = src.slice(src.indexOf('function 概要欄_3_差分検証'), src.indexOf('function 概要欄_0_'));
+  assert.match(body3, /, true\);/, '差分検証は予行');
+  const body4 = src.slice(src.indexOf('function 概要欄_4_V2本番反映'), src.indexOf('function 概要欄_5_'));
+  assert.match(body4, /NOT_APPROVED_TODAY/); assert.match(body4, /STOP_PRECHECK_NG/); assert.match(body4, /deleteProperty\(SUM_APPROVE_KEY_\)/);
 });
