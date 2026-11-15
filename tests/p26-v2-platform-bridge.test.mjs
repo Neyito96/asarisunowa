@@ -72,3 +72,10 @@ test('P26上限: 本番V2への書込は承認の印（コード上のフラグ�
   const e = many(); const v2 = JSON.stringify(e.books[V2]);
   const w = vm.runInContext("p26Write_('V2')", e.g); assert.equal(w.status, 'V2_WRITE_NOT_APPROVED'); assert.equal(JSON.stringify(e.books[V2]), v2);
 });
+
+test('P26: 配信先の番組名の呼び方を合わせて照合に渡す（一致条件は変えない）', () => {
+  const e = many(); const seen = []; e.books[V2]['V2・統合台帳'].st.rows.forEach((r, i) => { if (i) r[1] = 'MEDIA TALK'; }); e.books[V1].P15_PLATFORM_CANDIDATES.st.rows.forEach((r, i) => { if (i) r[0] = 'MEDIA TALK'; });
+  e.g.P15_PLATFORMS.resolve = (src, o) => { seen.push(src.show); return { links: {}, results: [{ service: o.references[0].service, state: 'REVIEW', reason: 'INSUFFICIENT_IDENTITY' }] }; };
+  vm.runInContext("PropertiesService.getScriptProperties().deleteProperty('P26_STATE'); p26Copy_().getSheetByName(P26_RESULT_).clearContents()", e.g);
+  vm.runInContext('P26_1_照合_READ_ONLY()', e.g); assert.ok(seen.length > 0); assert.ok(seen.every((x) => x === 'MEDIA TALK メディアトーク'));
+});

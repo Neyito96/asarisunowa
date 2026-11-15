@@ -11,6 +11,12 @@ var P26_COPY_ID_ = '1WTLcaveWG0mr9F0dIjyCL8daxFnpo4q4yADN_bnK1PY';   // 書き�
 var P26_LEDGER_ = 'V2・統合台帳', P26_CAND_ = 'P15_PLATFORM_CANDIDATES', P26_RESULT_ = 'P26・V2URL照合', P26_LOG_ = 'P26・COPY反映履歴';
 var P26_SERVICES_ = { 'Spotify': 'Spotify', 'Apple Podcasts': 'Apple', 'Apple': 'Apple', 'Amazon Music': 'Amazon', 'Pocket Casts': 'Pocket Casts', 'LISTEN': 'LISTEN', 'Pody': 'Pody' };   // 候補の表記 → V2 の見出し
 var P26_RESOLVE_NAME_ = { 'Spotify': 'Spotify', 'Apple': 'Apple Podcasts', 'Amazon': 'Amazon Music', 'Pocket Casts': 'Pocket Casts', 'LISTEN': 'LISTEN', 'Pody': 'Pody' };
+// 配信先ごとの番組名（V2 の番組名 → そのサービスのページに出る番組名）。2026-11-15 P26_4 の実測で確認した表記だけ。
+// 番組名の一致条件そのものは緩めない（P15_PLATFORMS の照合は従来どおり完全一致・配信時刻±60秒・長さ±2秒）。名前の「呼び方」を合わせるだけ。
+var P26_SHOW_ON_SERVICE_ = {
+  'Spotify': { 'MEDIA TALK': 'MEDIA TALK メディアトーク', 'スポンジ': 'スポンジ　Sports Lounge／スポーツラウンジ', 'ドーナツ': 'ドーナツ ～このポッドキャストはSNSです', '報談': 'ニュースを深く面白く　報談 【HOU-DAN】　ホウダン' },
+  'LISTEN': { 'MEDIA TALK': 'MEDIA TALK メディアトーク', 'ドーナツ': 'ドーナツ ～このポッドキャストはSNSです', '報談': 'ニュースを深く面白く　報談 【HOU-DAN】　ホウダン' }
+};
 var P26_RESULT_H_ = ['EP-ID', '番組', 'タイトル', 'サービス', '候補URL', 'V2の現在値', '判定', '確認根拠', '確認日時'];
 var P26_LOG_H_ = ['日時', 'EP-ID', 'サービス', '変更前', '変更後', '確認根拠', '読み戻し'];
 var P26_STATE_ = 'P26_STATE';
@@ -40,11 +46,11 @@ function p26Plan_(ledger, cand) {
 function p26Verify_(p, ctx) {
   if (p.current) return { verdict: '保留: V2に別のURLがある（上書きしない）', basis: '' };
   if (!p.source.guid) return { verdict: '保留: V2の公式GUIDが空', basis: '' };
-  var name = P26_RESOLVE_NAME_[p.service], o;
-  try { o = P15_PLATFORMS.resolve(p.source, { references: [{ guid: p.source.guid, service: name, url: p.url }], context: ctx, deferred: {}, existing: {}, directories: [] }); }
+  var name = P26_RESOLVE_NAME_[p.service], o, alias = (P26_SHOW_ON_SERVICE_[p.service] || {})[p.source.show], src = alias ? Object.assign({}, p.source, { show: alias }) : p.source;
+  try { o = P15_PLATFORMS.resolve(src, { references: [{ guid: src.guid, service: name, url: p.url }], context: ctx, deferred: {}, existing: {}, directories: [] }); }
   catch (e) { return { verdict: '保留: 確認エラー', basis: String(e).slice(0, 80) }; }
   var d = (o.results || []).filter(function (x) { return x.service === name; })[0], links = o.links || {}, hit = Object.keys(links).some(function (k) { return links[k] === p.url; }) || (d && d.url === p.url);
-  if (d && d.state === 'VERIFIED' && hit) return { verdict: 'VERIFIED', basis: (d.method || d.reason || 'VERIFIED') + (d.evidence ? ' ' + String(JSON.stringify(d.evidence)).slice(0, 120) : '') };
+  if (d && d.state === 'VERIFIED' && hit) return { verdict: 'VERIFIED', basis: (d.method || d.reason || 'VERIFIED') + (alias ? ' [番組名の呼び方: ' + alias + ']' : '') + (d.evidence ? ' ' + String(JSON.stringify(d.evidence)).slice(0, 120) : '') };
   return { verdict: '保留: ' + (d ? d.state + ' ' + (d.reason || '') : 'NO_RESULT'), basis: d && d.evidence ? String(JSON.stringify(d.evidence)).slice(0, 120) : '' };
 }
 function P26_1_照合_READ_ONLY() {
