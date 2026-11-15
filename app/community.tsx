@@ -15,8 +15,9 @@ function SeriesText({ text }: { text: string }) {
         typeof seg === "string" ? (
           <span key={i}>{seg}</span>
         ) : (
-          <a key={i} className="seriesLink" href={seg.url} target="_blank" rel="noopener noreferrer" title={`朝日新聞ポッドキャスト公式「${seg.name}」`} style={{ color: "inherit", textDecoration: "underline", textDecorationThickness: "1px", textUnderlineOffset: "2px" }}>
+          <a key={i} className="seriesLink" href={seg.url} target="_blank" rel="noopener noreferrer" title={`朝日新聞ポッドキャスト公式「${seg.name}」のページを別タブで開く`} aria-label={`${seg.text}（朝日新聞ポッドキャスト公式の連載ページを別タブで開く）`} style={{ color: "inherit", textDecoration: "underline", textDecorationStyle: "dotted", textDecorationThickness: "1px", textUnderlineOffset: "3px" }}>
             {seg.text}
+            <span aria-hidden="true" style={{ display: "inline-block", marginLeft: "2px", padding: "0 3px", borderRadius: "3px", background: "#173b45", color: "#fff", fontSize: "0.62em", fontWeight: 800, lineHeight: 1.5, verticalAlign: "0.15em", whiteSpace: "nowrap" }}>朝日↗</span>
           </a>
         ),
       )}
