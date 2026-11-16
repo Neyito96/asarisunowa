@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-v2-verify.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/net-count.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs, scripts/ledger-v2/raw-source.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = 'e807df5f5e575f695b3deb06380dc80bda29f1d8b46b1b872de6df63b1603801';
+var CLEANER_BUILD_SOURCE_SHA256 = '234446327c1933eac30f6f41603b3e06f717e52b79c9a3909dd8e232ea303068';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -3542,4 +3542,61 @@ function 概要欄_8T_COPY試験() {
   var e630 = byEp['EP-06630'] ? JSON.parse(byEp['EP-06630'][2] || '[]').filter(function (x) { return x.kind === 'article' && x.title && x.url; }).length : -1;
   var ok = a.readbackMismatch === 0 && b.changed === 0 && same === Object.keys(only).length && e630 === 3;
   return scLog_('概要欄_8T_COPY試験', { status: ok ? 'PASS' : 'FAIL', episodes: Object.keys(only).length, first: { changed: a.changed, readbackMismatch: a.readbackMismatch }, rerun: { changed: b.changed }, relatedJsonAsPlanned: same + '/' + Object.keys(only).length, ep06630ArticlePairs: e630, sheet: 'COPY「' + SC_V2DETAIL_ + '」（試験用）' });
+}
+
+// ===== P27 配信先URLロボ: 下調べ（読むだけ、2026-11-17 設計書 docs/design/2026-11-17-platform-url-robot-design.md §2）=====
+// Pocket Casts・Pody・Amazon Music の番組ページ／公開データを1回ずつ取り、回ごとのID・題名・日時が機械的に取れるかを表にする。
+// V2・おんさ原本には触れない。結果は COPY「P27・下調べ」。各URLは1回だけ取得（大量取得はしない）。
+var P27_PROBE_SHEET_ = 'P27・下調べ';
+var P27_PROBE_TARGETS_ = [
+  ['Pody', '番組ページ ドーナツ', 'https://pody.jp/player/to04ABW3puiCBtAvp6Wx'],
+  ['Pody', '番組ページ スポンジ', 'https://pody.jp/player/SLYemnwXxXWVj4z0zqt0'],
+  ['Pody', '番組ページ MEDIA TALK', 'https://pody.jp/player/woMdDOpTDIxhqS4HtAsS'],
+  ['Pody', '番組ページ ニュースの現場から', 'https://pody.jp/player/4UD5sHilP15gqAc0clXN'],
+  ['Pody', '番組ページ 報談', 'https://pody.jp/player/sDYbQUEUe07sRv1wMI9z'],
+  ['Pody', '番組ページ こどもそうだんしつ', 'https://pody.jp/player/8aeTZ7uuPPmWLxZTkRER'],
+  ['Pocket Casts', '番組ページ ニュースの現場から', 'https://pocketcasts.com/podcast/ce4f8cb0-c119-0138-e716-0acc26574db2'],
+  ['Pocket Casts', '公開データ(podcast-api) ニュースの現場から', 'https://podcast-api.pocketcasts.com/podcast/full/ce4f8cb0-c119-0138-e716-0acc26574db2'],
+  ['Pocket Casts', '公開データ(cache) ニュースの現場から', 'https://cache.pocketcasts.com/mobile/podcast/full/ce4f8cb0-c119-0138-e716-0acc26574db2'],
+  ['Pocket Casts', '公開データ(podcast-api) 報談', 'https://podcast-api.pocketcasts.com/podcast/full/e2bb4c60-c679-0138-e72c-0acc26574db2'],
+  ['Pocket Casts', '回ページ EP-00001（V2既存URL）', 'https://pca.st/episode/17496f9e-d20a-4b32-9c66-85954538a1d0'],
+  ['Amazon Music', '番組ページ ニュースの現場から', 'https://music.amazon.co.jp/podcasts/7337408b-4752-4a85-8f27-4208a2ca8b1d']
+];
+function p27ProbeOne_(url) {
+  var r, code = 0, body = '', type = '', err = '';
+  try { r = UrlFetchApp.fetch(url, { muteHttpExceptions: true, followRedirects: true, headers: { 'Accept-Language': 'ja,en;q=0.8' } }); code = r.getResponseCode(); body = r.getContentText(); type = String((r.getHeaders() || {})['Content-Type'] || ''); }
+  catch (e) { err = String(e).slice(0, 120); }
+  var out = { code: code, type: type.slice(0, 40), bytes: body.length, err: err };
+  if (!body) return out;
+  var t = body.trim();
+  if (/^[\[{]/.test(t)) {   // JSON
+    try { var j = JSON.parse(t), eps = null, walk = function (x, d) { if (!x || d > 5 || eps) return; if (Array.isArray(x)) { if (x.length && typeof x[0] === 'object' && (x[0].title || x[0].name) && (x[0].published || x[0].date || x[0].url || x[0].uuid)) eps = x; else x.forEach(function (y) { walk(y, d + 1); }); return; } if (typeof x === 'object') Object.keys(x).forEach(function (k) { walk(x[k], d + 1); }); };
+      walk(j, 0); out.json = { topKeys: Object.keys(j).slice(0, 12).join(','), episodeArray: eps ? eps.length : 0, firstEpisodeKeys: eps ? Object.keys(eps[0]).slice(0, 20).join(',') : '', firstEpisode: eps ? JSON.stringify({ title: eps[0].title, published: eps[0].published || eps[0].date, duration: eps[0].duration, uuid: eps[0].uuid, url: eps[0].url }).slice(0, 400) : '' };
+    } catch (e) { out.json = { parseError: String(e).slice(0, 80) }; }
+    return out;
+  }
+  var tt = (body.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1] || '', og = (body.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']*)/i) || [])[1] || '';
+  var links = function (re) { var s = {}; (body.match(re) || []).forEach(function (m) { s[m] = 1; }); var k = Object.keys(s); return { n: k.length, sample: k.slice(0, 3).join(' ') }; };
+  out.html = {
+    title: tt.replace(/\s+/g, ' ').trim().slice(0, 100), ogTitle: og.slice(0, 100), nextData: /id=["']__NEXT_DATA__["']/.test(body), jsonLd: (body.match(/application\/ld\+json/g) || []).length,
+    needsJs: /enable JavaScript|JavaScriptを有効/i.test(body) && body.length < 20000,
+    podyEpisodeLinks: links(/(?:https?:\/\/pody\.jp)?\/(?:player|episode|episodes|e)\/[A-Za-z0-9_-]{8,}\/[A-Za-z0-9_-]{6,}/g),
+    pcEpisodeLinks: links(/(?:pca\.st|pocketcasts\.com)\/episode\/[0-9a-f-]{36}/g),
+    amazonEpisodeLinks: links(/podcasts\/[0-9a-f-]{36}\/episodes\/[0-9a-f-]{36}/g),
+    isoDates: (body.match(/20\d\d-\d\d-\d\dT\d\d:\d\d/g) || []).length, audioUrls: links(/https?:\/\/[^"'\s]+\.mp3[^"'\s]*/g).n
+  };
+  return out;
+}
+function P27_0_下調べ_READ_ONLY() {
+  var t0 = Date.now(), rows = [], sum = {};
+  P27_PROBE_TARGETS_.forEach(function (x) {
+    var o = p27ProbeOne_(x[2]), h = o.html || {}, j = o.json || {};
+    var verdict = o.err ? '取得エラー' : o.code !== 200 ? 'HTTP ' + o.code : j.episodeArray ? '一覧JSONあり（' + j.episodeArray + '件）' : (h.podyEpisodeLinks && h.podyEpisodeLinks.n) || (h.pcEpisodeLinks && h.pcEpisodeLinks.n) || (h.amazonEpisodeLinks && h.amazonEpisodeLinks.n) ? 'HTMLに回のリンクあり' : h.nextData ? '__NEXT_DATA__あり（中身を要確認）' : h.needsJs ? 'JavaScriptが必要（GASでは読めない）' : '回の情報が見えない';
+    rows.push([x[0], x[1], x[2], verdict, o.code, o.type, o.bytes, JSON.stringify(h).slice(0, 1500), JSON.stringify(j).slice(0, 1500), o.err, new Date().toISOString()]);
+    sum[x[0] + '｜' + x[1]] = verdict;
+    Utilities.sleep(800);   // 相手先への配慮（連続取得しない）
+  });
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes);
+  laWriteSheet_(c.ss, P27_PROBE_SHEET_, ['配信先', '対象', 'URL', '判定', 'HTTP', '種類', 'バイト', 'HTMLの要約', 'JSONの要約', 'エラー', '確認日時'], rows);
+  return scLog_('P27_0_下調べ_READ_ONLY', { status: 'OK', results: sum, sheet: 'COPY「' + P27_PROBE_SHEET_ + '」', ms: Date.now() - t0 });
 }
