@@ -1,0 +1,94 @@
+{
+ "copy": "1WTLcaveWG0mr9F0dIjyCL8daxFnpo4q4yADN_bnK1PY",
+ "item": {
+  "show": "ニュースの学校",
+  "guid": "960e9378-cb95-11f1-b670-172b23701889",
+  "date": "2026/11/11 04:00"
+ },
+ "steps": [
+  {
+   "step": "採番履歴79行目に 採番済 を記録"
+  },
+  {
+   "step": "V2・統合台帳6557行目へ追記"
+  },
+  {
+   "step": "読み戻し",
+   "result": "初回は日時表示差(04:00→4:00)で不一致を検出→日時を値で比較する修正後に一致"
+  },
+  {
+   "step": "既存6556行A:J不変",
+   "result": true
+  },
+  {
+   "step": "再実行1",
+   "result": {
+    "readbackOk": true,
+    "numberingOk": true,
+    "rowsAfter": 6556,
+    "rerun": {
+     "added": 0,
+     "counts": {
+      "CANDIDATE": 0,
+      "HOLD": 0,
+      "BLOCK": 0,
+      "ALREADY_INGESTED": 1,
+      "METADATA_CHANGE": 0
+     },
+     "writeCalls": 0,
+     "existing": "EP-06695"
+    },
+    "numberingState": "採番済",
+    "numberingRepairPlanned": [
+     {
+      "row": 3,
+      "state": "登録完了",
+      "at": "2026-11-11T07:32:03.081Z",
+      "ledgerRow": 6557
+     }
+    ],
+    "publicAfter": 6033
+   }
+  },
+  {
+   "step": "採番履歴79行目を 登録完了 に修復"
+  },
+  {
+   "step": "再実行2",
+   "result": {
+    "readbackOk": true,
+    "numberingOk": true,
+    "rowsAfter": 6556,
+    "rerun": {
+     "added": 0,
+     "counts": {
+      "CANDIDATE": 0,
+      "HOLD": 0,
+      "BLOCK": 0,
+      "ALREADY_INGESTED": 1,
+      "METADATA_CHANGE": 0
+     },
+     "writeCalls": 0,
+     "existing": "EP-06695"
+    },
+    "numberingState": "登録完了",
+    "numberingRepairPlanned": [],
+    "publicAfter": 6033
+   }
+  },
+  {
+   "step": "全RSS再判定",
+   "result": {
+    "CANDIDATE": 25,
+    "HOLD": 0,
+    "BLOCK": 5,
+    "ALREADY_INGESTED": 244,
+    "METADATA_CHANGE": 6
+   }
+  },
+  {
+   "step": "公開台帳件数",
+   "result": 6033
+  }
+ ]
+}

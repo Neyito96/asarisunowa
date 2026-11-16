@@ -1,0 +1,7 @@
+# 本番GASプロジェクトへ clasp push しない COPY専用・試験専用ファイル（2026-11-11 PR #306）。
+# これらは COPY 専用の独立プロジェクトにだけ手で貼る。追加時は tests/p25-v2-ingest.test.mjs の検査も更新すること。
+P25V2IngestAdapter.js
+LedgerFillRobot.js
+# clasp 既定の除外も維持
+**/node_modules/**
+**/.git/**

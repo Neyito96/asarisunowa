@@ -144,6 +144,14 @@ export default function PlaylistEntryModeBridge() {
         seriesTab.type = "button";
         seriesTab.dataset.playlistShelfTab = "series";
         seriesTab.textContent = "連載";
+        const sub = document.createElement("span");   // 朝日新聞の公式連載ページと区別するため、Spotifyのプレイリストであることをタブに出す
+        sub.className = "tabSub";
+        sub.setAttribute("aria-hidden", "true");
+        sub.textContent = "Spotify";
+        seriesTab.appendChild(sub);
+        seriesTab.setAttribute("role", "tab");
+        seriesTab.setAttribute("aria-label", "連載（Spotifyのプレイリスト）");
+        seriesTab.title = "番組の中のシリーズを追うSpotifyのプレイリストです（朝日新聞の公式連載ページではありません）";
         tabs.insertBefore(seriesTab, otherTab);
       }
       seriesTab.onclick = () => {
@@ -154,6 +162,8 @@ export default function PlaylistEntryModeBridge() {
       const playlistGrid = document.getElementById("playlist-results");
       const listenersActive = Boolean(playlistGrid);
       seriesTab.classList.toggle("on", listenersActive && shelf === "series");
+      seriesTab.setAttribute("aria-selected", String(listenersActive && shelf === "series"));
+      otherTab.setAttribute("aria-selected", String(listenersActive && shelf === "other"));
       if (listenersActive && shelf === "series") {
         otherTab.classList.remove("on");
       } else if (listenersActive && shelf === "other") {

@@ -1,0 +1,16 @@
+{
+ "mode": "READ_ONLY_DRY_RUN",
+ "rowsBefore": 6555,
+ "publicBefore": 6033,
+ "counts": {
+  "CANDIDATE": 1,
+  "HOLD": 0,
+  "BLOCK": 5190,
+  "ALREADY_INGESTED": 0
+ },
+ "reasonCount": {
+  "BLOCK:MISSING_REQUIRED+GUID_EXISTS": 5126,
+  "BLOCK:MISSING_REQUIRED": 64,
+  "CANDIDATE:": 1
+ }
+}
