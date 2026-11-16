@@ -52,8 +52,10 @@ export function matchPlatform(v2, eps, opts) {
   });
   const perRow = {}, perEp = {};
   pairs.forEach((p) => { if (p.i >= 0) { (perRow[p.i] = perRow[p.i] || []).push(p); (perEp[p.e.id] = perEp[p.e.id] || []).push(p); } });
+  const epById = {}; eps.forEach((e) => { epById[e.id] = e; });
   const rows = v2.map((r, i) => {
     const cand = perRow[i] || [], curId = idOfUrl(r.current), out = { ep: r.ep, show: r.show, current: r.current || '', currentId: curId };
+    if (curId) { const ce = epById[curId]; if (!ce) out.existingCheck = '既存URLのIDが配信先データに無い'; else { const t = Math.abs(toMs(r.published) - toMs(ce.published)); out.existingCheck = (nz(ce.title) === nz(r.title) ? '既存URLの回: 題名一致' : '既存URLの回: 題名違い') + (isFinite(t) ? '・時刻差' + Math.round(t / 360000) / 10 + 'h' : ''); } }
     if (!cand.length) return Object.assign(out, { verdict: r.current ? '既存URLのみ（配信先データに対応なし）' : '不一致（候補なし）', action: 'NONE' });
     if (cand.length > 1 || cand.some((p) => (perEp[p.e.id] || []).length > 1)) return Object.assign(out, { verdict: '重複（1対1にならない）', action: 'HOLD', candidates: cand.map((p) => p.e.id).join(' ') });
     const p = cand[0], e = p.e, dt = Math.abs(toMs(r.published) - toMs(e.published)), titleSame = nz(r.title) === nz(e.title), url = urlOf(e);

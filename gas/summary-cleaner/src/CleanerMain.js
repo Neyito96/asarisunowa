@@ -1877,7 +1877,7 @@ var P27_PC_SHOWS_ = {   // 番組ID は サイト掲載の Pocket Casts 番組UR
 };
 var P27_COL_ = 'Pocket Casts', P27_PC_SHEET_ = 'P27・PC照合', P27_PC_EXTRA_ = 'P27・PC余り', P27_HIST_ = 'P27・反映履歴', P27_STATE_KEY_ = 'P27_STATE', P27_COPY_MAX_ = 10, P27_V2_MAX_PER_RUN_ = 300;
 var P27_HIST_H_ = ['日時', '反映ID', '対象', 'EP-ID', '列', '変更前', '変更後', '根拠', '状態'];
-var P27_PC_H_ = ['EP-ID', '番組', '判定', '処理', '方法', '題名一致', '配信時刻の差(時間)', '長さの差(秒)', '書くURL', '既存URL', '既存URLのID', 'IDの確認', 'ページ確認'];
+var P27_PC_H_ = ['EP-ID', '番組', '判定', '処理', '方法', '題名一致', '配信時刻の差(時間)', '長さの差(秒)', '書くURL', '既存URL', '既存URLのID', '既存URLの確認', 'IDの確認', 'ページ確認'];
 function p27State_() { return JSON.parse(PropertiesService.getScriptProperties().getProperty(P27_STATE_KEY_) || '{"stop":false}'); }
 function p27SetState_(s) { PropertiesService.getScriptProperties().setProperty(P27_STATE_KEY_, JSON.stringify(s)); }
 // 台帳を見出し名で読む（V2 でも COPY でも同じ）
@@ -1914,10 +1914,10 @@ function p27PcPlan_(L) {
 }
 function P27_PC_1_照合_READ_ONLY() {
   var t0 = Date.now(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = p27Ledger_(v.ss), p = p27PcPlan_(L), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes);
-  laWriteSheet_(c.ss, P27_PC_SHEET_, P27_PC_H_, p.all.map(function (a) { var x = a.x; return [x.ep, x.show, x.verdict, x.action, x.method || '', x.titleSame === undefined ? '' : x.titleSame, x.hoursApart, x.durationDiff, x.url || '', x.current, x.currentId, a.idCheck, a.page]; }));
+  laWriteSheet_(c.ss, P27_PC_SHEET_, P27_PC_H_, p.all.map(function (a) { var x = a.x; return [x.ep, x.show, x.verdict, x.action, x.method || '', x.titleSame === undefined ? '' : x.titleSame, x.hoursApart, x.durationDiff, x.url || '', x.current, x.currentId, x.existingCheck || '', a.idCheck, a.page]; }));
   laWriteSheet_(c.ss, P27_PC_EXTRA_, ['番組', 'Pocket Casts ID', 'URL', '題名', '配信日時(UTC)'], p.extra);
-  var tot = { v2Rows: 0, write: 0, hold: 0, byVerdict: {}, byMethod: {} };
-  p.all.forEach(function (a) { tot.v2Rows++; tot.byVerdict[a.x.verdict] = (tot.byVerdict[a.x.verdict] || 0) + 1; if (a.x.action === 'WRITE') tot.write++; if (a.x.action === 'HOLD') tot.hold++; if (a.x.method && a.x.action !== 'HOLD') tot.byMethod[a.x.method] = (tot.byMethod[a.x.method] || 0) + 1; });
+  var tot = { v2Rows: 0, write: 0, hold: 0, byVerdict: {}, byMethod: {}, existingCheck: {} };
+  p.all.forEach(function (a) { var ec = String(a.x.existingCheck || '').replace(/・時刻差.*$/, ''); if (ec) tot.existingCheck[a.x.show + '｜' + ec] = (tot.existingCheck[a.x.show + '｜' + ec] || 0) + 1; tot.v2Rows++; tot.byVerdict[a.x.verdict] = (tot.byVerdict[a.x.verdict] || 0) + 1; if (a.x.action === 'WRITE') tot.write++; if (a.x.action === 'HOLD') tot.hold++; if (a.x.method && a.x.action !== 'HOLD') tot.byMethod[a.x.method] = (tot.byMethod[a.x.method] || 0) + 1; });
   return scLog_('P27_PC_1_照合_READ_ONLY', { status: 'OK', shows: p.shows, total: tot, platformUnmatched: p.extra.length, sheets: 'COPY「' + P27_PC_SHEET_ + '」「' + P27_PC_EXTRA_ + '」', version: PlatformMatch.PLATFORM_MATCH_VERSION, ms: Date.now() - t0 });
 }
 // 書込の共通部（COPY / V2）。plan: [{ ep, url, basis }]
