@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-v2-verify.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = '137dd8aa9dff2b8e7241cda230d843947aa43f31927862ad27203e2b2ab6c1de';
+var CLEANER_BUILD_SOURCE_SHA256 = '7839197c760dd672238563abc2a990e3b6b2b71ef0bbce5db8ca26c2a7781be4';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -648,7 +648,7 @@ const ARTICLE = /(?:asahi\.com\/(?:articles|sp\/articles|and\/article|edu\/artic
 // 消し忘れ（宣伝・勧誘・応募・定型）。本文の「リスナーさんのおたより」のような話題そのものは対象外になるよう、勧誘の動詞と組で見る
 const PROMO = [
   ['FOLLOW', /(?:番組|ポッドキャスト|チャンネル)[をのも]?フォロー|フォロー(?:を?お願い|して(?:ね|ください|いただ)|ボタン)|チャンネル登録(?!者)/],
-  ['APPLY', /(?:視聴|参加|観覧)?申し?込み(?:は|方法|受付|締め?切|フォーム|はこちら)|応募(?:は|方法|フォーム|受付|締め?切|はこちら)|締め?切りました|ご参加いただけます/],
+  ['APPLY', /(?:視聴|参加|観覧)?申し?込み(?:は|方法|受付|締め?切|フォーム|はこちら)|応募(?:は|方法|フォーム|受付|締め?切|はこちら)|締め?切りました|締め?切りです|ご参加いただけます/],
   ['MEMBER', /有料会員(?:の方|限定|登録)|会員登録(?:は|を|して)|読み放題|初回限定|月額\d/],
   ['LETTER', /(?:お便り|おたより|ご意見|ご感想|質問|メッセージ)(?:は|を)?(?:こちら|募集|お寄せ|お待ち|送って|受け付け)/],
   ['FORM', /forms\.gle|docs\.google\.com\/forms|フォームから/],
@@ -722,6 +722,8 @@ function verifyEpisode(raw, cell = {}) {
     if (/[（(]\s*[)）]/.test(S)) add('EMPTY_LINK_RESIDUE', 'FAIL');   // 「はこちら（ ）」のようにURLだけ抜けた跡
   }
   if (SHORT_URL.test(C)) add('SHORT_URL_IN_CAST', 'INFO');
+  const castBad = C.split(/\n|\s\/\s/).filter((l) => { const t = l.replace(URL_G, '').trim(); return /[。！!？?]\s*$/.test(t) && t.length > 15 || t.length > 80; }).length;
+  if (castBad) add('CAST_CONTAMINATED', 'FAIL', castBad);   // 出演者欄に文章（呼びかけ・本文）が入っている
   const verdict = issues.some((i) => i.sev === 'FAIL') ? '不合格' : issues.some((i) => i.sev === 'HOLD') ? '保留' : '合格';
   return { verdict, issues, facts: { record: !!f.record, relUrls: f.relUrls.length, relTitles: f.relTitles.length, body: f.body.length } };
 }
@@ -770,7 +772,7 @@ const ARCHIVE_LINE = /^(?:過去回は、「連載」→「伊藤・奥山・神
 const INVITE_2022 = /^(?:【(?:ご案内|締め切り迫る)】)?9月23日に 朝ポキ 初の対面イベント「PODCAST MEETING 2022」を開催！皆さんと会いたいです！$/;
 // SC4-15（2026-11-16 実機照合 SV-1）: 本文に残っていた応募・参加条件・連絡先・★告知の行（EP-04543 ほか約300話）。行ごと落とす
 const LATE_PROMO = new RegExp([
-  'ご参加いただけます', 'イベント(?:「[^」]+」)?を開催します', '見逃し配信も', '公開収録イベント', '下記からご登録ください', '^※[^。]{0,60}(?:登壇します|を開催します)', 'ここでお知らせです', 'ご応募はこちら', 'お気に入りエピソードも募集', '回答は一般に公開されます', 'スクリーンショットをお願いします',
+  'ご参加いただけます', '締め?切りです[！!。]', '教えて(?:下さい|ください)[。！!]?\\s*\\d{1,2}月\\d{1,2}日', '^【教えて[！!]', 'イベント(?:「[^」]+」)?を開催します', '見逃し配信も', '公開収録イベント', '下記からご登録ください', '^※[^。]{0,60}(?:登壇します|を開催します)', 'ここでお知らせです', 'ご応募はこちら', 'お気に入りエピソードも募集', '回答は一般に公開されます', 'スクリーンショットをお願いします',
   '^[①②③][^。]{0,20}(?:申し?込み|フォーム|ご登録)', '^・(?:しめきり|締め切り|抽選|対象は新規|当日の模様)', '下記からご応募ください', '応募は(?:すでに)?(?:終了|締め切)', '視聴申し?込みは.{0,20}まで',
   '交流タイムの応募', 'お申し?込みはこちら', '宅配でご購読中', '^※[^。]{0,40}(?:申し?込み|応募|ご参加)', 'mailto:', 'podcast@asahi\\.com',
   '^[★☆＼][^。]{0,60}(?:生配信|登録は|まで[!！]|イベント|開催|プレゼント|募集|申し?込|キャンペーン|記念|ライブ配信|配信を行う)', '^[★☆＼].{0,120}ご視聴ください', 'お友達登録はこちら', '後日の配信はしません',
@@ -835,7 +837,8 @@ function cleanV4(raw) {
       continue;
     }
     if (s.kind === 'staff') {
-      for (const l of s.lines) { if (isPromo(l) || CONTACT_LINE.test(l) || LATE_PROMO.test(l) || EXTRA_PROMO.test(l) || NEWSLETTER_LINE.test(l) || ARCHIVE_LINE.test(stripUrls(l)) || INVITE_2022.test(l) || (src.includes('対面イベント「PODCAST MEETING 2022」を開催') && /^※応募締切は9月4日です。$/.test(l))) { removed.push({ reason: 'PROMO_IN_STAFF' }); continue; } const c = parseCastLine(l); if (c.name || c.role) cast.push(c); }
+      for (const l of s.lines) { if (isPromo(l) || CONTACT_LINE.test(l) || LATE_PROMO.test(l) || EXTRA_PROMO.test(l) || NEWSLETTER_LINE.test(l) || ARCHIVE_LINE.test(stripUrls(l)) || INVITE_2022.test(l) || (src.includes('対面イベント「PODCAST MEETING 2022」を開催') && /^※応募締切は9月4日です。$/.test(l))) { removed.push({ reason: 'PROMO_IN_STAFF' }); continue; } const c = parseCastLine(l); if (/[。！!？?]\s*$/.test(stripUrls(l)) && stripUrls(l).length > 25) { removed.push({ reason: 'SENTENCE_IN_STAFF' }); continue; }   // SC4-15: 出演欄の中の呼びかけ文（「…お待ちしています！」EP-06716）は出演者にしない
+        if (c.name || c.role) cast.push(c); }
       continue;
     }
     for (let i = 0; i < s.lines.length; i++) {

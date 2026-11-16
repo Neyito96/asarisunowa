@@ -18,7 +18,7 @@ const ARTICLE = /(?:asahi\.com\/(?:articles|sp\/articles|and\/article|edu\/artic
 // 消し忘れ（宣伝・勧誘・応募・定型）。本文の「リスナーさんのおたより」のような話題そのものは対象外になるよう、勧誘の動詞と組で見る
 export const PROMO = [
   ['FOLLOW', /(?:番組|ポッドキャスト|チャンネル)[をのも]?フォロー|フォロー(?:を?お願い|して(?:ね|ください|いただ)|ボタン)|チャンネル登録(?!者)/],
-  ['APPLY', /(?:視聴|参加|観覧)?申し?込み(?:は|方法|受付|締め?切|フォーム|はこちら)|応募(?:は|方法|フォーム|受付|締め?切|はこちら)|締め?切りました|ご参加いただけます/],
+  ['APPLY', /(?:視聴|参加|観覧)?申し?込み(?:は|方法|受付|締め?切|フォーム|はこちら)|応募(?:は|方法|フォーム|受付|締め?切|はこちら)|締め?切りました|締め?切りです|ご参加いただけます/],
   ['MEMBER', /有料会員(?:の方|限定|登録)|会員登録(?:は|を|して)|読み放題|初回限定|月額\d/],
   ['LETTER', /(?:お便り|おたより|ご意見|ご感想|質問|メッセージ)(?:は|を)?(?:こちら|募集|お寄せ|お待ち|送って|受け付け)/],
   ['FORM', /forms\.gle|docs\.google\.com\/forms|フォームから/],
@@ -92,6 +92,8 @@ export function verifyEpisode(raw, cell = {}) {
     if (/[（(]\s*[)）]/.test(S)) add('EMPTY_LINK_RESIDUE', 'FAIL');   // 「はこちら（ ）」のようにURLだけ抜けた跡
   }
   if (SHORT_URL.test(C)) add('SHORT_URL_IN_CAST', 'INFO');
+  const castBad = C.split(/\n|\s\/\s/).filter((l) => { const t = l.replace(URL_G, '').trim(); return /[。！!？?]\s*$/.test(t) && t.length > 15 || t.length > 80; }).length;
+  if (castBad) add('CAST_CONTAMINATED', 'FAIL', castBad);   // 出演者欄に文章（呼びかけ・本文）が入っている
   const verdict = issues.some((i) => i.sev === 'FAIL') ? '不合格' : issues.some((i) => i.sev === 'HOLD') ? '保留' : '合格';
   return { verdict, issues, facts: { record: !!f.record, relUrls: f.relUrls.length, relTitles: f.relTitles.length, body: f.body.length } };
 }
