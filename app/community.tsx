@@ -37,6 +37,19 @@ type OfficialProgram = {
   youtube?: boolean;
 };
 const ASAPOKI_YOUTUBE = "https://www.youtube.com/@asapoki_official";
+// 番組カードの「公式」ボタン。リンク先が朝日新聞側の公式ページであることを、ラベル（常時表示）・ツールチップ（PC）・読み上げ名で示す。
+// 「朝リスの田」自体は非公式（リスナー制作）。ラベルはリンク先の属性だけを表す。URLは番組データのまま（推測で作らない）
+function officialLinkText(url: string) {
+  return /(^|\.)omny\.fm\//.test(String(url).replace(/^https?:\/\//, "")) ? { label: "配信ページ", where: "朝日新聞ポッドキャストの公式配信ページ（Omny）" } : { label: "公式サイト", where: "朝日新聞ポッドキャストの公式サイト" };
+}
+function OfficialLink({ url, programName }: { url: string; programName: string }) {
+  const t = officialLinkText(url);
+  return (
+    <a className="officialLink" href={url} target="_blank" rel="noreferrer" title={`${t.where}を別タブで開きます`} aria-label={`${programName}：${t.where}（別タブで開く）`}>
+      <span className="officialBadge" aria-hidden="true">公式</span>{t.label} ↗
+    </a>
+  );
+}
 const ASAPOKI_OFFICIAL = "https://www.asahi.com/special/podcasts/";
 // Google Apps Script のウェブアプリURLを設定すると投稿フォームが自動送信になります。
 const PLAYLIST_SUBMIT_ENDPOINT = "https://script.google.com/macros/s/AKfycbxlZCNqGqOEY7j61OgcSGM8_xfGT08f4jjamXtSj2DES9fXl-xwJrvcRGYHnskidjIMug/exec";
@@ -568,7 +581,7 @@ const officialPrograms: OfficialProgram[] = [
       ["Pocket Casts", "https://pocketcasts.com/podcast/%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%82%92%E6%B7%B1%E3%81%8F%E9%9D%A2%E7%99%BD%E3%81%8F%E5%A0%B1%E8%AB%87-hou-dan%E3%83%9B%E3%82%A6%E3%83%80%E3%83%B3/e2bb4c60-c679-0138-e72c-0acc26574db2"],
       ["LISTEN", "https://listen.style/p/ywaodpkl"]
     ],
-    official: "https://omny.fm/shows/asahi/playlists/playlist-1",
+    // official: 旧URL omny.fm/shows/asahi/playlists/playlist-1 は 2026-11-16 時点で「プレイリストは利用できません」。正しい番組ページが確認できるまで朝日新聞ポッドキャスト公式トップへ
     pody: "https://pody.jp/player/sDYbQUEUe07sRv1wMI9z",
     discord: "https://discord.gg/d7sAbSRQvq",
   },
@@ -1523,36 +1536,50 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       </div>
       <div className="wrap viewTabs" role="tablist" aria-label="掲載区分">
         <button
+          role="tab"
+          aria-selected={view === "official"}
           className={view === "official" ? "on" : ""}
           onClick={() => setView("official")}
         >
           <span className="asaMincho">朝</span><span>公式</span>
         </button>
         <button
+          role="tab"
+          aria-selected={view === "listeners"}
+          aria-label="朝リスト（Spotifyのプレイリスト）"
+          title="Spotifyのプレイリストを集めた棚です"
           className={view === "listeners" ? "on" : ""}
           onClick={() => setView("listeners")}
         >
-          🐿️朝リスト
+          🐿️朝リスト<span className="tabSub" aria-hidden="true">Spotify</span>
         </button>
         <button
+          role="tab"
+          aria-selected={view === "discord"}
           className={view === "discord" ? "on" : ""}
           onClick={() => setView("discord")}
         >
           💬 Discord
         </button>
         <button
+          role="tab"
+          aria-selected={view === "circle"}
           className={view === "circle" ? "on" : ""}
           onClick={() => setView("circle")}
         >
           🔎あれどこ?
         </button>
         <button
+          role="tab"
+          aria-selected={view === "listenerPodcasts"}
           className={view === "listenerPodcasts" ? "on" : ""}
           onClick={() => setView("listenerPodcasts")}
         >
           🎙 ポすすめ
         </button>
         <button
+          role="tab"
+          aria-selected={view === "podcasts"}
           className={view === "podcasts" ? "on" : ""}
           onClick={() => { setSubmitKind("podcast"); setView("podcasts"); }}
         >
@@ -1625,8 +1652,11 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               <div className="playlistIntro" aria-label="朝リストについて">
               <p className="playlistIntroLead"><b>聴く人、番組をつくる人。みんなで少しずつ育てていく朝リスト</b></p>
               <p className="playlistIntroDefinitions">
-                <span><b>連載</b>＝番組やシリーズを追いかけるリスト</span>
+                <span><b>連載</b>＝番組の中のシリーズを追いかけるリスト</span>
                 <span><b>朝リスト</b>＝人物・テーマ・気になる切り口から自由につくるリスト</span>
+              </p>
+              <p className="playlistSpotifyNote" role="note">
+                <b>Spotify専用</b>ここに並ぶのは、リスナーが作ったSpotifyのプレイリストです（朝日新聞の公式ページではありません）。Spotifyのアプリかウェブで開きます。保存やフォローにはSpotifyのアカウントが要ります。Apple PodcastsなどSpotify以外で聴くときは、「朝公式」の番組ページからどうぞ。
               </p>
               <p className="playlistIntroInvite"><b>「こんな切り口で作ってみた」も大歓迎。気軽に投稿してください</b></p>
               </div>
@@ -1894,9 +1924,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       ) : view === "official" ? (
         <main className="wrap official">
           <div className="officialHeading">
-            <h2 className="officialTitle">OFFICIAL PLAYLISTS</h2>
+            <h2 className="officialTitle">OFFICIAL SHOWS</h2>
             <p className="officialIntro">
-              朝日新聞ポッドキャストの公式プレイリストです。
+              朝日新聞ポッドキャストの公式番組です。ボタンから各サービスの番組ページへ移動します。
             </p>
           </div>
           <section className="officialGuide" aria-labelledby="official-guide-title">
@@ -1965,9 +1995,11 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                         target="_blank"
                         rel="noreferrer"
                         key={label}
+                        title={label === "公式" ? `${officialLinkText(url).where}を別タブで開きます` : undefined}
+                        aria-label={label === "公式" ? `${guideProgram.name}：${officialLinkText(url).where}（別タブで開く）` : undefined}
                        className="serviceLink">
                         <PlatformIcon label={label} />
-                        <span>{label}</span>
+                        <span>{label === "公式" ? `公式${officialLinkText(url).label}` : label}</span>
                         <span className="serviceLinkArrow" aria-hidden="true">↗</span>
                       </a>
                     ))}
@@ -1997,7 +2029,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                         ...(p.links ?? []).filter(([label]) => label === "LISTEN"),
                         ...(p.pody ? [["Pody", p.pody]] : []),
                         ["公式", p.official ?? ASAPOKI_OFFICIAL],
-                      ].map(([label, url]) => (
+                      ].map(([label, url]) => label === "公式" ? (
+                        <OfficialLink key={label} url={url} programName={p.name} />
+                      ) : (
                         <a
                           href={url}
                           target="_blank"
