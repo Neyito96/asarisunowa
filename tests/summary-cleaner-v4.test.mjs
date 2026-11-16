@@ -524,3 +524,9 @@ test('概要欄_6/7: 修復は当日承認・原文ハッシュ一致が条件�
   assert.match(b, /NOT_APPROVED_TODAY/); assert.match(b, /shaMismatch/); assert.match(src, /SV_OLD_FAIL/);
   assert.match(src.slice(src.indexOf('function sumRepairPlan_'), src.indexOf('function 概要欄_6_')), /, true\);/);
 });
+
+test('配信先_A1: Apple は公式GUID完全一致・番組はRSS一致で特定・V2へは書かない', () => {
+  const src = fs.readFileSync('gas/summary-cleaner/src/CleanerMain.js', 'utf8'), b = src.slice(src.indexOf('function 配信先_A1_Apple照合_READ_ONLY'));
+  assert.match(b, /pfNormFeed_\(x\.feedUrl\) === pfNormFeed_\(f\.url\)/); assert.match(b, /byGuid\[g\]/); assert.match(b, /v2Writes: 0/);
+  assert.doesNotMatch(b.slice(0, b.indexOf('laWriteSheet_')), /setValue|setValues/);
+});

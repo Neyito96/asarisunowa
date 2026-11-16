@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-v2-verify.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = '8d38b697242d5c1bbcba21f8a2c51388149d87a371c9f5532a8ea9d78dfe313a';
+var CLEANER_BUILD_SOURCE_SHA256 = 'a35cb5c45b1bd5bd96f0af78e374a0bb8560346bd35590ee286b03e9f7a5e2c6';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -2838,4 +2838,42 @@ function 概要欄_7_V2修復反映() {
   var r = scApply_(SC_CONFIG.v2WorkingId, '', SC_CONFIG.v2ApplyLevel, 'V2作業用', 0, sumResV2_(), scV2RepairScope_());
   if (r.status !== 'OK' || r.cellsWritten < SC_CONFIG.applyMaxPerRun) P.deleteProperty(SUM_REPAIR_KEY_); else r.note = '上限まで書いたので続きあり: もう一度 概要欄_7 を押す（承認は当日中有効）';
   return scLog_('概要欄_7_V2修復反映', r);
+}
+
+// ===== 配信先URL: Apple Podcasts を公式GUIDで照合（READ_ONLY、2026-11-16 司令塔「統合実機検証指令」3）=====
+// Apple の公開API（iTunes Search/Lookup）が返すエピソードの episodeGuid と、V2 の公式GUID が完全一致したものだけを採る。
+// 番組は「Apple が返す番組のRSS（feedUrl）＝ V2 の公式RSS」で特定する（番組名だけで決めない）。URL は Apple が返した trackViewUrl をそのまま使い、作らない。
+// V2 は読むだけ。結果は COPY「配信先・Apple照合」。Lookup は番組ごとに新しい方から最大200話までしか返さない（それより古い回は「APIに無い」）。
+var PF_APPLE_SHEET_ = '配信先・Apple照合';
+function pfJson_(url) { var r = UrlFetchApp.fetch(url, { muteHttpExceptions: true }); if (r.getResponseCode() !== 200) throw new Error('HTTP ' + r.getResponseCode() + ' ' + url.split('?')[0]); return JSON.parse(r.getContentText()); }
+function pfNormFeed_(u) { return String(u || '').replace(/^https?:\/\//, '').replace(/\/$/, '').toLowerCase(); }
+function 配信先_A1_Apple照合_READ_ONLY() {
+  var t0 = Date.now(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), vals = v.sh.getRange(1, 1, v.sh.getLastRow(), v.sh.getLastColumn()).getDisplayValues(), h = vals[0];
+  var iEp = h.indexOf('EP-ID'), iShow = h.indexOf('番組'), iGuid = h.indexOf('公式GUID'), iApple = h.indexOf('Apple');
+  if ([iEp, iShow, iGuid, iApple].some(function (x) { return x < 0; })) throw new Error('LEDGER_COLUMN_NOT_FOUND');
+  var out = [], perShow = {}, total = { matched: 0, newUrl: 0, sameAsLedger: 0, differsFromLedger: 0, notInApi: 0 };
+  P25V2_COPY_FEEDS_().forEach(function (f) {
+    var st = perShow[f.show] = { collectionId: '', apiEpisodes: 0, ledgerRows: 0, matched: 0, newUrl: 0, same: 0, differs: 0, notInApi: 0, error: '' };
+    try {
+      var s = pfJson_('https://itunes.apple.com/search?media=podcast&entity=podcast&country=JP&limit=25&term=' + encodeURIComponent(f.show));
+      var hit = (s.results || []).filter(function (x) { return pfNormFeed_(x.feedUrl) === pfNormFeed_(f.url); })[0];
+      if (!hit) { st.error = 'FEED_NOT_FOUND_IN_APPLE_SEARCH'; return; }   // 番組名が似ていても RSS が違えば採らない
+      st.collectionId = String(hit.collectionId);
+      var l = pfJson_('https://itunes.apple.com/lookup?entity=podcastEpisode&country=JP&limit=200&id=' + hit.collectionId), byGuid = {};
+      (l.results || []).forEach(function (x) { if (x.wrapperType === 'podcastEpisode' && x.episodeGuid && x.trackViewUrl) byGuid[String(x.episodeGuid).toLowerCase()] = { url: String(x.trackViewUrl), trackId: String(x.trackId) }; });
+      st.apiEpisodes = Object.keys(byGuid).length;
+      vals.slice(1).forEach(function (r) {
+        if (r[iShow] !== f.show || !r[iEp]) return; st.ledgerRows++;
+        var g = String(r[iGuid] || '').toLowerCase(), a = g && byGuid[g], ex = String(r[iApple] || ''), exId = (ex.match(/[?&]i=(\d+)/) || [])[1] || '';
+        if (!a) { st.notInApi++; return; }
+        st.matched++; var state = !ex ? '新規取得' : exId === a.trackId ? '既存と一致' : '既存と不一致';
+        if (state === '新規取得') st.newUrl++; else if (state === '既存と一致') st.same++; else st.differs++;
+        out.push([r[iEp], f.show, g, a.url, ex, state]);
+      });
+    } catch (e) { st.error = String(e.message || e).slice(0, 120); }
+    ['matched', 'newUrl', 'notInApi'].forEach(function (k) { total[k] += st[k]; }); total.sameAsLedger += st.same; total.differsFromLedger += st.differs;
+  });
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes);
+  laWriteSheet_(c.ss, PF_APPLE_SHEET_, ['EP-ID', '番組', '公式GUID', 'Apple URL（APIの値）', 'V2の今の値', '状態'], out);
+  return scLog_('配信先_A1_Apple照合_READ_ONLY', { status: 'READ_ONLY', v2Writes: 0, total: total, perShow: perShow, sheet: 'COPY「' + PF_APPLE_SHEET_ + '」', method: 'Apple公開APIの episodeGuid = V2公式GUID（完全一致）、番組はRSS一致で特定', ms: Date.now() - t0 });
 }
