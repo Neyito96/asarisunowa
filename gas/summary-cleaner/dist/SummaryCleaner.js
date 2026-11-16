@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-v2-verify.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/net-count.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs, scripts/ledger-v2/raw-source.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = '6868073daf51ee7bce8528d1a5405dfa83d84da793c99db03db477153f0103c1';
+var CLEANER_BUILD_SOURCE_SHA256 = '555e6740b046017be1e0c599e5b427519b5fac9577a0564b73932c2131563fe8';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -3456,12 +3456,13 @@ function 概要欄_T_COPY少数件試験() {
     if (x.summary !== r[H['旧・概要']] || x.cast !== r[H['旧・出演者']] || x.related !== r[H['旧・関連記事URL']]) return;
     scope[x.ep] = 1; picked.push(x.ep); before[x.ep] = { summary: x.summary, cast: x.cast, related: x.related }; });
   if (!picked.length) return scLog_('概要欄_T_COPY少数件試験', { status: 'STOP_NO_CANDIDATE' });
+  var PP = PropertiesService.getScriptProperties(), prevLast = PP.getProperty('SC_LAST_APPLY');   // 本番の取消（S9）の対象を試験で消さないよう、終わったら元に戻す
   var a1 = scApply_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes, 'AUTO_PASS', 'COPY', 10, SUM_RES_V2_, scope);
   var L2 = scLedger_(c.sh), by2 = {}; L2.rows.forEach(function (r) { by2[r.ep] = r; });
   var asPlanned = 0, keyCols = { summary: '新・概要', cast: '新・出演者', related: '新・関連記事URL' };
   rs.forEach(function (r) { if (!scope[r[H['EP-ID']]]) return; var x = by2[r[H['EP-ID']]], ok = String(r[H['書換可']]).split('+').every(function (k) { return String(x[k]) === String(r[H[keyCols[k]]]); }); if (ok) asPlanned++; });
   var a2 = scApply_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes, 'AUTO_PASS', 'COPY', 10, SUM_RES_V2_, scope);
-  var u = S9_直前の反映を取消();
+  var u = S9_直前の反映を取消(); if (prevLast) PP.setProperty('SC_LAST_APPLY', prevLast);
   var L3 = scLedger_(c.sh), back = 0; L3.rows.forEach(function (r) { var b = before[r.ep]; if (b && r.summary === b.summary && r.cast === b.cast && r.related === b.related) back++; });
   var ok = a1.status === 'OK' && asPlanned === picked.length && a2.status === 'OK_NO_CHANGE' && u.status === 'OK' && back === picked.length;
   return scLog_('概要欄_T_COPY少数件試験', { status: ok ? 'PASS' : 'FAIL', eps: picked, write: { status: a1.status, cells: a1.cellsWritten, episodes: a1.episodes }, readbackAsPlanned: asPlanned + '/' + picked.length, rerun: { status: a2.status, cells: a2.cellsWritten }, undo: u, backToBefore: back + '/' + picked.length, note: 'COPYの台帳だけ。V2は読むだけ' });

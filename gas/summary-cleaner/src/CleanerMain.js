@@ -1722,12 +1722,13 @@ function 概要欄_T_COPY少数件試験() {
     if (x.summary !== r[H['旧・概要']] || x.cast !== r[H['旧・出演者']] || x.related !== r[H['旧・関連記事URL']]) return;
     scope[x.ep] = 1; picked.push(x.ep); before[x.ep] = { summary: x.summary, cast: x.cast, related: x.related }; });
   if (!picked.length) return scLog_('概要欄_T_COPY少数件試験', { status: 'STOP_NO_CANDIDATE' });
+  var PP = PropertiesService.getScriptProperties(), prevLast = PP.getProperty('SC_LAST_APPLY');   // 本番の取消（S9）の対象を試験で消さないよう、終わったら元に戻す
   var a1 = scApply_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes, 'AUTO_PASS', 'COPY', 10, SUM_RES_V2_, scope);
   var L2 = scLedger_(c.sh), by2 = {}; L2.rows.forEach(function (r) { by2[r.ep] = r; });
   var asPlanned = 0, keyCols = { summary: '新・概要', cast: '新・出演者', related: '新・関連記事URL' };
   rs.forEach(function (r) { if (!scope[r[H['EP-ID']]]) return; var x = by2[r[H['EP-ID']]], ok = String(r[H['書換可']]).split('+').every(function (k) { return String(x[k]) === String(r[H[keyCols[k]]]); }); if (ok) asPlanned++; });
   var a2 = scApply_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes, 'AUTO_PASS', 'COPY', 10, SUM_RES_V2_, scope);
-  var u = S9_直前の反映を取消();
+  var u = S9_直前の反映を取消(); if (prevLast) PP.setProperty('SC_LAST_APPLY', prevLast);
   var L3 = scLedger_(c.sh), back = 0; L3.rows.forEach(function (r) { var b = before[r.ep]; if (b && r.summary === b.summary && r.cast === b.cast && r.related === b.related) back++; });
   var ok = a1.status === 'OK' && asPlanned === picked.length && a2.status === 'OK_NO_CHANGE' && u.status === 'OK' && back === picked.length;
   return scLog_('概要欄_T_COPY少数件試験', { status: ok ? 'PASS' : 'FAIL', eps: picked, write: { status: a1.status, cells: a1.cellsWritten, episodes: a1.episodes }, readbackAsPlanned: asPlanned + '/' + picked.length, rerun: { status: a2.status, cells: a2.cellsWritten }, undo: u, backToBefore: back + '/' + picked.length, note: 'COPYの台帳だけ。V2は読むだけ' });
