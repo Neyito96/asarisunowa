@@ -60,6 +60,7 @@ export function classifyRawLines(raw) {
     else if (section === 'staff') expect = 'STAFF';
     else if (section === 'related' || (/https?:/.test(text) && [...text.matchAll(URL_RE)].some((m) => ARTICLE_RE.test(m[0])))) expect = 'RELATED';
     else if (urlOnly || headerOnly) expect = 'DROP';
+    else if (/https?:/.test(text) && /^[※＊*]?\s*過去の(?:配信|回)(?:リスト|一覧)?[、,：:\s]/.test(text)) expect = 'RELATED';   // SQA-12: 「※過去の配信リスト、Spotify（URL）…」はリンク集
     else if (/https?:/.test(text) && POINTER_TAIL.test(text.replace(URL_RE, '').replace(/[（(][\s／/、,]*[）)]/g, '').trim().split('。').pop().trim())) expect = 'RELATED';   // SQA-12: 「〇〇はこちら（URL）」はリンクの見出し（清掃器は関連リンクへ移す）
     else if (AMBIG_LINE.test(text)) expect = 'AMBIGUOUS';
     else expect = 'KEEP';

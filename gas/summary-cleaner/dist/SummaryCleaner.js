@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-v2-verify.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/net-count.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs, scripts/ledger-v2/raw-source.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = 'b36c181ec9e2d48d8b6b1f3775b346616892076921828cef69461c539d143325';
+var CLEANER_BUILD_SOURCE_SHA256 = 'd04b0d0f6fc9b4223cb471169bd2c43b9dc2f4c30cabfe84abc6f1b111f9f095';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -504,6 +504,7 @@ function classifyRawLines(raw) {
     else if (section === 'staff') expect = 'STAFF';
     else if (section === 'related' || (/https?:/.test(text) && [...text.matchAll(URL_RE)].some((m) => ARTICLE_RE.test(m[0])))) expect = 'RELATED';
     else if (urlOnly || headerOnly) expect = 'DROP';
+    else if (/https?:/.test(text) && /^[※＊*]?\s*過去の(?:配信|回)(?:リスト|一覧)?[、,：:\s]/.test(text)) expect = 'RELATED';   // SQA-12: 「※過去の配信リスト、Spotify（URL）…」はリンク集
     else if (/https?:/.test(text) && POINTER_TAIL.test(text.replace(URL_RE, '').replace(/[（(][\s／/、,]*[）)]/g, '').trim().split('。').pop().trim())) expect = 'RELATED';   // SQA-12: 「〇〇はこちら（URL）」はリンクの見出し（清掃器は関連リンクへ移す）
     else if (AMBIG_LINE.test(text)) expect = 'AMBIGUOUS';
     else expect = 'KEEP';
@@ -789,7 +790,7 @@ const INVITE_2022 = /^(?:【(?:ご案内|締め切り迫る)】)?9月23日に �
 // SC4-15（2026-11-16 実機照合 SV-1）: 本文に残っていた応募・参加条件・連絡先・★告知の行（EP-04543 ほか約300話）。行ごと落とす
 // SC4-17 で追加: 「Nカ月間無料で」「ご投稿も募集中」「★…おたよりを送って」「URL by〇〇さん」（リスナー作のリンク）「まずは〇〇をフォロー」「朝日新聞ポッドキャストでは他にも様々な番組を配信」
 const LATE_PROMO = new RegExp([
-  'ご参加いただけます', '[0-9０-９]+カ月間?無料で', 'ご投稿(?:も)?募集中', '^[★☆].{0,40}(?:おたより|お便り)」?を?(?:送|お寄せ)', 'https?://\\S+\\s*by[^\\s]{1,15}さん\\s*$', '^まずは.{1,15}をフォロー', '朝日新聞ポッドキャスト(?:\\s*[（(][^）)]*[）)])?\\s*では[、,]?\\s*他にも様々な番組を配信', '申し込み不要です', '^(?:朝日新聞)?アプリで.{1,15}をフォロー', '^[（(](?:ご登録フォーム|お申し?込み|応募フォーム|申し?込みフォーム)[）)]$', '締め?切りです[！!。]', '教えて(?:下さい|ください)[。！!]?\\s*\\d{1,2}月\\d{1,2}日', '^【教えて[！!]', 'イベント(?:「[^」]+」)?を開催します', '見逃し配信も', '公開収録イベント', '下記からご登録ください', '^※[^。]{0,60}(?:登壇します|を開催します)', 'ここでお知らせです', 'ご応募はこちら', 'お気に入りエピソードも募集', '回答は一般に公開されます', 'スクリーンショットをお願いします',
+  'ご参加いただけます', '[0-9０-９]+カ月間?無料で', 'ご投稿(?:も)?募集中', '^[★☆].{0,40}(?:おたより|お便り)」?を?(?:送|お寄せ)', 'https?://\\S+\\s*by[^\\s]{1,15}さん\\s*$', '^まずは.{1,15}をフォロー', '朝日新聞ポッドキャスト(?:\\s*[（(][^）)]*[）)])?\\s*では[、,]?\\s*他にも様々な番組を配信', '申し込み不要です', '申し?込み\\s*[→⇒]\\s*$', '^[（(](?:Spotify|Apple(?:\\s*Podcasts?)?|Amazon(?:\\s*Music)?|YouTube|LISTEN|Pody|X)[）)]$', '^(?:朝日新聞)?アプリで.{1,15}をフォロー', '^[（(](?:ご登録フォーム|お申し?込み|応募フォーム|申し?込みフォーム)[）)]$', '締め?切りです[！!。]', '教えて(?:下さい|ください)[。！!]?\\s*\\d{1,2}月\\d{1,2}日', '^【教えて[！!]', 'イベント(?:「[^」]+」)?を開催します', '見逃し配信も', '公開収録イベント', '下記からご登録ください', '^※[^。]{0,60}(?:登壇します|を開催します)', 'ここでお知らせです', 'ご応募はこちら', 'お気に入りエピソードも募集', '回答は一般に公開されます', 'スクリーンショットをお願いします',
   '^[①②③][^。]{0,20}(?:申し?込み|フォーム|ご登録)', '^・(?:しめきり|締め切り|抽選|対象は新規|当日の模様)', '下記からご応募ください', '応募は(?:すでに)?(?:終了|締め切)', '視聴申し?込みは.{0,20}まで',
   '交流タイムの応募', 'お申し?込みはこちら', '宅配でご購読中', '^※[^。]{0,40}(?:申し?込み|応募|ご参加)', 'mailto:', 'podcast@asahi\\.com',
   '^[★☆＼][^。]{0,60}(?:生配信|登録は|まで[!！]|イベント|開催|プレゼント|募集|申し?込|キャンペーン|記念|ライブ配信|配信を行う)', '^[★☆＼].{0,120}ご視聴ください', 'お友達登録はこちら', '後日の配信はしません',
@@ -913,6 +914,7 @@ function cleanV4(raw) {
         if (us.some((u) => VIDEO_URL.test(u)) && text && !EVENT_PROMO.test(l) && !isPromo(l)) { us.filter((u) => VIDEO_URL.test(u)).forEach((u) => pushRel(text, u, 'video')); }   // SC4-17: 本文中の動画リンクも種類「動画」で保存
         if (EVENT_PROMO.test(l)) { removed.push({ reason: 'EVENT_OR_FORM' }); continue; }
         { const pt = T(l.replace(URL_RE, '').replace(/[（(][\s／/、,]*[）)]/g, '').replace(/[ 　]{2,}/g, ' ')), k = pt.lastIndexOf('。'), tail = pt.slice(k + 1).trim();   // 文の後ろに付いた指差し（「※…収録しました。シリーズ「…」の過去回はこちら」）は、文を本文に残して指差し部分だけを見出しにする
+          if (/^[※＊*]?\s*過去の(?:配信|回)(?:リスト|一覧)?[、,：:\s]/.test(pt) && pt.length <= 60) { us.forEach((u) => pushRel(pt, u)); removed.push({ reason: 'POINTER_LINK' }); continue; }   // SC4-17: 「※過去の配信リスト、Spotify（URL） モーメント（URL）」はリンク集（EP-04311）
           if (tail && POINTER_LINE.test(tail)) { us.forEach((u) => pushRel(tail, u, /メルマガ|ニュースレター|登録|申し?込|応募|キャンペーン|購読|会員|フォーム|イベント|チケット|プレゼント|アンケート|ご案内/.test(tail) ? 'promo' : undefined)); if (k >= 0) body.push(pt.slice(0, k + 1)); removed.push({ reason: 'POINTER_LINK' }); continue; } }   // SC4-17: 「〇〇のエピソードはこちら（URL）」「前編（URL）」は、リンク先と見出しの組で保存し、本文に指差しだけを残さない
         if (!text) { removed.push({ reason: 'URL_ONLY' }); continue; }
         body.push(text); removed.push({ reason: 'URL_STRIPPED_FROM_BODY' }); continue;
@@ -940,7 +942,7 @@ function cleanV4(raw) {
   // 行ごと宣伝として落ちても、原文にあるこの一文だけは本文の最後に残す（原文にある文だけ。作らない）
   { const plainSrc = src.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' '), have = NZ(body.join(''));
     (plainSrc.match(RECORD_NOTE) || []).map((x) => T(x)).filter((x, i, a) => x && a.indexOf(x) === i && !have.includes(NZ(x))).forEach((x) => { body.push(x); removed.push({ reason: 'RECORD_NOTE_KEPT' }); }); }
-  const text = body.join('\n').replace(/(?:※\s*)?(?:「[^」]{1,20}」の)?過去(?:の)?回は(?:下記|こちら)(?:から)?[^。\n]*[。．]?/g, '').split('\n').filter((x) => T(x)).join('\n').replace(/\s*(?:ご意見・感想・リクエスト|ほかにも(?:多彩な)?番組を配信中|Learn more about your ad choices)[\s\S]*$/i, '').replace(/[ 　]{2,}/g, ' ').trim();
+  const text = body.join('\n').replace(/(?:過去(?:の)?回は|過去の配信は)\s*(?:[（(](?:Spotify|Apple(?:\s*Podcasts?)?|Amazon(?:\s*Music)?|YouTube|LISTEN|Pody)[）)]\s*)+/g, '').replace(/^[（(](?:Spotify|Apple(?:\s*Podcasts?)?|Amazon(?:\s*Music)?|YouTube|LISTEN|Pody)[）)]$/gm, '').replace(/(?:※\s*)?(?:「[^」]{1,20}」の)?過去(?:の)?回は(?:下記|こちら)(?:から)?[^。\n]*[。．]?/g, '').split('\n').filter((x) => T(x)).join('\n').replace(/\s*(?:ご意見・感想・リクエスト|ほかにも(?:多彩な)?番組を配信中|Learn more about your ad choices)[\s\S]*$/i, '').replace(/[ 　]{2,}/g, ' ').trim();
   if (!text) holds.push('CONTENT_EMPTY');
   follow.forEach((c) => { if (PLATFORM_NAME.test(T(c.name))) { socials.push(...c.links); removed.push({ reason: 'PLATFORM_LINK' }); return; }
     const fm = T(c.name).match(/^(?:朝日新聞)?アプリで(.+?)(?:さん|記者)?を?フォロー/); if (fm) c = { ...c, name: fm[1] };   // SC4-17: 「朝日新聞アプリで神田大介をフォロー URL」は人名だけ（EP-00104）
