@@ -2,9 +2,10 @@
 // 原則: 原文は変えない。原文だけを基準に、本文・出演者（リンク付き）・関連記事（見出し＋URLのペア）を分ける。
 // 迷うもの（見出しなし記事URL・非記事リンク・本文の大幅減少・監査で重大所見）は 要確認。品質確認済は人だけが付ける。
 import { descriptionLines, DESCRIPTION_VERSION } from '../../public/library/description-editor.mjs';
+import { verifyEpisode, isPromoLine } from './summary-v2-verify.mjs';
 import { auditPair, accountLines, AUDIT_VERSION, cleanUrl, paraLines, STAR_NOTICE, INLINE_NOTICE_HEAD, decodeNamedEntities } from './summary-quality-audit.mjs';
 
-export const CLEANER_VERSION = 'SC4-14(' + DESCRIPTION_VERSION + ')';   // SC4-14: 宣伝の行に付いた収録日の一文を残す。SC4-13: 空リンクのURLと見出しの連結を分ける・本文中の「ディスコード」「チャンネル登録者」等を宣伝扱いしない・長い本文の末尾の「お便りを送ってください」は文だけ落とす（2026-11-15 QA9）   // SC4-10 は所在不明の版（2026-11-12）と衝突させないため欠番
+export const CLEANER_VERSION = 'SC4-15(' + DESCRIPTION_VERSION + ')';   // SC4-15: 応募・参加条件・連絡先・★告知の行を落とす、URLを抜いた跡「はこちら（ ）」を消す（2026-11-16 実機照合）。SC4-14: 宣伝の行に付いた収録日の一文を残す。SC4-13: 空リンクのURLと見出しの連結を分ける・本文中の「ディスコード」「チャンネル登録者」等を宣伝扱いしない・長い本文の末尾の「お便りを送ってください」は文だけ落とす（2026-11-15 QA9）   // SC4-10 は所在不明の版（2026-11-12）と衝突させないため欠番
 const T = (v) => String(v ?? '').trim();
 const NZ = (t) => String(t ?? '').normalize('NFKC').replace(/\s+/g, '');
 const URL_RE = /https?:\/\/[^\s<>「」『』（）()"'、]+/g;
@@ -18,7 +19,7 @@ const RELATED_HEAD = H('関連記事|関連リンク|関連URL|参考記事|写�
 const DROP_HEAD = H('おねがい|お願い|朝ポキ情報|お知らせ|イベント|告知|募集|プレゼント|お便り募集|おたより募集|SNS');
 const DROP_BRACKET = /^\s*【(?:公式サイト|ツイッター|ご意見・ご感想|ご意見ご感想|ご感想)】\s*/;   // SC4-13: 【】で囲んだときだけ告知の節（「◆ツイッターで反論…(2:01:50)」のような章立ては本文）
 // 定型の宣伝・広告（行ごと除去）。本編の話題（Xの騒動・イベントの報道）を誤って消さないよう、宣伝の言い回しに限る。
-const PROMO = /読み放題|スタンダードコース|初回限定|初月無料|月額\s*[\d０-９,，]+円|See .*omnystudio\.com\/listener|Learn more about your ad choices|購読料で配信|会員登録をお願い|^交流はdiscord|^ご意見・感想・リクエスト|おたよりフォーム|^メルマガ|広告ご検討の企業様|^番組検索ツール|^最新情報はX|^番組カレンダー|全話あります公式サイト|アプリで記者と対話|^朝ポキTV|ほかにも(?:多彩な)?番組を配信中|^★?ご感想はこちら|フォローをお願い|フォローしてね|チャンネル登録(?!者)|^(?:X|Twitter|Instagram|インスタ)(?:\s*[:：]|\s*はこちら|\s*https?:)|配信[、。]\s*テキストでも読めます|アプリでフォロー|朝ポキを延命|ポッドキャストアワードに投票|投票をお願い|^[（(](?:インスタグラム|朝ポキ|コミュニティ|ツイッター|X)[）)]$|フォロー[、,]?\s*お願い|をフォロー|お便りは(?:こちら|下記|フォーム)|お便りを(?:お待ち|お寄せ|募集|送って|どうぞ)|申し込みはこちら|申込はこちら|申し込み方法はこちら|^[★☆※]\s*(?:お便り|おたより|ご感想|ご意見)/i;
+const PROMO = /読み放題|スタンダードコース|初回限定|初月無料|月額\s*[\d０-９,，]+円|See .*omnystudio\.com\/listener|Learn more about your ad choices|購読料で配信|会員登録をお願い|^交流はdiscord|^ご意見・感想・リクエスト|おたよりフォーム|^メルマガ|広告ご検討の企業様|^番組検索ツール|^最新情報はX|^番組カレンダー|全話あります公式サイト|アプリで記者と対話|^朝ポキTV|ほかにも(?:多彩な)?番組を配信中|^★?ご感想はこちら|フォローをお願い|フォローしてね|チャンネル登録(?!者)|^(?:X|Twitter|Instagram|インスタ)(?:\s*[:：]|\s*はこちら|\s*https?:)|配信[、。]\s*テキストでも読めます|アプリでフォロー|朝ポキを延命|ポッドキャストアワードに投票|投票をお願い|^[（(](?:インスタグラム|朝ポキ|コミュニティ|ツイッター|X)[）)]$|フォロー[、,]?\s*お願い|(?:番組|ポッドキャスト|チャンネル|朝ポキ|アカウント|X|Ｘ|ツイッター|インスタ)をフォロー|をフォロー(?:して(?:ね|ください)|お願い|！|!)|お便りは(?:こちら|下記|フォーム)|お便りを(?:お待ち|お寄せ|募集|送って|どうぞ)|申し込みはこちら|申込はこちら|申し込み方法はこちら|^[★☆※]\s*(?:お便り|おたより|ご感想|ご意見)/i;
 // SC4-13: 「discord」「お待ちしています」は宣伝の行に多いが、本文の話題（音声SNSの解説）や章立て（◆…(41:12)）にも出る。
 // 章立ての行と、案内の言い回しを含まない長い説明文は残す（EP-04043・EP-04948）。
 const SOFT_PROMO = /discord|ディスコード|お待ちしています/i, CHAPTER_LINE = /^[◆◇■・▶︎▶]?.{1,80}[(（]\d{1,2}:\d{2}(?::\d{2})?[)）]\s*$/, INVITE_WORDS = /参加|登録|こちら|コチラ|どうぞ|招待|開設|投稿|紹介中|共有中|ぜひ|↓|開催|できました|へ$/;
@@ -33,6 +34,13 @@ const SOCIAL_LABEL_LINE = /^(?:https?:\/\/(?:twitter\.com|x\.com)\/[^\s（）()]
 const NEWSLETTER_LINE = /^(?:・\s*)?(?:メールマガジン)?「朝ポキおたより」(?:が|に|、).*?(?:ご登録|始まり|始まります)/;
 const ARCHIVE_LINE = /^(?:過去回は、「連載」→「伊藤・奥山・神田」からお聞きいただけます。)?朝ポキ7番組の更新情報・アーカイブはこちら！$/;
 const INVITE_2022 = /^(?:【(?:ご案内|締め切り迫る)】)?9月23日に 朝ポキ 初の対面イベント「PODCAST MEETING 2022」を開催！皆さんと会いたいです！$/;
+// SC4-15（2026-11-16 実機照合 SV-1）: 本文に残っていた応募・参加条件・連絡先・★告知の行（EP-04543 ほか約300話）。行ごと落とす
+const LATE_PROMO = new RegExp([
+  'ご参加いただけます', 'イベント(?:「[^」]+」)?を開催します', '見逃し配信も', '公開収録イベント', '下記からご登録ください', '^※[^。]{0,60}(?:登壇します|を開催します)', 'ここでお知らせです', 'ご応募はこちら', 'お気に入りエピソードも募集', '回答は一般に公開されます', 'スクリーンショットをお願いします',
+  '^[①②③][^。]{0,20}(?:申し?込み|フォーム|ご登録)', '^・(?:しめきり|締め切り|抽選|対象は新規|当日の模様)', '下記からご応募ください', '応募は(?:すでに)?(?:終了|締め切)', '視聴申し?込みは.{0,20}まで',
+  '交流タイムの応募', 'お申し?込みはこちら', '宅配でご購読中', '^※[^。]{0,40}(?:申し?込み|応募|ご参加)', 'mailto:', 'podcast@asahi\\.com',
+  '^[★☆＼][^。]{0,60}(?:生配信|登録は|まで[!！]|イベント|開催|プレゼント|募集|申し?込|キャンペーン|記念|ライブ配信|配信を行う)', '^[★☆＼].{0,120}ご視聴ください', 'お友達登録はこちら', '後日の配信はしません',
+].join('|'));
 const EVENT_PROMO = /(?:募集|応募|申し込み|申込|お申し込み|参加者|チケット|エントリー|アンケート|(?<!プラット)フォーム|お寄せください|お待ちしています)/;
 
 const PROMO_START = /^(?:【ご案内】|【リアルで新聞をめくろう】|[★☆]\s*「?PODCAST MEETING|[★☆]\s*お得なキャンペーン)/;
@@ -54,7 +62,7 @@ export function sections(raw) {
     if (notice >= 0 && (p !== notice || /^[【★☆※]/.test(l))) { notice = -1; if (cur.kind === 'notice') start('body', '', ''); }   // ★告知は段落の終わりまで
     if (pl.hasParas && STAR_NOTICE.test(l)) { start('notice', '★告知', l); notice = p; }
     else if (pl.hasParas && INLINE_NOTICE_HEAD.test(l) && !/^【[^】]+】\s*$/.test(l)) { start('notice', (l.match(INLINE_NOTICE_HEAD) || [''])[0], l); notice = p; }
-    else if ((m = l.match(STAFF_HEAD)) && /^\s*(?:【|\[|［|〔|■|◆|▼|●)/.test(l)) start('staff', m[0].trim(), l.slice(m[0].length).trim());
+    else if ((m = l.match(STAFF_HEAD)) && /^\s*(?:【|\[|［|〔|■|◆|▼|●)/.test(l) && !CHAPTER_LINE.test(l)) start('staff', m[0].trim(), l.slice(m[0].length).trim());
     else if ((m = l.match(RELATED_HEAD)) && /^\s*(?:【|\[|［|〔|■|◆|▼|●)/.test(l)) start('related', m[0].trim(), l.slice(m[0].length).trim());
     else if ((m = l.match(DROP_BRACKET))) start('drop', m[0].trim(), l.slice(m[0].length).trim());
     else if ((m = l.match(DROP_HEAD)) && /^\s*(?:【|\[|［|〔|■|◆|▼|●)/.test(l)) start('drop', m[0].trim(), l.slice(m[0].length).trim());
@@ -65,7 +73,8 @@ export function sections(raw) {
   out.push(cur); return out.filter((s) => s.lines.length || s.head);
 }
 const urlsOf = (t) => [...String(t).matchAll(URL_RE)].map((m) => m[0].replace(/[.,;、。]+$/, ''));
-const stripUrls = (t) => String(t).replace(URL_RE, '').replace(/[ 　]*[／/|｜][ 　]*$/, '').replace(/[ 　]{2,}/g, ' ').trim();
+const stripUrls = (t) => String(t).replace(URL_RE, '').replace(/[ 　]*[／/|｜][ 　]*$/, '').replace(/[^。\n]{0,30}はこちら(?:から)?\s*[（(]\s*[)）]\s*[。．]?/g, '').replace(/[^。\n]{0,30}はこちら(?:から)?\s*[（(]\s*$/gm, '').replace(/\s*[（(]\s*[)）]/g, '')   // SC4-15: URLを抜いた跡「はこちら（ ）」「番組（ ）」を残さない
+    .split('\n').filter((x) => T(x)).join('\n').replace(/[ 　]{2,}/g, ' ').trim();
 const ROLE = /^(MC[・、,]?音源編集|MC|司会|聞き手|パーソナリティー?|ゲスト|出演|音源編集|編集|制作|構成|ナレーション|プロデューサー|ディレクター)[\s　:：・、]+/;   // 役割の後に区切りがあるときだけ（「ゲスト1さん」等の氏名を削らない）
 
 // 出演者1行 → {role, name, note, links, raw}。氏名の推定はしない（原文の文字列をそのまま分けるだけ）
@@ -92,14 +101,14 @@ export function cleanV4(raw) {
       continue;
     }
     if (s.kind === 'staff') {
-      for (const l of s.lines) { if (isPromo(l) || CONTACT_LINE.test(l) || EXTRA_PROMO.test(l) || NEWSLETTER_LINE.test(l) || ARCHIVE_LINE.test(stripUrls(l)) || INVITE_2022.test(l) || (src.includes('対面イベント「PODCAST MEETING 2022」を開催') && /^※応募締切は9月4日です。$/.test(l))) { removed.push({ reason: 'PROMO_IN_STAFF' }); continue; } const c = parseCastLine(l); if (c.name || c.role) cast.push(c); }
+      for (const l of s.lines) { if (isPromo(l) || CONTACT_LINE.test(l) || LATE_PROMO.test(l) || EXTRA_PROMO.test(l) || NEWSLETTER_LINE.test(l) || ARCHIVE_LINE.test(stripUrls(l)) || INVITE_2022.test(l) || (src.includes('対面イベント「PODCAST MEETING 2022」を開催') && /^※応募締切は9月4日です。$/.test(l))) { removed.push({ reason: 'PROMO_IN_STAFF' }); continue; } const c = parseCastLine(l); if (c.name || c.role) cast.push(c); }
       continue;
     }
     for (let i = 0; i < s.lines.length; i++) {
       const l = s.lines[i], us = urlsOf(l), text = stripUrls(l);
       if (SOCIAL_LABEL_LINE.test(l)) { socials.push(...us); removed.push({ reason: 'SOCIAL_LABEL' }); continue; }
       if (TAIL_ASK.test(l) && stripUrlsLite(l).replace(TAIL_ASK, '').length >= 20) { body.push(stripUrls(l.replace(TAIL_ASK, ''))); removed.push({ reason: 'TAIL_ASK_SENTENCE' }); continue; }   // SC4-13: 本文＋末尾のお便り募集（EP-05280）
-      if (isPromo(l) || CONTACT_LINE.test(l) || EXTRA_PROMO.test(l) || NEWSLETTER_LINE.test(l) || ARCHIVE_LINE.test(stripUrls(l)) || INVITE_2022.test(l) || (src.includes('対面イベント「PODCAST MEETING 2022」を開催') && /^※応募締切は9月4日です。$/.test(l))) { removed.push({ reason: 'PROMO' }); continue; }
+      if (isPromo(l) || CONTACT_LINE.test(l) || LATE_PROMO.test(l) || EXTRA_PROMO.test(l) || NEWSLETTER_LINE.test(l) || ARCHIVE_LINE.test(stripUrls(l)) || INVITE_2022.test(l) || (src.includes('対面イベント「PODCAST MEETING 2022」を開催') && /^※応募締切は9月4日です。$/.test(l))) { removed.push({ reason: 'PROMO' }); continue; }
       const art = us.filter((u) => ARTICLE_URL.test(u));
       if (art.length) {   // 見出しと同じ行 or 直前の行（URLだけの行）
         let title = text; if (!T(title) && i > 0 && body.length && body[body.length - 1] === stripUrls(s.lines[i - 1])) title = body.pop();   // 直前の行が見出し
@@ -134,6 +143,12 @@ export function cleanV4(raw) {
     if (cast.length) { const gone = new Set(cast.map((c) => NZ(stripUrls(c.raw)))); for (let i = notes.length - 1; i >= 0; i--) if (gone.has(NZ(notes[i]))) notes.splice(i, 1); for (let i = body.length - 1; i >= 0; i--) if (gone.has(NZ(body[i]))) body.splice(i, 1); }
   }
   // 閉じていない見出し行（関連節で回収されなかった見出し）が本文末尾に残らないよう、関連節由来の行は本文から外さない＝そのまま（要確認で拾う）
+  // SC4-15: 冒頭の告知ブロック（★お知らせ…↓↓↓↓↓）。矢印だけの行までに告知の言い回しがあれば、そこまでを落とす（EP-02875・EP-04917）
+  { const k = body.slice(0, 15).findIndex((x) => /^[↓⬇]{3,}\s*$/.test(T(x)));
+    const NOTE = (x) => !/収録/.test(x) && (LATE_PROMO.test(x) || /イベント|お知らせ|開催|登壇|ご招待|見逃し配信|やります|リアルとオンライン|\d{1,2}時|^【[^】]*】$/.test(x));
+    if (k > 0) { let j = k; while (j > 0 && NOTE(body[j - 1])) j--;   // 矢印の直前から遡って告知らしい行だけ（本文・収録日の行で止まる）
+      if (j < k && body.slice(j, k).some((x) => LATE_PROMO.test(x) || /イベント|お知らせ|開催|登壇|ご招待/.test(x))) { removed.push({ reason: 'NOTICE_BLOCK_ARROW', lines: k - j + 1 }); body.splice(j, k - j + 1); } } }
+  for (let i = body.length - 1; i >= 0; i--) if (/^[↓⬇→]{2,}\s*$/.test(T(body[i]))) { body.splice(i, 1); removed.push({ reason: 'ARROW_ONLY' }); }   // SC4-15: リンクを指す矢印だけの行
   // SC4-14: 収録日の一文（「この番組は2021年10月1日に収録しました。」）は宣伝の行の末尾にくっついていることが多い（約900話）。
   // 行ごと宣伝として落ちても、原文にあるこの一文だけは本文の最後に残す（原文にある文だけ。作らない）
   { const plainSrc = src.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' '), have = NZ(body.join(''));
@@ -183,7 +198,7 @@ export function judgeEpisode(raw, existing = {}, sha256) {
   if (!String(raw ?? '').trim()) return { verdict: 'HOLD', reason: 'RAW_EMPTY', clean: c, findings: [], compare: '', writable: {}, manual: [] };
   const a = auditPair(raw, { description: c.text, cast: c.cast.map((x) => [x.role, x.name, x.note].join(' ')), related: c.related.map((r) => ({ url: r.url, title: r.title })) });
   findings.push(...a.findings.map((f) => f.type));
-  const acc = accountLines(raw, { description: c.text }); if (acc.保留) findings.push('UNACCOUNTED_LINE');   // 行き先を判断できない原文行がある回は自動合格にしない
+  const acc = accountLines(raw, { description: c.text }, isPromoLine); if (acc.保留) findings.push('UNACCOUNTED_LINE');   // 行き先を判断できない原文行がある回は自動合格にしない
   const ex = { summary: T(existing.summary), cast: T(existing.cast), related: T(existing.related) }, nw = { summary: c.text, cast: castCell(c.cast), related: relatedCell(c.related) };
   const same = (k) => NZ(ex[k]) === NZ(nw[k]) || (k === 'related' && ex[k] && NZ(ex[k].split(/\s+/).map(cleanUrl).join(' ')) === NZ(nw[k]));
   const manual = ['summary', 'cast', 'related'].filter((k) => ex[k] && !same(k) && !derivedFromRaw(ex[k], raw));
@@ -195,6 +210,12 @@ export function judgeEpisode(raw, existing = {}, sha256) {
   // 概要自体が原文由来で品質合格なら、他列の手動値を保持したまま概要を反映できる。概要の手動値は常に要確認。
   if (manual.length) { findings.push('MANUAL_EDIT_PROTECTED:' + manual.join('+')); if (verdict === '自動検査合格・目視未確認' && (manual.includes('summary') || !writable.summary)) verdict = '要確認'; }
   if (ex.cast && !c.cast.length) findings.push('CAST_NOT_IN_RAW');   // 既存の出演者が原文に無い（既定値の疑い）。消さずに記録
+  // SV-1（2026-11-16）: 清掃器とは独立の原文照合。新しい値が照合で不合格なら自動合格にしない。今の台帳の値が不合格なら SV_OLD_FAIL を記録（修復対象の目印）
+  const svNew = verifyEpisode(raw, { summary: nw.summary, cast: nw.cast, related: nw.related, relTitles: c.related.map((r) => r.title || '') });
+  const svOld = ex.summary ? verifyEpisode(raw, { summary: ex.summary, cast: ex.cast, related: ex.related, relTitles: c.related.map((r) => r.title || '') }) : { verdict: '不合格', issues: [{ code: 'SUMMARY_EMPTY', sev: 'FAIL' }] };
+  const failCodes = (r) => [...new Set(r.issues.filter((i) => i.sev === 'FAIL').map((i) => i.code))];
+  if (svNew.verdict === '不合格') { findings.push('SV_NEW:' + failCodes(svNew).join('+')); if (verdict === '自動検査合格・目視未確認') verdict = '要確認'; }
+  if (svOld.verdict === '不合格') findings.push('SV_OLD_FAIL:' + failCodes(svOld).join('+'));
   if (verdict === '不合格') ['summary', 'cast', 'related'].forEach((k) => { writable[k] = false; });
-  return { verdict, reason: [...new Set([...c.holds, ...findings])].join(','), clean: c, findings, compare: cmp, writable, manual, lines: { 保持: acc.保持, 移動: acc.移動, 除外: acc.除外, 保留: acc.保留 }, rawSha: sha256 ? sha256(String(raw)) : '', auditVersion: AUDIT_VERSION };
+  return { verdict, reason: [...new Set([...c.holds, ...findings])].join(','), clean: c, findings, compare: cmp, writable, manual, lines: { 保持: acc.保持, 移動: acc.移動, 除外: acc.除外, 保留: acc.保留 }, sv: { new: svNew.verdict, old: svOld.verdict }, rawSha: sha256 ? sha256(String(raw)) : '', auditVersion: AUDIT_VERSION };
 }

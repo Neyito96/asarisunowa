@@ -1259,3 +1259,39 @@ function 概要欄_5_反映後監査() {
   var chk = 概要欄_3_差分検証();
   return scLog_('概要欄_5_反映後監査', { status: diff.length || chk.raw.shaMismatch ? 'NG' : 'OK', applyId: id || '', historyRows: rows.length, stillAsWritten: same, changedSinceWrite: diff.slice(0, 20), rawShaMismatch: chk.raw.shaMismatch, remainingPlanned: chk.planned.cells, undo: 'S9_直前の反映を取消' });
 }
+
+// ===== 概要欄 修復（2026-11-16 司令塔「統合実機検証指令」1）=====
+// 既存の保護（V2・清掃詳細で合格済みの回は書き直さない）は 概要欄_4 でそのまま維持する。
+// それとは別に、「今の台帳の値が原文照合（SV-1）で不合格」かつ「新しい清掃値が照合合格・自動検査合格」の回だけを、承認つきで直す経路。
+// 手入力の列（MANUAL_EDIT_PROTECTED）・監査後に人が変えたセル（CHANGED_SINCE_AUDIT）は scApply_ の既存の保護でそのまま守られる。
+var SUM_REPAIR_SHEET_ = '概要欄・修復予定', SUM_REPAIR_KEY_ = 'APPROVE_SUMMARY_REPAIR';
+function scV2RepairScope_() {
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), res = c.ss.getSheetByName(SC_RESULT_), H = {}, scope = {}, n = 0;
+  SC_HEADERS_.forEach(function (x, i) { H[x] = i; });
+  if (res && res.getLastRow() > 1) res.getRange(2, 1, res.getLastRow() - 1, SC_HEADERS_.length).getDisplayValues().forEach(function (r) {
+    if (r[H['判定']] === '自動検査合格・目視未確認' && /SV_OLD_FAIL/.test(r[H['理由']]) && /summary/.test(r[H['書換可']])) { scope[r[H['EP-ID']]] = 1; n++; } });
+  return scope;
+}
+function sumRepairPlan_() {
+  var plan = scApply_(SC_CONFIG.v2WorkingId, '', SC_CONFIG.v2ApplyLevel, 'V2作業用', 0, null, scV2RepairScope_(), true);
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), res = c.ss.getSheetByName(SC_RESULT_), H = {}, why = {}; SC_HEADERS_.forEach(function (n, i) { H[n] = i; });
+  if (res && res.getLastRow() > 1) res.getRange(2, 1, res.getLastRow() - 1, SC_HEADERS_.length).getDisplayValues().forEach(function (r) { why[r[H['EP-ID']]] = String(r[H['理由']]).match(/SV_OLD_FAIL:[^,]*/) || ''; });
+  var out = (plan.writes || []).map(function (w) { return [w.ep, w.col, w.oldV.slice(0, 80), w.newV.slice(0, 80), String(why[w.ep] || '')]; });
+  laWriteSheet_(c.ss, SUM_REPAIR_SHEET_, ['EP-ID', '列', '旧値（先頭80字）', '新値（先頭80字）', '今の値の問題（SV-1）'], out);
+  return plan;
+}
+// 6) 修復の予行（読むだけ。COPY「概要欄・修復予定」に一覧）
+function 概要欄_6_修復予行() {
+  var chk = 概要欄_3_差分検証(), plan = sumRepairPlan_();
+  return scLog_('概要欄_6_修復予行', { status: chk.raw.shaMismatch ? 'NG' : 'OK', rawShaMismatch: chk.raw.shaMismatch, repairCells: plan.cellsPlanned, repairEpisodes: plan.episodes, byColumn: plan.byColumn, skipped: plan.skipped, planSheet: 'COPY「' + SUM_REPAIR_SHEET_ + '」' });
+}
+// 承認（管理人が押す。当日だけ有効）
+function 概要欄_0R_承認_V2修復() { PropertiesService.getScriptProperties().setProperty(SUM_REPAIR_KEY_, sumToday_()); return scLog_('概要欄_0R_承認_V2修復', { status: 'APPROVED', validOn: sumToday_() }); }
+// 7) V2修復反映（承認当日だけ・原文ハッシュ不一致0のときだけ。上限 applyMaxPerRun 件ずつ、続きは再実行）
+function 概要欄_7_V2修復反映() {
+  var P = PropertiesService.getScriptProperties(); if (P.getProperty(SUM_REPAIR_KEY_) !== sumToday_()) return scLog_('概要欄_7_V2修復反映', { status: 'NOT_APPROVED_TODAY', note: '先に 概要欄_0R_承認_V2修復' });
+  var chk = 概要欄_3_差分検証(); if (chk.raw.shaMismatch || chk.protectedInPlan) return scLog_('概要欄_7_V2修復反映', { status: 'STOP_PRECHECK_NG', precheck: chk });
+  var r = scApply_(SC_CONFIG.v2WorkingId, '', SC_CONFIG.v2ApplyLevel, 'V2作業用', 0, null, scV2RepairScope_());
+  if (r.status !== 'OK' || r.cellsWritten < SC_CONFIG.applyMaxPerRun) P.deleteProperty(SUM_REPAIR_KEY_); else r.note = '上限まで書いたので続きあり: もう一度 概要欄_7 を押す（承認は当日中有効）';
+  return scLog_('概要欄_7_V2修復反映', r);
+}

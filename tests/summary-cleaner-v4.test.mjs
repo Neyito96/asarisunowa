@@ -503,3 +503,24 @@ test('概要欄_ 系: 予行(dryRun)は書かない・承認は当日限り・V2
   const body4 = src.slice(src.indexOf('function 概要欄_4_V2本番反映'), src.indexOf('function 概要欄_5_'));
   assert.match(body4, /NOT_APPROVED_TODAY/); assert.match(body4, /STOP_PRECHECK_NG/); assert.match(body4, /deleteProperty\(SUM_APPROVE_KEY_\)/);
 });
+
+test('SV-1/SC4-15: 応募告知・URLを抜いた跡・★告知は残さず、照合で不合格の新値は自動合格にしない', async () => {
+  const { verifyEpisode } = await import('../scripts/ledger-v2/summary-v2-verify.mjs');
+  const raw = '<p>早産で生まれた赤ちゃんと家族の話をします。母子手帳のサブブックも紹介します。<br>※トークセッションの視聴申し込みは12月16日18:55まで。交流タイムの応募は締め切りました。朝日新聞デジタル有料会員の方にご参加いただけます。<br>※2022年11月17日に収録しました。</p><p>これまでの楽屋裏はこちら（https://example.com/x）。</p>';
+  const j = judgeEpisode(raw);
+  assert.doesNotMatch(j.clean.text, /申し込み|ご参加いただけます|（\s*）|はこちら/);
+  assert.match(j.clean.text, /11月17日に収録/);
+  assert.equal(verifyEpisode(raw, { summary: j.clean.text }).verdict, '合格');
+  assert.equal(verifyEpisode(raw, { summary: '早産で生まれた赤ちゃんと家族の話をします。母子手帳のサブブックも紹介します。\nこれまでの楽屋裏はこちら（ ）。' }).verdict, '不合格');
+});
+test('SC4-15: 章立ての「◆出演者…(1:28)」を出演者の見出しと取り違えない・本文の「何をフォローしている？」を消さない', () => {
+  const raw = '<p>今回の議題は…<br>◆出演者検索ツール作成 呼びかけたのは「おんさ」さん(1:28)<br>◆シメクイズ(45:20)<br>※2023年10月12日に収録しました</p><p>「一緒に新聞をめくろう！」今回は3人は何をフォローしている？ 紙面とは違う世界が広がります。</p>';
+  const t = cleanV4(raw).text;
+  assert.match(t, /出演者検索ツール作成/); assert.match(t, /何をフォローしている/); assert.match(t, /10月12日に収録/);
+});
+test('概要欄_6/7: 修復は当日承認・原文ハッシュ一致が条件、範囲は SV_OLD_FAIL の自動合格行だけ', () => {
+  const src = fs.readFileSync('gas/summary-cleaner/src/CleanerMain.js', 'utf8');
+  const b = src.slice(src.indexOf('function 概要欄_7_V2修復反映'));
+  assert.match(b, /NOT_APPROVED_TODAY/); assert.match(b, /shaMismatch/); assert.match(src, /SV_OLD_FAIL/);
+  assert.match(src.slice(src.indexOf('function sumRepairPlan_'), src.indexOf('function 概要欄_6_')), /, true\);/);
+});
