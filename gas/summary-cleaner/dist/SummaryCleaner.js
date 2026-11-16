@@ -1,5 +1,5 @@
-// 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-v2-verify.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = 'b7ba5aae60b265c6f9c5c0302ddcd98985624b45a548fc421b172db7c4aaff0f';
+// 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-v2-verify.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/net-count.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
+var CLEANER_BUILD_SOURCE_SHA256 = '185081022b0734e3020ca95dd9a85ee0bab219330878916932517626b54b5ae7';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -1089,6 +1089,97 @@ const SDGS_OFFICIAL = [["a7182b72-b53c-44f4-a7dc-b4aa00925b77","【番組から�
 return { SDGS_OFFICIAL_SOURCE, SDGS_OFFICIAL };
 })();
 
+var NetCount = (function () {
+// 正味の公開エピソード数を決める判定（READ_ONLY・純関数）。2026-11-16 司令塔「正味件数確定・差分解消」。
+// 入力: V2・統合台帳の行、おんさ比較シート（番組タブ）、V2・SDGs再配信185件照合、SDGs公式JSON 1,092件。
+// 出力: EP-IDごとの判定案（対象／対象案／重複案／保留案／保留／対象外）と根拠。台帳・公開サイト・Spotifyへは書かない。
+// 原則: 推測で採用しない。採用は「公式ID（GUID/UUID）または題名+配信日」が独立のおんさ表と一致し、V2内で重複がない場合だけ。
+//       再配信は元配信を代表にし、題名（または既存の複合照合）と尺の編集差の範囲で同一内容とみなす（それ以外は保留）。
+const NET_VERSION = 'NET-1';
+// 2026-11-16 音声チーム回答（docs/operations/2026-11-16-rebroadcast-policy.md）: 元配信を代表に優先。冒頭・末尾の編集差があっても元配信のみ残してよい。
+// そこで「題名・概要・尺の複合照合で高確度一致」かつ尺差が編集差の範囲（120秒以内）なら同一内容とする。それより尺が違う回・有力候補・未発見は保留（推測で除外しない）。
+const EDIT_DIFF_MAX_SEC = 120;
+const RERUN = /再放送|再配信|（再）|\(再\)|アンコール|再掲/;   // 「振り返る」は話題の言葉にも使われるので標識にしない
+const N = (s) => String(s || '').replace(/[\s　「」『』]/g, '').toLowerCase();
+const core = (t) => N(String(t || '').replace(/（再[^）]*）|【再[^】]*】|\(再[^)]*\)|再放送です|再放送|再配信/g, ''));
+const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g;
+function dayKey(s) {
+  const t = String(s || '').trim(); let m = t.match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})/);
+  if (m) return m[1] + '/' + String(m[2]).padStart(2, '0') + '/' + String(m[3]).padStart(2, '0');
+  const d = new Date(t); if (isNaN(d)) return '';
+  const j = new Date(d.getTime() + 9 * 3600e3); return j.getUTCFullYear() + '/' + String(j.getUTCMonth() + 1).padStart(2, '0') + '/' + String(j.getUTCDate()).padStart(2, '0');   // おんさ表の RFC 日時（UTC）→ JST の日付
+}
+const ids = (r) => new Set([r.guid, r.uuid].filter(Boolean).map((x) => String(x).toLowerCase()).concat((String(r.officialUrl || '').toLowerCase().match(/itemid=([0-9a-f-]{36})/) || []).slice(1)));
+const cand = (r) => new Set((String(r.basis || '').toLowerCase().match(UUID) || []));
+const dur = (r) => { const n = parseInt(r.duration, 10); return isNaN(n) ? null : n; };
+const absn = (x) => { const n = Math.abs(parseFloat(x)); return isNaN(n) ? null : n; };
+
+// v2Rows: [{ep, show, title, date, judge, rep, guid, uuid, officialUrl, duration, basis, reason}]
+// onsaRows: [{show, title, date, item}]（item = Asahi.com URL の itemid）
+// rerun185: [{ep, match, origin, diff}]（V2・SDGs再配信185件照合）
+// sdgsOfficial: [uuid]（SDGs公式JSON 1,092件）
+function classifyNet({ v2Rows, onsaRows, rerun185 = [], sdgsOfficial = [], identityOverrides = {} }) {
+  const byEp = {}; v2Rows.forEach((r) => { byEp[r.ep] = r; });
+  const onId = {}, onTd = {}; onsaRows.forEach((x) => { if (x.item) onId[String(x.item).toLowerCase()] = x; (onTd[N(x.title) + '|' + dayKey(x.date)] = onTd[N(x.title) + '|' + dayKey(x.date)] || []).push(x); });
+  const idx = {}, tdx = {};
+  v2Rows.forEach((r) => { new Set([...ids(r), ...cand(r)]).forEach((i) => { (idx[i] = idx[i] || []).push(r.ep); }); const k = N(r.title) + '|' + dayKey(r.date); (tdx[k] = tdx[k] || []).push(r.ep); });
+  const s185 = {}; rerun185.forEach((x) => { s185[x.ep] = x; });
+  const inOnsa = (r) => { for (const i of new Set([...ids(r), ...cand(r)])) if (onId[i]) return 'おんさ:ID一致'; return onTd[N(r.title) + '|' + dayKey(r.date)] ? 'おんさ:題名+日付一致' : ''; };
+  const others = (r) => { const s = new Set(); new Set([...ids(r), ...cand(r)]).forEach((i) => (idx[i] || []).forEach((e) => s.add(e))); (tdx[N(r.title) + '|' + dayKey(r.date)] || []).forEach((e) => s.add(e)); s.delete(r.ep); return [...s]; };
+  const isT = (e) => byEp[e] && byEp[e].judge === '対象';
+  const rows = v2Rows.map((r) => {
+    let prop = r.judge, rep = r.rep || r.ep, reason = '';
+    const o = inOnsa(r), oth = others(r), othT = oth.filter(isT);
+    if (identityOverrides[r.ep]) { const ov = identityOverrides[r.ep]; return { ep: r.ep, show: r.show, now: r.judge, prop: ov.prop, rep: ov.rep || r.ep, reason: ov.reason, onsa: o }; }
+    if (r.judge === '対象') {
+      const dup = (tdx[N(r.title) + '|' + dayKey(r.date)] || []).filter((e) => e !== r.ep && isT(e));
+      if (dup.length) {
+        const grp = dup.concat([r.ep]).sort(), pref = grp.filter((e) => r.title.indexOf(byEp[e].show) >= 0); rep = (pref.length ? pref : grp)[0];
+        if (rep === r.ep) { prop = '対象'; reason = '同題・同日の組の代表（番組名一致を優先）: ' + dup.join(','); } else { prop = '重複案'; reason = '対象同士で題名・配信日が同じ。代表 ' + rep; }
+      } else if (s185[r.ep]) {
+        const x = s185[r.ep], d = absn(x.diff);
+        if (x.match === '高確度一致' && d !== null && d <= EDIT_DIFF_MAX_SEC && isT(x.origin)) { prop = '重複案'; rep = x.origin; reason = 'SDGs再配信185件照合: 高確度一致・尺差' + x.diff + '秒（編集差の範囲）→ 元配信を代表'; }
+        else { prop = '保留案'; reason = 'SDGs再配信185件照合: ' + (x.match || '未照合') + '・尺差' + x.diff + '秒（同一内容は未検証）'; }
+      } else if (RERUN.test(r.title)) {
+        const src = v2Rows.filter((x) => x.ep !== r.ep && isT(x.ep) && core(x.title) === core(r.title));
+        const hit = src.find((x) => dur(x) !== null && dur(r) !== null && Math.abs(dur(x) - dur(r)) <= EDIT_DIFF_MAX_SEC);
+        if (hit) { prop = '重複案'; rep = hit.ep; reason = '再放送：元配信と題名一致・尺差' + Math.abs(dur(hit) - dur(r)) + '秒（編集差の範囲）'; } else { prop = '保留案'; reason = '再放送の表示あり・元配信と同一の根拠なし'; }
+      } else { prop = '対象'; reason = '現判定どおり'; }
+    } else if (r.judge === '対象外') {
+      if (r.rep && r.rep !== r.ep && isT(r.rep)) reason = '代表が対象（重複として除外を維持）'; else { prop = '保留'; reason = '代表EP-IDが対象でない'; }
+    } else {
+      if (r.rep && r.rep !== r.ep && isT(r.rep) && core(r.title) === core(byEp[r.rep].title)) { prop = '重複案'; rep = r.rep; reason = '代表EP-ID（対象）と同題'; }
+      else if (othT.length) { prop = '重複案'; rep = othT[0]; reason = '同じ公式ID／題名・配信日の対象行あり'; }
+      else if (RERUN.test(r.title)) {
+        const src = v2Rows.filter((x) => x.ep !== r.ep && isT(x.ep) && core(x.title) === core(r.title));
+        const hit = src.find((x) => dur(x) !== null && dur(r) !== null && Math.abs(dur(x) - dur(r)) <= EDIT_DIFF_MAX_SEC);
+        if (hit) { prop = '重複案'; rep = hit.ep; reason = '再放送：元配信と題名一致・尺差' + Math.abs(dur(hit) - dur(r)) + '秒（編集差の範囲）'; } else { prop = '保留'; reason = '再放送の表示あり・元配信と同一の根拠なし'; }
+      } else if (o && !oth.length) { prop = '対象案'; reason = o + '・V2内で公式ID／題名・配信日の重複なし'; }
+      else { prop = '保留'; reason = oth.length ? 'V2内に同じID／題名の行あり（対象ではない）: ' + oth.join(',') : 'おんさ表に無く、公式との対応も未確認'; }
+    }
+    return { ep: r.ep, show: r.show, now: r.judge, prop, rep, reason, onsa: o };
+  });
+  // おんさ表にあって V2 に無い回（欠落）
+  const v2Ids = new Set(), v2Td = new Set(); v2Rows.forEach((r) => { new Set([...ids(r), ...cand(r)]).forEach((i) => v2Ids.add(i)); v2Td.add(N(r.title) + '|' + dayKey(r.date)); });
+  const num = (t) => (String(t || '').normalize('NFKC').match(/#\s*(\d+)/) || [])[1] || '';
+  const v2DayNum = new Set(v2Rows.filter((r) => num(r.title)).map((r) => dayKey(r.date) + '|' + num(r.title)));   // 題名の言い回しだけ違う回（同じ配信日・同じ回番号）
+  const onsaOnly = onsaRows.filter((x) => !(x.item && v2Ids.has(String(x.item).toLowerCase())) && !v2Td.has(N(x.title) + '|' + dayKey(x.date)) && !(num(x.title) && v2DayNum.has(dayKey(x.date) + '|' + num(x.title))));
+  // SDGs公式1,092件との突き合わせ
+  const sdgsSet = new Set(sdgsOfficial.map((u) => String(u).toLowerCase()));
+  const sdgsMissing = [...sdgsSet].filter((u) => !v2Ids.has(u) && !Object.values(identityOverrides).some((ov) => String(ov.officialUuid || '').toLowerCase() === u));
+  const net = rows.filter((x) => x.prop === '対象' || x.prop === '対象案');
+  const count = (arr, f) => arr.reduce((a, x) => { const k = f(x); a[k] = (a[k] || 0) + 1; return a; }, {});
+  return { version: NET_VERSION, rows, onsaOnly, sdgsMissing, summary: { ledgerRows: v2Rows.length, net: net.length, netByShow: count(net, (x) => x.show), transitions: count(rows, (x) => x.now + '→' + x.prop), props: count(rows, (x) => x.prop), onsaOnly: onsaOnly.length, sdgsOfficial: sdgsSet.size, sdgsMissingInV2: sdgsMissing.length } };
+}
+
+// 2026-11-16 照合で根拠が揃った個別の同一性（人が読める根拠つき。自動の基準は緩めない）
+const NET_IDENTITY_OVERRIDES = {
+  'EP-06532': { prop: '対象案', officialUuid: 'fbfa9f2d-821c-4c38-96cc-b4aa00974842', reason: 'SDGs公式JSON fbfa9f2d（#1045表記）と題名・配信日時（2026/03/13 04:00）・長さ1467秒が一致し、おんさ表も同じ回を fbfa9f2d に紐付け。旧UUID 95071574 は同じ回の旧公式URL' },
+};
+
+return { NET_VERSION, EDIT_DIFF_MAX_SEC, dayKey, classifyNet, NET_IDENTITY_OVERRIDES };
+})();
+
 var LedgerAudit = (function () {
 // V2統合台帳の総合監査（2026-11-13 司令塔指令）。読むだけの判定ロジック。GAS（清掃ロボ）と Node テストの両方から使う。
 // 方針: 推測でURLを作らない。番組トップURLを個別エピソードURLとして数えない。件数一致だけで合格にしない。
@@ -1462,7 +1553,7 @@ const isoDate = (d) => { const m = String(d || '').match(/^(\d{4})[/-](\d{1,2})[
 
 // previousPublicIds: 現在の公開データの EP-ID 集合（再配信の原回が公開済みかの判定に使う）。verifiedAudio: { EP-ID: { url } }（既存と同じ形）
 // newEpisodeAllowList: 旧公開に無い回のうち、L4 で VERIFIED（公式ページ・音声とも確認済み）になった EP-ID だけを渡す。渡さない回は自動公開しない（保留）
-function buildV2Library({ ledger, persons = [], related = [], previousPublicIds = new Set(), verifiedAudio = {}, newEpisodeAllowList = new Set(), decidedAt, hash }) {
+function buildV2Library({ ledger, persons = [], related = [], previousPublicIds = new Set(), verifiedAudio = {}, newEpisodeAllowList = new Set(), decidedAt, hash, netDecisions = null }) {
   const L = objects(ledger); LEDGER_REQUIRED.forEach((k) => { if (!(k in (L[0] || {}))) throw Error('V2_LEDGER_COLUMN_MISSING ' + k); });
   const byEp = new Map(), originals = new Map(), seen = new Set();
   for (const r of L) { if (!/^EP-\d{5}$/.test(r['EP-ID'])) throw Error('INVALID_EP_ID ' + r['EP-ID']); if (seen.has(r['EP-ID'])) throw Error('DUPLICATE_EP_ID ' + r['EP-ID']); seen.add(r['EP-ID']); byEp.set(r['EP-ID'], r); if (!isRerun(r['タイトル'])) { const k = r['番組'] + '|' + baseTitle(r['タイトル']); (originals.get(k) || originals.set(k, []).get(k)).push(r['EP-ID']); } }
@@ -1475,6 +1566,11 @@ function buildV2Library({ ledger, persons = [], related = [], previousPublicIds 
     else if (r['掲載判定'] === '対象') { publication = '除外'; classification = '同一内容'; why = '代表は ' + r['代表EP-ID']; }
     else if (r['掲載判定'] === '保留' || r['掲載判定'] === '未判定' || !r['掲載判定']) { publication = '保留'; why = 'V2 掲載判定=' + (r['掲載判定'] || '空'); }
     else why = 'V2 掲載判定=' + r['掲載判定'];
+    // 正味判定（net-count.mjs、2026-11-16 音声チーム回答に基づく再配信方針）を渡されたときは、それを優先する。原本の行は消さない
+    const nd = netDecisions && netDecisions[id];
+    if (nd && nd.prop === '重複案') { publication = '除外'; classification = '同一内容'; why = '代表 ' + nd.rep + '（' + nd.reason + '）'; }
+    else if (nd && (nd.prop === '保留案' || nd.prop === '保留')) { publication = '保留'; classification = nd.prop === '保留案' ? '再配信・未照合' : classification; why = nd.reason; }
+    else if (nd && nd.prop === '対象案' && publication !== '対象') { publication = '対象'; why = '判定案: ' + nd.reason; }
     const g = String(r['公式GUID'] || '').toLowerCase();
     if (publication === '対象' && g && guidSeen.has(g)) { publication = '除外'; classification = '重複'; why = '公式GUIDが ' + guidSeen.get(g) + ' と同じ'; }
     if (publication === '対象' && isRerun(title)) { const o = (originals.get(show + '|' + baseTitle(title)) || []).filter((x) => x !== id), pub = o.filter((x) => previousPublicIds.has(x));
@@ -2601,7 +2697,7 @@ function E1_V2公開データ_予行() {
   var prevIds = {}, audioPrev = {}; old.rows.forEach(function (e) { prevIds[e.id] = 1; if (e.audio) audioPrev[e.id] = 1; });
   var h = ledger[0], A = h.indexOf('音声URL'), verifiedAudio = {}; ledger.slice(1).forEach(function (r) { if (audioPrev[r[0]] && r[A]) verifiedAudio[r[0]] = { url: r[A] }; });   // 旧公開で再生できた回は、同じ音声URLなら確認済みを引き継ぐ
   var l3 = c.ss.getSheetByName(LA3_SHEET_); if (l3 && l3.getLastRow() > 1) l3.getRange(2, 1, l3.getLastRow() - 1, LA3_H_.length).getDisplayValues().forEach(function (r) { if (r[6] === 'AUDIO_OK' && r[5]) verifiedAudio[r[0]] = { url: r[5] }; });
-  var res = V2LibCore.buildV2Library({ ledger: ledger, persons: persons, related: related, previousPublicIds: new Set(Object.keys(prevIds)), verifiedAudio: verifiedAudio, newEpisodeAllowList: new Set(Object.keys(allow)), decidedAt: new Date().toISOString(), hash: p25v2GasSha256_ });
+  var res = V2LibCore.buildV2Library({ ledger: ledger, persons: persons, related: related, previousPublicIds: new Set(Object.keys(prevIds)), verifiedAudio: verifiedAudio, newEpisodeAllowList: new Set(Object.keys(allow)), decidedAt: new Date().toISOString(), hash: p25v2GasSha256_, netDecisions: NET_E1_DECISIONS_ });   // 正味_3 から呼ばれたときだけ正味判定を使う
   var d = V2LibCore.compareWithPublic(res.episodes, old.rows), rows = [];
   d.added.forEach(function (id) { rows.push([id, '追加', '', '']); }); d.removed.forEach(function (id) { var a = res.audit.filter(function (x) { return x.id === id; })[0]; rows.push([id, '削除', '', a ? a.publication + '/' + a.classification + ' ' + a.why : 'V2に行なし']); });
   d.changed.forEach(function (x) { rows.push([x.id, '変更', x.fields.join('・'), '']); });
@@ -2880,4 +2976,91 @@ function 配信先_A1_Apple照合_READ_ONLY() {
   var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes);
   laWriteSheet_(c.ss, PF_APPLE_SHEET_, ['EP-ID', '番組', '公式GUID', 'Apple URL（APIの値）', 'V2の今の値', '状態'], out);
   return scLog_('配信先_A1_Apple照合_READ_ONLY', { status: 'READ_ONLY', v2Writes: 0, total: total, perShow: perShow, sheet: 'COPY「' + PF_APPLE_SHEET_ + '」', method: 'Apple公開APIの episodeGuid = V2公式GUID（完全一致）、番組はRSS一致で特定', ms: Date.now() - t0 });
+}
+
+
+// ===== 正味件数（2026-11-16 司令塔「正味件数確定・差分解消」＋音声チーム回答 docs/operations/2026-11-16-rebroadcast-policy.md）=====
+// 判定は scripts/ledger-v2/net-count.mjs（NetCount）。V2・おんさ比較シート・SDGs公式JSON・SDGs再配信185件照合は読むだけ。
+// 結果は COPY「正味・判定案」「正味・集計」「正味・おんさ差分」。台帳へ書くのは 正味_2（COPY台帳）と 正味_4（V2、当日承認つき）だけ。
+var NET_ONSA_ID_ = '1CvRyWLQb7YyonGyRSNKtc_liRrgtiWE5yDGI3R48Xfk';   // おんささんの比較シート（読むだけ。書く関数からは開かない）
+var NET_ONSA_TABS_ = ['ニュースの現場から', 'メディアトーク', 'ドーナツ', 'スポンジ', 'SDGs', '報談', 'ニュースの学校'];
+var NET_SHEET_ = '正味・判定案', NET_SUM_ = '正味・集計', NET_ONSA_SHEET_ = '正味・おんさ差分', NET_HIST_ = '正味・反映履歴', NET_APPROVE_KEY_ = 'APPROVE_NET_V2';
+var NET_E1_DECISIONS_ = null;
+var NET_NEW_JUDGE_ = { '対象案': '対象', '重複案': '対象外', '保留案': '保留' };
+function netInputs_() {
+  var v = scOpen_(SC_CONFIG.v2WorkingId, ''), vals = v.sh.getRange(1, 1, v.sh.getLastRow(), v.sh.getLastColumn()).getDisplayValues(), h = vals[0], I = function (n) { var i = h.indexOf(n); if (i < 0) throw new Error('LEDGER_COLUMN_NOT_FOUND ' + n); return i; };
+  var ix = { ep: I('EP-ID'), show: I('番組'), title: I('タイトル'), date: I('配信日時 JST'), judge: I('掲載判定'), rep: I('代表EP-ID'), guid: I('公式GUID'), uuid: I('公式JSON UUID'), url: I('公式個別URL'), dur: I('再生時間 秒'), basis: I('判定根拠'), reason: I('除外・保留理由') };
+  var v2Rows = vals.slice(1).filter(function (r) { return /^EP-\d{5}$/.test(r[ix.ep]); }).map(function (r) { return { ep: r[ix.ep], show: r[ix.show], title: r[ix.title], date: r[ix.date], judge: r[ix.judge], rep: r[ix.rep], guid: r[ix.guid], uuid: r[ix.uuid], officialUrl: r[ix.url], duration: r[ix.dur], basis: r[ix.basis], reason: r[ix.reason] }; });
+  var on = SpreadsheetApp.openById(NET_ONSA_ID_), onsaRows = [], onsaCounts = {}, youtube = 0;
+  NET_ONSA_TABS_.forEach(function (t) { var sh = on.getSheetByName(t); if (!sh || sh.getLastRow() < 3) return; var hh = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0], ai = hh.indexOf('Asahi.com URL');
+    var rr = sh.getRange(3, 1, sh.getLastRow() - 2, Math.max(13, ai + 1)).getDisplayValues().filter(function (r) { return r[0] || r[2]; }); onsaCounts[t] = rr.length;
+    rr.forEach(function (r) { var m = String(ai >= 0 ? r[ai] : '').match(/itemid=([0-9a-f-]{36})/i); onsaRows.push({ show: t, title: r[2], date: r[1], item: m ? m[1].toLowerCase() : '' }); }); });
+  var yt = on.getSheetByName('YouTube'); if (yt && yt.getLastRow() > 2) youtube = yt.getRange(3, 1, yt.getLastRow() - 2, 1).getDisplayValues().filter(function (r) { return r[0]; }).length;
+  var s185 = v.ss.getSheetByName('V2・SDGs再配信185件照合'), rerun185 = [];
+  if (s185 && s185.getLastRow() > 1) { var a = s185.getRange(1, 1, s185.getLastRow(), s185.getLastColumn()).getDisplayValues(), hh2 = a[0];
+    a.slice(1).forEach(function (r) { if (/^EP-/.test(r[0])) rerun185.push({ ep: r[0], match: r[hh2.indexOf('元配信照合')], origin: r[hh2.indexOf('元EP-ID候補')], diff: r[hh2.indexOf('尺差（秒）')] }); }); }
+  var so = v.ss.getSheetByName('SDGs公式JSON_1092件原本'), sdgsOfficial = so ? so.getRange(2, 1, so.getLastRow() - 1, 1).getDisplayValues().map(function (r) { return r[0]; }).filter(String) : [];
+  return { v2Rows: v2Rows, onsaRows: onsaRows, onsaCounts: onsaCounts, youtube: youtube, rerun185: rerun185, sdgsOfficial: sdgsOfficial };
+}
+// 1) 照合と判定案（読むだけ）
+function 正味_1_件数照合_READ_ONLY() {
+  var t0 = Date.now(), inp = netInputs_(), res = NetCount.classifyNet({ v2Rows: inp.v2Rows, onsaRows: inp.onsaRows, rerun185: inp.rerun185, sdgsOfficial: inp.sdgsOfficial, identityOverrides: NetCount.NET_IDENTITY_OVERRIDES });
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes);
+  laWriteSheet_(c.ss, NET_SHEET_, ['EP-ID', '番組', '現判定', '判定案', '代表EP-ID案', '根拠', 'おんさ表'], res.rows.map(function (x) { return [x.ep, x.show, x.now, x.prop, x.rep, x.reason, x.onsa]; }));
+  laWriteSheet_(c.ss, NET_ONSA_SHEET_, ['区分', '番組', 'タイトル', '日付', 'itemid'], res.onsaOnly.map(function (x) { return ['おんさにあり V2に無い', x.show, x.title, x.date, x.item]; }).concat(res.sdgsMissing.map(function (u) { return ['SDGs公式にあり V2に無い', 'SDGsを話そう', '', '', u]; })));
+  var sum = res.summary; sum.onsaRowsByTab = inp.onsaCounts; sum.youtubeVideosInOnsa = inp.youtube; sum.excludedShows = 'AJW・アルキキ・YouTube動画は計上しない（V2統合台帳に行なし）';
+  laWriteSheet_(c.ss, NET_SUM_, ['項目', '値'], Object.keys(sum).map(function (k) { return [k, typeof sum[k] === 'object' ? JSON.stringify(sum[k]) : sum[k]]; }));
+  return scLog_('正味_1_件数照合_READ_ONLY', { status: 'READ_ONLY', version: res.version, summary: sum, onsaOnly: res.onsaOnly.map(function (x) { return x.show + ':' + x.item; }), ms: Date.now() - t0 });
+}
+function netPlan_() {
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), sh = c.ss.getSheetByName(NET_SHEET_); if (!sh || sh.getLastRow() < 2) throw new Error('先に 正味_1_件数照合_READ_ONLY');
+  return sh.getRange(2, 1, sh.getLastRow() - 1, 7).getDisplayValues().map(function (r) { return { ep: r[0], now: r[2], prop: r[3], rep: r[4], reason: r[5] }; });
+}
+// 台帳の 掲載判定・代表EP-ID・除外・保留理由 を判定案どおりにする（変わる行だけ。元の値は「正味・反映履歴」に残し、読み戻して確認）
+function netApply_(targetId, nameIncludes, label, dry) {
+  if ([SC_CONFIG.copyId, SC_CONFIG.v2WorkingId].indexOf(targetId) < 0) throw new Error('NET_TARGET_REFUSED');
+  var lock = LockService.getScriptLock(); if (!lock.tryLock(5000)) return { status: 'LOCKED' };
+  try {
+    var o = scOpen_(targetId, nameIncludes), vals = o.sh.getRange(1, 1, o.sh.getLastRow(), o.sh.getLastColumn()).getDisplayValues(), h = vals[0];
+    var iE = h.indexOf('EP-ID'), iJ = h.indexOf('掲載判定'), iR = h.indexOf('代表EP-ID'), iW = h.indexOf('除外・保留理由'); if ([iE, iJ, iR, iW].some(function (x) { return x < 0; })) throw new Error('LEDGER_COLUMN_NOT_FOUND');
+    var row = {}; vals.forEach(function (r, i) { if (i) row[r[iE]] = i; });
+    var plan = netPlan_(), writes = [], skipped = { NO_CHANGE: 0, NOT_IN_LEDGER: 0, CHANGED_SINCE_PLAN: 0 };
+    plan.forEach(function (p) { var nj = NET_NEW_JUDGE_[p.prop]; if (!nj) { skipped.NO_CHANGE++; return; } var i = row[p.ep]; if (!i) { skipped.NOT_IN_LEDGER++; return; }
+      var r = vals[i]; if (r[iJ] !== p.now) { skipped.CHANGED_SINCE_PLAN++; return; }   // 判定案を作った後に人が変えた行は触らない
+      var nr = p.prop === '重複案' ? p.rep : r[iR], nw = '[' + NetCount.NET_VERSION + '] ' + p.reason;
+      if (r[iJ] === nj && r[iR] === nr) { skipped.NO_CHANGE++; return; }
+      writes.push({ ep: p.ep, i: i, old: [r[iJ], r[iR], r[iW]], nw: [nj, nr, nw] }); });
+    if (dry) return { status: 'DRYRUN', target: label, rows: writes.length, skipped: skipped, byNew: writes.reduce(function (a, w) { a[w.nw[0]] = (a[w.nw[0]] || 0) + 1; return a; }, {}) };
+    var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), hist = scSheet_(c.ss, NET_HIST_, ['日時', '反映ID', '反映先', 'EP-ID', '旧 掲載判定', '旧 代表EP-ID', '旧 除外・保留理由', '新 掲載判定', '新 代表EP-ID', '新 除外・保留理由', '状態']);
+    var id = new Date().toISOString() + '/' + label, at = new Date().toISOString();
+    if (writes.length) hist.getRange(hist.getLastRow() + 1, 1, writes.length, 11).setNumberFormat('@').setValues(writes.map(function (w) { return [at, id, label, w.ep].concat(w.old, w.nw, ['書込中']); }));   // 先に記録してから書く
+    writes.forEach(function (w) { o.sh.getRange(w.i + 1, iJ + 1).setValue(w.nw[0]); o.sh.getRange(w.i + 1, iR + 1).setValue(w.nw[1]); o.sh.getRange(w.i + 1, iW + 1).setValue(w.nw[2]); });
+    SpreadsheetApp.flush();
+    var back = o.sh.getRange(1, 1, o.sh.getLastRow(), o.sh.getLastColumn()).getDisplayValues(), bad = writes.filter(function (w) { var r = back[w.i]; return r[iE] !== w.ep || r[iJ] !== w.nw[0] || r[iR] !== w.nw[1]; });
+    PropertiesService.getScriptProperties().setProperty('NET_LAST_APPLY', id);
+    return { status: bad.length ? 'MISMATCH' : 'OK', target: label, applyId: id, rows: writes.length, readbackMismatch: bad.map(function (w) { return w.ep; }).slice(0, 20), skipped: skipped, ledgerRowsBefore: vals.length - 1, ledgerRowsAfter: back.length - 1 };
+  } finally { lock.releaseLock(); }
+}
+// 2) COPY台帳へ判定案を反映（試験）
+function 正味_2_COPY台帳へ反映() { return scLog_('正味_2_COPY台帳へ反映', netApply_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes, 'COPY', false)); }
+// 3) 公開データの試算（読むだけ）: V2台帳＋正味判定で公開図書館データを作り、今の公開と比べる（E1 の処理を使う。公開・mainへは出さない）
+function 正味_3_公開データ試算() {
+  var m = {}; netPlan_().forEach(function (p) { m[p.ep] = p; }); NET_E1_DECISIONS_ = m;
+  try { var r = E1_V2公開データ_予行(); } finally { NET_E1_DECISIONS_ = null; }
+  return scLog_('正味_3_公開データ試算', { status: 'DRYRUN', adopted: r.adopted, held: r.held, excluded: r.excluded, publicNow: r.publicNow, added: r.added, removed: r.removed, note: '公開は L4 で確認済みの新規回だけ（既存の安全柵）。結果は COPY「E1・予行差分」' });
+}
+// 0) 承認（当日のみ）→ 4) V2へ反映 → 9) 直前の反映を戻す
+function 正味_0_承認_V2反映() { PropertiesService.getScriptProperties().setProperty(NET_APPROVE_KEY_, sumToday_()); return scLog_('正味_0_承認_V2反映', { status: 'APPROVED', validOn: sumToday_() }); }
+function 正味_4_V2反映_承認後() {
+  var P = PropertiesService.getScriptProperties(); if (P.getProperty(NET_APPROVE_KEY_) !== sumToday_()) return scLog_('正味_4_V2反映_承認後', { status: 'NOT_APPROVED_TODAY', dryrun: netApply_(SC_CONFIG.v2WorkingId, '', 'V2', true) });
+  var r = netApply_(SC_CONFIG.v2WorkingId, '', 'V2', false); P.deleteProperty(NET_APPROVE_KEY_); return scLog_('正味_4_V2反映_承認後', r);
+}
+function 正味_9_直前の反映を戻す() {
+  var id = PropertiesService.getScriptProperties().getProperty('NET_LAST_APPLY'); if (!id) return scLog_('正味_9_直前の反映を戻す', { status: 'NOTHING' });
+  var label = id.split('/').pop(), target = label === 'V2' ? SC_CONFIG.v2WorkingId : SC_CONFIG.copyId, o = scOpen_(target, label === 'V2' ? '' : SC_CONFIG.copyNameIncludes);
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), hist = c.ss.getSheetByName(NET_HIST_), hv = hist.getRange(2, 1, hist.getLastRow() - 1, 11).getDisplayValues();
+  var vals = o.sh.getRange(1, 1, o.sh.getLastRow(), o.sh.getLastColumn()).getDisplayValues(), h = vals[0], iE = h.indexOf('EP-ID'), iJ = h.indexOf('掲載判定'), iR = h.indexOf('代表EP-ID'), iW = h.indexOf('除外・保留理由'), row = {}; vals.forEach(function (r, i) { if (i) row[r[iE]] = i; });
+  var n = 0, skip = 0; hv.forEach(function (x, k) { if (x[1] !== id) return; var i = row[x[3]]; if (!i || vals[i][iJ] !== x[7]) { skip++; return; }   // 反映後に人が変えた行は戻さない
+    o.sh.getRange(i + 1, iJ + 1).setValue(x[4]); o.sh.getRange(i + 1, iR + 1).setValue(x[5]); o.sh.getRange(i + 1, iW + 1).setValue(x[6]); hist.getRange(k + 2, 11).setValue('取消済'); n++; });
+  return scLog_('正味_9_直前の反映を戻す', { status: 'OK', applyId: id, restored: n, skippedChangedSince: skip });
 }

@@ -23,7 +23,7 @@ const isoDate = (d) => { const m = String(d || '').match(/^(\d{4})[/-](\d{1,2})[
 
 // previousPublicIds: 現在の公開データの EP-ID 集合（再配信の原回が公開済みかの判定に使う）。verifiedAudio: { EP-ID: { url } }（既存と同じ形）
 // newEpisodeAllowList: 旧公開に無い回のうち、L4 で VERIFIED（公式ページ・音声とも確認済み）になった EP-ID だけを渡す。渡さない回は自動公開しない（保留）
-export function buildV2Library({ ledger, persons = [], related = [], previousPublicIds = new Set(), verifiedAudio = {}, newEpisodeAllowList = new Set(), decidedAt, hash }) {
+export function buildV2Library({ ledger, persons = [], related = [], previousPublicIds = new Set(), verifiedAudio = {}, newEpisodeAllowList = new Set(), decidedAt, hash, netDecisions = null }) {
   const L = objects(ledger); LEDGER_REQUIRED.forEach((k) => { if (!(k in (L[0] || {}))) throw Error('V2_LEDGER_COLUMN_MISSING ' + k); });
   const byEp = new Map(), originals = new Map(), seen = new Set();
   for (const r of L) { if (!/^EP-\d{5}$/.test(r['EP-ID'])) throw Error('INVALID_EP_ID ' + r['EP-ID']); if (seen.has(r['EP-ID'])) throw Error('DUPLICATE_EP_ID ' + r['EP-ID']); seen.add(r['EP-ID']); byEp.set(r['EP-ID'], r); if (!isRerun(r['タイトル'])) { const k = r['番組'] + '|' + baseTitle(r['タイトル']); (originals.get(k) || originals.set(k, []).get(k)).push(r['EP-ID']); } }
@@ -36,6 +36,11 @@ export function buildV2Library({ ledger, persons = [], related = [], previousPub
     else if (r['掲載判定'] === '対象') { publication = '除外'; classification = '同一内容'; why = '代表は ' + r['代表EP-ID']; }
     else if (r['掲載判定'] === '保留' || r['掲載判定'] === '未判定' || !r['掲載判定']) { publication = '保留'; why = 'V2 掲載判定=' + (r['掲載判定'] || '空'); }
     else why = 'V2 掲載判定=' + r['掲載判定'];
+    // 正味判定（net-count.mjs、2026-11-16 音声チーム回答に基づく再配信方針）を渡されたときは、それを優先する。原本の行は消さない
+    const nd = netDecisions && netDecisions[id];
+    if (nd && nd.prop === '重複案') { publication = '除外'; classification = '同一内容'; why = '代表 ' + nd.rep + '（' + nd.reason + '）'; }
+    else if (nd && (nd.prop === '保留案' || nd.prop === '保留')) { publication = '保留'; classification = nd.prop === '保留案' ? '再配信・未照合' : classification; why = nd.reason; }
+    else if (nd && nd.prop === '対象案' && publication !== '対象') { publication = '対象'; why = '判定案: ' + nd.reason; }
     const g = String(r['公式GUID'] || '').toLowerCase();
     if (publication === '対象' && g && guidSeen.has(g)) { publication = '除外'; classification = '重複'; why = '公式GUIDが ' + guidSeen.get(g) + ' と同じ'; }
     if (publication === '対象' && isRerun(title)) { const o = (originals.get(show + '|' + baseTitle(title)) || []).filter((x) => x !== id), pub = o.filter((x) => previousPublicIds.has(x));
