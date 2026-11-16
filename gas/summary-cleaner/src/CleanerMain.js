@@ -1524,22 +1524,29 @@ function rawDetailRead_(sh) {
   var at = {}; v.forEach(function (r, i) { if (i && r[0]) at[r[0]] = i; }); return { v: v, at: at, n: n };
 }
 // 公式の原文: RSS（GUID一致）→ 無ければ 公式個別ページ（上限 RAW_PAGE_FETCH_MAX_ 件、HTMLのJSONに本文があるときだけ）
-function rawOfficial_(guids, rssMap, pageUrl, budget) {
+function rawOfficial_(guids, rssMap, pageUrl, budget, jsonMap) {
   var g = guids.filter(function (x) { return rssMap[x]; })[0]; if (g) return { text: String(rssMap[g]), source: '公式RSS', guid: g };
+  var j = jsonMap ? guids.filter(function (x) { return jsonMap[x]; })[0] : ''; if (j) return { text: String(jsonMap[j]), source: '公式JSON本文（SDGs原本）', guid: j };   // RSSに無いSDGsの回は、取り込み済みの公式JSONの本文（body）だけを使う（短縮された description は使わない）
   if (pageUrl && /^https:\/\/(?:omny\.fm|www\.omnycontent\.com)\//.test(pageUrl) && budget.left > 0) {
     budget.left--; try { var r = UrlFetchApp.fetch(pageUrl, { muteHttpExceptions: true, followRedirects: true }); if (r.getResponseCode() === 200) { var t = RawSource.rawFromOfficialPage(r.getContentText()); if (t) return { text: t, source: '公式個別ページ', guid: guids[0] || '' }; } } catch (e) { /* 取れなければ公式なし扱い */ }
   }
   return { text: '', source: '', guid: guids[0] || '' };
 }
 // 計画: 台帳の各回について、収蔵詳細の今の原文と公式の原文を比べる
-function rawPlan_(L, D, rssMap, now) {
-  var budget = { left: RAW_PAGE_FETCH_MAX_ }, rows = [], plan = [], cnt = {};
+function rawJsonMap_(ss) {   // V2「SDGs公式JSON_1092件原本」の 公式JSON UUID → 公式body原文（空なら載せない）
+  var sh = ss.getSheetByName('SDGs公式JSON_1092件原本'), m = {}; if (!sh || sh.getLastRow() < 2) return m;
+  var v = sh.getRange(1, 1, sh.getLastRow(), sh.getLastColumn()).getDisplayValues(), u = v[0].indexOf('公式JSON UUID'), b = v[0].indexOf('公式body原文'); if (u < 0 || b < 0) return m;
+  v.slice(1).forEach(function (r) { if (r[u] && r[b] && r[b].length >= 40) m[String(r[u]).toLowerCase()] = r[b]; }); return m;
+}
+function rawPlan_(L, D, rssMap, now, opts) {
+  opts = opts || {}; var budget = { left: RAW_PAGE_FETCH_MAX_ }, rows = [], plan = [], cnt = {};
   L.rows.forEach(function (x) {
     var i = D.at[x.ep], cur = i != null ? D.v[i] : null, stored = cur ? cur[4] : '', guidOk = !cur || !cur[1] || x.guids.indexOf(String(cur[1]).toLowerCase()) >= 0;
-    var pageUrl = L.values[x.row - 1][L.ix.url], off = rawOfficial_(x.guids, rssMap, pageUrl, budget), c;
+    var pageUrl = L.values[x.row - 1][L.ix.url], off = rawOfficial_(x.guids, rssMap, pageUrl, budget, opts.jsonMap), c;
     if (!guidOk) c = { action: 'HOLD', verdict: 'GUID不一致', reason: '収蔵詳細のGUIDが台帳と違う（同じ回と確認できない）' };
     else if (!cur) c = off.text ? { action: 'ADD', verdict: '行なし→追加', reason: off.source + 'の原文で収蔵詳細の行を作る' } : { action: 'HOLD', verdict: '行なし・取得元なし', reason: '収蔵詳細に行がなく公式原文も無い' };
     else c = RawSource.classifyRaw(stored, off.text, { source: off.source || '公式RSS', cellMax: SC_CELL_MAX_ });
+    if (opts.allowChanged && c.verdict === '内容変化' && opts.allowChanged[x.ep]) c = { action: 'UPDATE', verdict: '内容変化→公式に合わせる', reason: '承認された回だけ、今の公式原文に合わせる（旧原文は履歴に保存）' };
     cnt[c.verdict] = (cnt[c.verdict] || 0) + 1;
     var oldSha = stored ? p25v2GasSha256_(stored) : '', newSha = off.text ? p25v2GasSha256_(off.text) : '';
     rows.push([x.ep, off.guid || (cur ? cur[1] : x.guid), c.verdict, c.action, c.reason, oldSha, String(stored.length), newSha, String(off.text.length), off.source, now]);
@@ -1601,7 +1608,7 @@ function 原文_1_照合_READ_ONLY() {
   var t0 = Date.now(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = scLedger_(v.sh), raw = scRawMap_();
   if (raw.errors.length) return scLog_('原文_1_照合_READ_ONLY', { status: 'STOP_FEED_ERRORS', feedErrors: raw.errors });   // 一部の番組のRSSが取れない時は判定しない
   var ds = v.ss.getSheetByName(P25V2_DETAIL_SHEET_); if (!ds) return scLog_('原文_1_照合_READ_ONLY', { status: 'STOP_NO_DETAIL_SHEET' });
-  var r = rawPlan_(L, rawDetailRead_(ds), raw.map, new Date().toISOString()), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes);
+  var r = rawPlan_(L, rawDetailRead_(ds), raw.map, new Date().toISOString(), { jsonMap: rawJsonMap_(v.ss) }), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes);
   laWriteSheet_(c.ss, RAW_AUDIT_SHEET_, RAW_AUDIT_HEADERS_, r.rows);
   return scLog_('原文_1_照合_READ_ONLY', { status: 'OK', ledgerEps: L.rows.length, rssItems: raw.items, counts: r.counts, toWrite: { total: r.plan.length, byAction: r.plan.reduce(function (a, p) { a[p.action] = (a[p.action] || 0) + 1; return a; }, {}), eps: r.plan.map(function (p) { return p.ep; }).slice(0, 40) }, pageFetched: r.pageFetched, sheet: 'COPY「' + RAW_AUDIT_SHEET_ + '」', ms: Date.now() - t0, version: RawSource.RAW_SOURCE_VERSION });
 }
@@ -1642,13 +1649,19 @@ function 原文_2_COPY試験() {
   // 2回目の反映は0件なので、取消の対象は1回目（RAW_LAST_APPLY は2回目で上書きしない）
   var fin = rawDetailRead_(sh), back = 0; rows.forEach(function (r) { var b = fin.v[fin.at[r[0]]], want = r[0] === tamper ? p25v2GasSha256_(before.v[ti - 1][4] + '（人の修正）') : beforeSha[r[0]]; if ((b[4] ? p25v2GasSha256_(b[4]) : '') === want) back++; });
   log.undoBackToTestStart = back + '/' + rows.length;
-  var ok = log.classify.allMatch && a1.status === 'OK' && a1.readbackMismatch === 0 && !wrong.length && untouched && a2.status === 'OK_NO_CHANGE' && u.status === 'OK' && back === rows.length;
+  // 内容変化（k=4）を「承認された回だけ公式に合わせる」経路（原文_5 と同じ）→ 読み戻し → 取消
+  var chg = pick[4].x.ep, al = {}; al[chg] = 1;
+  var p5 = rawPlan_(subL, rawDetailRead_(sh), raw.map, new Date().toISOString(), { allowChanged: al }), only = p5.plan.filter(function (p) { return p.ep === chg && p.verdict === '内容変化→公式に合わせる'; });
+  var a5 = rawApply_({ ss: c.ss, sh: sh, label: 'COPY試験' }, only, false), d5 = rawDetailRead_(sh), b5 = d5.v[d5.at[chg]], ok5 = a5.status === 'OK' && a5.written === 1 && b5[4] === raw.map[String(b5[1]).toLowerCase()];
+  var u5 = rawUndo_('原文_2_COPY試験'), d6 = rawDetailRead_(sh), back5 = d6.v[d6.at[chg]][4] === pick[4].row[4].replace(/。/, '。（試験で書き換えた文）');
+  log.changedPath = { planned: only.length, apply: a5.status, matchedOfficial: ok5, undo: u5.status, backToTest: back5 };
+  var ok = log.classify.allMatch && a1.status === 'OK' && a1.readbackMismatch === 0 && !wrong.length && untouched && a2.status === 'OK_NO_CHANGE' && u.status === 'OK' && back === rows.length && ok5 && u5.status === 'OK' && back5;
   return scLog_('原文_2_COPY試験', { status: ok ? 'PASS' : 'FAIL', samples: rows.length, log: log, sheet: 'COPY「' + RAW_TEST_SHEET_ + '」（試験用。V2は読むだけ）', ms: Date.now() - t0 });
 }
 // 3) V2予行（読むだけ。COPY「原文・反映予定」）
 function 原文_3_V2予行_READ_ONLY() {
   var v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = scLedger_(v.sh), raw = scRawMap_(); if (raw.errors.length) return scLog_('原文_3_V2予行_READ_ONLY', { status: 'STOP_FEED_ERRORS', feedErrors: raw.errors });
-  var ds = v.ss.getSheetByName(P25V2_DETAIL_SHEET_), r = rawPlan_(L, rawDetailRead_(ds), raw.map, new Date().toISOString()), d = rawApply_({ ss: v.ss, sh: ds, label: 'V2作業用' }, r.plan, true), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes);
+  var ds = v.ss.getSheetByName(P25V2_DETAIL_SHEET_), r = rawPlan_(L, rawDetailRead_(ds), raw.map, new Date().toISOString(), { jsonMap: rawJsonMap_(v.ss) }), d = rawApply_({ ss: v.ss, sh: ds, label: 'V2作業用' }, r.plan, true), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes);
   laWriteSheet_(c.ss, RAW_PLAN_SHEET_, ['EP-ID', '処理', '判定', '旧SHA256', '新SHA256', '新文字数', '公式の取得元'], r.plan.map(function (p) { return [p.ep, p.action, p.verdict, p.oldSha, p.newSha, p.newText.length, p.source]; }));
   return scLog_('原文_3_V2予行_READ_ONLY', { status: 'OK', counts: r.counts, dryRun: d, planSheet: 'COPY「' + RAW_PLAN_SHEET_ + '」' });
 }
@@ -1659,10 +1672,24 @@ function 原文_4_V2補完_承認後() {
   var lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return scLog_('原文_4_V2補完_承認後', { status: 'LOCKED' });
   try {
     var v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = scLedger_(v.sh), raw = scRawMap_(); if (raw.errors.length) return scLog_('原文_4_V2補完_承認後', { status: 'STOP_FEED_ERRORS', feedErrors: raw.errors });
-    var ds = v.ss.getSheetByName(P25V2_DETAIL_SHEET_), r = rawPlan_(L, rawDetailRead_(ds), raw.map, new Date().toISOString()), a = rawApply_({ ss: v.ss, sh: ds, label: 'V2作業用' }, r.plan, false);
+    var ds = v.ss.getSheetByName(P25V2_DETAIL_SHEET_), r = rawPlan_(L, rawDetailRead_(ds), raw.map, new Date().toISOString(), { jsonMap: rawJsonMap_(v.ss) }), a = rawApply_({ ss: v.ss, sh: ds, label: 'V2作業用' }, r.plan, false);
     if (a.status !== 'OK' || !a.more) P.deleteProperty(RAW_APPROVE_KEY_);
     a.next = a.more ? 'もう一度 原文_4 を押す（承認は当日中有効）' : '原文_1 で残り0を確認 → 概要欄_2V を押して判定を作り直す';
     return scLog_('原文_4_V2補完_承認後', a);
+  } finally { lock.releaseLock(); }
+}
+// 5) 内容変化（公式側の後日修正）を公式に合わせる: 管理人が回を指定して承認した分だけ。
+//    使い方: スクリプトプロパティ RAW_CHANGE_ALLOW に EP-ID を空白区切りで入れ（COPY「原文・照合」の「内容変化」から選ぶ）、原文_0_承認_V2補完 → 原文_5
+function 原文_5_内容変化を公式に合わせる_承認後() {
+  var P = PropertiesService.getScriptProperties(); if (P.getProperty(RAW_APPROVE_KEY_) !== sumToday_()) return scLog_('原文_5_内容変化を公式に合わせる_承認後', { status: 'NOT_APPROVED_TODAY', note: '先に 原文_0_承認_V2補完' });
+  var allow = {}; String(P.getProperty('RAW_CHANGE_ALLOW') || '').split(/[\s,、]+/).filter(Boolean).forEach(function (e) { allow[e] = 1; }); if (!Object.keys(allow).length) return scLog_('原文_5_内容変化を公式に合わせる_承認後', { status: 'NO_EPS', note: 'RAW_CHANGE_ALLOW に EP-ID を入れる' });
+  var lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return scLog_('原文_5_内容変化を公式に合わせる_承認後', { status: 'LOCKED' });
+  try {
+    var v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = scLedger_(v.sh), raw = scRawMap_(); if (raw.errors.length) return scLog_('原文_5_内容変化を公式に合わせる_承認後', { status: 'STOP_FEED_ERRORS', feedErrors: raw.errors });
+    var ds = v.ss.getSheetByName(P25V2_DETAIL_SHEET_), r = rawPlan_(L, rawDetailRead_(ds), raw.map, new Date().toISOString(), { jsonMap: rawJsonMap_(v.ss), allowChanged: allow });
+    var a = rawApply_({ ss: v.ss, sh: ds, label: 'V2作業用' }, r.plan.filter(function (p) { return allow[p.ep] && p.verdict === '内容変化→公式に合わせる'; }), false);
+    P.deleteProperty(RAW_APPROVE_KEY_); P.deleteProperty('RAW_CHANGE_ALLOW');
+    return scLog_('原文_5_内容変化を公式に合わせる_承認後', a);
   } finally { lock.releaseLock(); }
 }
 function 原文_9_直前の補完を戻す() { return scLog_('原文_9_直前の補完を戻す', rawUndo_('原文_9')); }
