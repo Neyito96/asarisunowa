@@ -29,6 +29,7 @@ test('タブは tablist の中で role=tab と aria-selected を持つ', () => {
   assert.equal((tabs.match(/aria-selected=\{view === /g) || []).length, 6);
   assert.match(bridge, /seriesTab\.setAttribute\("aria-selected"/);
 });
-test('報談の公式リンクは利用できない Omny プレイリストを指さない', () => {
+test('報談の公式リンクは朝日新聞の番組ページ（pgid）を指す', () => {
   assert.doesNotMatch(src, /official: "https:\/\/omny\.fm\/shows\/asahi\/playlists\/playlist-1"/);
+  assert.match(src, /official: "https:\/\/www\.asahi\.com\/special\/podcasts\/\?pgid=9212d823-d670-423a-ab01-ac1000d97d6f"/);
 });
