@@ -1,7 +1,7 @@
 // P27 配信先URLロボの照合（合成データのみ）
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { audioKey, omnyClipId, matchPlatform, pcEpisodesFromJson, pcEpisodeUrl, pcUuidOf, PC_EPISODE_URL } from '../scripts/ledger-v2/platform-match.mjs';
+import { podyEpisodesFromHtml, PODY_EPISODE_URL, audioKey, omnyClipId, matchPlatform, pcEpisodesFromJson, pcEpisodeUrl, pcUuidOf, PC_EPISODE_URL } from '../scripts/ledger-v2/platform-match.mjs';
 
 const ORG = '1e3bd144-9b57-451a-93cf-ac0e00e74446', PRG = '50382bb4-3af3-4250-8ddc-ac0f0033ceb5';
 const omny = (clip, q = '?utm_source=Podcast') => `https://traffic.omny.fm/d/clips/${ORG}/${PRG}/${clip}/audio.mp3${q}`;
@@ -56,4 +56,14 @@ test('URLの形の検証: pca.st/episode/<UUID> 以外は書かない', () => {
   assert.equal(pcUuidOf('https://pca.st/episode/' + U(1)), U(1));
   assert.equal(pcUuidOf('https://pocketcasts.com/episode/' + U(1)), '');
   assert.equal(pcUuidOf('https://pca.st/24ocahla'), '');
+});
+
+test('Pody: 番組ページに埋め込まれた episodes から 回ID・GUID・音声・日時・長さ・題名を取り出す（別番組の要素は除く）', () => {
+  const S = 'SHOWAAAAAAAAAAAAAAAA', O = 'OTHERBBBBBBBBBBBBBBB';
+  const obj = (id, feed, guid, extra) => '{\\"id\\":\\"' + id + '\\",\\"pubDateIso\\":\\"2026-11-16T19:00:00.000Z\\",\\"title\\":\\"合成の回\\",\\"duration\\":\\"1369\\",\\"feedId\\":\\"' + feed + '\\",\\"guid\\":\\"' + guid + '\\",\\"audio\\":\\"' + omny(guid) + '\\"' + (extra || '') + '}';
+  const html = '<script>self.__next_f.push([1,"[{\\"episodes\\":[' + obj('EPIDAAAAAAAAAAAAAAAA', S, U(1)) + ',' + obj('EPIDBBBBBBBBBBBBBBBB', O, U(2)) + ',' + obj('EPIDAAAAAAAAAAAAAAAA', S, U(1)) + ']}]"])</script>';
+  const eps = podyEpisodesFromHtml(html, S);
+  assert.equal(eps.length, 1);
+  assert.deepEqual([eps[0].id, eps[0].guid, eps[0].duration, eps[0].title, eps[0].url], ['EPIDAAAAAAAAAAAAAAAA', U(1), 1369, '合成の回', 'https://pody.jp/player/' + S + '/EPIDAAAAAAAAAAAAAAAA']);
+  assert.ok(PODY_EPISODE_URL.test(eps[0].url)); assert.equal(omnyClipId(eps[0].audio), U(1));
 });

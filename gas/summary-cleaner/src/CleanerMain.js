@@ -2006,12 +2006,16 @@ function P27_PD_1_取得経路調査_READ_ONLY() {
     var eb = String(ep1.body || ''), epPage = { code: ep1.code, ogTitle: ((eb.match(/property=["']og:title["'][^>]+content=["']([^"']*)/i) || [])[1] || '').slice(0, 80), hasMp3: /\.mp3/.test(eb), episodeLinks: ep1.body ? PlatformMatch.podyEpisodesFromHtml(eb, sid).length : 0 };
     // 照合: 回のIDの近くに音声URLが1つだけあるもの → 音声キー（Omnyクリップ＝公式GUID／音声URL）で V2 の同じ番組と結ぶ
     var v2 = L.rows.filter(function (r) { return r.show === show; }), byG = {}, byA = {}; v2.forEach(function (r) { if (r.guid) byG[r.guid] = r.ep; var k = PlatformMatch.audioKey(r.audio); if (k) byA[k] = r.ep; });
-    var paired = eps.filter(function (e) { return e.audioNear; }), matched = paired.filter(function (e) { var clip = PlatformMatch.omnyClipId(e.audioNear); return (clip && byG[clip]) || byA[PlatformMatch.audioKey(e.audioNear)]; });
-    sum[show] = { page: a.code, episodesOnPage: eps.length, pairedWithAudio: paired.length, matchedToV2: matched.length, page2: p2.code, newOnPage2: newOnP2, episodePage: epPage.code, episodePageLinks: epPage.episodeLinks, clues: clues };
+    // 照合: 埋め込みの guid ＝ V2 の公式GUID（GUID）、無ければ 音声URL の一致（AUDIO）。1ページ目と2ページ目の回で数える
+    var both = eps.concat(eps2.filter(function (e) { return !seen[e.id]; })), how = { GUID: 0, AUDIO: 0, none: 0 }, hitEp = {}, dupHit = 0;
+    both.forEach(function (e) { var g = byG[e.guid], au = byA[PlatformMatch.audioKey(e.audio)], ep = g || au; if (g) how.GUID++; else if (au) how.AUDIO++; else how.none++; if (ep) { if (hitEp[ep]) dupHit++; hitEp[ep] = 1; } });
+    var total = Number((h.match(/エピソード一覧 \((\d+)件\)/) || [])[1] || 0), maxPage = Math.max.apply(null, [1].concat((clues.query || []).map(function (q) { var m = q.match(/page=(\d+)/); return m ? +m[1] : 1; })));
+    var paired = both, matched = both.filter(function (e) { return byG[e.guid] || byA[PlatformMatch.audioKey(e.audio)]; });
+    sum[show] = { page: a.code, totalOnPody: total, pagesNeeded: Math.ceil(total / 20), lastPageLinked: maxPage, episodesPage1: eps.length, newOnPage2: newOnP2, checked: both.length, matchedToV2: matched.length, byMethod: how, oneToOneViolations: dupHit, v2Rows: v2.length, episodePage: epPage.code, episodePageOgTitle: epPage.ogTitle ? 'あり' : 'なし', clues: { query: clues.query.length, apis: clues.apis.length, loadMore: clues.loadMore } };
     var at = h.indexOf(eps[0] ? eps[0].id : '@@'), snippet = at >= 0 ? h.slice(Math.max(0, at - 600), at + 900) : '';
-    rows.push([show, base, a.code, eps.length, paired.length, matched.length, p2.code, newOnP2, epPage.code, epPage.ogTitle, epPage.hasMp3, epPage.episodeLinks, JSON.stringify(clues).slice(0, 1500), snippet.replace(/\s+/g, ' ').slice(0, 1500), new Date().toISOString()]);
+    rows.push([show, base, a.code, eps.length + '（全' + total + '件・' + Math.ceil(total / 20) + 'ページ）', paired.length, matched.length + '（GUID ' + how.GUID + '・音声 ' + how.AUDIO + '・なし ' + how.none + '）', p2.code, newOnP2, epPage.code, epPage.ogTitle, epPage.hasMp3, epPage.episodeLinks, JSON.stringify(clues).slice(0, 1500), snippet.replace(/\s+/g, ' ').slice(0, 1500), new Date().toISOString()]);
   });
   var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes);
-  laWriteSheet_(c.ss, 'P27・Pody調査', ['番組', '番組ページ', 'HTTP', 'ページの回数', '音声URLと組になった回', 'V2と照合できた回', '?page=2 HTTP', '?page=2で増えた回', '回ページHTTP', '回ページog:title', '回ページに音声', '回ページ内の回リンク', 'ページ送りの手がかり', '構造の抜粋（1件目の周辺）', '確認日時'], rows);
+  laWriteSheet_(c.ss, 'P27・Pody調査', ['番組', '番組ページ', 'HTTP', '1ページ目の回数', '確認した回（1〜2ページ）', 'V2と照合できた回', '?page=2 HTTP', '?page=2で増えた回', '回ページHTTP', '回ページog:title', '回ページに音声', '回ページ内の回リンク', 'ページ送りの手がかり', '構造の抜粋（1件目の周辺）', '確認日時'], rows);
   return scLog_('P27_PD_1_取得経路調査_READ_ONLY', { status: 'OK', robots: robots.code + (rb ? '（/player の禁止なし）' : ''), shows: sum, requests: 1 + Object.keys(P27_PODY_SHOWS_).length * 3, sheet: 'COPY「P27・Pody調査」', ms: Date.now() - t0 });
 }

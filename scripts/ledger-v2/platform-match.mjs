@@ -76,14 +76,21 @@ export function matchPlatform(v2, eps, opts) {
   return { rows, unmatchedEps, summary };
 }
 
-// Pody（READ_ONLY調査用）: 番組ページのHTMLから回のID・音声URL・題名の組を取り出す（推測で組み立てない。見つかった組だけ）
+// Pody（READ_ONLY調査用）: 番組ページに埋め込まれた episodes の各要素（id・guid・audio・pubDateIso・duration・title）を取り出す。
+// 推測で組み立てない: id と guid（または audio）がそろった要素だけを返す。回のURLは「/player/<番組ID>/<回ID>」（ページ内のリンクと同じ形）
 export function podyEpisodesFromHtml(html, showId) {
   const h = String(html ?? '').replace(/\\u0026/g, '&').replace(/\\"/g, '"').replace(/\\\//g, '/');
-  const ids = [...new Set([...h.matchAll(new RegExp('/player/' + showId + '/([A-Za-z0-9]{20})(?![A-Za-z0-9])', 'g'))].map((m) => m[1]))];
-  const out = ids.map((id) => {
-    const at = h.indexOf(id), win = at >= 0 ? h.slice(Math.max(0, at - 3000), at + 3000) : '';
-    const audios = [...new Set((win.match(/https?:\/\/[^"'\s<>]+?\.mp3[^"'\s<>]*/g) || []))];
-    return { id, url: 'https://pody.jp/player/' + showId + '/' + id, audioNear: audios.length === 1 ? audios[0] : '', audioCandidates: audios.length };
+  const starts = [...h.matchAll(/\{"id":"([A-Za-z0-9]{20})","pubDateIso":"([^"]+)"/g)];
+  const seen = {}, out = [];
+  starts.forEach((m, k) => {
+    const end = k + 1 < starts.length ? starts[k + 1].index : Math.min(h.length, m.index + 8000), seg = h.slice(m.index, end);
+    const f = (key) => { const x = seg.match(new RegExp('"' + key + '":"((?:[^"\\\\]|\\\\.)*)"')); return x ? x[1] : ''; };
+    const feed = f('feedId'), id = m[1];
+    if (seen[id] || (feed && showId && feed !== showId)) return; seen[id] = 1;
+    const guid = f('guid').toLowerCase(), audio = f('audio');
+    if (!guid && !audio) return;
+    out.push({ id, published: m[2], title: f('title'), duration: Number(f('duration')) || 0, guid, audio, url: 'https://pody.jp/player/' + (feed || showId) + '/' + id });
   });
   return out;
 }
+export const PODY_EPISODE_URL = /^https:\/\/pody\.jp\/player\/([A-Za-z0-9]{20})\/([A-Za-z0-9]{20})$/;

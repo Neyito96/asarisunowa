@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-v2-verify.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/net-count.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs, scripts/ledger-v2/raw-source.mjs, scripts/ledger-v2/platform-match.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = '061ccab8e96f230272995f8b1f5766f7b10da1337a108fcc24846c64f9324ef3';
+var CLEANER_BUILD_SOURCE_SHA256 = '0aa186420c891f75a7bf2f178934f870bced93ec055cb218f0968207354f4993';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -1813,19 +1813,26 @@ function matchPlatform(v2, eps, opts) {
   return { rows, unmatchedEps, summary };
 }
 
-// Pody（READ_ONLY調査用）: 番組ページのHTMLから回のID・音声URL・題名の組を取り出す（推測で組み立てない。見つかった組だけ）
+// Pody（READ_ONLY調査用）: 番組ページに埋め込まれた episodes の各要素（id・guid・audio・pubDateIso・duration・title）を取り出す。
+// 推測で組み立てない: id と guid（または audio）がそろった要素だけを返す。回のURLは「/player/<番組ID>/<回ID>」（ページ内のリンクと同じ形）
 function podyEpisodesFromHtml(html, showId) {
   const h = String(html ?? '').replace(/\\u0026/g, '&').replace(/\\"/g, '"').replace(/\\\//g, '/');
-  const ids = [...new Set([...h.matchAll(new RegExp('/player/' + showId + '/([A-Za-z0-9]{20})(?![A-Za-z0-9])', 'g'))].map((m) => m[1]))];
-  const out = ids.map((id) => {
-    const at = h.indexOf(id), win = at >= 0 ? h.slice(Math.max(0, at - 3000), at + 3000) : '';
-    const audios = [...new Set((win.match(/https?:\/\/[^"'\s<>]+?\.mp3[^"'\s<>]*/g) || []))];
-    return { id, url: 'https://pody.jp/player/' + showId + '/' + id, audioNear: audios.length === 1 ? audios[0] : '', audioCandidates: audios.length };
+  const starts = [...h.matchAll(/\{"id":"([A-Za-z0-9]{20})","pubDateIso":"([^"]+)"/g)];
+  const seen = {}, out = [];
+  starts.forEach((m, k) => {
+    const end = k + 1 < starts.length ? starts[k + 1].index : Math.min(h.length, m.index + 8000), seg = h.slice(m.index, end);
+    const f = (key) => { const x = seg.match(new RegExp('"' + key + '":"((?:[^"\\\\]|\\\\.)*)"')); return x ? x[1] : ''; };
+    const feed = f('feedId'), id = m[1];
+    if (seen[id] || (feed && showId && feed !== showId)) return; seen[id] = 1;
+    const guid = f('guid').toLowerCase(), audio = f('audio');
+    if (!guid && !audio) return;
+    out.push({ id, published: m[2], title: f('title'), duration: Number(f('duration')) || 0, guid, audio, url: 'https://pody.jp/player/' + (feed || showId) + '/' + id });
   });
   return out;
 }
+const PODY_EPISODE_URL = /^https:\/\/pody\.jp\/player\/([A-Za-z0-9]{20})\/([A-Za-z0-9]{20})$/;
 
-return { PLATFORM_MATCH_VERSION, nz, audioKey, omnyClipId, PC_EPISODE_URL, pcEpisodeUrl, pcUuidOf, pcEpisodesFromJson, matchPlatform, podyEpisodesFromHtml };
+return { PLATFORM_MATCH_VERSION, nz, audioKey, omnyClipId, PC_EPISODE_URL, pcEpisodeUrl, pcUuidOf, pcEpisodesFromJson, matchPlatform, podyEpisodesFromHtml, PODY_EPISODE_URL };
 })();
 
 // ===== 概要欄清掃ロボ（Issue #308）— 入口 =====
@@ -3836,12 +3843,16 @@ function P27_PD_1_取得経路調査_READ_ONLY() {
     var eb = String(ep1.body || ''), epPage = { code: ep1.code, ogTitle: ((eb.match(/property=["']og:title["'][^>]+content=["']([^"']*)/i) || [])[1] || '').slice(0, 80), hasMp3: /\.mp3/.test(eb), episodeLinks: ep1.body ? PlatformMatch.podyEpisodesFromHtml(eb, sid).length : 0 };
     // 照合: 回のIDの近くに音声URLが1つだけあるもの → 音声キー（Omnyクリップ＝公式GUID／音声URL）で V2 の同じ番組と結ぶ
     var v2 = L.rows.filter(function (r) { return r.show === show; }), byG = {}, byA = {}; v2.forEach(function (r) { if (r.guid) byG[r.guid] = r.ep; var k = PlatformMatch.audioKey(r.audio); if (k) byA[k] = r.ep; });
-    var paired = eps.filter(function (e) { return e.audioNear; }), matched = paired.filter(function (e) { var clip = PlatformMatch.omnyClipId(e.audioNear); return (clip && byG[clip]) || byA[PlatformMatch.audioKey(e.audioNear)]; });
-    sum[show] = { page: a.code, episodesOnPage: eps.length, pairedWithAudio: paired.length, matchedToV2: matched.length, page2: p2.code, newOnPage2: newOnP2, episodePage: epPage.code, episodePageLinks: epPage.episodeLinks, clues: clues };
+    // 照合: 埋め込みの guid ＝ V2 の公式GUID（GUID）、無ければ 音声URL の一致（AUDIO）。1ページ目と2ページ目の回で数える
+    var both = eps.concat(eps2.filter(function (e) { return !seen[e.id]; })), how = { GUID: 0, AUDIO: 0, none: 0 }, hitEp = {}, dupHit = 0;
+    both.forEach(function (e) { var g = byG[e.guid], au = byA[PlatformMatch.audioKey(e.audio)], ep = g || au; if (g) how.GUID++; else if (au) how.AUDIO++; else how.none++; if (ep) { if (hitEp[ep]) dupHit++; hitEp[ep] = 1; } });
+    var total = Number((h.match(/エピソード一覧 \((\d+)件\)/) || [])[1] || 0), maxPage = Math.max.apply(null, [1].concat((clues.query || []).map(function (q) { var m = q.match(/page=(\d+)/); return m ? +m[1] : 1; })));
+    var paired = both, matched = both.filter(function (e) { return byG[e.guid] || byA[PlatformMatch.audioKey(e.audio)]; });
+    sum[show] = { page: a.code, totalOnPody: total, pagesNeeded: Math.ceil(total / 20), lastPageLinked: maxPage, episodesPage1: eps.length, newOnPage2: newOnP2, checked: both.length, matchedToV2: matched.length, byMethod: how, oneToOneViolations: dupHit, v2Rows: v2.length, episodePage: epPage.code, episodePageOgTitle: epPage.ogTitle ? 'あり' : 'なし', clues: { query: clues.query.length, apis: clues.apis.length, loadMore: clues.loadMore } };
     var at = h.indexOf(eps[0] ? eps[0].id : '@@'), snippet = at >= 0 ? h.slice(Math.max(0, at - 600), at + 900) : '';
-    rows.push([show, base, a.code, eps.length, paired.length, matched.length, p2.code, newOnP2, epPage.code, epPage.ogTitle, epPage.hasMp3, epPage.episodeLinks, JSON.stringify(clues).slice(0, 1500), snippet.replace(/\s+/g, ' ').slice(0, 1500), new Date().toISOString()]);
+    rows.push([show, base, a.code, eps.length + '（全' + total + '件・' + Math.ceil(total / 20) + 'ページ）', paired.length, matched.length + '（GUID ' + how.GUID + '・音声 ' + how.AUDIO + '・なし ' + how.none + '）', p2.code, newOnP2, epPage.code, epPage.ogTitle, epPage.hasMp3, epPage.episodeLinks, JSON.stringify(clues).slice(0, 1500), snippet.replace(/\s+/g, ' ').slice(0, 1500), new Date().toISOString()]);
   });
   var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes);
-  laWriteSheet_(c.ss, 'P27・Pody調査', ['番組', '番組ページ', 'HTTP', 'ページの回数', '音声URLと組になった回', 'V2と照合できた回', '?page=2 HTTP', '?page=2で増えた回', '回ページHTTP', '回ページog:title', '回ページに音声', '回ページ内の回リンク', 'ページ送りの手がかり', '構造の抜粋（1件目の周辺）', '確認日時'], rows);
+  laWriteSheet_(c.ss, 'P27・Pody調査', ['番組', '番組ページ', 'HTTP', '1ページ目の回数', '確認した回（1〜2ページ）', 'V2と照合できた回', '?page=2 HTTP', '?page=2で増えた回', '回ページHTTP', '回ページog:title', '回ページに音声', '回ページ内の回リンク', 'ページ送りの手がかり', '構造の抜粋（1件目の周辺）', '確認日時'], rows);
   return scLog_('P27_PD_1_取得経路調査_READ_ONLY', { status: 'OK', robots: robots.code + (rb ? '（/player の禁止なし）' : ''), shows: sum, requests: 1 + Object.keys(P27_PODY_SHOWS_).length * 3, sheet: 'COPY「P27・Pody調査」', ms: Date.now() - t0 });
 }
