@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-v2-verify.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/net-count.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = 'd37ddd2f7cb94462c7482b5a5ac5fb05df9e02ed00442cf3bd2703a0bd85f795';
+var CLEANER_BUILD_SOURCE_SHA256 = '6a6ed0d7dacbcf0bd88690431f83a2a0de25c1f626eb59b36ca2fec8eb808152';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -3092,9 +3092,15 @@ var LEGACY_TABS_ = ['AJW', 'アルキキ'], LEGACY_APPROVE_KEY_ = 'APPROVE_DELET
 function 整理_1_AJWアルキキ_参照確認_READ_ONLY() {
   var v = scOpen_(SC_CONFIG.v2WorkingId, ''), ss = v.ss, out = [], tabs = {};
   LEGACY_TABS_.forEach(function (t) { var sh = ss.getSheetByName(t); tabs[t] = sh ? { rows: sh.getLastRow(), cols: sh.getLastColumn(), formulas: sh.getRange(1, 1, Math.max(1, sh.getLastRow()), Math.max(1, sh.getLastColumn())).getFormulas().reduce(function (a, r) { return a + r.filter(String).length; }, 0) } : null; });
-  ss.getSheets().forEach(function (sh) {
-    if (LEGACY_TABS_.indexOf(sh.getName()) >= 0) return;
-    LEGACY_TABS_.forEach(function (t) { sh.createTextFinder(t).matchFormulaText(true).findAll().forEach(function (cell) { var f = cell.getFormula(); if (f && (f.indexOf("'" + t + "'!") >= 0 || f.indexOf(t + '!') >= 0)) out.push([sh.getName(), cell.getA1Notation(), t, f.slice(0, 200)]); }); });
+  // 速度対策（初版はシート×語ごとの検索で6分超過）: ファイル全体を1回だけ正規表現で数式検索する
+  ss.createTextFinder("(AJW|アルキキ)'?!").useRegularExpression(true).matchFormulaText(true).findAll().forEach(function (cell) {
+    var sn = cell.getSheet().getName(), f = cell.getFormula(); if (!f || LEGACY_TABS_.indexOf(sn) >= 0) return;
+    LEGACY_TABS_.forEach(function (t) { if (f.indexOf("'" + t + "'!") >= 0 || f.indexOf(t + '!') >= 0) out.push([sn, cell.getA1Notation(), t, f.slice(0, 200)]); });
+  });
+  // INDIRECT 等で文字列としてタブ名を組み立てる数式も拾う（"AJW" / "アルキキ" を含む数式）
+  ss.createTextFinder('"(AJW|アルキキ)"').useRegularExpression(true).matchFormulaText(true).findAll().forEach(function (cell) {
+    var sn = cell.getSheet().getName(), f = cell.getFormula(); if (!f || LEGACY_TABS_.indexOf(sn) >= 0) return;
+    if (/INDIRECT/i.test(f)) out.push([sn, cell.getA1Notation(), '文字列参照(INDIRECT)', f.slice(0, 200)]);
   });
   var named = ss.getNamedRanges().filter(function (n) { return LEGACY_TABS_.indexOf(n.getRange().getSheet().getName()) >= 0; }).map(function (n) { return n.getName(); });
   var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes);

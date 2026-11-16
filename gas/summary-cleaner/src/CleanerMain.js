@@ -1470,9 +1470,15 @@ var LEGACY_TABS_ = ['AJW', 'アルキキ'], LEGACY_APPROVE_KEY_ = 'APPROVE_DELET
 function 整理_1_AJWアルキキ_参照確認_READ_ONLY() {
   var v = scOpen_(SC_CONFIG.v2WorkingId, ''), ss = v.ss, out = [], tabs = {};
   LEGACY_TABS_.forEach(function (t) { var sh = ss.getSheetByName(t); tabs[t] = sh ? { rows: sh.getLastRow(), cols: sh.getLastColumn(), formulas: sh.getRange(1, 1, Math.max(1, sh.getLastRow()), Math.max(1, sh.getLastColumn())).getFormulas().reduce(function (a, r) { return a + r.filter(String).length; }, 0) } : null; });
-  ss.getSheets().forEach(function (sh) {
-    if (LEGACY_TABS_.indexOf(sh.getName()) >= 0) return;
-    LEGACY_TABS_.forEach(function (t) { sh.createTextFinder(t).matchFormulaText(true).findAll().forEach(function (cell) { var f = cell.getFormula(); if (f && (f.indexOf("'" + t + "'!") >= 0 || f.indexOf(t + '!') >= 0)) out.push([sh.getName(), cell.getA1Notation(), t, f.slice(0, 200)]); }); });
+  // 速度対策（初版はシート×語ごとの検索で6分超過）: ファイル全体を1回だけ正規表現で数式検索する
+  ss.createTextFinder("(AJW|アルキキ)'?!").useRegularExpression(true).matchFormulaText(true).findAll().forEach(function (cell) {
+    var sn = cell.getSheet().getName(), f = cell.getFormula(); if (!f || LEGACY_TABS_.indexOf(sn) >= 0) return;
+    LEGACY_TABS_.forEach(function (t) { if (f.indexOf("'" + t + "'!") >= 0 || f.indexOf(t + '!') >= 0) out.push([sn, cell.getA1Notation(), t, f.slice(0, 200)]); });
+  });
+  // INDIRECT 等で文字列としてタブ名を組み立てる数式も拾う（"AJW" / "アルキキ" を含む数式）
+  ss.createTextFinder('"(AJW|アルキキ)"').useRegularExpression(true).matchFormulaText(true).findAll().forEach(function (cell) {
+    var sn = cell.getSheet().getName(), f = cell.getFormula(); if (!f || LEGACY_TABS_.indexOf(sn) >= 0) return;
+    if (/INDIRECT/i.test(f)) out.push([sn, cell.getA1Notation(), '文字列参照(INDIRECT)', f.slice(0, 200)]);
   });
   var named = ss.getNamedRanges().filter(function (n) { return LEGACY_TABS_.indexOf(n.getRange().getSheet().getName()) >= 0; }).map(function (n) { return n.getName(); });
   var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes);
