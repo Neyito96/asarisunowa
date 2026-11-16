@@ -47,7 +47,7 @@
 
   .officialHeading { margin-bottom: 12px; }
   .officialTitle { margin: 0 0 5px; font-size: 13px; line-height: 1.2; letter-spacing: .08em; }
-  .officialTitle::after { content: "朝公式プレイリスト"; display: block; margin-top: 5px; color: #123d4d; font-size: 22px; line-height: 1.35; letter-spacing: 0; }
+  .officialTitle::after { content: "朝日新聞ポッドキャスト 公式番組"; display: block; margin-top: 5px; color: #123d4d; font-size: 22px; line-height: 1.35; letter-spacing: 0; }
   .officialIntro { margin: 0; }
 
   /* 朝ポキ案内所はPCではプレイリストを押し下げないよう縦幅を圧縮する。 */
@@ -97,4 +97,58 @@
   .toolbar .tools > input { padding: 9px 12px; min-height: 42px; }
   .toolbar .sorts { gap: 5px; align-items: center; }
   .toolbar .sorts button { padding: 8px 11px; min-height: 42px; line-height: 1.15; }
+}
+
+/* 2026-11-16 トップページUX: 公式リンクとSpotify専用の棚を見分けやすくする（スマホでも常時表示。ホバーに頼らない） */
+.viewTabs .tabSub {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: .02em;
+  opacity: .78;
+}
+.serviceLinks a.officialLink {
+  border-color: #d62839;
+  color: #8f1d2a;
+  font-weight: 900;
+}
+.serviceLinks a.officialLink:focus-visible,
+.viewTabs button:focus-visible {
+  outline: 3px solid #f2b705;
+  outline-offset: 2px;
+}
+.officialBadge {
+  display: inline-block;
+  margin-right: 2px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #d62839;
+  color: #fff;
+  font-size: .78em;
+  font-weight: 800;
+  line-height: 1.5;
+}
+.playlistSpotifyNote {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border-left: 3px solid #1db954;
+  border-radius: 0 8px 8px 0;
+  background: #1db95412;
+  color: #2c4a52;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.playlistSpotifyNote b {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: #1db954;
+  color: #06321a;
+  font-size: 12px;
+}
+@media (min-width: 901px) {
+  .viewTabs .tabSub { display: inline; margin: 0 0 0 4px; font-size: 10px; }
 }
