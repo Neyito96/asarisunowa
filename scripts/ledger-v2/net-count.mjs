@@ -67,6 +67,19 @@ export function classifyNet({ v2Rows, onsaRows, rerun185 = [], sdgsOfficial = []
     }
     return { ep: r.ep, show: r.show, now: r.judge, prop, rep, reason, onsa: o };
   });
+  // 2巡目（2026-11-16 指令「保留40件を個別に調査」）: 保留の再配信について、元配信らしい対象行を
+  // 「回番号・記号を除いた題名の文字2-gram一致率 0.9 以上」かつ「尺差が編集差の範囲（120秒以内）」かつ「配信日が再配信より前」で探す。
+  // 見つかったものだけ元配信を代表に重複とし、見つからないものは保留のまま（推測で除外しない）
+  const TN = (s) => String(s || '').normalize('NFKC').replace(/（再[^）]*）|【再[^】]*】|\(再[^)]*\)|再放送|再配信|アンコール|再掲/g, '').replace(/[\s「」『』#0-9()（）【】、。・!?！？]/g, '');
+  const bg = (s) => { const a = new Set(); for (let i = 0; i + 1 < s.length; i++) a.add(s.slice(i, i + 2)); return a; };
+  const jac = (a, b) => { const A = bg(TN(a)), B = bg(TN(b)); let n = 0; A.forEach((x) => { if (B.has(x)) n++; }); return n / Math.max(1, A.size + B.size - n); };
+  const counted = new Set(rows.filter((x) => x.prop === '対象' || x.prop === '対象案').map((x) => x.ep));
+  rows.forEach((x) => {
+    if (x.prop !== '保留案' && x.prop !== '保留') return; const r = byEp[x.ep]; if (!RERUN.test(r.title) && !s185[x.ep]) return;
+    let best = null;
+    v2Rows.forEach((t) => { if (t.ep === r.ep || !counted.has(t.ep) || !(dayKey(t.date) < dayKey(r.date))) return; if (dur(t) === null || dur(r) === null) return; const d = Math.abs(dur(t) - dur(r)); if (d > EDIT_DIFF_MAX_SEC) return; const j = jac(r.title, t.title); if (j >= 0.9 && (!best || j > best.j || (j === best.j && d < best.d))) best = { ep: t.ep, j, d }; });
+    if (best) { x.prop = '重複案'; x.rep = best.ep; x.reason = '再配信の個別照合: 元配信 ' + best.ep + '（題名一致率' + best.j.toFixed(2) + '・尺差' + best.d + '秒、配信日が前）を代表'; }
+  });
   // おんさ表にあって V2 に無い回（欠落）
   const v2Ids = new Set(), v2Td = new Set(); v2Rows.forEach((r) => { new Set([...ids(r), ...cand(r)]).forEach((i) => v2Ids.add(i)); v2Td.add(N(r.title) + '|' + dayKey(r.date)); });
   const num = (t) => (String(t || '').normalize('NFKC').match(/#\s*(\d+)/) || [])[1] || '';

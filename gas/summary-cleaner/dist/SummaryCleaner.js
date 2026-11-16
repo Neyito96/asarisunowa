@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-v2-verify.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/net-count.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = '185081022b0734e3020ca95dd9a85ee0bab219330878916932517626b54b5ae7';
+var CLEANER_BUILD_SOURCE_SHA256 = '0e1186036f34c040eed93232be72fa1a4b026dfe58f884dd66000339e00f4817';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -1158,6 +1158,19 @@ function classifyNet({ v2Rows, onsaRows, rerun185 = [], sdgsOfficial = [], ident
       else { prop = '保留'; reason = oth.length ? 'V2内に同じID／題名の行あり（対象ではない）: ' + oth.join(',') : 'おんさ表に無く、公式との対応も未確認'; }
     }
     return { ep: r.ep, show: r.show, now: r.judge, prop, rep, reason, onsa: o };
+  });
+  // 2巡目（2026-11-16 指令「保留40件を個別に調査」）: 保留の再配信について、元配信らしい対象行を
+  // 「回番号・記号を除いた題名の文字2-gram一致率 0.9 以上」かつ「尺差が編集差の範囲（120秒以内）」かつ「配信日が再配信より前」で探す。
+  // 見つかったものだけ元配信を代表に重複とし、見つからないものは保留のまま（推測で除外しない）
+  const TN = (s) => String(s || '').normalize('NFKC').replace(/（再[^）]*）|【再[^】]*】|\(再[^)]*\)|再放送|再配信|アンコール|再掲/g, '').replace(/[\s「」『』#0-9()（）【】、。・!?！？]/g, '');
+  const bg = (s) => { const a = new Set(); for (let i = 0; i + 1 < s.length; i++) a.add(s.slice(i, i + 2)); return a; };
+  const jac = (a, b) => { const A = bg(TN(a)), B = bg(TN(b)); let n = 0; A.forEach((x) => { if (B.has(x)) n++; }); return n / Math.max(1, A.size + B.size - n); };
+  const counted = new Set(rows.filter((x) => x.prop === '対象' || x.prop === '対象案').map((x) => x.ep));
+  rows.forEach((x) => {
+    if (x.prop !== '保留案' && x.prop !== '保留') return; const r = byEp[x.ep]; if (!RERUN.test(r.title) && !s185[x.ep]) return;
+    let best = null;
+    v2Rows.forEach((t) => { if (t.ep === r.ep || !counted.has(t.ep) || !(dayKey(t.date) < dayKey(r.date))) return; if (dur(t) === null || dur(r) === null) return; const d = Math.abs(dur(t) - dur(r)); if (d > EDIT_DIFF_MAX_SEC) return; const j = jac(r.title, t.title); if (j >= 0.9 && (!best || j > best.j || (j === best.j && d < best.d))) best = { ep: t.ep, j, d }; });
+    if (best) { x.prop = '重複案'; x.rep = best.ep; x.reason = '再配信の個別照合: 元配信 ' + best.ep + '（題名一致率' + best.j.toFixed(2) + '・尺差' + best.d + '秒、配信日が前）を代表'; }
   });
   // おんさ表にあって V2 に無い回（欠落）
   const v2Ids = new Set(), v2Td = new Set(); v2Rows.forEach((r) => { new Set([...ids(r), ...cand(r)]).forEach((i) => v2Ids.add(i)); v2Td.add(N(r.title) + '|' + dayKey(r.date)); });
@@ -3007,6 +3020,10 @@ function 正味_1_件数照合_READ_ONLY() {
   var t0 = Date.now(), inp = netInputs_(), res = NetCount.classifyNet({ v2Rows: inp.v2Rows, onsaRows: inp.onsaRows, rerun185: inp.rerun185, sdgsOfficial: inp.sdgsOfficial, identityOverrides: NetCount.NET_IDENTITY_OVERRIDES });
   var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes);
   laWriteSheet_(c.ss, NET_SHEET_, ['EP-ID', '番組', '現判定', '判定案', '代表EP-ID案', '根拠', 'おんさ表'], res.rows.map(function (x) { return [x.ep, x.show, x.now, x.prop, x.rep, x.reason, x.onsa]; }));
+  var by = {}; inp.v2Rows.forEach(function (r) { by[r.ep] = r; });   // 代表EP-ID対応表（重複・対象外の行を、代表の行と並べて照合できるように）
+  laWriteSheet_(c.ss, '正味・代表対応表', ['再配信・重複EP-ID', '判定案', '番組', 'タイトル', '配信日時', '尺(秒)', '公式GUID/UUID', '代表EP-ID', '代表の番組', '代表タイトル', '代表の配信日時', '代表の尺(秒)', '代表の公式GUID/UUID', '尺差(秒)', '根拠'],
+    res.rows.filter(function (x) { return x.prop === '重複案' || x.prop === '対象外'; }).map(function (x) { var a = by[x.ep] || {}, b = by[x.rep] || {}, d = (parseInt(a.duration, 10) - parseInt(b.duration, 10));
+      return [x.ep, x.prop, a.show, a.title, a.date, a.duration, a.guid || a.uuid, x.rep, b.show || '（代表行なし）', b.title || '', b.date || '', b.duration || '', b.guid || b.uuid || '', isNaN(d) ? '' : Math.abs(d), x.reason]; }));
   laWriteSheet_(c.ss, NET_ONSA_SHEET_, ['区分', '番組', 'タイトル', '日付', 'itemid'], res.onsaOnly.map(function (x) { return ['おんさにあり V2に無い', x.show, x.title, x.date, x.item]; }).concat(res.sdgsMissing.map(function (u) { return ['SDGs公式にあり V2に無い', 'SDGsを話そう', '', '', u]; })));
   var sum = res.summary; sum.onsaRowsByTab = inp.onsaCounts; sum.youtubeVideosInOnsa = inp.youtube; sum.excludedShows = 'AJW・アルキキ・YouTube動画は計上しない（V2統合台帳に行なし）';
   laWriteSheet_(c.ss, NET_SUM_, ['項目', '値'], Object.keys(sum).map(function (k) { return [k, typeof sum[k] === 'object' ? JSON.stringify(sum[k]) : sum[k]]; }));
@@ -3063,4 +3080,48 @@ function 正味_9_直前の反映を戻す() {
   var n = 0, skip = 0; hv.forEach(function (x, k) { if (x[1] !== id) return; var i = row[x[3]]; if (!i || vals[i][iJ] !== x[7]) { skip++; return; }   // 反映後に人が変えた行は戻さない
     o.sh.getRange(i + 1, iJ + 1).setValue(x[4]); o.sh.getRange(i + 1, iR + 1).setValue(x[5]); o.sh.getRange(i + 1, iW + 1).setValue(x[6]); hist.getRange(k + 2, 11).setValue('取消済'); n++; });
   return scLog_('正味_9_直前の反映を戻す', { status: 'OK', applyId: id, restored: n, skippedChangedSince: skip });
+}
+
+
+// ===== AJW・アルキキの表示タブ整理（2026-11-16 指令「V2台帳整合性回復」2）=====
+// AJW・アルキキの行は V2・統合台帳には無い（公開台帳にも出ない）。V2ファイル内の旧表示タブ「AJW」「アルキキ」だけを整理する。
+// 旧「エピソード台帳」の AJW・アルキキ行は EP-ID 採番の重複防止（P25 の reservationSources）に使うので消さない。
+var LEGACY_TABS_ = ['AJW', 'アルキキ'], LEGACY_APPROVE_KEY_ = 'APPROVE_DELETE_LEGACY_TABS';
+// 1) 参照の確認（読むだけ）: V2ファイルの全シートで、数式がこの2タブを参照していないか／タブ自身の数式の参照先
+function 整理_1_AJWアルキキ_参照確認_READ_ONLY() {
+  var v = scOpen_(SC_CONFIG.v2WorkingId, ''), ss = v.ss, out = [], tabs = {};
+  LEGACY_TABS_.forEach(function (t) { var sh = ss.getSheetByName(t); tabs[t] = sh ? { rows: sh.getLastRow(), cols: sh.getLastColumn(), formulas: sh.getRange(1, 1, Math.max(1, sh.getLastRow()), Math.max(1, sh.getLastColumn())).getFormulas().reduce(function (a, r) { return a + r.filter(String).length; }, 0) } : null; });
+  ss.getSheets().forEach(function (sh) {
+    if (LEGACY_TABS_.indexOf(sh.getName()) >= 0) return;
+    LEGACY_TABS_.forEach(function (t) { sh.createTextFinder(t).matchFormulaText(true).findAll().forEach(function (cell) { var f = cell.getFormula(); if (f && (f.indexOf("'" + t + "'!") >= 0 || f.indexOf(t + '!') >= 0)) out.push([sh.getName(), cell.getA1Notation(), t, f.slice(0, 200)]); }); });
+  });
+  var named = ss.getNamedRanges().filter(function (n) { return LEGACY_TABS_.indexOf(n.getRange().getSheet().getName()) >= 0; }).map(function (n) { return n.getName(); });
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes);
+  laWriteSheet_(c.ss, '整理・旧タブ参照', ['参照元シート', 'セル', '参照先タブ', '数式（先頭200字）'], out);
+  return scLog_('整理_1_AJWアルキキ_参照確認_READ_ONLY', { status: out.length || named.length ? 'HAS_REFERENCES' : 'NO_REFERENCES', tabs: tabs, referencingCells: out.length, namedRanges: named, v2LedgerHasRows: 'V2・統合台帳に AJW/アルキキ の行は無い（正味_1 の番組別で確認）' });
+}
+// 2) COPY へバックアップ（値と数式の両方。数式の写しは別ファイルでは参照が切れるので、値の写しも残す）
+function 整理_2_AJWアルキキ_COPYへ退避() {
+  var v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), stamp = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyyMMdd_HHmm'), done = {};
+  LEGACY_TABS_.forEach(function (t) {
+    var sh = v.ss.getSheetByName(t); if (!sh) { done[t] = 'NOT_FOUND'; return; }
+    var vals = sh.getRange(1, 1, Math.max(1, sh.getLastRow()), Math.max(1, sh.getLastColumn())).getDisplayValues(), fx = sh.getRange(1, 1, Math.max(1, sh.getLastRow()), Math.max(1, sh.getLastColumn())).getFormulas();
+    var name = '退避_' + t + '_' + stamp, b = c.ss.insertSheet(name); b.getRange(1, 1, vals.length, vals[0].length).setNumberFormat('@').setValues(vals);
+    var fn = c.ss.insertSheet(name + '_数式'); fn.getRange(1, 1, fx.length, fx[0].length).setNumberFormat('@').setValues(fx.map(function (r) { return r.map(function (f) { return f ? "'" + f : ''; }); }));
+    var back = b.getRange(1, 1, vals.length, vals[0].length).getDisplayValues(), same = JSON.stringify(back) === JSON.stringify(vals);
+    done[t] = { backup: name, rows: vals.length, cols: vals[0].length, readbackSame: same };
+  });
+  PropertiesService.getScriptProperties().setProperty('LEGACY_TABS_BACKUP', JSON.stringify(done));
+  return scLog_('整理_2_AJWアルキキ_COPYへ退避', { status: 'OK', backups: done, note: 'V2 は読むだけ。削除は 整理_0_承認 → 整理_3 で' });
+}
+function 整理_0_承認_旧タブ削除() { PropertiesService.getScriptProperties().setProperty(LEGACY_APPROVE_KEY_, sumToday_()); return scLog_('整理_0_承認_旧タブ削除', { status: 'APPROVED', validOn: sumToday_() }); }
+// 3) 削除（当日承認・退避の読み戻し一致・他シートからの参照0 のときだけ）
+function 整理_3_AJWアルキキ表示タブ削除_承認後() {
+  var P = PropertiesService.getScriptProperties(); if (P.getProperty(LEGACY_APPROVE_KEY_) !== sumToday_()) return scLog_('整理_3_AJWアルキキ表示タブ削除_承認後', { status: 'NOT_APPROVED_TODAY' });
+  var bk = JSON.parse(P.getProperty('LEGACY_TABS_BACKUP') || '{}'), chk = 整理_1_AJWアルキキ_参照確認_READ_ONLY();
+  if (chk.status !== 'NO_REFERENCES') return scLog_('整理_3_AJWアルキキ表示タブ削除_承認後', { status: 'STOP_REFERENCES', check: chk });
+  var v = scOpen_(SC_CONFIG.v2WorkingId, ''), res = {};
+  LEGACY_TABS_.forEach(function (t) { var sh = v.ss.getSheetByName(t); if (!sh) { res[t] = 'NOT_FOUND'; return; } if (!bk[t] || !bk[t].readbackSame) { res[t] = 'NO_VERIFIED_BACKUP'; return; } v.ss.deleteSheet(sh); res[t] = 'DELETED（退避: COPY「' + bk[t].backup + '」）'; });
+  P.deleteProperty(LEGACY_APPROVE_KEY_);
+  return scLog_('整理_3_AJWアルキキ表示タブ削除_承認後', { status: 'OK', result: res, restore: 'COPY の退避タブ（値）と「_数式」タブから戻せる' });
 }

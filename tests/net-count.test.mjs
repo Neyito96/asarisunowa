@@ -35,3 +35,16 @@ test('GAS: 正味_4 は当日承認が無ければ予行だけ、書き込み先
   assert.match(b, /NOT_APPROVED_TODAY', dryrun: netApply_\(SC_CONFIG\.v2WorkingId, '', 'V2', true\)/); assert.match(b, /NET_TARGET_REFUSED/); assert.match(b, /CHANGED_SINCE_PLAN/);
   const onsaUse = b.split('NET_ONSA_ID_').length - 1; assert.equal(onsaUse, 2);   // 定義と openById の2か所だけ
 });
+test('2巡目: 保留の再配信は、題名一致率0.9以上・尺差120秒以内・配信日が前の対象行があるときだけ重複にする', () => {
+  const v2Rows = [R({ ep: 'EP-00100', show: 'ニュースの現場から', title: '#24 ジェンダーと税制を考える', date: '2021/06/01 05:00', duration: '1500' }),
+    R({ ep: 'EP-00200', show: 'MEDIA TALK', title: '（再放送）ジェンダーと税制を考える #7', date: '2021/09/01 05:00', duration: '1515', judge: '保留' }),
+    R({ ep: 'EP-00300', show: 'MEDIA TALK', title: '（再放送）ジェンダーと税制を考える #8', date: '2021/09/02 05:00', duration: '1800', judge: '保留' })];
+  const r = classifyNet({ v2Rows, onsaRows: [] });
+  assert.equal(r.rows[1].prop, '重複案'); assert.equal(r.rows[1].rep, 'EP-00100'); assert.equal(r.rows[2].prop, '保留');
+});
+test('GAS: AJW・アルキキの表示タブ削除は当日承認・退避の読み戻し一致・参照0が条件。エピソード台帳には触れない', () => {
+  const src = fs.readFileSync('gas/summary-cleaner/src/CleanerMain.js', 'utf8'), b = src.slice(src.indexOf('// ===== AJW・アルキキの表示タブ整理'));
+  assert.match(b, /NOT_APPROVED_TODAY/); assert.match(b, /readbackSame/); assert.match(b, /STOP_REFERENCES/);
+  assert.doesNotMatch(b.replace(/\/\/.*$/gm, ''), /エピソード台帳/);
+  assert.equal((b.match(/deleteSheet/g) || []).length, 1);
+});
