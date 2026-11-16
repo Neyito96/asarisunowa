@@ -4,7 +4,8 @@
 import { descriptionLines } from '../../public/library/description-editor.mjs';
 // 追跡パラメータ（utm_*・iref・ref・fbclid・gclid・si）だけを外す。URL クラスを使わない（GAS には無い）。それ以外の部分は変えない
 export function cleanUrl(u) {
-  const s = String(u || ''), h = s.indexOf('#'), base = h >= 0 ? s.slice(0, h) : s, hash = h >= 0 ? s.slice(h) : '', q = base.indexOf('?');
+  const s0 = String(u || ''), h = s0.indexOf('#'), base0 = h >= 0 ? s0.slice(0, h) : s0, hash = h >= 0 ? s0.slice(h) : '';
+  const base = base0.replace(/\.html?\/(?=\?|$)/, (x) => x.slice(0, -1)), s = base + hash, q = base.indexOf('?');   // SC4-17: 「….html/」は「….html」と同じ記事
   if (q < 0) return s;
   const keep = base.slice(q + 1).split('&').filter((kv) => kv && !/^(utm_[^=]*|iref|ref|fbclid|gclid|si)(=|$)/i.test(kv));
   return base.slice(0, q) + (keep.length ? '?' + keep.join('&') : '') + hash;
@@ -24,19 +25,20 @@ export const STAR_NOTICE = /^[★☆].*(?:読み放題|月額|円で|初回限�
 // 見出しの後に文が続く告知（【秋トクキャンペーン …】本文…）
 export const INLINE_NOTICE_HEAD = /^【[^】]*(?:キャンペーン|イベント|祝|募集|プレゼント|お知らせ|告知|チケット|参加者)[^】]*】/;
 
-export const AUDIT_VERSION = 'SQA-11';   // SQA-11: 出演者欄へ移った行・矢印行を過剰削除と数えない／【公式サイト】【ツイッター】【ご意見・ご感想】は告知の節（2026-11-15）。SQA-10 まで:   // SQA-9 は所在不明の版（2026-11-12）と衝突させないため欠番
+export const AUDIT_VERSION = 'SQA-12';   // SQA-12（2026-11-16）: URLはASCIIで切る・….html/ を同じ記事に・SMBIZ/SDGs ACTION等も記事・「〇〇はこちら（URL）」はリンク見出し・定型の告知行を追加。   // SQA-11: 出演者欄へ移った行・矢印行を過剰削除と数えない／【公式サイト】【ツイッター】【ご意見・ご感想】は告知の節（2026-11-15）。SQA-10 まで:   // SQA-9 は所在不明の版（2026-11-12）と衝突させないため欠番
 // 清掃状態（処理済みと品質確認済みを分離）。品質確認済は人の目視確認と記録があるときだけ付く。自動検査の合格は「自動検査合格・目視未確認」。
 export const QUALITY_STATES = Object.freeze(['未処理', '自動処理済・未検証', '自動検査合格・目視未確認', '品質確認済', '要確認', '不合格']);
 export const QUALITY_LOG_HEADERS = Object.freeze(['EP-ID', '公式GUID', '概要原文SHA256', '検査対象', '清掃版', '監査版', '判定', '誤り分類', '検証方法', '検証者', '検証日時', '理由']);
 
 const N = (t) => String(t ?? '').normalize('NFKC').replace(/https?:\/\/\S+/g, '').replace(/[\s　、。，．・「」『』（）()【】\[\]！？!?…:：;；"'“”‘’〜~ー—–-]/g, '').toLowerCase();
-const URL_RE = /https?:\/\/[^\s<>「」『』（）()"'、]+/g;
-const ARTICLE_RE = /^https?:\/\/(?:www\.asahi\.com\/(?:articles|[a-z]+\/articles)\/|digital\.asahi\.com\/articles\/|withnews\.jp\/article\/|globe\.asahi\.com\/article\/|book\.asahi\.com\/article\/|www\.asahi\.com\/special\/(?!podcasts))/;
+const URL_RE = /https?:\/\/(?:(?!https?:\/\/)[A-Za-z0-9\-._~:/?#\[\]@!$&*+,;=%])+/g;   // SC4-17: URLはASCIIの文字だけ。日本語や次のURLが続けて書かれていても、そこで切る（EP-01176・EP-00365）
+const ARTICLE_RE = /^https?:\/\/(?:www\.asahi\.com\/(?:articles|[a-z]+\/articles)\/|digital\.asahi\.com\/articles\/|withnews\.jp\/article\/|globe\.asahi\.com\/article\/|book\.asahi\.com\/article\/|smbiz\.asahi\.com\/article\/|www\.asahi\.com\/(?:sdgs|and|edu)\/article\/|www\.asahi\.com\/special\/(?!podcasts))/;
 // 消してよいと監査側が確信できる定型だけ。迷うものは入れない。
-const DROP_LINE = /過去(?:の)?回は(?:下記|こちら)|読み放題|スタンダードコース|初回限定|初月無料|月額\s*[\d０-９,，]+円|^See .*omnystudio\.com\/listener|Learn more about your ad choices|会員登録をお願い|購読料で配信|交流はdiscord|^ご意見・感想・リクエスト|おたよりフォーム|^メルマガ|広告ご検討の企業様|^番組検索ツール|^最新情報はX|^番組カレンダー|全話あります公式サイト|アプリで記者と対話|^朝ポキTV|ほかにも(?:多彩な)?番組を配信中|^★?ご感想はこちら|discord|をフォロー|フォロー[、,]?\s*お願い|お待ちしています|申し込みはこちら|申込はこちら/i;
+const DROP_LINE = /過去(?:の)?回は(?:下記|こちら)|https?:\/\/\S+\s*by\S{1,15}さん$|朝日新聞ポッドキャスト(?:\s*[（(][^）)]*[）)])?\s*では[、,]?\s*他にも様々な番組を配信|^(?:朝日新聞)?アプリで.{1,15}をフォロー|申し込み不要です|読み放題|スタンダードコース|初回限定|初月無料|月額\s*[\d０-９,，]+円|^See .*omnystudio\.com\/listener|Learn more about your ad choices|会員登録をお願い|購読料で配信|交流はdiscord|^ご意見・感想・リクエスト|おたよりフォーム|^メルマガ|広告ご検討の企業様|^番組検索ツール|^最新情報はX|^番組カレンダー|全話あります公式サイト|アプリで記者と対話|^朝ポキTV|ほかにも(?:多彩な)?番組を配信中|^★?ご感想はこちら|discord|をフォロー|フォロー[、,]?\s*お願い|お待ちしています|申し込みはこちら|申込はこちら/i;
 const DROP_SECTION = /^【(?:おねがい|朝ポキ情報|お知らせ|イベント|公式サイト】|ツイッター】|ご意見・ご感想】|ご意見ご感想】|ご感想】)|^【[^】]*(?:参加|フェス|募集|告知|プレゼント|チケット|キャンペーン|イベント)[^】]*】\s*$/;
 const STAFF_SECTION = /^【(?:出演[・／/]スタッフ|出演者|スタッフ|出演)】/;
 const RELATED_SECTION = /^【(?:関連記事|関連リンク|写真まとめ|特集ページ|まとめてわかる)|^【[^】]*(?:関連|参考|アーカイブ)[^】]*】\s*$/;
+const POINTER_TAIL = /^(?:.{0,60}(?:は|を|も)?(?:こちら|コチラ)(?:から|です)?[。！!]?|[前中後]編|第\d+回|(?:前|次|過去)の回)$/;
 const AMBIG_LINE = /^[★※▼■◆]|募集|お寄せください|応募|申し込み|配信します|収録しました|プレゼント|イベント|フォロー/;
 
 // 原文を行に分け、監査側の期待（KEEP/DROP/STAFF/RELATED/AMBIGUOUS）を付ける。
@@ -58,6 +60,7 @@ export function classifyRawLines(raw) {
     else if (section === 'staff') expect = 'STAFF';
     else if (section === 'related' || (/https?:/.test(text) && [...text.matchAll(URL_RE)].some((m) => ARTICLE_RE.test(m[0])))) expect = 'RELATED';
     else if (urlOnly || headerOnly) expect = 'DROP';
+    else if (/https?:/.test(text) && POINTER_TAIL.test(text.replace(URL_RE, '').replace(/[（(][\s／/、,]*[）)]/g, '').trim().split('。').pop().trim())) expect = 'RELATED';   // SQA-12: 「〇〇はこちら（URL）」はリンクの見出し（清掃器は関連リンクへ移す）
     else if (AMBIG_LINE.test(text)) expect = 'AMBIGUOUS';
     else expect = 'KEEP';
     out.push({ i, text, len: text.length, expect, section });

@@ -3,7 +3,7 @@
 import fs from 'node:fs';
 import { createHash } from 'node:crypto';
 const root = new URL('../../', import.meta.url), rd = (p) => fs.readFileSync(new URL(p, root), 'utf8');
-const MODS = [['LibClean', 'public/library/library-clean.mjs'], ['DescEditor', 'public/library/description-editor.mjs'], ['QualityAudit', 'scripts/ledger-v2/summary-quality-audit.mjs'], ['SummaryVerify', 'scripts/ledger-v2/summary-v2-verify.mjs'], ['CleanerV4', 'scripts/ledger-v2/summary-cleaner-v4.mjs'], ['PersonIndex', 'scripts/ledger-v2/person-index.mjs'], ['SdgsOfficial', 'scripts/ledger-v2/sdgs-official-1092.mjs'], ['NetCount', 'scripts/ledger-v2/net-count.mjs'], ['LedgerAudit', 'scripts/ledger-v2/ledger-audit.mjs'], ['LibraryCore', 'public/library/library-core.mjs'], ['PubScope', 'public/library/publication-scope.mjs'], ['V2LibCore', 'scripts/ledger-v2/v2-library-core.mjs']];
+const MODS = [['LibClean', 'public/library/library-clean.mjs'], ['DescEditor', 'public/library/description-editor.mjs'], ['QualityAudit', 'scripts/ledger-v2/summary-quality-audit.mjs'], ['SummaryVerify', 'scripts/ledger-v2/summary-v2-verify.mjs'], ['CleanerV4', 'scripts/ledger-v2/summary-cleaner-v4.mjs'], ['PersonIndex', 'scripts/ledger-v2/person-index.mjs'], ['SdgsOfficial', 'scripts/ledger-v2/sdgs-official-1092.mjs'], ['NetCount', 'scripts/ledger-v2/net-count.mjs'], ['LedgerAudit', 'scripts/ledger-v2/ledger-audit.mjs'], ['LibraryCore', 'public/library/library-core.mjs'], ['PubScope', 'public/library/publication-scope.mjs'], ['V2LibCore', 'scripts/ledger-v2/v2-library-core.mjs'], ['RawSource', 'scripts/ledger-v2/raw-source.mjs']];
 const byPath = Object.fromEntries(MODS.map(([n, p]) => [p, n]));
 function wrap(name, path) {
   let src = rd(path); const exports = [];

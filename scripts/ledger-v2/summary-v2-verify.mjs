@@ -11,12 +11,14 @@ export function cov(line, text) {
   const a = NORM(line), b = NORM(text); if (!a) return 1; if (b.includes(a)) return 1;
   const g = grams(a), h = grams(b); if (!g.size) return 0; let n = 0; for (const x of g) if (h.has(x)) n++; return n / g.size;
 }
-const URL_G = /https?:\/\/[^\s"'<>）)」【]+/g;
+const URL_G = /https?:\/\/(?:(?!https?:\/\/)[A-Za-z0-9\-._~:/?#\[\]@!$&*+,;=%])+/g;   // SC4-17: URLはASCIIの文字だけ。日本語や次のURLが続けて書かれていても、そこで切る（EP-01176・EP-00365）
 const urlKey = (u) => cleanUrl(String(u).replace(/[.,;、。]+$/, '')).replace(/^https?:\/\//, '').replace(/\/$/, '').toLowerCase();
 export const SHORT_URL = /(?:bit\.ly|buff\.ly|t\.asahi\.com|t\.co\/|ow\.ly|amzn\.to|lnkd\.in|tinyurl\.com|is\.gd|goo\.gl)\b/i;
-const ARTICLE = /(?:asahi\.com\/(?:articles|sp\/articles|and\/article|edu\/article)|withnews\.jp\/article\/|globe\.asahi\.com\/article|book\.asahi\.com|dot\.asahi\.com|aera\.co\.jp)/i;
+const ARTICLE = /(?:asahi\.com\/(?:articles|sp\/articles|and\/article|edu\/article)|withnews\.jp\/article\/|globe\.asahi\.com\/article|book\.asahi\.com|smbiz\.asahi\.com\/article|dot\.asahi\.com|aera\.co\.jp)/i;
 // 消し忘れ（宣伝・勧誘・応募・定型）。本文の「リスナーさんのおたより」のような話題そのものは対象外になるよう、勧誘の動詞と組で見る
 export const PROMO = [
+  // SV-1 追加（SC4-17・2026-11-16）: 原文で確認した定型の告知行（申込条件・定員・抽選・購読案内・番組共通の締めの文・リスナー作のリンク紹介）
+  ['NOTICE_FIXED', /初めてお申し込みの方限定|宅配でご購読中|先着\d+人で[、,]?定員に達した|抽選結果の発表は|対象は新規に購読された方|当日の模様はポッドキャストとして配信|^・?しめきりは\d|申し込み不要です|フォームへのリンクは|^[（(](?:ご登録フォーム|お申し?込み)[）)]$|\s[（(](?:ご登録フォーム|お申し?込み)[）)]$|朝日新聞ポッドキャスト(?:\s*[（(][^）)]*[）)])?\s*では[、,]?\s*他にも様々な番組を配信|https?:\/\/\S+\s*by\S{1,15}さん$|^(?:朝日新聞)?アプリで.{1,15}をフォロー|^[↓⬇]{3,}\s*$/],
   ['FOLLOW', /(?:番組|ポッドキャスト|チャンネル)[をのも]?フォロー|フォロー(?:を?お願い|して(?:ね|ください|いただ)|ボタン)|チャンネル登録(?!者)/],
   ['APPLY', /(?:視聴|参加|観覧)?申し?込み(?:は|方法|受付|締め?切|フォーム|はこちら)|応募(?:は|方法|フォーム|受付|締め?切|はこちら)|締め?切りました|締め?切りです|ご参加いただけます/],
   ['MEMBER', /有料会員(?:の方|限定|登録)|会員登録(?:は|を|して)|読み放題|初回限定|月額\d/],

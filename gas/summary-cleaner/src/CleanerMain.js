@@ -1510,3 +1510,225 @@ function 整理_3_AJWアルキキ表示タブ削除_承認後() {
   P.deleteProperty(LEGACY_APPROVE_KEY_);
   return scLog_('整理_3_AJWアルキキ表示タブ削除_承認後', { status: 'OK', result: res, restore: 'COPY の退避タブ（値）と「_数式」タブから戻せる' });
 }
+
+// ===== 原文の補完・更新（2026-11-16 最終指令「概要欄清掃・関連記事保全GASの完成」1）=====
+// 原文の置き場所は V2・収蔵詳細（概要原文・概要原文SHA256・概要原文文字数・原文取得方法）。台帳の34列には原文を持たない。
+// 書いてよいのは RawSource.classifyRaw が FILL（空欄）／UPDATE（保存が公式原文の途中で切れている）としたものだけ。内容が違うものは書かず要確認。
+// 同じエピソードの確認: 収蔵詳細の公式GUID が台帳のGUID群に含まれ、公式RSSの同じGUIDの原文と比べる（題名では照合しない）。
+// 書く前に COPY「原文・反映履歴」へ旧値（原文そのもの・SHA・取得方法）を残す → 書く → 読み戻し（SHA）→ 状態を OK に。取消は 原文_9。
+var RAW_AUDIT_SHEET_ = '原文・照合', RAW_PLAN_SHEET_ = '原文・反映予定', RAW_TEST_SHEET_ = '原文試験・収蔵詳細', RAW_APPROVE_KEY_ = 'APPROVE_RAW_V2', RAW_MAX_ROWS_PER_RUN_ = 300, RAW_PAGE_FETCH_MAX_ = 20;
+var RAW_AUDIT_HEADERS_ = ['EP-ID', '公式GUID', '判定', '処理', '理由', '保存SHA256', '保存文字数', '公式SHA256', '公式文字数', '公式の取得元', '照合日時'];
+var RAW_HIST_SHEET_ = '原文・反映履歴', RAW_HIST_HEADERS_ = ['反映日時', '反映ID', '対象', 'EP-ID', '旧SHA256', '旧文字数', '旧原文', '旧取得方法', '新SHA256', '新文字数', '新取得方法', '判定', '状態'];
+function rawDetailRead_(sh) {
+  var n = P25V2_DETAIL_HEADERS_.length, v = sh.getRange(1, 1, Math.max(1, sh.getLastRow()), n).getDisplayValues(); p25v2SheetHeaderCheck_(v, P25V2_DETAIL_HEADERS_, sh.getName());
+  var at = {}; v.forEach(function (r, i) { if (i && r[0]) at[r[0]] = i; }); return { v: v, at: at, n: n };
+}
+// 公式の原文: RSS（GUID一致）→ 無ければ 公式個別ページ（上限 RAW_PAGE_FETCH_MAX_ 件、HTMLのJSONに本文があるときだけ）
+function rawOfficial_(guids, rssMap, pageUrl, budget) {
+  var g = guids.filter(function (x) { return rssMap[x]; })[0]; if (g) return { text: String(rssMap[g]), source: '公式RSS', guid: g };
+  if (pageUrl && /^https:\/\/(?:omny\.fm|www\.omnycontent\.com)\//.test(pageUrl) && budget.left > 0) {
+    budget.left--; try { var r = UrlFetchApp.fetch(pageUrl, { muteHttpExceptions: true, followRedirects: true }); if (r.getResponseCode() === 200) { var t = RawSource.rawFromOfficialPage(r.getContentText()); if (t) return { text: t, source: '公式個別ページ', guid: guids[0] || '' }; } } catch (e) { /* 取れなければ公式なし扱い */ }
+  }
+  return { text: '', source: '', guid: guids[0] || '' };
+}
+// 計画: 台帳の各回について、収蔵詳細の今の原文と公式の原文を比べる
+function rawPlan_(L, D, rssMap, now) {
+  var budget = { left: RAW_PAGE_FETCH_MAX_ }, rows = [], plan = [], cnt = {};
+  L.rows.forEach(function (x) {
+    var i = D.at[x.ep], cur = i != null ? D.v[i] : null, stored = cur ? cur[4] : '', guidOk = !cur || !cur[1] || x.guids.indexOf(String(cur[1]).toLowerCase()) >= 0;
+    var pageUrl = L.values[x.row - 1][L.ix.url], off = rawOfficial_(x.guids, rssMap, pageUrl, budget), c;
+    if (!guidOk) c = { action: 'HOLD', verdict: 'GUID不一致', reason: '収蔵詳細のGUIDが台帳と違う（同じ回と確認できない）' };
+    else if (!cur) c = off.text ? { action: 'ADD', verdict: '行なし→追加', reason: off.source + 'の原文で収蔵詳細の行を作る' } : { action: 'HOLD', verdict: '行なし・取得元なし', reason: '収蔵詳細に行がなく公式原文も無い' };
+    else c = RawSource.classifyRaw(stored, off.text, { source: off.source || '公式RSS', cellMax: SC_CELL_MAX_ });
+    cnt[c.verdict] = (cnt[c.verdict] || 0) + 1;
+    var oldSha = stored ? p25v2GasSha256_(stored) : '', newSha = off.text ? p25v2GasSha256_(off.text) : '';
+    rows.push([x.ep, off.guid || (cur ? cur[1] : x.guid), c.verdict, c.action, c.reason, oldSha, String(stored.length), newSha, String(off.text.length), off.source, now]);
+    if (c.action === 'FILL' || c.action === 'UPDATE' || c.action === 'ADD') plan.push({ ep: x.ep, guids: x.guids, action: c.action, verdict: c.verdict, oldSha: oldSha, newText: off.text, newSha: newSha, source: off.source, guid: off.guid });
+  });
+  return { rows: rows, plan: plan, counts: cnt, pageFetched: RAW_PAGE_FETCH_MAX_ - budget.left };
+}
+// 反映（共通）: target = { ss, sh, label }。計画後に変わった行・GUID不一致は書かない。履歴→書込→読み戻し
+function rawApply_(target, plan, dryRun) {
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), hist = scSheet_(c.ss, RAW_HIST_SHEET_, RAW_HIST_HEADERS_), D = rawDetailRead_(target.sh), now = new Date().toISOString();
+  var applyId = now + '/' + target.label + '/原文', writes = [], skip = {}, sk = function (k) { skip[k] = (skip[k] || 0) + 1; };
+  plan.forEach(function (p) {
+    if (writes.length >= RAW_MAX_ROWS_PER_RUN_) { sk('RUN_LIMIT（もう一度押すと続き）'); return; }
+    var i = D.at[p.ep], cur = i != null ? D.v[i] : null;
+    if (p.action === 'ADD') { if (cur) { sk('ROW_EXISTS_SINCE_PLAN'); return; } writes.push({ p: p, add: true }); return; }
+    if (!cur) { sk('ROW_GONE'); return; }
+    if (cur[1] && p.guids.indexOf(String(cur[1]).toLowerCase()) < 0) { sk('GUID_MISMATCH'); return; }
+    var nowSha = cur[4] ? p25v2GasSha256_(cur[4]) : '';
+    if (nowSha === p.newSha) { sk('ALREADY_DONE'); return; }
+    if (nowSha !== p.oldSha) { sk('CHANGED_SINCE_PLAN'); return; }   // 計画後に人や別のロボが書いた行は書かない
+    if (p.action === 'FILL' && cur[4]) { sk('NOT_EMPTY'); return; }
+    writes.push({ p: p, row: i + 1, cur: cur });
+  });
+  if (dryRun) return { status: 'DRYRUN', target: target.label, planned: writes.length, byAction: writes.reduce(function (a, w) { a[w.p.action] = (a[w.p.action] || 0) + 1; return a; }, {}), skipped: skip, eps: writes.map(function (w) { return w.p.ep; }) };
+  if (!writes.length) return { status: 'OK_NO_CHANGE', target: target.label, skipped: skip };
+  var method = function (p) { return p.source + '（原文_補完 ' + now.slice(0, 10) + '）'; };
+  var pend = writes.map(function (w) { var o = w.cur || []; return [now, applyId, target.label, w.p.ep, o[5] || '', o[6] || '', String(o[4] || '').slice(0, SC_CELL_MAX_), o[16] || '', w.p.newSha, String(w.p.newText.length), method(w.p), w.p.verdict, '書込中']; });
+  var h0 = hist.getLastRow() + 1; scChunkWrite_(hist, h0, pend, RAW_HIST_HEADERS_.length); SpreadsheetApp.flush();
+  PropertiesService.getScriptProperties().setProperty('RAW_LAST_APPLY', JSON.stringify({ id: applyId, label: target.label, ssId: target.ss.getId(), sheet: target.sh.getName() }));
+  var adds = [];
+  writes.forEach(function (w) {
+    if (w.add) { var row = [w.p.ep, w.p.guid, w.p.source, now, w.p.newText, w.p.newSha, String(w.p.newText.length), '未清掃', '', '', '', '', '', '', '', '', method(w.p)]; adds.push(row); return; }
+    var rg = target.sh.getRange(w.row, 5, 1, 3); rg.setNumberFormat('@'); rg.setValues([[w.p.newText, w.p.newSha, String(w.p.newText.length)]]); target.sh.getRange(w.row, 17).setValue(method(w.p));
+  });
+  var addStart = 0; if (adds.length) { addStart = target.sh.getLastRow() + 1; scChunkWrite_(target.sh, addStart, adds, P25V2_DETAIL_HEADERS_.length); }
+  SpreadsheetApp.flush();
+  var back = rawDetailRead_(target.sh), bad = 0, st = writes.map(function (w) { var i = back.at[w.p.ep], b = i != null ? back.v[i] : null, ok = b && p25v2GasSha256_(b[4]) === w.p.newSha && b[5] === w.p.newSha; if (!ok) bad++; return [ok ? 'OK' : 'READBACK_MISMATCH']; });
+  hist.getRange(h0, RAW_HIST_HEADERS_.length, st.length, 1).setValues(st);
+  return { status: bad ? 'READBACK_MISMATCH' : 'OK', target: target.label, written: writes.length, byAction: writes.reduce(function (a, w) { a[w.p.action] = (a[w.p.action] || 0) + 1; return a; }, {}), readbackMismatch: bad, skipped: skip, applyId: applyId, more: !!skip['RUN_LIMIT（もう一度押すと続き）'] };
+}
+function rawUndo_(fn) {
+  var P = PropertiesService.getScriptProperties(), last = JSON.parse(P.getProperty('RAW_LAST_APPLY') || 'null'); if (!last) return { status: 'NOTHING_TO_UNDO' };
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), hist = scSheet_(c.ss, RAW_HIST_SHEET_, RAW_HIST_HEADERS_);
+  var ss = last.ssId === c.ss.getId() ? c.ss : scOpen_(last.ssId, '').ss, sh = ss.getSheetByName(last.sheet), D = rawDetailRead_(sh), rows = hist.getRange(2, 1, Math.max(1, hist.getLastRow() - 1), RAW_HIST_HEADERS_.length).getDisplayValues().filter(function (r) { return r[1] === last.id && /^OK|^書込中$/.test(r[12]); });
+  var undone = 0, kept = 0, delRows = [], out = [], now = new Date().toISOString();
+  rows.forEach(function (r) { var i = D.at[r[3]]; if (i == null) return; var cur = D.v[i];
+    if (p25v2GasSha256_(cur[4]) !== r[8]) { kept++; return; }   // 反映後に変わった行は戻さない
+    if (!r[4] && !r[6] && !r[7] && /行なし/.test(r[11])) { delRows.push(i + 1); undone++; out.push([now, last.id + '/UNDO', last.label, r[3], r[8], r[9], '', r[10], r[4], r[5], r[7], r[11], 'UNDO（追加行を削除）']); return; }
+    var rg = sh.getRange(i + 1, 5, 1, 3); rg.setNumberFormat('@'); rg.setValues([[r[6], r[4], r[5]]]); sh.getRange(i + 1, 17).setValue(r[7]); undone++;
+    out.push([now, last.id + '/UNDO', last.label, r[3], r[8], r[9], '', r[10], r[4], r[5], r[7], r[11], 'UNDO']); });
+  delRows.sort(function (a, b) { return b - a; }).forEach(function (rw) { sh.deleteRow(rw); });
+  if (out.length) scChunkWrite_(hist, hist.getLastRow() + 1, out, RAW_HIST_HEADERS_.length);
+  SpreadsheetApp.flush(); P.deleteProperty('RAW_LAST_APPLY');
+  var back = rawDetailRead_(sh), mism = 0; rows.forEach(function (r) { var i = back.at[r[3]]; if (i == null) return; if (r[4] && p25v2GasSha256_(back.v[i][4]) !== r[4]) mism++; });
+  return { status: mism ? 'UNDO_READBACK_MISMATCH' : 'OK', target: last.label, undone: undone, keptBecauseChangedAfter: kept, readbackMismatch: mism };
+}
+// 1) 照合（読むだけ。結果は COPY「原文・照合」）
+function 原文_1_照合_READ_ONLY() {
+  var t0 = Date.now(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = scLedger_(v.sh), raw = scRawMap_();
+  if (raw.errors.length) return scLog_('原文_1_照合_READ_ONLY', { status: 'STOP_FEED_ERRORS', feedErrors: raw.errors });   // 一部の番組のRSSが取れない時は判定しない
+  var ds = v.ss.getSheetByName(P25V2_DETAIL_SHEET_); if (!ds) return scLog_('原文_1_照合_READ_ONLY', { status: 'STOP_NO_DETAIL_SHEET' });
+  var r = rawPlan_(L, rawDetailRead_(ds), raw.map, new Date().toISOString()), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes);
+  laWriteSheet_(c.ss, RAW_AUDIT_SHEET_, RAW_AUDIT_HEADERS_, r.rows);
+  return scLog_('原文_1_照合_READ_ONLY', { status: 'OK', ledgerEps: L.rows.length, rssItems: raw.items, counts: r.counts, toWrite: { total: r.plan.length, byAction: r.plan.reduce(function (a, p) { a[p.action] = (a[p.action] || 0) + 1; return a; }, {}), eps: r.plan.map(function (p) { return p.ep; }).slice(0, 40) }, pageFetched: r.pageFetched, sheet: 'COPY「' + RAW_AUDIT_SHEET_ + '」', ms: Date.now() - t0, version: RawSource.RAW_SOURCE_VERSION });
+}
+// 2) COPY試験（V2は読むだけ）: V2の収蔵詳細から数件を COPY の試験タブへ写し、空欄・途中切れ・中身違い・GUID違いを作ってから
+//    計画→反映→読み戻し→再実行で差分0→計画後に変わった行は書かない→取消で元に戻る、までを1回で確かめる
+function 原文_2_COPY試験() {
+  var t0 = Date.now(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = scLedger_(v.sh), raw = scRawMap_(), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), log = {};
+  if (raw.errors.length) return scLog_('原文_2_COPY試験', { status: 'STOP_FEED_ERRORS', feedErrors: raw.errors });
+  var src = rawDetailRead_(v.ss.getSheetByName(P25V2_DETAIL_SHEET_)), want = ['EP-06630', 'EP-06631'], pick = [];
+  L.rows.forEach(function (x) { var i = src.at[x.ep]; if (i == null || pick.length >= 9) return; var g = String(src.v[i][1]).toLowerCase(); if ((want.indexOf(x.ep) >= 0 || pick.length < 7) && raw.map[g] && raw.map[g] === src.v[i][4] && x.guids.indexOf(g) >= 0) pick.push({ x: x, row: src.v[i].slice() }); });
+  want.forEach(function (w) { if (!pick.some(function (p) { return p.x.ep === w; })) { var x = L.rows.filter(function (r) { return r.ep === w; })[0], i = x ? src.at[w] : null; if (i != null) pick.push({ x: x, row: src.v[i].slice() }); } });
+  if (pick.length < 8) return scLog_('原文_2_COPY試験', { status: 'STOP_NOT_ENOUGH_SAMPLES', picked: pick.length });
+  // 試験データを作る（COPYの試験タブだけ）。0,1=空欄  2,3=途中切れ  4=中身違い  5=GUID違い  残り=一致
+  var exp = {}, rows = pick.map(function (p, k) { var r = p.row.slice(), t = r[4];
+    if (k <= 1) { r[4] = ''; r[5] = ''; r[6] = '0'; exp[p.x.ep] = 'FILL'; }
+    else if (k <= 3) { r[4] = t.slice(0, Math.floor(t.length * 0.6)) + '…'; r[5] = p25v2GasSha256_(r[4]); r[6] = String(r[4].length); exp[p.x.ep] = 'UPDATE'; }
+    else if (k === 4) { r[4] = t.replace(/。/, '。（試験で書き換えた文）'); r[5] = p25v2GasSha256_(r[4]); r[6] = String(r[4].length); exp[p.x.ep] = 'HOLD'; }
+    else if (k === 5) { r[1] = '00000000-0000-0000-0000-000000000000'; exp[p.x.ep] = 'HOLD_GUID'; }
+    else exp[p.x.ep] = 'KEEP';
+    return r.map(String); });
+  var sh = c.ss.getSheetByName(RAW_TEST_SHEET_) || c.ss.insertSheet(RAW_TEST_SHEET_); sh.clearContents();
+  sh.getRange(1, 1, 1, P25V2_DETAIL_HEADERS_.length).setValues([P25V2_DETAIL_HEADERS_]); scChunkWrite_(sh, 2, rows, P25V2_DETAIL_HEADERS_.length); SpreadsheetApp.flush();
+  var before = rawDetailRead_(sh), beforeSha = {}; rows.forEach(function (r) { beforeSha[r[0]] = before.v[before.at[r[0]]][4] ? p25v2GasSha256_(before.v[before.at[r[0]]][4]) : ''; });
+  var subL = { rows: pick.map(function (p) { return p.x; }), values: L.values, ix: L.ix };
+  var plan = rawPlan_(subL, before, raw.map, new Date().toISOString());
+  var got = {}; plan.rows.forEach(function (r) { got[r[0]] = r[3] + (r[2] === 'GUID不一致' ? '_GUID' : ''); });
+  log.classify = { expected: exp, got: got, allMatch: Object.keys(exp).every(function (e) { return got[e] === exp[e]; }) };
+  // 計画の後に1行（途中切れの2件目）を人が直したことにする → その行は書かれないはず
+  var tamper = pick[3].x.ep, ti = before.at[tamper] + 1; sh.getRange(ti, 5).setValue(before.v[ti - 1][4] + '（人の修正）'); SpreadsheetApp.flush();
+  var a1 = rawApply_({ ss: c.ss, sh: sh, label: 'COPY試験' }, plan.plan, false);
+  var after = rawDetailRead_(sh), restored = 0, wrong = [];
+  plan.plan.forEach(function (p) { var b = after.v[after.at[p.ep]]; if (p.ep === tamper) { if (b[4] === before.v[ti - 1][4] + '（人の修正）') restored += 0; else wrong.push(p.ep + ':TAMPERED_ROW_OVERWRITTEN'); return; }
+    if (b[4] === raw.map[String(b[1]).toLowerCase()] && b[5] === p25v2GasSha256_(b[4])) restored++; else wrong.push(p.ep); });
+  var untouched = rows.filter(function (r) { return !plan.plan.some(function (p) { return p.ep === r[0]; }); }).every(function (r) { var b = after.v[after.at[r[0]]]; return b[4] === r[4] && b[1] === r[1]; });
+  log.apply1 = { result: a1, restoredToOfficial: restored, wrong: wrong, tamperedRowKept: wrong.indexOf(tamper + ':TAMPERED_ROW_OVERWRITTEN') < 0, othersUntouched: untouched };
+  var a2 = rawApply_({ ss: c.ss, sh: sh, label: 'COPY試験' }, plan.plan, false); log.rerun = { status: a2.status, written: a2.written || 0, skipped: a2.skipped };
+  var u = rawUndo_('原文_2_COPY試験'); log.undo = u;
+  // 2回目の反映は0件なので、取消の対象は1回目（RAW_LAST_APPLY は2回目で上書きしない）
+  var fin = rawDetailRead_(sh), back = 0; rows.forEach(function (r) { var b = fin.v[fin.at[r[0]]], want = r[0] === tamper ? p25v2GasSha256_(before.v[ti - 1][4] + '（人の修正）') : beforeSha[r[0]]; if ((b[4] ? p25v2GasSha256_(b[4]) : '') === want) back++; });
+  log.undoBackToTestStart = back + '/' + rows.length;
+  var ok = log.classify.allMatch && a1.status === 'OK' && a1.readbackMismatch === 0 && !wrong.length && untouched && a2.status === 'OK_NO_CHANGE' && u.status === 'OK' && back === rows.length;
+  return scLog_('原文_2_COPY試験', { status: ok ? 'PASS' : 'FAIL', samples: rows.length, log: log, sheet: 'COPY「' + RAW_TEST_SHEET_ + '」（試験用。V2は読むだけ）', ms: Date.now() - t0 });
+}
+// 3) V2予行（読むだけ。COPY「原文・反映予定」）
+function 原文_3_V2予行_READ_ONLY() {
+  var v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = scLedger_(v.sh), raw = scRawMap_(); if (raw.errors.length) return scLog_('原文_3_V2予行_READ_ONLY', { status: 'STOP_FEED_ERRORS', feedErrors: raw.errors });
+  var ds = v.ss.getSheetByName(P25V2_DETAIL_SHEET_), r = rawPlan_(L, rawDetailRead_(ds), raw.map, new Date().toISOString()), d = rawApply_({ ss: v.ss, sh: ds, label: 'V2作業用' }, r.plan, true), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes);
+  laWriteSheet_(c.ss, RAW_PLAN_SHEET_, ['EP-ID', '処理', '判定', '旧SHA256', '新SHA256', '新文字数', '公式の取得元'], r.plan.map(function (p) { return [p.ep, p.action, p.verdict, p.oldSha, p.newSha, p.newText.length, p.source]; }));
+  return scLog_('原文_3_V2予行_READ_ONLY', { status: 'OK', counts: r.counts, dryRun: d, planSheet: 'COPY「' + RAW_PLAN_SHEET_ + '」' });
+}
+function 原文_0_承認_V2補完() { PropertiesService.getScriptProperties().setProperty(RAW_APPROVE_KEY_, sumToday_()); return scLog_('原文_0_承認_V2補完', { status: 'APPROVED', validOn: sumToday_() }); }
+// 4) V2補完（承認当日だけ。反映の直前にRSSを取り直して計画を作り直す。1回 RAW_MAX_ROWS_PER_RUN_ 行まで、続きは再実行）
+function 原文_4_V2補完_承認後() {
+  var P = PropertiesService.getScriptProperties(); if (P.getProperty(RAW_APPROVE_KEY_) !== sumToday_()) return scLog_('原文_4_V2補完_承認後', { status: 'NOT_APPROVED_TODAY', note: '先に 原文_0_承認_V2補完' });
+  var lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return scLog_('原文_4_V2補完_承認後', { status: 'LOCKED' });
+  try {
+    var v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = scLedger_(v.sh), raw = scRawMap_(); if (raw.errors.length) return scLog_('原文_4_V2補完_承認後', { status: 'STOP_FEED_ERRORS', feedErrors: raw.errors });
+    var ds = v.ss.getSheetByName(P25V2_DETAIL_SHEET_), r = rawPlan_(L, rawDetailRead_(ds), raw.map, new Date().toISOString()), a = rawApply_({ ss: v.ss, sh: ds, label: 'V2作業用' }, r.plan, false);
+    if (a.status !== 'OK' || !a.more) P.deleteProperty(RAW_APPROVE_KEY_);
+    a.next = a.more ? 'もう一度 原文_4 を押す（承認は当日中有効）' : '原文_1 で残り0を確認 → 概要欄_2V を押して判定を作り直す';
+    return scLog_('原文_4_V2補完_承認後', a);
+  } finally { lock.releaseLock(); }
+}
+function 原文_9_直前の補完を戻す() { return scLog_('原文_9_直前の補完を戻す', rawUndo_('原文_9')); }
+
+// ===== 関連記事の保全確認（読むだけ、2026-11-16 最終指令 3）=====
+// V2の保存済み原文（SHA一致）を今の清掃器で分け、原文の記事URLがすべて関連記事JSONに残るか・見出しの有無・種類を数える。結果は COPY「関連記事・保全監査」
+var REL_AUDIT_SHEET_ = '関連記事・保全監査', REL_AUDIT_HEADERS_ = ['EP-ID', '原文の記事URL数', '保存できた記事数', '取りこぼし', '見出しなし（見える記事）', '非表示リンク', '動画', '参考文献', 'リンク', '宣伝', 'SNS', '保留理由', '清掃版'];
+function 関連_1_保全監査_READ_ONLY() {
+  var t0 = Date.now(), P = PropertiesService.getScriptProperties(), pre = scPreservedRaw_(), eps = Object.keys(pre).sort(), start = Number(P.getProperty('REL_AUDIT_CURSOR') || 0), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes);
+  var sh = start ? c.ss.getSheetByName(REL_AUDIT_SHEET_) : null; if (!sh) { laWriteSheet_(c.ss, REL_AUDIT_SHEET_, REL_AUDIT_HEADERS_, []); sh = c.ss.getSheetByName(REL_AUDIT_SHEET_); start = 0; }
+  var ART = /^https?:\/\/(?:www\.asahi\.com\/(?:[a-z]+\/)?articles\/|digital\.asahi\.com\/articles\/|withnews\.jp\/article\/|globe\.asahi\.com\/article\/|book\.asahi\.com\/article\/|smbiz\.asahi\.com\/article\/|www\.asahi\.com\/(?:sdgs|and|edu)\/article\/|www\.asahi\.com\/special\/(?!podcasts))/;
+  var out = [], i = start, ver = CleanerV4.CLEANER_VERSION;
+  for (; i < eps.length; i++) {
+    if (i % 50 === 0 && Date.now() - t0 > SC_CONFIG.timeBudgetMs) break;
+    var raw = pre[eps[i]].text, r = CleanerV4.cleanV4(raw), keyOf = function (u) { return QualityAudit.cleanUrl(String(u).replace(/&amp;/g, '&').replace(/[.,;]+$/, '').replace(/&nbsp;?$/, '')); };
+    var vis = (raw.replace(/<[^>]+>/g, ' ').replace(/&nbsp;?/g, ' ').replace(/&amp;/g, '&').match(/https?:\/\/(?:(?!https?:\/\/)[A-Za-z0-9\-._~:/?#\[\]@!$&*+,;=%])+/g) || []);
+    var hrefs = []; raw.replace(/<a\b[^>]*?href\s*=\s*["']([^"']+)["']/gi, function (m, u) { hrefs.push(u); return m; });
+    var want = {}; vis.concat(hrefs).forEach(function (u) { if (ART.test(u)) want[keyOf(u)] = 1; });
+    var got = {}; r.related.forEach(function (x) { if (x.url) got[keyOf(x.url)] = 1; });
+    var miss = Object.keys(want).filter(function (u) { return !got[u]; }), k = function (kind) { return r.related.filter(function (x) { return x.kind === kind; }).length; };
+    out.push([eps[i], Object.keys(want).length, k('article'), miss.length ? miss.length + ' ' + miss.slice(0, 3).join(' ') : 0, r.related.filter(function (x) { return x.kind === 'article' && !x.title && !x.hiddenLink; }).length, r.related.filter(function (x) { return x.hiddenLink; }).length, k('video'), k('reference'), k('link'), k('promo'), k('sns'), r.holds.join(' '), ver]);
+  }
+  if (out.length) scChunkWrite_(sh, sh.getLastRow() + 1, out, REL_AUDIT_HEADERS_.length);
+  var done = i >= eps.length; if (done) P.deleteProperty('REL_AUDIT_CURSOR'); else P.setProperty('REL_AUDIT_CURSOR', String(i));
+  var sum = null; if (done) { var all = sh.getRange(2, 1, sh.getLastRow() - 1, REL_AUDIT_HEADERS_.length).getDisplayValues(); sum = { episodes: all.length, rawArticleUrls: 0, kept: 0, episodesWithLoss: 0, noTitleVisible: 0, hidden: 0, video: 0, reference: 0, link: 0, promo: 0, sns: 0 };
+    all.forEach(function (r) { sum.rawArticleUrls += +r[1]; sum.kept += +r[2]; if (r[3] !== '0') sum.episodesWithLoss++; sum.noTitleVisible += +r[4]; sum.hidden += +r[5]; sum.video += +r[6]; sum.reference += +r[7]; sum.link += +r[8]; sum.promo += +r[9]; sum.sns += +r[10]; }); }
+  return scLog_('関連_1_保全監査_READ_ONLY', { status: done ? 'DONE' : 'PARTIAL_RESUME_NEEDED（もう一度押すと続きから）', processed: i, total: eps.length, summary: sum, sheet: 'COPY「' + REL_AUDIT_SHEET_ + '」', version: ver, ms: Date.now() - t0 });
+}
+// 回帰の実データ確認（読むだけ）: 事故の起きた回が今の清掃器で正しく分かれるか。合否と件数だけを出す（本文は出さない）
+function 概要欄_R_回帰確認_READ_ONLY() {
+  var pre = scPreservedRaw_(), res = {}, fail = 0;
+  var cases = {
+    'EP-06630': function (r) { var a = r.related.filter(function (x) { return x.kind === 'article'; }); return a.length === 3 && a.every(function (x) { return x.title && x.url; }) && !/PODCAST MEETING|月額/.test(r.text) && r.cast.length === 3; },
+    'EP-06631': function (r) { return r.socials.indexOf('https://x.com/MangaLearn') >= 0 && !/Xから/.test(r.text) && r.cast.length === 2; },
+    'EP-03025': function (r) { return r.related.filter(function (x) { return x.kind === 'article'; }).length === 3 && r.text.length > 50 && r.holds.indexOf('CONTENT_EMPTY') < 0; },
+    'EP-00605': function (r) { return /プレコンセプションケア/.test(r.text) && r.related.filter(function (x) { return x.kind === 'article'; }).length >= 1; },
+    'EP-01176': function (r) { return r.related.filter(function (x) { return x.kind === 'article'; }).every(function (x) { return !/[^\x00-\x7F]/.test(x.url); }) && r.related.filter(function (x) { return x.kind === 'article'; }).length === 3; },
+    'EP-01271': function (r) { return /読み解きます/.test(r.text) && r.related.some(function (x) { return x.kind === 'article'; }); },
+    'EP-02417': function (r) { return r.related.filter(function (x) { return x.kind === 'article' && /smbiz/.test(x.url); }).length === 4; },
+    'EP-04021': function (r) { return r.related.filter(function (x) { return x.hiddenLink; }).every(function (x) { return !x.title; }); },
+    'EP-01110': function (r) { return r.cast.every(function (c) { return !/^https?:/.test(c.raw); }); }
+  };
+  Object.keys(cases).forEach(function (ep) { if (!pre[ep]) { res[ep] = '原文なし（未確認）'; return; } var r = CleanerV4.cleanV4(pre[ep].text), ok = false; try { ok = cases[ep](r); } catch (e) { ok = false; } res[ep] = ok ? 'PASS' : 'FAIL'; if (!ok) fail++; });
+  return scLog_('概要欄_R_回帰確認_READ_ONLY', { status: fail ? 'FAIL' : 'PASS', version: CleanerV4.CLEANER_VERSION, results: res });
+}
+
+// ===== 概要欄: COPYで少数件の書込→読み戻し→再実行で差分0→取消 を1回で確かめる（2026-11-16 最終指令 5。V2は読むだけ）=====
+// 対象: COPY「清掃・結果(V2基準)」で、今の値が照合不合格（SV_OLD_FAIL）かつ新しい値が自動検査合格の回のうち、
+//       COPYの台帳の今の値が V2基準の旧値と同じ回を最大10件（＝本番の 概要欄_7 と同じ条件の回で試す）
+function 概要欄_T_COPY少数件試験() {
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), res = c.ss.getSheetByName(SUM_RES_V2_); if (!res || res.getLastRow() < 2) return scLog_('概要欄_T_COPY少数件試験', { status: 'STOP_NO_V2BASE_RESULT（先に 概要欄_2V を DONE まで）' });
+  var H = {}; SC_HEADERS_.forEach(function (n, i) { H[n] = i; });
+  var L = scLedger_(c.sh), byEp = {}; L.rows.forEach(function (r) { byEp[r.ep] = r; });
+  var rs = res.getRange(2, 1, res.getLastRow() - 1, SC_HEADERS_.length).getDisplayValues(), scope = {}, picked = [], before = {};
+  rs.forEach(function (r) { if (picked.length >= 10) return; var x = byEp[r[H['EP-ID']]];
+    if (!x || r[H['判定']] !== '自動検査合格・目視未確認' || !/SV_OLD_FAIL/.test(r[H['理由']]) || !/summary/.test(r[H['書換可']])) return;
+    if (x.summary !== r[H['旧・概要']] || x.cast !== r[H['旧・出演者']] || x.related !== r[H['旧・関連記事URL']]) return;
+    scope[x.ep] = 1; picked.push(x.ep); before[x.ep] = { summary: x.summary, cast: x.cast, related: x.related }; });
+  if (!picked.length) return scLog_('概要欄_T_COPY少数件試験', { status: 'STOP_NO_CANDIDATE' });
+  var a1 = scApply_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes, 'AUTO_PASS', 'COPY', 10, SUM_RES_V2_, scope);
+  var L2 = scLedger_(c.sh), by2 = {}; L2.rows.forEach(function (r) { by2[r.ep] = r; });
+  var asPlanned = 0, keyCols = { summary: '新・概要', cast: '新・出演者', related: '新・関連記事URL' };
+  rs.forEach(function (r) { if (!scope[r[H['EP-ID']]]) return; var x = by2[r[H['EP-ID']]], ok = String(r[H['書換可']]).split('+').every(function (k) { return String(x[k]) === String(r[H[keyCols[k]]]); }); if (ok) asPlanned++; });
+  var a2 = scApply_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes, 'AUTO_PASS', 'COPY', 10, SUM_RES_V2_, scope);
+  var u = S9_直前の反映を取消();
+  var L3 = scLedger_(c.sh), back = 0; L3.rows.forEach(function (r) { var b = before[r.ep]; if (b && r.summary === b.summary && r.cast === b.cast && r.related === b.related) back++; });
+  var ok = a1.status === 'OK' && asPlanned === picked.length && a2.status === 'OK_NO_CHANGE' && u.status === 'OK' && back === picked.length;
+  return scLog_('概要欄_T_COPY少数件試験', { status: ok ? 'PASS' : 'FAIL', eps: picked, write: { status: a1.status, cells: a1.cellsWritten, episodes: a1.episodes }, readbackAsPlanned: asPlanned + '/' + picked.length, rerun: { status: a2.status, cells: a2.cellsWritten }, undo: u, backToBefore: back + '/' + picked.length, note: 'COPYの台帳だけ。V2は読むだけ' });
+}
