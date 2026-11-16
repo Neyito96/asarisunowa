@@ -550,7 +550,7 @@ const officialPrograms: OfficialProgram[] = [
       ["Pocket Casts", "https://pocketcasts.com/podcast/%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%82%92%E6%B7%B1%E3%81%8F%E9%9D%A2%E7%99%BD%E3%81%8F%E5%A0%B1%E8%AB%87-hou-dan%E3%83%9B%E3%82%A6%E3%83%80%E3%83%B3/e2bb4c60-c679-0138-e72c-0acc26574db2"],
       ["LISTEN", "https://listen.style/p/ywaodpkl"]
     ],
-    official: "https://omny.fm/shows/asahi/playlists/playlist-1",
+    official: "https://www.asahi.com/special/podcasts/?pgid=9212d823-d670-423a-ab01-ac1000d97d6f",
     pody: "https://pody.jp/player/sDYbQUEUe07sRv1wMI9z",
     discord: "https://discord.gg/d7sAbSRQvq",
   },
