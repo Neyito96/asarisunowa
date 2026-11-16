@@ -36,7 +36,7 @@ export function classifyNet({ v2Rows, onsaRows, rerun185 = [], sdgsOfficial = []
   const others = (r) => { const s = new Set(); new Set([...ids(r), ...cand(r)]).forEach((i) => (idx[i] || []).forEach((e) => s.add(e))); (tdx[N(r.title) + '|' + dayKey(r.date)] || []).forEach((e) => s.add(e)); s.delete(r.ep); return [...s]; };
   const isT = (e) => byEp[e] && byEp[e].judge === '対象';
   const rows = v2Rows.map((r) => {
-    let prop = r.judge, rep = r.rep || r.ep, reason = '';
+    let prop = r.judge, rep = r.rep || r.ep, reason = '', unv = false;
     const o = inOnsa(r), oth = others(r), othT = oth.filter(isT);
     if (identityOverrides[r.ep]) { const ov = identityOverrides[r.ep]; return { ep: r.ep, show: r.show, now: r.judge, prop: ov.prop, rep: ov.rep || r.ep, reason: ov.reason, onsa: o }; }
     if (r.judge === '対象') {
@@ -47,11 +47,11 @@ export function classifyNet({ v2Rows, onsaRows, rerun185 = [], sdgsOfficial = []
       } else if (s185[r.ep]) {
         const x = s185[r.ep], d = absn(x.diff);
         if (x.match === '高確度一致' && d !== null && d <= EDIT_DIFF_MAX_SEC && isT(x.origin)) { prop = '重複案'; rep = x.origin; reason = 'SDGs再配信185件照合: 高確度一致・尺差' + x.diff + '秒（編集差の範囲）→ 元配信を代表'; }
-        else { prop = '保留案'; reason = 'SDGs再配信185件照合: ' + (x.match || '未照合') + '・尺差' + x.diff + '秒（同一内容は未検証）'; }
+        else { prop = '対象'; unv = true; reason = '再配信（SDGs再配信185件照合: ' + (x.match || '未照合') + '・尺差' + x.diff + '秒）。元配信と同一内容が未確定のため、現在の対象を保持（推測で重複除外しない）'; }
       } else if (RERUN.test(r.title)) {
         const src = v2Rows.filter((x) => x.ep !== r.ep && isT(x.ep) && core(x.title) === core(r.title));
         const hit = src.find((x) => dur(x) !== null && dur(r) !== null && Math.abs(dur(x) - dur(r)) <= EDIT_DIFF_MAX_SEC);
-        if (hit) { prop = '重複案'; rep = hit.ep; reason = '再放送：元配信と題名一致・尺差' + Math.abs(dur(hit) - dur(r)) + '秒（編集差の範囲）'; } else { prop = '保留案'; reason = '再放送の表示あり・元配信と同一の根拠なし'; }
+        if (hit) { prop = '重複案'; rep = hit.ep; reason = '再放送：元配信と題名一致・尺差' + Math.abs(dur(hit) - dur(r)) + '秒（編集差の範囲）'; } else { prop = '対象'; unv = true; reason = '再放送の表示あり。元配信と同一の根拠がないため、現在の対象を保持（推測で重複除外しない）'; }
       } else { prop = '対象'; reason = '現判定どおり'; }
     } else if (r.judge === '対象外') {
       if (r.rep && r.rep !== r.ep && isT(r.rep)) reason = '代表が対象（重複として除外を維持）'; else { prop = '保留'; reason = '代表EP-IDが対象でない'; }
@@ -65,7 +65,7 @@ export function classifyNet({ v2Rows, onsaRows, rerun185 = [], sdgsOfficial = []
       } else if (o && !oth.length) { prop = '対象案'; reason = o + '・V2内で公式ID／題名・配信日の重複なし'; }
       else { prop = '保留'; reason = oth.length ? 'V2内に同じID／題名の行あり（対象ではない）: ' + oth.join(',') : 'おんさ表に無く、公式との対応も未確認'; }
     }
-    return { ep: r.ep, show: r.show, now: r.judge, prop, rep, reason, onsa: o };
+    return { ep: r.ep, show: r.show, now: r.judge, prop, rep, reason, onsa: o, rerunUnverified: unv };
   });
   // 2巡目（2026-11-16 指令「保留40件を個別に調査」）: 保留の再配信について、元配信らしい対象行を
   // 「回番号・記号を除いた題名の文字2-gram一致率 0.9 以上」かつ「尺差が編集差の範囲（120秒以内）」かつ「配信日が再配信より前」で探す。
@@ -73,12 +73,12 @@ export function classifyNet({ v2Rows, onsaRows, rerun185 = [], sdgsOfficial = []
   const TN = (s) => String(s || '').normalize('NFKC').replace(/（再[^）]*）|【再[^】]*】|\(再[^)]*\)|再放送|再配信|アンコール|再掲/g, '').replace(/[\s「」『』#0-9()（）【】、。・!?！？]/g, '');
   const bg = (s) => { const a = new Set(); for (let i = 0; i + 1 < s.length; i++) a.add(s.slice(i, i + 2)); return a; };
   const jac = (a, b) => { const A = bg(TN(a)), B = bg(TN(b)); let n = 0; A.forEach((x) => { if (B.has(x)) n++; }); return n / Math.max(1, A.size + B.size - n); };
-  const counted = new Set(rows.filter((x) => x.prop === '対象' || x.prop === '対象案').map((x) => x.ep));
+  const counted = new Set(rows.filter((x) => x.prop === '対象' || x.prop === '対象案').map((x) => x.ep)), unverified = new Set(rows.filter((x) => x.rerunUnverified).map((x) => x.ep));
   rows.forEach((x) => {
-    if (x.prop !== '保留案' && x.prop !== '保留') return; const r = byEp[x.ep]; if (!RERUN.test(r.title) && !s185[x.ep]) return;
+    if (x.prop !== '保留案' && x.prop !== '保留' && !x.rerunUnverified) return; const r = byEp[x.ep]; if (!RERUN.test(r.title) && !s185[x.ep]) return;
     let best = null;
-    v2Rows.forEach((t) => { if (t.ep === r.ep || !counted.has(t.ep) || !(dayKey(t.date) < dayKey(r.date))) return; if (dur(t) === null || dur(r) === null) return; const d = Math.abs(dur(t) - dur(r)); if (d > EDIT_DIFF_MAX_SEC) return; const j = jac(r.title, t.title); if (j >= 0.9 && (!best || j > best.j || (j === best.j && d < best.d))) best = { ep: t.ep, j, d }; });
-    if (best) { x.prop = '重複案'; x.rep = best.ep; x.reason = '再配信の個別照合: 元配信 ' + best.ep + '（題名一致率' + best.j.toFixed(2) + '・尺差' + best.d + '秒、配信日が前）を代表'; }
+    v2Rows.forEach((t) => { if (t.ep === r.ep || !counted.has(t.ep) || unverified.has(t.ep) || !(dayKey(t.date) < dayKey(r.date))) return; if (dur(t) === null || dur(r) === null) return; const d = Math.abs(dur(t) - dur(r)); if (d > EDIT_DIFF_MAX_SEC) return; const j = jac(r.title, t.title); if (j >= 0.9 && (!best || j > best.j || (j === best.j && d < best.d))) best = { ep: t.ep, j, d }; });
+    if (best) { x.prop = '重複案'; x.rerunUnverified = false; x.rep = best.ep; x.reason = '再配信の個別照合: 元配信 ' + best.ep + '（題名一致率' + best.j.toFixed(2) + '・尺差' + best.d + '秒、配信日が前）を代表'; }
   });
   // おんさ表にあって V2 に無い回（欠落）
   const v2Ids = new Set(), v2Td = new Set(); v2Rows.forEach((r) => { new Set([...ids(r), ...cand(r)]).forEach((i) => v2Ids.add(i)); v2Td.add(N(r.title) + '|' + dayKey(r.date)); });
@@ -90,7 +90,7 @@ export function classifyNet({ v2Rows, onsaRows, rerun185 = [], sdgsOfficial = []
   const sdgsMissing = [...sdgsSet].filter((u) => !v2Ids.has(u) && !Object.values(identityOverrides).some((ov) => String(ov.officialUuid || '').toLowerCase() === u));
   const net = rows.filter((x) => x.prop === '対象' || x.prop === '対象案');
   const count = (arr, f) => arr.reduce((a, x) => { const k = f(x); a[k] = (a[k] || 0) + 1; return a; }, {});
-  return { version: NET_VERSION, rows, onsaOnly, sdgsMissing, summary: { ledgerRows: v2Rows.length, net: net.length, netByShow: count(net, (x) => x.show), transitions: count(rows, (x) => x.now + '→' + x.prop), props: count(rows, (x) => x.prop), onsaOnly: onsaOnly.length, sdgsOfficial: sdgsSet.size, sdgsMissingInV2: sdgsMissing.length } };
+  return { version: NET_VERSION, rows, onsaOnly, sdgsMissing, summary: { ledgerRows: v2Rows.length, net: net.length, netIncludesRerunUnverified: rows.filter((x) => x.rerunUnverified).length, netByShow: count(net, (x) => x.show), transitions: count(rows, (x) => x.now + '→' + x.prop), props: count(rows, (x) => x.prop), onsaOnly: onsaOnly.length, sdgsOfficial: sdgsSet.size, sdgsMissingInV2: sdgsMissing.length } };
 }
 
 // 2026-11-16 照合で根拠が揃った個別の同一性（人が読める根拠つき。自動の基準は緩めない）

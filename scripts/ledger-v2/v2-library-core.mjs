@@ -43,7 +43,8 @@ export function buildV2Library({ ledger, persons = [], related = [], previousPub
     else if (nd && nd.prop === '対象案' && publication !== '対象') { publication = '対象'; why = '判定案: ' + nd.reason; }
     const g = String(r['公式GUID'] || '').toLowerCase();
     if (publication === '対象' && g && guidSeen.has(g)) { publication = '除外'; classification = '重複'; why = '公式GUIDが ' + guidSeen.get(g) + ' と同じ'; }
-    if (publication === '対象' && isRerun(title)) { const o = (originals.get(show + '|' + baseTitle(title)) || []).filter((x) => x !== id), pub = o.filter((x) => previousPublicIds.has(x));
+    // 正味判定で「元配信と同一が未確定なので対象を保持」とした回は、下の再配信の保留にしない
+    if (publication === '対象' && isRerun(title) && !(nd && (nd.prop === '対象' || nd.prop === '対象案'))) { const o = (originals.get(show + '|' + baseTitle(title)) || []).filter((x) => x !== id), pub = o.filter((x) => previousPublicIds.has(x));
       publication = pub.length ? '除外' : '保留'; classification = '再配信'; why = pub.length ? '原回 ' + pub.join(' ') + ' が公開済み（再配信を新規として数えない）' : '原回が台帳に無い再配信（司令塔の判断待ち）'; }
     if (publication === '対象' && !previousPublicIds.has(id) && !newEpisodeAllowList.has(id)) { publication = '保留'; classification = '新規・未確認'; why = '旧公開に無い回。公式ページ・音声が確認済み（L4 VERIFIED）になるまで公開しない'; }
     if (publication === '対象' && g) guidSeen.set(g, id);

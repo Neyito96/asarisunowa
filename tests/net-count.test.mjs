@@ -11,11 +11,11 @@ test('未判定はおんさ表と一致し重複がなければ対象案、お�
   const r = classifyNet({ v2Rows, onsaRows: [{ show: 'x', title: 'A', date: 'Wed, 30 Sep 2026 19:00:00 +0000', item: 'aaaaaaaa-0000-0000-0000-000000000001' }] });
   assert.equal(r.rows[0].prop, '対象案'); assert.equal(r.rows[1].prop, '保留'); assert.equal(r.summary.net, 1);
 });
-test('再配信: 高確度一致かつ尺差が編集差の範囲なら元配信を代表に重複、範囲外・有力候補は保留（推測で除外しない）', () => {
+test('再配信: 高確度一致かつ尺差が編集差の範囲なら元配信を代表に重複、範囲外・有力候補は今の対象を保持（推測で除外しない）', () => {
   const v2Rows = [R({ ep: 'EP-00010', title: '元', date: '2021/07/14 05:00' }), R({ ep: 'EP-00020', show: 'SDGsを話そう', title: '（再）元', date: '2021/11/04 04:00' }), R({ ep: 'EP-00021', show: 'SDGsを話そう', title: '（再）別', date: '2021/11/05 04:00' }), R({ ep: 'EP-00022', show: 'SDGsを話そう', title: '（再）三', date: '2021/11/06 04:00' })];
   const rerun185 = [{ ep: 'EP-00020', match: '高確度一致', origin: 'EP-00010', diff: String(EDIT_DIFF_MAX_SEC) }, { ep: 'EP-00021', match: '高確度一致', origin: 'EP-00010', diff: '288' }, { ep: 'EP-00022', match: '有力候補', origin: 'EP-00010', diff: '1' }];
   const r = classifyNet({ v2Rows, onsaRows: [], rerun185 });
-  assert.deepEqual(r.rows.map((x) => x.prop), ['対象', '重複案', '保留案', '保留案']); assert.equal(r.rows[1].rep, 'EP-00010');
+  assert.deepEqual(r.rows.map((x) => x.prop), ['対象', '重複案', '対象', '対象']); assert.equal(r.rows[2].rerunUnverified, true); assert.equal(r.rows[1].rep, 'EP-00010');
 });
 test('対象同士の同題・同日は番組名がタイトルに入っている方を代表にする', () => {
   const v2Rows = [R({ ep: 'EP-00132', show: '報談', title: '（告知）新番組「ドーナツ」', date: '2026/08/17 04:00' }), R({ ep: 'EP-00301', show: 'ドーナツ', title: '（告知）新番組「ドーナツ」', date: '2026/08/17 04:00' })];
