@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-v2-verify.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = 'a35cb5c45b1bd5bd96f0af78e374a0bb8560346bd35590ee286b03e9f7a5e2c6';
+var CLEANER_BUILD_SOURCE_SHA256 = 'b7ba5aae60b265c6f9c5c0302ddcd98985624b45a548fc421b172db7c4aaff0f';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -2857,7 +2857,11 @@ function 配信先_A1_Apple照合_READ_ONLY() {
     try {
       var s = pfJson_('https://itunes.apple.com/search?media=podcast&entity=podcast&country=JP&limit=25&term=' + encodeURIComponent(f.show));
       var hit = (s.results || []).filter(function (x) { return pfNormFeed_(x.feedUrl) === pfNormFeed_(f.url); })[0];
-      if (!hit) { st.error = 'FEED_NOT_FOUND_IN_APPLE_SEARCH'; return; }   // 番組名が似ていても RSS が違えば採らない
+      if (!hit) {   // 検索で出ない番組は、V2 に既にある Apple URL の番組ID（/id数字）を Lookup し、RSS が一致したときだけ採る
+        var ids = {}; vals.slice(1).forEach(function (r) { if (r[iShow] === f.show) { var m = String(r[iApple] || '').match(/\/id(\d+)/); if (m) ids[m[1]] = 1; } });
+        Object.keys(ids).some(function (id) { var lk = pfJson_('https://itunes.apple.com/lookup?entity=podcast&country=JP&id=' + id); hit = (lk.results || []).filter(function (x) { return pfNormFeed_(x.feedUrl) === pfNormFeed_(f.url); })[0]; return !!hit; });
+      }
+      if (!hit) { st.error = 'FEED_NOT_FOUND_IN_APPLE'; return; }   // 番組名が似ていても RSS が違えば採らない
       st.collectionId = String(hit.collectionId);
       var l = pfJson_('https://itunes.apple.com/lookup?entity=podcastEpisode&country=JP&limit=200&id=' + hit.collectionId), byGuid = {};
       (l.results || []).forEach(function (x) { if (x.wrapperType === 'podcastEpisode' && x.episodeGuid && x.trackViewUrl) byGuid[String(x.episodeGuid).toLowerCase()] = { url: String(x.trackViewUrl), trackId: String(x.trackId) }; });

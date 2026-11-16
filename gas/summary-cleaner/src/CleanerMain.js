@@ -1345,7 +1345,11 @@ function 配信先_A1_Apple照合_READ_ONLY() {
     try {
       var s = pfJson_('https://itunes.apple.com/search?media=podcast&entity=podcast&country=JP&limit=25&term=' + encodeURIComponent(f.show));
       var hit = (s.results || []).filter(function (x) { return pfNormFeed_(x.feedUrl) === pfNormFeed_(f.url); })[0];
-      if (!hit) { st.error = 'FEED_NOT_FOUND_IN_APPLE_SEARCH'; return; }   // 番組名が似ていても RSS が違えば採らない
+      if (!hit) {   // 検索で出ない番組は、V2 に既にある Apple URL の番組ID（/id数字）を Lookup し、RSS が一致したときだけ採る
+        var ids = {}; vals.slice(1).forEach(function (r) { if (r[iShow] === f.show) { var m = String(r[iApple] || '').match(/\/id(\d+)/); if (m) ids[m[1]] = 1; } });
+        Object.keys(ids).some(function (id) { var lk = pfJson_('https://itunes.apple.com/lookup?entity=podcast&country=JP&id=' + id); hit = (lk.results || []).filter(function (x) { return pfNormFeed_(x.feedUrl) === pfNormFeed_(f.url); })[0]; return !!hit; });
+      }
+      if (!hit) { st.error = 'FEED_NOT_FOUND_IN_APPLE'; return; }   // 番組名が似ていても RSS が違えば採らない
       st.collectionId = String(hit.collectionId);
       var l = pfJson_('https://itunes.apple.com/lookup?entity=podcastEpisode&country=JP&limit=200&id=' + hit.collectionId), byGuid = {};
       (l.results || []).forEach(function (x) { if (x.wrapperType === 'podcastEpisode' && x.episodeGuid && x.trackViewUrl) byGuid[String(x.episodeGuid).toLowerCase()] = { url: String(x.trackViewUrl), trackId: String(x.trackId) }; });
