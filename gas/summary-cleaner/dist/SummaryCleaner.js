@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-v2-verify.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/net-count.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs, scripts/ledger-v2/raw-source.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = 'd04b0d0f6fc9b4223cb471169bd2c43b9dc2f4c30cabfe84abc6f1b111f9f095';
+var CLEANER_BUILD_SOURCE_SHA256 = '2c8242732e8a3235097b07683a4f715984300188fef7c16c01683e8ed87ca9f7';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -747,7 +747,7 @@ var CleanerV4 = (function () {
 const { descriptionLines, DESCRIPTION_VERSION } = DescEditor;
 const { verifyEpisode, isPromoLine } = SummaryVerify;
 const { auditPair, accountLines, AUDIT_VERSION, cleanUrl, paraLines, STAR_NOTICE, INLINE_NOTICE_HEAD, decodeNamedEntities } = QualityAudit;
-const CLEANER_VERSION = 'SC4-17(' + DESCRIPTION_VERSION + ')';   // SC4-17: URLをASCIIで切る・告知の節が見出しや段落を越えて本文/関連記事を消さない・関連記事の種類（記事/動画/参考文献/リンク/宣伝/SNS）・記事URLの安全網・本文中の記事リンク文を残す（2026-11-16 最終指令）。SC4-16: 出演欄の呼びかけ文を出演者にしない・「締め切りです」告知（判定の再実行のため版を上げる）。SC4-15: 応募・参加条件・連絡先・★告知の行を落とす、URLを抜いた跡「はこちら（ ）」を消す（2026-11-16 実機照合）。SC4-14: 宣伝の行に付いた収録日の一文を残す。SC4-13: 空リンクのURLと見出しの連結を分ける・本文中の「ディスコード」「チャンネル登録者」等を宣伝扱いしない・長い本文の末尾の「お便りを送ってください」は文だけ落とす（2026-11-15 QA9）   // SC4-10 は所在不明の版（2026-11-12）と衝突させないため欠番
+const CLEANER_VERSION = 'SC4-18(' + DESCRIPTION_VERSION + ')';   // SC4-18: 「※過去の配信リスト」リンク集・（Spotify）ラベル残り・「申し込み→」（判定の再実行のため版を上げる）。SC4-17: URLをASCIIで切る・告知の節が見出しや段落を越えて本文/関連記事を消さない・関連記事の種類（記事/動画/参考文献/リンク/宣伝/SNS）・記事URLの安全網・本文中の記事リンク文を残す（2026-11-16 最終指令）。SC4-16: 出演欄の呼びかけ文を出演者にしない・「締め切りです」告知（判定の再実行のため版を上げる）。SC4-15: 応募・参加条件・連絡先・★告知の行を落とす、URLを抜いた跡「はこちら（ ）」を消す（2026-11-16 実機照合）。SC4-14: 宣伝の行に付いた収録日の一文を残す。SC4-13: 空リンクのURLと見出しの連結を分ける・本文中の「ディスコード」「チャンネル登録者」等を宣伝扱いしない・長い本文の末尾の「お便りを送ってください」は文だけ落とす（2026-11-15 QA9）   // SC4-10 は所在不明の版（2026-11-12）と衝突させないため欠番
 const T = (v) => String(v ?? '').trim();
 const NZ = (t) => String(t ?? '').normalize('NFKC').replace(/\s+/g, '');
 const URL_RE = /https?:\/\/(?:(?!https?:\/\/)[A-Za-z0-9\-._~:/?#\[\]@!$&*+,;=%])+/g;   // SC4-17: URLはASCIIの文字だけ。日本語や次のURLが続けて書かれていても、そこで切る（EP-01176・EP-00365）
@@ -3495,4 +3495,39 @@ function 概要欄_T_COPY少数件試験() {
   var L3 = scLedger_(c.sh), back = 0; L3.rows.forEach(function (r) { var b = before[r.ep]; if (b && r.summary === b.summary && r.cast === b.cast && r.related === b.related) back++; });
   var ok = a1.status === 'OK' && asPlanned === picked.length && a2.status === 'OK_NO_CHANGE' && u.status === 'OK' && back === picked.length;
   return scLog_('概要欄_T_COPY少数件試験', { status: ok ? 'PASS' : 'FAIL', eps: picked, write: { status: a1.status, cells: a1.cellsWritten, episodes: a1.episodes }, readbackAsPlanned: asPlanned + '/' + picked.length, rerun: { status: a2.status, cells: a2.cellsWritten }, undo: u, backToBefore: back + '/' + picked.length, note: 'COPYの台帳だけ。V2は読むだけ' });
+}
+
+// ===== V2・清掃詳細（関連記事の見出し＋URLの組・出演者の内訳）を最新の判定で更新（2026-11-16 最終指令 3・4）=====
+// 元は COPY「清掃・結果(V2基準)」（概要欄_2V の結果）。関連記事JSON・出演者JSON・SNS等保全URL・原文SHA・清掃版は全話を最新にする。
+// 「判定・理由」は、V2台帳の今の3列が新しい値と同じ回だけ更新する（台帳に書いていない回を「合格・反映済み」と記録しない＝概要欄_4 の範囲を勝手に狭めない）。
+var SUM_DETAIL_KEY_ = 'APPROVE_SUMMARY_DETAIL';
+function sumDetailRows_() {
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), res = c.ss.getSheetByName(sumResV2_()), H = {}; SC_HEADERS_.forEach(function (n, i) { H[n] = i; });
+  var v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = scLedger_(v.sh), byEp = {}; L.rows.forEach(function (r) { byEp[r.ep] = r; });
+  var ds = v.ss.getSheetByName(SC_V2DETAIL_), old = {}; if (ds && ds.getLastRow() > 1) ds.getRange(2, 1, ds.getLastRow() - 1, SC_V2DETAIL_HEADERS_.length).getDisplayValues().forEach(function (r) { old[r[0]] = r; });
+  var keepJudge = 0, rows = res.getRange(2, 1, res.getLastRow() - 1, SC_HEADERS_.length).getDisplayValues().map(function (r) {
+    var x = byEp[r[H['EP-ID']]], same = x && ['summary', 'cast', 'related'].every(function (k) { var nv = r[H[{ summary: '新・概要', cast: '新・出演者', related: '新・関連記事URL' }[k]]]; return !nv || String(x[k]) === String(nv); });
+    if (!same && old[r[H['EP-ID']]]) { r = r.slice(); r[H['判定']] = old[r[H['EP-ID']]][7]; r[H['理由']] = old[r[H['EP-ID']]][8]; keepJudge++; }
+    return r; });
+  return { v: v, L: L, rows: rows, H: H, keepJudge: keepJudge, oldRows: Object.keys(old).length };
+}
+function 概要欄_8P_清掃詳細_予行_READ_ONLY() {
+  var d = sumDetailRows_(), n = SC_V2DETAIL_HEADERS_.length, ds = d.v.ss.getSheetByName(SC_V2DETAIL_), cur = {}, changed = 0, json = 0, H = d.H;
+  if (ds && ds.getLastRow() > 1) ds.getRange(2, 1, ds.getLastRow() - 1, n).getDisplayValues().forEach(function (r) { cur[r[0]] = r; });
+  d.rows.forEach(function (r) { var o = cur[r[H['EP-ID']]]; if (!o || o[2] !== r[H['関連記事JSON(見出し+URL)']] || o[3] !== r[H['出演者JSON']] || o[6] !== r[H['清掃版']]) changed++; if (o && o[2] !== r[H['関連記事JSON(見出し+URL)']]) json++; });
+  return scLog_('概要欄_8P_清掃詳細_予行_READ_ONLY', { status: 'OK', detailRowsNow: d.oldRows, rowsToUpdate: changed, relatedJsonChanges: json, judgeKeptBecauseLedgerNotUpdated: d.keepJudge, note: 'V2は読むだけ' });
+}
+function 概要欄_0D_承認_清掃詳細() { PropertiesService.getScriptProperties().setProperty(SUM_DETAIL_KEY_, sumToday_()); return scLog_('概要欄_0D_承認_清掃詳細', { status: 'APPROVED', validOn: sumToday_() }); }
+function 概要欄_8_V2清掃詳細の更新_承認後() {
+  var P = PropertiesService.getScriptProperties(); if (P.getProperty(SUM_DETAIL_KEY_) !== sumToday_()) return scLog_('概要欄_8_V2清掃詳細の更新_承認後', { status: 'NOT_APPROVED_TODAY', note: '先に 概要欄_0D_承認_清掃詳細' });
+  var lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return scLog_('概要欄_8_V2清掃詳細の更新_承認後', { status: 'LOCKED' });
+  try {
+    var d = sumDetailRows_(), ds0 = d.v.ss.getSheetByName(SC_V2DETAIL_), bk = '';
+    if (ds0 && ds0.getLastRow() > 1) { var c0 = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), vals = ds0.getRange(1, 1, ds0.getLastRow(), SC_V2DETAIL_HEADERS_.length).getDisplayValues();   // 更新前の清掃詳細を COPY へ退避（戻すときはこのタブの値を貼る）
+      bk = '退避_V2清掃詳細_' + Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyyMMdd_HHmm'); var b0 = c0.ss.insertSheet(bk); scChunkWrite_(b0, 1, vals, vals[0].length); SpreadsheetApp.flush();
+      if (b0.getRange(1, 1, vals.length, vals[0].length).getDisplayValues().join('\u0002') !== vals.join('\u0002')) return scLog_('概要欄_8_V2清掃詳細の更新_承認後', { status: 'STOP_BACKUP_MISMATCH', backup: bk }); }
+    var r = scV2DetailUpsert_(d.v.ss, d.L, d.rows, d.H, null, new Date().toISOString());
+    P.deleteProperty(SUM_DETAIL_KEY_);
+    return scLog_('概要欄_8_V2清掃詳細の更新_承認後', { status: r.readbackMismatch ? 'READBACK_MISMATCH' : 'OK', rows: r.rows, changed: r.changed, hold: r.hold, rawMissing: r.rawMissing, readbackMismatch: r.readbackMismatch, judgeKeptBecauseLedgerNotUpdated: d.keepJudge, backup: bk ? 'COPY「' + bk + '」' : '（更新前の行なし）' });
+  } finally { lock.releaseLock(); }
 }

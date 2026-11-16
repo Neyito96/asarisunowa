@@ -1760,3 +1760,38 @@ function 概要欄_T_COPY少数件試験() {
   var ok = a1.status === 'OK' && asPlanned === picked.length && a2.status === 'OK_NO_CHANGE' && u.status === 'OK' && back === picked.length;
   return scLog_('概要欄_T_COPY少数件試験', { status: ok ? 'PASS' : 'FAIL', eps: picked, write: { status: a1.status, cells: a1.cellsWritten, episodes: a1.episodes }, readbackAsPlanned: asPlanned + '/' + picked.length, rerun: { status: a2.status, cells: a2.cellsWritten }, undo: u, backToBefore: back + '/' + picked.length, note: 'COPYの台帳だけ。V2は読むだけ' });
 }
+
+// ===== V2・清掃詳細（関連記事の見出し＋URLの組・出演者の内訳）を最新の判定で更新（2026-11-16 最終指令 3・4）=====
+// 元は COPY「清掃・結果(V2基準)」（概要欄_2V の結果）。関連記事JSON・出演者JSON・SNS等保全URL・原文SHA・清掃版は全話を最新にする。
+// 「判定・理由」は、V2台帳の今の3列が新しい値と同じ回だけ更新する（台帳に書いていない回を「合格・反映済み」と記録しない＝概要欄_4 の範囲を勝手に狭めない）。
+var SUM_DETAIL_KEY_ = 'APPROVE_SUMMARY_DETAIL';
+function sumDetailRows_() {
+  var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), res = c.ss.getSheetByName(sumResV2_()), H = {}; SC_HEADERS_.forEach(function (n, i) { H[n] = i; });
+  var v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = scLedger_(v.sh), byEp = {}; L.rows.forEach(function (r) { byEp[r.ep] = r; });
+  var ds = v.ss.getSheetByName(SC_V2DETAIL_), old = {}; if (ds && ds.getLastRow() > 1) ds.getRange(2, 1, ds.getLastRow() - 1, SC_V2DETAIL_HEADERS_.length).getDisplayValues().forEach(function (r) { old[r[0]] = r; });
+  var keepJudge = 0, rows = res.getRange(2, 1, res.getLastRow() - 1, SC_HEADERS_.length).getDisplayValues().map(function (r) {
+    var x = byEp[r[H['EP-ID']]], same = x && ['summary', 'cast', 'related'].every(function (k) { var nv = r[H[{ summary: '新・概要', cast: '新・出演者', related: '新・関連記事URL' }[k]]]; return !nv || String(x[k]) === String(nv); });
+    if (!same && old[r[H['EP-ID']]]) { r = r.slice(); r[H['判定']] = old[r[H['EP-ID']]][7]; r[H['理由']] = old[r[H['EP-ID']]][8]; keepJudge++; }
+    return r; });
+  return { v: v, L: L, rows: rows, H: H, keepJudge: keepJudge, oldRows: Object.keys(old).length };
+}
+function 概要欄_8P_清掃詳細_予行_READ_ONLY() {
+  var d = sumDetailRows_(), n = SC_V2DETAIL_HEADERS_.length, ds = d.v.ss.getSheetByName(SC_V2DETAIL_), cur = {}, changed = 0, json = 0, H = d.H;
+  if (ds && ds.getLastRow() > 1) ds.getRange(2, 1, ds.getLastRow() - 1, n).getDisplayValues().forEach(function (r) { cur[r[0]] = r; });
+  d.rows.forEach(function (r) { var o = cur[r[H['EP-ID']]]; if (!o || o[2] !== r[H['関連記事JSON(見出し+URL)']] || o[3] !== r[H['出演者JSON']] || o[6] !== r[H['清掃版']]) changed++; if (o && o[2] !== r[H['関連記事JSON(見出し+URL)']]) json++; });
+  return scLog_('概要欄_8P_清掃詳細_予行_READ_ONLY', { status: 'OK', detailRowsNow: d.oldRows, rowsToUpdate: changed, relatedJsonChanges: json, judgeKeptBecauseLedgerNotUpdated: d.keepJudge, note: 'V2は読むだけ' });
+}
+function 概要欄_0D_承認_清掃詳細() { PropertiesService.getScriptProperties().setProperty(SUM_DETAIL_KEY_, sumToday_()); return scLog_('概要欄_0D_承認_清掃詳細', { status: 'APPROVED', validOn: sumToday_() }); }
+function 概要欄_8_V2清掃詳細の更新_承認後() {
+  var P = PropertiesService.getScriptProperties(); if (P.getProperty(SUM_DETAIL_KEY_) !== sumToday_()) return scLog_('概要欄_8_V2清掃詳細の更新_承認後', { status: 'NOT_APPROVED_TODAY', note: '先に 概要欄_0D_承認_清掃詳細' });
+  var lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return scLog_('概要欄_8_V2清掃詳細の更新_承認後', { status: 'LOCKED' });
+  try {
+    var d = sumDetailRows_(), ds0 = d.v.ss.getSheetByName(SC_V2DETAIL_), bk = '';
+    if (ds0 && ds0.getLastRow() > 1) { var c0 = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), vals = ds0.getRange(1, 1, ds0.getLastRow(), SC_V2DETAIL_HEADERS_.length).getDisplayValues();   // 更新前の清掃詳細を COPY へ退避（戻すときはこのタブの値を貼る）
+      bk = '退避_V2清掃詳細_' + Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyyMMdd_HHmm'); var b0 = c0.ss.insertSheet(bk); scChunkWrite_(b0, 1, vals, vals[0].length); SpreadsheetApp.flush();
+      if (b0.getRange(1, 1, vals.length, vals[0].length).getDisplayValues().join('\u0002') !== vals.join('\u0002')) return scLog_('概要欄_8_V2清掃詳細の更新_承認後', { status: 'STOP_BACKUP_MISMATCH', backup: bk }); }
+    var r = scV2DetailUpsert_(d.v.ss, d.L, d.rows, d.H, null, new Date().toISOString());
+    P.deleteProperty(SUM_DETAIL_KEY_);
+    return scLog_('概要欄_8_V2清掃詳細の更新_承認後', { status: r.readbackMismatch ? 'READBACK_MISMATCH' : 'OK', rows: r.rows, changed: r.changed, hold: r.hold, rawMissing: r.rawMissing, readbackMismatch: r.readbackMismatch, judgeKeptBecauseLedgerNotUpdated: d.keepJudge, backup: bk ? 'COPY「' + bk + '」' : '（更新前の行なし）' });
+  } finally { lock.releaseLock(); }
+}

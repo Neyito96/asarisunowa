@@ -5,7 +5,7 @@ import { descriptionLines, DESCRIPTION_VERSION } from '../../public/library/desc
 import { verifyEpisode, isPromoLine } from './summary-v2-verify.mjs';
 import { auditPair, accountLines, AUDIT_VERSION, cleanUrl, paraLines, STAR_NOTICE, INLINE_NOTICE_HEAD, decodeNamedEntities } from './summary-quality-audit.mjs';
 
-export const CLEANER_VERSION = 'SC4-17(' + DESCRIPTION_VERSION + ')';   // SC4-17: URLをASCIIで切る・告知の節が見出しや段落を越えて本文/関連記事を消さない・関連記事の種類（記事/動画/参考文献/リンク/宣伝/SNS）・記事URLの安全網・本文中の記事リンク文を残す（2026-11-16 最終指令）。SC4-16: 出演欄の呼びかけ文を出演者にしない・「締め切りです」告知（判定の再実行のため版を上げる）。SC4-15: 応募・参加条件・連絡先・★告知の行を落とす、URLを抜いた跡「はこちら（ ）」を消す（2026-11-16 実機照合）。SC4-14: 宣伝の行に付いた収録日の一文を残す。SC4-13: 空リンクのURLと見出しの連結を分ける・本文中の「ディスコード」「チャンネル登録者」等を宣伝扱いしない・長い本文の末尾の「お便りを送ってください」は文だけ落とす（2026-11-15 QA9）   // SC4-10 は所在不明の版（2026-11-12）と衝突させないため欠番
+export const CLEANER_VERSION = 'SC4-18(' + DESCRIPTION_VERSION + ')';   // SC4-18: 「※過去の配信リスト」リンク集・（Spotify）ラベル残り・「申し込み→」（判定の再実行のため版を上げる）。SC4-17: URLをASCIIで切る・告知の節が見出しや段落を越えて本文/関連記事を消さない・関連記事の種類（記事/動画/参考文献/リンク/宣伝/SNS）・記事URLの安全網・本文中の記事リンク文を残す（2026-11-16 最終指令）。SC4-16: 出演欄の呼びかけ文を出演者にしない・「締め切りです」告知（判定の再実行のため版を上げる）。SC4-15: 応募・参加条件・連絡先・★告知の行を落とす、URLを抜いた跡「はこちら（ ）」を消す（2026-11-16 実機照合）。SC4-14: 宣伝の行に付いた収録日の一文を残す。SC4-13: 空リンクのURLと見出しの連結を分ける・本文中の「ディスコード」「チャンネル登録者」等を宣伝扱いしない・長い本文の末尾の「お便りを送ってください」は文だけ落とす（2026-11-15 QA9）   // SC4-10 は所在不明の版（2026-11-12）と衝突させないため欠番
 const T = (v) => String(v ?? '').trim();
 const NZ = (t) => String(t ?? '').normalize('NFKC').replace(/\s+/g, '');
 const URL_RE = /https?:\/\/(?:(?!https?:\/\/)[A-Za-z0-9\-._~:/?#\[\]@!$&*+,;=%])+/g;   // SC4-17: URLはASCIIの文字だけ。日本語や次のURLが続けて書かれていても、そこで切る（EP-01176・EP-00365）

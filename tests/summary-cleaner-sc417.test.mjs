@@ -10,7 +10,7 @@ const A = (u, label = u) => `<a href="${u}">${label}</a>`;
 const FOOT = '<p>【朝ポキ情報】<br>アプリで記者と対話 ' + A('http://t.asahi.com/won1') + '&nbsp;<br>交流はdiscord ' + A('https://bit.ly/asapoki_discord') + '</p><p>See ' + A('https://omnystudio.com/listener', 'omnystudio.com/listener') + ' for privacy information.</p>';
 const arts = (rel) => rel.filter((r) => r.kind === 'article');
 
-test('版は SC4-17', () => { assert.match(CLEANER_VERSION, /^SC4-17/); });
+test('版は SC4-17 以降', () => { assert.match(CLEANER_VERSION, /^SC4-1[78]/); });
 
 test('EP-06630型: 告知が冒頭にあっても関連記事3件を見出し＋URLの組で全部残す', () => {
   const raw = '<p><strong>★「PODCAST MEETING 2099」12/6（日）&nbsp;</strong><br>合成イベントの案内文です。&nbsp;<br>対象はデジタル版有料会員と紙面購読者です。&nbsp;<br>https://t.asahi.com/wr7n&nbsp;<br>&nbsp;<br><strong>★ お得なキャンペーンでイベントに参加&nbsp;</strong><br>スタンダードコース（月額1,980円）が2カ月間は月額100円！※初回限定&nbsp;<br>' + A('https://digital.asahi.com/pr/cp/2099/?ref=x') + '&nbsp;</p> <p>朝ポキは、みなさまからの購読料で配信しています。</p> <p>【番組内容】<br>合成の本文です。三つの話題について話します。<br>※2099年10月8日に収録しました。</p> <p>【関連記事】<br>合成見出しA　攻撃者の思うつぼ<br>' + A('https://www.asahi.com/articles/ASZ0001AAAA.html?iref=omny') + '&nbsp;<br>合成見出しB　妖怪研究<br>' + A('https://www.asahi.com/articles/ASZ0002BBBB.html?iref=omny') + '&nbsp;<br>（合成のｂｅ会議）繰り返し読む本は？<br>' + A('https://www.asahi.com/articles/DA3S00000003.html?iref=omny') + '</p> <p>【出演・スタッフ】<br>合成理恵子<br>合成愛実　' + A('http://t.asahi.com/wqog') + '&nbsp;<br>MC・音源編集　合成賢一　' + A('https://t.asahi.com/wqnu') + '&nbsp;</p>' + FOOT;
