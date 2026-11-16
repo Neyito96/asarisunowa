@@ -48,3 +48,37 @@ function previewAsarisuSpotifyCandidates() {
   Logger.log(JSON.stringify(report,null,2));
   return report;
 }
+
+// 蔵の候補と既存Spotify候補をEP-IDで突き合わせる。書込なし。
+// 呼び出し元は previewAsarisuSpotifyCandidates() の候補を利用する。
+// 自動更新への本番接続は、公開除外判定の検証後に行う。
+function previewAsarisuPlaylistRuleMatch(ruleKey) {
+  var rule = getAutoPlaylistRuleByKey_(ruleKey);
+  if (!rule) throw new Error('Spotifyルールがありません: ' + ruleKey);
+  var v2 = previewAsarisuSpotifyCandidates();
+  // 前段のログ結果ではなく、台帳から取得した安全候補のみを扱う。
+  var ss = SpreadsheetApp.openById(ASARISU_V2_SHEET_ID_);
+  var sh = ss.getSheetByName('V2・統合台帳');
+  var data = sh.getDataRange().getDisplayValues(), header = data.shift();
+  var epI = header.indexOf('EP-ID'), urlI = header.indexOf('Spotify');
+  var titleI = header.indexOf('タイトル');
+  if (epI < 0 || urlI < 0 || titleI < 0) throw new Error('V2必須列がありません');
+  var results = [], seen = {};
+  data.forEach(function(row) {
+    var title = String(row[titleI] || '');
+    var url = String(row[urlI] || '');
+    var m = url.match(/^https:\/\/open[.]spotify[.]com\/episode\/([A-Za-z0-9]{22})(?:[?#].*)?$/);
+    if (!m || /（再）|\(再\)|再配信/.test(title) || seen[m[1]]) return;
+    // rule は既存の判定ロジックを再利用。タイトルだけで選ぶ現行動作と
+    // V2から選ぶ結果の差を、実際の書込前に比較する。
+    var ep = {id:m[1], uri:'spotify:episode:'+m[1], name:title};
+    if (matchesAutoPlaylistRule_(ep,rule)) {
+      seen[m[1]]=true;
+      results.push({epId:row[epI],spotifyId:m[1],title:title});
+    }
+  });
+  var report={status:'READ_ONLY',ruleKey:ruleKey,matched:results.length,
+    sample:results.slice(0,30),note:'既存ルールとの一致を表示するだけ。Spotify書込なし。公開除外判定未接続。'};
+  Logger.log(JSON.stringify(report,null,2));
+  return report;
+}
