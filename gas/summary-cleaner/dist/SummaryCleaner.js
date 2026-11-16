@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-v2-verify.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = '7839197c760dd672238563abc2a990e3b6b2b71ef0bbce5db8ca26c2a7781be4';
+var CLEANER_BUILD_SOURCE_SHA256 = '8d38b697242d5c1bbcba21f8a2c51388149d87a371c9f5532a8ea9d78dfe313a';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -741,7 +741,7 @@ var CleanerV4 = (function () {
 const { descriptionLines, DESCRIPTION_VERSION } = DescEditor;
 const { verifyEpisode, isPromoLine } = SummaryVerify;
 const { auditPair, accountLines, AUDIT_VERSION, cleanUrl, paraLines, STAR_NOTICE, INLINE_NOTICE_HEAD, decodeNamedEntities } = QualityAudit;
-const CLEANER_VERSION = 'SC4-15(' + DESCRIPTION_VERSION + ')';   // SC4-15: 応募・参加条件・連絡先・★告知の行を落とす、URLを抜いた跡「はこちら（ ）」を消す（2026-11-16 実機照合）。SC4-14: 宣伝の行に付いた収録日の一文を残す。SC4-13: 空リンクのURLと見出しの連結を分ける・本文中の「ディスコード」「チャンネル登録者」等を宣伝扱いしない・長い本文の末尾の「お便りを送ってください」は文だけ落とす（2026-11-15 QA9）   // SC4-10 は所在不明の版（2026-11-12）と衝突させないため欠番
+const CLEANER_VERSION = 'SC4-16(' + DESCRIPTION_VERSION + ')';   // SC4-16: 出演欄の呼びかけ文を出演者にしない・「締め切りです」告知（判定の再実行のため版を上げる）。SC4-15: 応募・参加条件・連絡先・★告知の行を落とす、URLを抜いた跡「はこちら（ ）」を消す（2026-11-16 実機照合）。SC4-14: 宣伝の行に付いた収録日の一文を残す。SC4-13: 空リンクのURLと見出しの連結を分ける・本文中の「ディスコード」「チャンネル登録者」等を宣伝扱いしない・長い本文の末尾の「お便りを送ってください」は文だけ落とす（2026-11-15 QA9）   // SC4-10 は所在不明の版（2026-11-12）と衝突させないため欠番
 const T = (v) => String(v ?? '').trim();
 const NZ = (t) => String(t ?? '').normalize('NFKC').replace(/\s+/g, '');
 const URL_RE = /https?:\/\/[^\s<>「」『』（）()"'、]+/g;
