@@ -1795,3 +1795,15 @@ function 概要欄_8_V2清掃詳細の更新_承認後() {
     return scLog_('概要欄_8_V2清掃詳細の更新_承認後', { status: r.readbackMismatch ? 'READBACK_MISMATCH' : 'OK', rows: r.rows, changed: r.changed, hold: r.hold, rawMissing: r.rawMissing, readbackMismatch: r.readbackMismatch, judgeKeptBecauseLedgerNotUpdated: d.keepJudge, backup: bk ? 'COPY「' + bk + '」' : '（更新前の行なし）' });
   } finally { lock.releaseLock(); }
 }
+// COPY試験: 清掃詳細の更新と同じ処理を COPY の「V2・清掃詳細」タブへ20話だけ書く → 読み戻し → 再実行で変更0（V2は読むだけ）
+function 概要欄_8T_COPY試験() {
+  var d = sumDetailRows_(), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), only = {}, H = d.H;
+  d.rows.filter(function (r) { return /"kind":"article"/.test(r[H['関連記事JSON(見出し+URL)']]); }).slice(0, 18).forEach(function (r) { only[r[H['EP-ID']]] = 1; }); only['EP-06630'] = 1; only['EP-06631'] = 1;
+  var now = new Date().toISOString(), a = scV2DetailUpsert_(c.ss, d.L, d.rows, H, only, now), b = scV2DetailUpsert_(c.ss, d.L, d.rows, H, only, now);
+  var ds = c.ss.getSheetByName(SC_V2DETAIL_), v = ds.getRange(2, 1, ds.getLastRow() - 1, SC_V2DETAIL_HEADERS_.length).getDisplayValues(), byEp = {}; v.forEach(function (r) { byEp[r[0]] = r; });
+  var src = {}; d.rows.forEach(function (r) { src[r[H['EP-ID']]] = r; });
+  var same = Object.keys(only).filter(function (e) { return byEp[e] && byEp[e][2] === src[e][H['関連記事JSON(見出し+URL)']]; }).length;
+  var e630 = byEp['EP-06630'] ? JSON.parse(byEp['EP-06630'][2] || '[]').filter(function (x) { return x.kind === 'article' && x.title && x.url; }).length : -1;
+  var ok = a.readbackMismatch === 0 && b.changed === 0 && same === Object.keys(only).length && e630 === 3;
+  return scLog_('概要欄_8T_COPY試験', { status: ok ? 'PASS' : 'FAIL', episodes: Object.keys(only).length, first: { changed: a.changed, readbackMismatch: a.readbackMismatch }, rerun: { changed: b.changed }, relatedJsonAsPlanned: same + '/' + Object.keys(only).length, ep06630ArticlePairs: e630, sheet: 'COPY「' + SC_V2DETAIL_ + '」（試験用）' });
+}
