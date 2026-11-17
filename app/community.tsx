@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import type { Playlist } from "./data";
 import { recommendedPodcastSnapshot } from "./recommended-podcasts-data";
 import PosukamiCardSection from "./PosukamiCardSection";
@@ -20,6 +21,28 @@ type OfficialProgram = {
   discord?: string;
   youtube?: boolean;
 };
+// Archive searches open in a separate tab; links are searches, not asserted episode matches.
+const archiveSearchHref = (term: string) => `library/?q=${encodeURIComponent(term)}`;
+const ArchiveSearchLink = ({ term, children }: { term: string; children?: ReactNode }) => (
+  <a href={archiveSearchHref(term)} target="_blank" rel="noopener noreferrer" className="archiveSearchLink" title={`朝ポキの蔵で「${term}」を検索（別タブ）`}>
+    {children ?? term} ↗
+  </a>
+);
+function ArchiveLinkedSchedule({ value }: { value: string }) {
+  return <>{value.split("／").map((part, i) => {
+    const match = part.match(/^([^：:]{1,12}[：:])(.*)$/);
+    const prefix = match?.[1] ?? "";
+    const remainder = match?.[2] ?? part;
+    const chunks = remainder.split(/(（[^）]+）)/g);
+    return <span key={i}>{i > 0 ? "／" : ""}{prefix}{chunks.map((chunk, j) => {
+      if (!chunk) return null;
+      const term = chunk.startsWith("（") && chunk.endsWith("）") ? chunk.slice(1, -1) : chunk.trim();
+      // Keep long descriptive sentences as text; never claim that a matching episode exists.
+      const linkable = term.length > 0 && term.length <= 24 && (chunk.startsWith("（") || (remainder.trim().length <= 24 && chunks.length === 1));
+      return linkable ? <ArchiveSearchLink key={j} term={term}>{chunk}</ArchiveSearchLink> : <span key={j}>{chunk}</span>;
+    })}</span>;
+  })}</>;
+}
 const ASAPOKI_YOUTUBE = "https://www.youtube.com/@asapoki_official";
 const ASAPOKI_OFFICIAL = "https://www.asahi.com/special/podcasts/";
 // Google Apps Script のウェブアプリURLを設定すると投稿フォームが自動送信になります。
@@ -1983,8 +2006,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <div className="officialBody">
                   {p.mark && <em>{p.mark}</em>}
                   <h3>{p.name}</h3>
-                  {p.detail && (p.name === "MEDIA TALK" || p.name === "ニュースの現場から" ? <p>{p.detail.split("、").map((item, i) => { const isNew = p.name === "MEDIA TALK" ? (["骨格", "TMT", "推し記事", "吹奏楽・高校編"].includes(item)) : ["Q&A", "地球会議"].includes(item); return <span key={item}>{i > 0 ? "、" : ""}{isNew && <span style={{ display: "inline-block", background: "#d62839", color: "#fff", fontSize: "0.72em", fontWeight: 800, padding: "1px 6px", borderRadius: "4px", marginRight: "4px" }}>NEW</span>}{item}</span>; })}</p> : <p>{p.detail}</p>)}
-                  {p.schedule && <p className="schedule">{p.name === "ニュースの現場から" ? p.schedule.split("日：ニュース大阪目線").map((part, i) => <span key={i}>{i > 0 && <>日：<span style={{ display: "inline-block", background: "#d62839", color: "#fff", fontSize: "0.72em", fontWeight: 800, padding: "1px 6px", borderRadius: "4px", marginRight: "4px" }}>NEW</span>ニュース大阪目線</>}{part}</span>) : p.schedule}</p>}
+                  {p.detail && (p.name === "MEDIA TALK" || p.name === "ニュースの現場から" ? <p>{p.detail.split("、").map((item, i) => { const isNew = p.name === "MEDIA TALK" ? (["骨格", "TMT", "推し記事", "吹奏楽・高校編"].includes(item)) : ["Q&A", "地球会議"].includes(item); return <span key={item}>{i > 0 ? "、" : ""}{isNew && <span style={{ display: "inline-block", background: "#d62839", color: "#fff", fontSize: "0.72em", fontWeight: 800, padding: "1px 6px", borderRadius: "4px", marginRight: "4px" }}>NEW</span>}{item.length <= 24 ? <ArchiveSearchLink term={item} /> : item}</span>; })}</p> : <p>{p.detail}</p>)}
+                  {p.schedule && <p className="schedule"><ArchiveLinkedSchedule value={p.schedule} /></p>}
                   <div className="serviceLinks">
                       {[
                         ...(p.links ?? []).filter(([label]) => label !== "LISTEN"),
@@ -2032,21 +2055,16 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         <main className="wrap recommendedPodcastPage">
           <section className="recommendedPodcasts">
             <div className="themeHead">
-              <p className="kicker themeKicker">LISTENER PODCASTS</p>
               <h2>🎙 ポすすめ</h2>
-              <p>（ポすすめ）とは「ポッドキャストのすすめ」。ドーナツの<a href="library/?q=%E3%83%9D%E3%81%99%E3%81%99%E3%82%81" style={{ textDecoration: "underline", textUnderlineOffset: "0.18em", fontWeight: 700 }} title="朝ポキの蔵で「ポすすめ」を検索">（ポすすめ）</a>や（日曜版）で紹介された、朝リスさんのPodcastを集めた棚です。紹介元の回や、その後に神田さんをゲスト出演した「ポす神回」も、確認できたものから順次つないでいきます。人類ポ完計画、進行中。</p>
-              <p style={{ fontSize: "0.85rem", lineHeight: 1.6, opacity: 0.84, marginTop: "0.4rem" }}>朝ポキの蔵は現在、収蔵内容を確認・更新しながらIssue駆動で開発中です。<a href="https://github.com/Neyito96/asarisunowa/issues/197" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: "0.18em", fontWeight: 700 }}>開発への参加・アイデア募集はこちら</a>。</p>
+              <p>ドーナツで紹介された朝リスのPodcast。<ArchiveSearchLink term="ポすすめ">（ポすすめ）</ArchiveSearchLink>・<ArchiveSearchLink term="日曜版">（日曜版）</ArchiveSearchLink>から蔵も探せます。</p>
+              <details className="listenerPodcastAbout">
+                <summary>ポすすめとは？</summary>
+                <p>「ポッドキャストのすすめ」。紹介された回、ポすすめ返し、神田さんがゲスト出演した「ポす神回」を確認できたものからつないでいます。人類ポ完計画、進行中。</p>
+                <p>朝ポキの蔵は収蔵内容を確認・更新しながら開発中です。<a href="https://github.com/Neyito96/asarisunowa/issues/197" target="_blank" rel="noopener noreferrer">開発への参加・アイデア募集</a></p>
+              </details>
             </div>
-            <div className="listenerPodcastSubmitCta" aria-label="ポすすめ投稿のご案内">
-              <div className="listenerPodcastSubmitCtaInfo">
-                <span className="listenerPodcastSubmitCtaIcon" aria-hidden="true">➕</span>
-                <div>
-                  <strong>あなたもポすすめを追加しよう！</strong>
-                  <p>ドーナツで紹介された番組を見つけたら、どなたでも投稿できます。</p>
-                  <span className="listenerPodcastSubmitCtaNote">誰でも投稿OK · 重複チェックつき</span>
-                </div>
-              </div>
-              <a className="listenerPodcastSubmitCtaLink" href="#listener-podcast-form">投稿フォームへ ↓</a>
+            <div className="listenerPodcastSubmitCompact">
+              <a href="#listener-podcast-form" className="listenerPodcastSubmitCompactLink">＋ ポすすめを投稿 ↓</a>
             </div>
             <div className="toolbar listenerPodcastToolbar">
               <div className="tools">
