@@ -73,12 +73,17 @@ const qrow = (id, state, key, podId = '16', podTitle = 'クリエイティブの
 test('承認: 承認した行だけ・一度だけ公開。承認待ち・却下は公開しない。二重承認は1件', () => {
   const S = P.POSU_STATE, k = 'apple:1|16';
   const plan = P.posuApprovePlan([qrow('A', S.PENDING, 'k0'), qrow('B', S.APPROVE, k), qrow('C', S.APPROVE, k), qrow('D', S.REJECT, 'k3')], {}, pods, '2026-11-17T01:00:00Z');
-  assert.equal(plan.add.length, 1); assert.equal(plan.add[0][12], 'B');
+  assert.equal(plan.add.length, 1); assert.equal(plan.add[0][12], 'B'); assert.equal(plan.add[0][4], 'クリエイティブの反対語');
   assert.deepEqual(J(plan.updates.map((u) => u.state)), [S.DONE, S.DONE]);
   const again = P.posuApprovePlan([qrow('B', S.DONE, k)], { [k]: true }, pods, 'x');
   assert.equal(again.add.length, 0);
   const renamed = P.posuApprovePlan([qrow('E', S.APPROVE, 'k9', '16', '改名された番組')], {}, pods, 'x');
   assert.equal(renamed.add.length, 0); assert.equal(renamed.updates[0].state, S.PENDING);
+});
+test('承認: ドーナツ出演回は番組名をドーナツにし、補足や判断メモの EP-ID を使う', () => {
+  const r = qrow('F', P.POSU_STATE.APPROVE, 'omny:asahi/d20261116|16'); r[6] = 'donut_guest'; r[9] = 'ドーナツ EP-06739（台帳で確認）';
+  const plan = P.posuApprovePlan([r], {}, pods, '2026-11-17T01:00:00Z');
+  assert.equal(plan.add[0][4], 'ドーナツ'); assert.equal(plan.add[0][8], 'EP-06739');
 });
 test('公開データ: 蔵にある回は蔵の個別ページ、無ければ公式ページ。番組名が違う行・重複は出さない', () => {
   const rows = [

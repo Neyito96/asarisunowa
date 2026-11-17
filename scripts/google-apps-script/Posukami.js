@@ -109,7 +109,8 @@ function posuApprovePlan(queue, publicKeys, podcasts, nowIso) {
     var p = null; podcasts.forEach(function (x) { if (String(x.id) === String(r[2])) p = x; });
     if (!p || posuNz(p.title) !== posuNz(r[3])) { updates.push({ index: i, state: POSU_STATE.PENDING, memo: '番組が見つからない・番組名が変わった（要確認）' }); return; }
     seen[key] = 1;
-    add.push(['SPECIAL', String(r[2]), r[3], String(r[7]).trim() || String(r[10]).trim(), '', posuDay(r[8]) || posuDay(r[11]), r[4], r[6], '', posuDay(nowIso), '承認（' + r[0] + '）・' + r[12] + '・' + r[13], key, r[0]]);
+    var ep = (String(r[15]) + ' ' + String(r[9])).match(/EP-\d{5}/), program = r[6] === 'donut_guest' ? 'ドーナツ' : r[6] === 'kanda_guest' ? String(r[3]) : '';   // 蔵の回なら 判断メモ か 補足 に書いた EP-ID を使う
+    add.push(['SPECIAL', String(r[2]), r[3], String(r[7]).trim() || String(r[10]).trim(), program, posuDay(r[8]) || posuDay(r[11]), r[4], r[6], ep ? ep[0] : '', posuDay(nowIso), '承認（' + r[0] + '）・' + r[12] + '・' + r[13], key, r[0]]);
     updates.push({ index: i, state: POSU_STATE.DONE, memo: '' });
   });
   return { add: add, updates: updates };
