@@ -1,5 +1,6 @@
 // 蔵の関連記事に見出しを付ける（#308）。入力: RX-1（GAS）の JSON（URL かファイル）。
-// 公開中の各回の related（URL）と同じ記事（URLの正規化で一致）だけに見出しを付ける。URLは増やさない・作らない。見出しが無い記事は URL のまま。
+// 公開中の各回の related（URL）と同じ記事（URLの正規化で一致）に見出しを付ける。見出しが無い記事は URL のまま。
+// related が空の回（旧V1の書き出しで記事URLが入らなかった回）は、V2・清掃詳細の 見出し＋URL（公式の原文から SC4-18 が取り出し、取りこぼし0を監査済み）をそのまま使う。URLを作ることはしない。
 // 使い方: node scripts/library-related/apply-related-titles.mjs <RX-1 の URL か JSON> [--dest public/library/data] [--dry-run]
 import fs from 'node:fs';
 import path from 'node:path';
@@ -10,6 +11,8 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 export function normArticleUrl(u) {
   try { const x = new URL(String(u).trim().replace(/&amp;/g, '&')); return ('https://' + x.hostname.toLowerCase() + x.pathname.replace(/\/+$/, '')); } catch { return ''; }
 }
+// related が空の回: V2 の 見出し＋URL をそのまま（同じ記事の重複は1つに）
+export function fromPairs(pairs) { const seen = new Set(), out = []; for (const [title, url] of pairs || []) { const k = normArticleUrl(url); if (!k || seen.has(k) || !title) continue; seen.add(k); out.push({ title: String(title).replace(/\s+/g, ' ').trim(), url }); } return out; }
 // 1件の回に見出しを付けた relatedArticles を作る（純関数）
 export function titledRelated(related, pairs) {
   const byUrl = new Map(); for (const [title, url] of pairs || []) { const k = normArticleUrl(url); if (k && title && !byUrl.has(k)) byUrl.set(k, String(title).replace(/\s+/g, ' ').trim()); }
@@ -24,13 +27,16 @@ async function main() {
   const text = /^https:\/\//.test(src) ? await (await fetch(src)).text() : fs.readFileSync(src, 'utf8'), j = JSON.parse(text);
   if (j.ok !== true || !j.related || j.pairs < 1000) throw new Error('停止: RX-1 の応答が不完全 ' + JSON.stringify({ ok: j.ok, pairs: j.pairs }));
   const eps = loadPublic(dest); let titled = 0, untitled = 0, epsWith = 0, changed = 0;
+  let filled = 0;
   for (const e of eps.values()) {
-    if (!e.related?.length) continue;
-    const ra = titledRelated(e.related, j.related[e.id]); const t = ra.filter((x) => x.title).length; titled += t; untitled += ra.length - t; if (t) epsWith++;
+    const pairs = j.related[e.id];
+    if (!e.related?.length) { if (!pairs?.length) continue; e.related = []; filled++; }
+    const ra = e.related.length ? titledRelated(e.related, pairs) : fromPairs(pairs);
+    if (!e.related.length) e.related = ra.map((x) => x.url); const t = ra.filter((x) => x.title).length; titled += t; untitled += ra.length - t; if (t) epsWith++;
     const next = t ? ra : undefined, before = JSON.stringify(e.relatedArticles || null), after = JSON.stringify(next || null);
     if (before !== after) { changed++; if (next) e.relatedArticles = next; else delete e.relatedArticles; }
   }
-  const report = { rx: { version: j.version, generatedAt: j.generatedAt, episodes: j.episodes, pairs: j.pairs }, episodesWithTitles: epsWith, titledLinks: titled, untitledLinks: untitled, changedEpisodes: changed };
+  const report = { rx: { version: j.version, generatedAt: j.generatedAt, episodes: j.episodes, pairs: j.pairs }, episodesWithTitles: epsWith, titledLinks: titled, untitledLinks: untitled, filledFromV2: filled, changedEpisodes: changed };
   if (a.includes('--dry-run') || !changed) { console.log(JSON.stringify(report, null, 1)); return; }
   const manifest = JSON.parse(fs.readFileSync(path.join(dest, 'manifest.json'), 'utf8')), scope = JSON.parse(fs.readFileSync(path.join(dest, 'scope.json'), 'utf8')); delete scope.libraryVersion;
   const result = await writePublicLibrarySnapshot({ episodes: [...eps.values()], counts: manifest.counts, publicationScope: scope, snapshotDate: manifest.snapshotDate, operations: { ...(manifest.operations || {}), relatedTitles: { source: 'V2・清掃詳細（SC4-18の見出し＋URL）', rxVersion: j.version, rxGeneratedAt: j.generatedAt, titledLinks: titled, untitledLinks: untitled } }, destination: dest });

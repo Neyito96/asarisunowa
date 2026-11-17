@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { titledRelated, normArticleUrl } from '../scripts/library-related/apply-related-titles.mjs';
+import { titledRelated, normArticleUrl, fromPairs } from '../scripts/library-related/apply-related-titles.mjs';
 import { qrMatrix, qrSvg } from '../public/library/qr.mjs';
 test('URLの正規化で同じ記事に見出しを付ける。見出しが無い記事はURLのまま。URLを足さない', () => {
   const r = titledRelated(['https://www.asahi.com/articles/A1.html?iref=omny', 'https://www.asahi.com/articles/B2.html', 'https://www.asahi.com/articles/A1.html'], [['見出しA', 'https://www.asahi.com/articles/A1.html'], ['関係ない', 'https://www.asahi.com/articles/Z9.html']]);
@@ -19,4 +19,7 @@ test('詳細画面: 見出しがあれば見出しをリンクに、URLも表示
   assert.ok(src.includes("import { qrSvg } from './qr.mjs'"));
   assert.ok(/related-article/.test(src) && /related-url/.test(src));
   assert.ok(src.includes("'(min-width: 900px) and (pointer: fine)'"));
+});
+test('related が空の回は V2 の見出し＋URLを使う（重複・見出しなしは入れない）', () => {
+  assert.deepEqual(fromPairs([['A', 'https://www.asahi.com/articles/A1.html'], ['A2', 'https://www.asahi.com/articles/A1.html?iref=omny'], ['', 'https://www.asahi.com/articles/B.html']]), [{ title: 'A', url: 'https://www.asahi.com/articles/A1.html' }]);
 });
