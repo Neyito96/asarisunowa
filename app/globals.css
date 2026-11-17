@@ -3379,3 +3379,12 @@ footer {
 .posukamiTitleLink:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:2px}
 .posukamiMeta{display:block;opacity:.75;font-size:.8rem}
 .posukamiNew{margin-left:.4rem}
+/* URL一発投稿（#315） */
+.posukamiSubmit{margin-top:.5rem}
+.posukamiSubmitButtons{display:flex;flex-wrap:wrap;gap:.4rem}
+.posukamiSubmitToggle{font-size:.85rem}
+.posukamiForm{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem;font-size:.9rem;position:relative}
+.posukamiUrlLabel{flex:1 1 14rem}
+.posukamiUrlLabel input{width:100%;box-sizing:border-box}
+.posukamiResult{flex-basis:100%;margin:0;font-weight:600}
+.visuallyHidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
