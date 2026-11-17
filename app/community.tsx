@@ -22,6 +22,17 @@ type OfficialProgram = {
   youtube?: boolean;
 };
 // Archive searches open in a separate tab; links are searches, not asserted episode matches.
+// Match the public library manifest's exact show names. AJW/アルキキ are not in this archive.
+const officialArchiveShow: Record<string, string> = {
+  "ドーナツ～このポッドキャストはSNSです": "ドーナツ",
+  "スポンジ Sports Lounge": "スポンジ",
+  "MEDIA TALK": "MEDIA TALK",
+  "ニュースの現場から": "ニュースの現場から",
+  "報談【HOU-DAN】": "報談",
+  "こどもそうだんしつ": "こどもそうだんしつ",
+  "ニュースの学校": "ニュースの学校",
+};
+const archiveShowHref = (show: string) => `library/?show=${encodeURIComponent(show)}`;
 const archiveSearchHref = (term: string) => `library/?q=${encodeURIComponent(term)}`;
 const ArchiveSearchLink = ({ term, children }: { term: string; children?: ReactNode }) => (
   <a href={archiveSearchHref(term)} target="_blank" rel="noopener noreferrer" className="archiveSearchLink" title={`朝ポキの蔵で「${term}」を検索（別タブ）`}>
@@ -2006,6 +2017,13 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                 <div className="officialBody">
                   {p.mark && <em>{p.mark}</em>}
                   <h3>{p.name}</h3>
+                  {officialArchiveShow[p.name] ? (
+                    <a className="officialArchiveEntrance" href={archiveShowHref(officialArchiveShow[p.name])} target="_blank" rel="noopener noreferrer" title={`朝ポキの蔵で${p.name}の収蔵エピソードを見る（別タブ）`}>
+                      🔎 蔵でこの番組の回を探す ↗
+                    </a>
+                  ) : (
+                    <span className="officialArchiveUnavailable" title="この番組は蔵の公開対象外です">蔵の収蔵対象外</span>
+                  )}
                   {p.detail && (p.name === "MEDIA TALK" || p.name === "ニュースの現場から" ? <p>{p.detail.split("、").map((item, i) => { const isNew = p.name === "MEDIA TALK" ? (["骨格", "TMT", "推し記事", "吹奏楽・高校編"].includes(item)) : ["Q&A", "地球会議"].includes(item); return <span key={item}>{i > 0 ? "、" : ""}{isNew && <span style={{ display: "inline-block", background: "#d62839", color: "#fff", fontSize: "0.72em", fontWeight: 800, padding: "1px 6px", borderRadius: "4px", marginRight: "4px" }}>NEW</span>}{item.length <= 24 ? <ArchiveSearchLink term={item} /> : item}</span>; })}</p> : <p>{p.detail}</p>)}
                   {p.schedule && <p className="schedule"><ArchiveLinkedSchedule value={p.schedule} /></p>}
                   <div className="serviceLinks">
