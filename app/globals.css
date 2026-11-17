@@ -3406,3 +3406,24 @@ footer {
 .officialArchiveEntrance { display: inline-flex; align-items: center; width: fit-content; margin: 4px 0 9px; padding: 6px 10px; border: 1px solid #b8dce3; border-radius: 999px; background: #edf8fb; color: #08748b; font-size: .85rem; font-weight: 750; text-decoration: none; }
 .officialArchiveEntrance:hover, .officialArchiveEntrance:focus-visible { background: #d9f0f6; text-decoration: underline; }
 .officialArchiveUnavailable { display: inline-block; margin: 4px 0 9px; font-size: .78rem; color: #68767c; }
+
+
+/* Posusume: readable information hierarchy inside narrow 4-column cards. */
+.listenerPodcastCard .posukamiSection { display:grid; gap:.55rem; margin:.7rem 0; }
+.listenerPodcastCard .posukamiGroup { margin:0; padding:.7rem .75rem; border-radius:10px; border:1px solid #d9e9ee; background:#f0f8fa; min-width:0; }
+.listenerPodcastCard .posukami-reply { background:#fff2f6; border-color:#f1d9e2; }
+.listenerPodcastCard .posukami-special { background:#fff9eb; border-color:#e9dfc6; }
+.listenerPodcastCard .posukamiLabel { display:block; font-size:.8rem; line-height:1.45; margin-bottom:.4rem; color:#385d68; }
+.listenerPodcastCard .posukami-reply .posukamiLabel { color:#8c405f; }
+.listenerPodcastCard .posukami-special .posukamiLabel { color:#795d2d; }
+.listenerPodcastCard .posukamiList { gap:.65rem; margin:0; }
+.listenerPodcastCard .posukamiList li { min-width:0; }
+.listenerPodcastCard .posukamiTitleLink { display:block; line-height:1.55; font-size:.93rem; overflow-wrap:anywhere; }
+.listenerPodcastCard .posukamiMeta { display:block; margin-top:.4rem; line-height:1.5; font-size:.76rem; }
+.listenerPodcastCard .posukamiSubmit { margin:0; padding:.6rem .75rem; border:1px solid #e8e4e7; background:#fff; border-radius:10px; }
+.listenerPodcastCard .posukamiSubmitButtons { display:grid; grid-template-columns:minmax(0,1fr); gap:.35rem; }
+.listenerPodcastCard .posukamiSubmitToggle { width:100%; text-align:left; font-size:.8rem; line-height:1.5; padding:.35rem .25rem; white-space:normal; }
+@media(max-width:600px) {
+  .listenerPodcastCard .posukamiGroup { padding:.7rem; }
+  .listenerPodcastCard .posukamiTitleLink { font-size:.96rem; }
+}
