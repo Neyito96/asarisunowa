@@ -11,6 +11,7 @@ on:
       - 'tests/library-phase11*'
       - 'tests/sdgs-integration*'
       - 'tests/library-s*'
+      - 'tests/library-description*'
       - 'tools/sdgs*'
       - '.github/workflows/library-public-check.yml'
   workflow_dispatch:
@@ -26,7 +27,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node --test tests/library-publication-scope.test.mjs tests/library-sync-v2.test.mjs tests/library-shelf-share.test.mjs
+      - run: node --test tests/library-publication-scope.test.mjs tests/library-sync-v2.test.mjs tests/library-shelf-share.test.mjs tests/library-description-tidy.test.mjs
       - name: Stage adopted publication without changing repository snapshot
         run: |
           cp -R public /tmp/library-publication-preview

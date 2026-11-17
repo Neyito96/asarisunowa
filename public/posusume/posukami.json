@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "version": "POSU-1",
- "generatedAt": "2026-11-17T02:39:29.161Z",
+ "generatedAt": "2026-11-17T03:23:06.515Z",
  "submitEnabled": false,
  "cards": [
   {
@@ -46,6 +46,22 @@
      "href": "/library/?ep=EP-05468",
      "library": true,
      "epId": "EP-05468",
+     "verifiedAt": "2026-11-17"
+    }
+   ],
+   "replies": [],
+   "specials": []
+  },
+  {
+   "podcastId": "4",
+   "podcastTitle": "僕たちの吹奏楽部を作ろう ～地域が支える新しい部活動のカタチ",
+   "introductions": [
+    {
+     "title": "（日曜版）ふつうの映画見て、ふつうのランチ食べる",
+     "date": "2026-04-19",
+     "href": "/library/?ep=EP-05473",
+     "library": true,
+     "epId": "EP-05473",
      "verifiedAt": "2026-11-17"
     }
    ],

@@ -28,7 +28,8 @@ test('公開データ: 1つの紹介回が2番組（16・17）に付く。紹介
 test('カードとデータは ID と番組名の両方で結ぶ（並びが変わってIDがずれても別番組に付かない）', () => {
   assert.equal(findPosukamiCard(data, { id: '16', title: '別の番組' }), undefined);
   assert.ok(findPosukamiCard(data, { id: '015', title: 'おんすた 【NOW AND THEN】' }));   // 先頭の0・空白差は同じ
-  assert.equal(findPosukamiCard(data, { id: '4', title: '僕たちの吹奏楽部を作ろう ～地域が支える新しい部活動のカタチ' }), undefined);   // HOLD はリンクを出さない
+  assert.equal(findPosukamiCard(data, { id: '4', title: '僕たちの吹奏楽部を作ろう ～地域が支える新しい部活動のカタチ' }).introductions[0].epId, 'EP-05473');   // 概要の「紹介したポッドキャストは「僕たちの吹部を作ろう…」」で確定
+  assert.equal(findPosukamiCard(data, { id: '12', title: 'ネジネジ低空飛行 — ゆるバイポーラー thinking aloud —' }), undefined);   // HOLD（候補2回・日付だけ一致）はリンクを出さない
 });
 test('ポすすめ返しの欄: 古い公開データ（replies なし）でも壊れない・投稿の種類にポすすめ返しがある', () => {
   const d = parsePosukami({ schema: 1, cards: [{ podcastId: '1', podcastTitle: 'A', introductions: [], specials: [] }] });
@@ -75,4 +76,13 @@ test('生成: CSV（引用符・改行）を読み、見出しを外す', () => 
   assert.equal(rowsFrom('種別,番組ID\nINTRO,1').length, 1);
   const j = build({ rows: [['SPECIAL', '1', 'A', 't', '', '2026-01-01', 'https://x.example/a', 'other', '', '2026-01-02', '', 'k', ''], ['SPECIAL', '1', 'A', 't', '', '2026-01-01', 'https://x.example/a', 'other', '', '2026-01-02', '', 'k', '']], podcasts: [{ id: '1', title: 'A' }], library: {}, submitEnabled: false });
   assert.equal(j.cards[0].specials.length, 1);   // 同じ照合キーは一度だけ
+});
+
+test('3種類とも、回のタイトル自体がリンク（冗長な「→ …」の文言は出さない）', () => {
+  for (const label of ['🎙 紹介された回', '💬 ポすすめ返し', '✨ ポす神回']) assert.ok(section.includes(label), label);
+  assert.ok(!/→ 朝ポキの蔵でこの回を見る|→ この回を聴く/.test(section));
+  assert.ok(/className="posukamiTitleLink" href=\{posukamiHref\(episode\.href\)\}/.test(section));
+  assert.ok(/\{episode\.title\}/.test(section.slice(section.indexOf('posukamiTitleLink'))));
+  const css = fs.readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8');
+  assert.ok(css.includes('.posukamiTitleLink:focus-visible') && css.includes('.posukamiTitleLink:hover'));
 });
