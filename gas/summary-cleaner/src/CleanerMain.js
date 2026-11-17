@@ -2254,7 +2254,7 @@ function p27NewPlan_(vss, css) {
   var all = p27LedgerAll_(vss), P = PropertiesService.getScriptProperties(), days = Number(P.getProperty('P27_NEW_DAYS')) || P27_NEW_DAYS_;
   var targets = PlatformMatch.recentRows(all, Date.now(), days), byShow = {}, cache = {}, out = [], shows = {}, queue = [];
   all.forEach(function (r) { (byShow[r.show] = byShow[r.show] || []).push(r); });
-  var robots = p27Get_('https://pody.jp/robots.txt'), robotsOk = !(robots.code === 200 && (/Disallow:\s*\/player/i.test(robots.body) || /Disallow:\s*\/\s*$/m.test(robots.body)));
+  var robots = p27Get_('https://pody.jp/robots.txt'), robotsOk = robots.code === 200 && !(/Disallow:\s*\/player/i.test(robots.body) || /Disallow:\s*\/\s*$/m.test(robots.body));
   // Amazon の証拠（あれば）
   var am = p27AmPlan_({ rows: all.map(function (r) { return { ep: r.ep, show: r.show, title: r.title, published: r.published, duration: r.duration, current: r.cur.Amazon, guid: r.guid }; }) }, css), amBy = {};
   (am.out || []).forEach(function (a) { if (a.x.ep) amBy[a.x.ep] = a; });
@@ -2322,24 +2322,70 @@ function P27_NEW_2_COPY試験() {
   });
   return scLog_('P27_NEW_2_COPY試験', { status: ok && any ? 'PASS' : any ? 'FAIL' : 'STOP_NO_CANDIDATE', byService: results, note: 'COPYの台帳コピーだけ。V2は読むだけ' });
 }
-function P27_NEW_0_承認_新着V2反映() { PropertiesService.getScriptProperties().setProperty('APPROVE_P27_NEW_V2', sumToday_()); return scLog_('P27_NEW_0_承認_新着V2反映', { status: P27_V2_WRITE_ENABLED_ ? 'APPROVED' : 'APPROVED_BUT_DISABLED（V2書込はコードで無効）', validOn: sumToday_() }); }
-// V2反映（承認後）: 新着の WRITE をサービスごとに空欄だけへ。書いた列ごとの反映IDを束で記録し、P27_NEW_7 で全部戻せる
+// 承認対象は書込可能なエピソード・列・URL・旧値・根拠のSHA256で固定。
+// 反映時に別の候補が増減・変化した場合は再承認が必要。ScriptPropertiesのサイズ上、全候補は保存しない。
+var P27_NEW_APPROVAL_HASH_ = 'APPROVE_P27_NEW_V2_HASH';
+function p27NewPlanHash_(p) {
+  var selected = p.out.filter(function (o) { return o.action === 'WRITE'; }).map(function (o) {
+    return [o.ep, o.col, o.url, o.current, o.reason];
+  }).sort(function (a, b) { return JSON.stringify(a).localeCompare(JSON.stringify(b)); });
+  var bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, JSON.stringify(selected), Utilities.Charset.UTF_8);
+  return bytes.map(function (b) { return ('0' + (b & 255).toString(16)).slice(-2); }).join('');
+}
+function P27_NEW_0_承認_新着V2反映() {
+  if (!P27_V2_WRITE_ENABLED_) return scLog_('P27_NEW_0_承認_新着V2反映', { status: 'DISABLED', note: '本番反映禁止フラグがfalse。候補承認は行わない' });
+  var st = p27State_();
+  if (st.stop || st.pending || (st.lastGroup && st.lastGroup.length)) return scLog_('P27_NEW_0_承認_新着V2反映', { status: 'STOP_PENDING_UNDO', pending: st.pending || '', group: (st.lastGroup || []).length });
+  var v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), p = p27NewPlan_(v.ss, c.ss);
+  var hash = p27NewPlanHash_(p), count = p.out.filter(function (o) { return o.action === 'WRITE'; }).length;
+  if (!count) return scLog_('P27_NEW_0_承認_新着V2反映', { status: 'NO_CANDIDATE' });
+  var P = PropertiesService.getScriptProperties();
+  P.setProperty('APPROVE_P27_NEW_V2', sumToday_());
+  P.setProperty(P27_NEW_APPROVAL_HASH_, hash);
+  return scLog_('P27_NEW_0_承認_新着V2反映', { status: 'APPROVED', validOn: sumToday_(), writable: count, planHash: hash });
+}
+// 複数列の反映は１列ずつ結果を確認。失敗時の部分反映IDは直ちに保存し、取り消し可能に保つ。
 function P27_NEW_5_V2反映_承認後() {
   if (!P27_V2_WRITE_ENABLED_) return scLog_('P27_NEW_5_V2反映_承認後', { status: 'DISABLED', note: 'V2書込は未承認のためコードで無効（P27_V2_WRITE_ENABLED_ = false）' });
-  var P = PropertiesService.getScriptProperties(); if (P.getProperty('APPROVE_P27_NEW_V2') !== sumToday_()) return scLog_('P27_NEW_5_V2反映_承認後', { status: 'NOT_APPROVED_TODAY' });
-  var v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), p = p27NewPlan_(v.ss, c.ss), group = [], res = {};
-  ['Pocket Casts', 'Pody', 'Apple', 'LISTEN', 'Amazon'].forEach(function (col) {
-    var plan = p.out.filter(function (o) { return o.col === col && o.action === 'WRITE'; }).map(function (o) { return { ep: o.ep, url: o.url, basis: '新着照合: ' + o.reason }; });
-    if (!plan.length) return; var r = p27Write_('V2', v.ss, plan, P27_V2_MAX_PER_RUN_, col, P27_NEW_RE_(col)); res[col] = r;
-    if (r.applyId) group.push({ id: r.applyId, target: 'V2', col: col });
-  });
-  var st = p27State_(); st.lastGroup = group; p27SetState_(st); P.deleteProperty('APPROVE_P27_NEW_V2');
-  return scLog_('P27_NEW_5_V2反映_承認後', { status: 'OK', byService: res });
+  var P = PropertiesService.getScriptProperties(), approvedDate = P.getProperty('APPROVE_P27_NEW_V2'), approvedHash = P.getProperty(P27_NEW_APPROVAL_HASH_);
+  if (approvedDate !== sumToday_() || !approvedHash) return scLog_('P27_NEW_5_V2反映_承認後', { status: 'NOT_APPROVED_TODAY' });
+  var st = p27State_();
+  if (st.stop || st.pending || (st.lastGroup && st.lastGroup.length)) return scLog_('P27_NEW_5_V2反映_承認後', { status: 'STOP_PENDING_UNDO' });
+  var v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), p = p27NewPlan_(v.ss, c.ss), actualHash = p27NewPlanHash_(p);
+  if (actualHash !== approvedHash) return scLog_('P27_NEW_5_V2反映_承認後', { status: 'STOP_PLAN_CHANGED', approvedHash: approvedHash, actualHash: actualHash, note: '承認した候補と現在の候補が異なる。再確認・再承認が必要' });
+  var group = [], res = {}, failure = '', columns = ['Pocket Casts', 'Pody', 'Apple', 'LISTEN', 'Amazon'];
+  for (var i = 0; i < columns.length; i++) {
+    var col = columns[i], plan = p.out.filter(function (o) { return o.col === col && o.action === 'WRITE'; }).map(function (o) { return { ep: o.ep, url: o.url, basis: '新着照合: ' + o.reason }; });
+    if (!plan.length) continue;
+    try {
+      var r = p27Write_('V2', v.ss, plan, P27_V2_MAX_PER_RUN_, col, P27_NEW_RE_(col)); res[col] = r;
+      if (r.applyId) {
+        group.push({ id: r.applyId, target: 'V2', col: col });
+        var state = p27State_(); state.lastGroup = group.slice(); p27SetState_(state);
+      }
+      if (r.status !== 'OK' || r.readbackMismatch !== 0 || r.written !== plan.length) {
+        failure = col + ':' + r.status + ' (' + (r.written || 0) + '/' + plan.length + ')'; break;
+      }
+    } catch (e) {
+      failure = col + ':' + String(e).slice(0, 200); break;
+    }
+  }
+  P.deleteProperty('APPROVE_P27_NEW_V2'); P.deleteProperty(P27_NEW_APPROVAL_HASH_);
+  return scLog_('P27_NEW_5_V2反映_承認後', { status: failure ? 'STOP_PARTIAL_CHECK_AND_UNDO' : 'OK', failure: failure, byService: res, rollbackColumns: group.map(function (g) { return g.col; }) });
 }
+// 取り消し失敗時は未完了の列をlastGroupに残し、同じ関数を再実行可能にする。
 function P27_NEW_7_直前の新着反映を戻す() {
-  var st = p27State_(), g = st.lastGroup || []; if (!g.length) return scLog_('P27_NEW_7_直前の新着反映を戻す', { status: 'NOTHING_TO_UNDO' });
-  var ss = scOpen_(SC_CONFIG.v2WorkingId, '').ss, out = [];
-  g.slice().reverse().forEach(function (x) { var s = p27State_(); s.last = x; p27SetState_(s); out.push(p27Undo_(ss)); });
-  var s2 = p27State_(); delete s2.lastGroup; p27SetState_(s2);
-  return scLog_('P27_NEW_7_直前の新着反映を戻す', { status: out.every(function (o) { return o.status === 'OK'; }) ? 'OK' : 'CHECK', results: out });
+  var st = p27State_(), group = (st.lastGroup || []).slice();
+  if (!group.length) return scLog_('P27_NEW_7_直前の新着反映を戻す', { status: 'NOTHING_TO_UNDO' });
+  var ss = scOpen_(SC_CONFIG.v2WorkingId, '').ss, results = [], failure = '';
+  while (group.length) {
+    var x = group[group.length - 1];
+    try {
+      var state = p27State_(); state.last = x; p27SetState_(state);
+      var r = p27Undo_(ss); results.push({ column: x.col, result: r });
+      if (r.status !== 'OK') { failure = x.col + ':' + r.status; break; }
+      group.pop(); state = p27State_(); state.lastGroup = group.slice(); p27SetState_(state);
+    } catch (e) { failure = x.col + ':' + String(e).slice(0, 200); break; }
+  }
+  return scLog_('P27_NEW_7_直前の新着反映を戻す', { status: failure ? 'CHECK_RETRY_REQUIRED' : 'OK', failure: failure, remainingColumns: group.map(function (g) { return g.col; }), results: results });
 }
