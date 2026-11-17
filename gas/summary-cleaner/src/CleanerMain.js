@@ -2393,8 +2393,8 @@ function P27_NEW_7_直前の新着反映を戻す() {
     try {
       var state = p27State_(); state.last = x; p27SetState_(state);
       var r = p27Undo_(ss); results.push({ column: x.col, result: r });
-      if (r.status !== 'OK') { failure = x.col + ':' + r.status; break; }
-      group.pop(); state = p27State_(); state.lastGroup = group.slice(); p27SetState_(state);
+      if (r.status !== 'OK' || (r.keptBecauseChangedAfter || 0) > 0) { failure = x.col + ':' + (r.keptBecauseChangedAfter ? 'MANUAL_CHANGE_PROTECTED' : r.status); break; }
+      group.pop(); state = p27State_(); state.lastGroup = group.slice(); if (state.pending === x.id) state.pending = ''; p27SetState_(state);
     } catch (e) { failure = x.col + ':' + String(e).slice(0, 200); break; }
   }
   return scLog_('P27_NEW_7_直前の新着反映を戻す', { status: failure ? 'CHECK_RETRY_REQUIRED' : 'OK', failure: failure, remainingColumns: group.map(function (g) { return g.col; }), results: results });
