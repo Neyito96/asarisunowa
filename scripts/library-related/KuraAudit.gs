@@ -15,17 +15,18 @@ function kaGz_(url) { var r = UrlFetchApp.fetch(url, { muteHttpExceptions: true 
 function kaLibrary_() {   // 公開中の蔵（全件）。1つでも取れない・壊れている・重複・総数不一致なら停止
   var m = kaJson_(KA_CFG.site + 'manifest.json?_=' + Date.now()), size = Number(m.detailBucketSize), total = Number(m.total);
   if (!(size > 0) || !(total > 0)) throw new Error('MANIFEST_INVALID size=' + size + ' total=' + total);
-  var reqs = []; for (var b = 0; b < Math.ceil(total / size) + 40; b++) reqs.push({ url: KA_CFG.site + 'details/' + b + '.json', muteHttpExceptions: true });
-  var out = {}, bad = [], dup = [], last = -1, res = UrlFetchApp.fetchAll(reqs);
-  res.forEach(function (r, i) { if (r.getResponseCode() === 200) last = i; });
-  for (var i = 0; i <= last; i++) {
+  var ids = kaJson_(KA_CFG.site + 'scope.json?_=' + Date.now()).publishedIds; if (!Array.isArray(ids) || ids.length !== total) throw new Error('SCOPE_INVALID');
+  var want = {}; ids.forEach(function (id) { want[Math.floor(Number(String(id).slice(3)) / size)] = 1; });   // 蔵の表示と同じ規則（EP番号÷バケット幅）
+  var reqs = Object.keys(want).map(function (b) { return { url: KA_CFG.site + 'details/' + b + '.json', muteHttpExceptions: true }; });
+  var out = {}, bad = [], dup = [], res = UrlFetchApp.fetchAll(reqs);
+  for (var i = 0; i < res.length; i++) {
     var r = res[i], url = reqs[i].url;
     if (r.getResponseCode() !== 200) { bad.push(url + ' ' + r.getResponseCode()); continue; }
     var arr; try { arr = JSON.parse(r.getContentText()); } catch (e) { bad.push(url + ' JSON'); continue; }
     if (!Array.isArray(arr)) { bad.push(url + ' NOT_ARRAY'); continue; }
     arr.forEach(function (e) { if (!e || !e.id) bad.push(url + ' NO_ID'); else if (out[e.id]) dup.push(e.id); else out[e.id] = e; });
   }
-  if (bad.length || dup.length || Object.keys(out).length !== total) throw new Error('LIBRARY_INVALID n=' + Object.keys(out).length + ' total=' + total + ' bad=' + bad.slice(0, 10).join(',') + ' dup=' + dup.slice(0, 10).join(','));
+  if (bad.length || dup.length || Object.keys(out).length !== total || ids.some(function (id) { return !out[id]; })) throw new Error('LIBRARY_INVALID n=' + Object.keys(out).length + ' total=' + total + ' bad=' + bad.slice(0, 10).join(',') + ' dup=' + dup.slice(0, 10).join(','));
   return { manifest: m, eps: out };
 }
 function kaNormName_(s) { return String(s || '').replace(/[（(][^）)]*[）)]/g, '').replace(/^(MC|ゲスト|出演|聞き手)[:：\s]*/i, '').replace(/[\s　・]/g, ''); }
