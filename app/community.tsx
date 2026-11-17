@@ -52,6 +52,7 @@ const archiveSeriesSearchTerms: Record<string, string> = {
   "フィギュアスケートストーリー": "フィギュア",
   "お相撲ちゃんねる": "相撲",
   "球談": "野球",
+  "報談本編": "報談",
 };
 function ArchiveSeriesItems({ value }: { value: string }) {
   return <>{value.split("、").map((label, i) => {
