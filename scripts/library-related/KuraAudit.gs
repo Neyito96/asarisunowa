@@ -142,6 +142,7 @@ function KA_2_出演者差_切り分け_READ_ONLY() {
     else {
       var jj = ka2Set_(j); onlyK = k.filter(function (x) { return jj.indexOf(x) < 0; }); onlyJ = jj.filter(function (x) { return k.indexOf(x) < 0; });
       if (onlyJ.some(function (x) { return KA_CFG.services.test(x); })) cls = 'JSON側に配信サービス名';
+      else if (onlyJ.some(function (x) { return /[、・,]/.test(x) && onlyK.some(function (n) { return x.indexOf(n) >= 0; }); })) cls = 'JSON側で複数名が1件に';
       else if (!onlyK.length && !onlyJ.length) cls = kraw.join('/') === j.join('/') ? '一致' : '表記差（同じ人・肩書きや順序だけ）';
       else if (!onlyK.length) cls = '蔵に不足';
       else if (!onlyJ.length) cls = '蔵に余分';
@@ -151,7 +152,7 @@ function KA_2_出演者差_切り分け_READ_ONLY() {
     cnt[cls] = (cnt[cls] || 0) + 1; if (cls === '一致') return;
     var txtSet = ka2Set_(String(txt[id] || '').split(/\n|\s\/\s|／/)), jSet = j ? ka2Set_(j) : [];
     var v2agree = j ? (txtSet.length === jSet.length && txtSet.every(function (x) { return jSet.indexOf(x) >= 0; }) ? 'V2欄=JSON' : 'V2欄≠JSON') : '';
-    var plan = { 'JSON側に配信サービス名': 'HOLD（JSONの清掃が先）', '表記差（同じ人・肩書きや順序だけ）': '直さなくてよい（表示方針を決めたら一括）', '蔵に不足': 'JSONから補充候補（要承認）', '蔵に余分': 'HOLD（蔵だけの名前を人が確認）', '表記ゆれ疑い': 'HOLD（誤字か別人かを人が確認）', '人物差': 'HOLD', 'JSONなし': 'HOLD（正本候補なし）' }[cls];
+    var plan = { 'JSON側に配信サービス名': 'HOLD（JSONの清掃が先）', 'JSON側で複数名が1件に': 'HOLD（JSONの分割が先）', '表記差（同じ人・肩書きや順序だけ）': '直さなくてよい（表示方針を決めたら一括）', '蔵に不足': 'JSONから補充候補（要承認）', '蔵に余分': 'HOLD（蔵だけの名前を人が確認）', '表記ゆれ疑い': 'HOLD（誤字か別人かを人が確認）', '人物差': 'HOLD', 'JSONなし': 'HOLD（正本候補なし）' }[cls];
     rows.push([id, e.show, cls, onlyK.join('・'), onlyJ.join('・'), v2agree, String(e.cast || '').slice(0, 200), j ? j.join(' / ').slice(0, 200) : '', plan]);
   });
   var byShow = {}; rows.forEach(function (r) { var k = r[1] + '・' + r[2]; byShow[k] = (byShow[k] || 0) + 1; });
