@@ -43,6 +43,11 @@ const ArchiveSearchLink = ({ term, children }: { term: string; children?: ReactN
 const archiveSeriesSearchTerms: Record<string, string> = {
   "アラサーかいわい": "アラサー",
   "スナックよりみ知": "よりみ知",
+  "ポキフト": "サッカー",
+  "バスクラ": "バスケ",
+  "フィギュアスケートストーリー": "フィギュア",
+  "お相撲ちゃんねる": "相撲",
+  "球談": "野球",
 };
 function ArchiveSeriesItems({ value }: { value: string }) {
   return <>{value.split("、").map((label, i) => {
