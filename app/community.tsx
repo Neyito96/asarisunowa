@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import type { Playlist } from "./data";
 import { recommendedPodcastSnapshot } from "./recommended-podcasts-data";
 import PosukamiCardSection from "./PosukamiCardSection";
@@ -22,7 +23,7 @@ type OfficialProgram = {
 };
 // Archive searches open in a separate tab; links are searches, not asserted episode matches.
 const archiveSearchHref = (term: string) => `library/?q=${encodeURIComponent(term)}`;
-const ArchiveSearchLink = ({ term, children }: { term: string; children?: React.ReactNode }) => (
+const ArchiveSearchLink = ({ term, children }: { term: string; children?: ReactNode }) => (
   <a href={archiveSearchHref(term)} target="_blank" rel="noopener noreferrer" className="archiveSearchLink" title={`朝ポキの蔵で「${term}」を検索（別タブ）`}>
     {children ?? term} ↗
   </a>
