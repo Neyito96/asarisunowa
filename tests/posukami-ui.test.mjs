@@ -13,14 +13,16 @@ test('公開データ: 栃尾さんの実例（紹介回 EP-06605・ドーナツ
   const c = findPosukamiCard(data, { id: '16', title: 'クリエイティブの反対語' });
   assert.ok(c);
   assert.equal(c.introductions[0].epId, 'EP-06605'); assert.equal(c.introductions[0].date, '2026-10-20');
-  assert.deepEqual(c.specials.map((s) => s.href), ['https://omny.fm/shows/asahi/d20261116', 'https://podcasts.apple.com/jp/podcast/id1129707783?i=1000802141616']);
+  assert.deepEqual(c.specials.map((s) => s.href), ['/library/?ep=EP-06739', 'https://podcasts.apple.com/jp/podcast/id1129707783?i=1000802141616']);
   assert.equal(c.specials[0].program, 'ドーナツ'); assert.equal(c.specials[0].epId, 'EP-06739');
 });
-test('公開データ: 1つの紹介回が2番組（16・17）に付く。蔵にある回は蔵の個別ページ、無い回は公式ページ', () => {
+test('公開データ: 1つの紹介回が2番組（16・17）に付く。紹介回は蔵の個別ページへ直接つながる', () => {
   assert.equal(findPosukamiCard(data, { id: '17', title: 'ファミレスで隣から聞こえてくるフリーランスのモヤモヤ話' }).introductions[0].epId, 'EP-06605');
   const c15 = findPosukamiCard(data, { id: '15', title: 'おんすた【NOW AND THEN】' });
   assert.equal(c15.introductions[0].href, '/library/?ep=EP-01222'); assert.equal(c15.introductions[0].library, true);
-  assert.equal(findPosukamiCard(data, { id: '16', title: 'クリエイティブの反対語' }).introductions[0].library, false);
+  const c16 = findPosukamiCard(data, { id: '16', title: 'クリエイティブの反対語' }).introductions[0];
+  assert.equal(c16.library, true); assert.equal(c16.href, '/library/?ep=EP-06605');   // #315 の蔵の同期で EP-06605 が蔵に入った
+  assert.ok(data.cards.every((c) => c.introductions.every((i) => i.library)));   // 紹介回16件はすべて蔵の個別ページへ
   assert.equal(data.submitEnabled, false);   // 本番の受付が配置されるまでは投稿ボタンを出さない
 });
 test('カードとデータは ID と番組名の両方で結ぶ（並びが変わってIDがずれても別番組に付かない）', () => {

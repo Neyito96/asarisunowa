@@ -4,11 +4,13 @@ on:
     paths:
       - 'public/library/**'
       - 'docs/audits/2026-10-22-publication-scope/**'
+      - 'docs/audits/library-v2-sync/**'
       - 'lib/library*'
       - 'scripts/*library*'
       - 'tests/library-public*'
       - 'tests/library-phase11*'
       - 'tests/sdgs-integration*'
+      - 'tests/library-s*'
       - 'tools/sdgs*'
       - '.github/workflows/library-public-check.yml'
   workflow_dispatch:
@@ -24,11 +26,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node --test tests/library-publication-scope.test.mjs
+      - run: node --test tests/library-publication-scope.test.mjs tests/library-sync-v2.test.mjs tests/library-shelf-share.test.mjs
       - name: Stage adopted publication without changing repository snapshot
         run: |
           cp -R public /tmp/library-publication-preview
-          node scripts/stage-library-publication-preview.mjs public/library/data /tmp/library-publication-preview/library/data
+          node scripts/stage-library-publication-preview.mjs public/library/data /tmp/library-publication-preview/library/data $(test -f docs/audits/library-v2-sync/decisions.json.gz && echo docs/audits/library-v2-sync/decisions.json.gz)
           node --input-type=module -e "import fs from 'node:fs';import {gunzipSync} from 'node:zlib';fs.mkdirSync('/tmp/library-publication-preview/universe',{recursive:true});fs.writeFileSync('/tmp/library-publication-preview/universe/index.html',gunzipSync(fs.readFileSync('docs/audits/2026-10-22-publication-scope/universe-preview.html.gz')));"
       - env:
           LIBRARY_DATA_URL: /tmp/library-publication-preview/library/data/
@@ -47,6 +49,7 @@ jobs:
           node -e "(async()=>{for(let i=0;i<50;i++){try{const r=await fetch('http://127.0.0.1:4173/library/');if(r.ok)return}catch{}await new Promise(r=>setTimeout(r,100))}process.exit(1)})()"
           node tests/library-public-browser.cjs
           node tests/library-publication-browser.cjs
+          node tests/library-shelf-browser.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

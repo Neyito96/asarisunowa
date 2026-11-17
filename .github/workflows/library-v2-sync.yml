@@ -1,0 +1,43 @@
+name: Library V2 sync (PR only)
+# #315: V2・公開台帳 → 朝ポキの蔵。直接 main へは書かず、差分をPRにして管理人の確認を待つ。
+# 変数 LIBRARY_V2_PUBLIC_CSV_URL（V2・公開台帳のCSV公開URL）が未設定なら何もしない。GASのトリガーは使わない（ALIB_AUTO_tick 等と二重にならない）。
+on:
+  schedule:
+    - cron: '17 21 * * *'   # 毎日 06:17 JST
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: library-v2-sync
+  cancel-in-progress: false
+jobs:
+  sync:
+    if: ${{ vars.LIBRARY_V2_PUBLIC_CSV_URL != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Fetch V2 public ledger (not committed)
+        env:
+          CSV_URL: ${{ vars.LIBRARY_V2_PUBLIC_CSV_URL }}
+        run: curl -fsSL "$CSV_URL" -o "$RUNNER_TEMP/v2.csv"
+      - name: Dry run (stops on abnormal decrease / duplicates / show change)
+        run: node scripts/library-sync-v2.mjs "$RUNNER_TEMP/v2.csv" --dry-run | tee "$RUNNER_TEMP/report.json"
+      - name: Apply to library data
+        run: node scripts/library-sync-v2.mjs "$RUNNER_TEMP/v2.csv"
+      - run: node --test tests/library-sync-v2.test.mjs tests/library-publication-scope.test.mjs
+      - name: Open PR if changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- public/library/data docs/audits/library-v2-sync; then echo "変化なし"; exit 0; fi
+          b="auto/library-v2-sync-$(date -u +%Y%m%d)"
+          git config user.name "github-actions[bot]"; git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$b"; git add public/library/data docs/audits/library-v2-sync
+          git commit -m "chore(library): V2・公開台帳と同期 $(date -u +%F)"
+          git push -f origin "$b"
+          gh pr view "$b" >/dev/null 2>&1 || gh pr create --head "$b" --title "蔵の同期（V2・公開台帳）$(date -u +%F)" --body "自動同期の結果です。確認してからマージしてください。\n\n\`\`\`json\n$(cat "$RUNNER_TEMP/report.json")\n\`\`\`"

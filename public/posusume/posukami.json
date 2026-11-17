@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "version": "POSU-1",
- "generatedAt": "2026-11-17T02:19:09.635Z",
+ "generatedAt": "2026-11-17T02:39:29.161Z",
  "submitEnabled": false,
  "cards": [
   {
@@ -187,8 +187,8 @@
     {
      "title": "（ポすすめ）クリエイティブの反対語・ファミレスで隣から聞こえてくるフリーランスのモヤモヤ話",
      "date": "2026-10-20",
-     "href": "https://omny.fm/shows/asahi/d20261020",
-     "library": false,
+     "href": "/library/?ep=EP-06605",
+     "library": true,
      "epId": "EP-06605",
      "verifiedAt": "2026-11-17"
     }
@@ -198,8 +198,8 @@
     {
      "title": "（対話）自分に興味がある人と、自分なんてないと思う人　栃尾江美さん",
      "date": "2026-11-16",
-     "href": "https://omny.fm/shows/asahi/d20261116",
-     "library": false,
+     "href": "/library/?ep=EP-06739",
+     "library": true,
      "epId": "EP-06739",
      "verifiedAt": "2026-11-17",
      "program": "ドーナツ",
@@ -224,8 +224,8 @@
     {
      "title": "（ポすすめ）クリエイティブの反対語・ファミレスで隣から聞こえてくるフリーランスのモヤモヤ話",
      "date": "2026-10-20",
-     "href": "https://omny.fm/shows/asahi/d20261020",
-     "library": false,
+     "href": "/library/?ep=EP-06605",
+     "library": true,
      "epId": "EP-06605",
      "verifiedAt": "2026-11-17"
     }
@@ -240,8 +240,8 @@
     {
      "title": "（ポすすめ）AIニュースブリーフィング",
      "date": "2026-10-27",
-     "href": "https://omny.fm/shows/asahi/d20261027",
-     "library": false,
+     "href": "/library/?ep=EP-06640",
+     "library": true,
      "epId": "EP-06640",
      "verifiedAt": "2026-11-17"
     }
@@ -256,8 +256,8 @@
     {
      "title": "（ポすすめ）ポッドキャスト茶会",
      "date": "2026-11-03",
-     "href": "https://omny.fm/shows/asahi/d20261103",
-     "library": false,
+     "href": "/library/?ep=EP-06661",
+     "library": true,
      "epId": "EP-06661",
      "verifiedAt": "2026-11-17"
     }
@@ -272,8 +272,8 @@
     {
      "title": "（ポすすめ）ながらcast",
      "date": "2026-11-10",
-     "href": "https://omny.fm/shows/asahi/d20261110",
-     "library": false,
+     "href": "/library/?ep=EP-06691",
+     "library": true,
      "epId": "EP-06691",
      "verifiedAt": "2026-11-17"
     }
