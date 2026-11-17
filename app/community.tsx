@@ -41,6 +41,9 @@ const ArchiveSearchLink = ({ term, children }: { term: string; children?: ReactN
 );
 // Search terms can differ from display labels; do not rewrite the visible program name.
 const archiveSeriesSearchTerms: Record<string, string> = {
+  "農MUSIC 猟ライフ": "ノーミライ",
+  "農MUSIC猟ライフ": "ノーミライ",
+  "農MUSIC 猟ライフ（ノーミライ）": "ノーミライ",
   "対話": "（対話）",
   "アラサーかいわい": "アラサー",
   "スナックよりみ知": "よりみ知",
