@@ -2190,9 +2190,9 @@ function P27_ID_1_番組ID調査_READ_ONLY() {
 // ===== P27 7サービスの集計（読むだけ）=====
 var P27_ROUTES_ = {
   Spotify: ['VERIFIED', 'P26（本番ロボ）の既存経路。P27 では触らない'],
-  Apple: ['VERIFIED', 'P26（本番ロボ）の既存経路。P27 では触らない'],
+  Apple: ['VERIFIED', 'P26（本番ロボ）の既存経路。空欄の大半は P26/#280 の承認待ち。P27 では触らない'],
   'Pocket Casts': ['VERIFIED', 'P27_PC: 公開データのIDを公式GUID・音声URLで照合（ページは403で未検証）'],
-  LISTEN: ['VERIFIED', '既存の補完で個別URLあり。P27 の新規経路は未実装'],
+  LISTEN: ['HOLD', '既存の補完で個別URLが入っている回はある。空欄を埋める新しい経路は未調査（P27 未実装）'],
   Pody: ['VERIFIED', 'P27_PD: 番組ページ埋め込みの guid＝公式GUID で照合（上限つき全件取得）'],
   Amazon: ['CANDIDATE', '公開ページは中身なし・公式APIは承認制。Chrome で見た画面の証拠を照合（少数ずつ・人の承認つき）'],
   YouTube: ['UNAVAILABLE', 'YouTube Data API の有効化が未承認']

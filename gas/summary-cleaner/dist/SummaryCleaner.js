@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-v2-verify.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/net-count.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs, scripts/ledger-v2/raw-source.mjs, scripts/ledger-v2/platform-match.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = 'c77944cdf78c7234420d01ec038aa5e6e1529a69df268da478e56419e8b1007b';
+var CLEANER_BUILD_SOURCE_SHA256 = '2405bd36749336ee1bdeec7e9157478280e9c48b50475fc2b26ad8d018694192';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -4097,9 +4097,9 @@ function P27_ID_1_番組ID調査_READ_ONLY() {
 // ===== P27 7サービスの集計（読むだけ）=====
 var P27_ROUTES_ = {
   Spotify: ['VERIFIED', 'P26（本番ロボ）の既存経路。P27 では触らない'],
-  Apple: ['VERIFIED', 'P26（本番ロボ）の既存経路。P27 では触らない'],
+  Apple: ['VERIFIED', 'P26（本番ロボ）の既存経路。空欄の大半は P26/#280 の承認待ち。P27 では触らない'],
   'Pocket Casts': ['VERIFIED', 'P27_PC: 公開データのIDを公式GUID・音声URLで照合（ページは403で未検証）'],
-  LISTEN: ['VERIFIED', '既存の補完で個別URLあり。P27 の新規経路は未実装'],
+  LISTEN: ['HOLD', '既存の補完で個別URLが入っている回はある。空欄を埋める新しい経路は未調査（P27 未実装）'],
   Pody: ['VERIFIED', 'P27_PD: 番組ページ埋め込みの guid＝公式GUID で照合（上限つき全件取得）'],
   Amazon: ['CANDIDATE', '公開ページは中身なし・公式APIは承認制。Chrome で見た画面の証拠を照合（少数ずつ・人の承認つき）'],
   YouTube: ['UNAVAILABLE', 'YouTube Data API の有効化が未承認']
