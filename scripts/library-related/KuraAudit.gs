@@ -121,7 +121,8 @@ var KA2_ROLE = /^(?:MC|ＭＣ|音源編集|編集|ゲスト|聞き手|出演|司
 function ka2Key_(s) {   // 人名の比較キー（表記だけの違いを吸収）
   var t = String(s || '').normalize('NFKC').replace(/https?:\/\/\S+/g, '').replace(/[（(][^）)]*[）)]/g, '').split(/[,，]/)[0].trim();
   for (var i = 0; i < 3; i++) t = t.replace(KA2_ROLE, '');
-  return t.replace(/[\s　]/g, '');
+  var parts = t.split(/[\s　]+/).filter(Boolean); if (parts.length > 1 && /[／\/・]|記者|編集|部|委員|長$/.test(parts.slice(0, -1).join(''))) t = parts[parts.length - 1];   // 「ナビゲーター／科学記者 石倉徹也」→ 名前だけ
+  return t.replace(/[\s　]/g, '').replace(/(さん|氏)$/, '');
 }
 function ka2Set_(arr) { var o = {}; arr.map(ka2Key_).forEach(function (k) { if (k) o[k] = 1; }); return Object.keys(o); }
 function ka2Near_(a, b) { if (a.indexOf(b) >= 0 || b.indexOf(a) >= 0) return true; if (a.length !== b.length) return false; var d = 0; for (var i = 0; i < a.length; i++) if (a[i] !== b[i]) d++; return d === 1; }
@@ -133,14 +134,15 @@ function KA_2_出演者差_切り分け_READ_ONLY() {
   var txt = {}; L.rows.forEach(function (r) { txt[r[L.c('EP-ID')]] = r[L.c('出演者')]; });
   var rows = [], cnt = {}, total = 0;
   Object.keys(lib.eps).sort().forEach(function (id) {
-    var e = lib.eps[id], kraw = String(e.cast || '').split(' / ').filter(Boolean), k = ka2Set_(kraw);
+    var e = lib.eps[id], kraw = String(e.cast || '').split(/ \/ |\n/).filter(Boolean), k = ka2Set_(kraw);
     var j = js[id]; if (!k.length && !j) return;
     total++;
     var cls, onlyK = [], onlyJ = [];
     if (!j) cls = 'JSONなし';
     else {
       var jj = ka2Set_(j); onlyK = k.filter(function (x) { return jj.indexOf(x) < 0; }); onlyJ = jj.filter(function (x) { return k.indexOf(x) < 0; });
-      if (!onlyK.length && !onlyJ.length) cls = kraw.join('/') === j.join('/') ? '一致' : '表記差';
+      if (onlyJ.some(function (x) { return KA_CFG.services.test(x); })) cls = 'JSON側に配信サービス名';
+      else if (!onlyK.length && !onlyJ.length) cls = kraw.join('/') === j.join('/') ? '一致' : '表記差（同じ人・肩書きや順序だけ）';
       else if (!onlyK.length) cls = '蔵に不足';
       else if (!onlyJ.length) cls = '蔵に余分';
       else if (onlyK.every(function (a) { return onlyJ.some(function (b) { return ka2Near_(a, b); }); })) cls = '表記ゆれ疑い';
@@ -149,7 +151,7 @@ function KA_2_出演者差_切り分け_READ_ONLY() {
     cnt[cls] = (cnt[cls] || 0) + 1; if (cls === '一致') return;
     var txtSet = ka2Set_(String(txt[id] || '').split(/\n|\s\/\s|／/)), jSet = j ? ka2Set_(j) : [];
     var v2agree = j ? (txtSet.length === jSet.length && txtSet.every(function (x) { return jSet.indexOf(x) >= 0; }) ? 'V2欄=JSON' : 'V2欄≠JSON') : '';
-    var plan = { '表記差': '蔵をJSON表記に揃える候補（要承認）', '蔵に不足': 'JSONから補充候補（要承認）', '蔵に余分': 'HOLD（蔵だけの名前を人が確認）', '表記ゆれ疑い': 'HOLD（誤字か別人かを人が確認）', '人物差': 'HOLD', 'JSONなし': 'HOLD（正本候補なし）' }[cls];
+    var plan = { 'JSON側に配信サービス名': 'HOLD（JSONの清掃が先）', '表記差（同じ人・肩書きや順序だけ）': '直さなくてよい（表示方針を決めたら一括）', '蔵に不足': 'JSONから補充候補（要承認）', '蔵に余分': 'HOLD（蔵だけの名前を人が確認）', '表記ゆれ疑い': 'HOLD（誤字か別人かを人が確認）', '人物差': 'HOLD', 'JSONなし': 'HOLD（正本候補なし）' }[cls];
     rows.push([id, e.show, cls, onlyK.join('・'), onlyJ.join('・'), v2agree, String(e.cast || '').slice(0, 200), j ? j.join(' / ').slice(0, 200) : '', plan]);
   });
   var byShow = {}; rows.forEach(function (r) { var k = r[1] + '・' + r[2]; byShow[k] = (byShow[k] || 0) + 1; });
