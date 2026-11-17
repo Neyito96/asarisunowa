@@ -34,7 +34,7 @@ async function update(reset=true) {
  try {
   if(c.from&&c.to&&c.from>c.to)throw Error('DATE_RANGE');
   let items,total;
-  if(c.query||c.from||c.to) {
+  if(c.query||c.from||c.to||shelfOnly) {
    const paths=manifest.shows.filter(s=>!c.show||s.name===c.show).flatMap(s=>s.search),rows=[];
    // Bounded concurrency: don't launch all programme downloads at once.
    for(let i=0;i<paths.length;i+=2){const chunks=await Promise.all(paths.slice(i,i+2).map(json));if(run!==generation)return;rows.push(...chunks.flat());}
@@ -49,7 +49,7 @@ async function update(reset=true) {
     const chunks=await Promise.all(paths.slice(first,last+1).map(json));items=chunks.flat().slice(start-first*40,end-first*40).reverse();
    }else items=await json(paths[index]);
   }
-  if(run!==generation)return;if(shelfOnly){const ids=new Set(shelfIds());if(activeResults){activeResults=activeResults.filter(e=>ids.has(e.id));total=activeResults.length;items=activeResults.slice(page*40,page*40+40);}else{total=items.filter(e=>ids.has(e.id)).length;items=items.filter(e=>ids.has(e.id));}}renderList(items,total);
+  if(run!==generation)return;if(shelfOnly){const ids=new Set(shelfIds());activeResults=(activeResults||[]).filter(e=>ids.has(e.id));total=activeResults.length;items=activeResults.slice(page*40,page*40+40);}renderList(items,total);
  }catch(e){if(run===generation){$('status').textContent='読み込みを完了できませんでした';error(e.message==='DATE_RANGE'?'配信日の開始日を終了日以前にしてください。':'通信に失敗しました。条件を変えずに再試行できます。');}}
  finally{if(run===generation)$('results').setAttribute('aria-busy','false');}
 }
