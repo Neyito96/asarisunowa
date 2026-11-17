@@ -157,6 +157,11 @@ function doGet(e) {
       return handlePlaylistResolve_(e, callback);
     }
 
+    // ポす神回の投稿（#312）。新規番組登録（listenerPodcast）とは別の経路・別シート。Posukami.js
+    if (type === "posukamiSubmit") {
+      return handlePosukamiSubmit_(e, callback);
+    }
+
     const readResponse = handleApiRead_(type, callback);
 
     if (readResponse) {

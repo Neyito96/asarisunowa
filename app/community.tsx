@@ -2,6 +2,8 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Playlist } from "./data";
 import { recommendedPodcastSnapshot } from "./recommended-podcasts-data";
+import PosukamiCardSection from "./PosukamiCardSection";
+import { POSUKAMI_DATA_URL, findPosukamiCard, parsePosukami, type PosukamiData } from "./posukami";
 import {
   isSpotifyCollaborativeInviteUrl,
   submitAutoUpdateRequestConfirmed,
@@ -40,32 +42,6 @@ const LISTENER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQHi9L
 const PODCAST_CSV_URL = "https://docs.google.com/spreadsheets/d/1KSzoIkOsjUagNBLt3IbKIvgWEmez4f0XISQ-jkUjmwQ/gviz/tq?tqx=out:csv&sheet=%E6%9C%9D%E3%83%AA%E3%82%B9Podcast";
 
 type PodcastPlatformLink = { label: string; url: string };
-
-const POSUSUME_VERIFIED_EPISODES = [
-  {
-    match: "クリエイティブの反対語",
-    introductions: [{
-      title: "（ポすすめ）クリエイティブの反対語・ファミレスで隣から聞こえてくるフリーランスのモヤモヤ話",
-      epId: "EP-06605",
-      href: "/library/?ep=EP-06605",
-      date: "2026-10-20",
-    }],
-    specials: [
-      {
-        title: "（対話）自分に興味がある人と、自分なんてないと思う人　栃尾江美さん",
-        href: "https://omny.fm/shows/asahi/d20261116?in_playlist=donut",
-        note: "ドーナツ／2026-11-16",
-      },
-      {
-        title: "#410 なんと同い年！ 朝日新聞社・神田大介さん",
-        href: "https://podcasts.apple.com/jp/podcast/id1129707783?i=1000802141616",
-        note: "クリエイティブの反対語／2026-11-16",
-      },
-    ],
-  },
-] as const;
-const posusumeVerified = (title: string) =>
-  POSUSUME_VERIFIED_EPISODES.find((entry) => title.includes(entry.match));
 
 type ListenerPodcast = {
   id: string; title: string; maker: string; introduced: string;
@@ -774,6 +750,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
   const [liveListenerPodcasts, setLiveListenerPodcasts] = useState<ListenerPodcast[]>(LISTENER_PODCAST_BACKUP);
   const [listenerPodcastStatus, setListenerPodcastStatus] = useState<"loading" | "ready" | "error">("loading");
   const [listenerPodcastReloadKey, setListenerPodcastReloadKey] = useState(0);
+  const [posukami, setPosukami] = useState<PosukamiData>(() => parsePosukami(null));
+  const [posukamiPreview, setPosukamiPreview] = useState(false);
   const [view, setView] = useState<"listeners" | "official" | "circle" | "discord" | "podcasts" | "listenerPodcasts">(
       "official",
     ),
@@ -1046,6 +1024,17 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     refreshListenerPodcasts();
     return () => { cancelled = true; };
   }, [listenerPodcastReloadKey]);
+
+  // ポす神回（#312）: 承認・照合済みの公開データだけを読む。読めなければカードは今まで通り
+  useEffect(() => {
+    let cancelled = false;
+    setPosukamiPreview(new URLSearchParams(window.location.search).get("posukami") === "preview");
+    fetch(POSUKAMI_DATA_URL + "?_=" + Math.floor(Date.now() / 600000), { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((json) => { if (!cancelled) setPosukami(parsePosukami(json)); })
+      .catch(() => { /* 公開データが無くてもカードはそのまま */ });
+    return () => { cancelled = true; };
+  }, []);
 
   const rows = useMemo(
     () =>
@@ -2095,20 +2084,13 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     <h3>{p.title}</h3>
                     <p>by {p.maker}</p>
                     {p.introduced && <p className="podcastComment">紹介配信日 {p.introduced}</p>}
-                    {posusumeVerified(p.title)?.introductions.map((episode) => (
-                      <p className="podcastComment" key={episode.epId} style={{ marginTop: "0.45rem" }}>
-                        <strong>🎙 ドーナツで紹介された回</strong><br />
-                        <a href={episode.href} style={{ textDecoration: "underline", textUnderlineOffset: "0.18em" }}>{episode.title}</a>
-                        <small style={{ display: "block", opacity: 0.8 }}>{episode.date} · 蔵の個別回へ（配信先を選べます）</small>
-                      </p>
-                    ))}
-                    {posusumeVerified(p.title)?.specials.map((episode) => (
-                      <p className="podcastComment" key={episode.href} style={{ marginTop: "0.45rem" }}>
-                        <strong>✨ ポす神回</strong><br />
-                        <a href={episode.href} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline", textUnderlineOffset: "0.18em" }}>{episode.title}</a>
-                        <small style={{ display: "block", opacity: 0.8 }}>{episode.note} · 確認済み配信ページ</small>
-                      </p>
-                    ))}
+                    <PosukamiCardSection
+                      podcast={{ id: p.id, title: p.title }}
+                      card={findPosukamiCard(posukami, p)}
+                      submitEnabled={posukami.submitEnabled || posukamiPreview}
+                      endpoint={ASARISU_API_URL}
+                      loadJsonp={(url) => loadJsonp<unknown>(url, 20000)}
+                    />
                     {p.genre && <span className="podcastGenreTag">{p.genre}</span>}
                     {p.comment && <p className="podcastComment">💬 {p.comment}</p>}
                     {p.links.length > 0 ? (
