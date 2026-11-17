@@ -42,3 +42,20 @@ test('前回「同一性保留」でV2が解決済みの回だけ回収する。
   assert.equal(next.decisions.find((d) => d.id === 'EP-00011').publication, '対象');
   assert.equal(next.decisions.find((d) => d.id === 'EP-00012').publication, '保留');
 });
+test('#333 概要の同期: V2清掃済みで置き換え。空・タイトル不一致・手動修正・HOLDは保護。ほかの項目は変えない。2回目は変化なし', async () => {
+  const { planDescription } = await import('../scripts/library-sync-v2.mjs');
+  const good = '新しい概要です。今回は台北の地下街を歩きました。若者があふれていました。';
+  const e = { id: 'EP-00001', show: 'A', title: 'tEP-00001', description: '古い概要 ★イベント告知 https://bit.ly/x', links: ['https://open.spotify.com/episode/EP-00001'], relatedArticles: [{ title: 'T', url: 'https://www.asahi.com/articles/X.html' }], cast: '神田大介', duration: 100 };
+  assert.equal(planDescription(e, row('EP-00001', { '概要（清掃済）': good }), new Set()).action, 'update');
+  assert.equal(planDescription(e, row('EP-00001', { '概要（清掃済）': '短い' }), new Set()).reason, 'V2概要が空・短い');
+  assert.equal(planDescription(e, row('EP-00001', { 'タイトル': '別の題', '概要（清掃済）': good }), new Set()).reason, 'タイトル不一致');
+  assert.equal(planDescription(e, row('EP-00001', { '概要（清掃済）': good }), new Set(['EP-00001'])).reason, '手動修正（承認済み）');
+  assert.equal(planDescription(e, row('EP-00001', { '概要（清掃済）': good + ' 【未知の見出し】 なにか' }), new Set()).reason, 'V2概要が表示整形でHOLD');
+  const old = new Map([['EP-00001', e]]);
+  const p1 = planSync({ old, decisions: [], v2: [row('EP-00001', { '概要（清掃済）': good })] });
+  assert.equal(p1.descUpdates.length, 1);
+  const k = p1.keep[0]; assert.equal(k.description, good); assert.equal(k.descriptionSource, 'V2-clean');
+  for (const f of ['relatedArticles', 'cast', 'duration', 'title', 'show']) assert.deepEqual(k[f], e[f], f);
+  const p2 = planSync({ old: new Map([['EP-00001', k]]), decisions: [], v2: [row('EP-00001', { '概要（清掃済）': good })] });
+  assert.equal(p2.descUpdates.length, 0); assert.equal(p2.descSame, 1);
+});

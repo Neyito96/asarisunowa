@@ -1,21 +1,27 @@
-name: Library V2 sync (PR only)
-# #315: V2・公開台帳 → 朝ポキの蔵。直接 main へは書かず、差分をPRにして管理人の確認を待つ。
-# 変数 LIBRARY_V2_PUBLIC_CSV_URL（V2・公開台帳のCSV公開URL）が未設定なら何もしない。GASのトリガーは使わない（ALIB_AUTO_tick 等と二重にならない）。
+name: Library V2 sync
+# #315/#333: V2・公開台帳 → 朝ポキの蔵（新着・非公開化・配信リンク・概要本文）→ 関連記事の見出し → 公開。
+# 台帳は COPY清掃ロボの読み出し専用ウェブアプリ（RX-2、V2は読むだけ）から取る。変数 LIBRARY_V2_PUBLIC_CSV_URL があればそちらを使う。
+# 安全装置: 非公開化20件超・公開件数20件超の減少・EP-ID重複・番組名変化で停止（library-sync-v2.mjs）。手動修正・HOLD・タイトル不一致の概要は置き換えない。
+# 台帳CSVの読み出しは RX-2（2026-11-17 デプロイ版2・ウェブアプリ・冪等確認）。GASのトリガーは使わない（ALIB_AUTO_tick 等と二重にならない）。変化が無ければ何もコミットしない。
 on:
   schedule:
     - cron: '17 21 * * *'   # 毎日 06:17 JST
   workflow_dispatch:
+  push:   # 初回の全件反映を PR ブランチ上で作るため（main には PR でマージ）
+    branches: ['feat/issue-333-v2-description-sync']
+    paths: ['scripts/library-sync-v2.mjs', 'scripts/library-related/**', '.github/workflows/library-v2-sync.yml']
 permissions:
   contents: write
-  pull-requests: write
+  actions: write
 concurrency:
   group: library-v2-sync
   cancel-in-progress: false
+env:
+  RX_URL: https://script.google.com/macros/s/AKfycbwwcQQkwhGaddZxXzWh_bPVGCVP4YssJ3FKQINmTUSsThsji334DfVtxpc9VlwSm8lRIg/exec
 jobs:
   sync:
-    if: ${{ vars.LIBRARY_V2_PUBLIC_CSV_URL != '' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -24,20 +30,22 @@ jobs:
       - name: Fetch V2 public ledger (not committed)
         env:
           CSV_URL: ${{ vars.LIBRARY_V2_PUBLIC_CSV_URL }}
-        run: curl -fsSL "$CSV_URL" -o "$RUNNER_TEMP/v2.csv"
-      - name: Dry run (stops on abnormal decrease / duplicates / show change)
-        run: node scripts/library-sync-v2.mjs "$RUNNER_TEMP/v2.csv" --dry-run | tee "$RUNNER_TEMP/report.json"
-      - name: Apply to library data
-        run: node scripts/library-sync-v2.mjs "$RUNNER_TEMP/v2.csv"
-      - run: node --test tests/library-sync-v2.test.mjs tests/library-publication-scope.test.mjs
-      - name: Open PR if changed
+        run: |
+          url="${CSV_URL:-$RX_URL?type=v2PublicCsv}"
+          curl -fsSL "$url" -o "$RUNNER_TEMP/v2.csv"
+          head -c 200 "$RUNNER_TEMP/v2.csv" | grep -q '^EP-ID,' || { echo "V2・公開台帳の形ではない"; exit 1; }
+      - name: Sync library (stops on abnormal changes)
+        run: node scripts/library-sync-v2.mjs "$RUNNER_TEMP/v2.csv" | tee "$RUNNER_TEMP/report.json"
+      - name: Related-article titles (RX-1)
+        run: node scripts/library-related/apply-related-titles.mjs "$RX_URL?type=libraryRelated" | tee -a "$RUNNER_TEMP/report.json"
+      - run: node --test tests/library-sync-v2.test.mjs tests/library-publication-scope.test.mjs tests/library-related-titles.test.mjs tests/library-description-tidy.test.mjs tests/library-phase11.test.mjs tests/library-public.test.mjs
+      - name: Commit and publish if changed
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           if git diff --quiet -- public/library/data docs/audits/library-v2-sync; then echo "変化なし"; exit 0; fi
-          b="auto/library-v2-sync-$(date -u +%Y%m%d)"
           git config user.name "github-actions[bot]"; git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
-          git switch -c "$b"; git add public/library/data docs/audits/library-v2-sync
-          git commit -m "chore(library): V2・公開台帳と同期 $(date -u +%F)"
-          git push -f origin "$b"
-          gh pr view "$b" >/dev/null 2>&1 || gh pr create --head "$b" --title "蔵の同期（V2・公開台帳）$(date -u +%F)" --body "自動同期の結果です。確認してからマージしてください。\n\n\`\`\`json\n$(cat "$RUNNER_TEMP/report.json")\n\`\`\`"
+          git add public/library/data docs/audits/library-v2-sync
+          git commit -m "data(library): V2・公開台帳と同期 $(date -u +%F)" -m "$(cat "$RUNNER_TEMP/report.json")"
+          git push
+          if [ "$GITHUB_REF" = refs/heads/main ]; then gh workflow run pages.yml --ref main; fi
