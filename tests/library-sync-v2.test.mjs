@@ -66,3 +66,13 @@ test('出演者: 完全一致の重複だけを外し、名前と順序は保つ
   assert.equal(dedupeCast('A / A,部'), 'A / A,部');   // 所属つきは別物として残す（推測で統合しない）
   assert.equal(dedupeCast(''), '');
 });
+
+test('出演者: 蔵が空の回だけ V2 の出演者で補い、既存の値は書き換えない', async () => {
+  const mk = (id, cast) => ({ id, show: 'ニュースの学校', title: 't' + id, date: '2026-01-01', cast, description: '', links: [] });
+  const old = new Map([['EP-00001', mk('EP-00001', '')], ['EP-00002', mk('EP-00002', '杢田光')]]);
+  const v2 = ['EP-00001', 'EP-00002'].map((id) => ({ 'EP-ID': id, '番組': 'ニュースの学校', 'タイトル': 't' + id, '配信日時 JST': '2026-01-01', '掲載判定': '対象', '出演者': '神田大介' }));
+  const p = planSync({ old, decisions: [], v2, syncDescriptions: false });
+  assert.deepEqual(p.castFilled, ['EP-00001']);
+  assert.equal(p.keep.find((e) => e.id === 'EP-00001').cast, '神田大介');
+  assert.equal(p.keep.find((e) => e.id === 'EP-00002').cast, '杢田光');
+});

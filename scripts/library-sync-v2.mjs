@@ -84,7 +84,7 @@ export function planSync({ old, decisions, v2, resolved = [], descProtect = null
     V.set(id, r);
   }
   if (problems.length) return { ok: false, problems };
-  const keep = [], add = [], protectedIds = [], removed = [], linkAdded = [], castFixed = [], descUpdates = [], descProtected = {}; let descSame = 0;
+  const keep = [], add = [], protectedIds = [], removed = [], linkAdded = [], castFixed = [], castFilled = [], descUpdates = [], descProtected = {}; let descSame = 0;
   for (const [id, e] of old) {
     const r = V.get(id);
     if (!r) { removed.push(id); continue; }
@@ -92,7 +92,8 @@ export function planSync({ old, decisions, v2, resolved = [], descProtect = null
     const links = [...new Set([...(e.links || []), ...platformLinks(r)])];
     if (links.length !== (e.links || []).length) linkAdded.push(id);
     let next = { ...e, links };
-    if (typeof e.cast === 'string' && e.cast && dedupeCast(e.cast) !== e.cast) { castFixed.push(id); next = { ...next, cast: dedupeCast(e.cast) }; }   // 出演者の完全重複（同じ並びの2回くり返し等）
+    if (!String(e.cast || '').trim() && castNames(r['出演者'])) { castFilled.push(id); next = { ...next, cast: castNames(r['出演者']) }; }   // 蔵の出演者が空の回だけ V2 の出演者で補う（既存の値は書き換えない）
+    else if (typeof e.cast === 'string' && e.cast && dedupeCast(e.cast) !== e.cast) { castFixed.push(id); next = { ...next, cast: dedupeCast(e.cast) }; }   // 出演者の完全重複（同じ並びの2回くり返し等）
     if (syncDescriptions) {
       const d = planDescription(e, r, descProtect);
       if (d.action === 'update') { descUpdates.push({ id, oldSha: sha(e.description), newSha: sha(d.description), oldLen: (e.description || '').length, newLen: d.description.length }); next = { ...next, description: d.description, descriptionSource: 'V2-clean' }; }
@@ -114,7 +115,7 @@ export function planSync({ old, decisions, v2, resolved = [], descProtect = null
   if (removed.length > LIMITS.maxRemovals) return { ok: false, problems: [`非公開になる回が ${removed.length} 件（上限 ${LIMITS.maxRemovals}）。台帳の異常の可能性があるので停止`] };
   const total = keep.length + add.length;
   if (total < old.size - LIMITS.maxDecrease) return { ok: false, problems: [`公開件数が ${old.size} → ${total} に減る。停止`] };
-  return { ok: true, keep, add, removed, protectedIds, linkAdded, castFixed, total, descUpdates, descProtected, descSame };
+  return { ok: true, keep, add, removed, protectedIds, linkAdded, castFixed, castFilled, total, descUpdates, descProtected, descSame };
 }
 // 掲載判定の更新: 前回の判定はそのまま、新しく公開する回だけ「対象」を足し、非公開にする回は「対象外」へ
 export function nextDecisions(snapshot, plan, v2Hash, nowIso) {
@@ -146,9 +147,9 @@ async function main() {
   if (!plan.ok) { console.error('停止: ' + plan.problems.slice(0, 10).join(' / ')); process.exit(1); }
   const v2Hash = createHash('sha256').update(text).digest('hex'), now = new Date().toISOString();
   const descProtectedCount = Object.fromEntries(Object.entries(plan.descProtected).map(([k, v]) => [k, v.length]));
-  const report = { v2Rows: v2.length, kept: plan.keep.length, added: plan.add.length, removed: plan.removed, protectedNotPublished: plan.protectedIds.length, linksAddedToExisting: plan.linkAdded.length, castDeduped: plan.castFixed.length, total: plan.total, newest: plan.add.map((e) => e.id).sort().slice(-5), descriptions: { updated: plan.descUpdates.length, unchanged: plan.descSame, protected: descProtectedCount } };
+  const report = { v2Rows: v2.length, kept: plan.keep.length, added: plan.add.length, removed: plan.removed, protectedNotPublished: plan.protectedIds.length, linksAddedToExisting: plan.linkAdded.length, castDeduped: plan.castFixed.length, castFilled: plan.castFilled.length, castFilled: plan.castFilled.length, total: plan.total, newest: plan.add.map((e) => e.id).sort().slice(-5), descriptions: { updated: plan.descUpdates.length, unchanged: plan.descSame, protected: descProtectedCount } };
   if (a.includes('--dry-run')) { console.log(JSON.stringify(report, null, 1)); return; }
-  if (!plan.add.length && !plan.removed.length && !plan.linkAdded.length && !plan.descUpdates.length && !plan.castFixed.length) { console.log(JSON.stringify({ ...report, note: '変化なし（書き込まない）' }, null, 1)); return; }
+  if (!plan.add.length && !plan.removed.length && !plan.linkAdded.length && !plan.descUpdates.length && !plan.castFixed.length && !plan.castFilled.length) { console.log(JSON.stringify({ ...report, note: '変化なし（書き込まない）' }, null, 1)); return; }
   const snap2 = nextDecisions(snapshot, plan, v2Hash, now), scope = buildPublicationScope(snap2);
   scope.version = createHash('sha256').update(JSON.stringify(snap2.decisions)).digest('hex');
   const manifest = JSON.parse(fs.readFileSync(path.join(dest, 'manifest.json'), 'utf8'));
