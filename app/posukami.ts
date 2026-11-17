@@ -19,7 +19,7 @@ export const POSUKAMI_DATA_URL = "posusume/posukami.json";
 // 蔵の個別ページ（/library/?ep=EP-xxxxx）をページからの相対パスにする
 export function posukamiHref(href: string): string { return /^\/library\/\?ep=EP-\d{5}$/.test(href) ? href.slice(1) : href; }
 export const POSUKAMI_RELATIONS: Array<[string, string]> = [
-  ["reply", "ポすすめを受けて、この番組が配信した振り返り回"],
+  ["reply", "ポすすめ返し（ポすすめを受けて、この番組が配信した回）"],
   ["donut_guest", "ドーナツに番組の配信者が出演した回"],
   ["kanda_guest", "この番組に神田さん等がゲスト出演した回"],
   ["other", "その他の交流"],

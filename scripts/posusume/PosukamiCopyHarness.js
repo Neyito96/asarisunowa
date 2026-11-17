@@ -64,7 +64,7 @@ function POSU_T1_COPY試験() {
   return posuLog_('POSU_T1_COPY試験', { status: pass ? 'PASS' : 'FAIL', checks: r, note: 'COPY だけ。V2・本番シートは読むだけ' });
 }
 
-// 7) 振り返り回の候補探し（読むだけ）。Apple の番組IDが分かる番組だけ、公式の iTunes Search API で新しい50回を1回ずつ読む。結果は COPY「ポす・振り返り候補」（承認キューには入れない）
+// 7) ポすすめ返しの候補探し（読むだけ）。Apple の番組IDが分かる番組だけ、公式の iTunes Search API で新しい50回を1回ずつ読む。結果は COPY「ポす・振り返り候補」（承認キューには入れない）
 function POSU_C6_振り返り候補_READ_ONLY() {
   posuGuardCopy_();
   var pods = posuPodcasts(), rows = [], sum = { podcasts: pods.length, noAppleId: 0, checked: 0, withCandidates: 0, strong: 0, weak: 0 };

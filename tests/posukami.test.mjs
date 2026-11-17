@@ -103,7 +103,7 @@ test('公開データ: 蔵にある回は蔵の個別ページ、無ければ公
   assert.equal(j.submitEnabled, false);
 });
 
-test('振り返り回: 投稿の種類 reply は「振り返り」欄に分けて載り、ポす神回とは混ざらない', () => {
+test('ポすすめ返し: 投稿の種類 reply は「ポすすめ返し」欄に分けて載り、ポす神回とは混ざらない', () => {
   assert.equal(P.posuValidate(sub({ relation: 'reply', url: 'https://podcasts.apple.com/jp/podcast/id1129707783?i=1000799999999' }), pods, {}, {}).ok, true);
   const r = qrow('R', P.POSU_STATE.APPROVE, 'apple:1000799999999|16'); r[6] = 'reply';
   const plan = P.posuApprovePlan([r], {}, pods, '2026-11-17T01:00:00Z');
@@ -111,7 +111,7 @@ test('振り返り回: 投稿の種類 reply は「振り返り」欄に分け�
   const j = P.posuBuildPublic(plan.add, pods, {}, {});
   assert.equal(j.cards[0].replies.length, 1); assert.equal(j.cards[0].specials.length, 0);
 });
-test('振り返り候補: 紹介日〜90日後・ポすすめ等への言及だけ。題名にあれば強い候補', () => {
+test('ポすすめ返しの候補: 紹介日〜90日後・ポすすめ等への言及だけ。題名にあれば強い候補', () => {
   const p = { introduced: '2026-10-20' };
   const c = P.posuReplyCandidates(p, [
     { title: '#401 ドーナツのポすすめで紹介されました！', description: '', published: '2026-10-27T00:00:00Z', url: 'https://a/1' },

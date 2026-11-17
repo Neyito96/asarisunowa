@@ -10,8 +10,8 @@
 var POSU_VERSION = 'POSU-1';
 var POSU_QUEUE_H = ['受付ID', '受付日時', '番組ID', '番組名', 'URL', '照合キー', '交流の種類', 'タイトル（投稿）', '配信日（投稿）', '補足', '検出タイトル', '検出配信日', 'ページ確認', '関係の手がかり', '状態', '判断メモ', '反映日時'];
 var POSU_PUBLIC_H = ['種別', '番組ID', '番組名', 'タイトル', '回の番組名', '配信日', 'URL', '交流の種類', 'EP-ID', '確認日', '根拠', '照合キー', '受付ID'];
-var POSU_RELATIONS = { reply: 'ポすすめを受けて番組が配信した振り返り回', donut_guest: 'ドーナツに番組の配信者が出演', kanda_guest: 'この番組に神田さん等が出演', other: 'その他の交流' };
-// カード上の欄: reply は「💬 ポすすめ振り返り（仮称）」、それ以外は「✨ ポす神回」
+var POSU_RELATIONS = { reply: 'ポすすめ返し（ポすすめを受けて番組が配信した回）', donut_guest: 'ドーナツに番組の配信者が出演', kanda_guest: 'この番組に神田さん等が出演', other: 'その他の交流' };
+// カード上の欄: reply は「💬 ポすすめ返し」、それ以外は「✨ ポす神回」
 var POSU_REPLY_RELATIONS = { reply: true };
 var POSU_STATE = { PENDING: '承認待ち', APPROVE: '承認', REJECT: '却下', DONE: '反映済み' };
 var POSU_LIMITS = { pendingPerPodcast: 5, pendingTotal: 60, title: 200, note: 500 };
@@ -102,7 +102,7 @@ function posuRelationHints(sub, meta, html, podcast) {
   return hints.length ? hints.join('・') : '手がかりなし（要確認）';
 }
 
-// ===== 2b) 振り返り回の候補探し（読むだけ・自動では載せない）=====
+// ===== 2b) ポすすめ返しの候補探し（読むだけ・自動では載せない）=====
 // eps: その番組の回（Apple の公開データ iTunes Search API lookup: trackName・description・releaseDate・trackViewUrl）
 // 候補 = 紹介日〜90日後に配信 ＋ 題名か説明に「ポすすめ／朝日新聞／朝ポキ／ドーナツ／神田」。題名にあれば強い候補。あくまで候補で、承認キューにも入れない
 function posuReplyCandidates(podcast, eps) {
