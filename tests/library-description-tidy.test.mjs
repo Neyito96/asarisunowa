@@ -3,7 +3,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { tidyDescription } from '../public/library/description-tidy.mjs';
-const ep = (id) => JSON.parse(fs.readFileSync(new URL(`../public/library/data/details/${Math.floor(Number(id.slice(3)) / 50)}.json`, import.meta.url), 'utf8')).find((e) => e.id === id);
+// EP-05468 の旧V1概要（#333 で V2 清掃済みに置き換わる前の本文）を固定の材料として使う
+const ep = (id) => ({ id, description: fs.readFileSync(new URL('./fixtures/' + id + '-description-v1.txt', import.meta.url), 'utf8') });
 
 test('EP-05468: 本編・収録日・紹介したポッドキャスト・関連記事3件は残し、イベント告知・スタッフ情報は外す', () => {
   const t = tidyDescription(ep('EP-05468').description);
