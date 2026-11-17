@@ -6,7 +6,7 @@
 //   META  … 番組が同じ・題名が同じ（全角半角と空白だけ揃える）・配信時刻±60秒・長さ±2秒
 //   GUID/AUDIO は「題名が同じ」か「配信時刻が36時間以内」のどちらかも満たすときだけ確定（音声だけ一致して中身が違う事故を防ぐ）。
 // 1対1でないもの（同じ配信先の回が複数のV2行に当たる・その逆）は全部保留。既にV2に別のURLがあれば上書きせず「既存URL競合」。
-export const PLATFORM_MATCH_VERSION = 'PM-2';
+export const PLATFORM_MATCH_VERSION = 'PM-3';
 
 export const nz = (s) => String(s ?? '').normalize('NFKC').replace(/\s+/g, '').trim();
 // 音声ファイルの同一性キー
@@ -62,7 +62,7 @@ export function matchPlatform(v2, eps, opts) {
     Object.assign(out, { id: e.id, url, method: p.method, titleSame, hoursApart: isFinite(dt) ? Math.round(dt / 360000) / 10 : '', durationDiff: (+r.duration || 0) && e.duration ? Math.abs(+r.duration - e.duration) : '' });
     if (p.method !== 'META' && !titleSame && !(dt <= 36 * 3600000)) return Object.assign(out, { verdict: '保留: 音声は一致・題名と日時が離れている', action: 'HOLD' });
     if (!valid(url) || idOfUrl(url) !== e.id) return Object.assign(out, { verdict: '保留: URLの形が不正', action: 'HOLD' });
-    if (r.current && r.current === url) return Object.assign(out, { verdict: '一致（既存URLと同じ）', action: 'NONE' });
+    if (r.current && (r.current === url || (curId && curId === e.id))) return Object.assign(out, { verdict: '一致（既存URLと同じ）', action: 'NONE' });   // 同じ回の番号なら、URLの飾り（Apple の題名部分など）が違っても同じ
     if (r.current) return Object.assign(out, { verdict: '既存URL競合（上書きしない）', action: 'HOLD' });
     return Object.assign(out, { verdict: '確定（空欄に書ける）', action: 'WRITE' });
   });
@@ -163,4 +163,39 @@ export function serviceTally(rows) {
   const t = {};
   rows.forEach((r) => Object.keys(SERVICE_SHAPES).forEach((sv) => { const k = cellShape(sv, r.values[sv]); const a = (t[sv] = t[sv] || { total: 0, EPISODE: 0, SHOW_ONLY: 0, EMPTY: 0, OTHER: 0, byShow: {} }); a.total++; a[k]++; const b = (a.byShow[r.show] = a.byShow[r.show] || { total: 0, EPISODE: 0, SHOW_ONLY: 0, EMPTY: 0, OTHER: 0 }); b.total++; b[k]++; }));
   return t;
+}
+
+// ===== 新着の7サービス照合（PM-3）=====
+// Apple: 公式の iTunes Search API（lookup・認証不要）。回ごとに episodeGuid（＝公式GUID）と trackViewUrl（回のURL）が返る
+export const APPLE_EPISODE_URL = /^https:\/\/podcasts\.apple\.com\/[a-z]{2}\/podcast\/[^?\s]*\/?id\d+\?(?:[^#\s]*&)?i=(\d+)/;
+export const appleIdOf = (url) => { const m = String(url ?? '').trim().match(APPLE_EPISODE_URL); return m ? m[1] : ''; };
+export function appleEpisodesFromLookup(json) {
+  return ((json && json.results) || []).filter((x) => x.wrapperType === 'podcastEpisode' && x.trackId && x.trackViewUrl)
+    .map((x) => ({ id: String(x.trackId), title: String(x.trackName || ''), published: String(x.releaseDate || ''), duration: Math.round((Number(x.trackTimeMillis) || 0) / 1000), guid: String(x.episodeGuid || '').toLowerCase(), audio: String(x.episodeUrl || ''), url: String(x.trackViewUrl) }));
+}
+export const appleShowIdOf = (url) => { const m = String(url ?? '').match(/\/id(\d+)/); return m ? m[1] : ''; };
+// LISTEN: 番組ページに載っている公開RSS（rss.listen.style/p/<番組>/rss）。各回の <link> が回のURL、<guid> が元の公式GUID
+export const LISTEN_EPISODE_URL = /^https:\/\/listen\.style\/p\/([A-Za-z0-9_-]+)\/([A-Za-z0-9_-]+)$/;
+export const listenIdOf = (url) => { const m = String(url ?? '').trim().match(LISTEN_EPISODE_URL); return m ? m[2] : ''; };
+export const listenShowIdOf = (url) => { const m = String(url ?? '').trim().match(LISTEN_EPISODE_URL); return m ? m[1] : ''; };
+export function listenRssUrlFromHtml(html, showId) {
+  const re = new RegExp('https://rss\\.listen\\.style/p/' + String(showId).replace(/[^A-Za-z0-9_-]/g, '') + '/rss'), m = String(html ?? '').match(re);
+  return m ? m[0] : '';
+}
+const unxml = (s) => String(s ?? '').replace(/^<!\[CDATA\[([\s\S]*)\]\]>$/, '$1').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").trim();
+export const durationSec = (s) => { const t = String(s ?? '').trim(); if (/^\d+$/.test(t)) return +t; const p = t.split(':').map(Number); if (p.some(isNaN)) return 0; return p.reduce((a, b) => a * 60 + b, 0); };
+// RSS の <item> を共通の形へ。maxItems で新しい方から数を絞れる（新着だけ見るとき）
+export function rssEpisodes(xml, maxItems) {
+  const parts = String(xml ?? '').split(/<item[\s>]/).slice(1, maxItems ? maxItems + 1 : undefined);
+  return parts.map((it) => {
+    const tag = (n) => { const m = it.match(new RegExp('<' + n + '(?:\\s[^>]*)?>([\\s\\S]*?)</' + n + '>')); return m ? unxml(m[1]) : ''; };
+    const enc = (it.match(/<enclosure[^>]*\surl="([^"]+)"/) || [])[1] || '';
+    const link = tag('link'), id = listenIdOf(link);
+    return { id, title: tag('title'), published: tag('pubDate'), duration: durationSec(tag('itunes:duration')), guid: tag('guid').toLowerCase(), audio: unxml(enc), url: link };
+  }).filter((e) => e.id);
+}
+// 新着の対象: 配信日時が now から days 日以内の行
+export function recentRows(rows, nowMs, days) {
+  const lim = nowMs - days * 86400000;
+  return rows.filter((r) => { const t = toMs(r.published); return isFinite(t) && t >= lim && t <= nowMs + 86400000; });
 }

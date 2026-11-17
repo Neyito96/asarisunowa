@@ -65,3 +65,26 @@ test('照合: 配信先が公式GUIDを持つ（Pody）なら GUID 経路で結�
   const m = matchPlatform(v2, [{ id: 'b'.repeat(20), title: 'あ', published: '2026-09-30T19:00:00Z', duration: 100, audio: 'https://x/y.mp3', guid: 'G-1', url }], { urlOf: (e) => e.url, isValidUrl: (u) => PODY_EPISODE_URL.test(u), idOfUrl: podyIdOf });
   assert.equal(m.rows[0].method, 'GUID'); assert.equal(m.rows[0].action, 'WRITE');
 });
+test('PM-3 Apple: lookup の回を形にする・回番号を取り出す・飾り違いでも同じ回なら一致', async () => {
+  const { appleEpisodesFromLookup, appleIdOf, matchPlatform, APPLE_EPISODE_URL } = await import('../scripts/ledger-v2/platform-match.mjs');
+  const eps = appleEpisodesFromLookup({ results: [{ wrapperType: 'track', trackId: 1 }, { wrapperType: 'podcastEpisode', trackId: 1000794517780, trackName: 'あ', releaseDate: '2026-10-09T19:00:00Z', trackTimeMillis: 3797000, episodeGuid: 'G-1', trackViewUrl: 'https://podcasts.apple.com/jp/podcast/a/id1526773927?i=1000794517780&uo=4' }] });
+  assert.equal(eps.length, 1); assert.equal(eps[0].guid, 'g-1'); assert.equal(eps[0].duration, 3797);
+  assert.equal(appleIdOf(eps[0].url), '1000794517780');
+  const v2 = [{ ep: 'EP-1', show: 'S', title: 'あ', published: '2026/10/10 04:00', guid: 'g-1', audio: '', duration: 3797, current: 'https://podcasts.apple.com/jp/podcast/other-slug/id1526773927?i=1000794517780&uo=4' }];
+  const m = matchPlatform(v2, eps, { urlOf: (e) => e.url, isValidUrl: (u) => APPLE_EPISODE_URL.test(u), idOfUrl: appleIdOf });
+  assert.equal(m.rows[0].verdict, '一致（既存URLと同じ）');
+});
+test('PM-3 LISTEN: 番組ページから公開RSSを読み、RSSの回（link・guid）を形にする', async () => {
+  const { listenRssUrlFromHtml, rssEpisodes, listenIdOf, durationSec } = await import('../scripts/ledger-v2/platform-match.mjs');
+  assert.equal(listenRssUrlFromHtml('<a href="https://rss.listen.style/p/tvzppbdm/rss">', 'tvzppbdm'), 'https://rss.listen.style/p/tvzppbdm/rss');
+  assert.equal(listenRssUrlFromHtml('<a href="https://rss.listen.style/p/other/rss">', 'tvzppbdm'), '');
+  const xml = '<rss><channel><item><title><![CDATA[回&amp;1]]></title><link>https://listen.style/p/tvzppbdm/o5htcjwm</link><guid isPermaLink="false">96338404-1D8B</guid><pubDate>Thu, 06 Aug 2020 02:06:00 +0000</pubDate><itunes:duration>01:02:03</itunes:duration><enclosure url="https://x/a.mp3" /></item><item><title>2</title><link>https://example.com/x</link></item></channel></rss>';
+  const e = rssEpisodes(xml); assert.equal(e.length, 1); assert.equal(e[0].title, '回&1'); assert.equal(e[0].guid, '96338404-1d8b'); assert.equal(e[0].duration, 3723); assert.equal(listenIdOf(e[0].url), 'o5htcjwm');
+  assert.equal(durationSec('125'), 125); assert.equal(rssEpisodes(xml, 0).length, 1);
+});
+test('PM-3 新着の対象: 配信日時が指定日数以内', async () => {
+  const { recentRows } = await import('../scripts/ledger-v2/platform-match.mjs');
+  const now = Date.UTC(2026, 10, 17, 0, 0);
+  const r = recentRows([{ published: '2026/11/16 04:00' }, { published: '2026/10/01 04:00' }, { published: '' }], now, 14);
+  assert.equal(r.length, 1);
+});

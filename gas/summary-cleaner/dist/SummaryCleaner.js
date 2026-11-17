@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-v2-verify.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/net-count.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs, scripts/ledger-v2/raw-source.mjs, scripts/ledger-v2/platform-match.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = '2405bd36749336ee1bdeec7e9157478280e9c48b50475fc2b26ad8d018694192';
+var CLEANER_BUILD_SOURCE_SHA256 = 'ae44a859ca09c1f72ca7be0cb6521d2d3b0fb30581ec678f5d4e93d6faee15f3';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -1743,7 +1743,7 @@ var PlatformMatch = (function () {
 //   META  … 番組が同じ・題名が同じ（全角半角と空白だけ揃える）・配信時刻±60秒・長さ±2秒
 //   GUID/AUDIO は「題名が同じ」か「配信時刻が36時間以内」のどちらかも満たすときだけ確定（音声だけ一致して中身が違う事故を防ぐ）。
 // 1対1でないもの（同じ配信先の回が複数のV2行に当たる・その逆）は全部保留。既にV2に別のURLがあれば上書きせず「既存URL競合」。
-const PLATFORM_MATCH_VERSION = 'PM-2';
+const PLATFORM_MATCH_VERSION = 'PM-3';
 
 const nz = (s) => String(s ?? '').normalize('NFKC').replace(/\s+/g, '').trim();
 // 音声ファイルの同一性キー
@@ -1799,7 +1799,7 @@ function matchPlatform(v2, eps, opts) {
     Object.assign(out, { id: e.id, url, method: p.method, titleSame, hoursApart: isFinite(dt) ? Math.round(dt / 360000) / 10 : '', durationDiff: (+r.duration || 0) && e.duration ? Math.abs(+r.duration - e.duration) : '' });
     if (p.method !== 'META' && !titleSame && !(dt <= 36 * 3600000)) return Object.assign(out, { verdict: '保留: 音声は一致・題名と日時が離れている', action: 'HOLD' });
     if (!valid(url) || idOfUrl(url) !== e.id) return Object.assign(out, { verdict: '保留: URLの形が不正', action: 'HOLD' });
-    if (r.current && r.current === url) return Object.assign(out, { verdict: '一致（既存URLと同じ）', action: 'NONE' });
+    if (r.current && (r.current === url || (curId && curId === e.id))) return Object.assign(out, { verdict: '一致（既存URLと同じ）', action: 'NONE' });   // 同じ回の番号なら、URLの飾り（Apple の題名部分など）が違っても同じ
     if (r.current) return Object.assign(out, { verdict: '既存URL競合（上書きしない）', action: 'HOLD' });
     return Object.assign(out, { verdict: '確定（空欄に書ける）', action: 'WRITE' });
   });
@@ -1902,7 +1902,42 @@ function serviceTally(rows) {
   return t;
 }
 
-return { PLATFORM_MATCH_VERSION, nz, audioKey, omnyClipId, PC_EPISODE_URL, pcEpisodeUrl, pcUuidOf, pcEpisodesFromJson, matchPlatform, podyEpisodesFromHtml, PODY_EPISODE_URL, podyIdOf, AMAZON_EPISODE_URL, amazonCanonical, amazonIdsOf, amazonDurationRange, amazonDayMs, amazonEvidenceMatch, SERVICE_SHAPES, cellShape, serviceTally };
+// ===== 新着の7サービス照合（PM-3）=====
+// Apple: 公式の iTunes Search API（lookup・認証不要）。回ごとに episodeGuid（＝公式GUID）と trackViewUrl（回のURL）が返る
+const APPLE_EPISODE_URL = /^https:\/\/podcasts\.apple\.com\/[a-z]{2}\/podcast\/[^?\s]*\/?id\d+\?(?:[^#\s]*&)?i=(\d+)/;
+const appleIdOf = (url) => { const m = String(url ?? '').trim().match(APPLE_EPISODE_URL); return m ? m[1] : ''; };
+function appleEpisodesFromLookup(json) {
+  return ((json && json.results) || []).filter((x) => x.wrapperType === 'podcastEpisode' && x.trackId && x.trackViewUrl)
+    .map((x) => ({ id: String(x.trackId), title: String(x.trackName || ''), published: String(x.releaseDate || ''), duration: Math.round((Number(x.trackTimeMillis) || 0) / 1000), guid: String(x.episodeGuid || '').toLowerCase(), audio: String(x.episodeUrl || ''), url: String(x.trackViewUrl) }));
+}
+const appleShowIdOf = (url) => { const m = String(url ?? '').match(/\/id(\d+)/); return m ? m[1] : ''; };
+// LISTEN: 番組ページに載っている公開RSS（rss.listen.style/p/<番組>/rss）。各回の <link> が回のURL、<guid> が元の公式GUID
+const LISTEN_EPISODE_URL = /^https:\/\/listen\.style\/p\/([A-Za-z0-9_-]+)\/([A-Za-z0-9_-]+)$/;
+const listenIdOf = (url) => { const m = String(url ?? '').trim().match(LISTEN_EPISODE_URL); return m ? m[2] : ''; };
+const listenShowIdOf = (url) => { const m = String(url ?? '').trim().match(LISTEN_EPISODE_URL); return m ? m[1] : ''; };
+function listenRssUrlFromHtml(html, showId) {
+  const re = new RegExp('https://rss\\.listen\\.style/p/' + String(showId).replace(/[^A-Za-z0-9_-]/g, '') + '/rss'), m = String(html ?? '').match(re);
+  return m ? m[0] : '';
+}
+const unxml = (s) => String(s ?? '').replace(/^<!\[CDATA\[([\s\S]*)\]\]>$/, '$1').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").trim();
+const durationSec = (s) => { const t = String(s ?? '').trim(); if (/^\d+$/.test(t)) return +t; const p = t.split(':').map(Number); if (p.some(isNaN)) return 0; return p.reduce((a, b) => a * 60 + b, 0); };
+// RSS の <item> を共通の形へ。maxItems で新しい方から数を絞れる（新着だけ見るとき）
+function rssEpisodes(xml, maxItems) {
+  const parts = String(xml ?? '').split(/<item[\s>]/).slice(1, maxItems ? maxItems + 1 : undefined);
+  return parts.map((it) => {
+    const tag = (n) => { const m = it.match(new RegExp('<' + n + '(?:\\s[^>]*)?>([\\s\\S]*?)</' + n + '>')); return m ? unxml(m[1]) : ''; };
+    const enc = (it.match(/<enclosure[^>]*\surl="([^"]+)"/) || [])[1] || '';
+    const link = tag('link'), id = listenIdOf(link);
+    return { id, title: tag('title'), published: tag('pubDate'), duration: durationSec(tag('itunes:duration')), guid: tag('guid').toLowerCase(), audio: unxml(enc), url: link };
+  }).filter((e) => e.id);
+}
+// 新着の対象: 配信日時が now から days 日以内の行
+function recentRows(rows, nowMs, days) {
+  const lim = nowMs - days * 86400000;
+  return rows.filter((r) => { const t = toMs(r.published); return isFinite(t) && t >= lim && t <= nowMs + 86400000; });
+}
+
+return { PLATFORM_MATCH_VERSION, nz, audioKey, omnyClipId, PC_EPISODE_URL, pcEpisodeUrl, pcUuidOf, pcEpisodesFromJson, matchPlatform, podyEpisodesFromHtml, PODY_EPISODE_URL, podyIdOf, AMAZON_EPISODE_URL, amazonCanonical, amazonIdsOf, amazonDurationRange, amazonDayMs, amazonEvidenceMatch, SERVICE_SHAPES, cellShape, serviceTally, APPLE_EPISODE_URL, appleIdOf, appleEpisodesFromLookup, appleShowIdOf, LISTEN_EPISODE_URL, listenIdOf, listenShowIdOf, listenRssUrlFromHtml, durationSec, rssEpisodes, recentRows };
 })();
 
 // ===== 概要欄清掃ロボ（Issue #308）— 入口 =====
@@ -4127,4 +4162,126 @@ function P27_ST_1_7サービス集計_READ_ONLY() {
   laWriteSheet_(c.ss, 'P27・要人手', ['サービス', 'EP-ID', '番組', '内容'], human);
   var log = {}; out.forEach(function (r) { log[r[0]] = { 経路: r[1], 個別URL: r[3] + '/' + r[2] + '（' + r[4] + '）', 番組トップのみ: r[5], 空欄: r[6], 形が不明: r[7], 新規確定: r[8], 候補: r[9], 保留: r[10], 取得不能: r[11] }; });
   return scLog_('P27_ST_1_7サービス集計_READ_ONLY', { status: 'OK', services: log, humanNeeded: human.length, sheets: 'COPY「P27・7サービス集計」「P27・7サービス番組別」「P27・要人手」' });
+}
+
+// ===== P27 新着1件を7サービスへ自動照合・補完（2026-11-17 司令塔「新着1件を7サービスへ自動照合・補完する仕組みを完成させよ」）=====
+// 対象: 配信日時が P27_NEW_DAYS_ 日以内の V2 行（スクリプトのプロパティ P27_NEW_DAYS で変更可）。1回の実行で各サービス・各番組を1〜2回だけ取得する。
+// 状態: VERIFIED（同じ回と確認）／CANDIDATE（候補だが未確定）／SHOW_ONLY（番組トップのみ）／HOLD（競合・照合不足・確認待ち）／UNAVAILABLE（取得経路なし）
+// サービスごとの経路（推測でURLを作らない。番組IDは台帳の既存URLかサイト掲載のものだけ。番組の取り違えは一致率5割未満で止める）:
+//   Pocket Casts … 公開データ podcast/full（公式GUID・音声URL）／Pody … 番組ページ1ページ目の埋め込み guid／Apple … iTunes Search API lookup の episodeGuid
+//   LISTEN … 番組ページに載る公開RSS の guid／Amazon … Chrome で見た画面の証拠（COPY「P27・Amazon証拠」）を照合、無ければ「証拠待ち」一覧へ
+//   Spotify … P26（本番ロボ）の経路。P27 では重複実装しない（記入済みかだけ見る）／YouTube … API 未承認のため UNAVAILABLE
+var P27_NEW_DAYS_ = 14, P27_NEW_SHEET_ = 'P27・新着照合', P27_AM_QUEUE_ = 'P27・Amazon証拠待ち';
+var P27_NEW_COLS_ = ['Spotify', 'Apple', 'Amazon', 'Pocket Casts', 'LISTEN', 'Pody', 'YouTube'];
+var P27_NEW_RE_ = function (col) { return { Apple: PlatformMatch.APPLE_EPISODE_URL, Amazon: PlatformMatch.AMAZON_EPISODE_URL, 'Pocket Casts': PlatformMatch.PC_EPISODE_URL, LISTEN: PlatformMatch.LISTEN_EPISODE_URL, Pody: PlatformMatch.PODY_EPISODE_URL }[col]; };
+function p27LedgerAll_(ss) {
+  var sh = ss.getSheetByName('V2・統合台帳'), v = sh.getDataRange().getDisplayValues(), h = v[0], ix = {};
+  ['EP-ID', '番組', 'タイトル', '配信日時 JST', '公式GUID', '音声URL', '再生時間 秒'].concat(P27_NEW_COLS_).forEach(function (n) { ix[n] = h.indexOf(n); if (ix[n] < 0) throw new Error('P27_HEADER_MISSING:' + n); });
+  return v.slice(1).filter(function (r) { return String(r[ix['EP-ID']]).trim(); }).map(function (r) { var o = { ep: r[ix['EP-ID']].trim(), show: r[ix['番組']], title: r[ix['タイトル']], published: r[ix['配信日時 JST']], guid: String(r[ix['公式GUID']]).trim().toLowerCase(), audio: r[ix['音声URL']], duration: Number(r[ix['再生時間 秒']]) || 0, cur: {} }; P27_NEW_COLS_.forEach(function (c) { o.cur[c] = String(r[ix[c]] || '').trim(); }); return o; });
+}
+function p27MostCommon_(rows, col, fn) { var n = {}; rows.forEach(function (r) { var k = fn(r.cur[col]); if (k) n[k] = (n[k] || 0) + 1; }); var ks = Object.keys(n).sort(function (a, b) { return n[b] - n[a]; }); return ks[0] || ''; }
+// サービス × 番組 → 配信先の回の一覧（取得は1回の実行で1度だけ）
+function p27NewFetch_(col, show, showRows, cache, robotsOk) {
+  var key = col + '|' + show; if (cache[key]) return cache[key];
+  var out = { eps: [], source: '', error: '' };
+  try {
+    if (col === 'Pocket Casts') { var id = P27_PC_SHOWS_[show]; if (!id) out.error = 'NO_SHOW_ID'; else { var f = p27PcFetch_(id); out.eps = f.eps; out.error = f.error || ''; out.source = 'Pocket Casts 公開データ'; } }
+    else if (col === 'Pody') { var sid = P27_PODY_SHOWS_[show]; if (!sid) out.error = 'NO_SHOW_ID'; else if (!robotsOk) out.error = 'ROBOTS'; else { var g = p27Get_('https://pody.jp/player/' + sid); if (g.code !== 200) out.error = 'HTTP ' + g.code; else { out.eps = PlatformMatch.podyEpisodesFromHtml(g.body, sid); out.source = 'Pody 番組ページ1ページ目'; } } }
+    else if (col === 'Apple') { var aid = p27MostCommon_(showRows, 'Apple', PlatformMatch.appleShowIdOf); if (!aid) out.error = 'NO_SHOW_ID'; else { var a = p27Get_('https://itunes.apple.com/lookup?id=' + aid + '&entity=podcastEpisode&limit=200&country=jp'); if (a.code !== 200) out.error = 'HTTP ' + a.code; else { out.eps = PlatformMatch.appleEpisodesFromLookup(JSON.parse(a.body)); out.source = 'iTunes Search API lookup id' + aid; } } }
+    else if (col === 'LISTEN') { var lid = p27MostCommon_(showRows, 'LISTEN', PlatformMatch.listenShowIdOf); if (!lid) out.error = 'NO_SHOW_ID'; else { var pg = p27Get_('https://listen.style/p/' + lid), rss = pg.code === 200 ? PlatformMatch.listenRssUrlFromHtml(pg.body, lid) : ''; if (!rss) out.error = pg.code === 200 ? 'NO_RSS_LINK' : 'HTTP ' + pg.code; else { var x = p27Get_(rss); if (x.code !== 200) out.error = 'RSS HTTP ' + x.code; else { out.eps = PlatformMatch.rssEpisodes(x.body, 400); out.source = 'LISTEN 公開RSS（新しい400回）'; } } } }
+  } catch (e) { out.error = String(e).slice(0, 100); }
+  Utilities.sleep(500); cache[key] = out; return out;
+}
+function p27NewPlan_(vss, css) {
+  var all = p27LedgerAll_(vss), P = PropertiesService.getScriptProperties(), days = Number(P.getProperty('P27_NEW_DAYS')) || P27_NEW_DAYS_;
+  var targets = PlatformMatch.recentRows(all, Date.now(), days), byShow = {}, cache = {}, out = [], shows = {}, queue = [];
+  all.forEach(function (r) { (byShow[r.show] = byShow[r.show] || []).push(r); });
+  var robots = p27Get_('https://pody.jp/robots.txt'), robotsOk = !(robots.code === 200 && (/Disallow:\s*\/player/i.test(robots.body) || /Disallow:\s*\/\s*$/m.test(robots.body)));
+  // Amazon の証拠（あれば）
+  var am = p27AmPlan_({ rows: all.map(function (r) { return { ep: r.ep, show: r.show, title: r.title, published: r.published, duration: r.duration, current: r.cur.Amazon, guid: r.guid }; }) }, css), amBy = {};
+  (am.out || []).forEach(function (a) { if (a.x.ep) amBy[a.x.ep] = a; });
+  var tShows = {}; targets.forEach(function (r) { tShows[r.show] = 1; });
+  var res = {}; // res[col][show] = { rowsByEp, status }
+  ['Pocket Casts', 'Pody', 'Apple', 'LISTEN'].forEach(function (col) {
+    res[col] = {};
+    Object.keys(tShows).forEach(function (show) {
+      var rows = byShow[show], f = p27NewFetch_(col, show, rows, cache, robotsOk), st = { source: f.source, error: f.error, eps: f.eps.length };
+      if (f.error) { st.status = f.error === 'NO_SHOW_ID' ? 'NO_SHOW_ID' : 'FETCH_ERROR'; res[col][show] = { st: st, by: {} }; shows[col + '｜' + show] = st; return; }
+      var v2 = rows.map(function (r) { return { ep: r.ep, show: r.show, title: r.title, published: r.published, guid: r.guid, audio: r.audio, duration: r.duration, current: r.cur[col] }; });
+      var idOf = { 'Pocket Casts': PlatformMatch.pcUuidOf, Pody: PlatformMatch.podyIdOf, Apple: PlatformMatch.appleIdOf, LISTEN: PlatformMatch.listenIdOf }[col], re = P27_NEW_RE_(col);
+      var m = PlatformMatch.matchPlatform(v2, f.eps, { urlOf: function (e) { return col === 'Pocket Casts' ? PlatformMatch.pcEpisodeUrl(e.id) : e.url; }, isValidUrl: function (u) { return re.test(u); }, idOfUrl: idOf });
+      var linked = f.eps.length - m.summary.platformUnmatched, ratio = f.eps.length ? linked / f.eps.length : 0;
+      st.linkedRatio = Math.round(ratio * 1000) / 10 + '%'; st.status = ratio >= 0.5 ? 'OK' : 'STOP_SHOW_MISMATCH';
+      var by = {}; m.rows.forEach(function (x) { by[x.ep] = x; }); res[col][show] = { st: st, by: by }; shows[col + '｜' + show] = st;
+    });
+  });
+  targets.forEach(function (r) {
+    P27_NEW_COLS_.forEach(function (col) {
+      var cur = r.cur[col], row = { ep: r.ep, show: r.show, title: r.title, published: r.published, col: col, state: '', action: 'NONE', url: '', reason: '', current: cur };
+      if (col === 'YouTube') { row.state = 'UNAVAILABLE'; row.reason = 'YouTube Data API の有効化が未承認'; }
+      else if (col === 'Spotify') { var sh = PlatformMatch.cellShape('Spotify', cur); row.state = sh === 'EPISODE' ? 'VERIFIED' : sh === 'SHOW_ONLY' ? 'SHOW_ONLY' : 'HOLD'; row.reason = sh === 'EPISODE' ? 'P26（本番ロボ）が個別URLを記入済み' : 'P26（本番ロボ）の照合待ち（P27 では重複実装しない）'; }
+      else if (col === 'Amazon') {
+        var a = amBy[r.ep];
+        if (a && a.x.status === 'VERIFIED') { row.state = 'VERIFIED'; row.action = 'WRITE'; row.url = a.x.url; row.reason = a.x.reason; }
+        else if (a && a.x.status === 'VERIFIED_SAME') { row.state = 'VERIFIED'; row.url = a.x.url; row.reason = '既存URLと同じ'; }
+        else if (a) { row.state = a.x.status === 'CANDIDATE' ? 'CANDIDATE' : a.x.status === 'UNAVAILABLE' ? 'HOLD' : 'HOLD'; row.url = a.x.url; row.reason = a.x.reason; }
+        else if (cur) { row.state = PlatformMatch.cellShape('Amazon', cur) === 'EPISODE' ? 'VERIFIED' : 'SHOW_ONLY'; row.reason = '既存の値'; }
+        else { row.state = 'HOLD'; row.reason = '画面の証拠待ち（Chrome で確認 → COPY「P27・Amazon証拠」）'; queue.push([r.ep, r.show, r.title, r.published, r.title, P27_AM_SHOWS_[r.show] || '（番組ID未確認）', '証拠待ち']); }
+      } else {
+        var rr = res[col][r.show], x = rr && rr.by[r.ep];
+        if (!rr || rr.st.status === 'NO_SHOW_ID') { row.state = cur ? (PlatformMatch.cellShape(col, cur) === 'EPISODE' ? 'VERIFIED' : 'SHOW_ONLY') : 'UNAVAILABLE'; row.reason = cur ? '既存の値（番組IDが未確認のため照合なし）' : 'この番組の配信先IDが未確認'; }
+        else if (rr.st.status !== 'OK') { row.state = 'HOLD'; row.reason = rr.st.status + (rr.st.error ? ' ' + rr.st.error : ''); }
+        else if (!x) { row.state = 'HOLD'; row.reason = '照合結果なし'; }
+        else if (x.action === 'WRITE') { row.state = 'VERIFIED'; row.action = 'WRITE'; row.url = x.url; row.reason = x.method + '（' + rr.st.source + '）'; }
+        else if (/^一致/.test(x.verdict)) { row.state = 'VERIFIED'; row.url = x.url; row.reason = '既存URLと同じ回（' + x.method + '）'; }
+        else if (/^不一致/.test(x.verdict)) { row.state = 'HOLD'; row.reason = '配信先にまだ見つからない（次回に再照合）'; }
+        else { row.state = 'HOLD'; row.url = x.url || ''; row.reason = x.verdict; }
+      }
+      out.push(row);
+    });
+  });
+  return { targets: targets, days: days, out: out, shows: shows, queue: queue, robotsOk: robotsOk };
+}
+function P27_NEW_1_新着照合_READ_ONLY() {
+  var t0 = Date.now(), v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), p = p27NewPlan_(v.ss, c.ss);
+  laWriteSheet_(c.ss, P27_NEW_SHEET_, ['EP-ID', '番組', '題名', '配信日時', 'サービス', '状態', '処理', 'URL', '根拠・理由', '既存URL'], p.out.map(function (o) { return [o.ep, o.show, o.title, o.published, o.col, o.state, o.action, o.url, o.reason, o.current]; }));
+  laWriteSheet_(c.ss, P27_AM_QUEUE_, ['EP-ID', '番組', '題名', '配信日時', '検索語', 'Amazon番組ID', '状態'], p.queue);
+  var bySvc = {}; p.out.forEach(function (o) { var b = (bySvc[o.col] = bySvc[o.col] || { VERIFIED: 0, CANDIDATE: 0, SHOW_ONLY: 0, HOLD: 0, UNAVAILABLE: 0, write: 0 }); b[o.state]++; if (o.action === 'WRITE') b.write++; });
+  return scLog_('P27_NEW_1_新着照合_READ_ONLY', { status: 'OK', days: p.days, targets: p.targets.length, targetEps: p.targets.map(function (r) { return r.ep; }).slice(0, 40), byService: bySvc, writable: p.out.filter(function (o) { return o.action === 'WRITE'; }).length, amazonQueue: p.queue.length, shows: p.shows, podyRobots: p.robotsOk ? 'OK' : 'STOP', sheets: 'COPY「' + P27_NEW_SHEET_ + '」「' + P27_AM_QUEUE_ + '」', ms: Date.now() - t0 });
+}
+// COPY試験: 新着の WRITE をサービス（列）ごとに、合計10件まで COPY の写しへ → 読み戻し・再実行0件・取消で復元
+function P27_NEW_2_COPY試験() {
+  var v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), p = p27NewPlan_(v.ss, c.ss), guid = {}; p.targets.forEach(function (r) { guid[r.ep] = r.guid; });
+  var left = P27_COPY_MAX_, results = {}, ok = true, any = false;
+  ['Pocket Casts', 'Pody', 'Apple', 'LISTEN', 'Amazon'].forEach(function (col) {
+    if (left <= 0) return;
+    var plan = p.out.filter(function (o) { return o.col === col && o.action === 'WRITE'; }).map(function (o) { return { ep: o.ep, url: o.url, guid: guid[o.ep], basis: '新着照合: ' + o.reason }; });
+    if (!plan.length) { results[col] = 'NO_CANDIDATE'; return; }
+    var cap = Math.max(1, Math.min(left, Math.ceil(P27_COPY_MAX_ / 4)));
+    var r = p27CopyTest_('P27_NEW_2_COPY試験（' + col + '）', col, P27_NEW_RE_(col), plan.slice(0, cap));
+    results[col] = { status: r.status, eps: r.eps, readback: r.readbackAsPlanned, rerun: r.rerun && r.rerun.status, restored: r.restored };
+    if (r.status === 'PASS') { any = true; left -= (r.eps || []).length; } else if (r.status !== 'STOP_NO_CANDIDATE') ok = false;
+  });
+  return scLog_('P27_NEW_2_COPY試験', { status: ok && any ? 'PASS' : any ? 'FAIL' : 'STOP_NO_CANDIDATE', byService: results, note: 'COPYの台帳コピーだけ。V2は読むだけ' });
+}
+function P27_NEW_0_承認_新着V2反映() { PropertiesService.getScriptProperties().setProperty('APPROVE_P27_NEW_V2', sumToday_()); return scLog_('P27_NEW_0_承認_新着V2反映', { status: P27_V2_WRITE_ENABLED_ ? 'APPROVED' : 'APPROVED_BUT_DISABLED（V2書込はコードで無効）', validOn: sumToday_() }); }
+// V2反映（承認後）: 新着の WRITE をサービスごとに空欄だけへ。書いた列ごとの反映IDを束で記録し、P27_NEW_7 で全部戻せる
+function P27_NEW_5_V2反映_承認後() {
+  if (!P27_V2_WRITE_ENABLED_) return scLog_('P27_NEW_5_V2反映_承認後', { status: 'DISABLED', note: 'V2書込は未承認のためコードで無効（P27_V2_WRITE_ENABLED_ = false）' });
+  var P = PropertiesService.getScriptProperties(); if (P.getProperty('APPROVE_P27_NEW_V2') !== sumToday_()) return scLog_('P27_NEW_5_V2反映_承認後', { status: 'NOT_APPROVED_TODAY' });
+  var v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), p = p27NewPlan_(v.ss, c.ss), group = [], res = {};
+  ['Pocket Casts', 'Pody', 'Apple', 'LISTEN', 'Amazon'].forEach(function (col) {
+    var plan = p.out.filter(function (o) { return o.col === col && o.action === 'WRITE'; }).map(function (o) { return { ep: o.ep, url: o.url, basis: '新着照合: ' + o.reason }; });
+    if (!plan.length) return; var r = p27Write_('V2', v.ss, plan, P27_V2_MAX_PER_RUN_, col, P27_NEW_RE_(col)); res[col] = r;
+    if (r.applyId) group.push({ id: r.applyId, target: 'V2', col: col });
+  });
+  var st = p27State_(); st.lastGroup = group; p27SetState_(st); P.deleteProperty('APPROVE_P27_NEW_V2');
+  return scLog_('P27_NEW_5_V2反映_承認後', { status: 'OK', byService: res });
+}
+function P27_NEW_7_直前の新着反映を戻す() {
+  var st = p27State_(), g = st.lastGroup || []; if (!g.length) return scLog_('P27_NEW_7_直前の新着反映を戻す', { status: 'NOTHING_TO_UNDO' });
+  var ss = scOpen_(SC_CONFIG.v2WorkingId, '').ss, out = [];
+  g.slice().reverse().forEach(function (x) { var s = p27State_(); s.last = x; p27SetState_(s); out.push(p27Undo_(ss)); });
+  var s2 = p27State_(); delete s2.lastGroup; p27SetState_(s2);
+  return scLog_('P27_NEW_7_直前の新着反映を戻す', { status: out.every(function (o) { return o.status === 'OK'; }) ? 'OK' : 'CHECK', results: out });
 }
