@@ -76,3 +76,12 @@ test('出演者: 蔵が空の回だけ V2 の出演者で補い、既存の値�
   assert.equal(p.keep.find((e) => e.id === 'EP-00001').cast, '神田大介');
   assert.equal(p.keep.find((e) => e.id === 'EP-00002').cast, '杢田光');
 });
+
+test('出演者: V2も空なら管理人判断（manualCast）で補う。既存値は上書きしない', () => {
+  const mk = (id, cast) => ({ id, show: 'ニュースの学校', title: 't' + id, date: '2026-01-01', cast, description: '', links: [] });
+  const old = new Map([['EP-00001', mk('EP-00001', '')], ['EP-00002', mk('EP-00002', '杢田光')]]);
+  const v2 = ['EP-00001', 'EP-00002'].map((id) => ({ 'EP-ID': id, '番組': 'ニュースの学校', 'タイトル': 't' + id, '配信日時 JST': '2026-01-01', '掲載判定': '対象', '出演者': '' }));
+  const p = planSync({ old, decisions: [], v2, syncDescriptions: false, manualCast: new Map([['EP-00001', '神田大介'], ['EP-00002', '神田大介']]) });
+  assert.equal(p.keep.find((e) => e.id === 'EP-00001').cast, '神田大介');
+  assert.equal(p.keep.find((e) => e.id === 'EP-00002').cast, '杢田光');
+});

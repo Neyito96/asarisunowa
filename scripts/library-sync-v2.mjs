@@ -72,7 +72,7 @@ export function planDescription(e, r, protect) {
   if (nd === e.description) return { action: 'same' };
   return { action: 'update', description: nd };
 }
-export function planSync({ old, decisions, v2, resolved = [], descProtect = null, syncDescriptions = true }) {
+export function planSync({ old, decisions, v2, resolved = [], descProtect = null, syncDescriptions = true, manualCast = new Map() }) {
   const R = new Set(resolved);   // V2で同一性が解決済みの回（前回「同一性保留」）だけ。再配信・対象外は入れない
   const D = new Map(decisions.map((d) => [d.id, d])), V = new Map(), problems = [];
   for (const r of v2) {
@@ -92,7 +92,7 @@ export function planSync({ old, decisions, v2, resolved = [], descProtect = null
     const links = [...new Set([...(e.links || []), ...platformLinks(r)])];
     if (links.length !== (e.links || []).length) linkAdded.push(id);
     let next = { ...e, links };
-    if (!String(e.cast || '').trim() && castNames(r['出演者'])) { castFilled.push(id); next = { ...next, cast: castNames(r['出演者']) }; }   // 蔵の出演者が空の回だけ V2 の出演者で補う（既存の値は書き換えない）
+    if (!String(e.cast || '').trim() && (castNames(r['出演者']) || manualCast.get(id))) { castFilled.push(id); next = { ...next, cast: castNames(r['出演者']) || manualCast.get(id) }; }   // V2 が空なら管理人判断（cast-manual.json）   // 蔵の出演者が空の回だけ V2 の出演者で補う（既存の値は書き換えない）
     else if (typeof e.cast === 'string' && e.cast && dedupeCast(e.cast) !== e.cast) { castFixed.push(id); next = { ...next, cast: dedupeCast(e.cast) }; }   // 出演者の完全重複（同じ並びの2回くり返し等）
     if (syncDescriptions) {
       const d = planDescription(e, r, descProtect);
@@ -110,7 +110,7 @@ export function planSync({ old, decisions, v2, resolved = [], descProtect = null
     if (d && d.publication === '対象') { protectedIds.push(id); continue; }   // 判定は対象なのに前回出力に無い（要確認）→ 自動では出さない
     if (POLICY_EXCLUDED_SHOWS.includes(r['番組'])) continue;
     if (!r['番組'] || !r['タイトル'] || !r['配信日時 JST']) { protectedIds.push(id); continue; }
-    add.push(episodeFromV2(r));
+    const ne = episodeFromV2(r); if (!ne.cast && manualCast.get(id)) ne.cast = manualCast.get(id); add.push(ne);
   }
   if (removed.length > LIMITS.maxRemovals) return { ok: false, problems: [`非公開になる回が ${removed.length} 件（上限 ${LIMITS.maxRemovals}）。台帳の異常の可能性があるので停止`] };
   const total = keep.length + add.length;
@@ -143,11 +143,17 @@ async function main() {
   const resolvedPath = path.join(ROOT, 'docs/audits/library-v2-sync/identity-resolved.json'), resolved = fs.existsSync(resolvedPath) ? JSON.parse(fs.readFileSync(resolvedPath, 'utf8')).ids : [];
   // 手動修正の保護: Phase11 で承認済みの概要（542件）は置き換えない
   const p11 = path.join(ROOT, 'docs/audits/2026-10-21-phase11/description-plan.json'), descProtect = new Set(fs.existsSync(p11) ? JSON.parse(fs.readFileSync(p11, 'utf8')).records.map((r) => r.id) : []);
-  const old = loadPublic(dest), plan = planSync({ old, decisions: snapshot.decisions, v2, resolved, descProtect, syncDescriptions: !a.includes('--no-descriptions') });
+  const mcPath = path.join(ROOT, 'docs/audits/library-v2-sync/cast-manual.json'), manualCast = new Map();
+  if (fs.existsSync(mcPath)) for (const d of JSON.parse(fs.readFileSync(mcPath, 'utf8')).decisions) for (const id of d.ids) manualCast.set(id, d.cast);
+  const old = loadPublic(dest), plan = planSync({ old, decisions: snapshot.decisions, v2, resolved, descProtect, syncDescriptions: !a.includes('--no-descriptions'), manualCast });
   if (!plan.ok) { console.error('停止: ' + plan.problems.slice(0, 10).join(' / ')); process.exit(1); }
+  // 再発防止の監査: 「V2に出演者があるのに蔵では空欄」は毎回 0 でなければ止める（2026-11-17 ニュースの学校の欠落）
+  const v2Cast = new Map(v2.map((r) => [r['EP-ID'], castNames(r['出演者'])]));
+  const castGap = [...plan.keep, ...plan.add].filter((e) => !String(e.cast || '').trim() && v2Cast.get(e.id)).map((e) => e.id);
+  if (castGap.length) { console.error('停止: V2に出演者があるのに蔵で空欄 ' + castGap.length + ' 件 ' + castGap.slice(0, 10).join(',')); process.exit(1); }
   const v2Hash = createHash('sha256').update(text).digest('hex'), now = new Date().toISOString();
   const descProtectedCount = Object.fromEntries(Object.entries(plan.descProtected).map(([k, v]) => [k, v.length]));
-  const report = { v2Rows: v2.length, kept: plan.keep.length, added: plan.add.length, removed: plan.removed, protectedNotPublished: plan.protectedIds.length, linksAddedToExisting: plan.linkAdded.length, castDeduped: plan.castFixed.length, castFilled: plan.castFilled.length, castFilled: plan.castFilled.length, total: plan.total, newest: plan.add.map((e) => e.id).sort().slice(-5), descriptions: { updated: plan.descUpdates.length, unchanged: plan.descSame, protected: descProtectedCount } };
+  const report = { v2Rows: v2.length, kept: plan.keep.length, added: plan.add.length, removed: plan.removed, protectedNotPublished: plan.protectedIds.length, linksAddedToExisting: plan.linkAdded.length, castDeduped: plan.castFixed.length, castFilled: plan.castFilled.length, castFilled: plan.castFilled.length, castGapAfterSync: castGap.length, total: plan.total, newest: plan.add.map((e) => e.id).sort().slice(-5), descriptions: { updated: plan.descUpdates.length, unchanged: plan.descSame, protected: descProtectedCount } };
   if (a.includes('--dry-run')) { console.log(JSON.stringify(report, null, 1)); return; }
   if (!plan.add.length && !plan.removed.length && !plan.linkAdded.length && !plan.descUpdates.length && !plan.castFixed.length && !plan.castFilled.length) { console.log(JSON.stringify({ ...report, note: '変化なし（書き込まない）' }, null, 1)); return; }
   const snap2 = nextDecisions(snapshot, plan, v2Hash, now), scope = buildPublicationScope(snap2);
