@@ -27,8 +27,9 @@ async function main() {
   const text = /^https:\/\//.test(src) ? await (await fetch(src)).text() : fs.readFileSync(src, 'utf8'), j = JSON.parse(text);
   if (j.ok !== true || !j.related || j.pairs < 1000) throw new Error('停止: RX-1 の応答が不完全 ' + JSON.stringify({ ok: j.ok, pairs: j.pairs }));
   const eps = loadPublic(dest); let titled = 0, untitled = 0, epsWith = 0, changed = 0;
-  let filled = 0;
+  let filled = 0, kept = 0;
   for (const e of eps.values()) {
+    if (e.relatedArticles?.some((x) => x && x.title)) { kept++; continue; }   // 既に見出し付きの関連記事がある回（承認済みの手動修正・Phase11 の542件など）は触らない
     const pairs = j.related[e.id];
     if (!e.related?.length) { if (!pairs?.length) continue; e.related = []; filled++; }
     const ra = e.related.length ? titledRelated(e.related, pairs) : fromPairs(pairs);
@@ -36,7 +37,7 @@ async function main() {
     const next = t ? ra : undefined, before = JSON.stringify(e.relatedArticles || null), after = JSON.stringify(next || null);
     if (before !== after) { changed++; if (next) e.relatedArticles = next; else delete e.relatedArticles; }
   }
-  const report = { rx: { version: j.version, generatedAt: j.generatedAt, episodes: j.episodes, pairs: j.pairs }, episodesWithTitles: epsWith, titledLinks: titled, untitledLinks: untitled, filledFromV2: filled, changedEpisodes: changed };
+  const report = { rx: { version: j.version, generatedAt: j.generatedAt, episodes: j.episodes, pairs: j.pairs }, episodesWithTitles: epsWith, titledLinks: titled, untitledLinks: untitled, filledFromV2: filled, keptExisting: kept, changedEpisodes: changed };
   if (a.includes('--dry-run') || !changed) { console.log(JSON.stringify(report, null, 1)); return; }
   const manifest = JSON.parse(fs.readFileSync(path.join(dest, 'manifest.json'), 'utf8')), scope = JSON.parse(fs.readFileSync(path.join(dest, 'scope.json'), 'utf8')); delete scope.libraryVersion;
   const result = await writePublicLibrarySnapshot({ episodes: [...eps.values()], counts: manifest.counts, publicationScope: scope, snapshotDate: manifest.snapshotDate, operations: { ...(manifest.operations || {}), relatedTitles: { source: 'V2・清掃詳細（SC4-18の見出し＋URL）', rxVersion: j.version, rxGeneratedAt: j.generatedAt, titledLinks: titled, untitledLinks: untitled } }, destination: dest });
