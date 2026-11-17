@@ -124,3 +124,14 @@ test('ポすすめ返しの候補: 紹介日〜90日後・ポすすめ等への�
   assert.equal(P.posuAppleShowId('https://podcasts.apple.com/jp/podcast/x/id1129707783'), '1129707783');
   assert.equal(P.posuAppleShowId('https://x.gd/OA1Cv'), '');
 });
+test('紹介元: 概要の「紹介したポッドキャストは「…」」の表記ゆれ（吹奏楽部⇔吹部）＋紹介日で確定。日付だけ一致の2候補は HOLD', () => {
+  const p = [{ id: '4', title: '僕たちの吹奏楽部を作ろう ～地域が支える新しい部活動のカタチ', maker: '団長平井', introduced: '2026.04.19' },
+    { id: '12', title: 'ネジネジ低空飛行 — ゆるバイポーラー thinking aloud —', maker: 'ネジート', introduced: '2026.08.16' }];
+  const e = [{ ep: 'EP-05473', title: '（日曜版）ふつうの映画見て、ふつうのランチ食べる', date: '2026/04/19 04:00', summary: '※番組内で紹介したポッドキャストは「僕たちの吹部を作ろう 〜地域が支える新しい部活動のカタチ〜」です。', status: '対象' },
+    { ep: 'EP-05572', title: '（日曜版）ゴスペルMVPの法則', date: '2026/08/16 04:00', summary: 'Miracle、Victory、Power！', status: '対象' },
+    { ep: 'EP-00286', title: '（日曜版）セックスワークの具体論', date: '2026/08/16 04:00', summary: '', status: '対象' },
+    { ep: 'EP-05558', title: '（日曜版）盆DANCE', date: '2026/04/19 04:00', summary: '紹介したポッドキャストは「ののラジオ～名作文学を朗読で～」です', status: '対象' }];
+  const r = Object.fromEntries(P.posuIntroMatch(p, e).map((x) => [x.id, x]));
+  assert.equal(r['4'].status, 'VERIFIED'); assert.deepEqual(J(r['4'].intros.map((i) => i.ep)), ['EP-05473']);
+  assert.equal(r['12'].status, 'HOLD'); assert.equal(r['12'].intros.length, 0); assert.deepEqual(J(r['12'].candidates.map((i) => i.ep)).sort(), ['EP-00286', 'EP-05572']);
+});

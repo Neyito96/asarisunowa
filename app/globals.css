@@ -3369,3 +3369,13 @@ footer {
     width: 100%;
   }
 }
+
+/* ポすすめカード: 紹介された回・ポすすめ返し・ポす神回（#315 タイトル自体をリンクに） */
+.posukamiGroup{margin-top:.45rem}
+.posukamiLabel{display:block;font-size:.85rem}
+.posukamiList{list-style:none;margin:.2rem 0 0;padding:0;display:grid;gap:.35rem}
+.posukamiTitleLink{color:inherit;font-weight:600;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.2em;overflow-wrap:anywhere}
+.posukamiTitleLink:hover{text-decoration-thickness:2px;opacity:.85}
+.posukamiTitleLink:focus-visible{outline:2px solid currentColor;outline-offset:2px;border-radius:2px}
+.posukamiMeta{display:block;opacity:.75;font-size:.8rem}
+.posukamiNew{margin-left:.4rem}

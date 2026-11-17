@@ -60,3 +60,8 @@ form{background:#fdfaf3;border:1px solid #baac94;border-top:7px solid #40352a;bo
 .shared-card h3{font-size:1rem;margin:4px 0 8px}
 .shared-card .detail-links{display:flex;flex-wrap:wrap;gap:6px}
 @media(max-width:600px){.shared-cards{grid-template-columns:1fr}.shelf-dialog{padding:14px}}
+/* #315 概要の関連記事を1件ずつリンクに */
+.related-list{padding-left:1.2em;margin:.4em 0 1em}
+.related-list li{margin:.35em 0;line-height:1.5}
+.related-list a{text-decoration:underline;text-underline-offset:.2em;overflow-wrap:anywhere}
+.related-list a:focus-visible{outline:2px solid currentColor;outline-offset:2px}

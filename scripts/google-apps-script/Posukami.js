@@ -22,6 +22,14 @@ function posuCore(title) { var t = String(title || '').normalize('NFKC').split(/
 // 'YYYY/MM/DD HH:mm'（JST）・'YYYY-MM-DD'・'YYYY.MM.DD' → 'YYYY-MM-DD'
 function posuDay(s) { var m = String(s || '').match(/(\d{4})[\/.\-年](\d{1,2})[\/.\-月](\d{1,2})/); return m ? m[1] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[3]).slice(-2) : ''; }
 function posuDayDiff(a, b) { var x = Date.parse(posuDay(a) + 'T00:00:00Z'), y = Date.parse(posuDay(b) + 'T00:00:00Z'); return isFinite(x) && isFinite(y) ? Math.round(Math.abs(x - y) / 86400000) : Infinity; }
+// 概要の「紹介したポッドキャストは「X」」の X と番組名が十分似ているか（2文字ずつの一致率。表記ゆれ用・日付一致と併用）
+function posuBigrams(t) { var a = {}, n = 0; for (var i = 0; i < t.length - 1; i++) { a[t.substr(i, 2)] = (a[t.substr(i, 2)] || 0) + 1; n++; } return { a: a, n: n }; }
+function posuDice(x, y) { var A = posuBigrams(x), B = posuBigrams(y), hit = 0; if (!A.n || !B.n) return 0; for (var k in A.a) if (B.a[k]) hit += Math.min(A.a[k], B.a[k]); return 2 * hit / (A.n + B.n); }
+function posuNamedIntroHit(summary, title) {
+  var re = /紹介(?:した|している)ポッドキャストは[「『]([^」』]{3,80})[」』]/g, m, t = posuNz(String(title || '').replace(/[〜～~]+$/, ''));
+  while ((m = re.exec(String(summary || '').normalize('NFKC')))) if (posuDice(posuNz(m[1].replace(/[〜～~]+$/, '')), t) >= 0.7) return true;
+  return false;
+}
 function posuIsIntroEpisode(title) { var t = String(title || '').normalize('NFKC'); return /\(ポすすめ\)|\(日曜版\)/.test(t); }
 
 // ===== 1) 紹介元ドーナツ回の照合 =====
@@ -36,6 +44,7 @@ function posuIntroMatch(podcasts, eps) {
       var hay = posuNz(e.title) + '\u0001' + posuNz(e.summary), ev = [];
       if (full.length >= 3 && hay.indexOf(full) >= 0) ev.push('番組名一致'); else if (core && hay.indexOf(core) >= 0) ev.push('番組名（芯）一致');
       var dd = posuDayDiff(e.date, p.introduced); if (dd <= 1) ev.push(dd === 0 ? '紹介日一致' : '紹介日±1日');
+      if (!ev.some(function (x) { return /^番組名/.test(x); }) && posuNamedIntroHit(e.summary, p.title)) ev.unshift('番組名（概要の紹介文）一致');   // 「紹介したポッドキャストは「…」」の表記ゆれ（例: 吹奏楽部⇔吹部）
       if (maker.length >= 2 && hay.indexOf(maker) >= 0) ev.push('配信者名一致');
       var titleHit = ev.some(function (x) { return /^番組名/.test(x); }), dayHit = dd <= 1;
       var rec = { ep: e.ep, show: e.show || '', title: e.title, date: posuDay(e.date), url: e.url || '', evidence: ev.join('・') };
@@ -229,4 +238,4 @@ function posuSyncIntros(results) {
   return { added: add.length };
 }
 
-if (typeof module !== 'undefined') module.exports = { posuReplyCandidates: posuReplyCandidates, posuAppleShowId: posuAppleShowId, POSU_REPLY_RELATIONS: POSU_REPLY_RELATIONS, posuNz: posuNz, posuCore: posuCore, posuDay: posuDay, posuIntroMatch: posuIntroMatch, posuEpisodeUrl: posuEpisodeUrl, posuValidate: posuValidate, posuPageMeta: posuPageMeta, posuRelationHints: posuRelationHints, posuApprovePlan: posuApprovePlan, posuBuildPublic: posuBuildPublic, POSU_QUEUE_H: POSU_QUEUE_H, POSU_PUBLIC_H: POSU_PUBLIC_H, POSU_STATE: POSU_STATE, POSU_RELATIONS: POSU_RELATIONS };
+if (typeof module !== 'undefined') module.exports = { posuReplyCandidates: posuReplyCandidates, posuAppleShowId: posuAppleShowId, POSU_REPLY_RELATIONS: POSU_REPLY_RELATIONS, posuNz: posuNz, posuCore: posuCore, posuDay: posuDay, posuIntroMatch: posuIntroMatch, posuNamedIntroHit: posuNamedIntroHit, posuEpisodeUrl: posuEpisodeUrl, posuValidate: posuValidate, posuPageMeta: posuPageMeta, posuRelationHints: posuRelationHints, posuApprovePlan: posuApprovePlan, posuBuildPublic: posuBuildPublic, POSU_QUEUE_H: POSU_QUEUE_H, POSU_PUBLIC_H: POSU_PUBLIC_H, POSU_STATE: POSU_STATE, POSU_RELATIONS: POSU_RELATIONS };

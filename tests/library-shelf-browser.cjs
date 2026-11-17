@@ -4,6 +4,12 @@ const {chromium,webkit,devices}=require(process.env.LIBRARY_PLAYWRIGHT||'playwri
 const base=process.env.LIBRARY_TEST_URL||'http://127.0.0.1:4173/library/';
 (async()=>{for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){const browser=await type.launch({headless:true});try{
  const a=await browser.newContext({...devices['iPhone 13']}),p=await a.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
+ // 概要の整形（EP-05468）: イベント告知・スタッフ情報は出さず、関連記事3件を1件ずつリンクに
+ await p.goto(base+'?ep=EP-05468');await p.locator('#detail-title').waitFor();
+ {const d=await p.locator('#detail .description').innerText();assert.ok(d.startsWith('新年度が始まって早々')&&!/大報談|申し込み|https?:/.test(d),d);
+  const rel=await p.locator('#detail .related-list a').evaluateAll(as=>as.map(a=>[a.textContent,a.getAttribute('href')]));assert.equal(rel.length,3);assert.ok(rel.every(([t,h])=>t&&h.startsWith('https://www.asahi.com/articles/')));
+  assert.match(await p.locator('#detail').innerText(),/2026年4月10日に収録/);await p.locator('#detail .related-list a').first().focus();}
+ await p.locator('#close-detail').click();
  await p.goto(base+'?ep=EP-06605');await p.locator('#detail-title').waitFor();
  await p.locator('#detail .shelf-save').click();assert.match(await p.locator('#detail .shelf-save').innerText(),/入っています/);
  await p.locator('#close-detail').click();

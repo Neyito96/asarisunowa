@@ -11,6 +11,7 @@ import {
   posukamiResultMessage,
   posukamiSubmitUrl,
   type PosukamiCard,
+  type PosukamiEpisode,
 } from "./posukami";
 
 type Props = {
@@ -21,8 +22,29 @@ type Props = {
   loadJsonp: (url: string) => Promise<unknown>;
 };
 
-const linkStyle = { textDecoration: "underline", textUnderlineOffset: "0.18em" } as const;
-const noteStyle = { display: "block", opacity: 0.8 } as const;
+// 回のタイトルそのものをリンクにする（蔵に収蔵済み → 蔵の個別ページ、未収蔵 → 検証済みの公式エピソードページを新しいタブで）
+function PosukamiList({ label, kind, episodes }: { label: string; kind: string; episodes: PosukamiEpisode[] }) {
+  return (
+    <div className={"podcastComment posukamiGroup posukami-" + kind}>
+      <strong className="posukamiLabel">{label}</strong>
+      <ul className="posukamiList">
+        {episodes.map((episode) => {
+          const meta = [episode.program && episode.program !== "ドーナツ" ? episode.program : "", formatPosukamiDate(episode.date)].filter(Boolean).join("・");
+          return (
+            <li key={kind + "-" + episode.href}>
+              <a className="posukamiTitleLink" href={posukamiHref(episode.href)} {...(episode.library ? {} : { target: "_blank", rel: "noopener noreferrer" })}>
+                {episode.title}{episode.library ? "" : <span aria-label="（新しいタブで開きます）"> ↗</span>}
+              </a>
+              {kind !== "intro" && isPosukamiNew(episode.verifiedAt) && <span className="newBadge newBadgeActive posukamiNew">NEW</span>}
+              {meta && <small className="posukamiMeta">{meta}</small>}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 
 export default function PosukamiCardSection({ podcast, card, submitEnabled, endpoint, loadJsonp }: Props) {
   const [open, setOpen] = useState(false);
@@ -62,39 +84,9 @@ export default function PosukamiCardSection({ podcast, card, submitEnabled, endp
 
   return (
     <div className="posukamiSection">
-      {intros.map((episode) => (
-        <p className="podcastComment posukamiIntro" key={"intro-" + episode.href} style={{ marginTop: "0.45rem" }}>
-          <strong>🎙 {episode.program && episode.program !== "ドーナツ" ? "朝ポキで紹介された回" : "ドーナツで紹介された回"}</strong><br />
-          <span>「{episode.title}」</span>
-          <small style={noteStyle}>{formatPosukamiDate(episode.date)}{episode.program && episode.program !== "ドーナツ" ? "（" + episode.program + "）" : ""}</small>
-          <a href={posukamiHref(episode.href)} {...(episode.library ? {} : { target: "_blank", rel: "noopener noreferrer" })} style={linkStyle}>
-            {episode.library ? "→ 朝ポキの蔵でこの回を見る" : "→ この回を聴く（公式ページ）"}
-          </a>
-          {!episode.library && <small style={noteStyle}>朝ポキの蔵への収蔵は更新待ちです</small>}
-        </p>
-      ))}
-      {replies.map((episode) => (
-        <p className="podcastComment posukamiReply" key={"reply-" + episode.href} style={{ marginTop: "0.45rem" }}>
-          <strong>💬 ポすすめ返し</strong>
-          {isPosukamiNew(episode.verifiedAt) && <span className="newBadge newBadgeActive" style={{ marginLeft: "0.4rem" }}>NEW</span>}
-          <br />
-          <span>「{episode.title}」</span>
-          <small style={noteStyle}>{[episode.program, formatPosukamiDate(episode.date)].filter(Boolean).join("・")}</small>
-          <a href={posukamiHref(episode.href)} target="_blank" rel="noopener noreferrer" style={linkStyle}>→ この回を聴く</a>
-        </p>
-      ))}
-      {specials.map((episode) => (
-        <p className="podcastComment posukamiSpecial" key={"special-" + episode.href} style={{ marginTop: "0.45rem" }}>
-          <strong>✨ ポす神回</strong>
-          {isPosukamiNew(episode.verifiedAt) && <span className="newBadge newBadgeActive" style={{ marginLeft: "0.4rem" }}>NEW</span>}
-          <br />
-          <span>「{episode.title}」</span>
-          <small style={noteStyle}>{[episode.program, formatPosukamiDate(episode.date)].filter(Boolean).join("・")}{episode.relation ? "　" + episode.relation : ""}</small>
-          <a href={posukamiHref(episode.href)} {...(episode.library ? {} : { target: "_blank", rel: "noopener noreferrer" })} style={linkStyle}>
-            {episode.library ? "→ 朝ポキの蔵でこの回を見る" : "→ この回を聴く"}
-          </a>
-        </p>
-      ))}
+      {intros.length > 0 && <PosukamiList label="🎙 紹介された回" kind="intro" episodes={intros} />}
+      {replies.length > 0 && <PosukamiList label="💬 ポすすめ返し" kind="reply" episodes={replies} />}
+      {specials.length > 0 && <PosukamiList label="✨ ポす神回" kind="special" episodes={specials} />}
       {submitEnabled && (
         <div className="posukamiSubmit" style={{ marginTop: "0.5rem" }}>
           <button type="button" className="posukamiSubmitToggle" aria-expanded={open} aria-controls={formId} onClick={() => setOpen((v) => !v)} style={{ fontSize: "0.85rem" }}>
