@@ -2019,7 +2019,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             <div className="themeHead">
               <p className="kicker themeKicker">LISTENER PODCASTS</p>
               <h2>🎙 ポすすめ</h2>
-              <p>（ポすすめ）とは「ポッドキャストのすすめ」。ドーナツの（ポすすめ）や（日曜版）で紹介された、朝リスさんのPodcastを集めた棚です。紹介元の回や、その後に神田さんをゲスト出演した「ポす神回」も、確認できたものから順次つないでいきます。人類ポ完計画、進行中。</p>
+              <p>（ポすすめ）とは「ポッドキャストのすすめ」。ドーナツの<a href="/library/?q=%E3%83%9D%E3%81%99%E3%81%99%E3%82%81" style={{ textDecoration: "underline", textUnderlineOffset: "0.18em", fontWeight: 700 }} title="朝ポキの蔵で「ポすすめ」を検索">（ポすすめ）</a>や（日曜版）で紹介された、朝リスさんのPodcastを集めた棚です。紹介元の回や、その後に神田さんをゲスト出演した「ポす神回」も、確認できたものから順次つないでいきます。人類ポ完計画、進行中。</p>
               <p style={{ fontSize: "0.85rem", lineHeight: 1.6, opacity: 0.84, marginTop: "0.4rem" }}>朝ポキの蔵は現在、収蔵内容を確認・更新しながらIssue駆動で開発中です。<a href="https://github.com/Neyito96/asarisunowa/issues/197" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: "0.18em", fontWeight: 700 }}>開発への参加・アイデア募集はこちら</a>。</p>
             </div>
             <div className="listenerPodcastSubmitCta" aria-label="ポすすめ投稿のご案内">
