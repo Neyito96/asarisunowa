@@ -69,7 +69,7 @@ test('既存カードの保全: 番組名・配信者・アートワーク・紹
   assert.ok(!tsx.includes('POSUSUME_VERIFIED_EPISODES'), '紹介元のハードコードを恒久設計にしない');
   assert.ok(tsx.includes('<PosukamiCardSection'));
   assert.ok(!section.includes('submitPlaylist') && section.includes('posukamiSubmitUrl'), '新規番組登録とは別の経路');
-  assert.ok(section.includes('if (sending) return'), '二重送信の防止');
+  assert.ok(section.includes('if (sending || !mode) return'), '二重送信の防止');
 });
 test('生成: CSV（引用符・改行）を読み、見出しを外す', () => {
   assert.deepEqual(parseCsv('a,"b,c","d""e"\n1,"x\ny",3'), [['a', 'b,c', 'd"e'], ['1', 'x\ny', '3']]);
@@ -85,4 +85,21 @@ test('3種類とも、回のタイトル自体がリンク（冗長な「→ …
   assert.ok(/\{episode\.title\}/.test(section.slice(section.indexOf('posukamiTitleLink'))));
   const css = fs.readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8');
   assert.ok(css.includes('.posukamiTitleLink:focus-visible') && css.includes('.posukamiTitleLink:hover'));
+});
+test('ポすすめ返し: 奥会津、風のラジオ #25 と クリエイティブの反対語 #407（公式の回ページ）。既存の紹介回・ポす神回はそのまま', () => {
+  const c13 = findPosukamiCard(data, { id: '13', title: '奥会津、風のラジオ' }), c16 = findPosukamiCard(data, { id: '16', title: 'クリエイティブの反対語' });
+  assert.deepEqual(c13.replies.map((r) => [r.title, r.date, r.href]), [['#25 [番外編]ポすすめ返し、ポすすめ送り', '2026-09-19', 'https://podcasts.apple.com/jp/podcast/id1893309443?i=1000790701683']]);
+  assert.deepEqual(c16.replies.map((r) => [r.title, r.date]), [['#407 朝ポキで紹介してもらった！！', '2026-10-25']]);
+  assert.equal(c13.introductions[0].epId, 'EP-00120'); assert.equal(c16.introductions[0].epId, 'EP-06605'); assert.equal(c16.specials.length, 2);
+  const all = data.cards.flatMap((c) => [...c.introductions, ...c.replies, ...c.specials].map((e) => c.podcastId + '|' + e.href));
+  assert.equal(new Set(all).size, all.length);   // 重複なし
+});
+test('URL一発投稿: URL欄と投稿ボタンだけ。種類はボタンで自動（reply / other）、番組はカードから。名前・メールは聞かない', () => {
+  assert.ok(section.includes('💬 この番組の「ポすすめ返し」を教える') && section.includes('✨ ポす神回を教える'));
+  assert.ok(section.includes('placeholder="エピソードのURLを貼り付け"') && section.includes('"投稿する"'));
+  assert.ok(!/<select|<textarea|type="date"|type="email"/.test(section));
+  assert.ok(/relation: mode/.test(section) && /podcastId: podcast\.id, podcastTitle: podcast\.title/.test(section));
+  assert.ok(section.includes('sent.includes(u)'));   // 同じURLの二重送信を止める
+  for (const u of ['https://stand.fm/episodes/69df8fe3828ab6b195a8cd0f', 'https://music.amazon.co.jp/podcasts/0b4f1c2e-1111-2222-3333-444455556666/episodes/0b4f1c2e-1111-2222-3333-444455556667', 'https://youtu.be/abcdefghijk', 'https://pca.st/episode/b6bf1bce-30a6-405c-a6f7-7da3e13f5c3a']) assert.equal(looksLikeEpisodeUrl(u), true, u);
+  assert.equal(data.submitEnabled, false);   // 受付が本番で動くまで出さない
 });

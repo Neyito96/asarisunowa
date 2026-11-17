@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "version": "POSU-1",
- "generatedAt": "2026-11-17T03:23:06.515Z",
+ "generatedAt": "2026-11-17T04:30:51.674Z",
  "submitEnabled": false,
  "cards": [
   {
@@ -161,7 +161,18 @@
      "verifiedAt": "2026-11-17"
     }
    ],
-   "replies": [],
+   "replies": [
+    {
+     "title": "#25 [番外編]ポすすめ返し、ポすすめ送り",
+     "date": "2026-09-19",
+     "href": "https://podcasts.apple.com/jp/podcast/id1893309443?i=1000790701683",
+     "library": false,
+     "epId": "",
+     "verifiedAt": "2026-11-17",
+     "program": "奥会津、風のラジオ",
+     "relation": "ポすすめ返し（ポすすめを受けて番組が配信した回）"
+    }
+   ],
    "specials": []
   },
   {
@@ -209,7 +220,18 @@
      "verifiedAt": "2026-11-17"
     }
    ],
-   "replies": [],
+   "replies": [
+    {
+     "title": "#407 朝ポキで紹介してもらった！！",
+     "date": "2026-10-25",
+     "href": "https://podcasts.apple.com/jp/podcast/id1129707783?i=1000798101111",
+     "library": false,
+     "epId": "",
+     "verifiedAt": "2026-11-17",
+     "program": "クリエイティブの反対語",
+     "relation": "ポすすめ返し（ポすすめを受けて番組が配信した回）"
+    }
+   ],
    "specials": [
     {
      "title": "（対話）自分に興味がある人と、自分なんてないと思う人　栃尾江美さん",

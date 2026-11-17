@@ -56,7 +56,8 @@ export function loadPublic(dir) {
   return out;
 }
 // 計画（純粋）: old = 現在の公開レコード、decisions = 前回の掲載判定、v2 = V2・公開台帳の行
-export function planSync({ old, decisions, v2 }) {
+export function planSync({ old, decisions, v2, resolved = [] }) {
+  const R = new Set(resolved);   // V2で同一性が解決済みの回（前回「同一性保留」）だけ。再配信・対象外は入れない
   const D = new Map(decisions.map((d) => [d.id, d])), V = new Map(), problems = [];
   for (const r of v2) {
     const id = r['EP-ID'];
@@ -79,7 +80,8 @@ export function planSync({ old, decisions, v2 }) {
   for (const [id, r] of V) {
     if (old.has(id)) continue;
     const d = D.get(id);
-    if (d && d.publication !== '対象') { protectedIds.push(id); continue; }   // 前回「保留」「対象外」→ 公開しない
+    if (d && d.publication === '保留' && d.classification === '同一性保留' && R.has(id)) { /* V2で同一性解決済み → 回収 */ }
+    else if (d && d.publication !== '対象') { protectedIds.push(id); continue; }   // 前回「保留」「対象外」→ 公開しない
     if (d && d.publication === '対象') { protectedIds.push(id); continue; }   // 判定は対象なのに前回出力に無い（要確認）→ 自動では出さない
     if (POLICY_EXCLUDED_SHOWS.includes(r['番組'])) continue;
     if (!r['番組'] || !r['タイトル'] || !r['配信日時 JST']) { protectedIds.push(id); continue; }
@@ -94,6 +96,8 @@ export function planSync({ old, decisions, v2 }) {
 export function nextDecisions(snapshot, plan, v2Hash, nowIso) {
   const removed = new Set(plan.removed), have = new Set(snapshot.decisions.map((d) => d.id));
   const decisions = snapshot.decisions.map((d) => removed.has(d.id) ? { ...d, publication: '対象外', comparison: d.comparison === '対象' ? '対象外' : d.comparison, review: '確認済み', decidedAt: nowIso, note: 'V2・公開台帳に無い（重複の整理・除外）' } : d);
+  const addIds = new Set(plan.add.map((e) => e.id));
+  for (let i = 0; i < decisions.length; i++) if (addIds.has(decisions[i].id) && decisions[i].publication !== '対象') decisions[i] = { ...decisions[i], publication: '対象', comparison: '対象', review: '確認済み', decidedAt: nowIso, note: 'V2で同一性解決済み（[NET-1]）→ 公開。旧: ' + decisions[i].classification };
   for (const e of plan.add) if (!have.has(e.id)) decisions.push({ id: e.id, show: e.show, comparison: '対象', publication: '対象', classification: '通常', review: '確認済み', decidedAt: nowIso, note: 'V2・公開台帳の掲載判定（対象・代表）' });
   decisions.sort((a, b) => (a.id < b.id ? -1 : 1));
   const raw = createHash('sha256').update(snapshot.source.rawReadSHA256 + ':' + v2Hash).digest('hex');
@@ -111,7 +115,8 @@ async function main() {
   for (const n of V2_HEADERS) if (!h.includes(n)) throw new Error('V2・公開台帳の見出しが足りない: ' + n);
   const v2 = rows.slice(1).filter((r) => r[0]).map((r) => Object.fromEntries(h.map((k, i) => [k, r[i] ?? ''])));
   const bytes = fs.readFileSync(decisionsIn), snapshot = JSON.parse((bytes[0] === 31 && bytes[1] === 139 ? zlib.gunzipSync(bytes) : bytes).toString('utf8'));
-  const old = loadPublic(dest), plan = planSync({ old, decisions: snapshot.decisions, v2 });
+  const resolvedPath = path.join(ROOT, 'docs/audits/library-v2-sync/identity-resolved.json'), resolved = fs.existsSync(resolvedPath) ? JSON.parse(fs.readFileSync(resolvedPath, 'utf8')).ids : [];
+  const old = loadPublic(dest), plan = planSync({ old, decisions: snapshot.decisions, v2, resolved });
   if (!plan.ok) { console.error('停止: ' + plan.problems.slice(0, 10).join(' / ')); process.exit(1); }
   const v2Hash = createHash('sha256').update(text).digest('hex'), now = new Date().toISOString();
   const report = { v2Rows: v2.length, kept: plan.keep.length, added: plan.add.length, removed: plan.removed, protectedNotPublished: plan.protectedIds.length, linksAddedToExisting: plan.linkAdded.length, total: plan.total, newest: plan.add.map((e) => e.id).sort().slice(-5) };

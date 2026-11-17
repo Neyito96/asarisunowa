@@ -33,3 +33,12 @@ test('配信リンクは台帳にある実URLだけ（推測で作らない）',
   const links = platformLinks(row('EP-00009', { Apple: 'javascript:alert(1)', 公式個別URL: '' }));
   assert.deepEqual(links, ['https://open.spotify.com/episode/EP-00009']);
 });
+test('前回「同一性保留」でV2が解決済みの回だけ回収する。再配信・対象外は戻さない', () => {
+  const ds = [{ id: 'EP-00011', publication: '保留', classification: '同一性保留' }, { id: 'EP-00012', publication: '保留', classification: '再配信候補' }, { id: 'EP-00013', publication: '対象外', classification: '再配信' }, { id: 'EP-00014', publication: '保留', classification: '同一性保留' }];
+  const plan = planSync({ old: new Map(), decisions: ds, v2: [row('EP-00011'), row('EP-00012'), row('EP-00013'), row('EP-00014')], resolved: ['EP-00011', 'EP-00012', 'EP-00013'] });
+  assert.deepEqual(plan.add.map((e) => e.id), ['EP-00011']);
+  assert.deepEqual(plan.protectedIds.sort(), ['EP-00012', 'EP-00013', 'EP-00014']);
+  const next = nextDecisions({ source: { rawReadSHA256: 'x' }, decisions: ds }, plan, 'h', 'now');
+  assert.equal(next.decisions.find((d) => d.id === 'EP-00011').publication, '対象');
+  assert.equal(next.decisions.find((d) => d.id === 'EP-00012').publication, '保留');
+});
