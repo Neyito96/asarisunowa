@@ -10,7 +10,11 @@ function loadShelf(){try{return readShelf(localStorage.getItem(SHELF_KEY));}catc
 function saveShelf(next){try{localStorage.setItem(SHELF_KEY,serializeShelf(next));return true;}catch{return false;}}
 function shelfIds(){return loadShelf().ids;}
 function shelfToggle(id){const before=loadShelf(),next=toggleItem(before,id);if(next.ids.length===before.ids.length&&!before.ids.includes(id))return null;if(!saveShelf(next))return null;refreshShelfButton();return next.ids.includes(id);}
-function shelfControl(id){const saved=shelfIds().includes(id),b=node('button',saved?'✓ 蔵書一覧に入っています':'＋ 蔵書一覧に入れる','quiet shelf-save');b.type='button';b.setAttribute('aria-pressed',String(saved));b.addEventListener('click',()=>{const r=shelfToggle(id);if(r===null){b.textContent=loadShelf().ids.length>=SHELF_LIMITS.items?`いっぱいです（最大${SHELF_LIMITS.items}件）`:'保存できませんでした（ブラウザの設定をご確認ください）';return;}b.textContent=r?'✓ 蔵書一覧に入っています':'＋ 蔵書一覧に入れる';b.setAttribute('aria-pressed',String(r));});return b;}
+const SHELF_ADD='＋ 蔵書に入れる',SHELF_IN='✓ 蔵書にあります（外す）';
+function shelfControl(id){const saved=shelfIds().includes(id),b=node('button',saved?SHELF_IN:SHELF_ADD,'quiet shelf-save');b.type='button';b.setAttribute('aria-pressed',String(saved));b.addEventListener('click',()=>{const r=shelfToggle(id);if(r===null){b.textContent=loadShelf().ids.length>=SHELF_LIMITS.items?`いっぱいです（最大${SHELF_LIMITS.items}件）`:'保存できませんでした（ブラウザの設定をご確認ください）';return;}b.textContent=r?SHELF_IN:SHELF_ADD;b.setAttribute('aria-pressed',String(r));shelfToast(r?`蔵書に入れました（${loadShelf().ids.length}件）`:'蔵書から外しました');});return b;}
+// 入れた・外したことが分かるように、画面の下に短く知らせる（「蔵書を開く」から一覧へ）
+const toast=node('div',undefined,'shelf-toast');toast.setAttribute('role','status');toast.hidden=true;document.body.append(toast);let toastTimer=0;
+function shelfToast(text){const open=node('button','蔵書を開く','quiet');open.type='button';open.addEventListener('click',()=>{toast.hidden=true;openShelf();});toast.replaceChildren(node('span',text),open);toast.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{toast.hidden=true;},5000);}
 
 const criteria=()=>({query:$('query').value.trim(),show:$('show').value,order:$('order').value,from:$('from').value,to:$('to').value});
 function node(tag,text,cls){const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(cls)el.className=cls;return el;}
@@ -96,31 +100,32 @@ $('clear-filters').addEventListener('click',()=>{$('search-form').reset();update
 $('prev').addEventListener('click',()=>{if(page>0){page--;update(false);}});$('next').addEventListener('click',()=>{page++;update(false);});
 $('retry').addEventListener('click',()=>manifest?update(false):init());
 // ===== 自分の蔵書一覧（並べ替え・タイトル・説明・共有の準備）=====
-const shelfBar=node('div',undefined,'shelf-toolbar');const shelfButton=node('button','','quiet');shelfButton.type='button';shelfBar.append(shelfButton,node('small','選んだ回だけをこのブラウザに保存します。会員登録不要・検索の記録は残しません。'));$('results').before(shelfBar);
-function refreshShelfButton(){shelfButton.textContent=`📚 自分の蔵書一覧（${loadShelf().ids.length}）`;}
+const shelfBar=node('div',undefined,'shelf-toolbar');const shelfButton=node('button','','quiet');shelfButton.type='button';shelfBar.append(shelfButton,node('small','気になる回を「＋ 蔵書に入れる」で集めて、あとで聴く・URLで人に渡す。保存はこのブラウザだけ（会員登録不要・検索の記録は残しません）。'));$('results').before(shelfBar);
+function refreshShelfButton(){shelfButton.textContent=`📚 わたしの蔵書（${loadShelf().ids.length}）`;}
 const shelfDialog=node('dialog',undefined,'shelf-dialog');shelfDialog.setAttribute('aria-labelledby','shelf-title');document.body.append(shelfDialog);
 async function episodeById(id){const rows=await json(`details/${Math.floor(Number(id.slice(3))/manifest.detailBucketSize)}.json`).catch(()=>[]);return rows.find(x=>x.id===id)||null;}
 async function openShelf(){shelfDialog.replaceChildren(node('p','読み込んでいます…'));if(!shelfDialog.open)shelfDialog.showModal();await renderShelf();}
 async function renderShelf(){
- const s=loadShelf(),body=document.createDocumentFragment(),close=node('button','×','close');close.type='button';close.setAttribute('aria-label','蔵書一覧を閉じる');close.addEventListener('click',()=>shelfDialog.close());
- const h=node('h2','📚 自分の蔵書一覧');h.id='shelf-title';body.append(close,h,node('p','このブラウザだけに保存されています。別の端末とは同期しません。閲覧履歴を消すと一覧も消えることがあります。','detail-meta'));
- const t=node('input');t.type='text';t.maxLength=SHELF_LIMITS.title;t.value=s.title;t.placeholder='一覧のタイトル（例：通勤で聴きたい回）';t.addEventListener('change',()=>saveShelf(setMeta(loadShelf(),{title:t.value})));
+ const s=loadShelf(),body=document.createDocumentFragment(),close=node('button','×','close');close.type='button';close.setAttribute('aria-label','蔵書を閉じる');close.addEventListener('click',()=>shelfDialog.close());
+ const h=node('h2','📚 わたしの蔵書');h.id='shelf-title';body.append(close,h,node('p','このブラウザだけに保存されています。別の端末とは同期しません。閲覧履歴を消すと一覧も消えることがあります。','detail-meta'));
+ const t=node('input');t.type='text';t.maxLength=SHELF_LIMITS.title;t.value=s.title;t.placeholder='蔵書の名前（例：通勤で聴きたい回）※URLで渡すと表示されます';t.addEventListener('change',()=>saveShelf(setMeta(loadShelf(),{title:t.value})));
  const d=node('textarea');d.maxLength=SHELF_LIMITS.description;d.rows=2;d.value=s.description;d.placeholder='説明（任意）';d.addEventListener('change',()=>saveShelf(setMeta(loadShelf(),{description:d.value})));
  const lt=node('label','タイトル');lt.append(t);const ld=node('label','説明');ld.append(d);body.append(lt,ld);
- if(!s.ids.length){body.append(node('p','まだ何も入っていません。検索結果や各回の詳細で「＋ 蔵書一覧に入れる」を押すと、ここに並びます。','empty'));shelfDialog.replaceChildren(body);return;}
+ if(!s.ids.length){body.append(node('p','まだ何も入っていません。検索結果や各回の詳細で「＋ 蔵書に入れる」を押すと、ここに並びます。聴きたい回を集めたり、おすすめの回をまとめてURLで人に渡したりできます。','empty'));shelfDialog.replaceChildren(body);return;}
  const list=node('ol',undefined,'shelf-list');
  const eps=await Promise.all(s.ids.map(episodeById));
  s.ids.forEach((id,i)=>{const e=eps[i],li=node('li');const name=node('button',e?e.title:`${id}（現在は公開されていない回です）`,'episode-title');name.type='button';if(e)name.addEventListener('click',()=>{shelfDialog.close();openDetail(id);});
   li.append(node('small',e?`${label(e.show)} · ${e.date.slice(0,10)}`:id),name);
+  if(e){const ls=cardLinks(e.links);if(ls.length){const lk=node('div',undefined,'detail-links shelf-listen');lk.append(node('span','聴く：'));for(const l of ls){const a=node('a',l.label+' ↗');a.href=l.url;a.target='_blank';a.rel='noopener noreferrer';lk.append(a);}li.append(lk);}}
   const ctl=node('span',undefined,'shelf-controls');for(const [txt,fn,lab] of [['↑',()=>saveShelf(moveItem(loadShelf(),id,-1)),'上へ'],['↓',()=>saveShelf(moveItem(loadShelf(),id,1)),'下へ'],['外す',()=>saveShelf(toggleItem(loadShelf(),id)),'一覧から外す']]){const b=node('button',txt,'quiet');b.type='button';b.setAttribute('aria-label',`${e?e.title:id}を${lab}`);b.addEventListener('click',async()=>{fn();refreshShelfButton();await renderShelf();});ctl.append(b);}
   li.append(ctl);list.append(li);});
  body.append(list);
- const prep=node('button','🔗 共有の準備へ');prep.type='button';prep.addEventListener('click',()=>renderSharePreview(eps.filter(Boolean)));
+ const prep=node('button','🔗 URLで人に渡す');prep.type='button';prep.addEventListener('click',()=>renderSharePreview(eps.filter(Boolean)));
  const wipe=node('button','この端末から一覧を消す','quiet');wipe.type='button';let armed=false;wipe.addEventListener('click',async()=>{if(!armed){armed=true;wipe.textContent='本当に消す（もう一度押す）';return;}try{localStorage.removeItem(SHELF_KEY);}catch{}refreshShelfButton();await renderShelf();});
  body.append(node('div',undefined,'shelf-actions'));body.lastChild.append(prep,wipe);shelfDialog.replaceChildren(body);
 }
 function renderSharePreview(eps){
- const s=loadShelf(),box=node('section',undefined,'share-preview');box.append(node('h3','共有の準備'),node('p','共有URLに入るのは、下でチェックした回の番号と、一覧のタイトル・説明だけです。お名前・メールアドレス・検索の言葉・端末の情報は入りません。URLを知っている人は誰でも見られます。サーバーに保存しないので、発行したURLは取り消せません（渡す相手を選んでください）。','detail-meta'));
+ const s=loadShelf(),box=node('section',undefined,'share-preview');box.append(node('h3','URLで人に渡す'),node('p','共有URLに入るのは、下でチェックした回の番号と、一覧のタイトル・説明だけです。お名前・メールアドレス・検索の言葉・端末の情報は入りません。URLを知っている人は誰でも見られます。サーバーに保存しないので、発行したURLは取り消せません（渡す相手を選んでください）。','detail-meta'));
  const picks=new Map();const ul=node('ul',undefined,'share-picks');for(const e of eps){const li=node('li'),l=node('label'),c=node('input');c.type='checkbox';c.checked=true;picks.set(e.id,c);l.append(c,document.createTextNode(` ${e.title}（${label(e.show)}）`));li.append(l);ul.append(li);}
  box.append(node('p',`タイトル：${s.title||'（なし）'}`),node('p',`説明：${s.description||'（なし）'}`),ul);
  const make=node('button','共有URLを作る');make.type='button';const out=node('div',undefined,'share-out');
@@ -133,8 +138,8 @@ shelfButton.addEventListener('click',openShelf);refreshShelfButton();
 // ===== 共有URLで開いたとき: 共有された蔵書カードを出す（アカウント不要。この端末には保存しない）=====
 async function renderShared(){
  const data=decodeShare(location.hash);const old=$('shared');if(old)old.remove();if(!data)return;
- const sec=node('section',undefined,'shared-shelf');sec.id='shared';sec.setAttribute('aria-label','共有された蔵書一覧');
- sec.append(node('p','共有された蔵書一覧','eyebrow'),node('h2',data.title||'蔵書一覧'));if(data.description)sec.append(node('p',data.description,'shared-desc'));
+ const sec=node('section',undefined,'shared-shelf');sec.id='shared';sec.setAttribute('aria-label','共有された蔵書');
+ sec.append(node('p','共有された蔵書','eyebrow'),node('h2',data.title||'蔵書'));if(data.description)sec.append(node('p',data.description,'shared-desc'));
  const eps=await Promise.all(data.ids.map(episodeById)),grid=node('div',undefined,'shared-cards');
  data.ids.forEach((id,i)=>{const e=eps[i],card=node('article',undefined,'shared-card');
   if(!e){card.append(node('p','この回は現在、蔵で公開されていません。','empty'));grid.append(card);return;}
@@ -142,7 +147,7 @@ async function renderShared(){
   const links=node('div',undefined,'detail-links');const detail=node('a','蔵で詳しく見る');detail.href=`?ep=${e.id}`;detail.addEventListener('click',ev=>{ev.preventDefault();openDetail(e.id);});links.append(detail);
   for(const l of cardLinks(e.links)){const a=node('a',l.label+' ↗');a.href=l.url;a.target='_blank';a.rel='noopener noreferrer';links.append(a);}
   card.append(links);grid.append(card);});
- const take=node('button','この一覧を自分の蔵書一覧に入れる','quiet');take.type='button';take.addEventListener('click',()=>{let s=loadShelf();for(const id of data.ids)if(eps[data.ids.indexOf(id)]&&!s.ids.includes(id))s=toggleItem(s,id);if(saveShelf(s)){take.textContent='入れました（このブラウザに保存）';refreshShelfButton();}});
+ const take=node('button','この蔵書をわたしの蔵書に入れる','quiet');take.type='button';take.addEventListener('click',()=>{let s=loadShelf();for(const id of data.ids)if(eps[data.ids.indexOf(id)]&&!s.ids.includes(id))s=toggleItem(s,id);if(saveShelf(s)){take.textContent='入れました（このブラウザに保存）';refreshShelfButton();}});
  sec.append(grid,take,node('p','共有した人の名前や、ほかに保存している回は表示されません。','detail-meta'));
  $('search-form').before(sec);
 }

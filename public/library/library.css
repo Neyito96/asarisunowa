@@ -93,3 +93,8 @@ form{background:#fdfaf3;border:1px solid #baac94;border-top:7px solid #40352a;bo
 .related-qr-btn{grid-column:2;grid-row:1/span 2;font-size:.8rem}
 .related-qr{grid-column:1/-1;display:flex;align-items:center;gap:.8em;margin-top:.3em}
 .related-qr svg{width:132px;height:132px;border:1px solid #e3d9c8}
+/* #345 蔵書: 入れた・外したの知らせ、蔵書の中の「聴く」リンク */
+.shelf-toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:50;display:flex;gap:12px;align-items:center;background:#302e2a;color:#fff;padding:10px 14px;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.25);font-size:.95rem;max-width:calc(100% - 32px)}
+.shelf-toast[hidden]{display:none}
+.shelf-toast .quiet{background:#fff;color:#302e2a;border:0}
+.shelf-listen{font-size:.85rem;margin:.25rem 0}
