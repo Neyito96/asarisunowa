@@ -39,3 +39,24 @@ body{background-color:#eee9df;background-image:radial-gradient(ellipse at 20% 25
 form{background:#fdfaf3;border:1px solid #baac94;border-top:7px solid #40352a;border-radius:3px 3px 12px 12px;box-shadow:inset 0 0 0 3px #eee5d4,0 6px 16px rgba(49,40,30,.05)}
 .episode{border-top:1px solid #c7b8a0}
 @media(max-width:600px){.intro{margin-top:25px;min-height:211px;padding:32px 23px 23px 31px;border-width:4px}.intro::before{top:-30px;height:34px;left:-9px;right:-9px;background-size:38px 25px,38px 34px,auto;background-position:0 10px,0 0,0 0}.intro::after{left:7px;right:7px;background:linear-gradient(90deg,#342b25 0 5px,transparent 5px calc(100% - 5px),#342b25 calc(100% - 5px))}.intro h1{font-size:clamp(30px,8vw,48px);letter-spacing:.035em}.intro .seal{width:58px;height:58px;margin-left:5px}.intro .seal strong{font-size:27px}.intro-sub{font-size:11px}}
+
+/* #315 自分の蔵書一覧・共有 */
+.shelf-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+.shelf-toolbar small{color:#6b5d4f}
+.shelf-dialog{width:min(680px,94vw);max-height:88vh;overflow:auto;border:2px solid #342b25;padding:20px}
+.shelf-dialog label{display:block;margin:8px 0;font-weight:600}
+.shelf-dialog input[type=text],.shelf-dialog textarea,.share-out input{display:block;width:100%;box-sizing:border-box;margin-top:4px;font:inherit;padding:6px}
+.shelf-list{padding-left:1.4em}
+.shelf-list li{padding:8px 0;border-top:1px solid #c7b8a0}
+.shelf-list small{display:block;color:#6b5d4f}
+.shelf-controls{display:flex;gap:6px;margin-top:4px}
+.shelf-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.share-preview{margin-top:16px;padding-top:12px;border-top:2px dashed #c7b8a0}
+.share-picks{list-style:none;padding:0}
+.share-out{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+.shared-shelf{margin:16px 0;padding:16px;border:2px solid #342b25;background:#fffaf0}
+.shared-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin:12px 0}
+.shared-card{border:1px solid #c7b8a0;padding:12px;background:#fff}
+.shared-card h3{font-size:1rem;margin:4px 0 8px}
+.shared-card .detail-links{display:flex;flex-wrap:wrap;gap:6px}
+@media(max-width:600px){.shared-cards{grid-template-columns:1fr}.shelf-dialog{padding:14px}}

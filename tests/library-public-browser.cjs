@@ -19,11 +19,13 @@ const { chromium, webkit, devices } = require(process.env.LIBRARY_PLAYWRIGHT || 
     await page.locator('#next').click();
     await page.waitForFunction(() => document.querySelector('#page-label').textContent.startsWith('2 /'));
     await page.locator('#show').selectOption('ドーナツ');
-    await page.waitForFunction(() => document.querySelector('#status').textContent === '60件');
+    // #315: 件数は蔵の同期で増えるので、公開データ（manifest）の番組件数と一致することを確かめる
+    const donut = (await (await context.request.get(new URL('data/manifest.json', base).href)).json()).shows.find(s => s.name === 'ドーナツ').count;
+    await page.waitForFunction(n => document.querySelector('#status').textContent === `${n}件`, donut.toLocaleString('ja-JP'));
     await page.locator('#order').selectOption('oldest');
     await page.waitForFunction(() => document.querySelector('#results').getAttribute('aria-busy') === 'false');
     await page.locator('#next').click();
-    await page.waitForFunction(() => document.querySelectorAll('.episode').length === 20);
+    await page.waitForFunction(n => document.querySelectorAll('.episode').length === n, Math.min(40, donut - 40));
     await page.locator('#query').fill('寺下真理加');
     await page.locator('#query').press('Enter');
     await page.waitForFunction(() => document.querySelector('#status').textContent.includes('検索結果') && document.querySelector('#results').getAttribute('aria-busy') === 'false');
@@ -56,7 +58,8 @@ const { chromium, webkit, devices } = require(process.env.LIBRARY_PLAYWRIGHT || 
       assert.equal(await page.locator('#detail audio[src*="/embed"]').count(),0);
       await page.locator('#close-detail').click();
       await page.locator('#query').fill(''); await page.locator('#show').selectOption('こどもそうだんしつ');
-      await page.waitForFunction(() => document.querySelectorAll('.episode').length === 31 && document.querySelector('#results').getAttribute('aria-busy') === 'false');
+      const kids = (await (await context.request.get(new URL('data/manifest.json', base).href)).json()).shows.find(s => s.name === 'こどもそうだんしつ').count;
+      await page.waitForFunction(n => document.querySelectorAll('.episode').length === n && document.querySelector('#results').getAttribute('aria-busy') === 'false', Math.min(40, kids));
       await page.locator('#clear-filters').click();
       await page.waitForFunction(() => document.querySelectorAll('.episode').length === 40);
     }

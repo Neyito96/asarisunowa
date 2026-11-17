@@ -1,0 +1,285 @@
+{
+ "schema": 1,
+ "version": "POSU-1",
+ "generatedAt": "2026-11-17T02:39:29.161Z",
+ "submitEnabled": false,
+ "cards": [
+  {
+   "podcastId": "1",
+   "podcastTitle": "どいらじ（映画凡人が集いしラジオ）",
+   "introductions": [
+    {
+     "title": "（日曜版）新年度だもの、新企画スタート！",
+     "date": "2026-04-05",
+     "href": "/library/?ep=EP-05463",
+     "library": true,
+     "epId": "EP-05463",
+     "verifiedAt": "2026-11-17"
+    }
+   ],
+   "replies": [],
+   "specials": []
+  },
+  {
+   "podcastId": "2",
+   "podcastTitle": "映画は絶賛に限る",
+   "introductions": [
+    {
+     "title": "（日曜版）新年度だもの、新企画スタート！",
+     "date": "2026-04-05",
+     "href": "/library/?ep=EP-05463",
+     "library": true,
+     "epId": "EP-05463",
+     "verifiedAt": "2026-11-17"
+    }
+   ],
+   "replies": [],
+   "specials": []
+  },
+  {
+   "podcastId": "3",
+   "podcastTitle": "そえたとおもちの美容室トーク",
+   "introductions": [
+    {
+     "title": "（日曜版）台北駅の地下街は、若者であふれていました",
+     "date": "2026-04-12",
+     "href": "/library/?ep=EP-05468",
+     "library": true,
+     "epId": "EP-05468",
+     "verifiedAt": "2026-11-17"
+    }
+   ],
+   "replies": [],
+   "specials": []
+  },
+  {
+   "podcastId": "5",
+   "podcastTitle": "つる日和",
+   "introductions": [
+    {
+     "title": "（日曜版）万緑のなかでワシの歯、抜け落ちる",
+     "date": "2026-04-26",
+     "href": "/library/?ep=EP-05479",
+     "library": true,
+     "epId": "EP-05479",
+     "verifiedAt": "2026-11-17"
+    }
+   ],
+   "replies": [],
+   "specials": []
+  },
+  {
+   "podcastId": "6",
+   "podcastTitle": "歴史から学ぶ精神科ラジオ",
+   "introductions": [
+    {
+     "title": "（日曜版）読むのがつらくなるニュース、どうしてますか？",
+     "date": "2026-05-10",
+     "href": "/library/?ep=EP-05489",
+     "library": true,
+     "epId": "EP-05489",
+     "verifiedAt": "2026-11-17"
+    }
+   ],
+   "replies": [],
+   "specials": []
+  },
+  {
+   "podcastId": "7",
+   "podcastTitle": "南方政談録",
+   "introductions": [
+    {
+     "title": "（日曜版）なめられ現象、私の場合",
+     "date": "2026-05-24",
+     "href": "/library/?ep=EP-05498",
+     "library": true,
+     "epId": "EP-05498",
+     "verifiedAt": "2026-11-17"
+    }
+   ],
+   "replies": [],
+   "specials": []
+  },
+  {
+   "podcastId": "8",
+   "podcastTitle": "注文の多い出版相談室",
+   "introductions": [
+    {
+     "title": "（日曜版）梅雨で思い浮かぶ景色",
+     "date": "2026-06-14",
+     "href": "/library/?ep=EP-05512",
+     "library": true,
+     "epId": "EP-05512",
+     "verifiedAt": "2026-11-17"
+    }
+   ],
+   "replies": [],
+   "specials": []
+  },
+  {
+   "podcastId": "11",
+   "podcastTitle": "ののラジオ",
+   "introductions": [
+    {
+     "title": "（日曜版）盆DANCE",
+     "date": "2026-08-02",
+     "href": "/library/?ep=EP-05558",
+     "library": true,
+     "epId": "EP-05558",
+     "verifiedAt": "2026-11-17"
+    }
+   ],
+   "replies": [],
+   "specials": []
+  },
+  {
+   "podcastId": "13",
+   "podcastTitle": "奥会津、風のラジオ",
+   "introductions": [
+    {
+     "title": "（ポすすめ）奥会津、風のラジオ",
+     "date": "2026-09-15",
+     "href": "/library/?ep=EP-00120",
+     "library": true,
+     "epId": "EP-00120",
+     "verifiedAt": "2026-11-17"
+    }
+   ],
+   "replies": [],
+   "specials": []
+  },
+  {
+   "podcastId": "14",
+   "podcastTitle": "セイとセイショクとジェンダーのSRHRラジオ",
+   "introductions": [
+    {
+     "title": "（ポすすめ）セイとセイショクとジェンダーのSRHRラジオ",
+     "date": "2026-09-22",
+     "href": "/library/?ep=EP-00115",
+     "library": true,
+     "epId": "EP-00115",
+     "verifiedAt": "2026-11-17"
+    }
+   ],
+   "replies": [],
+   "specials": []
+  },
+  {
+   "podcastId": "15",
+   "podcastTitle": "おんすた【NOW AND THEN】",
+   "introductions": [
+    {
+     "title": "（ポすすめ）おんすた 【NOW AND THEN】",
+     "date": "2026-10-13",
+     "href": "/library/?ep=EP-01222",
+     "library": true,
+     "epId": "EP-01222",
+     "verifiedAt": "2026-11-17"
+    }
+   ],
+   "replies": [],
+   "specials": []
+  },
+  {
+   "podcastId": "16",
+   "podcastTitle": "クリエイティブの反対語",
+   "introductions": [
+    {
+     "title": "（ポすすめ）クリエイティブの反対語・ファミレスで隣から聞こえてくるフリーランスのモヤモヤ話",
+     "date": "2026-10-20",
+     "href": "/library/?ep=EP-06605",
+     "library": true,
+     "epId": "EP-06605",
+     "verifiedAt": "2026-11-17"
+    }
+   ],
+   "replies": [],
+   "specials": [
+    {
+     "title": "（対話）自分に興味がある人と、自分なんてないと思う人　栃尾江美さん",
+     "date": "2026-11-16",
+     "href": "/library/?ep=EP-06739",
+     "library": true,
+     "epId": "EP-06739",
+     "verifiedAt": "2026-11-17",
+     "program": "ドーナツ",
+     "relation": "ドーナツに番組の配信者が出演"
+    },
+    {
+     "title": "#410 なんと同い年！　朝日新聞社・神田大介さん",
+     "date": "2026-11-16",
+     "href": "https://podcasts.apple.com/jp/podcast/id1129707783?i=1000802141616",
+     "library": false,
+     "epId": "",
+     "verifiedAt": "2026-11-17",
+     "program": "クリエイティブの反対語",
+     "relation": "この番組に神田さん等が出演"
+    }
+   ]
+  },
+  {
+   "podcastId": "17",
+   "podcastTitle": "ファミレスで隣から聞こえてくるフリーランスのモヤモヤ話",
+   "introductions": [
+    {
+     "title": "（ポすすめ）クリエイティブの反対語・ファミレスで隣から聞こえてくるフリーランスのモヤモヤ話",
+     "date": "2026-10-20",
+     "href": "/library/?ep=EP-06605",
+     "library": true,
+     "epId": "EP-06605",
+     "verifiedAt": "2026-11-17"
+    }
+   ],
+   "replies": [],
+   "specials": []
+  },
+  {
+   "podcastId": "18",
+   "podcastTitle": "AIニュースブリーフィング",
+   "introductions": [
+    {
+     "title": "（ポすすめ）AIニュースブリーフィング",
+     "date": "2026-10-27",
+     "href": "/library/?ep=EP-06640",
+     "library": true,
+     "epId": "EP-06640",
+     "verifiedAt": "2026-11-17"
+    }
+   ],
+   "replies": [],
+   "specials": []
+  },
+  {
+   "podcastId": "19",
+   "podcastTitle": "ポッドキャスト茶会",
+   "introductions": [
+    {
+     "title": "（ポすすめ）ポッドキャスト茶会",
+     "date": "2026-11-03",
+     "href": "/library/?ep=EP-06661",
+     "library": true,
+     "epId": "EP-06661",
+     "verifiedAt": "2026-11-17"
+    }
+   ],
+   "replies": [],
+   "specials": []
+  },
+  {
+   "podcastId": "20",
+   "podcastTitle": "ながらcast",
+   "introductions": [
+    {
+     "title": "（ポすすめ）ながらcast",
+     "date": "2026-11-10",
+     "href": "/library/?ep=EP-06691",
+     "library": true,
+     "epId": "EP-06691",
+     "verifiedAt": "2026-11-17"
+    }
+   ],
+   "replies": [],
+   "specials": []
+  }
+ ]
+}

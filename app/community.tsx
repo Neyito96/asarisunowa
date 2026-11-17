@@ -2,6 +2,8 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Playlist } from "./data";
 import { recommendedPodcastSnapshot } from "./recommended-podcasts-data";
+import PosukamiCardSection from "./PosukamiCardSection";
+import { POSUKAMI_DATA_URL, findPosukamiCard, parsePosukami, type PosukamiData } from "./posukami";
 import {
   isSpotifyCollaborativeInviteUrl,
   submitAutoUpdateRequestConfirmed,
@@ -748,6 +750,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
   const [liveListenerPodcasts, setLiveListenerPodcasts] = useState<ListenerPodcast[]>(LISTENER_PODCAST_BACKUP);
   const [listenerPodcastStatus, setListenerPodcastStatus] = useState<"loading" | "ready" | "error">("loading");
   const [listenerPodcastReloadKey, setListenerPodcastReloadKey] = useState(0);
+  const [posukami, setPosukami] = useState<PosukamiData>(() => parsePosukami(null));
+  const [posukamiPreview, setPosukamiPreview] = useState(false);
   const [view, setView] = useState<"listeners" | "official" | "circle" | "discord" | "podcasts" | "listenerPodcasts">(
       "official",
     ),
@@ -1020,6 +1024,17 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     refreshListenerPodcasts();
     return () => { cancelled = true; };
   }, [listenerPodcastReloadKey]);
+
+  // ポす神回（#312）: 承認・照合済みの公開データだけを読む。読めなければカードは今まで通り
+  useEffect(() => {
+    let cancelled = false;
+    setPosukamiPreview(new URLSearchParams(window.location.search).get("posukami") === "preview");
+    fetch(POSUKAMI_DATA_URL + "?_=" + Math.floor(Date.now() / 600000), { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((json) => { if (!cancelled) setPosukami(parsePosukami(json)); })
+      .catch(() => { /* 公開データが無くてもカードはそのまま */ });
+    return () => { cancelled = true; };
+  }, []);
 
   const rows = useMemo(
     () =>
@@ -2019,7 +2034,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             <div className="themeHead">
               <p className="kicker themeKicker">LISTENER PODCASTS</p>
               <h2>🎙 ポすすめ</h2>
-              <p>ドーナツ（ポすすめ）で紹介された、朝リスさんのPodcastを集めた棚。以前の「日曜版」で紹介された番組もあります。人類ポ完計画、進行中。</p>
+              <p>（ポすすめ）とは「ポッドキャストのすすめ」。ドーナツの<a href="library/?q=%E3%83%9D%E3%81%99%E3%81%99%E3%82%81" style={{ textDecoration: "underline", textUnderlineOffset: "0.18em", fontWeight: 700 }} title="朝ポキの蔵で「ポすすめ」を検索">（ポすすめ）</a>や（日曜版）で紹介された、朝リスさんのPodcastを集めた棚です。紹介元の回や、その後に神田さんをゲスト出演した「ポす神回」も、確認できたものから順次つないでいきます。人類ポ完計画、進行中。</p>
+              <p style={{ fontSize: "0.85rem", lineHeight: 1.6, opacity: 0.84, marginTop: "0.4rem" }}>朝ポキの蔵は現在、収蔵内容を確認・更新しながらIssue駆動で開発中です。<a href="https://github.com/Neyito96/asarisunowa/issues/197" target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: "0.18em", fontWeight: 700 }}>開発への参加・アイデア募集はこちら</a>。</p>
             </div>
             <div className="listenerPodcastSubmitCta" aria-label="ポすすめ投稿のご案内">
               <div className="listenerPodcastSubmitCtaInfo">
@@ -2068,6 +2084,13 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     <h3>{p.title}</h3>
                     <p>by {p.maker}</p>
                     {p.introduced && <p className="podcastComment">紹介配信日 {p.introduced}</p>}
+                    <PosukamiCardSection
+                      podcast={{ id: p.id, title: p.title }}
+                      card={findPosukamiCard(posukami, p)}
+                      submitEnabled={posukami.submitEnabled || posukamiPreview}
+                      endpoint={ASARISU_API_URL}
+                      loadJsonp={(url) => loadJsonp<unknown>(url, 20000)}
+                    />
                     {p.genre && <span className="podcastGenreTag">{p.genre}</span>}
                     {p.comment && <p className="podcastComment">💬 {p.comment}</p>}
                     {p.links.length > 0 ? (
