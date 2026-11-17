@@ -86,3 +86,10 @@ form{background:#fdfaf3;border:1px solid #baac94;border-top:7px solid #40352a;bo
   .intro .seal strong { font-size:23px; }
   .intro .seal small { font-size:6px; }
 }
+/* #308 関連記事: 見出し＋URL＋（パソコンは）QR */
+.related-article{display:grid;grid-template-columns:1fr auto;gap:.15em .6em;align-items:start;padding:.5em 0;border-top:1px solid #e3d9c8}
+.related-article a{grid-column:1;font-weight:600}
+.related-article .related-url{grid-column:1;color:#6b5d4f;font-size:.8rem;overflow-wrap:anywhere}
+.related-qr-btn{grid-column:2;grid-row:1/span 2;font-size:.8rem}
+.related-qr{grid-column:1/-1;display:flex;align-items:center;gap:.8em;margin-top:.3em}
+.related-qr svg{width:132px;height:132px;border:1px solid #e3d9c8}

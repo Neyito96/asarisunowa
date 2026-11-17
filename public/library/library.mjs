@@ -1,5 +1,6 @@
 import { publicationLabel } from './publication-scope.mjs';
 import { tidyDescription } from './description-tidy.mjs';
+import { qrSvg } from './qr.mjs';
 import { filterEpisodes, safeUrl } from './library-core.mjs';
 const $=id=>document.getElementById(id), cache=new Map();
 let manifest, page=0, generation=0, activeResults=null, activeDetail=0;
@@ -72,9 +73,16 @@ async function openDetail(id,fromUrl=false) {
  if(useTidy&&tidy.related.length&&!e.related.length){body.append(node('h3','関連記事'));const list=node('ul',undefined,'related-list');for(const r of tidy.related){const url=safeUrl(r.url);if(!url)continue;const li=node('li'),a=node('a',r.title);a.href=url;a.target='_blank';a.rel='noopener noreferrer';li.append(a);list.append(li);}body.append(list);}
  if(e.staffDetails?.length){body.append(node('h3','出演・スタッフ'));for(const line of e.staffDetails)body.append(node('p',line));}
  if(e.recording?.length)body.append(node('p',e.recording.join(' '),'detail-meta'));
- if(e.related.length){body.append(node('h3','関連記事'));const related=node('div',undefined,'detail-links');
-  if(e.relatedArticles?.length){for(const article of e.relatedArticles){const url=safeUrl(article.url);if(!url)continue;const a=node('a',article.title+' ↗');a.href=url;a.target='_blank';a.rel='noopener noreferrer';related.append(a);related.append(node('small',article.linkStatus==='HTTP_OK_NOT_CONTENT_VERIFIED'?'接続確認済み（本文未確認）':article.linkStatus==='HTTP_UNAVAILABLE'?'現在の接続は未確認':'リンク未確認'));}}
-  else addLinks(related,e.related);body.append(related);}
+ // 関連記事（#308）: 見出し（SC4-18が原文から取った物）をリンクにし、URLも表示。パソコンでは押すとQRコードを出す（外部に送らずブラウザ内で作る）
+ if(e.related.length){body.append(node('h3','関連記事'));const list=node('ul',undefined,'related-list');
+  const items=e.relatedArticles?.length?e.relatedArticles:[...new Set(e.related)].map(u=>({title:'',url:u}));
+  const pc=!!window.matchMedia?.('(min-width: 900px) and (pointer: fine)').matches;
+  for(const art of items){const url=safeUrl(art.url);if(!url)continue;const li=node('li',undefined,'related-article');
+   const a=node('a',(art.title||'記事（見出し未確認）')+' ↗');a.href=url;a.target='_blank';a.rel='noopener noreferrer';li.append(a);
+   const u=new URL(url),shown=(u.hostname+u.pathname).replace(/\/$/,'');li.append(node('small',shown.length>70?shown.slice(0,69)+'…':shown,'related-url'));
+   if(pc){const b=node('button','QRコード','quiet related-qr-btn');b.type='button';b.setAttribute('aria-expanded','false');b.addEventListener('click',()=>{let box=li.querySelector('.related-qr');if(box){box.remove();b.setAttribute('aria-expanded','false');return;}box=node('div',undefined,'related-qr');box.innerHTML=qrSvg(url,{label:(art.title||'関連記事')+'のQRコード'});box.append(node('small','スマホのカメラで読み取ると記事が開きます'));li.append(box);b.setAttribute('aria-expanded','true');});li.append(b);}
+   list.append(li);}
+  body.append(list);}
  body.append(shelfControl(id));
  const share=node('button','この回のリンクをコピー','quiet');share.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(location.href);share.textContent='コピーしました';}catch{share.textContent='アドレス欄からリンクをコピーできます';}});body.append(share);
  if(!fromUrl){const url=new URL(location.href);url.searchParams.set('ep',id);history.replaceState({},'',url);}
