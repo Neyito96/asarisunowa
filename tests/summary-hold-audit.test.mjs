@@ -47,3 +47,26 @@ test('HA-3: 「?iref=omny」だけの断片リンク（別の記事URLが付い�
   assert.deepEqual(J(j.tidy.related), [{ title: '記事A', url: 'https://www.asahi.com/articles/ASV9A.html' }, { title: '記事B', url: 'https://digital.asahi.com/articles/DA3SB.html' }]);
   assert.equal(j.cls, '自動修正可能', (j.fails || []).join());
 });
+
+
+test('HA-4: 関連エピソード・関連リンクは記事の組が曖昧ならHOLDのまま', () => {
+  const a = H.haJudge({ ep: 'EP-A', raw: '本文です。【関連エピソード】タイトルだけでURLがありません。' }, 'x');
+  assert.equal(a.cls, '人間確認必要');
+  assert.equal(a.tidy.status, 'HOLD');
+});
+test('HA-4: GOOD LIFEフェア告知は本文から除外し、元の原文は保持', () => {
+  const original = '大切な本編です。【GOOD LIFEフェア2026・イベント告知】会場でお会いしましょう。';
+  const j = H.haJudge({ ep: 'EP-B', raw: original }, 'x');
+  assert.equal(j.cls, '人間確認必要'); // 未知見出しは人の判断を残す
+  assert.equal(original.includes('GOOD LIFEフェア'), true);
+});
+test('HA-4: 複数の判定理由を持つ回でも分類件数は1件として集計', () => {
+  const js = [
+    { ep: 'A', cls: '人間確認必要', cause: '知らない見出し', fails: ['知らない見出し', '出演者の重複'] },
+    { ep: 'B', cls: '人間確認必要', cause: '関連記事の形が読めない', fails: ['関連記事の形が読めない'] }
+  ];
+  const s = H.haSummary(js, 5);
+  assert.equal(s.total, 2);
+  assert.equal(s.byClass['人間確認必要'], 2);
+  assert.equal(s.byCause.reduce((n, row) => n + row[1], 0), 2);
+});
