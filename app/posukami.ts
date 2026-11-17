@@ -15,6 +15,8 @@ export type PosukamiCard = { podcastId: string; podcastTitle: string; introducti
 export type PosukamiData = { schema: number; generatedAt: string; submitEnabled: boolean; cards: PosukamiCard[] };
 
 // サイトは GitHub Pages の /asarisunowa/ 配下で動くため、先頭が / の絶対パスは使わない（相対パス）
+// ポす神回・ポすすめ返しの投稿受付（#315）: 本番GAS「朝リスの輪」の専用デプロイ（既存の番組登録などのURLとは別。既存側の版は変えていない）
+export const POSUKAMI_SUBMIT_ENDPOINT = "https://script.google.com/macros/s/AKfycbzwlb2aoRrCcs4zaBljBorMzWlMS3JM_6OLjrpHlY7NvMf4BLXNiNqRbhDTQVUHYqqB_A/exec";
 export const POSUKAMI_DATA_URL = "posusume/posukami.json";
 // 蔵の個別ページ（/library/?ep=EP-xxxxx）をページからの相対パスにする
 export function posukamiHref(href: string): string { return /^\/library\/\?ep=EP-\d{5}$/.test(href) ? href.slice(1) : href; }

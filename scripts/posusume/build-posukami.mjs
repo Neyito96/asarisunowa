@@ -33,6 +33,7 @@ async function readSource(src) { return /^https:\/\//.test(src) ? (await fetch(s
 export function rowsFrom(text) {
   const t = String(text).trim();
   if (t.startsWith('[')) return JSON.parse(t);
+  if (t.startsWith('{')) { const j = JSON.parse(t); if (j.ok !== true || !Array.isArray(j.rows)) throw new Error('停止: 公開データの受信に失敗 ' + (j.error || '')); return j.rows; }   // 本番GAS type=posukamiPublic
   const rows = parseCsv(t); if (!rows.length) return [];
   return rows[0][0] === '種別' ? rows.slice(1) : rows;   // 見出し行があれば外す
 }
@@ -42,9 +43,9 @@ export function build({ rows, podcasts, library, submitEnabled, generatedAt }) {
 }
 async function main() {
   const a = process.argv.slice(2), arg = (k, d) => { const i = a.indexOf(k); return i >= 0 ? a[i + 1] : d; };
-  const rowsSrc = arg('--rows'), podSrc = arg('--podcasts'), out = path.resolve(ROOT, arg('--out', 'public/posusume/posukami.json'));
+  const rowsSrc = arg('--rows'), podSrc = arg('--podcasts') || rowsSrc, out = path.resolve(ROOT, arg('--out', 'public/posusume/posukami.json'));
   if (!rowsSrc || !podSrc) { console.error('使い方: --rows <CSV|JSON> --podcasts <JSON>'); process.exit(2); }
-  const pj = JSON.parse(await readSource(podSrc)), podcasts = (pj.items || pj).map((x) => ({ id: String(x.id), title: String(x.title || '') }));
+  const pj = JSON.parse(await readSource(podSrc)), podcasts = (pj.items || pj.podcasts || pj).map((x) => ({ id: String(x.id), title: String(x.title || '') }));
   if (!podcasts.length) throw new Error('停止: 朝リスPodcast一覧が空です');
   const json = build({ rows: rowsFrom(await readSource(rowsSrc)), podcasts, library: libraryIds(path.join(ROOT, 'public/library/data')), submitEnabled: a.includes('--submit-enabled'), generatedAt: new Date().toISOString() });
   if (fs.existsSync(out)) { const prev = JSON.parse(fs.readFileSync(out, 'utf8')); if (prev.cards && prev.cards.length >= 4 && json.cards.length < prev.cards.length / 2) throw new Error(`停止: カードが ${prev.cards.length} → ${json.cards.length} に急減。前回の版を残します`); }

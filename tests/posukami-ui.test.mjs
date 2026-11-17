@@ -23,7 +23,7 @@ test('公開データ: 1つの紹介回が2番組（16・17）に付く。紹介
   const c16 = findPosukamiCard(data, { id: '16', title: 'クリエイティブの反対語' }).introductions[0];
   assert.equal(c16.library, true); assert.equal(c16.href, '/library/?ep=EP-06605');   // #315 の蔵の同期で EP-06605 が蔵に入った
   assert.ok(data.cards.every((c) => c.introductions.every((i) => i.library)));   // 紹介回16件はすべて蔵の個別ページへ
-  assert.equal(data.submitEnabled, false);   // 本番の受付が配置されるまでは投稿ボタンを出さない
+  assert.equal(data.submitEnabled, true);   // #315: 本番の受付（専用デプロイ）で投稿→承認→表示を確かめたので有効
 });
 test('カードとデータは ID と番組名の両方で結ぶ（並びが変わってIDがずれても別番組に付かない）', () => {
   assert.equal(findPosukamiCard(data, { id: '16', title: '別の番組' }), undefined);
@@ -101,5 +101,14 @@ test('URL一発投稿: URL欄と投稿ボタンだけ。種類はボタンで自
   assert.ok(/relation: mode/.test(section) && /podcastId: podcast\.id, podcastTitle: podcast\.title/.test(section));
   assert.ok(section.includes('sent.includes(u)'));   // 同じURLの二重送信を止める
   for (const u of ['https://stand.fm/episodes/69df8fe3828ab6b195a8cd0f', 'https://music.amazon.co.jp/podcasts/0b4f1c2e-1111-2222-3333-444455556666/episodes/0b4f1c2e-1111-2222-3333-444455556667', 'https://youtu.be/abcdefghijk', 'https://pca.st/episode/b6bf1bce-30a6-405c-a6f7-7da3e13f5c3a']) assert.equal(looksLikeEpisodeUrl(u), true, u);
-  assert.equal(data.submitEnabled, false);   // 受付が本番で動くまで出さない
+  assert.equal(data.submitEnabled, true);
+});
+test('本番接続: 投稿先は専用デプロイ、同期ジョブは本番GASの公開データを読む。ながらcast の返しは実機試験で承認済み', () => {
+  const ts = fs.readFileSync(new URL('../app/posukami.ts', import.meta.url), 'utf8'), wf = fs.readFileSync(new URL('../.github/workflows/sync-playlists.yml', import.meta.url), 'utf8');
+  const ep = ts.match(/POSUKAMI_SUBMIT_ENDPOINT = "([^"]+)"/)[1];
+  assert.match(ep, /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/);
+  assert.ok(tsx.includes('endpoint={POSUKAMI_SUBMIT_ENDPOINT}'));
+  assert.ok(wf.includes(ep + '?type=posukamiPublic') && wf.includes('--submit-enabled'));
+  const c20 = findPosukamiCard(data, { id: '20', title: 'ながらcast' });
+  assert.equal(c20.replies[0].href, 'https://podcasts.apple.com/jp/podcast/id1489885503?i=1000801226425');
 });

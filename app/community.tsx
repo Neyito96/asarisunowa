@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { Playlist } from "./data";
 import { recommendedPodcastSnapshot } from "./recommended-podcasts-data";
 import PosukamiCardSection from "./PosukamiCardSection";
-import { POSUKAMI_DATA_URL, findPosukamiCard, parsePosukami, type PosukamiData } from "./posukami";
+import { POSUKAMI_DATA_URL, POSUKAMI_SUBMIT_ENDPOINT, findPosukamiCard, parsePosukami, type PosukamiData } from "./posukami";
 import {
   isSpotifyCollaborativeInviteUrl,
   submitAutoUpdateRequestConfirmed,
@@ -2088,7 +2088,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                       podcast={{ id: p.id, title: p.title }}
                       card={findPosukamiCard(posukami, p)}
                       submitEnabled={posukami.submitEnabled || posukamiPreview}
-                      endpoint={ASARISU_API_URL}
+                      endpoint={POSUKAMI_SUBMIT_ENDPOINT}
                       loadJsonp={(url) => loadJsonp<unknown>(url, 20000)}
                     />
                     {p.genre && <span className="podcastGenreTag">{p.genre}</span>}

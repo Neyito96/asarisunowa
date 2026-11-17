@@ -31,16 +31,14 @@ jobs:
           python3 scripts/sync-playlists.py
           python3 scripts/sync-recommended-podcasts.py
 
-      # ポす神回（#312）: 承認・照合済みの公開シートだけを読んで public/posusume/posukami.json を作る。
-      # リポジトリ変数 POSUKAMI_PUBLIC_CSV_URL（公開シートの CSV）が設定されるまでは何もしない。失敗しても前回の版を残す。
+      # ポす神回（#312/#315）: 本番GAS（type=posukamiPublic）が、管理人が「承認」にした投稿を公開シートへ移してから、
+      # 公開シート（承認済み・照合済みの行だけ）と番組一覧を返す。それを public/posusume/posukami.json にする。失敗しても前回の版を残す。
       - name: Read approved Posukami sheet
-        if: ${{ vars.POSUKAMI_PUBLIC_CSV_URL != '' }}
         continue-on-error: true
         run: |
           node scripts/posusume/build-posukami.mjs \
-            --rows "${{ vars.POSUKAMI_PUBLIC_CSV_URL }}" \
-            --podcasts "https://script.google.com/macros/s/AKfycbxlZCNqGqOEY7j61OgcSGM8_xfGT08f4jjamXtSj2DES9fXl-xwJrvcRGYHnskidjIMug/exec?type=listenerPodcast" \
-            ${{ vars.POSUKAMI_SUBMIT_ENABLED == 'true' && '--submit-enabled' || '' }}
+            --rows "https://script.google.com/macros/s/AKfycbzwlb2aoRrCcs4zaBljBorMzWlMS3JM_6OLjrpHlY7NvMf4BLXNiNqRbhDTQVUHYqqB_A/exec?type=posukamiPublic" \
+            --submit-enabled
 
       - name: Save changes
         run: |

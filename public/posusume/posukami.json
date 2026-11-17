@@ -1,8 +1,8 @@
 {
  "schema": 1,
  "version": "POSU-1",
- "generatedAt": "2026-11-17T04:30:51.674Z",
- "submitEnabled": false,
+ "generatedAt": "2026-11-17T05:19:58.128Z",
+ "submitEnabled": true,
  "cards": [
   {
    "podcastId": "1",
@@ -316,7 +316,18 @@
      "verifiedAt": "2026-11-17"
     }
    ],
-   "replies": [],
+   "replies": [
+    {
+     "title": "5/ 191「ドーナツ」@朝日新聞ポッドキャストの「ポすすめ」で酷評された（笑）「ながらcast」です！",
+     "date": "2026-11-11",
+     "href": "https://podcasts.apple.com/jp/podcast/id1489885503?i=1000801226425",
+     "library": false,
+     "epId": "",
+     "verifiedAt": "2026-11-17",
+     "program": "ながらcast",
+     "relation": "ポすすめ返し（ポすすめを受けて番組が配信した回）"
+    }
+   ],
    "specials": []
   }
  ]
