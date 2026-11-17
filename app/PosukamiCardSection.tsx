@@ -1,5 +1,5 @@
 "use client";
-// ポすすめカードに足す欄（#312）: 「🎙 紹介された回」「✨ ポす神回」「この番組のポす神回を教える」
+// ポすすめカードに足す欄（#312）: 「🎙 紹介された回」「💬 ポすすめ振り返り（仮称）」「✨ ポす神回」「この番組のポす神回・振り返り回を教える」
 // 既存カードの番組名・配信者・アートワーク・紹介配信日・配信先リンク・並び替えには触れない。データが無いカードでは何も出さない（ボタンは投稿受付が有効なときだけ）。
 import { useState } from "react";
 import {
@@ -56,8 +56,9 @@ export default function PosukamiCardSection({ podcast, card, submitEnabled, endp
   }
 
   const intros = card?.introductions || [];
+  const replies = card?.replies || [];
   const specials = card?.specials || [];
-  if (!intros.length && !specials.length && !submitEnabled) return null;
+  if (!intros.length && !replies.length && !specials.length && !submitEnabled) return null;
 
   return (
     <div className="posukamiSection">
@@ -70,6 +71,16 @@ export default function PosukamiCardSection({ podcast, card, submitEnabled, endp
             {episode.library ? "→ 朝ポキの蔵でこの回を見る" : "→ この回を聴く（公式ページ）"}
           </a>
           {!episode.library && <small style={noteStyle}>朝ポキの蔵への収蔵は更新待ちです</small>}
+        </p>
+      ))}
+      {replies.map((episode) => (
+        <p className="podcastComment posukamiReply" key={"reply-" + episode.href} style={{ marginTop: "0.45rem" }}>
+          <strong>💬 ポすすめ振り返り</strong>
+          {isPosukamiNew(episode.verifiedAt) && <span className="newBadge newBadgeActive" style={{ marginLeft: "0.4rem" }}>NEW</span>}
+          <br />
+          <span>「{episode.title}」</span>
+          <small style={noteStyle}>{[episode.program, formatPosukamiDate(episode.date)].filter(Boolean).join("・")}</small>
+          <a href={posukamiHref(episode.href)} target="_blank" rel="noopener noreferrer" style={linkStyle}>→ この回を聴く</a>
         </p>
       ))}
       {specials.map((episode) => (
@@ -87,7 +98,7 @@ export default function PosukamiCardSection({ podcast, card, submitEnabled, endp
       {submitEnabled && (
         <div className="posukamiSubmit" style={{ marginTop: "0.5rem" }}>
           <button type="button" className="posukamiSubmitToggle" aria-expanded={open} aria-controls={formId} onClick={() => setOpen((v) => !v)} style={{ fontSize: "0.85rem" }}>
-            {open ? "閉じる" : "✨ この番組のポす神回を教える"}
+            {open ? "閉じる" : "✨ この番組のポす神回・振り返り回を教える"}
           </button>
           {open && (
             <form id={formId} onSubmit={submit} className="posukamiForm" style={{ display: "grid", gap: "0.45rem", marginTop: "0.5rem", fontSize: "0.88rem" }}>

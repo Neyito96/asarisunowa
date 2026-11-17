@@ -102,3 +102,25 @@ test('公開データ: 蔵にある回は蔵の個別ページ、無ければ公
   assert.equal(j.cards.find((c) => c.podcastId === '17'), undefined);
   assert.equal(j.submitEnabled, false);
 });
+
+test('振り返り回: 投稿の種類 reply は「振り返り」欄に分けて載り、ポす神回とは混ざらない', () => {
+  assert.equal(P.posuValidate(sub({ relation: 'reply', url: 'https://podcasts.apple.com/jp/podcast/id1129707783?i=1000799999999' }), pods, {}, {}).ok, true);
+  const r = qrow('R', P.POSU_STATE.APPROVE, 'apple:1000799999999|16'); r[6] = 'reply';
+  const plan = P.posuApprovePlan([r], {}, pods, '2026-11-17T01:00:00Z');
+  assert.equal(plan.add[0][4], 'クリエイティブの反対語');
+  const j = P.posuBuildPublic(plan.add, pods, {}, {});
+  assert.equal(j.cards[0].replies.length, 1); assert.equal(j.cards[0].specials.length, 0);
+});
+test('振り返り候補: 紹介日〜90日後・ポすすめ等への言及だけ。題名にあれば強い候補', () => {
+  const p = { introduced: '2026-10-20' };
+  const c = P.posuReplyCandidates(p, [
+    { title: '#401 ドーナツのポすすめで紹介されました！', description: '', published: '2026-10-27T00:00:00Z', url: 'https://a/1' },
+    { title: '#402 雑談', description: '朝日新聞の神田さんに感謝', published: '2026-11-03T00:00:00Z', url: 'https://a/2' },
+    { title: '#399 ドーナツ食べた', description: '', published: '2026-10-01T00:00:00Z', url: 'https://a/0' },
+    { title: '#403 旅行', description: 'なし', published: '2026-11-10T00:00:00Z', url: 'https://a/3' },
+    { title: '#500 ポすすめ', description: '', published: '2027-03-01T00:00:00Z', url: 'https://a/9' },
+  ]);
+  assert.deepEqual(J(c.map((x) => [x.url, x.strength.slice(0, 1)])), [['https://a/1', '強'], ['https://a/2', '弱']]);
+  assert.equal(P.posuAppleShowId('https://podcasts.apple.com/jp/podcast/x/id1129707783'), '1129707783');
+  assert.equal(P.posuAppleShowId('https://x.gd/OA1Cv'), '');
+});

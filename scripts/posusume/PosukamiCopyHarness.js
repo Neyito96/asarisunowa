@@ -63,3 +63,21 @@ function POSU_T1_COPY試験() {
   var pass = Object.keys(r).every(function (k) { return /^OK/.test(r[k]); });
   return posuLog_('POSU_T1_COPY試験', { status: pass ? 'PASS' : 'FAIL', checks: r, note: 'COPY だけ。V2・本番シートは読むだけ' });
 }
+
+// 7) 振り返り回の候補探し（読むだけ）。Apple の番組IDが分かる番組だけ、公式の iTunes Search API で新しい50回を1回ずつ読む。結果は COPY「ポす・振り返り候補」（承認キューには入れない）
+function POSU_C6_振り返り候補_READ_ONLY() {
+  posuGuardCopy_();
+  var pods = posuPodcasts(), rows = [], sum = { podcasts: pods.length, noAppleId: 0, checked: 0, withCandidates: 0, strong: 0, weak: 0 };
+  pods.forEach(function (p) {
+    var id = posuAppleShowId(p.apple); if (!id) { sum.noAppleId++; rows.push([p.id, p.title, p.introduced, '（Apple の番組IDが分からない）', '', '', '', '']); return; }
+    var r = null; try { r = UrlFetchApp.fetch('https://itunes.apple.com/lookup?id=' + id + '&entity=podcastEpisode&limit=50&country=jp', { muteHttpExceptions: true }); } catch (e) { r = null; }
+    Utilities.sleep(400); sum.checked++;
+    var eps = r && r.getResponseCode() === 200 ? (JSON.parse(r.getContentText()).results || []).filter(function (x) { return x.wrapperType === 'podcastEpisode'; }).map(function (x) { return { title: x.trackName, description: x.description, published: x.releaseDate, url: x.trackViewUrl }; }) : [];
+    var c = posuReplyCandidates(p, eps); if (c.length) sum.withCandidates++;
+    c.forEach(function (x) { if (/^強/.test(x.strength)) sum.strong++; else sum.weak++; rows.push([p.id, p.title, p.introduced, x.title, x.date, x.strength, x.words, x.url]); });
+    if (!c.length) rows.push([p.id, p.title, p.introduced, '（候補なし・新しい50回の範囲）', '', '', '', '']);
+  });
+  var ss = SpreadsheetApp.openById(POSU_COPY_ID), sh = ss.getSheetByName('ポす・振り返り候補') || ss.insertSheet('ポす・振り返り候補');
+  sh.clearContents(); sh.getRange(1, 1, 1, 8).setValues([['番組ID', '番組名', '紹介配信日', '候補の回', '配信日', '強さ', '言及していた言葉', 'URL']]); if (rows.length) sh.getRange(2, 1, rows.length, 8).setValues(rows);
+  return posuLog_('POSU_C6_振り返り候補_READ_ONLY', { status: 'OK', summary: sum, strongCandidates: rows.filter(function (r) { return /^強/.test(r[5]); }).map(function (r) { return r[0] + ' ' + r[1] + '｜' + r[4] + '｜' + String(r[3]).slice(0, 60); }), sheet: 'COPY「ポす・振り返り候補」', note: '候補だけ。カードに載せるには投稿→承認の通常の流れを通す' });
+}

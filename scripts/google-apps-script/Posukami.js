@@ -10,7 +10,9 @@
 var POSU_VERSION = 'POSU-1';
 var POSU_QUEUE_H = ['受付ID', '受付日時', '番組ID', '番組名', 'URL', '照合キー', '交流の種類', 'タイトル（投稿）', '配信日（投稿）', '補足', '検出タイトル', '検出配信日', 'ページ確認', '関係の手がかり', '状態', '判断メモ', '反映日時'];
 var POSU_PUBLIC_H = ['種別', '番組ID', '番組名', 'タイトル', '回の番組名', '配信日', 'URL', '交流の種類', 'EP-ID', '確認日', '根拠', '照合キー', '受付ID'];
-var POSU_RELATIONS = { donut_guest: 'ドーナツに番組の配信者が出演', kanda_guest: 'この番組に神田さん等が出演', other: 'その他の交流' };
+var POSU_RELATIONS = { reply: 'ポすすめを受けて番組が配信した振り返り回', donut_guest: 'ドーナツに番組の配信者が出演', kanda_guest: 'この番組に神田さん等が出演', other: 'その他の交流' };
+// カード上の欄: reply は「💬 ポすすめ振り返り（仮称）」、それ以外は「✨ ポす神回」
+var POSU_REPLY_RELATIONS = { reply: true };
 var POSU_STATE = { PENDING: '承認待ち', APPROVE: '承認', REJECT: '却下', DONE: '反映済み' };
 var POSU_LIMITS = { pendingPerPodcast: 5, pendingTotal: 60, title: 200, note: 500 };
 
@@ -95,9 +97,25 @@ function posuRelationHints(sub, meta, html, podcast) {
   if (podcast && hay.indexOf(posuNz(podcast.title)) >= 0) hints.push('ページに番組名');
   if (podcast && podcast.maker && posuNz(podcast.maker).length >= 2 && hay.indexOf(posuNz(podcast.maker)) >= 0) hints.push('ページに配信者名');
   if (/神田大介|神田さん|朝ポキ|朝日新聞ポッドキャスト/.test(String(meta.title) + String(html || '').slice(0, 400000))) hints.push('ページに神田さん・朝ポキ');
+  if (/ポすすめ|日曜版|ドーナツ/.test(String(meta.title) + String(html || '').slice(0, 400000))) hints.push('ページに「ポすすめ」等');
+  if (sub.relation === 'reply' && podcast && meta.date && posuDay(podcast.introduced)) hints.push(meta.date >= posuDay(podcast.introduced) ? '紹介日以降の配信' : '紹介日より前の配信（要確認）');
   return hints.length ? hints.join('・') : '手がかりなし（要確認）';
 }
 
+// ===== 2b) 振り返り回の候補探し（読むだけ・自動では載せない）=====
+// eps: その番組の回（Apple の公開データ iTunes Search API lookup: trackName・description・releaseDate・trackViewUrl）
+// 候補 = 紹介日〜90日後に配信 ＋ 題名か説明に「ポすすめ／朝日新聞／朝ポキ／ドーナツ／神田」。題名にあれば強い候補。あくまで候補で、承認キューにも入れない
+function posuReplyCandidates(podcast, eps) {
+  var from = posuDay(podcast.introduced); if (!from) return [];
+  var to = new Date(Date.parse(from + 'T00:00:00Z') + 90 * 86400000).toISOString().slice(0, 10), re = /ポすすめ|ポッドキャストのすすめ|朝日新聞|朝ポキ|ドーナツ|神田/;
+  return eps.map(function (e) {
+    var d = posuDay(e.published), title = String(e.title || ''), desc = String(e.description || ''), inTitle = re.test(title), inDesc = re.test(desc);
+    if (!d || d < from || d > to || !(inTitle || inDesc)) return null;
+    var words = (title + ' ' + desc).match(new RegExp(re.source, 'g')) || [], uniq = {}; words.forEach(function (w) { uniq[w] = 1; });
+    return { title: title, date: d, url: e.url, strength: inTitle ? '強（題名に言及）' : '弱（説明だけに言及）', words: Object.keys(uniq).join('・') };
+  }).filter(Boolean).sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+}
+function posuAppleShowId(url) { var m = String(url || '').match(/podcasts\.apple\.com\/[^?]*\/id(\d+)/); return m ? m[1] : ''; }
 // ===== 3) 承認 → 公開（一度だけ）=====
 // queue: 行の配列（POSU_QUEUE_H の順）、publicKeys: {照合キー: true}。戻り値: 公開シートに足す行と、キューの状態更新
 function posuApprovePlan(queue, publicKeys, podcasts, nowIso) {
@@ -109,7 +127,7 @@ function posuApprovePlan(queue, publicKeys, podcasts, nowIso) {
     var p = null; podcasts.forEach(function (x) { if (String(x.id) === String(r[2])) p = x; });
     if (!p || posuNz(p.title) !== posuNz(r[3])) { updates.push({ index: i, state: POSU_STATE.PENDING, memo: '番組が見つからない・番組名が変わった（要確認）' }); return; }
     seen[key] = 1;
-    var ep = (String(r[15]) + ' ' + String(r[9])).match(/EP-\d{5}/), program = r[6] === 'donut_guest' ? 'ドーナツ' : r[6] === 'kanda_guest' ? String(r[3]) : '';   // 蔵の回なら 判断メモ か 補足 に書いた EP-ID を使う
+    var ep = (String(r[15]) + ' ' + String(r[9])).match(/EP-\d{5}/), program = r[6] === 'donut_guest' ? 'ドーナツ' : (r[6] === 'kanda_guest' || r[6] === 'reply') ? String(r[3]) : '';   // 蔵の回なら 判断メモ か 補足 に書いた EP-ID を使う
     add.push(['SPECIAL', String(r[2]), r[3], String(r[7]).trim() || String(r[10]).trim(), program, posuDay(r[8]) || posuDay(r[11]), r[4], r[6], ep ? ep[0] : '', posuDay(nowIso), '承認（' + r[0] + '）・' + r[12] + '・' + r[13], key, r[0]]);
     updates.push({ index: i, state: POSU_STATE.DONE, memo: '' });
   });
@@ -120,7 +138,7 @@ function posuApprovePlan(queue, publicKeys, podcasts, nowIso) {
 // rows: 公開シートの行（見出しを除く）、libraryIds: 公開中の蔵にある EP-ID の集合（{EP-ID: true}）。蔵に無い回は公式ページへ
 function posuBuildPublic(rows, podcasts, libraryIds, opts) {
   var o = opts || {}, cards = {}, seen = {};
-  podcasts.forEach(function (p) { cards[String(p.id)] = { podcastId: String(p.id), podcastTitle: p.title, introductions: [], specials: [] }; });
+  podcasts.forEach(function (p) { cards[String(p.id)] = { podcastId: String(p.id), podcastTitle: p.title, introductions: [], replies: [], specials: [] }; });
   rows.forEach(function (r) {
     var kind = String(r[0]).trim(), id = String(r[1]).trim(), c = cards[id], key = String(r[11] || (kind + '|' + id + '|' + r[6]));
     if (!c || posuNz(c.podcastTitle) !== posuNz(r[2]) || seen[key]) return;   // 番組名が違えばカードに付けない（取り違え防止）
@@ -130,10 +148,11 @@ function posuBuildPublic(rows, podcasts, libraryIds, opts) {
     seen[key] = 1;
     var item = { title: String(r[3]), date: posuDay(r[5]), href: href, library: !!inLib, epId: ep, verifiedAt: posuDay(r[9]) };
     if (kind === 'INTRO') c.introductions.push(item);
-    else if (kind === 'SPECIAL') { item.program = String(r[4] || '') || (ep ? 'ドーナツ' : ''); item.relation = POSU_RELATIONS[r[7]] || String(r[7] || ''); c.specials.push(item); }
+    else if (kind === 'SPECIAL') { item.program = String(r[4] || '') || (ep ? 'ドーナツ' : ''); item.relation = POSU_RELATIONS[r[7]] || String(r[7] || ''); (POSU_REPLY_RELATIONS[r[7]] ? c.replies : c.specials).push(item); }
   });
-  var list = Object.keys(cards).map(function (k) { return cards[k]; }).filter(function (c) { return c.introductions.length || c.specials.length; });
-  list.forEach(function (c) { c.introductions.sort(function (a, b) { return a.date < b.date ? -1 : 1; }); c.specials.sort(function (a, b) { return a.date < b.date ? -1 : 1; }); });
+  var byDate = function (a, b) { return a.date < b.date ? -1 : 1; };
+  var list = Object.keys(cards).map(function (k) { return cards[k]; }).filter(function (c) { return c.introductions.length || c.replies.length || c.specials.length; });
+  list.forEach(function (c) { c.introductions.sort(byDate); c.replies.sort(byDate); c.specials.sort(byDate); });
   return { schema: 1, version: POSU_VERSION, generatedAt: o.generatedAt || '', submitEnabled: !!o.submitEnabled, cards: list };
 }
 
@@ -149,10 +168,10 @@ function posuRows(sh, width) { var n = sh.getLastRow() - 1; return n > 0 ? sh.ge
 // 朝リスPodcast一覧（既存の公開APIと同じ並び＝ID）。COPY 試験では公開APIを読むだけ
 function posuPodcasts() {
   var c = posuCfg();
-  if (c.podcastApi) { var j = JSON.parse(UrlFetchApp.fetch(c.podcastApi, { muteHttpExceptions: true }).getContentText()); return (j.items || []).map(function (x) { return { id: String(x.id), title: x.title, maker: x.maker, introduced: x.introduced }; }); }
+  if (c.podcastApi) { var j = JSON.parse(UrlFetchApp.fetch(c.podcastApi, { muteHttpExceptions: true }).getContentText()); return (j.items || []).map(function (x) { return { id: String(x.id), title: x.title, maker: x.maker, introduced: x.introduced, apple: x.apple || '' }; }); }
   var sh = SpreadsheetApp.openById(c.spreadsheetId).getSheetByName(c.podcastSheet), n = sh.getLastRow() - 1;
   if (n < 1) return [];
-  return sh.getRange(2, 1, n, 4).getDisplayValues().filter(function (r) { return r[0] || r[1]; }).map(function (r, i) { return { id: String(i + 1), title: r[1], maker: r[2], introduced: r[3] }; });   // readListenerPodcastSheet と同じ ID の振り方
+  return sh.getRange(2, 1, n, 7).getDisplayValues().filter(function (r) { return r[0] || r[1]; }).map(function (r, i) { return { id: String(i + 1), title: r[1], maker: r[2], introduced: r[3], apple: r[6] }; });   // readListenerPodcastSheet と同じ ID の振り方
 }
 // 紹介回の候補: 題名に（ポすすめ）か（日曜版）が付く回。ドーナツ開始（2026-08-17）より前の（日曜版）は別の番組名で台帳に入っているため、番組で絞らない
 function posuDonutEpisodes() {
@@ -210,4 +229,4 @@ function posuSyncIntros(results) {
   return { added: add.length };
 }
 
-if (typeof module !== 'undefined') module.exports = { posuNz: posuNz, posuCore: posuCore, posuDay: posuDay, posuIntroMatch: posuIntroMatch, posuEpisodeUrl: posuEpisodeUrl, posuValidate: posuValidate, posuPageMeta: posuPageMeta, posuRelationHints: posuRelationHints, posuApprovePlan: posuApprovePlan, posuBuildPublic: posuBuildPublic, POSU_QUEUE_H: POSU_QUEUE_H, POSU_PUBLIC_H: POSU_PUBLIC_H, POSU_STATE: POSU_STATE, POSU_RELATIONS: POSU_RELATIONS };
+if (typeof module !== 'undefined') module.exports = { posuReplyCandidates: posuReplyCandidates, posuAppleShowId: posuAppleShowId, POSU_REPLY_RELATIONS: POSU_REPLY_RELATIONS, posuNz: posuNz, posuCore: posuCore, posuDay: posuDay, posuIntroMatch: posuIntroMatch, posuEpisodeUrl: posuEpisodeUrl, posuValidate: posuValidate, posuPageMeta: posuPageMeta, posuRelationHints: posuRelationHints, posuApprovePlan: posuApprovePlan, posuBuildPublic: posuBuildPublic, POSU_QUEUE_H: POSU_QUEUE_H, POSU_PUBLIC_H: POSU_PUBLIC_H, POSU_STATE: POSU_STATE, POSU_RELATIONS: POSU_RELATIONS };

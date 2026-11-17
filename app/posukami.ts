@@ -11,7 +11,7 @@ export type PosukamiEpisode = {
   program?: string;
   relation?: string;
 };
-export type PosukamiCard = { podcastId: string; podcastTitle: string; introductions: PosukamiEpisode[]; specials: PosukamiEpisode[] };
+export type PosukamiCard = { podcastId: string; podcastTitle: string; introductions: PosukamiEpisode[]; replies: PosukamiEpisode[]; specials: PosukamiEpisode[] };
 export type PosukamiData = { schema: number; generatedAt: string; submitEnabled: boolean; cards: PosukamiCard[] };
 
 // サイトは GitHub Pages の /asarisunowa/ 配下で動くため、先頭が / の絶対パスは使わない（相対パス）
@@ -19,6 +19,7 @@ export const POSUKAMI_DATA_URL = "posusume/posukami.json";
 // 蔵の個別ページ（/library/?ep=EP-xxxxx）をページからの相対パスにする
 export function posukamiHref(href: string): string { return /^\/library\/\?ep=EP-\d{5}$/.test(href) ? href.slice(1) : href; }
 export const POSUKAMI_RELATIONS: Array<[string, string]> = [
+  ["reply", "ポすすめを受けて、この番組が配信した振り返り回"],
   ["donut_guest", "ドーナツに番組の配信者が出演した回"],
   ["kanda_guest", "この番組に神田さん等がゲスト出演した回"],
   ["other", "その他の交流"],
@@ -39,7 +40,7 @@ export function parsePosukami(raw: unknown): PosukamiData {
     submitEnabled: r.submitEnabled === true,
     cards: r.cards
       .filter((c) => c && typeof c.podcastId === "string" && typeof c.podcastTitle === "string")
-      .map((c) => ({ podcastId: c.podcastId, podcastTitle: c.podcastTitle, introductions: (c.introductions || []).filter(safe), specials: (c.specials || []).filter(safe) })),
+      .map((c) => ({ podcastId: c.podcastId, podcastTitle: c.podcastTitle, introductions: (c.introductions || []).filter(safe), replies: (c.replies || []).filter(safe), specials: (c.specials || []).filter(safe) })),
   };
 }
 // カードとデータを結ぶ: 番組ID と 番組名 の両方が一致したときだけ（並びが変わって ID がずれても、別の番組に付かない）

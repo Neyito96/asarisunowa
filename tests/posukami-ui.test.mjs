@@ -28,6 +28,12 @@ test('カードとデータは ID と番組名の両方で結ぶ（並びが変�
   assert.ok(findPosukamiCard(data, { id: '015', title: 'おんすた 【NOW AND THEN】' }));   // 先頭の0・空白差は同じ
   assert.equal(findPosukamiCard(data, { id: '4', title: '僕たちの吹奏楽部を作ろう ～地域が支える新しい部活動のカタチ' }), undefined);   // HOLD はリンクを出さない
 });
+test('振り返り回の欄: 古い公開データ（replies なし）でも壊れない・投稿の種類に振り返りがある', () => {
+  const d = parsePosukami({ schema: 1, cards: [{ podcastId: '1', podcastTitle: 'A', introductions: [], specials: [] }] });
+  assert.deepEqual(d.cards[0].replies, []);
+  assert.ok(section.includes('💬 ポすすめ振り返り'));
+  assert.ok(fs.readFileSync(new URL('../app/posukami.ts', import.meta.url), 'utf8').includes('["reply",'));
+});
 test('壊れた・危険なデータは捨てる', () => {
   assert.equal(parsePosukami(null).cards.length, 0);
   assert.equal(parsePosukami({ schema: 2, cards: [] }).cards.length, 0);

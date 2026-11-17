@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "version": "POSU-1",
- "generatedAt": "2026-11-17T02:01:38.513Z",
+ "generatedAt": "2026-11-17T02:19:09.635Z",
  "submitEnabled": false,
  "cards": [
   {
@@ -17,6 +17,7 @@
      "verifiedAt": "2026-11-17"
     }
    ],
+   "replies": [],
    "specials": []
   },
   {
@@ -32,6 +33,7 @@
      "verifiedAt": "2026-11-17"
     }
    ],
+   "replies": [],
    "specials": []
   },
   {
@@ -47,6 +49,7 @@
      "verifiedAt": "2026-11-17"
     }
    ],
+   "replies": [],
    "specials": []
   },
   {
@@ -62,6 +65,7 @@
      "verifiedAt": "2026-11-17"
     }
    ],
+   "replies": [],
    "specials": []
   },
   {
@@ -77,6 +81,7 @@
      "verifiedAt": "2026-11-17"
     }
    ],
+   "replies": [],
    "specials": []
   },
   {
@@ -92,6 +97,7 @@
      "verifiedAt": "2026-11-17"
     }
    ],
+   "replies": [],
    "specials": []
   },
   {
@@ -107,6 +113,7 @@
      "verifiedAt": "2026-11-17"
     }
    ],
+   "replies": [],
    "specials": []
   },
   {
@@ -122,6 +129,7 @@
      "verifiedAt": "2026-11-17"
     }
    ],
+   "replies": [],
    "specials": []
   },
   {
@@ -137,6 +145,7 @@
      "verifiedAt": "2026-11-17"
     }
    ],
+   "replies": [],
    "specials": []
   },
   {
@@ -152,6 +161,7 @@
      "verifiedAt": "2026-11-17"
     }
    ],
+   "replies": [],
    "specials": []
   },
   {
@@ -167,6 +177,7 @@
      "verifiedAt": "2026-11-17"
     }
    ],
+   "replies": [],
    "specials": []
   },
   {
@@ -182,6 +193,7 @@
      "verifiedAt": "2026-11-17"
     }
    ],
+   "replies": [],
    "specials": [
     {
      "title": "（対話）自分に興味がある人と、自分なんてないと思う人　栃尾江美さん",
@@ -218,6 +230,7 @@
      "verifiedAt": "2026-11-17"
     }
    ],
+   "replies": [],
    "specials": []
   },
   {
@@ -233,6 +246,7 @@
      "verifiedAt": "2026-11-17"
     }
    ],
+   "replies": [],
    "specials": []
   },
   {
@@ -248,6 +262,7 @@
      "verifiedAt": "2026-11-17"
     }
    ],
+   "replies": [],
    "specials": []
   },
   {
@@ -263,6 +278,7 @@
      "verifiedAt": "2026-11-17"
     }
    ],
+   "replies": [],
    "specials": []
   }
  ]
