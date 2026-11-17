@@ -2367,6 +2367,12 @@ function P27_NEW_5_V2反映_承認後() {
         failure = col + ':' + r.status + ' (' + (r.written || 0) + '/' + plan.length + ')'; break;
       }
     } catch (e) {
+      // 書込途中の例外でもp27Write_が残した反映IDを救済してUNDO可能にする。
+      var recovery = p27State_(), last = recovery.last;
+      if (last && last.target === 'V2' && last.col === col && last.id && !group.some(function (x) { return x.id === last.id; })) {
+        group.push({ id: last.id, target: 'V2', col: col });
+        recovery.lastGroup = group.slice(); p27SetState_(recovery);
+      }
       failure = col + ':' + String(e).slice(0, 200); break;
     }
   }
@@ -2376,6 +2382,10 @@ function P27_NEW_5_V2反映_承認後() {
 // 取り消し失敗時は未完了の列をlastGroupに残し、同じ関数を再実行可能にする。
 function P27_NEW_7_直前の新着反映を戻す() {
   var st = p27State_(), group = (st.lastGroup || []).slice();
+  // p27Write_が途中で例外停止した場合、pending/lastに記録されたV2反映を救済する。
+  if (!group.length && st.pending && st.last && st.last.target === 'V2' && st.last.id === st.pending) {
+    group = [st.last]; st.lastGroup = group.slice(); p27SetState_(st);
+  }
   if (!group.length) return scLog_('P27_NEW_7_直前の新着反映を戻す', { status: 'NOTHING_TO_UNDO' });
   var ss = scOpen_(SC_CONFIG.v2WorkingId, '').ss, results = [], failure = '';
   while (group.length) {
