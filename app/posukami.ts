@@ -14,7 +14,10 @@ export type PosukamiEpisode = {
 export type PosukamiCard = { podcastId: string; podcastTitle: string; introductions: PosukamiEpisode[]; specials: PosukamiEpisode[] };
 export type PosukamiData = { schema: number; generatedAt: string; submitEnabled: boolean; cards: PosukamiCard[] };
 
-export const POSUKAMI_DATA_URL = "/posusume/posukami.json";
+// サイトは GitHub Pages の /asarisunowa/ 配下で動くため、先頭が / の絶対パスは使わない（相対パス）
+export const POSUKAMI_DATA_URL = "posusume/posukami.json";
+// 蔵の個別ページ（/library/?ep=EP-xxxxx）をページからの相対パスにする
+export function posukamiHref(href: string): string { return /^\/library\/\?ep=EP-\d{5}$/.test(href) ? href.slice(1) : href; }
 export const POSUKAMI_RELATIONS: Array<[string, string]> = [
   ["donut_guest", "ドーナツに番組の配信者が出演した回"],
   ["kanda_guest", "この番組に神田さん等がゲスト出演した回"],

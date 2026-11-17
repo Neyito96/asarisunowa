@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { parsePosukami, findPosukamiCard, isPosukamiNew, formatPosukamiDate, looksLikeEpisodeUrl, posukamiSubmitUrl, posukamiResultMessage } from '../app/posukami.ts';
+import { posukamiHref, parsePosukami, findPosukamiCard, isPosukamiNew, formatPosukamiDate, looksLikeEpisodeUrl, posukamiSubmitUrl, posukamiResultMessage } from '../app/posukami.ts';
 import { parseCsv, rowsFrom, build } from '../scripts/posusume/build-posukami.mjs';
 
 const data = parsePosukami(JSON.parse(fs.readFileSync(new URL('../public/posusume/posukami.json', import.meta.url), 'utf8')));
@@ -33,6 +33,11 @@ test('壊れた・危険なデータは捨てる', () => {
   assert.equal(parsePosukami({ schema: 2, cards: [] }).cards.length, 0);
   const bad = parsePosukami({ schema: 1, cards: [{ podcastId: '1', podcastTitle: 'x', introductions: [{ title: 't', href: 'javascript:alert(1)' }], specials: [{ title: 't', href: '/library/?ep=../../x' }] }] });
   assert.equal(bad.cards[0].introductions.length + bad.cards[0].specials.length, 0);
+});
+test('GitHub Pages の /asarisunowa/ 配下でも開けるよう相対パスにする', () => {
+  assert.equal(posukamiHref('/library/?ep=EP-01222'), 'library/?ep=EP-01222');
+  assert.equal(posukamiHref('https://omny.fm/shows/asahi/d20261116'), 'https://omny.fm/shows/asahi/d20261116');
+  assert.ok(!/href="\/library\//.test(tsx), 'サイト内の蔵リンクに先頭 / を使わない');
 });
 test('NEW は掲載・検証日から14日だけ', () => {
   assert.equal(isPosukamiNew('2026-11-17', new Date('2026-11-20T00:00:00+09:00')), true);

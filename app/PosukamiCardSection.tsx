@@ -7,6 +7,7 @@ import {
   formatPosukamiDate,
   isPosukamiNew,
   looksLikeEpisodeUrl,
+  posukamiHref,
   posukamiResultMessage,
   posukamiSubmitUrl,
   type PosukamiCard,
@@ -65,7 +66,7 @@ export default function PosukamiCardSection({ podcast, card, submitEnabled, endp
           <strong>🎙 {episode.program && episode.program !== "ドーナツ" ? "朝ポキで紹介された回" : "ドーナツで紹介された回"}</strong><br />
           <span>「{episode.title}」</span>
           <small style={noteStyle}>{formatPosukamiDate(episode.date)}{episode.program && episode.program !== "ドーナツ" ? "（" + episode.program + "）" : ""}</small>
-          <a href={episode.href} {...(episode.library ? {} : { target: "_blank", rel: "noopener noreferrer" })} style={linkStyle}>
+          <a href={posukamiHref(episode.href)} {...(episode.library ? {} : { target: "_blank", rel: "noopener noreferrer" })} style={linkStyle}>
             {episode.library ? "→ 朝ポキの蔵でこの回を見る" : "→ この回を聴く（公式ページ）"}
           </a>
           {!episode.library && <small style={noteStyle}>朝ポキの蔵への収蔵は更新待ちです</small>}
@@ -78,7 +79,7 @@ export default function PosukamiCardSection({ podcast, card, submitEnabled, endp
           <br />
           <span>「{episode.title}」</span>
           <small style={noteStyle}>{[episode.program, formatPosukamiDate(episode.date)].filter(Boolean).join("・")}{episode.relation ? "　" + episode.relation : ""}</small>
-          <a href={episode.href} {...(episode.library ? {} : { target: "_blank", rel: "noopener noreferrer" })} style={linkStyle}>
+          <a href={posukamiHref(episode.href)} {...(episode.library ? {} : { target: "_blank", rel: "noopener noreferrer" })} style={linkStyle}>
             {episode.library ? "→ 朝ポキの蔵でこの回を見る" : "→ この回を聴く"}
           </a>
         </p>
