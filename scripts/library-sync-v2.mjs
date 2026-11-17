@@ -47,7 +47,9 @@ export function episodeFromV2(rec) {
   return e;
 }
 // 出演者の欄から URL を外して名前だけにする（表示用）
-export function castNames(text) { return String(text || '').split(/\n+/).map((l) => l.replace(/https?:\/\/\S+/g, '').trim()).filter(Boolean).join(' / '); }
+export function castNames(text) { return dedupeCast(String(text || '').split(/\n+/).map((l) => l.replace(/https?:\/\/\S+/g, '').trim()).filter(Boolean).join(' / ')); }
+// 出演者の完全一致の重複だけを外す（並び順は最初の出現を保つ。名前の削除・書き換えはしない）
+export function dedupeCast(cast) { const seen = new Set(), out = []; for (const x of String(cast || '').split(' / ').map((v) => v.trim()).filter(Boolean)) if (!seen.has(x)) { seen.add(x); out.push(x); } return out.join(' / '); }
 // V2 の配信先列（検証済みの値だけが入る）→ リンクの並び
 export function platformLinks(rec) { const official = String(rec['公式個別URL'] || '').trim() || (/^https:\/\/omny\.fm\/shows\/[^/]+\/[^/?#]+$/.test(String(rec['旧元ページURL'] || '').trim()) ? rec['旧元ページURL'] : '');   // 公式個別URLが空なら、Omny の回ページ（旧元ページURL）を公式ページとして使う
   return [...new Set([official, rec['Spotify'], rec['Apple'], rec['Amazon'], rec['Pocket Casts'], rec['LISTEN'], rec['Pody'], rec['YouTube']].map((u) => safeUrl(String(u || '').trim())).filter(Boolean))]; }
@@ -82,7 +84,7 @@ export function planSync({ old, decisions, v2, resolved = [], descProtect = null
     V.set(id, r);
   }
   if (problems.length) return { ok: false, problems };
-  const keep = [], add = [], protectedIds = [], removed = [], linkAdded = [], descUpdates = [], descProtected = {}; let descSame = 0;
+  const keep = [], add = [], protectedIds = [], removed = [], linkAdded = [], castFixed = [], descUpdates = [], descProtected = {}; let descSame = 0;
   for (const [id, e] of old) {
     const r = V.get(id);
     if (!r) { removed.push(id); continue; }
@@ -90,6 +92,7 @@ export function planSync({ old, decisions, v2, resolved = [], descProtect = null
     const links = [...new Set([...(e.links || []), ...platformLinks(r)])];
     if (links.length !== (e.links || []).length) linkAdded.push(id);
     let next = { ...e, links };
+    if (typeof e.cast === 'string' && e.cast && dedupeCast(e.cast) !== e.cast) { castFixed.push(id); next = { ...next, cast: dedupeCast(e.cast) }; }   // 出演者の完全重複（同じ並びの2回くり返し等）
     if (syncDescriptions) {
       const d = planDescription(e, r, descProtect);
       if (d.action === 'update') { descUpdates.push({ id, oldSha: sha(e.description), newSha: sha(d.description), oldLen: (e.description || '').length, newLen: d.description.length }); next = { ...next, description: d.description, descriptionSource: 'V2-clean' }; }
@@ -111,7 +114,7 @@ export function planSync({ old, decisions, v2, resolved = [], descProtect = null
   if (removed.length > LIMITS.maxRemovals) return { ok: false, problems: [`非公開になる回が ${removed.length} 件（上限 ${LIMITS.maxRemovals}）。台帳の異常の可能性があるので停止`] };
   const total = keep.length + add.length;
   if (total < old.size - LIMITS.maxDecrease) return { ok: false, problems: [`公開件数が ${old.size} → ${total} に減る。停止`] };
-  return { ok: true, keep, add, removed, protectedIds, linkAdded, total, descUpdates, descProtected, descSame };
+  return { ok: true, keep, add, removed, protectedIds, linkAdded, castFixed, total, descUpdates, descProtected, descSame };
 }
 // 掲載判定の更新: 前回の判定はそのまま、新しく公開する回だけ「対象」を足し、非公開にする回は「対象外」へ
 export function nextDecisions(snapshot, plan, v2Hash, nowIso) {
@@ -143,15 +146,15 @@ async function main() {
   if (!plan.ok) { console.error('停止: ' + plan.problems.slice(0, 10).join(' / ')); process.exit(1); }
   const v2Hash = createHash('sha256').update(text).digest('hex'), now = new Date().toISOString();
   const descProtectedCount = Object.fromEntries(Object.entries(plan.descProtected).map(([k, v]) => [k, v.length]));
-  const report = { v2Rows: v2.length, kept: plan.keep.length, added: plan.add.length, removed: plan.removed, protectedNotPublished: plan.protectedIds.length, linksAddedToExisting: plan.linkAdded.length, total: plan.total, newest: plan.add.map((e) => e.id).sort().slice(-5), descriptions: { updated: plan.descUpdates.length, unchanged: plan.descSame, protected: descProtectedCount } };
+  const report = { v2Rows: v2.length, kept: plan.keep.length, added: plan.add.length, removed: plan.removed, protectedNotPublished: plan.protectedIds.length, linksAddedToExisting: plan.linkAdded.length, castDeduped: plan.castFixed.length, total: plan.total, newest: plan.add.map((e) => e.id).sort().slice(-5), descriptions: { updated: plan.descUpdates.length, unchanged: plan.descSame, protected: descProtectedCount } };
   if (a.includes('--dry-run')) { console.log(JSON.stringify(report, null, 1)); return; }
-  if (!plan.add.length && !plan.removed.length && !plan.linkAdded.length && !plan.descUpdates.length) { console.log(JSON.stringify({ ...report, note: '変化なし（書き込まない）' }, null, 1)); return; }
+  if (!plan.add.length && !plan.removed.length && !plan.linkAdded.length && !plan.descUpdates.length && !plan.castFixed.length) { console.log(JSON.stringify({ ...report, note: '変化なし（書き込まない）' }, null, 1)); return; }
   const snap2 = nextDecisions(snapshot, plan, v2Hash, now), scope = buildPublicationScope(snap2);
   scope.version = createHash('sha256').update(JSON.stringify(snap2.decisions)).digest('hex');
   const manifest = JSON.parse(fs.readFileSync(path.join(dest, 'manifest.json'), 'utf8'));
   const counts = { ...manifest.counts, source: snap2.decisions.length, scopeExcluded: scope.excluded, scopeHeld: scope.held };
   const snapshotDate = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Tokyo' }).format(new Date());
-  const result = await writePublicLibrarySnapshot({ episodes: [...plan.keep, ...plan.add], counts, publicationScope: scope, snapshotDate, operations: { ...(manifest.operations || {}), source: 'V2・公開台帳', v2PublicLedgerSHA256: v2Hash, syncedAt: now, added: plan.add.length, removed: plan.removed, protectedNotPublished: plan.protectedIds.length, descriptionsUpdated: plan.descUpdates.length, descriptionsProtected: descProtectedCount }, destination: dest });
+  const result = await writePublicLibrarySnapshot({ episodes: [...plan.keep, ...plan.add], counts, publicationScope: scope, snapshotDate, operations: { ...(manifest.operations || {}), source: 'V2・公開台帳', v2PublicLedgerSHA256: v2Hash, syncedAt: now, added: plan.add.length, removed: plan.removed, protectedNotPublished: plan.protectedIds.length, descriptionsUpdated: plan.descUpdates.length, castDeduped: plan.castFixed.length, descriptionsProtected: descProtectedCount }, destination: dest });
   fs.mkdirSync(path.dirname(decisionsOut), { recursive: true }); fs.writeFileSync(decisionsOut, zlib.gzipSync(JSON.stringify(snap2)));
   // 概要の差し替え記録（EP-ID・旧/新のハッシュと文字数・保護の理由）。旧本文そのものは git の履歴（この実行の直前のコミット）から復元できる
   if (plan.descUpdates.length || Object.keys(plan.descProtected).length) {

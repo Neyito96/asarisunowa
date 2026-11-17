@@ -59,3 +59,10 @@ test('#333 概要の同期: V2清掃済みで置き換え。空・タイトル�
   const p2 = planSync({ old: new Map([['EP-00001', k]]), decisions: [], v2: [row('EP-00001', { '概要（清掃済）': good })] });
   assert.equal(p2.descUpdates.length, 0); assert.equal(p2.descSame, 1);
 });
+
+test('出演者: 完全一致の重複だけを外し、名前と順序は保つ（2回くり返し）', async () => {
+  const { dedupeCast } = await import('../scripts/library-sync-v2.mjs');
+  assert.equal(dedupeCast('A,部 / B / C / A,部 / B / C'), 'A,部 / B / C');
+  assert.equal(dedupeCast('A / A,部'), 'A / A,部');   // 所属つきは別物として残す（推測で統合しない）
+  assert.equal(dedupeCast(''), '');
+});
