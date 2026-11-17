@@ -135,3 +135,9 @@ test('紹介元: 概要の「紹介したポッドキャストは「…」」の
   assert.equal(r['4'].status, 'VERIFIED'); assert.deepEqual(J(r['4'].intros.map((i) => i.ep)), ['EP-05473']);
   assert.equal(r['12'].status, 'HOLD'); assert.equal(r['12'].intros.length, 0); assert.deepEqual(J(r['12'].candidates.map((i) => i.ep)).sort(), ['EP-00286', 'EP-05572']);
 });
+test('番組ID: 「番組ID」列があればその値、無ければ並び順。交流状況の列は番組IDで結ぶ', () => {
+  const vals = [['URL', '番組名', 'n', 'd', 'c', 's', 'a', 'l', 'sf', 'am', 'yt', 'hp', 'art', 'rss', 'pc', 'pody', 'g', '番組ID'], ['u', 'A', '', '2026/04/05', '', '', '', '', '', '', '', '', '', '', '', '', '', '7'], ['u', 'B', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']];
+  assert.deepEqual(J(P.posuPodcastRowsToList(vals).map((p) => p.id)), ['7', '2']);
+  const sum = J(P.posuPodcastSummary(vals, [['SPECIAL', '7', 'A', '返し', 'A', '2026-05-01', 'u', 'reply', '', '', '', 'k', '']], [['PK', '', '2', 'B', 'u', 'k2', 'other', '', '', '', '', '', '', '', '承認待ち', '', '']]));
+  assert.deepEqual(sum, [['7', '', '返し（2026-05-01）', '', ''], ['2', '', '', '', '1']]);
+});

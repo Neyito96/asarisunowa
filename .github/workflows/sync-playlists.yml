@@ -37,7 +37,8 @@ jobs:
         continue-on-error: true
         run: |
           node scripts/posusume/build-posukami.mjs \
-            --rows "https://script.google.com/macros/s/AKfycbxlZCNqGqOEY7j61OgcSGM8_xfGT08f4jjamXtSj2DES9fXl-xwJrvcRGYHnskidjIMug/exec?type=posukamiPublic"
+            --rows "https://script.google.com/macros/s/AKfycbzwlb2aoRrCcs4zaBljBorMzWlMS3JM_6OLjrpHlY7NvMf4BLXNiNqRbhDTQVUHYqqB_A/exec?type=posukamiPublic" \
+            --submit-enabled
 
       - name: Save changes
         run: |
