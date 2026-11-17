@@ -41,6 +41,32 @@ const PODCAST_CSV_URL = "https://docs.google.com/spreadsheets/d/1KSzoIkOsjUagNBL
 
 type PodcastPlatformLink = { label: string; url: string };
 
+const POSUSUME_VERIFIED_EPISODES = [
+  {
+    match: "クリエイティブの反対語",
+    introductions: [{
+      title: "（ポすすめ）クリエイティブの反対語・ファミレスで隣から聞こえてくるフリーランスのモヤモヤ話",
+      epId: "EP-06605",
+      href: "/library/?ep=EP-06605",
+      date: "2026-10-20",
+    }],
+    specials: [
+      {
+        title: "（対話）自分に興味がある人と、自分なんてないと思う人　栃尾江美さん",
+        href: "https://omny.fm/shows/asahi/d20261116?in_playlist=donut",
+        note: "ドーナツ／2026-11-16",
+      },
+      {
+        title: "#410 なんと同い年！ 朝日新聞社・神田大介さん",
+        href: "https://podcasts.apple.com/jp/podcast/id1129707783?i=1000802141616",
+        note: "クリエイティブの反対語／2026-11-16",
+      },
+    ],
+  },
+] as const;
+const posusumeVerified = (title: string) =>
+  POSUSUME_VERIFIED_EPISODES.find((entry) => title.includes(entry.match));
+
 type ListenerPodcast = {
   id: string; title: string; maker: string; introduced: string;
   links: PodcastPlatformLink[];
@@ -742,27 +768,6 @@ const isVisiblePlaylist = (item: Playlist): boolean =>
 
 export default function Community({ playlists }: { playlists: Playlist[] }) {
   const [livePlaylists, setLivePlaylists] = useState<Playlist[]>(() => playlists.filter(isVisiblePlaylist));
-  const [kuraLogConsent, setKuraLogConsent] = useState<"unset" | "yes" | "no">("unset");
-  useEffect(() => {
-    try { const choice = localStorage.getItem("asarisunowa:kura-search-log-consent:v1"); if (choice === "yes" || choice === "no") setKuraLogConsent(choice); } catch {}
-  }, []);
-  const setKuraConsent = (choice: "yes" | "no") => {
-    setKuraLogConsent(choice);
-    try {
-      localStorage.setItem("asarisunowa:kura-search-log-consent:v1", choice);
-      if (choice === "no") localStorage.removeItem("asarisunowa:kura-search-log:v1");
-    } catch {}
-  };
-  const rememberKuraSearch = (podcast: ListenerPodcast) => {
-    if (kuraLogConsent !== "yes") return;
-    try {
-      const key = "asarisunowa:kura-search-log:v1";
-      const raw = JSON.parse(localStorage.getItem(key) || "[]");
-      const history = Array.isArray(raw) ? raw : [];
-      history.unshift({ podcastId: podcast.id, podcastTitle: podcast.title, searched: "ポすすめ", at: new Date().toISOString() });
-      localStorage.setItem(key, JSON.stringify(history.slice(0, 100)));
-    } catch {}
-  };
   const [recommendedPodcasts, setRecommendedPodcasts] = useState<RecommendedPodcast[]>(() => [...recommendedPodcastSnapshot].map(recommendedPodcastFromSnapshot).reverse());
   const [recommendedPodcastStatus, setRecommendedPodcastStatus] = useState<"loading" | "ready" | "error">("ready");
   const [recommendedPodcastRefreshKey, setRecommendedPodcastRefreshKey] = useState(0);
@@ -2054,14 +2059,6 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               </div>
               <a className="listenerPodcastSubmitCtaLink" href="#listener-podcast-form">投稿フォームへ ↓</a>
             </div>
-            <div className="podcastComment" style={{ fontSize: "0.85rem", margin: "0.65rem 0 0.9rem" }}>
-              <strong>蔵で探した記録</strong>：検索の履歴をこのブラウザに残しますか？ 保存しなくても検索できます。サイト運営者への送信は行いません。
-              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "0.35rem" }}>
-                <button type="button" aria-pressed={kuraLogConsent === "yes"} onClick={() => setKuraConsent("yes")}>残す{kuraLogConsent === "yes" ? " ✓" : ""}</button>
-                <button type="button" aria-pressed={kuraLogConsent === "no"} onClick={() => setKuraConsent("no")}>残さない{kuraLogConsent === "no" ? " ✓" : ""}</button>
-              </div>
-              <small>記録はこの端末だけ。後から「残さない」を選ぶと履歴を削除します。</small>
-            </div>
             <div className="toolbar listenerPodcastToolbar">
               <div className="tools">
                 <div className="sorts" role="group" aria-label="朝リスPodcastの並べ替え">
@@ -2098,11 +2095,20 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     <h3>{p.title}</h3>
                     <p>by {p.maker}</p>
                     {p.introduced && <p className="podcastComment">紹介配信日 {p.introduced}</p>}
-                    <p className="podcastComment" style={{ marginTop: "0.45rem" }}>
-                      <span style={{ fontWeight: 700 }}>🎙 ドーナツ紹介回：</span>
-                      <a href="/library/?q=%E3%83%9D%E3%81%99%E3%81%99%E3%82%81" onClick={() => rememberKuraSearch(p)} style={{ textDecoration: "underline", textUnderlineOffset: "0.18em", fontWeight: 600 }} title="朝ポキの蔵で「ポすすめ」を検索">蔵で「ポすすめ」を探す</a>
-                      <small style={{ display: "block", opacity: 0.75 }}>紹介元の個別回は照合中。検索結果から回を選べます。</small>
-                    </p>
+                    {posusumeVerified(p.title)?.introductions.map((episode) => (
+                      <p className="podcastComment" key={episode.epId} style={{ marginTop: "0.45rem" }}>
+                        <strong>🎙 ドーナツで紹介された回</strong><br />
+                        <a href={episode.href} style={{ textDecoration: "underline", textUnderlineOffset: "0.18em" }}>{episode.title}</a>
+                        <small style={{ display: "block", opacity: 0.8 }}>{episode.date} · 蔵の個別回へ（配信先を選べます）</small>
+                      </p>
+                    ))}
+                    {posusumeVerified(p.title)?.specials.map((episode) => (
+                      <p className="podcastComment" key={episode.href} style={{ marginTop: "0.45rem" }}>
+                        <strong>✨ ポす神回</strong><br />
+                        <a href={episode.href} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline", textUnderlineOffset: "0.18em" }}>{episode.title}</a>
+                        <small style={{ display: "block", opacity: 0.8 }}>{episode.note} · 確認済み配信ページ</small>
+                      </p>
+                    ))}
                     {p.genre && <span className="podcastGenreTag">{p.genre}</span>}
                     {p.comment && <p className="podcastComment">💬 {p.comment}</p>}
                     {p.links.length > 0 ? (
