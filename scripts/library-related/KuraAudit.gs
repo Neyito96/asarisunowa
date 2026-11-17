@@ -132,7 +132,7 @@ function KA_2_出演者差_切り分け_READ_ONLY() {
   var C = kaTable_(v2, 'V2・清掃詳細'), L = kaTable_(v2, 'V2・統合台帳'), lib = kaLibrary_();
   var js = {}, jraw = {}, bad = 0; C.rows.forEach(function (r) { var raw = r[C.c('出演者JSON')]; if (!raw) return; try { var a = JSON.parse(raw); if (Array.isArray(a)) { js[r[C.c('EP-ID')]] = a.map(function (p) { return p && p.name; }).filter(Boolean); jraw[r[C.c('EP-ID')]] = a; } } catch (e) { bad++; } });
   var freq = {}; Object.keys(js).forEach(function (id) { ka2Set_(js[id]).forEach(function (k) { freq[k] = (freq[k] || 0) + 1; }); });
-  var safeN = 0, safeNames = 0, holdWhy = {};
+  var safeN = 0, safeNames = 0, mixedN = 0, holdWhy = {};
   var txt = {}; L.rows.forEach(function (r) { txt[r[L.c('EP-ID')]] = r[L.c('出演者')]; });
   var rows = [], cnt = {}, total = 0;
   Object.keys(lib.eps).sort().forEach(function (id) {
@@ -161,19 +161,22 @@ function KA_2_出演者差_切り分け_READ_ONLY() {
         var raw = (jraw[id] || []).filter(function (p) { return p && ka2Key_(p.name) === n; }).map(function (p) { return String(p.raw || ''); }).join(' ');
         if (txtSet.indexOf(n) < 0) return n + ':V2欄に無い';
         if (raw.normalize('NFKC').replace(/[\s　]/g, '').indexOf(n) < 0) return n + ':原文行に無い';
+        if (!(jraw[id] || []).some(function (p) { return p && ka2Key_(p.name) === n && ka2Key_(p.raw) === n; })) return n + ':出演者の行ではない';   // 原文行が「役割＋名前＋所属/URL」だけで出来ている（記事著者・告知文の人名を除く）
         if (!/^[^\s、・,，\/／:：()（）]{2,10}$/.test(n) || KA_CFG.services.test(n)) return n + ':人名らしくない';
         if ((freq[n] || 0) < 2) return n + ':1回だけ';
         if (k.some(function (x) { return ka2Near_(x, n); })) return n + ':既存の名前と似ている';
         return '';
       }).filter(Boolean);
-      safe = why.length ? 'HOLD（' + why.join('／') + '）' : '安全な補充候補';
-      if (!why.length) { safeN++; safeNames += onlyJ.length; } else why.forEach(function (w) { var r = w.split(':')[1]; holdWhy[r] = (holdWhy[r] || 0) + 1; });
+      var held = why.map(function (w) { return w.split(':')[0]; }), ok = onlyJ.filter(function (n) { return held.indexOf(n) < 0; });   // 1人ずつ判定
+      safe = (ok.length ? '安全: ' + ok.join('・') : '') + (why.length ? (ok.length ? '／' : '') + 'HOLD: ' + why.join('／') : '');
+      if (ok.length) { safeN++; safeNames += ok.length; } if (ok.length && why.length) mixedN++;
+      why.forEach(function (w) { var r = w.split(':')[1]; holdWhy[r] = (holdWhy[r] || 0) + 1; });
     }
     rows.push([id, e.show, cls, onlyK.join('・'), onlyJ.join('・'), v2agree, String(e.cast || '').slice(0, 200), j ? j.join(' / ').slice(0, 200) : '', plan, safe]);
   });
   var byShow = {}; rows.forEach(function (r) { var k = r[1] + '・' + r[2]; byShow[k] = (byShow[k] || 0) + 1; });
   kaWrite_(OUT, '蔵監査・出演者差', ['EP-ID', '番組', '分類', '蔵だけの名前', 'JSONだけの名前', 'V2出演者欄とJSON', '蔵の出演者', 'JSONの出演者', '扱い', '補充の判定（KA-3）'], rows);
-  var S = { 対象: total, 分類: cnt, 安全な補充候補_話: safeN, 安全な補充候補_名前: safeNames, 補充HOLD理由_名前: holdWhy, JSON読めない: bad, 版: 'KA-2', 秒: Math.round((Date.now() - t0) / 1000) };
+  var S = { 対象: total, 分類: cnt, 安全な補充候補_話: safeN, 安全な補充候補_名前: safeNames, 安全とHOLDが混在する話: mixedN, 補充HOLD理由_名前: holdWhy, JSON読めない: bad, 版: 'KA-2', 秒: Math.round((Date.now() - t0) / 1000) };
   var sum = Object.keys(S).map(function (k) { return [k, typeof S[k] === 'object' ? JSON.stringify(S[k]) : String(S[k])]; }).concat(Object.keys(byShow).sort().map(function (k) { return ['番組・分類 ' + k, String(byShow[k])]; }));
   kaWrite_(OUT, '蔵監査・出演者差_集計', ['項目', '値'], sum);
   if (bad > 50) throw new Error('JSON_PARSE_FAIL ' + bad);
