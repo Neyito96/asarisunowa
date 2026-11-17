@@ -2,6 +2,13 @@ import { publicationLabel } from './publication-scope.mjs';
 import { filterEpisodes, safeUrl } from './library-core.mjs';
 const $=id=>document.getElementById(id), cache=new Map();
 let manifest, page=0, generation=0, activeResults=null, activeDetail=0;
+const SHELF_KEY='asarisunowa:library-shelf:v1';
+function shelfIds(){try{const data=JSON.parse(localStorage.getItem(SHELF_KEY)||'[]');return Array.isArray(data)?data.filter(x=>/^EP-\\d{5}$/.test(x)):[];}catch{return [];}}
+function storeShelf(ids){try{localStorage.setItem(SHELF_KEY,JSON.stringify([...new Set(ids)]));return true;}catch{return false;}}
+let shelfOnly=false;
+function shelfToggle(id){const ids=shelfIds(),saved=ids.includes(id),next=saved?ids.filter(x=>x!==id):[...ids,id];if(!storeShelf(next))return false;update(false);return !saved;}
+function shelfControl(id){const saved=shelfIds().includes(id),b=node('button',saved?'✓ 棚にしまいました':'＋ 自分の棚にしまう','quiet shelf-save');b.type='button';b.setAttribute('aria-pressed',String(saved));b.addEventListener('click',()=>{const result=shelfToggle(id);b.textContent=result===false?'＋ 自分の棚にしまう':'✓ 棚にしまいました';b.setAttribute('aria-pressed',String(result));});return b;}
+
 const criteria=()=>({query:$('query').value.trim(),show:$('show').value,order:$('order').value,from:$('from').value,to:$('to').value});
 function node(tag,text,cls){const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(cls)el.className=cls;return el;}
 async function json(path) {
@@ -14,7 +21,7 @@ function saveFilters(c){const u=new URL(location.href);for(const [k,v] of Object
 function label(show){return manifest.shows.find(x=>x.name===show)?.label || show;}
 function renderList(items,total) {
  const fragment=document.createDocumentFragment();
- for(const e of items){const article=node('article',undefined,'episode'),top=node('div',undefined,'episode-top');top.append(node('span',label(e.show)),node('time',e.date.slice(0,10)));const title=node('h2'),button=node('button',e.title,'episode-title');button.type='button';button.addEventListener('click',()=>openDetail(e.id));title.append(button);article.append(top,title);if(e.cast)article.append(node('p',e.cast));article.append(node('span',e.audio?'▶ 音声あり':'配信先リンク・詳細を見る','badge'));fragment.append(article);}
+ for(const e of items){const article=node('article',undefined,'episode'),top=node('div',undefined,'episode-top');top.append(node('span',label(e.show)),node('time',e.date.slice(0,10)));const title=node('h2'),button=node('button',e.title,'episode-title');button.type='button';button.addEventListener('click',()=>openDetail(e.id));title.append(button);article.append(top,title);if(e.cast)article.append(node('p',e.cast));article.append(node('span',e.audio?'▶ 音声あり':'配信先リンク・詳細を見る','badge'));article.append(shelfControl(e.id));fragment.append(article);}
  if(!items.length)fragment.append(node('p','条件に合うエピソードが見つかりませんでした。言葉や日付を変えてお試しください。','empty'));
  $('results').replaceChildren(fragment);$('status').textContent=`${total.toLocaleString()}件${criteria().query?' の検索結果':''}`;
  $('prev').disabled=page===0;$('next').disabled=(page+1)*40>=total;$('page-label').textContent=total?`${page+1} / ${Math.ceil(total/40)}`:'0 / 0';
@@ -42,7 +49,7 @@ async function update(reset=true) {
     const chunks=await Promise.all(paths.slice(first,last+1).map(json));items=chunks.flat().slice(start-first*40,end-first*40).reverse();
    }else items=await json(paths[index]);
   }
-  if(run!==generation)return;renderList(items,total);
+  if(run!==generation)return;if(shelfOnly){const ids=new Set(shelfIds());if(activeResults){activeResults=activeResults.filter(e=>ids.has(e.id));total=activeResults.length;items=activeResults.slice(page*40,page*40+40);}else{total=items.filter(e=>ids.has(e.id)).length;items=items.filter(e=>ids.has(e.id));}}renderList(items,total);
  }catch(e){if(run===generation){$('status').textContent='読み込みを完了できませんでした';error(e.message==='DATE_RANGE'?'配信日の開始日を終了日以前にしてください。':'通信に失敗しました。条件を変えずに再試行できます。');}}
  finally{if(run===generation)$('results').setAttribute('aria-busy','false');}
 }
@@ -63,6 +70,7 @@ async function openDetail(id,fromUrl=false) {
  if(e.related.length){body.append(node('h3','関連記事'));const related=node('div',undefined,'detail-links');
   if(e.relatedArticles?.length){for(const article of e.relatedArticles){const url=safeUrl(article.url);if(!url)continue;const a=node('a',article.title+' ↗');a.href=url;a.target='_blank';a.rel='noopener noreferrer';related.append(a);related.append(node('small',article.linkStatus==='HTTP_OK_NOT_CONTENT_VERIFIED'?'接続確認済み（本文未確認）':article.linkStatus==='HTTP_UNAVAILABLE'?'現在の接続は未確認':'リンク未確認'));}}
   else addLinks(related,e.related);body.append(related);}
+ body.append(shelfControl(id));
  const share=node('button','この回のリンクをコピー','quiet');share.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(location.href);share.textContent='コピーしました';}catch{share.textContent='アドレス欄からリンクをコピーできます';}});body.append(share);
  if(!fromUrl){const url=new URL(location.href);url.searchParams.set('ep',id);history.replaceState({},'',url);}
  }catch{if(run===activeDetail)body.replaceChildren(node('h2','詳細を読み込めませんでした'),node('p','一覧に戻り、もう一度お試しください。'));}
@@ -74,5 +82,6 @@ for(const id of ['show','order','from','to'])$(id).addEventListener('change',()=
 $('clear-filters').addEventListener('click',()=>{$('search-form').reset();update();});
 $('prev').addEventListener('click',()=>{if(page>0){page--;update(false);}});$('next').addEventListener('click',()=>{page++;update(false);});
 $('retry').addEventListener('click',()=>manifest?update(false):init());
+const shelfBar=node('div',undefined,'shelf-toolbar');const shelfButton=node('button','📚 自分の棚を見る','quiet');shelfButton.type='button';shelfButton.addEventListener('click',()=>{shelfOnly=!shelfOnly;shelfButton.textContent=shelfOnly?'← すべての回を見る':'📚 自分の棚を見る';update();});shelfBar.append(shelfButton,node('small','このブラウザに保存します。会員登録不要。'));$('results').before(shelfBar);
 async function init(){try{manifest=await json('manifest.json');$('snapshot').textContent=publicationLabel(manifest);for(const s of manifest.shows){const option=node('option',s.label);option.value=s.name;$('show').append(option);const button=node('button',`${s.label} ${s.count.toLocaleString()}`);button.type='button';button.dataset.show=s.name;button.addEventListener('click',()=>{$('show').value=$('show').value===s.name?'':s.name;update();});$('shows').append(button);}const params=new URL(location.href).searchParams;for(const [id,param] of [['query','q'],['show','show'],['order','order'],['from','from'],['to','to']])if(params.get(param))$(id).value=params.get(param);if(!$('order').value)$('order').value='newest';await update();if(params.get('ep'))await openDetail(params.get('ep'),true);}catch{error('図書館を読み込めませんでした。時間をおいて再試行してください。');$('status').textContent='通信エラー';}}
 init();
