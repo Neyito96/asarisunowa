@@ -29,7 +29,7 @@ test('カードとデータは ID と番組名の両方で結ぶ（並びが変�
   assert.equal(findPosukamiCard(data, { id: '16', title: '別の番組' }), undefined);
   assert.ok(findPosukamiCard(data, { id: '015', title: 'おんすた 【NOW AND THEN】' }));   // 先頭の0・空白差は同じ
   assert.equal(findPosukamiCard(data, { id: '4', title: '僕たちの吹奏楽部を作ろう ～地域が支える新しい部活動のカタチ' }).introductions[0].epId, 'EP-05473');   // 概要の「紹介したポッドキャストは「僕たちの吹部を作ろう…」」で確定
-  assert.equal(findPosukamiCard(data, { id: '12', title: 'ネジネジ低空飛行 — ゆるバイポーラー thinking aloud —' }), undefined);   // HOLD（候補2回・日付だけ一致）はリンクを出さない
+  assert.equal(findPosukamiCard(data, { id: '12', title: 'ネジネジ低空飛行 — ゆるバイポーラー thinking aloud —' }).introductions[0].epId, 'EP-00286');   // 管理人判断: 紹介配信日のドーナツ側の日曜版
 });
 test('ポすすめ返しの欄: 古い公開データ（replies なし）でも壊れない・投稿の種類にポすすめ返しがある', () => {
   const d = parsePosukami({ schema: 1, cards: [{ podcastId: '1', podcastTitle: 'A', introductions: [], specials: [] }] });
