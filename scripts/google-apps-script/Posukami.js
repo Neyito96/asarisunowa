@@ -36,7 +36,7 @@ function posuIntroMatch(podcasts, eps) {
       var dd = posuDayDiff(e.date, p.introduced); if (dd <= 1) ev.push(dd === 0 ? '紹介日一致' : '紹介日±1日');
       if (maker.length >= 2 && hay.indexOf(maker) >= 0) ev.push('配信者名一致');
       var titleHit = ev.some(function (x) { return /^番組名/.test(x); }), dayHit = dd <= 1;
-      var rec = { ep: e.ep, title: e.title, date: posuDay(e.date), url: e.url || '', evidence: ev.join('・') };
+      var rec = { ep: e.ep, show: e.show || '', title: e.title, date: posuDay(e.date), url: e.url || '', evidence: ev.join('・') };
       if (titleHit && dayHit) out.intros.push(rec); else if (titleHit || (dayHit && ev.length)) out.candidates.push(rec);
     });
     out.status = out.intros.length ? 'VERIFIED' : out.candidates.length ? 'HOLD' : 'NOT_FOUND';
@@ -153,10 +153,11 @@ function posuPodcasts() {
   if (n < 1) return [];
   return sh.getRange(2, 1, n, 4).getDisplayValues().filter(function (r) { return r[0] || r[1]; }).map(function (r, i) { return { id: String(i + 1), title: r[1], maker: r[2], introduced: r[3] }; });   // readListenerPodcastSheet と同じ ID の振り方
 }
+// 紹介回の候補: 題名に（ポすすめ）か（日曜版）が付く回。ドーナツ開始（2026-08-17）より前の（日曜版）は別の番組名で台帳に入っているため、番組で絞らない
 function posuDonutEpisodes() {
   var c = posuCfg(), v = SpreadsheetApp.openById(c.ledgerId).getSheetByName(c.ledgerSheet).getDataRange().getDisplayValues(), h = v[0], ix = {};
   ['EP-ID', '番組', 'タイトル', '配信日時 JST', '掲載判定', '概要（清掃済）', '公式個別URL', '旧元ページURL'].forEach(function (n) { ix[n] = h.indexOf(n); if (ix[n] < 0) throw new Error('POSU_HEADER_MISSING:' + n); });
-  return v.slice(1).filter(function (r) { return r[ix['番組']] === 'ドーナツ' && String(r[ix['EP-ID']]).trim(); }).map(function (r) { return { ep: r[ix['EP-ID']], title: r[ix['タイトル']], date: r[ix['配信日時 JST']], status: r[ix['掲載判定']], summary: r[ix['概要（清掃済）']], url: r[ix['公式個別URL']] || r[ix['旧元ページURL']] }; });
+  return v.slice(1).filter(function (r) { return String(r[ix['EP-ID']]).trim() && posuIsIntroEpisode(r[ix['タイトル']]); }).map(function (r) { return { ep: r[ix['EP-ID']], show: r[ix['番組']], title: r[ix['タイトル']], date: r[ix['配信日時 JST']], status: r[ix['掲載判定']], summary: r[ix['概要（清掃済）']], url: r[ix['公式個別URL']] || r[ix['旧元ページURL']] }; });
 }
 function posuTaken(queue, pub) { var t = {}, pending = { _total: 0 }; queue.forEach(function (r) { if (String(r[14]) !== POSU_STATE.REJECT) t[r[5]] = true; if (String(r[14]) === POSU_STATE.PENDING) { pending[r[2]] = (pending[r[2]] || 0) + 1; pending._total++; } }); pub.forEach(function (r) { if (r[11]) t[r[11]] = true; }); return { taken: t, pending: pending }; }
 var POSU_ERROR_TEXT = { BOT_SUSPECTED: '送信を受け付けられませんでした', UNKNOWN_PODCAST: '番組が見つかりません（ページを再読み込みしてください）', PODCAST_TITLE_MISMATCH: '番組情報が更新されています（ページを再読み込みしてください）', NOT_EPISODE_URL: 'エピソード（回）ごとのURLを入力してください（番組トップのURLは受け付けていません）', BAD_RELATION: '交流の種類を選んでください', TOO_LONG: '文字数が多すぎます', BAD_DATE: '配信日の形が読めません', DUPLICATE: 'この回はすでに受け付け済みか、掲載済みです', TOO_MANY_PENDING: 'この番組の確認待ちが多いため、いまは受け付けを止めています', QUEUE_FULL: '確認待ちが多いため、いまは受け付けを止めています', PAGE_NOT_FOUND: 'そのURLのページを開けませんでした（URLをご確認ください）' };
@@ -203,7 +204,7 @@ function posuIntroReport() { return posuIntroMatch(posuPodcasts(), posuDonutEpis
 function posuSyncIntros(results) {
   var c = posuCfg(), ss = SpreadsheetApp.openById(c.spreadsheetId), ps = posuSheet(ss, c.publicSheet, POSU_PUBLIC_H), pub = posuRows(ps, POSU_PUBLIC_H.length), keys = {}, add = [], now = new Date().toISOString();
   pub.forEach(function (r) { keys[r[11]] = true; });
-  results.forEach(function (x) { x.intros.forEach(function (i) { var key = 'INTRO|' + x.id + '|' + i.ep; if (keys[key]) return; keys[key] = true; add.push(['INTRO', x.id, x.title, i.title, 'ドーナツ', i.date, i.url, '', i.ep, posuDay(now), '照合: ' + i.evidence, key, '']); }); });
+  results.forEach(function (x) { x.intros.forEach(function (i) { var key = 'INTRO|' + x.id + '|' + i.ep; if (keys[key]) return; keys[key] = true; add.push(['INTRO', x.id, x.title, i.title, i.show || 'ドーナツ', i.date, i.url, '', i.ep, posuDay(now), '照合: ' + i.evidence, key, '']); }); });
   if (add.length) ps.getRange(ps.getLastRow() + 1, 1, add.length, POSU_PUBLIC_H.length).setValues(add);
   return { added: add.length };
 }

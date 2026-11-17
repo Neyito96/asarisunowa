@@ -11,11 +11,11 @@ function posuLog_(fn, o) { Logger.log(fn + ' ' + JSON.stringify(o, null, 1)); re
 function POSU_C1_紹介回照合_READ_ONLY() {
   posuGuardCopy_();
   var res = posuIntroReport(), ss = SpreadsheetApp.openById(POSU_COPY_ID), sh = ss.getSheetByName('ポす・紹介回照合') || ss.insertSheet('ポす・紹介回照合'), rows = [];
-  res.forEach(function (x) { (x.intros.length ? x.intros : x.candidates.length ? x.candidates : [null]).forEach(function (i) { rows.push([x.id, x.title, x.introduced, x.status, i ? i.ep : '', i ? i.title : '', i ? i.date : '', i ? i.evidence : '', i ? i.url : '']); }); });
+  res.forEach(function (x) { (x.intros.length ? x.intros : x.candidates.length ? x.candidates : [null]).forEach(function (i) { rows.push([x.id, x.title, x.introduced, x.status, i ? i.ep : '', (i ? '［' + i.show + '］' + i.title : ''), i ? i.date : '', i ? i.evidence : '', i ? i.url : '']); }); });
   sh.clearContents(); sh.getRange(1, 1, 1, 9).setValues([['番組ID', '番組名', '紹介配信日', '判定', 'EP-ID', '回の題名', '回の配信日', '根拠', '公式個別URL']]);
   if (rows.length) sh.getRange(2, 1, rows.length, 9).setValues(rows);
-  var by = {}; res.forEach(function (x) { by[x.status] = (by[x.status] || 0) + 1; });
-  return posuLog_('POSU_C1_紹介回照合_READ_ONLY', { status: 'OK', podcasts: res.length, byStatus: by, verified: res.filter(function (x) { return x.status === 'VERIFIED'; }).map(function (x) { return x.id + ' ' + x.title + ' → ' + x.intros.map(function (i) { return i.ep; }).join(','); }), notVerified: res.filter(function (x) { return x.status !== 'VERIFIED'; }).map(function (x) { return x.id + ' ' + x.title + '（' + x.status + (x.candidates.length ? ' 候補 ' + x.candidates.map(function (i) { return i.ep + ':' + i.evidence; }).join(',') : '') + '）'; }) });
+  var by = {}, eps = posuDonutEpisodes(), byShow = {}; res.forEach(function (x) { by[x.status] = (by[x.status] || 0) + 1; }); eps.forEach(function (e) { var k = e.show + ' ' + String(e.date).slice(0, 7); byShow[k] = (byShow[k] || 0) + 1; });
+  return posuLog_('POSU_C1_紹介回照合_READ_ONLY', { status: 'OK', podcasts: res.length, byStatus: by, introEpisodesByShowMonth: byShow, verified: res.filter(function (x) { return x.status === 'VERIFIED'; }).map(function (x) { return x.id + ' ' + x.title + ' → ' + x.intros.map(function (i) { return i.ep; }).join(','); }), notVerified: res.filter(function (x) { return x.status !== 'VERIFIED'; }).map(function (x) { return x.id + ' ' + x.title + '（' + x.status + (x.candidates.length ? ' 候補 ' + x.candidates.map(function (i) { return i.ep + ':' + i.evidence; }).join(',') : '') + '）'; }) });
 }
 // 2) 確定した紹介元だけを COPY の公開シートへ（一度だけ）
 function POSU_C2_紹介回を公開シートへ_COPY() { posuGuardCopy_(); return posuLog_('POSU_C2_紹介回を公開シートへ_COPY', Object.assign({ status: 'OK' }, posuSyncIntros(posuIntroReport()))); }
