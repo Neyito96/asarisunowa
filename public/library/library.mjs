@@ -10,6 +10,9 @@ function loadShelf(){try{return readShelf(localStorage.getItem(SHELF_KEY));}catc
 function saveShelf(next){try{localStorage.setItem(SHELF_KEY,serializeShelf(next));return true;}catch{return false;}}
 function shelfIds(){return loadShelf().ids;}
 function shelfToggle(id){const before=loadShelf(),next=toggleItem(before,id);if(next.ids.length===before.ids.length&&!before.ids.includes(id))return null;if(!saveShelf(next))return null;refreshShelfButton();return next.ids.includes(id);}
+// 蔵書を推薦として朝リスに届ける（#345）。本番GAS「朝リスの輪」の専用デプロイ（ポす神回と同じ）・type=shelfSubmit。保存先は本番スプレッドシートの「蔵書推薦・受付」（承認待ち）
+const SHELF_SUBMIT_ENDPOINT='https://script.google.com/macros/s/AKfycbzwlb2aoRrCcs4zaBljBorMzWlMS3JM_6OLjrpHlY7NvMf4BLXNiNqRbhDTQVUHYqqB_A/exec',SHELF_SUBMIT_ENABLED=false;
+function jsonp(url,params){return new Promise((resolve,reject)=>{const cb='shelfcb'+Date.now()+Math.floor(Math.random()*1e4),q=new URLSearchParams({...params,callback:cb}),sc=document.createElement('script');const done=()=>{delete window[cb];sc.remove();};const t=setTimeout(()=>{done();reject(Error('TIMEOUT'));},20000);window[cb]=d=>{clearTimeout(t);done();resolve(d);};sc.onerror=()=>{clearTimeout(t);done();reject(Error('NETWORK'));};sc.src=url+'?'+q.toString();document.head.append(sc);});}
 const SHELF_ADD='＋ 蔵書に入れる',SHELF_IN='✓ 蔵書にあります（外す）';
 function shelfControl(id){const saved=shelfIds().includes(id),b=node('button',saved?SHELF_IN:SHELF_ADD,'quiet shelf-save');b.type='button';b.setAttribute('aria-pressed',String(saved));b.addEventListener('click',()=>{const r=shelfToggle(id);if(r===null){b.textContent=loadShelf().ids.length>=SHELF_LIMITS.items?`いっぱいです（最大${SHELF_LIMITS.items}件）`:'保存できませんでした（ブラウザの設定をご確認ください）';return;}b.textContent=r?SHELF_IN:SHELF_ADD;b.setAttribute('aria-pressed',String(r));shelfToast(r?`蔵書に入れました（${loadShelf().ids.length}件）`:'蔵書から外しました');});return b;}
 // 入れた・外したことが分かるように、画面の下に短く知らせる（「蔵書を開く」から一覧へ）
@@ -121,8 +124,22 @@ async function renderShelf(){
   li.append(ctl);list.append(li);});
  body.append(list);
  const prep=node('button','🔗 URLで人に渡す');prep.type='button';prep.addEventListener('click',()=>renderSharePreview(eps.filter(Boolean)));
+ const send=node('button','📮 朝リスに推薦する','quiet');send.type='button';send.hidden=!SHELF_SUBMIT_ENABLED;send.addEventListener('click',()=>renderRecommend(eps.filter(Boolean)));
  const wipe=node('button','この端末から一覧を消す','quiet');wipe.type='button';let armed=false;wipe.addEventListener('click',async()=>{if(!armed){armed=true;wipe.textContent='本当に消す（もう一度押す）';return;}try{localStorage.removeItem(SHELF_KEY);}catch{}refreshShelfButton();await renderShelf();});
- body.append(node('div',undefined,'shelf-actions'));body.lastChild.append(prep,wipe);shelfDialog.replaceChildren(body);
+ body.append(node('div',undefined,'shelf-actions'));body.lastChild.append(prep,send,wipe);shelfDialog.replaceChildren(body);
+}
+function renderRecommend(eps){
+ shelfDialog.querySelector('.recommend-box')?.remove();
+ const s=loadShelf(),box=node('section',undefined,'share-preview recommend-box');
+ box.append(node('h3','📮 朝リスに推薦する'),node('p',`この蔵書（${eps.length}回）を、テーマ選びやプレイリストの参考として管理人に届けます。送るのは回番号・蔵書名・説明と、下のひとこと・ニックネーム（どちらも任意）だけです。管理人が確認してから使います。`));
+ const note=node('textarea');note.maxLength=300;note.rows=2;note.placeholder='ひとこと（任意）例：雨の日に聴きたい回を集めました';
+ const nick=node('input');nick.type='text';nick.maxLength=30;nick.placeholder='ニックネーム（任意）';
+ const hp=node('input');hp.type='text';hp.name='website2';hp.tabIndex=-1;hp.autocomplete='off';hp.className='hp';hp.setAttribute('aria-hidden','true');
+ const go=node('button','この内容で送る'),out=node('p');out.setAttribute('role','status');go.type='button';
+ go.addEventListener('click',async()=>{if(!eps.length){out.textContent='蔵書に回が入っていません。';return;}go.disabled=true;out.textContent='送っています…';
+  try{const r=await jsonp(SHELF_SUBMIT_ENDPOINT,{type:'shelfSubmit',ids:eps.map(e=>e.id).join(','),title:s.title||'',description:s.description||'',note:note.value,nick:nick.value,website2:hp.value});out.textContent=r&&r.ok?`${r.message}（受付番号 ${r.receiptId}）`:((r&&r.message)||'送れませんでした。');if(!(r&&r.ok))go.disabled=false;}
+  catch{out.textContent='送れませんでした。通信状態を確かめて、もう一度お試しください。';go.disabled=false;}});
+ box.append(note,nick,hp,go,out);shelfDialog.append(box);box.scrollIntoView({block:'start'});
 }
 function renderSharePreview(eps){
  const s=loadShelf(),box=node('section',undefined,'share-preview');box.append(node('h3','URLで人に渡す'),node('p','共有URLに入るのは、下でチェックした回の番号と、一覧のタイトル・説明だけです。お名前・メールアドレス・検索の言葉・端末の情報は入りません。URLを知っている人は誰でも見られます。サーバーに保存しないので、発行したURLは取り消せません（渡す相手を選んでください）。','detail-meta'));
