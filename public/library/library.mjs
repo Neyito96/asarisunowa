@@ -1,7 +1,7 @@
 import { publicationLabel } from './publication-scope.mjs';
 import { tidyDescription } from './description-tidy.mjs';
 import { qrSvg } from './qr.mjs';
-import { filterEpisodes, safeUrl } from './library-core.mjs?v=search-20261117';
+import { filterEpisodes, safeUrl, normal } from './library-core.mjs?v=search-20261118';
 const $=id=>document.getElementById(id), cache=new Map();
 let manifest, page=0, generation=0, activeResults=null, activeDetail=0;
 import { SHELF_KEY, SHELF_LIMITS, readShelf, serializeShelf, toggleItem, moveItem, setMeta, encodeShare, decodeShare, cardLinks } from './shelf-core.mjs';
@@ -33,6 +33,12 @@ function renderList(items,total) {
  $('results').replaceChildren(fragment);$('status').textContent=`${total.toLocaleString()}件${criteria().query?' の検索結果':''}`;
  $('prev').disabled=page===0;$('next').disabled=(page+1)*40>=total;$('page-label').textContent=total?`${page+1} / ${Math.ceil(total/40)}`:'0 / 0';
 }
+// 速い検索（#350）: lite（題名・出演者・番組・日付）で即座に結果を出し、概要・関連記事の見出し（text）は並列で後から足して結果を更新する
+let lite=null;const textHay=new Map(),textLoaded=new Set();
+async function loadLite(){if(lite)return lite;const si=manifest.searchIndex,rows=await json(si.lite);lite=rows.map(([id,si2,date,title,cast,audio])=>{const show=si.shows[si2];return {id,show,date,title,cast,audio:!!audio,hay:normal(`${show} ${title} ${cast} ${id}`)};});return lite;}
+function loadText(file){if(textLoaded.has(file))return Promise.resolve();return json(file).then(rows=>{for(const [id,t] of rows)textHay.set(id,normal(t));textLoaded.add(file);});}
+function fastFilter(c){const terms=normal(c.query).split(' ').filter(Boolean),dir=c.order==='oldest'?1:-1;
+ return lite.filter(x=>(!c.show||x.show===c.show)&&(!c.from||x.date.slice(0,10)>=c.from)&&(!c.to||x.date.slice(0,10)<=c.to)&&terms.every(t=>x.hay.includes(t)||(textHay.get(x.id)||'').includes(t))).sort((a,b)=>dir*a.date.localeCompare(b.date)||a.id.localeCompare(b.id));}
 async function update(reset=true) {
  if(!manifest)return;
  if(reset)page=0;
@@ -41,7 +47,16 @@ async function update(reset=true) {
  try {
   if(c.from&&c.to&&c.from>c.to)throw Error('DATE_RANGE');
   let items,total;
-  if(c.query||c.from||c.to) {
+  if((c.query||c.from||c.to)&&manifest.searchIndex) {
+   await loadLite();if(run!==generation)return;
+   const show=()=>{activeResults=fastFilter(c);const t=activeResults.length;renderList(activeResults.slice(page*40,page*40+40),t);};
+   show();
+   const files=manifest.searchIndex.text.filter(f=>!textLoaded.has(f));
+   if(c.query&&files.length){$('status').textContent+='（概要・関連記事の見出しも確認中…）';
+    let i=0;const worker=async()=>{while(i<files.length){const f=files[i++];await loadText(f);if(run!==generation)return;show();if(textLoaded.size<manifest.searchIndex.text.length)$('status').textContent+='（概要・関連記事の見出しも確認中…）';}};
+    await Promise.all([worker(),worker(),worker(),worker()]);if(run!==generation)return;show();}
+   $('results').setAttribute('aria-busy','false');return;
+  } else if(c.query||c.from||c.to) {
    const paths=manifest.shows.filter(s=>!c.show||s.name===c.show).flatMap(s=>s.search),rows=[];
    // Bounded concurrency: don't launch all programme downloads at once.
    for(let i=0;i<paths.length;i+=2){const chunks=await Promise.all(paths.slice(i,i+2).map(json));if(run!==generation)return;rows.push(...chunks.flat());}

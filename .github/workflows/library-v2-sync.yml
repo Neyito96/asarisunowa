@@ -6,6 +6,8 @@ name: Library V2 sync
 on:
   schedule:
     - cron: '17 21 * * *'   # 毎日 06:17 JST
+    - cron: '47 22 * * *'   # 07:47 JST（GitHub の定時が飛ばされた日の保険。変化が無ければ何もしない）
+    - cron: '17 3 * * *'    # 12:17 JST（同上・V2の掲載判定が朝より遅れた日の分も拾う）
   workflow_dispatch:
   push:   # 初回の全件反映を PR ブランチ上で作るため（main には PR でマージ）
     branches: ['feat/issue-333-v2-description-sync']
@@ -13,6 +15,7 @@ on:
 permissions:
   contents: write
   actions: write
+  issues: write
 concurrency:
   group: library-v2-sync
   cancel-in-progress: false
@@ -49,3 +52,9 @@ jobs:
           git commit -m "data(library): V2・公開台帳と同期 $(date -u +%F)" -m "$(cat "$RUNNER_TEMP/report.json")"
           git push
           if [ "$GITHUB_REF" = refs/heads/main ]; then gh workflow run pages.yml --ref main; fi
+      - name: Report failure to the command-center issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api repos/${{ github.repository }}/issues/337/comments -f body="【自動通知】蔵の日次同期が失敗しました（$(date -u +%FT%TZ)・${{ github.event_name }}）。記録: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >/dev/null || true
