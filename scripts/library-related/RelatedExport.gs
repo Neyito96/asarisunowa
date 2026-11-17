@@ -2,7 +2,7 @@
 // V2作業用台帳の「V2・清掃詳細」（SC4-18 が原文から作った 見出し＋URL の組）を読むだけ。どこにも書かない。
 // 公開対象（V2・統合台帳で 掲載判定=対象・代表EP-ID=自分）の回だけを、見出しとURLが両方ある記事に限って返す。
 // GitHub Actions がこの URL を読んで public/library/data の relatedArticles を作る（Claude に全件を通さない）。
-var RX_VERSION = 'RX-1', RX_V2_ID = '1ZAl4QpQ4i5ycyPy1qVNtT-Ke2nsSHhWGFkAH3xedAbc';
+var RX_VERSION = 'RX-2', RX_V2_ID = '1ZAl4QpQ4i5ycyPy1qVNtT-Ke2nsSHhWGFkAH3xedAbc';
 function rxBuild_() {
   var ss = SpreadsheetApp.openById(RX_V2_ID);
   var L = ss.getSheetByName('V2・統合台帳').getDataRange().getValues(), lh = L[0];
@@ -18,8 +18,14 @@ function rxBuild_() {
   });
   return { ok: true, version: RX_VERSION, generatedAt: new Date().toISOString(), episodes: Object.keys(out).length, pairs: n, badJson: skipped, related: out };
 }
+// RX-2（#333）: V2・公開台帳（掲載判定=対象・代表のみ。もともと公開する情報）を CSV で返す。蔵の同期ジョブ（library-v2-sync）が読む。読むだけ
+function rxPublicCsv_() {
+  var v = SpreadsheetApp.openById(RX_V2_ID).getSheetByName('V2・公開台帳').getDataRange().getDisplayValues();
+  return v.map(function (r) { return r.map(function (c) { c = String(c); return /[",\n\r]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }).join(','); }).join('\n') + '\n';
+}
 function doGet(e) {
   var type = e && e.parameter && e.parameter.type;
+  if (type === 'v2PublicCsv') return ContentService.createTextOutput(rxPublicCsv_()).setMimeType(ContentService.MimeType.CSV);
   if (type !== 'libraryRelated') return ContentService.createTextOutput(JSON.stringify({ ok: false, error: 'unknown type' })).setMimeType(ContentService.MimeType.JSON);
   return ContentService.createTextOutput(JSON.stringify(rxBuild_())).setMimeType(ContentService.MimeType.JSON);
 }
