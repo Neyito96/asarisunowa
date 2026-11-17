@@ -2019,7 +2019,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             <div className="themeHead">
               <p className="kicker themeKicker">LISTENER PODCASTS</p>
               <h2>🎙 ポすすめ</h2>
-              <p>ドーナツ（ポすすめ）で紹介された、朝リスさんのPodcastを集めた棚。以前の「日曜版」で紹介された番組もあります。人類ポ完計画、進行中。</p>
+              <p>「ポッドキャストのすすめ」（ポすすめ）。ドーナツの「日曜版」や「（ポすすめ）」で神田MCが紹介した、朝リスさんのPodcastを集めた棚です。紹介元の回や、その後に生まれた交流「ポす神回」も、確認できたものから順次つないでいきます。人類ポ完計画、進行中。</p>
+              <p>朝ポキの蔵は現在、収蔵内容を確認・更新しながらIssue駆動で開発中です。<a href="https://github.com/Neyito96/asarisunowa/issues/197" target="_blank" rel="noreferrer">開発への参加・アイデア募集はこちら</a>。</p>
             </div>
             <div className="listenerPodcastSubmitCta" aria-label="ポすすめ投稿のご案内">
               <div className="listenerPodcastSubmitCtaInfo">
