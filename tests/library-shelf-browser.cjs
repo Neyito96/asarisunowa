@@ -36,7 +36,7 @@ const base=process.env.LIBRARY_TEST_URL||'http://127.0.0.1:4173/library/';
  assert.ok(!hrefs.some(h=>/\.mp3/.test(h)));
  await q.locator('#shared .shared-card a[href="?ep=EP-06739"]').click();await q.locator('#detail-title').waitFor();await q.locator('#close-detail').click();
  // 公開されていない回・壊れたURL
- await q.goto(base+'#s=1.'+Buffer.from(JSON.stringify({t:'x',d:'',i:[132]})).toString('base64url'));await q.locator('#shared .shared-card').waitFor();
+ await q.goto(base+'#s=1.'+Buffer.from(JSON.stringify({t:'x',d:'',i:[132]})).toString('base64url'));await q.locator('#shared', { hasText: '公開されていません' }).waitFor();
  assert.match(await q.locator('#shared').innerText(),/公開されていません/);
  await q.goto(base+'#s=1.@@@');await q.locator('.episode').first().waitFor();assert.equal(await q.locator('#shared').count(),0);
  assert.deepEqual(errors,[]);assert.deepEqual(berr,[]);
