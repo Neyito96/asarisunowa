@@ -3400,3 +3400,9 @@ footer {
 .listenerPodcastSubmitCompactLink { display: inline-flex; align-items: center; padding: 10px 18px; border-radius: 999px; background: #c94e7c; color: #fff; font-weight: 800; text-decoration: none; }
 .archiveSearchLink { text-decoration: underline; text-underline-offset: 0.16em; font-weight: 700; }
 .archiveSearchLink:hover { opacity: .78; }
+
+
+/* Every official program card exposes its archive status near the title. */
+.officialArchiveEntrance { display: inline-flex; align-items: center; width: fit-content; margin: 4px 0 9px; padding: 6px 10px; border: 1px solid #b8dce3; border-radius: 999px; background: #edf8fb; color: #08748b; font-size: .85rem; font-weight: 750; text-decoration: none; }
+.officialArchiveEntrance:hover, .officialArchiveEntrance:focus-visible { background: #d9f0f6; text-decoration: underline; }
+.officialArchiveUnavailable { display: inline-block; margin: 4px 0 9px; font-size: .78rem; color: #68767c; }
