@@ -1,7 +1,7 @@
 import { publicationLabel } from './publication-scope.mjs';
 import { tidyDescription } from './description-tidy.mjs';
 import { qrSvg } from './qr.mjs';
-import { filterEpisodes, safeUrl } from './library-core.mjs';
+import { filterEpisodes, safeUrl } from './library-core.mjs?v=search-20261117';
 const $=id=>document.getElementById(id), cache=new Map();
 let manifest, page=0, generation=0, activeResults=null, activeDetail=0;
 import { SHELF_KEY, SHELF_LIMITS, readShelf, serializeShelf, toggleItem, moveItem, setMeta, encodeShare, decodeShare, cardLinks } from './shelf-core.mjs';
