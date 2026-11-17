@@ -124,6 +124,8 @@ function haRun_(limit) {
   s.heads.forEach(function (h) { sr.push(['見出し（知らない見出しの回に出る）', h[0], h[1], '']); });
   s.hosts.forEach(function (h) { sr.push(['本文に残るURLのホスト', h[0], h[1], '']); });
   sum.getRange(1, 1, sr.length, 4).setValues(sr);
+  if (Object.keys(s.byClass).reduce(function (n, k) { return n + s.byClass[k]; }, 0) !== js.length) throw new Error('CLASS_TOTAL_MISMATCH');
+  if (s.byCause.reduce(function (n, c) { return n + c[1]; }, 0) !== js.length) throw new Error('CAUSE_TOTAL_MISMATCH');
   var res = { version: HA_VERSION, publicCount: publicCount, holdTargets: targets.length, judged: js.length, byClass: s.byClass, topCauses: s.byCause.slice(0, 8), heads: s.heads.slice(0, 15), hosts: s.hosts.slice(0, 10), readback: readback ? 'OK' : 'MISMATCH', ms: Date.now() - t0 };
   Logger.log(JSON.stringify(res));
   return res;
