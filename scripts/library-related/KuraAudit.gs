@@ -91,9 +91,9 @@ function KA_0_蔵台帳_総合監査_READ_ONLY() {
     var rid = r[L.c('代表EP-ID')], cid = r[L.c('同一内容ID')], link = '';
     if (rid && rid !== r[L.c('EP-ID')] && led[rid]) { orig = [led[rid]]; link = '代表EP-ID・'; }
     else if (cid) { var sib = (byCid[cid] || []).filter(function (x) { return x !== r; }); if (sib.length) { orig = sib; link = '同一内容ID・'; } }
-    var o = orig[0], same = link + o ? (o[L.c('公式GUID')] && o[L.c('公式GUID')] === r[L.c('公式GUID')] ? 'GUID一致' : (o[L.c('公式個別URL')] && kaNormUrl_(o[L.c('公式個別URL')]) === kaNormUrl_(r[L.c('公式個別URL')]) ? '公式URL一致' : (link ? 'GUID・URL不一致' : '題名の芯だけ一致'))) : '元回が見つからない';
+    var o = orig[0], same = link + (o ? (o[L.c('公式GUID')] && o[L.c('公式GUID')] === r[L.c('公式GUID')] ? 'GUID一致' : (o[L.c('公式個別URL')] && kaNormUrl_(o[L.c('公式個別URL')]) === kaNormUrl_(r[L.c('公式個別URL')]) ? '公式URL一致' : (link ? 'GUID・URL不一致' : '題名の芯だけ一致'))) : '元回が見つからない');
     var rep = r[L.c('代表EP-ID')], repOk = o && rep && rep === o[L.c('EP-ID')] ? '代表EP=元回' : '代表EP不一致/空';
-    var verdict = same === '元回が見つからない' ? 'HOLD（元回不明）' : /^題名の芯だけ一致$/.test(same) ? 'HOLD（題名の芯だけ一致）' : 'HOLD（' + same + '・' + repOk + '・既存判定=' + r[L.c('掲載判定')] + '）';   // 確定・削除はしない
+    var verdict = /元回が見つからない$/.test(same) ? 'HOLD（元回不明）' : /^題名の芯だけ一致$/.test(same) ? 'HOLD（題名の芯だけ一致）' : 'HOLD（' + same + '・' + repOk + '・既存判定=' + r[L.c('掲載判定')] + '）';   // 確定・削除はしない
     rr[verdict] = (rr[verdict] || 0) + 1;
     reRows.push([r[L.c('EP-ID')], r[L.c('番組')], title, r[L.c('掲載判定')], o ? o[L.c('EP-ID')] : '', o ? o[L.c('タイトル')] : '', same, verdict, lib.eps[r[L.c('EP-ID')]] ? '蔵に公開中' : '蔵に無い']);
   });
