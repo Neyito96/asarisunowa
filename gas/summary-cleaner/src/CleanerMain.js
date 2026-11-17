@@ -2152,6 +2152,11 @@ var P28_JOBS_ = ['PD', 'PC', 'NEW', 'LS', 'AP'], P28_LOG_ = 'P28・巡回記録'
 function P28_W_1_V2書込を有効化() { PropertiesService.getScriptProperties().setProperty('P27_V2_WRITE', 'ON'); return scLog_('P28_W_1_V2書込を有効化', { status: 'ON', note: '戻すときは P28_W_0_V2書込を止める' }); }
 function P28_W_0_V2書込を止める() { PropertiesService.getScriptProperties().deleteProperty('P27_V2_WRITE'); return scLog_('P28_W_0_V2書込を止める', { status: 'OFF' }); }
 function P28_TICK() {
+  var cache = CacheService.getScriptCache(); if (cache.get('P28_RUNNING')) return scLog_('P28_TICK', { status: 'BUSY（前の回が実行中・今回は飛ばす）' });   // 5分おきでも重ならない（書込側のロックとは別の印）
+  cache.put('P28_RUNNING', '1', 400);
+  try { return p28Tick_(); } finally { cache.remove('P28_RUNNING'); }
+}
+function p28Tick_() {
   var P = PropertiesService.getScriptProperties(), st = p27State_();
   if (st.stop) return p28Log_('STOPPED', '停止旗（P27_PC_8 で確認）', {});
   if (!p27WriteEnabled_()) return p28Log_('WRITE_OFF', 'P28_W_1 未実行', {});
@@ -2172,6 +2177,7 @@ function P28_TICK() {
 }
 function p28Log_(job, status, r) { try { var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), sh = scSheet_(c.ss, P28_LOG_, ['日時', '仕事', '状態', '書いた件数', '詳細']); sh.appendRow([new Date().toISOString(), job, status, r.written || 0, JSON.stringify(r).slice(0, 400)]); } catch (e) {} return scLog_('P28_TICK', { job: job, status: status, written: r.written || 0 }); }
 function P28_T_1_巡回を設置_1時間ごと() { P28_T_0_巡回を解除(); ScriptApp.newTrigger('P28_TICK').timeBased().everyHours(1).create(); return scLog_('P28_T_1_巡回を設置_1時間ごと', { status: 'OK' }); }
+function P28_T_5_巡回を設置_5分ごと() { P28_T_0_巡回を解除(); ScriptApp.newTrigger('P28_TICK').timeBased().everyMinutes(5).create(); return scLog_('P28_T_5_巡回を設置_5分ごと', { status: 'OK', note: '2026-11-17 管理人指示「最小間隔で」。実行が重なる回は飛ばす。無料アカウントのトリガー実行は1日合計90分が上限' }); }
 // ── P29 過去回（#342）: LISTEN は公開RSSの全回、Apple は iTunes Search API の題名検索。どちらも公式GUID（または音声URL）が一致した回だけ、空欄にだけ書く。
 function p29Write_(col, plans) {
   if (!p27WriteEnabled_()) return { status: 'DISABLED' };
