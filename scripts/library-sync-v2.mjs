@@ -145,9 +145,13 @@ async function main() {
   const p11 = path.join(ROOT, 'docs/audits/2026-10-21-phase11/description-plan.json'), descProtect = new Set(fs.existsSync(p11) ? JSON.parse(fs.readFileSync(p11, 'utf8')).records.map((r) => r.id) : []);
   const old = loadPublic(dest), plan = planSync({ old, decisions: snapshot.decisions, v2, resolved, descProtect, syncDescriptions: !a.includes('--no-descriptions') });
   if (!plan.ok) { console.error('停止: ' + plan.problems.slice(0, 10).join(' / ')); process.exit(1); }
+  // 再発防止の監査: 「V2に出演者があるのに蔵では空欄」は毎回 0 でなければ止める（2026-11-17 ニュースの学校の欠落）
+  const v2Cast = new Map(v2.map((r) => [r['EP-ID'], castNames(r['出演者'])]));
+  const castGap = [...plan.keep, ...plan.add].filter((e) => !String(e.cast || '').trim() && v2Cast.get(e.id)).map((e) => e.id);
+  if (castGap.length) { console.error('停止: V2に出演者があるのに蔵で空欄 ' + castGap.length + ' 件 ' + castGap.slice(0, 10).join(',')); process.exit(1); }
   const v2Hash = createHash('sha256').update(text).digest('hex'), now = new Date().toISOString();
   const descProtectedCount = Object.fromEntries(Object.entries(plan.descProtected).map(([k, v]) => [k, v.length]));
-  const report = { v2Rows: v2.length, kept: plan.keep.length, added: plan.add.length, removed: plan.removed, protectedNotPublished: plan.protectedIds.length, linksAddedToExisting: plan.linkAdded.length, castDeduped: plan.castFixed.length, castFilled: plan.castFilled.length, castFilled: plan.castFilled.length, total: plan.total, newest: plan.add.map((e) => e.id).sort().slice(-5), descriptions: { updated: plan.descUpdates.length, unchanged: plan.descSame, protected: descProtectedCount } };
+  const report = { v2Rows: v2.length, kept: plan.keep.length, added: plan.add.length, removed: plan.removed, protectedNotPublished: plan.protectedIds.length, linksAddedToExisting: plan.linkAdded.length, castDeduped: plan.castFixed.length, castFilled: plan.castFilled.length, castFilled: plan.castFilled.length, castGapAfterSync: castGap.length, total: plan.total, newest: plan.add.map((e) => e.id).sort().slice(-5), descriptions: { updated: plan.descUpdates.length, unchanged: plan.descSame, protected: descProtectedCount } };
   if (a.includes('--dry-run')) { console.log(JSON.stringify(report, null, 1)); return; }
   if (!plan.add.length && !plan.removed.length && !plan.linkAdded.length && !plan.descUpdates.length && !plan.castFixed.length && !plan.castFilled.length) { console.log(JSON.stringify({ ...report, note: '変化なし（書き込まない）' }, null, 1)); return; }
   const snap2 = nextDecisions(snapshot, plan, v2Hash, now), scope = buildPublicationScope(snap2);
