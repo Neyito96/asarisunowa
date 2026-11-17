@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-v2-verify.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/net-count.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs, scripts/ledger-v2/raw-source.mjs, scripts/ledger-v2/platform-match.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = '7fb3186f9365ce818767494525baba8d697f2eed72c91e13d258c76adf521748';
+var CLEANER_BUILD_SOURCE_SHA256 = '62d92506ed0d0ffd09aac43f3644abfce3afdf1a2fd6e29d3a7efb233a0f1e25';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -3810,8 +3810,10 @@ function P27_0_下調べ_READ_ONLY() {
 // ===== P27 配信先URLロボ 第2段階（2026-11-17 08:02 司令塔「P27 第2段階実行指令」）=====
 // Pocket Casts: 公開データ（podcast-api.pocketcasts.com/podcast/full/<番組ID>）の各回を V2 と 1対1 で照合（PlatformMatch）。
 // 安全装置は P26 と同じ考え方（既存 P26 ファイルには触れない）: 空欄だけ・上限・履歴を先に書く→書込→読み戻し・不一致で停止旗・ロック・取消・未完了確認・停止解除。
-// V2 への書込は P27_V2_WRITE_ENABLED_ が false の間はコードで止める（本番配置・V2書込は未承認）。
-var P27_V2_WRITE_ENABLED_ = false;
+// V2 への書込は、管理人が有効にした（スクリプトのプロパティ P27_V2_WRITE＝ON・P28_W_1_V2書込を有効化）間だけ。既定は無効。
+// 2026-11-17 管理人判断（#342）: Pody・Pocket Casts の確定分から書込開始、トリガー巡回は1時間ごと。
+var P27_V2_WRITE_ENABLED_ = false;   // 互換のため残す（判定は p27WriteEnabled_）
+function p27WriteEnabled_() { return PropertiesService.getScriptProperties().getProperty('P27_V2_WRITE') === 'ON'; }
 var P27_PC_SHOWS_ = {   // 番組ID は サイト掲載の Pocket Casts 番組URL で確認できたものだけ（推測しない）。照合の一致率で番組の取り違えも検査する
   'ニュースの現場から': 'ce4f8cb0-c119-0138-e716-0acc26574db2',
   '報談': 'e2bb4c60-c679-0138-e72c-0acc26574db2',
@@ -3921,9 +3923,9 @@ function P27_PC_4_ページ確認_READ_ONLY() {
   pick.forEach(function (a) { var code = 0; try { code = UrlFetchApp.fetch(a.x.url, { muteHttpExceptions: true, followRedirects: true }).getResponseCode(); } catch (e) { code = -1; } res[a.x.ep] = code === 200 ? 'ページ確認（200）' : code === 403 ? '未検証（403・ページ確認不能）' : '未検証（HTTP ' + code + '）'; Utilities.sleep(1000); });
   return scLog_('P27_PC_4_ページ確認_READ_ONLY', { status: 'OK', results: res, note: 'API で ID を確認できても、ページ表示の確認済みとは扱わない' });
 }
-function P27_PC_0_承認_V2反映() { PropertiesService.getScriptProperties().setProperty('APPROVE_P27_V2', sumToday_()); return scLog_('P27_PC_0_承認_V2反映', { status: P27_V2_WRITE_ENABLED_ ? 'APPROVED' : 'APPROVED_BUT_DISABLED（V2書込はコードで無効）', validOn: sumToday_() }); }
+function P27_PC_0_承認_V2反映() { PropertiesService.getScriptProperties().setProperty('APPROVE_P27_V2', sumToday_()); return scLog_('P27_PC_0_承認_V2反映', { status: p27WriteEnabled_() ? 'APPROVED' : 'APPROVED_BUT_DISABLED（V2書込はコードで無効）', validOn: sumToday_() }); }
 function P27_PC_5_V2反映_承認後() {
-  if (!P27_V2_WRITE_ENABLED_) return scLog_('P27_PC_5_V2反映_承認後', { status: 'DISABLED', note: 'V2書込は未承認のためコードで無効（P27_V2_WRITE_ENABLED_ = false）' });
+  if (!p27WriteEnabled_()) return scLog_('P27_PC_5_V2反映_承認後', { status: 'DISABLED', note: 'V2書込は未承認のためコードで無効（P27_V2_WRITE_ENABLED_ = false）' });
   var P = PropertiesService.getScriptProperties(); if (P.getProperty('APPROVE_P27_V2') !== sumToday_()) return scLog_('P27_PC_5_V2反映_承認後', { status: 'NOT_APPROVED_TODAY' });
   var v = scOpen_(SC_CONFIG.v2WorkingId, ''), p = p27PcPlan_(p27Ledger_(v.ss));
   var plan = p.all.filter(function (a) { return a.x.action === 'WRITE'; }).map(function (a) { return { ep: a.x.ep, url: a.x.url, basis: a.x.method + '・' + a.idCheck + '・' + a.page }; });
@@ -4074,7 +4076,36 @@ function P27_PD_4_COPY試験() {
   if (p.error) return scLog_('P27_PD_4_COPY試験', { status: p.error });
   return p27CopyTest_('P27_PD_4_COPY試験', 'Pody', PlatformMatch.PODY_EPISODE_URL, p.all.filter(function (a) { return a.x.action === 'WRITE'; }).map(function (a) { return { ep: a.x.ep, url: a.x.url, guid: a.r.guid, basis: 'Pody 埋め込みGUID＝公式GUID' }; }));
 }
-function P27_PD_5_V2反映_承認後() { return scLog_('P27_PD_5_V2反映_承認後', { status: 'DISABLED', note: 'V2書込は未承認のためコードで無効（P27_V2_WRITE_ENABLED_ = false）' }); }
+function P27_PD_0_承認_V2反映() { PropertiesService.getScriptProperties().setProperty('APPROVE_P27_PD_V2', sumToday_()); return scLog_('P27_PD_0_承認_V2反映', { status: p27WriteEnabled_() ? 'APPROVED' : 'APPROVED_BUT_DISABLED（P28_W_1 で書込を有効化）', validOn: sumToday_() }); }
+function P27_PD_5_V2反映_承認後() {   // Pody: 埋め込みGUID＝公式GUID で確定した回だけ、空欄にだけ書く（上限300・読み戻し・停止旗・P27_PC_7 で取消）
+  if (!p27WriteEnabled_()) return scLog_('P27_PD_5_V2反映_承認後', { status: 'DISABLED', note: 'P28_W_1_V2書込を有効化 が未実行' });
+  var P = PropertiesService.getScriptProperties(); if (P.getProperty('APPROVE_P27_PD_V2') !== sumToday_()) return scLog_('P27_PD_5_V2反映_承認後', { status: 'NOT_APPROVED_TODAY' });
+  var v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), p = p27PdPlan_(p27Ledger_(v.ss, 'Pody'), c.ss);
+  if (p.error) return scLog_('P27_PD_5_V2反映_承認後', { status: p.error });
+  var plan = p.all.filter(function (a) { return a.x.action === 'WRITE'; }).map(function (a) { return { ep: a.x.ep, url: a.x.url, basis: 'Pody 埋め込みGUID＝公式GUID・' + (a.x.method || '') }; });
+  var r = p27Write_('V2', v.ss, plan, P27_V2_MAX_PER_RUN_, 'Pody', PlatformMatch.PODY_EPISODE_URL); if (r.status !== 'OK' || !r.skipped || !r.skipped['上限（もう一度押すと続き）']) P.deleteProperty('APPROVE_P27_PD_V2');
+  return scLog_('P27_PD_5_V2反映_承認後', r);
+}
+
+// ── P28 巡回（#342）: 1時間ごとのトリガーで、1回に1つの仕事だけ順番に行う（6分制限の内に収める）。
+// 仕事の順: Pody確定分 → Pocket Casts確定分 → 新着7サービス照合と反映。書込は P27_V2_WRITE＝ON の間だけ。停止旗が立てば何もしない。
+var P28_JOBS_ = ['PD', 'PC', 'NEW'], P28_LOG_ = 'P28・巡回記録';
+function P28_W_1_V2書込を有効化() { PropertiesService.getScriptProperties().setProperty('P27_V2_WRITE', 'ON'); return scLog_('P28_W_1_V2書込を有効化', { status: 'ON', note: '戻すときは P28_W_0_V2書込を止める' }); }
+function P28_W_0_V2書込を止める() { PropertiesService.getScriptProperties().deleteProperty('P27_V2_WRITE'); return scLog_('P28_W_0_V2書込を止める', { status: 'OFF' }); }
+function P28_TICK() {
+  var P = PropertiesService.getScriptProperties(), st = p27State_();
+  if (st.stop) return p28Log_('STOPPED', '停止旗（P27_PC_8 で確認）', {});
+  if (!p27WriteEnabled_()) return p28Log_('WRITE_OFF', 'P28_W_1 未実行', {});
+  var i = Number(P.getProperty('P28_NEXT') || 0) % P28_JOBS_.length, job = P28_JOBS_[i], today = sumToday_(), r;
+  if (job === 'PD') { P.setProperty('APPROVE_P27_PD_V2', today); r = P27_PD_5_V2反映_承認後(); }
+  else if (job === 'PC') { P.setProperty('APPROVE_P27_V2', today); r = P27_PC_5_V2反映_承認後(); }
+  else { P.setProperty('APPROVE_P27_NEW_V2', today); r = P27_NEW_5_V2反映_承認後(); }
+  P.setProperty('P28_NEXT', String(i + 1));
+  return p28Log_(job, (r && r.status) || '', r || {});
+}
+function p28Log_(job, status, r) { try { var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), sh = scSheet_(c.ss, P28_LOG_, ['日時', '仕事', '状態', '書いた件数', '詳細']); sh.appendRow([new Date().toISOString(), job, status, r.written || 0, JSON.stringify(r).slice(0, 400)]); } catch (e) {} return scLog_('P28_TICK', { job: job, status: status, written: r.written || 0 }); }
+function P28_T_1_巡回を設置_1時間ごと() { P28_T_0_巡回を解除(); ScriptApp.newTrigger('P28_TICK').timeBased().everyHours(1).create(); return scLog_('P28_T_1_巡回を設置_1時間ごと', { status: 'OK' }); }
+function P28_T_0_巡回を解除() { var n = 0; ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'P28_TICK') { ScriptApp.deleteTrigger(t); n++; } }); return scLog_('P28_T_0_巡回を解除', { removed: n }); }
 
 // ===== P27 Pocket Casts 原因解析（読むだけ）=====
 function P27_PC_3_原因解析_READ_ONLY() {
@@ -4264,10 +4295,10 @@ function P27_NEW_2_COPY試験() {
   });
   return scLog_('P27_NEW_2_COPY試験', { status: ok && any ? 'PASS' : any ? 'FAIL' : 'STOP_NO_CANDIDATE', byService: results, note: 'COPYの台帳コピーだけ。V2は読むだけ' });
 }
-function P27_NEW_0_承認_新着V2反映() { PropertiesService.getScriptProperties().setProperty('APPROVE_P27_NEW_V2', sumToday_()); return scLog_('P27_NEW_0_承認_新着V2反映', { status: P27_V2_WRITE_ENABLED_ ? 'APPROVED' : 'APPROVED_BUT_DISABLED（V2書込はコードで無効）', validOn: sumToday_() }); }
+function P27_NEW_0_承認_新着V2反映() { PropertiesService.getScriptProperties().setProperty('APPROVE_P27_NEW_V2', sumToday_()); return scLog_('P27_NEW_0_承認_新着V2反映', { status: p27WriteEnabled_() ? 'APPROVED' : 'APPROVED_BUT_DISABLED（V2書込はコードで無効）', validOn: sumToday_() }); }
 // V2反映（承認後）: 新着の WRITE をサービスごとに空欄だけへ。書いた列ごとの反映IDを束で記録し、P27_NEW_7 で全部戻せる
 function P27_NEW_5_V2反映_承認後() {
-  if (!P27_V2_WRITE_ENABLED_) return scLog_('P27_NEW_5_V2反映_承認後', { status: 'DISABLED', note: 'V2書込は未承認のためコードで無効（P27_V2_WRITE_ENABLED_ = false）' });
+  if (!p27WriteEnabled_()) return scLog_('P27_NEW_5_V2反映_承認後', { status: 'DISABLED', note: 'V2書込は未承認のためコードで無効（P27_V2_WRITE_ENABLED_ = false）' });
   var P = PropertiesService.getScriptProperties(); if (P.getProperty('APPROVE_P27_NEW_V2') !== sumToday_()) return scLog_('P27_NEW_5_V2反映_承認後', { status: 'NOT_APPROVED_TODAY' });
   var v = scOpen_(SC_CONFIG.v2WorkingId, ''), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), p = p27NewPlan_(v.ss, c.ss), group = [], res = {};
   ['Pocket Casts', 'Pody', 'Apple', 'LISTEN', 'Amazon'].forEach(function (col) {
