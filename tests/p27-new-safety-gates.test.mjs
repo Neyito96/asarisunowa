@@ -75,3 +75,28 @@ test('列ごとの失敗時に中断、反映済み列だけ保持して安全�
   assert.equal(h.ctx.P27_NEW_7_直前の新着反映を戻す().status,'OK');
   assert.equal(h.state.lastGroup.length,0);
 });
+
+test('承認済みでも前回の未取消グループが残れば新たな承認を拒否', () => {
+  const h = harness();
+  h.state.lastGroup = [{ id: 'old', target: 'V2', col: 'Pody' }];
+  assert.equal(h.ctx.P27_NEW_0_承認_新着V2反映().status, 'STOP_PENDING_UNDO');
+  assert.equal(h.properties.size, 0);
+});
+
+test('上限で一部しか書けなかった列はOKと誤判定しない', () => {
+  const h = harness();
+  assert.equal(h.ctx.P27_NEW_0_承認_新着V2反映().status, 'APPROVED');
+  h.replies.push({ status:'OK', written:0, readbackMismatch:0, applyId:'TX:LIMIT' });
+  assert.equal(h.ctx.P27_NEW_5_V2反映_承認後().status, 'STOP_PARTIAL_CHECK_AND_UNDO');
+  assert.deepEqual(h.writes, ['Pocket Casts']);
+  assert.equal(h.state.lastGroup.length,1);
+});
+
+test('失敗したUNDOの再試行前に新規反映を拒否', () => {
+  const h = harness();
+  h.state.lastGroup = [{id:'TX:WAIT',target:'V2',col:'Apple'}];
+  h.properties.set('APPROVE_P27_NEW_V2','2026-11-17');
+  h.properties.set('APPROVE_P27_NEW_V2_HASH','hash');
+  assert.equal(h.ctx.P27_NEW_5_V2反映_承認後().status, 'STOP_PENDING_UNDO');
+  assert.equal(h.writes.length,0);
+});
