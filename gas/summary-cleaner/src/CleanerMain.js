@@ -2369,7 +2369,7 @@ function P27_NEW_5_V2反映_承認後() {
     } catch (e) {
       // 書込途中の例外でもp27Write_が残した反映IDを救済してUNDO可能にする。
       var recovery = p27State_(), last = recovery.last;
-      if (last && last.target === 'V2' && last.col === col && last.id && !group.some(function (x) { return x.id === last.id; })) {
+      if (last && recovery.pending && last.id === recovery.pending && last.target === 'V2' && last.col === col && !group.some(function (x) { return x.id === last.id; })) {
         group.push({ id: last.id, target: 'V2', col: col });
         recovery.lastGroup = group.slice(); p27SetState_(recovery);
       }
