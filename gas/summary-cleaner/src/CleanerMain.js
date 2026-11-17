@@ -1950,12 +1950,14 @@ function p27Undo_(ss) {
   var st = p27State_(), last = st.last; if (!last) return { status: 'NOTHING_TO_UNDO' };
   var col = last.col || P27_COL_, c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), hist = scSheet_(c.ss, P27_HIST_, P27_HIST_H_), L = p27Ledger_(ss, col), byEp = {}; L.rows.forEach(function (r) { byEp[r.ep] = r; });
   var rows = hist.getRange(2, 1, Math.max(1, hist.getLastRow() - 1), P27_HIST_H_.length).getDisplayValues().filter(function (r) { return r[1] === last.id && /^(OK|PENDING|READBACK_MISMATCH)$/.test(r[8]); });
+  // 取消対象の履歴が見つからない場合、成功扱いで反映IDを消してはならない。
+  if (!rows.length) return { status: 'UNDO_HISTORY_MISSING', target: last.target, column: col, applyId: last.id };
   var undone = 0, kept = 0, out = [], now = new Date().toISOString();
   rows.forEach(function (r) { var x = byEp[r[3]]; if (!x) return; if (x.current !== r[6]) { kept++; return; } L.sh.getRange(x.row, L.col).setValue(r[5]); undone++; out.push([now, last.id + '/UNDO', last.target, r[3], r[4], r[6], r[5], '取消', 'UNDO']); });
   if (out.length) scChunkWrite_(hist, hist.getLastRow() + 1, out, P27_HIST_H_.length); SpreadsheetApp.flush();
   var back = p27Ledger_(ss, col), bb = {}; back.rows.forEach(function (r) { bb[r.ep] = r; }); var mism = rows.filter(function (r) { return bb[r[3]] && bb[r[3]].current !== r[5] && bb[r[3]].current === r[6]; }).length;
-  delete st.last; p27SetState_(st);
-  return { status: mism ? 'UNDO_READBACK_MISMATCH' : 'OK', target: last.target, column: col, undone: undone, keptBecauseChangedAfter: kept };
+  if (!mism && !kept) { delete st.last; if (st.pending === last.id) st.pending = ''; p27SetState_(st); }
+  return { status: mism ? 'UNDO_READBACK_MISMATCH' : kept ? 'MANUAL_CHANGE_PROTECTED' : 'OK', target: last.target, column: col, undone: undone, keptBecauseChangedAfter: kept };
 }
 // COPY試験（V2は読むだけ）: 確定分から最大10件を COPY の台帳コピーへ → 読み戻し → 再実行で0件 → 取消で復元、を1回で
 function P27_PC_2_COPY試験() {
