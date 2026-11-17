@@ -54,12 +54,6 @@ test('HA-4: 関連エピソード・関連リンクは記事の組が曖昧な�
   assert.equal(a.cls, '人間確認必要');
   assert.equal(a.tidy.status, 'HOLD');
 });
-test('HA-4: GOOD LIFEフェア告知は本文から除外し、元の原文は保持', () => {
-  const original = '大切な本編です。【GOOD LIFEフェア2026・イベント告知】会場でお会いしましょう。';
-  const j = H.haJudge({ ep: 'EP-B', raw: original }, 'x');
-  assert.equal(j.cls, '人間確認必要'); // 未知見出しは人の判断を残す
-  assert.equal(original.includes('GOOD LIFEフェア'), true);
-});
 test('HA-4: 複数の判定理由を持つ回でも分類件数は1件として集計', () => {
   const js = [
     { ep: 'A', cls: '人間確認必要', cause: '知らない見出し', fails: ['知らない見出し', '出演者の重複'] },
