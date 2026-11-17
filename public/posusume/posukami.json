@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "version": "POSU-1",
- "generatedAt": "2026-11-17T05:22:41.161Z",
+ "generatedAt": "2026-11-17T06:03:00.706Z",
  "submitEnabled": true,
  "cards": [
   {
@@ -133,6 +133,38 @@
    "specials": []
   },
   {
+   "podcastId": "9",
+   "podcastTitle": "うんちく聖書ラジオ",
+   "introductions": [
+    {
+     "title": "（日曜版）ファーストネーム外交",
+     "date": "2026-06-28",
+     "href": "/library/?ep=EP-05525",
+     "library": true,
+     "epId": "EP-05525",
+     "verifiedAt": "2026-11-17"
+    }
+   ],
+   "replies": [],
+   "specials": []
+  },
+  {
+   "podcastId": "10",
+   "podcastTitle": "福祉探偵団",
+   "introductions": [
+    {
+     "title": "（日曜版）星のラブレター",
+     "date": "2026-07-19",
+     "href": "/library/?ep=EP-05545",
+     "library": true,
+     "epId": "EP-05545",
+     "verifiedAt": "2026-11-17"
+    }
+   ],
+   "replies": [],
+   "specials": []
+  },
+  {
    "podcastId": "11",
    "podcastTitle": "ののラジオ",
    "introductions": [
@@ -146,6 +178,33 @@
     }
    ],
    "replies": [],
+   "specials": []
+  },
+  {
+   "podcastId": "12",
+   "podcastTitle": "ネジネジ低空飛行 — ゆるバイポーラー thinking aloud —",
+   "introductions": [
+    {
+     "title": "（日曜版）セックスワークの具体論",
+     "date": "2026-08-16",
+     "href": "/library/?ep=EP-00286",
+     "library": true,
+     "epId": "EP-00286",
+     "verifiedAt": "2026-11-17"
+    }
+   ],
+   "replies": [
+    {
+     "title": "#16 どう夏　1ヶ月間のこと",
+     "date": "2026-08-17",
+     "href": "https://open.spotify.com/episode/7zkpOp19ILnErI70MplWWU?si=qaFhfPpXQ-ijNhktBYDV_g",
+     "library": false,
+     "epId": "",
+     "verifiedAt": "2026-11-17",
+     "program": "ネジネジ低空飛行 — ゆるバイポーラー thinking aloud —",
+     "relation": "ポすすめ返し（ポすすめを受けて番組が配信した回）"
+    }
+   ],
    "specials": []
   },
   {
