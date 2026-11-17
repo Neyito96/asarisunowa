@@ -82,7 +82,7 @@ return tidyDescription;
 //   2) 原文に同じ整形規則をかけ、品質の検査（本文が原文の中にある・関連記事の見出しとURLが原文の中で対応している・出演者の重複）をする
 //   3) 自動修正可能・人間確認必要・原文未取得に分け、COPY の明細・集計シートに書く
 // 安全: V2作業用台帳・本番は読むだけ。書くのは COPY の「HOLD監査・明細」「HOLD監査・集計」だけ（毎回まるごと書き直す＝冪等）。原文は加工しない。
-var HA_VERSION = 'HA-1';
+var HA_VERSION = 'HA-2';
 var HA_CFG = {
   v2Id: '1ZAl4QpQ4i5ycyPy1qVNtT-Ke2nsSHhWGFkAH3xedAbc',   // V2作業用（読むだけ）
   copyId: '1WTLcaveWG0mr9F0dIjyCL8daxFnpo4q4yADN_bnK1PY', // COPY（書く）
@@ -96,6 +96,18 @@ var HA_ROW_H = ['EP-ID', '番組', '分類', '原因', '原文状態', '原文SH
 function haSplitCast(s) { return String(s || '').split(/[；;／/、,\n]+/).map(function (x) { return x.replace(/[（(][^）)]*[）)]/g, '').replace(/\s+/g, '').trim(); }).filter(Boolean); }
 function haCastDup(s) { var seen = {}, dup = []; haSplitCast(s).forEach(function (n) { if (seen[n] && dup.indexOf(n) < 0) dup.push(n); seen[n] = 1; }); return dup; }
 function haNormUrl(u) { return String(u || '').replace(/&amp;/g, '&').replace(/[?&](iref|ref|utm_[a-z]+)=[^&#]*/gi, '').replace(/[?&]$/, '').replace(/\/$/, '').trim(); }
+// 原文（公式RSSのHTML）を、整形にかけられる文字列にする。原文そのものは変えない（比較・整形用の写しを作るだけ）
+// Omny は1つのURLを <a href=X>前半</a><a href=X>?iref=omny</a><a href=X></a> のように分けて書くので、同じ href の連続は1つにまとめる
+var HA_ENT = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', hellip: '…', darr: '↓', uarr: '↑', rarr: '→', larr: '←', mdash: '—', ndash: '–', middot: '・', laquo: '«', raquo: '»', times: '×' };
+function haHtmlToText(raw) {
+  var s = String(raw || '');
+  if (!/<[a-z!\/][^>]*>/i.test(s)) return s;
+  s = s.replace(/<a\b[^>]*?href\s*=\s*["']([^"']+)["'][^>]*>[\s\S]*?<\/a>/gi, function (m, h) { return ' \u0001' + h.replace(/&amp;/g, '&') + '\u0001 '; });
+  s = s.replace(/(\u0001([^\u0001]+)\u0001)(\s*\u0001\2\u0001)+/g, '$1').replace(/\u0001/g, '');
+  s = s.replace(/<br\s*\/?>|<\/p>|<p\b[^>]*>|<\/?(div|li|ul|ol|h\d)\b[^>]*>/gi, '\n').replace(/<[^>]+>/g, '');
+  s = s.replace(/&#(\d+);/g, function (m, d) { return String.fromCharCode(+d); }).replace(/&#x([0-9a-f]+);/gi, function (m, h) { return String.fromCharCode(parseInt(h, 16)); }).replace(/&([a-z]+);/gi, function (m, n) { return HA_ENT[n.toLowerCase()] != null ? HA_ENT[n.toLowerCase()] : m; });
+  return s.replace(/[ \t\u00a0\u3000]*\n[ \t\u00a0\u3000]*/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+}
 function haNormText(t) { return String(t || '').replace(/&[a-z#0-9]+;/gi, ' ').replace(/\s+/g, ' ').trim(); }
 // 1件の判定。row: {ep, show, cleaned, cast, raw, rawSha, sc418Json}
 function haJudge(row, sha) {
@@ -103,7 +115,7 @@ function haJudge(row, sha) {
   if (!raw.trim()) { out.cls = '原文未取得'; out.cause = '概要原文が空'; out.rawState = '未取得'; return out; }
   out.sha = sha; out.rawState = row.rawSha && row.rawSha.toLowerCase() !== String(sha).toLowerCase() ? 'SHA不一致' : '取得済み';
   if (out.rawState === 'SHA不一致') { out.cls = '人間確認必要'; out.cause = '保存の原文SHA256と一致しない'; return out; }
-  var t = tidyDescription(raw), nraw = haNormText(raw);
+  var text = haHtmlToText(raw), t = tidyDescription(text), nraw = haNormText(text);
   out.tidy = t; out.tidyStatus = t.status; out.bodyLen = t.body.length;
   var fails = [];
   if (t.status === 'HOLD') fails.push('整形HOLD: ' + t.reason);
@@ -188,4 +200,4 @@ function haRun_(limit) {
 function HA_1_HOLD監査_100件() { return haRun_(100); }
 function HA_2_HOLD監査_全件() { return haRun_(0); }
 
-if (typeof module !== 'undefined') module.exports = { haJudge: haJudge, haSummary: haSummary, haCastDup: haCastDup, haRowOut: haRowOut, HA_ROW_H: HA_ROW_H };
+if (typeof module !== 'undefined') module.exports = { haHtmlToText: haHtmlToText, haJudge: haJudge, haSummary: haSummary, haCastDup: haCastDup, haRowOut: haRowOut, HA_ROW_H: HA_ROW_H };

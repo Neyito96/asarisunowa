@@ -32,3 +32,12 @@ test('集計は分類と原因ごとの件数と代表例', () => {
   assert.deepEqual(s.byClass, { X: 2, Y: 1 }); assert.deepEqual(s.byCause[0], ['X｜c', 2, 'A B']);
   assert.equal(H.haRowOut(H.haJudge({ ep: 'E', raw: '' }, ''), 'HA-1', 't').length, H.HA_ROW_H.length);
 });
+test('HA-2: 原文のHTML（Omnyの分割リンク）を文字列にしてから整形する。原文に無い字を足さない', () => {
+  const html = '<p>においの話です&hellip;。<br><br>【関連記事】<br>米作りを教える側に　言葉のグルーヴ <a href="https://www.asahi.com/articles/ASV1.html?iref=omny">https://www.asahi.com/articles/ASV1.html</a><a href="https://www.asahi.com/articles/ASV1.html?iref=omny">?iref=omny</a><a href="https://www.asahi.com/articles/ASV1.html?iref=omny"></a><br>痛み包み込み癒やす、真珠貝<br><a href="https://www.asahi.com/articles/ASV2.html?iref=omny"> https://www.asahi.com/articles/ASV2.html</a><a href="https://www.asahi.com/articles/ASV2.html?iref=omny">?iref=omny</a><br><br></p> <p>【出演・スタッフ】<br>近藤康太郎（MC）<a href="https://bit.ly/x">https://bit.ly/x</a></p>';
+  const text = H.haHtmlToText(html);
+  assert.ok(!/<|&hellip;/.test(text)); assert.equal((text.match(/ASV1\.html/g) || []).length, 1);
+  const j = H.haJudge({ ep: 'EP-00106', raw: html }, 'x');
+  assert.equal(j.cls, '自動修正可能', (j.fails || []).join());
+  assert.deepEqual(J(j.tidy.related.map((r) => r.title)), ['米作りを教える側に 言葉のグルーヴ', '痛み包み込み癒やす、真珠貝']);
+  assert.equal(j.tidy.body, 'においの話です…。');
+});
