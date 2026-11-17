@@ -1,0 +1,29 @@
+name: Library related-article titles
+# #308: 蔵の関連記事に見出しを付ける。GAS（RX-1・V2・清掃詳細を読むだけ）の JSON を読み、public/library/data を作り直して、同じブランチにコミットする。
+# Claude に全件を通さないための経路。main には直接書かない（PR で確認してからマージ）。
+on:
+  push:
+    branches: ['feat/issue-308-related-titles']
+    paths: ['scripts/library-related/**', '.github/workflows/library-related-titles.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply titles
+        run: node scripts/library-related/apply-related-titles.mjs "https://script.google.com/macros/s/AKfycbwwcQQkwhGaddZxXzWh_bPVGCVP4YssJ3FKQINmTUSsThsji334DfVtxpc9VlwSm8lRIg/exec?type=libraryRelated" | tee "$RUNNER_TEMP/report.json"
+      - run: node --test tests/library-related-titles.test.mjs tests/library-publication-scope.test.mjs
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- public/library/data; then echo "変化なし"; exit 0; fi
+          git config user.name "github-actions[bot]"; git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git add public/library/data
+          git commit -m "data(library): 関連記事に見出しを付ける（RX-1）" -m "$(cat "$RUNNER_TEMP/report.json")"
+          git push
