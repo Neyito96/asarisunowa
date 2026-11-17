@@ -29,7 +29,7 @@ function kaLibrary_() {   // 公開中の蔵（全件）。1つでも取れな�
   if (bad.length || dup.length || Object.keys(out).length !== total || ids.some(function (id) { return !out[id]; })) throw new Error('LIBRARY_INVALID n=' + Object.keys(out).length + ' total=' + total + ' bad=' + bad.slice(0, 10).join(',') + ' dup=' + dup.slice(0, 10).join(','));
   return { manifest: m, eps: out };
 }
-function kaNormName_(s) { return String(s || '').replace(/[（(][^）)]*[）)]/g, '').replace(/^(MC|ゲスト|出演|聞き手)[:：\s]*/i, '').replace(/[\s　・]/g, ''); }
+function kaNormName_(s) { return String(s || '').split(/[,，]/)[0].replace(/[（(][^）)]*[）)]/g, '').replace(/^(MC|ゲスト|出演|聞き手)[:：\s]*/i, '').replace(/[\s　・]/g, ''); }
 function kaSplitCast_(s) { return String(s || '').split(/\s*(?:\/|／|;|；|、|\n)\s*/).map(function (x) { return x.replace(/https?:\/\/\S+/g, '').trim(); }).filter(Boolean); }
 function kaNormUrl_(u) { return String(u || '').replace(/^http:/, 'https:').replace(/[?#].*$/, '').replace(/\/+$/, ''); }
 function kaCore_(t) { return String(t || '').normalize('NFKC').replace(/[（(](再|再放送|再配信|アンコール|再掲)[^）)]*[）)]/g, '').replace(/【[^】]*(再|アンコール)[^】]*】/g, '').replace(/再放送|再配信|アンコール配信/g, '').replace(/\s+/g, ''); }
@@ -83,14 +83,17 @@ function KA_0_蔵台帳_総合監査_READ_ONLY() {
   });
   S.関連記事 = kaWrite_(OUT, '蔵監査・関連記事', ['EP-ID', '番組', '種類', '内容', '見出し付き件数', 'URL件数', 'V2の記事数'], relRows); S.関連記事_内訳 = rc;
   // 4. 再配信: 題名の「（再）」「再放送」等 → 同じ芯の題名の元回と GUID・公式URLを比べる。同一性は確定しない（HOLD）
-  var byCore = {}; L.rows.forEach(function (r) { var k = kaCore_(r[L.c('タイトル')]); (byCore[k] = byCore[k] || []).push(r); });
+  var byCore = {}, byCid = {}; L.rows.forEach(function (r) { var k = kaCore_(r[L.c('タイトル')]); (byCore[k] = byCore[k] || []).push(r); var c = r[L.c('同一内容ID')]; if (c) (byCid[c] = byCid[c] || []).push(r); });
   var reRows = [], rr = {};
   L.rows.forEach(function (r) {
     var title = r[L.c('タイトル')]; if (!/[（(](再|再放送|再配信|アンコール)|再放送|再配信|アンコール/.test(title)) return;
     var core = kaCore_(title), orig = (byCore[core] || []).filter(function (x) { return x !== r && x[L.c('配信日時 JST')] < r[L.c('配信日時 JST')]; });
-    var o = orig[0], same = o ? (o[L.c('公式GUID')] && o[L.c('公式GUID')] === r[L.c('公式GUID')] ? 'GUID一致' : (o[L.c('公式個別URL')] && kaNormUrl_(o[L.c('公式個別URL')]) === kaNormUrl_(r[L.c('公式個別URL')]) ? '公式URL一致' : '題名の芯だけ一致')) : '元回が見つからない';
+    var rid = r[L.c('代表EP-ID')], cid = r[L.c('同一内容ID')], link = '';
+    if (rid && rid !== r[L.c('EP-ID')] && led[rid]) { orig = [led[rid]]; link = '代表EP-ID・'; }
+    else if (cid) { var sib = (byCid[cid] || []).filter(function (x) { return x !== r; }); if (sib.length) { orig = sib; link = '同一内容ID・'; } }
+    var o = orig[0], same = link + o ? (o[L.c('公式GUID')] && o[L.c('公式GUID')] === r[L.c('公式GUID')] ? 'GUID一致' : (o[L.c('公式個別URL')] && kaNormUrl_(o[L.c('公式個別URL')]) === kaNormUrl_(r[L.c('公式個別URL')]) ? '公式URL一致' : (link ? 'GUID・URL不一致' : '題名の芯だけ一致'))) : '元回が見つからない';
     var rep = r[L.c('代表EP-ID')], repOk = o && rep && rep === o[L.c('EP-ID')] ? '代表EP=元回' : '代表EP不一致/空';
-    var verdict = same === '元回が見つからない' ? 'HOLD（元回不明）' : same === '題名の芯だけ一致' ? 'HOLD（題名の芯だけ一致）' : 'HOLD（' + same + '・' + repOk + '・既存判定=' + r[L.c('掲載判定')] + '）';   // 確定・削除はしない
+    var verdict = same === '元回が見つからない' ? 'HOLD（元回不明）' : /^題名の芯だけ一致$/.test(same) ? 'HOLD（題名の芯だけ一致）' : 'HOLD（' + same + '・' + repOk + '・既存判定=' + r[L.c('掲載判定')] + '）';   // 確定・削除はしない
     rr[verdict] = (rr[verdict] || 0) + 1;
     reRows.push([r[L.c('EP-ID')], r[L.c('番組')], title, r[L.c('掲載判定')], o ? o[L.c('EP-ID')] : '', o ? o[L.c('タイトル')] : '', same, verdict, lib.eps[r[L.c('EP-ID')]] ? '蔵に公開中' : '蔵に無い']);
   });
