@@ -39,6 +39,17 @@ const ArchiveSearchLink = ({ term, children }: { term: string; children?: ReactN
     {children ?? term} ↗
   </a>
 );
+// Search terms can differ from display labels; do not rewrite the visible program name.
+const archiveSeriesSearchTerms: Record<string, string> = {
+  "アラサーかいわい": "アラサー",
+  "スナックよりみ知": "よりみ知",
+};
+function ArchiveSeriesItems({ value }: { value: string }) {
+  return <>{value.split("、").map((label, i) => {
+    const name = label.trim();
+    return <span key={i}>{i > 0 ? "、" : ""}<ArchiveSearchLink term={archiveSeriesSearchTerms[name] ?? name}>{name}</ArchiveSearchLink></span>;
+  })}</>;
+}
 function ArchiveLinkedSchedule({ value }: { value: string }) {
   return <>{value.split("／").map((part, i) => {
     const match = part.match(/^([^：:]{1,12}[：:])(.*)$/);
@@ -47,10 +58,17 @@ function ArchiveLinkedSchedule({ value }: { value: string }) {
     const chunks = remainder.split(/(（[^）]+）)/g);
     return <span key={i}>{i > 0 ? "／" : ""}{prefix}{chunks.map((chunk, j) => {
       if (!chunk) return null;
-      const term = chunk.startsWith("（") && chunk.endsWith("）") ? chunk.slice(1, -1) : chunk.trim();
-      // Keep long descriptive sentences as text; never claim that a matching episode exists.
-      const linkable = term.length > 0 && term.length <= 24 && (chunk.startsWith("（") || (remainder.trim().length <= 24 && chunks.length === 1));
-      return linkable ? <ArchiveSearchLink key={j} term={term}>{chunk}</ArchiveSearchLink> : <span key={j}>{chunk}</span>;
+      if (chunk.startsWith("（") && chunk.endsWith("）")) {
+        const term = chunk.slice(1, -1);
+        return <ArchiveSearchLink key={j} term={archiveSeriesSearchTerms[term] ?? term}>{chunk}</ArchiveSearchLink>;
+      }
+      // Commas separate distinct series, never a single combined search.
+      return <span key={j}>{chunk.split("、").map((item, k) => {
+        const label = item.trim();
+        const clean = label.replace(/（[^）]*）/g, "").trim();
+        const linkable = clean.length > 0 && clean.length <= 24 && !/^(平日配信|休日はお休み)/.test(clean);
+        return <span key={k}>{k > 0 ? "、" : ""}{linkable ? <ArchiveSearchLink term={archiveSeriesSearchTerms[clean] ?? clean}>{label}</ArchiveSearchLink> : label}</span>;
+      })}</span>;
     })}</span>;
   })}</>;
 }
@@ -2024,7 +2042,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   ) : (
                     <span className="officialArchiveUnavailable" title="この番組は蔵の公開対象外です">蔵の収蔵対象外</span>
                   )}
-                  {p.detail && (p.name === "MEDIA TALK" || p.name === "ニュースの現場から" ? <p>{p.detail.split("、").map((item, i) => { const isNew = p.name === "MEDIA TALK" ? (["骨格", "TMT", "推し記事", "吹奏楽・高校編"].includes(item)) : ["Q&A", "地球会議"].includes(item); return <span key={item}>{i > 0 ? "、" : ""}{isNew && <span style={{ display: "inline-block", background: "#d62839", color: "#fff", fontSize: "0.72em", fontWeight: 800, padding: "1px 6px", borderRadius: "4px", marginRight: "4px" }}>NEW</span>}{item.length <= 24 ? <ArchiveSearchLink term={item} /> : item}</span>; })}</p> : <p>{p.detail}</p>)}
+                  {p.detail && (p.name === "MEDIA TALK" || p.name === "ニュースの現場から" ? <p>{p.detail.split("、").map((item, i) => { const isNew = p.name === "MEDIA TALK" ? (["骨格", "TMT", "推し記事", "吹奏楽・高校編"].includes(item)) : ["Q&A", "地球会議"].includes(item); return <span key={item}>{i > 0 ? "、" : ""}{isNew && <span style={{ display: "inline-block", background: "#d62839", color: "#fff", fontSize: "0.72em", fontWeight: 800, padding: "1px 6px", borderRadius: "4px", marginRight: "4px" }}>NEW</span>}{item.length <= 24 ? <ArchiveSearchLink term={item} /> : item}</span>; })}</p> : p.name === "スポンジ Sports Lounge" ? <p><ArchiveSeriesItems value={p.detail} /></p> : <p>{p.detail}</p>)}
                   {p.schedule && <p className="schedule"><ArchiveLinkedSchedule value={p.schedule} /></p>}
                   <div className="serviceLinks">
                       {[
