@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-v2-verify.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/net-count.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs, scripts/ledger-v2/raw-source.mjs, scripts/ledger-v2/platform-match.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = '2613710300b84fb19bb1b6952dd3dbc6c31a5f5e4417c21e39f3666f3c1242d2';
+var CLEANER_BUILD_SOURCE_SHA256 = 'c77944cdf78c7234420d01ec038aa5e6e1529a69df268da478e56419e8b1007b';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -3780,7 +3780,12 @@ var P27_V2_WRITE_ENABLED_ = false;
 var P27_PC_SHOWS_ = {   // 番組ID は サイト掲載の Pocket Casts 番組URL で確認できたものだけ（推測しない）。照合の一致率で番組の取り違えも検査する
   'ニュースの現場から': 'ce4f8cb0-c119-0138-e716-0acc26574db2',
   '報談': 'e2bb4c60-c679-0138-e72c-0acc26574db2',
-  'ドーナツ': 'eac35880-7806-013f-17c3-0affc24a29f5'
+  'ドーナツ': 'eac35880-7806-013f-17c3-0affc24a29f5',
+  // 2026-11-17 P27_ID_1: 台帳の Apple 番組ID → 公開の転送リンク pca.st/itunes/<id> の転送先で確認し、公開データの回と台帳の一致率（97.6〜100%）で検査したもの
+  'MEDIA TALK': 'e2e4c3f0-c679-0138-e72c-0acc26574db2',
+  'スポンジ': 'd88b2460-7e69-013f-f21c-0affd341b2cf',
+  'こどもそうだんしつ': '99d4f220-1d27-013a-d5ca-0acc26574db2',
+  'ニュースの学校': '52e7ed60-5a72-0139-33d1-0acc26574db2'
 };
 var P27_COL_ = 'Pocket Casts', P27_PC_SHEET_ = 'P27・PC照合', P27_PC_EXTRA_ = 'P27・PC余り', P27_HIST_ = 'P27・反映履歴', P27_STATE_KEY_ = 'P27_STATE', P27_COPY_MAX_ = 10, P27_V2_MAX_PER_RUN_ = 300;
 var P27_HIST_H_ = ['日時', '反映ID', '対象', 'EP-ID', '列', '変更前', '変更後', '根拠', '状態'];

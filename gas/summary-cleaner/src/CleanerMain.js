@@ -1873,7 +1873,12 @@ var P27_V2_WRITE_ENABLED_ = false;
 var P27_PC_SHOWS_ = {   // 番組ID は サイト掲載の Pocket Casts 番組URL で確認できたものだけ（推測しない）。照合の一致率で番組の取り違えも検査する
   'ニュースの現場から': 'ce4f8cb0-c119-0138-e716-0acc26574db2',
   '報談': 'e2bb4c60-c679-0138-e72c-0acc26574db2',
-  'ドーナツ': 'eac35880-7806-013f-17c3-0affc24a29f5'
+  'ドーナツ': 'eac35880-7806-013f-17c3-0affc24a29f5',
+  // 2026-11-17 P27_ID_1: 台帳の Apple 番組ID → 公開の転送リンク pca.st/itunes/<id> の転送先で確認し、公開データの回と台帳の一致率（97.6〜100%）で検査したもの
+  'MEDIA TALK': 'e2e4c3f0-c679-0138-e72c-0acc26574db2',
+  'スポンジ': 'd88b2460-7e69-013f-f21c-0affd341b2cf',
+  'こどもそうだんしつ': '99d4f220-1d27-013a-d5ca-0acc26574db2',
+  'ニュースの学校': '52e7ed60-5a72-0139-33d1-0acc26574db2'
 };
 var P27_COL_ = 'Pocket Casts', P27_PC_SHEET_ = 'P27・PC照合', P27_PC_EXTRA_ = 'P27・PC余り', P27_HIST_ = 'P27・反映履歴', P27_STATE_KEY_ = 'P27_STATE', P27_COPY_MAX_ = 10, P27_V2_MAX_PER_RUN_ = 300;
 var P27_HIST_H_ = ['日時', '反映ID', '対象', 'EP-ID', '列', '変更前', '変更後', '根拠', '状態'];
