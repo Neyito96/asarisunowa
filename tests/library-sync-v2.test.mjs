@@ -85,3 +85,9 @@ test('出演者: V2も空なら管理人判断（manualCast）で補う。既存
   assert.equal(p.keep.find((e) => e.id === 'EP-00001').cast, '神田大介');
   assert.equal(p.keep.find((e) => e.id === 'EP-00002').cast, '杢田光');
 });
+
+test('蔵の検索: 番組名・タイトル・出演者・概要・関連記事の見出し（keywords）を対象にする', async () => {
+  const { filterEpisodes } = await import('../public/library/library-core.mjs');
+  const items = [{ id: 'EP-1', show: 'こどもそうだんしつ', title: 'なぜ空は青い', cast: 'A', keywords: '関連の見出し', description: '本文', date: '2026-01-01' }];
+  for (const q of ['こどもそうだんしつ', '空は青い', 'A', '関連の見出し', '本文']) assert.equal(filterEpisodes(items, { query: q }).length, 1, q);
+});
