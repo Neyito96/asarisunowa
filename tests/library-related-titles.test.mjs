@@ -20,6 +20,6 @@ test('詳細画面: 見出しがあれば見出しをリンクに、URLも表示
   assert.ok(/related-article/.test(src) && /related-url/.test(src));
   assert.ok(src.includes("'(min-width: 900px) and (pointer: fine)'"));
 });
-test('related が空の回は V2 の見出し＋URLを使う（重複・見出しなしは入れない）', () => {
-  assert.deepEqual(fromPairs([['A', 'https://www.asahi.com/articles/A1.html'], ['A2', 'https://www.asahi.com/articles/A1.html?iref=omny'], ['', 'https://www.asahi.com/articles/B.html']]), [{ title: 'A', url: 'https://www.asahi.com/articles/A1.html' }]);
+test('related が空の回は V2 の見出し＋URLを使う（重複は1つ・文のような見出しはURLだけ）', () => {
+  assert.deepEqual(fromPairs([['A', 'https://www.asahi.com/articles/A1.html'], ['A2', 'https://www.asahi.com/articles/A1.html?iref=omny'], ['（38分）音声コンテンツを、フルバージョンでお届けします。', 'https://www.asahi.com/special/x/']]), [{ title: 'A', url: 'https://www.asahi.com/articles/A1.html' }, { title: '', url: 'https://www.asahi.com/special/x/' }]);
 });

@@ -12,10 +12,12 @@ export function normArticleUrl(u) {
   try { const x = new URL(String(u).trim().replace(/&amp;/g, '&')); return ('https://' + x.hostname.toLowerCase() + x.pathname.replace(/\/+$/, '')); } catch { return ''; }
 }
 // related が空の回: V2 の 見出し＋URL をそのまま（同じ記事の重複は1つに）
-export function fromPairs(pairs) { const seen = new Set(), out = []; for (const [title, url] of pairs || []) { const k = normArticleUrl(url); if (!k || seen.has(k) || !title) continue; seen.add(k); out.push({ title: String(title).replace(/\s+/g, ' ').trim(), url }); } return out; }
+// 見出しらしくない物（文で終わる・長すぎる）は見出しとして使わず、URLだけにする
+export function cleanTitle(t) { const s = String(t || '').replace(/\s+/g, ' ').trim(); return !s || s.length > 90 || /[。]$/.test(s) ? '' : s; }
+export function fromPairs(pairs) { const seen = new Set(), out = []; for (const [title, url] of pairs || []) { const k = normArticleUrl(url); if (!k || seen.has(k)) continue; seen.add(k); out.push({ title: cleanTitle(title), url }); } return out; }
 // 1件の回に見出しを付けた relatedArticles を作る（純関数）
 export function titledRelated(related, pairs) {
-  const byUrl = new Map(); for (const [title, url] of pairs || []) { const k = normArticleUrl(url); if (k && title && !byUrl.has(k)) byUrl.set(k, String(title).replace(/\s+/g, ' ').trim()); }
+  const byUrl = new Map(); for (const [title, url] of pairs || []) { const k = normArticleUrl(url); if (k && cleanTitle(title) && !byUrl.has(k)) byUrl.set(k, cleanTitle(title)); }
   const seen = new Set(), out = [];
   for (const u of related || []) { const k = normArticleUrl(u); if (!k || seen.has(k)) continue; seen.add(k); out.push({ title: byUrl.get(k) || '', url: u }); }
   return out;
@@ -29,7 +31,7 @@ async function main() {
   const eps = loadPublic(dest); let titled = 0, untitled = 0, epsWith = 0, changed = 0;
   let filled = 0, kept = 0;
   for (const e of eps.values()) {
-    if (e.relatedArticles?.some((x) => x && x.title)) { kept++; continue; }   // 既に見出し付きの関連記事がある回（承認済みの手動修正・Phase11 の542件など）は触らない
+    if (Array.isArray(e.relatedArticles)) { kept++; continue; }   // 関連記事が既に決まっている回（承認済みの手動修正・Phase11 の542件など。空の配列も「無し」と決めた物）は触らない
     const pairs = j.related[e.id];
     if (!e.related?.length) { if (!pairs?.length) continue; e.related = []; filled++; }
     const ra = e.related.length ? titledRelated(e.related, pairs) : fromPairs(pairs);
