@@ -2152,7 +2152,7 @@ function P27_PD_5_V2反映_承認後() {   // Pody: 埋め込みGUID＝公式GUI
 
 // ── P28 巡回（#342）: 1時間ごとのトリガーで、1回に1つの仕事だけ順番に行う（6分制限の内に収める）。
 // 仕事の順: Pody確定分 → Pocket Casts確定分 → 新着7サービス照合と反映。書込は P27_V2_WRITE＝ON の間だけ。停止旗が立てば何もしない。
-var P28_JOBS_ = ['PDC', 'PD', 'PC', 'NEW', 'LS', 'AP'], P28_LOG_ = 'P28・巡回記録';
+var P28_JOBS_ = ['JUDGE', 'PDC', 'PD', 'PC', 'NEW', 'LS', 'AP'], P28_LOG_ = 'P28・巡回記録';
 function P28_W_1_V2書込を有効化() { PropertiesService.getScriptProperties().setProperty('P27_V2_WRITE', 'ON'); return scLog_('P28_W_1_V2書込を有効化', { status: 'ON', note: '戻すときは P28_W_0_V2書込を止める' }); }
 function P28_W_0_V2書込を止める() { PropertiesService.getScriptProperties().deleteProperty('P27_V2_WRITE'); return scLog_('P28_W_0_V2書込を止める', { status: 'OFF' }); }
 function P28_TICK() {
@@ -2173,9 +2173,10 @@ function p28Tick_() {
   else if (job === 'NEW') { P.setProperty('APPROVE_P27_NEW_V2', today); r = P27_NEW_5_V2反映_承認後(); }
   else if (job === 'LS') r = p29ListenPast_();
   else if (job === 'PDC') r = p29PodyCrawl_();
+  else if (job === 'JUDGE') r = p30Judge_();
   else r = p29ApplePast_();
   r = r || {};
-  var finished = job !== 'NEW' && (r.status === 'OK_NO_CHANGE' || r.finished === true || (/^(OK|DONE)/.test(r.status || '') && !r.written && !r.more));
+  var finished = job !== 'NEW' && job !== 'JUDGE' && (r.status === 'OK_NO_CHANGE' || r.finished === true || (/^(OK|DONE)/.test(r.status || '') && !r.written && !r.more));
   if (finished) { done.jobs.push(job); P.setProperty('P28_DONE', JSON.stringify(done)); }
   P.setProperty('P28_NEXT', String(i + 1));
   return p28Log_(job, (r.status || '') + (finished ? '（今日は完了）' : ''), r);
@@ -2188,6 +2189,49 @@ function p29Write_(col, plans) {
   if (!p27WriteEnabled_()) return { status: 'DISABLED' };
   if (!plans.length) return { status: 'OK_NO_CHANGE' };
   var v = scOpen_(SC_CONFIG.v2WorkingId, ''); return p27Write_('V2', v.ss, plans, P27_V2_MAX_PER_RUN_, col, P27_NEW_RE_(col));
+}
+// ── P30 掲載判定の自動化（#350・管理人承認 2026-11-18 07:28）: V2・統合台帳の「未判定」の行だけを、Issue #278 の基準（P25V2_V2_6 と同じ条件）で判定する。
+// 決まったもの（対象／除外番組・再配信表記・再生時間0以下の対象外）だけ書く。条件が整っていない回（再生時間未取得・採番が未完了・概要が未検証 など）は「未判定」のまま残し、次の巡回で再判定する。
+// 既に判定がある行（管理人の手動判定を含む）は読むだけで書かない。書いたあと読み戻し、公開台帳の件数が「前＋対象の数」と合わなければ停止旗。
+var P30_EXCLUDED_SHOWS_ = /アルキキ|AJW|朝ポキ|YouTube/i, P30_RERUN_MARK_ = /（再）|\(再\)|（ふりかえり）|（深掘り）|再放送です/;
+function p30Judge_() {
+  if (!p27WriteEnabled_()) return { status: 'DISABLED' };
+  var v = scOpen_(SC_CONFIG.v2WorkingId, ''), ss = v.ss, sh = ss.getSheetByName('V2・統合台帳'), vals = sh.getDataRange().getDisplayValues(), h = vals[0];
+  var I = function (n) { var i = h.indexOf(n); if (i < 0) throw new Error('P30_COLUMN_NOT_FOUND ' + n); return i; };
+  var c = { ep: I('EP-ID'), show: I('番組'), title: I('タイトル'), date: I('配信日時 JST'), judge: I('掲載判定'), rep: I('代表EP-ID'), guid: I('公式GUID'), uuid: I('公式JSON UUID'), dur: I('再生時間 秒'), sum: I('概要（清掃済）'), reason: I('除外・保留理由'), basis: I('判定根拠') };
+  var todo = []; vals.forEach(function (r, i) { if (i && r[c.judge] === '未判定' && /^EP-\d{5}$/.test(r[c.ep])) todo.push(i); });
+  if (!todo.length) return { status: 'OK_NO_CHANGE' };
+  var nsh = ss.getSheetByName('固定ID採番履歴'), nv = nsh ? nsh.getDataRange().getDisplayValues() : [[]], nh = nv[0], num = {};
+  nv.slice(1).forEach(function (r) { var id = r[nh.indexOf('固定ID')]; if (id) num[id] = { guid: String(r[nh.indexOf('GUID')]).toLowerCase(), state: r[nh.indexOf('状態')] }; });
+  var ds = ss.getSheetByName('V2・清掃詳細'), cv = {}; if (ds && ds.getLastRow() > 1) { var dv = ds.getDataRange().getDisplayValues(), dj = dv[0].indexOf('判定'); dv.slice(1).forEach(function (r) { cv[r[0]] = r[dj]; }); }
+  var guidCount = {}, titleDate = {};
+  vals.slice(1).forEach(function (r) { var seen = {}; [r[c.guid], r[c.uuid]].forEach(function (g) { g = String(g).toLowerCase(); if (g && !seen[g]) { seen[g] = 1; guidCount[g] = (guidCount[g] || 0) + 1; } }); var k = r[c.show] + '\u0001' + r[c.title] + '\u0001' + r[c.date]; titleDate[k] = (titleDate[k] || 0) + 1; });
+  var plan = [], wait = [], at = new Date().toISOString().slice(0, 10);
+  todo.forEach(function (i) {
+    var r = vals[i], ep = r[c.ep], guid = String(r[c.guid]).toLowerCase(), why = [], judge = '';
+    if (P30_EXCLUDED_SHOWS_.test(r[c.show])) { judge = '対象外'; why.push('除外番組（Issue #278）'); }
+    else if (P30_RERUN_MARK_.test(r[c.title])) { judge = '対象外'; why.push('再配信表記（Issue #278）'); }
+    else if (String(r[c.dur]).trim() !== '' && !(Number(r[c.dur]) > 0)) { judge = '対象外'; why.push('再生時間0以下（Issue #278）'); }
+    else {
+      if (String(r[c.dur]).trim() === '') why.push('再生時間未取得');
+      if (!num[ep]) why.push('採番履歴なし'); else if (num[ep].state !== '登録完了' || num[ep].guid !== guid) why.push('採番履歴が登録完了でない');
+      if (r[c.rep] !== ep) why.push('代表EP-IDが自分でない');
+      if (!guid || guidCount[guid] !== 1) why.push('GUIDが台帳内で一意でない');
+      if (titleDate[r[c.show] + '\u0001' + r[c.title] + '\u0001' + r[c.date]] !== 1) why.push('同題・同日時の他行あり');
+      if (r[c.sum] && !/^(自動検査合格・目視未確認|品質確認済)$/.test(cv[ep] || '')) why.push('未検証の概要文が台帳にある');
+      if (!why.length) judge = '対象';
+    }
+    if (!judge) { wait.push(ep + ':' + why.join('／')); return; }   // 決まらない回は未判定のまま（次の巡回で再判定）
+    plan.push({ row: i + 1, ep: ep, judge: judge, reason: judge === '対象' ? '' : why.join('／'), basis: 'Issue #278 基準 ' + at + ' P30自動判定（P25V2_V2_6と同条件・管理人承認 2026-11-18）' + (judge === '対象' ? '' : ' → ' + why.join('／')) });
+  });
+  if (!plan.length) return { status: 'OK_NO_CHANGE', waiting: wait };
+  var pub = ss.getSheetByName('V2・公開台帳'), before = pub.getLastRow();
+  plan.forEach(function (p) { if (sh.getRange(p.row, c.judge + 1).getDisplayValue() !== '未判定') { p.skip = true; return; } sh.getRange(p.row, c.judge + 1).setValue(p.judge); sh.getRange(p.row, c.reason + 1).setValue(p.reason); sh.getRange(p.row, c.basis + 1).setValue(p.basis); });
+  SpreadsheetApp.flush();
+  var done = plan.filter(function (p) { return !p.skip; }), bad = done.filter(function (p) { return sh.getRange(p.row, c.judge + 1).getDisplayValue() !== p.judge; }).length, add = done.filter(function (p) { return p.judge === '対象'; }).length, after = pub.getLastRow();
+  var res = { status: bad ? 'READBACK_MISMATCH' : (after === before + add ? 'OK' : 'PUBLIC_COUNT_MISMATCH'), written: done.length, judges: done.reduce(function (o, p) { o[p.judge] = (o[p.judge] || 0) + 1; return o; }, {}), eps: done.map(function (p) { return p.ep + ':' + p.judge; }), waiting: wait, publicRows: before + '→' + after };
+  if (res.status !== 'OK') { var st = p27State_(); st.stop = 'P30 ' + res.status + ' ' + new Date().toISOString(); PropertiesService.getScriptProperties().setProperty(P27_STATE_KEY_, JSON.stringify(st)); }
+  return res;
 }
 function p29PodyCrawl_() {   // Pody の回一覧（COPY）に、まだ取っていない番組があれば続きを取る（読むだけ）
   var P = PropertiesService.getScriptProperties(), st = JSON.parse(P.getProperty(P27_PD_CRAWL_KEY_) || '{"i":0,"page":1,"done":false,"pages":0,"eps":0,"other":{}}');
