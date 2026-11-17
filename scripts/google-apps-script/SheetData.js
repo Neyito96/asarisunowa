@@ -228,13 +228,16 @@ function readListenerPodcastSheet(sheet) {
     };
   }
 
+  // 番組ID（#315）: 18列目の見出しが「番組ID」なら、その値を ID に使う（行の並びが変わっても ID がずれない）。無ければ従来どおり並び順
+  const lastCol = Math.max(17, sheet.getLastColumn());
+  const idCol = lastCol >= 18 && String(sheet.getRange(1, 18).getDisplayValue()).trim() === "番組ID" ? 17 : -1;
   const values =
     sheet
       .getRange(
         2,
         1,
         lastRow - 1,
-        17
+        idCol >= 0 ? 18 : 17
       )
       .getDisplayValues();
 
@@ -242,7 +245,7 @@ function readListenerPodcastSheet(sheet) {
     values
       .filter(r => r[0] || r[1])
       .map((r, i) => ({
-        id: String(i + 1),
+        id: String((idCol >= 0 && String(r[idCol]).trim()) || (i + 1)),
         url: r[0] || "",
         title: r[1] || "",
         maker: r[2] || "",
