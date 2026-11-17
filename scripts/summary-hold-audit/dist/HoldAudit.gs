@@ -82,7 +82,7 @@ return tidyDescription;
 //   2) 原文に同じ整形規則をかけ、品質の検査（本文が原文の中にある・関連記事の見出しとURLが原文の中で対応している・出演者の重複）をする
 //   3) 自動修正可能・人間確認必要・原文未取得に分け、COPY の明細・集計シートに書く
 // 安全: V2作業用台帳・本番は読むだけ。書くのは COPY の「HOLD監査・明細」「HOLD監査・集計」だけ（毎回まるごと書き直す＝冪等）。原文は加工しない。
-var HA_VERSION = 'HA-2';
+var HA_VERSION = 'HA-3';
 var HA_CFG = {
   v2Id: '1ZAl4QpQ4i5ycyPy1qVNtT-Ke2nsSHhWGFkAH3xedAbc',   // V2作業用（読むだけ）
   copyId: '1WTLcaveWG0mr9F0dIjyCL8daxFnpo4q4yADN_bnK1PY', // COPY（書く）
@@ -102,7 +102,8 @@ var HA_ENT = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', hell
 function haHtmlToText(raw) {
   var s = String(raw || '');
   if (!/<[a-z!\/][^>]*>/i.test(s)) return s;
-  s = s.replace(/<a\b[^>]*?href\s*=\s*["']([^"']+)["'][^>]*>[\s\S]*?<\/a>/gi, function (m, h) { return ' \u0001' + h.replace(/&amp;/g, '&') + '\u0001 '; });
+  // 文字が「?iref=omny」「l?iref=omny」だけのリンクは、Omny が別の記事URLを誤って付けた断片なので捨てる（直前のリンクが本物）
+  s = s.replace(/<a\b[^>]*?href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, function (m, h, txt) { return /^\s*[a-z]{0,4}\?[\w=&;.-]*\s*$/i.test(txt) ? ' ' : ' \u0001' + h.replace(/&amp;/g, '&') + '\u0001 '; });
   s = s.replace(/(\u0001([^\u0001]+)\u0001)(\s*\u0001\2\u0001)+/g, '$1').replace(/\u0001/g, '');
   s = s.replace(/<br\s*\/?>|<\/p>|<p\b[^>]*>|<\/?(div|li|ul|ol|h\d)\b[^>]*>/gi, '\n').replace(/<[^>]+>/g, '');
   s = s.replace(/&#(\d+);/g, function (m, d) { return String.fromCharCode(+d); }).replace(/&#x([0-9a-f]+);/gi, function (m, h) { return String.fromCharCode(parseInt(h, 16)); }).replace(/&([a-z]+);/gi, function (m, n) { return HA_ENT[n.toLowerCase()] != null ? HA_ENT[n.toLowerCase()] : m; });
@@ -139,6 +140,9 @@ function haJudge(row, sha) {
   if (out.onlyTheirs) fails.push('SC4-18にある記事を整形が落とした');
   out.castDup = haCastDup(row.cast);
   if (out.castDup.length) fails.push('出演者の重複');
+  // 例外の集約用（Claude に全文を渡さないため、見出し名・URLのホスト名だけを残す）
+  if (/知らない見出し/.test(t.reason || '')) out.heads = (text.match(/【[^】]{1,40}】/g) || []).filter(function (h, i, a) { return a.indexOf(h) === i; });
+  if (/URLが残る/.test(t.reason || '')) out.hosts = (t.body.match(/https?:\/\/[^\/\s]+/g) || []).map(function (u) { return u.replace(/^https?:\/\//, ''); });
   out.fails = fails;
   out.cls = fails.length ? '人間確認必要' : '自動修正可能';
   out.cause = fails.length ? fails[0] : (t.status === 'AS_IS' ? '原文のまま（外す物なし）' : '整形して表示できる');
@@ -151,7 +155,10 @@ function haRowOut(j, ver, now) {
 function haSummary(js, examples) {
   var by = {}, cause = {}, ex = {};
   js.forEach(function (j) { by[j.cls] = (by[j.cls] || 0) + 1; var k = j.cls + '｜' + j.cause; cause[k] = (cause[k] || 0) + 1; (ex[k] = ex[k] || []).length < (examples || 3) && ex[k].push(j.ep); });
-  return { total: js.length, byClass: by, byCause: Object.keys(cause).sort(function (a, b) { return cause[b] - cause[a]; }).map(function (k) { return [k, cause[k], ex[k].join(' ')]; }) };
+  var heads = {}, hosts = {};
+  js.forEach(function (j) { (j.heads || []).forEach(function (h) { heads[h] = (heads[h] || 0) + 1; }); (j.hosts || []).forEach(function (h) { hosts[h] = (hosts[h] || 0) + 1; }); });
+  var top = function (o) { return Object.keys(o).sort(function (a, b) { return o[b] - o[a]; }).slice(0, 20).map(function (k) { return [k, o[k]]; }); };
+  return { heads: top(heads), hosts: top(hosts), total: js.length, byClass: by, byCause: Object.keys(cause).sort(function (a, b) { return cause[b] - cause[a]; }).map(function (k) { return [k, cause[k], ex[k].join(' ')]; }) };
 }
 
 // ---- GAS 実行部 ----
@@ -192,8 +199,10 @@ function haRun_(limit) {
   var sr = [['版', HA_VERSION, '実行', now], ['公開対象', publicCount, 'HOLD（清掃済に表示整形）', targets.length], ['今回の件数', js.length, '上限', limit || '全件']];
   Object.keys(s.byClass).forEach(function (k) { sr.push(['分類', k, '件数', s.byClass[k]]); });
   s.byCause.forEach(function (c) { sr.push(['原因', c[0], c[1], c[2]]); });
+  s.heads.forEach(function (h) { sr.push(['見出し（知らない見出しの回に出る）', h[0], h[1], '']); });
+  s.hosts.forEach(function (h) { sr.push(['本文に残るURLのホスト', h[0], h[1], '']); });
   sum.getRange(1, 1, sr.length, 4).setValues(sr);
-  var res = { version: HA_VERSION, publicCount: publicCount, holdTargets: targets.length, judged: js.length, byClass: s.byClass, topCauses: s.byCause.slice(0, 8), readback: readback ? 'OK' : 'MISMATCH', ms: Date.now() - t0 };
+  var res = { version: HA_VERSION, publicCount: publicCount, holdTargets: targets.length, judged: js.length, byClass: s.byClass, topCauses: s.byCause.slice(0, 8), heads: s.heads.slice(0, 15), hosts: s.hosts.slice(0, 10), readback: readback ? 'OK' : 'MISMATCH', ms: Date.now() - t0 };
   Logger.log(JSON.stringify(res));
   return res;
 }

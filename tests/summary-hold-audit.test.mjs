@@ -41,3 +41,9 @@ test('HA-2: 原文のHTML（Omnyの分割リンク）を文字列にしてから
   assert.deepEqual(J(j.tidy.related.map((r) => r.title)), ['米作りを教える側に 言葉のグルーヴ', '痛み包み込み癒やす、真珠貝']);
   assert.equal(j.tidy.body, 'においの話です…。');
 });
+test('HA-3: 「?iref=omny」だけの断片リンク（別の記事URLが付いている）は捨て、直前の本物のURLを使う', () => {
+  const html = '<p>本文です。<br>【関連記事】<br>記事A <a href="https://www.asahi.com/articles/ASV9A.html">https://www.asahi.com/articles/ASV9A.html</a><a href="https://digital.asahi.com/articles/DA3SB.html?iref=omny">?iref=omny</a><a href="https://www.asahi.com/articles/ASV9A.html"></a><br>記事B<br><a href="https://digital.asahi.com/articles/DA3SB.html">https://digital.asahi.com/articles/DA3SB.htm</a><a href="https://digital.asahi.com/articles/DA3SC.html?iref=omny">l?iref=omny</a><a href="https://digital.asahi.com/articles/DA3SB.html"></a></p>';
+  const j = H.haJudge({ ep: 'X', raw: html }, 'x');
+  assert.deepEqual(J(j.tidy.related), [{ title: '記事A', url: 'https://www.asahi.com/articles/ASV9A.html' }, { title: '記事B', url: 'https://digital.asahi.com/articles/DA3SB.html' }]);
+  assert.equal(j.cls, '自動修正可能', (j.fails || []).join());
+});
