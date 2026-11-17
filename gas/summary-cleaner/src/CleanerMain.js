@@ -38,7 +38,8 @@ function scVersion_() { return CleanerV4.CLEANER_VERSION + '|' + QualityAudit.AU
 function scLog_(fn, o) { Logger.log(fn + ' ' + JSON.stringify(o, null, 1)); return o; }
 function scOpen_(id, nameIncludes) {
   if (SC_REFUSE_IDS_.indexOf(id) >= 0) throw new Error('PROTECTED_TARGET_REFUSED');
-  p25v2AssertIsolated_({ hasDoGet: typeof doGet === 'function', hasDoPost: typeof doPost === 'function', triggerCount: p25v2ForeignTriggers_() });
+  // doGet が RX（関連記事・公開台帳の読み出し専用ウェブアプリ、RelatedExport.gs）だけなら隔離を満たすとみなす。doPost は常に不可
+  p25v2AssertIsolated_({ hasDoGet: typeof doGet === 'function' && typeof RX_VERSION === 'undefined', hasDoPost: typeof doPost === 'function', triggerCount: p25v2ForeignTriggers_() });
   var ss = SpreadsheetApp.openById(id); if (ss.getId() !== id) throw new Error('OPENED_ID_MISMATCH');
   if (nameIncludes && ss.getName().indexOf(nameIncludes) < 0) throw new Error('TARGET_NAME_NOT_EXPECTED');
   var sh = ss.getSheetByName(SC_CONFIG.ledgerSheet); if (!sh) throw new Error('LEDGER_SHEET_NOT_FOUND');

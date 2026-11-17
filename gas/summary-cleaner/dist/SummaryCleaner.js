@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-v2-verify.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/net-count.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs, scripts/ledger-v2/raw-source.mjs, scripts/ledger-v2/platform-match.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = '62d92506ed0d0ffd09aac43f3644abfce3afdf1a2fd6e29d3a7efb233a0f1e25';
+var CLEANER_BUILD_SOURCE_SHA256 = '17868e5bbd559c68f1a37a0c0e7da6784550f0b10b32ca1fa8139f7c18a2fac6';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -346,7 +346,7 @@ function p25v2FetchFeeds_(feeds) {
   return { items: items, errors: errors, stats: stats, empty: empty };
 }
 // 承認ボタンの後に設置する日次の時間主導トリガー（各プロジェクト1本）だけは隔離チェックの対象外。それ以外のトリガーが1本でもあれば停止
-var P25V2_ALLOWED_TRIGGER_HANDLERS_ = ['P25V2_D1_日次実行', 'D2_清掃と人物_日次'];
+var P25V2_ALLOWED_TRIGGER_HANDLERS_ = ['P25V2_D1_日次実行', 'D2_清掃と人物_日次', 'P28_TICK'];   // P28_TICK: 配信先URL巡回（#342 管理人判断）
 function p25v2ForeignTriggers_() { return ScriptApp.getProjectTriggers().filter(function (t) { return P25V2_ALLOWED_TRIGGER_HANDLERS_.indexOf(t.getHandlerFunction()) < 0 || String(t.getEventType()) !== 'CLOCK'; }).length; }
 // 手動実行（COPY専用プロジェクト）。同時実行はスクリプトロックで1本に限定。
 function p25v2IngestCopyNotInCleaner_(config, items, write) {
@@ -1980,7 +1980,8 @@ function scVersion_() { return CleanerV4.CLEANER_VERSION + '|' + QualityAudit.AU
 function scLog_(fn, o) { Logger.log(fn + ' ' + JSON.stringify(o, null, 1)); return o; }
 function scOpen_(id, nameIncludes) {
   if (SC_REFUSE_IDS_.indexOf(id) >= 0) throw new Error('PROTECTED_TARGET_REFUSED');
-  p25v2AssertIsolated_({ hasDoGet: typeof doGet === 'function', hasDoPost: typeof doPost === 'function', triggerCount: p25v2ForeignTriggers_() });
+  // doGet が RX（関連記事・公開台帳の読み出し専用ウェブアプリ、RelatedExport.gs）だけなら隔離を満たすとみなす。doPost は常に不可
+  p25v2AssertIsolated_({ hasDoGet: typeof doGet === 'function' && typeof RX_VERSION === 'undefined', hasDoPost: typeof doPost === 'function', triggerCount: p25v2ForeignTriggers_() });
   var ss = SpreadsheetApp.openById(id); if (ss.getId() !== id) throw new Error('OPENED_ID_MISMATCH');
   if (nameIncludes && ss.getName().indexOf(nameIncludes) < 0) throw new Error('TARGET_NAME_NOT_EXPECTED');
   var sh = ss.getSheetByName(SC_CONFIG.ledgerSheet); if (!sh) throw new Error('LEDGER_SHEET_NOT_FOUND');
