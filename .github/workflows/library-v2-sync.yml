@@ -8,7 +8,7 @@ on:
     - cron: '17 21 * * *'   # 毎日 06:17 JST
   workflow_dispatch:
   push:   # 初回の全件反映を PR ブランチ上で作るため（main には PR でマージ）
-    branches: ['feat/issue-333-v2-description-sync', 'fix/kura-cast-fill']
+    branches: ['feat/issue-333-v2-description-sync']
     paths: ['scripts/library-sync-v2.mjs', 'scripts/library-related/**', '.github/workflows/library-v2-sync.yml']
 permissions:
   contents: write
