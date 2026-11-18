@@ -2152,7 +2152,7 @@ function P27_PD_5_V2反映_承認後() {   // Pody: 埋め込みGUID＝公式GUI
 
 // ── P28 巡回（#342）: 1時間ごとのトリガーで、1回に1つの仕事だけ順番に行う（6分制限の内に収める）。
 // 仕事の順: Pody確定分 → Pocket Casts確定分 → 新着7サービス照合と反映。書込は P27_V2_WRITE＝ON の間だけ。停止旗が立てば何もしない。
-var P28_JOBS_ = ['JUDGE', 'CLEAN', 'AMZ', 'PDC', 'PD', 'PC', 'NEW', 'LS', 'AP'], P28_LOG_ = 'P28・巡回記録';
+var P28_JOBS_ = ['JUDGE', 'CLEAN', 'AMZ', 'SPT', 'PDC', 'PD', 'PC', 'NEW', 'LS', 'AP'], P28_LOG_ = 'P28・巡回記録';
 function P28_W_1_V2書込を有効化() { PropertiesService.getScriptProperties().setProperty('P27_V2_WRITE', 'ON'); return scLog_('P28_W_1_V2書込を有効化', { status: 'ON', note: '戻すときは P28_W_0_V2書込を止める' }); }
 function P28_W_0_V2書込を止める() { PropertiesService.getScriptProperties().deleteProperty('P27_V2_WRITE'); return scLog_('P28_W_0_V2書込を止める', { status: 'OFF' }); }
 function P28_TICK() {
@@ -2176,6 +2176,7 @@ function p28Tick_() {
   else if (job === 'JUDGE') r = p30Judge_();
   else if (job === 'CLEAN') r = p30Clean_();
   else if (job === 'AMZ') r = p31Amazon_();
+  else if (job === 'SPT') r = p32Spotify_();
   else r = p29ApplePast_();
   r = r || {};
   var finished = job !== 'NEW' && job !== 'JUDGE' && (r.status === 'OK_NO_CHANGE' || r.finished === true || (/^(OK|DONE)/.test(r.status || '') && !r.written && !r.more));
@@ -2245,6 +2246,28 @@ function p31Amazon_() {
   var vv = scOpen_(SC_CONFIG.v2WorkingId, ''), p = p27AmPlan_(p27Ledger_(vv.ss, 'Amazon'), c.ss);
   var plans = (p.out || []).filter(function (a) { return a.x.status === 'VERIFIED'; }).map(function (a) { return { ep: a.x.ep, url: a.x.url, basis: 'Amazon番組ページ（Actions自動）: 番組ID・題名・日付・長さが一致' }; });
   var w = p29Write_('Amazon', plans); w.evidenceAdded = add.length; w.verified = plans.length; w.generatedAt = data.generatedAt; w.finished = w.status === 'OK' || w.status === 'OK_NO_CHANGE'; return w;
+}
+// ── P32 Spotify 新着（2026-11-18 管理人指示）: EP-06692 以降の新着で Spotify 欄が空のまま（旧取込P15の停止後、巡回にSpotifyの仕事が無かった）。
+// GitHub Actions（spotify-new.yml）が7番組のSpotify番組ページから回を読み、V2・公開台帳と照合して確定分だけ docs/spotify/matches.json に出す。
+// ここではそれを読み、台帳の行の番組・題名が同じで Spotify 欄が空の行にだけ書く（上書きしない・URLはSpotifyが返したIDのみ・書いた後に読み戻し）。
+var P32_SPT_JSON_ = 'https://raw.githubusercontent.com/Neyito96/asarisunowa/main/docs/spotify/matches.json';
+function p32Spotify_() {
+  if (!p27WriteEnabled_()) return { status: 'DISABLED' };
+  var g = p27Get_(P32_SPT_JSON_ + '?_=' + Date.now()); if (g.code !== 200) return { status: 'FETCH_' + g.code, more: true };
+  var data = JSON.parse(g.body), re = P27_NEW_RE_('Spotify'), nz = function (t) { return String(t || '').normalize('NFKC').replace(/\s+/g, ''); };
+  var v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = p27Ledger_(v.ss, 'Spotify'), by = {}; L.rows.forEach(function (r) { by[r.ep] = r; });
+  var skip = {}, sk = function (k) { skip[k] = (skip[k] || 0) + 1; };
+  var plans = (data.verified || []).filter(function (x) {
+    var r = by[x.ep]; if (!/^EP-\d{5}$/.test(x.ep || '') || !re.test(x.url || '')) { sk('形が違う'); return false; }
+    if (!r) { sk('行なし'); return false; } if (r.show !== x.show || nz(r.title) !== nz(x.title)) { sk('番組・題名が台帳と違う'); return false; }
+    if (r.current) { sk(r.current === x.url ? '既に同じURL' : '既に値あり（上書きしない）'); return false; } return true;
+  }).map(function (x) { return { ep: x.ep, url: x.url, basis: 'Spotify番組ページ（Actions照合 docs/spotify/matches.json ' + ((data.summary || {}).generatedAt || '') + '）: 番組ID・題名・日付・長さ一致' }; });
+  var w = p29Write_('Spotify', plans); w.verified = (data.verified || []).length; w.planned = plans.length; w.skippedBeforeWrite = skip; w.generatedAt = (data.summary || {}).generatedAt;
+  w.finished = w.status === 'OK_NO_CHANGE' || (w.status === 'OK' && plans.length <= P27_V2_MAX_PER_RUN_); return w;
+}
+function P32_SP_1_Spotify照合_確認だけ() {
+  var g = p27Get_(P32_SPT_JSON_ + '?_=' + Date.now()); if (g.code !== 200) return scLog_('P32_SP_1_Spotify照合_確認だけ', { status: 'FETCH_' + g.code });
+  var d = JSON.parse(g.body); return scLog_('P32_SP_1_Spotify照合_確認だけ', { status: 'OK', summary: d.summary, verified: (d.verified || []).length });
 }
 function p30Clean_() {
   var hour = Number(Utilities.formatDate(new Date(), 'Asia/Tokyo', 'H'));
@@ -2462,7 +2485,7 @@ function P27_ST_1_7サービス集計_READ_ONLY() {
 //   Spotify … P26（本番ロボ）の経路。P27 では重複実装しない（記入済みかだけ見る）／YouTube … API 未承認のため UNAVAILABLE
 var P27_NEW_DAYS_ = 14, P27_NEW_SHEET_ = 'P27・新着照合', P27_AM_QUEUE_ = 'P27・Amazon証拠待ち';
 var P27_NEW_COLS_ = ['Spotify', 'Apple', 'Amazon', 'Pocket Casts', 'LISTEN', 'Pody', 'YouTube'];
-var P27_NEW_RE_ = function (col) { return { Apple: PlatformMatch.APPLE_EPISODE_URL, Amazon: PlatformMatch.AMAZON_EPISODE_URL, 'Pocket Casts': PlatformMatch.PC_EPISODE_URL, LISTEN: PlatformMatch.LISTEN_EPISODE_URL, Pody: PlatformMatch.PODY_EPISODE_URL }[col]; };
+var P27_NEW_RE_ = function (col) { return { Apple: PlatformMatch.APPLE_EPISODE_URL, Amazon: PlatformMatch.AMAZON_EPISODE_URL, 'Pocket Casts': PlatformMatch.PC_EPISODE_URL, LISTEN: PlatformMatch.LISTEN_EPISODE_URL, Pody: PlatformMatch.PODY_EPISODE_URL, Spotify: /^https:\/\/open\.spotify\.com\/episode\/[A-Za-z0-9]{22}$/ }[col]; };
 function p27LedgerAll_(ss) {
   var sh = ss.getSheetByName('V2・統合台帳'), v = sh.getDataRange().getDisplayValues(), h = v[0], ix = {};
   ['EP-ID', '番組', 'タイトル', '配信日時 JST', '公式GUID', '音声URL', '再生時間 秒'].concat(P27_NEW_COLS_).forEach(function (n) { ix[n] = h.indexOf(n); if (ix[n] < 0) throw new Error('P27_HEADER_MISSING:' + n); });
