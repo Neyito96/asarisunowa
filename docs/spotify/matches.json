@@ -1,15 +1,15 @@
 {
  "summary": {
-  "generatedAt": "2026-11-18T08:53:49.509Z",
-  "spotifyGeneratedAt": "2026-11-18T08:48:33.030Z",
+  "generatedAt": "2026-11-18T09:01:57.142Z",
+  "spotifyGeneratedAt": "2026-11-18T08:56:42.744Z",
   "ledgerRows": 6126,
   "ledgerSpotifyEmpty": 64,
-  "verified": 41,
+  "verified": 55,
   "counts": {
-   "VERIFIED": 41,
-   "VERIFIED_SAME": 181,
+   "VERIFIED": 55,
+   "VERIFIED_SAME": 211,
    "NO_ROW": 16,
-   "CANDIDATE": 103,
+   "CANDIDATE": 59,
    "HOLD": 3
   },
   "emptyNotInSpotifyList": 1
@@ -97,6 +97,104 @@
    "url": "https://open.spotify.com/episode/0s5PL1M5UgV2i8otfmx8ul",
    "show": "ニュースの現場から",
    "title": "（GLOBE）たたかう図書館　本を守り、記憶をつなぎ、街をつくる",
+   "spotifyDate": "2026-10-13"
+  },
+  {
+   "ep": "EP-06750",
+   "url": "https://open.spotify.com/episode/0qgD1gR1QNhtm9SqsnIsvZ",
+   "show": "ニュースの学校",
+   "title": "保釈",
+   "spotifyDate": "2026-11-17"
+  },
+  {
+   "ep": "EP-06743",
+   "url": "https://open.spotify.com/episode/6MYS4ALh7YiPDZpfHAVDWH",
+   "show": "ニュースの学校",
+   "title": "西九州新幹線",
+   "spotifyDate": "2026-11-16"
+  },
+  {
+   "ep": "EP-06738",
+   "url": "https://open.spotify.com/episode/2Ug04NMj7FTkwgnfqoEumD",
+   "show": "ニュースの学校",
+   "title": "深圳APEC",
+   "spotifyDate": "2026-11-15"
+  },
+  {
+   "ep": "EP-06732",
+   "url": "https://open.spotify.com/episode/0EKFEK55gE0uo3wANDezvp",
+   "show": "ニュースの学校",
+   "title": "エヌビディアCEOの不倫問題",
+   "spotifyDate": "2026-11-13"
+  },
+  {
+   "ep": "EP-06724",
+   "url": "https://open.spotify.com/episode/7xd31RrubaRw72iNELrc7m",
+   "show": "ニュースの学校",
+   "title": "人材派遣",
+   "spotifyDate": "2026-11-11"
+  },
+  {
+   "ep": "EP-06695",
+   "url": "https://open.spotify.com/episode/6B1tGq3qJP1jj31ZPqsDqJ",
+   "show": "ニュースの学校",
+   "title": "人間国宝（2026）",
+   "spotifyDate": "2026-11-10"
+  },
+  {
+   "ep": "EP-06690",
+   "url": "https://open.spotify.com/episode/17FDxlayOKBrz3dCjaVTtS",
+   "show": "ニュースの学校",
+   "title": "GMOグループの会見",
+   "spotifyDate": "2026-11-09"
+  },
+  {
+   "ep": "EP-06684",
+   "url": "https://open.spotify.com/episode/6dyZdknomIqdAfXTAlwFoY",
+   "show": "ニュースの学校",
+   "title": "消費減税と支援金（2026年11月）",
+   "spotifyDate": "2026-11-08"
+  },
+  {
+   "ep": "EP-06675",
+   "url": "https://open.spotify.com/episode/4Q0fdOTXd4xsLF2rBZF9zB",
+   "show": "ニュースの学校",
+   "title": "西山朋佳棋士",
+   "spotifyDate": "2026-11-05"
+  },
+  {
+   "ep": "EP-06718",
+   "url": "https://open.spotify.com/episode/7Is4cRZ9xSmkqpxwTBqMzK",
+   "show": "ニュースの学校",
+   "title": "MMX",
+   "spotifyDate": "2026-10-27"
+  },
+  {
+   "ep": "EP-06717",
+   "url": "https://open.spotify.com/episode/4giAUmBa3R8X6dZ1FRHP7F",
+   "show": "ニュースの学校",
+   "title": "イスラエル総選挙（2026）",
+   "spotifyDate": "2026-10-26"
+  },
+  {
+   "ep": "EP-06712",
+   "url": "https://open.spotify.com/episode/1uvtJNcoAaqe8ygjBFZ6Wh",
+   "show": "ニュースの学校",
+   "title": "ビール大手のカルテル容疑",
+   "spotifyDate": "2026-10-15"
+  },
+  {
+   "ep": "EP-06708",
+   "url": "https://open.spotify.com/episode/2eHSIZDpk37rhng8rZdDy7",
+   "show": "ニュースの学校",
+   "title": "ニュートリノ",
+   "spotifyDate": "2026-10-14"
+  },
+  {
+   "ep": "EP-06706",
+   "url": "https://open.spotify.com/episode/6w9sFRO6rZz2wy6YjwaoOD",
+   "show": "ニュースの学校",
+   "title": "簗和生氏の「予算カット」発言",
    "spotifyDate": "2026-10-13"
   },
   {
@@ -311,151 +409,9 @@
    "spotifyDate": "2026-10-27",
    "ep": "EP-06633",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・台帳の再生時間が空"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/0qgD1gR1QNhtm9SqsnIsvZ",
-   "title": "保釈",
-   "spotifyDate": "2026-11-17",
-   "ep": "EP-06750",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/6MYS4ALh7YiPDZpfHAVDWH",
-   "title": "西九州新幹線",
-   "spotifyDate": "2026-11-16",
-   "ep": "EP-06743",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/2Ug04NMj7FTkwgnfqoEumD",
-   "title": "深圳APEC",
-   "spotifyDate": "2026-11-15",
-   "ep": "EP-06738",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/0EKFEK55gE0uo3wANDezvp",
-   "title": "エヌビディアCEOの不倫問題",
-   "spotifyDate": "2026-11-13",
-   "ep": "EP-06732",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/7xd31RrubaRw72iNELrc7m",
-   "title": "人材派遣",
-   "spotifyDate": "2026-11-11",
-   "ep": "EP-06724",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/6B1tGq3qJP1jj31ZPqsDqJ",
-   "title": "人間国宝（2026）",
-   "spotifyDate": "2026-11-10",
-   "ep": "EP-06695",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/17FDxlayOKBrz3dCjaVTtS",
-   "title": "GMOグループの会見",
-   "spotifyDate": "2026-11-09",
-   "ep": "EP-06690",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/6dyZdknomIqdAfXTAlwFoY",
-   "title": "消費減税と支援金（2026年11月）",
-   "spotifyDate": "2026-11-08",
-   "ep": "EP-06684",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/4Q0fdOTXd4xsLF2rBZF9zB",
-   "title": "西山朋佳棋士",
-   "spotifyDate": "2026-11-05",
-   "ep": "EP-06675",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/6MivHMcUcKky8IrscmE8Wn",
-   "title": "日本サッカー協会副会長の辞任",
-   "spotifyDate": "2026-11-04",
-   "ep": "EP-06670",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/5IkzjPqqsywOAfJ1NjplwF",
-   "title": "衆議院の定数削減（2026年11月）",
-   "spotifyDate": "2026-11-03",
-   "ep": "EP-06666",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/6YtsBa4dOMdIS0XU4fX1Yj",
-   "title": "キリスト教国家主義",
-   "spotifyDate": "2026-11-01",
-   "ep": "EP-06658",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/27iX1kZDwxXk1LJvEFnhoh",
-   "title": "AI主権",
-   "spotifyDate": "2026-10-29",
-   "ep": "EP-06646",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/7LMcSrhhaEt5Q3a99k1v2w",
-   "title": "民主社会主義",
-   "spotifyDate": "2026-10-28",
-   "ep": "EP-06645",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/7Is4cRZ9xSmkqpxwTBqMzK",
-   "title": "MMX",
-   "spotifyDate": "2026-10-27",
-   "ep": "EP-06718",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/4giAUmBa3R8X6dZ1FRHP7F",
-   "title": "イスラエル総選挙（2026）",
-   "spotifyDate": "2026-10-26",
-   "ep": "EP-06717",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
   },
   {
    "show": "ニュースの学校",
@@ -464,7 +420,9 @@
    "spotifyDate": "2026-10-25",
    "ep": "EP-06628",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・台帳の再生時間が空"
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
   },
   {
    "show": "ニュースの学校",
@@ -473,7 +431,9 @@
    "spotifyDate": "2026-10-22",
    "ep": "EP-06594",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・台帳の再生時間が空"
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
   },
   {
    "show": "ニュースの学校",
@@ -482,7 +442,9 @@
    "spotifyDate": "2026-10-21",
    "ep": "EP-06618",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・台帳の再生時間が空"
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
   },
   {
    "show": "ニュースの学校",
@@ -491,7 +453,9 @@
    "spotifyDate": "2026-10-20",
    "ep": "EP-06609",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・台帳の再生時間が空"
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
   },
   {
    "show": "ニュースの学校",
@@ -500,7 +464,9 @@
    "spotifyDate": "2026-10-19",
    "ep": "EP-06606",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・台帳の再生時間が空"
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
   },
   {
    "show": "ニュースの学校",
@@ -509,151 +475,9 @@
    "spotifyDate": "2026-10-18",
    "ep": "EP-06600",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・台帳の再生時間が空"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/1uvtJNcoAaqe8ygjBFZ6Wh",
-   "title": "ビール大手のカルテル容疑",
-   "spotifyDate": "2026-10-15",
-   "ep": "EP-06712",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/2eHSIZDpk37rhng8rZdDy7",
-   "title": "ニュートリノ",
-   "spotifyDate": "2026-10-14",
-   "ep": "EP-06708",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/6w9sFRO6rZz2wy6YjwaoOD",
-   "title": "簗和生氏の「予算カット」発言",
-   "spotifyDate": "2026-10-13",
-   "ep": "EP-06706",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/4uStb1eIivx5y2TsmiekQ3",
-   "title": "アイスキューブ実験",
-   "spotifyDate": "2026-10-12",
-   "ep": "EP-00408",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/3K7tSz5c6f2Jsim4z5lUtw",
-   "title": "硤合反応",
-   "spotifyDate": "2026-10-08",
-   "ep": "EP-00081",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/3xBxxcow40QyKkvjLBeLlB",
-   "title": "光遺伝学",
-   "spotifyDate": "2026-10-07",
-   "ep": "EP-00082",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/7uhuHDhZky1a0BmrNbB3CJ",
-   "title": "富山市の人口水増し疑惑",
-   "spotifyDate": "2026-10-06",
-   "ep": "EP-00083",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/0Zv5laMyozlSiwo7vpnYrq",
-   "title": "臓器移植",
-   "spotifyDate": "2026-10-05",
-   "ep": "EP-00084",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/4ddo5VVFNgzgPFj7Go3CrR",
-   "title": "アメリカ中間選挙（2026）",
-   "spotifyDate": "2026-10-04",
-   "ep": "EP-00085",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/6IeMDYVHSuMaVgAt53oOrr",
-   "title": "自由診療",
-   "spotifyDate": "2026-10-01",
-   "ep": "EP-00086",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/6Ox8sDErxI9lZusMudulft",
-   "title": "在日コリアン",
-   "spotifyDate": "2026-09-30",
-   "ep": "EP-00087",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/3sKWbuRO5JDfkcxgfhnkje",
-   "title": "PISA（学習到達度調査）",
-   "spotifyDate": "2026-09-29",
-   "ep": "EP-00088",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/31z1yHfQGzT8S9vOjm9ZGs",
-   "title": "一般討論演説（国連総会）",
-   "spotifyDate": "2026-09-28",
-   "ep": "EP-00089",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/7lB3stq968nszIgIGIksZ4",
-   "title": "米中首脳会談（2026年9月）",
-   "spotifyDate": "2026-09-27",
-   "ep": "EP-00090",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/34podakLM9rmGeZdJzFo92",
-   "title": "身寄りのない人の弔い",
-   "spotifyDate": "2026-09-24",
-   "ep": "EP-00091",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/7BneYcuyZc3nWBI7CYES2K",
-   "title": "彦根城",
-   "spotifyDate": "2026-09-23",
-   "ep": "EP-00092",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
   },
   {
    "show": "ニュースの学校",
@@ -665,121 +489,15 @@
    "reason": "同じ番組に同じ題名の行が複数"
   },
   {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/487PN1FqNv7SpU4V6Gfgq3",
-   "title": "自律",
-   "spotifyDate": "2026-09-16",
-   "ep": "EP-00094",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/7GOD4upNHFPFmR1vNMZuuF",
-   "title": "フーシ",
-   "spotifyDate": "2026-09-15",
-   "ep": "EP-00095",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/34ripPiMJLLneyOJ6MM8Q7",
-   "title": "中部電力の浜岡原発データ不正問題",
-   "spotifyDate": "2026-09-14",
-   "ep": "EP-00096",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/2eDzQhTIFuNmdv3C0DGRv1",
-   "title": "学習指導要領",
-   "spotifyDate": "2026-09-13",
-   "ep": "EP-00097",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/6SrfYkiP68MGEQ7esBSU6L",
-   "title": "ベネチア映画祭",
-   "spotifyDate": "2026-09-10",
-   "ep": "EP-00098",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/4oFhsZ6ULPZqK09e0sW6Eg",
-   "title": "核燃料サイクル",
-   "spotifyDate": "2026-09-09",
-   "ep": "EP-00099",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/20jWK317FMcswBUVUrpS6o",
-   "title": "概算要求",
-   "spotifyDate": "2026-09-08",
-   "ep": "EP-00100",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/3exmOKQEO0eZuF5JMBRXD0",
-   "title": "ふるさと納税",
-   "spotifyDate": "2026-09-07",
-   "ep": "EP-00409",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/6X3NiHhaShbb7fuPyflljJ",
-   "title": "沖縄県知事選（2026）",
-   "spotifyDate": "2026-09-06",
-   "ep": "EP-00410",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/7r3aScXF6r0JZ55rJbjKTV",
-   "title": "女性トイレの行列",
-   "spotifyDate": "2026-09-03",
-   "ep": "EP-00411",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/6WDc1lfKdGnXlXeuzaLSlC",
-   "title": "ゴキブリ人民党",
-   "spotifyDate": "2026-09-02",
-   "ep": "EP-00412",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
-   "show": "ニュースの学校",
-   "url": "https://open.spotify.com/episode/23Q3UagtMmB8wwNgaFGF01",
-   "title": "「ニュースの学校」はじまります！",
-   "spotifyDate": "2024-10-21",
-   "ep": "EP-00872",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
-  },
-  {
    "show": "報談",
    "url": "https://open.spotify.com/episode/2tOEzJdAU1rdfimMZF1w7K",
    "title": "（カロリーオフ）GDPは時代遅れなのか問題",
    "spotifyDate": "2026-11-15",
    "ep": "EP-06740",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": false,
+   "gap": 59.458999999999946
   },
   {
    "show": "報談",
@@ -788,7 +506,9 @@
    "spotifyDate": "2026-11-12",
    "ep": "EP-06729",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": false,
+   "gap": 64.52300000000014
   },
   {
    "show": "報談",
@@ -797,7 +517,9 @@
    "spotifyDate": "2026-11-08",
    "ep": "EP-06686",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": false,
+   "gap": 59.99199999999996
   },
   {
    "show": "報談",
@@ -806,7 +528,9 @@
    "spotifyDate": "2026-11-05",
    "ep": "EP-06677",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": false,
+   "gap": 66.51699999999983
   },
   {
    "show": "報談",
@@ -815,7 +539,9 @@
    "spotifyDate": "2026-11-01",
    "ep": "EP-06657",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 59.615999999999985
   },
   {
    "show": "報談",
@@ -824,7 +550,9 @@
    "spotifyDate": "2026-10-29",
    "ep": "EP-06647",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 59.470000000000255
   },
   {
    "show": "報談",
@@ -833,7 +561,9 @@
    "spotifyDate": "2026-10-25",
    "ep": "EP-06629",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・台帳の再生時間が空"
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
   },
   {
    "show": "報談",
@@ -842,7 +572,9 @@
    "spotifyDate": "2026-10-22",
    "ep": "EP-06620",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・台帳の再生時間が空"
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
   },
   {
    "show": "報談",
@@ -851,7 +583,9 @@
    "spotifyDate": "2026-10-18",
    "ep": "EP-06603",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・台帳の再生時間が空"
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
   },
   {
    "show": "報談",
@@ -860,7 +594,9 @@
    "spotifyDate": "2026-10-15",
    "ep": "EP-06714",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": false,
+   "gap": 59.149999999999636
   },
   {
    "show": "報談",
@@ -869,7 +605,9 @@
    "spotifyDate": "2026-10-08",
    "ep": "EP-00121",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 63.60599999999977
   },
   {
    "show": "報談",
@@ -878,7 +616,9 @@
    "spotifyDate": "2026-10-04",
    "ep": "EP-00122",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 59.59699999999998
   },
   {
    "show": "報談",
@@ -887,7 +627,9 @@
    "spotifyDate": "2026-10-01",
    "ep": "EP-00123",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 59.587000000000444
   },
   {
    "show": "報談",
@@ -896,7 +638,9 @@
    "spotifyDate": "2026-09-27",
    "ep": "EP-00124",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 59.903999999999996
   },
   {
    "show": "報談",
@@ -905,7 +649,9 @@
    "spotifyDate": "2026-09-23",
    "ep": "EP-00125",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 59.45899999999983
   },
   {
    "show": "報談",
@@ -914,7 +660,9 @@
    "spotifyDate": "2026-09-17",
    "ep": "EP-00126",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 59.13600000000042
   },
   {
    "show": "報談",
@@ -923,7 +671,9 @@
    "spotifyDate": "2026-09-14",
    "ep": "EP-00127",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 59.75
   },
   {
    "show": "報談",
@@ -932,7 +682,9 @@
    "spotifyDate": "2026-09-09",
    "ep": "EP-00128",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": false,
+   "gap": 59.79699999999957
   },
   {
    "show": "報談",
@@ -941,7 +693,9 @@
    "spotifyDate": "2026-09-02",
    "ep": "EP-00129",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 59.710000000000036
   },
   {
    "show": "報談",
@@ -950,7 +704,9 @@
    "spotifyDate": "2026-08-26",
    "ep": "EP-00130",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": false,
+   "gap": 59.462000000000444
   },
   {
    "show": "報談",
@@ -959,7 +715,9 @@
    "spotifyDate": "2026-08-19",
    "ep": "EP-00131",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 59.51800000000003
   },
   {
    "show": "報談",
@@ -968,7 +726,9 @@
    "spotifyDate": "2026-08-12",
    "ep": "EP-00133",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 59.02900000000045
   },
   {
    "show": "報談",
@@ -977,7 +737,9 @@
    "spotifyDate": "2026-08-05",
    "ep": "EP-00134",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.66799999999967
   },
   {
    "show": "報談",
@@ -986,7 +748,9 @@
    "spotifyDate": "2026-08-02",
    "ep": "EP-00135",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.82099999999991
   },
   {
    "show": "報談",
@@ -995,7 +759,9 @@
    "spotifyDate": "2026-07-29",
    "ep": "EP-00136",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.34199999999964
   },
   {
    "show": "報談",
@@ -1004,7 +770,9 @@
    "spotifyDate": "2026-07-26",
    "ep": "EP-00137",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.60200000000009
   },
   {
    "show": "報談",
@@ -1013,7 +781,9 @@
    "spotifyDate": "2026-07-22",
    "ep": "EP-00138",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.2470000000003
   },
   {
    "show": "報談",
@@ -1022,7 +792,9 @@
    "spotifyDate": "2026-07-15",
    "ep": "EP-00139",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.25900000000001
   },
   {
    "show": "報談",
@@ -1031,7 +803,9 @@
    "spotifyDate": "2026-07-12",
    "ep": "EP-00140",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.01600000000008
   },
   {
    "show": "報談",
@@ -1040,7 +814,9 @@
    "spotifyDate": "2026-07-08",
    "ep": "EP-00873",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.28200000000015
   },
   {
    "show": "報談",
@@ -1049,7 +825,9 @@
    "spotifyDate": "2026-07-05",
    "ep": "EP-00874",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 105
   },
   {
    "show": "報談",
@@ -1058,7 +836,9 @@
    "spotifyDate": "2026-07-01",
    "ep": "EP-00875",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.28600000000006
   },
   {
    "show": "報談",
@@ -1067,7 +847,9 @@
    "spotifyDate": "2026-06-28",
    "ep": "EP-00876",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.99299999999994
   },
   {
    "show": "報談",
@@ -1076,7 +858,9 @@
    "spotifyDate": "2026-06-24",
    "ep": "EP-00877",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.72699999999986
   },
   {
    "show": "報談",
@@ -1085,7 +869,9 @@
    "spotifyDate": "2026-06-21",
    "ep": "EP-00878",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.50600000000009
   },
   {
    "show": "報談",
@@ -1094,7 +880,9 @@
    "spotifyDate": "2026-06-17",
    "ep": "EP-00879",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.32399999999961
   },
   {
    "show": "報談",
@@ -1103,7 +891,9 @@
    "spotifyDate": "2026-06-14",
    "ep": "EP-00880",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.16200000000003
   },
   {
    "show": "報談",
@@ -1112,7 +902,9 @@
    "spotifyDate": "2026-06-10",
    "ep": "EP-00881",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 165
   },
   {
    "show": "報談",
@@ -1121,7 +913,9 @@
    "spotifyDate": "2026-06-07",
    "ep": "EP-00882",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.97399999999993
   },
   {
    "show": "報談",
@@ -1130,7 +924,9 @@
    "spotifyDate": "2026-06-03",
    "ep": "EP-00883",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.3130000000001
   },
   {
    "show": "報談",
@@ -1139,7 +935,9 @@
    "spotifyDate": "2026-05-31",
    "ep": "EP-00884",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.94299999999998
   },
   {
    "show": "報談",
@@ -1148,7 +946,9 @@
    "spotifyDate": "2026-05-27",
    "ep": "EP-00885",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.52700000000004
   },
   {
    "show": "報談",
@@ -1157,7 +957,9 @@
    "spotifyDate": "2026-05-24",
    "ep": "EP-00886",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.66300000000001
   },
   {
    "show": "報談",
@@ -1166,7 +968,9 @@
    "spotifyDate": "2026-05-20",
    "ep": "EP-00887",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.41200000000026
   },
   {
    "show": "報談",
@@ -1175,7 +979,9 @@
    "spotifyDate": "2026-05-17",
    "ep": "EP-00888",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.17100000000005
   },
   {
    "show": "報談",
@@ -1184,7 +990,9 @@
    "spotifyDate": "2026-05-13",
    "ep": "EP-00889",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.51900000000023
   },
   {
    "show": "報談",
@@ -1193,7 +1001,9 @@
    "spotifyDate": "2026-05-10",
    "ep": "EP-00890",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.3710000000001
   },
   {
    "show": "報談",
@@ -1202,7 +1012,9 @@
    "spotifyDate": "2026-05-06",
    "ep": "EP-00891",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.89199999999983
   },
   {
    "show": "スポンジ",
@@ -1211,7 +1023,9 @@
    "spotifyDate": "2026-11-11",
    "ep": "EP-06723",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": false,
+   "gap": 1069.853
   },
   {
    "show": "スポンジ",
@@ -1220,7 +1034,9 @@
    "spotifyDate": "2026-10-27",
    "ep": "EP-06639",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・台帳の再生時間が空"
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
   },
   {
    "show": "スポンジ",
@@ -1229,7 +1045,9 @@
    "spotifyDate": "2026-06-15",
    "ep": "EP-01082",
    "status": "HOLD",
-   "reason": "台帳に別のSpotify URLがある（上書きしない）"
+   "reason": "台帳に別のSpotify URLがある（上書きしない）",
+   "same": false,
+   "gap": 0
   },
   {
    "show": "スポンジ",
@@ -1238,7 +1056,9 @@
    "spotifyDate": "2026-06-05",
    "ep": "EP-01083",
    "status": "HOLD",
-   "reason": "台帳に別のSpotify URLがある（上書きしない）"
+   "reason": "台帳に別のSpotify URLがある（上書きしない）",
+   "same": false,
+   "gap": -0.31300000000010186
   },
   {
    "show": "こどもそうだんしつ",
@@ -1247,7 +1067,9 @@
    "spotifyDate": "2026-10-27",
    "ep": "EP-06637",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・台帳の再生時間が空"
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
   },
   {
    "show": "ドーナツ",
@@ -1256,7 +1078,9 @@
    "spotifyDate": "2026-09-20",
    "ep": "EP-00116",
    "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない"
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": -109.69499999999971
   }
  ],
  "emptyNotInSpotifyList": [
