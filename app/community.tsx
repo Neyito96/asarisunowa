@@ -53,6 +53,13 @@ const archiveSeriesSearchTerms: Record<string, string> = {
   "お相撲ちゃんねる": "相撲",
   "球談": "野球",
   "報談本編": "報談",
+  // 2026-11-18 管理人指示: 蔵の検索窓に入る言葉（カードの表示はそのまま）
+  "木下くんあの動画見た？": "動画見た",
+  "いちおしウニュ！": "ウニュ",
+  "ニュース4U": "N4U",
+  "カガクをひらく": "カガク",
+  "そなえトーク": "そなえとーく",
+  "ニュース大阪目線": "大阪目線",
 };
 function ArchiveSeriesItems({ value }: { value: string }) {
   return <>{value.split("、").map((label, i) => {
