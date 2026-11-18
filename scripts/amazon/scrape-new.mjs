@@ -19,7 +19,7 @@ async function main() {
   for (const [show, id] of Object.entries(SHOWS)) {
     const p = await ctx.newPage();
     await p.goto(`https://music.amazon.co.jp/podcasts/${id}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
-    await p.waitForSelector('a[href*="/episodes/"]', { timeout: 45000 });
+    await p.waitForSelector('music-episode-row-item a[href*="/episodes/"]', { timeout: 60000 });
     await p.waitForTimeout(2000);
     const rows = await p.evaluate(() => {
       const DATE = /^(\d{4}年\d{1,2}月\d{1,2}日|\d{1,2}-\d{1,2}-\d{4}|\d+(?:日|時間|分)前|昨日|今日)$/;
