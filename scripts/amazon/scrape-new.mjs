@@ -35,6 +35,7 @@ async function main() {
       });
       return [...byId.values()].filter((r) => r.title);
     });
+    if (process.env.AMAZON_DEBUG && show === 'ドーナツ') console.log(JSON.stringify(await p.evaluate(() => [...document.querySelectorAll('a[href*="/episodes/"]')].slice(0, 3).map((a) => ({ own: a.innerText, p3: a.parentElement?.parentElement?.parentElement?.innerText?.slice(0, 400), p5: a.parentElement?.parentElement?.parentElement?.parentElement?.parentElement?.innerText?.slice(0, 600) })))));
     if (!rows.length) throw new Error('NO_EPISODES ' + show);
     out.shows[show] = { id, episodes: rows.filter((r) => r.url.includes(id)).map((r) => ({ ...r, date: absoluteDate(r.date) })) };
     console.log(show, out.shows[show].episodes.length);
