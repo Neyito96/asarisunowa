@@ -6,9 +6,6 @@ on:
     - cron: '40 21 * * *'
     - cron: '40 3 * * *'
   workflow_dispatch:
-  push:   # 初回の動作確認用（main にはPRでマージ）
-    branches: ['feat/spotify-new-episodes']
-    paths: ['scripts/spotify/**', '.github/workflows/spotify-new.yml', 'tests/spotify-match.test.mjs']
 permissions:
   contents: write
   issues: write
