@@ -6,9 +6,6 @@ on:
     - cron: '35 21 * * *'
     - cron: '35 3 * * *'
   workflow_dispatch:
-  push:
-    branches: ['feat/amazon-new-episodes']
-    paths: ['scripts/amazon/**', '.github/workflows/amazon-new.yml']
 permissions:
   contents: write
   issues: write
