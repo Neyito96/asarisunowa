@@ -20,12 +20,21 @@ async function main() {
     await p.goto(`https://music.amazon.co.jp/podcasts/${id}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
     await p.waitForSelector('a[href*="/episodes/"]', { timeout: 45000 });
     await p.waitForTimeout(2000);
-    const rows = await p.evaluate(() => { const out = [], seen = new Set();
-      document.querySelectorAll('a[href*="/episodes/"]').forEach((a) => { const href = a.getAttribute('href'), m = href.match(/\/podcasts\/([0-9a-f-]{36})\/episodes\/([0-9a-f-]{36})/); const title = (a.innerText || '').trim(); if (!m || !title || seen.has(m[2])) return; seen.add(m[2]);
-        let row = a; for (let i = 0; i < 8 && row.parentElement; i++) { row = row.parentElement; if (/\d+分/.test(row.innerText || '')) break; }
-        const tx = (row.innerText || '').replace(/\s+/g, ' ');
-        out.push({ url: new URL(href, location.origin).href, title, date: (tx.match(/\d{4}年\d{1,2}月\d{1,2}日|\d+(?:日|時間|分)前|昨日|今日/) || [''])[0], duration: (tx.match(/(\d+時間)?\d+分(\d+秒)?/) || [''])[0] }); });
-      return out; });
+    const rows = await p.evaluate(() => {
+      const DATE = /^(\d{4}年\d{1,2}月\d{1,2}日|\d+(?:日|時間|分)前|昨日|今日)$/, DUR = /(\d+時間)?\d+分(\d+秒)?|\d+時間/;
+      const byId = new Map();
+      document.querySelectorAll('a[href*="/episodes/"]').forEach((a) => {
+        const href = a.getAttribute('href'), m = href.match(/\/podcasts\/([0-9a-f-]{36})\/episodes\/([0-9a-f-]{36})/); if (!m) return;
+        const lines = (a.innerText || '').split('\n').map((x) => x.trim()).filter(Boolean); if (!lines.length) return;
+        let date = '', title = lines[0]; if (DATE.test(lines[0])) { date = lines[0]; title = lines[1] || ''; }
+        let duration = '', row = a; const own = a.innerText || '';
+        for (let i = 0; i < 8 && row.parentElement && !duration; i++) { row = row.parentElement; const rest = (row.innerText || '').replace(own, ' '); const mm = rest.split('\n').map((x) => x.trim()).find((x) => new RegExp('^(' + DUR.source + ')$').test(x)); if (mm) duration = mm; if (!date) { const dd = rest.split('\n').map((x) => x.trim()).find((x) => DATE.test(x)); if (dd) date = dd; } }
+        const cur = byId.get(m[2]) || { url: new URL(href, location.origin).href, title: '', date: '', duration: '' };
+        if (title && (!cur.title || title.length < cur.title.length)) cur.title = title; if (date && !cur.date) cur.date = date; if (duration && !cur.duration) cur.duration = duration;
+        byId.set(m[2], cur);
+      });
+      return [...byId.values()].filter((r) => r.title);
+    });
     if (!rows.length) throw new Error('NO_EPISODES ' + show);
     out.shows[show] = { id, episodes: rows.filter((r) => r.url.includes(id)).map((r) => ({ ...r, date: absoluteDate(r.date) })) };
     console.log(show, out.shows[show].episodes.length);
