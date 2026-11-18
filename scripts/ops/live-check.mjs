@@ -42,13 +42,14 @@ try {
   note('蔵 推薦フォームのSpotifyチェック', mjs.includes('Spotifyプレイリストにしてほしい') ? 'あり' : 'なし');
   const scope = await (await page.request.get(BASE + 'library/data/scope.json?t=' + Date.now())).json();
   note('蔵 公開件数', (scope.publishedIds || []).length);
-  let amazon = 0, latest = [];
+  let amazon = 0, latest = [], spotify = 0, spMiss = [];
   for (const b of [134, 135]) {
     const r = await page.request.get(`${BASE}library/data/details/${b}.json?t=${Date.now()}`);
     if (!r.ok()) continue;
-    for (const e of await r.json()) if ((e.links || []).some((l) => /music\.amazon/.test(l))) { amazon++; latest.push(e.id); }
+    for (const e of await r.json()) { if ((e.links || []).some((l) => /music\.amazon/.test(l))) { amazon++; latest.push(e.id); } if ((e.links || []).some((l) => /open\.spotify\.com\/episode\//.test(l))) spotify++; else spMiss.push(e.id); }
   }
   note('蔵 Amazon個別URL（EP-06700以降）', { 件数: amazon, EP: latest.slice(-12) });
+  note('蔵 Spotify個別URL（EP-06700以降）', { あり: spotify, なし: spMiss });
 } catch (e) {
   note('エラー', String(e && e.stack || e).slice(0, 400));
   process.exitCode = 1;
