@@ -2160,7 +2160,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     </small>
                     <h3>{p.title}</h3>
                     <p>by {p.maker}</p>
-                    {p.introduced && <p className="podcastComment">紹介配信日 {p.introduced}</p>}
+                    {p.introduced && !((findPosukamiCard(posukami, p) as { introductions?: unknown[] } | null | undefined)?.introductions?.length) && <p className="podcastComment">紹介配信日 {p.introduced}</p>}
                     <PosukamiCardSection
                       podcast={{ id: p.id, title: p.title }}
                       card={findPosukamiCard(posukami, p)}
