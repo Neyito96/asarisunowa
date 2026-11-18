@@ -73,7 +73,10 @@ async function main() {
   const hit = new Set(res.map((x) => x.ep).filter(Boolean));
   const unmatchedEmpty = empty.filter((r) => !hit.has(r.ep)).map((r) => r.ep);
   const summary = { generatedAt: new Date().toISOString(), spotifyGeneratedAt: data.generatedAt, ledgerRows: rows.length, ledgerSpotifyEmpty: empty.length, verified: verified.length, counts: res.reduce((a, x) => (a[x.status] = (a[x.status] || 0) + 1, a), {}), emptyNotInSpotifyList: unmatchedEmpty.length };
-  fs.writeFileSync(outPath, JSON.stringify({ summary, verified: verified.map((x) => ({ ep: x.ep, url: x.url, show: x.show, title: x.title, spotifyDate: x.spotifyDate })), others: res.filter((x) => x.status !== 'VERIFIED' && x.status !== 'VERIFIED_SAME' && x.status !== 'NO_ROW'), emptyNotInSpotifyList: unmatchedEmpty }, null, 1) + '\n');
+  // 台帳で Spotify 欄が空の行ごとに、照合でどうなったか（管理人の確認用・保留件数の定義を1つにするため）
+  const byEp = {}; res.forEach((x) => { if (x.ep && !/ /.test(x.ep)) (byEp[x.ep] = byEp[x.ep] || []).push(x); });
+  const emptyRows = empty.map((r) => { const xs = byEp[r.ep] || []; const x = xs.find((y) => /^VERIFIED/.test(y.status)) || xs[0]; return { ep: r.ep, show: r.show, title: r.title, published: r.published, status: x ? x.status : 'NOT_IN_SPOTIFY_LIST', reason: x ? x.reason : 'Spotify番組ページの取得範囲（新しい約50回）に同じ題名の回がない', spotifyUrl: x ? x.url : '' }; });
+  fs.writeFileSync(outPath, JSON.stringify({ summary, verified: verified.map((x) => ({ ep: x.ep, url: x.url, show: x.show, title: x.title, spotifyDate: x.spotifyDate })), others: res.filter((x) => x.status !== 'VERIFIED' && x.status !== 'VERIFIED_SAME' && x.status !== 'NO_ROW'), emptyNotInSpotifyList: unmatchedEmpty, emptyRows }, null, 1) + '\n');
   console.log(JSON.stringify(summary));
 }
 if (import.meta.url === `file://${process.argv[1]}`) main().catch((e) => { console.error(e); process.exit(1); });
