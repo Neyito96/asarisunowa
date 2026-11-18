@@ -1,4 +1,8 @@
 import { cleanDescription } from './library-clean.mjs';
+// 番組の旧名・新名（同じ番組・同じ配信フィード）。番組名で探した時に両方の回が出るようにする。
+// こどもそうだんしつ は「SDGsを話そう」の配信フィードを引き継いだ番組（2026年6月まで SDGsを話そう）。
+export const SHOW_ALIASES = { 'SDGsを話そう': ['こどもそうだんしつ'], 'こどもそうだんしつ': ['SDGsを話そう'] };
+export const showSearchText = show => [show || '', ...(SHOW_ALIASES[show] || [])].join(' ');
 export const normal = value => String(value ?? '').normalize('NFKC').toLowerCase().replace(/\s+/g, ' ').trim();
 // Same exclusion rule as the existing libV2CpBlocked_; unknown states fail closed.
 export const blocked = value => !!normal(value) && !['未指定', 'なし', 'false', '0', 'no'].includes(normal(value));
@@ -20,5 +24,5 @@ export function publicEpisode(row, verified = {}) {
 }
 export function filterEpisodes(items, { query='', show='', order='newest', from='', to='' } = {}) {
   const terms = normal(query).split(' ').filter(Boolean);
-  return items.filter(x => (!show || x.show === show) && (!from || x.date.slice(0,10) >= from) && (!to || x.date.slice(0,10) <= to) && terms.every(t => normal(`${x.show || ''} ${x.title} ${x.cast} ${x.keywords || ''} ${x.description || ''} ${x.id}`).includes(t))).sort((a,b) => (order === 'oldest' ? 1 : -1) * a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+  return items.filter(x => (!show || x.show === show) && (!from || x.date.slice(0,10) >= from) && (!to || x.date.slice(0,10) <= to) && terms.every(t => normal(`${showSearchText(x.show)} ${x.title} ${x.cast} ${x.keywords || ''} ${x.description || ''} ${x.id}`).includes(t))).sort((a,b) => (order === 'oldest' ? 1 : -1) * a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
 }

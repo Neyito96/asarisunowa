@@ -1,7 +1,7 @@
 import { publicationLabel } from './publication-scope.mjs';
 import { tidyDescription } from './description-tidy.mjs';
 import { qrSvg } from './qr.mjs';
-import { filterEpisodes, safeUrl, normal } from './library-core.mjs?v=search-20261118';
+import { filterEpisodes, safeUrl, normal, showSearchText } from './library-core.mjs?v=alias-20261119';
 const $=id=>document.getElementById(id), cache=new Map();
 let manifest, page=0, generation=0, activeResults=null, activeDetail=0;
 import { SHELF_KEY, SHELF_LIMITS, readShelf, serializeShelf, toggleItem, moveItem, setMeta, encodeShare, decodeShare, cardLinks } from './shelf-core.mjs';
@@ -38,7 +38,7 @@ function renderList(items,total) {
 }
 // 速い検索（#350）: lite（題名・出演者・番組・日付）で即座に結果を出し、概要・関連記事の見出し（text）は並列で後から足して結果を更新する
 let lite=null;const textHay=new Map(),textLoaded=new Set();
-async function loadLite(){if(lite)return lite;const si=manifest.searchIndex,rows=await json(si.lite);lite=rows.map(([id,si2,date,title,cast,audio])=>{const show=si.shows[si2];return {id,show,date,title,cast,audio:!!audio,hay:normal(`${show} ${title} ${cast} ${id}`)};});return lite;}
+async function loadLite(){if(lite)return lite;const si=manifest.searchIndex,rows=await json(si.lite);lite=rows.map(([id,si2,date,title,cast,audio])=>{const show=si.shows[si2];return {id,show,date,title,cast,audio:!!audio,hay:normal(`${showSearchText(show)} ${title} ${cast} ${id}`)};});return lite;}
 function loadText(file){if(textLoaded.has(file))return Promise.resolve();return json(file).then(rows=>{for(const [id,t] of rows)textHay.set(id,normal(t));textLoaded.add(file);});}
 function fastFilter(c){const terms=normal(c.query).split(' ').filter(Boolean),dir=c.order==='oldest'?1:-1;
  return lite.filter(x=>(!c.show||x.show===c.show)&&(!c.from||x.date.slice(0,10)>=c.from)&&(!c.to||x.date.slice(0,10)<=c.to)&&terms.every(t=>x.hay.includes(t)||(textHay.get(x.id)||'').includes(t))).sort((a,b)=>dir*a.date.localeCompare(b.date)||a.id.localeCompare(b.id));}
