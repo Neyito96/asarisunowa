@@ -98,3 +98,4 @@ form{background:#fdfaf3;border:1px solid #baac94;border-top:7px solid #40352a;bo
 .shelf-toast[hidden]{display:none}
 .shelf-toast .quiet{background:#fff;color:#302e2a;border:0}
 .shelf-listen{font-size:.85rem;margin:.25rem 0}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}

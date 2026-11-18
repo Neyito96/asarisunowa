@@ -166,6 +166,11 @@ function doGet(e) {
       return handlePosukamiSubmit_(e, callback);
     }
 
+    // 蔵の「わたしの蔵書」をテーマへの推薦として受け付ける（#345）。ShelfSubmit.js・別タブ「蔵書推薦・受付」
+    if (type === "shelfSubmit") {
+      return handleShelfSubmit_(e, callback);
+    }
+
     const readResponse = handleApiRead_(type, callback);
 
     if (readResponse) {
