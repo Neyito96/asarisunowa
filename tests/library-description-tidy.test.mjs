@@ -40,3 +40,8 @@ test('公開データ全件で落ちない・関連記事のURLはすべて http
   for (const f of fs.readdirSync(dir)) for (const e of JSON.parse(fs.readFileSync(new URL(f, dir), 'utf8'))) { const t = tidyDescription(e.description); n++; for (const r of t.related) assert.match(r.url, /^https:\/\//, e.id); }
   assert.ok(n >= 5990);
 });
+
+test('告知だけの概要（ポすすめ回など）は PROMO_ONLY', async () => {
+  const { tidyDescription } = await import('../public/library/description-tidy.mjs');
+  assert.equal(tidyDescription('★番組での紹介を希望する方は、朝日新聞アプリで「おたより」を送ってください\n朝リスの田 byネジートさん').status, 'PROMO_ONLY');
+});

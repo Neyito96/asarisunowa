@@ -31,7 +31,7 @@ function PosukamiList({ label, kind, episodes }: { label: string; kind: string; 
           const meta = [episode.program && episode.program !== "ドーナツ" && kind !== "reply" ? episode.program : "", formatPosukamiDate(episode.date)].filter(Boolean).join("・");
           return (
             <li key={kind + "-" + episode.href}>
-              <a className="posukamiTitleLink" href={posukamiHref(episode.href)} {...(episode.library ? {} : { target: "_blank", rel: "noopener noreferrer" })}>
+              <a className="posukamiTitleLink" href={posukamiHref(episode.href)} target="_blank" rel="noopener noreferrer">
                 {episode.title}{episode.library ? "" : <span aria-label="（新しいタブで開きます）"> ↗</span>}
               </a>
               {kind !== "intro" && isPosukamiNew(episode.verifiedAt) && <span className="newBadge newBadgeActive posukamiNew">NEW</span>}

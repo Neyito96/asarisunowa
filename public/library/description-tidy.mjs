@@ -61,6 +61,7 @@ export function tidyDescription(raw) {
         }
         hold = hold || '本文にURLが残る'; body.push(chunk); continue;
       }
+      if (/^(朝リスの田|「?朝リス課外活動」?|byネジートさん|byたんたんさん)$/.test(chunk)) { removed.push(chunk); promo = true; continue; }   // ドーナツの定型（朝リスの田 byネジートさん／朝リス課外活動 byたんたんさん）
       if (STRONG_PROMO.test(chunk)) { removed.push(chunk); promo = true; continue; }
       if ((promo || URL_ONLY.test(chunks[i + 1] || '') && PROMO_URL.test(chunks[i + 1])) && (PROMO.test(chunk) || /^[（(].*[）)]$/.test(chunk))) { removed.push(chunk); promo = true; continue; }
       if (promo && /^(See|Learn|more|about|for|information\.?|privacy|your|ad|choices\.?|Visit)$/i.test(chunk)) { removed.push(chunk); continue; }
@@ -68,6 +69,7 @@ export function tidyDescription(raw) {
     }
   }
   const out = body.join(' ').trim();
+  if (!out && !related.length && !recordedAt && removed.length && !hold) return { status: 'PROMO_ONLY', reason: '告知のみ', body: '', recordedAt, related, removed };   // 公式の概要欄が告知・定型だけ（ポすすめ回など）
   if (!hold && !out && !related.length && !recordedAt) hold = '本文が空になる';
   return { status: hold ? 'HOLD' : removed.length || related.length || recordedAt ? 'TIDY' : 'AS_IS', reason: hold, body: out, recordedAt, related, removed };
 }
