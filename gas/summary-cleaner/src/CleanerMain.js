@@ -2054,7 +2054,7 @@ function p27CopyTest_(name, col, re, plan0) {
 // ===== P27 Amazon Music（証拠照合）=====
 // 公開ページは中身の無い枠で GAS では読めない・公式APIはクローズドベータ（承認制）。そこで Chrome で人と同じ画面を見た「証拠」を COPY「P27・Amazon証拠」に記録し、
 // ここで台帳と機械的に照合する。番組ID はサイト掲載の Amazon 番組URLで確認できたものだけ（推測しない）
-var P27_AM_SHOWS_ = { 'ニュースの現場から': '7337408b-4752-4a85-8f27-4208a2ca8b1d' };
+var P27_AM_SHOWS_ = { 'ニュースの現場から': '7337408b-4752-4a85-8f27-4208a2ca8b1d', 'ニュースの学校': 'c0bbd7fe-8cfb-4e94-9ec3-7c825aa70217', '報談': '297be73b-0c9b-4629-85a9-f51e179a1292', 'スポンジ': '827f3a0a-e2c9-4913-88cf-329697329ec0', 'MEDIA TALK': '55b49660-b1f3-482d-9b1e-791337153bc2', 'こどもそうだんしつ': '0af07b90-b96f-4f5a-a4c7-8da6fddc5685', 'ドーナツ': 'edb44df6-5b86-4b52-88cf-cb270180b9f4' };   // 2026-11-18 Amazon Music の検索画面で確認
 var P27_AM_EVID_ = 'P27・Amazon証拠', P27_AM_SHEET_ = 'P27・Amazon照合';
 function p27AmPlan_(L, cs) {
   var sh = cs.getSheetByName(P27_AM_EVID_); if (!sh) return { error: 'NO_EVIDENCE_SHEET', out: [] };
@@ -2152,7 +2152,7 @@ function P27_PD_5_V2反映_承認後() {   // Pody: 埋め込みGUID＝公式GUI
 
 // ── P28 巡回（#342）: 1時間ごとのトリガーで、1回に1つの仕事だけ順番に行う（6分制限の内に収める）。
 // 仕事の順: Pody確定分 → Pocket Casts確定分 → 新着7サービス照合と反映。書込は P27_V2_WRITE＝ON の間だけ。停止旗が立てば何もしない。
-var P28_JOBS_ = ['JUDGE', 'CLEAN', 'PDC', 'PD', 'PC', 'NEW', 'LS', 'AP'], P28_LOG_ = 'P28・巡回記録';
+var P28_JOBS_ = ['JUDGE', 'CLEAN', 'AMZ', 'PDC', 'PD', 'PC', 'NEW', 'LS', 'AP'], P28_LOG_ = 'P28・巡回記録';
 function P28_W_1_V2書込を有効化() { PropertiesService.getScriptProperties().setProperty('P27_V2_WRITE', 'ON'); return scLog_('P28_W_1_V2書込を有効化', { status: 'ON', note: '戻すときは P28_W_0_V2書込を止める' }); }
 function P28_W_0_V2書込を止める() { PropertiesService.getScriptProperties().deleteProperty('P27_V2_WRITE'); return scLog_('P28_W_0_V2書込を止める', { status: 'OFF' }); }
 function P28_TICK() {
@@ -2175,6 +2175,7 @@ function p28Tick_() {
   else if (job === 'PDC') r = p29PodyCrawl_();
   else if (job === 'JUDGE') r = p30Judge_();
   else if (job === 'CLEAN') r = p30Clean_();
+  else if (job === 'AMZ') r = p31Amazon_();
   else r = p29ApplePast_();
   r = r || {};
   var finished = job !== 'NEW' && job !== 'JUDGE' && (r.status === 'OK_NO_CHANGE' || r.finished === true || (/^(OK|DONE)/.test(r.status || '') && !r.written && !r.more));
@@ -2228,6 +2229,22 @@ function S6R_要確認_原文で空欄補完() {
     hist.getRange(hist.getLastRow() - plan.length + 1, 8, plan.length, 1).setValues(plan.map(function (p) { return [p.skip ? 'SKIP(既に概要あり)' : (v.sh.getRange(p.row, col).getDisplayValue() === p.text ? 'OK' : 'READBACK_MISMATCH')]; }));
     return scLog_('S6R_要確認_原文で空欄補完', { status: bad ? 'READBACK_MISMATCH' : 'OK', counts: cnt, eps: plan.filter(function (p) { return !p.skip; }).map(function (p) { return p.ep; }), applyId: id });
   } finally { lock.releaseLock(); }
+}
+// ── P31 Amazon 新着（管理人指示 2026-11-18）: GitHub Actions が毎日 Amazon Music の番組ページ（各番組の新しい約20回）を読み、docs/amazon/latest.json に保存。
+// ここではそれを COPY「P27・Amazon証拠」に足し（同じURLは足さない）、既存の照合（番組ID・題名・日付・長さが全部一致）で確定した回だけ、空欄にだけ書く。1日1回。
+var P31_AMZ_JSON_ = 'https://raw.githubusercontent.com/Neyito96/asarisunowa/main/docs/amazon/latest.json';
+function p31Amazon_() {
+  if (!p27WriteEnabled_()) return { status: 'DISABLED' };
+  var g = p27Get_(P31_AMZ_JSON_ + '?_=' + Date.now()); if (g.code !== 200) return { status: 'FETCH_' + g.code, more: true };
+  var data = JSON.parse(g.body), c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes);
+  var H = ['調べたEP-ID', 'Amazonの回URL（画面のリンク）', '画面の番組名', '画面の日付', '画面の題名', '画面の長さ', '取得方法'], sh = c.ss.getSheetByName(P27_AM_EVID_) || scSheet_(c.ss, P27_AM_EVID_, H);
+  var v = sh.getDataRange().getDisplayValues(), h = v[0], iu = h.indexOf('Amazonの回URL（画面のリンク）'), have = {}; if (iu < 0) return { status: 'EVID_COLUMNS' };
+  v.slice(1).forEach(function (r) { have[String(r[iu]).replace(/\/[^/]*$/, '')] = 1; });
+  var add = []; Object.keys(data.shows || {}).forEach(function (show) { (data.shows[show].episodes || []).forEach(function (e) { var key = String(e.url).replace(/\/[^/]*$/, ''); if (!e.url || have[key]) return; have[key] = 1; var row = H.map(function () { return ''; }); row[1] = e.url; row[2] = show; row[3] = e.date; row[4] = e.title; row[5] = "'" + e.duration; row[6] = 'Actions自動（番組ページ・' + String(data.generatedAt || '').slice(0, 10) + '）'; add.push(h.map(function (n) { var k = H.indexOf(n); return k >= 0 ? row[k] : ''; })); }); });
+  if (add.length) sh.getRange(sh.getLastRow() + 1, 1, add.length, h.length).setValues(add);
+  var vv = scOpen_(SC_CONFIG.v2WorkingId, ''), p = p27AmPlan_(p27Ledger_(vv.ss, 'Amazon'), c.ss);
+  var plans = (p.out || []).filter(function (a) { return a.x.status === 'VERIFIED'; }).map(function (a) { return { ep: a.x.ep, url: a.x.url, basis: 'Amazon番組ページ（Actions自動）: 番組ID・題名・日付・長さが一致' }; });
+  var w = p29Write_('Amazon', plans); w.evidenceAdded = add.length; w.verified = plans.length; w.generatedAt = data.generatedAt; w.finished = w.status === 'OK' || w.status === 'OK_NO_CHANGE'; return w;
 }
 function p30Clean_() {
   var hour = Number(Utilities.formatDate(new Date(), 'Asia/Tokyo', 'H'));
