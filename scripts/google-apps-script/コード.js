@@ -27,7 +27,7 @@ function doPost(e) {
     const kind = input.kind;
     const securityAnswer = input.securityAnswer;
     const website = input.website;
-    const requestId = String(data.requestId || "").trim();
+    let requestId = String(data.requestId || "").trim();
 
     if (website) return jsonResponse({ ok: true });
 
@@ -64,7 +64,9 @@ function doPost(e) {
       return jsonResponse({ ok: false, error: basicError });
     }
 
-    artwork = resolvePostArtwork_(artwork, kind, title);
+    if (kind !== "podcast" && kind !== "listenerPodcast") {
+      artwork = resolvePostArtwork_(artwork, kind, title);
+    }
 
     const kindError = validatePostKind_(kind);
 
@@ -79,6 +81,17 @@ function doPost(e) {
         ok: false,
         error: targetUrlError
       });
+    }
+
+    if (kind === "podcast" || kind === "listenerPodcast") {
+      if (!requestId) {
+        requestId = "legacy_" + Utilities.getUuid().replace(/-/g, "");
+        // Legacy clients have no receipt protocol: queue failure must not reject their post.
+        try { beginPodcastReceipt_(requestId, kind, url, title); }
+        catch (_) { Logger.log("Legacy podcast queue deferred; common blank-cell sweep will retry."); }
+      } else {
+        beginPodcastReceipt_(requestId, kind, url, title);
+      }
     }
 
     return savePost_(
@@ -145,8 +158,25 @@ function doGet(e) {
       return handlePodcastResolve_(e, callback);
     }
 
+    // ポす神回・ポすすめ返し（#312/#315）。Posukami.gs
+    if (type === "posukamiSubmit") {
+      return handlePosukamiSubmit_(e, callback);
+    }
+
+    // 蔵の「わたしの蔵書」をテーマへの推薦として受け付ける（#345）。ShelfSubmit.js・別タブ「蔵書推薦・受付」
+    if (type === "shelfSubmit") {
+      return handleShelfSubmit_(e, callback);
+    }
+    if (type === "posukamiPublic") {
+      return handlePosukamiPublic_(e, callback);
+    }
+
     if (type === "autoUpdateRequestStatus") {
       return handleAutoUpdateRequestStatus_(e, callback);
+    }
+
+    if (type === "podcastRequestStatus") {
+      return handlePodcastRequestStatus_(e, callback);
     }
 
     if (type === "playlistRequestStatus") {
@@ -155,20 +185,6 @@ function doGet(e) {
 
     if (type === "playlistResolve") {
       return handlePlaylistResolve_(e, callback);
-    }
-
-    // ポす神回の投稿（#312）。新規番組登録（listenerPodcast）とは別の経路・別シート。Posukami.js
-    if (type === "posukamiPublic") {
-      return handlePosukamiPublic_(e, callback);
-    }
-
-    if (type === "posukamiSubmit") {
-      return handlePosukamiSubmit_(e, callback);
-    }
-
-    // 蔵の「わたしの蔵書」をテーマへの推薦として受け付ける（#345）。ShelfSubmit.js・別タブ「蔵書推薦・受付」
-    if (type === "shelfSubmit") {
-      return handleShelfSubmit_(e, callback);
     }
 
     const readResponse = handleApiRead_(type, callback);

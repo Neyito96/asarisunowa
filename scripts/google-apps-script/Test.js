@@ -760,3 +760,26 @@ function testCompareEpisodes() {
     Logger.log(res.getContentText());
   });
 }
+function P266_NO_MIRAI_RULE_TEST() {
+  const rule = getAutoPlaylistRuleByKey_("no-mirai");
+
+  const cases = [
+    ["（ノーミライ #10）通常回", true],
+    ["（ノーミライ番外編）土曜が5回", true],
+    ["（ポすすめ）AIニュース", false]
+  ];
+
+  const results = cases.map(([name, expected]) => ({
+    name,
+    expected,
+    actual: matchesAutoPlaylistRule_({name}, rule)
+  }));
+
+  Logger.log(JSON.stringify(results));
+
+  if (results.some(r => r.actual !== r.expected)) {
+    throw new Error("P266_RULE_TEST_FAILED");
+  }
+
+  Logger.log("P266_RULE_TEST_PASS");
+}

@@ -26,7 +26,8 @@ function startSpotifyUserAuth() {
     "&state=" + encodeURIComponent(state) +
     "&show_dialog=true";
 
-  // OAuth URL contains state; do not log it.
+  Logger.log("Spotify認証URL:");
+  Logger.log(url);
 
   return url;
 }
@@ -95,6 +96,7 @@ function handleSpotifyUserOAuthCallback_(e) {
   const body = response.getContentText();
 
   Logger.log("Spotify OAuth status: " + status);
+  Logger.log(body);
 
   if (status !== 200) {
     return HtmlService.createHtmlOutput(
@@ -174,7 +176,10 @@ function getSpotifyUserAccessToken() {
   );
 
   if (response.getResponseCode() !== 200) {
-    Logger.log("Spotify refresh failed (HTTP " + response.getResponseCode() + ")");
+    Logger.log(
+      "Spotify refresh error: " +
+      response.getContentText()
+    );
     return "";
   }
 

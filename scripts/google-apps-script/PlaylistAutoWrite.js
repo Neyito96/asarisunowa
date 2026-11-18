@@ -1,11 +1,14 @@
 // プレイリスト自動更新用 Spotify 書き込み補助
 function addAutoPlaylistEpisodesIndividually_(rule, token, episodes) {
+  assertSaitoKenichiroEpisodesBeforeWrite_(rule, episodes);
+  const themeWrite = assertThemeReviewSpotifyWriteV1_(rule, episodes);
   let addedCount = 0;
   let failedCount = 0;
   const addedEpisodes = [];
 
   episodes.forEach(function(ep) {
-    const addRes = UrlFetchApp.fetch(
+    assertSaitoKenichiroEpisodesBeforeWrite_(rule, [ep]);
+    const addRes = spotifyLegacyFetchV2_(
       "https://api.spotify.com/v1/playlists/" +
         encodeURIComponent(rule.playlistId) +
         "/items",
@@ -23,6 +26,9 @@ function addAutoPlaylistEpisodesIndividually_(rule, token, episodes) {
     );
 
     const status = addRes.getResponseCode();
+    if (themeWrite && (status === 429 || status === 403)) {
+      throw new Error("theme Spotify追加停止 status=" + status);
+    }
 
     if (status === 200 || status === 201) {
       addedCount++;
@@ -52,11 +58,13 @@ function addAutoPlaylistEpisodesIndividually_(rule, token, episodes) {
 }
 
 function addAutoPlaylistEpisodesBatch_(rule, token, episodes) {
+  assertSaitoKenichiroEpisodesBeforeWrite_(rule, episodes);
+  const themeWrite = assertThemeReviewSpotifyWriteV1_(rule, episodes);
   const uris = episodes.map(function(ep) {
     return String(ep.uri);
   });
 
-  const addRes = UrlFetchApp.fetch(
+  const addRes = spotifyLegacyFetchV2_(
     "https://api.spotify.com/v1/playlists/" +
       encodeURIComponent(rule.playlistId) +
       "/items",

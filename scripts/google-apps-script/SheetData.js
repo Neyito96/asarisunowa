@@ -95,27 +95,67 @@ function playlistIdForPublicRead_(url) {
 // matching application row confirms incremental updates. Fixed rules keep their
 // existing eligibility policy; a stale runtime rule cannot change their badge.
 function isAutoUpdateRuntimeRuleGrowingV1_(rule, requestRows) {
-  if (!rule || rule.enabled === false || rule.productionWriteAllowed !== true) return false;
+  if (
+    !rule ||
+    rule.enabled === false ||
+    rule.productionWriteAllowed !== true
+  ) {
+    return false;
+  }
 
-  const lifecycle = String(rule.lifecycleStatus || "").trim().toLowerCase();
-  const bootstrapActive = rule.bootstrapPending === true;
+  const lifecycle =
+    String(rule.lifecycleStatus || "")
+      .trim()
+      .toLowerCase();
+
+  const bootstrapActive =
+    rule.bootstrapPending === true;
+
   const incrementalActive =
-    rule.bootstrapPending === false && lifecycle === "incremental";
+    rule.bootstrapPending === false &&
+    lifecycle === "incremental";
 
-  if (!bootstrapActive && !incrementalActive) return false;
+  if (
+    !bootstrapActive &&
+    !incrementalActive
+  ) {
+    return false;
+  }
 
-  const rowNumber = Number(rule.requestSheetRow);
-  const rows = Array.isArray(requestRows) ? requestRows : [];
-  if (!Number.isInteger(rowNumber) || rowNumber < 2 || rowNumber > rows.length + 1) return false;
+  const rowNumber =
+    Number(rule.requestSheetRow);
 
-  const row = rows[rowNumber - 2];
-  const status = String(row[7] || "").trim();
+  const rows =
+    Array.isArray(requestRows)
+      ? requestRows
+      : [];
+
+  if (
+    !Number.isInteger(rowNumber) ||
+    rowNumber < 2 ||
+    rowNumber > rows.length + 1
+  ) {
+    return false;
+  }
+
+  const row =
+    rows[rowNumber - 2];
+
+  const status =
+    String(row[7] || "").trim();
+
   const requestActive =
     status === "増分自動更新" ||
-    (bootstrapActive && status === "初回補完中");
+    (
+      bootstrapActive &&
+      status === "初回補完中"
+    );
 
-  return playlistIdForPublicRead_(row[1]) === String(rule.playlistId || "").trim() &&
-    requestActive;
+  return (
+    playlistIdForPublicRead_(row[1]) ===
+      String(rule.playlistId || "").trim() &&
+    requestActive
+  );
 }
 
 function readAutoManagedPlaylistIdMap_(ss) {
@@ -159,8 +199,8 @@ function readPlaylistSheet(sheet) {
     };
   }
 
-  // サイト公開用: A=URL, B=タイトル, C=制作者, D=最終更新日, E=新規登録日, F=AUTO。
-  // 「楽育ち」は有効な自動更新ルールを優先し、公開シートのAUTOを安全なフォールバックにする。
+  // サイト公開用: A=URL, B=タイトル, C=制作者, D=最終更新日, E=新規登録日。
+  // 「楽育ち」は更新日の取得方法ではなく、実際に有効な自動更新ルールだけを示す。
   const autoManagedPlaylistIds = readAutoManagedPlaylistIdMap_(sheet.getParent());
   const values =
     sheet
@@ -168,7 +208,7 @@ function readPlaylistSheet(sheet) {
         2,
         1,
         lastRow - 1,
-        6
+        5
       )
       .getDisplayValues();
 
@@ -200,8 +240,7 @@ function readPlaylistSheet(sheet) {
           introducedDate:
             r[4] || "",
           autoManaged:
-            autoManagedPlaylistIds[playlistId] === true ||
-            String(r[5] || "").trim() === "AUTO"
+            autoManagedPlaylistIds[playlistId] === true
           });
         }
       );

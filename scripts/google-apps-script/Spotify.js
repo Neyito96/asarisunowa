@@ -104,50 +104,104 @@ function getSpotifyAccessToken() {
     return "";
   }
 }
-function findSpotifyShowByTitle_(title) {
-  const term = String(title || "").trim();
-  if (!term) return null;
+function podcastSearchTitleCandidates_(title) {
+  const raw = String(title || "").trim();
+  if (!raw) return [];
+
+  const stripped = raw
+    .replace(/^(?:ポッドキャスト|podcast)\s*[：:・\-—–]?\s*/i, "")
+    .replace(/^[\s　「『【\[(]+|[\s　」』】\])]+$/g, "")
+    .trim();
+
+  const candidates = [];
+
+  [raw, stripped].forEach(function(value) {
+    const clean = String(value || "").trim();
+    if (!clean) return;
+
+    if (!candidates.some(function(existing) {
+      return normalizeTitle(existing) === normalizeTitle(clean);
+    })) {
+      candidates.push(clean);
+    }
+  });
+
+  return candidates;
+}
+
+function findSpotifyShowByTitle_(title, maker) {
+  const terms = podcastSearchTitleCandidates_(title);
+  const cleanMaker = String(maker || "").trim();
+  const baseTerms = terms.slice();
+
+  if (cleanMaker) {
+    baseTerms.forEach(function(term) {
+      const combined = cleanMaker + " " + term;
+      if (!terms.some(function(existing) {
+        return normalizeTitle(existing) === normalizeTitle(combined);
+      })) {
+        terms.push(combined);
+      }
+    });
+  }
+  if (!terms.length) return null;
 
   const token = getSpotifyAccessToken();
   if (!token) return null;
 
-  try {
-    const res = UrlFetchApp.fetch(
-      "https://api.spotify.com/v1/search?q=" +
-        encodeURIComponent(term) +
-        "&type=show&market=JP&limit=10",
-      {
-        muteHttpExceptions: true,
-        headers: {
-          Authorization: "Bearer " + token,
-          Accept: "application/json"
+  const wantedTitles = terms.map(function(term) {
+    return normalizeTitle(term);
+  });
+
+  for (let t = 0; t < terms.length; t++) {
+    const term = terms[t];
+
+    try {
+      const res = UrlFetchApp.fetch(
+        "https://api.spotify.com/v1/search?q=" +
+          encodeURIComponent(term) +
+          "&type=show&market=JP&limit=10",
+        {
+          muteHttpExceptions: true,
+          headers: {
+            Authorization: "Bearer " + token,
+            Accept: "application/json"
+          }
+        }
+      );
+
+      if (res.getResponseCode() < 200 || res.getResponseCode() >= 300) {
+        continue;
+      }
+
+      const data = JSON.parse(res.getContentText());
+      const items =
+        data && data.shows && Array.isArray(data.shows.items)
+          ? data.shows.items
+          : [];
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const itemTitle = normalizeTitle(
+          item && item.name ? item.name : ""
+        );
+
+        if (wantedTitles.indexOf(itemTitle) < 0) continue;
+
+        const external =
+          item && item.external_urls && item.external_urls.spotify
+            ? String(item.external_urls.spotify)
+            : "";
+
+        if (external) return external;
+
+        if (item && item.id) {
+          return "https://open.spotify.com/show/" + String(item.id);
         }
       }
-    );
-
-    if (res.getResponseCode() < 200 || res.getResponseCode() >= 300) {
-      return null;
+    } catch (_) {
+      // 次の検索候補を試す
     }
-
-    const data = JSON.parse(res.getContentText());
-    const items =
-      data && data.shows && Array.isArray(data.shows.items)
-        ? data.shows.items
-        : [];
-    const wanted = normalizeTitle(term);
-
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (normalizeTitle(item && item.name ? item.name : "") !== wanted) continue;
-      const external =
-        item && item.external_urls && item.external_urls.spotify
-          ? String(item.external_urls.spotify)
-          : "";
-      if (external) return external;
-      if (item && item.id) return "https://open.spotify.com/show/" + String(item.id);
-    }
-  } catch (_) {
-    return null;
   }
 
   return null;

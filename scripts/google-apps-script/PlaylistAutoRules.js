@@ -23,6 +23,24 @@ const AUTO_PLAYLIST_RULE_TYPE_THEME_ = "theme";
 
 // 新しい自動更新プレイリストは、原則ここへルールを1件追加する。
 // enabled:false は syncAllAutoPlaylists() と個別同期の両方から停止する。
+// CELAC 33 countries plus geographical aliases. These are review candidates,
+// never automatic Spotify approval. No bare "ラテン" or "ドミニカ" aliases.
+const SOUTH_AMERICA_COUNTRY_KEYWORDS_V1_ = [
+  "メキシコ", "ベリーズ", "グアテマラ", "エルサルバドル", "ホンジュラス", "ニカラグア", "コスタリカ", "パナマ",
+  "コロンビア", "ベネズエラ", "ガイアナ", "スリナム", "エクアドル", "ペルー", "ボリビア", "ブラジル",
+  "パラグアイ", "ウルグアイ", "アルゼンチン", "チリ",
+  "キューバ", "ハイチ", "ドミニカ共和国", "ドミニカ国", "ジャマイカ", "バハマ", "バルバドス",
+  "トリニダード・トバゴ", "グレナダ", "セントルシア", "セントビンセントおよびグレナディーン諸島",
+  "セントクリストファー・ネービス", "アンティグア・バーブーダ"
+];
+const SOUTH_AMERICA_REGION_KEYWORDS_V1_ = [
+  "中南米", "中米", "中央アメリカ", "南米", "南アメリカ", "ラテンアメリカ", "ラテン・アメリカ",
+  "カリブ", "カリブ海", "カリブ諸国"
+];
+const SOUTH_AMERICA_NAME_ALIASES_V1_ = [
+  "セントビンセント及びグレナディーン諸島", "セントビンセント", "セントクリストファー", "アンティグア"
+];
+
 const AUTO_PLAYLIST_RULES = [
   {
     key: "issho-shinbun",
@@ -31,7 +49,10 @@ const AUTO_PLAYLIST_RULES = [
     name: "一緒に新聞をめくろう！",
     showIds: ["392h0MYfvMTndEVzf2cOvC"],
     playlistId: "4tY0lHoV8IemMBp4iTnKnl",
-    keyword: "めくろう"
+keyword: "めくろう",
+addIndividually: true,
+updateLatestDateOnAdd: true,
+requireSheetLinkBeforeWrite: true
   },
   {
     key: "kino-douga",
@@ -40,7 +61,9 @@ const AUTO_PLAYLIST_RULES = [
     name: "木下君、あの動画みた？ #きのどう",
     showIds: ["0yhef9ORZkUZs9ZeotdCSY"],
     playlistId: "6nDhZQG75F1wU62sdcYJMq",
-    keyword: "動画みた？"
+    keywords: ["動画みた？", "動画見た？"],
+    matchMode: "any",
+    updateLatestDateOnAdd: true
   },
   {
     key: "toyohide",
@@ -81,8 +104,8 @@ const AUTO_PLAYLIST_RULES = [
     name: "農MUSIC 猟ライフ（ノーミライ）",
     showIds: ["0341I5UOUrJgm7KEvNGInZ"],
     playlistId: "4FBXSFf2nLjLb3qaRoSdoD",
-    keyword: "（ノーミライ #",
-    matchStrategy: "no-mirai-title-prefix",
+    keywords: ["ノーミライ", "農MUSIC", "猟LIFE"],
+    matchStrategy: "no-mirai-title-keywords",
     fetchAllPages: true,
     addIndividually: true,
     updateLatestDateOnAdd: true,
@@ -117,7 +140,8 @@ const AUTO_PLAYLIST_RULES = [
     name: "南米 中南米",
     showIds: ASAHI_PRIMARY_SHOW_IDS,
     playlistId: "2Org6cCBgVas4d9OwzzxAv",
-    keywords: ["南米", "中南米", "メキシコ", "ブラジル", "ベネズエラ", "キューバ"],
+    keywords: SOUTH_AMERICA_COUNTRY_KEYWORDS_V1_.concat(SOUTH_AMERICA_REGION_KEYWORDS_V1_, SOUTH_AMERICA_NAME_ALIASES_V1_),
+    matchMode: "any",
     fields: ["name", "description", "html_description"],
     fetchAllPages: true,
     continueOnShowFetchError: true,
@@ -125,24 +149,24 @@ const AUTO_PLAYLIST_RULES = [
     updateLatestDateOnAdd: true,
     requireSheetLinkBeforeWrite: true
   },
-  {
-    key: "polirebi",
-    enabled: true,
-    lifecycleStatus: "incremental",
-    productionWriteAllowed: true,
-    reviewRequired: false,
-    ruleType: AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_,
-    name: "ポリレビ",
-    showIds: ["392h0MYfvMTndEVzf2cOvC"],
-    playlistId: "6hNrobOVHmYaQT5C7hPkNa",
-    keyword: "ポリレビ",
-    fields: ["name"],
-    fetchAllPages: true,
-    addIndividually: true,
-    updateLatestDateOnAdd: true,
-    requireSheetLinkBeforeWrite: true
-  },
-  {
+ {
+  key: "polirebi",
+  enabled: true,
+  lifecycleStatus: "incremental",
+  productionWriteAllowed: true,
+  reviewRequired: false,
+  ruleType: AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_,
+  name: "ポリレビ",
+  showIds: ["392h0MYfvMTndEVzf2cOvC"],
+  playlistId: "6hNrobOVHmYaQT5C7hPkNa",
+  keyword: "ポリレビ",
+  fields: ["name"],
+  fetchAllPages: true,
+  addIndividually: true,
+  updateLatestDateOnAdd: true,
+  requireSheetLinkBeforeWrite: true
+},
+ {
     key: "polirebi-rebuild-audit",
     enabled: false,
     lifecycleStatus: "audit",
@@ -215,7 +239,39 @@ function getAutoPlaylistEpisodeText_(episode, rule) {
   }).join("\n");
 }
 
+function isSpeakerAutoUpdateHumanBlocked_(rule, episodeId) {
+  if (getAutoPlaylistRuleType_(rule) !== AUTO_PLAYLIST_RULE_TYPE_SPEAKER_) return false;
+  const id = String(episodeId || "").trim();
+  const decisions = rule && rule.manualEpisodeDecisions;
+  return Boolean(id && decisions &&
+    ["除外", "訂正済み", "反映済み"].indexOf(String(decisions[id] || "")) >= 0);
+}
+
+function isTerashitaAutoUpdateRule_(rule) {
+  return String(rule && rule.playlistId || "") === "1qhNqjSTfwvJP3cQaXg9bn" &&
+    getAutoPlaylistRuleType_(rule) === AUTO_PLAYLIST_RULE_TYPE_SPEAKER_;
+}
+
 function matchesAutoPlaylistRule_(episode, rule) {
+  if (rule && rule.matchStrategy === "no-mirai-title-keywords") {
+    const title = String(episode?.name || "")
+      .normalize("NFKC").toLowerCase();
+
+    return ["ノーミライ", "農music", "猟life"].some(
+      keyword => title.includes(keyword)
+    ) || extractNoMiraiEpisodeNumber_(episode?.name) !== null;
+  }
+
+  // 以下は既存コードをそのまま残す
+  if (isSpeakerAutoUpdateHumanBlocked_(rule, episode && episode.id)) return false;
+  if (isSaitoKenichiroAutoUpdateRule_(rule)) {
+    return classifySaitoKenichiroAutoEpisode_(episode).classification === "confirmed";
+  }
+  if (isTerashitaAutoUpdateRule_(rule)) {
+    const title = String(episode && episode.name || "");
+    if (/(イベント|公開収録|登壇|告知|お知らせ)/.test(title)) return false;
+    return classifyTerashitaAutoEpisode_(episode).classification === "confirmed";
+  }
   if (String(rule && rule.matchStrategy ? rule.matchStrategy : "") === "no-mirai-title-prefix") {
     return extractNoMiraiEpisodeNumber_(episode && episode.name) !== null;
   }
@@ -252,7 +308,7 @@ function matchesAutoPlaylistRule_(episode, rule) {
       : [];
 
   const excluded = excludeKeywords.some(function(keyword) {
-    return text.indexOf(String(keyword)) >= 0;
+    return hasAutoPlaylistCandidateKeywordV1_(text, keyword, rule);
   });
 
   if (excluded) {
@@ -267,12 +323,12 @@ function matchesAutoPlaylistRule_(episode, rule) {
 
   if (mode === "all") {
     return includeKeywords.every(function(keyword) {
-      return text.indexOf(String(keyword)) >= 0;
+      return hasAutoPlaylistCandidateKeywordV1_(text, keyword, rule);
     });
   }
 
   return includeKeywords.some(function(keyword) {
-    return text.indexOf(String(keyword)) >= 0;
+    return hasAutoPlaylistCandidateKeywordV1_(text, keyword, rule);
   });
 }
 
@@ -282,4 +338,14 @@ function extractNoMiraiEpisodeNumber_(title) {
     /^\((?:ノーミライ|農M\s*[,、]\s*猟L)\s*#\s*(\d+)\)/
   );
   return match ? Number(match[1]) : null;
+}
+
+// Keep all other AUTO matching unchanged; normalize only the regional dictionary.
+function hasAutoPlaylistCandidateKeywordV1_(text, keyword, rule) {
+  if (!rule || rule.key !== "south-america") return text.indexOf(String(keyword)) >= 0;
+  const normalize = function(value) {
+    return String(value).normalize("NFKC").replace(/[・･\s]/g, "");
+  };
+  const normalized = normalize(text).replace(/バッチリ|ばっちり|チリチリ|チリ紙|チリ取り|カリブー/g, " ");
+  return normalized.indexOf(normalize(keyword)) >= 0;
 }

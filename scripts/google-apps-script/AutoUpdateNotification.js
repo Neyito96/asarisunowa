@@ -48,6 +48,59 @@ function notifyAutoUpdateRequestReceived_(request) {
   return { sent: true, to: mail.to, subject: mail.subject };
 }
 
+
+// 通常投稿（朝ポキプレイリスト・おすすめPodcast・朝リスPodcast）の管理者通知。
+function getPostNotificationKindLabel_(kind) {
+  if (kind === "playlist") return "朝ポキプレイリスト";
+  if (kind === "podcast") return "おすすめPodcast";
+  if (kind === "listenerPodcast") return "朝リスPodcast";
+  return "通常投稿";
+}
+
+function buildPostReceivedNotificationMail_(request) {
+  const kind = String(request && request.kind ? request.kind : "").trim();
+  const kindLabel = getPostNotificationKindLabel_(kind);
+  const title = String(request && request.title ? request.title : "（タイトル未設定）").trim();
+  const maker = String(request && request.maker ? request.maker : "").trim();
+  const host = String(request && request.host ? request.host : "").trim();
+  const rss = String(request && request.rss ? request.rss : "").trim();
+  const url = String(request && request.url ? request.url : "").trim();
+  const comment = String(request && request.comment ? request.comment : "").trim();
+
+  const timeZone = Session.getScriptTimeZone() || "Asia/Tokyo";
+  const receivedAt = Utilities.formatDate(
+    new Date(),
+    timeZone,
+    "yyyy/MM/dd HH:mm:ss"
+  );
+
+  return {
+    to: AUTO_UPDATE_NOTIFICATION_TO_,
+    name: AUTO_UPDATE_NOTIFICATION_NAME_,
+    subject: "【朝リスの田】新しい投稿：" + kindLabel + "「" + title + "」",
+    body: [
+      "朝リスの田に、新しい投稿が届きました。",
+      "",
+      "受付日時：" + receivedAt,
+      "種類：" + kindLabel,
+      "タイトル：" + title,
+      "投稿者：" + (maker || "未入力"),
+      "ホスト：" + (host || "未入力"),
+      "番組URL：" + (url || "未入力"),
+      "RSS：" + (rss || "未入力"),
+      "コメント：" + (comment || "未入力"),
+      "",
+      "スプレッドシートをご確認ください。"
+    ].join("\n")
+  };
+}
+
+function notifyPostReceived_(request) {
+  const mail = buildPostReceivedNotificationMail_(request);
+  MailApp.sendEmail(mail);
+  return { sent: true, to: mail.to, subject: mail.subject };
+}
+
 function buildAutoUpdateFailureNotificationMail_(failure) {
   const target = String(failure && failure.target ? failure.target : "対象不明").trim();
   const stage = String(failure && failure.stage ? failure.stage : "自動更新").trim();

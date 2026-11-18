@@ -259,25 +259,62 @@ function findPodcastArtworkByTitle(title) {
 
 
 function normalizePodcastGenre_(genres, primaryGenreName) {
-  const values = []
-    .concat(Array.isArray(genres) ? genres : [])
-    .concat([primaryGenreName || ""])
-    .map(function(value) { return String(value || "").toLowerCase(); });
-
-  const has = function(pattern) {
-    return values.some(function(value) { return pattern.test(value); });
+  const normalizeValue = function(value) {
+    return String(value || "").toLowerCase().trim();
   };
 
-  if (has(/news|daily news|news commentary/)) return "ニュース・時事";
-  if (has(/government|politic/)) return "政治";
-  if (has(/history/)) return "歴史";
-  if (has(/education|courses|how to/)) return "教育";
-  if (has(/health|fitness|medicine|mental health|nutrition/)) return "福祉・医療";
-  if (has(/tv|film|music/)) return "映画・音楽";
-  if (has(/sports/)) return "スポーツ";
-  if (has(/kids|family|children|parenting/)) return "キッズ・ファミリー";
-  if (has(/leisure|hobbies|home|garden|food|games/)) return "趣味・暮らし";
-  if (has(/comedy/)) return "雑談・トーク";
-  if (has(/society|culture|personal journals|documentary|relationships/)) return "社会・文化";
+  const mapGenre = function(value) {
+    const v = normalizeValue(value);
+    if (!v) return "";
+
+    if (/government|politic|政治/.test(v)) return "政治";
+    if (/news|daily news|news commentary|ニュース|ニュース解説/.test(v)) return "ニュース・時事";
+    if (/history|歴史/.test(v)) return "歴史";
+    if (/education|courses|how to|教育/.test(v)) return "教育";
+
+    if (
+      /health|fitness|medicine|mental health|nutrition|健康|医療|フィットネス|メンタルヘルス/.test(v)
+    ) {
+      return "福祉・医療";
+    }
+
+    if (
+      /tv|film|music|映画|映画レビュー|テレビ番組／映画|tv番組レビュー|音楽/.test(v)
+    ) {
+      return "映画・音楽";
+    }
+
+    if (/sports|スポーツ/.test(v)) return "スポーツ";
+
+    if (
+      /leisure|hobbies|home|garden|food|games|レジャー|趣味|家庭|フード|ゲーム|ファッション|美容|ブック|アート/.test(v)
+    ) {
+      return "趣味・暮らし";
+    }
+
+    if (/comedy|コメディ/.test(v)) return "雑談・トーク";
+
+    if (/business|career|ビジネス|キャリア/.test(v)) {
+      return "ビジネス";
+    }
+
+    if (
+      /society|culture|personal journals|documentary|relationships|社会|文化|ドキュメンタリー|地域情報|トラベル|キリスト教|宗教|スピリチュアル/.test(v)
+    ) {
+      return "社会・文化";
+    }
+
+    return "";
+  };
+
+  const primary = mapGenre(primaryGenreName);
+  if (primary) return primary;
+
+  const values = Array.isArray(genres) ? genres : [];
+  for (let i = 0; i < values.length; i++) {
+    const mapped = mapGenre(values[i]);
+    if (mapped) return mapped;
+  }
+
   return "その他";
 }

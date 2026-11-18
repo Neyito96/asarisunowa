@@ -3,7 +3,7 @@
 function fetchJson(url) {
   try {
     const res =
-      UrlFetchApp.fetch(
+      fetchPodcastPlatformResource_(
         url,
         {
           muteHttpExceptions:
@@ -36,7 +36,7 @@ function fetchJson(url) {
 function fetchText(url) {
   try {
     const res =
-      UrlFetchApp.fetch(
+      fetchPodcastPlatformResource_(
         url,
         {
           muteHttpExceptions:
