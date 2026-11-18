@@ -10,7 +10,7 @@ on:
     - cron: '17 3 * * *'    # 12:17 JST（同上・V2の掲載判定が朝より遅れた日の分も拾う）
   workflow_dispatch:
   push:   # 初回の全件反映を PR ブランチ上で作るため（main には PR でマージ）
-    branches: ['feat/issue-333-v2-description-sync']
+    branches: ['feat/issue-333-v2-description-sync', 'data/sync-20261118c']
     paths: ['scripts/library-sync-v2.mjs', 'scripts/library-related/**', '.github/workflows/library-v2-sync.yml']
 permissions:
   contents: write
