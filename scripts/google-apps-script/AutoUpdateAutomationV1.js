@@ -174,7 +174,14 @@ function runAutoUpdateBackfillHourlyV1() {
   }
   const activation = processPendingAutoUpdateRequestsV1();
   const backfill = syncNextAutoUpdateBootstrapV1_();
-  return { activation: activation, backfill: backfill };
+  // 蔵書推薦で管理人が「Spotify追加OK」にした行だけをプレイリストへ入れる（ShelfSpotify.js）。
+  let shelf = null;
+  try {
+    shelf = typeof shelfSpotifySync_ === "function" ? shelfSpotifySync_() : null;
+  } catch (error) {
+    shelf = { error: String(error && error.message ? error.message : error) };
+  }
+  return { activation: activation, backfill: backfill, shelf: shelf };
 }
 
 function isAutoUpdateDailyWindowV1_(nowMs) {
