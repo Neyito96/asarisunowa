@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-v2-verify.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/net-count.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs, scripts/ledger-v2/raw-source.mjs, scripts/ledger-v2/platform-match.mjs + scripts/google-apps-script/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = '0d7f45b51e3c451739c412c7afc036a94726eeb06865fac2a09dfc8d693998a9';
+var CLEANER_BUILD_SOURCE_SHA256 = '47f6b9b7461ed518d75d010a0ebdd4d9d268548ab5714543c7f65d8b9299814f';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -4138,10 +4138,44 @@ function p29Write_(col, plans) {
 // 既に判定がある行（管理人の手動判定を含む）は読むだけで書かない。書いたあと読み戻し、公開台帳の件数が「前＋対象の数」と合わなければ停止旗。
 var P30_EXCLUDED_SHOWS_ = /アルキキ|AJW|朝ポキ|YouTube/i, P30_RERUN_MARK_ = /（再）|\(再\)|（ふりかえり）|（深掘り）|再放送です/;
 // 新着の概要清掃・出演者・人物索引・公式URL（既存の D2_清掃と人物_日次 をそのまま使う）を1日1回、7時以降に。日次トリガー（D8）は巡回トリガーと同居できないため巡回の仕事として行う
+// 管理人承認（2026-11-18 11:30）: 清掃の判定が「要確認」の新着は、概要が空欄の回にだけ公式RSSの原文（タグを外しただけ・加工しない）を入れる。EP-ID＋GUID で原文の対応を確認。「不合格」は保留。既存の概要は上書きしない
+function scRawText_(html) {
+  var ent = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'", '&nbsp;': ' ' };
+  return String(html || '').replace(/<br\s*\/?>/gi, '\n').replace(/<\/p>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&(amp|lt|gt|quot|#39|nbsp);/g, function (m) { return ent[m]; })
+    .split('\n').map(function (l) { return l.replace(/[ \t\u00a0]+/g, ' ').trim(); }).filter(Boolean).join('\n');
+}
+function S6R_要確認_原文で空欄補完() {
+  var lock = LockService.getScriptLock(); if (!lock.tryLock(30000)) return scLog_('S6R_要確認_原文で空欄補完', { status: 'LOCKED' });
+  try {
+    var c = scOpen_(SC_CONFIG.copyId, SC_CONFIG.copyNameIncludes), v = scOpen_(SC_CONFIG.v2WorkingId, ''), res = c.ss.getSheetByName(SC_V2NEW_RESULT_);
+    if (!res || res.getLastRow() < 2) return scLog_('S6R_要確認_原文で空欄補完', { status: 'OK_NO_CHANGE' });
+    var H = {}; SC_HEADERS_.forEach(function (n, i) { H[n] = i; });
+    var rows = res.getRange(2, 1, res.getLastRow() - 1, SC_HEADERS_.length).getDisplayValues(), L = scLedger_(v.sh), byEp = {}; L.rows.forEach(function (r) { byEp[r.ep] = r; });
+    var pre = scPreservedRaw_(), col = L.ix.summary + 1, now = new Date().toISOString(), id = now + '/S6R', plan = [], cnt = { review: 0, filled: 0, hasSummary: 0, noRaw: 0, guidMismatch: 0, failHeld: 0 };
+    rows.forEach(function (r) {
+      var ep = r[H['EP-ID']], verdict = r[H['判定']]; if (verdict === '不合格') { cnt.failHeld++; return; } if (verdict !== '要確認') return;
+      cnt.review++; var x = byEp[ep]; if (!x) return;
+      if (String(x.summary).trim()) { cnt.hasSummary++; return; }
+      var p = pre[ep]; if (!p || !p.text) { cnt.noRaw++; return; }
+      if (x.guids.indexOf(String(p.guid).toLowerCase()) < 0) { cnt.guidMismatch++; return; }
+      var t = scRawText_(p.text); if (!t || /^[=+\-@]/.test(t)) { cnt.noRaw++; return; }
+      plan.push({ ep: ep, row: x.row, text: t });
+    });
+    if (!plan.length) return scLog_('S6R_要確認_原文で空欄補完', { status: 'OK_NO_CHANGE', counts: cnt });
+    var hist = scSheet_(c.ss, SC_HISTORY_, SC_HIST_HEADERS_), hr = hist.getRange(hist.getLastRow() + 1, 1, plan.length, SC_HIST_HEADERS_.length); hr.setNumberFormat('@');
+    hr.setValues(plan.map(function (p) { return [now, id, 'V2作業用(要確認・原文)', p.ep, SC_COLS_.summary, '', p.text, '書込中']; })); SpreadsheetApp.flush();
+    plan.forEach(function (p) { if (!String(v.sh.getRange(p.row, col).getDisplayValue()).trim()) v.sh.getRange(p.row, col).setValue(p.text); else p.skip = true; });
+    SpreadsheetApp.flush();
+    var bad = 0; plan.forEach(function (p) { if (!p.skip) { if (v.sh.getRange(p.row, col).getDisplayValue() === p.text) cnt.filled++; else bad++; } });
+    hist.getRange(hist.getLastRow() - plan.length + 1, 8, plan.length, 1).setValues(plan.map(function (p) { return [p.skip ? 'SKIP(既に概要あり)' : (v.sh.getRange(p.row, col).getDisplayValue() === p.text ? 'OK' : 'READBACK_MISMATCH')]; }));
+    return scLog_('S6R_要確認_原文で空欄補完', { status: bad ? 'READBACK_MISMATCH' : 'OK', counts: cnt, eps: plan.filter(function (p) { return !p.skip; }).map(function (p) { return p.ep; }), applyId: id });
+  } finally { lock.releaseLock(); }
+}
 function p30Clean_() {
   var hour = Number(Utilities.formatDate(new Date(), 'Asia/Tokyo', 'H'));
   if (hour < 7) return { status: 'WAIT', note: '7時以降に実行（収蔵の後）', more: true };
-  var r = D2_清掃と人物_日次() || {}; return { status: r.status === 'OK' ? 'DONE' : String(r.status || 'ERROR'), written: 0, finished: r.status === 'OK', more: r.status !== 'OK', steps: r.steps, reason: r.reason };
+  var r = D2_清掃と人物_日次() || {}; if (r.status === 'OK') { var f = S6R_要確認_原文で空欄補完(); r.steps = r.steps || {}; r.steps.s6r = f.status + ':' + ((f.counts && f.counts.filled) || 0); if (/MISMATCH/.test(f.status)) r.status = 'S6R_' + f.status; }
+  return { status: r.status === 'OK' ? 'DONE' : String(r.status || 'ERROR'), written: 0, finished: r.status === 'OK', more: r.status !== 'OK', steps: r.steps, reason: r.reason };
 }
 function p30Judge_() {
   if (!p27WriteEnabled_()) return { status: 'DISABLED' };
@@ -4167,7 +4201,7 @@ function p30Judge_() {
       if (r[c.rep] !== ep) why.push('代表EP-IDが自分でない');
       if (!guid || guidCount[guid] !== 1) why.push('GUIDが台帳内で一意でない');
       if (titleDate[r[c.show] + '\u0001' + r[c.title] + '\u0001' + r[c.date]] !== 1) why.push('同題・同日時の他行あり');
-      if (r[c.sum] && !/^(自動検査合格・目視未確認|品質確認済)$/.test(cv[ep] || '')) why.push('未検証の概要文が台帳にある');
+      if (r[c.sum] && !/^(自動検査合格・目視未確認|品質確認済|要確認)$/.test(cv[ep] || '')) why.push('未検証の概要文が台帳にある');   // 要確認は管理人承認（2026-11-18）で公開可
       if (!why.length) judge = '対象';
     }
     if (!judge) { wait.push(ep + ':' + why.join('／')); return; }   // 決まらない回は未判定のまま（次の巡回で再判定）
