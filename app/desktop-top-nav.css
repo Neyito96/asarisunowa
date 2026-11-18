@@ -1,12 +1,17 @@
-/* Shared tab order after the series shelf tab is inserted.
-   朝公式 → 連載 → 朝リスト → ポ薦め → Discord → あれどこ？ → 他おすすめ */
-.viewTabs button:nth-child(1) { order: 1; }
-.viewTabs button[data-playlist-shelf-tab="series"] { order: 2; }
-.viewTabs button[data-playlist-shelf-tab="other"] { order: 3; }
-.viewTabs button:nth-child(6) { order: 4; }
-.viewTabs button:nth-child(4) { order: 5; }
-.viewTabs button:nth-child(5) { order: 6; }
-.viewTabs button:nth-child(7) { order: 7; }
+/* Tab order: 朝公式 → ポすすめ → あれどこ? → リス推し → Spotifyリスト(連載+朝リスト) → Discord */
+.viewTabs button[data-tab="official"] { order: 1; }
+.viewTabs button[data-tab="posusume"] { order: 2; }
+.viewTabs button[data-tab="circle"] { order: 3; }
+.viewTabs button[data-tab="podcasts"] { order: 4; }
+.viewTabs button[data-tab="spotify"] { order: 5; }
+.viewTabs button[data-tab="discord"] { order: 6; }
+.viewTabs button[data-playlist-shelf-tab="series"] { display: none !important; }
+
+.spotifyShelfBar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0 8px; }
+.spotifyShelfBar .spotifyOnly { font-size: 12px; font-weight: 700; color: #1d7a45; background: #e8f8ee; border: 1px solid #b9e6c9; border-radius: 999px; padding: 3px 10px; }
+.spotifyShelfBar [role="tablist"] { display: inline-flex; border: 1px solid var(--line, #cfe3e8); border-radius: 999px; overflow: hidden; }
+.spotifyShelfBar [role="tab"] { font: inherit; font-size: 13px; padding: 6px 14px; border: 0; background: #fff; color: #47727d; cursor: pointer; }
+.spotifyShelfBar [role="tab"][aria-selected="true"] { background: #0b5874; color: #fff; font-weight: 700; }
 
 /* Playlist numbers remain internal IDs for sorting/listened state/data matching,
    but are no longer shown anywhere in the public playlist UI. */
@@ -25,7 +30,7 @@
   .compactNotice { margin-top: 4px; margin-bottom: 6px; padding-top: 4px; padding-bottom: 4px; }
 
   .viewTabs {
-    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 6px;
     padding-bottom: 10px;
   }
@@ -97,4 +102,8 @@
   .toolbar .tools > input { padding: 9px 12px; min-height: 42px; }
   .toolbar .sorts { gap: 5px; align-items: center; }
   .toolbar .sorts button { padding: 8px 11px; min-height: 42px; line-height: 1.15; }
+}
+
+@media (max-width: 900px) {
+  .viewTabs { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
 }
