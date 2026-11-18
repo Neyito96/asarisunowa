@@ -1,0 +1,19 @@
+name: Live site check
+# 公開サイトを Playwright で開いて確認する（読むだけ・書き込みなし）。結果はアノテーション。
+on:
+  push:
+    branches: ['ops/live-check']
+    paths: ['scripts/ops/live-check.mjs', '.github/workflows/live-check.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm i --no-save playwright@1 && npx playwright install --with-deps chromium
+      - run: node scripts/ops/live-check.mjs
