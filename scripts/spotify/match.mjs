@@ -3,6 +3,9 @@
 // 確定（VERIFIED）の条件（緩めない）:
 //   番組の Spotify 番組IDが台帳の番組と一致 / 題名が同じ（全角半角・空白だけ揃える）でその番組の行がちょうど1つ /
 //   Spotify の配信日（UTCの日付）が台帳の配信時刻の −1日〜+1日 / 長さの差が5秒以内 / 1対1（同じURL・同じ行が2回出ない）。
+//   例外（番組ごとの一定差）: 広告の差し込みで Spotify 版が毎回ほぼ同じ秒数だけ短い番組（ニュースの学校 約44秒・報談 約60秒）。
+//   題名・日付が一致した回が5回以上あり、その差（台帳−Spotify）がすべて 0〜90秒・中央値から±8秒に収まる番組だけ、
+//   中央値±8秒の回を確定とする（差がばらつく番組や大きく違う回は確定しない）。
 // 台帳のSpotify欄に値がある行は対象外（上書きしない）。URLは Spotify が返したエピソードIDだけで作る（推測しない）。
 import fs from 'node:fs';
 import { parseCsv } from '../library-sync-v2.mjs';
@@ -28,11 +31,29 @@ export function spotifyMatch(rows, data, shows = SHOWS) {
       const dayOk = isFinite(pub) && isFinite(d) && pub >= d - 86400000 && pub < d + 2 * 86400000;
       const sec = Number(r.seconds) || 0, durOk = sec > 0 && e.durationMs > 0 && Math.abs(sec - e.durationMs / 1000) <= 5;
       if (!dayOk) { out.push(Object.assign(o, { status: 'CANDIDATE', reason: '題名は一致・日付が離れている' })); continue; }
-      if (!durOk) { out.push(Object.assign(o, { status: 'CANDIDATE', reason: sec ? '題名・日付は一致・長さが合わない' : '題名・日付は一致・台帳の再生時間が空' })); continue; }
+      o.same = !!r.spotify && r.spotify === e.url;
+      o.gap = sec > 0 && e.durationMs > 0 ? sec - e.durationMs / 1000 : NaN;
+      if (!durOk) { if (r.spotify && r.spotify !== e.url) o.conflict = true; out.push(Object.assign(o, { status: 'CANDIDATE', reason: sec ? '題名・日付は一致・長さが合わない' : '題名・日付は一致・台帳の再生時間が空' })); continue; }
       if (r.spotify && r.spotify !== e.url) { out.push(Object.assign(o, { status: 'HOLD', reason: '台帳に別のSpotify URLがある（上書きしない）' })); continue; }
       out.push(Object.assign(o, { status: r.spotify === e.url ? 'VERIFIED_SAME' : 'VERIFIED', reason: '番組ID・題名・日付・長さが一致' }));
     }
   }
+  // 番組ごとの一定差（上の例外）。題名・日付が一致し長さだけ合わなかった回を見直す
+  const gaps = {};
+  out.forEach((x) => { if (x.status === 'CANDIDATE' && /長さが合わない/.test(x.reason) && isFinite(x.gap)) (gaps[x.show] = gaps[x.show] || []).push(x.gap); });
+  out.forEach((x) => { if (/^VERIFIED/.test(x.status) && isFinite(x.gap)) (gaps[x.show] = gaps[x.show] || []).push(x.gap); });
+  const offset = {};
+  for (const [show, g] of Object.entries(gaps)) {
+    const big = g.filter((v) => Math.abs(v) > 5); if (big.length < 5) continue;
+    const sorted = [...big].sort((a, b) => a - b), med = sorted[Math.floor(sorted.length / 2)];
+    const near = big.filter((v) => v >= 0 && v <= 90 && Math.abs(v - med) <= 8);
+    if (med > 5 && med <= 90 && near.length >= 5 && near.length / big.length >= 0.8) offset[show] = med;
+  }
+  out.forEach((x) => {
+    if (x.status !== 'CANDIDATE' || !/長さが合わない/.test(x.reason) || !(x.show in offset) || !isFinite(x.gap)) return;
+    if (Math.abs(x.gap - offset[x.show]) <= 8 && !x.conflict) { x.status = x.same ? 'VERIFIED_SAME' : 'VERIFIED'; x.reason = `番組ID・題名・日付が一致・長さは番組ごとの一定差（Spotify版が約${Math.round(offset[x.show])}秒短い）`; }
+    else x.reason += `（この番組の一定差 約${Math.round(offset[x.show])}秒とも違う）`;
+  });
   const cu = {}, ce = {};
   out.forEach((x) => { if (/^VERIFIED/.test(x.status)) { cu[x.url] = (cu[x.url] || 0) + 1; ce[x.ep] = (ce[x.ep] || 0) + 1; } });
   out.forEach((x) => { if (/^VERIFIED/.test(x.status) && (cu[x.url] > 1 || ce[x.ep] > 1)) { x.status = 'HOLD'; x.reason = '重複（1対1にならない）'; } });

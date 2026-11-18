@@ -26,3 +26,17 @@ test('埋め込み・番組ページのJSONから回を拾う', () => {
   const eps = extractEpisodes({ a: [{ uri: 'spotify:episode:' + id('C'), name: '題', releaseDate: { isoString: '2026-11-17T19:00:00Z' }, duration: { totalMilliseconds: 1000 } }] });
   assert.equal(eps.length, 1); assert.equal(eps[0].url, 'https://open.spotify.com/episode/' + id('C')); assert.equal(eps[0].date, '2026-11-17'); assert.equal(eps[0].durationMs, 1000);
 });
+
+test('広告差し込みで毎回ほぼ同じ秒数だけ短い番組は、その一定差の回だけ確定する', () => {
+  const rows = [], eps = [];
+  'ABCDEF'.split('').forEach((c, i) => { rows.push(row('EP-' + i, '題' + i, `2026/11/${10 + i} 04:00`, 800 + i)); eps.push(ep(c, '題' + i, `2026-11-${String(9 + i).padStart(2, '0')}`, 800 + i - 44)); });
+  rows.push(row('EP-9', '題9', '2026/11/20 04:00', 900)); eps.push(ep('G', '題9', '2026-11-19', 600));
+  const r = spotifyMatch(rows, data(eps), SHOWS);
+  assert.equal(r.filter((x) => x.status === 'VERIFIED').length, 6);
+  assert.equal(r.find((x) => x.ep === 'EP-9').status, 'CANDIDATE');
+});
+test('一定差の回が5回未満なら確定しない', () => {
+  const rows = [], eps = [];
+  'ABC'.split('').forEach((c, i) => { rows.push(row('EP-' + i, '題' + i, `2026/11/${10 + i} 04:00`, 800)); eps.push(ep(c, '題' + i, `2026-11-${String(9 + i).padStart(2, '0')}`, 756)); });
+  assert.ok(spotifyMatch(rows, data(eps), SHOWS).every((x) => x.status === 'CANDIDATE'));
+});
