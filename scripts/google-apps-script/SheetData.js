@@ -199,7 +199,7 @@ function readPlaylistSheet(sheet) {
     };
   }
 
-  // サイト公開用: A=URL, B=タイトル, C=制作者, D=最終更新日, E=新規登録日。
+  // サイト公開用: A=URL, B=タイトル, C=制作者, D=最終更新日, E=新規登録日, F=更新日取得状況, G=掲載先（作業台I列）。
   // 「楽育ち」は更新日の取得方法ではなく、実際に有効な自動更新ルールだけを示す。
   const autoManagedPlaylistIds = readAutoManagedPlaylistIdMap_(sheet.getParent());
   const values =
@@ -208,7 +208,7 @@ function readPlaylistSheet(sheet) {
         2,
         1,
         lastRow - 1,
-        5
+        Math.min(7, Math.max(5, sheet.getLastColumn()))
       )
       .getDisplayValues();
 
@@ -240,7 +240,9 @@ function readPlaylistSheet(sheet) {
           introducedDate:
             r[4] || "",
           autoManaged:
-            autoManagedPlaylistIds[playlistId] === true
+            autoManagedPlaylistIds[playlistId] === true,
+          shelf:
+            playlistShelfKey_(r[6])
           });
         }
       );

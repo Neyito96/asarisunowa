@@ -842,6 +842,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     [submitKind, setSubmitKind] = useState<"playlist" | "podcast">("playlist"),
     [submitSecurityAnswer, setSubmitSecurityAnswer] = useState(""),
     [submitWebsite, setSubmitWebsite] = useState(""),
+    [submitShelf, setSubmitShelf] = useState<"" | "series" | "list">(""),
     [submitStatus, setSubmitStatus] = useState<"idle" | "sending" | "success" | "error">("idle"),
     [submitMessage, setSubmitMessage] = useState(""),
     [autoUpdateOpen, setAutoUpdateOpen] = useState(false),
@@ -869,7 +870,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     let cancelled = false;
     async function refreshListenerPlaylists() {
       try {
-        const payload = await loadJsonpWithRetry<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; latestDate?: string; introducedDate?: string; autoManaged?: boolean }> }>(
+        const payload = await loadJsonpWithRetry<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; latestDate?: string; introducedDate?: string; autoManaged?: boolean; shelf?: string }> }>(
           PLAYLIST_READ_ENDPOINT + "?type=playlist&_=" + Date.now()
         );
         if (!payload?.ok || !Array.isArray(payload.items)) return;
@@ -880,7 +881,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           playlists.map((item) => [item.title.trim(), item]),
         );
         const next = payload.items
-          .map((source: { id?: string; url?: string; title?: string; maker?: string; latestDate?: string; introducedDate?: string; autoManaged?: boolean }, index: number) => {
+          .map((source: { id?: string; url?: string; title?: string; maker?: string; latestDate?: string; introducedDate?: string; autoManaged?: boolean; shelf?: string }, index: number) => {
             const cleanUrl = String(source.url || "").trim() || null;
             const cleanTitle = String(source.title || "").trim();
             const existing =
@@ -895,6 +896,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               latestDate: String(source.latestDate || "").trim() || null,
               introducedDate: String(source.introducedDate || "").trim() || null,
               autoManaged: source.autoManaged === true,
+              shelf: source.shelf === "series" || source.shelf === "list" ? source.shelf : null,
             } satisfies Playlist;
           })
           .filter((item: Playlist) => item.title && isPublishablePlaylistSource(item) && isVisiblePlaylist(item));
@@ -1503,6 +1505,11 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       setSubmitMessage("合言葉が違います。「神田さんの名は？」をもう一度どうぞ。");
       return;
     }
+    if ((forcedKind ?? submitKind) === "playlist" && !submitShelf) {
+      setSubmitStatus("error");
+      setSubmitMessage("掲載先（連載・シリーズ／朝リスト）を選んでください。");
+      return;
+    }
     setSubmitStatus("sending");
     setSubmitMessage("");
     try {
@@ -1521,6 +1528,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           comment: postedKind === "listenerPodcast" ? "" : submitComment.trim(),
           introducedDate: submitIntroducedDate,
           kind: postedKind,
+          shelf: postedKind === "playlist" ? submitShelf : "",
           securityAnswer: submitSecurityAnswer.trim(),
           website: submitWebsite,
         }),
@@ -1548,6 +1556,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       setSubmitKind("playlist");
       setSubmitSecurityAnswer("");
       setSubmitWebsite("");
+      setSubmitShelf("");
       setResolveStatus("idle");
       setResolveMessage("");
       setResolvedArtwork(null);
@@ -1767,7 +1776,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               {rows.map((p) => {
                 const isListened = listened.includes(p.id);
                 return (
-                  <article className="card" key={p.id}>
+                  <article className="card" key={p.id} data-shelf={p.shelf || undefined}>
                     <div className="cover">
                   {p.artwork ? (
                     <img
@@ -1866,6 +1875,11 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                     required
                   />
                 </label>
+                <fieldset className="autoUpdateTypes playlistShelfChoice">
+                  <legend>Spotifyリストの掲載先</legend>
+                  <label><input type="radio" name="playlistShelf" checked={submitShelf === "series"} onChange={() => setSubmitShelf("series")} required /><span><b>📻 連載・シリーズ</b><small>同じ連載・シリーズの回をまとめたもの</small></span></label>
+                  <label><input type="radio" name="playlistShelf" checked={submitShelf === "list"} onChange={() => setSubmitShelf("list")} /><span><b>🐿️ 朝リスト</b><small>テーマ・出演者別など</small></span></label>
+                </fieldset>
                 <label>
                   <span>セキュリティ：神田さんの名は？</span>
                   <input

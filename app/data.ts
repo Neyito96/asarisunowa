@@ -7,6 +7,8 @@ export type Playlist = {
   latestDate?: string | null;
   introducedDate?: string | null;
   autoManaged?: boolean;
+  /** Spotifyリストの掲載先（作業台I列）。未設定は null＝従来の題名判定 */
+  shelf?: "series" | "list" | null;
 };
 const rows:[string,string,string|null,string|null,string|null,string|null,boolean][] = [
   [

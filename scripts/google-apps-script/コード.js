@@ -27,6 +27,7 @@ function doPost(e) {
     const kind = input.kind;
     const securityAnswer = input.securityAnswer;
     const website = input.website;
+    const shelf = input.shelf;
     let requestId = String(data.requestId || "").trim();
 
     if (website) return jsonResponse({ ok: true });
@@ -105,7 +106,8 @@ function doPost(e) {
       artwork,
       kind,
       inviteUrl,
-      requestId
+      requestId,
+      shelf
     );
 
   } catch (error) {

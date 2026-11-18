@@ -7,6 +7,7 @@ import PlaylistEntryModeSelector, { type PlaylistEntryMode } from "./PlaylistEnt
 
 type PlaylistShelf = "series" | "other";
 
+// 掲載先（連載）の旧来の判定。台帳の掲載先（作業台I列）が無い行と、公開APIが取れない時の予備だけに使う。
 const SERIES_PLAYLIST_TITLES = new Set([
   "一緒に新聞をめくろう！",
   "編集マニア",
@@ -20,6 +21,7 @@ const SERIES_PLAYLIST_TITLES = new Set([
   "親モヤ",
   "農MUSIC 猟ライフ（ノーミライ）",
   "ポリレビ",
+  "ポすすめ",
 ].map(normalizeShelfTitle));
 
 function normalizeShelfTitle(value: string) {
@@ -146,7 +148,8 @@ export default function PlaylistEntryModeBridge() {
       const cards = Array.from(playlistGrid.querySelectorAll<HTMLElement>("article.card"));
       cards.forEach((card) => {
         const title = card.querySelector("h3")?.textContent?.trim() ?? "";
-        const isSeries = isSeriesPlaylistTitle(title);
+        // 掲載先は台帳（作業台I列 → 公開APIの shelf）を正とする。未設定の古い行だけ従来の題名判定。
+        const isSeries = card.dataset.shelf ? card.dataset.shelf === "series" : isSeriesPlaylistTitle(title);
         card.hidden = shelf === "series" ? !isSeries : isSeries;
       });
 
