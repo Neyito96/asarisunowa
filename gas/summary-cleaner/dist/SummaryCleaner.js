@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-v2-verify.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/net-count.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs, scripts/ledger-v2/raw-source.mjs, scripts/ledger-v2/platform-match.mjs + gas/shared/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = 'cc2b67b643ca693ee04ea1661f3c448d134410644cd8d8df1f1f17e0b5a43914';
+var CLEANER_BUILD_SOURCE_SHA256 = '7ab63d3d88df78188e4c93ae1a665716bec6bd7b17c2c85da24076003762852b';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -1528,6 +1528,10 @@ return { LEDGER_AUDIT_VERSION, PLATFORM_COLUMNS, classifyPlatformUrl, OFFICIAL_I
 
 var LibraryCore = (function () {
 const { cleanDescription } = LibClean;
+// 番組の旧名・新名（同じ番組・同じ配信フィード）。番組名で探した時に両方の回が出るようにする。
+// こどもそうだんしつ は「SDGsを話そう」の配信フィードを引き継いだ番組（2026年6月まで SDGsを話そう）。
+const SHOW_ALIASES = { 'SDGsを話そう': ['こどもそうだんしつ'], 'こどもそうだんしつ': ['SDGsを話そう'] };
+const showSearchText = show => [show || '', ...(SHOW_ALIASES[show] || [])].join(' ');
 const normal = value => String(value ?? '').normalize('NFKC').toLowerCase().replace(/\s+/g, ' ').trim();
 // Same exclusion rule as the existing libV2CpBlocked_; unknown states fail closed.
 const blocked = value => !!normal(value) && !['未指定', 'なし', 'false', '0', 'no'].includes(normal(value));
@@ -1549,10 +1553,10 @@ function publicEpisode(row, verified = {}) {
 }
 function filterEpisodes(items, { query='', show='', order='newest', from='', to='' } = {}) {
   const terms = normal(query).split(' ').filter(Boolean);
-  return items.filter(x => (!show || x.show === show) && (!from || x.date.slice(0,10) >= from) && (!to || x.date.slice(0,10) <= to) && terms.every(t => normal(`${x.show || ''} ${x.title} ${x.cast} ${x.keywords || ''} ${x.description || ''} ${x.id}`).includes(t))).sort((a,b) => (order === 'oldest' ? 1 : -1) * a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+  return items.filter(x => (!show || x.show === show) && (!from || x.date.slice(0,10) >= from) && (!to || x.date.slice(0,10) <= to) && terms.every(t => normal(`${showSearchText(x.show)} ${x.title} ${x.cast} ${x.keywords || ''} ${x.description || ''} ${x.id}`).includes(t))).sort((a,b) => (order === 'oldest' ? 1 : -1) * a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
 }
 
-return { normal, blocked, safeUrl, plainDescription, publicEpisode, filterEpisodes };
+return { SHOW_ALIASES, showSearchText, normal, blocked, safeUrl, plainDescription, publicEpisode, filterEpisodes };
 })();
 
 var PubScope = (function () {
