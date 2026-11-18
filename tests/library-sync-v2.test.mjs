@@ -91,3 +91,10 @@ test('蔵の検索: 番組名・タイトル・出演者・概要・関連記事
   const items = [{ id: 'EP-1', show: 'こどもそうだんしつ', title: 'なぜ空は青い', cast: 'A', keywords: '関連の見出し', description: '本文', date: '2026-01-01' }];
   for (const q of ['こどもそうだんしつ', '空は青い', 'A', '関連の見出し', '本文']) assert.equal(filterEpisodes(items, { query: q }).length, 1, q);
 });
+
+test('概要: 表示整形でHOLDでも、蔵が空欄なら補う（既存は保護）', async () => {
+  const { planDescription } = await import('../scripts/library-sync-v2.mjs');
+  const r = { 'タイトル': 't', '概要（清掃済）': '【知らない見出し】本文の説明がここに入ります。十分な長さの文章です。' };
+  assert.equal(planDescription({ id: 'EP-1', title: 't', description: '' }, r, null).action, 'update');
+  assert.equal(planDescription({ id: 'EP-1', title: 't', description: '既存の概要' }, r, null).action, 'protect');
+});
