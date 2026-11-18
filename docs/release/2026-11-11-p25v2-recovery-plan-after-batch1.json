@@ -1,0 +1,243 @@
+{
+ "mode": "READ_ONLY_DRY_RUN",
+ "at": "2026-11-11T07:55:05.574Z",
+ "counts": {
+  "CANDIDATE": 15,
+  "HOLD": 0,
+  "BLOCK": 5,
+  "ALREADY_INGESTED": 254,
+  "METADATA_CHANGE": 6
+ },
+ "rowsBefore": 6566,
+ "publicBefore": 6033,
+ "publicAfter": 6033,
+ "plan": [
+  {
+   "epId": "EP-06706",
+   "reused": false,
+   "guid": "31fe02ee-c6e3-11f1-bce1-e76c16114bcf",
+   "show": "ニュースの学校",
+   "date": "2026/10/14 04:00"
+  },
+  {
+   "epId": "EP-06707",
+   "reused": false,
+   "guid": "13a36195-331b-4f82-bcc2-b4c100868f97",
+   "show": "ニュースの現場から",
+   "date": "2026/10/15 04:00"
+  },
+  {
+   "epId": "EP-06708",
+   "reused": false,
+   "guid": "c7880fd2-b011-11f1-85c7-13f4dad77055",
+   "show": "ニュースの学校",
+   "date": "2026/10/15 04:00"
+  },
+  {
+   "epId": "EP-06709",
+   "reused": false,
+   "guid": "f48f1519-bc3b-4d0d-a90f-b4da002ab088",
+   "show": "ドーナツ",
+   "date": "2026/10/15 04:00"
+  },
+  {
+   "epId": "EP-06710",
+   "reused": false,
+   "guid": "e58f2557-8e1f-4c74-adca-b4e400526584",
+   "show": "ニュースの現場から",
+   "date": "2026/10/16 04:00"
+  },
+  {
+   "epId": "EP-06711",
+   "reused": false,
+   "guid": "b6a82016-ea42-4363-8150-b4ab004cc8d8",
+   "show": "スポンジ",
+   "date": "2026/10/16 04:00"
+  },
+  {
+   "epId": "EP-06712",
+   "reused": false,
+   "guid": "cfdd6178-c3bc-11f1-a625-db6a01e1862b",
+   "show": "ニュースの学校",
+   "date": "2026/10/16 04:00"
+  },
+  {
+   "epId": "EP-06713",
+   "reused": false,
+   "guid": "fa54c4b2-c527-421e-9bee-b4e40025a494",
+   "show": "ドーナツ",
+   "date": "2026/10/16 04:00"
+  },
+  {
+   "epId": "EP-06714",
+   "reused": false,
+   "guid": "cc0f418a-c86f-11f1-a2a6-73dcfc901dce",
+   "show": "報談",
+   "date": "2026/10/16 04:00"
+  },
+  {
+   "epId": "EP-06715",
+   "reused": false,
+   "guid": "73527408-d0df-4554-9feb-b4e50083852a",
+   "show": "ニュースの現場から",
+   "date": "2026/10/17 04:00"
+  },
+  {
+   "epId": "EP-06716",
+   "reused": false,
+   "guid": "ee4ddbac-dfb7-45c0-b343-b4e5008a65b0",
+   "show": "ドーナツ",
+   "date": "2026/10/17 06:35"
+  },
+  {
+   "epId": "EP-06717",
+   "reused": false,
+   "guid": "48792904-ceb3-11f1-a2e6-7b1c2bd6e6eb",
+   "show": "ニュースの学校",
+   "date": "2026/10/27 04:00"
+  },
+  {
+   "epId": "EP-06718",
+   "reused": false,
+   "guid": "22a8a3b0-ceb5-11f1-8f27-c362e1f68974",
+   "show": "ニュースの学校",
+   "date": "2026/10/28 04:00"
+  },
+  {
+   "epId": "EP-06719",
+   "reused": false,
+   "guid": "b7fa388b-8820-4287-af29-b4fa00ca5be6",
+   "show": "スポンジ",
+   "date": "2026/11/11 04:00"
+  },
+  {
+   "epId": "EP-06720",
+   "reused": false,
+   "guid": "70b9aa07-7749-44e7-96a4-b4fd00281010",
+   "show": "こどもそうだんしつ",
+   "date": "2026/11/11 04:05"
+  }
+ ],
+ "hold": [],
+ "block": [
+  {
+   "guid": "a6e571c0-68a8-4bc2-928a-b4ad0062d47b",
+   "show": "スポンジ",
+   "date": "2026/8/29 12:00",
+   "decision": "BLOCK",
+   "reasons": [
+    "GUID_EXISTS",
+    "SAME_SHOW_TITLE"
+   ],
+   "existing": ""
+  },
+  {
+   "guid": "13491b76-bc61-4c02-8f98-b49f0015819f",
+   "show": "スポンジ",
+   "date": "2026/8/8 12:00",
+   "decision": "BLOCK",
+   "reasons": [
+    "GUID_EXISTS",
+    "SAME_SHOW_TITLE"
+   ],
+   "existing": ""
+  },
+  {
+   "guid": "55a49b7b-8f3f-4247-ace5-b48d006de94d",
+   "show": "スポンジ",
+   "date": "2026/7/20 20:18",
+   "decision": "BLOCK",
+   "reasons": [
+    "GUID_EXISTS",
+    "SAME_SHOW_TITLE"
+   ],
+   "existing": ""
+  },
+  {
+   "guid": "aeaf3348-4b52-46d3-83d2-b48800a291d6",
+   "show": "スポンジ",
+   "date": "2026/7/18 04:00",
+   "decision": "BLOCK",
+   "reasons": [
+    "GUID_EXISTS",
+    "SAME_SHOW_TITLE"
+   ],
+   "existing": ""
+  },
+  {
+   "guid": "822a4b75-8d22-445d-a717-b4880037f1f6",
+   "show": "スポンジ",
+   "date": "2026/7/17 17:15",
+   "decision": "BLOCK",
+   "reasons": [
+    "GUID_EXISTS",
+    "SAME_SHOW_TITLE"
+   ],
+   "existing": ""
+  }
+ ],
+ "metadataChange": [
+  {
+   "guid": "a86b1d53-bac1-42ce-a504-b49c00b95a9f",
+   "show": "MEDIA TALK",
+   "date": "2026/11/11 00:00",
+   "decision": "METADATA_CHANGE",
+   "reasons": [
+    "GUID_PRESENT_TITLE_CHANGED"
+   ],
+   "existing": "EP-06692"
+  },
+  {
+   "guid": "516c5323-6496-4e42-a399-b4c900a98d3c",
+   "show": "MEDIA TALK",
+   "date": "2026/9/23 04:00",
+   "decision": "METADATA_CHANGE",
+   "reasons": [
+    "GUID_PRESENT_TITLE_CHANGED"
+   ],
+   "existing": "EP-00031"
+  },
+  {
+   "guid": "c8211192-9fa3-4bed-952a-b4b00083493b",
+   "show": "MEDIA TALK",
+   "date": "2026/9/9 04:00",
+   "decision": "METADATA_CHANGE",
+   "reasons": [
+    "GUID_PRESENT_TITLE_CHANGED"
+   ],
+   "existing": "EP-00038"
+  },
+  {
+   "guid": "c6af6a0d-0e16-4637-bfc5-b4f6001b6c82",
+   "show": "こどもそうだんしつ",
+   "date": "2026/11/4 04:05",
+   "decision": "METADATA_CHANGE",
+   "reasons": [
+    "GUID_PRESENT_TITLE_CHANGED"
+   ],
+   "existing": "EP-06667"
+  },
+  {
+   "guid": "b47f4817-6b1f-41b6-8766-b4ec00665a27",
+   "show": "こどもそうだんしつ",
+   "date": "2026/10/28 04:00",
+   "decision": "METADATA_CHANGE",
+   "reasons": [
+    "GUID_PRESENT_TITLE_CHANGED"
+   ],
+   "existing": "EP-06638"
+  },
+  {
+   "guid": "210c535a-1b6e-41d0-9a5e-b4da00b98000",
+   "show": "スポンジ",
+   "date": "2026/10/9 04:00",
+   "decision": "METADATA_CHANGE",
+   "reasons": [
+    "GUID_PRESENT_TITLE_CHANGED"
+   ],
+   "existing": "EP-00061"
+  }
+ ],
+ "repaired": [],
+ "writes": null
+}

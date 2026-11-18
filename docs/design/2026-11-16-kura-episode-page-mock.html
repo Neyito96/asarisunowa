@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>【モックアップ・未実装】蔵の個別エピソードページと聴き方の選択</title>
+<style>
+  :root { --ink:#123d4d; --sub:#47727d; --line:#cfe3e8; --red:#d62839; --green:#1db954; --bg:#f4fbfc; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family: "Hiragino Sans","Noto Sans JP",system-ui,sans-serif; color:var(--ink); background:var(--bg); line-height:1.6; }
+  .mockBanner { background:#fff3c4; border-bottom:2px solid #f2b705; padding:10px 16px; font-size:13px; font-weight:700; }
+  .wrap { max-width:760px; margin:0 auto; padding:16px; }
+  .crumb { font-size:12px; color:var(--sub); }
+  h1 { font-size:22px; line-height:1.4; margin:6px 0 4px; }
+  .meta { font-size:13px; color:var(--sub); display:flex; gap:10px; flex-wrap:wrap; }
+  .meta code { background:#fff; border:1px solid var(--line); border-radius:4px; padding:0 5px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-top:14px; }
+  .card h2 { font-size:15px; margin:0 0 8px; }
+  .summary { font-size:14px; white-space:pre-line; }
+  .listen { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; }
+  .svc { display:flex; flex-direction:column; gap:2px; padding:10px 12px; border:1px solid #83c8d5; border-radius:12px; text-decoration:none; color:#0c6578; font-weight:800; background:#fff; }
+  .svc small { font-weight:600; color:var(--sub); font-size:11px; }
+  .svc.official { border-color:var(--red); color:#8f1d2a; }
+  .badge { display:inline-block; padding:0 6px; border-radius:4px; font-size:11px; font-weight:800; margin-right:4px; }
+  .b-official { background:var(--red); color:#fff; }
+  .b-verified { background:#e3f6ea; color:#14532d; border:1px solid #86d39e; }
+  .b-matched { background:#eef4ff; color:#1e3a8a; border:1px solid #9db6f0; }
+  .hidden { margin-top:10px; font-size:12px; color:var(--sub); border-top:1px dashed var(--line); padding-top:8px; }
+  .hidden li { margin:2px 0; }
+  .note { font-size:12px; color:var(--sub); }
+  table { border-collapse:collapse; width:100%; font-size:12px; }
+  th,td { border:1px solid var(--line); padding:5px 6px; text-align:left; vertical-align:top; }
+  th { background:#eef7f9; }
+  .spotifyShelf { border-left:3px solid var(--green); }
+</style>
+</head>
+<body>
+<div class="mockBanner">モックアップ（未実装）。本番サイトにはまだありません。表示しているデータは V2 の実データ（EP-00001）を例にしたものです。</div>
+<div class="wrap">
+  <div class="crumb">朝リスの田 › 蔵（エピソード検索） › ニュースの現場から</div>
+  <h1>（ポリレビ#14）簗農水相の「予算カット」発言、辞任級の大問題　沖縄で米兵事件</h1>
+  <div class="meta"><span>ニュースの現場から</span><span>2026/10/10 04:00</span><span>63分</span><span>EP-ID <code>EP-00001</code></span></div>
+
+  <section class="card">
+    <h2>この回を聴く</h2>
+    <div class="listen">
+      <a class="svc official" href="#"><span><span class="badge b-official">公式</span>朝日新聞ポッドキャスト ↗</span><small>公式の個別ページ（公式GUIDで特定）</small></a>
+      <a class="svc" href="#"><span><span class="badge b-verified">確認済み</span>Apple Podcasts ↗</span><small>Apple の公式APIで GUID が一致</small></a>
+      <a class="svc" href="#"><span><span class="badge b-matched">照合済み</span>Spotify ↗</span><small>題名・配信日時・長さで照合</small></a>
+      <a class="svc" href="#"><span><span class="badge b-matched">照合済み</span>LISTEN ↗</span><small>題名・音声URLで照合</small></a>
+    </div>
+    <div class="hidden">
+      <b>表示していないサービス</b>（この回の個別URLが確認できていないため。番組ページへは「朝公式」から）
+      <ul>
+        <li>Amazon Music：個別URL未取得</li>
+        <li>Pody：個別URL未取得</li>
+        <li>Pocket Casts：URLはあるが開くことを未確認（確認後に表示）</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>概要</h2>
+    <p class="summary">政治取材の長い編集委員2人が、この1週間に起きた日本と世界の気になるニュースをピックアップして解説します。…
+※2026年10月9日に収録しました。</p>
+    <p class="note">関連記事・出演者は公式の概要から抜き出したものです。</p>
+  </section>
+
+  <section class="card spotifyShelf">
+    <h2>この回が入っている Spotify のプレイリスト</h2>
+    <p class="note">リスナーが作った Spotify のプレイリスト（朝リスト・連載）です。蔵のエピソード一覧とは別物で、Spotify でだけ開けます。</p>
+    <p>ポリレビ（連載・Spotify） ↗</p>
+  </section>
+
+  <section class="card">
+    <h2>表示のきまり（設計）</h2>
+    <table>
+      <tr><th>状態</th><th>意味</th><th>表示</th></tr>
+      <tr><td>公式</td><td>朝日新聞の個別ページ（公式GUID/UUID から）</td><td>常に先頭に表示</td></tr>
+      <tr><td>確認済み</td><td>そのサービス自身のデータで同じ回と確認（例: Apple の episodeGuid＝公式GUID）</td><td>表示</td></tr>
+      <tr><td>照合済み</td><td>題名・日時・長さなど複数の一致で同じ回と判断（例: P15/P26）</td><td>表示（照合済みの印つき）</td></tr>
+      <tr><td>未確認</td><td>URLはあるが同じ回である確認がない</td><td>表示しない</td></tr>
+      <tr><td>未取得</td><td>URLが無い</td><td>表示しない（URLを作らない）</td></tr>
+    </table>
+    <p class="note">データ: V2 統合台帳の配信先列（Spotify／Apple／Amazon／Pocket Casts／LISTEN／Pody／YouTube）に、サービスごとの「状態・根拠・確認日」を持たせる（列を増やすか、別シート「配信先・確認」にEP-ID単位で持つかは承認事項）。重複除外された再配信の回は、代表の元配信のページへ案内する。</p>
+  </section>
+</div>
+</body>
+</html>

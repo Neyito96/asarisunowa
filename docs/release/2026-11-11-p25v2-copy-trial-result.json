@@ -1,0 +1,18 @@
+{
+ "rowsBefore": 6555,
+ "rowsAfter": 6556,
+ "existingRowsUnchanged_AtoJ": true,
+ "readbackOk": true,
+ "rerun": {
+  "added": 0,
+  "counts": {
+   "CANDIDATE": 0,
+   "HOLD": 0,
+   "BLOCK": 0,
+   "ALREADY_INGESTED": 1
+  },
+  "appendCalls": 0,
+  "existing": "EP-06695"
+ },
+ "publicCountAfter": 6033
+}
