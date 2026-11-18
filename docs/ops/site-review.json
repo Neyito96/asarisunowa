@@ -1,0 +1,394 @@
+{
+ "at": "2026-11-18T13:17:32.319Z",
+ "pages": [
+  {
+   "name": "トップ:official",
+   "url": "https://neyito96.github.io/asarisunowa/?r=1795007852612",
+   "viewport": 1280,
+   "console": [],
+   "pageErrors": [],
+   "failed": [],
+   "http4xx5xx": [],
+   "notes": {
+    "cards": 9,
+    "textLen": 1782,
+    "brokenImages": [],
+    "horizontalOverflow": 0,
+    "overflowingEls": [],
+    "emptyLinks": [],
+    "dupIds": [],
+    "textGlitches": []
+   }
+  },
+  {
+   "name": "トップ:posusume",
+   "url": "https://neyito96.github.io/asarisunowa/?r=1795007865000",
+   "viewport": 1280,
+   "console": [],
+   "pageErrors": [],
+   "failed": [],
+   "http4xx5xx": [],
+   "notes": {
+    "cards": 42,
+    "textLen": 3240,
+    "brokenImages": [],
+    "horizontalOverflow": 0,
+    "overflowingEls": [],
+    "emptyLinks": [],
+    "dupIds": [],
+    "textGlitches": []
+   }
+  },
+  {
+   "name": "トップ:circle",
+   "url": "https://neyito96.github.io/asarisunowa/?r=1795007876578",
+   "viewport": 1280,
+   "console": [],
+   "pageErrors": [],
+   "failed": [],
+   "http4xx5xx": [],
+   "notes": {
+    "cards": 0,
+    "textLen": 403,
+    "brokenImages": [],
+    "horizontalOverflow": 0,
+    "overflowingEls": [],
+    "emptyLinks": [],
+    "dupIds": [],
+    "textGlitches": []
+   }
+  },
+  {
+   "name": "トップ:podcasts",
+   "url": "https://neyito96.github.io/asarisunowa/?r=1795007887616",
+   "viewport": 1280,
+   "console": [],
+   "pageErrors": [],
+   "failed": [],
+   "http4xx5xx": [],
+   "notes": {
+    "cards": 16,
+    "textLen": 1170,
+    "brokenImages": [],
+    "horizontalOverflow": 0,
+    "overflowingEls": [],
+    "emptyLinks": [],
+    "dupIds": [],
+    "textGlitches": []
+   }
+  },
+  {
+   "name": "トップ:spotify",
+   "url": "https://neyito96.github.io/asarisunowa/?r=1795007898505",
+   "viewport": 1280,
+   "console": [],
+   "pageErrors": [],
+   "failed": [],
+   "http4xx5xx": [],
+   "notes": {
+    "cards": 144,
+    "textLen": 4254,
+    "brokenImages": [],
+    "horizontalOverflow": 0,
+    "overflowingEls": [],
+    "emptyLinks": [],
+    "dupIds": [],
+    "textGlitches": []
+   }
+  },
+  {
+   "name": "トップ:discord",
+   "url": "https://neyito96.github.io/asarisunowa/?r=1795007910021",
+   "viewport": 1280,
+   "console": [],
+   "pageErrors": [],
+   "failed": [],
+   "http4xx5xx": [],
+   "notes": {
+    "cards": 0,
+    "textLen": 156,
+    "brokenImages": [],
+    "horizontalOverflow": 0,
+    "overflowingEls": [],
+    "emptyLinks": [],
+    "dupIds": [],
+    "textGlitches": []
+   }
+  },
+  {
+   "name": "蔵:初期",
+   "url": "https://neyito96.github.io/asarisunowa/library/",
+   "viewport": 1280,
+   "console": [],
+   "pageErrors": [],
+   "failed": [],
+   "http4xx5xx": [],
+   "notes": {
+    "cards": 40,
+    "brokenImages": [],
+    "horizontalOverflow": 0,
+    "overflowingEls": [],
+    "emptyLinks": [],
+    "dupIds": [],
+    "textGlitches": []
+   }
+  },
+  {
+   "name": "蔵:検索",
+   "url": "https://neyito96.github.io/asarisunowa/library/",
+   "viewport": 1280,
+   "console": [],
+   "pageErrors": [],
+   "failed": [],
+   "http4xx5xx": [],
+   "notes": {
+    "検索:こどもそうだんしつ": {
+     "件数表示": "48件",
+     "cards": 40
+    },
+    "検索:神田大介": {
+     "件数表示": "2,895件",
+     "cards": 40
+    },
+    "検索:カガク": {
+     "件数表示": "21件",
+     "cards": 21
+    },
+    "検索:ｘｙｚｚｚ無い語": {
+     "件数表示": "0件",
+     "cards": 0
+    },
+    "cardLinkTarget": "リンクなし",
+    "brokenImages": [],
+    "horizontalOverflow": 0,
+    "overflowingEls": [],
+    "emptyLinks": [],
+    "dupIds": [],
+    "textGlitches": []
+   }
+  },
+  {
+   "name": "蔵:詳細",
+   "url": "https://neyito96.github.io/asarisunowa/library/?id=EP-06744",
+   "viewport": 1280,
+   "console": [],
+   "pageErrors": [],
+   "failed": [],
+   "http4xx5xx": [],
+   "notes": {
+    "text": "朝日新聞ポッドキャスト案内所\n「朝リスの田」\n公式・全番組 ↗\n← 朝リスの田へ\n朝ポキの蔵\n\nASAPOKI ARCHIVES ・ 声の蔵\n\n朝ポキの蔵\n\n声をしまう。記憶をひらく。\n\nあの話、あの人。聴きたい一本を、蔵から探そう。\n\n蔵\nASAPOKI\n\n非公式・リスナー制作。各番組の配信情報を案内しています。\n\nタイトル・出演者・キーワード\n探す\n番組\nすべての番組\nこどもそうだんしつ\nニュースの現場から\nMEDIA TALK\nスポンジ\nニュースの学校\nドーナツ\n報談\nSDGsを話そう\n並び順\n新しい順\n古い順\n配信日から\n配信日まで\n条件をクリア\n\n6,086件\n\n掲載対象6,086件",
+    "brokenImages": [],
+    "horizontalOverflow": 0,
+    "overflowingEls": [],
+    "emptyLinks": [],
+    "dupIds": [],
+    "textGlitches": []
+   }
+  },
+  {
+   "name": "トップ:official",
+   "url": "https://neyito96.github.io/asarisunowa/?r=1795007950726",
+   "viewport": 390,
+   "console": [],
+   "pageErrors": [],
+   "failed": [],
+   "http4xx5xx": [],
+   "notes": {
+    "cards": 9,
+    "textLen": 1782,
+    "brokenImages": [],
+    "horizontalOverflow": 0,
+    "overflowingEls": [],
+    "emptyLinks": [],
+    "dupIds": [],
+    "textGlitches": []
+   }
+  },
+  {
+   "name": "トップ:posusume",
+   "url": "https://neyito96.github.io/asarisunowa/?r=1795007962652",
+   "viewport": 390,
+   "console": [],
+   "pageErrors": [],
+   "failed": [],
+   "http4xx5xx": [],
+   "notes": {
+    "cards": 42,
+    "textLen": 3240,
+    "brokenImages": [],
+    "horizontalOverflow": 0,
+    "overflowingEls": [],
+    "emptyLinks": [],
+    "dupIds": [],
+    "textGlitches": []
+   }
+  },
+  {
+   "name": "トップ:circle",
+   "url": "https://neyito96.github.io/asarisunowa/?r=1795007973502",
+   "viewport": 390,
+   "console": [],
+   "pageErrors": [],
+   "failed": [],
+   "http4xx5xx": [],
+   "notes": {
+    "cards": 0,
+    "textLen": 403,
+    "brokenImages": [],
+    "horizontalOverflow": 0,
+    "overflowingEls": [],
+    "emptyLinks": [],
+    "dupIds": [],
+    "textGlitches": []
+   }
+  },
+  {
+   "name": "トップ:podcasts",
+   "url": "https://neyito96.github.io/asarisunowa/?r=1795007983995",
+   "viewport": 390,
+   "console": [],
+   "pageErrors": [],
+   "failed": [],
+   "http4xx5xx": [],
+   "notes": {
+    "cards": 16,
+    "textLen": 1170,
+    "brokenImages": [],
+    "horizontalOverflow": 0,
+    "overflowingEls": [],
+    "emptyLinks": [],
+    "dupIds": [],
+    "textGlitches": []
+   }
+  },
+  {
+   "name": "トップ:spotify",
+   "url": "https://neyito96.github.io/asarisunowa/?r=1795007994748",
+   "viewport": 390,
+   "console": [],
+   "pageErrors": [],
+   "failed": [],
+   "http4xx5xx": [],
+   "notes": {
+    "cards": 144,
+    "textLen": 4254,
+    "brokenImages": [],
+    "horizontalOverflow": 1,
+    "overflowingEls": [],
+    "emptyLinks": [],
+    "dupIds": [],
+    "textGlitches": []
+   }
+  },
+  {
+   "name": "トップ:discord",
+   "url": "https://neyito96.github.io/asarisunowa/?r=1795008005169",
+   "viewport": 390,
+   "console": [],
+   "pageErrors": [],
+   "failed": [],
+   "http4xx5xx": [],
+   "notes": {
+    "cards": 0,
+    "textLen": 156,
+    "brokenImages": [],
+    "horizontalOverflow": 0,
+    "overflowingEls": [],
+    "emptyLinks": [],
+    "dupIds": [],
+    "textGlitches": []
+   }
+  },
+  {
+   "name": "蔵:初期",
+   "url": "https://neyito96.github.io/asarisunowa/library/",
+   "viewport": 390,
+   "console": [],
+   "pageErrors": [],
+   "failed": [],
+   "http4xx5xx": [],
+   "notes": {
+    "cards": 40,
+    "brokenImages": [],
+    "horizontalOverflow": 0,
+    "overflowingEls": [
+     "BUTTON.",
+     "BUTTON.",
+     "BUTTON.",
+     "BUTTON.",
+     "BUTTON.",
+     "BUTTON."
+    ],
+    "emptyLinks": [],
+    "dupIds": [],
+    "textGlitches": []
+   }
+  },
+  {
+   "name": "蔵:検索",
+   "url": "https://neyito96.github.io/asarisunowa/library/",
+   "viewport": 390,
+   "console": [],
+   "pageErrors": [],
+   "failed": [],
+   "http4xx5xx": [],
+   "notes": {
+    "検索:こどもそうだんしつ": {
+     "件数表示": "48件",
+     "cards": 40
+    },
+    "検索:神田大介": {
+     "件数表示": "2,895件",
+     "cards": 40
+    },
+    "検索:カガク": {
+     "件数表示": "21件",
+     "cards": 21
+    },
+    "検索:ｘｙｚｚｚ無い語": {
+     "件数表示": "0件",
+     "cards": 0
+    },
+    "cardLinkTarget": "リンクなし",
+    "brokenImages": [],
+    "horizontalOverflow": 0,
+    "overflowingEls": [
+     "BUTTON.",
+     "BUTTON.",
+     "BUTTON.",
+     "BUTTON.",
+     "BUTTON.",
+     "BUTTON."
+    ],
+    "emptyLinks": [],
+    "dupIds": [],
+    "textGlitches": []
+   }
+  },
+  {
+   "name": "蔵:詳細",
+   "url": "https://neyito96.github.io/asarisunowa/library/?id=EP-06744",
+   "viewport": 390,
+   "console": [],
+   "pageErrors": [],
+   "failed": [],
+   "http4xx5xx": [],
+   "notes": {
+    "text": "朝日新聞ポッドキャスト案内所\n「朝リスの田」\n公式・全番組 ↗\n← 朝リスの田へ\n朝ポキの蔵\n\nASAPOKI ARCHIVES ・ 声の蔵\n\n朝ポキの蔵\n\n声をしまう。記憶をひらく。\n\nあの話、あの人。聴きたい一本を、蔵から探そう。\n\n蔵\nASAPOKI\n\n非公式・リスナー制作。各番組の配信情報を案内しています。\n\nタイトル・出演者・キーワード\n探す\n番組\nすべての番組\nこどもそうだんしつ\nニュースの現場から\nMEDIA TALK\nスポンジ\nニュースの学校\nドーナツ\n報談\nSDGsを話そう\n並び順\n新しい順\n古い順\n配信日から\n配信日まで\n条件をクリア\n\n6,086件\n\n掲載対象6,086件",
+    "brokenImages": [],
+    "horizontalOverflow": 0,
+    "overflowingEls": [
+     "BUTTON.",
+     "BUTTON.",
+     "BUTTON.",
+     "BUTTON.",
+     "BUTTON.",
+     "BUTTON."
+    ],
+    "emptyLinks": [],
+    "dupIds": [],
+    "textGlitches": []
+   }
+  }
+ ]
+}
