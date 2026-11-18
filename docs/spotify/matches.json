@@ -1,0 +1,1089 @@
+{
+ "summary": {
+  "generatedAt": "2026-11-18T09:01:57.142Z",
+  "spotifyGeneratedAt": "2026-11-18T08:56:42.744Z",
+  "ledgerRows": 6126,
+  "ledgerSpotifyEmpty": 64,
+  "verified": 55,
+  "counts": {
+   "VERIFIED": 55,
+   "VERIFIED_SAME": 211,
+   "NO_ROW": 16,
+   "CANDIDATE": 59,
+   "HOLD": 3
+  },
+  "emptyNotInSpotifyList": 1
+ },
+ "verified": [
+  {
+   "ep": "EP-06746",
+   "url": "https://open.spotify.com/episode/3tifxg5hAoWPsgm7G7LfqF",
+   "show": "ニュースの現場から",
+   "title": "（World Insight #8）「VIVANT」はリアルだった？ タイ警察、汚職文化の現実",
+   "spotifyDate": "2026-11-17"
+  },
+  {
+   "ep": "EP-06741",
+   "url": "https://open.spotify.com/episode/5uMlMnCtuHsNPWB58z2rZJ",
+   "show": "ニュースの現場から",
+   "title": "【朗読スペシャル】カルーセル麻紀さん　15歳で家出、流れ着いたゲイバー（人生の贈りもの）",
+   "spotifyDate": "2026-11-16"
+  },
+  {
+   "ep": "EP-06736",
+   "url": "https://open.spotify.com/episode/44ccyYyHVVeSlFXZCVJddl",
+   "show": "ニュースの現場から",
+   "title": "（めくろう #206）日米物価高にあらがえず　玉こんにゃく脇役にあらず",
+   "spotifyDate": "2026-11-15"
+  },
+  {
+   "ep": "EP-06734",
+   "url": "https://open.spotify.com/episode/2YhYPOCeMSf8qPVLr61QCd",
+   "show": "ニュースの現場から",
+   "title": "（大阪目線 #11）都構想案全貌判明、前回とほぼ同じだけど…それは本当に市民のためか",
+   "spotifyDate": "2026-11-14"
+  },
+  {
+   "ep": "EP-06730",
+   "url": "https://open.spotify.com/episode/3rNYWnzDkaAxQhQ1fQIZ4Q",
+   "show": "ニュースの現場から",
+   "title": "（ポリレビ#19）消費減税、棄権の石破氏ら筋を通したけど…中間選挙大敗、トランプ氏「死に体」？",
+   "spotifyDate": "2026-11-13"
+  },
+  {
+   "ep": "EP-06726",
+   "url": "https://open.spotify.com/episode/2YCeI8nj6iGYJzIStLZVlt",
+   "show": "ニュースの現場から",
+   "title": "（ウニュ #98）妊娠24週486g、早産で生まれた自分を卒論に　小さく生まれた赤ちゃんの成長",
+   "spotifyDate": "2026-11-12"
+  },
+  {
+   "ep": "EP-06721",
+   "url": "https://open.spotify.com/episode/7cbkFJd6NbtMeqUt9JqJd7",
+   "show": "ニュースの現場から",
+   "title": "（8がけ社会 #22）移住者の奪い合い、もう限界？　「人口をシェアする」という新発想（ゲスト：石山アンジュさん）",
+   "spotifyDate": "2026-11-11"
+  },
+  {
+   "ep": "EP-06693",
+   "url": "https://open.spotify.com/episode/1jDiSeujFKGIaBFXjuYiOP",
+   "show": "ニュースの現場から",
+   "title": "（GLOBE）災害のラスボス、火山　私たちはどう向き合えばいいのか",
+   "spotifyDate": "2026-11-10"
+  },
+  {
+   "ep": "EP-06715",
+   "url": "https://open.spotify.com/episode/5QuET06pTf7Hmsq6dnotvh",
+   "show": "ニュースの現場から",
+   "title": "（ポリレビ #15）簗大臣の更迭、問題の本質はここだ／米国がロシアに肩入れし問われる日本外交",
+   "spotifyDate": "2026-10-16"
+  },
+  {
+   "ep": "EP-06710",
+   "url": "https://open.spotify.com/episode/3Fh2vv0yFQh2QXtlRC9GW2",
+   "show": "ニュースの現場から",
+   "title": "（ゆるっと経済 #21）きょうは「ぐびっと」経済？変わるビール市場徹底解説　残業45時間規制についても考えます",
+   "spotifyDate": "2026-10-15"
+  },
+  {
+   "ep": "EP-06707",
+   "url": "https://open.spotify.com/episode/3efx4psot6vBGhmS150U71",
+   "show": "ニュースの現場から",
+   "title": "（ON GOING）東京は無償だけど、千葉では「けっこうな額」　保育料格差に悩む親たち",
+   "spotifyDate": "2026-10-14"
+  },
+  {
+   "ep": "EP-06703",
+   "url": "https://open.spotify.com/episode/0s5PL1M5UgV2i8otfmx8ul",
+   "show": "ニュースの現場から",
+   "title": "（GLOBE）たたかう図書館　本を守り、記憶をつなぎ、街をつくる",
+   "spotifyDate": "2026-10-13"
+  },
+  {
+   "ep": "EP-06750",
+   "url": "https://open.spotify.com/episode/0qgD1gR1QNhtm9SqsnIsvZ",
+   "show": "ニュースの学校",
+   "title": "保釈",
+   "spotifyDate": "2026-11-17"
+  },
+  {
+   "ep": "EP-06743",
+   "url": "https://open.spotify.com/episode/6MYS4ALh7YiPDZpfHAVDWH",
+   "show": "ニュースの学校",
+   "title": "西九州新幹線",
+   "spotifyDate": "2026-11-16"
+  },
+  {
+   "ep": "EP-06738",
+   "url": "https://open.spotify.com/episode/2Ug04NMj7FTkwgnfqoEumD",
+   "show": "ニュースの学校",
+   "title": "深圳APEC",
+   "spotifyDate": "2026-11-15"
+  },
+  {
+   "ep": "EP-06732",
+   "url": "https://open.spotify.com/episode/0EKFEK55gE0uo3wANDezvp",
+   "show": "ニュースの学校",
+   "title": "エヌビディアCEOの不倫問題",
+   "spotifyDate": "2026-11-13"
+  },
+  {
+   "ep": "EP-06724",
+   "url": "https://open.spotify.com/episode/7xd31RrubaRw72iNELrc7m",
+   "show": "ニュースの学校",
+   "title": "人材派遣",
+   "spotifyDate": "2026-11-11"
+  },
+  {
+   "ep": "EP-06695",
+   "url": "https://open.spotify.com/episode/6B1tGq3qJP1jj31ZPqsDqJ",
+   "show": "ニュースの学校",
+   "title": "人間国宝（2026）",
+   "spotifyDate": "2026-11-10"
+  },
+  {
+   "ep": "EP-06690",
+   "url": "https://open.spotify.com/episode/17FDxlayOKBrz3dCjaVTtS",
+   "show": "ニュースの学校",
+   "title": "GMOグループの会見",
+   "spotifyDate": "2026-11-09"
+  },
+  {
+   "ep": "EP-06684",
+   "url": "https://open.spotify.com/episode/6dyZdknomIqdAfXTAlwFoY",
+   "show": "ニュースの学校",
+   "title": "消費減税と支援金（2026年11月）",
+   "spotifyDate": "2026-11-08"
+  },
+  {
+   "ep": "EP-06675",
+   "url": "https://open.spotify.com/episode/4Q0fdOTXd4xsLF2rBZF9zB",
+   "show": "ニュースの学校",
+   "title": "西山朋佳棋士",
+   "spotifyDate": "2026-11-05"
+  },
+  {
+   "ep": "EP-06718",
+   "url": "https://open.spotify.com/episode/7Is4cRZ9xSmkqpxwTBqMzK",
+   "show": "ニュースの学校",
+   "title": "MMX",
+   "spotifyDate": "2026-10-27"
+  },
+  {
+   "ep": "EP-06717",
+   "url": "https://open.spotify.com/episode/4giAUmBa3R8X6dZ1FRHP7F",
+   "show": "ニュースの学校",
+   "title": "イスラエル総選挙（2026）",
+   "spotifyDate": "2026-10-26"
+  },
+  {
+   "ep": "EP-06712",
+   "url": "https://open.spotify.com/episode/1uvtJNcoAaqe8ygjBFZ6Wh",
+   "show": "ニュースの学校",
+   "title": "ビール大手のカルテル容疑",
+   "spotifyDate": "2026-10-15"
+  },
+  {
+   "ep": "EP-06708",
+   "url": "https://open.spotify.com/episode/2eHSIZDpk37rhng8rZdDy7",
+   "show": "ニュースの学校",
+   "title": "ニュートリノ",
+   "spotifyDate": "2026-10-14"
+  },
+  {
+   "ep": "EP-06706",
+   "url": "https://open.spotify.com/episode/6w9sFRO6rZz2wy6YjwaoOD",
+   "show": "ニュースの学校",
+   "title": "簗和生氏の「予算カット」発言",
+   "spotifyDate": "2026-10-13"
+  },
+  {
+   "ep": "EP-06749",
+   "url": "https://open.spotify.com/episode/0SAw3FYUlp37PxQdskotGE",
+   "show": "スポンジ",
+   "title": "（野球 #6）女子プロ野球選手・島野愛友利　甲子園・米挑戦…「壁」を破り続けて",
+   "spotifyDate": "2026-11-17"
+  },
+  {
+   "ep": "EP-06719",
+   "url": "https://open.spotify.com/episode/2zyyHquGgXdQFQOhRljXf8",
+   "show": "スポンジ",
+   "title": "（バスケ #54・Wリーグ）「バスケ界が発展するために必要なこと」　高田真希が訴えた思い",
+   "spotifyDate": "2026-11-10"
+  },
+  {
+   "ep": "EP-06711",
+   "url": "https://open.spotify.com/episode/1dBS21gZz5XsPUUG5Mw58v",
+   "show": "スポンジ",
+   "title": "（フィギュア #37）島田麻央の初陣は、「ロシア三人娘」一角が出産1年で4回転　GPシリーズ開幕展望後編",
+   "spotifyDate": "2026-10-15"
+  },
+  {
+   "ep": "EP-06705",
+   "url": "https://open.spotify.com/episode/0U3DVqeadVSMITl80rZQGJ",
+   "show": "スポンジ",
+   "title": "（バスケ #50） Bプレミア始動　「プラス1」の新ルール、巻き起こる変革",
+   "spotifyDate": "2026-10-13"
+  },
+  {
+   "ep": "EP-06747",
+   "url": "https://open.spotify.com/episode/1VenT5q6ABfDLoFxtzX9x0",
+   "show": "MEDIA TALK",
+   "title": "（動画見た？#52）ホームビデオに革命、思い出したトヨタの感動ムービー　あの番組を「辛口」でコラボ",
+   "spotifyDate": "2026-11-17"
+  },
+  {
+   "ep": "EP-06745",
+   "url": "https://open.spotify.com/episode/21Aq6wQy4i732MyzIdRWHR",
+   "show": "MEDIA TALK",
+   "title": "（N4U#49）40代の7割？がんが見えにくい「高濃度乳房」　国を動かした生稲晃子氏（後編）",
+   "spotifyDate": "2026-11-16"
+  },
+  {
+   "ep": "EP-06742",
+   "url": "https://open.spotify.com/episode/01ekO4mrMZHTQYqgMfeZPF",
+   "show": "MEDIA TALK",
+   "title": "（N4U #48）「なっちまった」45歳で乳がん、写真で公表した「ありのままの自分」（前編）",
+   "spotifyDate": "2026-11-16"
+  },
+  {
+   "ep": "EP-06737",
+   "url": "https://open.spotify.com/episode/6L1GujgweOKszqorwD9uvR",
+   "show": "MEDIA TALK",
+   "title": "（TMT #1）AIが進める「知的植民地化」　自動化するほど世界は壊れやすくなる？（批評家 福嶋亮大さん／前編）",
+   "spotifyDate": "2026-11-15"
+  },
+  {
+   "ep": "EP-06731",
+   "url": "https://open.spotify.com/episode/4b0eSOdiMHMWs9gPKy2RxH",
+   "show": "MEDIA TALK",
+   "title": "（シネマ#35　サブスタンス③）ラストにみるカタルシス　復讐の「ゴジラ」は何度でもよみがえる",
+   "spotifyDate": "2026-11-13"
+  },
+  {
+   "ep": "EP-06727",
+   "url": "https://open.spotify.com/episode/3ol23PBDhXXHySQhNFYStP",
+   "show": "MEDIA TALK",
+   "title": "（シネマ #34　サブスタンス②）元ネタ・オマージュをたどって分かる　ラ・ラ・ランドを本歌取り",
+   "spotifyDate": "2026-11-12"
+  },
+  {
+   "ep": "EP-06722",
+   "url": "https://open.spotify.com/episode/2UH3vkjQL4BHWmO8CRhOVd",
+   "show": "MEDIA TALK",
+   "title": "（シネマ #33　サブスタンス①）デミ・ムーア復活　解釈分かれますが、女性解放の物語です",
+   "spotifyDate": "2026-11-11"
+  },
+  {
+   "ep": "EP-06702",
+   "url": "https://open.spotify.com/episode/6JVPzXEL2xl413LEdC6GKD",
+   "show": "MEDIA TALK",
+   "title": "（天声人語 #6）天声人語ができるまで、不思議なローテーション",
+   "spotifyDate": "2026-10-13"
+  },
+  {
+   "ep": "EP-06701",
+   "url": "https://open.spotify.com/episode/4tuEp6rHIwQtggesygDeYR",
+   "show": "MEDIA TALK",
+   "title": "（N4U #47）夫婦でも「NO」が言えない、性を語る言葉を持たぬ私たち　夫婦の性的同意（後編）",
+   "spotifyDate": "2026-10-12"
+  },
+  {
+   "ep": "EP-06700",
+   "url": "https://open.spotify.com/episode/1pPIhfyCFRmwCpQPfDQtND",
+   "show": "MEDIA TALK",
+   "title": "（N4U #46）夫婦なら当然？週2の“義務”に耐えた妻—20年後の衝撃　夫婦の性的同意（前編）",
+   "spotifyDate": "2026-10-12"
+  },
+  {
+   "ep": "EP-06698",
+   "url": "https://open.spotify.com/episode/1CppNcLLHbepPXOAd0rbcZ",
+   "show": "MEDIA TALK",
+   "title": "（MT）なんでも話せる場所はどこにある",
+   "spotifyDate": "2026-10-11"
+  },
+  {
+   "ep": "EP-06751",
+   "url": "https://open.spotify.com/episode/3EtOwW5rnhAWJBgozsNNEN",
+   "show": "こどもそうだんしつ",
+   "title": "ハチ #21【こぼれ話】かわいい虫にも意外な顔",
+   "spotifyDate": "2026-11-17"
+  },
+  {
+   "ep": "EP-06748",
+   "url": "https://open.spotify.com/episode/1z6FabfnowVVHaSPD5NvJD",
+   "show": "こどもそうだんしつ",
+   "title": "ハチ #21【本編】どうしてハチはかっこいいの？",
+   "spotifyDate": "2026-11-17"
+  },
+  {
+   "ep": "EP-06720",
+   "url": "https://open.spotify.com/episode/3AENFtShyqrcm6qffcg4BB",
+   "show": "こどもそうだんしつ",
+   "title": "歳をとる #20【こぼれ話】ナンプレをスラスラ解く93歳",
+   "spotifyDate": "2026-11-10"
+  },
+  {
+   "ep": "EP-06694",
+   "url": "https://open.spotify.com/episode/3oANdD7PGaiJS0hhQke2SZ",
+   "show": "こどもそうだんしつ",
+   "title": "歳をとる #20【本編】どうして人は歳をとるの？",
+   "spotifyDate": "2026-11-10"
+  },
+  {
+   "ep": "EP-06704",
+   "url": "https://open.spotify.com/episode/1QTtIjkheltjSpGhVqwvAI",
+   "show": "こどもそうだんしつ",
+   "title": "ほねは、どうやってつくられたの？ #16",
+   "spotifyDate": "2026-10-13"
+  },
+  {
+   "ep": "EP-06744",
+   "url": "https://open.spotify.com/episode/1ocv4ImeR9rQQBOv1vXNm9",
+   "show": "ドーナツ",
+   "title": "（ポすすめ）井戸の聲",
+   "spotifyDate": "2026-11-16"
+  },
+  {
+   "ep": "EP-06739",
+   "url": "https://open.spotify.com/episode/7agYMDlWA72cDhwuzCKDA3",
+   "show": "ドーナツ",
+   "title": "（対話）自分に興味がある人と、自分なんてないと思う人　栃尾江美さん",
+   "spotifyDate": "2026-11-15"
+  },
+  {
+   "ep": "EP-06735",
+   "url": "https://open.spotify.com/episode/3kDl3r1WK4BQdKkyUPfEla",
+   "show": "ドーナツ",
+   "title": "（日曜版）いったい何を見ているやら",
+   "spotifyDate": "2026-11-14"
+  },
+  {
+   "ep": "EP-06733",
+   "url": "https://open.spotify.com/episode/325dQjiFq4tJslllRXYWM0",
+   "show": "ドーナツ",
+   "title": "（ノーミライ＃12） Show me the money　結局はおぜぜやおぜぜ、というお話",
+   "spotifyDate": "2026-11-13"
+  },
+  {
+   "ep": "EP-06728",
+   "url": "https://open.spotify.com/episode/0o9xxKaZ0GehHoY1mS5HIJ",
+   "show": "ドーナツ",
+   "title": "車イス生活を経て、念願の温泉へ　「行ける」と「楽しめる」の間に",
+   "spotifyDate": "2026-11-12"
+  },
+  {
+   "ep": "EP-06725",
+   "url": "https://open.spotify.com/episode/2l9S9rrodgMzCq7Yzi0fNR",
+   "show": "ドーナツ",
+   "title": "（親モヤ #132）「お父さん、わからへんわ」　子どもが自分で考えるために、親にできること",
+   "spotifyDate": "2026-11-11"
+  },
+  {
+   "ep": "EP-06716",
+   "url": "https://open.spotify.com/episode/13zpJygdFNMMi6WtHbkocV",
+   "show": "ドーナツ",
+   "title": "（ノーミライ #9）ひとりでやっとるチキンレースにライバル登場？というお話",
+   "spotifyDate": "2026-10-16"
+  },
+  {
+   "ep": "EP-06713",
+   "url": "https://open.spotify.com/episode/1NO0VCL1ntoetQJG9KnoTG",
+   "show": "ドーナツ",
+   "title": "イスで座らないと歌っちゃいけないの？　退園求められた先に見つけた希望",
+   "spotifyDate": "2026-10-15"
+  },
+  {
+   "ep": "EP-06709",
+   "url": "https://open.spotify.com/episode/5qhfr7SBPgQoPJXtzeqx9r",
+   "show": "ドーナツ",
+   "title": "（親モヤ #129）妊活・妊娠中の妻にプレッシャーでは…関わり方に迷います",
+   "spotifyDate": "2026-10-14"
+  }
+ ],
+ "others": [
+  {
+   "show": "ニュースの現場から",
+   "url": "https://open.spotify.com/episode/7ycYoDt5mRQbL8LnmSSEJO",
+   "title": "（GLOBE）思わず笑って、そして考えさせる　イグ・ノーベル賞はなぜ面白い？",
+   "spotifyDate": "2026-10-27",
+   "ep": "EP-06633",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
+  },
+  {
+   "show": "ニュースの学校",
+   "url": "https://open.spotify.com/episode/4AIEvcdY5wRpIjKaAiY2bL",
+   "title": "ロシアの日本人記者拘束",
+   "spotifyDate": "2026-10-25",
+   "ep": "EP-06628",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
+  },
+  {
+   "show": "ニュースの学校",
+   "url": "https://open.spotify.com/episode/2FnJHOr7qttfroUa6KOxQj",
+   "title": "PHPの脆弱性（ぜいじゃくせい）",
+   "spotifyDate": "2026-10-22",
+   "ep": "EP-06594",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
+  },
+  {
+   "show": "ニュースの学校",
+   "url": "https://open.spotify.com/episode/4xy4vyWaY78FPAM31b4Shw",
+   "title": "はしか（麻疹）",
+   "spotifyDate": "2026-10-21",
+   "ep": "EP-06618",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
+  },
+  {
+   "show": "ニュースの学校",
+   "url": "https://open.spotify.com/episode/2PojEGrFYs0j7IL7K9y9TW",
+   "title": "ナビ・ピレイ氏",
+   "spotifyDate": "2026-10-20",
+   "ep": "EP-06609",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
+  },
+  {
+   "show": "ニュースの学校",
+   "url": "https://open.spotify.com/episode/16UKD2FHNrfGiR0N7kbD6Z",
+   "title": "フランスの大規模デモ（2026）",
+   "spotifyDate": "2026-10-19",
+   "ep": "EP-06606",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
+  },
+  {
+   "show": "ニュースの学校",
+   "url": "https://open.spotify.com/episode/714aREJ0rzXp9ycmwLbjkk",
+   "title": "相次ぐ個人情報流出",
+   "spotifyDate": "2026-10-18",
+   "ep": "EP-06600",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
+  },
+  {
+   "show": "ニュースの学校",
+   "url": "https://open.spotify.com/episode/6uDDXcNRj3qUkRDuJki4Rh",
+   "title": "水道料金",
+   "spotifyDate": "2026-09-17",
+   "ep": "EP-00093 EP-00686",
+   "status": "HOLD",
+   "reason": "同じ番組に同じ題名の行が複数"
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/2tOEzJdAU1rdfimMZF1w7K",
+   "title": "（カロリーオフ）GDPは時代遅れなのか問題",
+   "spotifyDate": "2026-11-15",
+   "ep": "EP-06740",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": false,
+   "gap": 59.458999999999946
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/5oKtjQ96oh07wGMgCArtTD",
+   "title": "相次ぐ個人情報の流出、AIそこまで関係なし　真の問題は「及び腰」 #196",
+   "spotifyDate": "2026-11-12",
+   "ep": "EP-06729",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": false,
+   "gap": 64.52300000000014
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/1YHqtx5zqYwumZmKvCjdFJ",
+   "title": "（カロリーオフ）首相動静欄にあるメディアとの懇談が気になる問題",
+   "spotifyDate": "2026-11-08",
+   "ep": "EP-06686",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": false,
+   "gap": 59.99199999999996
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/2lGBULm8f7wiwqyIZZCKX4",
+   "title": "アメリカ中間選挙は、何が歴史的だった？　ルート66から考えよう #195",
+   "spotifyDate": "2026-11-05",
+   "ep": "EP-06677",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": false,
+   "gap": 66.51699999999983
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/6gQv1y5zpqjC7D9ARm1c3B",
+   "title": "（カロリーオフ）法案を審議する優先順位、誰が決めているのか問題",
+   "spotifyDate": "2026-11-01",
+   "ep": "EP-06657",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 59.615999999999985
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/3PyLNHqvrzwd7P4HK1LGjE",
+   "title": "VIVANT、モンゴル火災、福田康夫氏死去　近づかない中国との距離",
+   "spotifyDate": "2026-10-29",
+   "ep": "EP-06647",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 59.470000000000255
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/3p6eClOIhbyu6N359c2Ctf",
+   "title": "（カロリーオフ）外国勢力は本当に選挙を動かすのか問題",
+   "spotifyDate": "2026-10-25",
+   "ep": "EP-06629",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/1eI8VdGUoXmYcYxH5GoZeB",
+   "title": "プルゴリは実在する　生命保険業界、「営業」の光と影 #193",
+   "spotifyDate": "2026-10-22",
+   "ep": "EP-06620",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/2IJuNK7Td4ffzK8KZz5vKG",
+   "title": "（カロリーオフ）官房長官って、どのくらい偉いのか問題",
+   "spotifyDate": "2026-10-18",
+   "ep": "EP-06603",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/65EJpkBwQvuua7hfJW1idV",
+   "title": "なぜサウジの空港は爆撃されたのか　知ってくださいイエメン情勢 #192",
+   "spotifyDate": "2026-10-15",
+   "ep": "EP-06714",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": false,
+   "gap": 59.149999999999636
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/5894kEtWK0T63OHXSuUVlm",
+   "title": "やな大臣いなす国交省　中間選挙とアメリカのだるさ　2題でお届けします #191",
+   "spotifyDate": "2026-10-08",
+   "ep": "EP-00121",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 63.60599999999977
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/0UXkLGdd173ycNAFN07q0G",
+   "title": "（カロリーオフ）ニュース、見ない方がいい日もある　距離感むずかしい問題",
+   "spotifyDate": "2026-10-04",
+   "ep": "EP-00122",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 59.59699999999998
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/49H5icO0ws3amMv3br7aq5",
+   "title": "中国を「同盟国」となぜ言った？　異例の厚遇でトランプ氏が得たモノ #190",
+   "spotifyDate": "2026-10-01",
+   "ep": "EP-00123",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 59.587000000000444
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/53zpkIrWwXqvd85zYJWovV",
+   "title": "（カロリーオフ）ロビイストってどんな人？　見えづらくて気になる問題",
+   "spotifyDate": "2026-09-27",
+   "ep": "EP-00124",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 59.903999999999996
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/4APhQVfMKqYPMuCZM7cMx3",
+   "title": "「AIで人類滅亡」となる前に　米中首脳会談の焦点はここだ #189",
+   "spotifyDate": "2026-09-23",
+   "ep": "EP-00125",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 59.45899999999983
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/2LoTB87jmVP4ks3ZndnHJR",
+   "title": "ひとは考えを変えるのか、報道に社会が良くできるのか　まじめに考えました #188",
+   "spotifyDate": "2026-09-17",
+   "ep": "EP-00126",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 59.13600000000042
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/5nN5aIKbnJuDwjaiCXs7OC",
+   "title": "（カロリーオフ）答弁を避ける高市首相　「総理の立場」を持ち出す問題",
+   "spotifyDate": "2026-09-14",
+   "ep": "EP-00127",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 59.75
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/4IDvDJhS7SYHHzJpzfw2Os",
+   "title": "「やります」と言わずに進む内閣改造　明治からたどる首相の人事 #187",
+   "spotifyDate": "2026-09-09",
+   "ep": "EP-00128",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": false,
+   "gap": 59.79699999999957
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/6uLpZH5IiMzzNaJIwwdbN4",
+   "title": "雑談のつもりが報道になっちゃう　「報談」って本来こういうのです #186",
+   "spotifyDate": "2026-09-02",
+   "ep": "EP-00129",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 59.710000000000036
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/02Y4Wdits96rBtPVjE1NVv",
+   "title": "靖国参拝、「公人」なら憲法違反な件　A級合祀させなかった宮司 #185",
+   "spotifyDate": "2026-08-26",
+   "ep": "EP-00130",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": false,
+   "gap": 59.462000000000444
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/5iA4xRoXTJuTkvWHVGWrku",
+   "title": "「コンテンツから離れる」　デジタル編集長が描くニュース未来戦略 #184",
+   "spotifyDate": "2026-08-19",
+   "ep": "EP-00131",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 59.51800000000003
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/1EhdBGmuHQcGZyNBw0hZkf",
+   "title": "検察取材の裏側、ぜんぶ話します　「リーク」なんてあり得ない世界 #183",
+   "spotifyDate": "2026-08-12",
+   "ep": "EP-00133",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 59.02900000000045
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/6nyC7RLs0YrPnv3WXm4e9S",
+   "title": "やっと出てきた野党のはなし　立憲・公明は中道に合流できるのか？ #182",
+   "spotifyDate": "2026-08-05",
+   "ep": "EP-00134",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.66799999999967
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/5J1d6kXkuLf2tj8qt7XftQ",
+   "title": "（カロリーオフ）イスラム教のモスク、十把一絡げには語れない問題",
+   "spotifyDate": "2026-08-02",
+   "ep": "EP-00135",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.82099999999991
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/2A7AfwvnJBcvRV48n5EM0F",
+   "title": "休む力を今こそ持とう　休めない社会、休まない「私」 #181",
+   "spotifyDate": "2026-07-29",
+   "ep": "EP-00136",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.34199999999964
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/4oCX6Kqi1B4J9ypxcq072P",
+   "title": "（カロリーオフ）覚書ってどのくらい大事なのか、分かりづらい問題",
+   "spotifyDate": "2026-07-26",
+   "ep": "EP-00137",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.60200000000009
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/6pnm96buvjMcP35CYmLiEu",
+   "title": "再分配ないがしろ社会　ひたすら通い詰める、金成隆一の取材 #180",
+   "spotifyDate": "2026-07-22",
+   "ep": "EP-00138",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.2470000000003
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/4fYlPSWa0xX6T6UWNwU9ZH",
+   "title": "「お返し政治」が招く停滞　女性政治部長がみた女性首相 #179",
+   "spotifyDate": "2026-07-15",
+   "ep": "EP-00139",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.25900000000001
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/0gGaLjB25iKch1S1SOwGyC",
+   "title": "（カロリーオフ）世論調査の数字、どう出しているのか問題",
+   "spotifyDate": "2026-07-12",
+   "ep": "EP-00140",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.01600000000008
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/5DTXxFQdKAXbPsMd533Iou",
+   "title": "中国のミサイルは、何を狙ったのか　今後の日中関係を予想します #178",
+   "spotifyDate": "2026-07-08",
+   "ep": "EP-00873",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.28200000000015
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/6TkQhrYnDyOqhLIhKytC1o",
+   "title": "（カロリーオフ）衆院議員の定数削減、こんな進め方でいいのか問題",
+   "spotifyDate": "2026-07-05",
+   "ep": "EP-00874",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 105
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/0bCXZLYp2kWkhuzesRYsz9",
+   "title": "バチバチ国会、どうなっちゃうの？　皇室典範、定数削減、動画問題… #177",
+   "spotifyDate": "2026-07-01",
+   "ep": "EP-00875",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.28600000000006
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/3FEeJmGPhAlkWGJ1XkpiWe",
+   "title": "（カロリーオフ）報道「足りない」「しすぎ」ってなぜ思われるのか問題",
+   "spotifyDate": "2026-06-28",
+   "ep": "EP-00876",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.99299999999994
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/1UGJAeOGTI6Hm6beMb0FTY",
+   "title": "企業側に甘アマ　個人情報保護法、悪い意味でヤバい改正案 #176",
+   "spotifyDate": "2026-06-24",
+   "ep": "EP-00877",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.72699999999986
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/2iK6qPzKoqmSKPna09MTKZ",
+   "title": "（カロリーオフ）ナフサは足りているの？足りていないの？どっちなんだい問題",
+   "spotifyDate": "2026-06-21",
+   "ep": "EP-00878",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.50600000000009
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/0fk26y2OxqYVr9y7DUO7xl",
+   "title": "ハタと考えた、ハタってなんだ？　国旗損壊罪を作りたいのはだれ #175",
+   "spotifyDate": "2026-06-17",
+   "ep": "EP-00879",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.32399999999961
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/6AfVAPpAUDSoRgrybU0yeN",
+   "title": "（カロリーオフ）政治家ってもうかるのか問題",
+   "spotifyDate": "2026-06-14",
+   "ep": "EP-00880",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.16200000000003
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/5XLEjSPfhz3yRYnKU5r3Qc",
+   "title": "坂梨祥さんに聞いてみよう　イラン戦争はどうしたら終わりますか #174",
+   "spotifyDate": "2026-06-10",
+   "ep": "EP-00881",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 165
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/2KuOxY3ZjYge4lAhpQu1fN",
+   "title": "（カロリーオフ）イスラエルはなぜレバノンを攻撃するのか問題",
+   "spotifyDate": "2026-06-07",
+   "ep": "EP-00882",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.97399999999993
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/3F4T78ImZf6aeUyiWLZBEx",
+   "title": "「サウジ兄さん、僕はこれで」とUAE　湾岸6兄弟にすきま風？ #173",
+   "spotifyDate": "2026-06-03",
+   "ep": "EP-00883",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.3130000000001
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/2xhkLK5GKfkmctiOJNFItZ",
+   "title": "（カロリーオフ）国際法ってなに　ストッパーになれているのか問題",
+   "spotifyDate": "2026-05-31",
+   "ep": "EP-00884",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.94299999999998
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/4pJM7dBxPp06Hz70rbFX7P",
+   "title": "「女系OK」で21年前、結論出てる件　皇位継承問題をひもとく #172",
+   "spotifyDate": "2026-05-27",
+   "ep": "EP-00885",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.52700000000004
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/235ebDtVcNF2Q8p28EaJwI",
+   "title": "（カロリーオフ）政治家と団体、持ちつ持たれつ　組織票をどう捉えるか問題",
+   "spotifyDate": "2026-05-24",
+   "ep": "EP-00886",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.66300000000001
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/5778dIjcZYz22PVfUkSFl2",
+   "title": "結論としては、日本ヤバくない？　米中首脳会談を振り返る #171",
+   "spotifyDate": "2026-05-20",
+   "ep": "EP-00887",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.41200000000026
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/1rBmW2vUy9qttOOUkBQ1pN",
+   "title": "（カロリーオフ）野党の存在意義はどこにある？　少数派の声は届くのか問題",
+   "spotifyDate": "2026-05-17",
+   "ep": "EP-00888",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.17100000000005
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/3rA47a9gfPpODTRGa1Qirm",
+   "title": "国会前デモ、「他候補中傷」文春報道…　「報道されない」問題を考えます #170",
+   "spotifyDate": "2026-05-13",
+   "ep": "EP-00889",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.51900000000023
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/3rsYiKeP2lyTA4G1XqCo3x",
+   "title": "（カロリーオフ）リベラルの定義ってなんなのか問題",
+   "spotifyDate": "2026-05-10",
+   "ep": "EP-00890",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 104.3710000000001
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/1eksp93y7OYw99X1dHboM1",
+   "title": "天気がいいから、お散歩しよう　築地・銀座・新橋かいわい #169",
+   "spotifyDate": "2026-05-06",
+   "ep": "EP-00891",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": 164.89199999999983
+  },
+  {
+   "show": "スポンジ",
+   "url": "https://open.spotify.com/episode/4ZcqNCqd2ttUB8eQ56MyAl",
+   "title": "（サッカー #35）日本人がFIFA会長に？勝算は？ 田嶋幸三氏が挑む「魑魅魍魎」の211票",
+   "spotifyDate": "2026-11-11",
+   "ep": "EP-06723",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": false,
+   "gap": 1069.853
+  },
+  {
+   "show": "スポンジ",
+   "url": "https://open.spotify.com/episode/5oTkiAL8jcJpW0Ag0r94aF",
+   "title": "（サッカー #34）買い叩かれるか、世界と渡り合うか　秋開幕でJリーグに起きた異変",
+   "spotifyDate": "2026-10-27",
+   "ep": "EP-06639",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
+  },
+  {
+   "show": "スポンジ",
+   "url": "https://open.spotify.com/episode/5yQfzzM1s9HfPML9v7hLQV",
+   "title": "（サッカーW杯）オランダに感じた日本へのリスペクト　2度追いつき、価値ある勝ち点1",
+   "spotifyDate": "2026-06-15",
+   "ep": "EP-01082",
+   "status": "HOLD",
+   "reason": "台帳に別のSpotify URLがある（上書きしない）",
+   "same": false,
+   "gap": 0
+  },
+  {
+   "show": "スポンジ",
+   "url": "https://open.spotify.com/episode/00yUT53ZjoMN6LnOdgY3tC",
+   "title": "（バスケ・BリーグCS）長崎、創設5季目で優勝　勝負を分けたリバウンドとディフェンス  ＃2265",
+   "spotifyDate": "2026-06-05",
+   "ep": "EP-01083",
+   "status": "HOLD",
+   "reason": "台帳に別のSpotify URLがある（上書きしない）",
+   "same": false,
+   "gap": -0.31300000000010186
+  },
+  {
+   "show": "こどもそうだんしつ",
+   "url": "https://open.spotify.com/episode/3R0OSSgJr30F7nPTIS31cd",
+   "title": "タコが体の色を変えられるのは、なんで？ #18",
+   "spotifyDate": "2026-10-27",
+   "ep": "EP-06637",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・台帳の再生時間が空",
+   "same": true,
+   "gap": null
+  },
+  {
+   "show": "ドーナツ",
+   "url": "https://open.spotify.com/episode/1m5uBDeXcifljM9tTtWVhG",
+   "title": "（さんぽ・皇室365）皇居を歩いたら、「手ずから」がいっぱい見えた",
+   "spotifyDate": "2026-09-20",
+   "ep": "EP-00116",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": true,
+   "gap": -109.69499999999971
+  }
+ ],
+ "emptyNotInSpotifyList": [
+  "EP-06692"
+ ]
+}
