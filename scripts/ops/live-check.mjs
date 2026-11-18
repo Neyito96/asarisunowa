@@ -37,7 +37,6 @@ try {
   // 蔵
   await page.goto(BASE + 'library/?t=' + Date.now(), { waitUntil: 'networkidle', timeout: 60000 });
   const libSrc = await page.$$eval('script[src]', (s) => s.map((x) => x.getAttribute('src')).filter((x) => /library\.mjs/.test(x)));
-  note('蔵 library.mjs', libSrc);
   const mjs = await (await page.request.get(BASE + 'library/library.mjs?t=' + Date.now())).text();
   note('蔵 推薦フォームのSpotifyチェック', mjs.includes('Spotifyプレイリストにしてほしい') ? 'あり' : 'なし');
   const scope = await (await page.request.get(BASE + 'library/data/scope.json?t=' + Date.now())).json();
@@ -48,8 +47,7 @@ try {
     if (!r.ok()) continue;
     for (const e of await r.json()) { if ((e.links || []).some((l) => /music\.amazon/.test(l))) { amazon++; latest.push(e.id); } if ((e.links || []).some((l) => /open\.spotify\.com\/episode\//.test(l))) spotify++; else spMiss.push(e.id); }
   }
-  note('蔵 Amazon個別URL（EP-06700以降）', { 件数: amazon, EP: latest.slice(-12) });
-  note('蔵 Spotify個別URL（EP-06700以降）', { あり: spotify, なし: spMiss });
+  note('蔵 EP-06700以降の配信リンク', { Amazonあり: amazon, Spotifyあり: spotify, Spotifyなし: spMiss });
 } catch (e) {
   note('エラー', String(e && e.stack || e).slice(0, 400));
   process.exitCode = 1;
