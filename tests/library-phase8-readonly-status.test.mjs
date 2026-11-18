@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import { readFile } from 'node:fs/promises';
 test('Phase8 diagnostic only reads both ledgers and current-account triggers',async()=>{
- const source=await readFile(new URL('../scripts/google-apps-script/LibraryPhase8ReadOnlyStatus.js',import.meta.url),'utf8');
+ const source=await readFile(new URL('../scripts/google-apps-script-not-in-prod/LibraryPhase8ReadOnlyStatus.js',import.meta.url),'utf8');
  const headers=Array(15).fill('');headers[0]='台帳ID';headers[14]='音声URL';
  const row=(id,audio)=>{const r=Array(15).fill('');r[0]=id;r[14]=audio;return r;};
  const sourceRows=[headers,row('EP-00001',''),row('EP-00002','https://example.com/a.mp3')];

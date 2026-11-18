@@ -69,6 +69,33 @@ function savePost_(url, title, maker, host, rss, introducedDate, comment, artwor
 
     SpreadsheetApp.flush();
 
+    // Receipt failures cannot turn a committed row into a failed submission.
+    if (kind === "podcast" || kind === "listenerPodcast") {
+      try { completePodcastReceipt_(requestId, added, duplicateReason); }
+      catch (_) { Logger.log("Podcast receipt completion deferred; status checks the saved row."); }
+    }
+
+    // 新規保存された通常投稿のみ管理者へ通知する。
+    // メール送信に失敗しても、保存済み投稿そのものは失敗扱いにしない。
+    if (added) {
+      try {
+        notifyPostReceived_({
+          kind: kind,
+          title: title,
+          maker: maker,
+          host: host,
+          rss: rss,
+          url: url,
+          comment: comment
+        });
+      } catch (notificationError) {
+        Logger.log(
+          "通常投稿の管理者メール通知に失敗しました: " +
+          String(notificationError)
+        );
+      }
+    }
+
     const cleanRequestId = String(requestId || "").trim();
     if (kind === "playlist" && /^[A-Za-z0-9_-]{16,100}$/.test(cleanRequestId)) {
       CacheService.getScriptCache().put(

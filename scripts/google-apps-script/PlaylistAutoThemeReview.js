@@ -37,7 +37,7 @@ function getThemeReviewCandidateIds_(rule) {
 function fetchThemeReviewEpisodeDetails_(episodeIds, token) {
   const ids = Array.isArray(episodeIds) ? episodeIds.filter(Boolean) : [];
   return ids.map(function(episodeId) {
-    const response = UrlFetchApp.fetch(
+    const response = spotifyLegacyFetchV2_(
       "https://api.spotify.com/v1/episodes/" + encodeURIComponent(episodeId) + "?market=JP",
       {
         muteHttpExceptions: true,
@@ -135,6 +135,45 @@ function writeThemeReviewQueueRows_(sheet, rows) {
     sheet.getRange(rows.length + 2, 1, oldLastRow - rows.length - 1, THEME_REVIEW_HEADERS_.length)
       .clearContent();
   }
+}
+
+// Shared writer gate: non-theme rules do not use theme review. Theme writes
+// require the saved production rule and an unadded, adopted queue row.
+// Read both sheets so a recorded exclusion always wins. Never provision here.
+function assertThemeReviewSpotifyWriteV1_(rule, episodes) {
+  if (!rule) throw new Error("Spotify追加ルールがありません");
+  if (getAutoPlaylistRuleType_(rule) !== AUTO_PLAYLIST_RULE_TYPE_THEME_) return false;
+  if (!isThemeReviewSpotifyWriteEnabled_()) {
+    throw new Error("テーマ候補のSpotify本番追加は安全スイッチで停止中です");
+  }
+  const saved = getThemeReviewRuleByKeyV1_(rule.key);
+  if (!saved || saved.enabled !== true || saved.productionWriteAllowed !== true ||
+      saved.reviewRequired !== true || getAutoPlaylistRuleType_(saved) !== AUTO_PLAYLIST_RULE_TYPE_THEME_ ||
+      String(saved.playlistId || "") !== String(rule.playlistId || "") ||
+      ["requested", "audit", "paused"].indexOf(String(saved.lifecycleStatus || "").toLowerCase()) >= 0) {
+    throw new Error("テーマの本番承認条件を確認できません");
+  }
+  const pair = getThemeReviewSheetPairV1_(saved, SpreadsheetApp.openById(SPREADSHEET_ID));
+  if (!pair) throw new Error("テーマの候補・履歴タブが不足しています");
+  const queue = readThemeReviewRows_(pair.queue);
+  const history = readThemeReviewRows_(pair.history);
+  if (!Array.isArray(episodes)) throw new Error("テーマ追加対象が不正です");
+  episodes.forEach(function(episode) {
+    const id = String(episode && episode.id || "").trim();
+    if (!/^[A-Za-z0-9]{22}$/.test(id) || String(episode.uri || "") !== "spotify:episode:" + id) {
+      throw new Error("テーマepisode ID・URIの対応が不正です");
+    }
+    const relevant = function(row) {
+      return String(row[0] || "") === saved.key && String(row[1] || "").trim() === id;
+    };
+    const queued = queue.filter(relevant);
+    const past = history.filter(relevant);
+    if (queued.length !== 1 || String(queued[0][8] || "").trim() !== "採用" || queued[0][10] ||
+        past.concat(queued).some(function(row) { return String(row[8] || "").trim() === "除外"; })) {
+      throw new Error("未採用・除外済み・追加済みのテーマepisodeは追加できません: " + id);
+    }
+  });
+  return true;
 }
 
 function isThemeReviewSpotifyWriteEnabled_() {
@@ -284,7 +323,7 @@ function exportSouthAmericaThemeCandidatesToReviewSheet() {
 function fetchRecentThemeReviewEpisodes_(rule, token) {
   const byId = {};
   getAutoPlaylistShowIds_(rule).forEach(function(showId) {
-    const response = UrlFetchApp.fetch(
+    const response = spotifyLegacyFetchV2_(
       "https://api.spotify.com/v1/shows/" + encodeURIComponent(showId) +
         "/episodes?market=JP&limit=50",
       {
@@ -325,7 +364,7 @@ function getThemeReviewRuleByKeyV1_(key) {
     : [];
 
   const matches = runtime.filter(function(rule) {
-    return rule &&
+    return rule && rule.themeEngineVersion !== 2 &&
       String(rule.key || "").trim() === wanted &&
       rule.enabled === true &&
       rule.productionWriteAllowed === true &&
@@ -594,7 +633,7 @@ function selectThemeReviewAutomationRulesV1_(fixedRules, runtimeRules) {
   });
   const fixedKeys = new Set(fixed.map(function(rule) { return String(rule.key || ""); }));
   const submitted = (Array.isArray(runtimeRules) ? runtimeRules : []).filter(function(rule) {
-    return rule && !fixedKeys.has(String(rule.key || "")) &&
+    return rule && rule.themeEngineVersion !== 2 && !fixedKeys.has(String(rule.key || "")) &&
       String(rule.key || "").startsWith("request-") &&
       rule.enabled === true &&
       rule.productionWriteAllowed === true &&
@@ -614,6 +653,7 @@ function getThemeReviewAutomationRules_() {
 
 // 時間主導トリガー用。未確認候補の追記と、採用済み候補のSpotify反映を1回で行う。
 function runThemeReviewAutomation() {
+  if (spotifyCooldownV2_() > Date.now()) return spotifyWaitingReportV2_();
   if (!isThemeReviewSpotifyWriteEnabled_()) {
     throw new Error("テーマ候補の自動運用は停止中です");
   }

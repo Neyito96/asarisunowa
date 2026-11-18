@@ -8,6 +8,7 @@ function syncAllAutoPlaylists() {
   const episodeCache = {};
 
   getEnabledAutoPlaylistRules_().forEach(function(rule) {
+    if (getAutoPlaylistRuleType_(rule) === AUTO_PLAYLIST_RULE_TYPE_THEME_) return;
     syncOneAutoPlaylist_(rule, token, episodeCache);
   });
 }
@@ -19,7 +20,7 @@ function syncAutoPlaylistByKey_(key) {
     throw new Error("自動更新ルールが見つかりません: " + String(key || ""));
   }
 
-  return syncConfiguredAutoPlaylist_(rule);
+  syncConfiguredAutoPlaylist_(rule);
 }
 
 function syncAutoPlaylistByPlaylistId_(playlistId) {
@@ -32,10 +33,13 @@ function syncAutoPlaylistByPlaylistId_(playlistId) {
     throw new Error("自動更新ルールが見つかりません: " + wantedId);
   }
 
-  return syncConfiguredAutoPlaylist_(rule);
+  syncConfiguredAutoPlaylist_(rule);
 }
 
 function syncConfiguredAutoPlaylist_(rule) {
+  if (getAutoPlaylistRuleType_(rule) === AUTO_PLAYLIST_RULE_TYPE_THEME_) {
+    throw new Error("themeは候補確認・人間承認経路を使用してください");
+  }
   if (rule && rule.enabled === false) {
     throw new Error("自動更新を停止中です: " + String(rule.name || rule.key || "unknown"));
   }
@@ -46,7 +50,7 @@ function syncConfiguredAutoPlaylist_(rule) {
     throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
   }
 
-  return syncOneAutoPlaylist_(rule, token);
+  syncOneAutoPlaylist_(rule, token);
 }
 
 function getLatestReleaseDate_(episodes) {
@@ -60,6 +64,9 @@ function getLatestReleaseDate_(episodes) {
 }
 
 function syncOneAutoPlaylist_(rule, token, episodeCache) {
+  if (getAutoPlaylistRuleType_(rule) === AUTO_PLAYLIST_RULE_TYPE_THEME_) {
+    throw new Error("themeのキーワード一致による直接追加は禁止です");
+  }
   Logger.log("=== " + rule.name + " ===");
 
   const episodes = episodeCache
@@ -86,16 +93,6 @@ function syncOneAutoPlaylist_(rule, token, episodeCache) {
   const newEpisodes = candidates.filter(function(ep) {
     const uri = String(ep && ep.uri ? ep.uri : "");
     return uri && !existingUris.has(uri);
-  }).sort(function(a, b) {
-    const leftDate = String(a && a.release_date ? a.release_date : "");
-    const rightDate = String(b && b.release_date ? b.release_date : "");
-    if (leftDate !== rightDate) return leftDate < rightDate ? -1 : 1;
-    const leftNumber = extractNoMiraiEpisodeNumber_(a && a.name);
-    const rightNumber = extractNoMiraiEpisodeNumber_(b && b.name);
-    if (leftNumber !== null && rightNumber !== null && leftNumber !== rightNumber) {
-      return leftNumber - rightNumber;
-    }
-    return String(a && a.id ? a.id : "").localeCompare(String(b && b.id ? b.id : ""));
   });
 
   Logger.log("判定通過件数: " + candidates.length);
@@ -107,13 +104,14 @@ function syncOneAutoPlaylist_(rule, token, episodeCache) {
         ? "判定通過候補はすべて登録済みです ✅"
         : "追加対象なし ✅"
     );
-    return { addedCount: 0, failedCount: 0, candidateCount: candidates.length };
+    return;
   }
 
   if (rule.requireSheetLinkBeforeWrite === true) {
     assertAutoPlaylistSheetLinkBeforeWrite_(rule);
   }
 
+  const dateContext = rule.updateLatestDateOnAdd === true ? prepareAutoLatestDateReflectionV1_(rule) : null;
   if (rule.addIndividually === true) {
     const result =
       addAutoPlaylistEpisodesIndividually_(rule, token, newEpisodes);
@@ -122,31 +120,15 @@ function syncOneAutoPlaylist_(rule, token, episodeCache) {
       result.addedCount > 0 &&
       rule.updateLatestDateOnAdd === true
     ) {
-      updatePlaylistLatestDate_(
-        rule.playlistId,
-        getLatestReleaseDate_(result.addedEpisodes)
-      );
+      reflectAddedAutoLatestDateV1_(rule, result.addedEpisodes, dateContext);
     }
 
-    return {
-      addedCount: result.addedCount,
-      failedCount: result.failedCount,
-      candidateCount: candidates.length
-    };
+    return;
   }
 
   addAutoPlaylistEpisodesBatch_(rule, token, newEpisodes);
 
   if (rule.updateLatestDateOnAdd === true) {
-    updatePlaylistLatestDate_(
-      rule.playlistId,
-      getLatestReleaseDate_(newEpisodes)
-    );
+    reflectAddedAutoLatestDateV1_(rule, newEpisodes, dateContext);
   }
-  return { addedCount: newEpisodes.length, failedCount: 0, candidateCount: candidates.length };
-}
-
-// 初回登録済みのノーミライを、新着差分だけ手動確認・再実行する公開関数。
-function syncNoMiraiIncremental() {
-  return syncAutoPlaylistByKey_("no-mirai");
 }
