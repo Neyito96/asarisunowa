@@ -68,7 +68,7 @@ export function planDescription(e, r, protect) {
   if (!nd || nd.length < 20) return { action: 'protect', reason: 'V2概要が空・短い' };
   if (normTitle(r['タイトル']) !== normTitle(e.title)) return { action: 'protect', reason: 'タイトル不一致' };
   if (protect && protect.has(e.id)) return { action: 'protect', reason: '手動修正（承認済み）' };
-  if (tidyDescription(nd).status === 'HOLD') return { action: 'protect', reason: 'V2概要が表示整形でHOLD' };
+  if (tidyDescription(nd).status === 'HOLD' && String(e.description || '').trim()) return { action: 'protect', reason: 'V2概要が表示整形でHOLD' };   // 蔵が空欄なら HOLD でも V2 の文（要確認＝公式RSS原文・管理人承認 2026-11-18）で補う。既存の概要は上書きしない
   if (nd === e.description) return { action: 'same' };
   return { action: 'update', description: nd };
 }
