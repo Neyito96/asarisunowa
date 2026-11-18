@@ -8,6 +8,7 @@ const SHOWS = {
 // 「1日前」などの相対表示を、Amazon と同じ UTC の日付（YYYY年M月D日）にする
 export function absoluteDate(text, now = new Date()) {
   const t = String(text || ''); if (/\d{4}年\d{1,2}月\d{1,2}日/.test(t)) return t.match(/\d{4}年\d{1,2}月\d{1,2}日/)[0];
+  const dmy = t.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/); if (dmy) return `${+dmy[3]}年${+dmy[2]}月${+dmy[1]}日`;   // 英語表示の DD-MM-YYYY
   let ms = 0; const d = t.match(/(\d+)日前/), h = t.match(/(\d+)時間前/), m = t.match(/(\d+)分前/);
   if (d) ms = +d[1] * 86400000; else if (h) ms = +h[1] * 3600000; else if (m) ms = +m[1] * 60000; else if (/昨日/.test(t)) ms = 86400000; else if (!/今日/.test(t)) return '';
   const x = new Date(now.getTime() - ms); return `${x.getUTCFullYear()}年${x.getUTCMonth() + 1}月${x.getUTCDate()}日`;
@@ -21,21 +22,22 @@ async function main() {
     await p.waitForSelector('a[href*="/episodes/"]', { timeout: 45000 });
     await p.waitForTimeout(2000);
     const rows = await p.evaluate(() => {
-      const DATE = /^(\d{4}年\d{1,2}月\d{1,2}日|\d+(?:日|時間|分)前|昨日|今日)$/, DUR = /(\d+時間)?\d+分(\d+秒)?|\d+時間/;
+      const DATE = /^(\d{4}年\d{1,2}月\d{1,2}日|\d{1,2}-\d{1,2}-\d{4}|\d+(?:日|時間|分)前|昨日|今日)$/;
+      const DUR = /^((\d+)\s*(?:hr|時間))?\s*((\d+)\s*(?:min|分))?\s*((\d+)\s*(?:sec|秒))?$/;
       const byId = new Map();
       document.querySelectorAll('a[href*="/episodes/"]').forEach((a) => {
         const href = a.getAttribute('href'), m = href.match(/\/podcasts\/([0-9a-f-]{36})\/episodes\/([0-9a-f-]{36})/); if (!m) return;
-        const lines = (a.innerText || '').split('\n').map((x) => x.trim()).filter(Boolean); if (!lines.length) return;
-        let date = '', title = lines[0]; if (DATE.test(lines[0])) { date = lines[0]; title = lines[1] || ''; }
-        let duration = '', row = a; const own = a.innerText || '';
-        for (let i = 0; i < 8 && row.parentElement && !duration; i++) { row = row.parentElement; const rest = (row.innerText || '').replace(own, ' '); const mm = rest.split('\n').map((x) => x.trim()).find((x) => new RegExp('^(' + DUR.source + ')$').test(x)); if (mm) duration = mm; if (!date) { const dd = rest.split('\n').map((x) => x.trim()).find((x) => DATE.test(x)); if (dd) date = dd; } }
+        const row = a.closest('music-episode-row-item'); if (!row) return;   // 番組の回の行だけ（おすすめ枠などは除く）
+        const lines = (row.innerText || '').split('\n').map((x) => x.trim()).filter(Boolean);
+        let i = 0, date = ''; if (DATE.test(lines[0] || '')) { date = lines[0]; i = 1; }
+        const title = (a.innerText || '').trim() || lines[i] || '';
+        let duration = ''; for (let k = lines.length - 1; k >= 0 && !duration; k--) { const d = lines[k].match(DUR); if (d && (d[2] || d[4] || d[6])) duration = (d[2] ? d[2] + '時間' : '') + (d[4] ? d[4] + '分' : '') + (d[6] ? d[6] + '秒' : ''); }
         const cur = byId.get(m[2]) || { url: new URL(href, location.origin).href, title: '', date: '', duration: '' };
-        if (title && (!cur.title || title.length < cur.title.length)) cur.title = title; if (date && !cur.date) cur.date = date; if (duration && !cur.duration) cur.duration = duration;
+        if (title && !DATE.test(title) && (!cur.title || title.length < cur.title.length)) cur.title = title; if (date && !cur.date) cur.date = date; if (duration && !cur.duration) cur.duration = duration;
         byId.set(m[2], cur);
       });
       return [...byId.values()].filter((r) => r.title);
     });
-    if (process.env.AMAZON_DEBUG && show === 'ドーナツ') console.log(JSON.stringify(await p.evaluate(() => [...document.querySelectorAll('a[href*="/episodes/"]')].slice(0, 1).map((a) => { const o = []; let r = a; for (let i = 0; i < 8 && r; i++) { o.push(i + ':' + r.tagName + ':' + String(r.innerText || '').slice(-160).replace(/\n/g, '⏎')); r = r.parentElement; } return o; }))));
     if (!rows.length) throw new Error('NO_EPISODES ' + show);
     out.shows[show] = { id, episodes: rows.filter((r) => r.url.includes(id)).map((r) => ({ ...r, date: absoluteDate(r.date) })) };
     console.log(show, out.shows[show].episodes.length);
