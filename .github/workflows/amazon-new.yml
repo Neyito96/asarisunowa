@@ -1,0 +1,33 @@
+name: Amazon Music new episodes
+# 毎日 06:35・12:35 JST に Amazon Music の7番組の番組ページ（新しい約20回）を読み、docs/amazon/latest.json を更新する。
+# V2 への書込はしない（清掃ロボGASの巡回 P31 が照合して空欄にだけ書く）。
+on:
+  schedule:
+    - cron: '35 21 * * *'
+    - cron: '35 3 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  issues: write
+concurrency: { group: amazon-new, cancel-in-progress: false }
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm i --no-save playwright@1 && npx playwright install --with-deps chromium
+      - run: node scripts/amazon/scrape-new.mjs
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "41898+github-actions[bot]@users.noreply.github.com"
+          git add docs/amazon/latest.json
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "data(amazon): Amazon Music 新着 $(date -u +%F)"
+          git push
+      - name: Report failure
+        if: failure()
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: gh api repos/${{ github.repository }}/issues/342/comments -f body="【自動通知】Amazon 新着の取得に失敗しました（$(date -u +%FT%TZ)）。${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >/dev/null || true
