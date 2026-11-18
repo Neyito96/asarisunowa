@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "version": "POSU-1",
- "generatedAt": "2026-11-17T20:54:16.422Z",
+ "generatedAt": "2026-11-18T02:54:20.621Z",
  "submitEnabled": true,
  "cards": [
   {
@@ -387,6 +387,22 @@
      "relation": "ポすすめ返し（ポすすめを受けて番組が配信した回）"
     }
    ],
+   "specials": []
+  },
+  {
+   "podcastId": "21",
+   "podcastTitle": "井戸の聲",
+   "introductions": [
+    {
+     "title": "（ポすすめ）井戸の聲",
+     "date": "2026-11-17",
+     "href": "/library/?ep=EP-06744",
+     "library": true,
+     "epId": "EP-06744",
+     "verifiedAt": "2026-11-18"
+    }
+   ],
+   "replies": [],
    "specials": []
   }
  ]
