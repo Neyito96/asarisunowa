@@ -2152,7 +2152,7 @@ function P27_PD_5_V2反映_承認後() {   // Pody: 埋め込みGUID＝公式GUI
 
 // ── P28 巡回（#342）: 1時間ごとのトリガーで、1回に1つの仕事だけ順番に行う（6分制限の内に収める）。
 // 仕事の順: Pody確定分 → Pocket Casts確定分 → 新着7サービス照合と反映。書込は P27_V2_WRITE＝ON の間だけ。停止旗が立てば何もしない。
-var P28_JOBS_ = ['JUDGE', 'PDC', 'PD', 'PC', 'NEW', 'LS', 'AP'], P28_LOG_ = 'P28・巡回記録';
+var P28_JOBS_ = ['JUDGE', 'CLEAN', 'PDC', 'PD', 'PC', 'NEW', 'LS', 'AP'], P28_LOG_ = 'P28・巡回記録';
 function P28_W_1_V2書込を有効化() { PropertiesService.getScriptProperties().setProperty('P27_V2_WRITE', 'ON'); return scLog_('P28_W_1_V2書込を有効化', { status: 'ON', note: '戻すときは P28_W_0_V2書込を止める' }); }
 function P28_W_0_V2書込を止める() { PropertiesService.getScriptProperties().deleteProperty('P27_V2_WRITE'); return scLog_('P28_W_0_V2書込を止める', { status: 'OFF' }); }
 function P28_TICK() {
@@ -2174,6 +2174,7 @@ function p28Tick_() {
   else if (job === 'LS') r = p29ListenPast_();
   else if (job === 'PDC') r = p29PodyCrawl_();
   else if (job === 'JUDGE') r = p30Judge_();
+  else if (job === 'CLEAN') r = p30Clean_();
   else r = p29ApplePast_();
   r = r || {};
   var finished = job !== 'NEW' && job !== 'JUDGE' && (r.status === 'OK_NO_CHANGE' || r.finished === true || (/^(OK|DONE)/.test(r.status || '') && !r.written && !r.more));
@@ -2194,6 +2195,12 @@ function p29Write_(col, plans) {
 // 決まったもの（対象／除外番組・再配信表記・再生時間0以下の対象外）だけ書く。条件が整っていない回（再生時間未取得・採番が未完了・概要が未検証 など）は「未判定」のまま残し、次の巡回で再判定する。
 // 既に判定がある行（管理人の手動判定を含む）は読むだけで書かない。書いたあと読み戻し、公開台帳の件数が「前＋対象の数」と合わなければ停止旗。
 var P30_EXCLUDED_SHOWS_ = /アルキキ|AJW|朝ポキ|YouTube/i, P30_RERUN_MARK_ = /（再）|\(再\)|（ふりかえり）|（深掘り）|再放送です/;
+// 新着の概要清掃・出演者・人物索引・公式URL（既存の D2_清掃と人物_日次 をそのまま使う）を1日1回、7時以降に。日次トリガー（D8）は巡回トリガーと同居できないため巡回の仕事として行う
+function p30Clean_() {
+  var hour = Number(Utilities.formatDate(new Date(), 'Asia/Tokyo', 'H'));
+  if (hour < 7) return { status: 'WAIT', note: '7時以降に実行（収蔵の後）', more: true };
+  var r = D2_清掃と人物_日次() || {}; return { status: r.status === 'OK' ? 'DONE' : String(r.status || 'ERROR'), written: 0, finished: r.status === 'OK', more: r.status !== 'OK', steps: r.steps, reason: r.reason };
+}
 function p30Judge_() {
   if (!p27WriteEnabled_()) return { status: 'DISABLED' };
   var v = scOpen_(SC_CONFIG.v2WorkingId, ''), ss = v.ss, sh = ss.getSheetByName('V2・統合台帳'), vals = sh.getDataRange().getDisplayValues(), h = vals[0];
