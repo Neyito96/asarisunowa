@@ -48,6 +48,7 @@ export default function PlaylistEntryModeBridge() {
   const [shelf, setShelf] = useState<PlaylistShelf>("other");
   const [host, setHost] = useState<HTMLElement | null>(null);
   const [sortHost, setSortHost] = useState<HTMLElement | null>(null);
+  const [barHost, setBarHost] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
     let currentHost: HTMLElement | null = null;
@@ -123,41 +124,21 @@ export default function PlaylistEntryModeBridge() {
 
     const syncShelfUi = () => {
       scheduled = false;
-      const tabs = document.querySelector<HTMLElement>(".viewTabs");
-      if (!tabs) return;
-
-      const buttons = Array.from(tabs.querySelectorAll<HTMLButtonElement>("button"));
-      const otherTab =
-        buttons.find((button) => button.dataset.playlistShelfTab === "other") ??
-        buttons.find((button) => button.textContent?.includes("朝リスト"));
-      if (!otherTab) return;
-
-      otherTab.dataset.playlistShelfTab = "other";
-      if (otherTab.textContent?.trim() !== "🐿️朝リスト") {
-        otherTab.textContent = "🐿️朝リスト";
-      }
-      otherTab.onclick = () => setShelf("other");
-
-      let seriesTab = tabs.querySelector<HTMLButtonElement>("button[data-playlist-shelf-tab='series']");
-      if (!seriesTab) {
-        seriesTab = document.createElement("button");
-        seriesTab.type = "button";
-        seriesTab.dataset.playlistShelfTab = "series";
-        seriesTab.textContent = "連載";
-        tabs.insertBefore(seriesTab, otherTab);
-      }
-      seriesTab.onclick = () => {
-        otherTab.click();
-        setShelf("series");
-      };
-
+      // 連載・朝リストは「🎧 Spotifyリスト」タブ1つにまとめ、画面内の切替で選ぶ。
+      document.querySelector<HTMLButtonElement>("button[data-playlist-shelf-tab='series']")?.remove();
       const playlistGrid = document.getElementById("playlist-results");
-      const listenersActive = Boolean(playlistGrid);
-      seriesTab.classList.toggle("on", listenersActive && shelf === "series");
-      if (listenersActive && shelf === "series") {
-        otherTab.classList.remove("on");
-      } else if (listenersActive && shelf === "other") {
-        otherTab.classList.add("on");
+      const themeHeadForBar = document.querySelector<HTMLElement>(".playlistThemeHead");
+      if (themeHeadForBar) {
+        let bar = document.getElementById("spotify-shelf-bar");
+        if (!bar) {
+          bar = document.createElement("div");
+          bar.id = "spotify-shelf-bar";
+          bar.className = "spotifyShelfBar";
+          themeHeadForBar.insertAdjacentElement("afterend", bar);
+        }
+        setBarHost((prev) => (prev === bar ? prev : bar));
+      } else {
+        setBarHost((prev) => (prev && prev.isConnected ? prev : null));
       }
 
       if (!playlistGrid) return;
@@ -179,8 +160,8 @@ export default function PlaylistEntryModeBridge() {
       const themeHead = document.querySelector<HTMLElement>(".playlistThemeHead");
       const kicker = themeHead?.querySelector<HTMLElement>(".themeKicker");
       const heading = themeHead?.querySelector<HTMLElement>("h2");
-      if (kicker) kicker.textContent = shelf === "series" ? "SERIES" : "ASA LIST";
-      if (heading) heading.textContent = shelf === "series" ? "連載" : "朝リスト";
+      if (kicker) kicker.textContent = shelf === "series" ? "SPOTIFY · SERIES" : "SPOTIFY · ASA LIST";
+      if (heading) heading.textContent = shelf === "series" ? "Spotifyリスト｜連載" : "Spotifyリスト｜朝リスト";
 
       const omikuji = document.querySelector<HTMLElement>(".omikujiPanel");
       if (omikuji) omikuji.hidden = shelf === "series";
@@ -228,12 +209,6 @@ export default function PlaylistEntryModeBridge() {
       document
         .querySelector<HTMLButtonElement>("button[data-playlist-shelf-tab='series']")
         ?.remove();
-      const otherTab = document.querySelector<HTMLButtonElement>("button[data-playlist-shelf-tab='other']");
-      if (otherTab) {
-        otherTab.textContent = "🐿️朝リスト";
-        delete otherTab.dataset.playlistShelfTab;
-        otherTab.onclick = null;
-      }
       document.querySelectorAll<HTMLElement>("#playlist-results article.card").forEach((card) => {
         card.hidden = false;
       });
@@ -303,6 +278,22 @@ export default function PlaylistEntryModeBridge() {
               {mode === "registerAndAuto" && <PlaylistCombinedAutoForm />}
             </div>,
             host,
+          )
+        : null}
+      {barHost?.isConnected
+        ? createPortal(
+            <>
+              <span className="spotifyOnly">Spotifyで聴けるリスト</span>
+              <div role="tablist" aria-label="Spotifyリストの種類">
+                <button type="button" role="tab" aria-selected={shelf === "series"} onClick={() => setShelf("series")}>
+                  連載
+                </button>
+                <button type="button" role="tab" aria-selected={shelf === "other"} onClick={() => setShelf("other")}>
+                  朝リスト
+                </button>
+              </div>
+            </>,
+            barHost,
           )
         : null}
       {sortHost?.isConnected

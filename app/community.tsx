@@ -1589,36 +1589,42 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       </div>
       <div className="wrap viewTabs" role="tablist" aria-label="掲載区分">
         <button
+          data-tab="official"
           className={view === "official" ? "on" : ""}
           onClick={() => setView("official")}
         >
           <span className="asaMincho">朝</span><span>公式</span>
         </button>
         <button
+          data-tab="spotify"
           className={view === "listeners" ? "on" : ""}
           onClick={() => setView("listeners")}
         >
-          🐿️朝リスト
+          🎧 Spotifyリスト
         </button>
         <button
+          data-tab="discord"
           className={view === "discord" ? "on" : ""}
           onClick={() => setView("discord")}
         >
           💬 Discord
         </button>
         <button
+          data-tab="circle"
           className={view === "circle" ? "on" : ""}
           onClick={() => setView("circle")}
         >
           🔎あれどこ?
         </button>
         <button
+          data-tab="posusume"
           className={view === "listenerPodcasts" ? "on" : ""}
           onClick={() => setView("listenerPodcasts")}
         >
           🎙 ポすすめ
         </button>
         <button
+          data-tab="podcasts"
           className={view === "podcasts" ? "on" : ""}
           onClick={() => { setSubmitKind("podcast"); setView("podcasts"); }}
         >
