@@ -54,6 +54,14 @@ function syncListenerPodcastPlatforms() {
         genre: String(row[16] || "").trim()
       };
 
+      // LISTEN欄にRSSのURLが入っている行は、同じ番組のLISTENページに直す（番組は変えない）
+      const listenRss = existing.listen.match(/^https?:\/\/rss\.listen\.style\/p\/([^/?#]+)\/rss\/?$/i);
+      if (listenRss) {
+        sheet.getRange(rowNumber, 8).setValue("https://listen.style/p/" + listenRss[1]);
+        existing.listen = "https://listen.style/p/" + listenRss[1];
+        updatedCells++;
+      }
+
       if (listenerPodcastPlatformRowComplete_(existing)) continue;
 
       const resolved = resolveListenerPodcastPlatforms_(title, maker, existing.sourceUrl, existing.rss);
@@ -260,7 +268,7 @@ function resolveListenerPodcastPlatforms_(title, maker, sourceUrl, explicitRss) 
     resolved.rss = manualRss;
   }
 
-  const listenSlug = String(sourceUrl || "").match(/^https?:\/\/listen\.style\/p\/([^/?#]+)/i);
+  const listenSlug = String(sourceUrl || "").match(/^https?:\/\/(?:rss\.)?listen\.style\/p\/([^/?#]+)/i);
   if (!resolved.rss && listenSlug && listenSlug[1]) {
     resolved.rss = "https://rss.listen.style/p/" + listenSlug[1] + "/rss";
   }
@@ -402,6 +410,12 @@ function applyKnownPodcastUrl_(resolved, value) {
   }
 
   if (/listen\.style\//i.test(url)) {
+    const rssSlug = url.match(/^https?:\/\/rss\.listen\.style\/p\/([^/?#]+)/i);
+    if (rssSlug) {
+      if (!resolved.rss) resolved.rss = url;
+      resolved.listen = resolved.listen || "https://listen.style/p/" + rssSlug[1];
+      return;
+    }
     resolved.listen = resolved.listen || canonicalPodcastUrl_(url);
     return;
   }
@@ -437,15 +451,8 @@ function applyKnownPodcastUrl_(resolved, value) {
 }
 
 function canonicalPodcastUrl_(value) {
-  const url = String(value || "").trim();
-  try {
-    const parsed = new URL(url);
-    parsed.search = "";
-    parsed.hash = "";
-    return parsed.toString();
-  } catch (_) {
-    return url;
-  }
+  // GAS には URL クラスが無いため、文字列で ? と # 以降を落とす
+  return String(value || "").trim().replace(/[?#].*$/, "");
 }
 
 
@@ -456,18 +463,9 @@ function pocketCastsFollowUrl_(feedUrl) {
 
 function isSafePublicPodcastRss_(feedUrl) {
   const value = String(feedUrl || "").trim();
-  if (!/^https?:\/\//i.test(value)) return false;
-  try {
-    const parsed = new URL(value);
-    if (parsed.username || parsed.password) return false;
-    const sensitive = ["token", "auth", "key", "signature", "sig", "access_token"];
-    for (let i = 0; i < sensitive.length; i++) {
-      if (parsed.searchParams.has(sensitive[i])) return false;
-    }
-    return true;
-  } catch (_) {
-    return false;
-  }
+  if (!/^https?:\/\/[^\s/@]+\//i.test(value)) return false;
+  if (/^https?:\/\/[^/]*@/i.test(value)) return false;
+  return !/[?&](token|auth|key|signature|sig|access_token)=/i.test(value);
 }
 
 function readPodcastFeedMetadata_(feedUrl) {
@@ -502,4 +500,31 @@ function readPodcastFeedMetadata_(feedUrl) {
   } catch (_) {
     return null;
   }
+}
+
+// 毎時の自動更新から呼ばれ、1日1回だけ配信先の空欄を補完する（新しいトリガーは作らない）。
+function syncPodcastPlatformsDaily_() {
+  const props = PropertiesService.getScriptProperties();
+  const today = Utilities.formatDate(new Date(), "Asia/Tokyo", "yyyy-MM-dd");
+  if (props.getProperty("PODCAST_PLATFORM_SYNC_DAY") === today) return { skipped: true, reason: "done-today" };
+  props.setProperty("PODCAST_PLATFORM_SYNC_DAY", today);
+  return syncAllPodcastPlatforms();
+}
+
+// 書き込みなし: 朝リスPodcastの各行で「空欄に入る候補」だけをログに出す
+function PODCAST_PLATFORM_DRY_RUN() {
+  const sheet = getSheetLoose(SpreadsheetApp.openById(SPREADSHEET_ID), LISTENER_PODCAST_PLATFORM_SYNC_SHEET);
+  const values = sheet.getRange(2, 1, Math.max(0, sheet.getLastRow() - 1), 17).getDisplayValues();
+  const keys = ["spotify", "apple", "listen", "standfm", "amazon", "youtube", "website", "artwork", "rss", "pocketcasts", "pody", "genre"];
+  const out = [];
+  values.forEach(function(row) {
+    const title = String(row[1] || "").trim();
+    if (!title) return;
+    const resolved = resolveListenerPodcastPlatforms_(title, String(row[2] || "").trim(), String(row[0] || "").trim(), String(row[13] || "").trim()) || {};
+    const fill = {};
+    keys.forEach(function(k, i) { if (!String(row[5 + i] || "").trim() && resolved[k]) fill[k] = resolved[k]; });
+    if (Object.keys(fill).length) out.push(title + " => " + JSON.stringify(fill));
+  });
+  Logger.log(out.join("\n") || "補完候補なし");
+  return out;
 }

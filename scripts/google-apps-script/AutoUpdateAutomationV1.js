@@ -181,7 +181,14 @@ function runAutoUpdateBackfillHourlyV1() {
   } catch (error) {
     shelf = { error: String(error && error.message ? error.message : error) };
   }
-  return { activation: activation, backfill: backfill, shelf: shelf };
+  // ポすすめ（朝リスPodcast・他おすすめ）の配信先URLを1日1回だけ補完（PodcastPlatformSync.js）。
+  let podcastPlatforms = null;
+  try {
+    podcastPlatforms = typeof syncPodcastPlatformsDaily_ === "function" ? syncPodcastPlatformsDaily_() : null;
+  } catch (error) {
+    podcastPlatforms = { error: String(error && error.message ? error.message : error) };
+  }
+  return { activation: activation, backfill: backfill, shelf: shelf, podcastPlatforms: podcastPlatforms };
 }
 
 function isAutoUpdateDailyWindowV1_(nowMs) {
