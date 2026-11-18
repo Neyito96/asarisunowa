@@ -2179,7 +2179,7 @@ function p28Tick_() {
   else if (job === 'SPT') r = p32Spotify_();
   else r = p29ApplePast_();
   r = r || {};
-  var finished = job !== 'NEW' && job !== 'JUDGE' && (r.status === 'OK_NO_CHANGE' || r.finished === true || (/^(OK|DONE)/.test(r.status || '') && !r.written && !r.more));
+  var finished = job !== 'NEW' && job !== 'JUDGE' && job !== 'SPT' && (r.status === 'OK_NO_CHANGE' || r.finished === true || (/^(OK|DONE)/.test(r.status || '') && !r.written && !r.more));
   if (finished) { done.jobs.push(job); P.setProperty('P28_DONE', JSON.stringify(done)); }
   P.setProperty('P28_NEXT', String(i + 1));
   return p28Log_(job, (r.status || '') + (finished ? '（今日は完了）' : ''), r);
@@ -2255,15 +2255,21 @@ function p32Spotify_() {
   if (!p27WriteEnabled_()) return { status: 'DISABLED' };
   var g = p27Get_(P32_SPT_JSON_ + '?_=' + Date.now()); if (g.code !== 200) return { status: 'FETCH_' + g.code, more: true };
   var data = JSON.parse(g.body), re = P27_NEW_RE_('Spotify'), nz = function (t) { return String(t || '').normalize('NFKC').replace(/\s+/g, ''); };
-  var v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = p27Ledger_(v.ss, 'Spotify'), by = {}; L.rows.forEach(function (r) { by[r.ep] = r; });
+  // 同じ照合結果（generatedAt）を書き終えていれば読むだけで戻る（巡回で約50分ごとに来るが、JSONが変わった時だけ書く）
+  var P = PropertiesService.getScriptProperties(), gen = String((data.summary || {}).generatedAt || '');
+  if (gen && P.getProperty('P32_DONE_GEN') === gen) return { status: 'OK_SAME_JSON', generatedAt: gen };
+  var v = scOpen_(SC_CONFIG.v2WorkingId, ''), L = p27Ledger_(v.ss, 'Spotify'), by = {}, used = {}; L.rows.forEach(function (r) { by[r.ep] = r; if (r.current) used[r.current] = r.ep; });
   var skip = {}, sk = function (k) { skip[k] = (skip[k] || 0) + 1; };
   var plans = (data.verified || []).filter(function (x) {
     var r = by[x.ep]; if (!/^EP-\d{5}$/.test(x.ep || '') || !re.test(x.url || '')) { sk('形が違う'); return false; }
     if (!r) { sk('行なし'); return false; } if (r.show !== x.show || nz(r.title) !== nz(x.title)) { sk('番組・題名が台帳と違う'); return false; }
-    if (r.current) { sk(r.current === x.url ? '既に同じURL' : '既に値あり（上書きしない）'); return false; } return true;
+    if (r.current) { sk(r.current === x.url ? '既に同じURL' : '既に値あり（上書きしない）'); return false; }
+    if (used[x.url]) { sk('同じURLが別の行にある（誤照合の疑い）'); return false; } used[x.url] = x.ep; return true;
   }).map(function (x) { return { ep: x.ep, url: x.url, basis: 'Spotify番組ページ（Actions照合 docs/spotify/matches.json ' + ((data.summary || {}).generatedAt || '') + '）: 番組ID・題名・日付・長さ一致' }; });
   var w = p29Write_('Spotify', plans); w.verified = (data.verified || []).length; w.planned = plans.length; w.skippedBeforeWrite = skip; w.generatedAt = (data.summary || {}).generatedAt;
-  w.finished = w.status === 'OK_NO_CHANGE' || (w.status === 'OK' && plans.length <= P27_V2_MAX_PER_RUN_); return w;
+  var allDone = w.status === 'OK_NO_CHANGE' || (w.status === 'OK' && !w.readbackMismatch && plans.length <= P27_V2_MAX_PER_RUN_);
+  if (allDone && gen) P.setProperty('P32_DONE_GEN', gen);
+  w.finished = false; w.more = !allDone; return w;   // 1日の完了扱いにしない（Actions が 06:40・12:40 に照合を更新するため）
 }
 function P32_SP_1_Spotify照合_確認だけ() {
   var g = p27Get_(P32_SPT_JSON_ + '?_=' + Date.now()); if (g.code !== 200) return scLog_('P32_SP_1_Spotify照合_確認だけ', { status: 'FETCH_' + g.code });
