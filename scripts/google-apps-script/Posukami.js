@@ -210,10 +210,11 @@ function posuWritePodcastSummary_(ss, pub, queue) {
 function handlePosukamiPublic_(e, callback) {
   var res;
   try {
-    var ap = posuApprove(), c = posuCfg(), ss = SpreadsheetApp.openById(c.spreadsheetId);
+    var ap = posuApprove(), c = posuCfg(), ss = SpreadsheetApp.openById(c.spreadsheetId), intro = { added: 0 };
+    try { intro = posuSyncIntros(posuIntroReport()); } catch (err) { intro = { added: 0, error: String(err && err.message || err) }; }   // 紹介された回（ドーナツの（ポすすめ）回）を毎回照合して公開シートへ（確定＝番組名一致＋紹介日±1日のみ・二重登録しない）
     var pub = posuRows(posuSheet(ss, c.publicSheet, POSU_PUBLIC_H), POSU_PUBLIC_H.length), queue = posuRows(posuSheet(ss, c.queueSheet, POSU_QUEUE_H), POSU_QUEUE_H.length);
     var n = 0; try { n = posuWritePodcastSummary_(ss, pub, queue); } catch (err) { n = -1; }
-    res = { ok: true, type: 'posukamiPublic', approved: ap.published || 0, podcasts: posuPodcasts().map(function (p) { return { id: p.id, title: p.title }; }), rows: pub, summaryRows: n };
+    res = { ok: true, type: 'posukamiPublic', approved: ap.published || 0, introAdded: intro.added || 0, introError: intro.error || '', podcasts: posuPodcasts().map(function (p) { return { id: p.id, title: p.title }; }), rows: pub, summaryRows: n };
   } catch (err) { res = { ok: false, error: String(err && err.message || err) }; }
   return (typeof apiResponse === 'function') ? apiResponse(res, callback) : res;
 }
