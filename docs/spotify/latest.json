@@ -1,0 +1,97 @@
+{
+ "generatedAt": "2026-11-18T08:36:25.450Z",
+ "source": "open.spotify.com/embed/show",
+ "shows": {
+  "ニュースの現場から": {
+   "showId": "392h0MYfvMTndEVzf2cOvC",
+   "count": 1,
+   "episodes": [
+    {
+     "id": "3tifxg5hAoWPsgm7G7LfqF",
+     "url": "https://open.spotify.com/episode/3tifxg5hAoWPsgm7G7LfqF",
+     "title": "（World Insight #8）「VIVANT」はリアルだった？ タイ警察、汚職文化の現実",
+     "date": "2026-11-17",
+     "durationMs": 3083124
+    }
+   ]
+  },
+  "ニュースの学校": {
+   "showId": "2uG9W6CnsaNi87AfSuGe8r",
+   "count": 1,
+   "episodes": [
+    {
+     "id": "0qgD1gR1QNhtm9SqsnIsvZ",
+     "url": "https://open.spotify.com/episode/0qgD1gR1QNhtm9SqsnIsvZ",
+     "title": "保釈",
+     "date": "2026-11-17",
+     "durationMs": 832162
+    }
+   ]
+  },
+  "報談": {
+   "showId": "5Dt1uyQaJpM6hPV8aEMP3R",
+   "count": 1,
+   "episodes": [
+    {
+     "id": "2tOEzJdAU1rdfimMZF1w7K",
+     "url": "https://open.spotify.com/episode/2tOEzJdAU1rdfimMZF1w7K",
+     "title": "（カロリーオフ）GDPは時代遅れなのか問題",
+     "date": "2026-11-15",
+     "durationMs": 1018541
+    }
+   ]
+  },
+  "スポンジ": {
+   "showId": "7euH6hzudIdp61JRSi9E8w",
+   "count": 1,
+   "episodes": [
+    {
+     "id": "0SAw3FYUlp37PxQdskotGE",
+     "url": "https://open.spotify.com/episode/0SAw3FYUlp37PxQdskotGE",
+     "title": "（野球 #6）女子プロ野球選手・島野愛友利　甲子園・米挑戦…「壁」を破り続けて",
+     "date": "2026-11-17",
+     "durationMs": 2646994
+    }
+   ]
+  },
+  "MEDIA TALK": {
+   "showId": "0yhef9ORZkUZs9ZeotdCSY",
+   "count": 1,
+   "episodes": [
+    {
+     "id": "1VenT5q6ABfDLoFxtzX9x0",
+     "url": "https://open.spotify.com/episode/1VenT5q6ABfDLoFxtzX9x0",
+     "title": "（動画見た？#52）ホームビデオに革命、思い出したトヨタの感動ムービー　あの番組を「辛口」でコラボ",
+     "date": "2026-11-17",
+     "durationMs": 4244903
+    }
+   ]
+  },
+  "こどもそうだんしつ": {
+   "showId": "1KExdSsjQnatS4TdseGoC0",
+   "count": 1,
+   "episodes": [
+    {
+     "id": "3EtOwW5rnhAWJBgozsNNEN",
+     "url": "https://open.spotify.com/episode/3EtOwW5rnhAWJBgozsNNEN",
+     "title": "ハチ #21【こぼれ話】かわいい虫にも意外な顔",
+     "date": "2026-11-17",
+     "durationMs": 1015000
+    }
+   ]
+  },
+  "ドーナツ": {
+   "showId": "0341I5UOUrJgm7KEvNGInZ",
+   "count": 1,
+   "episodes": [
+    {
+     "id": "1ocv4ImeR9rQQBOv1vXNm9",
+     "url": "https://open.spotify.com/episode/1ocv4ImeR9rQQBOv1vXNm9",
+     "title": "（ポすすめ）井戸の聲",
+     "date": "2026-11-16",
+     "durationMs": 2052010
+    }
+   ]
+  }
+ }
+}
