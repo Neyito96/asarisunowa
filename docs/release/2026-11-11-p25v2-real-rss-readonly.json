@@ -1,0 +1,371 @@
+{
+ "mode": "READ_ONLY_DRY_RUN",
+ "rssFetchedAt": "2026-11-11T07:28:36.949Z",
+ "feedStatus": [
+  {
+   "show": "ニュースの現場から",
+   "http": 200,
+   "itemsInFeed": 2673,
+   "taken": 40,
+   "newest": "2026/11/11 04:00",
+   "noTitle": 0,
+   "noGuid": 0
+  },
+  {
+   "show": "MEDIA TALK",
+   "http": 200,
+   "itemsInFeed": 1770,
+   "taken": 40,
+   "newest": "2026/11/11 00:00",
+   "noTitle": 0,
+   "noGuid": 0
+  },
+  {
+   "show": "こどもそうだんしつ",
+   "http": 200,
+   "itemsInFeed": 42,
+   "taken": 40,
+   "newest": "2026/11/11 04:05",
+   "noTitle": 0,
+   "noGuid": 0
+  },
+  {
+   "show": "スポンジ",
+   "http": 200,
+   "itemsInFeed": 186,
+   "taken": 40,
+   "newest": "2026/11/11 04:00",
+   "noTitle": 0,
+   "noGuid": 0
+  },
+  {
+   "show": "ニュースの学校",
+   "http": 200,
+   "itemsInFeed": 505,
+   "taken": 40,
+   "newest": "2026/11/11 04:00",
+   "noTitle": 0,
+   "noGuid": 0
+  },
+  {
+   "show": "ドーナツ",
+   "http": 200,
+   "itemsInFeed": 83,
+   "taken": 40,
+   "newest": "2026/11/10 04:00",
+   "noTitle": 0,
+   "noGuid": 0
+  },
+  {
+   "show": "報談",
+   "http": 200,
+   "itemsInFeed": 224,
+   "taken": 40,
+   "newest": "2026/11/9 04:00",
+   "noTitle": 0,
+   "noGuid": 0
+  }
+ ],
+ "rowsBefore": 6555,
+ "publicBefore": 6033,
+ "counts": {
+  "CANDIDATE": 26,
+  "HOLD": 0,
+  "BLOCK": 5,
+  "ALREADY_INGESTED": 243,
+  "METADATA_CHANGE": 6
+ },
+ "candidates": [
+  {
+   "show": "ニュースの現場から",
+   "guid": "73527408-d0df-4554-9feb-b4e50083852a",
+   "date": "2026/10/17 04:00",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "ニュースの現場から",
+   "guid": "e58f2557-8e1f-4c74-adca-b4e400526584",
+   "date": "2026/10/16 04:00",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "ニュースの現場から",
+   "guid": "13a36195-331b-4f82-bcc2-b4c100868f97",
+   "date": "2026/10/15 04:00",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "ニュースの現場から",
+   "guid": "2562ccc6-8430-4bdd-b1fd-b4d60079aa38",
+   "date": "2026/10/14 04:00",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "ニュースの現場から",
+   "guid": "bd59457d-fd7e-4393-9611-b4d2002509ae",
+   "date": "2026/10/13 04:00",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "ニュースの現場から",
+   "guid": "4531520c-d23d-40ca-bf7d-b4db0074560d",
+   "date": "2026/10/12 04:00",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "ニュースの現場から",
+   "guid": "38da5e5a-96ce-4113-9c7e-b4db000e82d2",
+   "date": "2026/10/11 04:00",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "MEDIA TALK",
+   "guid": "a4b77308-827e-4a9c-84da-b4c900acf817",
+   "date": "2026/10/14 00:00",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "MEDIA TALK",
+   "guid": "2854dfaf-5368-4d7b-bd72-b49b007ac51d",
+   "date": "2026/10/13 04:01",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "MEDIA TALK",
+   "guid": "72b89bf1-7587-445d-be56-b49b007ab6b0",
+   "date": "2026/10/13 04:00",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "MEDIA TALK",
+   "guid": "27b37ff5-5c04-4e90-b3f6-b4dc00603b06",
+   "date": "2026/10/12 04:00",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "こどもそうだんしつ",
+   "guid": "70b9aa07-7749-44e7-96a4-b4fd00281010",
+   "date": "2026/11/11 04:05",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "こどもそうだんしつ",
+   "guid": "511d6330-57d0-479f-b31d-b4c90054712a",
+   "date": "2026/10/14 04:00",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "スポンジ",
+   "guid": "b7fa388b-8820-4287-af29-b4fa00ca5be6",
+   "date": "2026/11/11 04:00",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "スポンジ",
+   "guid": "b6a82016-ea42-4363-8150-b4ab004cc8d8",
+   "date": "2026/10/16 04:00",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "スポンジ",
+   "guid": "f4caf54c-48b2-45ca-a78c-b4dc0090d23e",
+   "date": "2026/10/14 04:00",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "ニュースの学校",
+   "guid": "960e9378-cb95-11f1-b670-172b23701889",
+   "date": "2026/11/11 04:00",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "ニュースの学校",
+   "guid": "22a8a3b0-ceb5-11f1-8f27-c362e1f68974",
+   "date": "2026/10/28 04:00",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "ニュースの学校",
+   "guid": "48792904-ceb3-11f1-a2e6-7b1c2bd6e6eb",
+   "date": "2026/10/27 04:00",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "ニュースの学校",
+   "guid": "cfdd6178-c3bc-11f1-a625-db6a01e1862b",
+   "date": "2026/10/16 04:00",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "ニュースの学校",
+   "guid": "c7880fd2-b011-11f1-85c7-13f4dad77055",
+   "date": "2026/10/15 04:00",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "ニュースの学校",
+   "guid": "31fe02ee-c6e3-11f1-bce1-e76c16114bcf",
+   "date": "2026/10/14 04:00",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "ドーナツ",
+   "guid": "ee4ddbac-dfb7-45c0-b343-b4e5008a65b0",
+   "date": "2026/10/17 06:35",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "ドーナツ",
+   "guid": "fa54c4b2-c527-421e-9bee-b4e40025a494",
+   "date": "2026/10/16 04:00",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "ドーナツ",
+   "guid": "f48f1519-bc3b-4d0d-a90f-b4da002ab088",
+   "date": "2026/10/15 04:00",
+   "reasons": [],
+   "existing": ""
+  },
+  {
+   "show": "報談",
+   "guid": "cc0f418a-c86f-11f1-a2a6-73dcfc901dce",
+   "date": "2026/10/16 04:00",
+   "reasons": [],
+   "existing": ""
+  }
+ ],
+ "hold": [],
+ "block": [
+  {
+   "show": "スポンジ",
+   "guid": "a6e571c0-68a8-4bc2-928a-b4ad0062d47b",
+   "date": "2026/8/29 12:00",
+   "reasons": [
+    "GUID_EXISTS",
+    "SAME_SHOW_TITLE"
+   ],
+   "existing": ""
+  },
+  {
+   "show": "スポンジ",
+   "guid": "13491b76-bc61-4c02-8f98-b49f0015819f",
+   "date": "2026/8/8 12:00",
+   "reasons": [
+    "GUID_EXISTS",
+    "SAME_SHOW_TITLE"
+   ],
+   "existing": ""
+  },
+  {
+   "show": "スポンジ",
+   "guid": "55a49b7b-8f3f-4247-ace5-b48d006de94d",
+   "date": "2026/7/20 20:18",
+   "reasons": [
+    "GUID_EXISTS",
+    "SAME_SHOW_TITLE"
+   ],
+   "existing": ""
+  },
+  {
+   "show": "スポンジ",
+   "guid": "aeaf3348-4b52-46d3-83d2-b48800a291d6",
+   "date": "2026/7/18 04:00",
+   "reasons": [
+    "GUID_EXISTS",
+    "SAME_SHOW_TITLE"
+   ],
+   "existing": ""
+  },
+  {
+   "show": "スポンジ",
+   "guid": "822a4b75-8d22-445d-a717-b4880037f1f6",
+   "date": "2026/7/17 17:15",
+   "reasons": [
+    "GUID_EXISTS",
+    "SAME_SHOW_TITLE"
+   ],
+   "existing": ""
+  }
+ ],
+ "metadataChange": [
+  {
+   "show": "MEDIA TALK",
+   "guid": "a86b1d53-bac1-42ce-a504-b49c00b95a9f",
+   "date": "2026/11/11 00:00",
+   "reasons": [
+    "GUID_PRESENT_TITLE_CHANGED"
+   ],
+   "existing": "EP-06692"
+  },
+  {
+   "show": "MEDIA TALK",
+   "guid": "516c5323-6496-4e42-a399-b4c900a98d3c",
+   "date": "2026/9/23 04:00",
+   "reasons": [
+    "GUID_PRESENT_TITLE_CHANGED"
+   ],
+   "existing": "EP-00031"
+  },
+  {
+   "show": "MEDIA TALK",
+   "guid": "c8211192-9fa3-4bed-952a-b4b00083493b",
+   "date": "2026/9/9 04:00",
+   "reasons": [
+    "GUID_PRESENT_TITLE_CHANGED"
+   ],
+   "existing": "EP-00038"
+  },
+  {
+   "show": "こどもそうだんしつ",
+   "guid": "c6af6a0d-0e16-4637-bfc5-b4f6001b6c82",
+   "date": "2026/11/4 04:05",
+   "reasons": [
+    "GUID_PRESENT_TITLE_CHANGED"
+   ],
+   "existing": "EP-06667"
+  },
+  {
+   "show": "こどもそうだんしつ",
+   "guid": "b47f4817-6b1f-41b6-8766-b4ec00665a27",
+   "date": "2026/10/28 04:00",
+   "reasons": [
+    "GUID_PRESENT_TITLE_CHANGED"
+   ],
+   "existing": "EP-06638"
+  },
+  {
+   "show": "スポンジ",
+   "guid": "210c535a-1b6e-41d0-9a5e-b4da00b98000",
+   "date": "2026/10/9 04:00",
+   "reasons": [
+    "GUID_PRESENT_TITLE_CHANGED"
+   ],
+   "existing": "EP-00061"
+  }
+ ]
+}
