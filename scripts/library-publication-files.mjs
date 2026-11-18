@@ -1,3 +1,4 @@
+import { tidyDescription } from '../public/library/description-tidy.mjs';
 import {writeFile,mkdir,rm,rename} from 'node:fs/promises';
 import {createHash} from 'node:crypto';import {join,resolve} from 'node:path';
 import {filterEpisodes} from '../lib/library-public.mjs';
@@ -22,10 +23,12 @@ for(const [i,show] of groups.entries()) {
  for(let n=0;n<rows.length;n+=100){const file=`search/show-${i}-${n/100}.json`;await write(file,rows.slice(n,n+100).map(e=>({...summary(e),keywords:[e.description,...(e.tags||[]),...(e.relatedArticles||[]).map(a=>a.title)].join(' ')})));search.push(file);}
  shows.push({name:show,label:show==='こどもそうだんしつ'&&!groups.includes('SDGsを話そう')?'SDGsを話そう・こどもそうだんしつ':show,count:rows.length,audioPresent:rows.filter(e=>e.audioAvailable).length,playable:rows.filter(e=>e.audio).length,pages,search});
 }
+// 検索対象の概要は、表示と同じ整形（告知・登録の案内を外す）を通した本文。整形できない回は元の文のまま
+const searchableDescription=(d)=>{const t=tidyDescription(d);return t.status==='TIDY'||t.status==='AS_IS'?[t.body,...t.related.map(r=>r.title)].join(' '):t.status==='PROMO_ONLY'?'':String(d||'');};
 // 速い検索の索引（#350）: ① lite＝題名・出演者・番組・日付だけ（1ファイル、最初にこれだけで結果を出す）② text＝概要・タグ・関連記事の見出し（約800回ずつ、後から並列で足す）
 const searchIndex={lite:'search/lite.json',shows:groups,text:[]};
 await write(searchIndex.lite,sorted.map(e=>[e.id,groups.indexOf(e.show),e.date,e.title,e.cast||'',e.audio?1:0]));
-for(let n=0,k=0;n<sorted.length;n+=800,k++){const file=`search/text-${k}.json`;await write(file,sorted.slice(n,n+800).map(e=>[e.id,[e.description,...(e.tags||[]),...(e.relatedArticles||[]).map(a=>a.title)].filter(Boolean).join(' ')]));searchIndex.text.push(file);}
+for(let n=0,k=0;n<sorted.length;n+=800,k++){const file=`search/text-${k}.json`;await write(file,sorted.slice(n,n+800).map(e=>[e.id,[searchableDescription(e.description),...(e.tags||[]),...(e.relatedArticles||[]).map(a=>a.title)].filter(Boolean).join(' ')]));searchIndex.text.push(file);}
 // IDs remain stable; bounded 50-record detail bundles avoid thousands of requests/files.
 const details={};for(const e of episodes) {const bucket=Math.floor(Number(e.id.slice(3))/50);(details[bucket]??=[]).push(e);}
 for(const [bucket,items] of Object.entries(details)) await write(`details/${bucket}.json`,items);
