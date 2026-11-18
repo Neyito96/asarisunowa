@@ -136,6 +136,7 @@ export default function PlaylistCombinedAutoForm() {
         PLAYLIST_SUBMIT_ENDPOINT,
         {
           kind: "playlist",
+          shelf: updateType === "series" ? "series" : "list",
           updateType,
           url: cleanUrl,
           title: cleanTitle,
