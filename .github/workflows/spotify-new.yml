@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
   push:   # 初回の動作確認用（main にはPRでマージ）
     branches: ['feat/spotify-new-episodes']
-    paths: ['scripts/spotify/**', '.github/workflows/spotify-new.yml']
+    paths: ['scripts/spotify/**', '.github/workflows/spotify-new.yml', 'tests/spotify-match.test.mjs']
 permissions:
   contents: write
   issues: write
@@ -23,10 +23,17 @@ jobs:
         with: { node-version: 22 }
       - run: npm i --no-save playwright@1 && npx playwright install --with-deps chromium
       - run: node scripts/spotify/scrape-new.mjs
+      - name: Match against V2 public ledger (read only)
+        env:
+          RX_URL: https://script.google.com/macros/s/AKfycbwwcQQkwhGaddZxXzWh_bPVGCVP4YssJ3FKQINmTUSsThsji334DfVtxpc9VlwSm8lRIg/exec
+        run: |
+          curl -fsSL "$RX_URL?type=v2PublicCsv" -o "$RUNNER_TEMP/v2.csv"
+          head -c 200 "$RUNNER_TEMP/v2.csv" | grep -q '^EP-ID,' || { echo "V2・公開台帳の形ではない"; exit 1; }
+          node scripts/spotify/match.mjs "$RUNNER_TEMP/v2.csv"
       - name: Commit if changed
         run: |
           git config user.name "github-actions[bot]"; git config user.email "41898+github-actions[bot]@users.noreply.github.com"
-          git add docs/spotify/latest.json
+          git add docs/spotify/latest.json docs/spotify/matches.json
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           git commit -m "data(spotify): Spotify 新着 $(date -u +%F)"
           git push

@@ -18,7 +18,7 @@ export function extractEpisodes(nextData) {
     if (m) {
       const title = String(x.title || x.name || '').trim();
       const rd = x.releaseDate && (x.releaseDate.isoString || x.releaseDate) || x.release_date || '';
-      const dur = Number(x.duration || x.duration_ms || (x.duration && x.duration.totalMilliseconds) || 0);
+      const dv = x.duration && typeof x.duration === 'object' ? x.duration.totalMilliseconds : (x.duration || x.duration_ms || 0), dur = Number(dv || 0);
       const cur = out.get(m[1]) || {};
       out.set(m[1], { id: m[1], url: 'https://open.spotify.com/episode/' + m[1], title: cur.title || title, date: cur.date || String(rd || '').slice(0, 10), durationMs: cur.durationMs || (Number.isFinite(dur) ? dur : 0) });
     }
