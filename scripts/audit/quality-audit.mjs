@@ -96,13 +96,16 @@ async function get(url, ms = 15000) {
   try { const r = await fetch(url, { headers: UA, redirect: 'follow', signal: ac.signal }); const text = await r.text(); return { status: r.status, url: r.url, text }; }
   finally { clearTimeout(t); }
 }
+// 題名をページから読む（og:title を優先）。自動の巡回を断られた（403・429）ときは「確かめられない」にする（初回実行で Pocket Casts が 403 を返した）
+const pageTitle = (t) => { const m = t.match(/<meta[^>]+property="og:title"[^>]+content="([^"]+)"/) || t.match(/<meta[^>]+content="([^"]+)"[^>]+property="og:title"/) || t.match(/<title[^>]*>([^<]+)<\/title>/); return m ? m[1] : ''; };
+const viaPage = async (url) => { const r = await get(url); if (r.status === 403 || r.status === 429) return { status: 'BLOCKED', note: `自動の巡回を断られた（HTTP ${r.status}）` }; if (r.status === 404 || r.status === 410) return { status: 'FAIL', kind: 'リンク切れ', note: `HTTP ${r.status}` }; const t = pageTitle(r.text); if (!t || /^(Error|Page not found)/i.test(t)) return { status: 'UNVERIFIED', note: `HTTP ${r.status}・題名を取れない` }; return { title: t }; };
 const PROBES = {
   // 公開の埋め込みページ。消えた回は「Page not found」。題名がページに入る
-  spotify: async (url) => { const id = new URL(url).pathname.split('/').pop(); const r = await get(`https://open.spotify.com/embed/episode/${id}`); if (/find the page/i.test(r.text)) return { status: 'FAIL', kind: 'リンク切れ', note: 'Spotify「Page not found」' }; const m = r.text.match(/"title":"([^"]+)"/); return m ? { title: m[1] } : { status: 'UNVERIFIED', note: '題名を取れない' }; },
-  pocketcasts: async (url) => { const r = await get(url); if (r.status === 404) return { status: 'FAIL', kind: 'リンク切れ', note: 'HTTP 404' }; const m = r.text.match(/<meta property="og:title" content="([^"]+)"/) || r.text.match(/<title>([^<]+)<\/title>/); return m ? { title: m[1] } : { status: 'UNVERIFIED', note: `HTTP ${r.status}・題名なし` }; },
-  omny: async (url) => { const r = await get(url.replace(/\/embed$/, '')); if (r.status === 404) return { status: 'FAIL', kind: 'リンク切れ', note: 'HTTP 404' }; const m = r.text.match(/<title>([^<]+)<\/title>/); return m ? { title: m[1] } : { status: 'UNVERIFIED', note: `HTTP ${r.status}` }; },
-  apple: async (url) => { const r = await get(url); if (r.status === 404) return { status: 'FAIL', kind: 'リンク切れ', note: 'HTTP 404' }; const m = r.text.match(/<meta property="og:title" content="([^"]+)"/) || r.text.match(/<title>([^<]+)<\/title>/); return m ? { title: m[1] } : { status: 'UNVERIFIED', note: `HTTP ${r.status}` }; },
-  listen: async (url) => { const r = await get(url); if (r.status === 404) return { status: 'FAIL', kind: 'リンク切れ', note: 'HTTP 404' }; const m = r.text.match(/<meta property="og:title" content="([^"]+)"/) || r.text.match(/<title>([^<]+)<\/title>/); return m ? { title: m[1] } : { status: 'UNVERIFIED', note: `HTTP ${r.status}` }; },
+  spotify: async (url) => { const id = new URL(url).pathname.split('/').pop(); const r = await get(`https://open.spotify.com/embed/episode/${id}`); if (r.status === 403 || r.status === 429) return { status: 'BLOCKED', note: `HTTP ${r.status}` }; if (/find the page/i.test(r.text)) return { status: 'FAIL', kind: 'リンク切れ', note: 'Spotify「Page not found」' }; const m = r.text.match(/"title":"([^"]+)"/); return m ? { title: m[1] } : { status: 'UNVERIFIED', note: '題名を取れない' }; },
+  pocketcasts: viaPage,
+  omny: (url) => viaPage(url.replace(/\/embed$/, '')),
+  apple: viaPage,
+  listen: viaPage,
   // ブラウザ描画が要る・アクセス制限があるため、このロボでは確かめない
   amazon: async () => ({ status: 'BLOCKED', note: 'ブラウザでの描画が必要' }),
   asahi: async () => ({ status: 'BLOCKED', note: '朝日新聞の公式ページは描画が必要（題名をHTMLから取れない）' }),
