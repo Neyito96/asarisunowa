@@ -1,5 +1,5 @@
 {
- "auditedAt": "2026-11-19T22:18:30.430Z",
+ "auditedAt": "2026-11-19T22:23:59.083Z",
  "probes": [
   {
    "ep": "EP-04128",
@@ -90,25 +90,22 @@
    "ep": "EP-04430",
    "service": "pocketcasts",
    "url": "https://pca.st/episode/7a7c2e1b-b61a-4681-a6aa-c5174a46c816",
-   "status": "REVIEW",
-   "kind": "別の回の疑い",
-   "note": "リンク先の題名「Error 403 | Pocket Casts」"
+   "status": "BLOCKED",
+   "note": "自動の巡回を断られた（HTTP 403）"
   },
   {
    "ep": "EP-04887",
    "service": "pocketcasts",
    "url": "https://pca.st/episode/32e151d1-8ded-4bce-af09-4b123136a0be",
-   "status": "REVIEW",
-   "kind": "別の回の疑い",
-   "note": "リンク先の題名「Error 403 | Pocket Casts」"
+   "status": "BLOCKED",
+   "note": "自動の巡回を断られた（HTTP 403）"
   },
   {
    "ep": "EP-05248",
    "service": "pocketcasts",
    "url": "https://pca.st/episode/8cf1491b-d99e-4afd-926b-003e5016bd8e",
-   "status": "REVIEW",
-   "kind": "別の回の疑い",
-   "note": "リンク先の題名「Error 403 | Pocket Casts」"
+   "status": "BLOCKED",
+   "note": "自動の巡回を断られた（HTTP 403）"
   },
   {
    "ep": "EP-05746",
@@ -130,141 +127,134 @@
    "ep": "EP-00726",
    "service": "pocketcasts",
    "url": "https://pca.st/episode/b0d19a8a-4a22-4a39-8bb3-5a66843fe9ea",
-   "status": "REVIEW",
-   "kind": "別の回の疑い",
-   "note": "リンク先の題名「Error 403 | Pocket Casts」"
+   "status": "BLOCKED",
+   "note": "自動の巡回を断られた（HTTP 403）"
   },
   {
    "ep": "EP-01314",
    "service": "pocketcasts",
    "url": "https://pca.st/episode/cae5e3bb-192c-4cbf-8b0b-33a059b81d71",
-   "status": "REVIEW",
-   "kind": "別の回の疑い",
-   "note": "リンク先の題名「Error 403 | Pocket Casts」"
+   "status": "BLOCKED",
+   "note": "自動の巡回を断られた（HTTP 403）"
   },
   {
    "ep": "EP-01859",
    "service": "pocketcasts",
    "url": "https://pca.st/episode/109485ee-132c-4b36-8529-f763ee40932b",
-   "status": "REVIEW",
-   "kind": "別の回の疑い",
-   "note": "リンク先の題名「Error 403 | Pocket Casts」"
+   "status": "BLOCKED",
+   "note": "自動の巡回を断られた（HTTP 403）"
   },
   {
    "ep": "EP-02378",
    "service": "pocketcasts",
    "url": "https://pca.st/episode/8ab13d15-7fd7-4417-adf9-018605d32dd2",
-   "status": "REVIEW",
-   "kind": "別の回の疑い",
-   "note": "リンク先の題名「Error 403 | Pocket Casts」"
+   "status": "BLOCKED",
+   "note": "自動の巡回を断られた（HTTP 403）"
   },
   {
    "ep": "EP-02895",
    "service": "pocketcasts",
    "url": "https://pca.st/episode/c060e9ce-bdc5-4f62-b3ff-ff36bf9995da",
-   "status": "REVIEW",
-   "kind": "別の回の疑い",
-   "note": "リンク先の題名「Error 403 | Pocket Casts」"
+   "status": "BLOCKED",
+   "note": "自動の巡回を断られた（HTTP 403）"
   },
   {
    "ep": "EP-03439",
    "service": "pocketcasts",
    "url": "https://pca.st/episode/1310aca5-8183-49ae-b65d-880354515b1a",
-   "status": "REVIEW",
-   "kind": "別の回の疑い",
-   "note": "リンク先の題名「Error 403 | Pocket Casts」"
+   "status": "BLOCKED",
+   "note": "自動の巡回を断られた（HTTP 403）"
   },
   {
    "ep": "EP-03952",
    "service": "pocketcasts",
    "url": "https://pca.st/episode/24c0ccf0-4760-4f3d-89c4-c02d2b09e960",
-   "status": "REVIEW",
-   "kind": "別の回の疑い",
-   "note": "リンク先の題名「Error 403 | Pocket Casts」"
+   "status": "BLOCKED",
+   "note": "自動の巡回を断られた（HTTP 403）"
   },
   {
    "ep": "EP-01671",
    "service": "omny",
    "url": "https://omny.fm/shows/asahi/398",
-   "status": "UNVERIFIED",
-   "note": "HTTP 200"
+   "status": "PASS",
+   "note": "題名一致"
   },
   {
    "ep": "EP-02170",
    "service": "omny",
    "url": "https://omny.fm/shows/asahi/858",
-   "status": "UNVERIFIED",
-   "note": "HTTP 200"
+   "status": "PASS",
+   "note": "題名一致"
   },
   {
    "ep": "EP-02664",
    "service": "omny",
    "url": "https://omny.fm/shows/asahi/1290",
-   "status": "UNVERIFIED",
-   "note": "HTTP 200"
+   "status": "PASS",
+   "note": "題名一致"
   },
   {
    "ep": "EP-03190",
    "service": "omny",
    "url": "https://omny.fm/shows/asahi/1754",
-   "status": "UNVERIFIED",
-   "note": "HTTP 200"
+   "status": "PASS",
+   "note": "題名一致"
   },
   {
    "ep": "EP-03730",
    "service": "omny",
    "url": "https://omny.fm/shows/asahi/2277",
-   "status": "UNVERIFIED",
-   "note": "HTTP 200"
+   "status": "PASS",
+   "note": "題名一致"
   },
   {
    "ep": "EP-04225",
    "service": "omny",
    "url": "https://omny.fm/shows/asahi/2022-51-11",
-   "status": "UNVERIFIED",
-   "note": "HTTP 200"
+   "status": "PASS",
+   "note": "題名一致"
   },
   {
    "ep": "EP-04680",
    "service": "omny",
    "url": "https://omny.fm/shows/asahi/52-164",
-   "status": "UNVERIFIED",
-   "note": "HTTP 200"
+   "status": "PASS",
+   "note": "題名一致"
   },
   {
    "ep": "EP-05043",
    "service": "omny",
    "url": "https://omny.fm/shows/asahi/52-245",
-   "status": "UNVERIFIED",
-   "note": "HTTP 200"
+   "status": "PASS",
+   "note": "題名一致"
   },
   {
    "ep": "EP-00590",
    "service": "omny",
    "url": "https://omny.fm/shows/asahi/radar-shosha",
-   "status": "UNVERIFIED",
-   "note": "HTTP 200"
+   "status": "PASS",
+   "note": "題名一致"
   },
   {
    "ep": "EP-00649",
    "service": "omny",
    "url": "https://omny.fm/shows/asahi/ai-kensaku",
-   "status": "UNVERIFIED",
-   "note": "HTTP 200"
+   "status": "PASS",
+   "note": "題名一致"
   },
   {
    "ep": "EP-06520",
    "service": "omny",
    "url": "https://omny.fm/shows/arukiki-ajw/1033/embed",
-   "status": "UNVERIFIED",
-   "note": "HTTP 200"
+   "status": "PASS",
+   "note": "題名一致"
   },
   {
    "ep": "EP-01119",
    "service": "omny",
    "url": "https://omny.fm/shows/asahi/1928",
-   "status": "UNVERIFIED",
-   "note": "HTTP 200"
+   "status": "PASS",
+   "note": "題名一致"
   },
   {
    "ep": "EP-02935",
