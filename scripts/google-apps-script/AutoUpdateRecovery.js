@@ -30,6 +30,25 @@ function aurPlan_(rule, episodes, existingUris, matcher) {
     .map(function (e) { return { id: String(e.id), uri: String(e.uri || ('spotify:episode:' + e.id)), name: String(e.name || ''), release_date: String(e.release_date || '') }; });
 }
 
+// Spotify から1件ずつ読む。10件ずつ・1秒間隔、断られた分（429 など）は間を空けて最大3回やり直す
+function aurFetchEpisodes_(ids, token) {
+  var pending = ids.slice(), episodes = [];
+  for (var attempt = 0; attempt < 4 && pending.length; attempt++) {
+    if (attempt) Utilities.sleep(5000 * attempt);
+    var next = [];
+    for (var i = 0; i < pending.length; i += 10) {
+      if (i) Utilities.sleep(1000);
+      var chunk = pending.slice(i, i + 10);
+      var rs = UrlFetchApp.fetchAll(chunk.map(function (id) {
+        return { url: 'https://api.spotify.com/v1/episodes/' + encodeURIComponent(id) + '?market=JP', muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' } };
+      }));
+      rs.forEach(function (r, k) { if (r.getResponseCode() === 200) episodes.push(JSON.parse(r.getContentText())); else next.push(chunk[k]); });
+    }
+    pending = next;
+  }
+  return { episodes: episodes, failed: pending.length };
+}
+
 function aurRules_() {
   return loadAutoUpdateRuntimeRulesV1_().filter(function (rule) {
     return rule && rule.enabled !== false && rule.lifecycleStatus !== 'human_deleted' && rule.bootstrapPending !== true &&
@@ -45,11 +64,7 @@ function aurRun_(write) {
   var picked = aurPickLibrary_(libraryPlaylistFetchJson_(LIBRARY_PLAYLIST_DATA_ + si.lite), si.shows || [], LIBRARY_PLAYLIST_SHOW_IDS_, wantShows, AUR_SINCE_);
   var lookup = shelfLibraryLookup_(picked.map(function (p) { return p.ep; }), function (u) { return libraryPlaylistFetchJson_(u); });
   var ids = picked.map(function (p) { return lookup[p.ep] && lookup[p.ep].spotifyId; }).filter(Boolean);
-  var res = plmFetchChunked_(ids.map(function (id) {
-    return { url: 'https://api.spotify.com/v1/episodes/' + encodeURIComponent(id) + '?market=JP', muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' } };
-  }));
-  var episodes = [], failed = 0;
-  res.forEach(function (r) { if (r.getResponseCode() === 200) episodes.push(JSON.parse(r.getContentText())); else failed++; });
+  var got = aurFetchEpisodes_(ids, token), episodes = got.episodes, failed = got.failed;
   var report = { since: AUR_SINCE_, libraryEpisodes: picked.length, withSpotify: ids.length, fetched: episodes.length, fetchFailed: failed, write: !!write, rules: [] };
   rules.forEach(function (rule) {
     var item = { name: rule.name || rule.key, playlistId: rule.playlistId };
