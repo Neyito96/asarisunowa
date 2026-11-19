@@ -1,15 +1,24 @@
 // PlaylistLiveMeta.js — Spotifyリストのカード情報を Spotify から直接取る（2026-11-19 管理人指示「全自動・即時性重視」）。
 // ・表紙: Spotify のプレイリスト画像。作成者が表紙を作り直していればそれ、無ければ Spotify が作った画像（モザイク）。
 // ・最終新着: プレイリストの末尾（最後に追加された50件）にある回の一番新しい公開日。
-// どちらもシートには書かない（その場で読む）。キャッシュ50分。毎時の自動更新が温め直すので、閲覧時はほぼ即時。
+// どちらもシートには書かない（その場で読む）。キャッシュ2時間・毎時更新。毎時の自動更新が温め直すので、閲覧時はほぼ即時。
 // 取得に失敗した時はシートの値（最終更新日）・サイト側の固定画像にそのまま戻る。
-var PLM_CACHE_SEC_ = 3000;
+var PLM_CACHE_SEC_ = 7200;   // 毎時の温め直しより長く（閲覧者が Spotify 待ちにならない）
 var PLM_KEY_ = 'plm3:';
 
 function plmToken_() {
   try { return typeof getSpotifyUserAccessToken === 'function' ? getSpotifyUserAccessToken() : ''; } catch (e) { return ''; }
 }
 function plmHeaders_(token) { return { Authorization: 'Bearer ' + token, Accept: 'application/json' }; }
+// 一度に大量に送ると GAS の「短時間に urlfetch が多すぎ」になるため、20件ずつ・間を空けて送る
+function plmFetchChunked_(reqs) {
+  var out = [];
+  for (var i = 0; i < reqs.length; i += 20) {
+    if (i) Utilities.sleep(600);
+    out = out.concat(UrlFetchApp.fetchAll(reqs.slice(i, i + 20)));
+  }
+  return out;
+}
 
 // 純粋: 末尾の項目から一番新しい公開日（YYYY-MM-DD）
 function plmLatestFromItems_(items) {
@@ -37,13 +46,13 @@ function plmEmbedEpisodeIds_(html) {
     return (e.trackList || []).map(function (t) { var x = String(t && t.uri || '').match(/^spotify:episode:([A-Za-z0-9]{22})$/); return x ? x[1] : ''; }).filter(Boolean);
   } catch (err) { return []; }
 }
-var PLM_EMBED_TAIL_ = 5;     // 末尾の何回分の公開日を見るか
+var PLM_EMBED_TAIL_ = 3;     // 末尾の何回分の公開日を見るか
 var PLM_EP_KEY_ = 'plmEp:';  // 回の公開日は変わらないので6時間キャッシュ
 
 // 埋め込みページ経由の最終新着（id の配列 → { id: 'YYYY-MM-DD' }）
 function plmLatestViaEmbed_(ids, token) {
   var out = {}; if (!ids.length) return out;
-  var pages = UrlFetchApp.fetchAll(ids.map(function (id) { return { url: 'https://open.spotify.com/embed/playlist/' + id, muteHttpExceptions: true, followRedirects: true }; }));
+  var pages = plmFetchChunked_(ids.map(function (id) { return { url: 'https://open.spotify.com/embed/playlist/' + id, muteHttpExceptions: true, followRedirects: true }; }));
   var tails = {}, need = {};
   ids.forEach(function (id, i) {
     if (pages[i].getResponseCode() !== 200) return;
@@ -54,7 +63,7 @@ function plmLatestViaEmbed_(ids, token) {
   var cache = CacheService.getScriptCache(), dates = {}, got = cache.getAll(epIds.map(function (e) { return PLM_EP_KEY_ + e; })) || {}, miss = [];
   epIds.forEach(function (e) { var v = got[PLM_EP_KEY_ + e]; if (v) dates[e] = v; else miss.push(e); });
   if (miss.length) {
-    var rs = UrlFetchApp.fetchAll(miss.map(function (e) { return { url: 'https://api.spotify.com/v1/episodes/' + e + '?market=JP', headers: plmHeaders_(token), muteHttpExceptions: true }; }));
+    var rs = plmFetchChunked_(miss.map(function (e) { return { url: 'https://api.spotify.com/v1/episodes/' + e + '?market=JP', headers: plmHeaders_(token), muteHttpExceptions: true }; }));
     var put = {};
     miss.forEach(function (e, i) {
       if (rs[i].getResponseCode() !== 200) return;
@@ -83,7 +92,7 @@ function playlistLiveMeta_(ids, opt) {
   var token = plmToken_(); if (!token) return out;
   var base = 'https://api.spotify.com/v1/playlists/';
   // 1回目: 画像と総数
-  var r1 = UrlFetchApp.fetchAll(miss.map(function (id) { return { url: base + id + '?market=JP&fields=images,tracks.total,items.total', headers: plmHeaders_(token), muteHttpExceptions: true }; }));
+  var r1 = plmFetchChunked_(miss.map(function (id) { return { url: base + id + '?market=JP&fields=images,tracks.total,items.total', headers: plmHeaders_(token), muteHttpExceptions: true }; }));
   var head = {}, second = [];
   miss.forEach(function (id, i) {
     if (r1[i].getResponseCode() !== 200) return;
@@ -92,7 +101,7 @@ function playlistLiveMeta_(ids, opt) {
     if (total > 0) second.push(id);
   });
   // 2回目: 末尾50件の公開日
-  var r2 = second.length ? UrlFetchApp.fetchAll(second.map(function (id) {
+  var r2 = second.length ? plmFetchChunked_(second.map(function (id) {
     return { url: base + id + '/items?market=JP&limit=50&offset=' + Math.max(0, head[id].total - 50), headers: plmHeaders_(token), muteHttpExceptions: true };
   })) : [];
   var latest = {};
