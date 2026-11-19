@@ -31,3 +31,11 @@ test('計画: 既存・別番組・判定外・再生不可・重複は入れな
   const plan = Array.from(R.aurPlan_(rule, eps, existing, (e) => /寺下真理加/.test(e.name)));
   assert.deepEqual(plan.map((x) => x.release_date), ['2026-11-09']);
 });
+
+test('手がかり語で蔵の回を絞る（語の無いルールがあれば絞らない）', () => {
+  const lite = { 'EP-1': ['EP-1', 0, '2026-11-09', '（1on1）蚊取り線香', '寺下真理加（be編集部）'], 'EP-2': ['EP-2', 0, '2026-11-10', '別の回', '神田大介'] };
+  const picked = [{ ep: 'EP-1' }, { ep: 'EP-2' }];
+  assert.deepEqual(Array.from(R.aurPrefilter_(picked, lite, [{ keywords: ['寺下 真理加'] }])).map((p) => p.ep), ['EP-1']);
+  assert.equal(R.aurPrefilter_(picked, lite, [{ keywords: ['寺下真理加'] }, {}]).length, 2);
+  assert.deepEqual(Array.from(R.aurRuleTerms_({ matchStrategy: 'sato-yo-safe-confirmed' })), ['佐藤陽']);
+});
