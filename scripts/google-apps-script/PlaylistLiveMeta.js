@@ -12,13 +12,19 @@ function plmToken_() {
 function plmHeaders_(token) { return { Authorization: 'Bearer ' + token, Accept: 'application/json' }; }
 // 一度に大量に送ると GAS の「短時間に urlfetch が多すぎ」になるため、20件ずつ・間を空けて送る
 function plmFetchChunked_(reqs) {
-  var out = [];
+  // 返り値は reqs と同じ長さ。Spotify に 429 で止められたら以降は送らず null を入れる（待機を記録）
+  var out = [], stopped = false;
   for (var i = 0; i < reqs.length; i += 20) {
+    var chunk = reqs.slice(i, i + 20);
+    if (stopped) { chunk.forEach(function () { out.push(null); }); continue; }
     if (i) Utilities.sleep(600);
-    out = out.concat(UrlFetchApp.fetchAll(reqs.slice(i, i + 20)));
+    var rs = UrlFetchApp.fetchAll(chunk);
+    rs.forEach(function (r) { if (typeof spotifyCooldownNote_ === 'function' && spotifyCooldownNote_(r)) stopped = true; });
+    out = out.concat(rs);
   }
   return out;
 }
+function plmOk_(r) { return !!(r && r.getResponseCode() === 200); }
 
 // 純粋: 末尾の項目から一番新しい公開日（YYYY-MM-DD）
 function plmLatestFromItems_(items) {
@@ -55,7 +61,7 @@ function plmLatestViaEmbed_(ids, token) {
   var pages = plmFetchChunked_(ids.map(function (id) { return { url: 'https://open.spotify.com/embed/playlist/' + id, muteHttpExceptions: true, followRedirects: true }; }));
   var tails = {}, need = {};
   ids.forEach(function (id, i) {
-    if (pages[i].getResponseCode() !== 200) return;
+    if (!plmOk_(pages[i])) return;
     var eps = plmEmbedEpisodeIds_(pages[i].getContentText()).slice(-PLM_EMBED_TAIL_);
     tails[id] = eps; eps.forEach(function (e) { need[e] = true; });
   });
@@ -66,7 +72,7 @@ function plmLatestViaEmbed_(ids, token) {
     var rs = plmFetchChunked_(miss.map(function (e) { return { url: 'https://api.spotify.com/v1/episodes/' + e + '?market=JP', headers: plmHeaders_(token), muteHttpExceptions: true }; }));
     var put = {};
     miss.forEach(function (e, i) {
-      if (rs[i].getResponseCode() !== 200) return;
+      if (!plmOk_(rs[i])) return;
       var d = String(JSON.parse(rs[i].getContentText()).release_date || '').slice(0, 10);
       if (/^\d{4}-\d{2}-\d{2}$/.test(d)) { dates[e] = d; put[PLM_EP_KEY_ + e] = d; }
     });
@@ -89,13 +95,22 @@ function playlistLiveMeta_(ids, opt) {
     ids.forEach(function (id) { var v = got[PLM_KEY_ + id]; if (v) out[id] = JSON.parse(v); else miss.push(id); });
   } else miss = ids.slice();
   if (!miss.length) return out;
+  // Spotify に止められている間は呼ばない。温め直し時は今のキャッシュを延長して、サイトの表示を保つ
+  if (typeof spotifyCooldownUntil_ === 'function' && spotifyCooldownUntil_()) {
+    if (opt.refresh) {
+      var keep = cache.getAll(miss.map(function (id) { return PLM_KEY_ + id; })) || {};
+      if (Object.keys(keep).length) cache.putAll(keep, PLM_CACHE_SEC_);
+      Object.keys(keep).forEach(function (k) { out[k.slice(PLM_KEY_.length)] = JSON.parse(keep[k]); });
+    }
+    return out;
+  }
   var token = plmToken_(); if (!token) return out;
   var base = 'https://api.spotify.com/v1/playlists/';
   // 1回目: 画像と総数
   var r1 = plmFetchChunked_(miss.map(function (id) { return { url: base + id + '?market=JP&fields=images,tracks.total,items.total', headers: plmHeaders_(token), muteHttpExceptions: true }; }));
   var head = {}, second = [];
   miss.forEach(function (id, i) {
-    if (r1[i].getResponseCode() !== 200) return;
+    if (!plmOk_(r1[i])) return;
     var j = JSON.parse(r1[i].getContentText()), total = Number((j.items && j.items.total) || (j.tracks && j.tracks.total) || 0);
     head[id] = { artwork: plmArtwork_(j.images), total: total };
     if (total > 0) second.push(id);
@@ -105,7 +120,7 @@ function playlistLiveMeta_(ids, opt) {
     return { url: base + id + '/items?market=JP&limit=50&offset=' + Math.max(0, head[id].total - 50), headers: plmHeaders_(token), muteHttpExceptions: true };
   })) : [];
   var latest = {};
-  second.forEach(function (id, i) { if (r2[i].getResponseCode() === 200) latest[id] = plmLatestFromItems_(JSON.parse(r2[i].getContentText()).items); });
+  second.forEach(function (id, i) { if (plmOk_(r2[i])) latest[id] = plmLatestFromItems_(JSON.parse(r2[i].getContentText()).items); });
   // API で中身を読めなかったもの（他人のプレイリスト）は埋め込みページ経由で
   var noLatest = Object.keys(head).filter(function (id) { return !latest[id]; });   // 他人のリストは総数も0で返るので条件にしない
   try { var viaEmbed = plmLatestViaEmbed_(noLatest, token); Object.keys(viaEmbed).forEach(function (id) { latest[id] = viaEmbed[id]; }); } catch (err) {}

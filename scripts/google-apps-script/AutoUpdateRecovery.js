@@ -32,21 +32,38 @@ function aurPlan_(rule, episodes, existingUris, matcher) {
 
 // Spotify から1件ずつ読む。10件ずつ・1秒間隔、断られた分（429 など）は間を空けて最大3回やり直す
 function aurFetchEpisodes_(ids, token) {
-  var pending = ids.slice(), episodes = [];
-  for (var attempt = 0; attempt < 4 && pending.length; attempt++) {
-    if (attempt) Utilities.sleep(5000 * attempt);
-    var next = [];
-    for (var i = 0; i < pending.length; i += 10) {
-      if (i) Utilities.sleep(1000);
-      var chunk = pending.slice(i, i + 10);
-      var rs = UrlFetchApp.fetchAll(chunk.map(function (id) {
-        return { url: 'https://api.spotify.com/v1/episodes/' + encodeURIComponent(id) + '?market=JP', muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' } };
-      }));
-      rs.forEach(function (r, k) { if (r.getResponseCode() === 200) episodes.push(JSON.parse(r.getContentText())); else next.push(chunk[k]); });
-    }
-    pending = next;
+  var episodes = [], failed = 0, stopped = false;
+  for (var i = 0; i < ids.length; i += 10) {
+    var chunk = ids.slice(i, i + 10);
+    if (stopped) { failed += chunk.length; continue; }
+    if (i) Utilities.sleep(1500);
+    UrlFetchApp.fetchAll(chunk.map(function (id) {
+      return { url: 'https://api.spotify.com/v1/episodes/' + encodeURIComponent(id) + '?market=JP', muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' } };
+    })).forEach(function (r) {
+      if (spotifyCooldownNote_(r)) stopped = true;
+      if (r.getResponseCode() === 200) episodes.push(JSON.parse(r.getContentText())); else failed++;
+    });
   }
-  return { episodes: episodes, failed: pending.length };
+  return { episodes: episodes, failed: failed, stopped: stopped };
+}
+
+// 純粋: ルールの手がかり語（出演者名・題名の語など）。特別判定のルールは既定の語を使う
+function aurRuleTerms_(rule) {
+  var t = [].concat(Array.isArray(rule.keywords) ? rule.keywords : (rule.keyword ? [rule.keyword] : []));
+  if (rule.seriesTitleCode) t.push(String(rule.seriesTitleCode));
+  var special = { 'no-mirai-title-keywords': ['ノーミライ', '農MUSIC', '猟LIFE'], 'ota-safe-confirmed': ['太田匡彦'], 'sato-yo-safe-confirmed': ['佐藤陽'] };
+  if (special[rule.matchStrategy]) t = t.concat(special[rule.matchStrategy]);
+  return t.map(function (x) { return String(x || '').normalize('NFKC').replace(/\s+/g, '').toLowerCase(); }).filter(function (x) { return x.length >= 2; });
+}
+// 純粋: 蔵の題名・出演者に手がかり語が入っている回だけに絞る（Spotify への問い合わせを減らす）。語の無いルールが1つでもあれば絞らない
+function aurPrefilter_(picked, liteById, rules) {
+  var all = [], open = false;
+  rules.forEach(function (r) { var t = aurRuleTerms_(r); if (!t.length) open = true; all = all.concat(t); });
+  if (open) return picked;
+  return picked.filter(function (p) {
+    var row = liteById[p.ep] || [], text = String((row[3] || '') + ' ' + (row[4] || '')).normalize('NFKC').replace(/\s+/g, '').toLowerCase();
+    return all.some(function (t) { return text.indexOf(t) >= 0; });
+  });
 }
 
 function aurRules_() {
@@ -61,10 +78,15 @@ function aurRun_(write) {
   var rules = aurRules_(), wantShows = [];
   rules.forEach(function (r) { getAutoPlaylistShowIds_(r).forEach(function (s) { if (wantShows.indexOf(s) < 0) wantShows.push(s); }); });
   var manifest = libraryPlaylistFetchJson_(LIBRARY_PLAYLIST_DATA_ + 'manifest.json'), si = manifest.searchIndex || {};
-  var picked = aurPickLibrary_(libraryPlaylistFetchJson_(LIBRARY_PLAYLIST_DATA_ + si.lite), si.shows || [], LIBRARY_PLAYLIST_SHOW_IDS_, wantShows, AUR_SINCE_);
+  var until = spotifyCooldownUntil_(); if (until) return { status: 'SPOTIFY_COOLDOWN', until: until };
+  var lite = libraryPlaylistFetchJson_(LIBRARY_PLAYLIST_DATA_ + si.lite), liteById = {};
+  lite.forEach(function (r) { liteById[r[0]] = r; });
+  var picked = aurPrefilter_(aurPickLibrary_(lite, si.shows || [], LIBRARY_PLAYLIST_SHOW_IDS_, wantShows, AUR_SINCE_), liteById, rules);
   var lookup = shelfLibraryLookup_(picked.map(function (p) { return p.ep; }), function (u) { return libraryPlaylistFetchJson_(u); });
   var ids = picked.map(function (p) { return lookup[p.ep] && lookup[p.ep].spotifyId; }).filter(Boolean);
   var got = aurFetchEpisodes_(ids, token), episodes = got.episodes, failed = got.failed;
+  // 一部しか読めなかった時は書き込まない（取りこぼしたまま「完了」にしない）
+  if (got.stopped || failed) write = false;
   var report = { since: AUR_SINCE_, libraryEpisodes: picked.length, withSpotify: ids.length, fetched: episodes.length, fetchFailed: failed, write: !!write, rules: [] };
   rules.forEach(function (rule) {
     var item = { name: rule.name || rule.key, playlistId: rule.playlistId };
@@ -95,4 +117,4 @@ function AUTO_UPDATE_RECOVERY_WRITE() {
   try { var r = aurRun_(true); Logger.log(JSON.stringify(r, null, 1)); return r; } finally { lock.releaseLock(); }
 }
 
-if (typeof module !== 'undefined') module.exports = { aurPickLibrary_: aurPickLibrary_, aurPlan_: aurPlan_ };
+if (typeof module !== 'undefined') module.exports = { aurPickLibrary_: aurPickLibrary_, aurPlan_: aurPlan_, aurRuleTerms_: aurRuleTerms_, aurPrefilter_: aurPrefilter_ };
