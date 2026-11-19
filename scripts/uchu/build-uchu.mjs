@@ -7,6 +7,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { extractTerms, termKey, parseCast, normalizeArticleUrl } from './uchu-core.mjs';
+import { TAXONOMY } from './taxonomy.mjs';
+import { classify, fillFromNeighbors, trainNB, predictNB, stripBoilerplate } from './classify.mjs';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
 const SRC = path.join(ROOT, 'public/library/data');
@@ -188,6 +190,30 @@ const rel = eps.map((e, i) => {
   return same.length ? [out, same.slice(0, 5)] : [out];
 });
 
+// ---- 7b. 20大分類・小分類（Claude 試作）。旧分類の写し scripts/uchu/data/legacy-themes.json を手がかりに使う（参照のみ）
+const legacy = JSON.parse(fs.readFileSync(path.join(ROOT, 'scripts/uchu/data/legacy-themes.json'), 'utf8')).themes;
+const inputOf = (e) => ({ title: e.title, theme: (legacy[e.id] || [''])[0], articles: (e.relatedArticles || []).map((a) => a && a.title).filter(Boolean), desc: e.description });
+let cls = eps.map((e) => classify(inputOf(e), legacy[e.id]));
+// 手がかり語で決まらない・確度が低い回は、高い確度の回から学んだ結びつきで補う（src=l、確度は低）
+const bag = (e) => { const m = new Map(); const add = (a, w) => a.forEach((t) => { const k = termKey(t); m.set(k, (m.get(k) || 0) + w); }); add(extractTerms(e.title), 3); add(extractTerms((legacy[e.id] || [''])[0]), 2); add(extractTerms(stripBoilerplate(e.description)), 1); (e.relatedArticles || []).forEach((a) => a && add(extractTerms(a.title), 1)); return m; };
+const bags = eps.map(bag);
+const nbModel = trainNB(cls.map((c, i) => [c, i]).filter(([c]) => c.conf >= 2 && c.src !== 'a').map(([c, i]) => [bags[i], c.mi]), TAXONOMY.length);
+cls = cls.map((c, i) => {
+  if (c.conf >= 1) return c;
+  const p = predictNB(nbModel, bags[i]);
+  if (c.mi < 0 && p.margin >= 0.8) return { ...c, mi: p.c, si: -1, conf: 0, src: 'l', ev: [] };
+  if (c.mi >= 0 && p.c !== c.mi && p.margin >= 0.95) return { ...c, mi: p.c, si: -1, conf: 0, src: 'l', ev: [] };
+  return c;
+});
+cls = fillFromNeighbors(cls, rel);
+// 検証: 人が承認した回で、旧分類を見ない判定（手がかり語だけ）が承認と一致するか
+const approvedIdx = eps.map((e, i) => (legacy[e.id] && legacy[e.id][1] === 'user_approved' ? i : -1)).filter((i) => i >= 0);
+let agree = 0, decided = 0;
+for (const i of approvedIdx) { const blind = classify({ ...inputOf(eps[i]), theme: '' }, null); if (blind.mi >= 0) { decided++; if (blind.mi === cls[i].mi) agree++; } }
+const clsStats = { approved: approvedIdx.length, blindDecided: decided, blindAgree: agree, byConf: {}, bySrc: {}, byMain: {} };
+cls.forEach((c) => { clsStats.byConf[c.conf] = (clsStats.byConf[c.conf] || 0) + 1; clsStats.bySrc[c.src || '-'] = (clsStats.bySrc[c.src || '-'] || 0) + 1; const n = c.mi >= 0 ? TAXONOMY[c.mi].name : '未分類'; clsStats.byMain[n] = (clsStats.byMain[n] || 0) + 1; });
+const FIELD_CODE = { title: 't', theme: 'm', article: 'r', desc: 'd' };
+
 // ---- 8. 書き出し（数値は丸めて軽く）
 const r1 = (x) => Math.round(x * 10) / 10;
 const ymd = (d) => Number(String(d || '').slice(0, 10).replace(/-/g, '')) || 0;
@@ -204,11 +230,14 @@ const core = {
   eps: eps.map((e, i) => [e.id, e.title, showNames.indexOf(e.show), ymd(e.date), epXY[i] ? r1(epXY[i][0]) : null, epXY[i] ? r1(epXY[i][1]) : null, epComm[i], e.duration || 0]),
   terms: termOut,
   persons: persons.map((p, k) => [p, personEps[k]]),
+  cats: TAXONOMY.map((m) => ({ name: m.name, hue: m.hue, subs: m.subs.map(([n]) => n) })),
+  cls: cls.map((c, i) => [c.mi, c.si, c.conf, c.src, c.ev.map(([k, f]) => k + ':' + FIELD_CODE[f]).join('|'), (legacy[eps[i].id] || [''])[0]]),
+  clsStats,
 };
 fs.mkdirSync(OUT, { recursive: true });
 fs.writeFileSync(path.join(OUT, 'core.json'), JSON.stringify(core));
 fs.writeFileSync(path.join(OUT, 'rel.json'), JSON.stringify({ v: 1, libraryVersion: manifest.version, rel }));
 const size = (f) => (fs.statSync(path.join(OUT, f)).size / 1024).toFixed(0) + 'KB';
 console.log(JSON.stringify({ episodes: N, vocab: vocab.length, mapTerms: mapTerms.length, nebulae: K, placed: epXY.filter(Boolean).length, persons: persons.length,
-  withRel: rel.filter((r) => r[0].length).length, core: size('core.json'), rel: size('rel.json'), sec: (Date.now() - t0) / 1000,
+  withRel: rel.filter((r) => r[0].length).length, clsStats, core: size('core.json'), rel: size('rel.json'), sec: (Date.now() - t0) / 1000,
   nebulaNames: core.comms.map((c) => c.name.join('・') + ' ' + c.n) }, null, 1));

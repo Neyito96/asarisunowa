@@ -41,3 +41,19 @@ test('事前計算データ: 番号の参照がすべて範囲内', { skip: !fs.
   assert.ok(core.persons.every((p) => p[1].every((i) => i >= 0 && i < NE)));
   assert.ok(rel.every(([out, same], i) => out.every(([j, , ts, , ps]) => j !== i && j < NE && ts.every((t) => t < NT) && ps.every((k) => k < NP)) && (!same || same.every((j) => j < NE))));
 });
+
+test('分類（Claude試作）: 手がかり語で決め、根拠の語と欄を残す。1文字の手がかり語は無い', async () => {
+  const { classify, legacyMainIndex } = await import('../scripts/uchu/classify.mjs');
+  const { TAXONOMY } = await import('../scripts/uchu/taxonomy.mjs');
+  for (const m of TAXONOMY) for (const [, words] of m.subs) for (const w of words) assert.ok(w.normalize('NFKC').length >= 2, w);
+  const r = classify({ title: '大谷翔平のメジャーリーグ、ドジャースで本塁打', theme: '', articles: [], desc: '' }, null);
+  assert.equal(TAXONOMY[r.mi].name, 'スポーツ'); assert.equal(TAXONOMY[r.mi].subs[r.si][0], '野球'); assert.ok(r.ev.some(([k, f]) => k === '大谷' && f === 'title'));
+  // 「日本」で文学・美術に入った10/25事故の再発防止: 日本代表のサッカーはスポーツ
+  assert.equal(TAXONOMY[classify({ title: 'サッカー日本代表、W杯へ', theme: '', articles: [], desc: '' }, null).mi].name, 'スポーツ');
+  // 人の承認は動かさない
+  const a = classify({ title: '大谷翔平のメジャーリーグ', theme: '', articles: [], desc: '' }, ['暮らし/趣味', 'user_approved']);
+  assert.equal(TAXONOMY[a.mi].name, '暮らし・生活'); assert.equal(a.conf, 3);
+  // 手がかりが無ければ未分類（無理に入れない）
+  assert.equal(classify({ title: 'こんにちは', theme: '', articles: [], desc: '' }, null).mi, -1);
+  assert.equal(legacyMainIndex('人権・司法/事件'), TAXONOMY.findIndex((m) => m.name === '法律・司法'));
+});

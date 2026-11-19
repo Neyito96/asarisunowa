@@ -107,3 +107,20 @@ h1 { font-size: 21px; font-weight: 600; margin: 0; letter-spacing: .14em; white-
   .zoom { bottom: calc(46vh + 12px); }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* 分類の木 */
+.cats { list-style: none; padding: 0; margin: 0 0 6px; font-size: 13.5px; }
+.cats > li > button { display: flex; width: 100%; align-items: center; gap: 8px; background: none; border: 0; padding: 4px 6px; border-radius: 6px; cursor: pointer; text-align: left; font-family: var(--mincho); font-weight: 600; letter-spacing: .04em; }
+.cats button:hover, .cats button[aria-pressed="true"] { background: #131d36; }
+.cats .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.cats .tw { width: 1em; color: var(--sub); font-family: var(--font); font-size: 10px; flex: none; }
+.cats .cnt { margin-left: auto; color: var(--sub); font-size: 11px; font-family: var(--font); font-weight: 400; }
+.cats ul { list-style: none; padding: 0 0 4px 24px; margin: 0; font-size: 12.5px; }
+.cats ul button { display: flex; width: 100%; background: none; border: 0; padding: 2px 6px; border-radius: 6px; cursor: pointer; text-align: left; color: #c9d1e4; }
+.h2b { margin-top: 22px !important; }
+.badge { display: inline-block; font-size: 11px; border-radius: 4px; padding: 0 7px; margin-right: 6px; font-weight: 600; letter-spacing: .04em; }
+.badge.c3 { background: #1d3a26; color: #9fe0b0; } .badge.c2 { background: #1b2f4d; color: #a9d0ff; } .badge.c1 { background: #2e2a14; color: #f0d78d; } .badge.c0, .badge.cl { background: #3a1f22; color: #f2a9ae; }
+.catpath { font-family: var(--mincho); font-size: 16px; font-weight: 600; letter-spacing: .04em; }
+.evid { font-size: 12px; color: var(--sub); margin-top: 4px; }
+.bars { display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin: 6px 0 2px; }
+.bars span { display: block; }
