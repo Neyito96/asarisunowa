@@ -195,7 +195,7 @@ const rel = eps.map((e, i) => {
 
 // ---- 7b. 20大分類・小分類（Claude 試作）。旧分類の写し scripts/uchu/data/legacy-themes.json を手がかりに使う（参照のみ）
 const legacy = JSON.parse(fs.readFileSync(path.join(ROOT, 'scripts/uchu/data/legacy-themes.json'), 'utf8')).themes;
-const inputOf = (e) => ({ title: e.title, theme: (legacy[e.id] || [''])[0], articles: (e.relatedArticles || []).map((a) => a && a.title).filter(Boolean), desc: e.description });
+const inputOf = (e) => ({ title: e.title, theme: (legacy[e.id] || [''])[0], articles: (e.relatedArticles || []).map((a) => a && a.title).filter(Boolean), desc: e.description, tags: e.tags });
 let cls = eps.map((e) => classify(inputOf(e), legacy[e.id]));
 // 手がかり語で決まらない・確度が低い回は、高い確度の回から学んだ結びつきで補う（src=l、確度は低）
 const bag = (e) => { const m = new Map(); const add = (a, w) => a.forEach((t) => { const k = termKey(t); m.set(k, (m.get(k) || 0) + w); }); add(extractTerms(e.title), 3); add(extractTerms((legacy[e.id] || [''])[0]), 2); add(extractTerms(stripBoilerplate(e.description)), 1); (e.relatedArticles || []).forEach((a) => a && add(extractTerms(a.title), 1)); return m; };
@@ -215,7 +215,7 @@ let agree = 0, decided = 0;
 for (const i of approvedIdx) { const blind = classify({ ...inputOf(eps[i]), theme: '' }, null); if (blind.mi >= 0) { decided++; if (blind.mi === cls[i].mi) agree++; } }
 const clsStats = { approved: approvedIdx.length, blindDecided: decided, blindAgree: agree, byConf: {}, bySrc: {}, byMain: {} };
 cls.forEach((c) => { clsStats.byConf[c.conf] = (clsStats.byConf[c.conf] || 0) + 1; clsStats.bySrc[c.src || '-'] = (clsStats.bySrc[c.src || '-'] || 0) + 1; const n = c.mi >= 0 ? TAXONOMY[c.mi].name : '未分類'; clsStats.byMain[n] = (clsStats.byMain[n] || 0) + 1; });
-const FIELD_CODE = { title: 't', theme: 'm', article: 'r', desc: 'd' };
+const FIELD_CODE = { title: 't', theme: 'm', article: 'r', desc: 'd', tag: 'o' };
 // ---- 7c. 地名（世界・日本の地図用）。題名・旧仮分類の主題文・関連記事の見出し・概要欄（案内文を除く）から
 const geo = eps.map((e) => placesOfEpisode({ ...inputOf(e), desc: stripBoilerplate(e.description) }));
 const geoStats = { any: geo.filter((g) => g.length).length, jp: geo.filter((g) => g.some(([id]) => PLACES[id].scope === 'jp')).length, world: geo.filter((g) => g.some(([id]) => PLACES[id].scope === 'world')).length };
