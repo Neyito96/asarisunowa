@@ -149,3 +149,20 @@ test('形式の軸（#390）: 決まった言い回しだけで判定する', as
   assert.ok(names({ title: '笑い飯哲夫のしんぶん教室54 遊んで伝わる', description: '' }).includes('子ども向け'));
   assert.deepEqual(names({ title: '大谷翔平の本塁打', description: '試合を記者が解説します。' }), []);
 });
+
+test('監査（#390）で見つけた誤りを繰り返さない', async () => {
+  const { scoreEpisode, classify } = await import('../scripts/uchu/classify.mjs');
+  const { formatsOf, FORMATS } = await import('../scripts/uchu/format.mjs');
+  const evs = (title) => scoreEpisode({ title, theme: '', articles: [], desc: '', tags: [] }).ev.map(([k]) => k);
+  assert.ok(!evs('ペットボトルの水からマイクロプラスチック').includes('ペット'));
+  assert.ok(!evs('ブータン、ジャパンとの交流').includes('パン'));
+  assert.ok(!evs('名古屋のテレビ塔の生みの親').includes('テレビ'));
+  assert.ok(evs('ペットと暮らす').includes('ペット'));
+  // 副分類: 関連記事の見出しだけ・意味の広いタグだけでは付けない
+  assert.equal(classify({ title: '食中毒から身を守ろう', theme: '', articles: ['ライブの建築'], desc: '', tags: [] }, null).mi2, -1);
+  const names = (e) => formatsOf(e).map(([k]) => FORMATS[k].name);
+  assert.deepEqual(names({ title: 'イランの核問題', description: '★空気階段に悩みを相談しよう★ 2024年2月2日19時、3人による公開収録イベントを開催します。核開発の現状を解説。' }), []);
+  assert.ok(!names({ title: '朝ポキおたより、ついに創刊！', description: '' }).includes('お便り・相談'));
+  assert.ok(!names({ title: 'こどものSNS、オーストラリアで法規制', description: '' }).includes('子ども向け'));
+  assert.ok(names({ title: '育休中の男性', description: '30代の男性からおたよりをいただきました。' }).includes('お便り・相談'));
+});
