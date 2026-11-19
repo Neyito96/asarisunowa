@@ -1,19 +1,49 @@
 {
  "summary": {
-  "generatedAt": "2026-11-18T10:13:22.201Z",
-  "spotifyGeneratedAt": "2026-11-18T10:08:01.251Z",
-  "ledgerRows": 6126,
-  "ledgerSpotifyEmpty": 9,
-  "verified": 0,
+  "generatedAt": "2026-11-19T12:14:20.708Z",
+  "spotifyGeneratedAt": "2026-11-19T12:09:03.881Z",
+  "ledgerRows": 6130,
+  "ledgerSpotifyEmpty": 13,
+  "verified": 4,
   "counts": {
-   "VERIFIED_SAME": 266,
+   "VERIFIED": 4,
+   "VERIFIED_SAME": 262,
    "NO_ROW": 16,
    "CANDIDATE": 59,
    "HOLD": 3
   },
   "emptyNotInSpotifyList": 1
  },
- "verified": [],
+ "verified": [
+  {
+   "ep": "EP-06752",
+   "url": "https://open.spotify.com/episode/6hnhM3sbWPGNi75eyieCbz",
+   "show": "ニュースの現場から",
+   "title": "（PUERTA #27）止まらないサイバー攻撃　アカウントの断捨離しているけれど",
+   "spotifyDate": "2026-11-18"
+  },
+  {
+   "ep": "EP-06754",
+   "url": "https://open.spotify.com/episode/601wQcN3RANC9KnWYzYB4J",
+   "show": "ニュースの学校",
+   "title": "高次脳機能障害",
+   "spotifyDate": "2026-11-18"
+  },
+  {
+   "ep": "EP-06753",
+   "url": "https://open.spotify.com/episode/1o2g2GeFUtrOli3ZRI6hMc",
+   "show": "MEDIA TALK",
+   "title": "（記者が向き合うトラウマ）取材相手も、自分も傷つかないために　経験を話します",
+   "spotifyDate": "2026-11-18"
+  },
+  {
+   "ep": "EP-06755",
+   "url": "https://open.spotify.com/episode/3pEP4oxZocivkMax2yWLmu",
+   "show": "ドーナツ",
+   "title": "（親モヤ #133）「私がやっときゃいいんやろ」　親の介護を機に、家族の役割は変えられる？",
+   "spotifyDate": "2026-11-18"
+  }
+ ],
  "others": [
   {
    "show": "ニュースの現場から",
@@ -780,6 +810,42 @@
    "status": "CANDIDATE",
    "reason": "題名・日付は一致・長さが合わない",
    "spotifyUrl": "https://open.spotify.com/episode/2tOEzJdAU1rdfimMZF1w7K"
+  },
+  {
+   "ep": "EP-06752",
+   "show": "ニュースの現場から",
+   "title": "（PUERTA #27）止まらないサイバー攻撃　アカウントの断捨離しているけれど",
+   "published": "2026/11/19 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/6hnhM3sbWPGNi75eyieCbz"
+  },
+  {
+   "ep": "EP-06753",
+   "show": "MEDIA TALK",
+   "title": "（記者が向き合うトラウマ）取材相手も、自分も傷つかないために　経験を話します",
+   "published": "2026/11/19 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/1o2g2GeFUtrOli3ZRI6hMc"
+  },
+  {
+   "ep": "EP-06754",
+   "show": "ニュースの学校",
+   "title": "高次脳機能障害",
+   "published": "2026/11/19 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付が一致・長さは番組ごとの一定差（Spotify版が約44秒短い）",
+   "spotifyUrl": "https://open.spotify.com/episode/601wQcN3RANC9KnWYzYB4J"
+  },
+  {
+   "ep": "EP-06755",
+   "show": "ドーナツ",
+   "title": "（親モヤ #133）「私がやっときゃいいんやろ」　親の介護を機に、家族の役割は変えられる？",
+   "published": "2026/11/19 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/3pEP4oxZocivkMax2yWLmu"
   }
  ]
 }

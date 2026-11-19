@@ -1,11 +1,18 @@
 {
- "generatedAt": "2026-11-18T10:08:01.251Z",
+ "generatedAt": "2026-11-19T12:09:03.881Z",
  "source": "open.spotify.com（埋め込み＋番組ページ）",
  "shows": {
   "ニュースの現場から": {
    "showId": "392h0MYfvMTndEVzf2cOvC",
    "count": 51,
    "episodes": [
+    {
+     "id": "6hnhM3sbWPGNi75eyieCbz",
+     "url": "https://open.spotify.com/episode/6hnhM3sbWPGNi75eyieCbz",
+     "title": "（PUERTA #27）止まらないサイバー攻撃　アカウントの断捨離しているけれど",
+     "date": "2026-11-18",
+     "durationMs": 3108505
+    },
     {
      "id": "3tifxg5hAoWPsgm7G7LfqF",
      "url": "https://open.spotify.com/episode/3tifxg5hAoWPsgm7G7LfqF",
@@ -350,13 +357,6 @@
      "durationMs": 2883207
     },
     {
-     "id": "56a6pDCwye6RiGJQqohACl",
-     "url": "https://open.spotify.com/episode/56a6pDCwye6RiGJQqohACl",
-     "title": "（8がけ社会 #21）「子どもを持つ前に、まず自分が生き残る」　日韓の少子化、それぞれの壁",
-     "date": "2026-09-29",
-     "durationMs": 4827727
-    },
-    {
      "id": "1vVhoMqsDDYUmpajbMtF82",
      "url": "https://open.spotify.com/episode/1vVhoMqsDDYUmpajbMtF82",
      "title": "朝日新聞ポッドキャストを紹介する2分間の音声",
@@ -369,6 +369,13 @@
    "showId": "2uG9W6CnsaNi87AfSuGe8r",
    "count": 51,
    "episodes": [
+    {
+     "id": "601wQcN3RANC9KnWYzYB4J",
+     "url": "https://open.spotify.com/episode/601wQcN3RANC9KnWYzYB4J",
+     "title": "高次脳機能障害",
+     "date": "2026-11-18",
+     "durationMs": 745000
+    },
     {
      "id": "0qgD1gR1QNhtm9SqsnIsvZ",
      "url": "https://open.spotify.com/episode/0qgD1gR1QNhtm9SqsnIsvZ",
@@ -711,13 +718,6 @@
      "title": "女性トイレの行列",
      "date": "2026-09-03",
      "durationMs": 562536
-    },
-    {
-     "id": "6WDc1lfKdGnXlXeuzaLSlC",
-     "url": "https://open.spotify.com/episode/6WDc1lfKdGnXlXeuzaLSlC",
-     "title": "ゴキブリ人民党",
-     "date": "2026-09-02",
-     "durationMs": 777791
     },
     {
      "id": "23Q3UagtMmB8wwNgaFGF01",
@@ -1438,6 +1438,13 @@
    "count": 50,
    "episodes": [
     {
+     "id": "1o2g2GeFUtrOli3ZRI6hMc",
+     "url": "https://open.spotify.com/episode/1o2g2GeFUtrOli3ZRI6hMc",
+     "title": "（記者が向き合うトラウマ）取材相手も、自分も傷つかないために　経験を話します",
+     "date": "2026-11-18",
+     "durationMs": 6709604
+    },
+    {
      "id": "1VenT5q6ABfDLoFxtzX9x0",
      "url": "https://open.spotify.com/episode/1VenT5q6ABfDLoFxtzX9x0",
      "title": "（動画見た？#52）ホームビデオに革命、思い出したトヨタの感動ムービー　あの番組を「辛口」でコラボ",
@@ -1779,13 +1786,6 @@
      "title": "（ウニュ #95）ゲーム、スマホ、外遊び……子どもの〝制限〟を考えた　親の「不」が制限につながる？",
      "date": "2026-08-31",
      "durationMs": 4157000
-    },
-    {
-     "id": "7HPqSjMBkASQx7fBlx4oGX",
-     "url": "https://open.spotify.com/episode/7HPqSjMBkASQx7fBlx4oGX",
-     "title": "（MT）情報爆発のコントラディクション",
-     "date": "2026-08-30",
-     "durationMs": 2295444
     }
    ]
   },
@@ -2107,6 +2107,13 @@
    "showId": "0341I5UOUrJgm7KEvNGInZ",
    "count": 49,
    "episodes": [
+    {
+     "id": "3pEP4oxZocivkMax2yWLmu",
+     "url": "https://open.spotify.com/episode/3pEP4oxZocivkMax2yWLmu",
+     "title": "（親モヤ #133）「私がやっときゃいいんやろ」　親の介護を機に、家族の役割は変えられる？",
+     "date": "2026-11-18",
+     "durationMs": 1776399
+    },
     {
      "id": "1ocv4ImeR9rQQBOv1vXNm9",
      "url": "https://open.spotify.com/episode/1ocv4ImeR9rQQBOv1vXNm9",
@@ -2442,13 +2449,6 @@
      "title": "（日曜版）てぃーかわ・ちいかわ",
      "date": "2026-09-19",
      "durationMs": 8839818
-    },
-    {
-     "id": "328DfoR16K9ZSroYwMNTEd",
-     "url": "https://open.spotify.com/episode/328DfoR16K9ZSroYwMNTEd",
-     "title": "（ノーミライ #5）着替えとる場合ちゃう 逃げるんや、というお話",
-     "date": "2026-09-18",
-     "durationMs": 2845724
     }
    ]
   }
