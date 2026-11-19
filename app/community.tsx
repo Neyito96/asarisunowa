@@ -846,6 +846,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     [submitSecurityAnswer, setSubmitSecurityAnswer] = useState(""),
     [submitWebsite, setSubmitWebsite] = useState(""),
     [submitShelf, setSubmitShelf] = useState<"" | "series" | "list">(""),
+    [submitAutoShow, setSubmitAutoShow] = useState(""),
+    [submitAutoKeyword, setSubmitAutoKeyword] = useState(""),
     [submitStatus, setSubmitStatus] = useState<"idle" | "sending" | "success" | "error">("idle"),
     [submitMessage, setSubmitMessage] = useState(""),
     [autoUpdateOpen, setAutoUpdateOpen] = useState(false),
@@ -873,7 +875,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     let cancelled = false;
     async function refreshListenerPlaylists() {
       try {
-        const payload = await loadJsonpWithRetry<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; latestDate?: string; introducedDate?: string; autoManaged?: boolean; shelf?: string }> }>(
+        const payload = await loadJsonpWithRetry<{ ok: boolean; items?: Array<{ id?: string; url?: string; title?: string; maker?: string; latestDate?: string; introducedDate?: string; autoManaged?: boolean; shelf?: string; artwork?: string }> }>(
           PLAYLIST_READ_ENDPOINT + "?type=playlist&_=" + Date.now()
         );
         if (!payload?.ok || !Array.isArray(payload.items)) return;
@@ -884,7 +886,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           playlists.map((item) => [item.title.trim(), item]),
         );
         const next = payload.items
-          .map((source: { id?: string; url?: string; title?: string; maker?: string; latestDate?: string; introducedDate?: string; autoManaged?: boolean; shelf?: string }, index: number) => {
+          .map((source: { id?: string; url?: string; title?: string; maker?: string; latestDate?: string; introducedDate?: string; autoManaged?: boolean; shelf?: string; artwork?: string }, index: number) => {
             const cleanUrl = String(source.url || "").trim() || null;
             const cleanTitle = String(source.title || "").trim();
             const existing =
@@ -895,7 +897,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               title: cleanTitle,
               maker: String(source.maker || "").trim(),
               url: cleanUrl,
-              artwork: (cleanUrl ? getPlaylistArtworkOverride(cleanUrl) : undefined) ?? existing?.artwork ?? null,
+              // 表紙は Spotify の現在の画像を最優先（作成者が作り直せばそれ、無ければ Spotify の自動画像）
+              artwork: String(source.artwork || "").trim() || ((cleanUrl ? getPlaylistArtworkOverride(cleanUrl) : undefined) ?? existing?.artwork ?? null),
               latestDate: String(source.latestDate || "").trim() || null,
               introducedDate: String(source.introducedDate || "").trim() || null,
               autoManaged: source.autoManaged === true,
@@ -1532,6 +1535,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           introducedDate: submitIntroducedDate,
           kind: postedKind,
           shelf: postedKind === "playlist" ? submitShelf : "",
+          autoShow: postedKind === "playlist" && submitShelf === "series" && submitAutoKeyword.trim() ? submitAutoShow : "",
+          autoKeyword: postedKind === "playlist" && submitShelf === "series" && submitAutoShow ? submitAutoKeyword.trim() : "",
           securityAnswer: submitSecurityAnswer.trim(),
           website: submitWebsite,
         }),
@@ -1560,6 +1565,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       setSubmitSecurityAnswer("");
       setSubmitWebsite("");
       setSubmitShelf("");
+      setSubmitAutoShow("");
+      setSubmitAutoKeyword("");
       setResolveStatus("idle");
       setResolveMessage("");
       setResolvedArtwork(null);
@@ -1883,6 +1890,23 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   <label><input type="radio" name="playlistShelf" checked={submitShelf === "series"} onChange={() => setSubmitShelf("series")} required /><span><b>📻 連載・シリーズ</b><small>同じ連載・シリーズの回をまとめたもの</small></span></label>
                   <label><input type="radio" name="playlistShelf" checked={submitShelf === "list"} onChange={() => setSubmitShelf("list")} /><span><b>🐿️ 朝リスト</b><small>テーマ・出演者別など</small></span></label>
                 </fieldset>
+                {submitShelf === "series" ? (
+                  <fieldset className="autoUpdateTypes playlistAutoGrow">
+                    <legend>🌱 新しい回を自動で追加（任意）</legend>
+                    <label>
+                      <span>番組</span>
+                      <select value={submitAutoShow} onChange={(e) => setSubmitAutoShow(e.target.value)}>
+                        <option value="">自動追加しない</option>
+                        {["ニュースの現場から", "ニュースの学校", "報談", "スポンジ", "MEDIA TALK", "こどもそうだんしつ", "ドーナツ"].map((s) => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                    </label>
+                    <label>
+                      <span>題名に入る語（例: （ポすすめ））</span>
+                      <input value={submitAutoKeyword} onChange={(e) => setSubmitAutoKeyword(e.target.value)} placeholder="（ポすすめ）" maxLength={40} />
+                    </label>
+                    <small>蔵にあるこの番組・この語の回を追加し、以後は新しい回を自動で足します。リストの共同編集に朝リスの輪を招待してください。</small>
+                  </fieldset>
+                ) : null}
                 <label>
                   <span>セキュリティ：神田さんの名は？</span>
                   <input

@@ -24,7 +24,10 @@ function parsePostInput_(e) {
     securityAnswer: String(data.securityAnswer || "").trim(),
     website: String(data.website || "").trim(),
     // 掲載先（Spotifyリストの棚）: 連載・シリーズ / 朝リスト。未指定は空（従来どおり）
-    shelf: normalizePlaylistShelf_(data.shelf)
+    shelf: normalizePlaylistShelf_(data.shelf),
+    // 自動育成（蔵から）: 朝日新聞ポッドキャストの番組名と、題名に入る語
+    autoShow: String(data.autoShow || "").trim().slice(0, 40),
+    autoKeyword: String(data.autoKeyword || "").trim().slice(0, 40)
   };
 }
 
