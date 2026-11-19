@@ -1,0 +1,360 @@
+// 朝ポキの宇宙｜言葉の星図（アルテキスト計画・試験版）
+// データ: ./data/core.json（星・言葉・星雲）と ./data/rel.json（関連する回と根拠）は scripts/uchu/build-uchu.mjs が蔵の公開データから作る。
+// 回の本文・出演者・関連記事・再生先は、蔵の公開データ（../library/data/details/）をその場で読む（写しを増やさない）。
+// 外部ライブラリなし。Canvas 2D と素の DOM だけ。
+import { SHELF_KEY, readShelf, serializeShelf, toggleItem, platformLabel } from '../library/shelf-core.mjs';
+
+const $ = (id) => document.getElementById(id);
+const h = (tag, attrs = {}, ...kids) => {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) { if (v == null || v === false) continue; if (k.startsWith('on')) el.addEventListener(k.slice(2), v); else if (k === 'class') el.className = v; else el.setAttribute(k, v === true ? '' : v); }
+  for (const c of kids.flat()) if (c != null && c !== false) el.append(c.nodeType ? c : String(c));
+  return el;
+};
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const live = (msg) => { $('live').textContent = msg; };
+const fmtDate = (n) => { const s = String(n); return s.length === 8 ? `${s.slice(0, 4)}.${Number(s.slice(4, 6))}.${Number(s.slice(6))}` : ''; };
+const fmtDur = (sec) => (sec ? `${Math.round(sec / 60)}分` : '');
+
+// ---- 状態
+let D, REL = null;               // core, rel
+let px, py;                      // 今の表示の座標（世界座標）
+let mapX, mapY, timeX, timeY;    // 2つの表示の座標
+let mode = 'map';
+const view = { x: 0, y: 0, k: 1 };
+let W = 0, H = 0, dpr = 1;
+let hi = null;                   // 光らせる回の集合（Set）
+let sel = null;                  // {type:'ep'|'word'|'person'|'neb', id}
+let hoverEp = -1, labelRects = [];
+let grid = new Map();             // 当たり判定用の格子
+let anim = null, queued = false;
+const colors = [];
+const canvas = $('sky'), ctx = canvas.getContext('2d');
+
+// ---- 読み込み
+const t0 = performance.now();
+D = await (await fetch('./data/core.json')).json();
+const tLoad = performance.now() - t0;
+const NE = D.eps.length, K = D.comms.length;
+for (let c = 0; c < K; c++) colors.push(`hsl(${Math.round((c * 360) / K + 200) % 360} 72% 68%)`);
+const colorOf = (c) => (c >= 0 ? colors[c] : '#7c869e');
+const termIdxByKey = new Map(D.terms.map((t, j) => [t[0].normalize('NFKC').toLowerCase(), j]));
+const mapTermOrder = D.terms.map((t, j) => j).filter((j) => D.terms[j][1] !== null).sort((a, b) => D.terms[b][4].length - D.terms[a][4].length);
+const epIdx = new Map(D.eps.map((e, i) => [e[0], i]));
+buildLayouts();
+fetch('./data/rel.json').then((r) => r.json()).then((r) => { REL = r.rel; if (sel && sel.type === 'ep') renderEp(sel.id); });
+
+function buildLayouts() {
+  mapX = new Float32Array(NE); mapY = new Float32Array(NE); timeX = new Float32Array(NE); timeY = new Float32Array(NE);
+  // 時間の表示: 横＝配信日、縦＝星雲（星雲は平均の配信日が古い順に上から）
+  const days = D.eps.map((e) => { const s = String(e[3]); return Date.UTC(+s.slice(0, 4), +s.slice(4, 6) - 1, +s.slice(6, 8)) / 864e5; });
+  const dMin = Math.min(...days.filter((d) => d > 0)), dMax = Math.max(...days);
+  const mean = new Array(K).fill(0), cnt = new Array(K).fill(0);
+  D.eps.forEach((e, i) => { if (e[6] >= 0) { mean[e[6]] += days[i]; cnt[e[6]]++; } });
+  const rank = new Array(K); [...Array(K).keys()].sort((a, b) => mean[a] / (cnt[a] || 1) - mean[b] / (cnt[b] || 1)).forEach((c, r) => { rank[c] = r; });
+  D._timeRank = rank; D._dMin = dMin; D._dMax = dMax;
+  D.eps.forEach((e, i) => {
+    mapX[i] = e[4] ?? NaN; mapY[i] = e[5] ?? NaN;
+    const band = e[6] >= 0 ? rank[e[6]] : K; let hsh = 0; for (const ch of e[0]) hsh = (hsh * 31 + ch.charCodeAt(0)) | 0;
+    timeX[i] = ((days[i] - dMin) / (dMax - dMin)) * 2400 - 1200; timeY[i] = band * 46 - (K * 46) / 2 + ((hsh >>> 0) % 1000) / 1000 * 30 - 15;
+  });
+  px = mapX.slice(); py = mapY.slice();
+  buildGrid();
+}
+function buildGrid() {
+  grid = new Map();
+  for (let i = 0; i < NE; i++) { if (!Number.isFinite(px[i])) continue; const key = Math.floor(px[i] / 24) + ',' + Math.floor(py[i] / 24); (grid.get(key) || grid.set(key, []).get(key)).push(i); }
+}
+
+// ---- 表示の変換
+const sx = (x) => (x - view.x) * view.k + W / 2, sy = (y) => (y - view.y) * view.k + H / 2;
+const wx = (x) => (x - W / 2) / view.k + view.x, wy = (y) => (y - H / 2) / view.k + view.y;
+function resize() {
+  dpr = Math.min(2, devicePixelRatio || 1); const r = canvas.getBoundingClientRect(); W = r.width; H = r.height;
+  canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); draw();
+}
+function fit() {
+  let a = Infinity, b = -Infinity, c = Infinity, d = -Infinity;
+  for (let i = 0; i < NE; i++) if (Number.isFinite(px[i])) { a = Math.min(a, px[i]); b = Math.max(b, px[i]); c = Math.min(c, py[i]); d = Math.max(d, py[i]); }
+  animateTo((a + b) / 2, (c + d) / 2, Math.min(W / (b - a + 80), H / (d - c + 80)));
+}
+// スマホでは下の詳細シートに隠れないよう、見える部分の中央へ
+function focusAt(x, y, k) { const off = innerWidth <= 760 ? (H * 0.23) / k : 0; animateTo(x, y + off, k); }
+function animateTo(x, y, k, ms = 450) {
+  if (reduceMotion || !W) { view.x = x; view.y = y; view.k = k; draw(); return; }
+  const from = { ...view }, start = performance.now(); cancelAnimationFrame(anim);
+  const step = (t) => { const p = Math.min(1, (t - start) / ms), e = 1 - Math.pow(1 - p, 3); view.x = from.x + (x - from.x) * e; view.y = from.y + (y - from.y) * e; view.k = from.k * Math.pow(k / from.k, e); draw(); if (p < 1) anim = requestAnimationFrame(step); };
+  anim = requestAnimationFrame(step);
+}
+function draw() { if (queued) return; queued = true; requestAnimationFrame(() => { queued = false; render(); }); }
+
+// ---- 描画
+function render() {
+  ctx.clearRect(0, 0, W, H);
+  const k = view.k;
+  // 星雲の光（星図のとき）
+  if (mode === 'map') {
+    for (let c = 0; c < K; c++) {
+      const cm = D.comms[c], x = sx(cm.x), y = sy(cm.y), r = cm.r * k * 1.5; if (x < -r || y < -r || x > W + r || y > H + r) continue;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, colorOf(c).replace('68%)', '68% / .16)')); g.addColorStop(1, 'transparent');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    }
+  } else drawTimeAxis();
+  // 星
+  const base = Math.max(1, Math.min(3.2, 0.9 * Math.sqrt(k) + 0.4));
+  const dim = hi && hi.size;
+  for (let i = 0; i < NE; i++) {
+    const x = sx(px[i]), y = sy(py[i]); if (!(x > -4 && y > -4 && x < W + 4 && y < H + 4)) continue;
+    const on = !dim || hi.has(i); ctx.globalAlpha = on ? 0.9 : 0.12; ctx.fillStyle = colorOf(D.eps[i][6]);
+    ctx.fillRect(x - base / 2, y - base / 2, base, base);
+  }
+  ctx.globalAlpha = 1;
+  if (dim) for (const i of hi) { const x = sx(px[i]), y = sy(py[i]); if (!Number.isFinite(x)) continue; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, base * 0.9 + 0.8, 0, Math.PI * 2); ctx.fill(); }
+  // 選んだ回: 関連する回への線
+  if (sel && sel.type === 'ep') {
+    const i = sel.id, x0 = sx(px[i]), y0 = sy(py[i]);
+    if (REL) for (const r of REL[i][0]) { const j = r[0]; if (!Number.isFinite(px[j])) continue; ctx.strokeStyle = r[3] ? '#f3d48fcc' : '#9fb4e0aa'; ctx.lineWidth = 1 + r[1] / 60; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(sx(px[j]), sy(py[j])); ctx.stroke(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(sx(px[j]), sy(py[j]), 3, 0, Math.PI * 2); ctx.fill(); }
+    if (Number.isFinite(x0)) { ctx.strokeStyle = '#f3c969'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x0, y0, 9, 0, Math.PI * 2); ctx.stroke(); }
+  }
+  if (hoverEp >= 0) { const x = sx(px[hoverEp]), y = sy(py[hoverEp]); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.stroke(); }
+  drawLabels();
+}
+function drawTimeAxis() {
+  ctx.font = '11px ' + getComputedStyle(document.body).fontFamily; ctx.fillStyle = '#9aa6c2'; ctx.strokeStyle = '#1f2a44'; ctx.lineWidth = 1;
+  for (let yr = 2020; yr <= 2027; yr++) {
+    const d = Date.UTC(yr, 0, 1) / 864e5, x = sx(((d - D._dMin) / (D._dMax - D._dMin)) * 2400 - 1200); if (x < 0 || x > W) continue;
+    ctx.beginPath(); ctx.moveTo(x, 64); ctx.lineTo(x, H); ctx.stroke(); ctx.fillText(String(yr), x + 4, H - 10);
+  }
+}
+function drawLabels() {
+  labelRects = []; const k = view.k, occ = new Set(), cell = 22;
+  const fam = getComputedStyle(document.body).fontFamily;
+  const place = (x, y, w, hgt) => { const keys = []; for (let a = Math.floor((x - w / 2) / cell); a <= Math.floor((x + w / 2) / cell); a++) for (let b = Math.floor((y - hgt / 2) / cell); b <= Math.floor((y + hgt / 2) / cell); b++) keys.push(a + ',' + b); if (keys.some((q) => occ.has(q))) return false; keys.forEach((q) => occ.add(q)); return true; };
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  if (mode === 'time') {
+    ctx.textAlign = 'left'; ctx.font = '12px ' + fam;
+    for (let c = 0; c < K; c++) { const y = sy(D._timeRank[c] * 46 - (K * 46) / 2); if (y < 70 || y > H - 20) continue; ctx.fillStyle = colorOf(c); ctx.fillText(D.comms[c].name.slice(0, 2).join('・'), 10, y); }
+    return;
+  }
+  // 選んだ言葉と、その近い言葉は必ず出す
+  const must = new Set();
+  if (sel && sel.type === 'word') { must.add(sel.id); for (const [y] of D.terms[sel.id][5]) must.add(y); }
+  if (k < 0.75 && !must.size) {
+    ctx.font = '600 13px ' + fam;
+    D.comms.forEach((cm, c) => { const x = sx(cm.x), y = sy(cm.y); const text = cm.name.slice(0, 2).join('・'); const w = ctx.measureText(text).width + 8; if (!place(x, y, w, 18)) return; ctx.fillStyle = '#000a'; ctx.fillText(text, x + 1, y + 1); ctx.fillStyle = colorOf(c); ctx.fillText(text, x, y); });
+    return;
+  }
+  if (sel && sel.type === 'word') {
+    const j0 = sel.id, x0 = sx(D.terms[j0][1]), y0 = sy(D.terms[j0][2]);
+    ctx.strokeStyle = '#f3c96988'; ctx.lineWidth = 1;
+    for (const [y] of D.terms[j0][5]) { if (D.terms[y][1] === null) continue; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(sx(D.terms[y][1]), sy(D.terms[y][2])); ctx.stroke(); }
+  }
+  const max = Math.min(220, 40 + Math.round(k * 60));
+  let shown = 0;
+  const list = [...must, ...mapTermOrder];
+  for (const j of list) {
+    if (shown >= max && !must.has(j)) break;
+    const t = D.terms[j]; if (t[1] === null) continue; const x = sx(t[1]), y = sy(t[2]); if (x < 0 || y < 60 || x > W || y > H) continue;
+    const n = t[4].length, size = Math.max(10, Math.min(18, 9 + Math.log2(n) * 1.3)), isSel = sel && sel.type === 'word' && sel.id === j;
+    ctx.font = `${isSel ? 700 : 500} ${isSel ? size + 3 : size}px ${fam}`; const w = ctx.measureText(t[0]).width + 6;
+    if (!place(x, y, w, size + 4) && !isSel) continue;   // 選んだ言葉だけは必ず出す。近い言葉は重なれば省く
+    ctx.fillStyle = '#000b'; ctx.fillText(t[0], x + 1, y + 1);
+    ctx.fillStyle = isSel ? '#f3c969' : must.has(j) ? '#ffe7ad' : colorOf(t[3]).replace('68%)', '82%)');
+    ctx.fillText(t[0], x, y); labelRects.push([x - w / 2, y - size / 2, w, size, j]); shown++;
+  }
+}
+
+// ---- 当たり判定
+function hitEp(cx, cy, r = 12) {
+  const x = wx(cx), y = wy(cy), rr = r / view.k; let best = -1, bd = Infinity;
+  for (let a = Math.floor((x - rr) / 24); a <= Math.floor((x + rr) / 24); a++) for (let b = Math.floor((y - rr) / 24); b <= Math.floor((y + rr) / 24); b++) for (const i of grid.get(a + ',' + b) || []) { const d = Math.hypot(px[i] - x, py[i] - y); if (d < rr && d < bd) { bd = d; best = i; } }
+  return best;
+}
+const hitLabel = (cx, cy) => { for (let n = labelRects.length - 1; n >= 0; n--) { const [x, y, w, hh, j] = labelRects[n]; if (cx >= x && cx <= x + w && cy >= y - 2 && cy <= y + hh + 2) return j; } return -1; };
+
+// ---- 操作（マウス・タッチ・キーボード）
+const pts = new Map(); let dragMoved = false, pinch0 = null;
+canvas.addEventListener('pointerdown', (e) => { canvas.setPointerCapture(e.pointerId); pts.set(e.pointerId, { x: e.offsetX, y: e.offsetY }); dragMoved = false; if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch0 = { d: Math.hypot(a.x - b.x, a.y - b.y), k: view.k }; } canvas.classList.add('dragging'); });
+canvas.addEventListener('pointermove', (e) => {
+  const p = pts.get(e.pointerId);
+  if (!p) { const i = hitEp(e.offsetX, e.offsetY); const j = i < 0 ? hitLabel(e.offsetX, e.offsetY) : -1; if (i !== hoverEp) { hoverEp = i; draw(); } showTip(e.offsetX, e.offsetY, i, j); return; }
+  if (pts.size === 2 && pinch0) { pts.set(e.pointerId, { x: e.offsetX, y: e.offsetY }); const [a, b] = [...pts.values()]; view.k = Math.max(0.15, Math.min(40, pinch0.k * Math.hypot(a.x - b.x, a.y - b.y) / pinch0.d)); dragMoved = true; draw(); return; }
+  const dx = e.offsetX - p.x, dy = e.offsetY - p.y; if (Math.abs(dx) + Math.abs(dy) > 3) dragMoved = true;
+  view.x -= dx / view.k; view.y -= dy / view.k; p.x = e.offsetX; p.y = e.offsetY; draw();
+});
+const up = (e) => {
+  pts.delete(e.pointerId); if (pts.size < 2) pinch0 = null; canvas.classList.remove('dragging');
+  if (!dragMoved && e.type === 'pointerup') { const j = hitLabel(e.offsetX, e.offsetY); if (j >= 0) return select({ type: 'word', id: j }); const i = hitEp(e.offsetX, e.offsetY, e.pointerType === 'touch' ? 20 : 12); if (i >= 0) select({ type: 'ep', id: i }); }
+};
+canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
+canvas.addEventListener('pointerleave', () => { $('tip').hidden = true; if (hoverEp >= 0) { hoverEp = -1; draw(); } });
+canvas.addEventListener('wheel', (e) => { e.preventDefault(); const f = Math.exp(-e.deltaY * 0.0015), bx = wx(e.offsetX), by = wy(e.offsetY); view.k = Math.max(0.15, Math.min(40, view.k * f)); view.x = bx - (e.offsetX - W / 2) / view.k; view.y = by - (e.offsetY - H / 2) / view.k; draw(); }, { passive: false });
+canvas.addEventListener('keydown', (e) => {
+  const step = 60 / view.k;
+  const act = { ArrowLeft: () => (view.x -= step), ArrowRight: () => (view.x += step), ArrowUp: () => (view.y -= step), ArrowDown: () => (view.y += step), '+': () => (view.k *= 1.3), '=': () => (view.k *= 1.3), '-': () => (view.k /= 1.3),
+    Enter: () => { const i = hitEp(W / 2, H / 2, 40); if (i >= 0) select({ type: 'ep', id: i }); } }[e.key];
+  if (act) { e.preventDefault(); act(); draw(); }
+});
+function showTip(x, y, i, j) {
+  const tip = $('tip'); if (i < 0 && j < 0) { tip.hidden = true; return; }
+  tip.replaceChildren(i >= 0 ? h('div', {}, D.eps[i][1], h('small', {}, `${D.shows[D.eps[i][2]]}・${fmtDate(D.eps[i][3])}`)) : h('div', {}, D.terms[j][0], h('small', {}, `${D.terms[j][4].length}回`)));
+  tip.hidden = false; tip.style.left = Math.min(x + 14, W - 300) + 'px'; tip.style.top = y + 14 + 'px';
+}
+$('zin').onclick = () => animateTo(view.x, view.y, view.k * 1.6, 250);
+$('zout').onclick = () => animateTo(view.x, view.y, view.k / 1.6, 250);
+$('zfit').onclick = () => fit();
+document.querySelectorAll('.modes button').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
+function setMode(m) {
+  if (m === mode) return; mode = m; document.querySelectorAll('.modes button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === m)));
+  const fx = px.slice(), fy = py.slice(), tx = m === 'map' ? mapX : timeX, ty = m === 'map' ? mapY : timeY, start = performance.now(), ms = reduceMotion ? 0 : 700;
+  const step = (t) => { const p = ms ? Math.min(1, (t - start) / ms) : 1, e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2; for (let i = 0; i < NE; i++) { px[i] = fx[i] + (tx[i] - fx[i]) * e; py[i] = fy[i] + (ty[i] - fy[i]) * e; } render(); if (p < 1) requestAnimationFrame(step); else { buildGrid(); fit(); } };
+  requestAnimationFrame(step); live(m === 'map' ? '星雲の表示に切り替えました' : '時間の表示に切り替えました。横が配信日、縦が星雲です');
+}
+
+// ---- 選択と詳細
+function select(s, { fly = true, push = true } = {}) {
+  sel = s; hoverEp = -1;
+  if (s.type === 'ep') { hi = null; renderEp(s.id); if (fly && Number.isFinite(px[s.id])) focusAt(px[s.id], py[s.id], Math.max(view.k, 2.2)); }
+  if (s.type === 'word') { hi = new Set(D.terms[s.id][4]); renderWord(s.id); const t = D.terms[s.id]; if (fly && t[1] !== null && mode === 'map') focusAt(t[1], t[2], Math.max(view.k, 1.6)); }
+  if (s.type === 'person') { hi = new Set(D.persons[s.id][1]); renderPerson(s.id); }
+  if (s.type === 'neb') { hi = new Set(); D.eps.forEach((e, i) => { if (e[6] === s.id) hi.add(i); }); renderNebula(s.id); const cm = D.comms[s.id]; if (fly && mode === 'map') focusAt(cm.x, cm.y, Math.min(W, H) / (cm.r * 3.2)); }
+  document.querySelectorAll('#nebulae button').forEach((b) => b.setAttribute('aria-pressed', String(s.type === 'neb' && +b.dataset.c === s.id)));
+  if (push) { const hash = s.type === 'ep' ? 'e=' + D.eps[s.id][0] : s.type === 'word' ? 'w=' + encodeURIComponent(D.terms[s.id][0]) : s.type === 'person' ? 'p=' + encodeURIComponent(D.persons[s.id][0]) : 'n=' + s.id; history.replaceState(null, '', '#' + hash); }
+  draw();
+}
+const panel = () => $('detail');
+const epButton = (i, extra) => h('button', { type: 'button', class: 'title', onclick: () => select({ type: 'ep', id: i }) }, D.eps[i][1], extra);
+function epList(ids, limit = 60) {
+  const sorted = [...ids].sort((a, b) => D.eps[b][3] - D.eps[a][3]);
+  const ul = h('ul', { class: 'eplist' }, sorted.slice(0, limit).map((i) => h('li', {}, h('button', { type: 'button', onclick: () => select({ type: 'ep', id: i }) }, h('small', {}, fmtDate(D.eps[i][3])), D.eps[i][1]))));
+  return [ul, sorted.length > limit ? h('p', { class: 'note' }, `新しい順に${limit}回まで表示（全${sorted.length}回）`) : null];
+}
+// 時間の変化（四半期ごとの回数）。SVG の各棒に件数の説明をつける
+function histogram(ids) {
+  const q0 = 2020 * 4, q1 = new Date().getFullYear() * 4 + 3, cnt = new Array(q1 - q0 + 1).fill(0);
+  for (const i of ids) { const s = String(D.eps[i][3]); const q = +s.slice(0, 4) * 4 + Math.floor((+s.slice(4, 6) - 1) / 3) - q0; if (q >= 0 && q < cnt.length) cnt[q]++; }
+  const max = Math.max(1, ...cnt), bw = 320 / cnt.length, ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg'); svg.setAttribute('viewBox', '0 0 320 90'); svg.setAttribute('class', 'hist'); svg.setAttribute('role', 'img');
+  const peak = cnt.indexOf(max); svg.setAttribute('aria-label', `四半期ごとの回数。最も多いのは${Math.floor((peak + q0) / 4)}年第${((peak + q0) % 4) + 1}四半期の${max}回`);
+  cnt.forEach((n, q) => { const r = document.createElementNS(ns, 'rect'), hh = (n / max) * 66; r.setAttribute('x', q * bw + 0.5); r.setAttribute('y', 72 - hh); r.setAttribute('width', Math.max(1, bw - 1.5)); r.setAttribute('height', hh); r.setAttribute('fill', n ? '#f3c969' : '#1f2a44'); r.setAttribute('rx', 1); const t = document.createElementNS(ns, 'title'); t.textContent = `${Math.floor((q + q0) / 4)}年 第${((q + q0) % 4) + 1}四半期: ${n}回`; r.append(t); svg.append(r); });
+  for (let y = 2020; y * 4 <= q1; y++) { const t = document.createElementNS(ns, 'text'); t.setAttribute('x', (y * 4 - q0) * bw + 1); t.setAttribute('y', 86); t.setAttribute('fill', '#9aa6c2'); t.setAttribute('font-size', '9'); t.textContent = String(y); svg.append(t); }
+  return svg;
+}
+function showMix(ids) { const c = new Map(); for (const i of ids) c.set(D.eps[i][2], (c.get(D.eps[i][2]) || 0) + 1); return [...c].sort((a, b) => b[1] - a[1]).map(([s, n]) => `${D.shows[s]} ${n}`).join('・'); }
+function renderWord(j) {
+  const t = D.terms[j], ids = t[4];
+  panel().replaceChildren(h('div', {},
+    h('p', { class: 'meta' }, '言葉'), h('h3', {}, t[0]), h('p', { class: 'meta' }, h('span', {}, `${ids.length}回で主な言葉`), t[3] >= 0 ? h('span', {}, `星雲「${D.comms[t[3]].name.slice(0, 2).join('・')}」`) : null),
+    h('p', { class: 'note' }, showMix(ids)),
+    h('div', { class: 'sec' }, h('h4', {}, '時間の変化'), histogram(ids)),
+    t[5].length ? h('div', { class: 'sec' }, h('h4', {}, 'いっしょに語られる言葉'), t[5].map(([y, s]) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'word', id: y }) }, D.terms[y][0], h('small', {}, `${s}`))), h('p', { class: 'note' }, '数字は「同じ回に出る割合」（0〜100）。意味の近さではなく、共起の強さです。')) : null,
+    h('div', { class: 'sec' }, h('h4', {}, 'この言葉の回'), epList(ids))));
+  live(`言葉「${t[0]}」。${ids.length}回が光っています`);
+}
+function renderPerson(k) {
+  const [name, ids] = D.persons[k];
+  panel().replaceChildren(h('div', {}, h('p', { class: 'meta' }, '人物（出演者欄から）'), h('h3', {}, name), h('p', { class: 'meta' }, `${ids.length}回`), h('p', { class: 'note' }, showMix(ids)),
+    h('div', { class: 'sec' }, h('h4', {}, '時間の変化'), histogram(ids)), h('div', { class: 'sec' }, h('h4', {}, '出演した回'), epList(ids)),
+    h('p', { class: 'note' }, '同じ名前の別の人を区別できていない場合があります。')));
+  live(`人物「${name}」。${ids.length}回が光っています`);
+}
+function renderNebula(c) {
+  const cm = D.comms[c], ids = [...hi], words = D.terms.map((t, j) => j).filter((j) => D.terms[j][3] === c && D.terms[j][1] !== null).sort((a, b) => D.terms[b][4].length - D.terms[a][4].length).slice(0, 24);
+  panel().replaceChildren(h('div', {}, h('p', { class: 'meta' }, '星雲（自動でまとめた言葉の集まり・仮の名前）'), h('h3', {}, cm.name.join('・')), h('p', { class: 'meta' }, `${cm.n}回`), h('p', { class: 'note' }, showMix(ids)),
+    h('div', { class: 'sec' }, h('h4', {}, '時間の変化'), histogram(ids)),
+    h('div', { class: 'sec' }, h('h4', {}, 'この星雲の言葉'), words.map((j) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'word', id: j }) }, D.terms[j][0], h('small', {}, D.terms[j][4].length)))),
+    h('div', { class: 'sec' }, h('h4', {}, '回'), epList(ids, 40))));
+  live(`星雲「${cm.name.join('・')}」。${cm.n}回`);
+}
+const detailCache = new Map();
+async function loadDetail(id) {
+  const b = Math.floor(Number(id.slice(3)) / 50);
+  if (!detailCache.has(b)) detailCache.set(b, fetch(`../library/data/details/${b}.json`).then((r) => (r.ok ? r.json() : [])).catch(() => []));
+  return (await detailCache.get(b)).find((e) => e.id === id) || null;
+}
+function shelfHas(id) { try { return readShelf(localStorage.getItem(SHELF_KEY)).ids.includes(id); } catch { return false; } }
+function shelfToggle(id) { try { const s = toggleItem(readShelf(localStorage.getItem(SHELF_KEY)), id); localStorage.setItem(SHELF_KEY, serializeShelf(s)); return s.ids.includes(id); } catch { return null; } }
+async function renderEp(i) {
+  const e = D.eps[i], id = e[0];
+  const relBox = h('div', { class: 'sec' }, h('h4', {}, '関連する回（根拠つき）'), REL ? relList(i) : h('p', { class: 'note' }, '読み込み中…'));
+  const descBox = h('div', {}, h('p', { class: 'note' }, '概要欄を読み込み中…'));
+  const shelfBtn = h('button', { type: 'button', class: 'btn' }, shelfHas(id) ? '✓ 蔵書にあります' : '＋ 蔵書に入れる');
+  shelfBtn.onclick = () => { const on = shelfToggle(id); if (on === null) { shelfBtn.textContent = 'この端末では保存できません'; return; } shelfBtn.textContent = on ? '✓ 蔵書にあります' : '＋ 蔵書に入れる'; live(on ? '蔵書に入れました' : '蔵書から外しました'); };
+  panel().replaceChildren(h('div', {},
+    h('p', { class: 'meta' }, h('span', {}, D.shows[e[2]]), h('span', {}, fmtDate(e[3])), h('span', {}, fmtDur(e[7]))),
+    h('h3', {}, e[1]),
+    h('div', { class: 'btns' }, h('a', { class: 'btn primary', href: `../library/?ep=${id}` }, '蔵で詳しく見る'), shelfBtn),
+    descBox, relBox,
+    e[6] >= 0 ? h('div', { class: 'sec' }, h('h4', {}, '星雲'), h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'neb', id: e[6] }) }, h('span', { style: `color:${colorOf(e[6])}` }, '●'), D.comms[e[6]].name.slice(0, 2).join('・'))) : h('p', { class: 'note' }, 'この回は共通の言葉が少ないため、星図には置いていません。')));
+  live(`回「${e[1]}」`);
+  const d = await loadDetail(id); if (!sel || sel.type !== 'ep' || sel.id !== i) return;
+  if (!d) { descBox.replaceChildren(h('p', { class: 'note' }, '詳細を読み込めませんでした。蔵で見てください。')); return; }
+  const pl = (d.links || []).map((u) => [platformLabel(u) || '', u]).filter(([l]) => l && !/朝日新聞/.test(l));
+  const words = (() => { const s = new Set(); D.terms.forEach((t, j) => { if (t[4].includes(i)) s.add(j); }); return [...s].sort((a, b) => D.terms[a][4].length - D.terms[b][4].length).slice(0, 10); })();
+  descBox.replaceChildren(
+    d.description ? h('p', { class: 'desc' }, d.description) : null,
+    d.cast ? h('p', { class: 'meta' }, '出演: ', d.cast) : null,
+    pl.length ? h('div', { class: 'sec links' }, h('h4', {}, '聴く'), pl.map(([l, u]) => h('a', { href: u, target: '_blank', rel: 'noopener' }, l + ' ↗'))) : null,
+    words.length ? h('div', { class: 'sec' }, h('h4', {}, 'この回の言葉'), words.map((j) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'word', id: j }) }, D.terms[j][0]))) : null,
+    (d.relatedArticles || []).length ? h('div', { class: 'sec links' }, h('h4', {}, '関連記事（朝日新聞デジタル）'), h('ul', { class: 'eplist' }, d.relatedArticles.slice(0, 6).map((a) => h('li', {}, h('a', { href: a.url, target: '_blank', rel: 'noopener' }, (a.title || a.url) + ' ↗'))))) : null);
+}
+function relList(i) {
+  const [out, same] = REL[i];
+  if (!out.length && !same) return h('p', { class: 'note' }, '根拠のある関連回は見つかりませんでした。');
+  return [h('ul', { class: 'rel' }, out.map(([j, s, ts, a, ps]) => h('li', {}, epButton(j), h('div', { class: 'why' },
+    a ? h('span', { class: 'a' }, `同じ記事 ${a}件`) : null, ps.map((k) => h('span', { class: 'p' }, `同じ出演者: ${D.persons[k][0]}`)), ts.length ? h('span', {}, '共通の言葉: ' + ts.map((t) => D.terms[t][0]).join('・')) : null,
+    h('span', {}, `${D.shows[D.eps[j][2]]} ${fmtDate(D.eps[j][3])}`))))),
+    same ? h('p', { class: 'note' }, '同じ題名の回（再配信など）: ', same.map((j) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'ep', id: j }) }, fmtDate(D.eps[j][3])))) : null,
+    h('p', { class: 'note' }, '根拠は「同じ記事URL」「同じ出演者」「共通の言葉（共起）」の3つだけです。')];
+}
+
+// ---- 星雲の一覧
+$('nebulae').replaceChildren(...D.comms.map((cm, c) => [c, cm]).sort((a, b) => b[1].n - a[1].n).map(([c, cm]) => h('li', {}, h('button', { type: 'button', 'data-c': c, 'aria-pressed': 'false', onclick: () => select({ type: 'neb', id: c }) }, h('span', { class: 'dot', style: `background:${colorOf(c)}` }), cm.name.slice(0, 3).join('・'), h('span', { class: 'cnt' }, cm.n)))));
+
+// ---- 検索（言葉・人物・題名）
+const q = $('q'), sug = $('suggest'); let items = [], active = -1;
+const norm = (s) => s.normalize('NFKC').toLowerCase();
+q.addEventListener('input', () => {
+  const s = norm(q.value.trim()); items = [];
+  if (s) {
+    const words = []; D.terms.forEach((t, j) => { const k = norm(t[0]); if (k.includes(s)) words.push([j, k.startsWith(s) ? 0 : 1, -t[4].length]); });
+    words.sort((a, b) => a[1] - b[1] || a[2] - b[2]).slice(0, 6).forEach(([j]) => items.push({ type: 'word', id: j, label: D.terms[j][0], n: D.terms[j][4].length + '回' }));
+    D.persons.map((p, k) => [k, p]).filter(([, p]) => norm(p[0]).includes(s)).sort((a, b) => b[1][1].length - a[1][1].length).slice(0, 4).forEach(([k, p]) => items.push({ type: 'person', id: k, label: p[0], n: p[1].length + '回' }));
+    const eps = []; for (let i = NE - 1; i >= 0 && eps.length < 6; i--) if (norm(D.eps[i][1]).includes(s)) eps.push(i);
+    eps.sort((a, b) => D.eps[b][3] - D.eps[a][3]).forEach((i) => items.push({ type: 'ep', id: i, label: D.eps[i][1], n: fmtDate(D.eps[i][3]) }));
+  }
+  active = items.length ? 0 : -1; paintSug();
+});
+const kindLabel = { word: '言葉', person: '人物', ep: '回' };
+function paintSug() {
+  sug.replaceChildren(...items.map((it, n) => h('li', { role: 'option', id: 'opt' + n, 'aria-selected': String(n === active), onmousedown: (e) => { e.preventDefault(); choose(n); } }, h('span', { class: 'k' }, kindLabel[it.type]), h('span', {}, it.label), h('span', { class: 'n' }, it.n))));
+  sug.hidden = !items.length; q.setAttribute('aria-expanded', String(!!items.length)); if (active >= 0) q.setAttribute('aria-activedescendant', 'opt' + active); else q.removeAttribute('aria-activedescendant');
+}
+function choose(n) { const it = items[n]; if (!it) return; select({ type: it.type, id: it.id }); sug.hidden = true; q.setAttribute('aria-expanded', 'false'); $('panel').focus({ preventScroll: true }); }
+q.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowDown') { e.preventDefault(); active = Math.min(items.length - 1, active + 1); paintSug(); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); active = Math.max(0, active - 1); paintSug(); }
+  else if (e.key === 'Enter') { e.preventDefault(); choose(Math.max(0, active)); }
+  else if (e.key === 'Escape') { sug.hidden = true; q.setAttribute('aria-expanded', 'false'); }
+});
+q.addEventListener('blur', () => setTimeout(() => { sug.hidden = true; q.setAttribute('aria-expanded', 'false'); }, 120));
+document.addEventListener('keydown', (e) => {
+  if (e.key === '/' && document.activeElement !== q) { e.preventDefault(); q.focus(); q.select(); }
+  if (e.key === 'Escape' && document.activeElement !== q) { sel = null; hi = null; history.replaceState(null, '', location.pathname); draw(); }
+});
+document.addEventListener('click', (e) => { const w = e.target.closest('[data-word]'); if (w) { const j = termIdxByKey.get(norm(w.dataset.word)); if (j !== undefined) select({ type: 'word', id: j }); } });
+
+// ---- 開始
+new ResizeObserver(resize).observe(canvas);
+resize(); fit();
+$('loading').remove();
+function fromHash() {
+  const m = location.hash.match(/^#([ewpn])=(.+)$/); if (!m) return;
+  const v = decodeURIComponent(m[2]);
+  if (m[1] === 'e' && epIdx.has(v)) select({ type: 'ep', id: epIdx.get(v) }, { push: false });
+  if (m[1] === 'w' && termIdxByKey.has(norm(v))) select({ type: 'word', id: termIdxByKey.get(norm(v)) }, { push: false });
+  if (m[1] === 'p') { const k = D.persons.findIndex((p) => p[0] === v); if (k >= 0) select({ type: 'person', id: k }, { push: false }); }
+  if (m[1] === 'n' && D.comms[+v]) select({ type: 'neb', id: +v }, { push: false });
+}
+fromHash(); addEventListener('hashchange', fromHash);
+window.__uchuPerf = { loadMs: Math.round(tLoad), readyMs: Math.round(performance.now() - t0), episodes: NE, terms: D.terms.length };
