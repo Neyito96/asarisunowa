@@ -39,3 +39,11 @@ test('番組が不明・語が短い・URLが違う行は規則にしない', ()
   assert.equal(L.libraryPlaylistRuleFromRow_([...base, 'スポンジ', 'a']), null);
   assert.equal(L.libraryPlaylistRuleFromRow_(['https://example.com/x', 't', '', '', '', '', '', '', '', 'スポンジ', '（親モヤ）']), null);
 });
+
+test('埋め込みページから回のIDを並び順で取る（曲・壊れたHTMLは無視）', () => {
+  const E = (id) => ({ uri: 'spotify:episode:' + id });
+  const data = { props: { pageProps: { state: { data: { entity: { trackList: [E('B'.repeat(22)), { uri: 'spotify:track:' + 'C'.repeat(22) }, E('D'.repeat(22))] } } } } } };
+  const html = '<html><script id="__NEXT_DATA__" type="application/json">' + JSON.stringify(data) + '</script></html>';
+  assert.deepEqual(Array.from(M.plmEmbedEpisodeIds_(html)), ['B'.repeat(22), 'D'.repeat(22)]);
+  assert.deepEqual(Array.from(M.plmEmbedEpisodeIds_('<html></html>')), []);
+});
