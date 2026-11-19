@@ -95,16 +95,69 @@ h1 { font-size: 21px; font-weight: 600; margin: 0; letter-spacing: .14em; white-
 .try .chip { margin-top: 4px; }
 
 @media (max-width: 1100px) { .stage { grid-template-columns: 0 1fr 360px; } .legend { display: none; } }
-@media (max-width: 760px) {
-  .top { height: auto; flex-wrap: wrap; padding: 8px 10px; gap: 8px; }
+/* ---- スマホ（縦）: 地図を前面に、詳細は下から引き出すシート（たたむ・半分・全部） ---- */
+.sheet-bar { display: none; }
+.side-open { display: none; }
+.intro-cats { display: none; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: 24px; z-index: 40; display: flex; gap: 10px; align-items: center; width: max-content; max-width: min(420px, calc(100vw - 24px)); background: #182443f2; border: 1px solid #3a4c78; color: var(--ink); border-radius: 14px; padding: 10px 12px 10px 16px; font-size: 14px; box-shadow: 0 8px 30px #0009; }
+.toast button { background: none; border: 0; color: var(--sub); font-size: 18px; cursor: pointer; padding: 0 4px; }
+@media (max-width: 760px) and (orientation: portrait) {
+  .top { height: auto; flex-wrap: wrap; padding: 8px 10px 6px; gap: 6px 8px; background: linear-gradient(#070b16, #070b16e6 80%, #070b1600); }
   .sub .what { display: none; }
-  h1 { font-size: 19px; }
+  h1 { font-size: 18px; letter-spacing: .1em; }
+  .sub { font-size: 9.5px; margin-top: 2px; }
+  .back { width: 30px; height: 30px; }
+  .modes { order: 2; margin-left: auto; }
+  .modes button { padding: 5px 9px; font-size: 13px; }
   .search { order: 3; flex-basis: 100%; max-width: none; }
-  .modes { margin-left: auto; }
+  #q { height: 34px; font-size: 15px; }
   .stage { grid-template-columns: 1fr; }
-  .panel { position: fixed; left: 0; right: 0; bottom: 0; top: auto; max-height: 46vh; padding: 14px 16px 24px; border: 0; border-top: 1px solid var(--line); border-radius: 16px 16px 0 0; box-shadow: 0 -10px 30px #0008; }
-  .panel::before { content: ""; display: block; width: 40px; height: 4px; border-radius: 2px; background: #33405f; margin: 0 auto 10px; }
-  .zoom { bottom: calc(46vh + 12px); }
+  .legend { display: none; }
+  .intro-cats { display: flex; flex-wrap: wrap; margin: 4px 0 10px; }
+  .panel { position: fixed; left: 0; right: 0; bottom: 0; top: auto; padding: 0 18px calc(20px + env(safe-area-inset-bottom)); border: 0; border-top: 1px solid var(--line); border-radius: 18px 18px 0 0; box-shadow: 0 -10px 30px #0009; transition: height .28s ease; overflow: hidden; }
+  .panel[data-sheet="peek"] { height: 92px; }
+  .panel[data-sheet="half"] { height: 48vh; overflow: auto; }
+  .panel[data-sheet="full"] { height: calc(100vh - 110px); height: calc(100dvh - 110px); overflow: auto; }
+  .panel::before { content: none; }
+  .sheet-bar { display: flex; position: sticky; top: 0; z-index: 2; background: #080d1b; height: 26px; margin: 0 -18px; align-items: center; justify-content: center; }
+  .sheet-handle { width: 100%; height: 26px; background: none; border: 0; cursor: grab; touch-action: none; display: grid; place-items: center; }
+  .sheet-handle span { width: 44px; height: 5px; border-radius: 3px; background: #3b4a6e; }
+  .sheet-close { position: absolute; right: 8px; top: 0; width: 36px; height: 30px; background: none; border: 0; color: var(--sub); font-size: 22px; cursor: pointer; }
+  .panel[data-sheet="peek"] .sheet-close { display: none; }
+  .panel[data-sheet="peek"] #detail { pointer-events: none; }
+  .panel[data-sheet="peek"] #detail .kind, .panel[data-sheet="peek"] #detail .kicker { margin-top: 0; }
+  .panel[data-sheet="peek"] #detail h3, .panel[data-sheet="peek"] .intro h2 { font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 2px 0; }
+  .panel[data-sheet="peek"] .intro h2 br { display: none; }
+  .zoom { right: 10px; bottom: auto; top: 118px; }
+  .toast { bottom: calc(104px + env(safe-area-inset-bottom)); }
+  .zoom #zin, .zoom #zout { display: none; }   /* 拡大縮小は2本指で */
+  .panel h3.hero { font-size: 28px; }
+  .intro h2 { font-size: 24px; }
+}
+/* ---- スマホ（横）: 地図は全面の高さ、詳細は右の欄（たためる） ---- */
+@media (orientation: landscape) and (max-height: 520px) {
+  .top { height: 46px; padding: 0 12px; gap: 10px; background: #070b16f0; }
+  .sub { display: none; }
+  h1 { font-size: 16px; }
+  .back { width: 28px; height: 28px; }
+  .search { max-width: 260px; }
+  #q { height: 32px; }
+  .modes button { padding: 4px 10px; font-size: 13px; }
+  .stage { grid-template-columns: 1fr min(40vw, 380px); }
+  .stage.side-closed { grid-template-columns: 1fr 0; }
+  .legend { display: none; }
+  .intro-cats { display: flex; flex-wrap: wrap; margin: 4px 0 10px; }
+  .panel { position: relative; padding: 54px 16px 20px; max-height: none; border-radius: 0; }
+  .sheet-bar { display: block; position: absolute; top: 50px; right: 6px; z-index: 3; }
+  .sheet-handle { display: none; }
+  .sheet-close { width: 34px; height: 30px; background: #111a30; border: 1px solid var(--line); border-radius: 8px; color: var(--sub); font-size: 18px; cursor: pointer; }
+  .side-open { display: block; position: fixed; right: 0; top: 56px; z-index: 30; background: #142041; border: 1px solid #3a4c78; border-right: 0; border-radius: 10px 0 0 10px; color: var(--ink); padding: 8px 10px; font-size: 13px; }
+  .side-open[hidden] { display: none; }
+  .zoom { bottom: 12px; }
+  .zoom #zin, .zoom #zout { display: none; }
+  .toast { bottom: 12px; left: 12px; transform: none; }
+  .panel h3.hero { font-size: 26px; }
+  .intro h2 { font-size: 22px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
