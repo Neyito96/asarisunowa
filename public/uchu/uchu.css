@@ -106,7 +106,9 @@ h1 { font-size: 21px; font-weight: 600; margin: 0; letter-spacing: .14em; white-
 .intro ul { padding-left: 1.2em; }
 .try .chip { margin-top: 4px; }
 
-@media (max-width: 1100px) { .stage { grid-template-columns: 0 1fr 360px; } .legend { display: none; } }
+/* 幅 1100px 以下のノートPC: 左欄を細くして残す（以前は左欄を消したため星図の列が幅0になり、内容が開けなかった） */
+@media (max-width: 1100px) { .stage { grid-template-columns: 200px 1fr 320px; } }
+@media (max-width: 900px) { .stage { grid-template-columns: 1fr 340px; } .legend { display: none; } }
 /* ---- スマホ（縦）: 地図を前面に、詳細は下から引き出すシート（たたむ・半分・全部） ---- */
 .sheet-bar { display: none; }
 .side-open { display: none; }
