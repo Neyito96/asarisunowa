@@ -193,3 +193,10 @@ h1 { font-size: 21px; font-weight: 600; margin: 0; letter-spacing: .14em; white-
 /* 言葉から記事へ（#384） */
 .artlist mark{background:none;color:#f3c969;font-weight:700;border-bottom:1px solid #f3c96988}
 .artlist small{color:#7fd1c4}
+/* 形式の軸・副分類（#390） */
+#formats { list-style: none; padding: 0; margin: 0 0 6px; font-size: 13px; }
+#formats button { display: flex; width: 100%; align-items: center; gap: 8px; background: none; border: 0; padding: 4px 6px; border-radius: 6px; cursor: pointer; text-align: left; color: inherit; font: inherit; }
+#formats button:hover, #formats button[aria-pressed="true"] { background: #131d36; }
+#formats .cnt { margin-left: auto; color: var(--sub); font-size: 11px; font-variant-numeric: tabular-nums; }
+.badge.c2b { background: #23304f; color: #b9c8ea; }
+.dual { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }

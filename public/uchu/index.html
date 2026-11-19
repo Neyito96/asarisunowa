@@ -30,6 +30,9 @@
     <h2>分類 <span class="hint">20の大分類・Claude試作</span></h2>
     <ol id="cats" class="cats"></ol>
     <p class="method">分類は Claude の試作（人の承認前）です。承認済み109件は人の判断を優先。手がかり語が弱い回は「保留」にしています。</p>
+    <h2 class="h2b">形式 <span class="hint">テーマとは別の、回の作り</span></h2>
+    <ol id="formats" class="fmts"></ol>
+    <p class="method">形式は題名・概要欄の決まった言い回し（「×」「お便り」「月刊朝ポキ」など）で判定しています。1回に複数付くことがあります。</p>
     <h2 class="h2b">言葉の星座 <span class="hint">一緒に語られる言葉</span></h2>
     <ol id="nebulae"></ol>
     <p class="method">言葉の星座は「同じ言葉がいっしょに出る回か」で決めた統計のまとまりです。名前は自動の仮名です。</p>
@@ -41,7 +44,7 @@
       <button type="button" id="zin" aria-label="拡大">＋</button><button type="button" id="zout" aria-label="縮小">−</button><button type="button" id="zfit" aria-label="全体を表示">全体</button>
     </div>
     <div id="tip" class="tip" hidden></div>
-    <div id="loading" class="loading" role="status"><div class="lbox"><p>星を集めています…</p><div class="bar"><i></i></div><p class="pct">0%</p><p class="lnote">まず回と分類（約0.9MB）を読み、言葉・地図・関連回はそのあと裏で読みます</p></div></div>
+    <div id="loading" class="loading" role="status"><div class="lbox"><p>星を集めています…</p><div class="bar"><i></i></div><p class="pct">0%</p><p class="lnote">まず回と分類（約1MB）を読み、言葉・地図・関連回はそのあと裏で読みます</p></div></div>
     <div id="loadbar" class="loadbar" hidden><i></i><span></span></div>
   </div>
   <section class="panel" id="panel" aria-label="詳細" tabindex="-1" data-sheet="peek">

@@ -423,10 +423,12 @@ function select(s, { fly = true, push = true } = {}) {
   if (s.type === 'article') { hi = new Set(s.eps || articleMap.get(s.url) || []); renderArticle(s); }
   if (s.type === 'place') { const ids = s.id === 'JP' ? D.eps.map((e, i) => i).filter((i) => D.geo[i].some(([pid]) => PL[pid].scope === 'jp')) : PL[s.id].kind === 'pref' ? prefEps(s.id) : placeEps[s.id]; hi = new Set(ids); renderPlace(s.id, ids); if (s.id === 'JP' && mode === 'world') { /* 日本は日本地図で */ } else if (fly && isGeo()) { const p = PL[s.id], [x, y] = (mode === 'world' ? projWorld : projJapan)(p.lon, p.lat); if (Number.isFinite(x)) focusAt(x, y, Math.max(view.k, mode === 'world' ? 2.5 : 3)); } }
   if (s.type === 'cat') { hi = new Set(); D.eps.forEach((e, i) => { if (dispMain(i) === s.id && (s.sub == null || s.sub < 0 || dispSub(i) === s.sub)) hi.add(i); }); renderCat(s.id, s.sub); const rg = D._regions.find((r) => r.m === s.id); if (fly && rg && mode === 'cat') { const q = s.sub >= 0 ? rg.subs.find((x) => x.si === s.sub) : null; const tgt = q || rg; focusAt(tgt.x, tgt.y, Math.min(W, H) / (tgt.r * 2.6)); } }
+  if (s.type === 'fmt') { hi = new Set(); D.fmt.forEach((f, i) => { if (f.some(([k]) => k === s.id)) hi.add(i); }); renderFormat(s.id); }
   if (s.type === 'neb') { hi = new Set(); D.eps.forEach((e, i) => { if (e[6] === s.id) hi.add(i); }); renderNebula(s.id); const cm = D.comms[s.id]; if (fly && mode === 'map') focusAt(cm.x, cm.y, Math.min(W, H) / (cm.r * 3.2)); }
+  document.querySelectorAll('#formats button').forEach((b) => b.setAttribute('aria-pressed', String(s.type === 'fmt' && +b.dataset.f === s.id)));
   document.querySelectorAll('#nebulae button').forEach((b) => b.setAttribute('aria-pressed', String(s.type === 'neb' && +b.dataset.c === s.id)));
   document.querySelectorAll('#cats button').forEach((b) => b.setAttribute('aria-pressed', String(s.type === 'cat' && +b.dataset.m === s.id && (b.dataset.s == null ? !(s.sub >= 0) : +b.dataset.s === s.sub))));
-  if (push && s.type !== 'article') { const hash = s.type === 'ep' ? 'e=' + D.eps[s.id][0] : s.type === 'word' ? 'w=' + encodeURIComponent(D.terms[s.id][0]) : s.type === 'person' ? 'p=' + encodeURIComponent(D.persons[s.id][0]) : s.type === 'cat' ? 'c=' + s.id + (s.sub >= 0 ? '.' + s.sub : '') : s.type === 'place' ? 'pl=' + s.id : 'n=' + s.id; history.replaceState(null, '', '#' + hash); }
+  if (push && s.type !== 'article') { const hash = s.type === 'ep' ? 'e=' + D.eps[s.id][0] : s.type === 'word' ? 'w=' + encodeURIComponent(D.terms[s.id][0]) : s.type === 'person' ? 'p=' + encodeURIComponent(D.persons[s.id][0]) : s.type === 'cat' ? 'c=' + s.id + (s.sub >= 0 ? '.' + s.sub : '') : s.type === 'place' ? 'pl=' + s.id : s.type === 'fmt' ? 'f=' + s.id : 'n=' + s.id; history.replaceState(null, '', '#' + hash); }
   draw();
 }
 const panel = () => $('detail');
@@ -507,14 +509,19 @@ function renderNebula(c) {
 }
 const CONF = { 3: ['c3', '人が承認'], 2: ['c2', 'Claude試作・確度 高'], 1: ['c1', 'Claude試作・確度 中'], 0: ['c0', 'Claude試作・確度 低'] };
 const FIELD = { t: '題名', m: '旧仮分類の主題', r: '関連記事の見出し', d: '概要欄', o: '蔵の公式タグ' };
+const evText = (ev) => ev.split('|').map((x) => { const [k, f] = x.split(':'); return `「${k}」（${FIELD[f] || f}）`; }).join(' ');
+const dispMain2 = (i) => (dispMain(i) === HOLD ? -1 : D.cls[i][4] ?? -1);   // 副分類（#390）
 function catSection(i) {
-  const [mi, si, conf, src] = D.cls[i], [ev, old] = D.clsEv[i] || ['', ''], shown = dispMain(i);
+  const [mi, si, conf, src, mi2, si2] = D.cls[i], [ev, old, ev2] = D.clsEv[i] || ['', '', ''], shown = dispMain(i);
   const guess = shown === HOLD && mi >= 0 ? h('p', { class: 'evid' }, `Claudeの推定: ${D.cats[mi].name}（${src === 'l' ? '似た回の言葉から学んだ推定' : '関連する回の分類から'}・要確認）`) : null;
   return h('div', { class: 'sec' }, h('h4', {}, '分類'),
     shown === HOLD ? h('p', {}, h('span', { class: 'badge cl' }, '保留'), h('span', { class: 'note' }, '手がかりが弱いため分類に置いていません')) :
       h('p', {}, h('span', { class: 'badge ' + CONF[conf][0] }, CONF[conf][1]), h('button', { type: 'button', class: 'chip catpath', onclick: () => select({ type: 'cat', id: shown, sub: si }) }, catName(shown) + (si >= 0 ? ' › ' + D.cats[shown].subs[si] : ''))),
     guess,
-    ev ? h('p', { class: 'evid' }, '根拠: ', ev.split('|').map((x) => { const [k, f] = x.split(':'); return `「${k}」（${FIELD[f] || f}）`; }).join(' ')) : null,
+    ev ? h('p', { class: 'evid' }, '根拠: ', evText(ev)) : null,
+    shown !== HOLD && mi2 >= 0 ? h('p', { class: 'dual' }, h('span', { class: 'badge c2b' }, '副分類'), h('button', { type: 'button', class: 'chip catpath', onclick: () => select({ type: 'cat', id: mi2, sub: si2 }) }, h('span', { style: `color:${catColor(mi2)}` }, '● '), catName(mi2) + (si2 >= 0 ? ' › ' + D.cats[mi2].subs[si2] : ''))) : null,
+    shown !== HOLD && mi2 >= 0 && ev2 ? h('p', { class: 'evid' }, '副分類の根拠: ', evText(ev2)) : null,
+    shown !== HOLD && mi2 >= 0 ? h('p', { class: 'note' }, '二つの分野にまたがる回です。手がかりの点数が近い二つを、主分類と副分類として両方示しています。') : null,
     src === 'a' ? h('p', { class: 'evid' }, '大分類は人の承認に従っています（小分類は Claude の対応づけ）') : src === 'p' ? h('p', { class: 'evid' }, '大分類は旧仮分類（' + old + '）に従い、手がかり語で確認しています') : null,
     old && src !== 'p' && src !== 'a' ? h('p', { class: 'evid' }, '旧仮分類の主題: ' + old) : null);
 }
@@ -531,9 +538,40 @@ function renderCat(m, sub) {
     h('p', { class: 'note' }, m === HOLD ? 'Claude が推定はしたものの、根拠が弱いため分類に置いていない回です。人の確認で振り分ける候補です。' : '分類は Claude の試作（人の承認前）です。確度の低い回は誤りを含みます。'),
     h('p', { class: 'note' }, showMix(ids)),
     h('div', { class: 'sec' }, h('h4', {}, '時間の変化'), histogram(ids)),
+    m !== HOLD && !(sub >= 0) ? crossSection(m) : null,
     subCounts.length ? h('div', { class: 'sec' }, h('h4', {}, '小分類'), subCounts.filter((x) => x[2]).map(([si, n, c]) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'cat', id: m, sub: si }) }, n, h('small', {}, c)))) : null,
     h('div', { class: 'sec' }, h('h4', {}, '回'), epList(ids, 60))));
   live(`${sub >= 0 ? D.cats[m].subs[sub] : catName(m)}。${ids.length}回`);
+}
+// 二つの分野にまたがる回（#390）: この大分類と組になる分野、副分類としてここにも入る回
+function crossSection(m) {
+  const pair = new Map(), as2 = [];
+  D.eps.forEach((e, i) => { const a = dispMain(i), b = dispMain2(i); if (b < 0) return; if (a === m) pair.set(b, (pair.get(b) || 0) + 1); if (b === m) { pair.set(a, (pair.get(a) || 0) + 1); as2.push(i); } });
+  if (!pair.size) return null;
+  return h('div', { class: 'sec' }, h('h4', {}, '二つの分野にまたがる回'),
+    h('p', { class: 'note' }, `${catName(m)}と組になって語られる分野（主分類・副分類のどちらか）。`),
+    [...pair].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([k, n]) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'cat', id: k }) }, h('span', { style: `color:${catColor(k)}` }, '●'), `${catName(m)} × ${catName(k)}`, h('small', {}, n))),
+    as2.length ? h('details', {}, h('summary', {}, `副分類としてここにも入る回 ${as2.length}回`), epList(as2, 40)) : null);
+}
+// 形式の軸（#390）
+const FMT_NOTE = { s: '番組', t: '題名', d: '概要欄' };
+function renderFormat(k) {
+  const ids = [...hi], cat = new Map(); ids.forEach((i) => { const m = dispMain(i); if (m < HOLD) cat.set(m, (cat.get(m) || 0) + 1); });
+  const words = new Map(); ids.forEach((i) => D.fmt[i].forEach(([f, w]) => { if (f === k) words.set(w, (words.get(w) || 0) + 1); }));
+  panel().replaceChildren(h('div', {},
+    h('p', { class: 'kind' }, '形式'), h('h3', { class: 'hero' }, D.formats[k]), h('p', { class: 'meta' }, h('span', {}, `${ids.length}回`)),
+    h('p', { class: 'note' }, showMix(ids)),
+    h('p', { class: 'evid' }, '判定の根拠になった言い回し: ', [...words].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([w, n]) => `「${w}」${n}`).join('　')),
+    h('div', { class: 'sec' }, h('h4', {}, '時間の変化'), histogram(ids)),
+    cat.size ? h('div', { class: 'sec' }, h('h4', {}, 'この形式で語られた分野'), [...cat].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([m, n]) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'cat', id: m }) }, h('span', { style: `color:${catColor(m)}` }, '●'), D.cats[m].name, h('small', {}, n)))) : null,
+    h('div', { class: 'sec' }, h('h4', {}, '回'), epList(ids, 60)),
+    h('p', { class: 'note' }, '形式はテーマ（分類）とは別の軸です。保留の回も、形式からたどれます。')));
+  live(`形式「${D.formats[k]}」。${ids.length}回`);
+}
+function fmtSection(i) {
+  const f = D.fmt[i]; if (!f || !f.length) return null;
+  return h('div', { class: 'sec' }, h('h4', {}, '形式'), f.map(([k, w, c]) => h('button', { type: 'button', class: 'chip', title: `根拠: 「${w}」（${FMT_NOTE[c] || c}）`, onclick: () => select({ type: 'fmt', id: k }) }, D.formats[k])),
+    h('p', { class: 'evid' }, '根拠: ', f.map(([, w, c]) => `「${w}」（${FMT_NOTE[c] || c}）`).join(' ')));
 }
 let epTerms = null;   // 回→言葉（場所の「よく出る言葉」用。必要になったら作る）
 function topWordsOf(ids, n = 14) {
@@ -610,7 +648,7 @@ async function renderEp(i) {
     h('h3', {}, e[1]),
     h('p', { class: 'meta' }, h('span', {}, fmtDate(e[3])), h('span', {}, fmtDur(e[7]))),
     h('div', { class: 'btns' }, h('a', { class: 'btn primary', href: `../library/?ep=${id}` }, '蔵で詳しく見る'), shelfBtn),
-    catSection(i), placeSection(i), descBox, relBox,
+    catSection(i), fmtSection(i), placeSection(i), descBox, relBox,
     e[6] >= 0 ? h('div', { class: 'sec' }, h('h4', {}, '星雲'), h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'neb', id: e[6] }) }, h('span', { style: `color:${colorOf(e[6])}` }, '●'), D.comms[e[6]].name.slice(0, 2).join('・'))) : h('p', { class: 'note' }, 'この回は共通の言葉が少ないため、星図には置いていません。')));
   live(`回「${e[1]}」`);
   const d = await loadDetail(id); if (!sel || sel.type !== 'ep' || sel.id !== i) return;
@@ -648,6 +686,7 @@ $('cats').replaceChildren(...[...Array(HOLD + 1).keys()].map((m) => {
 }));
 
 // ---- 星雲の一覧
+$('formats').replaceChildren(...D.formats.map((n, k) => [k, n, D.fmt.reduce((a, f) => a + (f.some(([x]) => x === k) ? 1 : 0), 0)]).sort((a, b) => b[2] - a[2]).map(([k, n, c]) => h('li', {}, h('button', { type: 'button', 'data-f': k, 'aria-pressed': 'false', onclick: () => select({ type: 'fmt', id: k }) }, n, h('span', { class: 'cnt' }, c)))));
 $('nebulae').replaceChildren(...D.comms.map((cm, c) => [c, cm]).sort((a, b) => b[1].n - a[1].n).map(([c, cm]) => h('li', {}, h('button', { type: 'button', 'data-c': c, 'aria-pressed': 'false', onclick: () => select({ type: 'neb', id: c }) }, h('span', { class: 'dot', style: `background:${colorOf(c)}` }), cm.name.slice(0, 3).join('・'), h('span', { class: 'cnt' }, cm.n)))));
 
 // ---- 検索（言葉・人物・題名）
@@ -733,11 +772,12 @@ new ResizeObserver(resize).observe(canvas);
 resize(); fit();
 $('loading').remove(); showProgress();
 function fromHash() {
-  const m = location.hash.match(/^#(pl|[ewpnc])=(.+)$/); if (!m) return;
+  const m = location.hash.match(/^#(pl|[ewpncf])=(.+)$/); if (!m) return;
   const v = decodeURIComponent(m[2]);
   if (m[1] === 'e' && epIdx.has(v)) select({ type: 'ep', id: epIdx.get(v) }, { push: false });
   if (m[1] === 'w' && termIdxByKey.has(norm(v))) select({ type: 'word', id: termIdxByKey.get(norm(v)) }, { push: false });
   if (m[1] === 'p') { const k = D.persons.findIndex((p) => p[0] === v); if (k >= 0) select({ type: 'person', id: k }, { push: false }); }
+  if (m[1] === 'f' && D.formats[+v]) select({ type: 'fmt', id: +v }, { push: false });
   if (m[1] === 'n' && D.comms[+v]) select({ type: 'neb', id: +v }, { push: false });
   if (m[1] === 'pl') { const id = v === 'JP' ? 'JP' : +v; if (id === 'JP' || PL[id]) select({ type: 'place', id }, { push: false }); }
   if (m[1] === 'c') { const [a, b] = v.split('.').map(Number); if (a >= 0 && a <= HOLD) select({ type: 'cat', id: a, sub: Number.isFinite(b) ? b : -1 }, { push: false }); }

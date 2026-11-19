@@ -11,6 +11,7 @@ import { TAXONOMY } from './taxonomy.mjs';
 import { PLACES, placesOfEpisode } from './geo.mjs';
 import { classify, fillFromNeighbors, trainNB, predictNB, stripBoilerplate } from './classify.mjs';
 import { cleanEpisode } from './series.mjs';
+import { FORMATS, formatsOf } from './format.mjs';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
 const SRC = path.join(ROOT, 'public/library/data');
@@ -207,16 +208,16 @@ const nbModel = trainNB(cls.map((c, i) => [c, i]).filter(([c]) => c.conf >= 2 &&
 cls = cls.map((c, i) => {
   if (c.conf >= 1) return c;
   const p = predictNB(nbModel, bags[i]);
-  if (c.mi < 0 && p.margin >= 0.8) return { ...c, mi: p.c, si: -1, conf: 0, src: 'l', ev: [] };
-  if (c.mi >= 0 && p.c !== c.mi && p.margin >= 0.95) return { ...c, mi: p.c, si: -1, conf: 0, src: 'l', ev: [] };
+  if (c.mi < 0 && p.margin >= 0.8) return { ...c, mi: p.c, si: -1, conf: 0, src: 'l', ev: [], mi2: -1, si2: -1, ev2: [] };
+  if (c.mi >= 0 && p.c !== c.mi && p.margin >= 0.95) return { ...c, mi: p.c, si: -1, conf: 0, src: 'l', ev: [], mi2: -1, si2: -1, ev2: [] };
   return c;
 });
 cls = fillFromNeighbors(cls, rel);
 // 検証: 人が承認した回で、旧分類を見ない判定（手がかり語だけ）が承認と一致するか
 const approvedIdx = eps.map((e, i) => (legacy[e.id] && legacy[e.id][1] === 'user_approved' ? i : -1)).filter((i) => i >= 0);
-let agree = 0, decided = 0;
-for (const i of approvedIdx) { const blind = classify({ ...inputOf(eps[i], i), theme: '' }, null); if (blind.mi >= 0) { decided++; if (blind.mi === cls[i].mi) agree++; } }
-const clsStats = { approved: approvedIdx.length, blindDecided: decided, blindAgree: agree, byConf: {}, bySrc: {}, byMain: {} };
+let agree = 0, decided = 0, either = 0;
+for (const i of approvedIdx) { const blind = classify({ ...inputOf(eps[i], i), theme: '' }, null); if (blind.mi >= 0) { decided++; if (blind.mi === cls[i].mi) agree++; if (blind.mi === cls[i].mi || blind.mi2 === cls[i].mi) either++; } }
+const clsStats = { approved: approvedIdx.length, blindDecided: decided, blindAgree: agree, blindAgreeEither: either, dual: cls.filter((c) => c.mi >= 0 && c.mi2 >= 0).length, byConf: {}, bySrc: {}, byMain: {} };
 cls.forEach((c) => { clsStats.byConf[c.conf] = (clsStats.byConf[c.conf] || 0) + 1; clsStats.bySrc[c.src || '-'] = (clsStats.bySrc[c.src || '-'] || 0) + 1; const n = c.mi >= 0 ? TAXONOMY[c.mi].name : '未分類'; clsStats.byMain[n] = (clsStats.byMain[n] || 0) + 1; });
 const FIELD_CODE = { title: 't', theme: 'm', article: 'r', desc: 'd', tag: 'o' };
 // ---- 7c. 地名（世界・日本の地図用）。題名・旧仮分類の主題文・関連記事の見出し・概要欄（案内文を除く）から
@@ -242,16 +243,18 @@ const core = {
   terms: termOut,
   persons: persons.map((p, k) => [p, personEps[k]]),
   cats: TAXONOMY.map((m) => ({ name: m.name, hue: m.hue, subs: m.subs.map(([n]) => n) })),
-  cls: cls.map((c) => [c.mi, c.si, c.conf, c.src]),
-  clsEv: cls.map((c, i) => [c.ev.map(([k, f]) => k + ':' + FIELD_CODE[f]).join('|'), (legacy[eps[i].id] || [''])[0]]),
+  cls: cls.map((c) => [c.mi, c.si, c.conf, c.src, c.mi2 ?? -1, c.si2 ?? -1]),   // 5・6番目は副分類（#390）
+  clsEv: cls.map((c, i) => [c.ev.map(([k, f]) => k + ':' + FIELD_CODE[f]).join('|'), (legacy[eps[i].id] || [''])[0], (c.ev2 || []).map(([k, f]) => k + ':' + FIELD_CODE[f]).join('|')]),
   clsStats,
+  formats: FORMATS.map((f) => f.name),   // 形式の軸（#390）
+  fmt: eps.map((e) => formatsOf(e).map(([k, w, f]) => [k, w, f === 'show' ? 's' : FIELD_CODE[f]])),
   places: PLACES.map((p) => [p.name, p.kind, p.scope, p.lat, p.lon, p.pref || p.iso || '']),
   geo: geo.map((g) => g.map(([id, sc, f, a]) => [id, sc, FIELD_CODE[f], a])),
   geoStats,
 };
 fs.mkdirSync(OUT, { recursive: true });
 // 2段で読ませる: core（最初に見せる分。回・分類・星雲）→ extra（言葉・人物・地名・分類の根拠）と rel（関連回）は裏で
-const FIRST = ['v', 'generatedAt', 'libraryVersion', 'method', 'shows', 'comms', 'eps', 'cats', 'cls', 'clsStats', 'geoStats'];
+const FIRST = ['v', 'generatedAt', 'libraryVersion', 'method', 'shows', 'comms', 'eps', 'cats', 'cls', 'clsStats', 'geoStats', 'formats', 'fmt'];
 const first = Object.fromEntries(FIRST.map((k) => [k, core[k]]));
 const extra = Object.fromEntries(Object.keys(core).filter((k) => !FIRST.includes(k)).map((k) => [k, core[k]]));
 // 2回以上の回で紹介された記事（URL と回の番号だけ。見出しは蔵のデータからその場で読む）

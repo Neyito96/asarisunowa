@@ -129,3 +129,23 @@ test('番組ごとの清掃: しんぶん教室は前置き・番組名・子ど
   assert.deepEqual(parseCast('哲夫,笑い飯 / 則包奏志,大阪府、男、小2').includes('則包奏志'), false);
   assert.equal(cleanEpisode({ title: 'ふつうの回', description: '本文です。' }).series, '');
 });
+
+test('主分類＋副分類（#390）: 二つの分野が拮抗すると両方を付け、根拠を残す', async () => {
+  const { classify } = await import('../scripts/uchu/classify.mjs');
+  const { TAXONOMY } = await import('../scripts/uchu/taxonomy.mjs');
+  const r = classify({ title: '介護の現場とLGBTQ', theme: '', articles: [], desc: '', tags: [] }, null);
+  assert.ok(r.mi >= 0 && r.mi2 >= 0 && r.mi !== r.mi2);
+  assert.deepEqual(new Set([TAXONOMY[r.mi].name, TAXONOMY[r.mi2].name]), new Set(['福祉・介護', 'ジェンダー']));
+  assert.ok(r.ev.length && r.ev2.length);
+  const one = classify({ title: '大谷翔平の本塁打', theme: '', articles: [], desc: '', tags: [] }, null);
+  assert.equal(one.mi2, -1);
+});
+
+test('形式の軸（#390）: 決まった言い回しだけで判定する', async () => {
+  const { formatsOf, FORMATS } = await import('../scripts/uchu/format.mjs');
+  const names = (e) => formatsOf(e).map(([k]) => FORMATS[k].name);
+  assert.ok(names({ title: '「推し」がない自分は薄っぺらい？（月刊朝ポキ9月号）', description: '' }).includes('振り返り・まとめ'));
+  assert.ok(names({ title: '「全人類をクリエイターに」 ×樋口聖典さん③', description: '' }).includes('対談・ゲスト'));
+  assert.ok(names({ title: '笑い飯哲夫のしんぶん教室54 遊んで伝わる', description: '' }).includes('子ども向け'));
+  assert.deepEqual(names({ title: '大谷翔平の本塁打', description: '試合を記者が解説します。' }), []);
+});

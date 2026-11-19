@@ -60,16 +60,21 @@ export function classify(input, legacy) {
   const isApproved = legacy && legacy[1] === 'user_approved';
   const priorAny = legacy ? legacyMainIndex(legacy[0]) : -1;
   const prior = legacy && legacy[0].includes('/') ? priorAny : -1;   // 「大/小」形式の旧分類だけ大分類の手がかりにする（自由記述は本文として使う）
-  const top = argmax(sc.main), total = sc.main.reduce((a, b) => a + b, 0), topS = sc.main[top];
-  const second = Math.max(...sc.main.filter((_, i) => i !== top), 0);
-  let mi = -1, conf = -1, src = '';
+  // 同点のときは題名に根拠がある分野を先に（それも同じなら分類の並び順）
+  const tw = (k) => sc.ev.reduce((a, e) => a + (e[2] === k && e[1] === 'title' ? e[4] : 0), 0);
+  const rank = sc.main.map((_, k) => k).sort((a, b) => sc.main[b] - sc.main[a] || tw(b) - tw(a) || a - b);
+  const top = rank[0], sec = rank[1], total = sc.main.reduce((a, b) => a + b, 0), topS = sc.main[top], second = sc.main[sec];
+  let mi = -1, conf = -1, src = '', mi2 = -1;
   if (isApproved && priorAny >= 0) { mi = priorAny; conf = 3; src = 'a'; }
   else if (prior >= 0) { mi = prior; src = 'p'; conf = topS > 0 && top === prior ? 2 : 1; }
   else if (topS >= 4 && topS >= second * 1.6) { mi = top; src = 'd'; conf = topS >= 7 ? 2 : 1; }
+  else if (topS >= 2.5 && second >= 2.5) { mi = top; mi2 = sec; src = 'd'; conf = topS >= 4 ? 1 : 0; }   // 二つの分野にまたがる（#390）: 主分類と副分類
   else if (topS >= 2.5 && topS > second) { mi = top; src = 'd'; conf = 0; }
-  const si = mi >= 0 && sc.sub[mi].some((x) => x > 0) ? argmax(sc.sub[mi]) : -1;
-  const ev = mi >= 0 ? sc.ev.filter((e) => e[2] === mi).sort((a, b) => b[4] - a[4]).slice(0, 4).map(([k, f]) => [k, f]) : [];
-  return { mi, si, conf, src, ev, total, scores: sc.main };
+  // 決まった回でも、ほかの分野に十分な根拠（3点以上・主分類の半分以上）があれば副分類にする
+  if (mi >= 0 && mi2 < 0) { const c2 = rank.find((k) => k !== mi); if (sc.main[c2] >= 3 && sc.main[c2] >= sc.main[mi] * 0.5) mi2 = c2; }
+  const subOf = (m) => (m >= 0 && sc.sub[m].some((x) => x > 0) ? argmax(sc.sub[m]) : -1);
+  const evOf = (m) => (m >= 0 ? sc.ev.filter((e) => e[2] === m).sort((a, b) => b[4] - a[4]).slice(0, 4).map(([k, f]) => [k, f]) : []);
+  return { mi, si: subOf(mi), conf, src, ev: evOf(mi), mi2, si2: subOf(mi2), ev2: evOf(mi2), total, scores: sc.main };
 }
 
 // 判定できなかった回を、根拠のある関連回（rel）の大分類の多数決で補う（低い確度・近い回から）
@@ -80,7 +85,7 @@ export function fillFromNeighbors(results, rel) {
     for (const [j, s] of rel[i][0] || []) { const o = results[j]; if (o.mi >= 0 && o.src !== 'n') vote.set(o.mi, (vote.get(o.mi) || 0) + s); }
     const best = [...vote].sort((a, b) => b[1] - a[1])[0];
     if (!best || best[1] < 60) return r;
-    return { ...r, mi: best[0], si: -1, conf: 0, src: 'n', ev: [] };
+    return { ...r, mi: best[0], si: -1, conf: 0, src: 'n', ev: [], mi2: -1, si2: -1, ev2: [] };
   });
 }
 
