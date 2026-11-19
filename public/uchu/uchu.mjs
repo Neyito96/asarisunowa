@@ -342,6 +342,25 @@ function drawLabels() {
     ctx.fillStyle = isSel ? '#f3c969' : must.has(j) ? '#ffe7ad' : colorOf(t[3]).replace('68%)', '82%)');
     ctx.fillText(t[0], x, y); labelRects.push([x - w / 2, y - size / 2, w, size, 'word', j, -1]); shown++;
   }
+  drawArticleSatellites();
+}
+// 言葉から記事へ（#384）: 選んだ言葉のまわりに、その言葉が見出しに入った記事を ◆ で置き、紹介した回の星へ線を引く
+function drawArticleSatellites() {
+  if (!sel || sel.type !== 'word' || !wordArts || wordArts.j !== sel.id || !wordArts.list.length) return;
+  const t = D.terms[sel.id]; if (t[1] === null) return;
+  const x0 = sx(t[1]), y0 = sy(t[2]), list = wordArts.list.slice(0, 8), R = Math.min(170, Math.max(120, Math.min(W, H) * 0.18));
+  list.forEach((a, n) => {
+    const ang = -Math.PI / 2 + (n / list.length) * Math.PI * 2, x = x0 + Math.cos(ang) * R, y = y0 + Math.sin(ang) * R;
+    ctx.strokeStyle = '#7fd1c455'; ctx.lineWidth = 1;
+    for (const i of a.eps) { if (!Number.isFinite(px[i])) continue; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(sx(px[i]), sy(py[i])); ctx.stroke(); }
+    ctx.strokeStyle = '#7fd1c4aa'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x, y); ctx.stroke(); ctx.setLineDash([]);
+    const r = 5 + Math.min(4, a.eps.length);
+    ctx.fillStyle = '#7fd1c4'; ctx.beginPath(); ctx.moveTo(x, y - r); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r); ctx.lineTo(x - r, y); ctx.closePath(); ctx.fill();
+    const label = a.title.length > 13 ? a.title.slice(0, 12) + '…' : a.title;
+    ctx.font = '500 11px ' + getComputedStyle(document.body).fontFamily; const w = ctx.measureText(label).width;
+    ctx.fillStyle = '#0b1020e6'; ctx.fillRect(x - w / 2 - 4, y + r + 1, w + 8, 15); ctx.fillStyle = '#cdeee8'; ctx.fillText(label, x, y + r + 8.5);
+    labelRects.push([x - Math.max(w / 2, r), y - r, Math.max(w, r * 2), r * 2 + 16, 'article', n, -1]);
+  });
 }
 
 // ---- 当たり判定
@@ -364,7 +383,7 @@ canvas.addEventListener('pointermove', (e) => {
 });
 const up = (e) => {
   pts.delete(e.pointerId); if (pts.size < 2) pinch0 = null; canvas.classList.remove('dragging');
-  if (!dragMoved && e.type === 'pointerup') { const lb = hitLabel(e.offsetX, e.offsetY); if (lb) return lb[4] === 'word' ? select({ type: 'word', id: lb[5] }) : lb[4] === 'place' ? select({ type: 'place', id: lb[5] }) : select({ type: 'cat', id: lb[5], sub: lb[6] }); const i = hitEp(e.offsetX, e.offsetY, e.pointerType === 'touch' ? 20 : 12); if (i >= 0) select({ type: 'ep', id: i }); }
+  if (!dragMoved && e.type === 'pointerup') { const lb = hitLabel(e.offsetX, e.offsetY); if (lb) return lb[4] === 'article' ? openWordArticle(wordArts.list[lb[5]]) : lb[4] === 'word' ? select({ type: 'word', id: lb[5] }) : lb[4] === 'place' ? select({ type: 'place', id: lb[5] }) : select({ type: 'cat', id: lb[5], sub: lb[6] }); const i = hitEp(e.offsetX, e.offsetY, e.pointerType === 'touch' ? 20 : 12); if (i >= 0) select({ type: 'ep', id: i }); }
 };
 canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
 canvas.addEventListener('pointerleave', () => { $('tip').hidden = true; if (hoverEp >= 0) { hoverEp = -1; draw(); } });
@@ -401,13 +420,13 @@ function select(s, { fly = true, push = true } = {}) {
   if (s.type === 'ep') { hi = null; renderEp(s.id); if (fly && Number.isFinite(px[s.id])) focusAt(px[s.id], py[s.id], Math.max(view.k, 2.2)); }
   if (s.type === 'word') { hi = new Set(D.terms[s.id][4]); renderWord(s.id); const t = D.terms[s.id]; if (fly && t[1] !== null && mode === 'map') focusAt(t[1], t[2], Math.max(view.k, 1.6)); }
   if (s.type === 'person') { hi = new Set(D.persons[s.id][1]); renderPerson(s.id); }
-  if (s.type === 'article') { hi = new Set(articleMap.get(s.url) || []); renderArticle(s); }
+  if (s.type === 'article') { hi = new Set(s.eps || articleMap.get(s.url) || []); renderArticle(s); }
   if (s.type === 'place') { const ids = s.id === 'JP' ? D.eps.map((e, i) => i).filter((i) => D.geo[i].some(([pid]) => PL[pid].scope === 'jp')) : PL[s.id].kind === 'pref' ? prefEps(s.id) : placeEps[s.id]; hi = new Set(ids); renderPlace(s.id, ids); if (s.id === 'JP' && mode === 'world') { /* 日本は日本地図で */ } else if (fly && isGeo()) { const p = PL[s.id], [x, y] = (mode === 'world' ? projWorld : projJapan)(p.lon, p.lat); if (Number.isFinite(x)) focusAt(x, y, Math.max(view.k, mode === 'world' ? 2.5 : 3)); } }
   if (s.type === 'cat') { hi = new Set(); D.eps.forEach((e, i) => { if (dispMain(i) === s.id && (s.sub == null || s.sub < 0 || dispSub(i) === s.sub)) hi.add(i); }); renderCat(s.id, s.sub); const rg = D._regions.find((r) => r.m === s.id); if (fly && rg && mode === 'cat') { const q = s.sub >= 0 ? rg.subs.find((x) => x.si === s.sub) : null; const tgt = q || rg; focusAt(tgt.x, tgt.y, Math.min(W, H) / (tgt.r * 2.6)); } }
   if (s.type === 'neb') { hi = new Set(); D.eps.forEach((e, i) => { if (e[6] === s.id) hi.add(i); }); renderNebula(s.id); const cm = D.comms[s.id]; if (fly && mode === 'map') focusAt(cm.x, cm.y, Math.min(W, H) / (cm.r * 3.2)); }
   document.querySelectorAll('#nebulae button').forEach((b) => b.setAttribute('aria-pressed', String(s.type === 'neb' && +b.dataset.c === s.id)));
   document.querySelectorAll('#cats button').forEach((b) => b.setAttribute('aria-pressed', String(s.type === 'cat' && +b.dataset.m === s.id && (b.dataset.s == null ? !(s.sub >= 0) : +b.dataset.s === s.sub))));
-  if (push) { const hash = s.type === 'ep' ? 'e=' + D.eps[s.id][0] : s.type === 'word' ? 'w=' + encodeURIComponent(D.terms[s.id][0]) : s.type === 'person' ? 'p=' + encodeURIComponent(D.persons[s.id][0]) : s.type === 'cat' ? 'c=' + s.id + (s.sub >= 0 ? '.' + s.sub : '') : s.type === 'place' ? 'pl=' + s.id : 'n=' + s.id; history.replaceState(null, '', '#' + hash); }
+  if (push && s.type !== 'article') { const hash = s.type === 'ep' ? 'e=' + D.eps[s.id][0] : s.type === 'word' ? 'w=' + encodeURIComponent(D.terms[s.id][0]) : s.type === 'person' ? 'p=' + encodeURIComponent(D.persons[s.id][0]) : s.type === 'cat' ? 'c=' + s.id + (s.sub >= 0 ? '.' + s.sub : '') : s.type === 'place' ? 'pl=' + s.id : 'n=' + s.id; history.replaceState(null, '', '#' + hash); }
   draw();
 }
 const panel = () => $('detail');
@@ -436,8 +455,40 @@ function renderWord(j) {
     h('p', { class: 'note' }, showMix(ids)),
     h('div', { class: 'sec' }, h('h4', {}, '時間の変化'), histogram(ids)),
     t[5].length ? h('div', { class: 'sec' }, h('h4', {}, 'いっしょに語られる言葉'), t[5].map(([y, s]) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'word', id: y }) }, D.terms[y][0], h('small', {}, `${s}`))), h('p', { class: 'note' }, '数字は「同じ回に出る割合」（0〜100）。意味の近さではなく、共起の強さです。')) : null,
+    wordArticlesSection(j),
     h('div', { class: 'sec' }, h('h4', {}, 'この言葉の回'), epList(ids))));
   live(`言葉「${t[0]}」。${ids.length}回が光っています`);
+}
+// ---- 言葉から記事へ（#384）。索引は言葉を初めて選んだときに読み、記事の見出しは必要な分のファイルだけ読む
+let artIndexP = null, wordArts = null; const artShardP = new Map();
+const loadArtIndex = () => artIndexP || (artIndexP = fetch('./data/articles/index.json').then((r) => (r.ok ? r.json() : null)).catch(() => null));
+const loadArtShard = (n) => artShardP.get(n) || artShardP.set(n, fetch(`./data/articles/s${n}.json`).then((r) => (r.ok ? r.json() : [])).catch(() => [])).get(n);
+async function articlesOfWord(j) {
+  const ix = await loadArtIndex(); if (!ix) return null;
+  return Promise.all((ix.byTerm[j] || []).map(async (k) => { const row = (await loadArtShard(Math.floor(k / ix.shard)))[k % ix.shard]; return row ? { u: row[0], title: row[1], eps: row[2] } : null; })).then((a) => a.filter(Boolean));
+}
+// 見出しの中の言葉に印をつける（大文字小文字・全角半角の違いは同じとみなす）
+function markTerm(title, term) {
+  const t = String(title).normalize('NFKC'), q = String(term).normalize('NFKC').toLowerCase(), low = t.toLowerCase(), out = []; let p = 0;
+  if (!q) return [t];
+  for (let n = low.indexOf(q); n >= 0; n = low.indexOf(q, n + q.length)) { if (n > p) out.push(t.slice(p, n)); out.push(h('mark', {}, t.slice(n, n + q.length))); p = n + q.length; }
+  if (p < t.length) out.push(t.slice(p));
+  return out;
+}
+const openWordArticle = (a) => a && select({ type: 'article', url: a.u, title: a.title, href: 'https://' + a.u, eps: a.eps, fromWord: sel && sel.type === 'word' ? sel.id : null });
+function wordArticlesSection(j) {
+  const box = h('div', { class: 'sec' }, h('h4', {}, 'この言葉が見出しに入った記事'), h('p', { class: 'note' }, '関連記事の見出しを読み込み中…'));
+  articlesOfWord(j).then((list) => {
+    if (!sel || sel.type !== 'word' || sel.id !== j) return;
+    wordArts = { j, list: list || [] };
+    if (!list) { box.lastChild.textContent = '記事の索引を読み込めませんでした。'; return; }
+    if (!list.length) { box.lastChild.textContent = 'この言葉が見出しに入った関連記事はありません。'; return; }
+    box.replaceChildren(h('h4', {}, 'この言葉が見出しに入った記事'),
+      h('ul', { class: 'eplist artlist' }, list.map((a) => h('li', {}, h('button', { type: 'button', onclick: () => openWordArticle(a) }, h('small', {}, `紹介した回 ${a.eps.length}`), markTerm(a.title, D.terms[j][0]))))),
+      h('p', { class: 'note' }, `関連記事の見出し（蔵で公開済み）にこの言葉が入っているもの。紹介した回の多い順に${list.length}本まで。${mode === 'map' ? '星図では ◆ で、紹介した回の星と線で結んでいます。' : '「言葉」の表示では ◆ で星図に置かれます。'}`));
+    draw();
+  });
+  return box;
 }
 function renderPerson(k) {
   const [name, ids] = D.persons[k];
@@ -517,6 +568,7 @@ function renderArticle(s) {
     h('p', { class: 'note' }, showMix(ids)),
     h('div', { class: 'sec' }, h('h4', {}, 'この記事を紹介した回'), epList(ids, 60)),
     h('p', { class: 'note' }, '同じ記事を紹介した回どうしは、星図でも「同じ記事」の根拠でつながっています。'),
+    s.fromWord != null ? h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'word', id: s.fromWord }) }, `← 言葉「${D.terms[s.fromWord][0]}」へ戻る`) : null,
     h('button', { type: 'button', class: 'chip', onclick: renderArticleList }, '📰 多くの回で紹介された記事の一覧へ')));
   live(`記事「${s.title || ''}」。${ids.length}回で紹介`);
 }

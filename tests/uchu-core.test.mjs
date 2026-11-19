@@ -76,3 +76,24 @@ test('地名: 人名・別の意味と紛れるものは除き、根拠の欄を
   assert.equal(PLACES[g[0][0]].name, '沖縄県'); assert.equal(g[0][2], 'title');
   for (const p of PLACES) assert.ok(p.name.length >= 2 && Number.isFinite(p.lat) && Number.isFinite(p.lon), p.name);
 });
+
+test('言葉から記事へ（#384）: 索引の言葉は語彙と一致し、見出しにその言葉が入っている', async () => {
+  const fs = await import('node:fs');
+  const dir = new URL('../public/uchu/data/', import.meta.url);
+  const ix = JSON.parse(fs.readFileSync(new URL('articles/index.json', dir), 'utf8'));
+  const extra = JSON.parse(fs.readFileSync(new URL('extra.json', dir), 'utf8'));
+  const { extractTerms, termKey } = await import('../scripts/uchu/uchu-core.mjs');
+  const shards = new Map(); const row = (k) => { const n = Math.floor(k / ix.shard); if (!shards.has(n)) shards.set(n, JSON.parse(fs.readFileSync(new URL(`articles/s${n}.json`, dir), 'utf8'))); return shards.get(n)[k % ix.shard]; };
+  let checked = 0;
+  for (const [j, ks] of Object.entries(ix.byTerm).slice(0, 300)) {
+    const term = extra.terms[j][0]; assert.ok(ks.length <= 12);
+    let prev = Infinity;
+    for (const k of ks) {
+      const [u, title, eps] = row(k);
+      assert.ok(u && !u.startsWith('http') && title && eps.length >= 1, String(k));
+      assert.ok(extractTerms(title).map(termKey).includes(termKey(term)), `${term} / ${title}`);
+      assert.ok(eps.length <= prev); prev = eps.length; checked++;
+    }
+  }
+  assert.ok(checked > 500);
+});
