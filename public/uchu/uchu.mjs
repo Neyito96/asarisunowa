@@ -11,6 +11,7 @@ const h = (tag, attrs = {}, ...kids) => {
   for (const c of kids.flat()) if (c != null && c !== false) el.append(c.nodeType ? c : String(c));
   return el;
 };
+const MINCHO = '"Hiragino Mincho ProN", "Yu Mincho", YuMincho, "Noto Serif JP", "Noto Serif CJK JP", serif';
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const live = (msg) => { $('live').textContent = msg; };
 const fmtDate = (n) => { const s = String(n); return s.length === 8 ? `${s.slice(0, 4)}.${Number(s.slice(4, 6))}.${Number(s.slice(6))}` : ''; };
@@ -132,7 +133,7 @@ function drawLabels() {
   const place = (x, y, w, hgt) => { const keys = []; for (let a = Math.floor((x - w / 2) / cell); a <= Math.floor((x + w / 2) / cell); a++) for (let b = Math.floor((y - hgt / 2) / cell); b <= Math.floor((y + hgt / 2) / cell); b++) keys.push(a + ',' + b); if (keys.some((q) => occ.has(q))) return false; keys.forEach((q) => occ.add(q)); return true; };
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   if (mode === 'time') {
-    ctx.textAlign = 'left'; ctx.font = '12px ' + fam;
+    ctx.textAlign = 'left'; ctx.font = '600 13px ' + MINCHO;
     for (let c = 0; c < K; c++) { const y = sy(D._timeRank[c] * 46 - (K * 46) / 2); if (y < 70 || y > H - 20) continue; ctx.fillStyle = colorOf(c); ctx.fillText(D.comms[c].name.slice(0, 2).join('・'), 10, y); }
     return;
   }
@@ -140,7 +141,7 @@ function drawLabels() {
   const must = new Set();
   if (sel && sel.type === 'word') { must.add(sel.id); for (const [y] of D.terms[sel.id][5]) must.add(y); }
   if (k < 0.75 && !must.size) {
-    ctx.font = '600 13px ' + fam;
+    ctx.font = '600 16px ' + MINCHO;
     D.comms.forEach((cm, c) => { const x = sx(cm.x), y = sy(cm.y); const text = cm.name.slice(0, 2).join('・'); const w = ctx.measureText(text).width + 8; if (!place(x, y, w, 18)) return; ctx.fillStyle = '#000a'; ctx.fillText(text, x + 1, y + 1); ctx.fillStyle = colorOf(c); ctx.fillText(text, x, y); });
     return;
   }
@@ -156,7 +157,7 @@ function drawLabels() {
     if (shown >= max && !must.has(j)) break;
     const t = D.terms[j]; if (t[1] === null) continue; const x = sx(t[1]), y = sy(t[2]); if (x < 0 || y < 60 || x > W || y > H) continue;
     const n = t[4].length, size = Math.max(10, Math.min(18, 9 + Math.log2(n) * 1.3)), isSel = sel && sel.type === 'word' && sel.id === j;
-    ctx.font = `${isSel ? 700 : 500} ${isSel ? size + 3 : size}px ${fam}`; const w = ctx.measureText(t[0]).width + 6;
+    ctx.font = isSel ? `700 ${size + 6}px ${MINCHO}` : `500 ${size}px ${fam}`; const w = ctx.measureText(t[0]).width + 6;
     if (!place(x, y, w, size + 4) && !isSel) continue;   // 選んだ言葉だけは必ず出す。近い言葉は重なれば省く
     ctx.fillStyle = '#000b'; ctx.fillText(t[0], x + 1, y + 1);
     ctx.fillStyle = isSel ? '#f3c969' : must.has(j) ? '#ffe7ad' : colorOf(t[3]).replace('68%)', '82%)');
@@ -244,7 +245,7 @@ function showMix(ids) { const c = new Map(); for (const i of ids) c.set(D.eps[i]
 function renderWord(j) {
   const t = D.terms[j], ids = t[4];
   panel().replaceChildren(h('div', {},
-    h('p', { class: 'meta' }, '言葉'), h('h3', {}, t[0]), h('p', { class: 'meta' }, h('span', {}, `${ids.length}回で主な言葉`), t[3] >= 0 ? h('span', {}, `星雲「${D.comms[t[3]].name.slice(0, 2).join('・')}」`) : null),
+    h('p', { class: 'kind' }, '言葉'), h('h3', { class: 'hero' }, t[0]), h('p', { class: 'meta' }, h('span', {}, `${ids.length}回で主な言葉`), t[3] >= 0 ? h('span', {}, `星雲「${D.comms[t[3]].name.slice(0, 2).join('・')}」`) : null),
     h('p', { class: 'note' }, showMix(ids)),
     h('div', { class: 'sec' }, h('h4', {}, '時間の変化'), histogram(ids)),
     t[5].length ? h('div', { class: 'sec' }, h('h4', {}, 'いっしょに語られる言葉'), t[5].map(([y, s]) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'word', id: y }) }, D.terms[y][0], h('small', {}, `${s}`))), h('p', { class: 'note' }, '数字は「同じ回に出る割合」（0〜100）。意味の近さではなく、共起の強さです。')) : null,
@@ -253,14 +254,14 @@ function renderWord(j) {
 }
 function renderPerson(k) {
   const [name, ids] = D.persons[k];
-  panel().replaceChildren(h('div', {}, h('p', { class: 'meta' }, '人物（出演者欄から）'), h('h3', {}, name), h('p', { class: 'meta' }, `${ids.length}回`), h('p', { class: 'note' }, showMix(ids)),
+  panel().replaceChildren(h('div', {}, h('p', { class: 'kind' }, '人物（出演者欄から）'), h('h3', { class: 'hero' }, name), h('p', { class: 'meta' }, `${ids.length}回`), h('p', { class: 'note' }, showMix(ids)),
     h('div', { class: 'sec' }, h('h4', {}, '時間の変化'), histogram(ids)), h('div', { class: 'sec' }, h('h4', {}, '出演した回'), epList(ids)),
     h('p', { class: 'note' }, '同じ名前の別の人を区別できていない場合があります。')));
   live(`人物「${name}」。${ids.length}回が光っています`);
 }
 function renderNebula(c) {
   const cm = D.comms[c], ids = [...hi], words = D.terms.map((t, j) => j).filter((j) => D.terms[j][3] === c && D.terms[j][1] !== null).sort((a, b) => D.terms[b][4].length - D.terms[a][4].length).slice(0, 24);
-  panel().replaceChildren(h('div', {}, h('p', { class: 'meta' }, '星雲（自動でまとめた言葉の集まり・仮の名前）'), h('h3', {}, cm.name.join('・')), h('p', { class: 'meta' }, `${cm.n}回`), h('p', { class: 'note' }, showMix(ids)),
+  panel().replaceChildren(h('div', {}, h('p', { class: 'kind' }, '星雲（自動でまとめた言葉の集まり・仮の名前）'), h('h3', {}, cm.name.join('・')), h('p', { class: 'meta' }, `${cm.n}回`), h('p', { class: 'note' }, showMix(ids)),
     h('div', { class: 'sec' }, h('h4', {}, '時間の変化'), histogram(ids)),
     h('div', { class: 'sec' }, h('h4', {}, 'この星雲の言葉'), words.map((j) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'word', id: j }) }, D.terms[j][0], h('small', {}, D.terms[j][4].length)))),
     h('div', { class: 'sec' }, h('h4', {}, '回'), epList(ids, 40))));
@@ -281,8 +282,9 @@ async function renderEp(i) {
   const shelfBtn = h('button', { type: 'button', class: 'btn' }, shelfHas(id) ? '✓ 蔵書にあります' : '＋ 蔵書に入れる');
   shelfBtn.onclick = () => { const on = shelfToggle(id); if (on === null) { shelfBtn.textContent = 'この端末では保存できません'; return; } shelfBtn.textContent = on ? '✓ 蔵書にあります' : '＋ 蔵書に入れる'; live(on ? '蔵書に入れました' : '蔵書から外しました'); };
   panel().replaceChildren(h('div', {},
-    h('p', { class: 'meta' }, h('span', {}, D.shows[e[2]]), h('span', {}, fmtDate(e[3])), h('span', {}, fmtDur(e[7]))),
+    h('p', { class: 'kind' }, D.shows[e[2]]),
     h('h3', {}, e[1]),
+    h('p', { class: 'meta' }, h('span', {}, fmtDate(e[3])), h('span', {}, fmtDur(e[7]))),
     h('div', { class: 'btns' }, h('a', { class: 'btn primary', href: `../library/?ep=${id}` }, '蔵で詳しく見る'), shelfBtn),
     descBox, relBox,
     e[6] >= 0 ? h('div', { class: 'sec' }, h('h4', {}, '星雲'), h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'neb', id: e[6] }) }, h('span', { style: `color:${colorOf(e[6])}` }, '●'), D.comms[e[6]].name.slice(0, 2).join('・'))) : h('p', { class: 'note' }, 'この回は共通の言葉が少ないため、星図には置いていません。')));
