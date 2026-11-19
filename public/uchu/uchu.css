@@ -53,7 +53,17 @@ h1 { font-size: 21px; font-weight: 600; margin: 0; letter-spacing: .14em; white-
 .zoom button { min-width: 38px; padding: 0 6px; white-space: nowrap; height: 38px; border-radius: 10px; border: 1px solid var(--line); background: #0b1222cc; cursor: pointer; font-size: 13px; }
 .tip { position: absolute; pointer-events: none; max-width: 300px; background: #0b1222f2; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font-size: 12px; line-height: 1.5; }
 .tip small { color: var(--sub); display: block; }
-.loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--sub); letter-spacing: .1em; }
+.loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--sub); z-index: 6; }
+.lbox { width: min(360px, 80vw); text-align: center; }
+.lbox p { margin: 6px 0; letter-spacing: .1em; }
+.bar { height: 6px; border-radius: 3px; background: #1a2440; overflow: hidden; }
+.bar i, .loadbar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #8a6d2a, var(--accent)); transition: width .2s; }
+.lbox .pct { font-variant-numeric: tabular-nums; font-size: 13px; }
+.lbox .lnote { font-size: 11px; letter-spacing: .02em; line-height: 1.6; }
+.loadbar { position: absolute; left: 12px; right: 12px; top: 70px; z-index: 6; height: 18px; display: flex; align-items: center; gap: 8px; pointer-events: none; }
+.loadbar i { position: absolute; left: 0; bottom: 0; height: 2px; border-radius: 1px; }
+.loadbar span { font-size: 11px; color: var(--sub); background: #070b16cc; padding: 0 6px; border-radius: 4px; }
+.loadbar[hidden], .toast[hidden], .side-open[hidden] { display: none !important; }   /* hidden を必ず効かせる（display 指定より優先） */
 
 .panel { padding: 84px 22px 28px; overflow: auto; border-left: 1px solid var(--line); background: #080d1b; z-index: 5; }
 .panel:focus { outline: none; }
@@ -90,6 +100,8 @@ h1 { font-size: 21px; font-weight: 600; margin: 0; letter-spacing: .14em; white-
 .intro .kicker { font-size: 10.5px; letter-spacing: .3em; color: var(--accent); margin: 8px 0 6px; font-weight: 600; }
 .intro h2 { font-size: 30px; font-weight: 600; line-height: 1.5; letter-spacing: .08em; margin: 0 0 18px; }
 .intro .lead { font-size: 15px; line-height: 2; }
+.intro .lead b { color: var(--accent); font-weight: 600; }
+.artcount { font-size: 11.5px; margin-left: 6px; }
 .intro p, .intro li { font-size: 14px; color: #d5dbea; line-height: 1.9; }
 .intro ul { padding-left: 1.2em; }
 .try .chip { margin-top: 4px; }
@@ -129,6 +141,7 @@ h1 { font-size: 21px; font-weight: 600; margin: 0; letter-spacing: .14em; white-
   .panel[data-sheet="peek"] #detail h3, .panel[data-sheet="peek"] .intro h2 { font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 2px 0; }
   .panel[data-sheet="peek"] .intro h2 br { display: none; }
   .zoom { right: 10px; bottom: auto; top: 118px; }
+  .loadbar { top: 126px; }
   .toast { bottom: calc(104px + env(safe-area-inset-bottom)); }
   .zoom #zin, .zoom #zout { display: none; }   /* 拡大縮小は2本指で */
   .panel h3.hero { font-size: 28px; }

@@ -32,7 +32,10 @@ test('記事URLはクエリを外して同じ記事を見分ける。URLは作�
 });
 
 test('事前計算データ: 番号の参照がすべて範囲内', { skip: !fs.existsSync('public/uchu/data/core.json') }, () => {
-  const core = JSON.parse(fs.readFileSync('public/uchu/data/core.json', 'utf8'));
+  // core（最初に読む分）と extra（あとで読む分）を合わせて検査
+  const core = { ...JSON.parse(fs.readFileSync('public/uchu/data/core.json', 'utf8')), ...JSON.parse(fs.readFileSync('public/uchu/data/extra.json', 'utf8')) };
+  assert.ok(core.cls.length === core.eps.length && core.clsEv.length === core.eps.length && core.geo.length === core.eps.length);
+  assert.ok(core.articles.every(([u, ids]) => typeof u === 'string' && ids.length >= 2 && ids.every((i) => i < core.eps.length)));
   const { rel } = JSON.parse(fs.readFileSync('public/uchu/data/rel.json', 'utf8'));
   const NE = core.eps.length, NT = core.terms.length, NP = core.persons.length, K = core.comms.length;
   assert.equal(rel.length, NE);
