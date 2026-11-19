@@ -31,7 +31,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#ふな 冨名腰隆　旧【報談】",
     "ふね",
     "https://open.spotify.com/playlist/48tpuTjiqGdJrvkX8R1OkI",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e",
     "2025-07-11",
     null,
     true
@@ -373,7 +373,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "新聞社員の「楽屋裏」",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/1u1qT0BxRZT1OeNM0LDA72",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844ac19eab5ced53a5396e809c",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da844ac19eab5ced53a5396e809c",
     "2026-09-28",
     null,
     true
@@ -409,7 +409,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "楽屋裏2023　厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/0I9wCLs5oFLNIG1aPLQneg",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32",
     null,
     null,
     false
@@ -418,7 +418,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "バスケ通信―クラッチタイム（バスクラ）",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/3axOpfDhMhLEtelwGwvMHb",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244",
     null,
     null,
     false
@@ -463,7 +463,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#懐メロ（#朝ポキ 楽屋裏）＋おじさんのメロディ",
     "koike",
     "https://open.spotify.com/playlist/0vItsmD8tW7fsv18NkZKzh",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600",
     null,
     null,
     false
@@ -616,7 +616,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "中南米",
     "マリオ",
     "https://open.spotify.com/playlist/2Org6cCBgVas4d9OwzzxAv",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37",
     "2026-09-08",
     "2026-09-18",
     true
