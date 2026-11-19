@@ -154,11 +154,13 @@ function resize() {
 function fit() {
   let a = Infinity, b = -Infinity, c = Infinity, d = -Infinity;
   for (let i = 0; i < NE; i++) if (Number.isFinite(px[i])) { a = Math.min(a, px[i]); b = Math.max(b, px[i]); c = Math.min(c, py[i]); d = Math.max(d, py[i]); }
-  const top = 70, k = Math.min(W / (b - a + 80), (H - top) / (d - c + 80));   // 上の見出しに隠れないように
-  animateTo((a + b) / 2, (c + d) / 2 - top / 2 / k, k);
+  // 上の見出しと、スマホ縦の下の詳細シートに隠れない範囲に収める
+  const top = document.querySelector('.top').offsetHeight + 4, bottom = window.matchMedia('(max-width: 760px) and (orientation: portrait)').matches ? $('panel').offsetHeight : 0;
+  const k = Math.min(W / ((b - a) * 1.12 + 60), (H - top - bottom) / ((d - c) * 1.06 + 60));   // 名前の文字がはみ出さない余白
+  animateTo((a + b) / 2, (c + d) / 2 - (top - bottom) / 2 / k, k);
 }
 // スマホでは下の詳細シートに隠れないよう、見える部分の中央へ
-function focusAt(x, y, k) { const off = innerWidth <= 760 ? (H * 0.23) / k : 0; animateTo(x, y + off, k); }
+function focusAt(x, y, k) { const off = phonePortrait.matches ? ($('panel').offsetHeight / 2) / k : 0; animateTo(x, y + off, k); }
 function animateTo(x, y, k, ms = 450) {
   if (reduceMotion || !W) { view.x = x; view.y = y; view.k = k; draw(); return; }
   const from = { ...view }, start = performance.now(); cancelAnimationFrame(anim);
@@ -348,6 +350,7 @@ $('zfit').onclick = () => fit();
 document.querySelectorAll('.modes button').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
 function setMode(m) {
   if (m === mode) return;
+  hintsFor(m);
   if ((m === 'world' || m === 'japan') && !shapes[m]) { loadShapes(m).then(() => { setMode(m); }); return; }
   mode = m; document.querySelectorAll('.modes button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === m)));
   const fx = px.slice(), fy = py.slice(), tx = { map: mapX, cat: catX, time: timeX, world: worldX, japan: japanX }[m], ty = { map: mapY, cat: catY, time: timeY, world: worldY, japan: japanY }[m], start = performance.now(), ms = reduceMotion ? 0 : 700;
@@ -357,7 +360,7 @@ function setMode(m) {
 
 // ---- 選択と詳細
 function select(s, { fly = true, push = true } = {}) {
-  sel = s; hoverEp = -1;
+  sel = s; hoverEp = -1; openDetail();
   if (s.type === 'ep') { hi = null; renderEp(s.id); if (fly && Number.isFinite(px[s.id])) focusAt(px[s.id], py[s.id], Math.max(view.k, 2.2)); }
   if (s.type === 'word') { hi = new Set(D.terms[s.id][4]); renderWord(s.id); const t = D.terms[s.id]; if (fly && t[1] !== null && mode === 'map') focusAt(t[1], t[2], Math.max(view.k, 1.6)); }
   if (s.type === 'person') { hi = new Set(D.persons[s.id][1]); renderPerson(s.id); }
@@ -562,6 +565,49 @@ document.addEventListener('keydown', (e) => {
 });
 document.addEventListener('click', (e) => { const w = e.target.closest('[data-word]'); if (w) { const j = termIdxByKey.get(norm(w.dataset.word)); if (j !== undefined) select({ type: 'word', id: j }); } });
 
+// ---- スマホの詳細シート（縦: たたむ・半分・全部 / 横: 右の欄をたたむ）
+const phonePortrait = matchMedia('(max-width: 760px) and (orientation: portrait)');
+const phoneLand = matchMedia('(orientation: landscape) and (max-height: 520px)');
+const panelEl = $('panel'), handle = $('sheetHandle'), stageEl = document.querySelector('.stage');
+const sheetPx = (st) => ({ peek: 92, half: innerHeight * 0.48, full: innerHeight - 110 }[st]);
+function setSheet(st) {
+  panelEl.dataset.sheet = st; panelEl.style.height = ''; handle.setAttribute('aria-expanded', String(st !== 'peek')); handle.setAttribute('aria-label', st === 'peek' ? '詳細を広げる' : '詳細をたたむ');
+  if (st === 'peek') panelEl.scrollTop = 0;
+}
+function openDetail() {
+  if (phonePortrait.matches && panelEl.dataset.sheet === 'peek') { setSheet('half'); $('toast').hidden = true; }
+  if (phoneLand.matches && stageEl.classList.contains('side-closed')) { stageEl.classList.remove('side-closed'); $('sideOpen').hidden = true; }
+}
+let drag = null;
+handle.addEventListener('pointerdown', (e) => { handle.setPointerCapture(e.pointerId); drag = { y: e.clientY, h: panelEl.offsetHeight, moved: false }; panelEl.style.transition = 'none'; });
+handle.addEventListener('pointermove', (e) => { if (!drag) return; const dy = e.clientY - drag.y; if (Math.abs(dy) > 4) drag.moved = true; panelEl.style.height = Math.max(80, Math.min(innerHeight - 90, drag.h - dy)) + 'px'; });
+handle.addEventListener('pointerup', (e) => {
+  if (!drag) return; panelEl.style.transition = '';
+  if (!drag.moved) setSheet(panelEl.dataset.sheet === 'peek' ? 'half' : 'peek');
+  else { const hh = panelEl.offsetHeight; setSheet(['peek', 'half', 'full'].sort((a, b) => Math.abs(sheetPx(a) - hh) - Math.abs(sheetPx(b) - hh))[0]); }
+  drag = null;
+});
+handle.addEventListener('keydown', (e) => { if (e.key === 'ArrowUp') { e.preventDefault(); setSheet(panelEl.dataset.sheet === 'peek' ? 'half' : 'full'); } if (e.key === 'ArrowDown') { e.preventDefault(); setSheet(panelEl.dataset.sheet === 'full' ? 'half' : 'peek'); } });
+$('sheetClose').addEventListener('click', () => { if (phoneLand.matches) { stageEl.classList.add('side-closed'); $('sideOpen').hidden = false; $('sideOpen').focus(); } else setSheet('peek'); });
+$('sideOpen').addEventListener('click', () => { stageEl.classList.remove('side-closed'); $('sideOpen').hidden = true; });
+phoneLand.addEventListener('change', () => { if (!phoneLand.matches) { stageEl.classList.remove('side-closed'); $('sideOpen').hidden = true; } });
+// 案内（1回だけ）: 操作のしかた、地図は横向きがおすすめ
+const seen = (k) => { try { return localStorage.getItem('uchu-hint-' + k) === '1'; } catch { return true; } };
+const markSeen = (k) => { try { localStorage.setItem('uchu-hint-' + k, '1'); } catch { /* 保存できない端末では毎回出さない */ } };
+let toastTimer = null;
+function toast(k, text) {
+  if (seen(k)) return; markSeen(k);
+  $('toastText').textContent = text; $('toast').hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 8000);
+}
+$('toastClose').addEventListener('click', () => { $('toast').hidden = true; });
+function hintsFor(m) {
+  if (!(phonePortrait.matches || phoneLand.matches)) return;
+  if ((m === 'world' || m === 'japan') && phonePortrait.matches) toast('rotate', '📱↻ 横向きにすると、地図を広く見られます（画面の回転ロックを外してください）');
+  else toast('gesture', phoneLand.matches ? '2本指で拡大・縮小、指でなぞって移動できます。右の詳細は × でたためます' : '2本指で拡大・縮小、指でなぞって移動できます。下のつまみを上げると詳細が開きます');
+}
+// 最初の案内の中の20大分類（スマホでは左の一覧が無いので、ここから選べるように）
+$('introCats').replaceChildren(...[...Array(HOLD).keys()].map((m) => h('button', { type: 'button', class: 'chip', onclick: () => { if (mode !== 'cat') setMode('cat'); select({ type: 'cat', id: m }); } }, h('span', { style: `color:${catColor(m)}` }, '●'), D.cats[m].name, h('small', {}, catCount[m]))));
+
 // ---- 開始
 new ResizeObserver(resize).observe(canvas);
 resize(); fit();
@@ -577,4 +623,5 @@ function fromHash() {
   if (m[1] === 'c') { const [a, b] = v.split('.').map(Number); if (a >= 0 && a <= HOLD) select({ type: 'cat', id: a, sub: Number.isFinite(b) ? b : -1 }, { push: false }); }
 }
 fromHash(); addEventListener('hashchange', fromHash);
+if (!location.hash) setTimeout(() => hintsFor(mode), 1200);
 window.__uchuPerf = { loadMs: Math.round(tLoad), readyMs: Math.round(performance.now() - t0), episodes: NE, terms: D.terms.length };
