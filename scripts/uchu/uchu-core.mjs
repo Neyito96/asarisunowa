@@ -44,12 +44,14 @@ export const termKey = (t) => String(t).normalize('NFKC').toLowerCase();
 // 出演者欄 → 人物名（役割語・所属の括弧は外す）
 const ROLE = /^(mc|ｍｃ|音源編集|進行|司会|ゲスト|出演|聞き手|語り|ナレーション|構成|編集|制作|プロデューサー|ディレクター|記者|朗読|ほか|他)$/i;
 export function parseCast(cast) {
-  const s = String(cast || '').normalize('NFKC').replace(/[（(][^）)]*[）)]/g, ' ');
+  // 子どもゲスト（「名前,大阪府、男、小2」のように学年がある欄）は人物にしない
+  const s = String(cast || '').normalize('NFKC').split('/').filter((x) => !/[,、]\s*(小|中|高)\s*[1-6]|年長|年中/.test(x)).join('/').replace(/[（(][^）)]*[）)]/g, ' ');
   const names = new Set();
   for (const raw of s.split(/[\/；;、,・\n]|\s{2,}|\s+と\s+/)) {
     const t = raw.replace(/^(mc|音源編集|進行|司会|聞き手|ゲスト)[、,:：\s]*/i, '').replace(/\s+/g, '').trim();
     if (t.length < 2 || t.length > 10 || ROLE.test(t) || /(編集部|部|局|社|班|グループ|チーム)$/.test(t)) continue;   // 所属・組織は人物にしない
     if (!/^[一-龯々ぁ-んァ-ヴーA-Za-z]+$/.test(t)) continue;
+    if (/^[一-龯]{1,3}[都道府県]$/.test(t)) continue;   // 都道府県名は人物にしない
     names.add(t);
   }
   return [...names];
