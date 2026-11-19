@@ -67,6 +67,7 @@ function ArchiveSeriesItems({ value }: { value: string }) {
     return <span key={i}>{i > 0 ? "、" : ""}<ArchiveSearchLink term={archiveSeriesSearchTerms[name] ?? name}>{name}</ArchiveSearchLink></span>;
   })}</>;
 }
+const isScheduleNote = (term: string) => /^(月\d|週\d|隔週|毎[日週月]|不定期|曜日|音声先行)|程度|～|〜|月数回/.test(term);
 function ArchiveLinkedSchedule({ value }: { value: string }) {
   return <>{value.split("／").map((part, i) => {
     const match = part.match(/^([^：:]{1,12}[：:])(.*)$/);
@@ -77,6 +78,8 @@ function ArchiveLinkedSchedule({ value }: { value: string }) {
       if (!chunk) return null;
       if (chunk.startsWith("（") && chunk.endsWith("）")) {
         const term = chunk.slice(1, -1);
+        // 「（月1～）」「（月2程度）」「（音声先行、木曜夜～金曜にSpotify動画）」のような配信頻度・配信方法の注記は検索語ではない（押すと0件だった）
+        if (!archiveSeriesSearchTerms[term] && isScheduleNote(term)) return <span key={j}>{chunk}</span>;
         return <ArchiveSearchLink key={j} term={archiveSeriesSearchTerms[term] ?? term}>{chunk}</ArchiveSearchLink>;
       }
       // Commas separate distinct series, never a single combined search.
