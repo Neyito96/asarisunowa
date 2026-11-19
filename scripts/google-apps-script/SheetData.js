@@ -170,6 +170,11 @@ function readAutoManagedPlaylistIdMap_(ss) {
       if (playlistId) result[playlistId] = true;
     });
   }
+  // 蔵から育てるプレイリスト（LibraryPlaylist.js）も、書込スイッチがONなら「楽育ち」
+  if (typeof LIBRARY_PLAYLIST_RULES_ !== "undefined" &&
+      PropertiesService.getScriptProperties().getProperty("LIBRARY_PLAYLIST_WRITE") === "ON") {
+    LIBRARY_PLAYLIST_RULES_.forEach(function(rule) { if (rule && rule.playlistId) result[String(rule.playlistId)] = true; });
+  }
   const runtimeRules = typeof loadAutoUpdateRuntimeRulesV1_ === "function"
     ? loadAutoUpdateRuntimeRulesV1_() : [];
   if (!runtimeRules.length) return result;

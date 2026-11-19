@@ -47,7 +47,7 @@ function scrollPlaylistEntryIntoView() {
 
 export default function PlaylistEntryModeBridge() {
   const [mode, setMode] = useState<PlaylistEntryMode>("register");
-  const [shelf, setShelf] = useState<PlaylistShelf>("other");
+  const [shelf, setShelf] = useState<PlaylistShelf>("series");   // 連載を最初に表示
   const [host, setHost] = useState<HTMLElement | null>(null);
   const [sortHost, setSortHost] = useState<HTMLElement | null>(null);
   const [barHost, setBarHost] = useState<HTMLElement | null>(null);
