@@ -257,9 +257,25 @@ extra.articles = articles;
 fs.writeFileSync(path.join(OUT, 'core.json'), JSON.stringify(first));
 fs.writeFileSync(path.join(OUT, 'extra.json'), JSON.stringify(extra));
 fs.writeFileSync(path.join(OUT, 'rel.json'), JSON.stringify({ v: 1, libraryVersion: manifest.version, rel }));
+// 言葉から記事へ（#384）: 関連記事の見出しの索引。見出しは蔵で公開済みのもの。記事本文は扱わない。言葉を選んだときだけ読む
+const artIdx = new Map();
+eps.forEach((e, i) => (e.relatedArticles || []).forEach((a) => {
+  const u = normalizeArticleUrl(a && a.url); if (!u) return;
+  const r = artIdx.get(u) || artIdx.set(u, { url: a.url, title: '', eps: new Set() }).get(u);
+  if (!r.title && a.title) r.title = String(a.title).trim(); r.eps.add(i);
+}));
+// 紹介した回の多い記事を先頭に並べ、32個の小さなファイルに分ける（選んだ言葉に必要な分だけ読む）
+const arts = [...artIdx].filter(([, r]) => r.title).map(([u, r]) => ({ u, title: r.title, eps: [...r.eps] })).sort((a, b) => b.eps.length - a.eps.length || a.u.localeCompare(b.u));
+const byTerm = {};
+arts.forEach((a, k) => new Set(extractTerms(a.title).map(termKey)).forEach((key) => { const j = vIndex.get(key); if (j !== undefined) (byTerm[j] || (byTerm[j] = [])).push(k); }));
+for (const j of Object.keys(byTerm)) byTerm[j] = byTerm[j].slice(0, 12);   // 先頭ほど紹介が多い（並べ替え済み）
+const ART_SHARD = Math.ceil(arts.length / 32);
+const ADIR = path.join(OUT, 'articles'); fs.rmSync(ADIR, { recursive: true, force: true }); fs.mkdirSync(ADIR, { recursive: true });
+fs.writeFileSync(path.join(ADIR, 'index.json'), JSON.stringify({ v: 1, libraryVersion: manifest.version, note: '関連記事の見出しの索引（蔵で公開済みの見出し）。本文は含まない。URL は https:// + u', count: arts.length, shard: ART_SHARD, byTerm }));
+for (let n = 0; n * ART_SHARD < arts.length; n++) fs.writeFileSync(path.join(ADIR, `s${n}.json`), JSON.stringify(arts.slice(n * ART_SHARD, (n + 1) * ART_SHARD).map((a) => [a.u, a.title, a.eps])));
 // 読み込みの進み具合を正しく出すための、ファイルの大きさ（圧縮前）
 fs.writeFileSync(path.join(OUT, 'manifest.json'), JSON.stringify({ libraryVersion: manifest.version, sizes: Object.fromEntries(['core', 'extra', 'rel'].map((f) => [f, fs.statSync(path.join(OUT, f + '.json')).size])) }));
 const size = (f) => (fs.statSync(path.join(OUT, f)).size / 1024).toFixed(0) + 'KB';
 console.log(JSON.stringify({ episodes: N, vocab: vocab.length, mapTerms: mapTerms.length, nebulae: K, placed: epXY.filter(Boolean).length, persons: persons.length,
-  withRel: rel.filter((r) => r[0].length).length, clsStats, geoStats, core: size('core.json'), extra: size('extra.json'), rel: size('rel.json'), articles: articles.length, sec: (Date.now() - t0) / 1000,
+  withRel: rel.filter((r) => r[0].length).length, clsStats, geoStats, core: size('core.json'), extra: size('extra.json'), articlesIndex: size('articles/index.json'), articleShard: size('articles/s0.json'), rel: size('rel.json'), articles: articles.length, sec: (Date.now() - t0) / 1000,
   nebulaNames: core.comms.map((c) => c.name.join('・') + ' ' + c.n) }, null, 1));

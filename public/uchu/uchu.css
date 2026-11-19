@@ -190,3 +190,6 @@ h1 { font-size: 21px; font-weight: 600; margin: 0; letter-spacing: .14em; white-
 .evid { font-size: 12px; color: var(--sub); margin-top: 4px; }
 .bars { display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin: 6px 0 2px; }
 .bars span { display: block; }
+/* 言葉から記事へ（#384） */
+.artlist mark{background:none;color:#f3c969;font-weight:700;border-bottom:1px solid #f3c96988}
+.artlist small{color:#7fd1c4}
