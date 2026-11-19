@@ -4,7 +4,7 @@
 // どちらもシートには書かない（その場で読む）。キャッシュ50分。毎時の自動更新が温め直すので、閲覧時はほぼ即時。
 // 取得に失敗した時はシートの値（最終更新日）・サイト側の固定画像にそのまま戻る。
 var PLM_CACHE_SEC_ = 3000;
-var PLM_KEY_ = 'plm2:';
+var PLM_KEY_ = 'plm3:';
 
 function plmToken_() {
   try { return typeof getSpotifyUserAccessToken === 'function' ? getSpotifyUserAccessToken() : ''; } catch (e) { return ''; }
@@ -25,6 +25,49 @@ function plmArtwork_(images) {
   var list = (images || []).filter(function (i) { return i && i.url; });
   list.sort(function (a, b) { return (Number(b.width) || 0) - (Number(a.width) || 0); });
   return list.length ? String(list[0].url) : '';
+}
+
+// 純粋: 埋め込みページ（open.spotify.com/embed/playlist/ID）の HTML → エピソードID（並び順）
+// 他人のプレイリストは API で中身を読めない（Spotify の制限）ため、公開の埋め込みページから回の一覧を取る
+function plmEmbedEpisodeIds_(html) {
+  var m = String(html || '').match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+  if (!m) return [];
+  try {
+    var e = JSON.parse(m[1]).props.pageProps.state.data.entity;
+    return (e.trackList || []).map(function (t) { var x = String(t && t.uri || '').match(/^spotify:episode:([A-Za-z0-9]{22})$/); return x ? x[1] : ''; }).filter(Boolean);
+  } catch (err) { return []; }
+}
+var PLM_EMBED_TAIL_ = 5;     // 末尾の何回分の公開日を見るか
+var PLM_EP_KEY_ = 'plmEp:';  // 回の公開日は変わらないので6時間キャッシュ
+
+// 埋め込みページ経由の最終新着（id の配列 → { id: 'YYYY-MM-DD' }）
+function plmLatestViaEmbed_(ids, token) {
+  var out = {}; if (!ids.length) return out;
+  var pages = UrlFetchApp.fetchAll(ids.map(function (id) { return { url: 'https://open.spotify.com/embed/playlist/' + id, muteHttpExceptions: true, followRedirects: true }; }));
+  var tails = {}, need = {};
+  ids.forEach(function (id, i) {
+    if (pages[i].getResponseCode() !== 200) return;
+    var eps = plmEmbedEpisodeIds_(pages[i].getContentText()).slice(-PLM_EMBED_TAIL_);
+    tails[id] = eps; eps.forEach(function (e) { need[e] = true; });
+  });
+  var epIds = Object.keys(need); if (!epIds.length) return out;
+  var cache = CacheService.getScriptCache(), dates = {}, got = cache.getAll(epIds.map(function (e) { return PLM_EP_KEY_ + e; })) || {}, miss = [];
+  epIds.forEach(function (e) { var v = got[PLM_EP_KEY_ + e]; if (v) dates[e] = v; else miss.push(e); });
+  if (miss.length) {
+    var rs = UrlFetchApp.fetchAll(miss.map(function (e) { return { url: 'https://api.spotify.com/v1/episodes/' + e + '?market=JP', headers: plmHeaders_(token), muteHttpExceptions: true }; }));
+    var put = {};
+    miss.forEach(function (e, i) {
+      if (rs[i].getResponseCode() !== 200) return;
+      var d = String(JSON.parse(rs[i].getContentText()).release_date || '').slice(0, 10);
+      if (/^\d{4}-\d{2}-\d{2}$/.test(d)) { dates[e] = d; put[PLM_EP_KEY_ + e] = d; }
+    });
+    if (Object.keys(put).length) cache.putAll(put, 21600);
+  }
+  Object.keys(tails).forEach(function (id) {
+    var best = ''; tails[id].forEach(function (e) { if (dates[e] && dates[e] > best) best = dates[e]; });
+    if (best) out[id] = best;
+  });
+  return out;
 }
 
 // プレイリストID の配列 → { id: { artwork, latestDate } }
@@ -54,6 +97,9 @@ function playlistLiveMeta_(ids, opt) {
   })) : [];
   var latest = {};
   second.forEach(function (id, i) { if (r2[i].getResponseCode() === 200) latest[id] = plmLatestFromItems_(JSON.parse(r2[i].getContentText()).items); });
+  // API で中身を読めなかったもの（他人のプレイリスト）は埋め込みページ経由で
+  var noLatest = Object.keys(head).filter(function (id) { return !latest[id] && head[id].total > 0; });
+  try { var viaEmbed = plmLatestViaEmbed_(noLatest, token); Object.keys(viaEmbed).forEach(function (id) { latest[id] = viaEmbed[id]; }); } catch (err) {}
   var put = {};
   Object.keys(head).forEach(function (id) {
     out[id] = { artwork: head[id].artwork, latestDate: latest[id] || '' };
@@ -74,4 +120,4 @@ function playlistLiveMetaWarm_() {
 
 function PLAYLIST_LIVE_META_CHECK() { var r = playlistLiveMetaWarm_(); Logger.log(JSON.stringify(r)); return r; }
 
-if (typeof module !== 'undefined') module.exports = { plmLatestFromItems_: plmLatestFromItems_, plmArtwork_: plmArtwork_ };
+if (typeof module !== 'undefined') module.exports = { plmLatestFromItems_: plmLatestFromItems_, plmArtwork_: plmArtwork_, plmEmbedEpisodeIds_: plmEmbedEpisodeIds_ };
