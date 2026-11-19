@@ -97,3 +97,12 @@ test('言葉から記事へ（#384）: 索引の言葉は語彙と一致し、�
   }
   assert.ok(checked > 500);
 });
+
+test('概要欄の定型文（番組宣伝・収録日・※注記）は言葉・分類・地名の材料にしない', async () => {
+  const { stripBoilerplate } = await import('../scripts/uchu/classify.mjs');
+  const d = '長野県のある蔵の奥から古文書がみつかりました。 ※この番組は2022年7月5日に収録しました。前後編の後編です。 ※「ニュースの現場から」「MEDIA TALK」「SDGs シンプルに話そう」「音でよみがえる甲子園」「就活ポッドキャスト」の7番組を配信中です';
+  const s = stripBoilerplate(d);
+  assert.ok(s.includes('長野県のある蔵'));
+  for (const w of ['甲子園', '就活', 'MEDIA', '収録']) assert.ok(!s.includes(w), w);
+  assert.equal(stripBoilerplate('★朝日新聞のデジタル版は4人まで使えます。 お盆の思い出を教えて'), ' お盆の思い出を教えて');
+});
