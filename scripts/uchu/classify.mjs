@@ -23,20 +23,28 @@ const TAG_W = 3;
 const KW = [];
 TAXONOMY.forEach((m, mi) => m.subs.forEach(([, words], si) => words.forEach((w) => {
   const k = nz(w);
-  const re = /^[A-Za-z0-9\-]+$/.test(k) ? new RegExp(`(?<![A-Za-z])${k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![A-Za-z])`) : null;
+  const esc = k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // 英字は前後が英字でないこと。3文字以下のカタカナ語は前後がカタカナでないこと（「パン」が「ジャパン」に、「ペット」が「ペットボトル」に当たらないように。監査 #390）
+  const re = /^[A-Za-z0-9\-]+$/.test(k) ? new RegExp(`(?<![A-Za-z])${esc}(?![A-Za-z])`) : /^[ァ-ヴー]{1,3}$/.test(k) ? new RegExp(`(?<![ァ-ヴー])${esc}(?![ァ-ヴー])`) : null;
   KW.push({ k, re, mi, si, w: 1 + Math.min(4, k.length - 2) * 0.15 });
 })));
 const hit = (kw, text) => (kw.re ? kw.re.test(text) : text.includes(kw.k));
+// 手がかり語の前に消しておく言い回し（別の意味になる複合語。監査 #390）
+const MASK = /テレビ塔/g;
+// 副分類の根拠としては弱い公式タグ（意味が広い）。これだけでは副分類にしない
+const BROAD_TAGS = new Set(['社会', '不平等', '平等', '働き方', '経済', '地域', '子育て・家族', '家族・子育て'].map(nz));
 
 // 概要欄の番組共通の案内文を除く（どの回にも出るため根拠にしない）
 // 概要欄の定型文を除く: ①番組一覧の宣伝（「…」「…」「…」の7番組を配信中です）②※・★で始まる注記（収録日・告知・紹介したポッドキャスト名など）を次の句点まで
 export function stripBoilerplate(desc) {
-  return nz(desc).replace(/※?\s*(「[^」]{1,30}」){3,}[^。※★]*?番組を配信中です。?/g, '').replace(/[※★][^。\n※★ 　]*。?/g, '').split(/\n|(?<=。)/).filter((line) => !/(beモニター|フォーム|ご意見|ご要望|ハッシュタグ|購読|会員登録|お便り|メールアドレス|ツイッター|X\(旧|https?:\/\/|下記サイト|番組へのご|プレゼント)/.test(line)).join('');
+  return nz(desc).replace(/★[^★\n]{1,60}★/g, ' ')   // ★…★ で囲んだ告知（「★空気階段に悩みを相談しよう★」など）
+    .replace(/[^。!！\n]*(イベントを開催します|を開催します[!！]|参加無料|要申し?込み?|お申し込み|申し込み(受付|は)|リアル会場は|配信を開始|締め切り迫る)[^。!！\n]*[。!！]?/g, ' ')   // イベント告知の文（監査 #390: 公開収録の誤検出の原因）
+    .replace(/※?\s*(「[^」]{1,30}」){3,}[^。※★]*?番組を配信中です。?/g, '').replace(/[※★][^。\n※★ 　]*。?/g, '').split(/\n|(?<=。)/).filter((line) => !/(beモニター|フォーム|ご意見|ご要望|ハッシュタグ|購読|会員登録|お便り|メールアドレス|ツイッター|X\(旧|https?:\/\/|下記サイト|番組へのご|プレゼント)/.test(line)).join('');
 }
 
 // 1回分の得点: { main: [20], sub: {mi: [..]}, ev: [[語, 欄]] }
 export function scoreEpisode({ title, theme, articles, desc, tags }) {
-  const fields = { title: nz(title), theme: nz(theme).replace(/^[^/]*\//, ''), article: (articles || []).map(nz).join('／'), desc: stripBoilerplate(desc) };
+  const fields = { title: nz(title).replace(MASK, ' '), theme: nz(theme).replace(/^[^/]*\//, ''), article: (articles || []).map(nz).join('／').replace(MASK, ' '), desc: stripBoilerplate(desc).replace(MASK, ' ') };
   const main = new Array(TAXONOMY.length).fill(0), sub = TAXONOMY.map((m) => new Array(m.subs.length).fill(0)), ev = [];
   for (const kw of KW) {
     let best = 0, where = '';
@@ -72,6 +80,8 @@ export function classify(input, legacy) {
   else if (topS >= 2.5 && topS > second) { mi = top; src = 'd'; conf = 0; }
   // 決まった回でも、ほかの分野に十分な根拠（3点以上・主分類の半分以上）があれば副分類にする
   if (mi >= 0 && mi2 < 0) { const c2 = rank.find((k) => k !== mi); if (sc.main[c2] >= 3 && sc.main[c2] >= sc.main[mi] * 0.5) mi2 = c2; }
+  // 監査（#390）: 副分類の根拠が「関連記事の見出しだけ」（正答 40%）や「意味の広い公式タグだけ」のときは付けない
+  if (mi2 >= 0) { const e2 = sc.ev.filter((e) => e[2] === mi2); if (e2.every((e) => e[1] === 'article') || e2.every((e) => e[1] === 'tag' && BROAD_TAGS.has(e[0]))) mi2 = -1; }
   const subOf = (m) => (m >= 0 && sc.sub[m].some((x) => x > 0) ? argmax(sc.sub[m]) : -1);
   const evOf = (m) => (m >= 0 ? sc.ev.filter((e) => e[2] === m).sort((a, b) => b[4] - a[4]).slice(0, 4).map(([k, f]) => [k, f]) : []);
   return { mi, si: subOf(mi), conf, src, ev: evOf(mi), mi2, si2: subOf(mi2), ev2: evOf(mi2), total, scores: sc.main };
