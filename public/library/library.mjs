@@ -4,7 +4,7 @@ import { qrSvg } from './qr.mjs';
 import { filterEpisodes, safeUrl, normal, showSearchText } from './library-core.mjs?v=alias-20261119';
 const $=id=>document.getElementById(id), cache=new Map();
 let manifest, page=0, generation=0, activeResults=null, activeDetail=0;
-import { SHELF_KEY, SHELF_LIMITS, readShelf, serializeShelf, toggleItem, moveItem, setMeta, encodeShare, decodeShare, cardLinks } from './shelf-core.mjs';
+import { SHELF_KEY, SHELF_LIMITS, readShelf, serializeShelf, toggleItem, moveItem, setMeta, encodeShare, decodeShare, cardLinks, liveLinks, isMovedLink, MOVED_LINK_NOTE } from './shelf-core.mjs';
 // 自分の蔵書一覧（#315）: 利用者が選んだ回だけを、この端末のブラウザに保存する（会員登録・送信なし）。検索の言葉や閲覧の記録は保存しない
 function loadShelf(){try{return readShelf(localStorage.getItem(SHELF_KEY));}catch{return readShelf(null);}}
 function saveShelf(next){try{localStorage.setItem(SHELF_KEY,serializeShelf(next));return true;}catch{return false;}}
@@ -89,7 +89,7 @@ async function openDetail(id,fromUrl=false) {
  if(e.cast)body.append(node('p',e.cast,'detail-meta'));
  if(e.audio){const audio=document.createElement('audio');audio.controls=true;audio.preload='none';audio.hidden=true;const play=node('button','▶ この回を聴く');play.type='button';play.addEventListener('click',()=>{audio.hidden=false;audio.src=e.audio;play.hidden=true;audio.play().catch(()=>{note.textContent='プレーヤーの再生ボタン、または配信先リンクからお聴きください。';});});const note=node('p','配信元の音声です。再生ボタンを押すと読み込みます。','audio-note');audio.addEventListener('error',()=>{note.textContent='音声を読み込めませんでした。配信先リンクからお聴きください。';});body.append(play,audio,note);}
  else body.append(node('p','この回は配信先リンクからお聴きください。','audio-note'));
- const links=node('div',undefined,'detail-links');addLinks(links,e.links);if(!links.children.length)addLinks(links,['https://www.asahi.com/special/podcasts/']);const tidy=tidyDescription(e.description),useTidy=tidy.status==='TIDY'||tidy.status==='AS_IS';body.append(links,node('p',tidy.status==='PROMO_ONLY'?'公式の概要欄は番組の告知だけで、この回の内容の説明はありません。':((useTidy?tidy.body:e.description) || '概要欄は未収録です。公式ページをご確認ください。'),'description'));
+ const links=node('div',undefined,'detail-links');addLinks(links,liveLinks(e,e.links));if(!links.children.length)addLinks(links,['https://www.asahi.com/special/podcasts/']);if((e.links||[]).some(u=>isMovedLink(e,u)))links.append(node('p',MOVED_LINK_NOTE,'moved-note'));const tidy=tidyDescription(e.description),useTidy=tidy.status==='TIDY'||tidy.status==='AS_IS';body.append(links,node('p',tidy.status==='PROMO_ONLY'?'公式の概要欄は番組の告知だけで、この回の内容の説明はありません。':((useTidy?tidy.body:e.description) || '概要欄は未収録です。公式ページをご確認ください。'),'description'));
  if(useTidy&&tidy.recordedAt&&!e.recording?.length)body.append(node('p',`${tidy.recordedAt}に収録`,'detail-meta'));
  // 概要の【関連記事】を1件ずつリンクに（概要にあったURLだけ。データ側の関連記事があればそちらを優先）
  if(useTidy&&tidy.related.length&&!e.related.length){body.append(node('h3','関連記事'));const list=node('ul',undefined,'related-list');for(const r of tidy.related){const url=safeUrl(r.url);if(!url)continue;const li=node('li'),a=node('a',r.title);a.href=url;a.target='_blank';a.rel='noopener noreferrer';li.append(a);list.append(li);}body.append(list);}
@@ -134,7 +134,7 @@ async function renderShelf(){
  const eps=await Promise.all(s.ids.map(episodeById));
  s.ids.forEach((id,i)=>{const e=eps[i],li=node('li');const name=node('button',e?e.title:`${id}（現在は公開されていない回です）`,'episode-title');name.type='button';if(e)name.addEventListener('click',()=>{shelfDialog.close();openDetail(id);});
   li.append(node('small',e?`${label(e.show)} · ${e.date.slice(0,10)}`:id),name);
-  if(e){const ls=cardLinks(e.links);if(ls.length){const lk=node('div',undefined,'detail-links shelf-listen');lk.append(node('span','聴く：'));for(const l of ls){const a=node('a',l.label+' ↗');a.href=l.url;a.target='_blank';a.rel='noopener noreferrer';lk.append(a);}li.append(lk);}}
+  if(e){const ls=cardLinks(liveLinks(e,e.links));if(ls.length){const lk=node('div',undefined,'detail-links shelf-listen');lk.append(node('span','聴く：'));for(const l of ls){const a=node('a',l.label+' ↗');a.href=l.url;a.target='_blank';a.rel='noopener noreferrer';lk.append(a);}li.append(lk);}}
   const ctl=node('span',undefined,'shelf-controls');for(const [txt,fn,lab] of [['↑',()=>saveShelf(moveItem(loadShelf(),id,-1)),'上へ'],['↓',()=>saveShelf(moveItem(loadShelf(),id,1)),'下へ'],['外す',()=>saveShelf(toggleItem(loadShelf(),id)),'一覧から外す']]){const b=node('button',txt,'quiet');b.type='button';b.setAttribute('aria-label',`${e?e.title:id}を${lab}`);b.addEventListener('click',async()=>{fn();refreshShelfButton();await renderShelf();});ctl.append(b);}
   li.append(ctl);list.append(li);});
  body.append(list);
@@ -178,7 +178,7 @@ async function renderShared(){
   if(!e){card.append(node('p','この回は現在、蔵で公開されていません。','empty'));grid.append(card);return;}
   card.append(node('small',`${label(e.show)} · ${e.date.slice(0,10)}`),node('h3',e.title));
   const links=node('div',undefined,'detail-links');const detail=node('a','蔵で詳しく見る');detail.href=`?ep=${e.id}`;detail.addEventListener('click',ev=>{ev.preventDefault();openDetail(e.id);});links.append(detail);
-  for(const l of cardLinks(e.links)){const a=node('a',l.label+' ↗');a.href=l.url;a.target='_blank';a.rel='noopener noreferrer';links.append(a);}
+  for(const l of cardLinks(liveLinks(e,e.links))){const a=node('a',l.label+' ↗');a.href=l.url;a.target='_blank';a.rel='noopener noreferrer';links.append(a);}
   card.append(links);grid.append(card);});
  const take=node('button','この蔵書をわたしの蔵書に入れる','quiet');take.type='button';take.addEventListener('click',()=>{let s=loadShelf();for(const id of data.ids)if(eps[data.ids.indexOf(id)]&&!s.ids.includes(id))s=toggleItem(s,id);if(saveShelf(s)){take.textContent='入れました（このブラウザに保存）';refreshShelfButton();}});
  sec.append(grid,take,node('p','共有した人の名前や、ほかに保存している回は表示されません。','detail-meta'));

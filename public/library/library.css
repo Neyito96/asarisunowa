@@ -100,3 +100,4 @@ form{background:#fdfaf3;border:1px solid #baac94;border-top:7px solid #40352a;bo
 .shelf-listen{font-size:.85rem;margin:.25rem 0}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 .spotify-wish{display:block;margin:8px 0;font-size:14px}
+.moved-note{flex-basis:100%;font-size:12px;color:var(--muted);margin:2px 0 0}

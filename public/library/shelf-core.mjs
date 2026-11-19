@@ -67,6 +67,16 @@ export function platformLabel(url) {
   return '';
 }
 // 公開データの回 → 共有カード用（音声ファイルの直リンクや未知のサイトは出さない）
+// 配信先の引っ越しで消えたリンク（#395）: SDGsを話そう の過去回は 2026年に別番組「SDGsを話そう アーカイブ」へ移り、
+// Spotify・Pocket Casts の各回の住所が変わった（旧住所は 898/899 回で「見つかりません」）。新しい住所の対応表ができるまでボタンを出さない
+export const MOVED_LINK_NOTE = 'この番組の過去回は配信先が引っ越したため、Spotify・Pocket Casts のボタンを一時的に外しています。Omny・朝日新聞の公式ページで聴けます。';
+const MOVED_ALIVE = new Set(['EP-06577']);   // 旧住所でも開けることを確かめた回
+export function isMovedLink(e, url) {
+  if (!e || e.show !== 'SDGsを話そう' || MOVED_ALIVE.has(e.id)) return false;
+  let h = ''; try { h = new URL(url).hostname; } catch (x) { return false; }
+  return h === 'open.spotify.com' || h === 'pca.st' || h.endsWith('pocketcasts.com');
+}
+export function liveLinks(e, links) { return (links || []).filter((u) => !isMovedLink(e, u)); }
 export function cardLinks(links) {
   const seen = new Set(), out = [];
   for (const u of links || []) { const label = platformLabel(u); if (!label || /\.mp3(\?|$)/i.test(u) || seen.has(label)) continue; seen.add(label); out.push({ label, url: u }); }
