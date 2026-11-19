@@ -61,9 +61,32 @@ let anim = null, queued = false;
 const colors = [];
 const canvas = $('sky'), ctx = canvas.getContext('2d');
 
-// ---- 読み込み
+// ---- 読み込み（2段）: まず core（回・分類）で画面を出し、言葉・地名・関連回は裏で読む。進み具合を棒で示す
 const t0 = performance.now();
-D = await (await fetch('./data/core.json')).json();
+const MAN = await fetch('./data/manifest.json').then((r) => r.json()).catch(() => ({ sizes: {} }));
+const SIZES = MAN.sizes || {}, TOTAL = Object.values(SIZES).reduce((a, b) => a + b, 0) || 1;
+const loaded = {};
+const mb = (n) => (n / 1048576).toFixed(1) + 'MB';
+function showProgress() {
+  const got = Object.values(loaded).reduce((a, b) => a + b, 0), pct = Math.min(100, Math.round((got / TOTAL) * 100));
+  const coreDone = loaded.core >= (SIZES.core || Infinity) * 0.999;
+  const box = $('loading');
+  if (box) { const cp = Math.min(100, Math.round(((loaded.core || 0) / (SIZES.core || 1)) * 100)); box.querySelector('.bar i').style.width = cp + '%'; box.querySelector('.pct').textContent = `${cp}%（${mb(loaded.core || 0)} / ${mb(SIZES.core || 0)}）`; }
+  const lb = $('loadbar'); if (lb && coreDone) { lb.hidden = pct >= 100; lb.querySelector('i').style.width = pct + '%'; lb.querySelector('span').textContent = `言葉・地図・関連回を読み込み中 ${pct}%（全体 ${mb(got)} / ${mb(TOTAL)}）`; }
+}
+async function loadJson(name) {
+  const res = await fetch(`./data/${name}.json`);
+  if (!res.ok) throw new Error(name + ' ' + res.status);
+  if (!res.body || !res.body.getReader) { const t = await res.text(); loaded[name] = SIZES[name] || t.length; showProgress(); return JSON.parse(t); }
+  const reader = res.body.getReader(), chunks = []; let n = 0;
+  for (;;) { const { done, value } = await reader.read(); if (done) break; chunks.push(value); n += value.length; loaded[name] = n; showProgress(); }
+  const buf = new Uint8Array(n); let o = 0; for (const c of chunks) { buf.set(c, o); o += c.length; }
+  loaded[name] = SIZES[name] || n; showProgress();
+  return JSON.parse(new TextDecoder().decode(buf));
+}
+D = await loadJson('core');
+// 2段目が届くまでの空の入れ物
+Object.assign(D, { terms: [], persons: [], places: [], geo: D.eps.map(() => []), clsEv: [], articles: [] });
 const tLoad = performance.now() - t0;
 const NE = D.eps.length, K = D.comms.length;
 for (let c = 0; c < K; c++) colors.push(`hsl(${Math.round((c * 360) / K + 200) % 360} 72% 68%)`);
@@ -76,19 +99,32 @@ const catColor = (m) => (m === HOLD ? '#6f7894' : `hsl(${D.cats[m].hue} 70% 66%)
 const catName = (m) => (m === HOLD ? '保留（推定のみ）' : D.cats[m].name);
 const epColor = (i) => (mode === 'map' ? colorOf(D.eps[i][6]) : catColor(dispMain(i)));
 const isGeo = () => mode === 'world' || mode === 'japan';
-const termIdxByKey = new Map(D.terms.map((t, j) => [t[0].normalize('NFKC').toLowerCase(), j]));
-const mapTermOrder = D.terms.map((t, j) => j).filter((j) => D.terms[j][1] !== null).sort((a, b) => D.terms[b][4].length - D.terms[a][4].length);
+let termIdxByKey = new Map(), mapTermOrder = [], articleMap = new Map();
 const epIdx = new Map(D.eps.map((e, i) => [e[0], i]));
 // 地名（世界・日本の地図用）
-const PL = D.places.map(([name, kind, scope, lat, lon, extra]) => ({ name, kind, scope, lat, lon, extra }));
-const placeEps = PL.map(() => []);
-D.geo.forEach((g, i) => g.forEach(([pid]) => placeEps[pid].push(i)));
+let PL = [], placeEps = [];
+const normUrl = (u) => { try { const x = new URL(u); return (x.host + x.pathname).replace(/\/+$/, ''); } catch { return ''; } };
+// 2段目（言葉・人物・地名・分類の根拠・記事）が届いたら、それを使う仕組みを用意する
+function initExtra() {
+  termIdxByKey = new Map(D.terms.map((t, j) => [t[0].normalize('NFKC').toLowerCase(), j]));
+  mapTermOrder = D.terms.map((t, j) => j).filter((j) => D.terms[j][1] !== null).sort((a, b) => D.terms[b][4].length - D.terms[a][4].length);
+  PL = D.places.map(([name, kind, scope, lat, lon, extra]) => ({ name, kind, scope, lat, lon, extra }));
+  placeEps = PL.map(() => []); D.geo.forEach((g, i) => g.forEach(([pid]) => placeEps[pid].push(i)));
+  articleMap = new Map(D.articles.map(([u, ids]) => [u, ids]));
+  buildGeoLayout();
+}
 // 都道府県を選んだら、その県の市町村・地域の回も含める
 const prefIdx = new Map(PL.map((p, k) => [p.name, k]).filter(([, k]) => PL[k].kind === 'pref'));
 const prefEps = (k) => { const s = new Set(placeEps[k]); PL.forEach((p, j) => { if (p.kind === 'jp' && p.extra === PL[k].name) placeEps[j].forEach((i) => s.add(i)); }); return [...s]; };
 const JAPAN_PT = { lat: 36.2, lon: 138.25 };
 buildLayouts();
-fetch('./data/rel.json').then((r) => r.json()).then((r) => { REL = r.rel; if (sel && sel.type === 'ep') renderEp(sel.id); });
+let EXTRA = false;
+const extraReady = loadJson('extra').then((x) => {
+  Object.assign(D, x); initExtra(); EXTRA = true;
+  if (sel && sel.type === 'ep') renderEp(sel.id);
+  fromHash(); draw();
+}).catch((e) => { live('言葉・地図のデータを読み込めませんでした'); console.error(e); });
+loadJson('rel').then((r) => { REL = r.rel; if (sel && sel.type === 'ep') renderEp(sel.id); }).catch((e) => console.error(e));
 
 // ---- 地図（世界・日本）
 // 世界: Equal Earth 図法。日本: メルカトル（日本付近を拡大）。単位はどちらも星図と同じ「世界座標」
@@ -351,6 +387,7 @@ document.querySelectorAll('.modes button').forEach((b) => b.addEventListener('cl
 function setMode(m) {
   if (m === mode) return;
   hintsFor(m);
+  if ((m === 'world' || m === 'japan') && !EXTRA) { live('地図のデータを読み込み中です。届いたら切り替えます'); extraReady.then(() => setMode(m)); return; }
   if ((m === 'world' || m === 'japan') && !shapes[m]) { loadShapes(m).then(() => { setMode(m); }); return; }
   mode = m; document.querySelectorAll('.modes button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === m)));
   const fx = px.slice(), fy = py.slice(), tx = { map: mapX, cat: catX, time: timeX, world: worldX, japan: japanX }[m], ty = { map: mapY, cat: catY, time: timeY, world: worldY, japan: japanY }[m], start = performance.now(), ms = reduceMotion ? 0 : 700;
@@ -364,6 +401,7 @@ function select(s, { fly = true, push = true } = {}) {
   if (s.type === 'ep') { hi = null; renderEp(s.id); if (fly && Number.isFinite(px[s.id])) focusAt(px[s.id], py[s.id], Math.max(view.k, 2.2)); }
   if (s.type === 'word') { hi = new Set(D.terms[s.id][4]); renderWord(s.id); const t = D.terms[s.id]; if (fly && t[1] !== null && mode === 'map') focusAt(t[1], t[2], Math.max(view.k, 1.6)); }
   if (s.type === 'person') { hi = new Set(D.persons[s.id][1]); renderPerson(s.id); }
+  if (s.type === 'article') { hi = new Set(articleMap.get(s.url) || []); renderArticle(s); }
   if (s.type === 'place') { const ids = s.id === 'JP' ? D.eps.map((e, i) => i).filter((i) => D.geo[i].some(([pid]) => PL[pid].scope === 'jp')) : PL[s.id].kind === 'pref' ? prefEps(s.id) : placeEps[s.id]; hi = new Set(ids); renderPlace(s.id, ids); if (s.id === 'JP' && mode === 'world') { /* 日本は日本地図で */ } else if (fly && isGeo()) { const p = PL[s.id], [x, y] = (mode === 'world' ? projWorld : projJapan)(p.lon, p.lat); if (Number.isFinite(x)) focusAt(x, y, Math.max(view.k, mode === 'world' ? 2.5 : 3)); } }
   if (s.type === 'cat') { hi = new Set(); D.eps.forEach((e, i) => { if (dispMain(i) === s.id && (s.sub == null || s.sub < 0 || dispSub(i) === s.sub)) hi.add(i); }); renderCat(s.id, s.sub); const rg = D._regions.find((r) => r.m === s.id); if (fly && rg && mode === 'cat') { const q = s.sub >= 0 ? rg.subs.find((x) => x.si === s.sub) : null; const tgt = q || rg; focusAt(tgt.x, tgt.y, Math.min(W, H) / (tgt.r * 2.6)); } }
   if (s.type === 'neb') { hi = new Set(); D.eps.forEach((e, i) => { if (e[6] === s.id) hi.add(i); }); renderNebula(s.id); const cm = D.comms[s.id]; if (fly && mode === 'map') focusAt(cm.x, cm.y, Math.min(W, H) / (cm.r * 3.2)); }
@@ -419,7 +457,7 @@ function renderNebula(c) {
 const CONF = { 3: ['c3', '人が承認'], 2: ['c2', 'Claude試作・確度 高'], 1: ['c1', 'Claude試作・確度 中'], 0: ['c0', 'Claude試作・確度 低'] };
 const FIELD = { t: '題名', m: '旧仮分類の主題', r: '関連記事の見出し', d: '概要欄' };
 function catSection(i) {
-  const [mi, si, conf, src, ev, old] = D.cls[i], shown = dispMain(i);
+  const [mi, si, conf, src] = D.cls[i], [ev, old] = D.clsEv[i] || ['', ''], shown = dispMain(i);
   const guess = shown === HOLD && mi >= 0 ? h('p', { class: 'evid' }, `Claudeの推定: ${D.cats[mi].name}（${src === 'l' ? '似た回の言葉から学んだ推定' : '関連する回の分類から'}・要確認）`) : null;
   return h('div', { class: 'sec' }, h('h4', {}, '分類'),
     shown === HOLD ? h('p', {}, h('span', { class: 'badge cl' }, '保留'), h('span', { class: 'note' }, '手がかりが弱いため分類に置いていません')) :
@@ -471,6 +509,32 @@ function renderPlace(k, ids) {
     h('p', { class: 'note' }, '地名は題名・概要欄・関連記事の見出しなどから辞書で取り出した試作です。人名や比喩と紛れるものは除くようにしていますが、誤りを含みます。')));
   live(`${p.name}。${ids.length}回`);
 }
+function renderArticle(s) {
+  const ids = [...hi];
+  panel().replaceChildren(h('div', {},
+    h('p', { class: 'kind' }, '関連記事'), h('h3', {}, s.title || s.url),
+    h('p', { class: 'meta' }, h('span', {}, `${ids.length}回で紹介`), h('a', { href: s.href || 'https://' + s.url, target: '_blank', rel: 'noopener' }, '記事を読む ↗')),
+    h('p', { class: 'note' }, showMix(ids)),
+    h('div', { class: 'sec' }, h('h4', {}, 'この記事を紹介した回'), epList(ids, 60)),
+    h('p', { class: 'note' }, '同じ記事を紹介した回どうしは、星図でも「同じ記事」の根拠でつながっています。'),
+    h('button', { type: 'button', class: 'chip', onclick: renderArticleList }, '📰 多くの回で紹介された記事の一覧へ')));
+  live(`記事「${s.title || ''}」。${ids.length}回で紹介`);
+}
+// 多くの回で紹介された記事（上位30本）。見出しは蔵のデータからその場で読む
+async function renderArticleList() {
+  if (!EXTRA) { live('記事のデータを読み込み中です'); await extraReady; }
+  const top = D.articles.slice(0, 30), ul = h('ul', { class: 'eplist' });
+  panel().replaceChildren(h('div', {}, h('p', { class: 'kind' }, '関連記事'), h('h3', {}, '多くの回で紹介された記事'),
+    h('p', { class: 'note' }, `2回以上の回で紹介された記事は ${D.articles.length.toLocaleString()} 本。紹介した回の多い順に30本。`), ul));
+  openDetail();
+  for (const [u, ids] of top) {
+    const li = h('li', {}, h('button', { type: 'button' }, h('small', {}, `${ids.length}回`), '…')); ul.append(li);
+    loadDetail(D.eps[ids[0]][0]).then((d) => {
+      const a = ((d && d.relatedArticles) || []).find((x) => normUrl(x.url) === u) || {};
+      li.replaceChildren(h('button', { type: 'button', onclick: () => select({ type: 'article', url: u, title: a.title, href: a.url }) }, h('small', {}, `${ids.length}回で紹介`), a.title || u));
+    });
+  }
+}
 function placeSection(i) {
   const g = D.geo[i]; if (!g.length) return null;
   return h('div', { class: 'sec' }, h('h4', {}, '場所'), g.map(([pid, , f, a]) => h('button', { type: 'button', class: 'chip', title: `「${a}」（${FIELD[f] || f}）`, onclick: () => { setMode(PL[pid].scope === 'jp' ? 'japan' : 'world'); select({ type: 'place', id: pid }); } }, PL[pid].name, h('small', {}, FIELD[f] || ''))));
@@ -506,13 +570,15 @@ async function renderEp(i) {
     d.cast ? h('p', { class: 'meta' }, '出演: ', d.cast) : null,
     pl.length ? h('div', { class: 'sec links' }, h('h4', {}, '聴く'), pl.map(([l, u]) => h('a', { href: u, target: '_blank', rel: 'noopener' }, l + ' ↗'))) : null,
     words.length ? h('div', { class: 'sec' }, h('h4', {}, 'この回の言葉'), words.map((j) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'word', id: j }) }, D.terms[j][0]))) : null,
-    (d.relatedArticles || []).length ? h('div', { class: 'sec links' }, h('h4', {}, '関連記事（朝日新聞デジタル）'), h('ul', { class: 'eplist' }, d.relatedArticles.slice(0, 6).map((a) => h('li', {}, h('a', { href: a.url, target: '_blank', rel: 'noopener' }, (a.title || a.url) + ' ↗'))))) : null);
+    (d.relatedArticles || []).length ? h('div', { class: 'sec links' }, h('h4', {}, `関連記事（${d.relatedArticles.length}本・朝日新聞デジタル）`),
+      h('ul', { class: 'eplist' }, d.relatedArticles.map((a) => { const ids = articleMap.get(normUrl(a.url)) || []; return h('li', {}, h('a', { href: a.url, target: '_blank', rel: 'noopener' }, (a.title || a.url) + ' ↗'), ids.length >= 2 ? h('button', { type: 'button', class: 'chip artcount', onclick: () => select({ type: 'article', url: normUrl(a.url), title: a.title, href: a.url }) }, `この記事を紹介した回 ${ids.length}`) : null); })),
+      h('p', { class: 'note' }, '見出しの言葉も星図の言葉に入っています。')) : null);
 }
 function relList(i) {
   const [out, same] = REL[i];
   if (!out.length && !same) return h('p', { class: 'note' }, '根拠のある関連回は見つかりませんでした。');
   return [h('ul', { class: 'rel' }, out.map(([j, s, ts, a, ps]) => h('li', {}, epButton(j), h('div', { class: 'why' },
-    a ? h('span', { class: 'a' }, `同じ記事 ${a}件`) : null, ps.map((k) => h('span', { class: 'p' }, `同じ出演者: ${D.persons[k][0]}`)), ts.length ? h('span', {}, '共通の言葉: ' + ts.map((t) => D.terms[t][0]).join('・')) : null,
+    a ? h('span', { class: 'a' }, `同じ記事 ${a}件`) : null, ps.filter((k) => D.persons[k]).map((k) => h('span', { class: 'p' }, `同じ出演者: ${D.persons[k][0]}`)), ts.some((t) => D.terms[t]) ? h('span', {}, '共通の言葉: ' + ts.filter((t) => D.terms[t]).map((t) => D.terms[t][0]).join('・')) : null,
     h('span', {}, `${D.shows[D.eps[j][2]]} ${fmtDate(D.eps[j][3])}`))))),
     same ? h('p', { class: 'note' }, '同じ題名の回（再配信など）: ', same.map((j) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'ep', id: j }) }, fmtDate(D.eps[j][3])))) : null,
     h('p', { class: 'note' }, '根拠は「同じ記事URL」「同じ出演者」「共通の言葉（共起）」の3つだけです。')];
@@ -608,10 +674,12 @@ function hintsFor(m) {
 // 最初の案内の中の20大分類（スマホでは左の一覧が無いので、ここから選べるように）
 $('introCats').replaceChildren(...[...Array(HOLD).keys()].map((m) => h('button', { type: 'button', class: 'chip', onclick: () => { if (mode !== 'cat') setMode('cat'); select({ type: 'cat', id: m }); } }, h('span', { style: `color:${catColor(m)}` }, '●'), D.cats[m].name, h('small', {}, catCount[m]))));
 
+document.getElementById('artList').addEventListener('click', renderArticleList);
+
 // ---- 開始
 new ResizeObserver(resize).observe(canvas);
 resize(); fit();
-$('loading').remove();
+$('loading').remove(); showProgress();
 function fromHash() {
   const m = location.hash.match(/^#(pl|[ewpnc])=(.+)$/); if (!m) return;
   const v = decodeURIComponent(m[2]);

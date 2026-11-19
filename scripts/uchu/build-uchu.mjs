@@ -39,6 +39,8 @@ const docs = eps.map((e, i) => {
   const add = (t, w) => { const k = termKey(t); tf.set(k, (tf.get(k) || 0) + w); const m = surface.get(k) || new Map(); m.set(t, (m.get(t) || 0) + 1); surface.set(k, m); };
   const tt = extractTerms(e.title); tt.forEach((t) => add(t, 3)); new Set(tt.map(termKey)).forEach((k) => titleDf.set(k, (titleDf.get(k) || 0) + 1));
   extractTerms(e.description).forEach((t) => add(t, 1));
+  // 関連記事の見出しからも言葉を取る（題名・概要欄と同じく「在るテキスト」として）
+  (e.relatedArticles || []).forEach((a) => a && a.title && extractTerms(a.title).forEach((t) => add(t, 1)));
   const persons = parseCast(e.cast);
   const arts = new Set([...(e.related || []), ...((e.relatedArticles || []).map((a) => a && a.url))].map(normalizeArticleUrl).filter(Boolean));
   for (const k of tf.keys()) df.set(k, (df.get(k) || 0) + 1);
@@ -237,16 +239,27 @@ const core = {
   terms: termOut,
   persons: persons.map((p, k) => [p, personEps[k]]),
   cats: TAXONOMY.map((m) => ({ name: m.name, hue: m.hue, subs: m.subs.map(([n]) => n) })),
-  cls: cls.map((c, i) => [c.mi, c.si, c.conf, c.src, c.ev.map(([k, f]) => k + ':' + FIELD_CODE[f]).join('|'), (legacy[eps[i].id] || [''])[0]]),
+  cls: cls.map((c) => [c.mi, c.si, c.conf, c.src]),
+  clsEv: cls.map((c, i) => [c.ev.map(([k, f]) => k + ':' + FIELD_CODE[f]).join('|'), (legacy[eps[i].id] || [''])[0]]),
   clsStats,
   places: PLACES.map((p) => [p.name, p.kind, p.scope, p.lat, p.lon, p.pref || p.iso || '']),
   geo: geo.map((g) => g.map(([id, sc, f, a]) => [id, sc, FIELD_CODE[f], a])),
   geoStats,
 };
 fs.mkdirSync(OUT, { recursive: true });
-fs.writeFileSync(path.join(OUT, 'core.json'), JSON.stringify(core));
+// 2段で読ませる: core（最初に見せる分。回・分類・星雲）→ extra（言葉・人物・地名・分類の根拠）と rel（関連回）は裏で
+const FIRST = ['v', 'generatedAt', 'libraryVersion', 'method', 'shows', 'comms', 'eps', 'cats', 'cls', 'clsStats', 'geoStats'];
+const first = Object.fromEntries(FIRST.map((k) => [k, core[k]]));
+const extra = Object.fromEntries(Object.keys(core).filter((k) => !FIRST.includes(k)).map((k) => [k, core[k]]));
+// 2回以上の回で紹介された記事（URL と回の番号だけ。見出しは蔵のデータからその場で読む）
+const articles = [...articleEps].filter(([, l]) => l.length >= 2 && l.length <= 60).sort((a, b) => b[1].length - a[1].length).map(([u, l]) => [u, [...new Set(l)]]);
+extra.articles = articles;
+fs.writeFileSync(path.join(OUT, 'core.json'), JSON.stringify(first));
+fs.writeFileSync(path.join(OUT, 'extra.json'), JSON.stringify(extra));
 fs.writeFileSync(path.join(OUT, 'rel.json'), JSON.stringify({ v: 1, libraryVersion: manifest.version, rel }));
+// 読み込みの進み具合を正しく出すための、ファイルの大きさ（圧縮前）
+fs.writeFileSync(path.join(OUT, 'manifest.json'), JSON.stringify({ libraryVersion: manifest.version, sizes: Object.fromEntries(['core', 'extra', 'rel'].map((f) => [f, fs.statSync(path.join(OUT, f + '.json')).size])) }));
 const size = (f) => (fs.statSync(path.join(OUT, f)).size / 1024).toFixed(0) + 'KB';
 console.log(JSON.stringify({ episodes: N, vocab: vocab.length, mapTerms: mapTerms.length, nebulae: K, placed: epXY.filter(Boolean).length, persons: persons.length,
-  withRel: rel.filter((r) => r[0].length).length, clsStats, geoStats, core: size('core.json'), rel: size('rel.json'), sec: (Date.now() - t0) / 1000,
+  withRel: rel.filter((r) => r[0].length).length, clsStats, geoStats, core: size('core.json'), extra: size('extra.json'), rel: size('rel.json'), articles: articles.length, sec: (Date.now() - t0) / 1000,
   nebulaNames: core.comms.map((c) => c.name.join('・') + ' ' + c.n) }, null, 1));
