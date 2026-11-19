@@ -41,6 +41,12 @@ jobs:
         run: node scripts/library-sync-v2.mjs "$RUNNER_TEMP/v2.csv" | tee "$RUNNER_TEMP/report.json"
       - name: Related-article titles (RX-1)
         run: node scripts/library-related/apply-related-titles.mjs "$RX_URL?type=libraryRelated" | tee -a "$RUNNER_TEMP/report.json"
+      - name: Rebuild 朝ポキの宇宙 from the synced library (does not block the library)
+        id: uchu
+        continue-on-error: true
+        run: |
+          if git diff --quiet -- public/library/data; then echo "蔵に変化なし"; exit 0; fi
+          node scripts/uchu/build-uchu.mjs > "$RUNNER_TEMP/uchu.json" && node --test tests/uchu-core.test.mjs
       - run: node --test tests/library-sync-v2.test.mjs tests/library-publication-scope.test.mjs tests/library-related-titles.test.mjs tests/library-description-tidy.test.mjs tests/library-phase11.test.mjs tests/library-public.test.mjs
       - name: Commit and publish if changed
         env:
@@ -49,8 +55,10 @@ jobs:
           if git diff --quiet -- public/library/data docs/audits/library-v2-sync; then echo "変化なし"; exit 0; fi
           git config user.name "github-actions[bot]"; git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
           git add public/library/data docs/audits/library-v2-sync
+          # 宇宙の作り直しが成功したときだけ宇宙のデータも載せる（失敗しても蔵の公開は止めない）
+          if [ "${{ steps.uchu.outcome }}" = success ]; then git add public/uchu/data; else git checkout -- public/uchu/data 2>/dev/null || true; fi
           git commit -m "data(library): V2・公開台帳と同期 $(date -u +%F)" -m "$(cat "$RUNNER_TEMP/report.json")"
-          git push
+          for n in 1 2 3; do git pull --rebase origin main && git push && break; echo "push retry $n"; sleep $((n * 5)); [ "$n" = 3 ] && exit 1; done
           if [ "$GITHUB_REF" = refs/heads/main ]; then gh workflow run pages.yml --ref main; fi
       - name: Report failure to the command-center issue
         if: failure()
