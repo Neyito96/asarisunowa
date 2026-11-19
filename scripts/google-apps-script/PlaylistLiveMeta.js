@@ -107,7 +107,7 @@ function playlistLiveMeta_(ids, opt) {
   var latest = {};
   second.forEach(function (id, i) { if (r2[i].getResponseCode() === 200) latest[id] = plmLatestFromItems_(JSON.parse(r2[i].getContentText()).items); });
   // API で中身を読めなかったもの（他人のプレイリスト）は埋め込みページ経由で
-  var noLatest = Object.keys(head).filter(function (id) { return !latest[id] && head[id].total > 0; });
+  var noLatest = Object.keys(head).filter(function (id) { return !latest[id]; });   // 他人のリストは総数も0で返るので条件にしない
   try { var viaEmbed = plmLatestViaEmbed_(noLatest, token); Object.keys(viaEmbed).forEach(function (id) { latest[id] = viaEmbed[id]; }); } catch (err) {}
   var put = {};
   Object.keys(head).forEach(function (id) {
