@@ -28,6 +28,7 @@ function doPost(e) {
     const securityAnswer = input.securityAnswer;
     const website = input.website;
     const shelf = input.shelf;
+    const autoGrow = { show: input.autoShow, keyword: input.autoKeyword };
     let requestId = String(data.requestId || "").trim();
 
     if (website) return jsonResponse({ ok: true });
@@ -95,7 +96,7 @@ function doPost(e) {
       }
     }
 
-    return savePost_(
+    const saved = savePost_(
       url,
       title,
       maker,
@@ -107,8 +108,14 @@ function doPost(e) {
       kind,
       inviteUrl,
       requestId,
-      shelf
+      shelf,
+      autoGrow
     );
+    // 自動育成が指定されたプレイリストは、投稿直後にその1件だけすぐ育てる（失敗しても投稿は成功のまま・毎時でも再試行）
+    if (kind === "playlist" && autoGrow.show && typeof libraryPlaylistSyncByUrl_ === "function") {
+      try { libraryPlaylistSyncByUrl_(url); } catch (growError) {}
+    }
+    return saved;
 
   } catch (error) {
     return jsonResponse({

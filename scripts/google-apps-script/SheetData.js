@@ -171,9 +171,10 @@ function readAutoManagedPlaylistIdMap_(ss) {
     });
   }
   // 蔵から育てるプレイリスト（LibraryPlaylist.js）も、書込スイッチがONなら「楽育ち」
-  if (typeof LIBRARY_PLAYLIST_RULES_ !== "undefined" &&
+  // 蔵から育てるプレイリスト（LibraryPlaylist.js）は、直近の同期で実際に育っていると確認できたものだけ「楽育ち」
+  if (typeof libraryPlaylistGrowingIds_ === "function" &&
       PropertiesService.getScriptProperties().getProperty("LIBRARY_PLAYLIST_WRITE") === "ON") {
-    LIBRARY_PLAYLIST_RULES_.forEach(function(rule) { if (rule && rule.playlistId) result[String(rule.playlistId)] = true; });
+    Object.keys(libraryPlaylistGrowingIds_()).forEach(function(id) { result[id] = true; });
   }
   const runtimeRules = typeof loadAutoUpdateRuntimeRulesV1_ === "function"
     ? loadAutoUpdateRuntimeRulesV1_() : [];
@@ -217,7 +218,7 @@ function readPlaylistSheet(sheet) {
       )
       .getDisplayValues();
 
-  const items =
+  let items =
     values
       .filter(
         r => {
@@ -228,9 +229,17 @@ function readPlaylistSheet(sheet) {
           return true;
         }
       )
+      ;
+  // 表紙・最終新着は Spotify から（キャッシュ50分）。取れなければシートの値のまま
+  let liveMeta = {};
+  try {
+    if (typeof playlistLiveMeta_ === "function") liveMeta = playlistLiveMeta_(items.map(function(r) { return playlistIdForPublicRead_(r[0]); }));
+  } catch (error) { liveMeta = {}; }
+  items = items
       .map(
         (r, i) => {
           const playlistId = playlistIdForPublicRead_(r[0]);
+          const live = liveMeta[playlistId] || {};
           return ({
           id:
             String(i + 1),
@@ -241,7 +250,9 @@ function readPlaylistSheet(sheet) {
           maker:
             r[2] || "",
           latestDate:
-            r[3] || "",
+            live.latestDate && (!r[3] || live.latestDate > r[3]) ? live.latestDate : (r[3] || ""),
+          artwork:
+            live.artwork || "",
           introducedDate:
             r[4] || "",
           autoManaged:

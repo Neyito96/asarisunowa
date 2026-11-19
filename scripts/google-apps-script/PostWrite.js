@@ -8,7 +8,7 @@ function getPostTargetSheet_(kind, workSheet, podcastSheet, listenerPodcastSheet
     : workSheet;
 }
 
-function appendPostRow_(targetSheet, kind, url, title, maker, host, rss, introducedDate, comment, artwork, inviteUrl, shelf) {
+function appendPostRow_(targetSheet, kind, url, title, maker, host, rss, introducedDate, comment, artwork, inviteUrl, shelf, autoGrow) {
   if (kind === "listenerPodcast") {
     ensurePodcastMetadataHeaders_(targetSheet, kind);
     // Persist submitted/known information only; no external lookup on the save path.
@@ -82,6 +82,12 @@ function appendPostRow_(targetSheet, kind, url, title, maker, host, rss, introdu
   // I列＝掲載先（連載／朝リスト）。投稿で選ばれた時だけ書く。管理人は作業台のI列を直せば掲載先を変えられる。
   const shelfLabel = normalizePlaylistShelf_(shelf);
   if (shelfLabel) targetSheet.getRange(row, 9).setValue(shelfLabel);
+  // J列＝自動育成の番組、K列＝題名に入る語（蔵から自動で育てる。LibraryPlaylist.js が読む）
+  const grow = autoGrow || {};
+  if (grow.show && typeof LIBRARY_PLAYLIST_SHOW_IDS_ !== "undefined" && LIBRARY_PLAYLIST_SHOW_IDS_[grow.show] &&
+      String(grow.keyword || "").trim().length >= 2) {
+    targetSheet.getRange(row, 10, 1, 2).setValues([[grow.show, "'" + String(grow.keyword).trim()]]);
+  }
 }
 
 

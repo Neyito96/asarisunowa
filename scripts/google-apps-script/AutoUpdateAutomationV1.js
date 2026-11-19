@@ -188,7 +188,14 @@ function runAutoUpdateBackfillHourlyV1() {
   } catch (error) {
     libraryPlaylists = { error: String(error && error.message ? error.message : error) };
   }
-  return { activation: activation, backfill: backfill, shelf: shelf, libraryPlaylists: libraryPlaylists };
+  // Spotifyリストの表紙・最終新着を温め直す（閲覧時に即時で出すため）
+  let liveMeta = null;
+  try {
+    liveMeta = typeof playlistLiveMetaWarm_ === "function" ? playlistLiveMetaWarm_() : null;
+  } catch (error) {
+    liveMeta = { error: String(error && error.message ? error.message : error) };
+  }
+  return { activation: activation, backfill: backfill, shelf: shelf, libraryPlaylists: libraryPlaylists, liveMeta: liveMeta };
 }
 
 function isAutoUpdateDailyWindowV1_(nowMs) {
