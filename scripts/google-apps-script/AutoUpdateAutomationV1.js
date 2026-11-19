@@ -181,7 +181,14 @@ function runAutoUpdateBackfillHourlyV1() {
   } catch (error) {
     shelf = { error: String(error && error.message ? error.message : error) };
   }
-  return { activation: activation, backfill: backfill, shelf: shelf };
+  // 蔵を正本に既存プレイリストを育てる（LibraryPlaylist.js・LIBRARY_PLAYLIST_WRITE=ON の時だけ書く）
+  let libraryPlaylists = null;
+  try {
+    libraryPlaylists = typeof libraryPlaylistSyncAll_ === "function" ? libraryPlaylistSyncAll_() : null;
+  } catch (error) {
+    libraryPlaylists = { error: String(error && error.message ? error.message : error) };
+  }
+  return { activation: activation, backfill: backfill, shelf: shelf, libraryPlaylists: libraryPlaylists };
 }
 
 function isAutoUpdateDailyWindowV1_(nowMs) {
