@@ -38,7 +38,7 @@ const docs = eps.map((e, i) => {
   const tf = new Map();
   const add = (t, w) => { const k = termKey(t); tf.set(k, (tf.get(k) || 0) + w); const m = surface.get(k) || new Map(); m.set(t, (m.get(t) || 0) + 1); surface.set(k, m); };
   const tt = extractTerms(e.title); tt.forEach((t) => add(t, 3)); new Set(tt.map(termKey)).forEach((k) => titleDf.set(k, (titleDf.get(k) || 0) + 1));
-  extractTerms(e.description).forEach((t) => add(t, 1));
+  extractTerms(stripBoilerplate(e.description)).forEach((t) => add(t, 1));   // 定型文（番組宣伝・収録日など）は数えない
   // 関連記事の見出しからも言葉を取る（題名・概要欄と同じく「在るテキスト」として）
   (e.relatedArticles || []).forEach((a) => a && a.title && extractTerms(a.title).forEach((t) => add(t, 1)));
   const persons = parseCast(e.cast);

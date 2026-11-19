@@ -16,8 +16,9 @@ TAXONOMY.forEach((m, mi) => m.subs.forEach(([, words], si) => words.forEach((w) 
 const hit = (kw, text) => (kw.re ? kw.re.test(text) : text.includes(kw.k));
 
 // 概要欄の番組共通の案内文を除く（どの回にも出るため根拠にしない）
+// 概要欄の定型文を除く: ①番組一覧の宣伝（「…」「…」「…」の7番組を配信中です）②※・★で始まる注記（収録日・告知・紹介したポッドキャスト名など）を次の句点まで
 export function stripBoilerplate(desc) {
-  return nz(desc).split(/\n|(?<=。)/).filter((line) => !/(beモニター|フォーム|ご意見|ご要望|ハッシュタグ|購読|会員登録|お便り|メールアドレス|ツイッター|X\(旧|https?:\/\/|下記サイト|番組へのご|プレゼント)/.test(line)).join('');
+  return nz(desc).replace(/※?\s*(「[^」]{1,30}」){3,}[^。※★]*?番組を配信中です。?/g, '').replace(/[※★][^。\n※★ 　]*。?/g, '').split(/\n|(?<=。)/).filter((line) => !/(beモニター|フォーム|ご意見|ご要望|ハッシュタグ|購読|会員登録|お便り|メールアドレス|ツイッター|X\(旧|https?:\/\/|下記サイト|番組へのご|プレゼント)/.test(line)).join('');
 }
 
 // 1回分の得点: { main: [20], sub: {mi: [..]}, ev: [[語, 欄]] }
