@@ -683,6 +683,10 @@ function syncOneApprovedAutoUpdateRequestV1_(rule, token, bootstrapMaxAdditions)
     return !existingUris.has("spotify:episode:" + id);
   });
   const episodesToAdd = fetchPlayableAutoUpdateEpisodesV1_(missingIds, token);
+  // 候補回の詳細を取れなかったら、境界を進めずに次回やり直す（取りこぼし防止）
+  if (episodesToAdd.failedCount > 0) {
+    return { playlistId: rule.playlistId, ok: false, retry: true, reason: "候補回の取得に失敗したため次回再試行: " + episodesToAdd.failedCount + "件" };
+  }
 
   if (episodesToAdd.length) assertAutoPlaylistSheetLinkBeforeWrite_(rule);
   const addResult = episodesToAdd.length
@@ -1199,17 +1203,22 @@ function fetchPlayableAutoUpdateEpisodesV1_(episodeIds, token) {
     return String(id || "").trim();
   }).filter(Boolean)));
   const episodes = [];
-  for (let offset = 0; offset < ids.length; offset += 50) {
-    const batch = ids.slice(offset, offset + 50);
-    const response = fetchSpotifyReadWithRetry_(
-      "https://api.spotify.com/v1/episodes?market=JP&ids=" +
-        encodeURIComponent(batch.join(",")),
-      { muteHttpExceptions: true, headers: { Authorization: "Bearer " + token, Accept: "application/json" } },
-      "Episodes batch " + String(offset / 50 + 1)
-    );
-    if (response.getResponseCode() !== 200) continue;
-    const data = JSON.parse(response.getContentText());
-    (Array.isArray(data.episodes) ? data.episodes : []).forEach(function(episode) {
+  let failedCount = 0;
+  // 2026-11-19: まとめ取り /v1/episodes?ids= は Spotify が 403 を返すようになり、
+  // 黙って0件扱い→追加されないまま境界だけ進む不具合になっていた。1件ずつ（20件ずつ並列・間隔あり）取る。
+  for (let offset = 0; offset < ids.length; offset += 20) {
+    if (offset) Utilities.sleep(600);
+    const batch = ids.slice(offset, offset + 20);
+    const responses = UrlFetchApp.fetchAll(batch.map(function(id) {
+      return {
+        url: "https://api.spotify.com/v1/episodes/" + encodeURIComponent(id) + "?market=JP",
+        muteHttpExceptions: true,
+        headers: { Authorization: "Bearer " + token, Accept: "application/json" }
+      };
+    }));
+    responses.forEach(function(response) {
+      if (response.getResponseCode() !== 200) { failedCount += 1; return; }
+      const episode = JSON.parse(response.getContentText());
       if (!episode || episode.is_playable === false) return;
       episodes.push({
         id: String(episode.id || ""),
@@ -1219,6 +1228,8 @@ function fetchPlayableAutoUpdateEpisodesV1_(episodeIds, token) {
       });
     });
   }
+  // 取得できなかった件数（呼び出し側が「境界を進めない」判断に使う）
+  episodes.failedCount = failedCount;
   return episodes;
 }
 
