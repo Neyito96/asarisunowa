@@ -511,9 +511,52 @@ const CONF = { 3: ['c3', '人が承認'], 2: ['c2', 'Claude試作・確度 高']
 const FIELD = { t: '題名', m: '旧仮分類の主題', r: '関連記事の見出し', d: '概要欄', o: '蔵の公式タグ' };
 const evText = (ev) => ev.split('|').map((x) => { const [k, f] = x.split(':'); return `「${k}」（${FIELD[f] || f}）`; }).join(' ');
 const dispMain2 = (i) => (dispMain(i) === HOLD ? -1 : D.cls[i][4] ?? -1);   // 副分類（#390）
+// ---- 保留の仕分け（#387 試作）。回答はこの端末（ブラウザ）だけに保存し、どこにも送らない
+const SORT_KEY = 'uchu-sort-v1';
+function sortLoad() { try { return JSON.parse(localStorage.getItem(SORT_KEY) || '{}'); } catch (e) { return {}; } }
+function sortSave(o) { try { localStorage.setItem(SORT_KEY, JSON.stringify(o)); } catch (e) { /* 保存できない環境では何もしない */ } }
+const holdIds = () => D.eps.map((_, i) => i).filter((i) => dispMain(i) === HOLD);
+function nextHold() {
+  const done = sortLoad(), rest = holdIds().filter((i) => !done[D.eps[i][0]]);
+  if (!rest.length) { toast('sort-done-' + Date.now(), '保留の回はすべて仕分け済みです。ありがとうございました'); return; }
+  select({ type: 'ep', id: rest[Math.floor(Math.random() * rest.length)] }); openDetail();
+}
+function exportSort() {
+  const done = sortLoad(), rows = Object.entries(done).map(([id, d]) => ({ id, ...d }));
+  const blob = new Blob([JSON.stringify({ v: 1, note: '朝ポキの宇宙 保留の仕分け（試作）。この端末での回答', exportedAt: new Date().toISOString(), count: rows.length, rows }, null, 1)], { type: 'application/json' });
+  const a = h('a', { href: URL.createObjectURL(blob), download: `uchu-sort-${rows.length}.json` }); document.body.append(a); a.click(); a.remove();
+}
+function sortSection(i) {
+  if (dispMain(i) !== HOLD) return null;
+  const id = D.eps[i][0], box = h('div', { class: 'sec sortbox' });
+  const save = (d) => { const o = sortLoad(); o[id] = { ...d, at: new Date().toISOString() }; sortSave(o); select({ type: 'ep', id: i }, { push: false }); };
+  const head = h('h4', {}, 'この回はどの分類？（仕分けの試作）');
+  const note = h('p', { class: 'note' }, '聴いた・読んだ印象で選んでください。回答はこのブラウザの中だけに保存され、送信されません。');
+  const d = sortLoad()[id];
+  if (d) {
+    const [mi] = D.cls[i];
+    box.append(head, h('p', {}, 'あなたの判断: ', h('b', {}, d.m >= 0 ? D.cats[d.m].name + (d.s >= 0 ? ' › ' + D.cats[d.m].subs[d.s] : '') : 'どれにも当てはまらない'), d.text ? `（${d.text}）` : ''),
+      h('p', { class: 'evid' }, mi >= 0 ? `Claudeの推定は「${D.cats[mi].name}」でした（${d.m === mi ? '一致' : '不一致'}）` : 'Claudeは推定できていませんでした'),
+      h('p', {}, h('button', { type: 'button', class: 'chip gold', onclick: nextHold }, '次の保留の回へ →'), h('button', { type: 'button', class: 'chip', onclick: () => { const o = sortLoad(); delete o[id]; sortSave(o); select({ type: 'ep', id: i }, { push: false }); } }, 'やり直す')),
+      h('p', { class: 'note' }, `仕分け済み ${Object.keys(sortLoad()).length}回 ／ 保留 ${holdIds().length}回 `, h('button', { type: 'button', class: 'chip', onclick: exportSort }, '回答を書き出す')));
+    return box;
+  }
+  const mains = () => box.replaceChildren(head, note,
+    h('div', { class: 'sortgrid' }, [...Array(HOLD).keys()].map((m) => h('button', { type: 'button', class: 'chip', onclick: () => subs(m) }, h('span', { style: `color:${catColor(m)}` }, '●'), D.cats[m].name)),
+      h('button', { type: 'button', class: 'chip', onclick: other }, 'どれにも当てはまらない')),
+    h('p', {}, h('button', { type: 'button', class: 'chip', onclick: nextHold }, 'わからないので次へ')));
+  const subs = (m) => box.replaceChildren(head, h('p', {}, h('b', {}, D.cats[m].name), ' の中では？'),
+    h('div', { class: 'sortgrid' }, D.cats[m].subs.map((n, k) => h('button', { type: 'button', class: 'chip', onclick: () => save({ m, s: k }) }, n)),
+      h('button', { type: 'button', class: 'chip', onclick: () => save({ m, s: -1 }) }, '小分類はわからない')),
+    h('p', {}, h('button', { type: 'button', class: 'chip', onclick: mains }, '← 大分類に戻る')));
+  const other = () => { const ta = h('input', { type: 'text', maxlength: '40', placeholder: 'たとえば「番組の雑談」「人生相談」など（任意）', class: 'sorttext' });
+    box.replaceChildren(head, h('p', {}, 'どんな分類があればよいですか？'), ta, h('p', {}, h('button', { type: 'button', class: 'chip gold', onclick: () => save({ m: -1, s: -1, text: ta.value.trim().slice(0, 40) }) }, 'これで記録'), h('button', { type: 'button', class: 'chip', onclick: mains }, '← 戻る'))); };
+  mains();
+  return box;
+}
 function catSection(i) {
   const [mi, si, conf, src, mi2, si2] = D.cls[i], [ev, old, ev2] = D.clsEv[i] || ['', '', ''], shown = dispMain(i);
-  const guess = shown === HOLD && mi >= 0 ? h('p', { class: 'evid' }, `Claudeの推定: ${D.cats[mi].name}（${src === 'l' ? '似た回の言葉から学んだ推定' : '関連する回の分類から'}・要確認）`) : null;
+  const guess = shown === HOLD && mi >= 0 && sortLoad()[D.eps[i][0]] ? h('p', { class: 'evid' }, `Claudeの推定: ${D.cats[mi].name}（${src === 'l' ? '似た回の言葉から学んだ推定' : '関連する回の分類から'}・要確認）`) : null;
   return h('div', { class: 'sec' }, h('h4', {}, '分類'),
     shown === HOLD ? h('p', {}, h('span', { class: 'badge cl' }, '保留'), h('span', { class: 'note' }, '手がかりが弱いため分類に置いていません')) :
       h('p', {}, h('span', { class: 'badge ' + CONF[conf][0] }, CONF[conf][1]), h('button', { type: 'button', class: 'chip catpath', onclick: () => select({ type: 'cat', id: shown, sub: si }) }, catName(shown) + (si >= 0 ? ' › ' + D.cats[shown].subs[si] : ''))),
@@ -648,7 +691,7 @@ async function renderEp(i) {
     h('h3', {}, e[1]),
     h('p', { class: 'meta' }, h('span', {}, fmtDate(e[3])), h('span', {}, fmtDur(e[7]))),
     h('div', { class: 'btns' }, h('a', { class: 'btn primary', href: `../library/?ep=${id}` }, '蔵で詳しく見る'), shelfBtn),
-    catSection(i), fmtSection(i), placeSection(i), descBox, relBox,
+    catSection(i), fmtSection(i), placeSection(i), descBox, sortSection(i), relBox,
     e[6] >= 0 ? h('div', { class: 'sec' }, h('h4', {}, '星雲'), h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'neb', id: e[6] }) }, h('span', { style: `color:${colorOf(e[6])}` }, '●'), D.comms[e[6]].name.slice(0, 2).join('・'))) : h('p', { class: 'note' }, 'この回は共通の言葉が少ないため、星図には置いていません。')));
   live(`回「${e[1]}」`);
   const d = await loadDetail(id); if (!sel || sel.type !== 'ep' || sel.id !== i) return;
@@ -766,6 +809,7 @@ function hintsFor(m) {
 $('introCats').replaceChildren(...[...Array(HOLD).keys()].map((m) => h('button', { type: 'button', class: 'chip', onclick: () => { if (mode !== 'cat') setMode('cat'); select({ type: 'cat', id: m }); } }, h('span', { style: `color:${catColor(m)}` }, '●'), D.cats[m].name, h('small', {}, catCount[m]))));
 
 document.getElementById('artList').addEventListener('click', renderArticleList);
+document.getElementById('sortStart').addEventListener('click', nextHold);
 
 // ---- 開始
 new ResizeObserver(resize).observe(canvas);

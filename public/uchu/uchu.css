@@ -202,3 +202,8 @@ h1 { font-size: 21px; font-weight: 600; margin: 0; letter-spacing: .14em; white-
 #formats .cnt { margin-left: auto; color: var(--sub); font-size: 11px; font-variant-numeric: tabular-nums; }
 .badge.c2b { background: #23304f; color: #b9c8ea; }
 .dual { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+/* 保留の仕分け（#387 試作） */
+.sortbox { border: 1px solid #3a4c78; border-radius: 10px; padding: 10px 12px; background: #0f1830; }
+.sortgrid { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+.chip.gold { background: #f3c969; color: #1a1406; border-color: #f3c969; font-weight: 700; }
+.sorttext { width: 100%; box-sizing: border-box; padding: 8px 10px; border-radius: 8px; border: 1px solid #3a4c78; background: #0b1020; color: var(--ink); font: inherit; margin: 4px 0 6px; }
