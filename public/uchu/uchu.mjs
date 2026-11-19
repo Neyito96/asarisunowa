@@ -20,7 +20,7 @@ const fmtDur = (sec) => (sec ? `${Math.round(sec / 60)}分` : '');
 // ---- 状態
 let D, REL = null;               // core, rel
 let px, py;                      // 今の表示の座標（世界座標）
-let mapX, mapY, timeX, timeY, catX, catY;   // 3つの表示の座標
+let mapX, mapY, timeX, timeY, catX, catY, worldX, worldY, japanX, japanY;   // 表示ごとの座標
 let mode = 'cat';
 const view = { x: 0, y: 0, k: 1 };
 let W = 0, H = 0, dpr = 1;
@@ -75,15 +75,54 @@ const dispSub = (i) => (dispMain(i) === HOLD ? -1 : D.cls[i][1]);
 const catColor = (m) => (m === HOLD ? '#6f7894' : `hsl(${D.cats[m].hue} 70% 66%)`);
 const catName = (m) => (m === HOLD ? '保留（推定のみ）' : D.cats[m].name);
 const epColor = (i) => (mode === 'map' ? colorOf(D.eps[i][6]) : catColor(dispMain(i)));
+const isGeo = () => mode === 'world' || mode === 'japan';
 const termIdxByKey = new Map(D.terms.map((t, j) => [t[0].normalize('NFKC').toLowerCase(), j]));
 const mapTermOrder = D.terms.map((t, j) => j).filter((j) => D.terms[j][1] !== null).sort((a, b) => D.terms[b][4].length - D.terms[a][4].length);
 const epIdx = new Map(D.eps.map((e, i) => [e[0], i]));
+// 地名（世界・日本の地図用）
+const PL = D.places.map(([name, kind, scope, lat, lon, extra]) => ({ name, kind, scope, lat, lon, extra }));
+const placeEps = PL.map(() => []);
+D.geo.forEach((g, i) => g.forEach(([pid]) => placeEps[pid].push(i)));
+// 都道府県を選んだら、その県の市町村・地域の回も含める
+const prefIdx = new Map(PL.map((p, k) => [p.name, k]).filter(([, k]) => PL[k].kind === 'pref'));
+const prefEps = (k) => { const s = new Set(placeEps[k]); PL.forEach((p, j) => { if (p.kind === 'jp' && p.extra === PL[k].name) placeEps[j].forEach((i) => s.add(i)); }); return [...s]; };
+const JAPAN_PT = { lat: 36.2, lon: 138.25 };
 buildLayouts();
 fetch('./data/rel.json').then((r) => r.json()).then((r) => { REL = r.rel; if (sel && sel.type === 'ep') renderEp(sel.id); });
 
+// ---- 地図（世界・日本）
+// 世界: Equal Earth 図法。日本: メルカトル（日本付近を拡大）。単位はどちらも星図と同じ「世界座標」
+function projWorld(lon, lat) {
+  const A1 = 1.340264, A2 = -0.081106, A3 = 0.000893, A4 = 0.003796, M = Math.sqrt(3) / 2;
+  const l = (lon * Math.PI) / 180, p = (lat * Math.PI) / 180, t = Math.asin(M * Math.sin(p)), t2 = t * t, t6 = t2 * t2 * t2;
+  const x = (l * Math.cos(t)) / (M * (A1 + 3 * A2 * t2 + t6 * (7 * A3 + 9 * A4 * t2))), y = t * (A1 + A2 * t2 + t6 * (A3 + A4 * t2));
+  return [x * 380, -y * 380];
+}
+function merc(lat) { return Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI) / 360)); }
+function projJapan(lon, lat) { return [(lon - 137.5) * 62, -(merc(lat) - merc(36.5)) * (180 / Math.PI) * 62]; }   // 中心 東経137.5度・北緯36.5度
+function buildGeoLayout() {
+  worldX = new Float32Array(NE).fill(NaN); worldY = new Float32Array(NE).fill(NaN); japanX = new Float32Array(NE).fill(NaN); japanY = new Float32Array(NE).fill(NaN);
+  const GA = Math.PI * (3 - Math.sqrt(5)), slotW = new Map(), slotJ = new Map();
+  const put = (X, Y, slots, key, pt, proj, i, step) => { const k = slots.get(key) || 0; slots.set(key, k + 1); const [x, y] = proj(pt.lon, pt.lat), r = step * Math.sqrt(k + 0.5), a = k * GA; X[i] = x + Math.cos(a) * r; Y[i] = y + Math.sin(a) * r; };
+  // 新しい回ほど地名の中心に来るよう、新しい順に置く
+  const order = [...Array(NE).keys()].sort((a, b) => D.eps[b][3] - D.eps[a][3]);
+  for (const i of order) {
+    const g = D.geo[i]; if (!g.length) continue;
+    const w = g.find(([pid]) => PL[pid].scope === 'world'), j = g.find(([pid]) => PL[pid].scope === 'jp');
+    if (w) put(worldX, worldY, slotW, w[0], PL[w[0]], projWorld, i, 1.6); else if (j) put(worldX, worldY, slotW, 'JP', JAPAN_PT, projWorld, i, 1.6);
+    if (j) put(japanX, japanY, slotJ, j[0], PL[j[0]], projJapan, i, 2.4);
+  }
+}
+const shapes = {};
+async function loadShapes(kind) {
+  if (shapes[kind]) return shapes[kind];
+  const data = await (await fetch(`./data/geo-${kind}.json`)).json(), proj = kind === 'world' ? projWorld : projJapan;
+  const feats = data.features.map((f) => { const path = new Path2D(); for (const ring of f.p) { for (let n = 0; n < ring.length; n += 2) { const [x, y] = proj(ring[n], ring[n + 1]); n ? path.lineTo(x, y) : path.moveTo(x, y); } path.closePath(); } return { id: f.id, n: f.n, path }; });
+  shapes[kind] = { feats, source: data.source }; return shapes[kind];
+}
 function buildLayouts() {
   mapX = new Float32Array(NE); mapY = new Float32Array(NE); timeX = new Float32Array(NE); timeY = new Float32Array(NE); catX = new Float32Array(NE); catY = new Float32Array(NE);
-  buildCatLayout();
+  buildCatLayout(); buildGeoLayout();
   // 時間の表示: 横＝配信日、縦＝星雲（星雲は平均の配信日が古い順に上から）
   const days = D.eps.map((e) => { const s = String(e[3]); return Date.UTC(+s.slice(0, 4), +s.slice(4, 6) - 1, +s.slice(6, 8)) / 864e5; });
   const dMin = Math.min(...days.filter((d) => d > 0)), dMax = Math.max(...days);
@@ -115,7 +154,8 @@ function resize() {
 function fit() {
   let a = Infinity, b = -Infinity, c = Infinity, d = -Infinity;
   for (let i = 0; i < NE; i++) if (Number.isFinite(px[i])) { a = Math.min(a, px[i]); b = Math.max(b, px[i]); c = Math.min(c, py[i]); d = Math.max(d, py[i]); }
-  animateTo((a + b) / 2, (c + d) / 2, Math.min(W / (b - a + 80), H / (d - c + 80)));
+  const top = 70, k = Math.min(W / (b - a + 80), (H - top) / (d - c + 80));   // 上の見出しに隠れないように
+  animateTo((a + b) / 2, (c + d) / 2 - top / 2 / k, k);
 }
 // スマホでは下の詳細シートに隠れないよう、見える部分の中央へ
 function focusAt(x, y, k) { const off = innerWidth <= 760 ? (H * 0.23) / k : 0; animateTo(x, y + off, k); }
@@ -132,6 +172,7 @@ function render() {
   ctx.clearRect(0, 0, W, H);
   const k = view.k;
   // 星雲の光（星図のとき）
+  if (isGeo()) drawLand();
   if (mode === 'cat') drawRegions();
   else if (mode === 'map') {
     for (let c = 0; c < K; c++) {
@@ -139,7 +180,7 @@ function render() {
       const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, colorOf(c).replace('68%)', '68% / .16)')); g.addColorStop(1, 'transparent');
       ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
     }
-  } else drawTimeAxis();
+  } else if (mode === 'time') drawTimeAxis();
   // 星
   const base = Math.max(1, Math.min(3.2, 0.9 * Math.sqrt(k) + 0.4));
   const dim = hi && hi.size;
@@ -158,6 +199,23 @@ function render() {
   }
   if (hoverEp >= 0) { const x = sx(px[hoverEp]), y = sy(py[hoverEp]); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.stroke(); }
   drawLabels();
+}
+// 陸地と、回の数による塗り（国・都道府県）
+function drawLand() {
+  const sh = shapes[mode]; if (!sh) return;
+  const counts = new Map();
+  if (mode === 'world') { PL.forEach((p, k) => { if (p.kind === 'country') counts.set(p.extra, (counts.get(p.extra) || 0) + placeEps[k].length); }); counts.set('JPN', D.geo.filter((g) => g.some(([pid]) => PL[pid].scope === 'jp')).length); }
+  else PL.forEach((p, k) => { if (p.kind === 'pref') counts.set(p.name, prefEps(k).length); });
+  const max = Math.max(1, ...counts.values());
+  ctx.save(); ctx.setTransform(dpr * view.k, 0, 0, dpr * view.k, dpr * (W / 2 - view.x * view.k), dpr * (H / 2 - view.y * view.k));
+  for (const f of sh.feats) {
+    const n = counts.get(mode === 'world' ? f.id : f.n) || 0, t = n ? Math.sqrt(n / max) : 0;
+    ctx.fillStyle = n ? `rgba(243, 201, 105, ${0.06 + t * 0.32})` : '#101a30'; ctx.fill(f.path);
+    ctx.strokeStyle = '#2c3a5c'; ctx.lineWidth = 0.7 / view.k; ctx.stroke(f.path);
+  }
+  ctx.restore();
+  ctx.font = '10px ' + getComputedStyle(document.body).fontFamily; ctx.fillStyle = '#6f7a96'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.fillText(mode === 'world' ? '地図: Natural Earth（パブリックドメイン）を加工' : '出典: 地球地図日本（国土地理院）を加工', 10, H - 10);
 }
 function drawRegions() {
   for (const rg of D._regions) {
@@ -183,6 +241,23 @@ function drawLabels() {
   if (mode === 'time') {
     ctx.textAlign = 'left'; ctx.font = '600 13px ' + MINCHO;
     for (let m = 0; m <= HOLD; m++) { const y = sy(m * 46 - ((HOLD + 1) * 46) / 2); if (y < 70 || y > H - 20) continue; ctx.fillStyle = catColor(m); ctx.fillText(catName(m), 10, y); }
+    return;
+  }
+  if (isGeo()) {
+    const scope = mode === 'world' ? 'world' : 'jp', items = [];
+    PL.forEach((p, k) => { if (p.scope !== scope && !(mode === 'world' && false)) return; const n = mode === 'japan' && p.kind === 'pref' ? prefEps(k).length : placeEps[k].length; if (n) items.push([k, n]); });
+    if (mode === 'world') items.push(['JP', D.geo.filter((g) => g.some(([pid]) => PL[pid].scope === 'jp')).length]);
+    items.sort((a, b) => b[1] - a[1]);
+    for (const [k, n] of items) {
+      const p = k === 'JP' ? { name: '日本', ...JAPAN_PT } : PL[k], [wx0, wy0] = (mode === 'world' ? projWorld : projJapan)(p.lon, p.lat), x = sx(wx0), y = sy(wy0);
+      if (x < -40 || x > W + 40 || y < 50 || y > H + 20) continue;
+      const r = 3 + Math.sqrt(n) * 1.5 * Math.min(1.6, Math.sqrt(view.k)), isSel = sel && sel.type === 'place' && sel.id === k;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fillStyle = isSel ? '#f3c96955' : '#f3c96922'; ctx.fill(); ctx.strokeStyle = isSel ? '#f3c969' : '#f3c96988'; ctx.lineWidth = isSel ? 2 : 1; ctx.stroke();
+      const text = `${p.name} ${n}`; ctx.font = `600 ${n > 50 ? 14 : 12}px ${MINCHO}`; const w = ctx.measureText(text).width + 8;
+      if (!place(x, y - r - 9, w, 16) && !isSel) continue;
+      ctx.fillStyle = '#000c'; ctx.fillText(text, x + 1, y - r - 8); ctx.fillStyle = isSel ? '#f3c969' : '#f4ead2'; ctx.fillText(text, x, y - r - 9);
+      labelRects.push([x - w / 2, y - r - 17, w, 16, 'place', k, -1]); labelRects.push([x - r, y - r, r * 2, r * 2, 'place', k, -1]);
+    }
     return;
   }
   if (mode === 'cat') {
@@ -251,7 +326,7 @@ canvas.addEventListener('pointermove', (e) => {
 });
 const up = (e) => {
   pts.delete(e.pointerId); if (pts.size < 2) pinch0 = null; canvas.classList.remove('dragging');
-  if (!dragMoved && e.type === 'pointerup') { const lb = hitLabel(e.offsetX, e.offsetY); if (lb) return lb[4] === 'word' ? select({ type: 'word', id: lb[5] }) : select({ type: 'cat', id: lb[5], sub: lb[6] }); const i = hitEp(e.offsetX, e.offsetY, e.pointerType === 'touch' ? 20 : 12); if (i >= 0) select({ type: 'ep', id: i }); }
+  if (!dragMoved && e.type === 'pointerup') { const lb = hitLabel(e.offsetX, e.offsetY); if (lb) return lb[4] === 'word' ? select({ type: 'word', id: lb[5] }) : lb[4] === 'place' ? select({ type: 'place', id: lb[5] }) : select({ type: 'cat', id: lb[5], sub: lb[6] }); const i = hitEp(e.offsetX, e.offsetY, e.pointerType === 'touch' ? 20 : 12); if (i >= 0) select({ type: 'ep', id: i }); }
 };
 canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
 canvas.addEventListener('pointerleave', () => { $('tip').hidden = true; if (hoverEp >= 0) { hoverEp = -1; draw(); } });
@@ -272,10 +347,12 @@ $('zout').onclick = () => animateTo(view.x, view.y, view.k / 1.6, 250);
 $('zfit').onclick = () => fit();
 document.querySelectorAll('.modes button').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
 function setMode(m) {
-  if (m === mode) return; mode = m; document.querySelectorAll('.modes button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === m)));
-  const fx = px.slice(), fy = py.slice(), tx = m === 'map' ? mapX : m === 'cat' ? catX : timeX, ty = m === 'map' ? mapY : m === 'cat' ? catY : timeY, start = performance.now(), ms = reduceMotion ? 0 : 700;
+  if (m === mode) return;
+  if ((m === 'world' || m === 'japan') && !shapes[m]) { loadShapes(m).then(() => { setMode(m); }); return; }
+  mode = m; document.querySelectorAll('.modes button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === m)));
+  const fx = px.slice(), fy = py.slice(), tx = { map: mapX, cat: catX, time: timeX, world: worldX, japan: japanX }[m], ty = { map: mapY, cat: catY, time: timeY, world: worldY, japan: japanY }[m], start = performance.now(), ms = reduceMotion ? 0 : 700;
   const step = (t) => { const p = ms ? Math.min(1, (t - start) / ms) : 1, e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2; for (let i = 0; i < NE; i++) { px[i] = fx[i] + (tx[i] - fx[i]) * e; py[i] = fy[i] + (ty[i] - fy[i]) * e; } render(); if (p < 1) requestAnimationFrame(step); else { buildGrid(); fit(); } };
-  requestAnimationFrame(step); live(m === 'map' ? '言葉の星座の表示に切り替えました' : m === 'cat' ? '分類の表示に切り替えました' : '時間の表示に切り替えました。横が配信日、縦が大分類です');
+  requestAnimationFrame(step); live({ map: '言葉の星座の表示に切り替えました', cat: '分類の表示に切り替えました', time: '時間の表示に切り替えました。横が配信日、縦が大分類です', world: `世界地図の表示に切り替えました。地名のある${worldX.filter((v) => !Number.isNaN(v)).length}回を置いています`, japan: `日本地図の表示に切り替えました。日本の地名のある${japanX.filter((v) => !Number.isNaN(v)).length}回を置いています` }[m]);
 }
 
 // ---- 選択と詳細
@@ -284,11 +361,12 @@ function select(s, { fly = true, push = true } = {}) {
   if (s.type === 'ep') { hi = null; renderEp(s.id); if (fly && Number.isFinite(px[s.id])) focusAt(px[s.id], py[s.id], Math.max(view.k, 2.2)); }
   if (s.type === 'word') { hi = new Set(D.terms[s.id][4]); renderWord(s.id); const t = D.terms[s.id]; if (fly && t[1] !== null && mode === 'map') focusAt(t[1], t[2], Math.max(view.k, 1.6)); }
   if (s.type === 'person') { hi = new Set(D.persons[s.id][1]); renderPerson(s.id); }
+  if (s.type === 'place') { const ids = s.id === 'JP' ? D.eps.map((e, i) => i).filter((i) => D.geo[i].some(([pid]) => PL[pid].scope === 'jp')) : PL[s.id].kind === 'pref' ? prefEps(s.id) : placeEps[s.id]; hi = new Set(ids); renderPlace(s.id, ids); if (s.id === 'JP' && mode === 'world') { /* 日本は日本地図で */ } else if (fly && isGeo()) { const p = PL[s.id], [x, y] = (mode === 'world' ? projWorld : projJapan)(p.lon, p.lat); if (Number.isFinite(x)) focusAt(x, y, Math.max(view.k, mode === 'world' ? 2.5 : 3)); } }
   if (s.type === 'cat') { hi = new Set(); D.eps.forEach((e, i) => { if (dispMain(i) === s.id && (s.sub == null || s.sub < 0 || dispSub(i) === s.sub)) hi.add(i); }); renderCat(s.id, s.sub); const rg = D._regions.find((r) => r.m === s.id); if (fly && rg && mode === 'cat') { const q = s.sub >= 0 ? rg.subs.find((x) => x.si === s.sub) : null; const tgt = q || rg; focusAt(tgt.x, tgt.y, Math.min(W, H) / (tgt.r * 2.6)); } }
   if (s.type === 'neb') { hi = new Set(); D.eps.forEach((e, i) => { if (e[6] === s.id) hi.add(i); }); renderNebula(s.id); const cm = D.comms[s.id]; if (fly && mode === 'map') focusAt(cm.x, cm.y, Math.min(W, H) / (cm.r * 3.2)); }
   document.querySelectorAll('#nebulae button').forEach((b) => b.setAttribute('aria-pressed', String(s.type === 'neb' && +b.dataset.c === s.id)));
   document.querySelectorAll('#cats button').forEach((b) => b.setAttribute('aria-pressed', String(s.type === 'cat' && +b.dataset.m === s.id && (b.dataset.s == null ? !(s.sub >= 0) : +b.dataset.s === s.sub))));
-  if (push) { const hash = s.type === 'ep' ? 'e=' + D.eps[s.id][0] : s.type === 'word' ? 'w=' + encodeURIComponent(D.terms[s.id][0]) : s.type === 'person' ? 'p=' + encodeURIComponent(D.persons[s.id][0]) : s.type === 'cat' ? 'c=' + s.id + (s.sub >= 0 ? '.' + s.sub : '') : 'n=' + s.id; history.replaceState(null, '', '#' + hash); }
+  if (push) { const hash = s.type === 'ep' ? 'e=' + D.eps[s.id][0] : s.type === 'word' ? 'w=' + encodeURIComponent(D.terms[s.id][0]) : s.type === 'person' ? 'p=' + encodeURIComponent(D.persons[s.id][0]) : s.type === 'cat' ? 'c=' + s.id + (s.sub >= 0 ? '.' + s.sub : '') : s.type === 'place' ? 'pl=' + s.id : 'n=' + s.id; history.replaceState(null, '', '#' + hash); }
   draw();
 }
 const panel = () => $('detail');
@@ -365,6 +443,35 @@ function renderCat(m, sub) {
     h('div', { class: 'sec' }, h('h4', {}, '回'), epList(ids, 60))));
   live(`${sub >= 0 ? D.cats[m].subs[sub] : catName(m)}。${ids.length}回`);
 }
+let epTerms = null;   // 回→言葉（場所の「よく出る言葉」用。必要になったら作る）
+function topWordsOf(ids, n = 14) {
+  if (!epTerms) { epTerms = Array.from({ length: NE }, () => []); D.terms.forEach((t, j) => t[4].forEach((i) => epTerms[i].push(j))); }
+  const c = new Map(); ids.forEach((i) => epTerms[i].forEach((j) => c.set(j, (c.get(j) || 0) + 1)));
+  // 回数×めずらしさ（どこにでも出る言葉より、その場所らしい言葉を上に）
+  return [...c].filter(([, k]) => k >= 2).sort((a, b) => b[1] * Math.log(NE / D.terms[b[0]][4].length) - a[1] * Math.log(NE / D.terms[a[0]][4].length)).slice(0, n);
+}
+const KIND = { pref: '都道府県', jp: '日本の地名', country: '国・地域' };
+function renderPlace(k, ids) {
+  const p = k === 'JP' ? { name: '日本（日本の地名がある回）', kind: 'country' } : PL[k];
+  const cat = new Map(); ids.forEach((i) => { const m = dispMain(i); if (m < HOLD) cat.set(m, (cat.get(m) || 0) + 1); });
+  const co = new Map(); ids.forEach((i) => D.geo[i].forEach(([pid]) => { if (pid !== k && !(PL[k] && PL[k].kind === 'pref' && PL[pid].extra === PL[k].name)) co.set(pid, (co.get(pid) || 0) + 1); }));
+  const subPlaces = PL[k] && PL[k].kind === 'pref' ? PL.map((q, j) => [j, q]).filter(([j, q]) => q.kind === 'jp' && q.extra === PL[k].name && placeEps[j].length) : [];
+  panel().replaceChildren(h('div', {},
+    h('p', { class: 'kind' }, KIND[p.kind] || '場所'), h('h3', { class: 'hero' }, p.name), h('p', { class: 'meta' }, h('span', {}, `${ids.length}回`), PL[k] && PL[k].kind === 'jp' ? h('span', {}, PL[k].extra) : null),
+    h('p', { class: 'note' }, showMix(ids)),
+    h('div', { class: 'sec' }, h('h4', {}, '時間の変化'), histogram(ids)),
+    cat.size ? h('div', { class: 'sec' }, h('h4', {}, '分野（Claude試作の分類）'), [...cat].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([m, n]) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'cat', id: m }) }, h('span', { style: `color:${catColor(m)}` }, '●'), D.cats[m].name, h('small', {}, n)))) : null,
+    h('div', { class: 'sec' }, h('h4', {}, 'この場所でよく出る言葉'), topWordsOf(ids).map(([j, n]) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'word', id: j }) }, D.terms[j][0], h('small', {}, n)))),
+    subPlaces.length ? h('div', { class: 'sec' }, h('h4', {}, '県内の地名'), subPlaces.map(([j, q]) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'place', id: j }) }, q.name, h('small', {}, placeEps[j].length)))) : null,
+    co.size ? h('div', { class: 'sec' }, h('h4', {}, '一緒に語られる場所'), [...co].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([j, n]) => h('button', { type: 'button', class: 'chip', onclick: () => { if (PL[j].scope === 'jp' && mode === 'world') setMode('japan'); if (PL[j].scope === 'world' && mode === 'japan') setMode('world'); select({ type: 'place', id: j }); } }, PL[j].name, h('small', {}, n)))) : null,
+    h('div', { class: 'sec' }, h('h4', {}, '回'), epList(ids, 60)),
+    h('p', { class: 'note' }, '地名は題名・概要欄・関連記事の見出しなどから辞書で取り出した試作です。人名や比喩と紛れるものは除くようにしていますが、誤りを含みます。')));
+  live(`${p.name}。${ids.length}回`);
+}
+function placeSection(i) {
+  const g = D.geo[i]; if (!g.length) return null;
+  return h('div', { class: 'sec' }, h('h4', {}, '場所'), g.map(([pid, , f, a]) => h('button', { type: 'button', class: 'chip', title: `「${a}」（${FIELD[f] || f}）`, onclick: () => { setMode(PL[pid].scope === 'jp' ? 'japan' : 'world'); select({ type: 'place', id: pid }); } }, PL[pid].name, h('small', {}, FIELD[f] || ''))));
+}
 const detailCache = new Map();
 async function loadDetail(id) {
   const b = Math.floor(Number(id.slice(3)) / 50);
@@ -384,7 +491,7 @@ async function renderEp(i) {
     h('h3', {}, e[1]),
     h('p', { class: 'meta' }, h('span', {}, fmtDate(e[3])), h('span', {}, fmtDur(e[7]))),
     h('div', { class: 'btns' }, h('a', { class: 'btn primary', href: `../library/?ep=${id}` }, '蔵で詳しく見る'), shelfBtn),
-    catSection(i), descBox, relBox,
+    catSection(i), placeSection(i), descBox, relBox,
     e[6] >= 0 ? h('div', { class: 'sec' }, h('h4', {}, '星雲'), h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'neb', id: e[6] }) }, h('span', { style: `color:${colorOf(e[6])}` }, '●'), D.comms[e[6]].name.slice(0, 2).join('・'))) : h('p', { class: 'note' }, 'この回は共通の言葉が少ないため、星図には置いていません。')));
   live(`回「${e[1]}」`);
   const d = await loadDetail(id); if (!sel || sel.type !== 'ep' || sel.id !== i) return;
@@ -460,12 +567,13 @@ new ResizeObserver(resize).observe(canvas);
 resize(); fit();
 $('loading').remove();
 function fromHash() {
-  const m = location.hash.match(/^#([ewpnc])=(.+)$/); if (!m) return;
+  const m = location.hash.match(/^#(pl|[ewpnc])=(.+)$/); if (!m) return;
   const v = decodeURIComponent(m[2]);
   if (m[1] === 'e' && epIdx.has(v)) select({ type: 'ep', id: epIdx.get(v) }, { push: false });
   if (m[1] === 'w' && termIdxByKey.has(norm(v))) select({ type: 'word', id: termIdxByKey.get(norm(v)) }, { push: false });
   if (m[1] === 'p') { const k = D.persons.findIndex((p) => p[0] === v); if (k >= 0) select({ type: 'person', id: k }, { push: false }); }
   if (m[1] === 'n' && D.comms[+v]) select({ type: 'neb', id: +v }, { push: false });
+  if (m[1] === 'pl') { const id = v === 'JP' ? 'JP' : +v; if (id === 'JP' || PL[id]) select({ type: 'place', id }, { push: false }); }
   if (m[1] === 'c') { const [a, b] = v.split('.').map(Number); if (a >= 0 && a <= HOLD) select({ type: 'cat', id: a, sub: Number.isFinite(b) ? b : -1 }, { push: false }); }
 }
 fromHash(); addEventListener('hashchange', fromHash);
