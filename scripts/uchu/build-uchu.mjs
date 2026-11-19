@@ -8,6 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { extractTerms, termKey, parseCast, normalizeArticleUrl } from './uchu-core.mjs';
 import { TAXONOMY } from './taxonomy.mjs';
+import { PLACES, placesOfEpisode } from './geo.mjs';
 import { classify, fillFromNeighbors, trainNB, predictNB, stripBoilerplate } from './classify.mjs';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
@@ -213,6 +214,11 @@ for (const i of approvedIdx) { const blind = classify({ ...inputOf(eps[i]), them
 const clsStats = { approved: approvedIdx.length, blindDecided: decided, blindAgree: agree, byConf: {}, bySrc: {}, byMain: {} };
 cls.forEach((c) => { clsStats.byConf[c.conf] = (clsStats.byConf[c.conf] || 0) + 1; clsStats.bySrc[c.src || '-'] = (clsStats.bySrc[c.src || '-'] || 0) + 1; const n = c.mi >= 0 ? TAXONOMY[c.mi].name : '未分類'; clsStats.byMain[n] = (clsStats.byMain[n] || 0) + 1; });
 const FIELD_CODE = { title: 't', theme: 'm', article: 'r', desc: 'd' };
+// ---- 7c. 地名（世界・日本の地図用）。題名・旧仮分類の主題文・関連記事の見出し・概要欄（案内文を除く）から
+const geo = eps.map((e) => placesOfEpisode({ ...inputOf(e), desc: stripBoilerplate(e.description) }));
+const geoStats = { any: geo.filter((g) => g.length).length, jp: geo.filter((g) => g.some(([id]) => PLACES[id].scope === 'jp')).length, world: geo.filter((g) => g.some(([id]) => PLACES[id].scope === 'world')).length };
+const placeCount = new Map(); geo.forEach((g) => g.forEach(([id]) => placeCount.set(id, (placeCount.get(id) || 0) + 1)));
+geoStats.top = [...placeCount].sort((a, b) => b[1] - a[1]).slice(0, 15).map(([id, n]) => PLACES[id].name + n);
 
 // ---- 8. 書き出し（数値は丸めて軽く）
 const r1 = (x) => Math.round(x * 10) / 10;
@@ -233,11 +239,14 @@ const core = {
   cats: TAXONOMY.map((m) => ({ name: m.name, hue: m.hue, subs: m.subs.map(([n]) => n) })),
   cls: cls.map((c, i) => [c.mi, c.si, c.conf, c.src, c.ev.map(([k, f]) => k + ':' + FIELD_CODE[f]).join('|'), (legacy[eps[i].id] || [''])[0]]),
   clsStats,
+  places: PLACES.map((p) => [p.name, p.kind, p.scope, p.lat, p.lon, p.pref || p.iso || '']),
+  geo: geo.map((g) => g.map(([id, sc, f, a]) => [id, sc, FIELD_CODE[f], a])),
+  geoStats,
 };
 fs.mkdirSync(OUT, { recursive: true });
 fs.writeFileSync(path.join(OUT, 'core.json'), JSON.stringify(core));
 fs.writeFileSync(path.join(OUT, 'rel.json'), JSON.stringify({ v: 1, libraryVersion: manifest.version, rel }));
 const size = (f) => (fs.statSync(path.join(OUT, f)).size / 1024).toFixed(0) + 'KB';
 console.log(JSON.stringify({ episodes: N, vocab: vocab.length, mapTerms: mapTerms.length, nebulae: K, placed: epXY.filter(Boolean).length, persons: persons.length,
-  withRel: rel.filter((r) => r[0].length).length, clsStats, core: size('core.json'), rel: size('rel.json'), sec: (Date.now() - t0) / 1000,
+  withRel: rel.filter((r) => r[0].length).length, clsStats, geoStats, core: size('core.json'), rel: size('rel.json'), sec: (Date.now() - t0) / 1000,
   nebulaNames: core.comms.map((c) => c.name.join('・') + ' ' + c.n) }, null, 1));

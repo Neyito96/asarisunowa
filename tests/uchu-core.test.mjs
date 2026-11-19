@@ -57,3 +57,19 @@ test('分類（Claude試作）: 手がかり語で決め、根拠の語と欄を
   assert.equal(classify({ title: 'こんにちは', theme: '', articles: [], desc: '' }, null).mi, -1);
   assert.equal(legacyMainIndex('人権・司法/事件'), TAXONOMY.findIndex((m) => m.name === '法律・司法'));
 });
+
+test('地名: 人名・別の意味と紛れるものは除き、根拠の欄を残す', async () => {
+  const { findPlaces, placesOfEpisode, PLACES } = await import('../scripts/uchu/geo.mjs');
+  const names = (t) => findPlaces(t).map(([id]) => PLACES[id].name);
+  assert.deepEqual(names('石川佳純が卓球'), []);
+  assert.deepEqual(names('宮崎駿監督の新作'), []);
+  assert.deepEqual(names('福島さんの話'), []);
+  assert.deepEqual(names('中国地方の山村'), []);
+  assert.deepEqual(names('インドネシアとインド'), ['インドネシア', 'インド']);
+  assert.deepEqual(names('東京都知事選'), ['東京都']);
+  assert.deepEqual(names('能登半島地震から1年'), ['能登']);
+  assert.deepEqual(names('福島第一原発の処理水'), ['福島第一原発']);
+  const g = placesOfEpisode({ title: '沖縄の基地', theme: '', articles: [], desc: 'ウクライナの話も' });
+  assert.equal(PLACES[g[0][0]].name, '沖縄県'); assert.equal(g[0][2], 'title');
+  for (const p of PLACES) assert.ok(p.name.length >= 2 && Number.isFinite(p.lat) && Number.isFinite(p.lon), p.name);
+});
