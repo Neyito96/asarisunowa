@@ -106,3 +106,12 @@ test('概要欄の定型文（番組宣伝・収録日・※注記）は言葉�
   for (const w of ['甲子園', '就活', 'MEDIA', '収録']) assert.ok(!s.includes(w), w);
   assert.equal(stripBoilerplate('★朝日新聞のデジタル版は4人まで使えます。 お盆の思い出を教えて'), ' お盆の思い出を教えて');
 });
+
+test('蔵の公式タグは大分類の手がかりにする（番組名・人名のタグは使わない）', async () => {
+  const { classify, OFFICIAL_TAGS } = await import('../scripts/uchu/classify.mjs');
+  const { TAXONOMY } = await import('../scripts/uchu/taxonomy.mjs');
+  for (const n of Object.values(OFFICIAL_TAGS)) assert.ok(TAXONOMY.some((m) => m.name === n), n);
+  const r = classify({ title: 'こんにちは', theme: '', articles: [], desc: '', tags: ['SDGs', '杢田光', '動植物'] }, null);
+  assert.equal(TAXONOMY[r.mi].name, '動物・自然'); assert.deepEqual(r.ev[0], ['動植物', 'tag']);
+  assert.equal(classify({ title: 'こんにちは', theme: '', articles: [], desc: '', tags: ['SDGs', '杢田光'] }, null).mi, -1);
+});

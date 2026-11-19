@@ -506,7 +506,7 @@ function renderNebula(c) {
   live(`星雲「${cm.name.join('・')}」。${cm.n}回`);
 }
 const CONF = { 3: ['c3', '人が承認'], 2: ['c2', 'Claude試作・確度 高'], 1: ['c1', 'Claude試作・確度 中'], 0: ['c0', 'Claude試作・確度 低'] };
-const FIELD = { t: '題名', m: '旧仮分類の主題', r: '関連記事の見出し', d: '概要欄' };
+const FIELD = { t: '題名', m: '旧仮分類の主題', r: '関連記事の見出し', d: '概要欄', o: '蔵の公式タグ' };
 function catSection(i) {
   const [mi, si, conf, src] = D.cls[i], [ev, old] = D.clsEv[i] || ['', ''], shown = dispMain(i);
   const guess = shown === HOLD && mi >= 0 ? h('p', { class: 'evid' }, `Claudeの推定: ${D.cats[mi].name}（${src === 'l' ? '似た回の言葉から学んだ推定' : '関連する回の分類から'}・要確認）`) : null;

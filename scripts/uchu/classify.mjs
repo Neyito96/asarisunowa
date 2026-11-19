@@ -1,10 +1,23 @@
 // 朝ポキの宇宙: 20大分類・小分類の Claude 試作判定（純関数。Node のテストでも使う）
-// 入力は 題名・旧仮分類の主題文・関連記事の見出し・概要欄。手がかり語の一致を数え、どの語で決めたかを必ず残す。
+// 入力は 題名・旧仮分類の主題文・関連記事の見出し・概要欄・蔵の公式タグ。手がかり語の一致を数え、どの語で決めたかを必ず残す。
 // 人の承認（user_approved）の大分類は動かさない。判定できない回は「未分類」のまま（無理に入れない）。
 import { TAXONOMY, LEGACY_MAIN_ALIAS } from './taxonomy.mjs';
 
 const nz = (s) => String(s || '').normalize('NFKC');
 const FIELD_W = { title: 3, theme: 2.5, article: 1.5, desc: 1 };
+// 蔵の元データにある公式タグ（朝日新聞側が付けたもの）→ 大分類。番組名・人名・意味の広いタグ（IT・科学、災害・交通 など）は使わない
+export const OFFICIAL_TAGS = {
+  '社会': '社会・人権', '不平等': '社会・人権', '平等': '社会・人権', 'ジェンダー': 'ジェンダー', 'ジェンダートーク': 'ジェンダー', 'LGBTQ': 'ジェンダー',
+  '国際': '国際・外交', 'アジア': '国際・外交', 'ヨーロッパ': '国際・外交', '北米': '国際・外交', '平和': '国際・外交',
+  '環境・気候変動': '環境・気候', '環境': '環境・気候', '地域': '暮らし・生活', '子育て・家族': '暮らし・生活', '家族・子育て': '暮らし・生活', '子育て': '暮らし・生活',
+  '料理・グルメ': '暮らし・生活', 'グルメ・料理': '暮らし・生活', '食のへぇ～': '暮らし・生活', '心と体': '健康・医療', '医療': '健康・医療', '新型コロナ': '健康・医療',
+  '教育': '教育', '文化・芸能': '文化・芸術', '映画・ドラマ': '文化・芸術', 'マンガ・アニメ・ゲーム': '文化・芸術', '動植物': '動物・自然',
+  '働き方': '仕事・労働', '労働・雇用': '仕事・労働', '雇用・労働': '仕事・労働', '育休': '仕事・労働', '経済': '経済・金融', '産業・商品': '経済・金融', '企業': '経済・金融',
+  '政治': '政治・行政', '選挙': '政治・行政', '歴史': '歴史・宗教', '宗教': '歴史・宗教', 'スポーツ': 'スポーツ', '五輪': 'スポーツ', '野球': 'スポーツ',
+  'ネット・SNS': 'AI・技術', '事件・事故・裁判': '法律・司法', '新聞': 'メディア', 'テレビ・ラジオ': 'メディア', '福祉': '福祉・介護',
+};
+const TAG_MI = Object.fromEntries(Object.entries(OFFICIAL_TAGS).map(([t, n]) => [nz(t), TAXONOMY.findIndex((m) => m.name === n)]));
+const TAG_W = 3;
 
 // 手がかり語を照合用に準備（英字は前後が英字でないことを条件にする: "AI" が "MAIL" に当たらないように）
 const KW = [];
@@ -22,7 +35,7 @@ export function stripBoilerplate(desc) {
 }
 
 // 1回分の得点: { main: [20], sub: {mi: [..]}, ev: [[語, 欄]] }
-export function scoreEpisode({ title, theme, articles, desc }) {
+export function scoreEpisode({ title, theme, articles, desc, tags }) {
   const fields = { title: nz(title), theme: nz(theme).replace(/^[^/]*\//, ''), article: (articles || []).map(nz).join('／'), desc: stripBoilerplate(desc) };
   const main = new Array(TAXONOMY.length).fill(0), sub = TAXONOMY.map((m) => new Array(m.subs.length).fill(0)), ev = [];
   for (const kw of KW) {
@@ -31,6 +44,7 @@ export function scoreEpisode({ title, theme, articles, desc }) {
     if (!best) continue;
     const s = best * kw.w; main[kw.mi] += s; sub[kw.mi][kw.si] += s; ev.push([kw.k, where, kw.mi, kw.si, s]);
   }
+  for (const t of new Set((tags || []).map(nz))) { const mi = TAG_MI[t]; if (mi >= 0) { main[mi] += TAG_W; ev.push([t, 'tag', mi, -1, TAG_W]); } }
   return { main, sub, ev };
 }
 
