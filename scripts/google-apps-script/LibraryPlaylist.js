@@ -74,12 +74,29 @@ function libraryPlaylistSyncOne_(rule, write) {
     add: plan.add.map(function (a) { return a.ep + ' ' + a.date + ' ' + a.name; }), already: plan.already.length, missing: plan.missing, hold: plan.hold };
   if (!write) { report.status = 'DRY_RUN'; return report; }
   if (!access || !access.editable) { report.status = 'NO_EDIT_PERMISSION'; return report; }
-  if (!plan.add.length) { report.status = 'OK_NO_CHANGE'; return report; }
+  var inList = picked.filter(function (p) { return plan.already.indexOf(p.ep) >= 0; }).map(function (p) { return p.date; }).sort();
+  if (!plan.add.length) { report.status = 'OK_NO_CHANGE'; report.latest = libraryPlaylistTouchLatest_(rule, inList[inList.length - 1]); return report; }
   var batch = plan.add.slice(0, LIBRARY_PLAYLIST_MAX_ADD_), added = addAutoPlaylistEpisodesBatch_({ playlistId: rule.playlistId, name: rule.name }, token, batch);
   // 読み戻し: 追加したはずの回が全部プレイリストにあるか
   var after = libraryPlaylistExisting_(rule.playlistId, token), lost = batch.filter(function (a) { return !after[a.uri]; }).map(function (a) { return a.ep; });
   if (lost.length) { P.setProperty(stopKey, new Date().toISOString() + ' 読み戻し不一致 ' + lost.join(' ')); report.status = 'READBACK_MISMATCH_STOPPED'; report.lost = lost; return report; }
+  var dates = inList.concat(batch.map(function (a) { return a.date; })).sort();
+  report.latest = libraryPlaylistTouchLatest_(rule, dates[dates.length - 1]);
   report.status = 'OK'; report.added = added && added.addedCount; report.more = plan.add.length > batch.length; return report;
+}
+
+// 作業台のこのプレイリストの行の「最終更新日」（F列）を、プレイリストに入っている一番新しい回の日付にする（空か古い時だけ）
+function libraryPlaylistTouchLatest_(rule, newestDate) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(newestDate || ''))) return '';
+  var sh = getSheetLoose(SpreadsheetApp.openById(SPREADSHEET_ID), WORK_SHEET_NAME); if (!sh || sh.getLastRow() < 2) return '';
+  var urls = sh.getRange(2, 1, sh.getLastRow() - 1, 1).getDisplayValues();
+  for (var i = 0; i < urls.length; i++) {
+    if (String(urls[i][0]).indexOf('/playlist/' + rule.playlistId) < 0) continue;
+    var cell = sh.getRange(i + 2, 6), cur = String(cell.getDisplayValue() || '');
+    if (!cur || cur < newestDate) cell.setValue(newestDate);
+    return newestDate;
+  }
+  return '';
 }
 
 function libraryPlaylistSyncAll_() {
