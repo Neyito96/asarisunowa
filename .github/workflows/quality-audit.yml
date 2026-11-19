@@ -1,0 +1,37 @@
+name: Quality audit (read-only)
+# 全件品質監査ロボ（最小版）。蔵の公開データの内部整合性を全件、リンク先は各サービス日替わりの抜き取りで確かめる。
+# 読み取り専用: 台帳・GAS・公開データは変えない。結果は docs/audits/quality に保存（[skip ci] で公開の再デプロイはしない）。
+# 失敗しても収蔵・公開には影響しない（独立したワークフロー）。
+on:
+  schedule:
+    - cron: '23 23 * * *'   # 08:23 JST（蔵の同期 06:17／07:47 の後）
+  workflow_dispatch:
+    inputs:
+      per:
+        description: '各サービスの抜き取り件数'
+        default: '12'
+permissions:
+  contents: write
+concurrency:
+  group: quality-audit
+  cancel-in-progress: false
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/quality-audit.test.mjs
+      - name: Audit (internal + sampled probes)
+        run: node scripts/audit/quality-audit.mjs --probe "${{ github.event.inputs.per || '12' }}"
+      - name: Save report
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git add docs/audits/quality
+          if git diff --cached --quiet; then echo "変化なし"; exit 0; fi
+          git commit -m "audit(quality): 品質監査 $(date -u +%F) [skip ci]"
+          for n in 1 2 3; do git pull --rebase origin main && git push && exit 0; echo "push retry $n"; sleep $((n * 5)); done
+          exit 1
