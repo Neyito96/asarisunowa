@@ -45,15 +45,10 @@ function libraryPlaylistFetchJson_(url) {
   return JSON.parse(res.getContentText());
 }
 
-// Spotify API でエピソードの番組IDと題名を読む（50件ずつ）
-function libraryPlaylistVerify_(ids, token) {
+// Spotify API でエピソードの番組IDと題名を読む（1件ずつ。まとめ取り /v1/episodes?ids= は 403 になるため既存の1件取得を使う）
+function libraryPlaylistVerify_(ids) {
   var out = {};
-  for (var i = 0; i < ids.length; i += 50) {
-    var res = fetchSpotifyReadWithRetry_('https://api.spotify.com/v1/episodes?market=JP&ids=' + ids.slice(i, i + 50).join(','),
-      { muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' } }, 'LibraryPlaylist episodes');
-    if (res.getResponseCode() !== 200) throw new Error('Spotifyエピソード確認失敗 ' + res.getResponseCode());
-    (JSON.parse(res.getContentText()).episodes || []).forEach(function (e) { if (e && e.id) out[e.id] = { name: e.name, showId: e.show && e.show.id }; });
-  }
+  ids.forEach(function (id) { var e = fetchSpotifyEpisodeFromWebApi(id); if (e && e.showId) out[id] = { name: e.episodeTitle, showId: e.showId }; });
   return out;
 }
 
@@ -73,7 +68,7 @@ function libraryPlaylistSyncOne_(rule, write) {
   if (!token) return { rule: rule.key, status: 'NO_TOKEN' };
   var access = inspectAutoUpdatePlaylistAccessV1_(rule.playlistId, token);
   var ids = picked.map(function (p) { return lookup[p.ep] && lookup[p.ep].spotifyId; }).filter(Boolean);
-  var verified = libraryPlaylistVerify_(ids, token), existing = libraryPlaylistExisting_(rule.playlistId, token);
+  var verified = libraryPlaylistVerify_(ids), existing = libraryPlaylistExisting_(rule.playlistId, token);
   var plan = libraryPlaylistPlan_(rule, picked, lookup, verified, existing);
   var report = { rule: rule.key, playlist: rule.name, write: !!write, access: access, targets: picked.length, withSpotify: ids.length,
     add: plan.add.map(function (a) { return a.ep + ' ' + a.date + ' ' + a.name; }), already: plan.already.length, missing: plan.missing, hold: plan.hold };
