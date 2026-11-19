@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>朝ポキの宇宙｜言葉の星図（試験版）</title>
+<meta name="description" content="朝日新聞ポッドキャスト約6,000回の題名・概要欄・出演者・関連記事を結び直した、言葉から回をたどる星図の試験版。">
+<link rel="stylesheet" href="./uchu.css">
+</head>
+<body>
+<a class="skip" href="#results">検索結果へ移動</a>
+<header class="top">
+  <div class="brand"><a href="../library/" class="back" aria-label="朝ポキの蔵へ戻る">蔵</a><h1>朝ポキの宇宙 <small>言葉の星図・試験版</small></h1></div>
+  <div class="search" role="search">
+    <label for="q" class="sr">言葉・人物・題名で探す</label>
+    <input id="q" type="search" placeholder="言葉・人物・題名で探す（/ キー）" autocomplete="off" aria-controls="suggest" aria-expanded="false">
+    <ul id="suggest" role="listbox" hidden></ul>
+  </div>
+  <div class="modes" role="group" aria-label="表示">
+    <button type="button" data-mode="map" aria-pressed="true">星雲</button>
+    <button type="button" data-mode="time" aria-pressed="false">時間</button>
+  </div>
+</header>
+<main class="stage">
+  <aside class="legend" aria-label="星雲の一覧">
+    <h2>星雲 <span class="hint">言葉のまとまり</span></h2>
+    <ol id="nebulae"></ol>
+    <p class="method">星の近さは「同じ言葉がいっしょに出る回か」で決めています（統計）。AIによる意味の推測ではありません。星雲の名前は自動でつけた仮の名前です。</p>
+  </aside>
+  <div class="canvas-wrap">
+    <canvas id="sky" tabindex="0" aria-label="エピソードの星図。矢印キーで移動、＋−で拡大縮小、Enterで中央の星を選択。" aria-describedby="sky-help"></canvas>
+    <p id="sky-help" class="sr">星図は見るための補助です。同じ情報は右の一覧と検索から、キーボードだけでも使えます。</p>
+    <div class="zoom" role="group" aria-label="拡大縮小">
+      <button type="button" id="zin" aria-label="拡大">＋</button><button type="button" id="zout" aria-label="縮小">−</button><button type="button" id="zfit" aria-label="全体を表示">全体</button>
+    </div>
+    <div id="tip" class="tip" hidden></div>
+    <div id="loading" class="loading" role="status">星を集めています…</div>
+  </div>
+  <section class="panel" id="panel" aria-label="詳細" tabindex="-1">
+    <div id="detail"><div class="intro">
+      <h2>言葉から、回から、旅をはじめる</h2>
+      <p>約6,000回の題名・概要欄・出演者・関連記事を結び直した星図です。星は1回のエピソード、星雲は一緒に語られやすい言葉のまとまりです。</p>
+      <ul><li>言葉を選ぶと、その言葉の回が光り、近い言葉と時間の変化が出ます。</li><li>星を選ぶと、内容と「なぜ近いのか」の根拠つきで関連する回が出ます。</li></ul>
+      <p class="try">たとえば：<button type="button" class="chip" data-word="サイバー攻撃">サイバー攻撃</button><button type="button" class="chip" data-word="原爆">原爆</button><button type="button" class="chip" data-word="AI">AI</button><button type="button" class="chip" data-word="バスケ">バスケ</button></p>
+    </div></div>
+  </section>
+</main>
+<div id="live" class="sr" aria-live="polite"></div>
+<script type="module" src="./uchu.mjs"></script>
+</body>
+</html>
