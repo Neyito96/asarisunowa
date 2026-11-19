@@ -10,6 +10,7 @@ import { extractTerms, termKey, parseCast, normalizeArticleUrl } from './uchu-co
 import { TAXONOMY } from './taxonomy.mjs';
 import { PLACES, placesOfEpisode } from './geo.mjs';
 import { classify, fillFromNeighbors, trainNB, predictNB, stripBoilerplate } from './classify.mjs';
+import { cleanEpisode } from './series.mjs';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
 const SRC = path.join(ROOT, 'public/library/data');
@@ -34,11 +35,13 @@ for (const e of eps) if (!showNames.includes(e.show)) showNames.push(e.show);
 const surface = new Map(); // key -> Map(surface -> count)
 const titleDf = new Map();
 const df = new Map(), personDf = new Map(), articleEps = new Map();
+const clean = eps.map(cleanEpisode);
 const docs = eps.map((e, i) => {
   const tf = new Map();
   const add = (t, w) => { const k = termKey(t); tf.set(k, (tf.get(k) || 0) + w); const m = surface.get(k) || new Map(); m.set(t, (m.get(t) || 0) + 1); surface.set(k, m); };
-  const tt = extractTerms(e.title); tt.forEach((t) => add(t, 3)); new Set(tt.map(termKey)).forEach((k) => titleDf.set(k, (titleDf.get(k) || 0) + 1));
-  extractTerms(stripBoilerplate(e.description)).forEach((t) => add(t, 1));   // 定型文（番組宣伝・収録日など）は数えない
+  const ce = clean[i];   // 番組ごとの定型文を除いた分析用の写し（series.mjs）
+  const tt = extractTerms(ce.title); tt.forEach((t) => add(t, 3)); extractTerms(ce.headline).forEach((t) => add(t, 2)); new Set(tt.map(termKey)).forEach((k) => titleDf.set(k, (titleDf.get(k) || 0) + 1));
+  extractTerms(stripBoilerplate(ce.desc)).forEach((t) => add(t, 1));   // 定型文（番組宣伝・収録日など）は数えない
   // 関連記事の見出しからも言葉を取る（題名・概要欄と同じく「在るテキスト」として）
   (e.relatedArticles || []).forEach((a) => a && a.title && extractTerms(a.title).forEach((t) => add(t, 1)));
   const persons = parseCast(e.cast);
@@ -195,11 +198,11 @@ const rel = eps.map((e, i) => {
 
 // ---- 7b. 20大分類・小分類（Claude 試作）。旧分類の写し scripts/uchu/data/legacy-themes.json を手がかりに使う（参照のみ）
 const legacy = JSON.parse(fs.readFileSync(path.join(ROOT, 'scripts/uchu/data/legacy-themes.json'), 'utf8')).themes;
-const inputOf = (e) => ({ title: e.title, theme: (legacy[e.id] || [''])[0], articles: (e.relatedArticles || []).map((a) => a && a.title).filter(Boolean), desc: e.description, tags: e.tags });
-let cls = eps.map((e) => classify(inputOf(e), legacy[e.id]));
+const inputOf = (e, i = eps.indexOf(e), ce = clean[i]) => ({ title: ce.headline ? `${ce.title}／${ce.headline}` : ce.title, theme: (legacy[e.id] || [''])[0], articles: (e.relatedArticles || []).map((a) => a && a.title).filter(Boolean), desc: ce.desc, tags: e.tags });
+let cls = eps.map((e, i) => classify(inputOf(e, i), legacy[e.id]));
 // 手がかり語で決まらない・確度が低い回は、高い確度の回から学んだ結びつきで補う（src=l、確度は低）
-const bag = (e) => { const m = new Map(); const add = (a, w) => a.forEach((t) => { const k = termKey(t); m.set(k, (m.get(k) || 0) + w); }); add(extractTerms(e.title), 3); add(extractTerms((legacy[e.id] || [''])[0]), 2); add(extractTerms(stripBoilerplate(e.description)), 1); (e.relatedArticles || []).forEach((a) => a && add(extractTerms(a.title), 1)); return m; };
-const bags = eps.map(bag);
+const bag = (e, i) => { const m = new Map(); const add = (a, w) => a.forEach((t) => { const k = termKey(t); m.set(k, (m.get(k) || 0) + w); }); add(extractTerms(clean[i].title), 3); add(extractTerms(clean[i].headline), 3); add(extractTerms((legacy[e.id] || [''])[0]), 2); add(extractTerms(stripBoilerplate(clean[i].desc)), 1); (e.relatedArticles || []).forEach((a) => a && add(extractTerms(a.title), 1)); return m; };
+const bags = eps.map((e, i) => bag(e, i));
 const nbModel = trainNB(cls.map((c, i) => [c, i]).filter(([c]) => c.conf >= 2 && c.src !== 'a').map(([c, i]) => [bags[i], c.mi]), TAXONOMY.length);
 cls = cls.map((c, i) => {
   if (c.conf >= 1) return c;
@@ -212,12 +215,12 @@ cls = fillFromNeighbors(cls, rel);
 // 検証: 人が承認した回で、旧分類を見ない判定（手がかり語だけ）が承認と一致するか
 const approvedIdx = eps.map((e, i) => (legacy[e.id] && legacy[e.id][1] === 'user_approved' ? i : -1)).filter((i) => i >= 0);
 let agree = 0, decided = 0;
-for (const i of approvedIdx) { const blind = classify({ ...inputOf(eps[i]), theme: '' }, null); if (blind.mi >= 0) { decided++; if (blind.mi === cls[i].mi) agree++; } }
+for (const i of approvedIdx) { const blind = classify({ ...inputOf(eps[i], i), theme: '' }, null); if (blind.mi >= 0) { decided++; if (blind.mi === cls[i].mi) agree++; } }
 const clsStats = { approved: approvedIdx.length, blindDecided: decided, blindAgree: agree, byConf: {}, bySrc: {}, byMain: {} };
 cls.forEach((c) => { clsStats.byConf[c.conf] = (clsStats.byConf[c.conf] || 0) + 1; clsStats.bySrc[c.src || '-'] = (clsStats.bySrc[c.src || '-'] || 0) + 1; const n = c.mi >= 0 ? TAXONOMY[c.mi].name : '未分類'; clsStats.byMain[n] = (clsStats.byMain[n] || 0) + 1; });
 const FIELD_CODE = { title: 't', theme: 'm', article: 'r', desc: 'd', tag: 'o' };
 // ---- 7c. 地名（世界・日本の地図用）。題名・旧仮分類の主題文・関連記事の見出し・概要欄（案内文を除く）から
-const geo = eps.map((e) => placesOfEpisode({ ...inputOf(e), desc: stripBoilerplate(e.description) }));
+const geo = eps.map((e, i) => placesOfEpisode({ ...inputOf(e, i), desc: stripBoilerplate(clean[i].desc) }));
 const geoStats = { any: geo.filter((g) => g.length).length, jp: geo.filter((g) => g.some(([id]) => PLACES[id].scope === 'jp')).length, world: geo.filter((g) => g.some(([id]) => PLACES[id].scope === 'world')).length };
 const placeCount = new Map(); geo.forEach((g) => g.forEach(([id]) => placeCount.set(id, (placeCount.get(id) || 0) + 1)));
 geoStats.top = [...placeCount].sort((a, b) => b[1] - a[1]).slice(0, 15).map(([id, n]) => PLACES[id].name + n);

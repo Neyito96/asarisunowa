@@ -115,3 +115,17 @@ test('蔵の公式タグは大分類の手がかりにする（番組名・人�
   assert.equal(TAXONOMY[r.mi].name, '動物・自然'); assert.deepEqual(r.ev[0], ['動植物', 'tag']);
   assert.equal(classify({ title: 'こんにちは', theme: '', articles: [], desc: '', tags: ['SDGs', '杢田光'] }, null).mi, -1);
 });
+
+test('番組ごとの清掃: しんぶん教室は前置き・番組名・子どもゲストを除き、取り上げた記事の見出しをテーマにする', async () => {
+  const { cleanEpisode } = await import('../scripts/uchu/series.mjs');
+  const { parseCast } = await import('../scripts/uchu/uchu-core.mjs');
+  const e = { title: '笑い飯哲夫のしんぶん教室1 ブラックサンダーのカカオ切り替えから考える児童労働',
+    description: '大阪ABCラジオ「笑い飯哲夫のしんぶん教室」をノーカットでお届けします。哲夫さんが、スタジオとオンラインで結んだお子さんに、朝日新聞の記事を説明する番組です。１回目で取り上げる記事は、2022年9月27日付朝刊（大阪本社発行）に掲載された「カカオ『児童労働なし』へ ブラックサンダー『安くても人権配慮』」です。 パーソナリティ 哲夫さん（笑い飯）、小寺右子さん（ABCアナウンサー） 子どもゲスト 清水祐司（ゆうじ）さん（兵庫県、小4、男） 「笑い飯哲夫のしんぶん教室」公式ホームページ podcast@asahi.com' };
+  const c = cleanEpisode(e);
+  assert.equal(c.series, 'shinbun-kyoshitsu');
+  assert.equal(c.headline, 'カカオ『児童労働なし』へ ブラックサンダー『安くても人権配慮』');
+  assert.ok(!/教室|哲夫/.test(c.title), c.title);
+  for (const w of ['大阪', '兵庫', '清水', '小4', 'asahi']) assert.ok(!c.desc.includes(w), w);
+  assert.deepEqual(parseCast('哲夫,笑い飯 / 則包奏志,大阪府、男、小2').includes('則包奏志'), false);
+  assert.equal(cleanEpisode({ title: 'ふつうの回', description: '本文です。' }).series, '');
+});
