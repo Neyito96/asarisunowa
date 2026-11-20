@@ -137,6 +137,9 @@ function authorizeAutoUpdateAutomationV1() {
 
 // 毎朝4時台：初回補完は行わず、前回境界より新しい回だけを確認する。
 function runAutoUpdateAutomationV1() {
+  if (typeof spotifySkipIfCooldown_ === "function" && spotifySkipIfCooldown_("runAutoUpdateAutomationV1")) {
+    return { skipped: true, reason: "spotify-cooldown" };
+  }
   const activation = processPendingAutoUpdateRequestsV1();
 
   // Daily fallback: even if the hourly backfill trigger is missing or delayed,
@@ -172,6 +175,9 @@ function runAutoUpdateBackfillHourlyV1() {
   if (isAutoUpdateDailyWindowV1_(Date.now())) {
     return { skipped: true, reason: "daily-window" };
   }
+  if (typeof spotifySkipIfCooldown_ === "function" && spotifySkipIfCooldown_("runAutoUpdateBackfillHourlyV1")) {
+    return { skipped: true, reason: "spotify-cooldown" };
+  }
   const activation = processPendingAutoUpdateRequestsV1();
   const backfill = syncNextAutoUpdateBootstrapV1_();
   // 蔵書推薦で管理人が「Spotify追加OK」にした行だけをプレイリストへ入れる（ShelfSpotify.js）。
@@ -188,7 +194,7 @@ function runAutoUpdateBackfillHourlyV1() {
   } catch (error) {
     libraryPlaylists = { error: String(error && error.message ? error.message : error) };
   }
-  // Spotifyリストの表紙・最終新着を温め直す（閲覧時に即時で出すため）
+  // Spotifyリストの表紙・最終新着を、古いものから少しずつ取り直す（#412: 1回あたり数件・各リスト1日1回）
   let liveMeta = null;
   try {
     liveMeta = typeof playlistLiveMetaWarm_ === "function" ? playlistLiveMetaWarm_() : null;
