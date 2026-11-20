@@ -22,6 +22,7 @@ a { color: #a9d4ff; }
 .titles { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
 h1 { font-size: 21px; font-weight: 600; margin: 0; letter-spacing: .14em; white-space: nowrap; }
 .sub { margin: 3px 0 0; font-size: 10.5px; letter-spacing: .22em; white-space: nowrap; color: var(--sub); }
+.stamp { margin: 2px 0 0; font-size: 10px; letter-spacing: .04em; white-space: nowrap; color: #7d8aab; }
 .sub .project { color: var(--accent); font-weight: 600; }
 .sub .what::before { content: "—"; margin: 0 .5em; color: #4a5778; }
 .search { position: relative; flex: 1; max-width: 520px; margin-left: auto; }
