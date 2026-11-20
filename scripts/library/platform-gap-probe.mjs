@@ -48,7 +48,8 @@ export function appleShowIds(kura) {
   for (const e of kura) for (const u of e.links || []) { const id = appleShowOf(u); if (id) { by[e.show] = by[e.show] || {}; by[e.show][id] = (by[e.show][id] || 0) + 1; } }
   const out = {};
   for (const [s, m] of Object.entries(by)) out[s] = Object.entries(m).sort((a, b) => b[1] - a[1])[0][0];
-  if (!out['SDGsを話そう'] && out['こどもそうだんしつ']) out['SDGsを話そう'] = out['こどもそうだんしつ'];   // SDGs の過去回は こどもそうだんしつ のフィードにある（GAS P29_FEED_SHARE_ と同じ扱い）
+  // SDGs の過去回は Apple では別番組「SDGsを話そう アーカイブ（2021.10-2026.6）」id6802972000（find-show.json で確認：フィード1092回・蔵899回が全て題名＋日付で対応）
+  if (!out['SDGsを話そう']) out['SDGsを話そう'] = '6802972000';
   return out;
 }
 
@@ -109,9 +110,9 @@ async function probe() {
     o.sample = res; o.sampleSummary = { n: res.length, found: res.filter((x) => x.titleDate === 1).length, guidSame: res.filter((x) => x.guidSame).length };
   }
   // LISTEN: SDGs の番組があるか（検索ページ）・こどもそうだんしつ のRSS件数
-  for (const q of ['SDGsを話そう', 'SDGs 朝日新聞']) {
+  for (const q of ['SDGsを話そう', 'SDGsを話そう アーカイブ']) {
     const r = await get(`https://listen.style/search?q=${encodeURIComponent(q)}`, 'text'); await sleep(1500);
-    out.listen[q] = r.status === 200 ? [...new Set([...r.body.matchAll(/href="\/p\/([a-z0-9]+)"[^>]*>([\s\S]{0,120}?)</g)].map((m) => m[1] + ' ' + m[2].replace(/<[^>]+>/g, '').trim()))].slice(0, 15) : { status: r.status };
+    out.listen[q] = r.status === 200 ? { ids: [...new Set([...r.body.matchAll(/\/p\/([a-z0-9]{6,12})(?=["\/?])/g)].map((m) => m[1]))].slice(0, 20), sdgsText: (r.body.match(/SDGs[^<"]{0,40}/g) || []).slice(0, 8) } : { status: r.status };
   }
   // Pody: SDGs の番組があるか
   for (const q of ['SDGsを話そう']) {
@@ -139,7 +140,14 @@ async function appleMap(show) {
 
 // SDGsを話そう の過去回が、各サービスで別の番組として置かれていないかを探す（番組名で検索）
 async function findShow() {
-  const out = { generatedAt: new Date().toISOString(), apple: [], pocketcasts: null };
+  const out = { generatedAt: new Date().toISOString(), apple: [], pocketcasts: null, listen: {}, pody: {} };
+  // LISTEN / Pody にアーカイブ番組があるか（検索ページの番組リンクと見出し）
+  for (const q of ['SDGsを話そう', 'SDGsを話そう アーカイブ']) {
+    const r = await get(`https://listen.style/search?q=${encodeURIComponent(q)}`, 'text'); await sleep(1500);
+    out.listen[q] = r.status === 200 ? { ids: [...new Set([...r.body.matchAll(/\/p\/([a-z0-9]{6,12})(?=["\/?])/g)].map((m) => m[1]))].slice(0, 20), sdgsText: (r.body.match(/SDGs[^<"]{0,40}/g) || []).slice(0, 8) } : { status: r.status };
+    const p = await get(`https://pody.jp/search?q=${encodeURIComponent(q)}`, 'text'); await sleep(1500);
+    out.pody[q] = p.status === 200 ? { ids: [...new Set([...p.body.matchAll(/(?:player|podcasts?|channel)\/([A-Za-z0-9]{20})/g)].map((m) => m[1]))].slice(0, 20), sdgsText: [...new Set(p.body.match(/SDGsを話そう[^<"\\]{0,30}/g) || [])].slice(0, 8) } : { status: p.status };
+  }
   for (const term of ['SDGsを話そう', 'SDGsを話そう アーカイブ', '朝日新聞 SDGs']) {
     const r = await get(`https://itunes.apple.com/search?entity=podcast&country=JP&limit=25&term=${encodeURIComponent(term)}`); await sleep(3100);
     for (const x of r.body?.results || []) if (/SDGs/i.test(x.collectionName || '')) out.apple.push({ term, id: x.collectionId, name: x.collectionName, artist: x.artistName, count: x.trackCount, feedUrl: x.feedUrl, url: x.collectionViewUrl });

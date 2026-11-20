@@ -16,7 +16,7 @@ test('題名＋日付で 1対1 だけ対応、同じ相手に2回が当たれば
   assert.deepEqual(m.matched.map((x) => x.e.id), ['EP-1']);
   assert.equal(m.duplicates, 1);
 });
-test('SDGs の Apple 番組ID は こどもそうだんしつ を使う', () => {
+test('SDGs の Apple 番組ID はアーカイブ番組（id6802972000）を使う', () => {
   const k = [{ show: 'こどもそうだんしつ', links: ['https://podcasts.apple.com/jp/podcast/x/id123?i=1'] }, { show: 'SDGsを話そう', links: [] }];
-  assert.equal(appleShowIds(k)['SDGsを話そう'], '123');
+  assert.equal(appleShowIds(k)['SDGsを話そう'], '6802972000');
 });
