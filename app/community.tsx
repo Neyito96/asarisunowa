@@ -107,9 +107,9 @@ const PLAYLIST_ARTWORK_OVERRIDES: Record<string, string> = {
     "https://image-cdn-fa.spotifycdn.com/image/ab67656300005f1f2b3a4e572f8666f2bb05c46c",
   "https://open.spotify.com/playlist/6hNrobOVHmYaQT5C7hPkNa":
     "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f09a8bd5875be5defced61b26",
-  // ポすすめ（蔵から自動で育てる。古い順に追加するので先頭4回のモザイクは変わらない）
+  // ポすすめ（蔵から自動で育てる）。表紙は管理人が Spotify で設定したもの
   "https://open.spotify.com/playlist/20eSUPkdsSN56eEC8dg2Lq":
-    "https://mosaic.scdn.co/300/ab67656300005f1f0c58c9c9f5a054b7abad0caeab67656300005f1f1e9f02825df561cca66046fcab67656300005f1f2f299b07b651890a8cce267aab67656300005f1f6b3f9aa4cd6c9e980e404400",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8459482eaa501c15385c73b623",   // ポすすめ：管理人が Spotify で表紙変更（2026-11-21 PLAYLIST_COVER_REFRESH_POSUSUME で取得・#412）
 };
 const getPlaylistArtworkOverride = (url: string) =>
   PLAYLIST_ARTWORK_OVERRIDES[url] ?? PLAYLIST_ARTWORK_OVERRIDES[url.split("?")[0]];
