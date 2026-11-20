@@ -40,7 +40,7 @@ function aurFetchEpisodes_(ids, token) {
     UrlFetchApp.fetchAll(chunk.map(function (id) {
       return { url: 'https://api.spotify.com/v1/episodes/' + encodeURIComponent(id) + '?market=JP', muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' } };
     })).forEach(function (r) {
-      if (spotifyCooldownNote_(r)) stopped = true;
+      if (spotifyCooldownNote_(r, 'AutoUpdateRecovery')) stopped = true;
       if (r.getResponseCode() === 200) episodes.push(JSON.parse(r.getContentText())); else failed++;
     });
   }

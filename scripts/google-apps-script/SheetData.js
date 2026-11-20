@@ -230,7 +230,7 @@ function readPlaylistSheet(sheet) {
         }
       )
       ;
-  // 表紙・最終新着は Spotify から（キャッシュ2時間・毎時更新）。取れなければシートの値のまま
+  // 表紙・最終新着は保存値（各リスト1日1回ほど Spotify から取り直す・閲覧時は呼ばない #412）。無ければシートの値のまま
   let liveMeta = {};
   try {
     if (typeof playlistLiveMeta_ === "function") liveMeta = playlistLiveMeta_(items.map(function(r) { return playlistIdForPublicRead_(r[0]); }));

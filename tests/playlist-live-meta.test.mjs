@@ -47,3 +47,12 @@ test('埋め込みページから回のIDを並び順で取る（曲・壊れた
   assert.deepEqual(Array.from(M.plmEmbedEpisodeIds_(html)), ['B'.repeat(22), 'D'.repeat(22)]);
   assert.deepEqual(Array.from(M.plmEmbedEpisodeIds_('<html></html>')), []);
 });
+
+test('#412 取り直すリストの選び方: 未取得→古い順、20時間以内のものは選ばない、上限件数まで', () => {
+  const now = Date.parse('2026-11-21T06:00:00Z'), h = 3600e3;
+  const A = 'A'.repeat(22), B = 'B'.repeat(22), C = 'C'.repeat(22), D = 'D'.repeat(22);
+  const stored = { [A]: { at: new Date(now - 30 * h).toISOString() }, [B]: { at: new Date(now - 2 * h).toISOString() }, [C]: { at: new Date(now - 21 * h).toISOString() } };
+  assert.deepEqual(M.plmPickStale_([A, B, C, D, D, 'bad'], stored, now, 2, 20 * h), [D, A]);
+  assert.deepEqual(M.plmPickStale_([A, B, C, D], stored, now, 10, 20 * h), [D, A, C]);
+  assert.deepEqual(M.plmPickStale_([B], stored, now, 10, 20 * h), []);
+});
