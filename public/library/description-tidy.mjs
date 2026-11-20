@@ -29,6 +29,7 @@ function relatedPairs(text) {
 }
 
 // ポッドキャストアワード投票の呼びかけ（2025年11月末〜2026年1月の配信回の冒頭に共通）。番組内容として触れる文は消さない
+const STAR_KEEP = /訂正|お詫び|申し訳|ネタバレ|説明を改め/;
 const AWARD_PLEA = /(?:★★[^★]{1,30}★★\s*)?ポッドキャストアワードに投票してください[！!]\s*(?:https?:\/\/\S*award\S*\s*)?(?:[（(][^）)]{0,40}(?:報談|分散)[^）)]{0,40}[）)]\s*)?/g;
 
 // 整形を保留（HOLD）して元の文面を出すときも、投票の呼びかけだけは外す
@@ -59,7 +60,14 @@ export function tidyDescription(raw) {
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i], rec = chunk.match(RECORDED);
       if (rec) { recordedAt = `${rec[1]}年${Number(rec[2])}月${Number(rec[3])}日`; promo = false; continue; }
-      if (chunk.startsWith('★')) { promo = true; removed.push(chunk); continue; }
+      if (chunk.startsWith('★')) {
+        // ★で始まっても、訂正・お詫び・ネタバレ注意・番組名（★the Letter）は中身なので残す（★の飾りだけ外す）
+        let j = i, sentence = chunk; while (!/[。！!？?]★*$/.test(chunks[j]) && j + 1 < chunks.length && j - i < 6 && !chunks[j + 1].startsWith('★') && !URL_ONLY.test(chunks[j + 1])) sentence += ' ' + chunks[++j];
+        if (STAR_KEEP.test(sentence) || /^★[a-z]+$/.test(chunk)) { const kept = chunk.replace(/★+/g, ' ').trim(); if (kept) body.push(kept); promo = false; continue; }
+        promo = true; removed.push(chunk); continue;
+      }
+      if (/^[＼\\]/.test(chunk) && (PROMO.test(chunk) || /まで[！!]?$/.test(chunk))) { promo = true; removed.push(chunk); continue; }   // 「＼締め切り迫る！4/24（木）まで」型の告知
+      if (promo && /^\d{1,2}(時|:\d{2})(から|〜|～)?$/.test(chunk)) { removed.push(chunk); continue; }   // 告知の消し残し（「19時から」など）
       if (chunk.startsWith('※') && !/紹介した/.test(chunk) && PROMO.test(chunk)) { promo = true; removed.push(chunk); continue; }
       if (URL_ONLY.test(chunk)) {
         if (promo || PROMO_URL.test(chunk)) { removed.push(chunk); continue; }
