@@ -180,6 +180,14 @@ function doGet(e) {
       return handlePosukamiPublic_(e, callback);
     }
 
+    // 朝リスみんなで仕分け（迷っている回の分類を集める）。Bunrui.js・別タブ「朝リス分類・投稿」
+    if (type === "bunruiSubmit") {
+      return handleBunruiSubmit_(e, callback);
+    }
+    if (type === "bunruiPublic") {
+      return handleBunruiPublic_(e, callback);
+    }
+
     if (type === "autoUpdateRequestStatus") {
       return handleAutoUpdateRequestStatus_(e, callback);
     }

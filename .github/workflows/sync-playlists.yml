@@ -40,16 +40,21 @@ jobs:
             --rows "https://script.google.com/macros/s/AKfycbzwlb2aoRrCcs4zaBljBorMzWlMS3JM_6OLjrpHlY7NvMf4BLXNiNqRbhDTQVUHYqqB_A/exec?type=posukamiPublic" \
             --submit-enabled
 
+      # 朝リスみんなで仕分け: 回ごとの票数だけを public/minna/votes.json にする（失敗しても前回の版を残す）
+      - name: Read Minna bunrui votes
+        continue-on-error: true
+        run: node scripts/minna/fetch-votes.mjs "https://script.google.com/macros/s/AKfycbxlZCNqGqOEY7j61OgcSGM8_xfGT08f4jjamXtSj2DES9fXl-xwJrvcRGYHnskidjIMug/exec?type=bunruiPublic"
+
       - name: Save changes
         run: |
-          if git diff --quiet -- app/data.ts app/recommended-podcasts-data.ts public/posusume/posukami.json; then
+          if git diff --quiet -- app/data.ts app/recommended-podcasts-data.ts public/posusume/posukami.json public/minna/votes.json; then
             echo "更新はありません"
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add app/data.ts app/recommended-podcasts-data.ts public/posusume/posukami.json
+          git add app/data.ts app/recommended-podcasts-data.ts public/posusume/posukami.json public/minna/votes.json
           git commit -m "朝リストをスプレッドシートから自動更新"
           git pull --rebase origin main
           git push

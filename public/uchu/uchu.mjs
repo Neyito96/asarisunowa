@@ -3,6 +3,7 @@
 // 回の本文・出演者・関連記事・再生先は、蔵の公開データ（../library/data/details/）をその場で読む（写しを増やさない）。
 // 外部ライブラリなし。Canvas 2D と素の DOM だけ。
 import { SHELF_KEY, readShelf, serializeShelf, toggleItem, platformLabel } from '../library/shelf-core.mjs';
+import { consensus } from '../minna/minna-core.mjs';
 
 const $ = (id) => document.getElementById(id);
 const h = (tag, attrs = {}, ...kids) => {
@@ -64,6 +65,8 @@ const canvas = $('sky'), ctx = canvas.getContext('2d');
 // ---- 読み込み（2段）: まず core（回・分類）で画面を出し、言葉・地名・関連回は裏で読む。進み具合を棒で示す
 const t0 = performance.now();
 const MAN = await fetch('./data/manifest.json').then((r) => r.json()).catch(() => ({ sizes: {} }));
+// 朝リスみんなで仕分け（../minna/）の票。3人以上・3分の2以上が同じ主分類なら「みんなの分類（候補）」として示す（保留を外すのは管理人の確認後）
+const MINNA = await fetch('../minna/votes.json').then((r) => (r.ok ? r.json() : { votes: {} })).catch(() => ({ votes: {} }));
 const SIZES = MAN.sizes || {}, TOTAL = Object.values(SIZES).reduce((a, b) => a + b, 0) || 1;
 const loaded = {};
 const mb = (n) => (n / 1048576).toFixed(1) + 'MB';
@@ -557,9 +560,13 @@ function sortSection(i) {
 function catSection(i) {
   const [mi, si, conf, src, mi2, si2] = D.cls[i], [ev, old, ev2] = D.clsEv[i] || ['', '', ''], shown = dispMain(i);
   const guess = shown === HOLD && mi >= 0 && sortLoad()[D.eps[i][0]] ? h('p', { class: 'evid' }, `Claudeの推定: ${D.cats[mi].name}（${src === 'l' ? '似た回の言葉から学んだ推定' : '関連する回の分類から'}・要確認）`) : null;
+  const mv = (MINNA.votes || {})[D.eps[i][0]], mc = consensus(mv);
+  const minna = mc ? h('p', { class: 'dual' }, h('span', { class: 'badge c2b' }, 'みんなの分類（候補）'), `${mc.name}（${mc.n}人中${mc.count}人）`)
+    : shown === HOLD ? h('p', { class: 'note' }, mv ? `朝リス ${mv.n}人が仕分け中。` : '', h('a', { href: '../minna/#ep=' + D.eps[i][0], target: '_blank', rel: 'noopener' }, 'この回をみんなで仕分ける →')) : null;
   return h('div', { class: 'sec' }, h('h4', {}, '分類'),
     shown === HOLD ? h('p', {}, h('span', { class: 'badge cl' }, '保留'), h('span', { class: 'note' }, '手がかりが弱いため分類に置いていません')) :
       h('p', {}, h('span', { class: 'badge ' + CONF[conf][0] }, CONF[conf][1]), h('button', { type: 'button', class: 'chip catpath', onclick: () => select({ type: 'cat', id: shown, sub: si }) }, catName(shown) + (si >= 0 ? ' › ' + D.cats[shown].subs[si] : ''))),
+    minna,
     guess,
     ev ? h('p', { class: 'evid' }, '根拠: ', evText(ev)) : null,
     shown !== HOLD && mi2 >= 0 ? h('p', { class: 'dual' }, h('span', { class: 'badge c2b' }, '副分類'), h('button', { type: 'button', class: 'chip catpath', onclick: () => select({ type: 'cat', id: mi2, sub: si2 }) }, h('span', { style: `color:${catColor(mi2)}` }, '● '), catName(mi2) + (si2 >= 0 ? ' › ' + D.cats[mi2].subs[si2] : ''))) : null,

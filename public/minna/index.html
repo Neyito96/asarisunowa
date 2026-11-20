@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>みんなで仕分け｜朝リスの輪</title>
+<meta name="description" content="朝日新聞ポッドキャストの、分類に迷っている回を朝リスのみんなで仕分けます。聴いて、選んで、ひとこと。">
+<meta property="og:title" content="みんなで仕分け｜朝リスの輪">
+<meta property="og:description" content="分類に迷っている約1,300回を、朝リスのみんなで仕分けよう。">
+<link rel="stylesheet" href="./minna.css">
+</head>
+<body>
+<header class="top">
+  <a class="home" href="../">朝リスの輪</a>
+  <h1>みんなで仕分け</h1>
+  <p class="lead">朝ポキの宇宙で<strong>分類に迷っている回</strong>を、朝リスのみんなで仕分けます。<br>聴いて（途中まででOK）、近いと思う分類を選ぶだけ。答えはひとつでなくて大丈夫です。</p>
+  <div class="stats" id="stats" aria-live="polite"></div>
+</header>
+
+<nav class="filters" aria-label="絞り込み">
+  <div class="chips" id="showChips" role="group" aria-label="番組"></div>
+  <label class="search"><span class="sr">ことばで探す</span><input id="q" type="search" placeholder="題名・概要のことばで探す" autocomplete="off"></label>
+</nav>
+
+<main id="app">
+  <p class="loading" id="loading">読み込み中…</p>
+</main>
+
+<template id="cardTpl">
+  <article class="card">
+    <div class="meta"><span class="show"></span><span class="date"></span><span class="dur"></span><span class="badge" hidden>Claudeが特に迷った回</span></div>
+    <h2 class="title"></h2>
+    <p class="cast"></p>
+
+    <section class="listen">
+      <h3>聴く <small>お使いのアプリで開きます</small></h3>
+      <div class="platforms"></div>
+      <button type="button" class="inline-play" hidden>▶ このページで聴く</button>
+      <div class="player"></div>
+    </section>
+
+    <details class="desc" open><summary>概要欄</summary><div class="desc-body"></div></details>
+    <details class="related"><summary>関連記事 <span class="rel-n"></span></summary><ul class="rel-list"></ul></details>
+
+    <form class="vote" novalidate>
+      <fieldset class="q q-main">
+        <legend><span class="num">1</span>いちばん近い分類は？ <small>必須</small></legend>
+        <div class="cat-grid main-grid"></div>
+      </fieldset>
+      <fieldset class="q q-sub" disabled>
+        <legend><span class="num">2</span>ほかにも当てはまる分類は？ <small>任意</small></legend>
+        <div class="cat-grid sub-grid"></div>
+      </fieldset>
+      <fieldset class="q q-theme" disabled>
+        <legend><span class="num">3</span>もう少し細かく言うと？ <small>任意</small></legend>
+        <div class="theme-chips"></div>
+        <input class="theme-free" type="text" maxlength="30" placeholder="自分の言葉で（30字まで）">
+      </fieldset>
+      <fieldset class="q q-more">
+        <legend><span class="num">4</span>ひとこと <small>任意・公開されません</small></legend>
+        <textarea class="note" maxlength="300" rows="3" placeholder="迷った理由、聴いて分かったこと、分類の提案など（300字まで）"></textarea>
+        <div class="listened" role="radiogroup" aria-label="聴いた範囲">
+          <label><input type="radio" name="listened" value="全部聞いた">全部聴いた</label>
+          <label><input type="radio" name="listened" value="一部聞いた">一部聴いた</label>
+          <label><input type="radio" name="listened" value="聞いていない">概要だけで判断</label>
+        </div>
+        <details class="nick-box"><summary>ニックネームを残す（任意）</summary>
+          <input class="nick" type="text" maxlength="30" placeholder="Discord の名前など（公開されません）">
+        </details>
+        <input class="hp" type="text" name="website2" tabindex="-1" autocomplete="off" aria-hidden="true">
+      </fieldset>
+      <div class="actions">
+        <button type="submit" class="send" disabled>この分類で送る</button>
+        <button type="button" class="skip">スキップ</button>
+      </div>
+      <p class="msg" aria-live="polite"></p>
+    </form>
+
+    <section class="result" hidden>
+      <h3>みんなの仕分け</h3>
+      <div class="bars"></div>
+      <p class="claude"></p>
+      <div class="actions">
+        <button type="button" class="next">次の回へ →</button>
+        <button type="button" class="share">この回を共有</button>
+      </div>
+    </section>
+  </article>
+</template>
+
+<footer class="foot">
+  <p>集まった仕分けは、票がそろった回から宇宙に「みんなの分類」として表示します（例: 3人以上・3分の2が同じ分類）。保留を外すのは管理人の確認のあとです。</p>
+  <p>ひとこと・ニックネームは公開しません。運営の参考にだけ使います。同じ回は何度でも出し直せます（最後の1回だけを数えます）。</p>
+  <p><a href="../uchu/">朝ポキの宇宙</a>・<a href="../library/">朝ポキの蔵</a>・<a href="https://bit.ly/asapoki_discord">朝ポキ Discord</a></p>
+</footer>
+<script type="module" src="./minna.mjs"></script>
+</body>
+</html>
