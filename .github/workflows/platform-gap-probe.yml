@@ -1,0 +1,31 @@
+name: Platform gap probe (read-only)
+# 蔵の配信先URLの空き（Apple・LISTEN・Pody）を調べる。読み取り専用（台帳・GAS・公開データは変えない）。結果は docs/audits/platform-gaps/ に保存。
+on:
+  push:
+    branches: [feat/platform-gap-probe]
+    paths: [scripts/library/platform-gap-probe.mjs, .github/workflows/platform-gap-probe.yml]
+  workflow_dispatch:
+    inputs:
+      mode: { description: 'probe | apple-map', default: probe }
+      show: { description: 'apple-map の番組名', default: '' }
+permissions:
+  contents: write
+concurrency: { group: platform-gap-probe, cancel-in-progress: false }
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node --test tests/platform-gap-probe.test.mjs
+      - run: node scripts/library/platform-gap-probe.mjs "${{ inputs.mode || 'probe' }}" "${{ inputs.show }}"
+      - name: Save results to this branch
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git add docs/audits/platform-gaps || true
+          if git diff --cached --quiet; then echo "変化なし"; exit 0; fi
+          git commit -m "audit(platform-gaps): ${{ inputs.mode || 'probe' }} ${{ inputs.show }} [skip ci]"
+          for i in 1 2 3; do git pull --rebase -q origin ${GITHUB_REF_NAME} && git push origin HEAD:${GITHUB_REF_NAME} && break; sleep 5; done
