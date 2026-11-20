@@ -1,11 +1,18 @@
 {
- "generatedAt": "2026-11-19T12:09:03.881Z",
+ "generatedAt": "2026-11-20T02:37:01.275Z",
  "source": "open.spotify.com（埋め込み＋番組ページ）",
  "shows": {
   "ニュースの現場から": {
    "showId": "392h0MYfvMTndEVzf2cOvC",
    "count": 51,
    "episodes": [
+    {
+     "id": "5ajJO7cqtIxNETWRoqDn0p",
+     "url": "https://open.spotify.com/episode/5ajJO7cqtIxNETWRoqDn0p",
+     "title": "（Think Gender）小便器のモヤモヤ　男性トイレのプライバシーも守りたい！",
+     "date": "2026-11-19",
+     "durationMs": 3822149
+    },
     {
      "id": "6hnhM3sbWPGNi75eyieCbz",
      "url": "https://open.spotify.com/episode/6hnhM3sbWPGNi75eyieCbz",
@@ -350,13 +357,6 @@
      "durationMs": 4152455
     },
     {
-     "id": "3DmVtbkoxzJPwzzIk2wWkd",
-     "url": "https://open.spotify.com/episode/3DmVtbkoxzJPwzzIk2wWkd",
-     "title": "（ON GOING）秘密のもとで守られる命　韓国とフランスの現場から",
-     "date": "2026-09-30",
-     "durationMs": 2883207
-    },
-    {
      "id": "1vVhoMqsDDYUmpajbMtF82",
      "url": "https://open.spotify.com/episode/1vVhoMqsDDYUmpajbMtF82",
      "title": "朝日新聞ポッドキャストを紹介する2分間の音声",
@@ -369,6 +369,13 @@
    "showId": "2uG9W6CnsaNi87AfSuGe8r",
    "count": 51,
    "episodes": [
+    {
+     "id": "14hu8CCQHVHVxqpXtcpk9p",
+     "url": "https://open.spotify.com/episode/14hu8CCQHVHVxqpXtcpk9p",
+     "title": "米中ロ首脳会談",
+     "date": "2026-11-19",
+     "durationMs": 738029
+    },
     {
      "id": "601wQcN3RANC9KnWYzYB4J",
      "url": "https://open.spotify.com/episode/601wQcN3RANC9KnWYzYB4J",
@@ -713,13 +720,6 @@
      "durationMs": 931812
     },
     {
-     "id": "7r3aScXF6r0JZ55rJbjKTV",
-     "url": "https://open.spotify.com/episode/7r3aScXF6r0JZ55rJbjKTV",
-     "title": "女性トイレの行列",
-     "date": "2026-09-03",
-     "durationMs": 562536
-    },
-    {
      "id": "23Q3UagtMmB8wwNgaFGF01",
      "url": "https://open.spotify.com/episode/23Q3UagtMmB8wwNgaFGF01",
      "title": "「ニュースの学校」はじまります！",
@@ -732,6 +732,13 @@
    "showId": "5Dt1uyQaJpM6hPV8aEMP3R",
    "count": 49,
    "episodes": [
+    {
+     "id": "5SvBbhUVSpoOByxp6wkcco",
+     "url": "https://open.spotify.com/episode/5SvBbhUVSpoOByxp6wkcco",
+     "title": "空港の冷遇、笑顔の握手　深圳APECで何があったのか #197",
+     "date": "2026-11-19",
+     "durationMs": 7750596
+    },
     {
      "id": "2tOEzJdAU1rdfimMZF1w7K",
      "url": "https://open.spotify.com/episode/2tOEzJdAU1rdfimMZF1w7K",
@@ -1067,13 +1074,6 @@
      "title": "（カロリーオフ）リベラルの定義ってなんなのか問題",
      "date": "2026-05-10",
      "durationMs": 1636629
-    },
-    {
-     "id": "1eksp93y7OYw99X1dHboM1",
-     "url": "https://open.spotify.com/episode/1eksp93y7OYw99X1dHboM1",
-     "title": "天気がいいから、お散歩しよう　築地・銀座・新橋かいわい #169",
-     "date": "2026-05-06",
-     "durationMs": 6074108
     }
    ]
   },
@@ -2108,6 +2108,13 @@
    "count": 49,
    "episodes": [
     {
+     "id": "5dn4ooe5L2dDEPL1aIFl8v",
+     "url": "https://open.spotify.com/episode/5dn4ooe5L2dDEPL1aIFl8v",
+     "title": "（アラサー）楽器や音楽、たのしめる余裕を持ちたい　ところで「うんにゃ」って何？",
+     "date": "2026-11-19",
+     "durationMs": 1533277
+    },
+    {
      "id": "3pEP4oxZocivkMax2yWLmu",
      "url": "https://open.spotify.com/episode/3pEP4oxZocivkMax2yWLmu",
      "title": "（親モヤ #133）「私がやっときゃいいんやろ」　親の介護を機に、家族の役割は変えられる？",
@@ -2442,13 +2449,6 @@
      "title": "（さんぽ・皇室365）皇居を歩いたら、「手ずから」がいっぱい見えた",
      "date": "2026-09-20",
      "durationMs": 5531695
-    },
-    {
-     "id": "0Q1nsb99lt4mZQ4ftOHeBZ",
-     "url": "https://open.spotify.com/episode/0Q1nsb99lt4mZQ4ftOHeBZ",
-     "title": "（日曜版）てぃーかわ・ちいかわ",
-     "date": "2026-09-19",
-     "durationMs": 8839818
     }
    ]
   }
