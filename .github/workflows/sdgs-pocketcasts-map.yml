@@ -1,0 +1,27 @@
+name: SDGs archive map (Pocket Casts, read-only)
+# #395: 蔵の「SDGsを話そう」と Pocket Casts のアーカイブ番組の新旧対応表を作る。読み取り専用（台帳・GAS・公開データは変えない）。
+on:
+  push:
+    branches: [feat/sdgs-pocketcasts-map]
+    paths: [scripts/library/sdgs-pocketcasts-map.mjs, .github/workflows/sdgs-pocketcasts-map.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  map:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/sdgs-pocketcasts-map.test.mjs
+      - run: node scripts/library/sdgs-pocketcasts-map.mjs
+      - name: Save map to this branch
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git add docs/audits/sdgs-archive
+          if git diff --cached --quiet; then echo "変化なし"; exit 0; fi
+          git commit -m "audit(sdgs): Pocket Casts 新旧対応表 [skip ci]"
+          git push origin HEAD:${GITHUB_REF_NAME}
