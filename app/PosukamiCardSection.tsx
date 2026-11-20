@@ -75,6 +75,11 @@ export default function PosukamiCardSection({ podcast, card, submitEnabled, endp
     }
   }
   function toggle(next: "reply" | "other") { setMode((m) => (m === next ? "" : next)); setResult(null); }
+  // どちらを選んでいるかを、ボタンの色・印と入力欄の見出しで示す（管理人 2026-11-20「どっちがどっちだかわからない」）
+  const MODE = {
+    reply: { icon: "💬", name: "ポすすめ返し", hint: "ポすすめを受けて、この番組が配信した回のURL" },
+    other: { icon: "✨", name: "ポす神回", hint: "神田さんのゲスト出演など、ドーナツとこの番組が交流した回のURL" },
+  } as const;
 
   const intros = card?.introductions || [];
   const replies = card?.replies || [];
@@ -89,17 +94,18 @@ export default function PosukamiCardSection({ podcast, card, submitEnabled, endp
       {submitEnabled && (
         <div className="posukamiSubmit">
           <div className="posukamiSubmitButtons">
-            <button type="button" className="posukamiSubmitToggle" aria-expanded={mode === "reply"} aria-controls={formId} onClick={() => toggle("reply")}>💬 この番組の「ポすすめ返し」を教える</button>
-            <button type="button" className="posukamiSubmitToggle" aria-expanded={mode === "other"} aria-controls={formId} onClick={() => toggle("other")}>✨ ポす神回を教える</button>
+            <button type="button" className={"posukamiSubmitToggle posukamiToggle-reply" + (mode === "reply" ? " isActive" : "")} aria-expanded={mode === "reply"} aria-controls={formId} onClick={() => toggle("reply")}>💬 この番組の「ポすすめ返し」を教える{mode === "reply" && <span className="posukamiChosen">✓ 選択中</span>}</button>
+            <button type="button" className={"posukamiSubmitToggle posukamiToggle-other" + (mode === "other" ? " isActive" : "")} aria-expanded={mode === "other"} aria-controls={formId} onClick={() => toggle("other")}>✨ ポす神回を教える{mode === "other" && <span className="posukamiChosen">✓ 選択中</span>}</button>
           </div>
           {mode && (
-            <form id={formId} onSubmit={submit} className="posukamiForm">
+            <form id={formId} onSubmit={submit} className={"posukamiForm posukamiForm-" + mode}>
+              <p className="posukamiFormHead"><strong>{MODE[mode].icon} {MODE[mode].name}を投稿</strong><span>{MODE[mode].hint}</span></p>
               <label className="posukamiUrlLabel">
-                <span className="visuallyHidden">{mode === "reply" ? "ポすすめ返し" : "ポす神回"}のエピソードURL</span>
-                <input type="url" inputMode="url" required value={url} onChange={(e) => setUrl(e.target.value)} placeholder="エピソードのURLを貼り付け" />
+                <span className="visuallyHidden">{MODE[mode].name}のエピソードURL</span>
+                <input type="url" inputMode="url" required value={url} onChange={(e) => setUrl(e.target.value)} placeholder={MODE[mode].name + "の回のURLを貼り付け"} />
               </label>
               <input type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" value={website2} onChange={(e) => setWebsite2(e.target.value)} style={{ position: "absolute", left: "-9999px", width: 1, height: 1 }} />
-              <button type="submit" disabled={sending}>{sending ? "送信中…" : "投稿する"}</button>
+              <button type="submit" disabled={sending}>{sending ? "送信中…" : MODE[mode].name + "を投稿"}</button>
               {result && <p role="status" className="posukamiResult">{result.text}</p>}
             </form>
           )}
