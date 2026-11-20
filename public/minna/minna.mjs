@@ -1,6 +1,7 @@
 // みんなで仕分け（2026-11-20）。朝ポキの宇宙で「保留」の回と、Claude が特に迷った回を、朝リスのみんなで仕分ける。
 // 受付は本番GAS（type=bunruiSubmit・JSONP）。票の集計は ./votes.json（30分ごとに GitHub Actions が更新）。
 import { tidyDescription } from '../library/description-tidy.mjs';
+import { liveLinks } from '../library/shelf-core.mjs';
 import { queueOrder, platformOf, shareText, topVotes } from './minna-core.mjs';
 
 const ENDPOINT = 'https://script.google.com/macros/s/AKfycbxlZCNqGqOEY7j61OgcSGM8_xfGT08f4jjamXtSj2DES9fXl-xwJrvcRGYHnskidjIMug/exec';
@@ -82,7 +83,7 @@ async function show(id) {
 function fillDetail(node, det) {
   if (det.cast) $('.cast', node).textContent = det.cast;
   const pref = store.get('platform', '');
-  const plats = (det.links || []).map((u) => ({ u, p: platformOf(u) })).filter((x) => x.p && x.p.key !== 'omny-embed');
+  const plats = liveLinks(det, det.links || []).map((u) => ({ u, p: platformOf(u) })).filter((x) => x.p && x.p.key !== 'omny-embed');
   plats.sort((a, b) => (b.p.key === pref) - (a.p.key === pref));
   const box = $('.platforms', node);
   plats.forEach(({ u, p }) => {
