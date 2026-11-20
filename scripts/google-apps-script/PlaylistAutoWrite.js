@@ -92,6 +92,8 @@ function addAutoPlaylistEpisodesBatch_(rule, token, episodes) {
   episodes.forEach(function(ep) {
     Logger.log("追加完了 ✅ " + ep.name);
   });
+  // #412: サイトの「最終新着」を、追加した回の配信日で更新する（Spotify には問い合わせない）
+  if (typeof plmNoteAdded_ === "function") plmNoteAdded_(rule.playlistId, episodes);
 
   const responseBody = JSON.parse(addRes.getContentText() || "{}");
   return {

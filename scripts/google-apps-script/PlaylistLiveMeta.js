@@ -83,21 +83,32 @@ function plmLatestViaEmbed_(ids, token) {
   return out;
 }
 
-// 2026-11-20 #412（管理人「Spotifyへのアクセスは必要最低限に」）:
+// 2026-11-20 #412（管理人「表紙を定期的に取得する必要はない」）:
 // ・取得結果はスクリプトプロパティ（plm4:ID）に保存する。閲覧時（doGet）は保存値を返すだけで Spotify を呼ばない。
-// ・取り直しは毎時の自動更新から、古い順に PLM_PER_RUN_ 件だけ。各リストはおおむね1日1回（PLM_MAX_AGE_MS_ より古いものだけ）。
+// ・表紙の定期巡回はしない。Spotify に問い合わせるのは次の時だけ:
+//   1) 新しく登録されたリスト（保存値が無いもの）を1回だけ取る（毎時の自動更新から、1回に PLM_NEW_PER_RUN_ 件まで）
+//   2) 管理人が Spotify で表紙を変えた時、依頼を受けて該当リストだけ取り直す（plmRefreshCoverOne_）
+// ・最終新着日は表紙と別に扱う。自動更新が回を追加した時、その回の配信日から更新する（Spotify に問い合わせない・plmNoteAdded_）
 var PLM_STORE_ = 'plm4:';
-var PLM_PER_RUN_ = 4;
-var PLM_MAX_AGE_MS_ = 20 * 3600 * 1000;
+var PLM_NEW_PER_RUN_ = 4;
 
-// 純粋: 保存値の一覧から、今回取り直すリストを選ぶ（未取得 → 古い順。新しいものは選ばない）
-function plmPickStale_(ids, stored, nowMs, limit, maxAgeMs) {
+// 純粋: 保存値の無い（新しく登録された）リストだけを選ぶ。重複・形の違うIDは除く
+function plmPickNew_(ids, stored, limit) {
   var seen = {};
-  return (ids || []).filter(function (id) { if (seen[id] || !/^[A-Za-z0-9]{22}$/.test(id)) return false; seen[id] = true; return true; })
-    .map(function (id) { var v = stored[id]; return { id: id, at: v && v.at ? Date.parse(v.at) || 0 : 0 }; })
-    .filter(function (x) { return nowMs - x.at >= maxAgeMs; })
-    .sort(function (a, b) { return a.at - b.at; })
-    .slice(0, limit).map(function (x) { return x.id; });
+  return (ids || []).filter(function (id) {
+    if (seen[id] || !/^[A-Za-z0-9]{22}$/.test(id)) return false;
+    seen[id] = true; return !stored[id];
+  }).slice(0, limit);
+}
+
+// 純粋: 追加した回の配信日から、新しい最終新着日を求める（今より新しい時だけ返す。無ければ ''）
+function plmLatestAfterAdd_(current, episodes) {
+  var best = String(current || '');
+  (episodes || []).forEach(function (ep) {
+    var d = String(ep && (ep.release_date || ep.date) || '').slice(0, 10);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(d) && d > best) best = d;
+  });
+  return best > String(current || '') ? best : '';
 }
 
 function plmStoredAll_() {
@@ -146,13 +157,12 @@ function plmRefresh_(ids) {
   return out;
 }
 
-// 切り替え時だけ: 旧キャッシュ（plm3:）に残っている値を保存値へ移す（表紙が一時的に消えないように）。
-// 取得時刻は「古い」扱いにして、通常の順番で取り直されるようにする。Spotify は呼ばない
+// 切り替え時だけ: 旧キャッシュ（plm3:）に残っている値を保存値へ移す（表紙が一時的に消えないように）。Spotify は呼ばない
 function plmMigrateFromCache_(ids, stored) {
   var need = ids.filter(function (id) { return !stored[id]; });
   if (!need.length) return 0;
   var got = CacheService.getScriptCache().getAll(need.map(function (id) { return 'plm3:' + id; })) || {}, put = {};
-  var old = new Date(Date.now() - PLM_MAX_AGE_MS_).toISOString();
+  var old = new Date().toISOString();
   need.forEach(function (id) {
     var v = got['plm3:' + id]; if (!v) return;
     try { var j = JSON.parse(v); stored[id] = { artwork: j.artwork || '', latestDate: j.latestDate || '', at: old }; put[PLM_STORE_ + id] = JSON.stringify(stored[id]); } catch (e) {}
@@ -161,19 +171,54 @@ function plmMigrateFromCache_(ids, stored) {
   return Object.keys(put).length;
 }
 
-// 毎時の自動更新から: サイト公開用のリストのうち、古いものを数件だけ取り直す
+// 毎時の自動更新から: 新しく登録されたリスト（保存値が無いもの）だけ1回取る。既にあるリストは取り直さない
 function playlistLiveMetaWarm_() {
   var sh = getSheetLoose(SpreadsheetApp.openById(SPREADSHEET_ID), PUBLIC_SHEET_NAME);
   if (!sh || sh.getLastRow() < 2) return { warmed: 0 };
   var ids = sh.getRange(2, 1, sh.getLastRow() - 1, 1).getDisplayValues().map(function (r) { return playlistIdForPublicRead_(r[0]); }).filter(Boolean);
   var stored = plmStoredAll_();
   plmMigrateFromCache_(ids, stored);
-  var pick = plmPickStale_(ids, stored, Date.now(), PLM_PER_RUN_, PLM_MAX_AGE_MS_);
-  var m = plmRefresh_(pick);
-  return { playlists: ids.length, picked: pick.length, warmed: Object.keys(m).length };
+  var pick = plmPickNew_(ids, stored, PLM_NEW_PER_RUN_);
+  var m = pick.length ? plmRefresh_(pick) : {};
+  return { playlists: ids.length, newPicked: pick.length, fetched: Object.keys(m).length };
+}
+
+// 自動更新で回を追加した直後に呼ぶ（PlaylistAutoWrite.js）。Spotify には問い合わせない。
+// 保存値があるリストだけ、最終新着日を新しくする（表紙はそのまま）
+function plmNoteAdded_(playlistId, episodes) {
+  try {
+    var id = String(playlistId || ''); if (!/^[A-Za-z0-9]{22}$/.test(id)) return false;
+    var props = PropertiesService.getScriptProperties(), raw = props.getProperty(PLM_STORE_ + id); if (!raw) return false;
+    var v = JSON.parse(raw), next = plmLatestAfterAdd_(v.latestDate, episodes); if (!next) return false;
+    v.latestDate = next; v.latestFrom = 'autoAdd'; v.latestAt = new Date().toISOString();
+    props.setProperty(PLM_STORE_ + id, JSON.stringify(v));
+    return true;
+  } catch (e) { return false; }
+}
+
+// 管理人の依頼で、1つのリストの表紙だけ取り直す（Spotify 1回）。最終新着日はそのまま。
+// 待機中は何もしない（解除後にもう一度実行する）。取れなかった時も今の表紙を消さない
+function plmRefreshCoverOne_(idOrUrl) {
+  var m = String(idOrUrl || '').match(/([A-Za-z0-9]{22})/); if (!m) return { ok: false, reason: 'NO_ID' };
+  var id = m[1];
+  var until = typeof spotifyAnyCooldown_ === 'function' ? spotifyAnyCooldown_() : '';
+  if (until) return { ok: false, reason: 'SPOTIFY_COOLDOWN', until: until };
+  var token = plmToken_(); if (!token) return { ok: false, reason: 'NO_TOKEN' };
+  var r = plmFetchChunked_([{ url: 'https://api.spotify.com/v1/playlists/' + id + '?market=JP&fields=images', headers: plmHeaders_(token), muteHttpExceptions: true }])[0];
+  if (!plmOk_(r)) return { ok: false, reason: 'HTTP_' + (r ? r.getResponseCode() : 'NONE') };
+  var art = plmArtwork_(JSON.parse(r.getContentText()).images);
+  if (!art) return { ok: false, reason: 'NO_IMAGE' };
+  var props = PropertiesService.getScriptProperties(), raw = props.getProperty(PLM_STORE_ + id), v = {};
+  try { v = raw ? JSON.parse(raw) : {}; } catch (e) { v = {}; }
+  var before = v.artwork || '';
+  v.artwork = art; v.coverAt = new Date().toISOString(); if (!v.at) v.at = v.coverAt;
+  props.setProperty(PLM_STORE_ + id, JSON.stringify(v));
+  return { ok: true, id: id, changed: before !== art, before: before, after: art };
 }
 
 function PLAYLIST_LIVE_META_CHECK() { var r = playlistLiveMetaWarm_(); Logger.log(JSON.stringify(r)); return r; }
+// 管理人の依頼「ポすすめの表紙を変えた」（2026-11-20）用
+function PLAYLIST_COVER_REFRESH_POSUSUME() { var r = plmRefreshCoverOne_('20eSUPkdsSN56eEC8dg2Lq'); Logger.log(JSON.stringify(r)); return r; }
 // 切り替え直後に手で1回: 旧キャッシュから保存値へ移すだけ（Spotify は呼ばない）
 function PLAYLIST_LIVE_META_MIGRATE_ONLY() {
   var sh = getSheetLoose(SpreadsheetApp.openById(SPREADSHEET_ID), PUBLIC_SHEET_NAME);
@@ -182,4 +227,4 @@ function PLAYLIST_LIVE_META_MIGRATE_ONLY() {
   Logger.log(JSON.stringify({ playlists: ids.length, migrated: n, stored: Object.keys(stored).length }));
 }
 
-if (typeof module !== 'undefined') module.exports = { plmPickStale_: plmPickStale_, plmLatestFromItems_: plmLatestFromItems_, plmArtwork_: plmArtwork_, plmEmbedEpisodeIds_: plmEmbedEpisodeIds_ };
+if (typeof module !== 'undefined') module.exports = { plmPickNew_: plmPickNew_, plmLatestAfterAdd_: plmLatestAfterAdd_, plmLatestFromItems_: plmLatestFromItems_, plmArtwork_: plmArtwork_, plmEmbedEpisodeIds_: plmEmbedEpisodeIds_ };
