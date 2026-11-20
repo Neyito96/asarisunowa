@@ -47,6 +47,14 @@ export function episodeFromV2(rec) {
   return e;
 }
 // 出演者の欄から URL を外して名前だけにする（表示用）
+// 管理人が決めた番組ごとの規則（cast-manual.json の rules）: V2 の出演者が空の回にだけ使う。V2 には書かない（純粋）
+export function castFromRules(v2, rules) {
+  const out = new Map();
+  for (const rule of rules || []) for (const r of v2 || []) {
+    if (r['番組'] === rule.show && !castNames(r['出演者'])) out.set(r['EP-ID'], rule.cast);
+  }
+  return out;
+}
 export function castNames(text) { return dedupeCast(String(text || '').split(/\n+/).map((l) => l.replace(/https?:\/\/\S+/g, '').trim()).filter(Boolean).join(' / ')); }
 // 出演者の完全一致の重複だけを外す（並び順は最初の出現を保つ。名前の削除・書き換えはしない）
 export const PROMO_RELATED = (url, title) => /asahi\.com\/special\/n4u\/?(?:[?#].*)?$/i.test(String(url || '')) || /LINE(お友達|友だち)登録/.test(String(title || ''));
@@ -147,7 +155,9 @@ async function main() {
   // 手動修正の保護: Phase11 で承認済みの概要（542件）は置き換えない
   const p11 = path.join(ROOT, 'docs/audits/2026-10-21-phase11/description-plan.json'), descProtect = new Set(fs.existsSync(p11) ? JSON.parse(fs.readFileSync(p11, 'utf8')).records.map((r) => r.id) : []);
   const mcPath = path.join(ROOT, 'docs/audits/library-v2-sync/cast-manual.json'), manualCast = new Map();
-  if (fs.existsSync(mcPath)) for (const d of JSON.parse(fs.readFileSync(mcPath, 'utf8')).decisions) for (const id of d.ids) manualCast.set(id, d.cast);
+  const mc = fs.existsSync(mcPath) ? JSON.parse(fs.readFileSync(mcPath, 'utf8')) : { decisions: [], rules: [] };
+  for (const d of mc.decisions || []) for (const id of d.ids) manualCast.set(id, d.cast);
+  for (const [id, cast] of castFromRules(v2, mc.rules)) if (!manualCast.has(id)) manualCast.set(id, cast);
   const old = loadPublic(dest), plan = planSync({ old, decisions: snapshot.decisions, v2, resolved, descProtect, syncDescriptions: !a.includes('--no-descriptions'), manualCast });
   if (!plan.ok) { console.error('停止: ' + plan.problems.slice(0, 10).join(' / ')); process.exit(1); }
   // 再発防止の監査: 「V2に出演者があるのに蔵では空欄」は毎回 0 でなければ止める（2026-11-17 ニュースの学校の欠落）
