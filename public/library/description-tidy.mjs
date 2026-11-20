@@ -10,7 +10,7 @@ const STRONG_PROMO = /ad choices|adchoices|megaphone\.fm|お申し込み|会員�
 const PROMO_URL = /asahi\.com\/special\/n4u\/?$|bit\.ly\/(asapoki|4k4ZKwA)|t\.asahi\.com\/(w|asapoki)|discord\.gg|ciy\.digital\.asahi\.com|digital\.asahi\.com\/pr\/|omnystudio\.com|x\.gd\/|youtube\.com\/@asapoki/i;
 const URL_ONLY = /^https?:\/\/\S+$/;
 const RECORDED = /^※?\s*(\d{4})年(\d{1,2})月(\d{1,2})日に収録(?:しました)?。?$/;
-const ENT = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'", '&apos;': "'", '&nbsp;': ' ', '&hellip;': '…', '&mdash;': '—', '&ndash;': '–' };
+const ENT = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'", '&apos;': "'", '&nbsp;': ' ', '&hellip;': '…', '&mdash;': '—', '&ndash;': '–', '&darr;': '↓', '&uarr;': '↑', '&rarr;': '→', '&larr;': '←' };
 
 const ARTICLE_URL = /^https:\/\/((www\.)?asahi\.com\/|digital\.asahi\.com\/articles|withnews\.jp\/|globe\.asahi\.com\/|book\.asahi\.com\/|dot\.asahi\.com\/|news\.yahoo\.co\.jp\/)/;
 const SOCIAL_URL = /twitter\.com|x\.com\/|instagram\.com|buff\.ly|facebook\.com|tiktok\.com|forms\.|note\.com\/asahi/i;
@@ -30,6 +30,8 @@ function relatedPairs(text) {
 
 // ポッドキャストアワード投票の呼びかけ（2025年11月末〜2026年1月の配信回の冒頭に共通）。番組内容として触れる文は消さない
 const STAR_KEEP = /訂正|お詫び|申し訳|ネタバレ|説明を改め/;
+// 「祝・1億DL！ 5/31（土）」は節目の記録として残し、続くイベント告知（グッズ・会場・配信の案内・申し込み）だけ外す（管理人判断 2026-11-20）
+const MILLION_DL_EVENT = /(祝・1億DL！\s*5\/31（土）)\s*イベント\s.*?(?:こちらから|視聴可能です。|視聴できます)\s*↓?\s*(?:※朝日ID会員の登録（無料）で申し込めます。\s*)?/g;
 const AWARD_PLEA = /(?:★★[^★]{1,30}★★\s*)?ポッドキャストアワードに投票してください[！!]\s*(?:https?:\/\/\S*award\S*\s*)?(?:[（(][^）)]{0,40}(?:報談|分散)[^）)]{0,40}[）)]\s*)?/g;
 
 // 整形を保留（HOLD）して元の文面を出すときも、投票の呼びかけだけは外す
@@ -42,7 +44,7 @@ export function withoutAwardPlea(raw) {
 
 export function tidyDescription(raw) {
   const awardRemoved = [];
-  const text = String(raw || '').replace(/&[a-z#0-9]+;/gi, (x) => ENT[x] ?? x).replace(/[〖［]/g, '【').replace(/[〗］]/g, '】').replace(/([^\s])(https?:\/\/)/g, '$1 $2').replace(/\s+/g, ' ').replace(AWARD_PLEA, (m) => { awardRemoved.push(m.trim()); return ' '; }).replace(/\s+/g, ' ').trim();
+  const text = String(raw || '').replace(/&[a-z#0-9]+;/gi, (x) => ENT[x] ?? x).replace(/[〖［]/g, '【').replace(/[〗］]/g, '】').replace(/([^\s])(https?:\/\/)/g, '$1 $2').replace(/\s+/g, ' ').replace(AWARD_PLEA, (m) => { awardRemoved.push(m.trim()); return ' '; }).replace(MILLION_DL_EVENT, (m, keep) => { awardRemoved.push(m.slice(keep.length).trim()); return keep + ' '; }).replace(/\s+/g, ' ').trim();
   if (!text) return { status: 'EMPTY', reason: '', body: '', recordedAt: '', related: [], removed: [] };
   const parts = text.split(/(?=【[^】]{1,40}】)/), body = [], related = [], removed = [...awardRemoved];
   let recordedAt = '', hold = '';

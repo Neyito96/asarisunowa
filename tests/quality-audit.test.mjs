@@ -36,7 +36,7 @@ test('題名の照合: 番号・記号の違いは同じ、別の回は違う', 
 test('P2 #403: 表示される概要欄（整形後）と出演者欄を見る', () => {
   const body = '本編の説明です。'.repeat(12);
   const eps = [
-    { id: 'EP-10', show: 'A', title: 'か', date: '2026-01-01', cast: '甲', description: body + ' 見逃しはこちら &darr;', duration: 1, links: [] },
+    { id: 'EP-10', show: 'A', title: 'か', date: '2026-01-01', cast: '甲', description: body + ' 見逃しはこちら &hearts;', duration: 1, links: [] },
     { id: 'EP-11', show: 'A', title: 'き', date: '2026-01-02', cast: '乙 / 【シリーズ「カガク」】 過去の番組一覧はこちら', description: body, duration: 1, links: [] },
     { id: 'EP-12', show: 'B', title: 'く', date: '2026-01-03', cast: '丙', description: body, duration: 1, links: [] },
     { id: 'EP-13', show: 'B', title: 'け', date: '2026-01-04', cast: '松原由幸（編集長）、大木理恵子（MC）、杢田光（音源編集）', description: '別の本文。'.repeat(20), duration: 1, links: [] },
