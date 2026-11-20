@@ -28,10 +28,22 @@ function relatedPairs(text) {
   return rest && !PROMO.test(rest) && !STRONG_PROMO.test(rest) ? null : out;
 }
 
+// ポッドキャストアワード投票の呼びかけ（2025年11月末〜2026年1月の配信回の冒頭に共通）。番組内容として触れる文は消さない
+const AWARD_PLEA = /(?:★★[^★]{1,30}★★\s*)?ポッドキャストアワードに投票してください[！!]\s*(?:https?:\/\/\S*award\S*\s*)?(?:[（(][^）)]{0,40}(?:報談|分散)[^）)]{0,40}[）)]\s*)?/g;
+
+// 整形を保留（HOLD）して元の文面を出すときも、投票の呼びかけだけは外す
+export function withoutAwardPlea(raw) {
+  const s = String(raw || ''), flat = s.replace(/\s+/g, ' ');
+  AWARD_PLEA.lastIndex = 0;
+  if (!AWARD_PLEA.test(flat)) return s;   // 呼びかけがない回は元の文面（改行も）をそのまま
+  return flat.replace(AWARD_PLEA, ' ').replace(/\s+/g, ' ').trim();
+}
+
 export function tidyDescription(raw) {
-  const text = String(raw || '').replace(/&[a-z#0-9]+;/gi, (x) => ENT[x] ?? x).replace(/[〖［]/g, '【').replace(/[〗］]/g, '】').replace(/([^\s])(https?:\/\/)/g, '$1 $2').replace(/\s+/g, ' ').trim();
+  const awardRemoved = [];
+  const text = String(raw || '').replace(/&[a-z#0-9]+;/gi, (x) => ENT[x] ?? x).replace(/[〖［]/g, '【').replace(/[〗］]/g, '】').replace(/([^\s])(https?:\/\/)/g, '$1 $2').replace(/\s+/g, ' ').replace(AWARD_PLEA, (m) => { awardRemoved.push(m.trim()); return ' '; }).replace(/\s+/g, ' ').trim();
   if (!text) return { status: 'EMPTY', reason: '', body: '', recordedAt: '', related: [], removed: [] };
-  const parts = text.split(/(?=【[^】]{1,40}】)/), body = [], related = [], removed = [];
+  const parts = text.split(/(?=【[^】]{1,40}】)/), body = [], related = [], removed = [...awardRemoved];
   let recordedAt = '', hold = '';
   for (const part of parts) {
     const head = (part.match(/^【[^】]*】/) || [''])[0];

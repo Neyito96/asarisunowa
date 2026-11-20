@@ -4,6 +4,7 @@
 // 外部ライブラリなし。Canvas 2D と素の DOM だけ。
 import { SHELF_KEY, readShelf, serializeShelf, toggleItem, platformLabel } from '../library/shelf-core.mjs';
 import { consensus } from '../minna/minna-core.mjs';
+import { tidyDescription, withoutAwardPlea } from '../library/description-tidy.mjs';
 
 const $ = (id) => document.getElementById(id);
 const h = (tag, attrs = {}, ...kids) => {
@@ -705,8 +706,10 @@ async function renderEp(i) {
   if (!d) { descBox.replaceChildren(h('p', { class: 'note' }, '詳細を読み込めませんでした。蔵で見てください。')); return; }
   const pl = (d.links || []).map((u) => [platformLabel(u) || '', u]).filter(([l]) => l && !/朝日新聞/.test(l));
   const words = (() => { const s = new Set(); D.terms.forEach((t, j) => { if (t[4].includes(i)) s.add(j); }); return [...s].sort((a, b) => D.terms[a][4].length - D.terms[b][4].length).slice(0, 10); })();
+  const tidy = tidyDescription(d.description), useTidy = tidy.status === 'TIDY' || tidy.status === 'AS_IS';   // 蔵と同じ表示整形（告知・定型を外す。保留の回は元の文面）
+  const descText = tidy.status === 'PROMO_ONLY' ? '公式の概要欄は番組の告知だけで、この回の内容の説明はありません。' : (useTidy ? tidy.body : withoutAwardPlea(d.description));
   descBox.replaceChildren(
-    d.description ? h('p', { class: 'desc' }, d.description) : null,
+    descText ? h('p', { class: 'desc' }, descText) : null,
     d.cast ? h('p', { class: 'meta' }, '出演: ', d.cast) : null,
     pl.length ? h('div', { class: 'sec links' }, h('h4', {}, '聴く'), pl.map(([l, u]) => h('a', { href: u, target: '_blank', rel: 'noopener' }, l + ' ↗'))) : null,
     words.length ? h('div', { class: 'sec' }, h('h4', {}, 'この回の言葉'), words.map((j) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'word', id: j }) }, D.terms[j][0]))) : null,

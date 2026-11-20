@@ -1,6 +1,6 @@
 // みんなで仕分け（2026-11-20）。朝ポキの宇宙で「保留」の回と、Claude が特に迷った回を、朝リスのみんなで仕分ける。
 // 受付は本番GAS（type=bunruiSubmit・JSONP）。票の集計は ./votes.json（30分ごとに GitHub Actions が更新）。
-import { tidyDescription } from '../library/description-tidy.mjs';
+import { tidyDescription, withoutAwardPlea } from '../library/description-tidy.mjs';
 import { liveLinks } from '../library/shelf-core.mjs';
 import { queueOrder, platformOf, shareText, topVotes } from './minna-core.mjs';
 
@@ -98,7 +98,7 @@ function fillDetail(node, det) {
     btn.onclick = () => { const f = document.createElement('iframe'); f.src = omny.replace(/\/embed$/, '') + '/embed?style=cover'; f.loading = 'lazy'; f.allow = 'autoplay; clipboard-write'; f.title = 'このページで聴く'; $('.player', node).replaceChildren(f); btn.hidden = true; };
   }
   const t = tidyDescription(det.description || '');
-  const body = (t.status === 'TIDY' || t.status === 'AS_IS') ? t.body : String(det.description || '');
+  const body = (t.status === 'TIDY' || t.status === 'AS_IS') ? t.body : withoutAwardPlea(det.description);
   $('.desc-body', node).textContent = body || '（概要欄がありません）';
   const rel = (det.relatedArticles && det.relatedArticles.length ? det.relatedArticles : (t.related || []));
   $('.rel-n', node).textContent = rel.length ? `（${rel.length}件）` : '（なし）';
