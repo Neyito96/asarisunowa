@@ -1,19 +1,42 @@
 {
  "summary": {
-  "generatedAt": "2026-11-20T12:16:18.815Z",
-  "spotifyGeneratedAt": "2026-11-20T12:11:03.682Z",
-  "ledgerRows": 6134,
-  "ledgerSpotifyEmpty": 10,
-  "verified": 0,
+  "generatedAt": "2026-11-20T22:46:42.867Z",
+  "spotifyGeneratedAt": "2026-11-20T22:41:08.838Z",
+  "ledgerRows": 6137,
+  "ledgerSpotifyEmpty": 13,
+  "verified": 3,
   "counts": {
-   "VERIFIED_SAME": 266,
+   "VERIFIED": 3,
+   "VERIFIED_SAME": 265,
    "NO_ROW": 16,
-   "CANDIDATE": 59,
-   "HOLD": 3
+   "CANDIDATE": 58,
+   "HOLD": 2
   },
   "emptyNotInSpotifyList": 1
  },
- "verified": [],
+ "verified": [
+  {
+   "ep": "EP-06760",
+   "url": "https://open.spotify.com/episode/1zZEuUZ96aoAZl6ruKxPTP",
+   "show": "ニュースの現場から",
+   "title": "（ポリレビ #20）米中ロで新ヤルタ会談？日本の厳しい立場あらわに／政治資金あつめに官僚使っていいの？",
+   "spotifyDate": "2026-11-20"
+  },
+  {
+   "ep": "EP-06761",
+   "url": "https://open.spotify.com/episode/7FE052Inwh2vOfFoMTZj1J",
+   "show": "スポンジ",
+   "title": "（陸上 #4）早大独走の全日本大学駅伝　1年生「三羽がらす」、実はカルテット",
+   "spotifyDate": "2026-11-20"
+  },
+  {
+   "ep": "EP-06762",
+   "url": "https://open.spotify.com/episode/4LdvZkgiE6wAVrKhBAbKjD",
+   "show": "ドーナツ",
+   "title": "（ノーミライ＃13）２人の間に何かがあったんかなかったんか、というお話",
+   "spotifyDate": "2026-11-20"
+  }
+ ],
  "others": [
   {
    "show": "ニュースの現場から",
@@ -663,17 +686,6 @@
    "gap": 0
   },
   {
-   "show": "スポンジ",
-   "url": "https://open.spotify.com/episode/00yUT53ZjoMN6LnOdgY3tC",
-   "title": "（バスケ・BリーグCS）長崎、創設5季目で優勝　勝負を分けたリバウンドとディフェンス  ＃2265",
-   "spotifyDate": "2026-06-05",
-   "ep": "EP-01083",
-   "status": "HOLD",
-   "reason": "台帳に別のSpotify URLがある（上書きしない）",
-   "same": false,
-   "gap": -0.31300000000010186
-  },
-  {
    "show": "こどもそうだんしつ",
    "url": "https://open.spotify.com/episode/3R0OSSgJr30F7nPTIS31cd",
    "title": "タコが体の色を変えられるのは、なんで？ #18",
@@ -683,17 +695,6 @@
    "reason": "題名・日付は一致・台帳の再生時間が空",
    "same": true,
    "gap": null
-  },
-  {
-   "show": "ドーナツ",
-   "url": "https://open.spotify.com/episode/1m5uBDeXcifljM9tTtWVhG",
-   "title": "（さんぽ・皇室365）皇居を歩いたら、「手ずから」がいっぱい見えた",
-   "spotifyDate": "2026-09-20",
-   "ep": "EP-00116",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない",
-   "same": true,
-   "gap": -109.69499999999971
   }
  ],
  "emptyNotInSpotifyList": [
@@ -789,6 +790,33 @@
    "status": "CANDIDATE",
    "reason": "題名・日付は一致・長さが合わない",
    "spotifyUrl": "https://open.spotify.com/episode/5SvBbhUVSpoOByxp6wkcco"
+  },
+  {
+   "ep": "EP-06760",
+   "show": "ニュースの現場から",
+   "title": "（ポリレビ #20）米中ロで新ヤルタ会談？日本の厳しい立場あらわに／政治資金あつめに官僚使っていいの？",
+   "published": "2026/11/21 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/1zZEuUZ96aoAZl6ruKxPTP"
+  },
+  {
+   "ep": "EP-06761",
+   "show": "スポンジ",
+   "title": "（陸上 #4）早大独走の全日本大学駅伝　1年生「三羽がらす」、実はカルテット",
+   "published": "2026/11/21 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/7FE052Inwh2vOfFoMTZj1J"
+  },
+  {
+   "ep": "EP-06762",
+   "show": "ドーナツ",
+   "title": "（ノーミライ＃13）２人の間に何かがあったんかなかったんか、というお話",
+   "published": "2026/11/21 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/4LdvZkgiE6wAVrKhBAbKjD"
   }
  ]
 }

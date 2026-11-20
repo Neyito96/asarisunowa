@@ -1,11 +1,18 @@
 {
- "generatedAt": "2026-11-20T12:11:03.682Z",
+ "generatedAt": "2026-11-20T22:41:08.838Z",
  "source": "open.spotify.com（埋め込み＋番組ページ）",
  "shows": {
   "ニュースの現場から": {
    "showId": "392h0MYfvMTndEVzf2cOvC",
    "count": 51,
    "episodes": [
+    {
+     "id": "1zZEuUZ96aoAZl6ruKxPTP",
+     "url": "https://open.spotify.com/episode/1zZEuUZ96aoAZl6ruKxPTP",
+     "title": "（ポリレビ #20）米中ロで新ヤルタ会談？日本の厳しい立場あらわに／政治資金あつめに官僚使っていいの？",
+     "date": "2026-11-20",
+     "durationMs": 3580000
+    },
     {
      "id": "5ajJO7cqtIxNETWRoqDn0p",
      "url": "https://open.spotify.com/episode/5ajJO7cqtIxNETWRoqDn0p",
@@ -348,13 +355,6 @@
      "title": "（ポリレビ #13）日本も対外諜報するの？議員定数削減どうなる？議論のゆくえは",
      "date": "2026-10-02",
      "durationMs": 3931958
-    },
-    {
-     "id": "5dqpEkTZs661ZNVvUPORvn",
-     "url": "https://open.spotify.com/episode/5dqpEkTZs661ZNVvUPORvn",
-     "title": "（ゆるっと経済 #20）どうなる消費税の引き下げ　「高市減税」のゆくえ",
-     "date": "2026-10-01",
-     "durationMs": 4152455
     },
     {
      "id": "1vVhoMqsDDYUmpajbMtF82",
@@ -1082,6 +1082,13 @@
    "count": 50,
    "episodes": [
     {
+     "id": "7FE052Inwh2vOfFoMTZj1J",
+     "url": "https://open.spotify.com/episode/7FE052Inwh2vOfFoMTZj1J",
+     "title": "（陸上 #4）早大独走の全日本大学駅伝　1年生「三羽がらす」、実はカルテット",
+     "date": "2026-11-20",
+     "durationMs": 3570696
+    },
+    {
      "id": "0SAw3FYUlp37PxQdskotGE",
      "url": "https://open.spotify.com/episode/0SAw3FYUlp37PxQdskotGE",
      "title": "（野球 #6）女子プロ野球選手・島野愛友利　甲子園・米挑戦…「壁」を破り続けて",
@@ -1423,13 +1430,6 @@
      "title": "（サッカーW杯）オランダに感じた日本へのリスペクト　2度追いつき、価値ある勝ち点1",
      "date": "2026-06-15",
      "durationMs": 3474000
-    },
-    {
-     "id": "00yUT53ZjoMN6LnOdgY3tC",
-     "url": "https://open.spotify.com/episode/00yUT53ZjoMN6LnOdgY3tC",
-     "title": "（バスケ・BリーグCS）長崎、創設5季目で優勝　勝負を分けたリバウンドとディフェンス  ＃2265",
-     "date": "2026-06-05",
-     "durationMs": 5104313
     }
    ]
   },
@@ -2108,6 +2108,13 @@
    "count": 49,
    "episodes": [
     {
+     "id": "4LdvZkgiE6wAVrKhBAbKjD",
+     "url": "https://open.spotify.com/episode/4LdvZkgiE6wAVrKhBAbKjD",
+     "title": "（ノーミライ＃13）２人の間に何かがあったんかなかったんか、というお話",
+     "date": "2026-11-20",
+     "durationMs": 2623516
+    },
+    {
      "id": "5dn4ooe5L2dDEPL1aIFl8v",
      "url": "https://open.spotify.com/episode/5dn4ooe5L2dDEPL1aIFl8v",
      "title": "（アラサー）楽器や音楽、たのしめる余裕を持ちたい　ところで「うんにゃ」って何？",
@@ -2442,13 +2449,6 @@
      "title": "（ポすすめ）セイとセイショクとジェンダーのSRHRラジオ",
      "date": "2026-09-21",
      "durationMs": 1927209
-    },
-    {
-     "id": "1m5uBDeXcifljM9tTtWVhG",
-     "url": "https://open.spotify.com/episode/1m5uBDeXcifljM9tTtWVhG",
-     "title": "（さんぽ・皇室365）皇居を歩いたら、「手ずから」がいっぱい見えた",
-     "date": "2026-09-20",
-     "durationMs": 5531695
     }
    ]
   }
