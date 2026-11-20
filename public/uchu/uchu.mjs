@@ -698,7 +698,7 @@ async function renderEp(i) {
     h('p', { class: 'kind' }, D.shows[e[2]]),
     h('h3', {}, e[1]),
     h('p', { class: 'meta' }, h('span', {}, fmtDate(e[3])), h('span', {}, fmtDur(e[7]))),
-    h('div', { class: 'btns' }, h('a', { class: 'btn primary', href: `../library/?ep=${id}` }, '蔵で詳しく見る'), shelfBtn),
+    h('div', { class: 'btns' }, h('a', { class: 'btn primary', href: `../library/?ep=${id}`, target: '_blank', rel: 'noopener' }, '蔵で詳しく見る ↗'), shelfBtn),
     catSection(i), fmtSection(i), placeSection(i), descBox, sortSection(i), relBox,
     e[6] >= 0 ? h('div', { class: 'sec' }, h('h4', {}, '星雲'), h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'neb', id: e[6] }) }, h('span', { style: `color:${colorOf(e[6])}` }, '●'), D.comms[e[6]].name.slice(0, 2).join('・'))) : h('p', { class: 'note' }, 'この回は共通の言葉が少ないため、星図には置いていません。')));
   live(`回「${e[1]}」`);
