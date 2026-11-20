@@ -141,3 +141,15 @@ test('番組ID: 「番組ID」列があればその値、無ければ並び順�
   const sum = J(P.posuPodcastSummary(vals, [['SPECIAL', '7', 'A', '返し', 'A', '2026-05-01', 'u', 'reply', '', '', '', 'k', '']], [['PK', '', '2', 'B', 'u', 'k2', 'other', '', '', '', '', '', '', '', '承認待ち', '', '']]));
   assert.deepEqual(sum, [['7', '', '返し（2026-05-01）', '', ''], ['2', '', '', '', '1']]);
 });
+
+test('即時公開（2026-11-20）: ページ確認済みの投稿は自動承認、受付メッセージも「30分ほどで載る」', async () => {
+  const fs = await import('node:fs');
+  const gas = fs.readFileSync(new URL('../scripts/google-apps-script/Posukami.js', import.meta.url), 'utf8');
+  assert.ok(/var auto = code === 200 && !!meta\.title && posuAutoCountToday_\(queue, now\) < POSU_AUTO_DAILY_MAX;/.test(gas));
+  assert.ok(gas.includes("auto ? POSU_STATE.APPROVE : POSU_STATE.PENDING"));
+  const { posukamiResultMessage } = await import('../app/posukami.ts').catch(() => ({}));
+  if (posukamiResultMessage) {
+    assert.match(posukamiResultMessage({ ok: true, receiptId: 'PK-1', status: 'PUBLISHED' }).text, /30分ほどでカードに載ります/);
+    assert.match(posukamiResultMessage({ ok: true, receiptId: 'PK-1', status: 'PENDING' }).text, /確認のあとに/);
+  }
+});
