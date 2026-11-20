@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-20T14:49:08.149Z",
+ "generatedAt": "2026-11-20T16:45:15.503Z",
  "apple": [
   {
    "term": "SDGsを話そう",
@@ -55,5 +55,63 @@
   "url": "https://www.asahi.com/special/podcasts/",
   "author": "朝日新聞ポッドキャスト",
   "episodes": 1092
+ },
+ "listen": {
+  "SDGsを話そう": {
+   "ids": [
+    "bgsiukwr",
+    "vbc86ror",
+    "tvzppbdm",
+    "smbslbmi"
+   ],
+   "sdgsText": [
+    "SDGsを話そう の検索結果 - LISTEN",
+    "SDGs\\u3092\\u8a71\\u305d\\u3046&quot;,&quot;isS",
+    "SDGsを話そう',\n    semanticSearch: false,\n    to",
+    "SDGsを話そう",
+    "SDGsを話そう",
+    "SDGsを話そう",
+    "SDGsのテーマは、引き続き「ニュースの現場から…\n                  ",
+    "SDGsを話そう"
+   ]
+  },
+  "SDGsを話そう アーカイブ": {
+   "ids": [
+    "smbslbmi",
+    "tvzppbdm",
+    "vbc86ror"
+   ],
+   "sdgsText": [
+    "SDGsを話そう アーカイブ の検索結果 - LISTEN",
+    "SDGs\\u3092\\u8a71\\u305d\\u3046 \\u30a2\\u30fc\\u3",
+    "SDGsを話そう アーカイブ',\n    semanticSearch: false,\n",
+    "SDGsを話そう アーカイブ",
+    "SDGsを話そう アーカイブ",
+    "SDGsを話そう",
+    "SDGs系の話…\n                                   ",
+    "SDGsを話そう"
+   ]
+  }
+ },
+ "pody": {
+  "SDGsを話そう": {
+   "ids": [
+    "4UD5sHilP15gqAc0clXN"
+   ],
+   "sdgsText": [
+    "SDGsを話そう",
+    "SDGsを話そう::feeds::1",
+    "SDGsを話そう」の検索結果 | Pody",
+    "SDGsを話そう-"
+   ]
+  },
+  "SDGsを話そう アーカイブ": {
+   "ids": [],
+   "sdgsText": [
+    "SDGsを話そう アーカイブ",
+    "SDGsを話そう アーカイブ::feeds::1",
+    "SDGsを話そう アーカイブ」の検索結果 | Pody"
+   ]
+  }
  }
 }
