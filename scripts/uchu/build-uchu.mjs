@@ -4,6 +4,7 @@
 // 入力: public/library/data/details/*.json（蔵の正本の公開写し。読むだけ）
 // 出力: public/uchu/data/core.json（星・言葉・星雲） / public/uchu/data/rel.json（関連する回と、その根拠）
 // 関係の根拠は3種類だけ: 共通の言葉（統計的な共起）・同じ記事URL・同じ出演者。AI による意味の推測はしない。
+import { appVersion } from '../lib/app-version.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { extractTerms, termKey, parseCast, normalizeArticleUrl } from './uchu-core.mjs';
@@ -280,7 +281,10 @@ const ADIR = path.join(OUT, 'articles'); fs.rmSync(ADIR, { recursive: true, forc
 fs.writeFileSync(path.join(ADIR, 'index.json'), JSON.stringify({ v: 1, libraryVersion: manifest.version, note: '関連記事の見出しの索引（蔵で公開済みの見出し）。本文は含まない。URL は https:// + u', count: arts.length, shard: ART_SHARD, byTerm }));
 for (let n = 0; n * ART_SHARD < arts.length; n++) fs.writeFileSync(path.join(ADIR, `s${n}.json`), JSON.stringify(arts.slice(n * ART_SHARD, (n + 1) * ART_SHARD).map((a) => [a.u, a.title, a.eps])));
 // 読み込みの進み具合を正しく出すための、ファイルの大きさ（圧縮前）
-fs.writeFileSync(path.join(OUT, 'manifest.json'), JSON.stringify({ libraryVersion: manifest.version, sizes: Object.fromEntries(['core', 'extra', 'rel'].map((f) => [f, fs.statSync(path.join(OUT, f + '.json')).size])) }));
+// 画面に出す「データ更新」と「アプリ版」（#430）
+const newestEp = eps.reduce((a, e) => (String(e.date) > String(a?.date || '') ? e : a), null);
+const stamp = { generatedAt: core.generatedAt, episodes: eps.length, newest: newestEp ? { id: newestEp.id, date: String(newestEp.date).slice(0, 10) } : null, apps: { uchu: appVersion('public/uchu'), library: appVersion('public/library'), minna: appVersion('public/minna') } };
+fs.writeFileSync(path.join(OUT, 'manifest.json'), JSON.stringify({ libraryVersion: manifest.version, ...stamp, sizes: Object.fromEntries(['core', 'extra', 'rel'].map((f) => [f, fs.statSync(path.join(OUT, f + '.json')).size])) }));
 const size = (f) => (fs.statSync(path.join(OUT, f)).size / 1024).toFixed(0) + 'KB';
 console.log(JSON.stringify({ episodes: N, vocab: vocab.length, mapTerms: mapTerms.length, nebulae: K, placed: epXY.filter(Boolean).length, persons: persons.length,
   withRel: rel.filter((r) => r[0].length).length, clsStats, geoStats, core: size('core.json'), extra: size('extra.json'), articlesIndex: size('articles/index.json'), articleShard: size('articles/s0.json'), rel: size('rel.json'), articles: articles.length, sec: (Date.now() - t0) / 1000,
