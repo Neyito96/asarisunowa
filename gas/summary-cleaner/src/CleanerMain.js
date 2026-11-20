@@ -2603,3 +2603,19 @@ function P27_NEW_7_直前の新着反映を戻す() {
   var s2 = p27State_(); delete s2.lastGroup; p27SetState_(s2);
   return scLog_('P27_NEW_7_直前の新着反映を戻す', { status: out.every(function (o) { return o.status === 'OK'; }) ? 'OK' : 'CHECK', results: out });
 }
+
+// ── P33 配信先URLの空き補完（2026-11-21 管理人指示「調査・補完計画・GAS実行まで一気通貫」・#427）
+// GitHub の照合表 docs/audits/platform-gaps/fill-plan.json（Actions が各サービスのAPIで作り、題名＋配信日で1対1に対応した回だけ）を読み、
+// p29Write_ と同じ手順で書く: 空欄にだけ書く（上書きしない）・URLの形を検査・反映履歴に全件・書いた後に読み戻し・不一致なら停止旗・1回300件まで（もう一度実行すると続き）。
+// 取消は既存の P27_PC_7（直前の反映を取消）。照合表に無い回・空欄でない回は書かない。
+var P33_PLAN_JSON_ = 'https://raw.githubusercontent.com/Neyito96/asarisunowa/main/docs/audits/platform-gaps/fill-plan.json';
+function P33_配信先補完_実行() {
+  var g = p27Get_(P33_PLAN_JSON_ + '?_=' + Date.now()); if (g.code !== 200) return scLog_('P33_配信先補完_実行', { status: 'FETCH_' + g.code });
+  var d = JSON.parse(g.body), out = {};
+  Object.keys(d.columns || {}).forEach(function (col) {
+    if (!P27_NEW_RE_(col)) { out[col] = { status: 'UNKNOWN_COLUMN' }; return; }
+    var plans = (d.columns[col] || []).map(function (x) { return { ep: x.ep, url: x.url, basis: x.basis }; });
+    var w = p29Write_(col, plans); out[col] = { status: w.status, written: w.written || 0, readbackMismatch: w.readbackMismatch || 0, skipped: w.skipped, applyId: w.applyId };
+  });
+  return scLog_('P33_配信先補完_実行', { status: 'OK', planId: d.planId, results: out });
+}

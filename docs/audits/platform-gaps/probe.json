@@ -1,0 +1,426 @@
+{
+ "generatedAt": "2026-11-20T14:44:41.459Z",
+ "apple": {
+  "ニュースの現場から": {
+   "showId": "1526773927",
+   "kura": 2503,
+   "gap": 913,
+   "collectionName": "ニュースの現場から",
+   "trackCount": 2001,
+   "feedUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/684015f9-2396-4ac4-bc1f-ac0f0033d08c/podcast.rss",
+   "feed": {
+    "items": 2682,
+    "gapFoundInFeed": 902,
+    "gapByGuid": 893
+   },
+   "sample": [
+    {
+     "id": "EP-01243",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    },
+    {
+     "id": "EP-01311",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    },
+    {
+     "id": "EP-01392",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    },
+    {
+     "id": "EP-01475",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    },
+    {
+     "id": "EP-01564",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    },
+    {
+     "id": "EP-01648",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    },
+    {
+     "id": "EP-01727",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    },
+    {
+     "id": "EP-01805",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    },
+    {
+     "id": "EP-01881",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    },
+    {
+     "id": "EP-02467",
+     "http": 200,
+     "sameShowHits": 1,
+     "titleDate": 1,
+     "guidSame": true
+    },
+    {
+     "id": "EP-02843",
+     "http": 200,
+     "sameShowHits": 1,
+     "titleDate": 1,
+     "guidSame": true
+    },
+    {
+     "id": "EP-03265",
+     "http": 200,
+     "sameShowHits": 1,
+     "titleDate": 1,
+     "guidSame": true
+    }
+   ],
+   "sampleSummary": {
+    "n": 12,
+    "found": 3,
+    "guidSame": 3
+   }
+  },
+  "MEDIA TALK": {
+   "showId": "1527037575",
+   "kura": 1753,
+   "gap": 204,
+   "collectionName": "MEDIA TALK メディアトーク",
+   "trackCount": 1778,
+   "feedUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/07a1de49-67cf-4714-8581-ac1000059302/podcast.rss",
+   "feed": {
+    "items": 1778,
+    "gapFoundInFeed": 203,
+    "gapByGuid": 203
+   },
+   "sample": [
+    {
+     "id": "EP-05109",
+     "http": 200,
+     "sameShowHits": 1,
+     "titleDate": 0,
+     "guidSame": true
+    },
+    {
+     "id": "EP-05249",
+     "http": 200,
+     "sameShowHits": 1,
+     "titleDate": 1,
+     "guidSame": true
+    },
+    {
+     "id": "EP-05267",
+     "http": 200,
+     "sameShowHits": 1,
+     "titleDate": 1,
+     "guidSame": true
+    },
+    {
+     "id": "EP-05284",
+     "http": 200,
+     "sameShowHits": 1,
+     "titleDate": 1,
+     "guidSame": true
+    },
+    {
+     "id": "EP-03925",
+     "http": 200,
+     "sameShowHits": 1,
+     "titleDate": 1,
+     "guidSame": true
+    },
+    {
+     "id": "EP-03946",
+     "http": 200,
+     "sameShowHits": 1,
+     "titleDate": 1,
+     "guidSame": true
+    },
+    {
+     "id": "EP-04039",
+     "http": 200,
+     "sameShowHits": 1,
+     "titleDate": 1,
+     "guidSame": true
+    },
+    {
+     "id": "EP-04368",
+     "http": 200,
+     "sameShowHits": 1,
+     "titleDate": 1,
+     "guidSame": true
+    },
+    {
+     "id": "EP-04522",
+     "http": 200,
+     "sameShowHits": 1,
+     "titleDate": 1,
+     "guidSame": true
+    },
+    {
+     "id": "EP-04622",
+     "http": 200,
+     "sameShowHits": 1,
+     "titleDate": 1,
+     "guidSame": true
+    },
+    {
+     "id": "EP-04642",
+     "http": 200,
+     "sameShowHits": 3,
+     "titleDate": 1,
+     "guidSame": true
+    },
+    {
+     "id": "EP-04975",
+     "http": 200,
+     "sameShowHits": 1,
+     "titleDate": 1,
+     "guidSame": true
+    }
+   ],
+   "sampleSummary": {
+    "n": 12,
+    "found": 11,
+    "guidSame": 12
+   }
+  },
+  "こどもそうだんしつ": {
+   "showId": "1592938106",
+   "kura": 43,
+   "gap": 1,
+   "collectionName": "こどもそうだんしつ",
+   "trackCount": 44,
+   "feedUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/693cfdd6-f5a9-4308-9025-adb10164b5b1/podcast.rss",
+   "feed": {
+    "items": 44,
+    "gapFoundInFeed": 1,
+    "gapByGuid": 0
+   },
+   "sample": [
+    {
+     "id": "EP-06632",
+     "http": 200,
+     "sameShowHits": 1,
+     "titleDate": 1,
+     "guidSame": false
+    }
+   ],
+   "sampleSummary": {
+    "n": 1,
+    "found": 1,
+    "guidSame": 0
+   }
+  },
+  "スポンジ": {
+   "showId": "6803013072",
+   "kura": 188,
+   "gap": 0
+  },
+  "ニュースの学校": {
+   "showId": "1551595534",
+   "kura": 512,
+   "gap": 4,
+   "collectionName": "ニュースの学校",
+   "trackCount": 512,
+   "feedUrl": "https://feeds.megaphone.fm/TASC5851398719",
+   "feed": {
+    "items": 512,
+    "gapFoundInFeed": 4,
+    "gapByGuid": 4
+   },
+   "sample": [
+    {
+     "id": "EP-00596",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    },
+    {
+     "id": "EP-00643",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    },
+    {
+     "id": "EP-00660",
+     "http": 200,
+     "sameShowHits": 1,
+     "titleDate": 1,
+     "guidSame": true
+    },
+    {
+     "id": "EP-00761",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    }
+   ],
+   "sampleSummary": {
+    "n": 4,
+    "found": 1,
+    "guidSame": 1
+   }
+  },
+  "SDGsを話そう": {
+   "showId": "1592938106",
+   "kura": 899,
+   "gap": 899,
+   "collectionName": "こどもそうだんしつ",
+   "trackCount": 44,
+   "feedUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/50382bb4-3af3-4250-8ddc-ac0f0033ceb5/693cfdd6-f5a9-4308-9025-adb10164b5b1/podcast.rss",
+   "feed": {
+    "items": 44,
+    "gapFoundInFeed": 1,
+    "gapByGuid": 0
+   },
+   "sample": [
+    {
+     "id": "EP-05587",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    },
+    {
+     "id": "EP-05678",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    },
+    {
+     "id": "EP-05766",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    },
+    {
+     "id": "EP-05849",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    },
+    {
+     "id": "EP-05929",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    },
+    {
+     "id": "EP-06021",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    },
+    {
+     "id": "EP-06120",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    },
+    {
+     "id": "EP-06213",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    },
+    {
+     "id": "EP-06302",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    },
+    {
+     "id": "EP-06385",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    },
+    {
+     "id": "EP-06463",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    },
+    {
+     "id": "EP-06545",
+     "http": 200,
+     "sameShowHits": 0,
+     "titleDate": 0,
+     "guidSame": false
+    }
+   ],
+   "sampleSummary": {
+    "n": 12,
+    "found": 0,
+    "guidSame": 0
+   }
+  },
+  "ドーナツ": {
+   "showId": "6798131655",
+   "kura": 91,
+   "gap": 0
+  },
+  "報談": {
+   "showId": "1822960480",
+   "kura": 105,
+   "gap": 0
+  }
+ },
+ "listen": {
+  "SDGsを話そう": [],
+  "SDGs 朝日新聞": []
+ },
+ "pody": {
+  "SDGsを話そう": [],
+  "SDGsを話そう (text)": [
+   "SDGs%E3%82%92%E8%A9%B1%E3%81%9D%E3%81%86\\\"],\\\"q\\\":\\\"?q=SDGs%E3%8",
+   "SDGsを話そう\\\\\\\"}\\\",{},\\\"$undefined\\\",\\\"$undefined\\\",162]},\\\"$undefi",
+   "SDGsを話そう\\\",\\\"placeholder\\\":\\\"番組やキーワードで探す\\\",\\\"autoFocus\\\":false,\\",
+   "SDGsを話そう::feeds::1\\\",{\\\"fallback\\\":[\\\"$\\\",\\\"div\\\",null,{\\\"classN",
+   "SDGsを話そう」の検索結果 | Pody\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"1\\\",{\\\"name\\\":\\\"desc",
+   "SDGsを話そう」の検索結果 | Pody\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"5\\\",{\\\"property\\\":\\\"",
+   "SDGsを話そう」の検索結果 | Pody",
+   "SDGsを話そう」の検索結果 | Pody\"/>",
+   "SDGsを話そう\"/>",
+   "SDGsを話そう\\\\\\\"}\\\",{},\\\"$undefined\\\",\\\"$undefined\\\",162]},\\\"$undefi"
+  ]
+ }
+}

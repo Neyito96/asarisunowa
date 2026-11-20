@@ -1,5 +1,5 @@
 // 自動生成ファイル（編集しない）: node scripts/ledger-v2/build-cleaner-gas.mjs で再生成。元: public/library/library-clean.mjs, public/library/description-editor.mjs, scripts/ledger-v2/summary-quality-audit.mjs, scripts/ledger-v2/summary-v2-verify.mjs, scripts/ledger-v2/summary-cleaner-v4.mjs, scripts/ledger-v2/person-index.mjs, scripts/ledger-v2/sdgs-official-1092.mjs, scripts/ledger-v2/net-count.mjs, scripts/ledger-v2/ledger-audit.mjs, public/library/library-core.mjs, public/library/publication-scope.mjs, scripts/ledger-v2/v2-library-core.mjs, scripts/ledger-v2/raw-source.mjs, scripts/ledger-v2/platform-match.mjs + gas/shared/P25V2IngestAdapter.js + gas/summary-cleaner/src/CleanerMain.js
-var CLEANER_BUILD_SOURCE_SHA256 = '7ab63d3d88df78188e4c93ae1a665716bec6bd7b17c2c85da24076003762852b';
+var CLEANER_BUILD_SOURCE_SHA256 = '69f580b91b65caf3341a3ed5e3aac5fc112eb0b392dd73b8b027105fb78f87d1';
 // Phase25 → V2 新着収蔵アダプタ（COPY専用）。2026-11-11 司令塔指令（PR #306）。
 // - 列は見出し名で解決（列番号ハードコード無し）。V2・統合台帳の見出し集合と完全一致しなければ停止。
 // - 追記のみ（既存行は書かない）。最大 maxRows 行（既定1）。書込後に読み戻して全列一致を確認。
@@ -4548,4 +4548,20 @@ function P27_NEW_7_直前の新着反映を戻す() {
   g.slice().reverse().forEach(function (x) { var s = p27State_(); s.last = x; p27SetState_(s); out.push(p27Undo_(ss)); });
   var s2 = p27State_(); delete s2.lastGroup; p27SetState_(s2);
   return scLog_('P27_NEW_7_直前の新着反映を戻す', { status: out.every(function (o) { return o.status === 'OK'; }) ? 'OK' : 'CHECK', results: out });
+}
+
+// ── P33 配信先URLの空き補完（2026-11-21 管理人指示「調査・補完計画・GAS実行まで一気通貫」・#427）
+// GitHub の照合表 docs/audits/platform-gaps/fill-plan.json（Actions が各サービスのAPIで作り、題名＋配信日で1対1に対応した回だけ）を読み、
+// p29Write_ と同じ手順で書く: 空欄にだけ書く（上書きしない）・URLの形を検査・反映履歴に全件・書いた後に読み戻し・不一致なら停止旗・1回300件まで（もう一度実行すると続き）。
+// 取消は既存の P27_PC_7（直前の反映を取消）。照合表に無い回・空欄でない回は書かない。
+var P33_PLAN_JSON_ = 'https://raw.githubusercontent.com/Neyito96/asarisunowa/main/docs/audits/platform-gaps/fill-plan.json';
+function P33_配信先補完_実行() {
+  var g = p27Get_(P33_PLAN_JSON_ + '?_=' + Date.now()); if (g.code !== 200) return scLog_('P33_配信先補完_実行', { status: 'FETCH_' + g.code });
+  var d = JSON.parse(g.body), out = {};
+  Object.keys(d.columns || {}).forEach(function (col) {
+    if (!P27_NEW_RE_(col)) { out[col] = { status: 'UNKNOWN_COLUMN' }; return; }
+    var plans = (d.columns[col] || []).map(function (x) { return { ep: x.ep, url: x.url, basis: x.basis }; });
+    var w = p29Write_(col, plans); out[col] = { status: w.status, written: w.written || 0, readbackMismatch: w.readbackMismatch || 0, skipped: w.skipped, applyId: w.applyId };
+  });
+  return scLog_('P33_配信先補完_実行', { status: 'OK', planId: d.planId, results: out });
 }
