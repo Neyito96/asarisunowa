@@ -68,14 +68,15 @@ export function platformLabel(url) {
 }
 // 公開データの回 → 共有カード用（音声ファイルの直リンクや未知のサイトは出さない）
 // 配信先の引っ越しで消えたリンク（#395）: SDGsを話そう の過去回は 2026年に別番組「SDGsを話そう アーカイブ」へ移り、
-// Spotify の各回の住所が変わった（旧住所は 898/899 回で「見つかりません」・2026-11-20 確認）。新しい住所の対応表ができるまでボタンを出さない
-export const MOVED_LINK_NOTE = 'この番組の過去回は配信先が引っ越したため、Spotify のボタンを一時的に外しています（新しいリンクを確認中）。Omny・朝日新聞の公式ページで聴けます。';
-const MOVED_ALIVE = new Set(['EP-06577']);   // 旧住所でも開けることを確かめた回
+// Spotify・Pocket Casts の各回の住所が変わった（旧住所は Spotify 898/899 回・Pocket Casts 抜き取り 30/30 回が不通、2026-11-20 確認）。
+// 新しい住所は対応表（docs/audits/sdgs-archive）で確認済み。台帳に反映するまでボタンを出さない
+export const MOVED_LINK_NOTE = 'この番組の過去回は配信先が引っ越したため、Spotify・Pocket Casts のボタンを一時的に外しています（新しいリンクを反映準備中）。Omny・朝日新聞の公式ページで聴けます。';
+const MOVED_ALIVE = new Set(['EP-06577']);   // 旧住所でも開けることを確かめた回（Spotify・Pocket Casts とも）
 export function isMovedLink(e, url) {
   if (!e || e.show !== 'SDGsを話そう' || MOVED_ALIVE.has(e.id)) return false;
   let h = ''; try { h = new URL(url).hostname; } catch (x) { return false; }
-  // Pocket Casts は全件の疎通を確かめてから判断する（管理人 2026-11-20: 正常なリンクは残す）。いまは Spotify だけ外す
-  return h === 'open.spotify.com';
+  // 管理人 2026-11-20: Pocket Casts は疎通を確かめ、正常なリンクは残す → 開ける EP-06577 は上で除外済み
+  return h === 'open.spotify.com' || h === 'pca.st' || h.endsWith('pocketcasts.com');
 }
 export function liveLinks(e, links) { return (links || []).filter((u) => !isMovedLink(e, u)); }
 export function cardLinks(links) {
