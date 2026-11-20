@@ -1,0 +1,52 @@
+{
+ "summary": {
+  "generatedAt": "2026-11-20T15:54:31.623Z",
+  "show": "ニュースの学校",
+  "appleShowId": "1551595534",
+  "gap": 4,
+  "searched": 4,
+  "http": {
+   "200": 4
+  },
+  "candidates": 1,
+  "matched": 1,
+  "guidSame": 1,
+  "ambiguous": 0,
+  "missing": 3,
+  "duplicatesDropped": 0,
+  "durationDiffOver5s": []
+ },
+ "matched": [
+  {
+   "id": "EP-00660",
+   "date": "2025-09-01",
+   "title": "PTA",
+   "appleTitle": "PTA",
+   "applePub": "2025-08-31T19:00:00Z",
+   "durationDiff": 0,
+   "guidSame": true,
+   "url": "https://podcasts.apple.com/jp/podcast/pta/id1551595534?i=1000724288931"
+  }
+ ],
+ "ambiguous": [],
+ "missing": [
+  {
+   "id": "EP-00596",
+   "title": "下水道",
+   "date": "2025-12-03",
+   "n": 0
+  },
+  {
+   "id": "EP-00643",
+   "title": "カラス",
+   "date": "2025-09-26",
+   "n": 0
+  },
+  {
+   "id": "EP-00761",
+   "title": "ソウル",
+   "date": "2025-04-04",
+   "n": 0
+  }
+ ]
+}
