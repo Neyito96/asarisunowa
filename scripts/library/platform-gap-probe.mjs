@@ -137,10 +137,31 @@ async function appleMap(show) {
   return { summary: { generatedAt: new Date().toISOString(), show, appleShowId: id, gap: gap.length, searched: stat.asked, http: stat.http, candidates: cands.length, matched: matched.length, guidSame: matched.filter((x) => x.guidSame).length, ambiguous: m.ambiguous.length, missing: m.missing.length, duplicatesDropped: m.duplicates, durationDiffOver5s: matched.filter((x) => x.durationDiff != null && Math.abs(x.durationDiff) > 5).map((x) => ({ id: x.id, diff: x.durationDiff })) }, matched, ambiguous: m.ambiguous, missing: m.missing };
 }
 
+// SDGsを話そう の過去回が、各サービスで別の番組として置かれていないかを探す（番組名で検索）
+async function findShow() {
+  const out = { generatedAt: new Date().toISOString(), apple: [], pocketcasts: null };
+  for (const term of ['SDGsを話そう', 'SDGsを話そう アーカイブ', '朝日新聞 SDGs']) {
+    const r = await get(`https://itunes.apple.com/search?entity=podcast&country=JP&limit=25&term=${encodeURIComponent(term)}`); await sleep(3100);
+    for (const x of r.body?.results || []) if (/SDGs/i.test(x.collectionName || '')) out.apple.push({ term, id: x.collectionId, name: x.collectionName, artist: x.artistName, count: x.trackCount, feedUrl: x.feedUrl, url: x.collectionViewUrl });
+  }
+  const pc = await get('https://podcast-api.pocketcasts.com/podcast/full/6b348970-8060-013f-f21c-0affd341b2cf');
+  out.pocketcasts = pc.body ? { title: pc.body.podcast?.title, url: pc.body.podcast?.url, author: pc.body.podcast?.author, episodes: (pc.body.podcast?.episodes || []).length } : { status: pc.status };
+  // Apple で見つかった SDGs 番組のフィードと 蔵 の SDGs 回の対応
+  const kura = loadKura().filter((e) => e.show === 'SDGsを話そう');
+  for (const a of out.apple) {
+    if (!a.feedUrl || a.checked) continue; a.checked = true;
+    const f = await get(a.feedUrl, 'text'); if (f.status !== 200) { a.feed = { status: f.status }; continue; }
+    const items = rssItems(f.body); const m = matchByTitleDate(kura, items); a.feed = { items: items.length, kuraMatched: m.matched.length, ambiguous: m.ambiguous.length, missing: m.missing.length };
+  }
+  return out;
+}
+
 async function main() {
   const [mode = 'probe', arg] = process.argv.slice(2);
   fs.mkdirSync(OUTDIR, { recursive: true });
   if (mode === 'probe') { const o = await probe(); fs.writeFileSync(path.join(OUTDIR, 'probe.json'), JSON.stringify(o, null, 1) + '\n'); console.log(JSON.stringify(o, null, 1).slice(0, 6000)); }
+  else if (mode === 'find-show') { const o = await findShow(); fs.writeFileSync(path.join(OUTDIR, 'find-show.json'), JSON.stringify(o, null, 1) + '\n'); console.log(JSON.stringify(o, null, 1).slice(0, 4000)); }
+  else if (mode === 'apple-map' && arg.includes(',')) { for (const s of arg.split(',')) { const o = await appleMap(s); fs.writeFileSync(path.join(OUTDIR, `apple-map-${s}.json`), JSON.stringify(o, null, 1) + '\n'); console.log(JSON.stringify(o.summary, null, 1)); } }
   else if (mode === 'apple-map') { const o = await appleMap(arg); const f = path.join(OUTDIR, `apple-map-${arg}.json`); fs.writeFileSync(f, JSON.stringify(o, null, 1) + '\n'); console.log(JSON.stringify(o.summary, null, 1)); }
   else throw new Error('mode: probe | apple-map <番組>');
 }
