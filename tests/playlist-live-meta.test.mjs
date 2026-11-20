@@ -48,11 +48,18 @@ test('埋め込みページから回のIDを並び順で取る（曲・壊れた
   assert.deepEqual(Array.from(M.plmEmbedEpisodeIds_('<html></html>')), []);
 });
 
-test('#412 取り直すリストの選び方: 未取得→古い順、20時間以内のものは選ばない、上限件数まで', () => {
-  const now = Date.parse('2026-11-21T06:00:00Z'), h = 3600e3;
+test('#412 表紙の取得は新しく登録されたリストだけ（保存値があるリストは選ばない）', () => {
   const A = 'A'.repeat(22), B = 'B'.repeat(22), C = 'C'.repeat(22), D = 'D'.repeat(22);
-  const stored = { [A]: { at: new Date(now - 30 * h).toISOString() }, [B]: { at: new Date(now - 2 * h).toISOString() }, [C]: { at: new Date(now - 21 * h).toISOString() } };
-  assert.deepEqual(M.plmPickStale_([A, B, C, D, D, 'bad'], stored, now, 2, 20 * h), [D, A]);
-  assert.deepEqual(M.plmPickStale_([A, B, C, D], stored, now, 10, 20 * h), [D, A, C]);
-  assert.deepEqual(M.plmPickStale_([B], stored, now, 10, 20 * h), []);
+  const stored = { [A]: { artwork: 'a' }, [C]: { artwork: 'c' } };
+  assert.deepEqual(M.plmPickNew_([A, B, C, D, D, 'bad'], stored, 4), [B, D]);
+  assert.deepEqual(M.plmPickNew_([A, B, D], stored, 1), [B]);
+  assert.deepEqual(M.plmPickNew_([A, C], stored, 4), []);
+});
+
+test('#412 最終新着日は追加した回の配信日から（新しい時だけ・配信日の形が違うものは無視）', () => {
+  assert.equal(M.plmLatestAfterAdd_('2026-11-10', [{ release_date: '2026-11-17' }, { release_date: '2026-11-12' }]), '2026-11-17');
+  assert.equal(M.plmLatestAfterAdd_('2026-11-10', [{ date: '2026-11-15' }]), '2026-11-15');   // 蔵から育てるリストは date
+  assert.equal(M.plmLatestAfterAdd_('2026-11-20', [{ release_date: '2026-11-17' }]), '');     // 古い回を足しただけなら変えない
+  assert.equal(M.plmLatestAfterAdd_('', [{ release_date: '2026' }, {}]), '');
+  assert.equal(M.plmLatestAfterAdd_('', [{ release_date: '2026-01-02' }]), '2026-01-02');
 });

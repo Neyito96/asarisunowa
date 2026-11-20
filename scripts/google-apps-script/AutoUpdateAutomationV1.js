@@ -194,7 +194,7 @@ function runAutoUpdateBackfillHourlyV1() {
   } catch (error) {
     libraryPlaylists = { error: String(error && error.message ? error.message : error) };
   }
-  // Spotifyリストの表紙・最終新着を、古いものから少しずつ取り直す（#412: 1回あたり数件・各リスト1日1回）
+  // 新しく登録されたSpotifyリストの表紙・最終新着を1回だけ取る（#412: 既存リストの定期巡回はしない）
   let liveMeta = null;
   try {
     liveMeta = typeof playlistLiveMetaWarm_ === "function" ? playlistLiveMetaWarm_() : null;
