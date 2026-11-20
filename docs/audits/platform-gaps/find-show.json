@@ -1,0 +1,59 @@
+{
+ "generatedAt": "2026-11-20T14:49:08.149Z",
+ "apple": [
+  {
+   "term": "SDGsを話そう",
+   "id": 6802972000,
+   "name": "SDGsを話そう アーカイブ（2021.10-2026.6）",
+   "artist": "朝日新聞ポッドキャスト",
+   "count": 1092,
+   "feedUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/91b696fe-c723-4bd1-95ed-b4aa00909997/podcast.rss",
+   "url": "https://podcasts.apple.com/jp/podcast/sdgs%E3%82%92%E8%A9%B1%E3%81%9D%E3%81%86-%E3%82%A2%E3%83%BC%E3%82%AB%E3%82%A4%E3%83%96-2021-10-2026-6/id6802972000?uo=4",
+   "checked": true,
+   "feed": {
+    "items": 1092,
+    "kuraMatched": 899,
+    "ambiguous": 0,
+    "missing": 0
+   }
+  },
+  {
+   "term": "SDGsを話そう アーカイブ",
+   "id": 6802972000,
+   "name": "SDGsを話そう アーカイブ（2021.10-2026.6）",
+   "artist": "朝日新聞ポッドキャスト",
+   "count": 1092,
+   "feedUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/91b696fe-c723-4bd1-95ed-b4aa00909997/podcast.rss",
+   "url": "https://podcasts.apple.com/jp/podcast/sdgs%E3%82%92%E8%A9%B1%E3%81%9D%E3%81%86-%E3%82%A2%E3%83%BC%E3%82%AB%E3%82%A4%E3%83%96-2021-10-2026-6/id6802972000?uo=4",
+   "checked": true,
+   "feed": {
+    "items": 1092,
+    "kuraMatched": 899,
+    "ambiguous": 0,
+    "missing": 0
+   }
+  },
+  {
+   "term": "朝日新聞 SDGs",
+   "id": 6802972000,
+   "name": "SDGsを話そう アーカイブ（2021.10-2026.6）",
+   "artist": "朝日新聞ポッドキャスト",
+   "count": 1092,
+   "feedUrl": "https://www.omnycontent.com/d/playlist/1e3bd144-9b57-451a-93cf-ac0e00e74446/4ed5fcbf-299a-4d2d-bde1-acc4009cef22/91b696fe-c723-4bd1-95ed-b4aa00909997/podcast.rss",
+   "url": "https://podcasts.apple.com/jp/podcast/sdgs%E3%82%92%E8%A9%B1%E3%81%9D%E3%81%86-%E3%82%A2%E3%83%BC%E3%82%AB%E3%82%A4%E3%83%96-2021-10-2026-6/id6802972000?uo=4",
+   "checked": true,
+   "feed": {
+    "items": 1092,
+    "kuraMatched": 899,
+    "ambiguous": 0,
+    "missing": 0
+   }
+  }
+ ],
+ "pocketcasts": {
+  "title": "SDGsを話そう アーカイブ（2021.10-2026.6）",
+  "url": "https://www.asahi.com/special/podcasts/",
+  "author": "朝日新聞ポッドキャスト",
+  "episodes": 1092
+ }
+}
