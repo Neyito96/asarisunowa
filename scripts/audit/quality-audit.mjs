@@ -6,6 +6,7 @@
 //   node scripts/audit/quality-audit.mjs                      … 内部整合性だけ（外部へはアクセスしない）
 //   node scripts/audit/quality-audit.mjs --probe 15           … 各サービスから日替わりで15件ずつ、リンク先を開いて題名まで照合
 //   出力: docs/audits/quality/latest.json（要約＋PASS 以外の項目）, latest.md（管理人向け）, probes/<日付>.json（疎通の記録）
+import { tidyDescription } from '../../public/library/description-tidy.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -71,16 +72,28 @@ export function auditInternal({ eps, manifest, uchu }) {
       if (s.key !== 'asahi' || /itemid=/.test(url)) { const key = s.key === 'asahi' ? url : k; if (urlOwner.has(key) && urlOwner.get(key) !== e.id) add(e.id, 'URL', `${s.key} の重複`, 'FAIL', '別の回と同じ URL', `${urlOwner.get(key)} と同じ: ${url}`, '全件の URL 照合', 'どちらの回の URL かを一次情報で確認'); else urlOwner.set(key, e.id); }
     }
     for (const k of KNOWN) if (k.match(e) && (e.links || []).some((u) => serviceOf(u).key === k.service)) add(e.id, 'URL', `${k.service} の到達`, k.status, k.kind, k.evidence, '一次情報での確認（記録済み）', k.fix);
-    // 概要欄・出演者・再生時間
+    // 概要欄・出演者・再生時間（P2 #403: 利用者に見える文面で判定する。蔵は表示時に整形し、整形できない回は元の文面を出す）
     const d = nz(e.description).trim();
+    const tidy = tidyDescription(e.description || ''), shownTidy = tidy.status === 'TIDY' || tidy.status === 'AS_IS';
+    const shown = shownTidy ? String(tidy.body || '') : d;
     if (!d) add(e.id, '概要欄', '概要欄の有無', 'REVIEW', '概要欄が空', `descriptionSource=${e.descriptionSource || ''}`, '公開データ');
     else if (d.length < 40) add(e.id, '概要欄', '概要欄の長さ', 'REVIEW', '概要欄が極端に短い', d.slice(0, 40), '公開データ');
     if (d && /配信中です|ご意見.*お寄せ|フォーム|※初めてお申し込み/.test(d) && d.replace(/[^。]/g, '').length <= 1) add(e.id, '概要欄', '告知文だけ', 'REVIEW', '告知文・定型文の残留', d.slice(0, 50), '定型文の言い回し');
+    if (!shownTidy && /【朝ポキ情報】|See omnystudio|ad ?choices|会員登録|購読料で配信|キャンペーン|初回限定|お申し込み|【出演・スタッフ】/i.test(shown)) add(e.id, '概要欄', '表示に告知・定型文', 'REVIEW', '表示される概要欄に告知・定型文が残る', `整形=${tidy.status}: ${(shown.match(/【朝ポキ情報】|See omnystudio|ad ?choices|会員登録|購読料で配信|キャンペーン|初回限定|お申し込み|【出演・スタッフ】/i) || [''])[0]}`, '表示整形（description-tidy）後の文面', '整形の規則を足すか、台帳の概要を清掃');
+    if (/&(?:[a-z]{2,8}|#\d{2,5});/i.test(shown)) add(e.id, '概要欄', '表示に HTML の記号', 'REVIEW', '表示される概要欄に HTML の記号（&…;）', (shown.match(/&(?:[a-z]{2,8}|#\d{2,5});/i) || [''])[0], '表示整形後の文面', '表示整形で文字に戻す');
+    if (d && shownTidy && !shown.trim()) add(e.id, '概要欄', '整形後の本文', 'REVIEW', '整形すると本文が空（関連記事だけ）', `関連記事 ${tidy.related.length}件`, '表示整形後の文面');
     const cast = nz(e.cast).trim();
     if (!cast) add(e.id, '出演者', '出演者の有無', 'REVIEW', '出演者が空', '概要欄に名前があるかは未照合', '公開データ');
     if (/https?:\/\//.test(cast)) add(e.id, '出演者', '出演者欄の URL', 'REVIEW', '出演者欄に URL', cast.match(/https?:\/\/\S+/)[0], '公開データ');
+    const notName = cast.split(' / ').find((x) => /【|】|過去の番組一覧|はこちら/.test(x) || x.length > 60);
+    if (notName) add(e.id, '出演者', '出演者欄に名前以外の文', 'REVIEW', '出演者欄に見出し・説明文が混入', notName.slice(0, 50), '公開データ（区切りごとの長さ・見出し記号）', '清掃ロボの出演者抽出を確認');
+    if (cast && !cast.includes(' / ') && (cast.match(/[、,]/g) || []).length >= 2 && !/[（(]/.test(cast.split(/[、,]/)[1] || '')) add(e.id, '出演者', '出演者の区切り', 'REVIEW', '読点・カンマ区切り（1人ずつに分かれていない可能性）', cast.slice(0, 50), '公開データ', '人物検索で1人ずつ当たるか確認');
     if (!(Number(e.duration) > 0)) add(e.id, '収蔵', '再生時間', 'REVIEW', '再生時間が0または空', String(e.duration), '公開データ');
   }
+  // 同じ概要（80字以上）なのに題名が違う回（概要の取り違えの疑い）
+  const byDesc = new Map();
+  for (const e of eps) { const d = nz(e.description).trim(); if (d.length >= 80) { if (!byDesc.has(d)) byDesc.set(d, []); byDesc.get(d).push(e); } }
+  for (const g of byDesc.values()) if (g.length > 1 && new Set(g.map((e) => tkey(e.title))).size > 1) for (const e of g) add(e.id, '概要欄', '同じ概要・別の題名', 'REVIEW', '別の回と概要が同じ（取り違えの疑い）', g.map((x) => x.id).filter((x) => x !== e.id).join(',') + ' と同じ', '概要全文の照合', '公式ページで各回の概要を確認');
   // 全体の整合性
   const global = [];
   if (manifest.total !== eps.length) global.push({ check: '公開件数', status: 'FAIL', evidence: `manifest ${manifest.total} ≠ 詳細 ${eps.length}` });
