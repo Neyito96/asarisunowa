@@ -1,70 +1,19 @@
 {
  "summary": {
-  "generatedAt": "2026-11-20T02:42:23.264Z",
-  "spotifyGeneratedAt": "2026-11-20T02:37:01.275Z",
+  "generatedAt": "2026-11-20T12:16:18.815Z",
+  "spotifyGeneratedAt": "2026-11-20T12:11:03.682Z",
   "ledgerRows": 6134,
-  "ledgerSpotifyEmpty": 17,
-  "verified": 7,
+  "ledgerSpotifyEmpty": 10,
+  "verified": 0,
   "counts": {
-   "VERIFIED": 7,
-   "VERIFIED_SAME": 259,
+   "VERIFIED_SAME": 266,
    "NO_ROW": 16,
    "CANDIDATE": 59,
    "HOLD": 3
   },
   "emptyNotInSpotifyList": 1
  },
- "verified": [
-  {
-   "ep": "EP-06756",
-   "url": "https://open.spotify.com/episode/5ajJO7cqtIxNETWRoqDn0p",
-   "show": "ニュースの現場から",
-   "title": "（Think Gender）小便器のモヤモヤ　男性トイレのプライバシーも守りたい！",
-   "spotifyDate": "2026-11-19"
-  },
-  {
-   "ep": "EP-06752",
-   "url": "https://open.spotify.com/episode/6hnhM3sbWPGNi75eyieCbz",
-   "show": "ニュースの現場から",
-   "title": "（PUERTA #27）止まらないサイバー攻撃　アカウントの断捨離しているけれど",
-   "spotifyDate": "2026-11-18"
-  },
-  {
-   "ep": "EP-06757",
-   "url": "https://open.spotify.com/episode/14hu8CCQHVHVxqpXtcpk9p",
-   "show": "ニュースの学校",
-   "title": "米中ロ首脳会談",
-   "spotifyDate": "2026-11-19"
-  },
-  {
-   "ep": "EP-06754",
-   "url": "https://open.spotify.com/episode/601wQcN3RANC9KnWYzYB4J",
-   "show": "ニュースの学校",
-   "title": "高次脳機能障害",
-   "spotifyDate": "2026-11-18"
-  },
-  {
-   "ep": "EP-06753",
-   "url": "https://open.spotify.com/episode/1o2g2GeFUtrOli3ZRI6hMc",
-   "show": "MEDIA TALK",
-   "title": "（記者が向き合うトラウマ）取材相手も、自分も傷つかないために　経験を話します",
-   "spotifyDate": "2026-11-18"
-  },
-  {
-   "ep": "EP-06758",
-   "url": "https://open.spotify.com/episode/5dn4ooe5L2dDEPL1aIFl8v",
-   "show": "ドーナツ",
-   "title": "（アラサー）楽器や音楽、たのしめる余裕を持ちたい　ところで「うんにゃ」って何？",
-   "spotifyDate": "2026-11-19"
-  },
-  {
-   "ep": "EP-06755",
-   "url": "https://open.spotify.com/episode/3pEP4oxZocivkMax2yWLmu",
-   "show": "ドーナツ",
-   "title": "（親モヤ #133）「私がやっときゃいいんやろ」　親の介護を機に、家族の役割は変えられる？",
-   "spotifyDate": "2026-11-18"
-  }
- ],
+ "verified": [],
  "others": [
   {
    "show": "ニュースの現場から",
@@ -831,69 +780,6 @@
    "status": "CANDIDATE",
    "reason": "題名・日付は一致・長さが合わない",
    "spotifyUrl": "https://open.spotify.com/episode/2tOEzJdAU1rdfimMZF1w7K"
-  },
-  {
-   "ep": "EP-06752",
-   "show": "ニュースの現場から",
-   "title": "（PUERTA #27）止まらないサイバー攻撃　アカウントの断捨離しているけれど",
-   "published": "2026/11/19 04:00",
-   "status": "VERIFIED",
-   "reason": "番組ID・題名・日付・長さが一致",
-   "spotifyUrl": "https://open.spotify.com/episode/6hnhM3sbWPGNi75eyieCbz"
-  },
-  {
-   "ep": "EP-06753",
-   "show": "MEDIA TALK",
-   "title": "（記者が向き合うトラウマ）取材相手も、自分も傷つかないために　経験を話します",
-   "published": "2026/11/19 04:00",
-   "status": "VERIFIED",
-   "reason": "番組ID・題名・日付・長さが一致",
-   "spotifyUrl": "https://open.spotify.com/episode/1o2g2GeFUtrOli3ZRI6hMc"
-  },
-  {
-   "ep": "EP-06754",
-   "show": "ニュースの学校",
-   "title": "高次脳機能障害",
-   "published": "2026/11/19 04:00",
-   "status": "VERIFIED",
-   "reason": "番組ID・題名・日付が一致・長さは番組ごとの一定差（Spotify版が約44秒短い）",
-   "spotifyUrl": "https://open.spotify.com/episode/601wQcN3RANC9KnWYzYB4J"
-  },
-  {
-   "ep": "EP-06755",
-   "show": "ドーナツ",
-   "title": "（親モヤ #133）「私がやっときゃいいんやろ」　親の介護を機に、家族の役割は変えられる？",
-   "published": "2026/11/19 04:00",
-   "status": "VERIFIED",
-   "reason": "番組ID・題名・日付・長さが一致",
-   "spotifyUrl": "https://open.spotify.com/episode/3pEP4oxZocivkMax2yWLmu"
-  },
-  {
-   "ep": "EP-06756",
-   "show": "ニュースの現場から",
-   "title": "（Think Gender）小便器のモヤモヤ　男性トイレのプライバシーも守りたい！",
-   "published": "2026/11/20 04:00",
-   "status": "VERIFIED",
-   "reason": "番組ID・題名・日付・長さが一致",
-   "spotifyUrl": "https://open.spotify.com/episode/5ajJO7cqtIxNETWRoqDn0p"
-  },
-  {
-   "ep": "EP-06757",
-   "show": "ニュースの学校",
-   "title": "米中ロ首脳会談",
-   "published": "2026/11/20 04:00",
-   "status": "VERIFIED",
-   "reason": "番組ID・題名・日付が一致・長さは番組ごとの一定差（Spotify版が約44秒短い）",
-   "spotifyUrl": "https://open.spotify.com/episode/14hu8CCQHVHVxqpXtcpk9p"
-  },
-  {
-   "ep": "EP-06758",
-   "show": "ドーナツ",
-   "title": "（アラサー）楽器や音楽、たのしめる余裕を持ちたい　ところで「うんにゃ」って何？",
-   "published": "2026/11/20 04:00",
-   "status": "VERIFIED",
-   "reason": "番組ID・題名・日付・長さが一致",
-   "spotifyUrl": "https://open.spotify.com/episode/5dn4ooe5L2dDEPL1aIFl8v"
   },
   {
    "ep": "EP-06759",
