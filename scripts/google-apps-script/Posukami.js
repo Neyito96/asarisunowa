@@ -4,7 +4,7 @@
 //   2) ポす神回の投稿受付（type=posukamiSubmit・JSONP）… 既存の新規番組登録（listenerPodcast）とは別の経路・別シート
 //   3) 承認キュー → 公開シート（承認された行だけ・一度だけ）
 //   4) 公開シート → サイト用 JSON（public/posusume/posukami.json の元）
-// 安全: 未承認は公開しない。同じURLは二重に受け付けない。番組は新規作成しない（既存の番組ID＋番組名の一致が必須）。
+// 安全: 未承認は公開しない（2026-11-20 から、ページが開けて題名が読めた投稿は自動承認＝即時公開。1日30件まで）。同じURLは二重に受け付けない。番組は新規作成しない（既存の番組ID＋番組名の一致が必須）。
 // GAS は全ファイルが同じ名前空間なので、名前はすべて posu / POSU で始める。Node のテストからは module.exports で読む。
 
 var POSU_VERSION = 'POSU-1';
@@ -244,12 +244,28 @@ function posuSubmit(sub) {
     if (code === 404 || code === 410) return { ok: false, errors: ['PAGE_NOT_FOUND'], message: POSU_ERROR_TEXT.PAGE_NOT_FOUND };
     var meta = posuPageMeta(html), hints = posuRelationHints(sub, meta, html, v.podcast), now = new Date().toISOString(), id = 'PK-' + now.replace(/[-:TZ.]/g, '').slice(0, 14) + '-' + Math.floor(Math.random() * 900 + 100);
     var pageCheck = code === 200 ? (meta.title ? 'ページ確認（題名あり）' : 'ページは開ける（題名は読めない）') : '未確認（HTTP ' + code + '）';
-    qs.appendRow([id, now, String(sub.podcastId), v.podcast.title, String(sub.url).trim(), v.key, sub.relation, String(sub.title || '').trim(), posuDay(sub.date), String(sub.note || '').trim(), meta.title, meta.date, pageCheck, hints, POSU_STATE.PENDING, '', ''].map(function (x) { return String(x).replace(/^([=+\-@])/, "'$1"); }));
+    // 即時公開（管理人 2026-11-20「自分で投稿するようでいい、すぐ投稿するように」）: ページが開けて題名が読めた投稿は、その場で承認にして公開シートへ移す。
+    // 開けない・題名が読めない投稿と、1日の上限（POSU_AUTO_DAILY_MAX）を超えた分は、これまでどおり承認待ち。掲載後に外すときは公開シートの行を消す
+    var auto = code === 200 && !!meta.title && posuAutoCountToday_(queue, now) < POSU_AUTO_DAILY_MAX;
+    qs.appendRow([id, now, String(sub.podcastId), v.podcast.title, String(sub.url).trim(), v.key, sub.relation, String(sub.title || '').trim(), posuDay(sub.date), String(sub.note || '').trim(), meta.title, meta.date, pageCheck, hints, auto ? POSU_STATE.APPROVE : POSU_STATE.PENDING, auto ? '自動承認（ページ確認・題名あり）' : '', ''].map(function (x) { return String(x).replace(/^([=+\-@])/, "'$1"); }));
     SpreadsheetApp.flush();
     var back = posuRows(qs, POSU_QUEUE_H.length).filter(function (row) { return row[0] === id; }).length;   // 読み戻せたときだけ受付完了
     if (back !== 1) return { ok: false, errors: ['NOT_SAVED'], message: '保存を確認できませんでした。もう一度お試しください' };
-    return { ok: true, status: 'PENDING', receiptId: id, detectedTitle: meta.title, detectedDate: meta.date, pageCheck: pageCheck, message: '受け付けました。確認・承認のあとにカードへ載ります' };
-  } finally { lock.releaseLock(); }
+    if (!auto) return { ok: true, status: 'PENDING', receiptId: id, detectedTitle: meta.title, detectedDate: meta.date, pageCheck: pageCheck, message: '受け付けました。ページの題名を読み取れなかったため、確認のあとにカードへ載ります' };
+    lock.releaseLock(); lock = null;
+    var ap = posuApprove();
+    return { ok: true, status: ap && ap.published ? 'PUBLISHED' : 'APPROVED', receiptId: id, detectedTitle: meta.title, detectedDate: meta.date, pageCheck: pageCheck, message: '受け付けました。30分ほどでカードに載ります' };
+  } finally { if (lock) lock.releaseLock(); }
+}
+var POSU_AUTO_DAILY_MAX = 30;   // 自動承認の1日の上限（いたずら対策。超えた分は承認待ち）
+function posuAutoCountToday_(queue, nowIso) { var d = String(nowIso).slice(0, 10); return queue.filter(function (r) { return String(r[1]).slice(0, 10) === d && /^自動承認/.test(String(r[15] || '')); }).length; }
+// 一度だけ: 即時公開にする前に「承認待ち」で止まっている投稿のうち、ページ確認（題名あり）のものを承認にして公開シートへ移す（管理人 2026-11-20 承認）
+function POSU_APPROVE_PENDING_PAGE_OK_ONCE() {
+  var c = posuCfg(), ss = SpreadsheetApp.openById(c.spreadsheetId), qs = posuSheet(ss, c.queueSheet, POSU_QUEUE_H), queue = posuRows(qs, POSU_QUEUE_H.length), n = 0, list = [];
+  queue.forEach(function (r, i) { if (String(r[14]) === POSU_STATE.PENDING && /題名あり/.test(String(r[12]))) { qs.getRange(i + 2, 15, 1, 2).setValues([[POSU_STATE.APPROVE, '承認（即時公開への切り替え時に一括）']]); n++; list.push(r[0] + ' ' + r[3] + ' ' + r[10]); } });
+  SpreadsheetApp.flush();
+  var ap = posuApprove(); Logger.log(JSON.stringify({ approved: n, published: ap.published, list: list }));
+  return { approved: n, published: ap.published, list: list };
 }
 // 管理人: キューの「状態」を「承認」にした行を、公開シートへ一度だけ移す
 function posuApprove() {

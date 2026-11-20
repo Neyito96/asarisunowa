@@ -73,6 +73,10 @@ export function posukamiSubmitUrl(endpoint: string, s: PosukamiSubmit): string {
 // 受付の返事を画面の文言にする。ok:true と受付ID が無ければ「受け付けた」とは言わない
 export function posukamiResultMessage(res: unknown): { ok: boolean; text: string } {
   const r = (res || {}) as { ok?: boolean; receiptId?: string; message?: string; error?: string };
-  if (r.ok === true && typeof r.receiptId === "string" && r.receiptId) return { ok: true, text: `受け付けました（受付番号 ${r.receiptId}）。確認・承認のあとにカードへ載ります。` };
+  if (r.ok === true && typeof r.receiptId === "string" && r.receiptId) {
+    const st = (res as { status?: string }).status;
+    if (st === "PUBLISHED" || st === "APPROVED") return { ok: true, text: `受け付けました（受付番号 ${r.receiptId}）。30分ほどでカードに載ります。` };
+    return { ok: true, text: `受け付けました（受付番号 ${r.receiptId}）。ページの題名を読み取れなかったため、確認のあとにカードへ載ります。` };
+  }
   return { ok: false, text: r.message || (r.error ? "受け付けられませんでした（" + r.error + "）" : "送信を確認できませんでした。時間をおいてもう一度お試しください。") };
 }
