@@ -3427,3 +3427,17 @@ footer {
   .listenerPodcastCard .posukamiGroup { padding:.7rem; }
   .listenerPodcastCard .posukamiTitleLink { font-size:.96rem; }
 }
+/* ポすすめ返し・ポす神回の投稿: どちらを選んでいるかを色・印・見出しで示す（2026-11-20 管理人） */
+.posukamiSubmitToggle{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;border:1px solid transparent;border-radius:8px}
+.posukamiToggle-reply.isActive{background:#fff2f6;border-color:#c94f78;color:#8c405f;font-weight:700}
+.posukamiToggle-other.isActive{background:#fff9eb;border-color:#c99a3b;color:#795d2d;font-weight:700}
+.posukamiChosen{margin-left:auto;font-size:.72rem;padding:.05rem .45rem;border-radius:999px}
+.posukamiToggle-reply .posukamiChosen{background:#c94f78;color:#fff}
+.posukamiToggle-other .posukamiChosen{background:#c99a3b;color:#fff}
+.posukamiForm-reply,.posukamiForm-other{padding:.55rem .6rem;border-radius:8px;border-left:4px solid}
+.posukamiForm-reply{background:#fff2f6;border-color:#c94f78}
+.posukamiForm-other{background:#fff9eb;border-color:#c99a3b}
+.posukamiFormHead{flex-basis:100%;margin:0;display:grid;gap:.1rem;font-size:.85rem;line-height:1.45}
+.posukamiFormHead span{font-size:.76rem;opacity:.85}
+.posukamiForm-reply .posukamiFormHead strong{color:#8c405f}
+.posukamiForm-other .posukamiFormHead strong{color:#795d2d}
