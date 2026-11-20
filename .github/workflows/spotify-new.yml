@@ -33,7 +33,12 @@ jobs:
           git add docs/spotify/latest.json docs/spotify/matches.json
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           git commit -m "data(spotify): Spotify 新着 $(date -u +%F)"
-          git push
+          # 実行中に main が進んでいると push が拒否される（11/19 の失敗）。最新を取り込んでから最大3回まで送る
+          for n in 1 2 3; do
+            git pull --rebase origin main && git push && exit 0
+            echo "push retry $n"; sleep $((n * 5))
+          done
+          exit 1
       - name: Report failure
         if: failure()
         env: { GH_TOKEN: '${{ github.token }}' }
