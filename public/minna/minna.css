@@ -12,6 +12,7 @@ a { color: #9fc3ff; }
 .home { color: var(--sub); text-decoration: none; font-size: 13px; }
 h1 { margin: 4px 0 6px; font-size: 26px; letter-spacing: .04em; }
 h1::before { content: "✦ "; color: var(--accent); }
+.project { margin: 10px 0 0; font-size: 12px; letter-spacing: .3em; color: var(--accent); font-weight: 600; }
 .lead { margin: 0 0 10px; color: var(--sub); font-size: 14.5px; }
 .lead strong { color: var(--text); }
 .stats { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--sub); }

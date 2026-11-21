@@ -75,7 +75,7 @@ const canvas = $('sky'), ctx = canvas.getContext('2d');
 // ---- 読み込み（2段）: まず core（回・分類）で画面を出し、言葉・地名・関連回は裏で読む。進み具合を棒で示す
 const t0 = performance.now();
 const MAN = await fetch('./data/manifest.json', { cache: 'no-store' }).then((r) => r.json()).catch(() => ({ sizes: {} }));
-{ const st = document.getElementById('stamp'), t = stampText({ generatedAt: MAN.generatedAt, newest: MAN.newest, count: MAN.episodes, app: MAN.apps?.uchu }); if (st && t) { st.textContent = t; st.hidden = false; } }   // データ更新とアプリ版（#430）
+{ const st = document.getElementById('stamp'), info = { generatedAt: MAN.generatedAt, newest: MAN.newest, count: MAN.episodes, app: MAN.apps?.uchu }, t = stampText({ ...info, compact: true }); if (st && t) { st.textContent = t; st.title = stampText(info); st.hidden = false; } }   // データ更新とアプリ版（#430）
 // 朝リスみんなで仕分け（../minna/）の票。3人以上・3分の2以上が同じ主分類なら「みんなの分類（候補）」として示す（保留を外すのは管理人の確認後）
 const MINNA = await fetch('../minna/votes.json').then((r) => (r.ok ? r.json() : { votes: {} })).catch(() => ({ votes: {} }));
 const SIZES = MAN.sizes || {}, TOTAL = Object.values(SIZES).reduce((a, b) => a + b, 0) || 1;

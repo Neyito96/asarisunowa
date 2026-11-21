@@ -15,4 +15,5 @@ test('git が使えないときは空（表示しない）', () => {
 test('表示の1行：日本時間・最新回・回数・版', () => {
   assert.equal(stampText({ generatedAt: '2026-11-20T22:48:53Z', newest: { date: '2026-11-21' }, count: 6097, app: 'v2026.11.21' }), 'データ 11/21 07:48 更新 · 最新回 11/21 · 6,097回 · v2026.11.21');
   assert.equal(stampText({}), '');
+  assert.equal(stampText({ generatedAt: '2026-11-20T22:48:53Z', newest: { date: '2026-11-21' }, count: 6097, app: 'v2026.11.21.2', compact: true }), '11/21 更新 · 6,097回 · v11.21.2');
 });
