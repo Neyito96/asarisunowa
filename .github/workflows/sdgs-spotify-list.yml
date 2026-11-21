@@ -1,0 +1,28 @@
+name: SDGs Spotify archive list (read-only)
+# #395 SDGsを話そう アーカイブの Spotify 全回一覧を公開ページから集める。読み取り専用（台帳・GAS・公開データは変えない）。
+on:
+  push:
+    branches: [audit/sdgs-spotify-list]
+    paths: [scripts/library/sdgs-spotify-list.mjs, .github/workflows/sdgs-spotify-list.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: { group: sdgs-spotify-list, cancel-in-progress: false }
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm i --no-save playwright@1 && npx playwright install --with-deps chromium
+      - run: node scripts/library/sdgs-spotify-list.mjs
+      - name: Save results to this branch
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git add docs/audits/sdgs-archive/spotify-archive-list.json || true
+          if git diff --cached --quiet; then echo "変化なし"; exit 0; fi
+          git commit -m "audit(sdgs): Spotify アーカイブ一覧 [skip ci]"
+          for i in 1 2 3; do git pull --rebase -q origin ${GITHUB_REF_NAME} && git push origin HEAD:${GITHUB_REF_NAME} && break; sleep 5; done
