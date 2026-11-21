@@ -212,6 +212,9 @@ h1 { font-size: 21px; font-weight: 600; margin: 0; letter-spacing: .14em; white-
 /* 分類を隠す（#433）。?cls=1 で表示 */
 .no-cls .cls-only { display: none !important; }
 .no-cls .legend .fmt-h { margin-top: 0; }
+.no-neb .neb-only { display: none !important; }
+h1 a.home { color: inherit; text-decoration: none; }
+h1 a.home:hover, h1 a.home:focus-visible { text-decoration: underline; text-underline-offset: 4px; }
 /* 上部の「保留の回を仕分ける」入口（#433） */
 .sortnav { flex-shrink: 0; align-self: center; padding: 6px 12px; border-radius: 999px; background: #f3c55a; color: #1b1f2e; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; }
 .sortnav:hover { background: #ffd877; }
