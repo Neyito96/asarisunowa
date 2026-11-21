@@ -27,6 +27,7 @@ let mapX, mapY, timeX, timeY, catX, catY, worldX, worldY, japanX, japanY;   // �
 // 分類（20の大分類・Claude試作）は管理人判断で当面は隠す（2026-11-21・#433）。?cls=1 を付けたときだけ出す（磨いてから公開）
 const QS = new URLSearchParams(location.search);
 const SHOW_CLS = !QS.has('nocls');   // 分類（主分類・副分類）は表示する。?nocls で隠せる
+const SHOW_CROSS = QS.has('cross');   // 分類ページの「二つの分野にまたがる回」の一覧は、分かりにくいので当面隠す。?cross で表示
 const SHOW_NEB = QS.has('neb');      // 言葉の星座の自動の仮名（例「征平・吉弥・人生」）は名づけ直すまで隠す（#423）。?neb で表示
 if (!SHOW_NEB) document.documentElement.classList.add('no-neb');
 if (!SHOW_CLS) { document.documentElement.classList.add('no-cls'); document.querySelector('.modes [data-mode="cat"]')?.remove(); document.querySelector('.modes [data-mode="map"]')?.setAttribute('aria-pressed', 'true'); }
@@ -557,7 +558,7 @@ function catSection(i) {
     ev ? h('p', { class: 'evid' }, '根拠: ', evText(ev)) : null,
     shown !== HOLD && mi2 >= 0 ? h('p', { class: 'dual' }, h('span', { class: 'badge c2b' }, '副分類'), h('button', { type: 'button', class: 'chip catpath', onclick: () => select({ type: 'cat', id: mi2, sub: si2 }) }, h('span', { style: `color:${catColor(mi2)}` }, '● '), catName(mi2) + (si2 >= 0 ? ' › ' + D.cats[mi2].subs[si2] : ''))) : null,
     shown !== HOLD && mi2 >= 0 && ev2 ? h('p', { class: 'evid' }, '副分類の根拠: ', evText(ev2)) : null,
-    shown !== HOLD && mi2 >= 0 ? h('p', { class: 'note' }, '二つの分野にまたがる回です。手がかりの点数が近い二つを、主分類と副分類として両方示しています。') : null,
+    shown !== HOLD && mi2 >= 0 ? h('p', { class: 'note' }, `この回は「${D.cats[mi2].name}」の話題にも触れています（星は主分類の側に1つだけ置いています）。`) : null,
     src === 'a' ? h('p', { class: 'evid' }, '大分類は人の承認に従っています（小分類は Claude の対応づけ）') : src === 'p' ? h('p', { class: 'evid' }, '大分類は旧仮分類（' + old + '）に従い、手がかり語で確認しています') : null,
     old && src !== 'p' && src !== 'a' ? h('p', { class: 'evid' }, '旧仮分類の主題: ' + old) : null);
 }
@@ -582,6 +583,7 @@ function renderCat(m, sub) {
 }
 // 二つの分野にまたがる回（#390）: この大分類と組になる分野、副分類としてここにも入る回
 function crossSection(m) {
+  if (!SHOW_CROSS) return null;
   const pair = new Map(), as2 = [];
   D.eps.forEach((e, i) => { const a = dispMain(i), b = dispMain2(i); if (b < 0) return; if (a === m) pair.set(b, (pair.get(b) || 0) + 1); if (b === m) { pair.set(a, (pair.get(a) || 0) + 1); as2.push(i); } });
   if (!pair.size) return null;
