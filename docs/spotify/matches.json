@@ -1,42 +1,19 @@
 {
  "summary": {
-  "generatedAt": "2026-11-20T22:46:42.867Z",
-  "spotifyGeneratedAt": "2026-11-20T22:41:08.838Z",
+  "generatedAt": "2026-11-21T02:55:56.459Z",
+  "spotifyGeneratedAt": "2026-11-21T02:50:40.677Z",
   "ledgerRows": 6137,
-  "ledgerSpotifyEmpty": 13,
-  "verified": 3,
+  "ledgerSpotifyEmpty": 10,
+  "verified": 0,
   "counts": {
-   "VERIFIED": 3,
-   "VERIFIED_SAME": 265,
+   "VERIFIED_SAME": 268,
    "NO_ROW": 16,
    "CANDIDATE": 58,
    "HOLD": 2
   },
   "emptyNotInSpotifyList": 1
  },
- "verified": [
-  {
-   "ep": "EP-06760",
-   "url": "https://open.spotify.com/episode/1zZEuUZ96aoAZl6ruKxPTP",
-   "show": "ニュースの現場から",
-   "title": "（ポリレビ #20）米中ロで新ヤルタ会談？日本の厳しい立場あらわに／政治資金あつめに官僚使っていいの？",
-   "spotifyDate": "2026-11-20"
-  },
-  {
-   "ep": "EP-06761",
-   "url": "https://open.spotify.com/episode/7FE052Inwh2vOfFoMTZj1J",
-   "show": "スポンジ",
-   "title": "（陸上 #4）早大独走の全日本大学駅伝　1年生「三羽がらす」、実はカルテット",
-   "spotifyDate": "2026-11-20"
-  },
-  {
-   "ep": "EP-06762",
-   "url": "https://open.spotify.com/episode/4LdvZkgiE6wAVrKhBAbKjD",
-   "show": "ドーナツ",
-   "title": "（ノーミライ＃13）２人の間に何かがあったんかなかったんか、というお話",
-   "spotifyDate": "2026-11-20"
-  }
- ],
+ "verified": [],
  "others": [
   {
    "show": "ニュースの現場から",
@@ -790,33 +767,6 @@
    "status": "CANDIDATE",
    "reason": "題名・日付は一致・長さが合わない",
    "spotifyUrl": "https://open.spotify.com/episode/5SvBbhUVSpoOByxp6wkcco"
-  },
-  {
-   "ep": "EP-06760",
-   "show": "ニュースの現場から",
-   "title": "（ポリレビ #20）米中ロで新ヤルタ会談？日本の厳しい立場あらわに／政治資金あつめに官僚使っていいの？",
-   "published": "2026/11/21 04:00",
-   "status": "VERIFIED",
-   "reason": "番組ID・題名・日付・長さが一致",
-   "spotifyUrl": "https://open.spotify.com/episode/1zZEuUZ96aoAZl6ruKxPTP"
-  },
-  {
-   "ep": "EP-06761",
-   "show": "スポンジ",
-   "title": "（陸上 #4）早大独走の全日本大学駅伝　1年生「三羽がらす」、実はカルテット",
-   "published": "2026/11/21 04:00",
-   "status": "VERIFIED",
-   "reason": "番組ID・題名・日付・長さが一致",
-   "spotifyUrl": "https://open.spotify.com/episode/7FE052Inwh2vOfFoMTZj1J"
-  },
-  {
-   "ep": "EP-06762",
-   "show": "ドーナツ",
-   "title": "（ノーミライ＃13）２人の間に何かがあったんかなかったんか、というお話",
-   "published": "2026/11/21 04:00",
-   "status": "VERIFIED",
-   "reason": "番組ID・題名・日付・長さが一致",
-   "spotifyUrl": "https://open.spotify.com/episode/4LdvZkgiE6wAVrKhBAbKjD"
   }
  ]
 }
