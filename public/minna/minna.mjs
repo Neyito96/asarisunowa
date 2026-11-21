@@ -2,7 +2,7 @@
 // 受付は本番GAS（type=bunruiSubmit・JSONP）。票の集計は ./votes.json（30分ごとに GitHub Actions が更新）。
 import { tidyDescription, withoutAwardPlea } from '../library/description-tidy.mjs';
 import { liveLinks } from '../library/shelf-core.mjs';
-import { queueOrder, platformOf, shareText, topVotes } from './minna-core.mjs';
+import { queueOrder, platformOf, shareText, topVotes } from './minna-core.mjs?v=456';
 
 const ENDPOINT = 'https://script.google.com/macros/s/AKfycbxlZCNqGqOEY7j61OgcSGM8_xfGT08f4jjamXtSj2DES9fXl-xwJrvcRGYHnskidjIMug/exec';
 const BOUNDARY = ['EP-06145', 'EP-03915', 'EP-05192', 'EP-04452', 'EP-03936', 'EP-05841', 'EP-05324', 'EP-02817', 'EP-01643', 'EP-00126', 'EP-02143', 'EP-06018', 'EP-06221', 'EP-06216', 'EP-06019', 'EP-00597', 'EP-00886', 'EP-04333', 'EP-04757'];
@@ -72,6 +72,7 @@ async function show(id) {
   $('.date', node).textContent = fmtDate(e[3]);
   $('.dur', node).textContent = fmtDur(e[7]);
   if (item.boundary) $('.badge', node).hidden = false;
+  if (!isHold(item.i)) { const c = D.cls[item.i], b = $('.badge', node); b.hidden = false; b.classList.add('now'); b.textContent = `いまの分類：${D.cats[c[0]].name}（Claude）`; }
   $('.title', node).textContent = e[1];
   app.appendChild(node);
   const det = await detail(epId).catch(() => null);
@@ -142,6 +143,7 @@ function setupForm(node, epId, i) {
       if (!res || res.ok !== true || !res.receiptId) throw new Error((res && res.message) || '受け付けられませんでした');
       done.add(epId); store.set('done', [...done]);
       votes[epId] = res.tally || votes[epId];
+      if (res.tally && typeof res.tally.n === 'number') { const f = store.get('fresh', {}); f[epId] = { t: res.tally, at: Date.now() }; const keep = Object.entries(f).sort((a, b) => b[1].at - a[1].at).slice(0, 80); store.set('fresh', Object.fromEntries(keep)); }
       form.hidden = true; showResult(node, epId, i, state.main); renderStats();
     } catch (err) { msg.textContent = (err && err.message) === 'TIMEOUT' ? '時間がかかっています。少し待ってから、もう一度お試しください。' : String(err.message || err); msg.className = 'msg err'; send.disabled = false; }
   });
@@ -154,7 +156,7 @@ function showResult(node, epId, i, mine) {
   const hueOf = (name) => (D.cats.find((c) => c.name === name) || {}).hue;
   $('.bars', box).innerHTML = rows.length ? rows.map((r) => `<div class="bar${r.name === mine ? ' mine' : ''}"><span class="lbl">${r.name}</span><span class="track"><span class="fill" style="width:${(r.count / max) * 100}%;--h:${hueOf(r.name) ?? 220}"></span></span><span class="cnt">${r.count}</span></div>`).join('') + `<p class="n">${v.n}人が仕分け${v.unsure ? `（うち「わからない」${v.unsure}）` : ''}</p>` : '<p class="n">あなたが最初の仕分けです！</p>';
   const c = D.cls[i], name = (k) => (k >= 0 ? D.cats[k].name : '');
-  $('.claude', box).textContent = c[0] >= 0 ? `参考：Claude の推定は「${name(c[0])}」${c[4] >= 0 ? `（次点「${name(c[4])}」）` : ''}。確信が持てず保留にしていました。` : '参考：Claude は手がかりが少なく推定できませんでした。';
+  $('.claude', box).textContent = !isHold(i) ? `参考：いま宇宙では Claude の分類「${name(c[0])}」${c[4] >= 0 ? `（副分類「${name(c[4])}」）` : ''}で並んでいます。みんなの見立ては宇宙のこの回に表れます。` : c[0] >= 0 ? `参考：Claude の推定は「${name(c[0])}」${c[4] >= 0 ? `（次点「${name(c[4])}」）` : ''}。確信が持てず保留にしていました。` : '参考：Claude は手がかりが少なく推定できませんでした。';
   $('.next', box).onclick = next;
   $('.share', box).onclick = async () => {
     const url = location.origin + location.pathname + '#ep=' + epId, text = shareText(D.eps[i][1], url);

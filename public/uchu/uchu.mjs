@@ -3,7 +3,7 @@
 // 回の本文・出演者・関連記事・再生先は、蔵の公開データ（../library/data/details/）をその場で読む（写しを増やさない）。
 // 外部ライブラリなし。Canvas 2D と素の DOM だけ。
 import { SHELF_KEY, readShelf, serializeShelf, toggleItem, listenLinks, liveLinks } from '../library/shelf-core.mjs';
-import { consensus } from '../minna/minna-core.mjs';
+import { consensus, viewpoints, freshTally } from '../minna/minna-core.mjs?v=456';
 import { tidyDescription, withoutAwardPlea } from '../library/description-tidy.mjs';
 import { stampText } from '../library/stamp.mjs';
 
@@ -568,6 +568,8 @@ function sortSection(i) {
   mains();
   return box;
 }
+// この端末で送った直後の集計（みんなで仕分けが保存）。読めない環境では空
+const minnaFresh = () => { try { return JSON.parse(localStorage.getItem('minna:fresh') || '{}') || {}; } catch { return {}; } };
 function catSection(i) {
   if (!SHOW_CLS) {   // 分類を隠している間は、保留の回にだけ「みんなで仕分ける」入口を出す
     if (dispMain(i) !== HOLD) return null;
@@ -575,9 +577,12 @@ function catSection(i) {
   }
   const [mi, si, conf, src, mi2, si2] = D.cls[i], [ev, old, ev2] = D.clsEv[i] || ['', '', ''], shown = dispMain(i);
   const guess = shown === HOLD && mi >= 0 && sortLoad()[D.eps[i][0]] ? h('p', { class: 'evid' }, `Claudeの推定: ${D.cats[mi].name}（${src === 'l' ? '似た回の言葉から学んだ推定' : '関連する回の分類から'}・要確認）`) : null;
-  const mv = (MINNA.votes || {})[D.eps[i][0]], mc = consensus(mv);
-  const minna = mc ? h('p', { class: 'dual' }, h('span', { class: 'badge c2b' }, 'みんなの分類（候補）'), `${mc.name}（${mc.n}人中${mc.count}人）`)
-    : shown === HOLD ? h('p', { class: 'note' }, mv ? `朝リス ${mv.n}人が仕分け中。` : '', h('a', { href: '../minna/#ep=' + D.eps[i][0], target: '_blank', rel: 'noopener' }, 'この回をみんなで仕分ける →')) : null;
+  const ep = D.eps[i][0], mv = freshTally((MINNA.votes || {})[ep], minnaFresh()[ep], MINNA.generatedAt), mc = consensus(mv), vp = viewpoints(mv);
+  const minnaLink = h('a', { href: '../minna/#ep=' + ep, target: '_blank', rel: 'noopener' }, shown === HOLD ? 'この回をみんなで仕分ける →' : 'この分類、ちがうかも？ 見立てを送る →');
+  const minna = h('div', { class: 'minna-vp' },
+    mc ? h('p', { class: 'dual' }, h('span', { class: 'badge mv' }, 'みんなの分類（候補）'), `${mc.name}（${mc.n}人中${mc.count}人）`) : null,
+    vp ? h('p', { class: 'dual' }, h('span', { class: 'badge c2b' }, 'みんなの見立て'), vp.rows.map((r) => `${r.name}（${r.count}人）`).join('、') + (vp.unsure ? `、わからない（${vp.unsure}人）` : '')) : null,
+    h('p', { class: 'note' }, minnaLink));
   return h('div', { class: 'sec' }, h('h4', {}, '分類'),
     shown === HOLD ? h('p', {}, h('span', { class: 'badge cl' }, '保留'), h('span', { class: 'note' }, '手がかりが弱いため分類に置いていません')) :
       h('p', {}, h('span', { class: 'badge ' + CONF[conf][0] }, CONF[conf][1]), h('button', { type: 'button', class: 'chip catpath', onclick: () => select({ type: 'cat', id: shown, sub: si }) }, catName(shown) + (si >= 0 ? ' › ' + D.cats[shown].subs[si] : ''))),
