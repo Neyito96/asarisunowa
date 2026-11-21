@@ -18,8 +18,14 @@ a { color: #a9d4ff; }
 
 .top { position: fixed; inset: 0 0 auto 0; height: 66px; display: flex; align-items: center; gap: 16px; padding: 0 16px; background: linear-gradient(#070b16ee, #070b1600); z-index: 20; }
 .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.sites { display: flex; gap: 6px; flex: none; }
-.back { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 50%; text-decoration: none; color: var(--ink); font-size: 13px; flex: none; }
+.sites { display: flex; flex-direction: row; gap: 6px; flex: none; }
+.back { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px 0 5px; border: 1px solid #3a4c78; border-radius: 18px; background: #142041; text-decoration: none; color: var(--ink); font-size: 13px; font-weight: 600; letter-spacing: .06em; flex: none; white-space: nowrap; transition: border-color .15s, background .15s; }
+.back b { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font-size: 15px; font-weight: 700; color: #10150a; }
+.back.ta b { background: #9fd58a; }
+.back.kura b { background: var(--accent); color: #1a1405; }
+.back:hover { border-color: var(--accent); background: #1a2a52; }
+.back:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+@media (max-width: 1280px) { .back { padding: 0 4px; height: 34px; } .back .lbl { display: none; } }
 .titles { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
 h1 { font-size: 26px; font-weight: 600; margin: 0; letter-spacing: .14em; white-space: nowrap; line-height: 1.25; }
 .sub { margin: 3px 0 0; font-size: 10.5px; letter-spacing: .22em; white-space: nowrap; color: var(--sub); }
@@ -122,7 +128,8 @@ h1 { font-size: 26px; font-weight: 600; margin: 0; letter-spacing: .14em; white-
   .sub .what { display: none; }
   h1 { font-size: 23px; letter-spacing: .1em; }
   .sub { font-size: 9.5px; margin-top: 2px; }
-  .back { width: 30px; height: 30px; }
+  .back { height: 32px; padding: 0 3px; }
+  .back b { width: 26px; height: 26px; }
   .modes { order: 2; margin-left: auto; }
   .modes button { padding: 5px 9px; font-size: 13px; }
   .search { order: 3; flex-basis: 100%; max-width: none; }
@@ -156,7 +163,8 @@ h1 { font-size: 26px; font-weight: 600; margin: 0; letter-spacing: .14em; white-
   .top { height: 46px; padding: 0 12px; gap: 10px; background: #070b16f0; }
   .sub { display: none; }
   h1 { font-size: 19px; }
-  .back { width: 28px; height: 28px; }
+  .back { height: 30px; padding: 0 3px; }
+  .back b { width: 24px; height: 24px; font-size: 13px; }
   .search { max-width: 260px; }
   #q { height: 32px; }
   .modes button { padding: 4px 10px; font-size: 13px; }
