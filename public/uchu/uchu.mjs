@@ -25,14 +25,19 @@ let D, REL = null;               // core, rel
 let px, py;                      // 今の表示の座標（世界座標）
 let mapX, mapY, timeX, timeY, catX, catY, worldX, worldY, japanX, japanY;   // 表示ごとの座標
 // 分類（20の大分類・Claude試作）は管理人判断で当面は隠す（2026-11-21・#433）。?cls=1 を付けたときだけ出す（磨いてから公開）
-const SHOW_CLS = new URLSearchParams(location.search).has('cls');
+const QS = new URLSearchParams(location.search);
+const SHOW_CLS = !QS.has('nocls');   // 分類（主分類・副分類）は表示する。?nocls で隠せる
+const SHOW_NEB = QS.has('neb');      // 言葉の星座の自動の仮名（例「征平・吉弥・人生」）は名づけ直すまで隠す（#423）。?neb で表示
+if (!SHOW_NEB) document.documentElement.classList.add('no-neb');
 if (!SHOW_CLS) { document.documentElement.classList.add('no-cls'); document.querySelector('.modes [data-mode="cat"]')?.remove(); document.querySelector('.modes [data-mode="map"]')?.setAttribute('aria-pressed', 'true'); }
-let mode = SHOW_CLS ? 'cat' : 'map';
+const START_MODE = SHOW_CLS ? 'cat' : 'map';
+let mode = START_MODE;
 const view = { x: 0, y: 0, k: 1 };
 let W = 0, H = 0, dpr = 1;
 let hi = null;                   // 光らせる回の集合（Set）
 let sel = null;                  // {type:'ep'|'word'|'person'|'neb', id}
 let hoverEp = -1, labelRects = [];
+const INTRO = document.querySelector('#detail .intro');   // 最初の案内（ホームに戻るときに出し直す）
 let grid = new Map();             // 当たり判定用の格子
 // 分類の配置: 大分類＝円の領域、小分類＝その中の円、回＝ひまわり配置（新しい回ほど中心）
 function packCircles(items, gap) {   // items: [{r}] → x,y を詰めて置く（大きい順・らせん探索）
@@ -330,7 +335,7 @@ function drawLabels() {
   if (sel && sel.type === 'word') { must.add(sel.id); for (const [y] of D.terms[sel.id][5]) must.add(y); }
   if (k < 0.75 && !must.size) {
     ctx.font = '600 16px ' + MINCHO;
-    D.comms.forEach((cm, c) => { const x = sx(cm.x), y = sy(cm.y); const text = cm.name.slice(0, 2).join('・'); const w = ctx.measureText(text).width + 8; if (!place(x, y, w, 18)) return; ctx.fillStyle = '#000a'; ctx.fillText(text, x + 1, y + 1); ctx.fillStyle = colorOf(c); ctx.fillText(text, x, y); });
+    if (SHOW_NEB) D.comms.forEach((cm, c) => { const x = sx(cm.x), y = sy(cm.y); const text = cm.name.slice(0, 2).join('・'); const w = ctx.measureText(text).width + 8; if (!place(x, y, w, 18)) return; ctx.fillStyle = '#000a'; ctx.fillText(text, x + 1, y + 1); ctx.fillStyle = colorOf(c); ctx.fillText(text, x, y); });
     return;
   }
   if (sel && sel.type === 'word') {
@@ -462,7 +467,7 @@ function showMix(ids) { const c = new Map(); for (const i of ids) c.set(D.eps[i]
 function renderWord(j) {
   const t = D.terms[j], ids = t[4];
   panel().replaceChildren(h('div', {},
-    h('p', { class: 'kind' }, '言葉'), h('h3', { class: 'hero' }, t[0]), h('p', { class: 'meta' }, h('span', {}, `${ids.length}回で主な言葉`), t[3] >= 0 ? h('span', {}, `星雲「${D.comms[t[3]].name.slice(0, 2).join('・')}」`) : null),
+    h('p', { class: 'kind' }, '言葉'), h('h3', { class: 'hero' }, t[0]), h('p', { class: 'meta' }, h('span', {}, `${ids.length}回で主な言葉`), t[3] >= 0 && SHOW_NEB ? h('span', {}, `星雲「${D.comms[t[3]].name.slice(0, 2).join('・')}」`) : null),
     h('p', { class: 'note' }, showMix(ids)),
     h('div', { class: 'sec' }, h('h4', {}, '時間の変化'), histogram(ids)),
     t[5].length ? h('div', { class: 'sec' }, h('h4', {}, 'いっしょに語られる言葉'), t[5].map(([y, s]) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'word', id: y }) }, D.terms[y][0], h('small', {}, `${s}`))), h('p', { class: 'note' }, '数字は「同じ回に出る割合」（0〜100）。意味の近さではなく、共起の強さです。')) : null,
@@ -709,7 +714,7 @@ async function renderEp(i) {
     h('p', { class: 'meta' }, h('span', {}, fmtDate(e[3])), h('span', {}, fmtDur(e[7]))),
     h('div', { class: 'btns' }, h('a', { class: 'btn primary', href: `../library/?ep=${id}`, target: '_blank', rel: 'noopener' }, '蔵で詳しく見る ↗'), shelfBtn),
     catSection(i), fmtSection(i), placeSection(i), descBox, sortSection(i), relBox,
-    e[6] >= 0 ? h('div', { class: 'sec' }, h('h4', {}, '星雲'), h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'neb', id: e[6] }) }, h('span', { style: `color:${colorOf(e[6])}` }, '●'), D.comms[e[6]].name.slice(0, 2).join('・'))) : h('p', { class: 'note' }, 'この回は共通の言葉が少ないため、星図には置いていません。')));
+    e[6] >= 0 ? (SHOW_NEB ? h('div', { class: 'sec' }, h('h4', {}, '星雲'), h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'neb', id: e[6] }) }, h('span', { style: `color:${colorOf(e[6])}` }, '●'), D.comms[e[6]].name.slice(0, 2).join('・'))) : null) : h('p', { class: 'note' }, 'この回は共通の言葉が少ないため、星図には置いていません。')));
   live(`回「${e[1]}」`);
   const d = await loadDetail(id); if (!sel || sel.type !== 'ep' || sel.id !== i) return;
   if (!d) { descBox.replaceChildren(h('p', { class: 'note' }, '詳細を読み込めませんでした。蔵で見てください。')); return; }
@@ -841,10 +846,20 @@ function fromHash() {
   if (m[1] === 'w' && termIdxByKey.has(norm(v))) select({ type: 'word', id: termIdxByKey.get(norm(v)) }, { push: false });
   if (m[1] === 'p') { const k = D.persons.findIndex((p) => p[0] === v); if (k >= 0) select({ type: 'person', id: k }, { push: false }); }
   if (m[1] === 'f' && D.formats[+v]) select({ type: 'fmt', id: +v }, { push: false });
-  if (m[1] === 'n' && D.comms[+v]) select({ type: 'neb', id: +v }, { push: false });
+  if (m[1] === 'n' && SHOW_NEB && D.comms[+v]) select({ type: 'neb', id: +v }, { push: false });
   if (m[1] === 'pl') { const id = v === 'JP' ? 'JP' : +v; if (id === 'JP' || PL[id]) select({ type: 'place', id }, { push: false }); }
   if (m[1] === 'c' && SHOW_CLS) { const [a, b] = v.split('.').map(Number); if (a >= 0 && a <= HOLD) select({ type: 'cat', id: a, sub: Number.isFinite(b) ? b : -1 }, { push: false }); }
 }
 fromHash(); addEventListener('hashchange', fromHash);
+// 左上の「朝ポキの宇宙」で最初の画面へ戻る（選択を外し、案内を出し、最初の表示で全体を映す）
+document.getElementById('home').addEventListener('click', (ev) => {
+  ev.preventDefault();
+  sel = null; hi = null; hoverEp = -1;
+  panel().replaceChildren(INTRO);
+  document.querySelectorAll('.legend button[aria-pressed]').forEach((b) => b.setAttribute('aria-pressed', 'false'));
+  history.replaceState(null, '', location.pathname + location.search);
+  if (mode !== START_MODE) setMode(START_MODE); else { draw(); fit(); }
+  live('最初の画面に戻りました');
+});
 if (!location.hash) setTimeout(() => hintsFor(mode), 1200);
 window.__uchuPerf = { loadMs: Math.round(tLoad), readyMs: Math.round(performance.now() - t0), episodes: NE, terms: D.terms.length };
