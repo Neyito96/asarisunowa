@@ -1,0 +1,78 @@
+{
+  "issue": null,
+  "appliedAt": "2026-11-21T11:19Z（20:19 JST）",
+  "approvedBy": "管理人（2026-11-21 20:17 JST のチャットで「6回は朝日新聞の題名が正しいとして書き換える」を承認）",
+  "target": {
+    "spreadsheet": "V2作業用",
+    "sheet": "V2・統合台帳",
+    "column": "J（公式個別URL）のみ"
+  },
+  "method": "前回保留の6回。題名の違いは番号・カッコ・大文字小文字だけで本文は一致。台帳内に朝日側の番号（PUERTA #26・ポリレビ #18）を持つ別の回は無いことを確認。台帳の題名（C列）は変更していない",
+  "backup": {
+    "type": "スプレッドシート全体の複製",
+    "title": "BACKUP_公式個別URL更新前_6件_20261121（V2作業用の複製・編集しない）",
+    "fileId": "1xDgAFmnX646Oexgshg-RMsFzkg92lWEQp1orQwhd1L8",
+    "checkedSameAsProductionBeforeWrite": true
+  },
+  "verification": {
+    "rowsUpdated": 6,
+    "readBackRows": "6440-6621 全34列をバックアップと比較",
+    "diffs": 6,
+    "nonTargetCellDiffs": 0
+  },
+  "stillOmny": [
+    "EP-06595",
+    "EP-06596",
+    "EP-06597（2020年の回・未確認）"
+  ],
+  "changes": [
+    {
+      "id": "EP-06592",
+      "row": 6453,
+      "old": "https://omny.fm/shows/asahi/puerta25",
+      "new": "https://www.asahi.com/special/podcasts/item/?itemid=5218b5c5-7f21-4089-a5c7-b4ea00cf1bd3",
+      "officialTitle": "（PUERTA #26）…",
+      "ledgerTitle": "（PUERTA #25）…"
+    },
+    {
+      "id": "EP-06638",
+      "row": 6499,
+      "old": "https://omny.fm/shows/asahi/mh18",
+      "new": "https://www.asahi.com/special/podcasts/item/?itemid=b47f4817-6b1f-41b6-8766-b4ec00665a27",
+      "officialTitle": "【もっと話そう】タコ墨でお習字できるかな…",
+      "ledgerTitle": "（もっと話そう）タコ墨でお習字できるかな…"
+    },
+    {
+      "id": "EP-06667",
+      "row": 6528,
+      "old": "https://omny.fm/shows/asahi/kodomo19",
+      "new": "https://www.asahi.com/special/podcasts/item/?itemid=c6af6a0d-0e16-4637-bfc5-b4f6001b6c82",
+      "officialTitle": "…なんでレタスでたとえるの？ #19",
+      "ledgerTitle": "…なんでレタスでたとえるの？"
+    },
+    {
+      "id": "EP-06678",
+      "row": 6539,
+      "old": "https://omny.fm/shows/asahi/polirevi19",
+      "new": "https://www.asahi.com/special/podcasts/item/?itemid=d7ea556a-cd9b-41ae-91d1-b4fa00731960",
+      "officialTitle": "（ポリレビ #18）…",
+      "ledgerTitle": "（ポリレビ #19）…"
+    },
+    {
+      "id": "EP-06683",
+      "row": 6544,
+      "old": "https://omny.fm/shows/asahi/20261109",
+      "new": "https://www.asahi.com/special/podcasts/item/?itemid=502f9c0a-c605-4169-8939-b4f2006cdff8",
+      "officialTitle": "…The MEDIA TALKで再始動",
+      "ledgerTitle": "…The Media Talkで再始動"
+    },
+    {
+      "id": "EP-06692",
+      "row": 6553,
+      "old": "https://omny.fm/shows/asahi/tenjin007",
+      "new": "https://www.asahi.com/special/podcasts/item/?itemid=a86b1d53-bac1-42ce-a504-b49c00b95a9f",
+      "officialTitle": "（天声人語 #7）…",
+      "ledgerTitle": "（天声人語7）…"
+    }
+  ]
+}
