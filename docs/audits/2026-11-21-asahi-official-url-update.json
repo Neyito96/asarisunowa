@@ -1,0 +1,496 @@
+{
+ "issue": null,
+ "appliedAt": "2026-11-21T10:53Z（19:53 JST）",
+ "approvedBy": "管理人（2026-11-21 19:48 JST のチャットでの承認）",
+ "target": {
+  "spreadsheet": "V2作業用",
+  "sheet": "V2・統合台帳",
+  "column": "J（公式個別URL）のみ"
+ },
+ "method": "公式個別URL が Omny のページになっていた 79回について、公式GUID（H列）を itemid とした朝日新聞の公式ページを1件ずつ開き、ページの題名が台帳の題名と一致した 73回だけを書き換えた。既存 6,151件で itemid＝公式GUID が全件一致することを確認済み",
+ "backup": {
+  "type": "スプレッドシート全体の複製",
+  "title": "BACKUP_公式個別URL更新前_20261121（V2作業用の複製・編集しない）",
+  "fileId": "1rN1fOLOh2bkI1a_6p0vi1Bll--dECCGhtI0gsqpNVwc",
+  "checkedSameAsProductionBeforeWrite": true
+ },
+ "verification": {
+  "checked": 79,
+  "titleMatched": 73,
+  "rowsUpdated": 73,
+  "readBackMatched": 73,
+  "nonTargetCellDiffsAllColumns": 0
+ },
+ "notUpdated": [
+  {
+   "id": "EP-06592",
+   "officialTitle": "（PUERTA #26）…",
+   "ledgerTitle": "（PUERTA #25）…"
+  },
+  {
+   "id": "EP-06638",
+   "officialTitle": "【もっと話そう】タコ墨でお習字できるかな…",
+   "ledgerTitle": "（もっと話そう）タコ墨でお習字できるかな…"
+  },
+  {
+   "id": "EP-06667",
+   "officialTitle": "…なんでレタスでたとえるの？ #19",
+   "ledgerTitle": "…なんでレタスでたとえるの？"
+  },
+  {
+   "id": "EP-06678",
+   "officialTitle": "（ポリレビ #18）…",
+   "ledgerTitle": "（ポリレビ #19）…"
+  },
+  {
+   "id": "EP-06683",
+   "officialTitle": "…The MEDIA TALKで再始動",
+   "ledgerTitle": "…The Media Talkで再始動"
+  },
+  {
+   "id": "EP-06692",
+   "officialTitle": "（天声人語 #7）…",
+   "ledgerTitle": "（天声人語7）…"
+  }
+ ],
+ "changes": [
+  {
+   "id": "EP-06593",
+   "row": 6454,
+   "old": "https://omny.fm/shows/asahi/osumo34",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=13a056a0-27b2-4079-a9e5-b4e5006200d0"
+  },
+  {
+   "id": "EP-06598",
+   "row": 6459,
+   "old": "https://omny.fm/shows/asahi/d20261018",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=b1dc9e1f-c35c-49a1-9fe3-b4e5007b9b28"
+  },
+  {
+   "id": "EP-06599",
+   "row": 6460,
+   "old": "https://omny.fm/shows/asahi/oosaka7",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=e82dff62-ad36-41d3-9609-b4e300473821"
+  },
+  {
+   "id": "EP-06601",
+   "row": 6462,
+   "old": "https://omny.fm/shows/asahi/20261019",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=57cf0f97-b149-41c2-a2c4-b4dc00603b07"
+  },
+  {
+   "id": "EP-06602",
+   "row": 6463,
+   "old": "https://omny.fm/shows/asahi/mekuro202",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=a7a7e53b-4657-46ec-af31-b4e20033184f"
+  },
+  {
+   "id": "EP-06604",
+   "row": 6465,
+   "old": "https://omny.fm/shows/asahi/d20261019",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=f9c74194-f53e-4436-b2b9-b4e300984d0d"
+  },
+  {
+   "id": "EP-06605",
+   "row": 6466,
+   "old": "https://omny.fm/shows/asahi/d20261020",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=08ec2131-3403-4f12-8dfb-b4e5007b9ad7"
+  },
+  {
+   "id": "EP-06607",
+   "row": 6468,
+   "old": "https://omny.fm/shows/asahi/seisaku113",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=b06a5ea1-aec1-47e5-b1f9-b4dd00b6a25d"
+  },
+  {
+   "id": "EP-06608",
+   "row": 6469,
+   "old": "https://omny.fm/shows/asahi/okurimono-ip1",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=d9226a5c-88fe-4f3a-8063-b4e400829390"
+  },
+  {
+   "id": "EP-06610",
+   "row": 6471,
+   "old": "https://omny.fm/shows/asahi/worldinsight6",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=45786cb6-5abc-4b29-9051-b4e500648a62"
+  },
+  {
+   "id": "EP-06611",
+   "row": 6472,
+   "old": "https://omny.fm/shows/asahi/basukura51",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=53c151a7-b15e-492b-9eea-b4dc0090db03"
+  },
+  {
+   "id": "EP-06612",
+   "row": 6473,
+   "old": "https://omny.fm/shows/asahi/k-17",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=8395e9ec-941e-466f-aa70-b4e500853913"
+  },
+  {
+   "id": "EP-06613",
+   "row": 6474,
+   "old": "https://omny.fm/shows/asahi/kinodou-50",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=bb4fdb37-90cc-48fb-88d8-b4e700c3c303"
+  },
+  {
+   "id": "EP-06614",
+   "row": 6475,
+   "old": "https://omny.fm/shows/asahi/mh17",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=c0de2f01-906c-4513-a7e1-b4e500854185"
+  },
+  {
+   "id": "EP-06615",
+   "row": 6476,
+   "old": "https://omny.fm/shows/asahi/baseball5",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=0b4af7ab-49c1-400a-b3a8-b4e900b3d684"
+  },
+  {
+   "id": "EP-06616",
+   "row": 6477,
+   "old": "https://omny.fm/shows/asahi/ongoing1022",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=8fe3c32f-056a-4223-9ed1-b4e500c559ea"
+  },
+  {
+   "id": "EP-06617",
+   "row": 6478,
+   "old": "https://omny.fm/shows/asahi/oyamoya130",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=cd329172-6f57-477d-b586-b4e30006bc96"
+  },
+  {
+   "id": "EP-06619",
+   "row": 6480,
+   "old": "https://omny.fm/shows/asahi/dn20261023",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=5e460a9e-6b55-4f74-800d-b4da00a79a80"
+  },
+  {
+   "id": "EP-06621",
+   "row": 6482,
+   "old": "https://omny.fm/shows/asahi/athletics1",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=c28c3603-d13c-4922-8180-b4e5009033d6"
+  },
+  {
+   "id": "EP-06622",
+   "row": 6483,
+   "old": "https://omny.fm/shows/asahi/athletics2",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=09745c24-ed3b-4b95-b62f-b4e8008dcd64"
+  },
+  {
+   "id": "EP-06623",
+   "row": 6484,
+   "old": "https://omny.fm/shows/asahi/polirevi16",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=28f11a95-ac3b-46a9-a584-b4ec009c3cb9"
+  },
+  {
+   "id": "EP-06624",
+   "row": 6485,
+   "old": "https://omny.fm/shows/asahi/music-life-vol-10",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=b7b13c9d-5f69-4a84-84b9-b4ec005d3bdd"
+  },
+  {
+   "id": "EP-06625",
+   "row": 6486,
+   "old": "https://omny.fm/shows/asahi/oosaka8",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=aca6c2d2-6291-4bd5-801a-b4eb00651c0d"
+  },
+  {
+   "id": "EP-06626",
+   "row": 6487,
+   "old": "https://omny.fm/shows/asahi/d20261025",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=d44645db-746d-421d-baac-b4eb008e182c"
+  },
+  {
+   "id": "EP-06627",
+   "row": 6488,
+   "old": "https://omny.fm/shows/asahi/20261026",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=08e40b40-d56b-4f22-be57-b4dc00603b13"
+  },
+  {
+   "id": "EP-06630",
+   "row": 6491,
+   "old": "https://omny.fm/shows/asahi/mekuro203",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=df9ffb68-6f44-45b1-9331-b4e2007caa71"
+  },
+  {
+   "id": "EP-06631",
+   "row": 6492,
+   "old": "https://omny.fm/shows/asahi/d20261026",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=f8906ca4-3861-4eb8-83b8-b4eb008e0422"
+  },
+  {
+   "id": "EP-06632",
+   "row": 6493,
+   "old": "https://api.omny.fm/orgs/1e3bd144-9b57-451a-93cf-ac0e00e74446/clips/a07f0210-b98d-4e6d-9d21-b4c9005ccdfc",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=a07f0210-b98d-4e6d-9d21-b4c9005ccdfc"
+  },
+  {
+   "id": "EP-06633",
+   "row": 6494,
+   "old": "https://omny.fm/shows/asahi/globe261028",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=93a6a5b8-35f6-447b-abb6-b4ec0061a16e"
+  },
+  {
+   "id": "EP-06634",
+   "row": 6495,
+   "old": "https://omny.fm/shows/asahi/okurimono-ty1",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=ef74feab-7dc0-41ff-923c-b4e400b0ebe0"
+  },
+  {
+   "id": "EP-06635",
+   "row": 6496,
+   "old": "https://omny.fm/shows/asahi/51-2",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=f8405029-19db-4278-85d3-b4ea00617b16"
+  },
+  {
+   "id": "EP-06636",
+   "row": 6497,
+   "old": "https://omny.fm/shows/asahi/mania50",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=45dbe89c-d322-4c18-864b-b4ea006173e3"
+  },
+  {
+   "id": "EP-06637",
+   "row": 6498,
+   "old": "https://omny.fm/shows/asahi/kd18",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=69b1b092-5c09-48c8-9936-b4ec00664d97"
+  },
+  {
+   "id": "EP-06639",
+   "row": 6500,
+   "old": "https://omny.fm/shows/asahi/pokifuto34",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=a2cd47a2-b397-4059-98be-b4de0092b380"
+  },
+  {
+   "id": "EP-06640",
+   "row": 6501,
+   "old": "https://omny.fm/shows/asahi/d20261027",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=e474cda9-28f9-4881-9c4f-b4e8008301cf"
+  },
+  {
+   "id": "EP-06641",
+   "row": 6502,
+   "old": "https://omny.fm/shows/asahi/kanja1029",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=0900cfa3-9c46-4799-b9a0-b4ef00153be2"
+  },
+  {
+   "id": "EP-06642",
+   "row": 6503,
+   "old": "https://omny.fm/shows/asahi/oyamoya131",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=9c85db3b-04db-4819-9d53-b4e30006c1d3"
+  },
+  {
+   "id": "EP-06643",
+   "row": 6504,
+   "old": "https://omny.fm/shows/asahi/yurukei22",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=359f3452-1b90-4820-a53a-b4ef006ef44b"
+  },
+  {
+   "id": "EP-06644",
+   "row": 6505,
+   "old": "https://omny.fm/shows/asahi/bone2026",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=0cee895c-ee0f-4a30-8020-b4d300723b88"
+  },
+  {
+   "id": "EP-06648",
+   "row": 6509,
+   "old": "https://omny.fm/shows/asahi/oshi8",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=1ce7d1f3-eb36-41df-ac35-b4f20074e1eb"
+  },
+  {
+   "id": "EP-06649",
+   "row": 6510,
+   "old": "https://omny.fm/shows/asahi/porirebi17",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=1d23b6c1-795a-4fc1-bb11-b4f300648a6b"
+  },
+  {
+   "id": "EP-06650",
+   "row": 6511,
+   "old": "https://omny.fm/shows/asahi/athletics3",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=5f9bc01d-0f71-4732-8ae9-b4f200364b89"
+  },
+  {
+   "id": "EP-06651",
+   "row": 6512,
+   "old": "https://omny.fm/shows/asahi/music-life-bangai",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=8566d10d-729f-4992-8627-b4f300d4a5ef"
+  },
+  {
+   "id": "EP-06652",
+   "row": 6513,
+   "old": "https://omny.fm/shows/asahi/d20261101",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=de1b9d63-e25e-4800-9f03-b4f3005c8405"
+  },
+  {
+   "id": "EP-06653",
+   "row": 6514,
+   "old": "https://omny.fm/shows/asahi/osaka9",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=be476923-36f3-4435-82d5-b4f200db10a2"
+  },
+  {
+   "id": "EP-06654",
+   "row": 6515,
+   "old": "https://omny.fm/shows/asahi/mekuro204",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=9f04aa96-e258-4978-b88e-b4ee0061ccc1"
+  },
+  {
+   "id": "EP-06655",
+   "row": 6516,
+   "old": "https://omny.fm/shows/asahi/20261102",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=0b5f028f-ef6f-46ad-80a1-b4f2006cdff0"
+  },
+  {
+   "id": "EP-06656",
+   "row": 6517,
+   "old": "https://omny.fm/shows/asahi/d20261102",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=faa44e57-6cb9-4315-88b2-b4ed00a42327"
+  },
+  {
+   "id": "EP-06659",
+   "row": 6520,
+   "old": "https://omny.fm/shows/asahi/kagaku27",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=ab8f929a-52f3-4a44-9b11-b4f500d444d4"
+  },
+  {
+   "id": "EP-06660",
+   "row": 6521,
+   "old": "https://omny.fm/shows/asahi/withnews97",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=8da73095-2c99-49f0-868e-b4f200046b90"
+  },
+  {
+   "id": "EP-06661",
+   "row": 6522,
+   "old": "https://omny.fm/shows/asahi/d20261103",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=1383a0c4-1572-44bc-84d5-b4ed00a44df4"
+  },
+  {
+   "id": "EP-06662",
+   "row": 6523,
+   "old": "https://omny.fm/shows/asahi/worldinsight7",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=a271e44e-87fa-4556-8381-b4f20071b6f3"
+  },
+  {
+   "id": "EP-06663",
+   "row": 6524,
+   "old": "https://omny.fm/shows/asahi/20261104",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=08bd2a27-ce18-4b0d-b711-b4f40103d3fa"
+  },
+  {
+   "id": "EP-06664",
+   "row": 6525,
+   "old": "https://omny.fm/shows/asahi/mh19",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=3db8d37a-7987-40bd-ab2d-b4f6001e0d06"
+  },
+  {
+   "id": "EP-06665",
+   "row": 6526,
+   "old": "https://omny.fm/shows/asahi/basukura52",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=3c98733f-1f9e-4678-9a50-b4e4004ab9eb"
+  },
+  {
+   "id": "EP-06668",
+   "row": 6529,
+   "old": "https://omny.fm/shows/asahi/senryu1105",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=6402b261-6595-49e1-a50c-b4f800112ce8"
+  },
+  {
+   "id": "EP-06669",
+   "row": 6530,
+   "old": "https://omny.fm/shows/asahi/oshi9",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=96f74df8-61da-464e-ac6f-b4f800a00081"
+  },
+  {
+   "id": "EP-06671",
+   "row": 6532,
+   "old": "https://omny.fm/shows/asahi/d20261105",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=89cbb783-6b74-48bf-a4f4-b4f300898aae"
+  },
+  {
+   "id": "EP-06672",
+   "row": 6533,
+   "old": "https://omny.fm/shows/asahi/koushitu1106",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=20bae540-6439-4006-8c8e-b4f80011253a"
+  },
+  {
+   "id": "EP-06673",
+   "row": 6534,
+   "old": "https://omny.fm/shows/asahi/dorama2",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=31939d42-bea6-4957-8e0a-b4f6017ff14d"
+  },
+  {
+   "id": "EP-06674",
+   "row": 6535,
+   "old": "https://omny.fm/shows/asahi/osumo35",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=1587feb1-5a14-4b91-aae1-b4f601778714"
+  },
+  {
+   "id": "EP-06676",
+   "row": 6537,
+   "old": "https://omny.fm/shows/asahi/dn20261106",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=2b03eb0a-51d4-4ff3-b70c-b4da00a9945b"
+  },
+  {
+   "id": "EP-06679",
+   "row": 6540,
+   "old": "https://omny.fm/shows/asahi/music-life-vol-11",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=008be503-16a0-49c3-8e92-b4f900a4e92c"
+  },
+  {
+   "id": "EP-06680",
+   "row": 6541,
+   "old": "https://omny.fm/shows/asahi/oosaka10",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=73133b6a-1deb-4cba-a8cf-b4f20038c7c8"
+  },
+  {
+   "id": "EP-06681",
+   "row": 6542,
+   "old": "https://omny.fm/shows/asahi/d20261108",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=41f68063-feb2-48e9-9f41-b4fa0179e6fe"
+  },
+  {
+   "id": "EP-06682",
+   "row": 6543,
+   "old": "https://omny.fm/shows/asahi/mekuro205",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=a73edf38-f48d-4bd8-b909-b4f1005351b3"
+  },
+  {
+   "id": "EP-06685",
+   "row": 6546,
+   "old": "https://omny.fm/shows/asahi/d20261109",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=2993a3cc-98e7-46a9-a89e-b4f30089a7e0"
+  },
+  {
+   "id": "EP-06687",
+   "row": 6548,
+   "old": "https://omny.fm/shows/asahi/okurimono-hi1",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=498802d9-6726-4895-b9ab-b4f900136d45"
+  },
+  {
+   "id": "EP-06688",
+   "row": 6549,
+   "old": "https://omny.fm/shows/asahi/seisakukaigi114",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=c5fc5584-586c-48b9-99c2-b4f900a6dbf3"
+  },
+  {
+   "id": "EP-06689",
+   "row": 6550,
+   "old": "https://omny.fm/shows/asahi/basukura53",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=e903c9f6-be76-456b-96b0-b4f900bfee22"
+  },
+  {
+   "id": "EP-06691",
+   "row": 6552,
+   "old": "https://omny.fm/shows/asahi/d20261110",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=9ec35d98-1ba0-4ea2-9f28-b4f900284c74"
+  },
+  {
+   "id": "EP-06693",
+   "row": 6554,
+   "old": "https://omny.fm/shows/asahi/globe1111",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=9b4489c7-bd25-4460-9085-b4f9000e8c5b"
+  },
+  {
+   "id": "EP-06694",
+   "row": 6555,
+   "old": "https://omny.fm/shows/asahi/kd20",
+   "new": "https://www.asahi.com/special/podcasts/item/?itemid=ec1e680f-bdd4-4bd0-84b0-b4fd002802fb"
+  }
+ ]
+}
