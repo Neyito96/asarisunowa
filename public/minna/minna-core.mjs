@@ -42,3 +42,15 @@ export function consensus(v, minN = 3, ratio = 2 / 3) {
   const top = topVotes(v, 1)[0];
   return top && top.count / v.n >= ratio ? { name: top.name, count: top.count, n: v.n } : null;
 }
+
+// みんなの見立て（#456）: 1人目から票をそのまま並べる。「わからない」は別に数える
+export function viewpoints(v, limit = 4) {
+  if (!v || !v.n) return null;
+  return { n: v.n, rows: topVotes(v, limit), unsure: v.unsure || 0 };
+}
+// この端末で送った直後の集計（GASが返した最新の数）が、公開中の votes.json より新しければそちらを使う
+export function freshTally(served, fresh, generatedAt) {
+  if (!fresh || !fresh.t || typeof fresh.t.n !== 'number') return served || null;
+  const g = Date.parse(generatedAt || '') || 0;
+  return fresh.at > g ? fresh.t : (served || null);
+}
