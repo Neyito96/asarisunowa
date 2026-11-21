@@ -18,6 +18,7 @@ a { color: #a9d4ff; }
 
 .top { position: fixed; inset: 0 0 auto 0; height: 66px; display: flex; align-items: center; gap: 16px; padding: 0 16px; background: linear-gradient(#070b16ee, #070b1600); z-index: 20; }
 .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.sites { display: flex; gap: 6px; flex: none; }
 .back { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 50%; text-decoration: none; color: var(--ink); font-size: 13px; flex: none; }
 .titles { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
 h1 { font-size: 26px; font-weight: 600; margin: 0; letter-spacing: .14em; white-space: nowrap; line-height: 1.25; }
