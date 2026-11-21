@@ -54,6 +54,8 @@ function syncConfiguredAutoPlaylist_(rule) {
 }
 
 function getLatestReleaseDate_(episodes) {
+  // #432: 日本時間の配信日にそろえる（PlaylistJstDate.js）。無ければ従来通り Spotify の release_date
+  if (typeof pjdWithJstDates_ === "function") episodes = pjdWithJstDates_(episodes);
   return (episodes || [])
     .map(function(ep) {
       return String(ep && ep.release_date ? ep.release_date : "").trim();

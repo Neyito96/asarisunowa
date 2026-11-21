@@ -136,10 +136,23 @@ function authorizeAutoUpdateAutomationV1() {
 }
 
 // 毎朝4時台：初回補完は行わず、前回境界より新しい回だけを確認する。
+// #432: 日次処理が Spotify の利用制限で飛ばされた日は印を残し、制限明け後の「1時間ごと」で1回だけ代わりに実行する
+var AU_DAILY_PENDING_KEY_ = "AUTO_UPDATE_DAILY_PENDING";
+var AU_DAILY_DONE_KEY_ = "AUTO_UPDATE_DAILY_DONE";
+function auTodayJst_(nowMs) { return Utilities.formatDate(new Date(Number(nowMs || Date.now())), "Asia/Tokyo", "yyyy-MM-dd"); }
+// 純粋: 代わりに実行すべきか（印がある・その日の日次がまだ・日次の時間帯ではない）
+function auShouldCatchUpDaily_(pending, done, today, inDailyWindow) {
+  return !!pending && pending === today && done !== today && !inDailyWindow;
+}
+
 function runAutoUpdateAutomationV1() {
   if (typeof spotifySkipIfCooldown_ === "function" && spotifySkipIfCooldown_("runAutoUpdateAutomationV1")) {
-    return { skipped: true, reason: "spotify-cooldown" };
+    PropertiesService.getScriptProperties().setProperty(AU_DAILY_PENDING_KEY_, auTodayJst_());
+    return { skipped: true, reason: "spotify-cooldown", catchUp: "pending" };
   }
+  const auProps = PropertiesService.getScriptProperties();
+  auProps.setProperty(AU_DAILY_DONE_KEY_, auTodayJst_());
+  auProps.deleteProperty(AU_DAILY_PENDING_KEY_);
   const activation = processPendingAutoUpdateRequestsV1();
 
   // Daily fallback: even if the hourly backfill trigger is missing or delayed,
@@ -177,6 +190,13 @@ function runAutoUpdateBackfillHourlyV1() {
   }
   if (typeof spotifySkipIfCooldown_ === "function" && spotifySkipIfCooldown_("runAutoUpdateBackfillHourlyV1")) {
     return { skipped: true, reason: "spotify-cooldown" };
+  }
+  {
+    const p = PropertiesService.getScriptProperties();
+    if (auShouldCatchUpDaily_(p.getProperty(AU_DAILY_PENDING_KEY_), p.getProperty(AU_DAILY_DONE_KEY_), auTodayJst_(), false)) {
+      Logger.log(JSON.stringify({ event: "dailyCatchUp", date: auTodayJst_() }));
+      return { dailyCatchUp: runAutoUpdateAutomationV1() };   // 日次処理を1回だけ代わりに実行（成功すれば印は消える）
+    }
   }
   const activation = processPendingAutoUpdateRequestsV1();
   const backfill = syncNextAutoUpdateBootstrapV1_();

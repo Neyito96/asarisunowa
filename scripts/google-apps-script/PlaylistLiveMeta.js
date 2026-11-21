@@ -189,7 +189,7 @@ function plmNoteAdded_(playlistId, episodes) {
   try {
     var id = String(playlistId || ''); if (!/^[A-Za-z0-9]{22}$/.test(id)) return false;
     var props = PropertiesService.getScriptProperties(), raw = props.getProperty(PLM_STORE_ + id); if (!raw) return false;
-    var v = JSON.parse(raw), next = plmLatestAfterAdd_(v.latestDate, episodes); if (!next) return false;
+    var v = JSON.parse(raw), next = plmLatestAfterAdd_(v.latestDate, typeof pjdWithJstDates_ === 'function' ? pjdWithJstDates_(episodes) : episodes); if (!next) return false;   // #432 日本時間の配信日
     v.latestDate = next; v.latestFrom = 'autoAdd'; v.latestAt = new Date().toISOString();
     props.setProperty(PLM_STORE_ + id, JSON.stringify(v));
     return true;
