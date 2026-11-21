@@ -1,0 +1,19 @@
+name: Phase25 isolated pipeline tests
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/google-apps-script/**'
+      - 'tests/gas-*.test.mjs'
+      - '.github/workflows/phase25-pipeline-check.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/gas-*.test.mjs
