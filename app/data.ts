@@ -409,7 +409,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "楽屋裏2023　厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/0I9wCLs5oFLNIG1aPLQneg",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32",
     null,
     null,
     false
@@ -544,7 +544,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "編集マニア",
     "カンダ ・マサキ",
     "https://open.spotify.com/playlist/71mdQ5ANqZda48jBkj0Qmz",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d",
     null,
     null,
     false
@@ -599,7 +599,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "ハザ干し",
     "https://open.spotify.com/playlist/4FBXSFf2nLjLb3qaRoSdoD",
     "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f4ea26c84e38a43b8859df430",
-    "2026-11-13",
+    "2026-11-20",
     "2026-09-17",
     true
   ],
@@ -608,7 +608,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "田田田（デンデンデン）",
     "https://open.spotify.com/playlist/6hNrobOVHmYaQT5C7hPkNa",
     "https://image-cdn-ak.spotifycdn.com/image/ab67656300005f1f09a8bd5875be5defced61b26",
-    "2026-11-13",
+    "2026-11-20",
     "2026-09-17",
     true
   ],
@@ -616,7 +616,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "中南米",
     "マリオ",
     "https://open.spotify.com/playlist/2Org6cCBgVas4d9OwzzxAv",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84dbea52257cc83dfa9d810b37",
     "2026-09-08",
     "2026-09-18",
     true
