@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>朝リスのエピソード集(試作)</title>
+<style>
+:root{color-scheme:light dark;--bg:#faf7f2;--fg:#2b2118;--mut:#7a6a58;--card:#fff;--line:#e5dccd;--acc:#8a5a2b;--ok:#2d7a3e;--warn:#b26a00;--ng:#a33}
+@media(prefers-color-scheme:dark){:root{--bg:#1c1713;--fg:#f1e8dc;--mut:#b5a590;--card:#27201a;--line:#3a3128;--acc:#d9a066;--ok:#7bd08c;--warn:#f0b24a;--ng:#ff8a8a}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Hiragino Sans",sans-serif;padding:0 16px 48px}
+main{max-width:760px;margin:0 auto}h1{font-size:1.25rem;margin:20px 0 4px}h2{font-size:1.05rem;margin:0 0 8px}.note{color:var(--mut);font-size:.85rem;margin:0 0 14px}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin:12px 0}
+label{display:block;font-size:.8rem;color:var(--mut);margin:8px 0 2px}input,select,button{font:inherit;color:inherit}
+input,select{width:100%;min-height:44px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+button,.btn{min-height:44px;padding:8px 14px;border:1px solid var(--acc);border-radius:8px;background:transparent;color:var(--acc);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+button.primary{background:var(--acc);color:var(--bg)}.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1 1 140px}
+ul{list-style:none;margin:8px 0 0;padding:0}li{border-top:1px solid var(--line);padding:10px 0;display:flex;gap:8px;align-items:flex-start}li:first-child{border-top:0}
+.t{flex:1;min-width:0}.t b{display:block;overflow-wrap:anywhere}.m{color:var(--mut);font-size:.8rem}.badge{font-size:.75rem;border:1px solid currentColor;border-radius:999px;padding:0 8px;white-space:nowrap}
+.EXACT{color:var(--ok)}.SHOW_ONLY,.fb{color:var(--warn)}.MISSING{color:var(--ng)}.small{min-height:44px;min-width:44px;padding:4px 8px}
+#msg{min-height:1.4em;color:var(--mut);font-size:.85rem}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--bg);padding:10px;border-radius:8px;font-size:.8rem;max-height:240px;overflow:auto}
+</style></head><body><main>
+<h1>朝リスのエピソード集 <span class="m">(試作)</span></h1>
+<p class="note">番組を横断してエピソードを集め、聴くサービスを選んで、リンク集としてコピー・共有・メールできます。保存はこの端末(ブラウザ)内のみ。ログイン・課金・外部送信はありません。</p>
+<section aria-labelledby="h-search"><h2 id="h-search">1. さがす</h2>
+<label for="q">キーワード(題名・出演者・概要)</label><input id="q" type="search" enterkeyhint="search" autocomplete="off">
+<label for="show">番組</label><select id="show"><option value="">すべて</option></select>
+<div class="row" style="margin-top:10px"><button id="go" class="primary">検索</button></div>
+<p id="status" class="m" role="status" aria-live="polite"></p><ul id="results"></ul></section>
+<section aria-labelledby="h-col"><h2 id="h-col">2. エピソード集 <span id="count" class="m"></span></h2>
+<label for="title">集のタイトル</label><input id="title" maxlength="60" placeholder="例: 通勤で聴くニュースの学校">
+<label for="service">聴くサービス</label><select id="service"></select>
+<ul id="items"></ul><p id="cov" class="m"></p>
+<div class="row" style="margin-top:10px"><button id="copy">リンク集をコピー</button><button id="share">共有URLをコピー</button><a id="mail" class="btn" href="#">メールで送る</a><button id="clear">空にする</button></div>
+<p id="msg" role="status" aria-live="polite"></p><details><summary class="m">コピーされる内容のプレビュー</summary><pre id="preview"></pre></details></section>
+</main><script type="module" src="./collection.mjs"></script></body></html>
