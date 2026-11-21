@@ -2,7 +2,7 @@
 // データ: ./data/core.json（星・言葉・星雲）と ./data/rel.json（関連する回と根拠）は scripts/uchu/build-uchu.mjs が蔵の公開データから作る。
 // 回の本文・出演者・関連記事・再生先は、蔵の公開データ（../library/data/details/）をその場で読む（写しを増やさない）。
 // 外部ライブラリなし。Canvas 2D と素の DOM だけ。
-import { SHELF_KEY, readShelf, serializeShelf, toggleItem, platformLabel } from '../library/shelf-core.mjs';
+import { SHELF_KEY, readShelf, serializeShelf, toggleItem, listenLinks, liveLinks } from '../library/shelf-core.mjs';
 import { consensus } from '../minna/minna-core.mjs';
 import { tidyDescription, withoutAwardPlea } from '../library/description-tidy.mjs';
 import { stampText } from '../library/stamp.mjs';
@@ -719,7 +719,7 @@ async function renderEp(i) {
   live(`回「${e[1]}」`);
   const d = await loadDetail(id); if (!sel || sel.type !== 'ep' || sel.id !== i) return;
   if (!d) { descBox.replaceChildren(h('p', { class: 'note' }, '詳細を読み込めませんでした。蔵で見てください。')); return; }
-  const pl = (d.links || []).map((u) => [platformLabel(u) || '', u]).filter(([l]) => l && !/朝日新聞/.test(l));
+  const pl = listenLinks(liveLinks(d, d.links || [])).map((l) => [l.label, l.url]);   // 蔵と同じ並び（朝日新聞 公式 → Spotify → Apple → ほか）。Omny・Megaphone は出さない
   const words = (() => { const s = new Set(); D.terms.forEach((t, j) => { if (t[4].includes(i)) s.add(j); }); return [...s].sort((a, b) => D.terms[a][4].length - D.terms[b][4].length).slice(0, 10); })();
   const tidy = tidyDescription(d.description), useTidy = tidy.status === 'TIDY' || tidy.status === 'AS_IS';   // 蔵と同じ表示整形（告知・定型を外す。保留の回は元の文面）
   const descText = tidy.status === 'PROMO_ONLY' ? '公式の概要欄は番組の告知だけで、この回の内容の説明はありません。' : (useTidy ? tidy.body : withoutAwardPlea(d.description));

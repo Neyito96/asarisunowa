@@ -5,7 +5,7 @@ import { qrSvg } from './qr.mjs';
 import { filterEpisodes, safeUrl, normal, showSearchText } from './library-core.mjs?v=alias-20261119';
 const $=id=>document.getElementById(id), cache=new Map();
 let manifest, page=0, generation=0, activeResults=null, activeDetail=0;
-import { SHELF_KEY, SHELF_LIMITS, readShelf, serializeShelf, toggleItem, moveItem, setMeta, encodeShare, decodeShare, cardLinks, liveLinks, isMovedLink, MOVED_LINK_NOTE } from './shelf-core.mjs';
+import { SHELF_KEY, SHELF_LIMITS, readShelf, serializeShelf, toggleItem, moveItem, setMeta, encodeShare, decodeShare, cardLinks, listenLinks, liveLinks, isMovedLink, MOVED_LINK_NOTE } from './shelf-core.mjs';
 // 自分の蔵書一覧（#315）: 利用者が選んだ回だけを、この端末のブラウザに保存する（会員登録・送信なし）。検索の言葉や閲覧の記録は保存しない
 function loadShelf(){try{return readShelf(localStorage.getItem(SHELF_KEY));}catch{return readShelf(null);}}
 function saveShelf(next){try{localStorage.setItem(SHELF_KEY,serializeShelf(next));return true;}catch{return false;}}
@@ -90,7 +90,7 @@ async function openDetail(id,fromUrl=false) {
  if(e.cast)body.append(node('p',e.cast,'detail-meta'));
  if(e.audio){const audio=document.createElement('audio');audio.controls=true;audio.preload='none';audio.hidden=true;const play=node('button','▶ この回を聴く');play.type='button';play.addEventListener('click',()=>{audio.hidden=false;audio.src=e.audio;play.hidden=true;audio.play().catch(()=>{note.textContent='プレーヤーの再生ボタン、または配信先リンクからお聴きください。';});});const note=node('p','配信元の音声です。再生ボタンを押すと読み込みます。','audio-note');audio.addEventListener('error',()=>{note.textContent='音声を読み込めませんでした。配信先リンクからお聴きください。';});body.append(play,audio,note);}
  else body.append(node('p','この回は配信先リンクからお聴きください。','audio-note'));
- const links=node('div',undefined,'detail-links');addLinks(links,liveLinks(e,e.links));if(!links.children.length)addLinks(links,['https://www.asahi.com/special/podcasts/']);if((e.links||[]).some(u=>isMovedLink(e,u)))links.append(node('p',MOVED_LINK_NOTE,'moved-note'));const tidy=tidyDescription(e.description),useTidy=tidy.status==='TIDY'||tidy.status==='AS_IS';body.append(links,node('p',tidy.status==='PROMO_ONLY'?'公式の概要欄は番組の告知だけで、この回の内容の説明はありません。':((useTidy?tidy.body:withoutAwardPlea(e.description)) || '概要欄は未収録です。公式ページをご確認ください。'),'description'));
+ const links=node('div',undefined,'detail-links');addLinks(links,listenLinks(liveLinks(e,e.links)).map(l=>l.url));if(!links.children.length)addLinks(links,['https://www.asahi.com/special/podcasts/']);if((e.links||[]).some(u=>isMovedLink(e,u)))links.append(node('p',MOVED_LINK_NOTE,'moved-note'));const tidy=tidyDescription(e.description),useTidy=tidy.status==='TIDY'||tidy.status==='AS_IS';body.append(links,node('p',tidy.status==='PROMO_ONLY'?'公式の概要欄は番組の告知だけで、この回の内容の説明はありません。':((useTidy?tidy.body:withoutAwardPlea(e.description)) || '概要欄は未収録です。公式ページをご確認ください。'),'description'));
  if(useTidy&&tidy.recordedAt&&!e.recording?.length)body.append(node('p',`${tidy.recordedAt}に収録`,'detail-meta'));
  // 概要の【関連記事】を1件ずつリンクに（概要にあったURLだけ。データ側の関連記事があればそちらを優先）
  if(useTidy&&tidy.related.length&&!e.related.length){body.append(node('h3','関連記事'));const list=node('ul',undefined,'related-list');for(const r of tidy.related){const url=safeUrl(r.url);if(!url)continue;const li=node('li'),a=node('a',r.title);a.href=url;a.target='_blank';a.rel='noopener noreferrer';li.append(a);list.append(li);}body.append(list);}
