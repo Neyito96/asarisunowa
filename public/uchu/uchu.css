@@ -208,3 +208,12 @@ h1 { font-size: 21px; font-weight: 600; margin: 0; letter-spacing: .14em; white-
 .sortgrid { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
 .chip.gold { background: #f3c969; color: #1a1406; border-color: #f3c969; font-weight: 700; }
 .sorttext { width: 100%; box-sizing: border-box; padding: 8px 10px; border-radius: 8px; border: 1px solid #3a4c78; background: #0b1020; color: var(--ink); font: inherit; margin: 4px 0 6px; }
+
+/* 分類を隠す（#433）。?cls=1 で表示 */
+.no-cls .cls-only { display: none !important; }
+.no-cls .legend .fmt-h { margin-top: 0; }
+/* 上部の「保留の回を仕分ける」入口（#433） */
+.sortnav { flex-shrink: 0; align-self: center; padding: 6px 12px; border-radius: 999px; background: #f3c55a; color: #1b1f2e; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.sortnav:hover { background: #ffd877; }
+.sortnav:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+@media (max-width: 760px) { .sortnav { font-size: 11px; padding: 5px 9px; } }

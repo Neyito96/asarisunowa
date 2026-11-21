@@ -12,6 +12,7 @@
 <a class="skip" href="#results">検索結果へ移動</a>
 <header class="top">
   <div class="brand"><a href="../library/" class="back" target="_blank" rel="noopener" aria-label="朝ポキの蔵を別のタブで開く">蔵</a><div class="titles"><h1>朝ポキの宇宙</h1><p class="sub"><span class="project">アルテキスト計画</span><span class="what">言葉の星図・試験版</span></p><p class="stamp" id="stamp" hidden></p></div></div>
+  <a class="sortnav" href="../minna/" target="_blank" rel="noopener" title="分類を決めきれなかった回を、朝リスのみんなで仕分けるページ（別タブ）">🗂 保留の回を仕分ける</a>
   <div class="search" role="search">
     <label for="q" class="sr">言葉・人物・題名で探す</label>
     <input id="q" type="search" placeholder="言葉・人物・題名で探す（/ キー）" autocomplete="off" aria-controls="suggest" aria-expanded="false">
@@ -27,10 +28,10 @@
 </header>
 <main class="stage">
   <aside class="legend" aria-label="分類と言葉のまとまり">
-    <h2>分類 <span class="hint">20の大分類・Claude試作</span></h2>
-    <ol id="cats" class="cats"></ol>
-    <p class="method">分類は Claude の試作（人の承認前）です。承認済み109件は人の判断を優先。手がかり語が弱い回は「保留」にしています。</p>
-    <h2 class="h2b">形式 <span class="hint">テーマとは別の、回の作り</span></h2>
+    <h2 class="cls-only">分類 <span class="hint">20の大分類・Claude試作</span></h2>
+    <ol id="cats" class="cats cls-only"></ol>
+    <p class="method cls-only">分類は Claude の試作（人の承認前）です。承認済み109件は人の判断を優先。手がかり語が弱い回は「保留」にしています。</p>
+    <h2 class="h2b fmt-h">形式 <span class="hint">テーマとは別の、回の作り</span></h2>
     <ol id="formats" class="fmts"></ol>
     <p class="method">形式は題名・概要欄の決まった言い回し（「×」「お便り」「月刊朝ポキ」など）で判定しています。1回に複数付くことがあります。</p>
     <h2 class="h2b">言葉の星座 <span class="hint">一緒に語られる言葉</span></h2>
@@ -56,10 +57,10 @@
       <p class="kicker">アルテキスト計画</p>
       <h2>在る言葉に、<br>新しい星座を。</h2>
       <p class="lead">「在るテキスト」とは、朝日新聞ポッドキャスト約6,000回の<b>題名・概要欄・関連記事の見出し</b>（と出演者）のこと。そこから言葉を取り出し、星と星座に結び直しました。星は1回のエピソード、星雲は一緒に語られやすい言葉のまとまりです。</p>
-      <ul><li>左の分類（20の大分類）を開くと、その分野の回が光ります。</li><li>「世界」「日本」では、題名や概要欄に出てくる地名で回を地図に置きます。</li><li>言葉を選ぶと、その言葉の回が光り、近い言葉と時間の変化が出ます。</li><li>星を選ぶと、内容と「なぜ近いのか」の根拠つきで関連する回が出ます。</li></ul>
-      <div class="intro-cats" id="introCats" aria-label="20の大分類"></div>
+      <ul><li class="cls-only">左の分類（20の大分類）を開くと、その分野の回が光ります。</li><li>「世界」「日本」では、題名や概要欄に出てくる地名で回を地図に置きます。</li><li>言葉を選ぶと、その言葉の回が光り、近い言葉と時間の変化が出ます。</li><li>星を選ぶと、内容と「なぜ近いのか」の根拠つきで関連する回が出ます。</li></ul>
+      <div class="intro-cats cls-only" id="introCats" aria-label="20の大分類"></div>
       <p class="try"><button type="button" class="chip" id="artList">📰 多くの回で紹介された記事</button></p>
-      <p class="try"><button type="button" class="chip gold" id="sortStart">🗂 保留の回を仕分ける（試作）</button> <span class="note">分類を決めきれなかった回を、あなたの判断で仕分けます。回答はこの端末だけに保存されます。</span></p>
+      <p class="try cls-only"><button type="button" class="chip gold" id="sortStart">🗂 保留の回を仕分ける（試作）</button> <span class="note">分類を決めきれなかった回を、あなたの判断で仕分けます。回答はこの端末だけに保存されます。</span></p>
       <p class="try">たとえば：<button type="button" class="chip" data-word="サイバー攻撃">サイバー攻撃</button><button type="button" class="chip" data-word="原爆">原爆</button><button type="button" class="chip" data-word="AI">AI</button><button type="button" class="chip" data-word="バスケ">バスケ</button></p>
     </div></div>
   </section>

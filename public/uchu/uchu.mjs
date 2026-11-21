@@ -24,7 +24,10 @@ const fmtDur = (sec) => (sec ? `${Math.round(sec / 60)}分` : '');
 let D, REL = null;               // core, rel
 let px, py;                      // 今の表示の座標（世界座標）
 let mapX, mapY, timeX, timeY, catX, catY, worldX, worldY, japanX, japanY;   // 表示ごとの座標
-let mode = 'cat';
+// 分類（20の大分類・Claude試作）は管理人判断で当面は隠す（2026-11-21・#433）。?cls=1 を付けたときだけ出す（磨いてから公開）
+const SHOW_CLS = new URLSearchParams(location.search).has('cls');
+if (!SHOW_CLS) { document.documentElement.classList.add('no-cls'); document.querySelector('.modes [data-mode="cat"]')?.remove(); document.querySelector('.modes [data-mode="map"]')?.setAttribute('aria-pressed', 'true'); }
+let mode = SHOW_CLS ? 'cat' : 'map';
 const view = { x: 0, y: 0, k: 1 };
 let W = 0, H = 0, dpr = 1;
 let hi = null;                   // 光らせる回の集合（Set）
@@ -561,6 +564,10 @@ function sortSection(i) {
   return box;
 }
 function catSection(i) {
+  if (!SHOW_CLS) {   // 分類を隠している間は、保留の回にだけ「みんなで仕分ける」入口を出す
+    if (dispMain(i) !== HOLD) return null;
+    return h('div', { class: 'sec' }, h('p', { class: 'note' }, h('a', { href: '../minna/#ep=' + D.eps[i][0], target: '_blank', rel: 'noopener' }, 'この回をみんなで仕分ける →')));
+  }
   const [mi, si, conf, src, mi2, si2] = D.cls[i], [ev, old, ev2] = D.clsEv[i] || ['', '', ''], shown = dispMain(i);
   const guess = shown === HOLD && mi >= 0 && sortLoad()[D.eps[i][0]] ? h('p', { class: 'evid' }, `Claudeの推定: ${D.cats[mi].name}（${src === 'l' ? '似た回の言葉から学んだ推定' : '関連する回の分類から'}・要確認）`) : null;
   const mv = (MINNA.votes || {})[D.eps[i][0]], mc = consensus(mv);
@@ -836,7 +843,7 @@ function fromHash() {
   if (m[1] === 'f' && D.formats[+v]) select({ type: 'fmt', id: +v }, { push: false });
   if (m[1] === 'n' && D.comms[+v]) select({ type: 'neb', id: +v }, { push: false });
   if (m[1] === 'pl') { const id = v === 'JP' ? 'JP' : +v; if (id === 'JP' || PL[id]) select({ type: 'place', id }, { push: false }); }
-  if (m[1] === 'c') { const [a, b] = v.split('.').map(Number); if (a >= 0 && a <= HOLD) select({ type: 'cat', id: a, sub: Number.isFinite(b) ? b : -1 }, { push: false }); }
+  if (m[1] === 'c' && SHOW_CLS) { const [a, b] = v.split('.').map(Number); if (a >= 0 && a <= HOLD) select({ type: 'cat', id: a, sub: Number.isFinite(b) ? b : -1 }, { push: false }); }
 }
 fromHash(); addEventListener('hashchange', fromHash);
 if (!location.hash) setTimeout(() => hintsFor(mode), 1200);
