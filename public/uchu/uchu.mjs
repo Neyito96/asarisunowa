@@ -595,6 +595,7 @@ function renderCat(m, sub) {
   const subCounts = m === HOLD ? [] : D.cats[m].subs.map((n, si) => [si, n, ids.length && !(sub >= 0) ? D.eps.reduce((a, e, i) => a + (dispMain(i) === m && dispSub(i) === si ? 1 : 0), 0) : 0]);
   const tot = ids.length || 1, seg = (c, col) => h('span', { style: `width:${(cnt[c] / tot) * 100}%;background:${col}` });
   panel().replaceChildren(h('div', {},
+    h('p', { class: 'narrow-only' }, h('button', { type: 'button', class: 'chip', onclick: renderIndex }, '☰ 分類の一覧')),
     h('p', { class: 'kind' }, sub >= 0 ? '小分類' : m === HOLD ? '保留' : '大分類'),
     h('h3', { class: 'hero' }, sub >= 0 ? D.cats[m].subs[sub] : catName(m)),
     sub >= 0 ? h('p', { class: 'meta' }, h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'cat', id: m }) }, '← ' + catName(m))) : null,
@@ -602,9 +603,9 @@ function renderCat(m, sub) {
     m !== HOLD ? h('div', { class: 'bars', 'aria-hidden': 'true' }, seg(3, '#5fbf7a'), seg(2, '#5b8fd6'), seg(1, '#d6b44f'), seg(0, '#c46a72')) : null,
     h('p', { class: 'note' }, m === HOLD ? 'Claude が推定はしたものの、根拠が弱いため分類に置いていない回です。人の確認で振り分ける候補です。' : '分類は Claude の試作（人の承認前）です。確度の低い回は誤りを含みます。'),
     h('p', { class: 'note' }, showMix(ids)),
+    subCounts.length ? h('div', { class: 'sec' }, h('h4', {}, '小分類'), subCounts.filter((x) => x[2]).map(([si, n, c]) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'cat', id: m, sub: si }) }, n, h('small', {}, c)))) : null,
     h('div', { class: 'sec' }, h('h4', {}, '時間の変化'), histogram(ids)),
     m !== HOLD && !(sub >= 0) ? crossSection(m) : null,
-    subCounts.length ? h('div', { class: 'sec' }, h('h4', {}, '小分類'), subCounts.filter((x) => x[2]).map(([si, n, c]) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'cat', id: m, sub: si }) }, n, h('small', {}, c)))) : null,
     h('div', { class: 'sec' }, h('h4', {}, '回'), epList(ids, 60))));
   live(`${sub >= 0 ? D.cats[m].subs[sub] : catName(m)}。${ids.length}回`);
 }
@@ -832,6 +833,40 @@ function hintsFor(m) {
 // 最初の案内の中の20大分類（スマホでは左の一覧が無いので、ここから選べるように）
 $('introCats').replaceChildren(...[...Array(HOLD).keys()].map((m) => h('button', { type: 'button', class: 'chip', onclick: () => { if (mode !== 'cat') setMode('cat'); select({ type: 'cat', id: m }); } }, h('span', { style: `color:${catColor(m)}` }, '●'), D.cats[m].name, h('small', {}, catCount[m]))));
 
+// ---- 分類の一覧（左の欄が出ない狭い画面用。詳細の欄に出す #441）
+// 大分類を押す → 小分類が開き、その分野の回が星図で光る（欄は一覧のまま）。小分類か「くわしく」を選ぶ → その回の一覧へ
+const narrowMQ = matchMedia('(max-width: 900px), (orientation: landscape) and (max-height: 520px)');
+function lightCat(m) {
+  const wasCat = mode === 'cat'; if (!wasCat) setMode('cat');
+  hi = new Set(); D.eps.forEach((e, i) => { if (dispMain(i) === m) hi.add(i); }); sel = { type: 'cat', id: m };
+  const rg = D._regions.find((x) => x.m === m); if (wasCat && rg) focusAt(rg.x, rg.y, Math.min(W, H) / (rg.r * 2.6));
+  draw(); live(`${catName(m)}。${hi.size}回が光っています`);
+}
+function renderIndex() {
+  openDetail();
+  const items = [...Array(HOLD + 1).keys()].map((m) => {
+    const subs = m < HOLD ? D.cats[m].subs.map((n, si) => [si, n, subCount[m][si]]).filter((x) => x[2]) : [];
+    const ul = h('ul', { class: 'idx-subs', hidden: true },
+      h('li', {}, h('button', { type: 'button', class: 'chip gold', onclick: () => select({ type: 'cat', id: m }) }, m === HOLD ? '保留の回を見る' : `${catName(m)}をくわしく`, h('small', {}, catCount[m]))),
+      subs.map(([si, n, c]) => h('li', {}, h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'cat', id: m, sub: si }) }, n, h('small', {}, c)))));
+    const tw = h('span', { class: 'tw', 'aria-hidden': 'true' }, '▸');
+    const btn = h('button', { type: 'button', 'aria-expanded': 'false', onclick: () => { const open = ul.hidden; ul.hidden = !open; btn.setAttribute('aria-expanded', String(open)); tw.textContent = open ? '▾' : '▸'; if (open) lightCat(m); } }, tw, h('span', { class: 'dot', style: `background:${catColor(m)}` }), catName(m), h('span', { class: 'cnt' }, catCount[m]));
+    return h('li', {}, btn, ul);
+  });
+  const fmts = D.formats.map((n, k) => [k, n, D.fmt.reduce((a, f) => a + (f.some(([x]) => x === k) ? 1 : 0), 0)]).sort((a, b) => b[2] - a[2]);
+  panel().replaceChildren(h('div', { class: 'idx' },
+    h('p', { class: 'kind' }, '一覧'), h('h3', { class: 'hero' }, '分類の一覧'),
+    h('p', { class: 'note' }, '20の大分類（Claudeの試作）。押すと小分類が開き、その分野の回が星図で光ります。小分類を選ぶと、その回の一覧が出ます。'),
+    h('ol', { class: 'cats idx-cats' }, items),
+    h('div', { class: 'sec' }, h('h4', {}, '形式（回の作り）'), fmts.map(([k, n, c]) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'fmt', id: k }) }, n, h('small', {}, c))))));
+  panelEl.scrollTop = 0; live('分類の一覧を開きました');
+}
+$('listOpen').addEventListener('click', renderIndex);
+// 縦のスマホでは上の帯が2〜3段に折り返すので、その高さの下に一覧ボタンと「全体」ボタンを置く
+const topH = () => document.documentElement.style.setProperty('--top-h', Math.round(document.querySelector('header.top').getBoundingClientRect().bottom) + 'px');
+topH(); addEventListener('resize', topH);
+// 狭い画面では「分類」ボタンを押すと一覧も開く
+document.querySelector('.modes [data-mode="cat"]')?.addEventListener('click', () => { if (narrowMQ.matches) renderIndex(); });
 document.getElementById('artList').addEventListener('click', renderArticleList);
 document.getElementById('sortStart').addEventListener('click', nextHold);
 
