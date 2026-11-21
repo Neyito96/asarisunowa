@@ -63,8 +63,14 @@ export function platformLabel(url) {
   if (h.startsWith('music.amazon.')) return 'Amazon Music';
   if (h === 'www.youtube.com' || h === 'youtube.com' || h === 'youtu.be') return 'YouTube';
   if (h === 'www.asahi.com' || h.endsWith('.asahi.com')) return '朝日新聞 公式ページ';
-  if (h === 'omny.fm') return '公式配信ページ';
-  return '';
+  return '';   // Omny・Megaphone（pdst.fm）などの配信元ページは出さない（朝日新聞の担当者の意見 11/21）
+}
+// 聴く場所の並び順（朝日新聞の担当者の意見 11/21）: 朝日新聞 公式 → Spotify → Apple → ほか。1つの配信先は1つだけ
+export const LISTEN_ORDER = ['朝日新聞 公式ページ', 'Spotify', 'Apple Podcasts', 'Amazon Music', 'Pocket Casts', 'LISTEN', 'Pody', 'YouTube'];
+export function listenLinks(links) {
+  const seen = new Set(), out = [];
+  for (const u of links || []) { const label = platformLabel(u); if (!label || /\.mp3(\?|$)/i.test(u) || seen.has(label)) continue; seen.add(label); out.push({ label, url: u }); }
+  return out.sort((a, b) => LISTEN_ORDER.indexOf(a.label) - LISTEN_ORDER.indexOf(b.label));
 }
 // 公開データの回 → 共有カード用（音声ファイルの直リンクや未知のサイトは出さない）
 // 配信先の引っ越しで消えたリンク（#395）: SDGsを話そう の過去回は 2026年に別番組「SDGsを話そう アーカイブ」へ移り、
@@ -78,8 +84,4 @@ export function isMovedLink(e, url) {
   return h === 'open.spotify.com';
 }
 export function liveLinks(e, links) { return (links || []).filter((u) => !isMovedLink(e, u)); }
-export function cardLinks(links) {
-  const seen = new Set(), out = [];
-  for (const u of links || []) { const label = platformLabel(u); if (!label || /\.mp3(\?|$)/i.test(u) || seen.has(label)) continue; seen.add(label); out.push({ label, url: u }); }
-  return out;
-}
+export function cardLinks(links) { return listenLinks(links); }

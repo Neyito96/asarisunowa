@@ -83,8 +83,9 @@ async function show(id) {
 function fillDetail(node, det) {
   if (det.cast) $('.cast', node).textContent = det.cast;
   const pref = store.get('platform', '');
-  const plats = liveLinks(det, det.links || []).map((u) => ({ u, p: platformOf(u) })).filter((x) => x.p && x.p.key !== 'omny-embed');
-  plats.sort((a, b) => (b.p.key === pref) - (a.p.key === pref));
+  const ORDER = ['asahi', 'spotify', 'apple', 'amazon', 'pocketcasts', 'listen', 'pody', 'youtube'];   // 蔵と同じ並び。Omny は聴く場所のボタンに出さない（このページで聴くの再生には使う）
+  const plats = liveLinks(det, det.links || []).map((u) => ({ u, p: platformOf(u) })).filter((x) => x.p && ORDER.includes(x.p.key)).filter((x, k, a) => a.findIndex((y) => y.p.key === x.p.key) === k);
+  plats.sort((a, b) => (b.p.key === pref) - (a.p.key === pref) || ORDER.indexOf(a.p.key) - ORDER.indexOf(b.p.key));
   const box = $('.platforms', node);
   plats.forEach(({ u, p }) => {
     const a = document.createElement('a'); a.href = u; a.target = '_blank'; a.rel = 'noopener'; a.className = 'plat ' + p.key + (p.key === pref ? ' pref' : ''); a.textContent = p.name;
