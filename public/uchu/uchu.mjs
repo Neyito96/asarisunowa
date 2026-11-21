@@ -528,45 +528,11 @@ const dispMain2 = (i) => (dispMain(i) === HOLD ? -1 : D.cls[i][4] ?? -1);   // �
 // ---- 保留の仕分け（#387 試作）。回答はこの端末（ブラウザ）だけに保存し、どこにも送らない
 const SORT_KEY = 'uchu-sort-v1';
 function sortLoad() { try { return JSON.parse(localStorage.getItem(SORT_KEY) || '{}'); } catch (e) { return {}; } }
-function sortSave(o) { try { localStorage.setItem(SORT_KEY, JSON.stringify(o)); } catch (e) { /* 保存できない環境では何もしない */ } }
 const holdIds = () => D.eps.map((_, i) => i).filter((i) => dispMain(i) === HOLD);
 function nextHold() {
   const done = sortLoad(), rest = holdIds().filter((i) => !done[D.eps[i][0]]);
   if (!rest.length) { toast('sort-done-' + Date.now(), '保留の回はすべて仕分け済みです。ありがとうございました'); return; }
   select({ type: 'ep', id: rest[Math.floor(Math.random() * rest.length)] }); openDetail();
-}
-function exportSort() {
-  const done = sortLoad(), rows = Object.entries(done).map(([id, d]) => ({ id, ...d }));
-  const blob = new Blob([JSON.stringify({ v: 1, note: '朝ポキの宇宙 保留の仕分け（試作）。この端末での回答', exportedAt: new Date().toISOString(), count: rows.length, rows }, null, 1)], { type: 'application/json' });
-  const a = h('a', { href: URL.createObjectURL(blob), download: `uchu-sort-${rows.length}.json` }); document.body.append(a); a.click(); a.remove();
-}
-function sortSection(i) {
-  if (dispMain(i) !== HOLD) return null;
-  const id = D.eps[i][0], box = h('div', { class: 'sec sortbox' });
-  const save = (d) => { const o = sortLoad(); o[id] = { ...d, at: new Date().toISOString() }; sortSave(o); select({ type: 'ep', id: i }, { push: false }); };
-  const head = h('h4', {}, 'この回はどの分類？（仕分けの試作）');
-  const note = h('p', { class: 'note' }, '聴いた・読んだ印象で選んでください。回答はこのブラウザの中だけに保存され、送信されません。');
-  const d = sortLoad()[id];
-  if (d) {
-    const [mi] = D.cls[i];
-    box.append(head, h('p', {}, 'あなたの判断: ', h('b', {}, d.m >= 0 ? D.cats[d.m].name + (d.s >= 0 ? ' › ' + D.cats[d.m].subs[d.s] : '') : 'どれにも当てはまらない'), d.text ? `（${d.text}）` : ''),
-      h('p', { class: 'evid' }, mi >= 0 ? `Claudeの推定は「${D.cats[mi].name}」でした（${d.m === mi ? '一致' : '不一致'}）` : 'Claudeは推定できていませんでした'),
-      h('p', {}, h('button', { type: 'button', class: 'chip gold', onclick: nextHold }, '次の保留の回へ →'), h('button', { type: 'button', class: 'chip', onclick: () => { const o = sortLoad(); delete o[id]; sortSave(o); select({ type: 'ep', id: i }, { push: false }); } }, 'やり直す')),
-      h('p', { class: 'note' }, `仕分け済み ${Object.keys(sortLoad()).length}回 ／ 保留 ${holdIds().length}回 `, h('button', { type: 'button', class: 'chip', onclick: exportSort }, '回答を書き出す')));
-    return box;
-  }
-  const mains = () => box.replaceChildren(head, note,
-    h('div', { class: 'sortgrid' }, [...Array(HOLD).keys()].map((m) => h('button', { type: 'button', class: 'chip', onclick: () => subs(m) }, h('span', { style: `color:${catColor(m)}` }, '●'), D.cats[m].name)),
-      h('button', { type: 'button', class: 'chip', onclick: other }, 'どれにも当てはまらない')),
-    h('p', {}, h('button', { type: 'button', class: 'chip', onclick: nextHold }, 'わからないので次へ')));
-  const subs = (m) => box.replaceChildren(head, h('p', {}, h('b', {}, D.cats[m].name), ' の中では？'),
-    h('div', { class: 'sortgrid' }, D.cats[m].subs.map((n, k) => h('button', { type: 'button', class: 'chip', onclick: () => save({ m, s: k }) }, n)),
-      h('button', { type: 'button', class: 'chip', onclick: () => save({ m, s: -1 }) }, '小分類はわからない')),
-    h('p', {}, h('button', { type: 'button', class: 'chip', onclick: mains }, '← 大分類に戻る')));
-  const other = () => { const ta = h('input', { type: 'text', maxlength: '40', placeholder: 'たとえば「番組の雑談」「人生相談」など（任意）', class: 'sorttext' });
-    box.replaceChildren(head, h('p', {}, 'どんな分類があればよいですか？'), ta, h('p', {}, h('button', { type: 'button', class: 'chip gold', onclick: () => save({ m: -1, s: -1, text: ta.value.trim().slice(0, 40) }) }, 'これで記録'), h('button', { type: 'button', class: 'chip', onclick: mains }, '← 戻る'))); };
-  mains();
-  return box;
 }
 // この端末で送った直後の集計（みんなで仕分けが保存）。読めない環境では空
 const minnaFresh = () => { try { return JSON.parse(localStorage.getItem('minna:fresh') || '{}') || {}; } catch { return {}; } };
@@ -719,7 +685,7 @@ async function renderEp(i) {
     h('h3', {}, e[1]),
     h('p', { class: 'meta' }, h('span', {}, fmtDate(e[3])), h('span', {}, fmtDur(e[7]))),
     h('div', { class: 'btns' }, h('a', { class: 'btn primary', href: `../library/?ep=${id}`, target: '_blank', rel: 'noopener' }, '蔵で詳しく見る ↗'), shelfBtn),
-    catSection(i), fmtSection(i), placeSection(i), descBox, sortSection(i), relBox,
+    catSection(i), fmtSection(i), placeSection(i), descBox, relBox,
     e[6] >= 0 ? (SHOW_NEB ? h('div', { class: 'sec' }, h('h4', {}, '星雲'), h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'neb', id: e[6] }) }, h('span', { style: `color:${colorOf(e[6])}` }, '●'), D.comms[e[6]].name.slice(0, 2).join('・'))) : null) : h('p', { class: 'note' }, 'この回は共通の言葉が少ないため、星図には置いていません。')));
   live(`回「${e[1]}」`);
   const d = await loadDetail(id); if (!sel || sel.type !== 'ep' || sel.id !== i) return;
@@ -728,14 +694,14 @@ async function renderEp(i) {
   const words = (() => { const s = new Set(); D.terms.forEach((t, j) => { if (t[4].includes(i)) s.add(j); }); return [...s].sort((a, b) => D.terms[a][4].length - D.terms[b][4].length).slice(0, 10); })();
   const tidy = tidyDescription(d.description), useTidy = tidy.status === 'TIDY' || tidy.status === 'AS_IS';   // 蔵と同じ表示整形（告知・定型を外す。保留の回は元の文面）
   const descText = tidy.status === 'PROMO_ONLY' ? '公式の概要欄は番組の告知だけで、この回の内容の説明はありません。' : (useTidy ? tidy.body : withoutAwardPlea(d.description));
-  descBox.replaceChildren(
+  descBox.replaceChildren(...[   // replaceChildren は null を「null」という文字にするので、空のものは外して渡す
     descText ? h('p', { class: 'desc' }, descText) : null,
     d.cast ? h('p', { class: 'meta' }, '出演: ', d.cast) : null,
     pl.length ? h('div', { class: 'sec links' }, h('h4', {}, '聴く'), pl.map(([l, u]) => h('a', { href: u, target: '_blank', rel: 'noopener' }, l + ' ↗'))) : null,
     words.length ? h('div', { class: 'sec' }, h('h4', {}, 'この回の言葉'), words.map((j) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'word', id: j }) }, D.terms[j][0]))) : null,
     (d.relatedArticles || []).length ? h('div', { class: 'sec links' }, h('h4', {}, `関連記事（${d.relatedArticles.length}本・朝日新聞デジタル）`),
       h('ul', { class: 'eplist' }, d.relatedArticles.map((a) => { const ids = articleMap.get(normUrl(a.url)) || []; return h('li', {}, h('a', { href: a.url, target: '_blank', rel: 'noopener' }, (a.title || a.url) + ' ↗'), ids.length >= 2 ? h('button', { type: 'button', class: 'chip artcount', onclick: () => select({ type: 'article', url: normUrl(a.url), title: a.title, href: a.url }) }, `この記事を紹介した回 ${ids.length}`) : null); })),
-      h('p', { class: 'note' }, '見出しの言葉も星図の言葉に入っています。')) : null);
+      h('p', { class: 'note' }, '見出しの言葉も星図の言葉に入っています。')) : null].filter(Boolean));
 }
 function relList(i) {
   const [out, same] = REL[i];
