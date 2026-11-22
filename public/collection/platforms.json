@@ -1,0 +1,9 @@
+{"schema":"asarisunowa.platform-capabilities.v1","checkedAt":"2026-11-10","note":"『確認済み』は公式資料の本文で確認できた事項のみ。未確認を可能と書かない。いずれも公式プレイリスト書込みは本人認可が必要で、本プロトタイプは書込みを行わない(リンク集・保存・共有のみ)。",
+"platforms":{
+"spotify":{"episodeLinks":"公開データに個別EP URLあり(実測)","officialPlaylistWrite":"APIあり(確認済み: developer.spotify.com/documentation/web-api/concepts/playlists、スコープ playlist-modify-public/private)","episodesInPlaylist":"プレイリストはtracksとepisodesのコンテナと記載。add-itemsがepisode URIを受けるかは当該ページでは未確認","status":"段階C候補(要追加確認)"},
+"apple":{"episodeLinks":"公開データに ?i= 付き個別EP URLあり(実測72件中71件)","officialPlaylistWrite":"Apple Music API「Create a New Library Playlist」あり(確認済み: developer.apple.com/documentation/applemusicapi/create-a-new-library-playlist)","episodesInPlaylist":"Podcastエピソードを追加できるかは未確認","status":"リンク集で対応(同期は未確認)"},
+"amazon":{"episodeLinks":"公開データに0件(実測)","officialPlaylistWrite":"Amazon Music Web API POST /v2/playlists あり、ただし『closed Beta』と明記(確認済み: developer.amazon.com/docs/music/API_web_playlist_v2.html)","episodesInPlaylist":"当該ページでは未確認","status":"リンク集のみ(API利用は不可と扱う)"},
+"pocketcasts":{"episodeLinks":"公開データに0件(実測)","officialPlaylistWrite":"公式の公開APIは未確認","episodesInPlaylist":"未確認","status":"リンク集のみ"},
+"listen":{"episodeLinks":"公開データに30件(実測)","officialPlaylistWrite":"公式の公開APIは未確認","episodesInPlaylist":"未確認","status":"リンク集のみ"},
+"pody":{"episodeLinks":"公開データに0件(実測)","officialPlaylistWrite":"未確認","episodesInPlaylist":"未確認","status":"リンク集のみ"},
+"youtube":{"episodeLinks":"台帳に列はあるが公開データに0件(実測)","officialPlaylistWrite":"未確認(本調査の対象外)","episodesInPlaylist":"未確認","status":"リンク集のみ"}}}
