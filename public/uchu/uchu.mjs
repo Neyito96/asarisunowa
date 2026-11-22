@@ -3,7 +3,7 @@
 // 回の本文・出演者・関連記事・再生先は、蔵の公開データ（../library/data/details/）をその場で読む（写しを増やさない）。
 // 外部ライブラリなし。Canvas 2D と素の DOM だけ。
 import { SHELF_KEY, readShelf, serializeShelf, toggleItem, listenLinks, liveLinks } from '../library/shelf-core.mjs';
-import { consensus, viewpoints, freshTally } from '../minna/minna-core.mjs?v=456';
+import { consensus, viewpoints, freshTally, topVotes } from '../minna/minna-core.mjs?v=456';
 import { tidyDescription, withoutAwardPlea } from '../library/description-tidy.mjs';
 import { stampText } from '../library/stamp.mjs';
 
@@ -28,7 +28,8 @@ let mapX, mapY, timeX, timeY, catX, catY, worldX, worldY, japanX, japanY;   // �
 const QS = new URLSearchParams(location.search);
 const SHOW_CLS = !QS.has('nocls');   // 分類（主分類・副分類）は表示する。?nocls で隠せる
 const SHOW_CROSS = QS.has('cross');   // 分類ページの「二つの分野にまたがる回」の一覧は、分かりにくいので当面隠す。?cross で表示
-const SHOW_NEB = QS.has('neb');      // 言葉の星座の自動の仮名（例「征平・吉弥・人生」）は名づけ直すまで隠す（#423）。?neb で表示
+const SHOW_NEB = QS.has('neb');
+const FUCHI = QS.has('fuchi');   // 試作（2026-11-22）: 保留の回を「保留」の塊に集めず、推定した分類のふちに薄く散らす。?fuchi で表示      // 言葉の星座の自動の仮名（例「征平・吉弥・人生」）は名づけ直すまで隠す（#423）。?neb で表示
 if (!SHOW_NEB) document.documentElement.classList.add('no-neb');
 if (!SHOW_CLS) { document.documentElement.classList.add('no-cls'); document.querySelector('.modes [data-mode="cat"]')?.remove(); document.querySelector('.modes [data-mode="map"]')?.setAttribute('aria-pressed', 'true'); }
 const START_MODE = SHOW_CLS ? 'cat' : 'map';
@@ -52,7 +53,8 @@ function packCircles(items, gap) {   // items: [{r}] → x,y を詰めて置く�
 function buildCatLayout() {
   const S = 7, GA = Math.PI * (3 - Math.sqrt(5));
   const groups = Array.from({ length: HOLD + 1 }, (_, m) => ({ m, subs: new Map() }));
-  D.eps.forEach((e, i) => { const g = groups[dispMain(i)], si = dispSub(i); (g.subs.get(si) || g.subs.set(si, []).get(si)).push(i); });
+  const edge = Array.from({ length: HOLD }, () => []);   // ふちの星（?fuchi）
+  D.eps.forEach((e, i) => { if (isEdge(i)) { edge[lean(i).m].push(i); return; } const g = groups[dispMain(i)], si = dispSub(i); (g.subs.get(si) || g.subs.set(si, []).get(si)).push(i); });
   const regions = groups.filter((g) => g.subs.size).map((g) => {
     const subs = [...g.subs].map(([si, ids]) => ({ si, ids: ids.sort((a, b) => D.eps[b][3] - D.eps[a][3]), r: S * Math.sqrt(ids.length) * 1.02 + 6 }));
     packCircles(subs, 6);
@@ -61,11 +63,22 @@ function buildCatLayout() {
   });
   // 保留は中央に置かず、分類の外側（右）へ
   const main = regions.filter((rg) => rg.m !== HOLD), hold = regions.find((rg) => rg.m === HOLD);
-  packCircles(main, 40);
+  packCircles(main, FUCHI ? 70 : 40);
   if (hold) { const maxX = Math.max(...main.map((rg) => rg.x + rg.r)); hold.x = maxX + hold.r + 120; hold.y = 0; }
   for (const rg of regions) for (const q of rg.subs) {
     q.x += rg.x; q.y += rg.y;
     q.ids.forEach((i, k) => { const rr = S * 0.95 * Math.sqrt(k + 0.5), a = k * GA; catX[i] = q.x + Math.cos(a) * rr; catY[i] = q.y + Math.sin(a) * rr; });
+  }
+  // ふちの星: 推定した分類の外周に薄く散らす。見立てが集まるほど中心へ少し寄る
+  if (FUCHI) for (const rg of main) {
+    const list = edge[rg.m].sort((a, b) => D.eps[b][3] - D.eps[a][3]);
+    list.forEach((i, k) => {
+      let hsh = 0; for (const ch of D.eps[i][0]) hsh = (hsh * 31 + ch.charCodeAt(0)) | 0;
+      const j = ((hsh >>> 0) % 1000) / 1000, pull = Math.min(lean(i).votes, 3) * 9;
+      const rr = rg.r + 10 + j * 38 - pull, a = k * GA + j * 0.6;
+      catX[i] = rg.x + Math.cos(a) * rr; catY[i] = rg.y + Math.sin(a) * rr;
+    });
+    rg.edge = list.length;
   }
   D._regions = regions;
 }
@@ -111,8 +124,17 @@ const HOLD = D.cats.length;
 const dispMain = (i) => { const c = D.cls[i]; return c[0] >= 0 && 'apd'.includes(c[3]) ? c[0] : HOLD; };
 const dispSub = (i) => (dispMain(i) === HOLD ? -1 : D.cls[i][1]);
 const catColor = (m) => (m === HOLD ? '#6f7894' : `hsl(${D.cats[m].hue} 70% 66%)`);
-const catName = (m) => (m === HOLD ? '保留（推定のみ）' : D.cats[m].name);
-const epColor = (i) => (mode === 'map' ? colorOf(D.eps[i][6]) : catColor(dispMain(i)));
+const catName = (m) => (m === HOLD ? (FUCHI ? 'どこにも寄らない星' : '保留（推定のみ）') : D.cats[m].name);
+// ふちの星（?fuchi）: 保留の回の寄せ先。みんなの見立てがあればその1位、なければ Claude の推定。どちらもなければ -1
+const CAT_BY_NAME = new Map(D.cats.map((c, m) => [c.name, m]));
+function lean(i) {
+  if (dispMain(i) !== HOLD) return { m: -1, votes: 0 };
+  const v = (MINNA.votes || {})[D.eps[i][0]], top = v && v.n ? topVotes(v, 1)[0] : null, vm = top ? CAT_BY_NAME.get(top.name) : undefined;
+  if (vm !== undefined) return { m: vm, votes: top.count, by: 'minna' };
+  return { m: D.cls[i][0] >= 0 ? D.cls[i][0] : -1, votes: 0, by: 'claude' };
+}
+const isEdge = (i) => FUCHI && dispMain(i) === HOLD && lean(i).m >= 0;
+const epColor = (i) => (mode === 'map' ? colorOf(D.eps[i][6]) : isEdge(i) ? catColor(lean(i).m) : catColor(dispMain(i)));
 const isGeo = () => mode === 'world' || mode === 'japan';
 let termIdxByKey = new Map(), mapTermOrder = [], articleMap = new Map();
 const epIdx = new Map(D.eps.map((e, i) => [e[0], i]));
@@ -239,7 +261,7 @@ function render() {
   const dim = hi && hi.size;
   for (let i = 0; i < NE; i++) {
     const x = sx(px[i]), y = sy(py[i]); if (!(x > -4 && y > -4 && x < W + 4 && y < H + 4)) continue;
-    const on = !dim || hi.has(i); ctx.globalAlpha = on ? 0.9 : 0.12; ctx.fillStyle = epColor(i);
+    const on = !dim || hi.has(i); ctx.globalAlpha = on ? (mode === 'cat' && isEdge(i) ? 0.42 : 0.9) : 0.12; ctx.fillStyle = epColor(i);
     ctx.fillRect(x - base / 2, y - base / 2, base, base);
   }
   ctx.globalAlpha = 1;
@@ -437,7 +459,7 @@ function select(s, { fly = true, push = true } = {}) {
   if (s.type === 'person') { hi = new Set(D.persons[s.id][1]); renderPerson(s.id); }
   if (s.type === 'article') { hi = new Set(s.eps || articleMap.get(s.url) || []); renderArticle(s); }
   if (s.type === 'place') { const ids = s.id === 'JP' ? D.eps.map((e, i) => i).filter((i) => D.geo[i].some(([pid]) => PL[pid].scope === 'jp')) : PL[s.id].kind === 'pref' ? prefEps(s.id) : placeEps[s.id]; hi = new Set(ids); renderPlace(s.id, ids); if (s.id === 'JP' && mode === 'world') { /* 日本は日本地図で */ } else if (fly && isGeo()) { const p = PL[s.id], [x, y] = (mode === 'world' ? projWorld : projJapan)(p.lon, p.lat); if (Number.isFinite(x)) focusAt(x, y, Math.max(view.k, mode === 'world' ? 2.5 : 3)); } }
-  if (s.type === 'cat') { hi = new Set(); D.eps.forEach((e, i) => { if (dispMain(i) === s.id && (s.sub == null || s.sub < 0 || dispSub(i) === s.sub)) hi.add(i); }); renderCat(s.id, s.sub); const rg = D._regions.find((r) => r.m === s.id); if (fly && rg && mode === 'cat') { const q = s.sub >= 0 ? rg.subs.find((x) => x.si === s.sub) : null; const tgt = q || rg; focusAt(tgt.x, tgt.y, Math.min(W, H) / (tgt.r * 2.6)); } }
+  if (s.type === 'cat') { hi = new Set(); D.eps.forEach((e, i) => { if (dispMain(i) === s.id && !isEdge(i) && (s.sub == null || s.sub < 0 || dispSub(i) === s.sub)) hi.add(i); }); renderCat(s.id, s.sub); const rg = D._regions.find((r) => r.m === s.id); if (fly && rg && mode === 'cat') { const q = s.sub >= 0 ? rg.subs.find((x) => x.si === s.sub) : null; const tgt = q || rg; focusAt(tgt.x, tgt.y, Math.min(W, H) / (tgt.r * 2.6)); } }
   if (s.type === 'fmt') { hi = new Set(); D.fmt.forEach((f, i) => { if (f.some(([k]) => k === s.id)) hi.add(i); }); renderFormat(s.id); }
   if (s.type === 'neb') { hi = new Set(); D.eps.forEach((e, i) => { if (e[6] === s.id) hi.add(i); }); renderNebula(s.id); const cm = D.comms[s.id]; if (fly && mode === 'map') focusAt(cm.x, cm.y, Math.min(W, H) / (cm.r * 3.2)); }
   document.querySelectorAll('#formats button').forEach((b) => b.setAttribute('aria-pressed', String(s.type === 'fmt' && +b.dataset.f === s.id)));
@@ -551,7 +573,8 @@ function catSection(i) {
     vp ? h('p', { class: 'dual' }, h('span', { class: 'badge c2b' }, 'みんなの見立て'), vp.rows.map((r) => `${r.name}（${r.count}人）`).join('、') + (vp.unsure ? `、わからない（${vp.unsure}人）` : '')) : null,
     h('p', { class: 'note' }, minnaLink));
   return h('div', { class: 'sec' }, h('h4', {}, '分類'),
-    shown === HOLD ? h('p', {}, h('span', { class: 'badge cl' }, '保留'), h('span', { class: 'note' }, '手がかりが弱いため分類に置いていません')) :
+    shown === HOLD && isEdge(i) ? h('p', {}, h('span', { class: 'badge cl' }, 'ふちの星'), h('span', { class: 'note' }, `「${D.cats[lean(i).m].name}」のあたり？（${lean(i).by === 'minna' ? 'みんなの見立て' : 'Claude の推定'}。まだ決まっていません）`)) :
+    shown === HOLD ? h('p', {}, h('span', { class: 'badge cl' }, FUCHI ? 'どこにも寄らない星' : '保留'), h('span', { class: 'note' }, '手がかりが弱いため分類に置いていません')) :
       h('p', {}, h('span', { class: 'badge ' + CONF[conf][0] }, CONF[conf][1]), h('button', { type: 'button', class: 'chip catpath', onclick: () => select({ type: 'cat', id: shown, sub: si }) }, catName(shown) + (si >= 0 ? ' › ' + D.cats[shown].subs[si] : ''))),
     minna,
     guess,
@@ -572,8 +595,9 @@ function renderCat(m, sub) {
     h('h3', { class: 'hero' }, sub >= 0 ? D.cats[m].subs[sub] : catName(m)),
     sub >= 0 ? h('p', { class: 'meta' }, h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'cat', id: m }) }, '← ' + catName(m))) : null,
     h('p', { class: 'meta' }, h('span', {}, `${ids.length}回`), m !== HOLD ? h('span', {}, `承認 ${cnt[3]}・高 ${cnt[2]}・中 ${cnt[1]}・低 ${cnt[0]}`) : null),
+    FUCHI && m !== HOLD && !(sub >= 0) ? h('p', { class: 'note' }, `まわりに、このあたりかもしれない「ふちの星」が ${D.eps.reduce((a, e, i) => a + (isEdge(i) && lean(i).m === m ? 1 : 0), 0)}回 あります（薄い星・まだ決まっていない回）。`) : null,
     m !== HOLD ? h('div', { class: 'bars', 'aria-hidden': 'true' }, seg(3, '#5fbf7a'), seg(2, '#5b8fd6'), seg(1, '#d6b44f'), seg(0, '#c46a72')) : null,
-    h('p', { class: 'note' }, m === HOLD ? 'Claude が推定はしたものの、根拠が弱いため分類に置いていない回です。人の確認で振り分ける候補です。' : '分類は Claude の試作（人の承認前）です。確度の低い回は誤りを含みます。'),
+    h('p', { class: 'note' }, m === HOLD && FUCHI ? 'Claude にも推定がつかず、見立てもまだない回です。どの分類のそばにも置いていません。聴いた方の見立てを待っています。' : m === HOLD ? 'Claude が推定はしたものの、根拠が弱いため分類に置いていない回です。人の確認で振り分ける候補です。' : '分類は Claude の試作（人の承認前）です。確度の低い回は誤りを含みます。'),
     h('p', { class: 'note' }, showMix(ids)),
     subCounts.length ? h('div', { class: 'sec' }, h('h4', {}, '小分類'), subCounts.filter((x) => x[2]).map(([si, n, c]) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'cat', id: m, sub: si }) }, n, h('small', {}, c)))) : null,
     h('div', { class: 'sec' }, h('h4', {}, '時間の変化'), histogram(ids)),
@@ -717,7 +741,7 @@ function relList(i) {
 
 // ---- 分類の木（20大分類＋保留）
 const catCount = new Array(HOLD + 1).fill(0), subCount = D.cats.map((c) => new Array(c.subs.length).fill(0));
-D.eps.forEach((e, i) => { const m = dispMain(i); catCount[m]++; const si = dispSub(i); if (m < HOLD && si >= 0) subCount[m][si]++; });
+D.eps.forEach((e, i) => { if (isEdge(i)) return; const m = dispMain(i); catCount[m]++; const si = dispSub(i); if (m < HOLD && si >= 0) subCount[m][si]++; });
 $('cats').replaceChildren(...[...Array(HOLD + 1).keys()].map((m) => {
   const subs = m < HOLD ? D.cats[m].subs.map((n, si) => [si, n, subCount[m][si]]).filter((x) => x[2]) : [];
   const ul = subs.length ? h('ul', { hidden: true }, subs.map(([si, n, c]) => h('li', {}, h('button', { type: 'button', 'data-m': m, 'data-s': si, onclick: () => select({ type: 'cat', id: m, sub: si }) }, n, h('span', { class: 'cnt' }, c))))) : null;
@@ -811,7 +835,7 @@ $('introCats').replaceChildren(...[...Array(HOLD).keys()].map((m) => h('button',
 const narrowMQ = matchMedia('(max-width: 900px), (orientation: landscape) and (max-height: 520px)');
 function lightCat(m) {
   const wasCat = mode === 'cat'; if (!wasCat) setMode('cat');
-  hi = new Set(); D.eps.forEach((e, i) => { if (dispMain(i) === m) hi.add(i); }); sel = { type: 'cat', id: m };
+  hi = new Set(); D.eps.forEach((e, i) => { if (dispMain(i) === m && !isEdge(i)) hi.add(i); }); sel = { type: 'cat', id: m };
   const rg = D._regions.find((x) => x.m === m); if (wasCat && rg) focusAt(rg.x, rg.y, Math.min(W, H) / (rg.r * 2.6));
   draw(); live(`${catName(m)}。${hi.size}回が光っています`);
 }
@@ -871,3 +895,6 @@ document.getElementById('home').addEventListener('click', (ev) => {
 });
 if (!location.hash) setTimeout(() => hintsFor(mode), 1200);
 window.__uchuPerf = { loadMs: Math.round(tLoad), readyMs: Math.round(performance.now() - t0), episodes: NE, terms: D.terms.length };
+
+// 試作（?fuchi）であることを毎回知らせる
+if (FUCHI) toast('fuchi-' + Date.now(), '試作表示：保留の回を「保留」の塊に集めず、推定した分類のふちに薄い星で散らしています。');
