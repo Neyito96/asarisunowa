@@ -69,18 +69,50 @@ function buildCatLayout() {
     q.x += rg.x; q.y += rg.y;
     q.ids.forEach((i, k) => { const rr = S * 0.95 * Math.sqrt(k + 0.5), a = k * GA; catX[i] = q.x + Math.cos(a) * rr; catY[i] = q.y + Math.sin(a) * rr; });
   }
-  // ふちの星: 推定した分類の外周に薄く散らす。見立てが集まるほど中心へ少し寄る
-  if (FUCHI) for (const rg of main) {
-    const list = edge[rg.m].sort((a, b) => D.eps[b][3] - D.eps[a][3]);
-    list.forEach((i, k) => {
-      let hsh = 0; for (const ch of D.eps[i][0]) hsh = (hsh * 31 + ch.charCodeAt(0)) | 0;
-      const j = ((hsh >>> 0) % 1000) / 1000, pull = Math.min(lean(i).votes, 3) * 9;
-      const rr = rg.r + 10 + j * 38 - pull, a = k * GA + j * 0.6;
-      catX[i] = rg.x + Math.cos(a) * rr; catY[i] = rg.y + Math.sin(a) * rr;
-    });
-    rg.edge = list.length;
-  }
   D._regions = regions;
+  if (FUCHI) placeEdges();
+}
+// ふちの星の置き場所（?fuchi）。推定（または見立て）を軸に、関連する回がどの分類にあるかで「もう一つの分野」と引き寄せの強さを決める。
+// 一つの分野に強く寄る回はその外周に、二つにまたがる回は二つの分類のあいだ（強い側寄り）に置く。関連回（REL）が届く前は外周だけ
+const edgeInfo = new Map();
+function edgeWeights(i) {
+  const w = new Map(), add = (m, v) => { if (m >= 0 && m < HOLD) w.set(m, (w.get(m) || 0) + v); };
+  const v = (MINNA.votes || {})[D.eps[i][0]];
+  if (v && v.n) for (const r of topVotes(v, 4)) add(CAT_BY_NAME.get(r.name) ?? -1, r.count * 1.5);   // みんなの見立ては1票=1.5
+  add(D.cls[i][0], 1);                                                                                  // Claude の推定
+  if (REL && REL[i]) for (const r of REL[i][0] || []) { const m = dispMain(r[0]); if (m < HOLD) add(m, r[1] / 100); }   // 関連する回の分類
+  return [...w].sort((a, b) => b[1] - a[1]);
+}
+function placeEdges() {
+  const R = new Map(D._regions.map((rg) => [rg.m, rg])), GA = Math.PI * (3 - Math.sqrt(5)), slot = new Map();
+  for (let i = 0; i < NE; i++) {
+    if (!isEdge(i)) continue;
+    const ws = edgeWeights(i), [m1, w1] = ws[0] || [lean(i).m, 1], [m2, w2] = ws[1] || [-1, 0], sum = ws.reduce((a, x) => a + x[1], 0) || 1;
+    let hsh = 0; for (const ch of D.eps[i][0]) hsh = (hsh * 31 + ch.charCodeAt(0)) | 0;
+    const j = ((hsh >>> 0) % 1000) / 1000, a1 = R.get(m1); if (!a1) continue;
+    const between = m2 >= 0 && w2 >= w1 * 0.35 && R.get(m2);
+    edgeInfo.set(i, { m1, m2: between ? m2 : -1, t: between ? w2 / (w1 + w2) : 0, sure: w1 / sum });
+    if (between) {   // 二つの分類の縁と縁を結ぶ線の上。強い側に寄せ、線から少し横にずらす
+      const a2 = R.get(m2), dx = a2.x - a1.x, dy = a2.y - a1.y, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
+      const sx0 = a1.x + ux * (a1.r + 6), sy0 = a1.y + uy * (a1.r + 6), ex = a2.x - ux * (a2.r + 6), ey = a2.y - uy * (a2.r + 6);
+      const t = Math.min(0.5, w2 / (w1 + w2)) * (0.6 + j * 0.5), off = (j - 0.5) * 46;
+      catX[i] = sx0 + (ex - sx0) * t - uy * off; catY[i] = sy0 + (ey - sy0) * t + ux * off;
+    } else {         // 一つの分野に寄る回: 外周。手がかりが強いほど縁に近く、弱いほど遠く
+      const k = slot.get(m1) || 0; slot.set(m1, k + 1);
+      const rr = a1.r + 8 + (1 - Math.min(1, w1 / sum)) * 40 + j * 14, a = k * GA + j * 0.6;
+      catX[i] = a1.x + Math.cos(a) * rr; catY[i] = a1.y + Math.sin(a) * rr;
+    }
+  }
+}
+// 関連回が届いたら、ふちの星を置き直して動かす
+function replaceEdges() {
+  if (!FUCHI || !D._regions) return;
+  const fx = new Map(); for (let i = 0; i < NE; i++) if (isEdge(i)) fx.set(i, [catX[i], catY[i]]);
+  placeEdges();
+  if (mode !== 'cat') return;
+  const start = performance.now(), ms = reduceMotion ? 0 : 900;
+  const step = (t) => { const p = ms ? Math.min(1, (t - start) / ms) : 1, e = 1 - Math.pow(1 - p, 3); for (const [i, [x0, y0]] of fx) { px[i] = x0 + (catX[i] - x0) * e; py[i] = y0 + (catY[i] - y0) * e; } render(); if (p < 1) requestAnimationFrame(step); else buildGrid(); };
+  requestAnimationFrame(step);
 }
 let anim = null, queued = false;
 const colors = [];
@@ -161,7 +193,7 @@ const extraReady = loadJson('extra').then((x) => {
   if (sel && sel.type === 'ep') renderEp(sel.id);
   fromHash(); draw();
 }).catch((e) => { live('言葉・地図のデータを読み込めませんでした'); console.error(e); });
-loadJson('rel').then((r) => { REL = r.rel; if (sel && sel.type === 'ep') renderEp(sel.id); }).catch((e) => console.error(e));
+loadJson('rel').then((r) => { REL = r.rel; replaceEdges(); if (sel && sel.type === 'ep') renderEp(sel.id); }).catch((e) => console.error(e));
 
 // ---- 地図（世界・日本）
 // 世界: Equal Earth 図法。日本: メルカトル（日本付近を拡大）。単位はどちらも星図と同じ「世界座標」
@@ -559,6 +591,11 @@ function nextHold() {
 }
 // この端末で送った直後の集計（みんなで仕分けが保存）。読めない環境では空
 const minnaFresh = () => { try { return JSON.parse(localStorage.getItem('minna:fresh') || '{}') || {}; } catch { return {}; } };
+function edgeText(i) {
+  const e = edgeInfo.get(i), m1 = e ? e.m1 : lean(i).m, src = lean(i).by === 'minna' ? 'みんなの見立てと関連する回から' : REL ? 'Claude の推定と関連する回から' : 'Claude の推定から';
+  if (e && e.m2 >= 0) return `「${D.cats[m1].name}」と「${D.cats[e.m2].name}」のあいだ。${e.t >= 0.42 ? 'ほぼ真ん中' : `「${D.cats[m1].name}」寄り`}（${src}。まだ決まっていません）`;
+  return `「${D.cats[m1].name}」のあたり？（${src}。まだ決まっていません）`;
+}
 function catSection(i) {
   if (!SHOW_CLS) {   // 分類を隠している間は、保留の回にだけ「みんなで仕分ける」入口を出す
     if (dispMain(i) !== HOLD) return null;
@@ -573,7 +610,7 @@ function catSection(i) {
     vp ? h('p', { class: 'dual' }, h('span', { class: 'badge c2b' }, 'みんなの見立て'), vp.rows.map((r) => `${r.name}（${r.count}人）`).join('、') + (vp.unsure ? `、わからない（${vp.unsure}人）` : '')) : null,
     h('p', { class: 'note' }, minnaLink));
   return h('div', { class: 'sec' }, h('h4', {}, '分類'),
-    shown === HOLD && isEdge(i) ? h('p', {}, h('span', { class: 'badge cl' }, 'ふちの星'), h('span', { class: 'note' }, `「${D.cats[lean(i).m].name}」のあたり？（${lean(i).by === 'minna' ? 'みんなの見立て' : 'Claude の推定'}。まだ決まっていません）`)) :
+    shown === HOLD && isEdge(i) ? h('p', {}, h('span', { class: 'badge cl' }, 'ふちの星'), h('span', { class: 'note' }, edgeText(i))) :
     shown === HOLD ? h('p', {}, h('span', { class: 'badge cl' }, FUCHI ? 'どこにも寄らない星' : '保留'), h('span', { class: 'note' }, '手がかりが弱いため分類に置いていません')) :
       h('p', {}, h('span', { class: 'badge ' + CONF[conf][0] }, CONF[conf][1]), h('button', { type: 'button', class: 'chip catpath', onclick: () => select({ type: 'cat', id: shown, sub: si }) }, catName(shown) + (si >= 0 ? ' › ' + D.cats[shown].subs[si] : ''))),
     minna,
@@ -897,4 +934,4 @@ if (!location.hash) setTimeout(() => hintsFor(mode), 1200);
 window.__uchuPerf = { loadMs: Math.round(tLoad), readyMs: Math.round(performance.now() - t0), episodes: NE, terms: D.terms.length };
 
 // 試作（?fuchi）であることを毎回知らせる
-if (FUCHI) toast('fuchi-' + Date.now(), '試作表示：保留の回を「保留」の塊に集めず、推定した分類のふちに薄い星で散らしています。');
+if (FUCHI) { toast('fuchi-' + Date.now(), '試作表示：まだ分類が決まっていない回を、塊に集めず薄い星で散らしています。二つの分野にまたがる回は、二つの分類のあいだ（強い側寄り）に置いています。'); clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 10 * 60 * 1000); }
