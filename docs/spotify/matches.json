@@ -1,35 +1,19 @@
 {
  "summary": {
-  "generatedAt": "2026-11-22T01:40:12.269Z",
-  "spotifyGeneratedAt": "2026-11-22T01:34:51.662Z",
+  "generatedAt": "2026-11-22T12:04:29.166Z",
+  "spotifyGeneratedAt": "2026-11-22T11:59:14.431Z",
   "ledgerRows": 6139,
-  "ledgerSpotifyEmpty": 12,
-  "verified": 2,
+  "ledgerSpotifyEmpty": 10,
+  "verified": 0,
   "counts": {
-   "VERIFIED": 2,
-   "VERIFIED_SAME": 266,
+   "VERIFIED_SAME": 268,
    "NO_ROW": 16,
    "CANDIDATE": 58,
    "HOLD": 2
   },
   "emptyNotInSpotifyList": 1
  },
- "verified": [
-  {
-   "ep": "EP-06763",
-   "url": "https://open.spotify.com/episode/33ruMT61EGtH3Hr4QMgEgT",
-   "show": "ニュースの現場から",
-   "title": "デモって怖い？ 街頭で声を上げる人たちを追ってみた（大阪目線 #12）",
-   "spotifyDate": "2026-11-21"
-  },
-  {
-   "ep": "EP-06764",
-   "url": "https://open.spotify.com/episode/34AwJdaeW8lTMSBG5jD73J",
-   "show": "ドーナツ",
-   "title": "（日曜版）サイフを盗られた日",
-   "spotifyDate": "2026-11-21"
-  }
- ],
+ "verified": [],
  "others": [
   {
    "show": "ニュースの現場から",
@@ -783,24 +767,6 @@
    "status": "CANDIDATE",
    "reason": "題名・日付は一致・長さが合わない",
    "spotifyUrl": "https://open.spotify.com/episode/5SvBbhUVSpoOByxp6wkcco"
-  },
-  {
-   "ep": "EP-06763",
-   "show": "ニュースの現場から",
-   "title": "デモって怖い？ 街頭で声を上げる人たちを追ってみた（大阪目線 #12）",
-   "published": "2026/11/22 04:00",
-   "status": "VERIFIED",
-   "reason": "番組ID・題名・日付・長さが一致",
-   "spotifyUrl": "https://open.spotify.com/episode/33ruMT61EGtH3Hr4QMgEgT"
-  },
-  {
-   "ep": "EP-06764",
-   "show": "ドーナツ",
-   "title": "（日曜版）サイフを盗られた日",
-   "published": "2026/11/22 04:00",
-   "status": "VERIFIED",
-   "reason": "番組ID・題名・日付・長さが一致",
-   "spotifyUrl": "https://open.spotify.com/episode/34AwJdaeW8lTMSBG5jD73J"
   }
  ]
 }
