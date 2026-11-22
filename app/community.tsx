@@ -2617,7 +2617,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       <footer>
         <div className="wrap">
           <small>
-            朝リスが制作・運営する非公式リスナーサイトを目指しています。@ネジート
+            朝リスが制作・運営する非公式リスナーサイトを目指しています。@ネジート ・ <a href="faq/">よくある質問</a>
           </small>
         </div>
       </footer>
