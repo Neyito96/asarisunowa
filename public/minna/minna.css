@@ -99,3 +99,10 @@ legend small { color: var(--sub); font-weight: 400; font-size: 12px; margin-left
 @media (min-width: 700px) { .title { font-size: 23px; } .card { padding: 24px; } }
 
 .badge.now { background: #1c2a4d; color: #cfe0ff; border: 1px solid #3a4c78; }
+
+/* 上部のほかのページへのリンク（2026-11-22） */
+.sites { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font-size: 13px; }
+.sites .ring { color: var(--sub); margin-right: 4px; }
+.sites a { color: var(--text); text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px; background: var(--panel); }
+.sites a:hover { border-color: var(--accent); }
+.sites a:focus-visible { outline: 3px solid #8fd3ff; outline-offset: 2px; }

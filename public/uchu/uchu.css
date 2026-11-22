@@ -23,6 +23,7 @@ a { color: #a9d4ff; }
 .back b { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font-size: 15px; font-weight: 700; color: #10150a; }
 .back.ta b { background: #9fd58a; }
 .back.kura b { background: var(--accent); color: #1a1405; }
+.back.faq b { background: #9fc3ff; color: #0d1730; }
 .back:hover { border-color: var(--accent); background: #1a2a52; }
 .back:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 @media (max-width: 1280px) { .back { padding: 0 4px; height: 34px; } .back .lbl { display: none; } }
