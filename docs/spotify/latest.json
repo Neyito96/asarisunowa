@@ -1,11 +1,18 @@
 {
- "generatedAt": "2026-11-21T11:46:27.603Z",
+ "generatedAt": "2026-11-22T01:34:51.662Z",
  "source": "open.spotify.com（埋め込み＋番組ページ）",
  "shows": {
   "ニュースの現場から": {
    "showId": "392h0MYfvMTndEVzf2cOvC",
    "count": 51,
    "episodes": [
+    {
+     "id": "33ruMT61EGtH3Hr4QMgEgT",
+     "url": "https://open.spotify.com/episode/33ruMT61EGtH3Hr4QMgEgT",
+     "title": "デモって怖い？ 街頭で声を上げる人たちを追ってみた（大阪目線 #12）",
+     "date": "2026-11-21",
+     "durationMs": 3584566
+    },
     {
      "id": "1zZEuUZ96aoAZl6ruKxPTP",
      "url": "https://open.spotify.com/episode/1zZEuUZ96aoAZl6ruKxPTP",
@@ -348,13 +355,6 @@
      "title": "（大阪目線#5）ハラスメント相次ぐ市長ら、有権者はもう一度託せるのか",
      "date": "2026-10-03",
      "durationMs": 6592130
-    },
-    {
-     "id": "4P640200SJhzUpM9nEN76Y",
-     "url": "https://open.spotify.com/episode/4P640200SJhzUpM9nEN76Y",
-     "title": "（ポリレビ #13）日本も対外諜報するの？議員定数削減どうなる？議論のゆくえは",
-     "date": "2026-10-02",
-     "durationMs": 3931958
     },
     {
      "id": "1vVhoMqsDDYUmpajbMtF82",
@@ -2108,6 +2108,13 @@
    "count": 49,
    "episodes": [
     {
+     "id": "34AwJdaeW8lTMSBG5jD73J",
+     "url": "https://open.spotify.com/episode/34AwJdaeW8lTMSBG5jD73J",
+     "title": "（日曜版）サイフを盗られた日",
+     "date": "2026-11-21",
+     "durationMs": 7856349
+    },
+    {
      "id": "4LdvZkgiE6wAVrKhBAbKjD",
      "url": "https://open.spotify.com/episode/4LdvZkgiE6wAVrKhBAbKjD",
      "title": "（ノーミライ＃13）２人の間に何かがあったんかなかったんか、というお話",
@@ -2442,13 +2449,6 @@
      "title": "（親モヤ #127）保育園が決まった！　でも園生活を見学できないことが不安です",
      "date": "2026-09-23",
      "durationMs": 2201000
-    },
-    {
-     "id": "5tMA8KQiqlu60TBXqekRJE",
-     "url": "https://open.spotify.com/episode/5tMA8KQiqlu60TBXqekRJE",
-     "title": "（ポすすめ）セイとセイショクとジェンダーのSRHRラジオ",
-     "date": "2026-09-21",
-     "durationMs": 1927209
     }
    ]
   }
