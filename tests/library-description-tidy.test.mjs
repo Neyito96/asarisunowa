@@ -45,3 +45,15 @@ test('告知だけの概要（ポすすめ回など）は PROMO_ONLY', async () 
   const { tidyDescription } = await import('../public/library/description-tidy.mjs');
   assert.equal(tidyDescription('★番組での紹介を希望する方は、朝日新聞アプリで「おたより」を送ってください\n朝リスの田 byネジートさん').status, 'PROMO_ONLY');
 });
+
+test('#500 知らない見出しでも中身が宣伝だけなら外す・見出しが題名のURL1本は関連記事にする', () => {
+  const t = tidyDescription('撮影のリアルに迫ります。 【関連記事】 輪島の大家族 https://www.asahi.com/articles/ASS3Y62HJS3PPISC01Z.html 【遠藤デスクがスマホ撮影のコツを動画で紹介！】 7月31日まで公開中！デジタル会員は無料でご覧いただけます。 記者サロン「スマホ旅」 https://t.asahi.com/woru?ref=omny 【祝・1億DL！ 5/31（土）イベント】 寺下真理加、斎藤健一郎に朝ポキメンバーも多数参加。 https://ciy.digital.asahi.com/ciy/11016611');
+  assert.equal(t.status, 'TIDY');
+  assert.equal(t.body, '撮影のリアルに迫ります。');
+  assert.doesNotMatch(JSON.stringify([t.body, t.related]), /斎藤|スマホ旅/);
+  const s = tidyDescription('「声」編集部に聞きました。 【特設サイト：声 語りつぐ戦争】 https://www.asahi.com/special/koe-senso/');
+  assert.equal(s.status, 'TIDY');
+  assert.deepEqual(s.related, [{ title: '特設サイト：声 語りつぐ戦争', url: 'https://www.asahi.com/special/koe-senso/' }]);
+  // 本物の記事URLが混ざる知らない見出しは、これまでどおり保留
+  assert.equal(tidyDescription('本文です。 【ニュースの学校】予算委員会 https://bit.ly/43idkHk ご意見 https://bit.ly/asapoki_discord').status, 'HOLD');
+});
