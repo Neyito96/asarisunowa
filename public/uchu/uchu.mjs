@@ -372,7 +372,14 @@ function render() {
     const x = SX(i), y = SY(i); if (!(x > -4 && y > -4 && x < W + 4 && y < H + 4)) continue;
     const edgeOn = mode === 'cat' && isEdge(i) && (!dim || (sel && sel.type === 'cat' && lean(i).m === sel.id));
     const on = !dim || hi.has(i), depth = D3 && Z ? 0.5 + 0.5 * Z[i] : koOn() ? Math.min(1, 0.25 + 0.6 * PS2[i]) * fogOf(i) : 1, b = D3 && Z ? base * (0.55 + 0.9 * Z[i]) : koOn() ? base * Math.min(voyage.inside ? 7 : 3, PS2[i] * PS2[i]) : base;
-    ctx.globalAlpha = (edgeOn ? 0.42 : on ? 0.9 : 0.12) * depth; ctx.fillStyle = epColor(i);
+    ctx.fillStyle = epColor(i);
+    if (edgeOn) {   // ふちの星: 塵に見えないよう、丸い芯＋やわらかな光の輪で「星」として見せる（決まった星よりは控えめ）
+      const r = Math.max(1.3, b * 0.62) * (k > 2 ? Math.min(1.8, 0.8 + k * 0.12) : 1);
+      ctx.globalAlpha = 0.16 * depth; ctx.beginPath(); ctx.arc(x, y, r * 2.6, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 0.78 * depth; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+      continue;
+    }
+    ctx.globalAlpha = (on ? 0.9 : 0.12) * depth;
     ctx.fillRect(x - b / 2, y - b / 2, b, b);
   }
   ctx.globalAlpha = 1;
