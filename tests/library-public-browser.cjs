@@ -54,7 +54,9 @@ const { chromium, webkit, devices } = require(process.env.LIBRARY_PLAYWRIGHT || 
       await page.waitForFunction(() => document.querySelectorAll('.episode').length === 1 && document.querySelector('#results').getAttribute('aria-busy') === 'false');
       await page.locator('.episode-title').click(); await page.locator('#detail-title').waitFor();
       assert.ok((await page.locator('#detail .detail-links a').first().getAttribute('href')).includes('b8642140-af20-49ac-8e90-b4aa01075682'));
-      assert.ok((await page.getByRole('link', {name:'Omnyで聴く ↗',exact:true}).getAttribute('href')).endsWith('/embed'));
+      // #447/#449: Omny は聴くリンクに出さない。#498: 回の詳細から宇宙のその回へ行ける
+      assert.equal(await page.locator('#detail .detail-links a', {hasText:'Omny'}).count(), 0);
+      assert.ok((await page.locator('#detail .to-uchu a').getAttribute('href')).endsWith('../uchu/#e=EP-00308'));
       assert.equal(await page.locator('#detail audio[src*="/embed"]').count(),0);
       await page.locator('#close-detail').click();
       await page.locator('#query').fill(''); await page.locator('#show').selectOption('こどもそうだんしつ');
