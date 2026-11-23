@@ -1,11 +1,18 @@
 {
- "generatedAt": "2026-11-22T11:59:14.431Z",
+ "generatedAt": "2026-11-23T01:58:46.664Z",
  "source": "open.spotify.com（埋め込み＋番組ページ）",
  "shows": {
   "ニュースの現場から": {
    "showId": "392h0MYfvMTndEVzf2cOvC",
    "count": 51,
    "episodes": [
+    {
+     "id": "0KiAKldDyf2ApFiVyTR76X",
+     "url": "https://open.spotify.com/episode/0KiAKldDyf2ApFiVyTR76X",
+     "title": "（めくろう #207）大人も食育　ZOOも死を見せる　冗談にもTPO",
+     "date": "2026-11-22",
+     "durationMs": 3529380
+    },
     {
      "id": "33ruMT61EGtH3Hr4QMgEgT",
      "url": "https://open.spotify.com/episode/33ruMT61EGtH3Hr4QMgEgT",
@@ -348,13 +355,6 @@
      "title": "（めくろう #201）一寸の虫にも百円の魂 　ぼーっと？没頭？なにが最良",
      "date": "2026-10-04",
      "durationMs": 2821000
-    },
-    {
-     "id": "3fmzNN0vwOFBNM9aEK0Rdl",
-     "url": "https://open.spotify.com/episode/3fmzNN0vwOFBNM9aEK0Rdl",
-     "title": "（大阪目線#5）ハラスメント相次ぐ市長ら、有権者はもう一度託せるのか",
-     "date": "2026-10-03",
-     "durationMs": 6592130
     },
     {
      "id": "1vVhoMqsDDYUmpajbMtF82",
@@ -1438,6 +1438,13 @@
    "count": 50,
    "episodes": [
     {
+     "id": "2dEJE31B5DTj1zf8UwrOrE",
+     "url": "https://open.spotify.com/episode/2dEJE31B5DTj1zf8UwrOrE",
+     "title": "（TMT #2）「真実」は誰にも所有できない　では、新聞は何を届けるのか？（批評家 福嶋亮大さん／中編）",
+     "date": "2026-11-22",
+     "durationMs": 2076712
+    },
+    {
      "id": "1o2g2GeFUtrOli3ZRI6hMc",
      "url": "https://open.spotify.com/episode/1o2g2GeFUtrOli3ZRI6hMc",
      "title": "（記者が向き合うトラウマ）取材相手も、自分も傷つかないために　経験を話します",
@@ -1779,13 +1786,6 @@
      "title": "（朝ポキシネマ #32）ハリウッドで主役張り続けるレオさま　これでもけっこう苦労しています",
      "date": "2026-09-03",
      "durationMs": 3835201
-    },
-    {
-     "id": "2PJPgeR24nBi4fnOTd637U",
-     "url": "https://open.spotify.com/episode/2PJPgeR24nBi4fnOTd637U",
-     "title": "（ウニュ #95）ゲーム、スマホ、外遊び……子どもの〝制限〟を考えた　親の「不」が制限につながる？",
-     "date": "2026-08-31",
-     "durationMs": 4157000
     }
    ]
   },
@@ -2107,6 +2107,13 @@
    "showId": "0341I5UOUrJgm7KEvNGInZ",
    "count": 49,
    "episodes": [
+    {
+     "id": "5KD3llONMHvOHaqJtRqnRp",
+     "url": "https://open.spotify.com/episode/5KD3llONMHvOHaqJtRqnRp",
+     "title": "（1on1）長沢美津子さん　古くさい一升瓶が、いちばん新しい！",
+     "date": "2026-11-22",
+     "durationMs": 4619989
+    },
     {
      "id": "34AwJdaeW8lTMSBG5jD73J",
      "url": "https://open.spotify.com/episode/34AwJdaeW8lTMSBG5jD73J",
@@ -2442,13 +2449,6 @@
      "title": "（アラサー）BLUEへの熱い愛　口笛とスキップ、軽やかに過ごすコツは",
      "date": "2026-09-24",
      "durationMs": 1598268
-    },
-    {
-     "id": "21JQL456BEKagE53A826Rc",
-     "url": "https://open.spotify.com/episode/21JQL456BEKagE53A826Rc",
-     "title": "（親モヤ #127）保育園が決まった！　でも園生活を見学できないことが不安です",
-     "date": "2026-09-23",
-     "durationMs": 2201000
     }
    ]
   }
