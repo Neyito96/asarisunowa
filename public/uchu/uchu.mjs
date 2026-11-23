@@ -69,7 +69,8 @@ function buildCatLayout() {
   // 保留は中央に置かず、分類の外側（右）へ
   const main = regions.filter((rg) => rg.m !== HOLD), hold = regions.find((rg) => rg.m === HOLD);
   packCircles(main, FUCHI ? 70 : 40);
-  if (hold) { const maxX = Math.max(...main.map((rg) => rg.x + rg.r)); hold.x = maxX + hold.r + 120; hold.y = 0; }
+  // 名付け募集星群（保留の塊）は、分類の集まりの右斜め上に置いて目立たせる
+  if (hold) { const maxX = Math.max(...main.map((rg) => rg.x + rg.r)), minY = Math.min(...main.map((rg) => rg.y - rg.r)); hold.x = maxX + hold.r + 10; hold.y = minY + hold.r * 0.4; }
   for (const rg of regions) for (const q of rg.subs) {
     q.x += rg.x; q.y += rg.y;
     q.ids.forEach((i, k) => { const rr = S * 0.95 * Math.sqrt(k + 0.5), a = k * GA; catX[i] = q.x + Math.cos(a) * rr; catY[i] = q.y + Math.sin(a) * rr; });
@@ -379,7 +380,8 @@ function render() {
       ctx.globalAlpha = 0.78 * depth; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
       continue;
     }
-    ctx.globalAlpha = (on ? 0.9 : 0.12) * depth;
+    const tw = mode === 'cat' && FUCHI && dispMain(i) === HOLD ? 0.55 + 0.45 * Math.sin(performance.now() / 650 + (i % 17) * 0.9) : 1;   // 名付け募集星群はゆっくり瞬く
+    ctx.globalAlpha = (on ? 0.9 : 0.12) * depth * tw;
     ctx.fillRect(x - b / 2, y - b / 2, b, b);
   }
   ctx.globalAlpha = 1;
@@ -1138,3 +1140,12 @@ if (SHOW_CLS) {
   requestAnimationFrame(tick);
   if (KOKAI_URL) { toast('kokai-' + Date.now(), '航海のテスト：あなたが宇宙をゆっくり漂っています。なぞるとその向きへ進みます。⏸で止まる、🛸で中に入る、🎥で視点を回す（横から・斜め・真上から）、⟲で正面に戻ります。左下の地図が現在地です。'); clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 10 * 60 * 1000); }
 }
+
+// 名付け募集星群の瞬き: 画面に映っている間だけ、1秒に10回ほど描き直す（電池を使いすぎない）
+if (FUCHI) setInterval(() => {
+  if (document.hidden || mode !== 'cat' || !D._regions) return;
+  const rg = D._regions.find((r) => r.m === HOLD); if (!rg) return;
+  const x = sx(rg.x), y = sy(rg.y), r = rg.r * view.k;
+  if (x + r < 0 || x - r > W || y + r < 0 || y - r > H) return;
+  draw();
+}, 100);
