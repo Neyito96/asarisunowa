@@ -16,6 +16,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # #495: 版表示を含む manifest.json は同期ロボットが作るファイル。手で変えると同期の公開が衝突して止まる
+      - name: Generated data guard
+        run: |
+          git fetch -q origin main --depth=1
+          if git diff --name-only FETCH_HEAD HEAD | grep -qx 'public/uchu/data/manifest.json'; then
+            echo "public/uchu/data/manifest.json は同期ロボットが作るファイルです。手で変えないでください（#495）"; exit 1
+          fi
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
