@@ -51,6 +51,16 @@ export function tidyDescription(raw) {
   for (const part of parts) {
     const head = (part.match(/^【[^】]*】/) || [''])[0];
     if (head && DROP_HEAD.test(head) && !KEEP_HEAD.test(head)) { removed.push(part.slice(0, 40)); continue; }
+    const inner = part.slice(head.length).trim();
+    // 【特設サイト：…】 https://… のように見出しそのものが題名で、中身がURL1本だけ → 関連記事として1件に
+    if (head && !KEEP_HEAD.test(head) && !DROP_HEAD.test(head) && URL_ONLY.test(inner) && /^https:/.test(inner) && (ARTICLE_URL.test(inner) || /asahi\.com\/special\//.test(inner)) && !PROMO_URL.test(inner) && !/special\/podcasts/.test(inner) && !/^【(ウェブサイト|公式サイト|番組一覧|過去の回)/.test(head)) {
+      related.push({ title: head.slice(1, -1).trim(), url: inner }); continue;
+    }
+    // 見出しが知らない形でも、中身が宣伝（宣伝用URLだけ＋会員・無料・公開中などの案内）なら告知として外す（#500 EP-05247「遠藤デスクがスマホ撮影のコツを動画で紹介！」）
+    if (head && !KEEP_HEAD.test(head) && !RELATED_HEAD.test(head)) {
+      const urls = inner.match(/https?:\/\/\S+/g) || [];
+      if (urls.length && urls.every((u) => PROMO_URL.test(u)) && (PROMO.test(inner) || STRONG_PROMO.test(inner) || /公開中|配信中|会員/.test(inner))) { removed.push(part.slice(0, 40)); continue; }
+    }
     if (head && RELATED_HEAD.test(head) && !KEEP_HEAD.test(head)) {
       const r = relatedPairs(part.slice(head.length).trim());
       if (!r) hold = hold || (/https:\/\//.test(part) ? '関連記事の形が読めない' : '関連記事にURLがない');

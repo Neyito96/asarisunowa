@@ -24,7 +24,7 @@ for(const [i,show] of groups.entries()) {
  shows.push({name:show,label:show==='こどもそうだんしつ'&&!groups.includes('SDGsを話そう')?'SDGsを話そう・こどもそうだんしつ':show,count:rows.length,audioPresent:rows.filter(e=>e.audioAvailable).length,playable:rows.filter(e=>e.audio).length,pages,search});
 }
 // 検索対象の概要は、表示と同じ整形（告知・登録の案内を外す）を通した本文。整形できない回は元の文のまま
-const searchableDescription=(d)=>{const t=tidyDescription(d);return t.status==='TIDY'||t.status==='AS_IS'?[t.body,...t.related.map(r=>r.title)].join(' '):t.status==='PROMO_ONLY'?'':String(d||'');};
+const searchableDescription=(d)=>{const t=tidyDescription(d);return t.status==='TIDY'||t.status==='AS_IS'?[t.body,...t.related.map(r=>r.title)].join(' '):t.status==='PROMO_ONLY'?'':t.status==='HOLD'?[t.body,...t.related.map(r=>r.title)].join(' '):String(d||'');};   // HOLD（表示は元の文面）でも、検索には告知・宣伝を外した文面だけを使う（#500 告知の人名で検索に当たらないように）
 // 速い検索の索引（#350）: ① lite＝題名・出演者・番組・日付だけ（1ファイル、最初にこれだけで結果を出す）② text＝概要・タグ・関連記事の見出し（約800回ずつ、後から並列で足す）
 const searchIndex={lite:'search/lite.json',shows:groups,text:[]};
 await write(searchIndex.lite,sorted.map(e=>[e.id,groups.indexOf(e.show),e.date,e.title,e.cast||'',e.audio?1:0]));
