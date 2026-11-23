@@ -52,7 +52,7 @@ function buildQueue() {
 function renderStats() {
   const total = BOUNDARY.length + D.cls.filter((_, i) => isHold(i)).length;
   const voted = Object.keys(votes).length;
-  $('#stats').innerHTML = `<span><b>${total.toLocaleString()}</b>回が仕分け待ち</span><span>みんなの仕分け <b>${voted.toLocaleString()}</b>回${VOTE_META.contributors ? `・<b>${VOTE_META.contributors}</b>人` : ''}</span><span>あなた <b>${done.size}</b>回</span>`;
+  $('#stats').innerHTML = `<span><b>${total.toLocaleString()}</b>回が見立て待ち</span><span>みんなの見立て <b>${voted.toLocaleString()}</b>回${VOTE_META.contributors ? `・<b>${VOTE_META.contributors}</b>人` : ''}</span><span>あなた <b>${done.size}</b>回</span>`;
 }
 
 function renderShowChips() {
@@ -64,7 +64,7 @@ function renderShowChips() {
 async function show(id) {
   const app = $('#app'); app.innerHTML = '';
   let item = id ? { i: D.eps.findIndex((e) => e[0] === id), boundary: BOUNDARY.includes(id) } : queue[pos];
-  if (!item || item.i < 0) { app.innerHTML = '<p class="empty">この条件の回はすべて仕分けました。ありがとうございます！ 番組を変えてみてください。</p>'; return; }
+  if (!item || item.i < 0) { app.innerHTML = '<p class="empty">この条件の回は、すべて見立てを送りました。ありがとうございます！ 番組を変えてみてください。</p>'; return; }
   const e = D.eps[item.i], epId = e[0];
   history.replaceState(null, '', '#ep=' + epId);
   const node = $('#cardTpl').content.firstElementChild.cloneNode(true);
@@ -154,7 +154,7 @@ function showResult(node, epId, i, mine) {
   const v = votes[epId] || { n: 0, main: {}, sub: {}, unsure: 0 };
   const rows = topVotes(v, 6), max = Math.max(1, ...rows.map((r) => r.count));
   const hueOf = (name) => (D.cats.find((c) => c.name === name) || {}).hue;
-  $('.bars', box).innerHTML = rows.length ? rows.map((r) => `<div class="bar${r.name === mine ? ' mine' : ''}"><span class="lbl">${r.name}</span><span class="track"><span class="fill" style="width:${(r.count / max) * 100}%;--h:${hueOf(r.name) ?? 220}"></span></span><span class="cnt">${r.count}</span></div>`).join('') + `<p class="n">${v.n}人が仕分け${v.unsure ? `（うち「わからない」${v.unsure}）` : ''}</p>` : '<p class="n">あなたが最初の仕分けです！</p>';
+  $('.bars', box).innerHTML = rows.length ? rows.map((r) => `<div class="bar${r.name === mine ? ' mine' : ''}"><span class="lbl">${r.name}</span><span class="track"><span class="fill" style="width:${(r.count / max) * 100}%;--h:${hueOf(r.name) ?? 220}"></span></span><span class="cnt">${r.count}</span></div>`).join('') + `<p class="n">${v.n}人が見立て${v.unsure ? `（うち「わからない」${v.unsure}）` : ''}</p>` : '<p class="n">あなたが最初の仕分けです！</p>';
   const c = D.cls[i], name = (k) => (k >= 0 ? D.cats[k].name : '');
   $('.claude', box).textContent = !isHold(i) ? `参考：いま宇宙では Claude の分類「${name(c[0])}」${c[4] >= 0 ? `（副分類「${name(c[4])}」）` : ''}で並んでいます。みんなの見立ては宇宙のこの回に表れます。` : c[0] >= 0 ? `参考：Claude の推定は「${name(c[0])}」${c[4] >= 0 ? `（次点「${name(c[4])}」）` : ''}。確信が持てず保留にしていました。` : '参考：Claude は手がかりが少なく推定できませんでした。';
   $('.next', box).onclick = next;
