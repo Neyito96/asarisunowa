@@ -74,7 +74,7 @@ function buildCatLayout() {
     q.x += rg.x; q.y += rg.y;
     q.ids.forEach((i, k) => { const rr = S * 0.95 * Math.sqrt(k + 0.5), a = k * GA; catX[i] = q.x + Math.cos(a) * rr; catY[i] = q.y + Math.sin(a) * rr; });
   }
-  D._regions = regions;
+  D._regions = regions; CRX = null;
   if (FUCHI) placeEdges();
 }
 // ふちの星の置き場所（?fuchi）。推定（または見立て）を軸に、関連する回がどの分類にあるかで「もう一つの分野」と引き寄せの強さを決める。
@@ -132,7 +132,8 @@ const ox = (i) => (D3 && Z ? (Z[i] - 0.5) * tilt.x * AMP : 0), oy = (i) => (D3 &
 // 航海: 近い星（Zが大きい）ほど画面の中心から遠くへ広がる＝自分が動くと速く流れる（遠近）
 const koOn = () => KOKAI && ZK && mode === 'cat';
 // 航海の立体: 星を (x, y, 奥行き) の点として、視点のまわりを回して（横・斜め・真上から）遠近をつけて映す
-const cam = { yaw: 0, pitch: 0, hd: 0 }, DEPTH = 700;   // hd＝進む向き（地面の上で向きを変える。「中に入る」時に使う）   // 視点までの距離は寄るほど近くなる（引きでは遠近を弱く、星の間では強く）
+const cam = { yaw: 0, pitch: 0, hd: 0 }, DEPTH = 700, SPREAD = 1.7;   // SPREAD＝3Dでは星群どうしの間を広げる（星群の中の並びはそのまま）
+let CRX = null, CRY = null;   // 各星が属する星群の中心（3Dで間を広げるため）   // hd＝進む向き（地面の上で向きを変える。「中に入る」時に使う）   // 視点までの距離は寄るほど近くなる（引きでは遠近を弱く、星の間では強く）
 let PX2 = null, PY2 = null, PS2 = null, PZ2 = null, ORD2 = null;
 const turned = () => Math.abs(cam.yaw) + Math.abs(cam.pitch) + Math.abs(cam.hd) > 0.04;
 let PJ = null;   // その時の投影の係数
@@ -151,33 +152,36 @@ function projPt(X, Y, Zw, out) {
 function projectAll() {
   if (!PX2 || PX2.length !== NE) { PX2 = new Float32Array(NE); PY2 = new Float32Array(NE); PS2 = new Float32Array(NE); PZ2 = new Float32Array(NE); ORD2 = new Uint32Array(NE); }
   projSetup(); const o = [0, 0, 0, 0];
-  for (let i = 0; i < NE; i++) { projPt(px[i] - view.x, py[i] - view.y, (ZK[i] - 0.5) * DEPTH, o); PX2[i] = o[0]; PY2[i] = o[1]; PS2[i] = o[0] === o[0] ? o[2] : 0; PZ2[i] = o[0] === o[0] ? o[3] : -1e9; ORD2[i] = i; }
+  if (!CRX || CRX.length !== NE) {
+    CRX = new Float32Array(NE); CRY = new Float32Array(NE); const R = new Map((D._regions || []).map((rg) => [rg.m, rg]));
+    for (let i = 0; i < NE; i++) { const rg = R.get(isEdge(i) ? lean(i).m : dispMain(i)); CRX[i] = rg ? rg.x : px[i]; CRY[i] = rg ? rg.y : py[i]; }
+  }
+  const S1 = SPREAD - 1;
+  for (let i = 0; i < NE; i++) { projPt(px[i] - view.x + S1 * (CRX[i] - view.x), py[i] - view.y + S1 * (CRY[i] - view.y), (ZK[i] - 0.5) * DEPTH, o); PX2[i] = o[0]; PY2[i] = o[1]; PS2[i] = o[0] === o[0] ? o[2] : 0; PZ2[i] = o[0] === o[0] ? o[3] : -1e9; ORD2[i] = i; }
   ORD2.sort((a, b) => PZ2[a] - PZ2[b]);   // 奥から描く
 }
 // 遠くの星ほど霞む（中に入った時）
 const fogOf = (i) => (KOKAI && voyage.inside ? Math.max(0.12, Math.min(1, 1 + PZ2[i] / (PJ.camd * 3))) : 1);
 // 星群の名前を空間の中に浮かべる（回した・中に入った時）
 function drawLabels3D() {
-  // 主分類の看板: 星群の中心から柱を立て、その上に札（暗い板＋分類の色の枠＋名前と回数）。奥から描いて手前の札を上に重ねる
+  // 主分類の看板: 星群の中心から柱を立て、その上に名前と回数（枠なし・影で読みやすく）。奥から描いて手前を上に重ねる
   const o = [0, 0, 0, 0], list = [];
-  for (const rg of D._regions || []) { if (rg.m === HOLD) continue; projPt(rg.x - view.x, rg.y - view.y, 0, o); if (o[0] !== o[0]) continue; list.push({ rg, x: o[0], y: o[1], f: o[2], z: o[3] }); }
+  for (const rg of D._regions || []) { if (rg.m === HOLD) continue; projPt(SPREAD * (rg.x - view.x), SPREAD * (rg.y - view.y), 0, o); if (o[0] !== o[0]) continue; list.push({ rg, x: o[0], y: o[1], f: o[2], z: o[3] }); }
   list.sort((a, b) => a.z - b.z);
   const inside = KOKAI && voyage.inside;
   for (const L of list) {
-    const size = Math.max(12, Math.min(34, 16 * L.f)), fog = Math.max(0.25, Math.min(1, 1 + L.z / (PJ.camd * 3))), stem = inside ? Math.max(14, Math.min(90, 46 * L.f)) : 0;
+    const size = Math.max(12, Math.min(32, 15 * L.f)), fog = Math.max(0.25, Math.min(1, 1 + L.z / (PJ.camd * 3))), stem = inside ? Math.max(12, Math.min(80, 40 * L.f)) : 0;
     const name = catName(L.rg.m), cnt = (catCount[L.rg.m] || 0).toLocaleString();
-    ctx.font = `700 ${size}px ${MINCHO}`; const tw = ctx.measureText(name).width; ctx.font = `${Math.round(size * 0.62)}px system-ui, sans-serif`; const cw = ctx.measureText(cnt).width;
-    const padX = size * 0.5, bw = tw + cw + padX * 2.6, bh = size * 1.55, bx = L.x - bw / 2, by = L.y - stem - bh;
-    if (bx > W + 40 || bx + bw < -40 || by > H + 40 || by + bh < -40) continue;
+    ctx.font = `700 ${size}px ${MINCHO}`; const tw = ctx.measureText(name).width; const cs = Math.round(size * 0.6); ctx.font = `${cs}px system-ui, sans-serif`; const cw = ctx.measureText(cnt).width;
+    const total = tw + size * 0.35 + cw, tx = L.x - total / 2, ty = L.y - stem - size * 0.45;
+    if (tx > W + 40 || tx + total < -40 || ty > H + 40 || ty < -40) continue;
     const col = catColor(L.rg.m);
     ctx.globalAlpha = fog;
-    if (stem) { ctx.strokeStyle = col; ctx.lineWidth = Math.max(1, L.f); ctx.beginPath(); ctx.moveTo(L.x, L.y); ctx.lineTo(L.x, L.y - stem); ctx.stroke(); ctx.fillStyle = col; ctx.beginPath(); ctx.arc(L.x, L.y, Math.max(2, 3 * L.f), 0, Math.PI * 2); ctx.fill(); }
-    ctx.fillStyle = 'rgba(8, 12, 28, 0.82)'; ctx.strokeStyle = col; ctx.lineWidth = Math.max(1, Math.min(2.5, L.f * 1.4));
-    ctx.beginPath(); ctx.roundRect ? ctx.roundRect(bx, by, bw, bh, bh * 0.3) : ctx.rect(bx, by, bw, bh); ctx.fill(); ctx.stroke();
-    ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
-    ctx.font = `700 ${size}px ${MINCHO}`; ctx.fillStyle = col; ctx.fillText(name, bx + padX, by + bh / 2);
-    ctx.font = `${Math.round(size * 0.62)}px system-ui, sans-serif`; ctx.fillStyle = '#a9b0cf'; ctx.fillText(cnt, bx + padX * 1.6 + tw, by + bh / 2 + size * 0.06);
-    ctx.textBaseline = 'alphabetic';
+    if (stem) { ctx.strokeStyle = col; ctx.lineWidth = Math.max(1, L.f * 0.9); ctx.beginPath(); ctx.moveTo(L.x, L.y); ctx.lineTo(L.x, L.y - stem); ctx.stroke(); ctx.fillStyle = col; ctx.beginPath(); ctx.arc(L.x, L.y, Math.max(2, 2.6 * L.f), 0, Math.PI * 2); ctx.fill(); }
+    ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left'; ctx.shadowColor = 'rgba(0, 0, 0, 0.95)'; ctx.shadowBlur = Math.max(4, size * 0.4);
+    ctx.font = `700 ${size}px ${MINCHO}`; ctx.fillStyle = col; ctx.fillText(name, tx, ty);
+    ctx.font = `${cs}px system-ui, sans-serif`; ctx.fillStyle = '#a9b0cf'; ctx.fillText(cnt, tx + tw + size * 0.35, ty);
+    ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
   }
   ctx.globalAlpha = 1;
 }
@@ -1117,7 +1121,7 @@ if (SHOW_CLS) {
         const B = worldBounds(), m = 80;
         if (view.x < B.a - m && voyage.vx < 0) voyage.vx += 60 * dt * 3; if (view.x > B.b + m && voyage.vx > 0) voyage.vx -= 60 * dt * 3;
         if (view.y < B.c - m && voyage.vy < 0) voyage.vy += 60 * dt * 3; if (view.y > B.d + m && voyage.vy > 0) voyage.vy -= 60 * dt * 3;
-        if (voyage.inside) { const sp2 = voyage.cruise * 1.6; view.x += (-Math.sin(cam.hd) * sp2 / view.k) * dt; view.y += (-Math.cos(cam.hd) * sp2 / view.k) * dt; }   // 中では向いている方へ進む
+        if (voyage.inside) { const sp2 = voyage.cruise * 1.0;   // 3Dでは星群の間を広げた分、見かけは速くなるので控えめに view.x += (-Math.sin(cam.hd) * sp2 / view.k) * dt; view.y += (-Math.cos(cam.hd) * sp2 / view.k) * dt; }   // 中では向いている方へ進む
         else { view.x += (voyage.vx / view.k) * dt; view.y += (voyage.vy / view.k) * dt; }
         render();
       }
