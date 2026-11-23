@@ -197,7 +197,7 @@ let EXTRA = false;
 const extraReady = loadJson('extra').then((x) => {
   Object.assign(D, x); initExtra(); EXTRA = true;
   if (sel && sel.type === 'ep') renderEp(sel.id);
-  fromHash(); draw();
+  fromHash('load'); draw();   // 言葉・地名が届いた後の読み直しも、最初の読み込みと同じ扱い（分類なら寄らない）
 }).catch((e) => { live('言葉・地図のデータを読み込めませんでした'); console.error(e); });
 loadJson('rel').then((r) => { REL = r.rel; replaceEdges(); if (sel && sel.type === 'ep') renderEp(sel.id); }).catch((e) => console.error(e));
 
