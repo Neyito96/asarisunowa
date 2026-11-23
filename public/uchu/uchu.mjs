@@ -28,9 +28,9 @@ let mapX, mapY, timeX, timeY, catX, catY, worldX, worldY, japanX, japanY;   // �
 const QS = new URLSearchParams(location.search);
 const SHOW_CLS = !QS.has('nocls');   // 分類（主分類・副分類）は表示する。?nocls で隠せる
 const SHOW_CROSS = QS.has('cross');   // 分類ページの「二つの分野にまたがる回」の一覧は、分かりにくいので当面隠す。?cross で表示
-const SHOW_NEB = QS.has('neb');
-const FUCHI = QS.has('fuchi');
-const AIDA = FUCHI && QS.has('aida');   // ふちの星で、二つの分野にまたがる回を分類のあいだに置く版（2026-11-23 試作・保留中）。?fuchi&aida で表示   // 試作（2026-11-22）: 保留の回を「保留」の塊に集めず、推定した分類のふちに薄く散らす。?fuchi で表示      // 言葉の星座の自動の仮名（例「征平・吉弥・人生」）は名づけ直すまで隠す（#423）。?neb で表示
+const SHOW_NEB = QS.has('neb');      // 言葉の星座の自動の仮名（例「征平・吉弥・人生」）は名づけ直すまで隠す（#423）。?neb で表示
+const FUCHI = !QS.has('hold');       // ふちの星（#468・2026-11-23 本番）: 分類が決まっていない回を「保留」の塊に集めず、推定した分類のまわりに薄く散らす。以前の塊の表示は ?hold
+const AIDA = FUCHI && QS.has('aida'); // ふちの星で、二つの分野にまたがる回を分類のあいだに置く版（#466・保留中）。?aida で表示
 if (!SHOW_NEB) document.documentElement.classList.add('no-neb');
 if (!SHOW_CLS) { document.documentElement.classList.add('no-cls'); document.querySelector('.modes [data-mode="cat"]')?.remove(); document.querySelector('.modes [data-mode="map"]')?.setAttribute('aria-pressed', 'true'); }
 const START_MODE = SHOW_CLS ? 'cat' : 'map';
@@ -940,5 +940,5 @@ document.getElementById('home').addEventListener('click', (ev) => {
 if (!location.hash) setTimeout(() => hintsFor(mode), 1200);
 window.__uchuPerf = { loadMs: Math.round(tLoad), readyMs: Math.round(performance.now() - t0), episodes: NE, terms: D.terms.length };
 
-// 試作（?fuchi）であることを毎回知らせる
-if (FUCHI) { toast('fuchi-' + Date.now(), '試作表示：まだ分類が決まっていない回を、塊に集めず、推定した分類のまわりに薄い星で散らしています。'); clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 10 * 60 * 1000); }
+// ふちの星の説明（初めての時だけ。10分出して×で閉じられる）
+if (FUCHI && !seen('fuchi-intro')) { toast('fuchi-intro', '分類がまだ決まっていない回は、近そうな分類のまわりに薄い星で散らしています。選ぶと「〇〇のあたり？」と出ます。'); clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 10 * 60 * 1000); }
