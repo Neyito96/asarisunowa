@@ -61,7 +61,8 @@ function buildCatLayout() {
   const edge = Array.from({ length: HOLD }, () => []);   // ふちの星（?fuchi）
   D.eps.forEach((e, i) => { if (isEdge(i)) { edge[lean(i).m].push(i); return; } const g = groups[dispMain(i)], si = dispSub(i); (g.subs.get(si) || g.subs.set(si, []).get(si)).push(i); });
   const regions = groups.filter((g) => g.subs.size).map((g) => {
-    const subs = [...g.subs].map(([si, ids]) => ({ si, ids: ids.sort((a, b) => D.eps[b][3] - D.eps[a][3]), r: S * Math.sqrt(ids.length) * 1.02 + 6 }));
+    const sp = FUCHI && g.m === HOLD ? 2.4 : 1;   // 名付け募集星群は星どうしの間を広げて、星群らしく見せる
+    const subs = [...g.subs].map(([si, ids]) => ({ si, sp, ids: ids.sort((a, b) => D.eps[b][3] - D.eps[a][3]), r: S * sp * Math.sqrt(ids.length) * 1.02 + 6 }));
     packCircles(subs, 6);
     const r = Math.max(...subs.map((q) => Math.hypot(q.x, q.y) + q.r)) + 14;
     return { m: g.m, subs, r, n: subs.reduce((a, q) => a + q.ids.length, 0) };
@@ -73,7 +74,7 @@ function buildCatLayout() {
   if (hold) { const maxX = Math.max(...main.map((rg) => rg.x + rg.r)), minY = Math.min(...main.map((rg) => rg.y - rg.r)); hold.x = maxX + hold.r + 10; hold.y = minY + hold.r * 0.4; }
   for (const rg of regions) for (const q of rg.subs) {
     q.x += rg.x; q.y += rg.y;
-    q.ids.forEach((i, k) => { const rr = S * 0.95 * Math.sqrt(k + 0.5), a = k * GA; catX[i] = q.x + Math.cos(a) * rr; catY[i] = q.y + Math.sin(a) * rr; });
+    q.ids.forEach((i, k) => { const rr = S * (q.sp || 1) * 0.95 * Math.sqrt(k + 0.5), a = k * GA; catX[i] = q.x + Math.cos(a) * rr; catY[i] = q.y + Math.sin(a) * rr; });
   }
   D._regions = regions; CRX = null;
   if (FUCHI) placeEdges();
