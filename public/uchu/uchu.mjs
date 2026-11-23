@@ -162,7 +162,7 @@ const HOLD = D.cats.length;
 const dispMain = (i) => { const c = D.cls[i]; return c[0] >= 0 && 'apd'.includes(c[3]) ? c[0] : HOLD; };
 const dispSub = (i) => (dispMain(i) === HOLD ? -1 : D.cls[i][1]);
 const catColor = (m) => (m === HOLD ? '#6f7894' : `hsl(${D.cats[m].hue} 70% 66%)`);
-const catName = (m) => (m === HOLD ? (FUCHI ? 'どこにも寄らない星' : '保留（推定のみ）') : D.cats[m].name);
+const catName = (m) => (m === HOLD ? (FUCHI ? '名付け募集星群' : '保留（推定のみ）') : D.cats[m].name);
 // ふちの星（?fuchi）: 保留の回の寄せ先。みんなの見立てがあればその1位、なければ Claude の推定。どちらもなければ -1
 const CAT_BY_NAME = new Map(D.cats.map((c, m) => [c.name, m]));
 function lean(i) {
@@ -606,19 +606,19 @@ function edgeText(i) {
 function catSection(i) {
   if (!SHOW_CLS) {   // 分類を隠している間は、保留の回にだけ「みんなで仕分ける」入口を出す
     if (dispMain(i) !== HOLD) return null;
-    return h('div', { class: 'sec' }, h('p', { class: 'note' }, h('a', { href: '../minna/#ep=' + D.eps[i][0], target: '_blank', rel: 'noopener' }, 'この回をみんなで仕分ける →')));
+    return h('div', { class: 'sec' }, h('p', { class: 'note' }, h('a', { href: '../minna/#ep=' + D.eps[i][0], target: '_blank', rel: 'noopener' }, 'この星のありかを見立てる →')));
   }
   const [mi, si, conf, src, mi2, si2] = D.cls[i], [ev, old, ev2] = D.clsEv[i] || ['', '', ''], shown = dispMain(i);
   const guess = shown === HOLD && mi >= 0 && sortLoad()[D.eps[i][0]] ? h('p', { class: 'evid' }, `Claudeの推定: ${D.cats[mi].name}（${src === 'l' ? '似た回の言葉から学んだ推定' : '関連する回の分類から'}・要確認）`) : null;
   const ep = D.eps[i][0], mv = freshTally((MINNA.votes || {})[ep], minnaFresh()[ep], MINNA.generatedAt), mc = consensus(mv), vp = viewpoints(mv);
-  const minnaLink = h('a', { href: '../minna/#ep=' + ep, target: '_blank', rel: 'noopener' }, shown === HOLD ? 'この回をみんなで仕分ける →' : 'この分類、ちがうかも？ 見立てを送る →');
+  const minnaLink = h('a', { href: '../minna/#ep=' + ep, target: '_blank', rel: 'noopener' }, shown === HOLD ? 'この星のありかを見立てる →' : 'この分類、ちがうかも？ 見立てを送る →');
   const minna = h('div', { class: 'minna-vp' },
     mc ? h('p', { class: 'dual' }, h('span', { class: 'badge mv' }, 'みんなの分類（候補）'), `${mc.name}（${mc.n}人中${mc.count}人）`) : null,
     vp ? h('p', { class: 'dual' }, h('span', { class: 'badge c2b' }, 'みんなの見立て'), vp.rows.map((r) => `${r.name}（${r.count}人）`).join('、') + (vp.unsure ? `、わからない（${vp.unsure}人）` : '')) : null,
     h('p', { class: 'note' }, minnaLink));
   return h('div', { class: 'sec' }, h('h4', {}, '分類'),
     shown === HOLD && isEdge(i) ? h('p', {}, h('span', { class: 'badge cl' }, 'ふちの星'), h('span', { class: 'note' }, edgeText(i))) :
-    shown === HOLD ? h('p', {}, h('span', { class: 'badge cl' }, FUCHI ? 'どこにも寄らない星' : '保留'), h('span', { class: 'note' }, '手がかりが弱いため分類に置いていません')) :
+    shown === HOLD ? h('p', {}, h('span', { class: 'badge cl' }, FUCHI ? '名付け募集星群' : '保留'), h('span', { class: 'note' }, '手がかりが弱いため分類に置いていません')) :
       h('p', {}, h('span', { class: 'badge ' + CONF[conf][0] }, CONF[conf][1]), h('button', { type: 'button', class: 'chip catpath', onclick: () => select({ type: 'cat', id: shown, sub: si }) }, catName(shown) + (si >= 0 ? ' › ' + D.cats[shown].subs[si] : ''))),
     minna,
     guess,
