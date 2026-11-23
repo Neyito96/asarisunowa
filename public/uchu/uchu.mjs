@@ -960,10 +960,23 @@ if (FUCHI && !seen('fuchi-intro')) { toast('fuchi-intro', '分類がまだ決ま
 if (D3) {
   const clamp = (v) => Math.max(-1, Math.min(1, v));
   canvas.addEventListener('pointermove', (e) => { if (e.pointerType !== 'mouse') return; tilt.tx = clamp((e.offsetX / W - 0.5) * 2); tilt.ty = clamp((e.offsetY / H - 0.5) * 2); tilt.last = performance.now(); });
-  const onTilt = (e) => { if (e.gamma == null) return; tilt.tx = clamp(e.gamma / 25); tilt.ty = clamp((e.beta - 40) / 25); tilt.last = performance.now(); };
+  let gotTilt = false;
+  const onTilt = (e) => { if (e.gamma == null) return; gotTilt = true; tilt.tx = clamp(e.gamma / 25); tilt.ty = clamp((e.beta - 40) / 25); tilt.last = performance.now(); };
   addEventListener('deviceorientation', onTilt);
-  // iPhone は傾きを使う前に許可が要る（最初に画面に触れた時に一度だけ尋ねる）
-  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') canvas.addEventListener('pointerdown', () => { DeviceOrientationEvent.requestPermission().catch(() => {}); }, { once: true });
+  // 指でなぞっても傾く（傾きが使えない端末・ブラウザでも立体感が分かるように）
+  let lastTouch = null;
+  canvas.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') return; if (lastTouch) { tilt.tx = clamp(tilt.tx + (e.offsetX - lastTouch.x) / 60); tilt.ty = clamp(tilt.ty + (e.offsetY - lastTouch.y) / 60); tilt.last = performance.now(); } lastTouch = { x: e.offsetX, y: e.offsetY }; });
+  canvas.addEventListener('pointerup', () => { lastTouch = null; }); canvas.addEventListener('pointercancel', () => { lastTouch = null; });
+  // スマホ: 「傾きで動かす」ボタン。iPhone はボタンを押した時にだけ傾きの許可を尋ねられる（Chrome・Safari とも）
+  if (matchMedia('(pointer: coarse)').matches) {
+    const b = document.createElement('button'); b.type = 'button'; b.id = 'tiltBtn'; b.textContent = '📱傾き'; b.setAttribute('aria-label', 'スマホの傾きで星を動かす');
+    $('zfit').before(b);
+    b.addEventListener('click', async () => {
+      try { if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') { const r = await DeviceOrientationEvent.requestPermission(); if (r !== 'granted') { toast('tilt-no-' + Date.now(), '傾きの使用が許可されませんでした。指でなぞっても星が動きます。'); return; } } } catch (err) { toast('tilt-err-' + Date.now(), '傾きを使えませんでした。指でなぞっても星が動きます。'); return; }
+      b.setAttribute('aria-pressed', 'true'); b.textContent = '📱傾き中';
+      setTimeout(() => { if (!gotTilt) toast('tilt-none-' + Date.now(), 'この端末・ブラウザでは傾きが届きませんでした。指でなぞっても星が動きます。'); }, 1500);
+    });
+  }
   let prev = 0;
   const tick = (t) => {
     if (!document.hidden && t - prev > 33) {   // 30コマ/秒まで
