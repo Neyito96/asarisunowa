@@ -1121,7 +1121,7 @@ if (SHOW_CLS) {
         const B = worldBounds(), m = 80;
         if (view.x < B.a - m && voyage.vx < 0) voyage.vx += 60 * dt * 3; if (view.x > B.b + m && voyage.vx > 0) voyage.vx -= 60 * dt * 3;
         if (view.y < B.c - m && voyage.vy < 0) voyage.vy += 60 * dt * 3; if (view.y > B.d + m && voyage.vy > 0) voyage.vy -= 60 * dt * 3;
-        if (voyage.inside) { const sp2 = voyage.cruise * 1.0;   // 3Dでは星群の間を広げた分、見かけは速くなるので控えめに view.x += (-Math.sin(cam.hd) * sp2 / view.k) * dt; view.y += (-Math.cos(cam.hd) * sp2 / view.k) * dt; }   // 中では向いている方へ進む
+        if (voyage.inside) { const sp2 = voyage.cruise * 1.0; /* 3Dでは星群の間を広げた分、見かけは速くなるので控えめに */ view.x += (-Math.sin(cam.hd) * sp2 / view.k) * dt; view.y += (-Math.cos(cam.hd) * sp2 / view.k) * dt; }   // 中では向いている方へ進む
         else { view.x += (voyage.vx / view.k) * dt; view.y += (voyage.vy / view.k) * dt; }
         render();
       }
