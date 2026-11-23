@@ -29,7 +29,8 @@ const QS = new URLSearchParams(location.search);
 const SHOW_CLS = !QS.has('nocls');   // 分類（主分類・副分類）は表示する。?nocls で隠せる
 const SHOW_CROSS = QS.has('cross');   // 分類ページの「二つの分野にまたがる回」の一覧は、分かりにくいので当面隠す。?cross で表示
 const SHOW_NEB = QS.has('neb');
-const FUCHI = QS.has('fuchi');   // 試作（2026-11-22）: 保留の回を「保留」の塊に集めず、推定した分類のふちに薄く散らす。?fuchi で表示      // 言葉の星座の自動の仮名（例「征平・吉弥・人生」）は名づけ直すまで隠す（#423）。?neb で表示
+const FUCHI = QS.has('fuchi');
+const AIDA = FUCHI && QS.has('aida');   // ふちの星で、二つの分野にまたがる回を分類のあいだに置く版（2026-11-23 試作・保留中）。?fuchi&aida で表示   // 試作（2026-11-22）: 保留の回を「保留」の塊に集めず、推定した分類のふちに薄く散らす。?fuchi で表示      // 言葉の星座の自動の仮名（例「征平・吉弥・人生」）は名づけ直すまで隠す（#423）。?neb で表示
 if (!SHOW_NEB) document.documentElement.classList.add('no-neb');
 if (!SHOW_CLS) { document.documentElement.classList.add('no-cls'); document.querySelector('.modes [data-mode="cat"]')?.remove(); document.querySelector('.modes [data-mode="map"]')?.setAttribute('aria-pressed', 'true'); }
 const START_MODE = SHOW_CLS ? 'cat' : 'map';
@@ -90,6 +91,11 @@ function placeEdges() {
     const ws = edgeWeights(i), [m1, w1] = ws[0] || [lean(i).m, 1], [m2, w2] = ws[1] || [-1, 0], sum = ws.reduce((a, x) => a + x[1], 0) || 1;
     let hsh = 0; for (const ch of D.eps[i][0]) hsh = (hsh * 31 + ch.charCodeAt(0)) | 0;
     const j = ((hsh >>> 0) % 1000) / 1000, a1 = R.get(m1); if (!a1) continue;
+    if (!AIDA) {   // 標準: 推定（見立てがあればその1位）の外周に散らす。見立てが集まるほど中心へ少し寄る（11/22 の形）
+      const L = lean(i), rg = R.get(L.m); if (!rg) continue; const k = slot.get(L.m) || 0; slot.set(L.m, k + 1);
+      const rr = rg.r + 10 + j * 38 - Math.min(L.votes, 3) * 9, a = k * GA + j * 0.6;
+      catX[i] = rg.x + Math.cos(a) * rr; catY[i] = rg.y + Math.sin(a) * rr; edgeInfo.set(i, { m1: L.m, m2: -1, t: 0 }); continue;
+    }
     const between = m2 >= 0 && w2 >= w1 * 0.35 && R.get(m2);
     edgeInfo.set(i, { m1, m2: between ? m2 : -1, t: between ? w2 / (w1 + w2) : 0, sure: w1 / sum });
     if (between) {   // 二つの分類の縁と縁を結ぶ線の上。強い側に寄せ、線から少し横にずらす
@@ -106,7 +112,7 @@ function placeEdges() {
 }
 // 関連回が届いたら、ふちの星を置き直して動かす
 function replaceEdges() {
-  if (!FUCHI || !D._regions) return;
+  if (!AIDA || !D._regions) return;
   const fx = new Map(); for (let i = 0; i < NE; i++) if (isEdge(i)) fx.set(i, [catX[i], catY[i]]);
   placeEdges();
   if (mode !== 'cat') return;
@@ -293,7 +299,8 @@ function render() {
   const dim = hi && hi.size;
   for (let i = 0; i < NE; i++) {
     const x = sx(px[i]), y = sy(py[i]); if (!(x > -4 && y > -4 && x < W + 4 && y < H + 4)) continue;
-    const on = !dim || hi.has(i); ctx.globalAlpha = on ? (mode === 'cat' && isEdge(i) ? 0.42 : 0.9) : 0.12; ctx.fillStyle = epColor(i);
+    const edgeOn = mode === 'cat' && isEdge(i) && (!dim || (sel && sel.type === 'cat' && lean(i).m === sel.id));
+    const on = !dim || hi.has(i); ctx.globalAlpha = edgeOn ? 0.42 : on ? 0.9 : 0.12; ctx.fillStyle = epColor(i);
     ctx.fillRect(x - base / 2, y - base / 2, base, base);
   }
   ctx.globalAlpha = 1;
@@ -330,7 +337,7 @@ function drawRegions() {
     const g = ctx.createRadialGradient(x, y, r * 0.2, x, y, r * 1.15); const col = rg.m === HOLD ? '120 128 150' : null;
     g.addColorStop(0, col ? `rgb(${col} / .10)` : `hsl(${D.cats[rg.m].hue} 70% 60% / .13)`); g.addColorStop(1, 'transparent');
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r * 1.15, 0, Math.PI * 2); ctx.fill();
-    if (view.k > 0.9) { ctx.strokeStyle = rg.m === HOLD ? '#ffffff14' : `hsl(${D.cats[rg.m].hue} 60% 60% / .22)`; ctx.lineWidth = 1; for (const q of rg.subs) { ctx.beginPath(); ctx.arc(sx(q.x), sy(q.y), q.r * view.k, 0, Math.PI * 2); ctx.stroke(); } }
+    if (view.k > 0.9 && !FUCHI) { ctx.strokeStyle = rg.m === HOLD ? '#ffffff14' : `hsl(${D.cats[rg.m].hue} 60% 60% / .22)`; ctx.lineWidth = 1; for (const q of rg.subs) { ctx.beginPath(); ctx.arc(sx(q.x), sy(q.y), q.r * view.k, 0, Math.PI * 2); ctx.stroke(); } }
   }
 }
 function drawTimeAxis() {
@@ -592,7 +599,7 @@ function nextHold() {
 // この端末で送った直後の集計（みんなで仕分けが保存）。読めない環境では空
 const minnaFresh = () => { try { return JSON.parse(localStorage.getItem('minna:fresh') || '{}') || {}; } catch { return {}; } };
 function edgeText(i) {
-  const e = edgeInfo.get(i), m1 = e ? e.m1 : lean(i).m, src = lean(i).by === 'minna' ? 'みんなの見立てと関連する回から' : REL ? 'Claude の推定と関連する回から' : 'Claude の推定から';
+  const e = edgeInfo.get(i), m1 = e ? e.m1 : lean(i).m, src = !AIDA ? (lean(i).by === 'minna' ? 'みんなの見立て' : 'Claude の推定') : lean(i).by === 'minna' ? 'みんなの見立てと関連する回から' : REL ? 'Claude の推定と関連する回から' : 'Claude の推定から';
   if (e && e.m2 >= 0) return `「${D.cats[m1].name}」と「${D.cats[e.m2].name}」のあいだ。${e.t >= 0.42 ? 'ほぼ真ん中' : `「${D.cats[m1].name}」寄り`}（${src}。まだ決まっていません）`;
   return `「${D.cats[m1].name}」のあたり？（${src}。まだ決まっていません）`;
 }
@@ -934,4 +941,4 @@ if (!location.hash) setTimeout(() => hintsFor(mode), 1200);
 window.__uchuPerf = { loadMs: Math.round(tLoad), readyMs: Math.round(performance.now() - t0), episodes: NE, terms: D.terms.length };
 
 // 試作（?fuchi）であることを毎回知らせる
-if (FUCHI) { toast('fuchi-' + Date.now(), '試作表示：まだ分類が決まっていない回を、塊に集めず薄い星で散らしています。二つの分野にまたがる回は、二つの分類のあいだ（強い側寄り）に置いています。'); clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 10 * 60 * 1000); }
+if (FUCHI) { toast('fuchi-' + Date.now(), '試作表示：まだ分類が決まっていない回を、塊に集めず、推定した分類のまわりに薄い星で散らしています。'); clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 10 * 60 * 1000); }
