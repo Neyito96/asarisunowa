@@ -915,7 +915,8 @@ document.getElementById('sortStart').addEventListener('click', nextHold);
 new ResizeObserver(resize).observe(canvas);
 resize(); fit();
 $('loading').remove(); showProgress();
-function fromHash() {
+function fromHash(e) {
+  const first = e === 'load';   // 最初の読み込みでは、分類を選んだ状態でも寄らずに宇宙の全体を見せる（光らせるだけ）
   const m = location.hash.match(/^#(pl|[ewpncf])=(.+)$/); if (!m) return;
   const v = decodeURIComponent(m[2]);
   if (m[1] === 'e' && epIdx.has(v)) select({ type: 'ep', id: epIdx.get(v) }, { push: false });
@@ -924,9 +925,9 @@ function fromHash() {
   if (m[1] === 'f' && D.formats[+v]) select({ type: 'fmt', id: +v }, { push: false });
   if (m[1] === 'n' && SHOW_NEB && D.comms[+v]) select({ type: 'neb', id: +v }, { push: false });
   if (m[1] === 'pl') { const id = v === 'JP' ? 'JP' : +v; if (id === 'JP' || PL[id]) select({ type: 'place', id }, { push: false }); }
-  if (m[1] === 'c' && SHOW_CLS) { const [a, b] = v.split('.').map(Number); if (a >= 0 && a <= HOLD) select({ type: 'cat', id: a, sub: Number.isFinite(b) ? b : -1 }, { push: false }); }
+  if (m[1] === 'c' && SHOW_CLS) { const [a, b] = v.split('.').map(Number); if (a >= 0 && a <= HOLD) select({ type: 'cat', id: a, sub: Number.isFinite(b) ? b : -1 }, { push: false, fly: !first }); }
 }
-fromHash(); addEventListener('hashchange', fromHash);
+fromHash('load'); addEventListener('hashchange', fromHash);
 // 左上の「朝ポキの宇宙」で最初の画面へ戻る（選択を外し、案内を出し、最初の表示で全体を映す）
 document.getElementById('home').addEventListener('click', (ev) => {
   ev.preventDefault();
