@@ -245,3 +245,7 @@ h1 a.home:hover, h1 a.home:focus-visible { text-decoration: underline; text-unde
 @media (max-width: 900px), (orientation: landscape) and (max-height: 520px) { .loadbar { top: calc(var(--top-h, 66px) + 4px); } .list-open { top: calc(var(--top-h, 66px) + 30px); } }
 @media (max-width: 760px) and (orientation: portrait) { .list-open { left: 10px; } .zoom { top: calc(var(--top-h, 142px) + 30px); } }
 
+
+/* 2D／3D の切り替えと3Dの操作ボタン（#485） */
+.zoom button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+#dimBtn { font-weight: 700; letter-spacing: .04em; }
