@@ -1047,7 +1047,10 @@ function drawVoyageHud() {
   const sc = Math.min(S / (B.b - B.a), S / (B.d - B.c)), mx = (x) => x0 + (x - B.a) * sc, my = (y) => y0 + (y - B.c) * sc;
   ctx.globalAlpha = 1; ctx.fillStyle = '#0b1222cc'; ctx.strokeStyle = '#2c345a'; ctx.lineWidth = 1; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x0 - 6, y0 - 6, S + 12, S + 12, 10) : ctx.rect(x0 - 6, y0 - 6, S + 12, S + 12); ctx.fill(); ctx.stroke();
   for (const rg of D._regions) { ctx.fillStyle = rg.m === HOLD ? '#6f7894' : `hsl(${D.cats[rg.m].hue} 70% 60% / .75)`; ctx.beginPath(); ctx.arc(mx(rg.x), my(rg.y), Math.max(2, rg.r * sc), 0, Math.PI * 2); ctx.fill(); }
-  const vw = W / view.k, vh = H / view.k; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.strokeRect(mx(view.x - vw / 2), my(view.y - vh / 2), Math.max(3, vw * sc), Math.max(3, vh * sc));
+  if (voyage.inside) {   // 中に入った時は、いる場所の点と進む向きの矢印
+    const fx = -Math.sin(cam.hd), fy = -Math.cos(cam.hd), cx0 = mx(view.x), cy0 = my(view.y);
+    ctx.strokeStyle = '#fff'; ctx.fillStyle = '#fff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx0, cy0, 3.5, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.moveTo(cx0, cy0); ctx.lineTo(cx0 + fx * 14, cy0 + fy * 14); ctx.stroke();
+  } else { const vw = W / view.k, vh = H / view.k; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.strokeRect(mx(view.x - vw / 2), my(view.y - vh / 2), Math.max(3, vw * sc), Math.max(3, vh * sc)); }
   // いちばん近い星群
   let best = null, bd = Infinity; for (const rg of D._regions) { const d = Math.hypot(rg.x - view.x, rg.y - view.y) - rg.r; if (d < bd) { bd = d; best = rg; } }
   if (best) { ctx.font = '12px system-ui, sans-serif'; ctx.textAlign = 'left'; ctx.fillStyle = '#cfd6f2'; ctx.fillText(bd <= 0 ? `いま：${catName(best.m)}のなか` : `いま：${catName(best.m)}の近く`, x0 - 4, y0 + S + 20); }
