@@ -32,6 +32,7 @@ const SHOW_NEB = QS.has('neb');      // 言葉の星座の自動の仮名（例�
 const FUCHI = !QS.has('hold');       // ふちの星（#468・2026-11-23 本番）: 分類が決まっていない回を「保留」の塊に集めず、推定した分類のまわりに薄く散らす。以前の塊の表示は ?hold
 const D3 = QS.has('3d');   // 試作（2026-11-23）: 軽い立体感。星に奥行き（既定=配信日の新しさ、?3d=kaku で分類の確かさ）を付け、マウス・傾き・ゆらぎで手前ほど大きく動かす
 const D3_BY = QS.get('3d') === 'kaku' ? 'kaku' : 'new';
+const KOKAI = QS.has('kokai') && !QS.has('3d');   // 試作（2026-11-23）: 航海。星は動かさず、自分（視点）がゆっくり漂う。どの回にも意味のない奥行き（平等）を付け、近い星ほど速く流れる
 const AIDA = FUCHI && QS.has('aida'); // ふちの星で、二つの分野にまたがる回を分類のあいだに置く版（#466・保留中）。?aida で表示
 if (!SHOW_NEB) document.documentElement.classList.add('no-neb');
 if (!SHOW_CLS) { document.documentElement.classList.add('no-cls'); document.querySelector('.modes [data-mode="cat"]')?.remove(); document.querySelector('.modes [data-mode="map"]')?.setAttribute('aria-pressed', 'true'); }
@@ -127,6 +128,9 @@ let anim = null, queued = false;
 let Z = null, ORDER = null;
 const tilt = { x: 0, y: 0, tx: 0, ty: 0, last: 0 }, AMP = 24;
 const ox = (i) => (D3 && Z ? (Z[i] - 0.5) * tilt.x * AMP : 0), oy = (i) => (D3 && Z ? (Z[i] - 0.5) * tilt.y * AMP : 0);
+// 航海: 近い星（Zが大きい）ほど画面の中心から遠くへ広がる＝自分が動くと速く流れる（遠近）
+const PERS = 0.9, mOf = (i) => 1 + (Z[i] - 0.5) * PERS, koOn = () => KOKAI && Z && mode === 'cat';
+const SX = (i) => (koOn() ? W / 2 + (px[i] - view.x) * view.k * mOf(i) : sx(px[i]) + ox(i)), SY = (i) => (koOn() ? H / 2 + (py[i] - view.y) * view.k * mOf(i) : sy(py[i]) + oy(i));
 const colors = [];
 const canvas = $('sky'), ctx = canvas.getContext('2d');
 
@@ -249,6 +253,7 @@ function buildLayouts() {
   D._timeRank = rank; D._dMin = dMin; D._dMax = dMax;
   // 奥行き（0=奥・1=手前）。新しい回ほど手前、または分類が確かな回ほど手前
   Z = new Float32Array(NE); D.eps.forEach((e, i) => { const c = D.cls[i]; Z[i] = D3_BY === 'kaku' ? (c[3] === 'a' ? 1 : 'apd'.includes(c[3]) && c[0] >= 0 ? 0.25 + c[2] * 0.2 : 0.05) : days[i] > 0 ? (days[i] - dMin) / (dMax - dMin) : 0; });
+  if (KOKAI) { D.eps.forEach((e, i) => { let hsh = 0; for (const ch of e[0]) hsh = (hsh * 131 + ch.charCodeAt(0)) | 0; Z[i] = ((hsh >>> 0) % 1000) / 1000; }); }   // 航海: 奥行きは意味を持たせない（回の番号から決まる、どの回も平等）
   ORDER = [...Array(NE).keys()].sort((a, b) => Z[a] - Z[b]);   // 奥から描いて、手前の星を上に重ねる
   D.eps.forEach((e, i) => {
     mapX[i] = e[4] ?? NaN; mapY[i] = e[5] ?? NaN;
@@ -284,7 +289,7 @@ function focusAt(x, y, k) { const off = phonePortrait.matches ? ($('panel').offs
 function animateTo(x, y, k, ms = 450) {
   if (reduceMotion || !W) { view.x = x; view.y = y; view.k = k; draw(); return; }
   const from = { ...view }, start = performance.now(); cancelAnimationFrame(anim);
-  const step = (t) => { const p = Math.min(1, (t - start) / ms), e = 1 - Math.pow(1 - p, 3); view.x = from.x + (x - from.x) * e; view.y = from.y + (y - from.y) * e; view.k = from.k * Math.pow(k / from.k, e); draw(); if (p < 1) anim = requestAnimationFrame(step); };
+  const step = (t) => { const p = Math.min(1, (t - start) / ms), e = 1 - Math.pow(1 - p, 3); view.x = from.x + (x - from.x) * e; view.y = from.y + (y - from.y) * e; view.k = from.k * Math.pow(k / from.k, e); draw(); if (p < 1) anim = requestAnimationFrame(step); else anim = null; };
   anim = requestAnimationFrame(step);
 }
 function draw() { if (queued) return; queued = true; requestAnimationFrame(() => { queued = false; render(); }); }
@@ -307,23 +312,24 @@ function render() {
   const base = Math.max(1, Math.min(3.2, 0.9 * Math.sqrt(k) + 0.4));
   const dim = hi && hi.size;
   for (let n = 0; n < NE; n++) {
-    const i = D3 && ORDER ? ORDER[n] : n;
-    const x = sx(px[i]) + ox(i), y = sy(py[i]) + oy(i); if (!(x > -4 && y > -4 && x < W + 4 && y < H + 4)) continue;
+    const i = (D3 || koOn()) && ORDER ? ORDER[n] : n;
+    const x = SX(i), y = SY(i); if (!(x > -4 && y > -4 && x < W + 4 && y < H + 4)) continue;
     const edgeOn = mode === 'cat' && isEdge(i) && (!dim || (sel && sel.type === 'cat' && lean(i).m === sel.id));
-    const on = !dim || hi.has(i), depth = D3 && Z ? 0.5 + 0.5 * Z[i] : 1, b = D3 && Z ? base * (0.55 + 0.9 * Z[i]) : base;
+    const on = !dim || hi.has(i), depth = D3 && Z ? 0.5 + 0.5 * Z[i] : koOn() ? 0.45 + 0.55 * Z[i] : 1, b = D3 && Z ? base * (0.55 + 0.9 * Z[i]) : koOn() ? base * (0.5 + 1.3 * Z[i] * Z[i]) : base;
     ctx.globalAlpha = (edgeOn ? 0.42 : on ? 0.9 : 0.12) * depth; ctx.fillStyle = epColor(i);
     ctx.fillRect(x - b / 2, y - b / 2, b, b);
   }
   ctx.globalAlpha = 1;
-  if (dim) for (const i of hi) { const x = sx(px[i]) + ox(i), y = sy(py[i]) + oy(i); if (!Number.isFinite(x)) continue; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, base * 0.9 + 0.8, 0, Math.PI * 2); ctx.fill(); }
+  if (dim) for (const i of hi) { const x = SX(i), y = SY(i); if (!Number.isFinite(x)) continue; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, base * 0.9 + 0.8, 0, Math.PI * 2); ctx.fill(); }
   // 選んだ回: 関連する回への線
   if (sel && sel.type === 'ep') {
-    const i = sel.id, x0 = sx(px[i]) + ox(i), y0 = sy(py[i]) + oy(i);
-    if (REL) for (const r of REL[i][0]) { const j = r[0]; if (!Number.isFinite(px[j])) continue; ctx.strokeStyle = r[3] ? '#f3d48fcc' : '#9fb4e0aa'; ctx.lineWidth = 1 + r[1] / 60; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(sx(px[j]) + ox(j), sy(py[j]) + oy(j)); ctx.stroke(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(sx(px[j]) + ox(j), sy(py[j]) + oy(j), 3, 0, Math.PI * 2); ctx.fill(); }
+    const i = sel.id, x0 = SX(i), y0 = SY(i);
+    if (REL) for (const r of REL[i][0]) { const j = r[0]; if (!Number.isFinite(px[j])) continue; ctx.strokeStyle = r[3] ? '#f3d48fcc' : '#9fb4e0aa'; ctx.lineWidth = 1 + r[1] / 60; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(SX(j), SY(j)); ctx.stroke(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(SX(j), SY(j), 3, 0, Math.PI * 2); ctx.fill(); }
     if (Number.isFinite(x0)) { ctx.strokeStyle = '#f3c969'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x0, y0, 9, 0, Math.PI * 2); ctx.stroke(); }
   }
-  if (hoverEp >= 0) { const x = sx(px[hoverEp]) + ox(hoverEp), y = sy(py[hoverEp]) + oy(hoverEp); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.stroke(); }
+  if (hoverEp >= 0) { const x = SX(hoverEp), y = SY(hoverEp); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.stroke(); }
   drawLabels();
+  if (koOn()) drawVoyageHud();
   if (D3 && !phonePortrait.matches) { ctx.font = '12px system-ui, sans-serif'; ctx.fillStyle = '#a9b0cf'; ctx.textAlign = 'left'; ctx.fillText(D3_BY === 'kaku' ? '立体（試作）：手前ほど分類が確か・奥ほどあいまい' : '立体（試作）：手前ほど新しい回・奥ほど古い回', 14, H - 14); }
 }
 // 陸地と、回の数による塗り（国・都道府県）
@@ -453,6 +459,7 @@ function drawArticleSatellites() {
 
 // ---- 当たり判定
 function hitEp(cx, cy, r = 12) {
+  if (koOn()) { let best = -1, bd = r; for (let i = 0; i < NE; i++) { if (!Number.isFinite(px[i])) continue; const d = Math.hypot(SX(i) - cx, SY(i) - cy); if (d < bd) { bd = d; best = i; } } return best; }
   const x = wx(cx), y = wy(cy), rr = (r + (D3 ? AMP / 2 : 0)) / view.k; let best = -1, bd = Infinity;
   for (let a = Math.floor((x - rr) / 24); a <= Math.floor((x + rr) / 24); a++) for (let b = Math.floor((y - rr) / 24); b <= Math.floor((y + rr) / 24); b++) for (const i of grid.get(a + ',' + b) || []) { const d = Math.hypot(px[i] + ox(i) / view.k - x, py[i] + oy(i) / view.k - y); if (d < r / view.k && d < bd) { bd = d; best = i; } }
   return best;
@@ -989,5 +996,53 @@ if (D3) {
   };
   requestAnimationFrame(tick);
   toast('d3-' + Date.now(), D3_BY === 'kaku' ? '立体のテスト表示：手前ほど分類が確かな回、奥ほどあいまいな回。マウスを動かすか、スマホを傾けてみてください。' : '立体のテスト表示：手前ほど新しい回、奥ほど古い回。マウスを動かすか、スマホを傾けてみてください。');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 10 * 60 * 1000);
+}
+
+// ---- 航海（?kokai）: 自分がゆっくり漂う。なぞった向きへ進む。左下に小さな地図と、いちばん近い星群の名前
+const voyage = { vx: 0, vy: 0, cruise: 22, last: 0, paused: false };
+function worldBounds() { const R = D._regions || []; let a = Infinity, b = -Infinity, c = Infinity, d = -Infinity; for (const rg of R) { a = Math.min(a, rg.x - rg.r); b = Math.max(b, rg.x + rg.r); c = Math.min(c, rg.y - rg.r); d = Math.max(d, rg.y + rg.r); } return { a, b, c, d }; }
+function drawVoyageHud() {
+  const B = worldBounds(); if (!Number.isFinite(B.a)) return;
+  const S = 112, pad = 12, x0 = pad, y0 = (phonePortrait.matches ? H - $('panel').offsetHeight : H) - S - pad - 18;
+  const sc = Math.min(S / (B.b - B.a), S / (B.d - B.c)), mx = (x) => x0 + (x - B.a) * sc, my = (y) => y0 + (y - B.c) * sc;
+  ctx.globalAlpha = 1; ctx.fillStyle = '#0b1222cc'; ctx.strokeStyle = '#2c345a'; ctx.lineWidth = 1; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x0 - 6, y0 - 6, S + 12, S + 12, 10) : ctx.rect(x0 - 6, y0 - 6, S + 12, S + 12); ctx.fill(); ctx.stroke();
+  for (const rg of D._regions) { ctx.fillStyle = rg.m === HOLD ? '#6f7894' : `hsl(${D.cats[rg.m].hue} 70% 60% / .75)`; ctx.beginPath(); ctx.arc(mx(rg.x), my(rg.y), Math.max(2, rg.r * sc), 0, Math.PI * 2); ctx.fill(); }
+  const vw = W / view.k, vh = H / view.k; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.strokeRect(mx(view.x - vw / 2), my(view.y - vh / 2), Math.max(3, vw * sc), Math.max(3, vh * sc));
+  // いちばん近い星群
+  let best = null, bd = Infinity; for (const rg of D._regions) { const d = Math.hypot(rg.x - view.x, rg.y - view.y) - rg.r; if (d < bd) { bd = d; best = rg; } }
+  if (best) { ctx.font = '12px system-ui, sans-serif'; ctx.textAlign = 'left'; ctx.fillStyle = '#cfd6f2'; ctx.fillText(bd <= 0 ? `いま：${catName(best.m)}のなか` : `いま：${catName(best.m)}の近く`, x0 - 4, y0 + S + 20); }
+}
+if (KOKAI) {
+  let fitK = 0, lastView = null, prevT = 0;
+  // 少し寄ったところから旅を始める
+  setTimeout(() => { fitK = view.k; animateTo(view.x, view.y, view.k * 2.6, 1200); }, 600);
+  $('zfit').addEventListener('click', () => { voyage.paused = true; });   // 「全体」で止まって引きの宇宙へ（なぞると再開）
+  canvas.addEventListener('pointerdown', () => { voyage.paused = false; voyage.last = performance.now(); lastView = { x: view.x, y: view.y, t: performance.now() }; });
+  const tick = (t) => {
+    const dt = prevT ? Math.min(0.05, (t - prevT) / 1000) : 0; prevT = t;
+    if (!document.hidden && mode === 'cat' && dt) {
+      const dragging = canvas.classList.contains('dragging');
+      if (dragging && lastView) {   // なぞった向き＝進む向き（指の動きと逆に景色が流れる）
+        const ddx = view.x - lastView.x, ddy = view.y - lastView.y, el = Math.max(0.016, (t - lastView.t) / 1000);
+        if (Math.abs(ddx) + Math.abs(ddy) > 0) { voyage.vx = (ddx / el) * view.k; voyage.vy = (ddy / el) * view.k; }
+        lastView = { x: view.x, y: view.y, t };
+      } else if (!voyage.paused && !anim) {
+        let sp = Math.hypot(voyage.vx, voyage.vy);
+        if (sp < 1) { voyage.vx = voyage.cruise; voyage.vy = voyage.cruise * 0.35; sp = Math.hypot(voyage.vx, voyage.vy); }   // 最初は右下へゆっくり
+        const target = voyage.cruise, f = sp > target ? Math.pow(0.4, dt) : 1;   // 勢いはだんだん巡航の速さに戻る
+        voyage.vx *= f; voyage.vy *= f; sp = Math.hypot(voyage.vx, voyage.vy); if (sp < target) { voyage.vx *= target / sp; voyage.vy *= target / sp; }
+        // 宇宙の外に出そうになったら、ゆっくり向きを変えて戻る（迷子防止）
+        const B = worldBounds(), m = 80;
+        if (view.x < B.a - m && voyage.vx < 0) voyage.vx += 60 * dt * 3; if (view.x > B.b + m && voyage.vx > 0) voyage.vx -= 60 * dt * 3;
+        if (view.y < B.c - m && voyage.vy < 0) voyage.vy += 60 * dt * 3; if (view.y > B.d + m && voyage.vy > 0) voyage.vy -= 60 * dt * 3;
+        view.x += (voyage.vx / view.k) * dt; view.y += (voyage.vy / view.k) * dt;
+        render();
+      }
+    }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+  toast('kokai-' + Date.now(), '航海のテスト：あなたが宇宙をゆっくり漂っています。なぞるとその向きへ進みます。近い星ほど速く流れます。左下の地図が現在地。「全体」で止まって引きの宇宙へ。');
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 10 * 60 * 1000);
 }
