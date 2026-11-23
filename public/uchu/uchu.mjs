@@ -30,6 +30,8 @@ const SHOW_CLS = !QS.has('nocls');   // 分類（主分類・副分類）は表�
 const SHOW_CROSS = QS.has('cross');   // 分類ページの「二つの分野にまたがる回」の一覧は、分かりにくいので当面隠す。?cross で表示
 const SHOW_NEB = QS.has('neb');      // 言葉の星座の自動の仮名（例「征平・吉弥・人生」）は名づけ直すまで隠す（#423）。?neb で表示
 const FUCHI = !QS.has('hold');       // ふちの星（#468・2026-11-23 本番）: 分類が決まっていない回を「保留」の塊に集めず、推定した分類のまわりに薄く散らす。以前の塊の表示は ?hold
+const D3 = QS.has('3d');   // 試作（2026-11-23）: 軽い立体感。星に奥行き（既定=配信日の新しさ、?3d=kaku で分類の確かさ）を付け、マウス・傾き・ゆらぎで手前ほど大きく動かす
+const D3_BY = QS.get('3d') === 'kaku' ? 'kaku' : 'new';
 const AIDA = FUCHI && QS.has('aida'); // ふちの星で、二つの分野にまたがる回を分類のあいだに置く版（#466・保留中）。?aida で表示
 if (!SHOW_NEB) document.documentElement.classList.add('no-neb');
 if (!SHOW_CLS) { document.documentElement.classList.add('no-cls'); document.querySelector('.modes [data-mode="cat"]')?.remove(); document.querySelector('.modes [data-mode="map"]')?.setAttribute('aria-pressed', 'true'); }
@@ -121,6 +123,10 @@ function replaceEdges() {
   requestAnimationFrame(step);
 }
 let anim = null, queued = false;
+// ---- 軽い立体感（?3d）
+let Z = null, ORDER = null;
+const tilt = { x: 0, y: 0, tx: 0, ty: 0, last: 0 }, AMP = 24;
+const ox = (i) => (D3 && Z ? (Z[i] - 0.5) * tilt.x * AMP : 0), oy = (i) => (D3 && Z ? (Z[i] - 0.5) * tilt.y * AMP : 0);
 const colors = [];
 const canvas = $('sky'), ctx = canvas.getContext('2d');
 
@@ -241,6 +247,9 @@ function buildLayouts() {
   D.eps.forEach((e, i) => { if (e[6] >= 0) { mean[e[6]] += days[i]; cnt[e[6]]++; } });
   const rank = new Array(K); [...Array(K).keys()].sort((a, b) => mean[a] / (cnt[a] || 1) - mean[b] / (cnt[b] || 1)).forEach((c, r) => { rank[c] = r; });
   D._timeRank = rank; D._dMin = dMin; D._dMax = dMax;
+  // 奥行き（0=奥・1=手前）。新しい回ほど手前、または分類が確かな回ほど手前
+  Z = new Float32Array(NE); D.eps.forEach((e, i) => { const c = D.cls[i]; Z[i] = D3_BY === 'kaku' ? (c[3] === 'a' ? 1 : 'apd'.includes(c[3]) && c[0] >= 0 ? 0.25 + c[2] * 0.2 : 0.05) : days[i] > 0 ? (days[i] - dMin) / (dMax - dMin) : 0; });
+  ORDER = [...Array(NE).keys()].sort((a, b) => Z[a] - Z[b]);   // 奥から描いて、手前の星を上に重ねる
   D.eps.forEach((e, i) => {
     mapX[i] = e[4] ?? NaN; mapY[i] = e[5] ?? NaN;
     const band = dispMain(i); let hsh = 0;   // 時間の表示の縦は大分類（20＋保留）
@@ -297,22 +306,25 @@ function render() {
   // 星
   const base = Math.max(1, Math.min(3.2, 0.9 * Math.sqrt(k) + 0.4));
   const dim = hi && hi.size;
-  for (let i = 0; i < NE; i++) {
-    const x = sx(px[i]), y = sy(py[i]); if (!(x > -4 && y > -4 && x < W + 4 && y < H + 4)) continue;
+  for (let n = 0; n < NE; n++) {
+    const i = D3 && ORDER ? ORDER[n] : n;
+    const x = sx(px[i]) + ox(i), y = sy(py[i]) + oy(i); if (!(x > -4 && y > -4 && x < W + 4 && y < H + 4)) continue;
     const edgeOn = mode === 'cat' && isEdge(i) && (!dim || (sel && sel.type === 'cat' && lean(i).m === sel.id));
-    const on = !dim || hi.has(i); ctx.globalAlpha = edgeOn ? 0.42 : on ? 0.9 : 0.12; ctx.fillStyle = epColor(i);
-    ctx.fillRect(x - base / 2, y - base / 2, base, base);
+    const on = !dim || hi.has(i), depth = D3 && Z ? 0.5 + 0.5 * Z[i] : 1, b = D3 && Z ? base * (0.55 + 0.9 * Z[i]) : base;
+    ctx.globalAlpha = (edgeOn ? 0.42 : on ? 0.9 : 0.12) * depth; ctx.fillStyle = epColor(i);
+    ctx.fillRect(x - b / 2, y - b / 2, b, b);
   }
   ctx.globalAlpha = 1;
-  if (dim) for (const i of hi) { const x = sx(px[i]), y = sy(py[i]); if (!Number.isFinite(x)) continue; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, base * 0.9 + 0.8, 0, Math.PI * 2); ctx.fill(); }
+  if (dim) for (const i of hi) { const x = sx(px[i]) + ox(i), y = sy(py[i]) + oy(i); if (!Number.isFinite(x)) continue; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, base * 0.9 + 0.8, 0, Math.PI * 2); ctx.fill(); }
   // 選んだ回: 関連する回への線
   if (sel && sel.type === 'ep') {
-    const i = sel.id, x0 = sx(px[i]), y0 = sy(py[i]);
-    if (REL) for (const r of REL[i][0]) { const j = r[0]; if (!Number.isFinite(px[j])) continue; ctx.strokeStyle = r[3] ? '#f3d48fcc' : '#9fb4e0aa'; ctx.lineWidth = 1 + r[1] / 60; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(sx(px[j]), sy(py[j])); ctx.stroke(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(sx(px[j]), sy(py[j]), 3, 0, Math.PI * 2); ctx.fill(); }
+    const i = sel.id, x0 = sx(px[i]) + ox(i), y0 = sy(py[i]) + oy(i);
+    if (REL) for (const r of REL[i][0]) { const j = r[0]; if (!Number.isFinite(px[j])) continue; ctx.strokeStyle = r[3] ? '#f3d48fcc' : '#9fb4e0aa'; ctx.lineWidth = 1 + r[1] / 60; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(sx(px[j]) + ox(j), sy(py[j]) + oy(j)); ctx.stroke(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(sx(px[j]) + ox(j), sy(py[j]) + oy(j), 3, 0, Math.PI * 2); ctx.fill(); }
     if (Number.isFinite(x0)) { ctx.strokeStyle = '#f3c969'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x0, y0, 9, 0, Math.PI * 2); ctx.stroke(); }
   }
-  if (hoverEp >= 0) { const x = sx(px[hoverEp]), y = sy(py[hoverEp]); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.stroke(); }
+  if (hoverEp >= 0) { const x = sx(px[hoverEp]) + ox(hoverEp), y = sy(py[hoverEp]) + oy(hoverEp); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.stroke(); }
   drawLabels();
+  if (D3 && !phonePortrait.matches) { ctx.font = '12px system-ui, sans-serif'; ctx.fillStyle = '#a9b0cf'; ctx.textAlign = 'left'; ctx.fillText(D3_BY === 'kaku' ? '立体（試作）：手前ほど分類が確か・奥ほどあいまい' : '立体（試作）：手前ほど新しい回・奥ほど古い回', 14, H - 14); }
 }
 // 陸地と、回の数による塗り（国・都道府県）
 function drawLand() {
@@ -441,8 +453,8 @@ function drawArticleSatellites() {
 
 // ---- 当たり判定
 function hitEp(cx, cy, r = 12) {
-  const x = wx(cx), y = wy(cy), rr = r / view.k; let best = -1, bd = Infinity;
-  for (let a = Math.floor((x - rr) / 24); a <= Math.floor((x + rr) / 24); a++) for (let b = Math.floor((y - rr) / 24); b <= Math.floor((y + rr) / 24); b++) for (const i of grid.get(a + ',' + b) || []) { const d = Math.hypot(px[i] - x, py[i] - y); if (d < rr && d < bd) { bd = d; best = i; } }
+  const x = wx(cx), y = wy(cy), rr = (r + (D3 ? AMP / 2 : 0)) / view.k; let best = -1, bd = Infinity;
+  for (let a = Math.floor((x - rr) / 24); a <= Math.floor((x + rr) / 24); a++) for (let b = Math.floor((y - rr) / 24); b <= Math.floor((y + rr) / 24); b++) for (const i of grid.get(a + ',' + b) || []) { const d = Math.hypot(px[i] + ox(i) / view.k - x, py[i] + oy(i) / view.k - y); if (d < r / view.k && d < bd) { bd = d; best = i; } }
   return best;
 }
 const hitLabel = (cx, cy) => { for (let n = labelRects.length - 1; n >= 0; n--) { const r = labelRects[n]; if (cx >= r[0] && cx <= r[0] + r[2] && cy >= r[1] - 2 && cy <= r[1] + r[3] + 2) return r; } return null; };
@@ -943,3 +955,26 @@ window.__uchuPerf = { loadMs: Math.round(tLoad), readyMs: Math.round(performance
 
 // ふちの星の説明（初めての時だけ。10分出して×で閉じられる）
 if (FUCHI && !seen('fuchi-intro')) { toast('fuchi-intro', '分類がまだ決まっていない回は、近そうな分類のまわりに薄い星で散らしています。選ぶと「〇〇のあたり？」と出ます。'); clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 10 * 60 * 1000); }
+
+// ---- 軽い立体感（?3d）の動き: マウスの位置・スマホの傾き。何も触らない時はゆっくり揺らす
+if (D3) {
+  const clamp = (v) => Math.max(-1, Math.min(1, v));
+  canvas.addEventListener('pointermove', (e) => { if (e.pointerType !== 'mouse') return; tilt.tx = clamp((e.offsetX / W - 0.5) * 2); tilt.ty = clamp((e.offsetY / H - 0.5) * 2); tilt.last = performance.now(); });
+  const onTilt = (e) => { if (e.gamma == null) return; tilt.tx = clamp(e.gamma / 25); tilt.ty = clamp((e.beta - 40) / 25); tilt.last = performance.now(); };
+  addEventListener('deviceorientation', onTilt);
+  // iPhone は傾きを使う前に許可が要る（最初に画面に触れた時に一度だけ尋ねる）
+  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') canvas.addEventListener('pointerdown', () => { DeviceOrientationEvent.requestPermission().catch(() => {}); }, { once: true });
+  let prev = 0;
+  const tick = (t) => {
+    if (!document.hidden && t - prev > 33) {   // 30コマ/秒まで
+      prev = t;
+      if (t - tilt.last > 2500) { tilt.tx = Math.sin(t / 2600) * 0.7; tilt.ty = Math.cos(t / 3700) * 0.4; }
+      const dx = tilt.tx - tilt.x, dy = tilt.ty - tilt.y;
+      if (Math.abs(dx) + Math.abs(dy) > 0.002) { tilt.x += dx * 0.08; tilt.y += dy * 0.08; render(); }
+    }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+  toast('d3-' + Date.now(), D3_BY === 'kaku' ? '立体のテスト表示：手前ほど分類が確かな回、奥ほどあいまいな回。マウスを動かすか、スマホを傾けてみてください。' : '立体のテスト表示：手前ほど新しい回、奥ほど古い回。マウスを動かすか、スマホを傾けてみてください。');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 10 * 60 * 1000);
+}
