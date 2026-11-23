@@ -1,6 +1,6 @@
 import { stampText } from './stamp.mjs';
 import { publicationLabel } from './publication-scope.mjs';
-import { tidyDescription, withoutAwardPlea } from './description-tidy.mjs?v=tidy-promo-20261123';
+import { tidyDescription, withoutAwardPlea } from './description-tidy.mjs?v=tidy-501-20261124';
 import { qrSvg } from './qr.mjs';
 import { filterEpisodes, safeUrl, normal, showSearchText } from './library-core.mjs?v=alias-20261119';
 const $=id=>document.getElementById(id), cache=new Map();
@@ -94,7 +94,7 @@ async function openDetail(id,fromUrl=false) {
  {const u=document.createElement('a');u.textContent='✦ 朝ポキの宇宙でこの回を見る ↗';u.href=`../uchu/#e=${encodeURIComponent(e.id)}`;u.target='_blank';u.rel='noopener';const p=node('p',undefined,'detail-meta to-uchu');p.append(u);body.append(p);}   // 蔵→宇宙（どの分類のあたりの星か、近い回）
  if(useTidy&&tidy.recordedAt&&!e.recording?.length)body.append(node('p',`${tidy.recordedAt}に収録`,'detail-meta'));
  // 概要の【関連記事】を1件ずつリンクに（概要にあったURLだけ。データ側の関連記事があればそちらを優先）
- if(useTidy&&tidy.related.length&&!e.related.length){body.append(node('h3','関連記事'));const list=node('ul',undefined,'related-list');for(const r of tidy.related){const url=safeUrl(r.url);if(!url)continue;const li=node('li'),a=node('a',r.title);a.href=url;a.target='_blank';a.rel='noopener noreferrer';li.append(a);list.append(li);}body.append(list);}
+ if(useTidy&&tidy.related.length&&!e.related.length){body.append(node('h3','関連記事'));const list=node('ul',undefined,'related-list');for(const r of tidy.related){const url=safeUrl(r.url);if(!url)continue;const li=node('li'),a=node('a',r.title||url);a.href=url;a.target='_blank';a.rel='noopener noreferrer';li.append(a);list.append(li);}body.append(list);}
  if(e.staffDetails?.length){body.append(node('h3','出演・スタッフ'));for(const line of e.staffDetails)body.append(node('p',line));}
  if(e.recording?.length)body.append(node('p',e.recording.join(' '),'detail-meta'));
  // 関連記事（#308）: 見出し（SC4-18が原文から取った物）をリンクにし、URLも表示。パソコンでは押すとQRコードを出す（外部に送らずブラウザ内で作る）

@@ -1,6 +1,6 @@
 // みんなで仕分け（2026-11-20）。朝ポキの宇宙で「保留」の回と、Claude が特に迷った回を、朝リスのみんなで仕分ける。
 // 受付は本番GAS（type=bunruiSubmit・JSONP）。票の集計は ./votes.json（30分ごとに GitHub Actions が更新）。
-import { tidyDescription, withoutAwardPlea } from '../library/description-tidy.mjs?v=tidy-promo-20261123';
+import { tidyDescription, withoutAwardPlea } from '../library/description-tidy.mjs?v=tidy-501-20261124';
 import { liveLinks } from '../library/shelf-core.mjs';
 import { queueOrder, platformOf, shareText, topVotes } from './minna-core.mjs?v=456';
 

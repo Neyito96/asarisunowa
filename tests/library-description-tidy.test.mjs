@@ -57,3 +57,24 @@ test('#500 知らない見出しでも中身が宣伝だけなら外す・見出
   // 本物の記事URLが混ざる知らない見出しは、これまでどおり保留
   assert.equal(tidyDescription('本文です。 【ニュースの学校】予算委員会 https://bit.ly/43idkHk ご意見 https://bit.ly/asapoki_discord').status, 'HOLD');
 });
+
+test('#501 古い回の定型（番組一覧リンク・mailto・「この番組は…収録しました」）を片付ける', () => {
+  const t = tidyDescription('ドイツの消費減税を解説します。 【関連記事】 消費減税の街 https://www.asahi.com/articles/ASN9A.html 朝日新聞ポッドキャスト（ https://www.asahi.com/special/podcasts/?iref=omny ）では他にも様々な番組を配信、テキストでも読めます。この番組は2021年7月14日に収録しました。 メール podcast@asahi.com mailto:podcast@asahi.com');
+  assert.equal(t.status, 'TIDY');
+  assert.equal(t.body, 'ドイツの消費減税を解説します。');
+  assert.equal(t.recordedAt, '2021年7月14日');
+  assert.deepEqual(t.related, [{ title: '消費減税の街', url: 'https://www.asahi.com/articles/ASN9A.html' }]);
+  // URLのない題名が番組一覧リンクの前に付く形は、リンクを作れないので保留
+  assert.equal(tidyDescription('本文です。 【関連記事】題名だけ▽もう一つ 朝日新聞ポッドキャスト（ https://www.asahi.com/special/podcasts/ ）では他にも様々な番組を配信しています。').status, 'HOLD');
+});
+test('#501 「関連記事：URL ／ URL」は本文を題名にしない・Spotify／Apple の組は Spotify 1本', () => {
+  const t = tidyDescription('夏の旅行を話し合う。出演：杢田光。関連記事：https://www.asahi.com/articles/A1.html?iref=omny ／ https://www.asahi.com/articles/A2.html');
+  assert.equal(t.status, 'TIDY');
+  assert.equal(t.body, '夏の旅行を話し合う。出演：杢田光。');
+  assert.deepEqual(t.related.map((r) => [r.title, r.url]), [['', 'https://www.asahi.com/articles/A1.html?iref=omny'], ['', 'https://www.asahi.com/articles/A2.html']]);
+  const s = tidyDescription('振り返りました。 【関連エピソード】方言の話 #52-81（ Spotify https://open.spotify.com/episode/x1 ／ApplePodcasts https://apple.co/y1 ） ▽推しの話 #52-77（ Spotify https://open.spotify.com/episode/x2 ／ApplePodcasts https://apple.co/y2 ）');
+  assert.deepEqual(s.related, [{ title: '方言の話 #52-81', url: 'https://open.spotify.com/episode/x1' }, { title: '推しの話 #52-77', url: 'https://open.spotify.com/episode/x2' }]);
+  // URLの直後に日本語が続いても、URLに飲み込まない
+  const u = tidyDescription('本文。 【関連リンク】 兄の話 https://withnews.jp/article/f01A同人誌の話 https://withnews.jp/article/f02B');
+  assert.deepEqual(u.related.map((r) => r.title), ['兄の話', '同人誌の話']);
+});
