@@ -157,12 +157,26 @@ function projectAll() {
 const fogOf = (i) => (KOKAI && voyage.inside ? Math.max(0.12, Math.min(1, 1 + PZ2[i] / (PJ.camd * 3))) : 1);
 // 星群の名前を空間の中に浮かべる（回した・中に入った時）
 function drawLabels3D() {
-  const o = [0, 0, 0, 0]; ctx.textAlign = 'center';
-  for (const rg of D._regions || []) {
-    if (rg.m === HOLD) continue; projPt(rg.x - view.x, rg.y - view.y, 0, o); if (o[0] !== o[0]) continue;
-    const size = Math.max(10, Math.min(30, 15 * o[2])), a = Math.max(0.15, Math.min(1, 1 + o[3] / (PJ.camd * 3)));
-    if (o[0] < -100 || o[0] > W + 100 || o[1] < -40 || o[1] > H + 40) continue;
-    ctx.globalAlpha = a; ctx.font = `600 ${size}px ${MINCHO}`; ctx.fillStyle = catColor(rg.m); ctx.fillText(catName(rg.m), o[0], o[1]);
+  // 主分類の看板: 星群の中心から柱を立て、その上に札（暗い板＋分類の色の枠＋名前と回数）。奥から描いて手前の札を上に重ねる
+  const o = [0, 0, 0, 0], list = [];
+  for (const rg of D._regions || []) { if (rg.m === HOLD) continue; projPt(rg.x - view.x, rg.y - view.y, 0, o); if (o[0] !== o[0]) continue; list.push({ rg, x: o[0], y: o[1], f: o[2], z: o[3] }); }
+  list.sort((a, b) => a.z - b.z);
+  const inside = KOKAI && voyage.inside;
+  for (const L of list) {
+    const size = Math.max(12, Math.min(34, 16 * L.f)), fog = Math.max(0.25, Math.min(1, 1 + L.z / (PJ.camd * 3))), stem = inside ? Math.max(14, Math.min(90, 46 * L.f)) : 0;
+    const name = catName(L.rg.m), cnt = (catCount[L.rg.m] || 0).toLocaleString();
+    ctx.font = `700 ${size}px ${MINCHO}`; const tw = ctx.measureText(name).width; ctx.font = `${Math.round(size * 0.62)}px system-ui, sans-serif`; const cw = ctx.measureText(cnt).width;
+    const padX = size * 0.5, bw = tw + cw + padX * 2.6, bh = size * 1.55, bx = L.x - bw / 2, by = L.y - stem - bh;
+    if (bx > W + 40 || bx + bw < -40 || by > H + 40 || by + bh < -40) continue;
+    const col = catColor(L.rg.m);
+    ctx.globalAlpha = fog;
+    if (stem) { ctx.strokeStyle = col; ctx.lineWidth = Math.max(1, L.f); ctx.beginPath(); ctx.moveTo(L.x, L.y); ctx.lineTo(L.x, L.y - stem); ctx.stroke(); ctx.fillStyle = col; ctx.beginPath(); ctx.arc(L.x, L.y, Math.max(2, 3 * L.f), 0, Math.PI * 2); ctx.fill(); }
+    ctx.fillStyle = 'rgba(8, 12, 28, 0.82)'; ctx.strokeStyle = col; ctx.lineWidth = Math.max(1, Math.min(2.5, L.f * 1.4));
+    ctx.beginPath(); ctx.roundRect ? ctx.roundRect(bx, by, bw, bh, bh * 0.3) : ctx.rect(bx, by, bw, bh); ctx.fill(); ctx.stroke();
+    ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+    ctx.font = `700 ${size}px ${MINCHO}`; ctx.fillStyle = col; ctx.fillText(name, bx + padX, by + bh / 2);
+    ctx.font = `${Math.round(size * 0.62)}px system-ui, sans-serif`; ctx.fillStyle = '#a9b0cf'; ctx.fillText(cnt, bx + padX * 1.6 + tw, by + bh / 2 + size * 0.06);
+    ctx.textBaseline = 'alphabetic';
   }
   ctx.globalAlpha = 1;
 }
