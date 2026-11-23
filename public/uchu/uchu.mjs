@@ -131,19 +131,40 @@ const ox = (i) => (D3 && Z ? (Z[i] - 0.5) * tilt.x * AMP : 0), oy = (i) => (D3 &
 // 航海: 近い星（Zが大きい）ほど画面の中心から遠くへ広がる＝自分が動くと速く流れる（遠近）
 const koOn = () => KOKAI && Z && mode === 'cat';
 // 航海の立体: 星を (x, y, 奥行き) の点として、視点のまわりを回して（横・斜め・真上から）遠近をつけて映す
-const cam = { yaw: 0, pitch: 0 }, DEPTH = 700;   // 視点までの距離は寄るほど近くなる（引きでは遠近を弱く、星の間では強く）
+const cam = { yaw: 0, pitch: 0, hd: 0 }, DEPTH = 700;   // hd＝進む向き（地面の上で向きを変える。「中に入る」時に使う）   // 視点までの距離は寄るほど近くなる（引きでは遠近を弱く、星の間では強く）
 let PX2 = null, PY2 = null, PS2 = null, PZ2 = null, ORD2 = null;
-const turned = () => Math.abs(cam.yaw) + Math.abs(cam.pitch) > 0.04;
+const turned = () => Math.abs(cam.yaw) + Math.abs(cam.pitch) + Math.abs(cam.hd) > 0.04;
+let PJ = null;   // その時の投影の係数
+function projSetup() {
+  const inside = KOKAI && voyage.inside;
+  PJ = { ch: Math.cos(cam.hd), sh: Math.sin(cam.hd), cy: Math.cos(cam.yaw), sy: Math.sin(cam.yaw), cp: Math.cos(cam.pitch), sp: Math.sin(cam.pitch),
+    camd: inside ? Math.max(160, 520 / view.k) : Math.max(450, 2200 / view.k), oy: inside ? H * 0.68 : H / 2 };
+}
+// 1点を映す: 向き（地面の上の回転）→ 横からの回転 → 斜め・真上からの回転 → 遠近。視点の後ろは映さない
+function projPt(X, Y, Zw, out) {
+  const P = PJ, xh = P.ch * X - P.sh * Y, yh = P.sh * X + P.ch * Y;
+  const x1 = P.cy * xh + P.sy * Zw, z1 = -P.sy * xh + P.cy * Zw, y2 = P.cp * yh - P.sp * z1, z2 = P.sp * yh + P.cp * z1;
+  const den = P.camd - z2; if (den < P.camd * 0.08) { out[0] = NaN; return out; }
+  const f = P.camd / den; out[0] = W / 2 + x1 * view.k * f; out[1] = P.oy + y2 * view.k * f; out[2] = f; out[3] = z2; return out;
+}
 function projectAll() {
   if (!PX2 || PX2.length !== NE) { PX2 = new Float32Array(NE); PY2 = new Float32Array(NE); PS2 = new Float32Array(NE); PZ2 = new Float32Array(NE); ORD2 = new Uint32Array(NE); }
-  const cy = Math.cos(cam.yaw), sy_ = Math.sin(cam.yaw), cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch), CAMD = Math.max(450, 2200 / view.k);
-  for (let i = 0; i < NE; i++) {
-    const X = px[i] - view.x, Y = py[i] - view.y, Zw = (Z[i] - 0.5) * DEPTH;
-    const x1 = cy * X + sy_ * Zw, z1 = -sy_ * X + cy * Zw, y2 = cp * Y - sp * z1, z2 = sp * Y + cp * z1;
-    const f = CAMD / Math.max(CAMD * 0.25, CAMD - z2);   // 手前（z2 が大きい）ほど大きく
-    PX2[i] = W / 2 + x1 * view.k * f; PY2[i] = H / 2 + y2 * view.k * f; PS2[i] = f; PZ2[i] = z2; ORD2[i] = i;
-  }
+  projSetup(); const o = [0, 0, 0, 0];
+  for (let i = 0; i < NE; i++) { projPt(px[i] - view.x, py[i] - view.y, (Z[i] - 0.5) * DEPTH, o); PX2[i] = o[0]; PY2[i] = o[1]; PS2[i] = o[0] === o[0] ? o[2] : 0; PZ2[i] = o[0] === o[0] ? o[3] : -1e9; ORD2[i] = i; }
   ORD2.sort((a, b) => PZ2[a] - PZ2[b]);   // 奥から描く
+}
+// 遠くの星ほど霞む（中に入った時）
+const fogOf = (i) => (KOKAI && voyage.inside ? Math.max(0.12, Math.min(1, 1 + PZ2[i] / (PJ.camd * 3))) : 1);
+// 星群の名前を空間の中に浮かべる（回した・中に入った時）
+function drawLabels3D() {
+  const o = [0, 0, 0, 0]; ctx.textAlign = 'center';
+  for (const rg of D._regions || []) {
+    if (rg.m === HOLD) continue; projPt(rg.x - view.x, rg.y - view.y, 0, o); if (o[0] !== o[0]) continue;
+    const size = Math.max(10, Math.min(30, 15 * o[2])), a = Math.max(0.15, Math.min(1, 1 + o[3] / (PJ.camd * 3)));
+    if (o[0] < -100 || o[0] > W + 100 || o[1] < -40 || o[1] > H + 40) continue;
+    ctx.globalAlpha = a; ctx.font = `600 ${size}px ${MINCHO}`; ctx.fillStyle = catColor(rg.m); ctx.fillText(catName(rg.m), o[0], o[1]);
+  }
+  ctx.globalAlpha = 1;
 }
 const SX = (i) => (koOn() && PX2 ? PX2[i] : sx(px[i]) + ox(i)), SY = (i) => (koOn() && PY2 ? PY2[i] : sy(py[i]) + oy(i));
 const colors = [];
@@ -331,7 +352,7 @@ function render() {
     const i = koOn() && ORD2 ? ORD2[n] : D3 && ORDER ? ORDER[n] : n;
     const x = SX(i), y = SY(i); if (!(x > -4 && y > -4 && x < W + 4 && y < H + 4)) continue;
     const edgeOn = mode === 'cat' && isEdge(i) && (!dim || (sel && sel.type === 'cat' && lean(i).m === sel.id));
-    const on = !dim || hi.has(i), depth = D3 && Z ? 0.5 + 0.5 * Z[i] : koOn() ? Math.min(1, 0.25 + 0.6 * PS2[i]) : 1, b = D3 && Z ? base * (0.55 + 0.9 * Z[i]) : koOn() ? base * Math.min(3, PS2[i] * PS2[i]) : base;
+    const on = !dim || hi.has(i), depth = D3 && Z ? 0.5 + 0.5 * Z[i] : koOn() ? Math.min(1, 0.25 + 0.6 * PS2[i]) * fogOf(i) : 1, b = D3 && Z ? base * (0.55 + 0.9 * Z[i]) : koOn() ? base * Math.min(voyage.inside ? 7 : 3, PS2[i] * PS2[i]) : base;
     ctx.globalAlpha = (edgeOn ? 0.42 : on ? 0.9 : 0.12) * depth; ctx.fillStyle = epColor(i);
     ctx.fillRect(x - b / 2, y - b / 2, b, b);
   }
@@ -344,7 +365,7 @@ function render() {
     if (Number.isFinite(x0)) { ctx.strokeStyle = '#f3c969'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x0, y0, 9, 0, Math.PI * 2); ctx.stroke(); }
   }
   if (hoverEp >= 0) { const x = SX(hoverEp), y = SY(hoverEp); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.stroke(); }
-  if (!(koOn() && turned())) drawLabels();
+  if (!(koOn() && turned())) drawLabels(); else drawLabels3D();
   if (koOn()) drawVoyageHud();
   if (D3 && !phonePortrait.matches) { ctx.font = '12px system-ui, sans-serif'; ctx.fillStyle = '#a9b0cf'; ctx.textAlign = 'left'; ctx.fillText(D3_BY === 'kaku' ? '立体（試作）：手前ほど分類が確か・奥ほどあいまい' : '立体（試作）：手前ほど新しい回・奥ほど古い回', 14, H - 14); }
 }
@@ -490,6 +511,7 @@ canvas.addEventListener('pointermove', (e) => {
   if (!p) { const i = hitEp(e.offsetX, e.offsetY); const lb = i < 0 ? hitLabel(e.offsetX, e.offsetY) : null; if (i !== hoverEp) { hoverEp = i; draw(); } showTip(e.offsetX, e.offsetY, i, lb && lb[4] === 'word' ? lb[5] : -1); canvas.style.cursor = i >= 0 || lb ? 'pointer' : ''; return; }
   if (pts.size === 2 && pinch0) { pts.set(e.pointerId, { x: e.offsetX, y: e.offsetY }); const [a, b] = [...pts.values()]; view.k = Math.max(0.15, Math.min(40, pinch0.k * Math.hypot(a.x - b.x, a.y - b.y) / pinch0.d)); dragMoved = true; draw(); return; }
   const dx = e.offsetX - p.x, dy = e.offsetY - p.y; if (Math.abs(dx) + Math.abs(dy) > 3) dragMoved = true;
+  if (KOKAI && voyage.inside && pts.size === 1) { cam.hd += dx * 0.006; const fx = -Math.sin(cam.hd), fy = -Math.cos(cam.hd); view.x += fx * (dy * 2.2) / view.k; view.y += fy * (dy * 2.2) / view.k; p.x = e.offsetX; p.y = e.offsetY; draw(); return; }   // 中に入った時: 横になぞると向きを変え、縦になぞると前後に進む
   if (KOKAI && voyage.rot && pts.size === 1) { cam.yaw = Math.max(-1.4, Math.min(1.4, cam.yaw + dx * 0.008)); cam.pitch = Math.max(-1.35, Math.min(1.35, cam.pitch + dy * 0.008)); p.x = e.offsetX; p.y = e.offsetY; draw(); return; }   // 航海の「回す」: 横になぞると横から、縦になぞると斜め・真上から
   view.x -= dx / view.k; view.y -= dy / view.k; p.x = e.offsetX; p.y = e.offsetY; draw();
 });
@@ -1017,7 +1039,7 @@ if (D3) {
 }
 
 // ---- 航海（?kokai）: 自分がゆっくり漂う。なぞった向きへ進む。左下に小さな地図と、いちばん近い星群の名前
-const voyage = { vx: 0, vy: 0, cruise: 22, last: 0, paused: false, rot: false };
+const voyage = { vx: 0, vy: 0, cruise: 22, last: 0, paused: false, rot: false, inside: false };
 function worldBounds() { const R = D._regions || []; let a = Infinity, b = -Infinity, c = Infinity, d = -Infinity; for (const rg of R) { a = Math.min(a, rg.x - rg.r); b = Math.max(b, rg.x + rg.r); c = Math.min(c, rg.y - rg.r); d = Math.max(d, rg.y + rg.r); } return { a, b, c, d }; }
 function drawVoyageHud() {
   const B = worldBounds(); if (!Number.isFinite(B.a)) return;
@@ -1036,18 +1058,20 @@ if (KOKAI) {
   setTimeout(() => { fitK = view.k; animateTo(view.x, view.y, view.k * 2.6, 1200); }, 600);
   // 操作ボタン: ⏸止まる／▶進む、🎥回す（なぞると視点が回る）、⟲正面
   const mk = (id, text, label) => { const b = document.createElement('button'); b.type = 'button'; b.id = id; b.textContent = text; b.setAttribute('aria-label', label); $('zfit').before(b); return b; };
-  const bPause = mk('voyPause', '⏸', '止まる'), bRot = mk('voyRot', '🎥', '視点を回す'), bFront = mk('voyFront', '⟲', '正面から見る');
+  const bPause = mk('voyPause', '⏸', '止まる'), bIn = mk('voyIn', '🛸', '中に入る'), bRot = mk('voyRot', '🎥', '視点を回す'), bFront = mk('voyFront', '⟲', '正面から見る');
+  const camTo = (to, ms = 900) => { const fr = { ...cam }, t0 = performance.now(); const st = (t) => { const q = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - q, 3); for (const k of ['yaw', 'pitch', 'hd']) cam[k] = fr[k] + ((to[k] ?? fr[k]) - fr[k]) * e; render(); if (q < 1) requestAnimationFrame(st); }; requestAnimationFrame(st); };
+  bIn.addEventListener('click', () => { voyage.inside = !voyage.inside; bIn.setAttribute('aria-pressed', String(voyage.inside)); if (voyage.inside) { voyage.rot = false; bRot.setAttribute('aria-pressed', 'false'); camTo({ yaw: 0, pitch: 1.12 }); setPaused(false); toast('in-' + Date.now(), '中に入りました：前へゆっくり進みます。横になぞると向きを変え、縦になぞると前後に進みます。⟲で外に出て正面に戻ります。'); } else camTo({ yaw: 0, pitch: 0, hd: 0 }); });
   const setPaused = (v) => { voyage.paused = v; bPause.textContent = v ? '▶' : '⏸'; bPause.setAttribute('aria-label', v ? '進む' : '止まる'); bPause.setAttribute('aria-pressed', String(v)); };
   bPause.addEventListener('click', () => setPaused(!voyage.paused));
-  bRot.addEventListener('click', () => { voyage.rot = !voyage.rot; bRot.setAttribute('aria-pressed', String(voyage.rot)); if (voyage.rot) { setPaused(true); toast('rot-' + Date.now(), '視点を回すモード：横になぞると横から、縦になぞると斜め・真上から見られます。もう一度 🎥 で戻ります。'); } });
-  bFront.addEventListener('click', () => { const y0 = cam.yaw, p0 = cam.pitch, t0 = performance.now(); const st = (t) => { const q = Math.min(1, (t - t0) / 600), e = 1 - Math.pow(1 - q, 3); cam.yaw = y0 * (1 - e); cam.pitch = p0 * (1 - e); render(); if (q < 1) requestAnimationFrame(st); }; requestAnimationFrame(st); });
+  bRot.addEventListener('click', () => { voyage.rot = !voyage.rot; if (voyage.rot && voyage.inside) { voyage.inside = false; bIn.setAttribute('aria-pressed', 'false'); } bRot.setAttribute('aria-pressed', String(voyage.rot)); if (voyage.rot) { setPaused(true); toast('rot-' + Date.now(), '視点を回すモード：横になぞると横から、縦になぞると斜め・真上から見られます。もう一度 🎥 で戻ります。'); } });
+  bFront.addEventListener('click', () => { voyage.inside = false; bIn.setAttribute('aria-pressed', 'false'); camTo({ yaw: 0, pitch: 0, hd: 0 }, 600); });
   $('zfit').addEventListener('click', () => setPaused(true));   // 「全体」で止まって引きの宇宙へ
   canvas.addEventListener('pointerdown', () => { voyage.last = performance.now(); lastView = { x: view.x, y: view.y, t: performance.now() }; });
   const tick = (t) => {
     const dt = prevT ? Math.min(0.05, (t - prevT) / 1000) : 0; prevT = t;
     if (!document.hidden && mode === 'cat' && dt) {
       const dragging = canvas.classList.contains('dragging');
-      if (dragging && lastView && !voyage.rot) {   // なぞった向き＝進む向き（指の動きと逆に景色が流れる）
+      if (dragging && lastView && !voyage.rot && !voyage.inside) {   // なぞった向き＝進む向き（指の動きと逆に景色が流れる）
         const ddx = view.x - lastView.x, ddy = view.y - lastView.y, el = Math.max(0.016, (t - lastView.t) / 1000);
         if (Math.abs(ddx) + Math.abs(ddy) > 0) { voyage.vx = (ddx / el) * view.k; voyage.vy = (ddy / el) * view.k; }
         lastView = { x: view.x, y: view.y, t };
@@ -1060,13 +1084,14 @@ if (KOKAI) {
         const B = worldBounds(), m = 80;
         if (view.x < B.a - m && voyage.vx < 0) voyage.vx += 60 * dt * 3; if (view.x > B.b + m && voyage.vx > 0) voyage.vx -= 60 * dt * 3;
         if (view.y < B.c - m && voyage.vy < 0) voyage.vy += 60 * dt * 3; if (view.y > B.d + m && voyage.vy > 0) voyage.vy -= 60 * dt * 3;
-        view.x += (voyage.vx / view.k) * dt; view.y += (voyage.vy / view.k) * dt;
+        if (voyage.inside) { const sp2 = voyage.cruise * 1.6; view.x += (-Math.sin(cam.hd) * sp2 / view.k) * dt; view.y += (-Math.cos(cam.hd) * sp2 / view.k) * dt; }   // 中では向いている方へ進む
+        else { view.x += (voyage.vx / view.k) * dt; view.y += (voyage.vy / view.k) * dt; }
         render();
       }
     }
     requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);
-  toast('kokai-' + Date.now(), '航海のテスト：あなたが宇宙をゆっくり漂っています。なぞるとその向きへ進みます。⏸で止まる、🎥で視点を回す（横から・斜め・真上から）、⟲で正面に戻ります。左下の地図が現在地です。');
+  toast('kokai-' + Date.now(), '航海のテスト：あなたが宇宙をゆっくり漂っています。なぞるとその向きへ進みます。⏸で止まる、🛸で中に入る、🎥で視点を回す（横から・斜め・真上から）、⟲で正面に戻ります。左下の地図が現在地です。');
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 10 * 60 * 1000);
 }
