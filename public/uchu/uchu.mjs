@@ -227,7 +227,7 @@ const colorOf = (c) => (c >= 0 ? colors[c] : '#7c869e');
 const HOLD = D.cats.length;
 const dispMain = (i) => { const c = D.cls[i]; return c[0] >= 0 && 'apd'.includes(c[3]) ? c[0] : HOLD; };
 const dispSub = (i) => (dispMain(i) === HOLD ? -1 : D.cls[i][1]);
-const catColor = (m) => (m === HOLD ? '#6f7894' : `hsl(${D.cats[m].hue} 70% 66%)`);
+const catColor = (m) => (m === HOLD ? (FUCHI ? '#ece6ff' : '#6f7894') : `hsl(${D.cats[m].hue} 70% 66%)`);   // 名付け募集星群は淡い白で瞬かせる
 const catName = (m) => (m === HOLD ? (FUCHI ? '名付け募集星群' : '保留（推定のみ）') : D.cats[m].name);
 // ふちの星（?fuchi）: 保留の回の寄せ先。みんなの見立てがあればその1位、なければ Claude の推定。どちらもなければ -1
 const CAT_BY_NAME = new Map(D.cats.map((c, m) => [c.name, m]));
@@ -380,8 +380,9 @@ function render() {
       ctx.globalAlpha = 0.78 * depth; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
       continue;
     }
-    const tw = mode === 'cat' && FUCHI && dispMain(i) === HOLD ? 0.55 + 0.45 * Math.sin(performance.now() / 650 + (i % 17) * 0.9) : 1;   // 名付け募集星群はゆっくり瞬く
+    const tw = mode === 'cat' && FUCHI && dispMain(i) === HOLD ? 0.45 + 0.55 * Math.sin(performance.now() / 650 + (i % 17) * 0.9) : 1;   // 名付け募集星群はゆっくり瞬く
     ctx.globalAlpha = (on ? 0.9 : 0.12) * depth * tw;
+    if (tw !== 1) { const r = Math.max(1.4, b * 0.75); ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); continue; }   // 名付け募集星群は丸く少し大きく
     ctx.fillRect(x - b / 2, y - b / 2, b, b);
   }
   ctx.globalAlpha = 1;
@@ -1074,7 +1075,7 @@ function drawVoyageHud() {
   const S = 112, pad = 12, x0 = pad, y0 = (phonePortrait.matches ? H - $('panel').offsetHeight : H) - S - pad - 18;
   const sc = Math.min(S / (B.b - B.a), S / (B.d - B.c)), mx = (x) => x0 + (x - B.a) * sc, my = (y) => y0 + (y - B.c) * sc;
   ctx.globalAlpha = 1; ctx.fillStyle = '#0b1222cc'; ctx.strokeStyle = '#2c345a'; ctx.lineWidth = 1; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x0 - 6, y0 - 6, S + 12, S + 12, 10) : ctx.rect(x0 - 6, y0 - 6, S + 12, S + 12); ctx.fill(); ctx.stroke();
-  for (const rg of D._regions) { ctx.fillStyle = rg.m === HOLD ? '#6f7894' : `hsl(${D.cats[rg.m].hue} 70% 60% / .75)`; ctx.beginPath(); ctx.arc(mx(rg.x), my(rg.y), Math.max(2, rg.r * sc), 0, Math.PI * 2); ctx.fill(); }
+  for (const rg of D._regions) { ctx.fillStyle = rg.m === HOLD ? '#ece6ff' : `hsl(${D.cats[rg.m].hue} 70% 60% / .75)`; ctx.beginPath(); ctx.arc(mx(rg.x), my(rg.y), Math.max(2, rg.r * sc), 0, Math.PI * 2); ctx.fill(); }
   if (voyage.inside) {   // 中に入った時は、いる場所の点と進む向きの矢印
     const fx = -Math.sin(cam.hd), fy = -Math.cos(cam.hd), cx0 = mx(view.x), cy0 = my(view.y);
     ctx.strokeStyle = '#fff'; ctx.fillStyle = '#fff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx0, cy0, 3.5, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.moveTo(cx0, cy0); ctx.lineTo(cx0 + fx * 14, cy0 + fy * 14); ctx.stroke();
