@@ -5,10 +5,16 @@ name: Library V2 sync
 # 台帳CSVの読み出しは RX-2（2026-11-17 デプロイ版2・ウェブアプリ・冪等確認）。GASのトリガーは使わない（ALIB_AUTO_tick 等と二重にならない）。変化が無ければ何もコミットしない。
 on:
   schedule:
-    - cron: '17 21 * * *'   # 毎日 06:17 JST
-    - cron: '47 22 * * *'   # 07:47 JST（GitHub の定時が飛ばされた日の保険。変化が無ければ何もしない）
-    - cron: '17 3 * * *'    # 12:17 JST（同上・V2の掲載判定が朝より遅れた日の分も拾う）
+    # #495: GitHub の定時は混雑で遅れたり飛ばされたりする（11/21〜23 は朝の回が一度も予定どおり動かなかった）。
+    # 変化が無ければ何もしない作りなので、05:37〜22:37 JST の毎時37分に動かし、遅れても次の回で拾う
+    - cron: '37 20-23 * * *'   # 05:37〜08:37 JST
+    - cron: '37 0-13 * * *'    # 09:37〜22:37 JST
   workflow_dispatch:
+    inputs:
+      retry:
+        description: 'やり直しの実行（自動で付く。手動では空のまま）'
+        required: false
+        default: ''
   push:   # 初回の全件反映を PR ブランチ上で作るため（main には PR でマージ）
     branches: ['feat/issue-333-v2-description-sync']
     paths: ['scripts/library-sync-v2.mjs', 'scripts/library-related/**', '.github/workflows/library-v2-sync.yml']
@@ -60,7 +66,17 @@ jobs:
           # 宇宙の作り直しが成功したときだけ宇宙のデータも載せる（失敗しても蔵の公開は止めない）
           if [ "${{ steps.uchu.outcome }}" = success ]; then git add public/uchu/data; else git checkout -- public/uchu/data 2>/dev/null || true; fi
           git commit -m "data(library): V2・公開台帳と同期 $(date -u +%F)" -m "$(cat "$RUNNER_TEMP/report.json")"
-          for n in 1 2 3; do git pull --rebase origin main && git push && break; echo "push retry $n"; sleep $((n * 5)); [ "$n" = 3 ] && exit 1; done
+          ok=0
+          for n in 1 2 3; do
+            if git pull --rebase origin main && git push; then ok=1; break; fi
+            git rebase --abort 2>/dev/null || true
+            echo "push retry $n"; sleep $((n * 5))
+          done
+          if [ "$ok" != 1 ]; then
+            # #495: main と衝突した（例: 同期中に別の変更が入った）。作業を最新の main からやり直す実行を1回だけ起こす
+            if [ -z "${{ github.event.inputs.retry }}" ]; then gh workflow run library-v2-sync.yml --ref main -f retry=1 && echo "最新の main からやり直す実行を起こしました"; fi
+            exit 1
+          fi
           if [ "$GITHUB_REF" = refs/heads/main ]; then gh workflow run pages.yml --ref main; fi
       - name: Report failure to the command-center issue
         if: failure()
