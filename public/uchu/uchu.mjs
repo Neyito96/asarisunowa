@@ -131,16 +131,16 @@ const ox = (i) => (D3 && Z ? (Z[i] - 0.5) * tilt.x * AMP : 0), oy = (i) => (D3 &
 // 航海: 近い星（Zが大きい）ほど画面の中心から遠くへ広がる＝自分が動くと速く流れる（遠近）
 const koOn = () => KOKAI && Z && mode === 'cat';
 // 航海の立体: 星を (x, y, 奥行き) の点として、視点のまわりを回して（横・斜め・真上から）遠近をつけて映す
-const cam = { yaw: 0, pitch: 0 }, DEPTH = 600, CAMD = 1000;
+const cam = { yaw: 0, pitch: 0 }, DEPTH = 700;   // 視点までの距離は寄るほど近くなる（引きでは遠近を弱く、星の間では強く）
 let PX2 = null, PY2 = null, PS2 = null, PZ2 = null, ORD2 = null;
 const turned = () => Math.abs(cam.yaw) + Math.abs(cam.pitch) > 0.04;
 function projectAll() {
   if (!PX2 || PX2.length !== NE) { PX2 = new Float32Array(NE); PY2 = new Float32Array(NE); PS2 = new Float32Array(NE); PZ2 = new Float32Array(NE); ORD2 = new Uint32Array(NE); }
-  const cy = Math.cos(cam.yaw), sy_ = Math.sin(cam.yaw), cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch);
+  const cy = Math.cos(cam.yaw), sy_ = Math.sin(cam.yaw), cp = Math.cos(cam.pitch), sp = Math.sin(cam.pitch), CAMD = Math.max(450, 2200 / view.k);
   for (let i = 0; i < NE; i++) {
     const X = px[i] - view.x, Y = py[i] - view.y, Zw = (Z[i] - 0.5) * DEPTH;
     const x1 = cy * X + sy_ * Zw, z1 = -sy_ * X + cy * Zw, y2 = cp * Y - sp * z1, z2 = sp * Y + cp * z1;
-    const f = CAMD / Math.max(120, CAMD - z2);   // 手前（z2 が大きい）ほど大きく
+    const f = CAMD / Math.max(CAMD * 0.25, CAMD - z2);   // 手前（z2 が大きい）ほど大きく
     PX2[i] = W / 2 + x1 * view.k * f; PY2[i] = H / 2 + y2 * view.k * f; PS2[i] = f; PZ2[i] = z2; ORD2[i] = i;
   }
   ORD2.sort((a, b) => PZ2[a] - PZ2[b]);   // 奥から描く
