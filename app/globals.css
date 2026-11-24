@@ -6,6 +6,45 @@
   scrollbar-width: thin;
 }
 
+.siteRing {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px auto 0;
+  font-size: 13px;
+  line-height: 1.3;
+}
+.siteRingLabel {
+  margin-right: 2px;
+  color: #7b878b;
+  font-size: 11px;
+  font-weight: 700;
+}
+.siteRing a,
+.siteRingHere {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  padding: 3px 10px;
+  border: 1px solid rgba(104,88,61,.22);
+  border-radius: 999px;
+  color: #4f513f;
+  font-weight: 800;
+  text-decoration: none;
+  background: #fffdf7;
+}
+.siteRing a:hover { background: #f7f1e2; }
+.siteRingHere {
+  background: #4f513f;
+  border-color: #4f513f;
+  color: #fffdf7;
+}
+.siteRing small {
+  color: #7b878b;
+  font-size: 10px;
+  font-weight: 700;
+}
 .compactNotice {
   display: flex;
   align-items: center;
