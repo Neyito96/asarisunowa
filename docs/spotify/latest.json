@@ -1,11 +1,18 @@
 {
- "generatedAt": "2026-11-23T13:39:58.713Z",
+ "generatedAt": "2026-11-24T05:31:18.299Z",
  "source": "open.spotify.com（埋め込み＋番組ページ）",
  "shows": {
   "ニュースの現場から": {
    "showId": "392h0MYfvMTndEVzf2cOvC",
    "count": 51,
    "episodes": [
+    {
+     "id": "6RXmP0HDqogynm5Tr7ExoO",
+     "url": "https://open.spotify.com/episode/6RXmP0HDqogynm5Tr7ExoO",
+     "title": "（カガク #28） 12月から新プレイリストで毎週配信へ！ 科学クイズ、何問解けるかな？",
+     "date": "2026-11-23",
+     "durationMs": 2323353
+    },
     {
      "id": "0KiAKldDyf2ApFiVyTR76X",
      "url": "https://open.spotify.com/episode/0KiAKldDyf2ApFiVyTR76X",
@@ -350,13 +357,6 @@
      "durationMs": 3556681
     },
     {
-     "id": "5aVFYR3UAsGPdb1Sca5n0X",
-     "url": "https://open.spotify.com/episode/5aVFYR3UAsGPdb1Sca5n0X",
-     "title": "（めくろう #201）一寸の虫にも百円の魂 　ぼーっと？没頭？なにが最良",
-     "date": "2026-10-04",
-     "durationMs": 2821000
-    },
-    {
      "id": "1vVhoMqsDDYUmpajbMtF82",
      "url": "https://open.spotify.com/episode/1vVhoMqsDDYUmpajbMtF82",
      "title": "朝日新聞ポッドキャストを紹介する2分間の音声",
@@ -369,6 +369,13 @@
    "showId": "2uG9W6CnsaNi87AfSuGe8r",
    "count": 51,
    "episodes": [
+    {
+     "id": "1JPuPOt07nG5Ekya7QDnfu",
+     "url": "https://open.spotify.com/episode/1JPuPOt07nG5Ekya7QDnfu",
+     "title": "FIFA会長選",
+     "date": "2026-11-23",
+     "durationMs": 951362
+    },
     {
      "id": "14hu8CCQHVHVxqpXtcpk9p",
      "url": "https://open.spotify.com/episode/14hu8CCQHVHVxqpXtcpk9p",
@@ -711,13 +718,6 @@
      "title": "ふるさと納税",
      "date": "2026-09-07",
      "durationMs": 853813
-    },
-    {
-     "id": "6X3NiHhaShbb7fuPyflljJ",
-     "url": "https://open.spotify.com/episode/6X3NiHhaShbb7fuPyflljJ",
-     "title": "沖縄県知事選（2026）",
-     "date": "2026-09-06",
-     "durationMs": 931812
     },
     {
      "id": "23Q3UagtMmB8wwNgaFGF01",
@@ -1082,6 +1082,13 @@
    "count": 50,
    "episodes": [
     {
+     "id": "1o2pTWlLs9Z3zmGaAA021W",
+     "url": "https://open.spotify.com/episode/1o2pTWlLs9Z3zmGaAA021W",
+     "title": "（スポーツ×社会 #1）バレー・高橋塁がゲイ公表　自分の言葉で伝えたかった思い（前編）",
+     "date": "2026-11-23",
+     "durationMs": 1933174
+    },
+    {
      "id": "7FE052Inwh2vOfFoMTZj1J",
      "url": "https://open.spotify.com/episode/7FE052Inwh2vOfFoMTZj1J",
      "title": "（陸上 #4）早大独走の全日本大学駅伝　1年生「三羽がらす」、実はカルテット",
@@ -1423,13 +1430,6 @@
      "title": "（サッカーW杯）チュニジア戦で生きた4年前の教訓　スウェーデン戦のゲームプランは？",
      "date": "2026-06-22",
      "durationMs": 2312028
-    },
-    {
-     "id": "5yQfzzM1s9HfPML9v7hLQV",
-     "url": "https://open.spotify.com/episode/5yQfzzM1s9HfPML9v7hLQV",
-     "title": "（サッカーW杯）オランダに感じた日本へのリスペクト　2度追いつき、価値ある勝ち点1",
-     "date": "2026-06-15",
-     "durationMs": 3474000
     }
    ]
   },
@@ -1437,6 +1437,20 @@
    "showId": "0yhef9ORZkUZs9ZeotdCSY",
    "count": 50,
    "episodes": [
+    {
+     "id": "2HdU6sRfKY8r58DHVLe3wt",
+     "url": "https://open.spotify.com/episode/2HdU6sRfKY8r58DHVLe3wt",
+     "title": "（編集マニア #53）最大公約数より最大瞬間風速　新撰組とトップガンに共通するもの",
+     "date": "2026-11-23",
+     "durationMs": 2690244
+    },
+    {
+     "id": "5eJEhkYd0UzZOknU4oxwZD",
+     "url": "https://open.spotify.com/episode/5eJEhkYd0UzZOknU4oxwZD",
+     "title": "（編集マニア #52）「今季はレアル守りード」　見出しの伏線回収します",
+     "date": "2026-11-23",
+     "durationMs": 2326531
+    },
     {
      "id": "2dEJE31B5DTj1zf8UwrOrE",
      "url": "https://open.spotify.com/episode/2dEJE31B5DTj1zf8UwrOrE",
@@ -1772,20 +1786,6 @@
      "title": "（N4U#45）暑くて顔が真っ赤の我が子…団地に作ったのは　夏休みの居場所どうしたらいい？",
      "date": "2026-09-07",
      "durationMs": 4658697
-    },
-    {
-     "id": "3Zi7BoNOaGR6Q7Rc5H76xC",
-     "url": "https://open.spotify.com/episode/3Zi7BoNOaGR6Q7Rc5H76xC",
-     "title": "（MT）旅行目的のメタモルフォーゼ",
-     "date": "2026-09-06",
-     "durationMs": 1935349
-    },
-    {
-     "id": "59qyu0M1AH7UhFCKwT2hcu",
-     "url": "https://open.spotify.com/episode/59qyu0M1AH7UhFCKwT2hcu",
-     "title": "（朝ポキシネマ #32）ハリウッドで主役張り続けるレオさま　これでもけっこう苦労しています",
-     "date": "2026-09-03",
-     "durationMs": 3835201
     }
    ]
   },
@@ -2107,6 +2107,13 @@
    "showId": "0341I5UOUrJgm7KEvNGInZ",
    "count": 49,
    "episodes": [
+    {
+     "id": "2NCv1tgvdCJ7mD7RX52UIM",
+     "url": "https://open.spotify.com/episode/2NCv1tgvdCJ7mD7RX52UIM",
+     "title": "（ポすすめ）イシュミナのpodcast・耳より相関図",
+     "date": "2026-11-23",
+     "durationMs": 3060000
+    },
     {
      "id": "5KD3llONMHvOHaqJtRqnRp",
      "url": "https://open.spotify.com/episode/5KD3llONMHvOHaqJtRqnRp",
@@ -2442,13 +2449,6 @@
      "title": "（ノーミライ #6）言い間違いに勘違い　案外あっとる？　というお話",
      "date": "2026-09-25",
      "durationMs": 3457981
-    },
-    {
-     "id": "0n1YvOeCoejk15hESfkEiJ",
-     "url": "https://open.spotify.com/episode/0n1YvOeCoejk15hESfkEiJ",
-     "title": "（アラサー）BLUEへの熱い愛　口笛とスキップ、軽やかに過ごすコツは",
-     "date": "2026-09-24",
-     "durationMs": 1598268
     }
    ]
   }

@@ -1,19 +1,63 @@
 {
  "summary": {
-  "generatedAt": "2026-11-23T13:45:18.512Z",
-  "spotifyGeneratedAt": "2026-11-23T13:39:58.713Z",
-  "ledgerRows": 6142,
-  "ledgerSpotifyEmpty": 10,
-  "verified": 0,
+  "generatedAt": "2026-11-24T05:36:32.431Z",
+  "spotifyGeneratedAt": "2026-11-24T05:31:18.299Z",
+  "ledgerRows": 6148,
+  "ledgerSpotifyEmpty": 16,
+  "verified": 6,
   "counts": {
-   "VERIFIED_SAME": 268,
+   "VERIFIED": 6,
+   "VERIFIED_SAME": 263,
    "NO_ROW": 16,
    "CANDIDATE": 58,
-   "HOLD": 2
+   "HOLD": 1
   },
   "emptyNotInSpotifyList": 1
  },
- "verified": [],
+ "verified": [
+  {
+   "ep": "EP-06768",
+   "url": "https://open.spotify.com/episode/6RXmP0HDqogynm5Tr7ExoO",
+   "show": "ニュースの現場から",
+   "title": "（カガク #28） 12月から新プレイリストで毎週配信へ！ 科学クイズ、何問解けるかな？",
+   "spotifyDate": "2026-11-23"
+  },
+  {
+   "ep": "EP-06771",
+   "url": "https://open.spotify.com/episode/1JPuPOt07nG5Ekya7QDnfu",
+   "show": "ニュースの学校",
+   "title": "FIFA会長選",
+   "spotifyDate": "2026-11-23"
+  },
+  {
+   "ep": "EP-06770",
+   "url": "https://open.spotify.com/episode/1o2pTWlLs9Z3zmGaAA021W",
+   "show": "スポンジ",
+   "title": "（スポーツ×社会 #1）バレー・高橋塁がゲイ公表　自分の言葉で伝えたかった思い（前編）",
+   "spotifyDate": "2026-11-23"
+  },
+  {
+   "ep": "EP-06773",
+   "url": "https://open.spotify.com/episode/2HdU6sRfKY8r58DHVLe3wt",
+   "show": "MEDIA TALK",
+   "title": "（編集マニア #53）最大公約数より最大瞬間風速　新撰組とトップガンに共通するもの",
+   "spotifyDate": "2026-11-23"
+  },
+  {
+   "ep": "EP-06769",
+   "url": "https://open.spotify.com/episode/5eJEhkYd0UzZOknU4oxwZD",
+   "show": "MEDIA TALK",
+   "title": "（編集マニア #52）「今季はレアル守りード」　見出しの伏線回収します",
+   "spotifyDate": "2026-11-23"
+  },
+  {
+   "ep": "EP-06772",
+   "url": "https://open.spotify.com/episode/2NCv1tgvdCJ7mD7RX52UIM",
+   "show": "ドーナツ",
+   "title": "（ポすすめ）イシュミナのpodcast・耳より相関図",
+   "spotifyDate": "2026-11-23"
+  }
+ ],
  "others": [
   {
    "show": "ニュースの現場から",
@@ -652,17 +696,6 @@
    "gap": null
   },
   {
-   "show": "スポンジ",
-   "url": "https://open.spotify.com/episode/5yQfzzM1s9HfPML9v7hLQV",
-   "title": "（サッカーW杯）オランダに感じた日本へのリスペクト　2度追いつき、価値ある勝ち点1",
-   "spotifyDate": "2026-06-15",
-   "ep": "EP-01082",
-   "status": "HOLD",
-   "reason": "台帳に別のSpotify URLがある（上書きしない）",
-   "same": false,
-   "gap": 0
-  },
-  {
    "show": "こどもそうだんしつ",
    "url": "https://open.spotify.com/episode/3R0OSSgJr30F7nPTIS31cd",
    "title": "タコが体の色を変えられるのは、なんで？ #18",
@@ -767,6 +800,60 @@
    "status": "CANDIDATE",
    "reason": "題名・日付は一致・長さが合わない",
    "spotifyUrl": "https://open.spotify.com/episode/5SvBbhUVSpoOByxp6wkcco"
+  },
+  {
+   "ep": "EP-06768",
+   "show": "ニュースの現場から",
+   "title": "（カガク #28） 12月から新プレイリストで毎週配信へ！ 科学クイズ、何問解けるかな？",
+   "published": "2026/11/24 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/6RXmP0HDqogynm5Tr7ExoO"
+  },
+  {
+   "ep": "EP-06769",
+   "show": "MEDIA TALK",
+   "title": "（編集マニア #52）「今季はレアル守りード」　見出しの伏線回収します",
+   "published": "2026/11/24 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/5eJEhkYd0UzZOknU4oxwZD"
+  },
+  {
+   "ep": "EP-06770",
+   "show": "スポンジ",
+   "title": "（スポーツ×社会 #1）バレー・高橋塁がゲイ公表　自分の言葉で伝えたかった思い（前編）",
+   "published": "2026/11/24 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/1o2pTWlLs9Z3zmGaAA021W"
+  },
+  {
+   "ep": "EP-06771",
+   "show": "ニュースの学校",
+   "title": "FIFA会長選",
+   "published": "2026/11/24 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付が一致・長さは番組ごとの一定差（Spotify版が約44秒短い）",
+   "spotifyUrl": "https://open.spotify.com/episode/1JPuPOt07nG5Ekya7QDnfu"
+  },
+  {
+   "ep": "EP-06772",
+   "show": "ドーナツ",
+   "title": "（ポすすめ）イシュミナのpodcast・耳より相関図",
+   "published": "2026/11/24 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/2NCv1tgvdCJ7mD7RX52UIM"
+  },
+  {
+   "ep": "EP-06773",
+   "show": "MEDIA TALK",
+   "title": "（編集マニア #53）最大公約数より最大瞬間風速　新撰組とトップガンに共通するもの",
+   "published": "2026/11/24 04:10",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/2HdU6sRfKY8r58DHVLe3wt"
   }
  ]
 }
