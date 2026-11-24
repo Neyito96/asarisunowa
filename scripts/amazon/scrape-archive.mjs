@@ -34,7 +34,8 @@ async function main() {
     for (const r of rows) if (r.show === SHOW && r.title && !all.has(r.ep)) all.set(r.ep, r);
     idle = all.size === before ? idle + 1 : 0;
     if (rounds % 20 === 0) console.log('rounds', rounds, 'episodes', all.size);
-    await p.waitForTimeout(1000);
+    await p.mouse.move(640, 1500); await p.mouse.wheel(0, 4000);   // 画面の回の一覧は実際のホイール操作で続きを読み込む
+    await p.waitForTimeout(1200);
   }
   await b.close();
   const episodes = [...all.values()].map((r) => ({ url: `https://music.amazon.co.jp/podcasts/${r.show}/episodes/${r.ep}`, title: r.title, date: absoluteDate(r.date), rawDate: r.date, duration: r.duration }));
