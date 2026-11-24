@@ -31,7 +31,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#ふな 冨名腰隆　旧【報談】",
     "ふね",
     "https://open.spotify.com/playlist/48tpuTjiqGdJrvkX8R1OkI",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e",
     "2025-07-11",
     null,
     true
@@ -382,7 +382,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "「SDGsを話そう」厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/4styp7b6VpZThsevXCRDla",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84a1ed8e9ca1ad0f9a7c2b7b07",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84a1ed8e9ca1ad0f9a7c2b7b07",
     null,
     null,
     false
@@ -409,7 +409,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "楽屋裏2023　厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/0I9wCLs5oFLNIG1aPLQneg",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32",
     null,
     null,
     false
@@ -463,7 +463,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#懐メロ（#朝ポキ 楽屋裏）＋おじさんのメロディ",
     "koike",
     "https://open.spotify.com/playlist/0vItsmD8tW7fsv18NkZKzh",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da840fc342c8721fc4c6627b3600",
     null,
     null,
     false
@@ -679,9 +679,18 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "ポすすめ",
     "ポス",
     "https://open.spotify.com/playlist/20eSUPkdsSN56eEC8dg2Lq",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8459482eaa501c15385c73b623",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8459482eaa501c15385c73b623",
     "2026-11-17",
     "2026-11-18",
+    false
+  ],
+  [
+    "朝鮮・韓国・コリア",
+    "하대원동 / 下大院洞",
+    "https://open.spotify.com/playlist/5JjGlKcagfLyDkg0cLZggK",
+    "https://mosaic.scdn.co/300/ab67656300005f1f218955520c86bcd5bed153b2ab67656300005f1f600c19901ca1a2ffc49c1445ab67656300005f1fa0f95fb78af61df9eceab453ab67656300005f1fe3f02e44ba7d9a967f180f8a",
+    null,
+    "2026-11-24",
     false
   ]
 ];
