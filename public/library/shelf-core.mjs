@@ -75,9 +75,9 @@ export function listenLinks(links) {
 // 公開データの回 → 共有カード用（音声ファイルの直リンクや未知のサイトは出さない）
 // 配信先の引っ越しで消えたリンク（#395）: SDGsを話そう の過去回は 2026年に別番組「SDGsを話そう アーカイブ」へ移り、
 // Spotify・Pocket Casts の各回の住所が変わった。Pocket Casts は 2026-11-20、Spotify は 2026-11-21 に新しい住所を台帳へ反映し、
-// 蔵の公開データも置き換えた（docs/audits/sdgs-archive）。残るのは自動照合で対応が取れなかった EP-06532 の Spotify だけ。
+// 蔵の公開データも置き換えた（docs/audits/sdgs-archive）。EP-06532（#1045）は 2026-11-24 に新しい住所へ直した。
 export const MOVED_LINK_NOTE = 'この回は配信先が引っ越したため、Spotify のボタンを一時的に外しています（新しいリンクを確認中）。Omny・朝日新聞の公式ページ・Pocket Casts で聴けます。';
-const MOVED_SPOTIFY = new Set(['EP-06532']);   // 旧住所のまま（新しい住所は未反映）の回
+const MOVED_SPOTIFY = new Set([]);   // 旧住所のまま（新しい住所は未反映）の回（EP-06532 は 2026-11-24 に新住所へ）
 export function isMovedLink(e, url) {
   if (!e || !MOVED_SPOTIFY.has(e.id)) return false;
   let h = ''; try { h = new URL(url).hostname; } catch (x) { return false; }
