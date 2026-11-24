@@ -5,6 +5,10 @@
 const RELATED_HEAD = /関連|関係記事|おすすめ記事|今回取り上げた|記事】|リンク|参考|連載|そもそも解説|まとめてわかる|解説人語|詳報|特集|社説|エピソード】|ポッドキャスト】|番組】|動画】|写真|コンテンツ|サイト】|アーカイブ|記者サロン/;
 const DROP_HEAD = /GOOD LIFEフェア|出演|スタッフ|おねがい|お願い|朝ポキ情報|キャンペーン|イベント|申込|申し込み|締め?切|募集|プレゼント|登録|購読|会員|はじめるなら|月額|円で|スペシャルデー|生配信|夜会|ご案内|おしらせ|お知らせ|ツイッター|Twitter|インスタ|メール|discord|SPONSORED|開催|登壇|公演|配信のお知らせ|リスナーさんへ|語ろう|ご意見|アンケート|公式サイト|ビデオポッドキャスト|Spotify|Apple Podcasts|朝リスの木|会場|ニュースの要点|ニュース4U|よせがき|見逃し|まで配信/;
 const KEEP_HEAD = /番組内容|^【内容】|議題|タイムスタンプ|要旨|前編|後編|ネタバレ/;
+// #501 第2段（管理人決定 2026-11-25）: 見出しごと本文として残すもの／関連記事として扱うもの／告知として外すもの
+const KEEP_WITH_HEAD = /^【(テーマ|u29|速報|HOU-DAN|逮捕|大阪|新聞の発行部数|新聞広告|総売り上げ|新聞のデジタル広告|ふるさとは被災地|科学ホラーミステリー|3\.11\s*特別編\d*)】$/i;
+const RELATED_HEAD_501 = /^【(字幕付きの動画はこちら|毎日更新|潜入取材|動画あり|ウェビナー採録|石破首相あいさつ全文|随時更新|更新中|A\s?Scene|ユーミン\s?Artist\s?CHLONICLE|「?人生の贈りもの」?を本人の声で|朝日新聞宇宙部)】$/i;
+const DROP_HEAD_501 = /^【(朝日地球会議2025|朝ポキ忘年会[^】]*|Podcast Weekend[^】]*|紹介したシリーズはこちら|独演会のチケットはこちらから|ニュースの学校)】$/;
 const PROMO = /お友達登録|友だち登録|LINE公式|申し込み|申込|締め切|〆切|会員登録|キャンペーン|初月無料|無料|アーカイブ配信|discord|フォロー|おたより|プレイリスト|🎧|購読|イベント|お会いしましょう|ご利用いただけます|ログインID|チケット|応募|はこちら|配信中|お待ちしています|ご意見|感想|リクエスト|podcast@asahi\.com/i;
 const STRONG_PROMO = /ad choices|adchoices|megaphone\.fm|お申し込み|会員登録|初月無料|キャンペーン|購読料で配信|ご利用いただけます|新プレイリスト|多彩な番組を配信中|privacy information|Learn more about|omnystudio\.com|他にも様々な番組を配信|関連記事も読んでいただけます|テキストでも読めます/i;
 const PROMO_URL = /asahi\.com\/special\/n4u\/?$|bit\.ly\/(asapoki|asapki|4k4ZKwA)|t\.asahi\.com\/(w|asapoki)|discord\.gg|ciy\.digital\.asahi\.com|digital\.asahi\.com\/pr\/|omnystudio\.com|x\.gd\/|youtube\.com\/@asapoki/i;
@@ -57,24 +61,24 @@ export function tidyDescription(raw) {
   let hold = '';
   for (const part of parts) {
     const head = (part.match(/^【[^】]*】/) || [''])[0];
-    if (head && DROP_HEAD.test(head) && !KEEP_HEAD.test(head)) { removed.push(part.slice(0, 40)); continue; }
+    if (head && (DROP_HEAD_501.test(head) || DROP_HEAD.test(head) && !KEEP_HEAD.test(head) && !KEEP_WITH_HEAD.test(head) && !RELATED_HEAD_501.test(head))) { removed.push(part.slice(0, 40)); continue; }
     const inner = part.slice(head.length).trim();
     // 【特設サイト：…】 https://… のように見出しそのものが題名で、中身がURL1本だけ → 関連記事として1件に
-    if (head && !KEEP_HEAD.test(head) && !DROP_HEAD.test(head) && URL_ONLY.test(inner) && /^https:/.test(inner) && (ARTICLE_URL.test(inner) || /asahi\.com\/special\//.test(inner)) && !PROMO_URL.test(inner) && !/special\/podcasts/.test(inner) && !/^【(ウェブサイト|公式サイト|番組一覧|過去の回)/.test(head)) {
+    if (head && !KEEP_HEAD.test(head) && !KEEP_WITH_HEAD.test(head) && !DROP_HEAD.test(head) && URL_ONLY.test(inner) && /^https:/.test(inner) && (ARTICLE_URL.test(inner) || /asahi\.com\/special\//.test(inner)) && !PROMO_URL.test(inner) && !/special\/podcasts/.test(inner) && !/^【(ウェブサイト|公式サイト|番組一覧|過去の回)/.test(head)) {
       related.push({ title: head.slice(1, -1).trim(), url: inner }); continue;
     }
     // 見出しが知らない形でも、中身が宣伝（宣伝用URLだけ＋会員・無料・公開中などの案内）なら告知として外す（#500 EP-05247「遠藤デスクがスマホ撮影のコツを動画で紹介！」）
-    if (head && !KEEP_HEAD.test(head) && !RELATED_HEAD.test(head)) {
+    if (head && !KEEP_HEAD.test(head) && !KEEP_WITH_HEAD.test(head) && !RELATED_HEAD.test(head) && !RELATED_HEAD_501.test(head)) {
       const urls = inner.match(/https?:\/\/\S+/g) || [];
       if (urls.length && urls.every((u) => PROMO_URL.test(u)) && (PROMO.test(inner) || STRONG_PROMO.test(inner) || /公開中|配信中|会員/.test(inner))) { removed.push(part.slice(0, 40)); continue; }
     }
-    if (head && RELATED_HEAD.test(head) && !KEEP_HEAD.test(head)) {
+    if (head && (RELATED_HEAD.test(head) || RELATED_HEAD_501.test(head)) && !KEEP_HEAD.test(head) && !KEEP_WITH_HEAD.test(head)) {
       const r = relatedPairs(part.slice(head.length).trim());
       if (!r) hold = hold || (/https:\/\//.test(part) ? '関連記事の形が読めない' : '関連記事にURLがない');
       else related.push(...r);
       continue;
     }
-    if (head && !KEEP_HEAD.test(head)) { hold = hold || '知らない見出し'; }
+    if (head && !KEEP_HEAD.test(head) && !KEEP_WITH_HEAD.test(head)) { hold = hold || '知らない見出し'; }
     let promo = false; const chunks = part.slice(head && KEEP_HEAD.test(head) ? head.length : 0).split(' ').filter(Boolean);
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i], rec = chunk.match(RECORDED);

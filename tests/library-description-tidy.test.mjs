@@ -54,8 +54,9 @@ test('#500 知らない見出しでも中身が宣伝だけなら外す・見出
   const s = tidyDescription('「声」編集部に聞きました。 【特設サイト：声 語りつぐ戦争】 https://www.asahi.com/special/koe-senso/');
   assert.equal(s.status, 'TIDY');
   assert.deepEqual(s.related, [{ title: '特設サイト：声 語りつぐ戦争', url: 'https://www.asahi.com/special/koe-senso/' }]);
-  // 本物の記事URLが混ざる知らない見出しは、これまでどおり保留
-  assert.equal(tidyDescription('本文です。 【ニュースの学校】予算委員会 https://bit.ly/43idkHk ご意見 https://bit.ly/asapoki_discord').status, 'HOLD');
+  // 【ニュースの学校】は番組フッターの定型として外す（#501 第2段・管理人決定 2026-11-25。以前は保留）
+  const n = tidyDescription('本文です。 【ニュースの学校】予算委員会 https://bit.ly/43idkHk ご意見 https://bit.ly/asapoki_discord');
+  assert.equal(n.status, 'TIDY'); assert.equal(n.body, '本文です。');
 });
 
 test('#501 古い回の定型（番組一覧リンク・mailto・「この番組は…収録しました」）を片付ける', () => {
@@ -77,4 +78,14 @@ test('#501 「関連記事：URL ／ URL」は本文を題名にしない・Spot
   // URLの直後に日本語が続いても、URLに飲み込まない
   const u = tidyDescription('本文。 【関連リンク】 兄の話 https://withnews.jp/article/f01A同人誌の話 https://withnews.jp/article/f02B');
   assert.deepEqual(u.related.map((r) => r.title), ['兄の話', '同人誌の話']);
+});
+
+test('#501 第2段: 管理人が決めた見出し（残す／関連記事／外す）', async () => {
+  const { tidyDescription } = await import('../public/library/description-tidy.mjs');
+  const keep = tidyDescription('白虹事件の前編。 【テーマ】 白虹事件、米騒動、言論弾圧');
+  assert.notEqual(keep.status, 'HOLD'); assert.ok(keep.body.includes('【テーマ】 白虹事件'));
+  const rel = tidyDescription('本編です。 【字幕付きの動画はこちら】 音に頼れない世界で https://www.asahi.com/articles/ASTX.html');
+  assert.notEqual(rel.status, 'HOLD'); assert.deepEqual(rel.related.map((r) => r.title), ['音に頼れない世界で']);
+  const drop = tidyDescription('本編です。 【朝日地球会議2025】 リアル会場は10月24～25日、申し込みはこちら');
+  assert.equal(drop.status, 'TIDY'); assert.equal(drop.body, '本編です。');
 });
