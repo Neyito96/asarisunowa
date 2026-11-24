@@ -79,7 +79,7 @@ async function update(reset=true) {
  }catch(e){if(run===generation){$('status').textContent='読み込みを完了できませんでした';error(e.message==='DATE_RANGE'?'配信日の開始日を終了日以前にしてください。':'通信に失敗しました。条件を変えずに再試行できます。');}}
  finally{if(run===generation)$('results').setAttribute('aria-busy','false');}
 }
-function linkLabel(url){const host=new URL(url).hostname;if(host.includes('spotify'))return 'Spotifyで聴く ↗';if(host.includes('apple'))return 'Apple Podcasts ↗';if(host==='pca.st')return 'Pocket Casts ↗';if(host==='pody.jp')return 'Pody ↗';if(host.startsWith('music.amazon.'))return 'Amazon Music ↗';if(host.includes('asahi'))return '朝日新聞 公式ページ ↗';if(host.includes('youtube'))return 'YouTube ↗';if(host.includes('listen.style'))return 'LISTEN ↗';if(host==='omny.fm'&&new URL(url).pathname.endsWith('/embed'))return 'Omnyで聴く ↗';return '公式配信ページ ↗';}
+function linkLabel(url){const host=new URL(url).hostname;if(host.includes('spotify'))return 'Spotify ↗';if(host.includes('apple'))return 'Apple Podcasts ↗';if(host==='pca.st')return 'Pocket Casts ↗';if(host==='pody.jp')return 'Pody ↗';if(host.startsWith('music.amazon.'))return 'Amazon Music ↗';if(host.includes('asahi'))return '朝日新聞 公式ページ ↗';if(host.includes('youtube'))return 'YouTube ↗';if(host.includes('listen.style'))return 'LISTEN ↗';if(host==='omny.fm'&&new URL(url).pathname.endsWith('/embed'))return 'Omny ↗';return '公式配信ページ ↗';}
 function addLinks(parent,urls){for(const raw of [...new Set(urls)]){const url=safeUrl(raw);if(!url)continue;const a=node('a',linkLabel(url));a.href=url;a.target='_blank';a.rel='noopener noreferrer';parent.append(a);}}
 async function openDetail(id,fromUrl=false) {
  if(!/^EP-\d{5}$/.test(id))return;
