@@ -1,51 +1,51 @@
 {
  "v": 1,
- "auditedAt": "2026-11-23T03:49:15.325Z",
+ "auditedAt": "2026-11-24T06:59:14.814Z",
  "method": "scripts/audit/quality-audit.mjs（読み取り専用）",
  "summary": {
-  "publicEpisodes": 6102,
-  "snapshot": "2026-11-23",
-  "libraryVersion": "86f699c46582566e",
+  "publicEpisodes": 6108,
+  "snapshot": "2026-11-24",
+  "libraryVersion": "94ddad92a6162067",
   "urlRegistration": [
    {
     "service": "朝日新聞公式",
     "key": "asahi",
-    "registered": 6102,
+    "registered": 6108,
     "rate": 100,
     "badForm": 0
    },
    {
     "service": "Omny",
     "key": "omny",
-    "registered": 5811,
+    "registered": 5817,
     "rate": 95.2,
     "badForm": 0
    },
    {
     "service": "Spotify",
     "key": "spotify",
-    "registered": 6092,
+    "registered": 6098,
     "rate": 99.8,
     "badForm": 0
    },
    {
     "service": "Apple Podcasts",
     "key": "apple",
-    "registered": 5448,
+    "registered": 5455,
     "rate": 89.3,
     "badForm": 1
    },
    {
     "service": "Amazon Music",
     "key": "amazon",
-    "registered": 272,
-    "rate": 4.5,
+    "registered": 1171,
+    "rate": 19.2,
     "badForm": 0
    },
    {
     "service": "Pocket Casts",
     "key": "pocketcasts",
-    "registered": 6102,
+    "registered": 6108,
     "rate": 100,
     "badForm": 0
    },
@@ -59,14 +59,14 @@
    {
     "service": "LISTEN",
     "key": "listen",
-    "registered": 5007,
+    "registered": 5013,
     "rate": 82.1,
     "badForm": 0
    },
    {
     "service": "Pody",
     "key": "pody",
-    "registered": 5197,
+    "registered": 5203,
     "rate": 85.2,
     "badForm": 0
    },
@@ -81,9 +81,9 @@
   "probe": {
    "spotify": {
     "checked": 12,
-    "PASS": 12,
+    "PASS": 11,
     "FAIL": 0,
-    "REVIEW": 0,
+    "REVIEW": 1,
     "UNVERIFIED": 0,
     "BLOCKED": 0
    },
@@ -145,27 +145,27 @@
    }
   },
   "brokenLinks": 898,
-  "wrongEpisodeLinks": 3,
-  "descriptionIssues": 152,
+  "wrongEpisodeLinks": 4,
+  "descriptionIssues": 90,
   "castReview": 10,
   "ingestIssues": 13,
   "global": [
    {
     "check": "公開件数",
     "status": "PASS",
-    "evidence": "6102件で一致"
+    "evidence": "6108件で一致"
    },
    {
     "check": "宇宙と蔵の版",
     "status": "PASS",
-    "evidence": "どちらも 86f699c46582566e"
+    "evidence": "どちらも 94ddad92a6162067"
    }
   ],
   "change": {
    "brokenLinks": 0,
-   "descriptionIssues": 0,
+   "descriptionIssues": -62,
    "castReview": 0,
-   "publicEpisodes": 3
+   "publicEpisodes": 6
   }
  },
  "items": [
@@ -230,16 +230,6 @@
    "fix": ""
   },
   {
-   "ep": "EP-05077",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: キャンペーン",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
    "ep": "EP-05125",
    "area": "概要欄",
    "check": "表示に告知・定型文",
@@ -271,36 +261,6 @@
   },
   {
    "ep": "EP-05218",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-05230",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-05231",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-05247",
    "area": "概要欄",
    "check": "表示に告知・定型文",
    "status": "REVIEW",
@@ -3920,16 +3880,6 @@
    "fix": "新旧対応表（PR #399）で新しい URL に置き換え"
   },
   {
-   "ep": "EP-05987",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
    "ep": "EP-05988",
    "area": "URL",
    "check": "spotify の到達",
@@ -3948,16 +3898,6 @@
    "evidence": "#395: Spotify 公開埋め込みページで 898/899 回「見つかりません」（2026-11-20）。番組は「SDGsを話そう アーカイブ」（show 7vuSolzvNiNwu7UR4lVIwU）へ移転",
    "method": "一次情報での確認（記録済み）",
    "fix": "新旧対応表（PR #399）で新しい URL に置き換え"
-  },
-  {
-   "ep": "EP-05989",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
   },
   {
    "ep": "EP-05990",
@@ -7550,16 +7490,6 @@
    "fix": "新旧対応表（PR #399）で新しい URL に置き換え"
   },
   {
-   "ep": "EP-06420",
-   "area": "概要欄",
-   "check": "整形後の本文",
-   "status": "REVIEW",
-   "kind": "整形すると本文が空（関連記事だけ）",
-   "evidence": "関連記事 3件",
-   "method": "表示整形後の文面",
-   "fix": ""
-  },
-  {
    "ep": "EP-06421",
    "area": "URL",
    "check": "spotify の到達",
@@ -7578,16 +7508,6 @@
    "evidence": "#395: Spotify 公開埋め込みページで 898/899 回「見つかりません」（2026-11-20）。番組は「SDGsを話そう アーカイブ」（show 7vuSolzvNiNwu7UR4lVIwU）へ移転",
    "method": "一次情報での確認（記録済み）",
    "fix": "新旧対応表（PR #399）で新しい URL に置き換え"
-  },
-  {
-   "ep": "EP-06422",
-   "area": "概要欄",
-   "check": "整形後の本文",
-   "status": "REVIEW",
-   "kind": "整形すると本文が空（関連記事だけ）",
-   "evidence": "関連記事 3件",
-   "method": "表示整形後の文面",
-   "fix": ""
   },
   {
    "ep": "EP-06423",
@@ -7700,16 +7620,6 @@
    "fix": "新旧対応表（PR #399）で新しい URL に置き換え"
   },
   {
-   "ep": "EP-06434",
-   "area": "概要欄",
-   "check": "整形後の本文",
-   "status": "REVIEW",
-   "kind": "整形すると本文が空（関連記事だけ）",
-   "evidence": "関連記事 3件",
-   "method": "表示整形後の文面",
-   "fix": ""
-  },
-  {
    "ep": "EP-06435",
    "area": "URL",
    "check": "spotify の到達",
@@ -7748,16 +7658,6 @@
    "evidence": "#395: Spotify 公開埋め込みページで 898/899 回「見つかりません」（2026-11-20）。番組は「SDGsを話そう アーカイブ」（show 7vuSolzvNiNwu7UR4lVIwU）へ移転",
    "method": "一次情報での確認（記録済み）",
    "fix": "新旧対応表（PR #399）で新しい URL に置き換え"
-  },
-  {
-   "ep": "EP-06438",
-   "area": "概要欄",
-   "check": "整形後の本文",
-   "status": "REVIEW",
-   "kind": "整形すると本文が空（関連記事だけ）",
-   "evidence": "関連記事 3件",
-   "method": "表示整形後の文面",
-   "fix": ""
   },
   {
    "ep": "EP-06439",
@@ -7840,16 +7740,6 @@
    "fix": "新旧対応表（PR #399）で新しい URL に置き換え"
   },
   {
-   "ep": "EP-06446",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
    "ep": "EP-06447",
    "area": "URL",
    "check": "spotify の到達",
@@ -7868,16 +7758,6 @@
    "evidence": "#395: Spotify 公開埋め込みページで 898/899 回「見つかりません」（2026-11-20）。番組は「SDGsを話そう アーカイブ」（show 7vuSolzvNiNwu7UR4lVIwU）へ移転",
    "method": "一次情報での確認（記録済み）",
    "fix": "新旧対応表（PR #399）で新しい URL に置き換え"
-  },
-  {
-   "ep": "EP-06448",
-   "area": "概要欄",
-   "check": "整形後の本文",
-   "status": "REVIEW",
-   "kind": "整形すると本文が空（関連記事だけ）",
-   "evidence": "関連記事 3件",
-   "method": "表示整形後の文面",
-   "fix": ""
   },
   {
    "ep": "EP-06449",
@@ -7928,16 +7808,6 @@
    "evidence": "#395: Spotify 公開埋め込みページで 898/899 回「見つかりません」（2026-11-20）。番組は「SDGsを話そう アーカイブ」（show 7vuSolzvNiNwu7UR4lVIwU）へ移転",
    "method": "一次情報での確認（記録済み）",
    "fix": "新旧対応表（PR #399）で新しい URL に置き換え"
-  },
-  {
-   "ep": "EP-06454",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: お申し込み",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
   },
   {
    "ep": "EP-06455",
@@ -8180,16 +8050,6 @@
    "fix": "新旧対応表（PR #399）で新しい URL に置き換え"
   },
   {
-   "ep": "EP-06481",
-   "area": "概要欄",
-   "check": "整形後の本文",
-   "status": "REVIEW",
-   "kind": "整形すると本文が空（関連記事だけ）",
-   "evidence": "関連記事 2件",
-   "method": "表示整形後の文面",
-   "fix": ""
-  },
-  {
    "ep": "EP-06482",
    "area": "URL",
    "check": "spotify の到達",
@@ -8220,16 +8080,6 @@
    "fix": "新旧対応表（PR #399）で新しい URL に置き換え"
   },
   {
-   "ep": "EP-06484",
-   "area": "概要欄",
-   "check": "整形後の本文",
-   "status": "REVIEW",
-   "kind": "整形すると本文が空（関連記事だけ）",
-   "evidence": "関連記事 3件",
-   "method": "表示整形後の文面",
-   "fix": ""
-  },
-  {
    "ep": "EP-06485",
    "area": "URL",
    "check": "spotify の到達",
@@ -8248,16 +8098,6 @@
    "evidence": "#395: Spotify 公開埋め込みページで 898/899 回「見つかりません」（2026-11-20）。番組は「SDGsを話そう アーカイブ」（show 7vuSolzvNiNwu7UR4lVIwU）へ移転",
    "method": "一次情報での確認（記録済み）",
    "fix": "新旧対応表（PR #399）で新しい URL に置き換え"
-  },
-  {
-   "ep": "EP-06486",
-   "area": "概要欄",
-   "check": "整形後の本文",
-   "status": "REVIEW",
-   "kind": "整形すると本文が空（関連記事だけ）",
-   "evidence": "関連記事 3件",
-   "method": "表示整形後の文面",
-   "fix": ""
   },
   {
    "ep": "EP-06487",
@@ -8528,16 +8368,6 @@
    "evidence": "#395: Spotify 公開埋め込みページで 898/899 回「見つかりません」（2026-11-20）。番組は「SDGsを話そう アーカイブ」（show 7vuSolzvNiNwu7UR4lVIwU）へ移転",
    "method": "一次情報での確認（記録済み）",
    "fix": "新旧対応表（PR #399）で新しい URL に置き換え"
-  },
-  {
-   "ep": "EP-06514",
-   "area": "概要欄",
-   "check": "整形後の本文",
-   "status": "REVIEW",
-   "kind": "整形すると本文が空（関連記事だけ）",
-   "evidence": "関連記事 1件",
-   "method": "表示整形後の文面",
-   "fix": ""
   },
   {
    "ep": "EP-06517",
@@ -9330,26 +9160,6 @@
    "fix": ""
   },
   {
-   "ep": "EP-06679",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-06679",
-   "area": "概要欄",
-   "check": "表示に HTML の記号",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に HTML の記号（&…;）",
-   "evidence": "&darr;",
-   "method": "表示整形後の文面",
-   "fix": "表示整形で文字に戻す"
-  },
-  {
    "ep": "EP-06683",
    "area": "概要欄",
    "check": "概要欄の長さ",
@@ -9378,26 +9188,6 @@
    "evidence": "descriptionSource=missing",
    "method": "公開データ",
    "fix": ""
-  },
-  {
-   "ep": "EP-06716",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-06716",
-   "area": "概要欄",
-   "check": "表示に HTML の記号",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に HTML の記号（&…;）",
-   "evidence": "&hellip;",
-   "method": "表示整形後の文面",
-   "fix": "表示整形で文字に戻す"
   },
   {
    "ep": "EP-06721",
@@ -9490,24 +9280,14 @@
    "fix": ""
   },
   {
-   "ep": "EP-06762",
+   "ep": "EP-06772",
    "area": "概要欄",
-   "check": "表示に告知・定型文",
+   "check": "概要欄の有無",
    "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-06762",
-   "area": "概要欄",
-   "check": "表示に HTML の記号",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に HTML の記号（&…;）",
-   "evidence": "&darr;",
-   "method": "表示整形後の文面",
-   "fix": "表示整形で文字に戻す"
+   "kind": "概要欄が空",
+   "evidence": "descriptionSource=missing",
+   "method": "公開データ",
+   "fix": ""
   },
   {
    "ep": "EP-00775",
@@ -9540,46 +9320,6 @@
    "fix": "整形の規則を足すか、台帳の概要を清掃"
   },
   {
-   "ep": "EP-01066",
-   "area": "概要欄",
-   "check": "整形後の本文",
-   "status": "REVIEW",
-   "kind": "整形すると本文が空（関連記事だけ）",
-   "evidence": "関連記事 3件",
-   "method": "表示整形後の文面",
-   "fix": ""
-  },
-  {
-   "ep": "EP-01993",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-01997",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-02001",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
    "ep": "EP-02022",
    "area": "概要欄",
    "check": "表示に告知・定型文",
@@ -9600,127 +9340,7 @@
    "fix": "整形の規則を足すか、台帳の概要を清掃"
   },
   {
-   "ep": "EP-02049",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-02050",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-02128",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-02140",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-02154",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-02165",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
    "ep": "EP-02187",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-02215",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-02242",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-02246",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-02254",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-02280",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-02301",
    "area": "概要欄",
    "check": "表示に告知・定型文",
    "status": "REVIEW",
@@ -9970,26 +9590,6 @@
    "fix": "新旧対応表（PR #399）で新しい URL に置き換え"
   },
   {
-   "ep": "EP-03010",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-03095",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: キャンペーン",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
    "ep": "EP-03156",
    "area": "概要欄",
    "check": "表示に告知・定型文",
@@ -10011,16 +9611,6 @@
   },
   {
    "ep": "EP-03446",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-03488",
    "area": "概要欄",
    "check": "表示に告知・定型文",
    "status": "REVIEW",
@@ -10560,16 +10150,6 @@
    "fix": "新旧対応表（PR #399）で新しい URL に置き換え"
   },
   {
-   "ep": "EP-04488",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
    "ep": "EP-04489",
    "area": "概要欄",
    "check": "表示に告知・定型文",
@@ -10580,207 +10160,7 @@
    "fix": "整形の規則を足すか、台帳の概要を清掃"
   },
   {
-   "ep": "EP-04490",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-04491",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-04495",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-04496",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-04504",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-04517",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-04523",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-04527",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-04533",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-04534",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-04543",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-04550",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-04551",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-04552",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
    "ep": "EP-04558",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-04561",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-04562",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-04568",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-04569",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-04570",
-   "area": "概要欄",
-   "check": "表示に告知・定型文",
-   "status": "REVIEW",
-   "kind": "表示される概要欄に告知・定型文が残る",
-   "evidence": "整形=HOLD: 【出演・スタッフ】",
-   "method": "表示整形（description-tidy）後の文面",
-   "fix": "整形の規則を足すか、台帳の概要を清掃"
-  },
-  {
-   "ep": "EP-04586",
    "area": "概要欄",
    "check": "表示に告知・定型文",
    "status": "REVIEW",
@@ -10942,674 +10322,675 @@
  ],
  "probes": [
   {
-   "ep": "EP-01236",
+   "ep": "EP-01880",
    "service": "spotify",
-   "url": "https://open.spotify.com/episode/62Q6ogIZacfl3VRUILB6mZ",
+   "url": "https://open.spotify.com/episode/71JNMrIsNqODc86zW15EQR",
    "status": "PASS",
    "note": "題名一致"
   },
   {
-   "ep": "EP-01784",
+   "ep": "EP-02400",
    "service": "spotify",
-   "url": "https://open.spotify.com/episode/6zBqSJlqHNsTo26R6s82yZ",
+   "url": "https://open.spotify.com/episode/5MwbyeaHSkLW6OS0RGhmat",
    "status": "PASS",
    "note": "題名一致"
   },
   {
-   "ep": "EP-02301",
+   "ep": "EP-02922",
    "service": "spotify",
-   "url": "https://open.spotify.com/episode/2kTgGai9z6Z9uJ2JexUUoA",
+   "url": "https://open.spotify.com/episode/3tvOrGnQPtIEjdNXro3vhc",
    "status": "PASS",
    "note": "題名一致"
   },
   {
-   "ep": "EP-02812",
+   "ep": "EP-03461",
    "service": "spotify",
-   "url": "https://open.spotify.com/episode/53g5nsWyPO3P2yY30LjDyC",
+   "url": "https://open.spotify.com/episode/5APriuTAhfgpj7QKmdxqwC",
    "status": "PASS",
    "note": "題名一致"
   },
   {
-   "ep": "EP-03353",
+   "ep": "EP-03977",
    "service": "spotify",
-   "url": "https://open.spotify.com/episode/7rsdgSAmMzgxgJuKpcaZjC",
+   "url": "https://open.spotify.com/episode/1VT2Ms2l5d8E4kqPo7xDaz",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-04421",
+   "service": "spotify",
+   "url": "https://open.spotify.com/episode/25ejQrWPjl5oaCbyWgRIg0",
+   "status": "REVIEW",
+   "kind": "別の回の疑い",
+   "note": "リンク先の題名「\\」"
+  },
+  {
+   "ep": "EP-04908",
+   "service": "spotify",
+   "url": "https://open.spotify.com/episode/4oBqfwV0RAVvk64Gt1hryw",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-05270",
+   "service": "spotify",
+   "url": "https://open.spotify.com/episode/6OlUDAUiWNOvsQTNIg3d1l",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-05771",
+   "service": "spotify",
+   "url": "https://open.spotify.com/episode/6ZmMWQZw8h8iY2DEJDXNkk",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-06321",
+   "service": "spotify",
+   "url": "https://open.spotify.com/episode/5pOQ5CbkTggj1TdXO4hcAw",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-00741",
+   "service": "spotify",
+   "url": "https://open.spotify.com/episode/1mLcFAyrBAdwPKD68KR7E4",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-01332",
+   "service": "spotify",
+   "url": "https://open.spotify.com/episode/7jSWZMRxJ9xJoNBUJljBfr",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-06628",
+   "service": "pocketcasts",
+   "url": "https://pca.st/episode/667b6eba-d283-4682-ab3d-c04807116e79",
+   "status": "BLOCKED",
+   "note": "自動の巡回を断られた（HTTP 403）"
+  },
+  {
+   "ep": "EP-01147",
+   "service": "pocketcasts",
+   "url": "https://pca.st/episode/026338c8-b7f4-4613-9fd7-873c5fcd9df7",
+   "status": "BLOCKED",
+   "note": "自動の巡回を断られた（HTTP 403）"
+  },
+  {
+   "ep": "EP-01691",
+   "service": "pocketcasts",
+   "url": "https://pca.st/episode/9dc1e123-0e34-44b6-b6b2-63de1b2edf80",
+   "status": "BLOCKED",
+   "note": "自動の巡回を断られた（HTTP 403）"
+  },
+  {
+   "ep": "EP-02211",
+   "service": "pocketcasts",
+   "url": "https://pca.st/episode/cc2f3571-4da8-40f7-8562-cad2e3b9f71d",
+   "status": "BLOCKED",
+   "note": "自動の巡回を断られた（HTTP 403）"
+  },
+  {
+   "ep": "EP-02723",
+   "service": "pocketcasts",
+   "url": "https://pca.st/episode/53bc9b3f-d318-4b3b-8033-5b6b1a6f4c4a",
+   "status": "BLOCKED",
+   "note": "自動の巡回を断られた（HTTP 403）"
+  },
+  {
+   "ep": "EP-03258",
+   "service": "pocketcasts",
+   "url": "https://pca.st/episode/7f3891f8-5987-4f70-8c6b-7524ea0ba5ca",
+   "status": "BLOCKED",
+   "note": "自動の巡回を断られた（HTTP 403）"
+  },
+  {
+   "ep": "EP-03765",
+   "service": "pocketcasts",
+   "url": "https://pca.st/episode/d122f6b9-f5ec-4684-a493-cbfc0d658704",
+   "status": "BLOCKED",
+   "note": "自動の巡回を断られた（HTTP 403）"
+  },
+  {
+   "ep": "EP-04261",
+   "service": "pocketcasts",
+   "url": "https://pca.st/episode/1dd40afd-d1b5-4931-b5e5-7d246550435a",
+   "status": "BLOCKED",
+   "note": "自動の巡回を断られた（HTTP 403）"
+  },
+  {
+   "ep": "EP-04727",
+   "service": "pocketcasts",
+   "url": "https://pca.st/episode/a56fe695-a1e3-4e67-a5a8-eae3a7a415d5",
+   "status": "BLOCKED",
+   "note": "自動の巡回を断られた（HTTP 403）"
+  },
+  {
+   "ep": "EP-05089",
+   "service": "pocketcasts",
+   "url": "https://pca.st/episode/e7de4e73-9dc2-4e64-90e7-36fe5d095eaa",
+   "status": "BLOCKED",
+   "note": "自動の巡回を断られた（HTTP 403）"
+  },
+  {
+   "ep": "EP-05559",
+   "service": "pocketcasts",
+   "url": "https://pca.st/episode/82ec7d5d-432b-434d-8ebf-0860fbae0bfa",
+   "status": "BLOCKED",
+   "note": "自動の巡回を断られた（HTTP 403）"
+  },
+  {
+   "ep": "EP-06104",
+   "service": "pocketcasts",
+   "url": "https://pca.st/episode/e35168b8-7d35-4838-aa2b-49f4904ca132",
+   "status": "BLOCKED",
+   "note": "自動の巡回を断られた（HTTP 403）"
+  },
+  {
+   "ep": "EP-01251",
+   "service": "omny",
+   "url": "https://omny.fm/shows/asahi/17",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-01781",
+   "service": "omny",
+   "url": "https://omny.fm/shows/asahi/490-m-1-2021",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-02276",
+   "service": "omny",
+   "url": "https://omny.fm/shows/asahi/949",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-02770",
+   "service": "omny",
+   "url": "https://omny.fm/shows/asahi/1385",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-03288",
+   "service": "omny",
+   "url": "https://omny.fm/shows/asahi/127-1",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-03838",
+   "service": "omny",
+   "url": "https://omny.fm/shows/asahi/polirevi9",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-04309",
+   "service": "omny",
+   "url": "https://omny.fm/shows/asahi/20220404-52-98",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-04751",
+   "service": "omny",
+   "url": "https://omny.fm/shows/asahi/100-116",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-05108",
+   "service": "omny",
+   "url": "https://omny.fm/shows/asahi/51-77",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-05554",
+   "service": "omny",
+   "url": "https://omny.fm/shows/asahi/20260728",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-06063",
+   "service": "omny",
+   "url": "https://omny.fm/shows/arukiki-ajw/576/embed",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-06567",
+   "service": "omny",
+   "url": "https://omny.fm/shows/arukiki-ajw/matcha-1080/embed",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-01204",
+   "service": "apple",
+   "url": "https://podcasts.apple.com/jp/podcast/%E3%83%95%E3%82%A3%E3%82%AE%E3%83%A5%E3%82%A2-%E3%82%B9%E3%82%B1%E3%83%BC%E3%83%88%E3%81%AE%E3%82%B7%E3%83%BC%E3%82%BA%E3%83%B3%E7%AA%81%E5%85%A5-4%E5%9B%9E%E8%BB%A2%E5%8D%8A%E3%81%AE%E7%94%B3%E3%81%97%E5%AD%90%E8%AA%95%E7%94%9F-%E3%81%8A%E3%81%99%E3%81%99%E3%82%81%E3%81%AE%E8%A6%B3%E6%88%A6%E6%B3%95%E3%81%AF-887/id6803013072?i=1000784333372&uo=4",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-02347",
+   "service": "apple",
+   "url": "https://podcasts.apple.com/jp/podcast/%E3%82%AB%E3%83%8A%E3%83%AA%E3%82%A2%E8%BB%8D%E5%9B%A3-%E3%81%98%E3%82%83%E3%81%AA%E3%81%8F%E3%81%AA%E3%82%8B%E3%81%8B%E3%82%82-%E5%8D%97%E7%B1%B3%E3%81%AE%E3%83%88%E3%83%A9%E3%83%B3%E3%83%97-%E3%81%A8%E3%83%96%E3%83%A9%E3%82%B8%E3%83%AB%E8%AD%B0%E4%BC%9A%E8%A5%B2%E6%92%83%E4%BA%8B%E4%BB%B6-1008/id1526773927?i=1000599421514",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-02805",
+   "service": "apple",
+   "url": "https://podcasts.apple.com/jp/podcast/%E6%8E%A8%E3%81%97%E3%81%A8%E3%81%AF%E5%88%A5-%E5%B0%8A%E6%95%AC%E3%81%A7%E3%81%8D%E3%82%8B%E5%A4%A7%E4%BA%BA%E3%81%AE%E5%AD%98%E5%9C%A8-%E5%93%81%E6%A0%BC%E3%81%A3%E3%81%A6%E3%81%AA%E3%82%93%E3%81%AA%E3%82%93%E3%81%A0%E3%82%8D%E3%81%86-1415/id1526773927?i=1000644883083&uo=4",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-03287",
+   "service": "apple",
+   "url": "https://podcasts.apple.com/jp/podcast/shein-%E3%82%B7%E3%83%BC%E3%82%A4%E3%83%B3-%E6%9D%91-%E3%81%AB%E8%A1%8C%E3%81%A3%E3%81%A6%E3%81%8D%E3%81%9F-%E3%83%88%E3%83%A9%E3%83%B3%E3%83%97%E9%96%A2%E7%A8%8E-%E6%8F%BA%E3%82%8C%E3%82%8B%E4%B8%AD%E5%9B%BD%E3%83%95%E3%82%A1%E3%82%B9%E3%83%88%E3%83%95%E3%82%A1%E3%83%83%E3%82%B7%E3%83%A7%E3%83%B3-1840/id1526773927?i=1000702581845",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-03779",
+   "service": "apple",
+   "url": "https://podcasts.apple.com/jp/podcast/%E3%82%86%E3%82%8B%E3%81%A3%E3%81%A8%E7%B5%8C%E6%B8%88-nisa%E8%B2%A7%E4%B9%8F-%E3%81%AB%E9%99%A5%E3%82%89%E3%81%AA%E3%81%84%E3%81%9F%E3%82%81%E3%81%AB-%E6%8A%95%E8%B3%87%E3%82%84%E5%B9%B4%E9%87%91-%E3%81%A9%E3%81%86%E5%90%91%E3%81%8D%E5%90%88%E3%81%86-2313/id1526773927?i=1000778080210&uo=4",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-04179",
+   "service": "apple",
+   "url": "https://podcasts.apple.com/jp/podcast/51-9-%E3%83%AA%E3%82%B9%E3%83%8A%E3%83%BC%E3%81%AE%E3%82%AA%E3%82%B9%E3%82%B9%E3%83%A1%E7%95%AA%E7%B5%84%E3%81%8B%E3%82%89%E8%80%83%E3%81%88%E3%82%8B-%E6%A8%AA%E3%81%AE%E3%81%A4%E3%81%AA%E3%81%8C%E3%82%8A-%E3%81%A3%E3%81%A6%E5%A4%A7%E4%BA%8B%E3%81%A0%E3%82%88%E3%81%AD/id1527037575?i=1000544594824&uo=4",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-04594",
+   "service": "apple",
+   "url": "https://podcasts.apple.com/jp/podcast/%E3%82%A2%E3%83%97%E3%83%AA%E3%81%AE%E3%83%AC%E3%83%93%E3%83%A5%E3%83%BC%E3%81%8C%E6%97%A5%E3%80%85%E3%81%AE%E5%8A%B1%E3%81%BF%E3%81%AB-%E7%A4%BE%E9%95%B7%E3%81%AB%E3%82%B9%E3%83%94%E3%83%BC%E3%83%81%E3%81%A7%E7%9B%B4%E8%AB%87%E5%88%A4-51-34/id1527037575?i=1000597768484&uo=4",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-00050",
+   "service": "apple",
+   "url": "https://podcasts.apple.com/jp/podcast/%E5%85%88%E7%94%9F%E3%81%A3%E3%81%A6%E3%81%88%E3%82%89%E3%81%9D%E3%81%86%E3%81%A0%E3%81%91%E3%81%A9-%E3%81%88%E3%82%89%E3%81%84%E3%81%AE-11/id1592938106?i=1000788520248&uo=4",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-05358",
+   "service": "apple",
+   "url": "https://podcasts.apple.com/jp/podcast/%E7%95%AA%E7%B5%84%E3%81%8D%E3%81%A3%E3%81%8B%E3%81%91%E3%81%A7%E3%83%89%E3%83%8A%E3%83%BC%E3%81%AB-%E3%83%AA%E3%82%B9%E3%83%8A%E3%83%BC%E3%81%95%E3%82%93%E3%81%A8%E3%81%A4%E3%81%AA%E3%81%8C%E3%81%A3%E3%81%9F%E7%B8%81-%E3%81%84%E3%81%A1%E3%81%8A%E3%81%97%E3%82%A6%E3%83%8B%E3%83%A5-%E6%8C%AF%E3%82%8A%E8%BF%94%E3%82%8A-%E5%89%8D%E7%B7%A8-50-534/id1527037575?i=1000732695634&uo=4",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-05814",
+   "service": "apple",
+   "url": "https://podcasts.apple.com/jp/podcast/%E5%9B%BD%E5%AE%9D%E3%81%A0%E3%81%8B%E3%82%89%E3%81%A3%E3%81%A6%E6%84%9F%E5%8B%95%E3%81%97%E3%81%AA%E3%81%8F%E3%81%A6%E3%81%84%E3%81%84-%E9%91%91%E8%B3%9E%E3%81%AF%E6%80%9D%E3%81%84%E3%81%AE%E3%81%BE%E3%81%BE%E3%81%AB-%E5%B8%B8%E8%A8%AD%E5%B1%95%E3%81%AE%E9%AD%85%E5%8A%9B-327/id6802972000?i=1000785590441",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-06302",
+   "service": "apple",
+   "url": "https://podcasts.apple.com/jp/podcast/%E3%83%90%E3%83%8A%E3%83%8A%E3%81%AE%E5%A4%A7%E9%87%8F%E5%BB%83%E6%A3%84-%E3%81%AA%E3%81%9C%E7%94%9F%E3%81%BE%E3%82%8C%E3%82%8B%E3%81%AE-%E3%82%82%E3%81%A3%E3%81%9F%E3%81%84%E3%81%AA%E3%81%84-%E3%82%92%E6%B8%9B%E3%82%89%E3%81%99%E5%8F%96%E3%82%8A%E7%B5%84%E3%81%BF%E3%82%82-%E3%83%95%E3%83%BC%E3%83%89%E3%83%AD%E3%82%B9-%E5%BE%8C%E7%B7%A8-815/id6802972000?i=1000784632947",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-06735",
+   "service": "apple",
+   "url": "https://podcasts.apple.com/jp/podcast/%E6%97%A5%E6%9B%9C%E7%89%88-%E3%81%84%E3%81%A3%E3%81%9F%E3%81%84%E4%BD%95%E3%82%92%E8%A6%8B%E3%81%A6%E3%81%84%E3%82%8B%E3%82%84%E3%82%89/id6798131655?i=1000801952420&uo=4",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-03413",
+   "service": "listen",
+   "url": "https://listen.style/p/tvzppbdm/au8tj89j",
    "status": "PASS",
    "note": "題名一致"
   },
   {
    "ep": "EP-03878",
-   "service": "spotify",
-   "url": "https://open.spotify.com/episode/3raDJw8S18AntLObvxH97S",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-04345",
-   "service": "spotify",
-   "url": "https://open.spotify.com/episode/79ka4wM7eLHLzzuT2lWAFP",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-04805",
-   "service": "spotify",
-   "url": "https://open.spotify.com/episode/3eCwgeAgR8AbBso5cxGzAr",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-05167",
-   "service": "spotify",
-   "url": "https://open.spotify.com/episode/7rSU1x8H6wmrNpVTSb5Dno",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-05643",
-   "service": "spotify",
-   "url": "https://open.spotify.com/episode/7k5ftni8bhTYspXWlmACor",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-06196",
-   "service": "spotify",
-   "url": "https://open.spotify.com/episode/6WHDdF30pZfr28EnJepn1R",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-06704",
-   "service": "spotify",
-   "url": "https://open.spotify.com/episode/1QTtIjkheltjSpGhVqwvAI",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-01113",
-   "service": "pocketcasts",
-   "url": "https://pca.st/episode/3d096308-7468-4888-918f-3d3b1db91cce",
-   "status": "BLOCKED",
-   "note": "自動の巡回を断られた（HTTP 403）"
-  },
-  {
-   "ep": "EP-01654",
-   "service": "pocketcasts",
-   "url": "https://pca.st/episode/07852167-447f-4b11-96a1-dd409ad94158",
-   "status": "BLOCKED",
-   "note": "自動の巡回を断られた（HTTP 403）"
-  },
-  {
-   "ep": "EP-02172",
-   "service": "pocketcasts",
-   "url": "https://pca.st/episode/f79c71c6-9679-4bd2-904b-ffebe580cf28",
-   "status": "BLOCKED",
-   "note": "自動の巡回を断られた（HTTP 403）"
-  },
-  {
-   "ep": "EP-02682",
-   "service": "pocketcasts",
-   "url": "https://pca.st/episode/53223842-e46f-4bde-8592-6a9a8b61b9a4",
-   "status": "BLOCKED",
-   "note": "自動の巡回を断られた（HTTP 403）"
-  },
-  {
-   "ep": "EP-03217",
-   "service": "pocketcasts",
-   "url": "https://pca.st/episode/bd09eecf-c836-4174-89c2-8689dfb76765",
-   "status": "BLOCKED",
-   "note": "自動の巡回を断られた（HTTP 403）"
-  },
-  {
-   "ep": "EP-03722",
-   "service": "pocketcasts",
-   "url": "https://pca.st/episode/732b3146-64d6-4d15-bd0d-a6ff34ba7363",
-   "status": "BLOCKED",
-   "note": "自動の巡回を断られた（HTTP 403）"
-  },
-  {
-   "ep": "EP-04217",
-   "service": "pocketcasts",
-   "url": "https://pca.st/episode/a4c596cf-afbf-42ac-b26e-eeda0e9ed961",
-   "status": "BLOCKED",
-   "note": "自動の巡回を断られた（HTTP 403）"
-  },
-  {
-   "ep": "EP-04686",
-   "service": "pocketcasts",
-   "url": "https://pca.st/episode/fa876809-5423-40c3-b502-22d8e4cb7a80",
-   "status": "BLOCKED",
-   "note": "自動の巡回を断られた（HTTP 403）"
-  },
-  {
-   "ep": "EP-05047",
-   "service": "pocketcasts",
-   "url": "https://pca.st/episode/ca5b2cd1-47e7-4629-aa59-ca1728b4dc2a",
-   "status": "BLOCKED",
-   "note": "自動の巡回を断られた（HTTP 403）"
-  },
-  {
-   "ep": "EP-05511",
-   "service": "pocketcasts",
-   "url": "https://pca.st/episode/45b7bbe4-c1f3-4f0a-975b-e81347b0ef6c",
-   "status": "BLOCKED",
-   "note": "自動の巡回を断られた（HTTP 403）"
-  },
-  {
-   "ep": "EP-06046",
-   "service": "pocketcasts",
-   "url": "https://pca.st/episode/3702552a-16f4-4ce2-8d46-c44f8e2b3563",
-   "status": "BLOCKED",
-   "note": "自動の巡回を断られた（HTTP 403）"
-  },
-  {
-   "ep": "EP-06577",
-   "service": "pocketcasts",
-   "url": "https://pca.st/episode/8e2df298-3d29-4320-b8ba-cf180d8100ea",
-   "status": "BLOCKED",
-   "note": "自動の巡回を断られた（HTTP 403）"
-  },
-  {
-   "ep": "EP-03225",
-   "service": "omny",
-   "url": "https://omny.fm/shows/asahi/1785",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-03776",
-   "service": "omny",
-   "url": "https://omny.fm/shows/asahi/2310",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-04247",
-   "service": "omny",
-   "url": "https://omny.fm/shows/asahi/52-86",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-04694",
-   "service": "omny",
-   "url": "https://omny.fm/shows/asahi/50-212",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-05051",
-   "service": "omny",
-   "url": "https://omny.fm/shows/asahi/50-373",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-00592",
-   "service": "omny",
-   "url": "https://omny.fm/shows/asahi/radar-lock-on",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-00645",
-   "service": "omny",
-   "url": "https://omny.fm/shows/asahi/etf",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-06508",
-   "service": "omny",
-   "url": "https://omny.fm/shows/arukiki-ajw/1021/embed",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-01179",
-   "service": "omny",
-   "url": "https://omny.fm/shows/asahi/1419",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-01718",
-   "service": "omny",
-   "url": "https://omny.fm/shows/asahi/433-1",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-02214",
-   "service": "omny",
-   "url": "https://omny.fm/shows/asahi/897",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-02702",
-   "service": "omny",
-   "url": "https://omny.fm/shows/asahi/1324",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-04941",
-   "service": "apple",
-   "url": "https://podcasts.apple.com/jp/podcast/%E3%82%B4%E3%83%AD%E3%81%AF%E6%AD%A3%E9%9D%A2%E3%81%A7%E6%8D%95%E3%82%89%E3%81%AA%E3%81%8F%E3%81%A6%E3%82%82-%E7%A7%81%E3%82%89%E3%81%97%E3%81%84%E8%A6%8B%E5%87%BA%E3%81%97%E8%BF%BD%E6%B1%82%E3%81%97%E3%81%9F%E3%81%84-42-39/id1527037575?i=1000654720293&uo=4",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-05250",
-   "service": "apple",
-   "url": "https://podcasts.apple.com/jp/podcast/%E7%B4%99%E9%9D%A2%E3%81%AB%E5%BF%83%E3%81%AB%E3%82%AB%E3%82%B1%E3%83%A9%E3%81%A8%E3%81%97%E3%81%A6%E6%AE%8B%E3%81%97%E3%81%A6%E3%81%84%E3%81%8F-%E8%A8%83%E5%A0%B1%E3%81%AE%E5%B1%8A%E3%81%91%E6%96%B9-%E7%B7%A8%E9%9B%86%E3%83%9E%E3%83%8B%E3%82%A25%E6%9C%88%E5%8F%B7-50-476/id1527037575?i=1000710465285",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-05686",
-   "service": "apple",
-   "url": "https://podcasts.apple.com/jp/podcast/%E5%90%8C%E6%80%A7%E5%A9%9A%E5%88%A4%E6%B1%BA%E3%81%AB%E3%83%9E%E3%82%B8%E3%83%AC%E3%82%B9%E3%81%97%E3%81%9F%E3%82%89-%E6%98%94%E3%81%AE%E8%87%AA%E5%88%86%E3%81%8C%E9%A0%AD%E3%82%92%E3%81%8B%E3%81%99%E3%82%81%E3%81%9F-5%E7%82%B9%E3%83%A9%E3%82%B8%E3%82%AA%E3%81%A8%E8%AA%9E%E3%82%8B-200/id6802972000?i=1000785821059",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-06165",
-   "service": "apple",
-   "url": "https://podcasts.apple.com/jp/podcast/%E5%BA%97%E5%85%88%E3%81%AE%E3%83%AC%E3%82%B8%E6%89%93%E3%81%A1%E3%82%82-%E3%83%AC%E3%83%B3%E3%82%B8%E6%96%99%E7%90%86%E3%82%82-%E5%8A%9B%E3%82%92%E6%8A%9C%E3%81%84%E3%81%A6%E8%89%AF%E3%81%84%E3%81%A8%E3%81%93%E3%82%8D%E3%81%AF%E6%8A%9C%E3%81%93%E3%81%86-678/id6802972000?i=1000784910665",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-06624",
-   "service": "apple",
-   "url": "https://podcasts.apple.com/jp/podcast/%E3%83%8E%E3%83%BC%E3%83%9F%E3%83%A9%E3%82%A4-10-%E3%82%84%E3%81%A3%E3%81%B1%E6%82%A9%E3%81%BF%E3%81%8C%E3%81%94%E3%81%98%E3%82%83%E3%82%84%E3%81%A3%E3%81%9F%E3%82%93%E3%81%A1%E3%82%83%E3%81%86%E3%82%84%E3%82%8D%E3%81%8B-%E3%81%A8%E3%81%84%E3%81%86%E3%81%8A%E8%A9%B1/id6798131655?i=1000797831777",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-01096",
-   "service": "apple",
-   "url": "https://podcasts.apple.com/jp/podcast/%E3%83%95%E3%82%A3%E3%82%AE%E3%83%A5%E3%82%A2-%E3%82%8A%E3%81%8F%E3%82%8A%E3%82%85%E3%81%86%E9%87%91%E3%81%AB%E3%82%B3%E3%83%BC%E3%83%81%E3%81%AE%E7%A7%98%E8%A9%B1-%E5%9D%82%E6%9C%AC%E8%8A%B1%E7%B9%94%E3%81%8C%E8%A8%98%E8%80%85%E3%81%B8%E6%B3%A3%E3%81%91%E3%82%8B%E8%A1%8C%E5%8B%95-%E5%86%AC%E5%AD%A3%E4%BA%94%E8%BC%AA%E6%8C%AF%E3%82%8A%E8%BF%94%E3%82%8A-2182/id6803013072?i=1000784335738&uo=4",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-02235",
-   "service": "apple",
-   "url": "https://podcasts.apple.com/jp/podcast/%E6%8B%98%E7%BD%AE%E6%89%80%E9%95%B7%E3%81%8C%E9%8C%B2%E9%9F%B3%E3%81%97%E3%81%A6%E3%81%84%E3%81%9F%E6%AD%BB%E5%88%91%E5%9B%9A%E3%81%AE%E8%82%89%E5%A3%B0-%E3%83%86%E3%83%BC%E3%83%97%E3%82%92%E9%80%9A%E3%81%98%E3%81%A6%E8%80%83%E3%81%88%E3%82%8B%E6%AD%BB%E5%88%91-915/id1526773927?i=1000586165958&uo=4",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-02690",
-   "service": "apple",
-   "url": "https://podcasts.apple.com/jp/podcast/%E4%B8%AD%E5%9B%BD%E3%81%A8%E3%82%A4%E3%82%B9%E3%83%A9%E3%82%A8%E3%83%AB-%E3%83%91%E3%83%AC%E3%82%B9%E3%83%81%E3%83%8A%E3%81%AE%E8%B7%9D%E9%9B%A2-%E4%B8%80%E5%B8%AF%E4%B8%80%E8%B7%AF-%E3%81%AE%E9%99%B0%E3%81%A7-1313/id1526773927?i=1000633508112",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-03169",
-   "service": "apple",
-   "url": "https://podcasts.apple.com/jp/podcast/%E7%AC%91%E3%81%84%E9%A3%AF%E5%93%B2%E5%A4%AB%E3%81%AE%E3%81%97%E3%82%93%E3%81%B6%E3%82%93%E6%95%99%E5%AE%A4112-%E6%B6%88%E8%B2%BB%E3%81%A8%E8%B3%9E%E5%91%B3-%E4%BA%8C%E3%81%A4%E3%81%AE%E6%9C%9F%E9%99%90%E3%81%AE%E9%81%95%E3%81%84%E3%81%AF/id1526773927?i=1000681534063&uo=4",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-03640",
-   "service": "apple",
-   "url": "https://podcasts.apple.com/jp/podcast/%E3%83%AC%E3%82%A2%E3%82%A2%E3%83%BC%E3%82%B9%E3%81%A3%E3%81%A6%E4%BD%95-%E7%94%A3%E6%A5%AD%E3%81%AE%E3%83%93%E3%82%BF%E3%83%9F%E3%83%B3-%E3%81%A8%E8%A8%80%E3%82%8F%E3%82%8C%E3%82%8B%E7%90%86%E7%94%B1%E3%81%A8%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%B9%E3%81%AE%E8%A6%8B%E6%96%B9-2194/id1526773927?i=1000757559779&uo=4",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-04071",
-   "service": "apple",
-   "url": "https://podcasts.apple.com/jp/podcast/29-3-%E3%82%A2%E3%83%A1%E3%83%AA%E3%82%AB%E3%81%A7-%E6%A0%B8%E3%81%AE%E7%8F%BE%E5%A0%B4-%E3%82%92%E8%A6%8B%E3%81%9F-%E5%BA%83%E5%B3%B6%E3%81%A8%E3%81%AE%E3%82%AE%E3%83%A3%E3%83%83%E3%83%97-%E3%81%A9%E3%81%86%E5%9F%8B%E3%82%81%E3%82%8B/id1527037575?i=1000533018250&uo=4",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-00486",
-   "service": "apple",
-   "url": "https://podcasts.apple.com/jp/podcast/%E3%82%A8%E3%82%A2%E3%82%B3%E3%83%B3%E3%81%AE2027%E5%B9%B4%E5%95%8F%E9%A1%8C/id1551595534?i=1000767808556&uo=4",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-00520",
    "service": "listen",
-   "url": "https://listen.style/p/pkvcigu2/1w5fxpm5",
+   "url": "https://listen.style/p/vbc86ror/dlcfbhaw",
    "status": "PASS",
    "note": "題名一致"
   },
   {
-   "ep": "EP-05391",
+   "ep": "EP-04255",
    "service": "listen",
-   "url": "https://listen.style/p/vbc86ror/zhdtwpze",
+   "url": "https://listen.style/p/vbc86ror/bykm45eo",
    "status": "PASS",
    "note": "題名一致"
   },
   {
-   "ep": "EP-06674",
+   "ep": "EP-04630",
    "service": "listen",
-   "url": "https://listen.style/p/gqkauao0/4gft808o",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-01279",
-   "service": "listen",
-   "url": "https://listen.style/p/tvzppbdm/c1mqdklc",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-01724",
-   "service": "listen",
-   "url": "https://listen.style/p/tvzppbdm/hnzx55qe",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-02148",
-   "service": "listen",
-   "url": "https://listen.style/p/tvzppbdm/amjavabq",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-02560",
-   "service": "listen",
-   "url": "https://listen.style/p/tvzppbdm/z48oxvbg",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-03014",
-   "service": "listen",
-   "url": "https://listen.style/p/tvzppbdm/jzxtdhfg",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-03478",
-   "service": "listen",
-   "url": "https://listen.style/p/tvzppbdm/uqe0nsvy",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-03935",
-   "service": "listen",
-   "url": "https://listen.style/p/vbc86ror/c52mtnyl",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-04317",
-   "service": "listen",
-   "url": "https://listen.style/p/vbc86ror/bmhqjaox",
-   "status": "PASS",
-   "note": "題名一致"
-  },
-  {
-   "ep": "EP-04688",
-   "service": "listen",
-   "url": "https://listen.style/p/vbc86ror/cyyfvble",
+   "url": "https://listen.style/p/vbc86ror/ry0gcnaf",
    "status": "PASS",
    "note": "題名一致"
   },
   {
    "ep": "EP-00056",
-   "service": "amazon",
-   "url": "https://music.amazon.co.jp/podcasts/0af07b90-b96f-4f5a-a4c7-8da6fddc5685/episodes/81963085-3f56-404a-a510-008ceb88ce02",
-   "status": "BLOCKED",
-   "note": "ブラウザでの描画が必要"
+   "service": "listen",
+   "url": "https://listen.style/p/yhap2rfc/ixwtztl6",
+   "status": "PASS",
+   "note": "題名一致"
   },
   {
-   "ep": "EP-00081",
-   "service": "amazon",
-   "url": "https://music.amazon.co.jp/podcasts/c0bbd7fe-8cfb-4e94-9ec3-7c825aa70217/episodes/ef397b51-990e-4cda-8853-9752fef8da96",
-   "status": "BLOCKED",
-   "note": "ブラウザでの描画が必要"
+   "ep": "EP-05330",
+   "service": "listen",
+   "url": "https://listen.style/p/vbc86ror/nqlsrc9u",
+   "status": "PASS",
+   "note": "題名一致"
   },
   {
-   "ep": "EP-06593",
-   "service": "amazon",
-   "url": "https://music.amazon.co.jp/podcasts/827f3a0a-e2c9-4913-88cf-329697329ec0/episodes/6d9761c5-bbba-4b42-826a-fc1d7701ac1d",
-   "status": "BLOCKED",
-   "note": "ブラウザでの描画が必要"
+   "ep": "EP-06612",
+   "service": "listen",
+   "url": "https://listen.style/p/yhap2rfc/y7czkwm3",
+   "status": "PASS",
+   "note": "題名一致"
   },
   {
-   "ep": "EP-06625",
-   "service": "amazon",
-   "url": "https://music.amazon.co.jp/podcasts/7337408b-4752-4a85-8f27-4208a2ca8b1d/episodes/0f3ae55b-a6e8-48a0-8f0c-944a9c2be49a",
-   "status": "BLOCKED",
-   "note": "ブラウザでの描画が必要"
-  },
-  {
-   "ep": "EP-06653",
-   "service": "amazon",
-   "url": "https://music.amazon.co.jp/podcasts/7337408b-4752-4a85-8f27-4208a2ca8b1d/episodes/006fb22a-5af9-4f0d-807e-4e6176f128be",
-   "status": "BLOCKED",
-   "note": "ブラウザでの描画が必要"
-  },
-  {
-   "ep": "EP-06676",
-   "service": "amazon",
-   "url": "https://music.amazon.co.jp/podcasts/edb44df6-5b86-4b52-88cf-cb270180b9f4/episodes/4dc15aa8-9d3e-415a-aa20-54d6ec55983c",
-   "status": "BLOCKED",
-   "note": "ブラウザでの描画が必要"
-  },
-  {
-   "ep": "EP-06706",
-   "service": "amazon",
-   "url": "https://music.amazon.co.jp/podcasts/c0bbd7fe-8cfb-4e94-9ec3-7c825aa70217/episodes/86f90629-024c-4fc3-8ced-2553e0b0c9e2",
-   "status": "BLOCKED",
-   "note": "ブラウザでの描画が必要"
-  },
-  {
-   "ep": "EP-06730",
-   "service": "amazon",
-   "url": "https://music.amazon.co.jp/podcasts/7337408b-4752-4a85-8f27-4208a2ca8b1d/episodes/7021c2e7-6113-44b6-ab34-f600f0f35748",
-   "status": "BLOCKED",
-   "note": "ブラウザでの描画が必要"
-  },
-  {
-   "ep": "EP-06752",
-   "service": "amazon",
-   "url": "https://music.amazon.co.jp/podcasts/7337408b-4752-4a85-8f27-4208a2ca8b1d/episodes/1f8e85af-8a3d-41b3-b1ce-5764755934b5",
-   "status": "BLOCKED",
-   "note": "ブラウザでの描画が必要"
-  },
-  {
-   "ep": "EP-00881",
-   "service": "amazon",
-   "url": "https://music.amazon.co.jp/podcasts/297be73b-0c9b-4629-85a9-f51e179a1292/episodes/deb2f089-85a7-4578-a766-b34addc8d780",
-   "status": "BLOCKED",
-   "note": "ブラウザでの描画が必要"
-  },
-  {
-   "ep": "EP-00134",
-   "service": "amazon",
-   "url": "https://music.amazon.co.jp/podcasts/297be73b-0c9b-4629-85a9-f51e179a1292/episodes/0e729bc4-0877-4158-b47d-bb09b2c2db93",
-   "status": "BLOCKED",
-   "note": "ブラウザでの描画が必要"
-  },
-  {
-   "ep": "EP-00408",
-   "service": "amazon",
-   "url": "https://music.amazon.co.jp/podcasts/c0bbd7fe-8cfb-4e94-9ec3-7c825aa70217/episodes/ec436275-67dc-4ddc-953a-33c3124330ce",
-   "status": "BLOCKED",
-   "note": "ブラウザでの描画が必要"
-  },
-  {
-   "ep": "EP-01113",
-   "service": "asahi",
-   "url": "https://www.asahi.com/special/podcasts/item/?itemid=83642077-ebbb-465f-b240-b368001326b6",
-   "status": "BLOCKED",
-   "note": "朝日新聞の公式ページは描画が必要（題名をHTMLから取れない）"
+   "ep": "EP-00116",
+   "service": "listen",
+   "url": "https://listen.style/p/swt65jwj/cyldexbj",
+   "status": "PASS",
+   "note": "題名一致"
   },
   {
    "ep": "EP-01654",
+   "service": "listen",
+   "url": "https://listen.style/p/tvzppbdm/mhhi3ond",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-02081",
+   "service": "listen",
+   "url": "https://listen.style/p/tvzppbdm/a3fp4xuc",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-00292",
+   "service": "listen",
+   "url": "https://listen.style/p/swt65jwj/wl1s71vf",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-02940",
+   "service": "listen",
+   "url": "https://listen.style/p/tvzppbdm/u7yykwkc",
+   "status": "PASS",
+   "note": "題名一致"
+  },
+  {
+   "ep": "EP-06315",
+   "service": "amazon",
+   "url": "https://music.amazon.co.jp/podcasts/16cb0d1f-42eb-433b-8696-b435641c4723/episodes/3a45c340-7191-4ee1-a3bc-99efd7d9c1a8",
+   "status": "BLOCKED",
+   "note": "ブラウザでの描画が必要"
+  },
+  {
+   "ep": "EP-06423",
+   "service": "amazon",
+   "url": "https://music.amazon.co.jp/podcasts/16cb0d1f-42eb-433b-8696-b435641c4723/episodes/71dd73e2-9d78-4113-9d23-beed4ba0465a",
+   "status": "BLOCKED",
+   "note": "ブラウザでの描画が必要"
+  },
+  {
+   "ep": "EP-06529",
+   "service": "amazon",
+   "url": "https://music.amazon.co.jp/podcasts/16cb0d1f-42eb-433b-8696-b435641c4723/episodes/616b6314-3098-4f6a-b4bc-f7d841901f75",
+   "status": "BLOCKED",
+   "note": "ブラウザでの描画が必要"
+  },
+  {
+   "ep": "EP-06648",
+   "service": "amazon",
+   "url": "https://music.amazon.co.jp/podcasts/55b49660-b1f3-482d-9b1e-791337153bc2/episodes/3c2cad91-b594-4899-9291-8442641b2535",
+   "status": "BLOCKED",
+   "note": "ブラウザでの描画が必要"
+  },
+  {
+   "ep": "EP-06756",
+   "service": "amazon",
+   "url": "https://music.amazon.co.jp/podcasts/7337408b-4752-4a85-8f27-4208a2ca8b1d/episodes/43ab5a3e-d6f1-4247-b399-9551d2e28b66",
+   "status": "BLOCKED",
+   "note": "ブラウザでの描画が必要"
+  },
+  {
+   "ep": "EP-00387",
+   "service": "amazon",
+   "url": "https://music.amazon.co.jp/podcasts/16cb0d1f-42eb-433b-8696-b435641c4723/episodes/e4540394-ba02-483f-ac9d-c2644305a16e",
+   "status": "BLOCKED",
+   "note": "ブラウザでの描画が必要"
+  },
+  {
+   "ep": "EP-05603",
+   "service": "amazon",
+   "url": "https://music.amazon.co.jp/podcasts/16cb0d1f-42eb-433b-8696-b435641c4723/episodes/9a9f8403-6899-4cbc-9d87-ddaed0ac9042",
+   "status": "BLOCKED",
+   "note": "ブラウザでの描画が必要"
+  },
+  {
+   "ep": "EP-05729",
+   "service": "amazon",
+   "url": "https://music.amazon.co.jp/podcasts/16cb0d1f-42eb-433b-8696-b435641c4723/episodes/66329846-2239-4fe1-8ac1-5991c8e2f64c",
+   "status": "BLOCKED",
+   "note": "ブラウザでの描画が必要"
+  },
+  {
+   "ep": "EP-05837",
+   "service": "amazon",
+   "url": "https://music.amazon.co.jp/podcasts/16cb0d1f-42eb-433b-8696-b435641c4723/episodes/9d4540a4-1ff3-48af-98b9-977b04917523",
+   "status": "BLOCKED",
+   "note": "ブラウザでの描画が必要"
+  },
+  {
+   "ep": "EP-05942",
+   "service": "amazon",
+   "url": "https://music.amazon.co.jp/podcasts/16cb0d1f-42eb-433b-8696-b435641c4723/episodes/af11ece0-e376-4ded-90c5-fe6ebd161672",
+   "status": "BLOCKED",
+   "note": "ブラウザでの描画が必要"
+  },
+  {
+   "ep": "EP-06064",
+   "service": "amazon",
+   "url": "https://music.amazon.co.jp/podcasts/16cb0d1f-42eb-433b-8696-b435641c4723/episodes/f177569c-e536-46b9-bd10-69d496d1ced8",
+   "status": "BLOCKED",
+   "note": "ブラウザでの描画が必要"
+  },
+  {
+   "ep": "EP-06188",
+   "service": "amazon",
+   "url": "https://music.amazon.co.jp/podcasts/16cb0d1f-42eb-433b-8696-b435641c4723/episodes/fe548ac3-3cf7-46a7-aa3d-93a5c4932f01",
+   "status": "BLOCKED",
+   "note": "ブラウザでの描画が必要"
+  },
+  {
+   "ep": "EP-06628",
    "service": "asahi",
-   "url": "https://www.asahi.com/special/podcasts/item/?itemid=c37f1229-6fda-4f8c-944d-ad700031df88",
+   "url": "https://www.asahi.com/special/podcasts/item/?itemid=TASC8868588171",
    "status": "BLOCKED",
    "note": "朝日新聞の公式ページは描画が必要（題名をHTMLから取れない）"
   },
   {
-   "ep": "EP-02172",
+   "ep": "EP-01147",
    "service": "asahi",
-   "url": "https://www.asahi.com/special/podcasts/item/?itemid=136722e5-24be-41d7-847a-af1b00e2e538",
+   "url": "https://www.asahi.com/special/podcasts/item/?itemid=a704f211-8e33-452c-9bfc-b21f005b7a37",
    "status": "BLOCKED",
    "note": "朝日新聞の公式ページは描画が必要（題名をHTMLから取れない）"
   },
   {
-   "ep": "EP-02682",
+   "ep": "EP-01691",
    "service": "asahi",
-   "url": "https://www.asahi.com/special/podcasts/item/?itemid=84942557-edc2-4a48-ac70-b0a4004b085e",
+   "url": "https://www.asahi.com/special/podcasts/item/?itemid=61d90982-f09f-4d23-a699-adc5002f8258",
    "status": "BLOCKED",
    "note": "朝日新聞の公式ページは描画が必要（題名をHTMLから取れない）"
   },
   {
-   "ep": "EP-03217",
+   "ep": "EP-02211",
    "service": "asahi",
-   "url": "https://www.asahi.com/special/podcasts/item/?itemid=794bf6a6-d511-452c-9b48-b265003fe7f6",
+   "url": "https://www.asahi.com/special/podcasts/item/?itemid=5dd2d0f0-a9a3-4e98-a95c-af3b009d2643",
    "status": "BLOCKED",
    "note": "朝日新聞の公式ページは描画が必要（題名をHTMLから取れない）"
   },
   {
-   "ep": "EP-03722",
+   "ep": "EP-02723",
    "service": "asahi",
-   "url": "https://www.asahi.com/special/podcasts/item/?itemid=ecab0187-8040-49d5-b60b-b4630084b145",
+   "url": "https://www.asahi.com/special/podcasts/item/?itemid=2eef9f5d-19b1-4c93-a6bb-b0c700f54cd8",
    "status": "BLOCKED",
    "note": "朝日新聞の公式ページは描画が必要（題名をHTMLから取れない）"
   },
   {
-   "ep": "EP-04217",
+   "ep": "EP-03258",
    "service": "asahi",
-   "url": "https://www.asahi.com/special/podcasts/item/?itemid=d056662f-b0a6-4143-84d5-ae190061be55",
+   "url": "https://www.asahi.com/special/podcasts/item/?itemid=b0bc9739-c83d-47c7-8470-b28f009287e3",
    "status": "BLOCKED",
    "note": "朝日新聞の公式ページは描画が必要（題名をHTMLから取れない）"
   },
   {
-   "ep": "EP-04686",
+   "ep": "EP-03765",
    "service": "asahi",
-   "url": "https://www.asahi.com/special/podcasts/item/?itemid=1dc2e6cc-3744-44bc-b08b-b00700835bc2",
+   "url": "https://www.asahi.com/special/podcasts/item/?itemid=b7214904-8e3a-46cc-b5be-b486007860ee",
    "status": "BLOCKED",
    "note": "朝日新聞の公式ページは描画が必要（題名をHTMLから取れない）"
   },
   {
-   "ep": "EP-05047",
+   "ep": "EP-04261",
    "service": "asahi",
-   "url": "https://www.asahi.com/special/podcasts/item/?itemid=6a3696ce-0732-4c06-ab5e-b1ea007c619b",
+   "url": "https://www.asahi.com/special/podcasts/item/?itemid=db0448da-17ac-4b54-a0c8-ae45005a48dc",
    "status": "BLOCKED",
    "note": "朝日新聞の公式ページは描画が必要（題名をHTMLから取れない）"
   },
   {
-   "ep": "EP-05511",
+   "ep": "EP-04727",
    "service": "asahi",
-   "url": "https://www.asahi.com/special/podcasts/item/?itemid=3df77011-42fb-4062-94b0-b4650014f363",
+   "url": "https://www.asahi.com/special/podcasts/item/?itemid=e32922a2-7a23-43da-ac90-b046001614c1",
    "status": "BLOCKED",
    "note": "朝日新聞の公式ページは描画が必要（題名をHTMLから取れない）"
   },
   {
-   "ep": "EP-06046",
+   "ep": "EP-05089",
    "service": "asahi",
-   "url": "https://www.asahi.com/special/podcasts/item/?itemid=d022e76a-ed3f-4f38-9c61-b4aa00d297d0",
+   "url": "https://www.asahi.com/special/podcasts/item/?itemid=87fb0198-a620-485a-9e72-b218005990e4",
    "status": "BLOCKED",
    "note": "朝日新聞の公式ページは描画が必要（題名をHTMLから取れない）"
   },
   {
-   "ep": "EP-06577",
+   "ep": "EP-05559",
    "service": "asahi",
-   "url": "https://www.asahi.com/special/podcasts/item/?itemid=a7182b72-b53c-44f4-a7dc-b4aa00925b77",
+   "url": "https://www.asahi.com/special/podcasts/item/?itemid=09e42cb6-545d-4603-bcc1-b497002e993c",
    "status": "BLOCKED",
    "note": "朝日新聞の公式ページは描画が必要（題名をHTMLから取れない）"
   },
   {
-   "ep": "EP-04728",
+   "ep": "EP-06104",
+   "service": "asahi",
+   "url": "https://www.asahi.com/special/podcasts/item/?itemid=362b09f0-2e04-4b5c-8d2a-b4aa00cbdc5e",
+   "status": "BLOCKED",
+   "note": "朝日新聞の公式ページは描画が必要（題名をHTMLから取れない）"
+  },
+  {
+   "ep": "EP-00576",
    "service": "pody",
-   "url": "https://pody.jp/player/woMdDOpTDIxhqS4HtAsS/h1P5qJVyujbB80w2Kdgz",
+   "url": "https://pody.jp/player/9AQzhKhH9FOoGcb5V7OL/hNcDlvX5f2mMk66FSAzC",
    "status": "BLOCKED",
    "note": "未対応"
   },
   {
-   "ep": "EP-05013",
+   "ep": "EP-00743",
    "service": "pody",
-   "url": "https://pody.jp/player/woMdDOpTDIxhqS4HtAsS/VkERz160okPxxCRCMrIH",
+   "url": "https://pody.jp/player/9AQzhKhH9FOoGcb5V7OL/SK6hCnH7bG28VnTZP3SQ",
    "status": "BLOCKED",
    "note": "未対応"
   },
   {
-   "ep": "EP-05451",
+   "ep": "EP-01260",
    "service": "pody",
-   "url": "https://pody.jp/player/woMdDOpTDIxhqS4HtAsS/yrljblSb6hlxxplZpmMi",
+   "url": "https://pody.jp/player/4UD5sHilP15gqAc0clXN/G4kFAliSLyCdodbzNN79",
    "status": "BLOCKED",
    "note": "未対応"
   },
   {
-   "ep": "EP-06744",
+   "ep": "EP-01726",
    "service": "pody",
-   "url": "https://pody.jp/player/to04ABW3puiCBtAvp6Wx/leGIjo5O7qtfGfTpwXZk",
+   "url": "https://pody.jp/player/4UD5sHilP15gqAc0clXN/n6GhXKpv7xAHJiCJDauj",
    "status": "BLOCKED",
    "note": "未対応"
   },
   {
-   "ep": "EP-01191",
+   "ep": "EP-02166",
    "service": "pody",
-   "url": "https://pody.jp/player/SLYemnwXxXWVj4z0zqt0/B2iGHu9UYMPWcQi4N8F9",
+   "url": "https://pody.jp/player/4UD5sHilP15gqAc0clXN/9x6hOd0IkuWvUEEd17In",
    "status": "BLOCKED",
    "note": "未対応"
   },
   {
-   "ep": "EP-01657",
+   "ep": "EP-02591",
    "service": "pody",
-   "url": "https://pody.jp/player/4UD5sHilP15gqAc0clXN/Yd9g4yNojbP3URjV1oEn",
+   "url": "https://pody.jp/player/4UD5sHilP15gqAc0clXN/OWRHwMNfDE94K0aAJhgT",
    "status": "BLOCKED",
    "note": "未対応"
   },
   {
-   "ep": "EP-02071",
+   "ep": "EP-03061",
    "service": "pody",
-   "url": "https://pody.jp/player/4UD5sHilP15gqAc0clXN/yis1DKXIEa6IBUheEF1M",
+   "url": "https://pody.jp/player/4UD5sHilP15gqAc0clXN/IBnX547hZqBSqjz0yA99",
    "status": "BLOCKED",
    "note": "未対応"
   },
   {
-   "ep": "EP-02525",
+   "ep": "EP-03547",
    "service": "pody",
-   "url": "https://pody.jp/player/4UD5sHilP15gqAc0clXN/FNXwnDL3cnq37YtBq9hP",
+   "url": "https://pody.jp/player/4UD5sHilP15gqAc0clXN/jbSqmzPOTjFNGugAwRbs",
    "status": "BLOCKED",
    "note": "未対応"
   },
   {
-   "ep": "EP-02995",
+   "ep": "EP-00416",
    "service": "pody",
-   "url": "https://pody.jp/player/4UD5sHilP15gqAc0clXN/nJiDmAKv3dKjFLk1S4LC",
+   "url": "https://pody.jp/player/9AQzhKhH9FOoGcb5V7OL/wIPDKSRsQtTZIymFG0cp",
    "status": "BLOCKED",
    "note": "未対応"
   },
   {
-   "ep": "EP-03467",
+   "ep": "EP-04407",
    "service": "pody",
-   "url": "https://pody.jp/player/4UD5sHilP15gqAc0clXN/XWYxLrctDkJDcW5sRTMm",
+   "url": "https://pody.jp/player/woMdDOpTDIxhqS4HtAsS/3tWp1yUc7fFdHb7h8NfJ",
    "status": "BLOCKED",
    "note": "未対応"
   },
   {
-   "ep": "EP-03942",
+   "ep": "EP-04793",
    "service": "pody",
-   "url": "https://pody.jp/player/woMdDOpTDIxhqS4HtAsS/9xpUJTiybWqUdhw3ZX8A",
+   "url": "https://pody.jp/player/woMdDOpTDIxhqS4HtAsS/fWT44rz8fp9NrLrJJG9r",
    "status": "BLOCKED",
    "note": "未対応"
   },
   {
-   "ep": "EP-04341",
+   "ep": "EP-05079",
    "service": "pody",
-   "url": "https://pody.jp/player/woMdDOpTDIxhqS4HtAsS/vAVlYo4iOfoZbKYPNFZX",
+   "url": "https://pody.jp/player/woMdDOpTDIxhqS4HtAsS/w3vLRWPKgGykmuHv8exS",
    "status": "BLOCKED",
    "note": "未対応"
   }
