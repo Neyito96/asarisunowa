@@ -9,32 +9,32 @@ async function main() {
   const b = await chromium.launch(), ctx = await b.newContext({ locale: 'ja-JP', timezoneId: 'Asia/Tokyo', viewport: { width: 1280, height: 2000 } });
   const p = await ctx.newPage();
   await p.goto(`https://music.amazon.co.jp/podcasts/${SHOW}`, { waitUntil: 'domcontentloaded', timeout: 90000 });
-  await p.waitForSelector('music-episode-row-item a[href*="/episodes/"]', { timeout: 90000 });
+  // 2026-11 の Amazon Music は新しい画面（music-episode-row-item が無い）。回の行は a[href*="/episodes/"] から日付行まで親をたどって読む。
+  await p.waitForSelector('a[href*="/episodes/"]', { timeout: 90000, state: 'attached' });
   await p.waitForTimeout(3000);
   const all = new Map(); let idle = 0, rounds = 0;
-  while (idle < 12 && rounds < 1500) {
+  while (idle < 15 && rounds < 3000) {
     rounds++;
     const rows = await p.evaluate(() => {
       const DATE = /^(\d{4}年\d{1,2}月\d{1,2}日|\d{1,2}-\d{1,2}-\d{4}|\d+(?:日|時間|分)前|昨日|今日)$/;
-      const DUR = /^((\d+)\s*(?:hr|時間))?\s*((\d+)\s*(?:min|分))?\s*((\d+)\s*(?:sec|秒))?$/;
       const out = [];
-      document.querySelectorAll('music-episode-row-item').forEach((row) => {
-        const a = row.querySelector('a[href*="/episodes/"]'); if (!a) return;
-        const m = a.getAttribute('href').match(/\/podcasts\/([0-9a-f-]{36})\/episodes\/([0-9a-f-]{36})/); if (!m) return;
-        const lines = (row.innerText || '').split('\n').map((x) => x.trim()).filter(Boolean);
-        let i = 0, date = ''; if (DATE.test(lines[0] || '')) { date = lines[0]; i = 1; }
-        const title = (a.innerText || '').trim() || lines[i] || '';
-        let duration = ''; for (let k = lines.length - 1; k >= 0 && !duration; k--) { const d = lines[k].match(DUR); if (d && (d[2] || d[4] || d[6])) duration = (d[2] ? d[2] + '時間' : '') + (d[4] ? d[4] + '分' : '') + (d[6] ? d[6] + '秒' : ''); }
-        out.push({ show: m[1], ep: m[2], title, date, duration });
+      document.querySelectorAll('a[href*="/episodes/"]').forEach((a) => {
+        const m = (a.getAttribute('href') || '').split('?')[0].match(/\/podcasts\/([0-9a-f-]{36})\/episodes\/([0-9a-f-]{36})/); if (!m) return;
+        let n = a, row = null; for (let i = 0; i < 10 && n; i++) { const L = (n.innerText || '').split('\n').map((x) => x.trim()).filter(Boolean); if (DATE.test(L[0] || '')) { row = L; break; } n = n.parentElement; }
+        if (!row) return;
+        const duration = row.find((x) => /^(?:\d+時間)?(?:\d+分)?(?:\d+秒)?$/.test(x) && /[時分秒]/.test(x)) || '';
+        out.push({ show: m[1], ep: m[2], title: (a.innerText || '').trim(), date: row[0], duration });
       });
+      // 回の一覧を包む縦スクロール領域（一番高いもの）を下端へ送る
+      const sc = [...document.querySelectorAll('*')].filter((e) => e.scrollHeight > e.clientHeight + 200 && /auto|scroll/.test(getComputedStyle(e).overflowY)).sort((x, y) => y.scrollHeight - x.scrollHeight)[0];
+      if (sc) sc.scrollTop = sc.scrollHeight; window.scrollTo(0, document.body.scrollHeight);
       return out;
     });
     const before = all.size;
     for (const r of rows) if (r.show === SHOW && r.title && !all.has(r.ep)) all.set(r.ep, r);
     idle = all.size === before ? idle + 1 : 0;
     if (rounds % 20 === 0) console.log('rounds', rounds, 'episodes', all.size);
-    await p.evaluate(() => { const rs = document.querySelectorAll('music-episode-row-item'); rs[rs.length - 1]?.scrollIntoView(); window.scrollBy(0, 1500); });
-    await p.waitForTimeout(1200);
+    await p.waitForTimeout(1000);
   }
   await b.close();
   const episodes = [...all.values()].map((r) => ({ url: `https://music.amazon.co.jp/podcasts/${r.show}/episodes/${r.ep}`, title: r.title, date: absoluteDate(r.date), rawDate: r.date, duration: r.duration }));
