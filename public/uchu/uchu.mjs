@@ -55,6 +55,15 @@ function packCircles(items, gap) {   // items: [{r}] → x,y を詰めて置く�
   }
   return items;
 }
+// 星と星を結ぶ線は、ゆるくうねる曲線にする（2026-11-24 管理人指示）。曲がり方は2つの星から決まるので、描き直しても揺れない
+function wavyTo(ctx, x0, y0, x1, y1, seed) {
+  const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy);
+  if (!(L > 12)) { ctx.lineTo(x1, y1); return; }
+  let h = (seed | 0) ^ 0x9e3779b9; const rnd = () => { h = Math.imul(h ^ (h >>> 15), 2246822519); h = Math.imul(h ^ (h >>> 13), 3266489917); return ((h ^= h >>> 16) >>> 0) / 4294967296; };
+  const nx = -dy / L, ny = dx / L, amp = Math.min(60, L * 0.18);
+  const a1 = (rnd() * 2 - 1) * amp, a2 = (rnd() * 2 - 1) * amp, t1 = 0.25 + rnd() * 0.15, t2 = 0.6 + rnd() * 0.15;
+  ctx.bezierCurveTo(x0 + dx * t1 + nx * a1, y0 + dy * t1 + ny * a1, x0 + dx * t2 + nx * a2, y0 + dy * t2 + ny * a2, x1, y1);
+}
 function buildCatLayout() {
   const S = 7, GA = Math.PI * (3 - Math.sqrt(5));
   const groups = Array.from({ length: HOLD + 1 }, (_, m) => ({ m, subs: new Map() }));
@@ -71,7 +80,12 @@ function buildCatLayout() {
   const main = regions.filter((rg) => rg.m !== HOLD), hold = regions.find((rg) => rg.m === HOLD);
   packCircles(main, FUCHI ? 70 : 40);
   // 名付け募集星群（保留の塊）は、分類の集まりの右斜め上に置いて目立たせる
-  if (hold) { const maxX = Math.max(...main.map((rg) => rg.x + rg.r)), minY = Math.min(...main.map((rg) => rg.y - rg.r)); hold.x = maxX + hold.r + 10; hold.y = minY + hold.r * 0.4; }
+  // （11/24: 右上の角では離れすぎて画面の端やボタンに重なるので、分類の集まりの円周の右上に寄せる）
+  if (hold) {
+    const minX = Math.min(...main.map((rg) => rg.x - rg.r)), maxX = Math.max(...main.map((rg) => rg.x + rg.r)), minY = Math.min(...main.map((rg) => rg.y - rg.r)), maxY = Math.max(...main.map((rg) => rg.y + rg.r));
+    const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2, R = Math.max(...main.map((rg) => Math.hypot(rg.x - cx, rg.y - cy) + rg.r)), a = -Math.PI / 5;
+    hold.x = cx + Math.cos(a) * (R + hold.r + 8); hold.y = cy + Math.sin(a) * (R + hold.r + 8);
+  }
   for (const rg of regions) for (const q of rg.subs) {
     q.x += rg.x; q.y += rg.y;
     q.ids.forEach((i, k) => { const rr = S * (q.sp || 1) * 0.95 * Math.sqrt(k + 0.5), a = k * GA; catX[i] = q.x + Math.cos(a) * rr; catY[i] = q.y + Math.sin(a) * rr; });
@@ -229,7 +243,7 @@ const HOLD = D.cats.length;
 const dispMain = (i) => { const c = D.cls[i]; return c[0] >= 0 && 'apd'.includes(c[3]) ? c[0] : HOLD; };
 const dispSub = (i) => (dispMain(i) === HOLD ? -1 : D.cls[i][1]);
 const catColor = (m) => (m === HOLD ? (FUCHI ? '#ece6ff' : '#6f7894') : `hsl(${D.cats[m].hue} 70% 66%)`);   // 名付け募集星群は淡い白で瞬かせる
-const catName = (m) => (m === HOLD ? (FUCHI ? '名付け募集星群' : '保留（推定のみ）') : D.cats[m].name);
+const catName = (m) => (m === HOLD ? (FUCHI ? 'ミミマチ星群（仮）' : '保留（推定のみ）') : D.cats[m].name);
 // ふちの星（?fuchi）: 保留の回の寄せ先。みんなの見立てがあればその1位、なければ Claude の推定。どちらもなければ -1
 const CAT_BY_NAME = new Map(D.cats.map((c, m) => [c.name, m]));
 function lean(i) {
@@ -391,7 +405,7 @@ function render() {
   // 選んだ回: 関連する回への線
   if (sel && sel.type === 'ep') {
     const i = sel.id, x0 = SX(i), y0 = SY(i);
-    if (REL) for (const r of REL[i][0]) { const j = r[0]; if (!Number.isFinite(px[j])) continue; ctx.strokeStyle = r[3] ? '#f3d48fcc' : '#9fb4e0aa'; ctx.lineWidth = 1 + r[1] / 60; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(SX(j), SY(j)); ctx.stroke(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(SX(j), SY(j), 3, 0, Math.PI * 2); ctx.fill(); }
+    if (REL) for (const r of REL[i][0]) { const j = r[0]; if (!Number.isFinite(px[j])) continue; ctx.strokeStyle = r[3] ? '#f3d48fcc' : '#9fb4e0aa'; ctx.lineWidth = 1 + r[1] / 60; ctx.beginPath(); ctx.moveTo(x0, y0); wavyTo(ctx, x0, y0, SX(j), SY(j), i * 7919 + j); ctx.stroke(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(SX(j), SY(j), 3, 0, Math.PI * 2); ctx.fill(); }
     if (Number.isFinite(x0)) { ctx.strokeStyle = '#f3c969'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x0, y0, 9, 0, Math.PI * 2); ctx.stroke(); }
   }
   if (hoverEp >= 0) { const x = SX(hoverEp), y = SY(hoverEp); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.stroke(); }
@@ -488,7 +502,7 @@ function drawLabels() {
   if (sel && sel.type === 'word') {
     const j0 = sel.id, x0 = sx(D.terms[j0][1]), y0 = sy(D.terms[j0][2]);
     ctx.strokeStyle = '#f3c96988'; ctx.lineWidth = 1;
-    for (const [y] of D.terms[j0][5]) { if (D.terms[y][1] === null) continue; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(sx(D.terms[y][1]), sy(D.terms[y][2])); ctx.stroke(); }
+    for (const [y] of D.terms[j0][5]) { if (D.terms[y][1] === null) continue; ctx.beginPath(); ctx.moveTo(x0, y0); wavyTo(ctx, x0, y0, sx(D.terms[y][1]), sy(D.terms[y][2]), j0 * 7919 + y); ctx.stroke(); }
   }
   const max = Math.min(220, 40 + Math.round(k * 60));
   let shown = 0;
@@ -513,7 +527,7 @@ function drawArticleSatellites() {
   list.forEach((a, n) => {
     const ang = -Math.PI / 2 + (n / list.length) * Math.PI * 2, x = x0 + Math.cos(ang) * R, y = y0 + Math.sin(ang) * R;
     ctx.strokeStyle = '#7fd1c455'; ctx.lineWidth = 1;
-    for (const i of a.eps) { if (!Number.isFinite(px[i])) continue; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(sx(px[i]), sy(py[i])); ctx.stroke(); }
+    for (const i of a.eps) { if (!Number.isFinite(px[i])) continue; ctx.beginPath(); ctx.moveTo(x, y); wavyTo(ctx, x, y, sx(px[i]), sy(py[i]), n * 7919 + i); ctx.stroke(); }
     ctx.strokeStyle = '#7fd1c4aa'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x, y); ctx.stroke(); ctx.setLineDash([]);
     const r = 5 + Math.min(4, a.eps.length);
     ctx.fillStyle = '#7fd1c4'; ctx.beginPath(); ctx.moveTo(x, y - r); ctx.lineTo(x + r, y); ctx.lineTo(x, y + r); ctx.lineTo(x - r, y); ctx.closePath(); ctx.fill();
@@ -694,19 +708,19 @@ function edgeText(i) {
 function catSection(i) {
   if (!SHOW_CLS) {   // 分類を隠している間は、保留の回にだけ「みんなで仕分ける」入口を出す
     if (dispMain(i) !== HOLD) return null;
-    return h('div', { class: 'sec' }, h('p', { class: 'note' }, h('a', { href: '../minna/#ep=' + D.eps[i][0], target: '_blank', rel: 'noopener' }, 'この星のありかを見立てる →')));
+    return h('div', { class: 'sec' }, h('p', { class: 'note' }, h('a', { href: '../minna/#ep=' + D.eps[i][0], target: '_blank', rel: 'noopener' }, 'この星はどこへいく？ →')));
   }
   const [mi, si, conf, src, mi2, si2] = D.cls[i], [ev, old, ev2] = D.clsEv[i] || ['', '', ''], shown = dispMain(i);
   const guess = shown === HOLD && mi >= 0 && sortLoad()[D.eps[i][0]] ? h('p', { class: 'evid' }, `Claudeの推定: ${D.cats[mi].name}（${src === 'l' ? '似た回の言葉から学んだ推定' : '関連する回の分類から'}・要確認）`) : null;
   const ep = D.eps[i][0], mv = freshTally((MINNA.votes || {})[ep], minnaFresh()[ep], MINNA.generatedAt), mc = consensus(mv), vp = viewpoints(mv);
-  const minnaLink = h('a', { href: '../minna/#ep=' + ep, target: '_blank', rel: 'noopener' }, shown === HOLD ? 'この星のありかを見立てる →' : 'この分類、ちがうかも？ 見立てを送る →');
+  const minnaLink = h('a', { href: '../minna/#ep=' + ep, target: '_blank', rel: 'noopener' }, shown === HOLD ? 'この星はどこへいく？ →' : 'この分類、ちがうかも？ 見立てを送る →');
   const minna = h('div', { class: 'minna-vp' },
     mc ? h('p', { class: 'dual' }, h('span', { class: 'badge mv' }, 'みんなの分類（候補）'), `${mc.name}（${mc.n}人中${mc.count}人）`) : null,
     vp ? h('p', { class: 'dual' }, h('span', { class: 'badge c2b' }, 'みんなの見立て'), vp.rows.map((r) => `${r.name}（${r.count}人）`).join('、') + (vp.unsure ? `、わからない（${vp.unsure}人）` : '')) : null,
     h('p', { class: 'note' }, minnaLink));
   return h('div', { class: 'sec' }, h('h4', {}, '分類'),
     shown === HOLD && isEdge(i) ? h('p', {}, h('span', { class: 'badge cl' }, 'ふちの星'), h('span', { class: 'note' }, edgeText(i))) :
-    shown === HOLD ? h('p', {}, h('span', { class: 'badge cl' }, FUCHI ? '名付け募集星群' : '保留'), h('span', { class: 'note' }, '手がかりが弱いため分類に置いていません')) :
+    shown === HOLD ? h('p', {}, h('span', { class: 'badge cl' }, FUCHI ? 'ミミマチ星群（仮）' : '保留'), h('span', { class: 'note' }, '手がかりが弱いため分類に置いていません')) :
       h('p', {}, h('span', { class: 'badge ' + CONF[conf][0] }, CONF[conf][1]), h('button', { type: 'button', class: 'chip catpath', onclick: () => select({ type: 'cat', id: shown, sub: si }) }, catName(shown) + (si >= 0 ? ' › ' + D.cats[shown].subs[si] : ''))),
     minna,
     guess,
@@ -985,7 +999,8 @@ function renderIndex() {
   const fmts = D.formats.map((n, k) => [k, n, D.fmt.reduce((a, f) => a + (f.some(([x]) => x === k) ? 1 : 0), 0)]).sort((a, b) => b[2] - a[2]);
   panel().replaceChildren(h('div', { class: 'idx' },
     h('p', { class: 'kind' }, '一覧'), h('h3', { class: 'hero' }, '分類の一覧'),
-    h('p', { class: 'note' }, '20の大分類（Claudeの試作）。押すと小分類が開き、その分野の回が星図で光ります。小分類を選ぶと、その回の一覧が出ます。'),
+    h('p', { class: 'note' }, '20の大分類。押すと小分類が開き、その分野の回が星図で光ります。小分類を選ぶと、その回の一覧が出ます。'),
+    h('p', { class: 'note' }, '星の並びはAIの試作です。人が動かした星はそのまま残ります。朝リスのみんなで、', h('a', { href: '../minna/', target: '_blank', rel: 'noopener' }, 'この宇宙を描きつづけませんか？')),
     h('ol', { class: 'cats idx-cats' }, items),
     h('div', { class: 'sec' }, h('h4', {}, '形式（回の作り）'), fmts.map(([k, n, c]) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'fmt', id: k }) }, n, h('small', {}, c))))));
   panelEl.scrollTop = 0; live('分類の一覧を開きました');

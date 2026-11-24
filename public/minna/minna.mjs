@@ -51,9 +51,9 @@ function buildQueue() {
 
 function renderStats() {
   const total = BOUNDARY.length + D.cls.filter((_, i) => isHold(i)).length;
-  const nameless = D.cls.filter((c, i) => isHold(i) && !(c[0] >= 0) && !((votes[D.eps[i][0]] || {}).n)).length;   // 宇宙の「名付け募集星群」（推定も見立てもない回）
+  const nameless = D.cls.filter((c, i) => isHold(i) && !(c[0] >= 0) && !((votes[D.eps[i][0]] || {}).n)).length;   // 宇宙の「ミミマチ星群（仮）」（推定も見立てもない回）
   const voted = Object.keys(votes).length;
-  $('#stats').innerHTML = `<span><b>${total.toLocaleString()}</b>回が見立て待ち（うち名付け募集星群 <b>${nameless.toLocaleString()}</b>回）</span><span>みんなの見立て <b>${voted.toLocaleString()}</b>回${VOTE_META.contributors ? `・<b>${VOTE_META.contributors}</b>人` : ''}</span><span>あなた <b>${done.size}</b>回</span>`;
+  $('#stats').innerHTML = `<span><b>${total.toLocaleString()}</b>回が見立て待ち（うちミミマチ星群（仮） <b>${nameless.toLocaleString()}</b>回）</span><span>みんなの見立て <b>${voted.toLocaleString()}</b>回${VOTE_META.contributors ? `・<b>${VOTE_META.contributors}</b>人` : ''}</span><span>あなた <b>${done.size}</b>回</span>`;
 }
 
 function renderShowChips() {
