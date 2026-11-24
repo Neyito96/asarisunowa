@@ -7,6 +7,7 @@ test('Amazon の相対日付を UTC の日付に', () => {
   assert.equal(absoluteDate('2026年10月25日', now), '2026年10月25日');
   assert.equal(absoluteDate('3時間前', now), '2026年11月18日');
   assert.equal(absoluteDate('', now), '');
+  assert.equal(absoluteDate('1週間前', now), '2026年11月11日');
 });
 
 // 小さな偽の DOM（innerText・parentElement・closest・getAttribute だけ）
@@ -18,16 +19,16 @@ const docOf = (anchors) => ({ querySelectorAll: () => anchors });
 test('新しい画面: 親をたどって日付の行を回の行として読む', async () => {
   const { pickRows } = await import('../scripts/amazon/scrape-new.mjs');
   const row1 = el('2026年11月24日\n（カガク #28）新プレイリスト\n29分29秒', el('list', null));
-  const row2 = el('1日前\n別の回\n1時間2分', el('list', null));
+  const row2 = el('1週間前\n別の回\n1時間2分', el('list', null));
   const promo = el('おすすめ\n別の番組', null);   // 日付の行が無い枠は読まない
   const rows = pickRows(docOf([
     anchor(`/podcasts/${S}/episodes/${E1}?ref=x`, '（カガク #28）新プレイリスト', el('（カガク #28）新プレイリスト', row1)),
-    anchor(`/podcasts/${S}/episodes/${E2}`, '別の回', el('別の回', row2)),
+    anchor(`/podcasts/${S}/episodes/${E2}`, '1週間前', row2), anchor(`/podcasts/${S}/episodes/${E2}`, '別の回', el('別の回', row2)),
     anchor(`/podcasts/${S}/episodes/${E3}`, '別の番組', promo),
   ]), 'https://music.amazon.co.jp');
   assert.deepEqual(JSON.parse(JSON.stringify(rows)), [
     { url: `https://music.amazon.co.jp/podcasts/${S}/episodes/${E1}`, title: '（カガク #28）新プレイリスト', date: '2026年11月24日', duration: '29分29秒' },
-    { url: `https://music.amazon.co.jp/podcasts/${S}/episodes/${E2}`, title: '別の回', date: '1日前', duration: '1時間2分' },
+    { url: `https://music.amazon.co.jp/podcasts/${S}/episodes/${E2}`, title: '別の回', date: '1週間前', duration: '1時間2分' },
   ]);
 });
 

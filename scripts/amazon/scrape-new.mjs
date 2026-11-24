@@ -9,15 +9,15 @@ const SHOWS = {
 export function absoluteDate(text, now = new Date()) {
   const t = String(text || ''); if (/\d{4}年\d{1,2}月\d{1,2}日/.test(t)) return t.match(/\d{4}年\d{1,2}月\d{1,2}日/)[0];
   const dmy = t.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/); if (dmy) return `${+dmy[3]}年${+dmy[2]}月${+dmy[1]}日`;   // 英語表示の DD-MM-YYYY
-  let ms = 0; const d = t.match(/(\d+)日前/), h = t.match(/(\d+)時間前/), m = t.match(/(\d+)分前/);
-  if (d) ms = +d[1] * 86400000; else if (h) ms = +h[1] * 3600000; else if (m) ms = +m[1] * 60000; else if (/昨日/.test(t)) ms = 86400000; else if (!/今日/.test(t)) return '';
+  let ms = 0; const d = t.match(/(\d+)日前/), w = t.match(/(\d+)週間前/), h = t.match(/(\d+)時間前/), m = t.match(/(\d+)分前/);
+  if (d) ms = +d[1] * 86400000; else if (w) ms = +w[1] * 7 * 86400000; else if (h) ms = +h[1] * 3600000; else if (m) ms = +m[1] * 60000; else if (/昨日/.test(t)) ms = 86400000; else if (!/今日/.test(t)) return '';
   const x = new Date(now.getTime() - ms); return `${x.getUTCFullYear()}年${x.getUTCMonth() + 1}月${x.getUTCDate()}日`;
 }
 // ページの中の回の行を読む（Playwright の evaluate で動かすので、この関数の中だけで完結させる）。
 // 古い画面: music-episode-row-item の行。新しい画面（2026-11〜、#518）: その要素が無いので、
 // 回のリンクから親をたどり、先頭の行が日付になっている要素を回の行とみなす。
 export function pickRows(doc, origin) {
-  const DATE = /^(\d{4}年\d{1,2}月\d{1,2}日|\d{1,2}-\d{1,2}-\d{4}|\d+(?:日|時間|分)前|昨日|今日)$/;
+  const DATE = /^(\d{4}年\d{1,2}月\d{1,2}日|\d{1,2}-\d{1,2}-\d{4}|\d+(?:日|週間|時間|分)前|昨日|今日)$/;
   const DUR = /^((\d+)\s*(?:hr|時間))?\s*((\d+)\s*(?:min|分))?\s*((\d+)\s*(?:sec|秒))?$/;
   const linesOf = (el) => String((el && el.innerText) || '').split('\n').map((x) => x.trim()).filter(Boolean);
   const byId = new Map();
@@ -31,7 +31,7 @@ export function pickRows(doc, origin) {
     let i = 0, date = ''; if (DATE.test(lines[0] || '')) { date = lines[0]; i = 1; }
     const title = String(a.innerText || '').trim() || lines[i] || '';
     let duration = ''; for (let k = lines.length - 1; k >= 0 && !duration; k--) { const d = lines[k].match(DUR); if (d && (d[2] || d[4] || d[6])) duration = (d[2] ? d[2] + '時間' : '') + (d[4] ? d[4] + '分' : '') + (d[6] ? d[6] + '秒' : ''); }
-    const cur = byId.get(m[2]) || { url: origin + '/podcasts/' + m[1] + '/episodes/' + m[2], title: '', date: '', duration: '' };
+    const cur = byId.get(m[2]) || { url: (/^https?:/.test(href) ? '' : origin) + href.split('?')[0], title: '', date: '', duration: '' };   // ページの href のまま（作らない）
     if (title && !DATE.test(title) && (!cur.title || title.length < cur.title.length)) cur.title = title; if (date && !cur.date) cur.date = date; if (duration && !cur.duration) cur.duration = duration;
     byId.set(m[2], cur);
   });
