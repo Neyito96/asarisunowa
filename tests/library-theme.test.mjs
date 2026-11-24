@@ -56,3 +56,28 @@ test('実データ: 朝鮮・韓国・コリアのキーワードで蔵から22�
   const got = T.libraryThemePick_({ keywords: T.libraryThemeSplitKeywords_(kw) }, m.shows, lite, text);
   assert.ok(got.length >= 15 && got.length <= 40, String(got.length));
 });
+
+test('同じ題名は1本だけ（タブにある題名・今回の重複とも）', () => {
+  const picked = [
+    { ep: 'EP-1', show: '報談', date: '2023-07-28', title: '分割配信　ワンピース #1199', matched: ['x'], strong: true },
+    { ep: 'EP-2', show: '報談', date: '2023-08-01', title: '題B', matched: ['x'], strong: true },
+    { ep: 'EP-3', show: '報談', date: '2023-08-02', title: '題B', matched: ['x'], strong: true },
+  ];
+  const lookup = { 'EP-1': { spotifyId: 's1' }, 'EP-2': { spotifyId: 's2' }, 'EP-3': { spotifyId: 's3' } };
+  const v = (n) => ({ name: n, showId: '5Dt1uyQaJpM6hPV8aEMP3R' });
+  const plan = T.libraryThemePlan_({ keywords: ['x'] }, picked, lookup, { s1: v('分割配信　ワンピース #1199'), s2: v('題B'), s3: v('題B') }, {}, { '分割配信ワンピース#1199': true });
+  assert.deepEqual(plain(plan.rows.map((r) => r.ep)), ['EP-2']);
+  assert.equal(plan.sameTitle, 2);
+});
+
+test('厳しめモード: 概要に1回だけの回は未確認（既定はすべて採用）', () => {
+  const lite = [['EP-1', 0, '2024-01-01T04:00', 'ウトロの話'], ['EP-2', 0, '2024-01-02T04:00', '別の話'], ['EP-3', 0, '2024-01-03T04:00', 'また別']];
+  const got = T.libraryThemePick_({ keywords: ['ウトロ'] }, ['報談'], lite, { 'EP-2': 'ウトロに行った', 'EP-3': 'ウトロ、そしてウトロ' });
+  assert.deepEqual(plain(got.map((p) => [p.ep, p.strong])), [['EP-1', true], ['EP-2', false], ['EP-3', true]]);
+  const lookup = { 'EP-1': { spotifyId: 's1' }, 'EP-2': { spotifyId: 's2' }, 'EP-3': { spotifyId: 's3' } };
+  const ver = { s1: { name: 'ウトロの話', showId: '5Dt1uyQaJpM6hPV8aEMP3R' }, s2: { name: '別の話', showId: '5Dt1uyQaJpM6hPV8aEMP3R' }, s3: { name: 'また別', showId: '5Dt1uyQaJpM6hPV8aEMP3R' } };
+  const def = T.libraryThemePlan_({ keywords: ['ウトロ'] }, got, lookup, ver, {});
+  assert.deepEqual(plain(def.rows.map((r) => r.strong)), [true, true, true]);
+  const strict = T.libraryThemePlan_({ keywords: ['ウトロ'], strict: true }, got, lookup, ver, {});
+  assert.deepEqual(plain(strict.rows.map((r) => r.strong)), [true, false, true]);
+});
