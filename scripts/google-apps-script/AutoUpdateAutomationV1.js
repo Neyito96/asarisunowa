@@ -428,7 +428,9 @@ function processPendingAutoUpdateRequestsV1() {
           return;
         }
 
-        const targetRule = sameRequest ? existing[0] : rule;
+        // 旧 theme V2 が受付時に保存したルール（themeEngineVersion 2）は使わず、
+        // シートの今の内容（キーワードの修正を含む）から作り直したルールで開始する（#521）。
+        const targetRule = sameRequest && existing[0].themeEngineVersion !== 2 ? existing[0] : rule;
 
         try {
           const themeResult = activateSubmittedThemeV3Request_(targetRule, token);
