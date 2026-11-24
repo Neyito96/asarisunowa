@@ -60,8 +60,9 @@ function wavyTo(ctx, x0, y0, x1, y1, seed) {
   const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy);
   if (!(L > 12)) { ctx.lineTo(x1, y1); return; }
   let h = (seed | 0) ^ 0x9e3779b9; const rnd = () => { h = Math.imul(h ^ (h >>> 15), 2246822519); h = Math.imul(h ^ (h >>> 13), 3266489917); return ((h ^= h >>> 16) >>> 0) / 4294967296; };
-  const nx = -dy / L, ny = dx / L, amp = Math.min(60, L * 0.18);
-  const a1 = (rnd() * 2 - 1) * amp, a2 = (rnd() * 2 - 1) * amp, t1 = 0.25 + rnd() * 0.15, t2 = 0.6 + rnd() * 0.15;
+  const nx = -dy / L, ny = dx / L, amp = Math.min(160, L * 0.3);
+  const sw = () => (rnd() < 0.5 ? -1 : 1) * (0.45 + rnd() * 0.55) * amp;   // 曲がりは必ず目に見える大きさ（向きは2点で決まる）
+  const a1 = sw(), a2 = sw(), t1 = 0.25 + rnd() * 0.15, t2 = 0.6 + rnd() * 0.15;
   ctx.bezierCurveTo(x0 + dx * t1 + nx * a1, y0 + dy * t1 + ny * a1, x0 + dx * t2 + nx * a2, y0 + dy * t2 + ny * a2, x1, y1);
 }
 function buildCatLayout() {
