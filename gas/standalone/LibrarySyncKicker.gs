@@ -13,11 +13,12 @@
  *   1. GitHub で「Fine-grained personal access token」を作る
  *      - Repository access: Only select repositories → Neyito96/asarisunowa だけ
  *      - Permissions: Actions = Read and write（ほかは付けない）
- *   2. このファイルを新しい GAS プロジェクトに貼る
+ *   2. このファイルを GAS プロジェクトに貼る（2026-11-25〜「朝リスの輪 GAS配達係」に「Kicker」というファイルで同居。
+ *      配達係の毎時トリガー deliveryHourly には触らない）
  *   3. プロジェクトの設定 → スクリプト プロパティ に GITHUB_TOKEN = （1 のトークン）を入れる
  *      ※トークンはここ以外に書かない・貼らない（GitHub・チャット・シートに出さない）
  *   4. K1_試しに起動 を実行 → 「OK」と出て、GitHub の Actions に Library V2 sync が1件増えれば成功
- *   5. K2_トリガー設置 を実行（毎時1回＋毎朝7時台の1回）
+ *   5. K2_トリガー設置 を実行（毎時1回＋毎朝 6:50ごろ・7:15ごろの2回）
  * 止めるとき: K9_トリガー削除
  */
 var KICK_REPO_ = 'Neyito96/asarisunowa';
@@ -47,9 +48,11 @@ function K_定時起動() { return kickSync_('定時'); }   // トリガーか�
 function K2_トリガー設置() {
   K9_トリガー削除();
   ScriptApp.newTrigger('K_定時起動').timeBased().everyHours(1).create();
-  ScriptApp.newTrigger('K_定時起動').timeBased().everyDays(1).atHour(7).nearMinute(0).create();   // 6:41 の新着取り込みのすぐ後
-  var n = ScriptApp.getProjectTriggers().length;
-  Logger.log('トリガー ' + n + ' 本（毎時1回＋毎朝7時台）');
+  // 6:41 の新着取り込みのすぐ後に2回（GAS の時刻指定は前後15分ほどずれるため）
+  ScriptApp.newTrigger('K_定時起動').timeBased().everyDays(1).atHour(6).nearMinute(50).inTimezone('Asia/Tokyo').create();
+  ScriptApp.newTrigger('K_定時起動').timeBased().everyDays(1).atHour(7).nearMinute(15).inTimezone('Asia/Tokyo').create();
+  var n = ScriptApp.getProjectTriggers().filter(function (t) { return t.getHandlerFunction() === 'K_定時起動'; }).length;
+  Logger.log('起動係のトリガー ' + n + ' 本（毎時1回＋毎朝2回）');
   return { status: 'INSTALLED', triggers: n };
 }
 
