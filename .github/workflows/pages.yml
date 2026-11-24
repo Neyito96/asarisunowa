@@ -32,6 +32,8 @@ jobs:
       - run: npm run build:pages
       - name: Include standalone SOZIN demo
         run: mkdir -p dist/client/sozin && cp -R sozin/. dist/client/sozin/
+      - name: Bundle GAS code for the delivery robot (#526)
+        run: node scripts/build-gas-bundle.mjs dist/client/gas/bundle.json
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

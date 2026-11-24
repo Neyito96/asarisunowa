@@ -25,19 +25,13 @@ function deliveryGoogle_(method, path, body) {
     headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() }
   });
 }
-function deliveryGithubHeadSha_() {
-  var c = deliveryFetch_('https://api.github.com/repos/' + DELIVERY_REPO + '/commits?path=' + encodeURIComponent(DELIVERY_DIR) + '&sha=' + DELIVERY_BRANCH + '&per_page=1',
-    { headers: { Accept: 'application/vnd.github+json' } });
-  return c && c[0] && c[0].sha || '';
-}
-// GitHub の .js と appsscript.json を { name, type, source } に（.md などは届けない）
-function deliveryGithubFiles_(sha) {
-  var list = deliveryFetch_('https://api.github.com/repos/' + DELIVERY_REPO + '/contents/' + DELIVERY_DIR + '?ref=' + sha, { headers: { Accept: 'application/vnd.github+json' } });
-  return list.filter(function (f) { return f.type === 'file' && (/\.js$/.test(f.name) || f.name === 'appsscript.json'); }).map(function (f) {
-    var raw = UrlFetchApp.fetch('https://raw.githubusercontent.com/' + DELIVERY_REPO + '/' + sha + '/' + DELIVERY_DIR + '/' + encodeURIComponent(f.name), { muteHttpExceptions: true });
-    if (raw.getResponseCode() !== 200) throw new Error('GitHubからファイルを取れません: ' + f.name);
-    return { name: f.name.replace(/\.(js|json)$/, ''), type: f.name === 'appsscript.json' ? 'JSON' : 'SERVER_JS', source: raw.getContentText() };
-  });
+// GitHub Pages に出している束（scripts/build-gas-bundle.mjs が作る）を1回読むだけ。
+// GitHub API は Google のサーバーから呼ぶと回数制限（403）にすぐかかるため使わない。
+var DELIVERY_BUNDLE_URL = 'https://neyito96.github.io/asarisunowa/gas/bundle.json';
+function deliveryBundle_() {
+  var b = deliveryFetch_(DELIVERY_BUNDLE_URL + '?t=' + Date.now());
+  if (!b || !b.digest || !Array.isArray(b.files) || !b.files.length) throw new Error('GitHubの最新版（束）を確認できません');
+  return b;
 }
 function deliveryNorm_(s) { return String(s || '').replace(/\r\n/g, '\n').replace(/[ \t]+$/gm, '').replace(/\n+$/, ''); }
 
@@ -59,12 +53,12 @@ function deliveryPlan_(current, github) {
   return out;
 }
 
-function deliveryPrepare_() {
-  var sha = deliveryGithubHeadSha_();
-  if (!sha) throw new Error('GitHubの最新版を確認できません');
+function deliveryPrepare_(bundle) {
+  var b = bundle || deliveryBundle_();
   var current = deliveryGoogle_('get', DELIVERY_TARGET_SCRIPT_ID + '/content').files || [];
-  var plan = deliveryPlan_(current, deliveryGithubFiles_(sha));
-  plan.sha = sha;
+  var plan = deliveryPlan_(current, b.files);
+  plan.sha = String(b.sha || '');
+  plan.digest = b.digest;
   return plan;
 }
 function deliverySummary_(plan) {
@@ -79,7 +73,7 @@ function deliveryApply_(plan, why) {
     deploymentConfig: { scriptId: DELIVERY_TARGET_SCRIPT_ID, versionNumber: version.versionNumber, manifestFileName: 'appsscript', description: 'GitHub ' + plan.sha.slice(0, 7) }
   });
   var P = PropertiesService.getScriptProperties();
-  P.setProperty('DELIVERY_LAST_SHA', plan.sha);
+  P.setProperty('DELIVERY_LAST_DIGEST', plan.digest);
   var log = { at: new Date().toISOString(), why: why, version: version.versionNumber, summary: deliverySummary_(plan) };
   P.setProperty('DELIVERY_LAST_LOG', JSON.stringify(log).slice(0, 8000));
   return { status: 'DELIVERED', log: log };
@@ -93,14 +87,11 @@ function DELIVERY_APPLY_NOW() { var r = deliveryApply_(deliveryPrepare_(), '手�
 function deliveryHourly() {
   var P = PropertiesService.getScriptProperties();
   if (P.getProperty('DELIVERY_STOP')) return { status: 'STOPPED', reason: P.getProperty('DELIVERY_STOP') };
-  var sha;
-  try { sha = deliveryGithubHeadSha_(); } catch (e) {
-    if (/HTTP (403|429)/.test(String(e))) return { status: 'GITHUB_BUSY_RETRY_NEXT_HOUR' };   // GitHub の回数制限。次の時間に
-    throw e;
-  }
-  if (!sha || sha === P.getProperty('DELIVERY_LAST_SHA')) return { status: 'UP_TO_DATE' };
-  var r = deliveryApply_(deliveryPrepare_(), '自動');
-  if (r.status === 'NO_CHANGE') P.setProperty('DELIVERY_LAST_SHA', sha);
+  var b;
+  try { b = deliveryBundle_(); } catch (e) { return { status: 'BUNDLE_UNAVAILABLE_RETRY_NEXT_HOUR', error: String(e).slice(0, 200) }; }
+  if (b.digest === P.getProperty('DELIVERY_LAST_DIGEST')) return { status: 'UP_TO_DATE' };
+  var r = deliveryApply_(deliveryPrepare_(b), '自動');
+  if (r.status === 'NO_CHANGE') P.setProperty('DELIVERY_LAST_DIGEST', b.digest);
   Logger.log(JSON.stringify(r));
   return r;
 }
