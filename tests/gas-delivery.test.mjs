@@ -32,3 +32,15 @@ test('配達計画: 本番だけのファイルは残し、本番の appsscript.
   assert.equal(p.files.find((f) => f.name === 'appsscript').source, '{"a":1}');   // 本番の権限設定のまま
   assert.equal(p.files.find((f) => f.name === 'B').source, 'var b = 2;');
 });
+
+test('配達用の束: .js と appsscript.json だけを名前順に入れ、.md は入れない', async () => {
+  const { buildGasBundle } = await import('../scripts/build-gas-bundle.mjs');
+  const b = buildGasBundle(new URL('../scripts/google-apps-script', import.meta.url).pathname, 'abc');
+  assert.equal(b.sha, 'abc');
+  assert.match(b.digest, /^[0-9a-f]{64}$/);
+  assert.ok(b.files.some((f) => f.name === 'appsscript' && f.type === 'JSON'));
+  assert.ok(b.files.some((f) => f.name === 'LibraryTheme' && f.type === 'SERVER_JS'));
+  assert.ok(!b.files.some((f) => /AGENTS|README/.test(f.name)));
+  const names = b.files.map((f) => f.name);
+  assert.deepEqual(names, [...names].sort());
+});
