@@ -565,7 +565,10 @@ function syncNextAutoUpdateBootstrapV1_() {
       }
       return normalized;
     }).filter(function(rule) {
-      return rule && rule.enabled !== false && rule.bootstrapPending === true;
+      // テーマ型は Theme V3（processPending の開始処理と runThemeV3Automation）が受け持つ。
+      // ここで拾うと検証で止めてしまうため除く（#521）。
+      return rule && rule.enabled !== false && rule.bootstrapPending === true &&
+        !(typeof isThemeV3RuntimeRule_ === "function" && isThemeV3RuntimeRule_(rule));
     });
 
     if (!rules.length) return { skipped: true, reason: "no-bootstrap-pending", addedCount: 0 };
