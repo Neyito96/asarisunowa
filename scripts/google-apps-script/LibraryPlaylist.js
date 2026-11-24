@@ -134,9 +134,14 @@ function libraryPlaylistTouchLatest_(rule, newestDate) {
 function libraryPlaylistSyncAll_() {
   var write = PropertiesService.getScriptProperties().getProperty('LIBRARY_PLAYLIST_WRITE') === 'ON';
   if (!write) return { status: 'WRITE_OFF' };   // 承認前は毎時の処理では何もしない（確認は LIBRARY_PLAYLIST_DRY_RUN で）
-  return libraryPlaylistRules_().map(function (rule) {
+  var results = libraryPlaylistRules_().map(function (rule) {
     try { return libraryPlaylistSyncOne_(rule, true); } catch (e) { return { rule: rule.key, status: 'ERROR', error: String(e && e.message || e).slice(0, 300) }; }
   });
+  // テーマ別も蔵で探して育てる（LibraryTheme.js・#524）
+  if (typeof libraryThemeSyncAll_ === 'function') {
+    try { results.push({ rule: 'themes', status: 'THEMES', themes: libraryThemeSyncAll_(true) }); } catch (e) { results.push({ rule: 'themes', status: 'ERROR', error: String(e && e.message || e).slice(0, 300) }); }
+  }
+  return results;
 }
 
 // 管理人が手で動かす用
