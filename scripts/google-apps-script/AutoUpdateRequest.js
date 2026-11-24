@@ -97,11 +97,11 @@ function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
     SpreadsheetApp.flush();
     const requestRowNumber = requestSheet.getLastRow();
 
-    if (requestPlan.ruleType === AUTO_PLAYLIST_RULE_TYPE_THEME_) {
-      registerSubmittedThemeV2_(autoUpdateRequestFromSheetRowV1_(
-        requestSheet.getRange(requestRowNumber, 1, 1, 9).getDisplayValues()[0]
-      ), playlistId, requestRowNumber);
-    }
+    // 2026-11-24 #521: テーマ別は受付時に旧 theme V2 へ登録しない。
+    // V2 の実行は 2026-10-05 以降止まっており、ここで V2 ルール（enabled・bootstrap）を作ると
+    // 毎時の初回補完がそれを拾って「ルール検証失敗」で止めてしまい、本来の Theme V3 開始
+    // （processPendingAutoUpdateRequestsV1 が「招待承認待ち」の行を拾う）に進めなかった。
+    // 行は「招待承認待ち」のまま残し、共同編集を確認できた時点で Theme V3 が開始する。
 
     // 受付ごとの臨時トリガーは作らず、常設の1時間処理が順番に受け取る。
     const immediateRun = { scheduled: true, reason: "hourly-backfill-queue" };
