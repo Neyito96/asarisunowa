@@ -744,7 +744,7 @@ function renderCat(m, sub) {
     h('p', { class: 'meta' }, h('span', {}, `${ids.length}回`), m !== HOLD ? h('span', {}, `承認 ${cnt[3]}・高 ${cnt[2]}・中 ${cnt[1]}・低 ${cnt[0]}`) : null),
     FUCHI && m !== HOLD && !(sub >= 0) ? h('p', { class: 'note' }, `まわりに、このあたりかもしれない「ふちの星」が ${D.eps.reduce((a, e, i) => a + (isEdge(i) && lean(i).m === m ? 1 : 0), 0)}回 あります（薄い星・まだ決まっていない回）。`) : null,
     m !== HOLD ? h('div', { class: 'bars', 'aria-hidden': 'true' }, seg(3, '#5fbf7a'), seg(2, '#5b8fd6'), seg(1, '#d6b44f'), seg(0, '#c46a72')) : null,
-    h('p', { class: 'note' }, m === HOLD && FUCHI ? 'Claude にも推定がつかず、見立てもまだない回です。どの分類のそばにも置いていません。聴いた方の見立てを待っています。' : m === HOLD ? 'Claude が推定はしたものの、根拠が弱いため分類に置いていない回です。人の確認で振り分ける候補です。' : '分類は Claude の試作（人の承認前）です。確度の低い回は誤りを含みます。'),
+    h('p', { class: 'note' }, m === HOLD && FUCHI ? 'AI にも推定がつかず、見立てもまだない回です。どの分類のそばにも置いていません。聴いた方の見立てを待っています。' : m === HOLD ? 'AI が推定はしたものの、根拠が弱いため分類に置いていない回です。人の確認で振り分ける候補です。' : '星の並びはAIの試作です。確度の低い回は誤りを含みます。人が動かした星はそのまま残ります。'),
     h('p', { class: 'note' }, showMix(ids)),
     subCounts.length ? h('div', { class: 'sec' }, h('h4', {}, '小分類'), subCounts.filter((x) => x[2]).map(([si, n, c]) => h('button', { type: 'button', class: 'chip', onclick: () => select({ type: 'cat', id: m, sub: si }) }, n, h('small', {}, c)))) : null,
     h('div', { class: 'sec' }, h('h4', {}, '時間の変化'), histogram(ids)),
