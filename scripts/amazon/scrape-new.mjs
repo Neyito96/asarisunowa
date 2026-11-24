@@ -5,13 +5,14 @@ const SHOWS = {
   'ニュースの現場から': '7337408b-4752-4a85-8f27-4208a2ca8b1d', 'ニュースの学校': 'c0bbd7fe-8cfb-4e94-9ec3-7c825aa70217', '報談': '297be73b-0c9b-4629-85a9-f51e179a1292',
   'スポンジ': '827f3a0a-e2c9-4913-88cf-329697329ec0', 'MEDIA TALK': '55b49660-b1f3-482d-9b1e-791337153bc2', 'こどもそうだんしつ': '0af07b90-b96f-4f5a-a4c7-8da6fddc5685', 'ドーナツ': 'edb44df6-5b86-4b52-88cf-cb270180b9f4',
 };
-// 「1日前」などの相対表示を、Amazon と同じ UTC の日付（YYYY年M月D日）にする
+// 「1日前」などの相対表示を、日本時間の日付（YYYY年M月D日）にする。
+// Amazon の画面の日付は日本時間（朝4時配信の回が当日の日付で出る）。2026-11-25 朝の実行で、UTC で数えると1日ずれることを確認（#518）
 export function absoluteDate(text, now = new Date()) {
   const t = String(text || ''); if (/\d{4}年\d{1,2}月\d{1,2}日/.test(t)) return t.match(/\d{4}年\d{1,2}月\d{1,2}日/)[0];
   const dmy = t.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/); if (dmy) return `${+dmy[3]}年${+dmy[2]}月${+dmy[1]}日`;   // 英語表示の DD-MM-YYYY
   let ms = 0; const d = t.match(/(\d+)日前/), w = t.match(/(\d+)週間前/), h = t.match(/(\d+)時間前/), m = t.match(/(\d+)分前/);
   if (d) ms = +d[1] * 86400000; else if (w) ms = +w[1] * 7 * 86400000; else if (h) ms = +h[1] * 3600000; else if (m) ms = +m[1] * 60000; else if (/昨日/.test(t)) ms = 86400000; else if (!/今日/.test(t)) return '';
-  const x = new Date(now.getTime() - ms); return `${x.getUTCFullYear()}年${x.getUTCMonth() + 1}月${x.getUTCDate()}日`;
+  const x = new Date(now.getTime() - ms + 9 * 3600000); return `${x.getUTCFullYear()}年${x.getUTCMonth() + 1}月${x.getUTCDate()}日`;
 }
 // ページの中の回の行を読む（Playwright の evaluate で動かすので、この関数の中だけで完結させる）。
 // 古い画面: music-episode-row-item の行。新しい画面（2026-11〜、#518）: その要素が無いので、

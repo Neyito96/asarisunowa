@@ -1,13 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { absoluteDate } from '../scripts/amazon/scrape-new.mjs';
-test('Amazon の相対日付を UTC の日付に', () => {
+test('Amazon の相対日付を日本時間の日付に', () => {
   const now = new Date('2026-11-18T04:00:00Z');
   assert.equal(absoluteDate('1日前', now), '2026年11月17日');
   assert.equal(absoluteDate('2026年10月25日', now), '2026年10月25日');
   assert.equal(absoluteDate('3時間前', now), '2026年11月18日');
   assert.equal(absoluteDate('', now), '');
   assert.equal(absoluteDate('1週間前', now), '2026年11月11日');
+  // 日本時間 11/25 06:28 に「1日前」→ 11/24（朝4時配信の回）。UTC で数えると 11/23 になってしまう
+  assert.equal(absoluteDate('1日前', new Date('2026-11-24T21:28:00Z')), '2026年11月24日');
 });
 
 // 小さな偽の DOM（innerText・parentElement・closest・getAttribute だけ）
