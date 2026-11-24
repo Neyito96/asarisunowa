@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "version": "POSU-1",
- "generatedAt": "2026-11-24T06:00:44.345Z",
+ "generatedAt": "2026-11-24T17:42:22.024Z",
  "submitEnabled": true,
  "cards": [
   {
@@ -421,6 +421,38 @@
      "library": true,
      "epId": "EP-06744",
      "verifiedAt": "2026-11-18"
+    }
+   ],
+   "replies": [],
+   "specials": []
+  },
+  {
+   "podcastId": "22",
+   "podcastTitle": "耳より相関図",
+   "introductions": [
+    {
+     "title": "（ポすすめ）イシュミナのpodcast・耳より相関図",
+     "date": "2026-11-24",
+     "href": "/library/?ep=EP-06772",
+     "library": true,
+     "epId": "EP-06772",
+     "verifiedAt": "2026-11-24"
+    }
+   ],
+   "replies": [],
+   "specials": []
+  },
+  {
+   "podcastId": "23",
+   "podcastTitle": "イシュミナのPodcast",
+   "introductions": [
+    {
+     "title": "（ポすすめ）イシュミナのpodcast・耳より相関図",
+     "date": "2026-11-24",
+     "href": "/library/?ep=EP-06772",
+     "library": true,
+     "epId": "EP-06772",
+     "verifiedAt": "2026-11-24"
     }
    ],
    "replies": [],
