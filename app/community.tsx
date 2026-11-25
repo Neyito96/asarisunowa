@@ -1589,9 +1589,9 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         <div className="wrap nav">
           <b className="siteBrand">
             <span className="siteBrandText">
-              <span className="siteBrandLead"><span className="asaMincho">朝</span>日新聞ポッドキャスト案内所</span>
+              <span className="siteBrandLead"><span className="asaMincho">朝</span>日新聞ポッドキャストの非公式リスナーサイト</span>
               <br className="siteBrandPortraitBreak" />
-              <span className="siteBrandTitle">「朝リスの田」</span>
+              <span className="siteBrandTitle">朝リスの輪</span>
             </span>
           </b>
           <a
@@ -1603,39 +1603,18 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           </a>
         </div>
       </header>
-      {/* 2026-11-25 第三者レビュー6社の共通指摘: 最初の画面で「何のサイトで、何ができるか」を伝える（#551・#549） */}
-      <section className="wrap welcome" aria-labelledby="welcome-lead">
-        <p id="welcome-lead" className="welcomeLead">
-          朝日新聞ポッドキャストを、<b>探して・めぐって・みんなで育てる</b>。リスナーがつくる非公式サイトです。
-        </p>
-        <div className="welcomeDoors">
-          <a href="library/" target="_blank" rel="noopener" className="door doorKura">
-            <i aria-hidden="true">🔎</i><b>過去の回を探す</b><small>蔵・約6,100回</small>
-          </a>
-          <a href="uchu/" target="_blank" rel="noopener" className="door doorUchu">
-            <i aria-hidden="true">🌌</i><b>テーマでめぐる</b><small>宇宙・星図</small>
-          </a>
-          <a href="minna/" target="_blank" rel="noopener" className="door doorMinna">
-            <i aria-hidden="true">🔭</i><b>分類に投票する</b><small>星読み・登録なし</small>
-          </a>
-        </div>
-        <p className="welcomeHere">このページ（田）では、番組とプレイリストを案内しています ↓</p>
-      </section>
-      {/* 2026-11-24 管理人指示: 田からも蔵・宇宙へ1回で行けるように（3つをまとめて「朝リスの輪」） */}
-      <nav className="wrap siteRing" aria-label="朝リスの輪（ほかのページ）">
-        <span className="siteRingLabel">朝リスの輪</span>
-        <span className="siteRingHere" aria-current="page">田 <small>入口</small></span>
-        <a href="library/" target="_blank" rel="noopener" title="朝リスの蔵（約6,100回の書庫）を別タブで開く">蔵 <small>エピソード検索</small></a>
-        <a href="uchu/" target="_blank" rel="noopener" title="朝リスの宇宙（言葉の星図）を別タブで開く">宇宙 <small>テーマ星図</small></a>
-        <a href="minna/" target="_blank" rel="noopener" title="みんなで星読み（分類への投票）を別タブで開く">星読み <small>分類投票</small></a>
-        <a href="faq/" target="_blank" rel="noopener" title="よくある質問を別タブで開く">？ <small>質問</small></a>
+      {/* 2026-11-25 管理人案: 見出しは「朝リスの輪」、その下に 田・蔵・宇宙・星読み・FAQ の案内（第三者レビュー #551） */}
+      <nav className="wrap ringNav" aria-label="朝リスの輪のページ">
+        <span className="ringDoor here" aria-current="page"><b>田</b><small>番組・プレイリスト</small></span>
+        <a className="ringDoor" href="library/" target="_blank" rel="noopener"><b>蔵</b><small>過去の回を探す</small></a>
+        <a className="ringDoor" href="uchu/" target="_blank" rel="noopener"><b>宇宙</b><small>テーマでめぐる</small></a>
+        <a className="ringDoor" href="minna/" target="_blank" rel="noopener"><b>星読み</b><small>分類に投票</small></a>
+        <a className="ringDoor" href="faq/" target="_blank" rel="noopener"><b>FAQ</b><small>よくある質問</small></a>
       </nav>
-      <div className="wrap compactNotice">
-        <span>非公式・リスナー制作｜情報は最新・正確でない場合があります</span>
-        <button type="button" onClick={() => setView("discord")}>
-          チャットはDiscordへ
-        </button>
-      </div>
+      <p className="wrap ringLead">
+        朝日新聞ポッドキャストを、<b>探して・めぐって・みんなで育てる</b>。リスナーがつくる非公式サイトです。
+      </p>
+      <h2 className="wrap taHeading"><b>田</b> 番組とプレイリスト</h2>
       <div className="wrap viewTabs" role="tablist" aria-label="掲載区分">
         <button
           data-tab="official"
@@ -2644,7 +2623,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       <footer>
         <div className="wrap">
           <small>
-            朝リスの輪（田、蔵、宇宙）は、朝日新聞ポッドキャストを聴くリスナー『朝リス🐿️』が、見て聞いて、書いて動かして話したりしてみんなで育むコミュニティサイトです。膨大な番組と、それを毎日届けつづける朝ポキの発信力に、敬意を表して。 ・ <a href="faq/">よくある質問</a>
+            朝リスの輪（田、蔵、宇宙）は、朝日新聞ポッドキャストを聴くリスナー『朝リス🐿️』が、見て聞いて、書いて動かして話したりしてみんなで育むコミュニティサイトです。膨大な番組と、それを毎日届けつづける朝ポキの発信力に、敬意を表して。 ・ 情報は最新・正確でない場合があります ・ <a href="faq/">よくある質問</a>
           </small>
         </div>
       </footer>
