@@ -4,7 +4,7 @@ import "./globals.css";
 import "./desktop-top-nav.css";
 
 export const metadata: Metadata = {
-  title: "朝日新聞ポッドキャスト案内所「朝リスの田」",
+  title: "朝リスの田（番組とプレイリスト）｜朝リスの輪 — 朝日新聞ポッドキャストの非公式リスナーサイト",
   description:
     "公式番組と朝リスのおすすめがつながる、朝日新聞ポッドキャストのプレイリスト案内所。",
   authors: [{ name: "ネジート (NEYITO)", url: "https://neyito96.github.io/asarisunowa/humans.txt" }],
