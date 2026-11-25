@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "version": "POSU-1",
- "generatedAt": "2026-11-25T01:37:06.042Z",
+ "generatedAt": "2026-11-25T10:30:16.011Z",
  "submitEnabled": true,
  "cards": [
   {
@@ -113,7 +113,18 @@
      "verifiedAt": "2026-11-17"
     }
    ],
-   "replies": [],
+   "replies": [
+    {
+     "title": "#10 沖縄の新たな政治団体プロジェクトレキオとは？",
+     "date": "2026-06-16",
+     "href": "https://open.spotify.com/episode/0z3Dpfg5cnbMJN3We06Sgi?si=6paCzwdXQduanqn9kD5SNw&utm_source=copy-link&sci=spotify%3Acard-config%3A2gbGxboAOoqICT1TR116jT",
+     "library": false,
+     "epId": "",
+     "verifiedAt": "2026-11-25",
+     "program": "南方政談録",
+     "relation": "ポすすめ返し（ポすすめを受けて番組が配信した回）"
+    }
+   ],
    "specials": []
   },
   {
@@ -161,7 +172,18 @@
      "verifiedAt": "2026-11-17"
     }
    ],
-   "replies": [],
+   "replies": [
+    {
+     "title": "第370回 スクールソーシャルワーカーの原点",
+     "date": "2026-07-29",
+     "href": "https://open.spotify.com/episode/7baG2l6EUYiGxdlnHt4Kx7?si=10aSIkcISNaVPk1T_lGl3Q&utm_source=copy-link",
+     "library": false,
+     "epId": "",
+     "verifiedAt": "2026-11-25",
+     "program": "福祉探偵団",
+     "relation": "ポすすめ返し（ポすすめを受けて番組が配信した回）"
+    }
+   ],
    "specials": []
   },
   {
