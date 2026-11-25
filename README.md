@@ -4,6 +4,10 @@
 
 公開URL: https://neyito96.github.io/asarisunowa/
 
+## はじめて引き継ぐ人へ
+- まず [START-HERE.md](START-HERE.md) を読んでください（全体の形・毎日のこと・止まったとき・元に戻し方）
+- ロボットの運行状況: https://neyito96.github.io/asarisunowa/status/
+
 ## 公開しているもの・ライセンス
 - コード: [MIT](LICENSE)
 - 朝リスの輪が作ったデータ（EP-ID・分類・星の位置・配信先リンクの対応表など）: [CC BY 4.0](DATA-LICENSE.md)。回の題名・概要欄・音声は朝日新聞社など各権利者のもので対象外
