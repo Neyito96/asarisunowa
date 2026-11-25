@@ -17,7 +17,7 @@
   <h1>よくある質問</h1>
   <p class="lead">見ていて「これ何？」と思ったところを集めました。ほかにも気になることがあれば、<a href="https://bit.ly/asapoki_discord">朝ポキ Discord</a> で気軽に聞いてください。ここに足していきます。</p>
   <nav class="toc" aria-label="もくじ">
-    <a href="#whole">全体のこと</a><a href="#uchu">宇宙の見かた</a><a href="#minna">みんなで星読み</a><a href="#shelf">蔵書</a><a href="#listen">聴くリンク</a><a href="#playlist">プレイリストの自動更新</a>
+    <a href="#whole">全体のこと</a><a href="#uchu">宇宙の見かた</a><a href="#minna">みんなで星読み</a><a href="#shelf">蔵書</a><a href="#listen">聴くリンク</a><a href="#playlist">プレイリストの自動更新</a><a href="#future">これから</a>
   </nav>
 </header>
 
@@ -216,12 +216,47 @@
     </div>
   </details>
 </section>
+
+<section id="future">
+  <h2>これから（続けていくために）</h2>
+  <details>
+    <summary>日々のメンテ・運用は、どのくらいの負荷なのですか？</summary>
+    <div class="a">
+      <p>朝リスさんからいただいた質問です。ふだんの更新は、ほとんどロボット（自動の処理）がやっています。</p>
+      <ul>
+        <li><b>毎朝</b> … 新着の取り込み（6:41ごろ）、蔵と宇宙への反映、Amazon Music などの配信先リンク探し</li>
+        <li><b>毎時〜数時間おき</b> … プレイリストの自動更新、テーマ別の蔵探し、自動処理のコードの配達</li>
+      </ul>
+      <p>人の手がかかるのは、本番のデータを書き換える前の確認と承認、ロボットが止まったときの直し、新しい機能づくりです。いまは、その直しと機能づくりの多くを、有料のAIの手を借りて進めています。</p>
+      <p>このままでは、費用も知識も一人とAIに偏ってしまいます。高額な有料AIからは早めに抜けて、手引きを読めば人の手で回せる形にし、朝リスのみんなでつくっていけるようにしたいと考えています。</p>
+    </div>
+  </details>
+  <details>
+    <summary>だれかがいなくなっても、続けられますか？</summary>
+    <div class="a">
+      <p>「つくりはじめた人が明日いなくなっても生きていくサイト」を目指して、段取りを進めています。</p>
+      <ul>
+        <li><b>コードとデータを開いた形で置く</b> … <a href="../open/">公開しているもの</a>にまとめました。コードは MIT、朝リスの輪が作ったデータは CC BY 4.0 で、だれでも引き継げます。</li>
+        <li><b>持ち主を個人から「朝リスの輪」へ</b> … Google（台帳・自動処理）を専用アカウントへ引っ越し、GitHub も「輪」の持ち物にする予定です。</li>
+        <li><b>鍵は2〜3人で分け持つ</b> … 一人が欠けても開けられ、一人では勝手に変えられない形に。</li>
+        <li><b>何もしなくても壊れない</b> … サイトの表示は残ります。止まるのは新着の取り込みだけ、を目標にしています。</li>
+      </ul>
+      <p>くわしい段取りは GitHub の <a href="https://github.com/Neyito96/asarisunowa/issues/493">Issue #493</a> にあります。手伝ってもいいよ、という方は Discord か Issue で声をかけてください。</p>
+    </div>
+  </details>
+  <details>
+    <summary>コードやデータは使ってもいいですか？</summary>
+    <div class="a">
+      <p>どうぞ。入口と使い方のルールを<a href="../open/">公開しているもの</a>にまとめています。回の題名・概要欄・音声は朝日新聞社など各権利者のものなので、ルールの対象外です。</p>
+    </div>
+  </details>
+</section>
 </main>
 
 <footer class="foot">
   <p class="about">朝リスの輪（田、蔵、宇宙）は、朝日新聞ポッドキャストを聴くリスナー『朝リス🐿️』が、見て聞いて、書いて動かして話したりしてみんなで育むコミュニティサイトです。膨大な番組と、それを毎日届けつづける朝ポキの発信力に、敬意を表して。</p>
   <p class="about">照合と配信先リンクの確認に、「朝ポキ出演者 共同編集用 スプレッドシート」（おんささんと朝ポキメンバーのみなさんの共同台帳）を参考にさせていただきました。ありがとうございます。</p>
-  <p><a href="../">朝リスの田</a>・<a href="../library/">朝リスの蔵</a>・<a href="../uchu/">朝リスの宇宙</a>・<a href="../minna/">みんなで星読み</a>・<a href="https://bit.ly/asapoki_discord">朝ポキ Discord</a>・<a href="https://github.com/Neyito96/asarisunowa/issues">開発メモ（GitHub）</a></p>
+  <p><a href="../">朝リスの田</a>・<a href="../library/">朝リスの蔵</a>・<a href="../uchu/">朝リスの宇宙</a>・<a href="../minna/">みんなで星読み</a>・<a href="https://bit.ly/asapoki_discord">朝ポキ Discord</a>・<a href="https://github.com/Neyito96/asarisunowa/issues">開発メモ（GitHub）</a>・<a href="../open/">公開しているもの</a></p>
 </footer>
 <script>
 // 「#minna」などで開いた時や、もくじから飛んだ時は、その節の最初の質問を開く
