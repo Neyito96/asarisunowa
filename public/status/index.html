@@ -1,0 +1,110 @@
+<!doctype html>
+<!-- 朝リスの輪 ― つくりはじめた人: ネジート / NEYITO (2026.9.6〜) -->
+<html lang="ja">
+<head><meta name="author" content="ネジート (NEYITO)"><link rel="author" href="https://neyito96.github.io/asarisunowa/humans.txt"><script>console.log("%cこの宇宙はネジート（NEYITO）がAIを使って2026.9.6から描きはじめました","color:#c9a96e;font-size:12px")</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ロボットの運行状況とデータの健康状態｜朝リスの輪</title>
+<meta name="description" content="朝リスの輪の自動処理（ロボット）がちゃんと動いているか、蔵のデータがいつ・何件更新されたかを1画面で。">
+<link rel="stylesheet" href="../faq/faq.css?v=20261125-nav">
+<style>
+.board { display: grid; gap: 8px; margin: 0 0 12px; }
+.row { display: grid; grid-template-columns: 1.6em 1fr auto; gap: 4px 10px; align-items: start; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+.row .dot { font-size: 18px; line-height: 1.5; }
+.row .name { font-weight: 700; }
+.row .what { display: block; font-size: 12.5px; color: var(--sub); font-weight: 400; }
+.row .when { font-size: 13px; color: var(--sub); text-align: right; white-space: nowrap; }
+.row .when b { color: var(--text); font-weight: 600; }
+.ok .dot { color: #7be3a7; } .warn .dot { color: #ffcf5c; } .bad .dot { color: #ff8a8a; } .wait .dot { color: var(--sub); }
+.nums { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-bottom: 10px; }
+.num { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+.num b { display: block; font-size: 22px; } .num span { font-size: 12.5px; color: var(--sub); }
+.small { font-size: 13px; color: var(--sub); }
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="home" href="../">朝リスの輪</a>
+  <nav class="sites" aria-label="朝リスの輪のページ"><a href="../">田 <small>入口</small></a><a href="../library/">蔵 <small>エピソード検索</small></a><a href="../uchu/">宇宙 <small>テーマ星図</small></a><a href="../minna/">星読み <small>分類投票</small></a><a href="../faq/">よくある質問</a></nav>
+  <h1>運行状況</h1>
+  <p class="lead">ロボット（自動の処理）がちゃんと動いているか、蔵のデータがいつ・何件になったかを、ひと目で見るページです。緑なら大丈夫。黄色や赤なら、<a href="https://github.com/Neyito96/asarisunowa/blob/main/START-HERE.md">START-HERE（引き継ぎの手引き）</a>の「止まったとき」を見てください。</p>
+</header>
+<main>
+<section>
+  <h2>蔵のデータ</h2>
+  <div class="nums" id="nums"><div class="num"><b>…</b><span>読み込み中</span></div></div>
+  <p class="small" id="scope"></p>
+</section>
+<section>
+  <h2>ロボット</h2>
+  <div class="board" id="board"></div>
+  <p class="small">時刻は日本時間。GitHub のロボットは、混んでいると数十分遅れることがあります。毎朝 6:41 ごろの新着の取り込み（Google Apps Script）は外からは見えないので、「蔵でいちばん新しい回」の日付で確かめます。</p>
+</section>
+</main>
+<footer class="foot">
+  <p class="about">朝リスの輪（田、蔵、宇宙）は、朝日新聞ポッドキャストを聴くリスナー『朝リス🐿️』が、見て聞いて、書いて動かして話したりしてみんなで育むコミュニティサイトです。膨大な番組と、それを毎日届けつづける朝ポキの発信力に、敬意を表して。</p>
+</footer>
+<script type="module">
+const REPO = 'Neyito96/asarisunowa';
+// 名前・役目・ワークフローのファイル・「これより古い成功なら注意」の時間
+const ROBOTS = [
+  ['蔵・宇宙への反映', '台帳から蔵と宇宙のデータを作り直す（毎朝と毎時）', 'library-v2-sync.yml', 26],
+  ['Amazon Music の新着リンク', '朝と昼に新しい回のリンクを探す', 'amazon-new.yml', 14],
+  ['Spotify の新着リンク', '朝と昼に新しい回のリンクを探す', 'spotify-new.yml', 14],
+  ['みんなのプレイリスト一覧・星読みの集計', '30分ごとに一覧と票を取り込む', 'sync-playlists.yml', 3],
+  ['データの品質点検', '毎朝、壊れたデータがないか読むだけで点検', 'quality-audit.yml', 26],
+  ['サイトの公開', '変更があるたびにサイトを作り直して公開', 'pages.yml', 26],
+];
+const fmt = (d) => d ? new Date(d).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+const hoursAgo = (d) => (Date.now() - new Date(d).getTime()) / 3600000;
+const today = () => new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10);
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function row(state, name, what, when) {
+  const r = el('div', 'row ' + state);
+  r.append(el('span', 'dot', state === 'ok' ? '●' : state === 'wait' ? '○' : '▲'), el('span', 'name', esc(name) + '<span class="what">' + esc(what) + '</span>'), el('span', 'when', when));
+  return r;
+}
+async function data() {
+  const [lib, uchu] = await Promise.all([
+    fetch('../library/data/manifest.json', { cache: 'no-store' }).then((r) => r.json()),
+    fetch('../uchu/data/manifest.json', { cache: 'no-store' }).then((r) => r.json()).catch(() => ({})),
+  ]);
+  const nums = document.getElementById('nums'); nums.replaceChildren();
+  const add = (b, s) => { const n = el('div', 'num'); n.append(el('b', null, esc(b)), el('span', null, esc(s))); nums.append(n); };
+  add(lib.total.toLocaleString() + ' 回', '蔵に収めている回（' + lib.shows.length + '番組）');
+  add(uchu.newest ? uchu.newest.date : '—', 'いちばん新しい回の配信日');
+  add(fmt(lib.generatedAt), '蔵のデータを作った時刻');
+  const sc = lib.publicationScope || {};
+  document.getElementById('scope').textContent =
+    '番組ごと: ' + lib.shows.map((s) => s.label + ' ' + s.count.toLocaleString()).join('・') +
+    (sc.source ? `。台帳 ${sc.source.toLocaleString()} 回のうち、載せていない回 ${(sc.excluded || 0).toLocaleString()}・確認待ち ${(sc.held || 0).toLocaleString()}` : '') +
+    '。アルキキ・AJW・朝ポキTVは、まだ蔵に入っていません。';
+  return { newest: uchu.newest && uchu.newest.date };
+}
+async function robots(info) {
+  const board = document.getElementById('board');
+  const nowJst = new Date(Date.now() + 9 * 3600000);
+  const after8 = nowJst.getUTCHours() >= 8;
+  const fresh = info.newest === today() || (!after8 && info.newest >= new Date(Date.now() + 9 * 3600000 - 86400000).toISOString().slice(0, 10));
+  board.append(row(info.newest ? (fresh ? 'ok' : 'warn') : 'wait', '毎朝の新着の取り込み（6:41ごろ）', '公式の新しい回を台帳に入れる（Google Apps Script）',
+    '蔵の最新回 <b>' + esc(info.newest || '—') + '</b>' + (info.newest && !fresh ? '<br>今日の回がまだ蔵にありません' : '')));
+  for (const [name, what, file, limit] of ROBOTS) {
+    const holder = row('wait', name, what, '確認中…'); board.append(holder);
+    try {
+      const r = await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/${file}/runs?per_page=15&branch=main`);
+      if (!r.ok) throw new Error(r.status === 403 ? 'GitHub に短時間で何度も聞きすぎました。少し待ってから開き直してください' : 'HTTP ' + r.status);
+      const runs = (await r.json()).workflow_runs || [];
+      const last = runs[0], ok = runs.find((x) => x.conclusion === 'success');
+      const state = !ok ? 'bad' : hoursAgo(ok.updated_at) > limit ? 'warn' : last && last.conclusion === 'failure' ? 'warn' : 'ok';
+      const lastTxt = last ? (last.status !== 'completed' ? '実行中' : last.conclusion === 'success' ? '成功' : last.conclusion === 'failure' ? '<b>失敗</b>' : esc(last.conclusion || '')) : '—';
+      holder.replaceWith(row(state, name, what, '最後の成功 <b>' + fmt(ok && ok.updated_at) + '</b><br>直近 ' + lastTxt + (last ? ' <a href="' + esc(last.html_url) + '">記録</a>' : '')));
+    } catch (e) {
+      holder.replaceWith(row('wait', name, what, esc(e.message)));
+    }
+  }
+}
+data().then(robots).catch((e) => { document.getElementById('nums').textContent = '読み込めませんでした: ' + e.message; });
+</script>
+</body>
+</html>
