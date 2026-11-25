@@ -35,7 +35,7 @@ const officialArchiveShow: Record<string, string> = {
 const archiveShowHref = (show: string) => `library/?show=${encodeURIComponent(show)}`;
 const archiveSearchHref = (term: string) => `library/?q=${encodeURIComponent(term)}`;
 const ArchiveSearchLink = ({ term, children }: { term: string; children?: ReactNode }) => (
-  <a href={archiveSearchHref(term)} target="_blank" rel="noopener noreferrer" className="archiveSearchLink" title={`朝ポキの蔵で「${term}」を検索（別タブ）`}>
+  <a href={archiveSearchHref(term)} target="_blank" rel="noopener noreferrer" className="archiveSearchLink" title={`朝リスの蔵で「${term}」を検索（別タブ）`}>
     {children ?? term} ↗
   </a>
 );
@@ -1607,8 +1607,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       <nav className="wrap siteRing" aria-label="朝リスの輪（ほかのページ）">
         <span className="siteRingLabel">朝リスの輪</span>
         <span className="siteRingHere" aria-current="page">田</span>
-        <a href="library/" target="_blank" rel="noopener" title="朝ポキの蔵（全回の書庫）を別タブで開く">蔵 <small>書庫</small></a>
-        <a href="uchu/" target="_blank" rel="noopener" title="朝ポキの宇宙（言葉の星図）を別タブで開く">宇宙 <small>星図</small></a>
+        <a href="library/" target="_blank" rel="noopener" title="朝リスの蔵（全回の書庫）を別タブで開く">蔵 <small>書庫</small></a>
+        <a href="uchu/" target="_blank" rel="noopener" title="朝リスの宇宙（言葉の星図）を別タブで開く">宇宙 <small>星図</small></a>
         <a href="faq/" target="_blank" rel="noopener" title="よくある質問を別タブで開く">？ <small>質問</small></a>
       </nav>
       <div className="wrap compactNotice">
@@ -2111,7 +2111,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
                   {p.mark && <em>{p.mark}</em>}
                   <h3>{p.name}</h3>
                   {officialArchiveShow[p.name] ? (
-                    <a className="officialArchiveEntrance" href={archiveShowHref(officialArchiveShow[p.name])} target="_blank" rel="noopener noreferrer" title={`朝ポキの蔵で${p.name}の収蔵エピソードを見る（別タブ）`}>
+                    <a className="officialArchiveEntrance" href={archiveShowHref(officialArchiveShow[p.name])} target="_blank" rel="noopener noreferrer" title={`朝リスの蔵で${p.name}の収蔵エピソードを見る（別タブ）`}>
                       🔎 蔵でこの番組の回を探す ↗
                     </a>
                   ) : (
@@ -2171,7 +2171,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               <details className="listenerPodcastAbout">
                 <summary>ポすすめとは？</summary>
                 <p>「ポッドキャストのすすめ」。紹介された回、ポすすめ返し、神田さんがゲスト出演した「ポす神回」を確認できたものからつないでいます。人類ポ完計画、進行中。</p>
-                <p>朝ポキの蔵は収蔵内容を確認・更新しながら開発中です。<a href="https://github.com/Neyito96/asarisunowa/issues/197" target="_blank" rel="noopener noreferrer">開発への参加・アイデア募集</a></p>
+                <p>朝リスの蔵は収蔵内容を確認・更新しながら開発中です。<a href="https://github.com/Neyito96/asarisunowa/issues/197" target="_blank" rel="noopener noreferrer">開発への参加・アイデア募集</a></p>
               </details>
             </div>
             <div className="listenerPodcastSubmitCompact">
@@ -2613,7 +2613,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       )}
       <section className="wrap siteHistory" aria-labelledby="site-history-title">
         <p className="historyNote">
-                    朝リスのアイデアや情報をもとに、ゆるゆる更新中🐿️（朝公式デスクワーク一部あり）
+                    朝リスのアイデアや情報をもとに、ゆるゆる更新中🐿️
         </p>
         <div className="historySources">
           <h4>情報・画像について</h4>
@@ -2625,7 +2625,8 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       <footer>
         <div className="wrap">
           <small>
-            朝リスが制作・運営する非公式リスナーサイトを目指しています。@ネジート ・ <a href="faq/">よくある質問</a>
+            朝リスの田は、朝日新聞ポッドキャストを聴くリスナー「朝リス」が、みんなでつくり、みんなで育てていくコミュニティサイトです。
+            膨大な番組と、それを毎日届けつづける発信力に、敬意を表して。 ・ <a href="faq/">よくある質問</a>
           </small>
         </div>
       </footer>
