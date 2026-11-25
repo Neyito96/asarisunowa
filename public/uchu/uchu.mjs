@@ -1,4 +1,4 @@
-// 朝ポキの宇宙｜言葉の星図（アルテキスト計画・試験版）
+// 朝リスの宇宙｜言葉の星図（アルテキスト計画・試験版）
 // データ: ./data/core.json（星・言葉・星雲）と ./data/rel.json（関連する回と根拠）は scripts/uchu/build-uchu.mjs が蔵の公開データから作る。
 // 回の本文・出演者・関連記事・再生先は、蔵の公開データ（../library/data/details/）をその場で読む（写しを増やさない）。
 // 外部ライブラリなし。Canvas 2D と素の DOM だけ。
@@ -1032,7 +1032,7 @@ function fromHash(e) {
   if (m[1] === 'c' && SHOW_CLS) { const [a, b] = v.split('.').map(Number); if (a >= 0 && a <= HOLD) select({ type: 'cat', id: a, sub: Number.isFinite(b) ? b : -1 }, { push: false, fly: !first }); }
 }
 fromHash('load'); addEventListener('hashchange', fromHash);
-// 左上の「朝ポキの宇宙」で最初の画面へ戻る（選択を外し、案内を出し、最初の表示で全体を映す）
+// 左上の「朝リスの宇宙」で最初の画面へ戻る（選択を外し、案内を出し、最初の表示で全体を映す）
 document.getElementById('home').addEventListener('click', (ev) => {
   ev.preventDefault();
   sel = null; hi = null; hoverEp = -1;
