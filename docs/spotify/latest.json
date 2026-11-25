@@ -1,11 +1,25 @@
 {
- "generatedAt": "2026-11-24T14:16:56.778Z",
+ "generatedAt": "2026-11-25T04:35:51.131Z",
  "source": "open.spotify.com（埋め込み＋番組ページ）",
  "shows": {
   "ニュースの現場から": {
    "showId": "392h0MYfvMTndEVzf2cOvC",
    "count": 51,
    "episodes": [
+    {
+     "id": "2HczIIAQUl454xMnBPWjnJ",
+     "url": "https://open.spotify.com/episode/2HczIIAQUl454xMnBPWjnJ",
+     "title": "（GLOBE #158）ルート66　分断のアメリカを走る　レジスタンスの道（後編）",
+     "date": "2026-11-24",
+     "durationMs": 2700469
+    },
+    {
+     "id": "1OUWPzrkCm8dIQjokJQbWK",
+     "url": "https://open.spotify.com/episode/1OUWPzrkCm8dIQjokJQbWK",
+     "title": "（GLOBE #157）ルート66　分断のアメリカを走る（前編）",
+     "date": "2026-11-24",
+     "durationMs": 3026634
+    },
     {
      "id": "6RXmP0HDqogynm5Tr7ExoO",
      "url": "https://open.spotify.com/episode/6RXmP0HDqogynm5Tr7ExoO",
@@ -343,20 +357,6 @@
      "durationMs": 3525053
     },
     {
-     "id": "6opJ4Ig4s7CTY9fRqGEHd2",
-     "url": "https://open.spotify.com/episode/6opJ4Ig4s7CTY9fRqGEHd2",
-     "title": "（World Insight #5）停戦から1年、それでも終わらないガザ",
-     "date": "2026-10-06",
-     "durationMs": 3651440
-    },
-    {
-     "id": "06jXp5o4lQygvvuZU12yeE",
-     "url": "https://open.spotify.com/episode/06jXp5o4lQygvvuZU12yeE",
-     "title": "（カガク #26）愛すべき「無限∞」の世界へようこそ！有限世界で2人が語ります",
-     "date": "2026-10-05",
-     "durationMs": 3556681
-    },
-    {
      "id": "1vVhoMqsDDYUmpajbMtF82",
      "url": "https://open.spotify.com/episode/1vVhoMqsDDYUmpajbMtF82",
      "title": "朝日新聞ポッドキャストを紹介する2分間の音声",
@@ -369,6 +369,13 @@
    "showId": "2uG9W6CnsaNi87AfSuGe8r",
    "count": 51,
    "episodes": [
+    {
+     "id": "5CD6DmBOfPQ7AsdkQRAuaG",
+     "url": "https://open.spotify.com/episode/5CD6DmBOfPQ7AsdkQRAuaG",
+     "title": "生物多様性",
+     "date": "2026-11-24",
+     "durationMs": 780974
+    },
     {
      "id": "1JPuPOt07nG5Ekya7QDnfu",
      "url": "https://open.spotify.com/episode/1JPuPOt07nG5Ekya7QDnfu",
@@ -395,7 +402,7 @@
      "url": "https://open.spotify.com/episode/0qgD1gR1QNhtm9SqsnIsvZ",
      "title": "保釈",
      "date": "2026-11-17",
-     "durationMs": 832162
+     "durationMs": 782180
     },
     {
      "id": "6MYS4ALh7YiPDZpfHAVDWH",
@@ -711,13 +718,6 @@
      "title": "概算要求",
      "date": "2026-09-08",
      "durationMs": 1027851
-    },
-    {
-     "id": "3exmOKQEO0eZuF5JMBRXD0",
-     "url": "https://open.spotify.com/episode/3exmOKQEO0eZuF5JMBRXD0",
-     "title": "ふるさと納税",
-     "date": "2026-09-07",
-     "durationMs": 853813
     },
     {
      "id": "23Q3UagtMmB8wwNgaFGF01",
@@ -1082,6 +1082,13 @@
    "count": 50,
    "episodes": [
     {
+     "id": "3zu1g26EuKaggdZIo0lqIQ",
+     "url": "https://open.spotify.com/episode/3zu1g26EuKaggdZIo0lqIQ",
+     "title": "（スポーツ×社会 #2）ハードルが高いプロ選手のカミングアウト　背景にマッチョな文化（後編）",
+     "date": "2026-11-24",
+     "durationMs": 2549831
+    },
+    {
      "id": "1o2pTWlLs9Z3zmGaAA021W",
      "url": "https://open.spotify.com/episode/1o2pTWlLs9Z3zmGaAA021W",
      "title": "（スポーツ×社会 #1）バレー・高橋塁がゲイ公表　自分の言葉で伝えたかった思い（前編）",
@@ -1423,13 +1430,6 @@
      "title": "（フィギュア）素朴なギモンに答える回なのに、MCの涙が止まらない理由 #2284",
      "date": "2026-06-24",
      "durationMs": 4232154
-    },
-    {
-     "id": "3jkHoBPSVCFZm4fLjQPaNx",
-     "url": "https://open.spotify.com/episode/3jkHoBPSVCFZm4fLjQPaNx",
-     "title": "（サッカーW杯）チュニジア戦で生きた4年前の教訓　スウェーデン戦のゲームプランは？",
-     "date": "2026-06-22",
-     "durationMs": 2312028
     }
    ]
   },
@@ -1437,6 +1437,13 @@
    "showId": "0yhef9ORZkUZs9ZeotdCSY",
    "count": 50,
    "episodes": [
+    {
+     "id": "1WVCNTgEZTQ2DKW5haUHLL",
+     "url": "https://open.spotify.com/episode/1WVCNTgEZTQ2DKW5haUHLL",
+     "title": "（天声人語 #8）天声人語ができるまで、603文字の攻防",
+     "date": "2026-11-24",
+     "durationMs": 1373600
+    },
     {
      "id": "2HdU6sRfKY8r58DHVLe3wt",
      "url": "https://open.spotify.com/episode/2HdU6sRfKY8r58DHVLe3wt",
@@ -1779,20 +1786,27 @@
      "title": "（天声人語 #4）FIFAに、これだけは言いたい",
      "date": "2026-09-08",
      "durationMs": 2076124
-    },
-    {
-     "id": "0MPTUYF5zZ1COpHIEsec47",
-     "url": "https://open.spotify.com/episode/0MPTUYF5zZ1COpHIEsec47",
-     "title": "（N4U#45）暑くて顔が真っ赤の我が子…団地に作ったのは　夏休みの居場所どうしたらいい？",
-     "date": "2026-09-07",
-     "durationMs": 4658697
     }
    ]
   },
   "こどもそうだんしつ": {
    "showId": "1KExdSsjQnatS4TdseGoC0",
-   "count": 44,
+   "count": 46,
    "episodes": [
+    {
+     "id": "5SnibvhLplBaDEiZzkqFso",
+     "url": "https://open.spotify.com/episode/5SnibvhLplBaDEiZzkqFso",
+     "title": "宇宙人 #22【こぼれ話】宇宙人さがしはSFじゃない",
+     "date": "2026-11-24",
+     "durationMs": 1807284
+    },
+    {
+     "id": "7jyemHMA35RoqHnx3xYE6t",
+     "url": "https://open.spotify.com/episode/7jyemHMA35RoqHnx3xYE6t",
+     "title": "宇宙人 #22【本編】うちゅうじんは、ほんとうにいるの？",
+     "date": "2026-11-24",
+     "durationMs": 838141
+    },
     {
      "id": "3EtOwW5rnhAWJBgozsNNEN",
      "url": "https://open.spotify.com/episode/3EtOwW5rnhAWJBgozsNNEN",

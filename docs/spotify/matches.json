@@ -1,19 +1,70 @@
 {
  "summary": {
-  "generatedAt": "2026-11-24T14:22:14.119Z",
-  "spotifyGeneratedAt": "2026-11-24T14:16:56.778Z",
-  "ledgerRows": 6148,
-  "ledgerSpotifyEmpty": 10,
-  "verified": 0,
+  "generatedAt": "2026-11-25T04:41:07.359Z",
+  "spotifyGeneratedAt": "2026-11-25T04:35:51.131Z",
+  "ledgerRows": 6155,
+  "ledgerSpotifyEmpty": 17,
+  "verified": 7,
   "counts": {
-   "VERIFIED_SAME": 269,
+   "VERIFIED": 7,
+   "VERIFIED_SAME": 263,
    "NO_ROW": 16,
-   "CANDIDATE": 58,
+   "CANDIDATE": 59,
    "HOLD": 1
   },
   "emptyNotInSpotifyList": 1
  },
- "verified": [],
+ "verified": [
+  {
+   "ep": "EP-06779",
+   "url": "https://open.spotify.com/episode/2HczIIAQUl454xMnBPWjnJ",
+   "show": "ニュースの現場から",
+   "title": "（GLOBE #158）ルート66　分断のアメリカを走る　レジスタンスの道（後編）",
+   "spotifyDate": "2026-11-24"
+  },
+  {
+   "ep": "EP-06775",
+   "url": "https://open.spotify.com/episode/1OUWPzrkCm8dIQjokJQbWK",
+   "show": "ニュースの現場から",
+   "title": "（GLOBE #157）ルート66　分断のアメリカを走る（前編）",
+   "spotifyDate": "2026-11-24"
+  },
+  {
+   "ep": "EP-06778",
+   "url": "https://open.spotify.com/episode/5CD6DmBOfPQ7AsdkQRAuaG",
+   "show": "ニュースの学校",
+   "title": "生物多様性",
+   "spotifyDate": "2026-11-24"
+  },
+  {
+   "ep": "EP-06777",
+   "url": "https://open.spotify.com/episode/3zu1g26EuKaggdZIo0lqIQ",
+   "show": "スポンジ",
+   "title": "（スポーツ×社会 #2）ハードルが高いプロ選手のカミングアウト　背景にマッチョな文化（後編）",
+   "spotifyDate": "2026-11-24"
+  },
+  {
+   "ep": "EP-06774",
+   "url": "https://open.spotify.com/episode/1WVCNTgEZTQ2DKW5haUHLL",
+   "show": "MEDIA TALK",
+   "title": "（天声人語 #8）天声人語ができるまで、603文字の攻防",
+   "spotifyDate": "2026-11-24"
+  },
+  {
+   "ep": "EP-06780",
+   "url": "https://open.spotify.com/episode/5SnibvhLplBaDEiZzkqFso",
+   "show": "こどもそうだんしつ",
+   "title": "宇宙人 #22【こぼれ話】宇宙人さがしはSFじゃない",
+   "spotifyDate": "2026-11-24"
+  },
+  {
+   "ep": "EP-06776",
+   "url": "https://open.spotify.com/episode/7jyemHMA35RoqHnx3xYE6t",
+   "show": "こどもそうだんしつ",
+   "title": "宇宙人 #22【本編】うちゅうじんは、ほんとうにいるの？",
+   "spotifyDate": "2026-11-24"
+  }
+ ],
  "others": [
   {
    "show": "ニュースの現場から",
@@ -25,6 +76,17 @@
    "reason": "題名・日付は一致・台帳の再生時間が空",
    "same": true,
    "gap": null
+  },
+  {
+   "show": "ニュースの学校",
+   "url": "https://open.spotify.com/episode/0qgD1gR1QNhtm9SqsnIsvZ",
+   "title": "保釈",
+   "spotifyDate": "2026-11-17",
+   "ep": "EP-06750",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない（この番組の一定差 約44秒とも違う）",
+   "same": true,
+   "gap": 94.82000000000005
   },
   {
    "show": "ニュースの学校",
@@ -756,6 +818,69 @@
    "status": "CANDIDATE",
    "reason": "題名・日付は一致・長さが合わない",
    "spotifyUrl": "https://open.spotify.com/episode/5SvBbhUVSpoOByxp6wkcco"
+  },
+  {
+   "ep": "EP-06774",
+   "show": "MEDIA TALK",
+   "title": "（天声人語 #8）天声人語ができるまで、603文字の攻防",
+   "published": "2026/11/25 00:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/1WVCNTgEZTQ2DKW5haUHLL"
+  },
+  {
+   "ep": "EP-06775",
+   "show": "ニュースの現場から",
+   "title": "（GLOBE #157）ルート66　分断のアメリカを走る（前編）",
+   "published": "2026/11/25 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/1OUWPzrkCm8dIQjokJQbWK"
+  },
+  {
+   "ep": "EP-06776",
+   "show": "こどもそうだんしつ",
+   "title": "宇宙人 #22【本編】うちゅうじんは、ほんとうにいるの？",
+   "published": "2026/11/25 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/7jyemHMA35RoqHnx3xYE6t"
+  },
+  {
+   "ep": "EP-06777",
+   "show": "スポンジ",
+   "title": "（スポーツ×社会 #2）ハードルが高いプロ選手のカミングアウト　背景にマッチョな文化（後編）",
+   "published": "2026/11/25 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/3zu1g26EuKaggdZIo0lqIQ"
+  },
+  {
+   "ep": "EP-06778",
+   "show": "ニュースの学校",
+   "title": "生物多様性",
+   "published": "2026/11/25 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付が一致・長さは番組ごとの一定差（Spotify版が約44秒短い）",
+   "spotifyUrl": "https://open.spotify.com/episode/5CD6DmBOfPQ7AsdkQRAuaG"
+  },
+  {
+   "ep": "EP-06779",
+   "show": "ニュースの現場から",
+   "title": "（GLOBE #158）ルート66　分断のアメリカを走る　レジスタンスの道（後編）",
+   "published": "2026/11/25 04:05",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/2HczIIAQUl454xMnBPWjnJ"
+  },
+  {
+   "ep": "EP-06780",
+   "show": "こどもそうだんしつ",
+   "title": "宇宙人 #22【こぼれ話】宇宙人さがしはSFじゃない",
+   "published": "2026/11/25 04:05",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/5SnibvhLplBaDEiZzkqFso"
   }
  ]
 }
