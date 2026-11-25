@@ -1,5 +1,5 @@
 "use client";
-// ポすすめカードに足す欄（#312）: 「🎙 紹介された回」「💬 ポすすめ返し」「✨ ポす神回」「この番組のポす神回・ポすすめ返しを教える」
+// ポすすめカードに足す欄（#312）: 「🎙 紹介された回」「💬 ポすすめ返し」「✨ ポす神回」「ポすすめ返し、見つけた！」「ポす神回、見つけた！」（2026-11-25「教える」から変更）
 // 既存カードの番組名・配信者・アートワーク・紹介配信日・配信先リンク・並び替えには触れない。データが無いカードでは何も出さない（ボタンは投稿受付が有効なときだけ）。
 import { useState } from "react";
 import {
@@ -94,8 +94,8 @@ export default function PosukamiCardSection({ podcast, card, submitEnabled, endp
       {submitEnabled && (
         <div className="posukamiSubmit">
           <div className="posukamiSubmitButtons">
-            <button type="button" className={"posukamiSubmitToggle posukamiToggle-reply" + (mode === "reply" ? " isActive" : "")} aria-expanded={mode === "reply"} aria-controls={formId} onClick={() => toggle("reply")}>💬 この番組の「ポすすめ返し」を教える{mode === "reply" && <span className="posukamiChosen">✓ 選択中</span>}</button>
-            <button type="button" className={"posukamiSubmitToggle posukamiToggle-other" + (mode === "other" ? " isActive" : "")} aria-expanded={mode === "other"} aria-controls={formId} onClick={() => toggle("other")}>✨ ポす神回を教える{mode === "other" && <span className="posukamiChosen">✓ 選択中</span>}</button>
+            <button type="button" className={"posukamiSubmitToggle posukamiToggle-reply" + (mode === "reply" ? " isActive" : "")} aria-expanded={mode === "reply"} aria-controls={formId} onClick={() => toggle("reply")}>💬 ポすすめ返し、見つけた！{mode === "reply" && <span className="posukamiChosen">✓ 選択中</span>}</button>
+            <button type="button" className={"posukamiSubmitToggle posukamiToggle-other" + (mode === "other" ? " isActive" : "")} aria-expanded={mode === "other"} aria-controls={formId} onClick={() => toggle("other")}>✨ ポす神回、見つけた！{mode === "other" && <span className="posukamiChosen">✓ 選択中</span>}</button>
           </div>
           {mode && (
             <form id={formId} onSubmit={submit} className={"posukamiForm posukamiForm-" + mode}>

@@ -95,7 +95,7 @@ test('ポすすめ返し: 奥会津、風のラジオ #25 と クリエイティ
   assert.equal(new Set(all).size, all.length);   // 重複なし
 });
 test('URL一発投稿: URL欄と投稿ボタンだけ。種類はボタンで自動（reply / other）、番組はカードから。名前・メールは聞かない', () => {
-  assert.ok(section.includes('💬 この番組の「ポすすめ返し」を教える') && section.includes('✨ ポす神回を教える'));
+  assert.ok(section.includes('💬 ポすすめ返し、見つけた！') && section.includes('✨ ポす神回、見つけた！'));
   assert.ok(section.includes('placeholder={MODE[mode].name + "の回のURLを貼り付け"}') && section.includes('MODE[mode].name + "を投稿"'))   // 2026-11-20: どちらを選んでいるか分かる文言に;
   assert.ok(!/<select|<textarea|type="date"|type="email"/.test(section));
   assert.ok(/relation: mode/.test(section) && /podcastId: podcast\.id, podcastTitle: podcast\.title/.test(section));
