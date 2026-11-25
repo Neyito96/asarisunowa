@@ -1612,7 +1612,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         <a className="ringDoor" href="faq/" target="_blank" rel="noopener"><b>FAQ</b><small>よくある質問</small></a>
       </nav>
       <p className="wrap ringLead">
-        朝日新聞ポッドキャストを、<b>探して・めぐって・みんなで育てる</b>。リスナーがつくる非公式サイトです。
+        朝日新聞ポッドキャストを、<b>探して・めぐって・みんなで育む輪</b>。リスナーが、つくる非公式サイトです。
       </p>
       <h2 className="wrap taHeading"><b>田</b> 番組とプレイリスト</h2>
       <div className="wrap viewTabs" role="tablist" aria-label="掲載区分">
