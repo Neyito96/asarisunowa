@@ -1606,9 +1606,10 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
       {/* 2026-11-24 管理人指示: 田からも蔵・宇宙へ1回で行けるように（3つをまとめて「朝リスの輪」） */}
       <nav className="wrap siteRing" aria-label="朝リスの輪（ほかのページ）">
         <span className="siteRingLabel">朝リスの輪</span>
-        <span className="siteRingHere" aria-current="page">田</span>
-        <a href="library/" target="_blank" rel="noopener" title="朝リスの蔵（全回の書庫）を別タブで開く">蔵 <small>書庫</small></a>
-        <a href="uchu/" target="_blank" rel="noopener" title="朝リスの宇宙（言葉の星図）を別タブで開く">宇宙 <small>星図</small></a>
+        <span className="siteRingHere" aria-current="page">田 <small>入口</small></span>
+        <a href="library/" target="_blank" rel="noopener" title="朝リスの蔵（全回の書庫）を別タブで開く">蔵 <small>全回検索</small></a>
+        <a href="uchu/" target="_blank" rel="noopener" title="朝リスの宇宙（言葉の星図）を別タブで開く">宇宙 <small>テーマ星図</small></a>
+        <a href="minna/" target="_blank" rel="noopener" title="みんなで星読み（分類への投票）を別タブで開く">星読み <small>分類投票</small></a>
         <a href="faq/" target="_blank" rel="noopener" title="よくある質問を別タブで開く">？ <small>質問</small></a>
       </nav>
       <div className="wrap compactNotice">

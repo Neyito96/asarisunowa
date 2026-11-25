@@ -106,3 +106,4 @@ legend small { color: var(--sub); font-weight: 400; font-size: 12px; margin-left
 .sites a { color: var(--text); text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px; background: var(--panel); }
 .sites a:hover { border-color: var(--accent); }
 .sites a:focus-visible { outline: 3px solid #8fd3ff; outline-offset: 2px; }
+.sites a small { font-size: 11px; opacity: .75; margin-left: 2px; }
