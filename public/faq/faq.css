@@ -6,6 +6,9 @@ a { color: #9fc3ff; }
 .top, main, .foot { max-width: 760px; margin: 0 auto; padding: 0 16px; }
 .top { padding-top: 20px; }
 .home { color: var(--sub); text-decoration: none; font-size: 13px; }
+.sites { display: flex; gap: 6px; margin: 10px 0 4px; flex-wrap: wrap; }
+.sites a { font-size: 14px; font-weight: 600; color: var(--text); text-decoration: none; border: 1px solid var(--accent); border-radius: 8px; padding: 4px 14px; }
+.sites a:hover { background: var(--panel); }
 .trial { margin: 10px 0 0; font-size: 12px; letter-spacing: .2em; color: var(--accent); font-weight: 600; }
 h1 { margin: 4px 0 8px; font-size: 26px; letter-spacing: .04em; }
 h1::before { content: "✦ "; color: var(--accent); }
