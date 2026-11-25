@@ -1,0 +1,52 @@
+<!doctype html>
+<!-- 朝リスの輪 ― つくりはじめた人: ネジート / NEYITO (2026.9.6〜) -->
+<html lang="ja">
+<head><meta name="author" content="ネジート (NEYITO)"><link rel="author" href="https://neyito96.github.io/asarisunowa/humans.txt"><script>console.log("%cこの宇宙はネジート（NEYITO）がAIを使って2026.9.6から描きはじめました","color:#c9a96e;font-size:12px")</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>公開しているもの（コードとデータ）｜朝リスの輪</title>
+<meta name="description" content="朝リスの輪（田・蔵・宇宙）が公開しているコードとデータの入口と、使い方のルール。">
+<link rel="stylesheet" href="../faq/faq.css?v=20261125-sites">
+</head>
+<body>
+<header class="top">
+  <a class="home" href="../">朝リスの輪</a>
+  <nav class="sites" aria-label="朝リスの輪のページ"><a href="../">田</a><a href="../library/">蔵</a><a href="../uchu/">宇宙</a><a href="../minna/">星読み</a><a href="../faq/">よくある質問</a></nav>
+  <h1>公開しているもの</h1>
+  <p class="lead">朝リスの輪は、コードもデータも開いた形で置いています。だれが続きを引き継いでも、どこへでも持っていけるように。</p>
+</header>
+<main>
+<section>
+  <h2>使い方のルール</h2>
+  <ul>
+    <li><b>コード</b> … <a href="https://github.com/Neyito96/asarisunowa/blob/main/LICENSE">MIT ライセンス</a>。自由に使えます。著作権表示だけ残してください。</li>
+    <li><b>朝リスの輪が作ったデータ</b>（EP-ID・分類・星の位置・言葉の星座・関連回・配信先リンクの対応表・星読みの票数）… <a href="https://github.com/Neyito96/asarisunowa/blob/main/DATA-LICENSE.md">CC BY 4.0</a>。「朝リスの輪」と書けば自由に使えます。</li>
+    <li><b>対象外</b> … 回の題名・概要欄・音声・関連記事は、朝日新聞社など各権利者のものです。聴くときは公式の配信先へどうぞ。</li>
+  </ul>
+</section>
+<section>
+  <h2>データの入口</h2>
+  <p>どれも GitHub Pages に置いた JSON ファイルです。登録も鍵もいりません。毎朝、新着の取り込みのあとに更新されます。</p>
+  <ul>
+    <li><b>蔵（全回の書庫）</b> … <code>/library/data/manifest.json</code> が目次です。
+      <ul>
+        <li><code>search/lite.json</code> … 全回の一覧（EP-ID・番組・日時・題名）</li>
+        <li><code>search/text-*.json</code> … 検索用の概要欄の文章（対象外の文章を含みます）</li>
+        <li><code>details/*.json</code> … 回ごとの詳細（出演者・長さ・配信先リンク・関連記事）</li>
+      </ul>
+    </li>
+    <li><b>宇宙（星図）</b> … <code>/uchu/data/manifest.json</code> が目次です。<code>core.json</code>（回・分類・形式）、<code>extra.json</code>（言葉）、<code>rel.json</code>（関連回）、<code>geo-japan.json</code>・<code>geo-world.json</code>（地図）。</li>
+    <li><b>GAS（自動処理）のコード</b> … <code>/gas/bundle.json</code>。Google Apps Script の全ファイルを1つにまとめたものです。</li>
+  </ul>
+  <p>例：<code>https://neyito96.github.io/asarisunowa/library/data/manifest.json</code></p>
+</section>
+<section>
+  <h2>コード</h2>
+  <p>すべて <a href="https://github.com/Neyito96/asarisunowa">GitHub</a> にあります。意見・開発のアイデア・メモは <a href="https://github.com/Neyito96/asarisunowa/issues">Issue</a> へ（<a href="../faq/">よくある質問</a>も見てください）。</p>
+</section>
+</main>
+<footer class="foot">
+  <p class="about">朝リスの輪（田、蔵、宇宙）は、朝日新聞ポッドキャストを聴くリスナー『朝リス🐿️』が、見て聞いて、書いて動かして話したりしてみんなで育むコミュニティサイトです。膨大な番組と、それを毎日届けつづける朝ポキの発信力に、敬意を表して。</p>
+</footer>
+</body>
+</html>
