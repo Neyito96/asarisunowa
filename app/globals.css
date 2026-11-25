@@ -3480,3 +3480,25 @@ footer {
 .posukamiFormHead span{font-size:.76rem;opacity:.85}
 .posukamiForm-reply .posukamiFormHead strong{color:#8c405f}
 .posukamiForm-other .posukamiFormHead strong{color:#795d2d}
+
+/* 田の最初の画面: 何のサイトで何ができるか（2026-11-25・#551） */
+.welcome { margin: 10px auto 4px; }
+.welcomeLead { margin: 0 0 8px; font-size: 15px; line-height: 1.6; font-weight: 700; color: var(--ink); }
+.welcomeLead b { color: var(--deep-pink); }
+.welcomeDoors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.door { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 84px; padding: 10px 6px; border: 2px solid var(--line); border-radius: 16px; background: var(--white); color: var(--ink); text-decoration: none; text-align: center; box-shadow: 0 3px 0 rgba(16,58,74,.08); transition: transform .12s, border-color .12s; }
+.door:hover, .door:focus-visible { transform: translateY(-2px); border-color: var(--green); }
+.door:focus-visible { outline: 3px solid var(--sea); outline-offset: 2px; }
+.door i { font-style: normal; font-size: 22px; line-height: 1; }
+.door b { font-size: 14px; line-height: 1.3; }
+.door small { font-size: 11px; color: #5c7a84; font-weight: 700; }
+.doorKura { border-color: #e7c99b; background: #fffaf0; }
+.doorUchu { border-color: #b7c3ee; background: #f4f6ff; }
+.doorMinna { border-color: var(--pink); background: #fff5f8; }
+.welcomeHere { margin: 8px 0 0; font-size: 12px; color: #5c7a84; }
+@media (max-width: 420px) {
+  .welcomeLead { font-size: 14px; }
+  .door { min-height: 78px; padding: 8px 4px; border-radius: 14px; }
+  .door b { font-size: 12.5px; }
+  .door small { font-size: 10px; }
+}

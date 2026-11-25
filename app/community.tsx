@@ -1603,6 +1603,24 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
           </a>
         </div>
       </header>
+      {/* 2026-11-25 第三者レビュー6社の共通指摘: 最初の画面で「何のサイトで、何ができるか」を伝える（#551・#549） */}
+      <section className="wrap welcome" aria-labelledby="welcome-lead">
+        <p id="welcome-lead" className="welcomeLead">
+          朝日新聞ポッドキャストを、<b>探して・めぐって・みんなで育てる</b>。リスナーがつくる非公式サイトです。
+        </p>
+        <div className="welcomeDoors">
+          <a href="library/" target="_blank" rel="noopener" className="door doorKura">
+            <i aria-hidden="true">🔎</i><b>過去の回を探す</b><small>蔵・約6,100回</small>
+          </a>
+          <a href="uchu/" target="_blank" rel="noopener" className="door doorUchu">
+            <i aria-hidden="true">🌌</i><b>テーマでめぐる</b><small>宇宙・星図</small>
+          </a>
+          <a href="minna/" target="_blank" rel="noopener" className="door doorMinna">
+            <i aria-hidden="true">🔭</i><b>分類に投票する</b><small>星読み・登録なし</small>
+          </a>
+        </div>
+        <p className="welcomeHere">このページ（田）では、番組とプレイリストを案内しています ↓</p>
+      </section>
       {/* 2026-11-24 管理人指示: 田からも蔵・宇宙へ1回で行けるように（3つをまとめて「朝リスの輪」） */}
       <nav className="wrap siteRing" aria-label="朝リスの輪（ほかのページ）">
         <span className="siteRingLabel">朝リスの輪</span>
