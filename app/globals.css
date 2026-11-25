@@ -3489,7 +3489,7 @@ footer {
 a.ringDoor:hover, a.ringDoor:focus-visible { border-color: var(--green); transform: translateY(-1px); }
 a.ringDoor:focus-visible { outline: 3px solid var(--sea); outline-offset: 2px; }
 .ringDoor.here { background: var(--ink); border-color: var(--ink); color: var(--white); }
-.ringDoor.here small { color: #cfe9ee; }
+.ringDoor.here small { color: #cfe9ee; white-space: normal; }
 .ringLead { margin: 4px auto 10px; font-size: 14px; line-height: 1.6; font-weight: 700; color: var(--ink); }
 .ringLead b { color: var(--deep-pink); }
 .taHeading { margin: 6px auto 8px; font-size: 15px; font-weight: 800; color: var(--ink); display: flex; align-items: center; gap: 8px; }
