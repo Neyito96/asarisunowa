@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-26T03:46:23.899Z",
+ "generatedAt": "2026-11-26T13:09:03.959Z",
  "source": "open.spotify.com（埋め込み＋番組ページ）",
  "shows": {
   "ニュースの現場から": {
@@ -730,7 +730,7 @@
   },
   "報談": {
    "showId": "5Dt1uyQaJpM6hPV8aEMP3R",
-   "count": 49,
+   "count": 48,
    "episodes": [
     {
      "id": "5SvBbhUVSpoOByxp6wkcco",
@@ -1067,13 +1067,6 @@
      "title": "国会前デモ、「他候補中傷」文春報道…　「報道されない」問題を考えます #170",
      "date": "2026-05-13",
      "durationMs": 6906481
-    },
-    {
-     "id": "3rsYiKeP2lyTA4G1XqCo3x",
-     "url": "https://open.spotify.com/episode/3rsYiKeP2lyTA4G1XqCo3x",
-     "title": "（カロリーオフ）リベラルの定義ってなんなのか問題",
-     "date": "2026-05-10",
-     "durationMs": 1636629
     }
    ]
   },
@@ -2152,7 +2145,7 @@
     {
      "id": "4LdvZkgiE6wAVrKhBAbKjD",
      "url": "https://open.spotify.com/episode/4LdvZkgiE6wAVrKhBAbKjD",
-     "title": "（ノーミライ＃13）２人の間に何かがあったんかなかったんか、というお話",
+     "title": "（ノーミライ＃13）2人の間に何かがあったんかなかったんか、というお話",
      "date": "2026-11-20",
      "durationMs": 2623516
     },

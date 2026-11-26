@@ -1,56 +1,19 @@
 {
  "summary": {
-  "generatedAt": "2026-11-26T03:51:39.440Z",
-  "spotifyGeneratedAt": "2026-11-26T03:46:23.899Z",
+  "generatedAt": "2026-11-26T13:14:37.466Z",
+  "spotifyGeneratedAt": "2026-11-26T13:09:03.959Z",
   "ledgerRows": 6160,
-  "ledgerSpotifyEmpty": 15,
-  "verified": 5,
+  "ledgerSpotifyEmpty": 10,
+  "verified": 0,
   "counts": {
-   "VERIFIED": 5,
-   "VERIFIED_SAME": 266,
+   "VERIFIED_SAME": 271,
    "NO_ROW": 15,
-   "CANDIDATE": 59,
+   "CANDIDATE": 58,
    "HOLD": 1
   },
   "emptyNotInSpotifyList": 1
  },
- "verified": [
-  {
-   "ep": "EP-06781",
-   "url": "https://open.spotify.com/episode/2FOurChQw7eD1zDKf3jJh4",
-   "show": "ニュースの現場から",
-   "title": "（ON GOING）子どもの国語力が心配　本が読まれない時代、読解力をどう伸ばす",
-   "spotifyDate": "2026-11-25"
-  },
-  {
-   "ep": "EP-06784",
-   "url": "https://open.spotify.com/episode/0XUgqiyTDiurWngx3QbUYY",
-   "show": "ニュースの学校",
-   "title": "エヌビディアCEOの復帰",
-   "spotifyDate": "2026-11-25"
-  },
-  {
-   "ep": "EP-06783",
-   "url": "https://open.spotify.com/episode/3Im8498wowCoqCQslsf5sg",
-   "show": "スポンジ",
-   "title": "（フィギュア #38）出産1年で4回転ジャンプ成功　アスリートが出産後も競技を続ける「権利」とは",
-   "spotifyDate": "2026-11-25"
-  },
-  {
-   "ep": "EP-06782",
-   "url": "https://open.spotify.com/episode/4UIxxMmORPUxft0M0tnVjQ",
-   "show": "MEDIA TALK",
-   "title": "（美術展の裏側）世界の名画たちをどう見せよう　「大人の文化祭」ができるまで",
-   "spotifyDate": "2026-11-25"
-  },
-  {
-   "ep": "EP-06785",
-   "url": "https://open.spotify.com/episode/43dkqT95511p8qERFSouUp",
-   "show": "ドーナツ",
-   "title": "（親モヤ #134）若い世代が怖い…女性が「副」にしかなれなかった時代を生きてきた",
-   "spotifyDate": "2026-11-25"
-  }
- ],
+ "verified": [],
  "others": [
   {
    "show": "ニュースの現場から",
@@ -667,17 +630,6 @@
    "gap": 164.51900000000023
   },
   {
-   "show": "報談",
-   "url": "https://open.spotify.com/episode/3rsYiKeP2lyTA4G1XqCo3x",
-   "title": "（カロリーオフ）リベラルの定義ってなんなのか問題",
-   "spotifyDate": "2026-05-10",
-   "ep": "EP-00890",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない",
-   "same": true,
-   "gap": 104.3710000000001
-  },
-  {
    "show": "スポンジ",
    "url": "https://open.spotify.com/episode/4ZcqNCqd2ttUB8eQ56MyAl",
    "title": "（サッカー #35）日本人がFIFA会長に？勝算は？ 田嶋幸三氏が挑む「魑魅魍魎」の211票",
@@ -804,51 +756,6 @@
    "status": "CANDIDATE",
    "reason": "題名・日付は一致・長さが合わない",
    "spotifyUrl": "https://open.spotify.com/episode/5SvBbhUVSpoOByxp6wkcco"
-  },
-  {
-   "ep": "EP-06781",
-   "show": "ニュースの現場から",
-   "title": "（ON GOING）子どもの国語力が心配　本が読まれない時代、読解力をどう伸ばす",
-   "published": "2026/11/26 04:00",
-   "status": "VERIFIED",
-   "reason": "番組ID・題名・日付・長さが一致",
-   "spotifyUrl": "https://open.spotify.com/episode/2FOurChQw7eD1zDKf3jJh4"
-  },
-  {
-   "ep": "EP-06782",
-   "show": "MEDIA TALK",
-   "title": "（美術展の裏側）世界の名画たちをどう見せよう　「大人の文化祭」ができるまで",
-   "published": "2026/11/26 04:00",
-   "status": "VERIFIED",
-   "reason": "番組ID・題名・日付・長さが一致",
-   "spotifyUrl": "https://open.spotify.com/episode/4UIxxMmORPUxft0M0tnVjQ"
-  },
-  {
-   "ep": "EP-06783",
-   "show": "スポンジ",
-   "title": "（フィギュア #38）出産1年で4回転ジャンプ成功　アスリートが出産後も競技を続ける「権利」とは",
-   "published": "2026/11/26 04:00",
-   "status": "VERIFIED",
-   "reason": "番組ID・題名・日付・長さが一致",
-   "spotifyUrl": "https://open.spotify.com/episode/3Im8498wowCoqCQslsf5sg"
-  },
-  {
-   "ep": "EP-06784",
-   "show": "ニュースの学校",
-   "title": "エヌビディアCEOの復帰",
-   "published": "2026/11/26 04:00",
-   "status": "VERIFIED",
-   "reason": "番組ID・題名・日付が一致・長さは番組ごとの一定差（Spotify版が約44秒短い）",
-   "spotifyUrl": "https://open.spotify.com/episode/0XUgqiyTDiurWngx3QbUYY"
-  },
-  {
-   "ep": "EP-06785",
-   "show": "ドーナツ",
-   "title": "（親モヤ #134）若い世代が怖い…女性が「副」にしかなれなかった時代を生きてきた",
-   "published": "2026/11/26 04:00",
-   "status": "VERIFIED",
-   "reason": "番組ID・題名・日付・長さが一致",
-   "spotifyUrl": "https://open.spotify.com/episode/43dkqT95511p8qERFSouUp"
   }
  ]
 }
