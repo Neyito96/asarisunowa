@@ -3568,3 +3568,14 @@ a.ringDoor:focus-visible { outline: 3px solid var(--sea); outline-offset: 2px; }
   .menuToggle, .menuSearch { width: 38px; height: 38px; font-size: 20px; }
   .nav .siteBrand > .siteBrandText { max-width: none; }
 }
+.menuBars { position: relative; display: block; width: 20px; height: 14px; }
+.menuBars i { position: absolute; left: 0; width: 20px; height: 2.4px; border-radius: 2px; background: #4f513f; transition: transform .2s, opacity .2s, top .2s; }
+.menuBars i:nth-child(1) { top: 0; }
+.menuBars i:nth-child(2) { top: 5.8px; }
+.menuBars i:nth-child(3) { top: 11.6px; }
+.menuBars.open i:nth-child(1) { top: 5.8px; transform: rotate(45deg); }
+.menuBars.open i:nth-child(2) { opacity: 0; }
+.menuBars.open i:nth-child(3) { top: 5.8px; transform: rotate(-45deg); }
+.ringMenuHead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.ringMenuHead .ringMenuTitle { margin: 0; }
+.ringMenu .menuBars i { font-size: 0; }
