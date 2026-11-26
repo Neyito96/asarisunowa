@@ -1603,7 +1603,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
             aria-label={menuOpen ? "メニューを閉じる" : "メニューを開く"}
             onClick={() => setMenuOpen((v) => !v)}
           >
-            <span aria-hidden="true">{menuOpen ? "✕" : "☰"}</span>
+            <span className={menuOpen ? "menuBars open" : "menuBars"} aria-hidden="true"><i /><i /><i /></span>
           </button>
           <b className="siteBrand">
             <span className="siteBrandText">
@@ -1621,7 +1621,7 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
         <>
           <div className="menuBackdrop" onClick={() => setMenuOpen(false)} aria-hidden="true" />
           <nav id="ringMenu" className="ringMenu" aria-label="メニュー">
-            <p className="ringMenuTitle">朝リスの輪</p>
+            <div className="ringMenuHead"><p className="ringMenuTitle">朝リスの輪</p><button type="button" className="menuToggle" aria-label="メニューを閉じる" onClick={() => setMenuOpen(false)}><span className="menuBars open" aria-hidden="true"><i /><i /><i /></span></button></div>
             <ul>
               <li><a href="./" aria-current="page" onClick={() => setMenuOpen(false)}><b>田</b> 番組・プレイリスト</a></li>
               <li><a href="library/" target="_blank" rel="noopener"><b>蔵</b> 過去の回を探す</a></li>
