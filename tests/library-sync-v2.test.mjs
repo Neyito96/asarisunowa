@@ -63,7 +63,9 @@ test('#333 概要の同期: V2清掃済みで置き換え。空・タイトル�
 test('出演者: 完全一致の重複だけを外し、名前と順序は保つ（2回くり返し）', async () => {
   const { dedupeCast } = await import('../scripts/library-sync-v2.mjs');
   assert.equal(dedupeCast('A,部 / B / C / A,部 / B / C'), 'A,部 / B / C');
-  assert.equal(dedupeCast('A / A,部'), 'A / A,部');   // 所属つきは別物として残す（推測で統合しない）
+  assert.equal(dedupeCast('A / A,部'), 'A / A,部');
+  assert.equal(dedupeCast('近藤康太郎；山田佳奈 / 近藤康太郎 / 山田佳奈'), '近藤康太郎 / 山田佳奈');
+  assert.equal(dedupeCast('A；B；C'), 'A / B / C');   // 所属つきは別物として残す（推測で統合しない）
   assert.equal(dedupeCast(''), '');
 });
 
