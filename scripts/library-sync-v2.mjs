@@ -58,7 +58,8 @@ export function castFromRules(v2, rules) {
 export function castNames(text) { return dedupeCast(String(text || '').split(/\n+/).map((l) => l.replace(/https?:\/\/\S+/g, '').trim()).filter(Boolean).join(' / ')); }
 // 出演者の完全一致の重複だけを外す（並び順は最初の出現を保つ。名前の削除・書き換えはしない）
 export const PROMO_RELATED = (url, title) => /asahi\.com\/special\/n4u\/?(?:[?#].*)?$/i.test(String(url || '')) || /LINE(お友達|友だち)登録/.test(String(title || ''));
-export function dedupeCast(cast) { const seen = new Set(), out = []; for (const x of String(cast || '').split(' / ').map((v) => v.trim()).filter(Boolean)) if (!seen.has(x)) { seen.add(x); out.push(x); } return out.join(' / '); }
+// 「A；B / A / B」（台帳の「；」区切りと「 / 」区切りが重なった形）も A / B にする（2026-11-26・35回）
+export function dedupeCast(cast) { const seen = new Set(), out = []; for (const x of String(cast || '').split(' / ').flatMap((v) => v.split(/[；;]/)).map((v) => v.trim()).filter(Boolean)) if (!seen.has(x)) { seen.add(x); out.push(x); } return out.join(' / '); }
 // V2 の配信先列（検証済みの値だけが入る）→ リンクの並び
 export function platformLinks(rec) { const official = String(rec['公式個別URL'] || '').trim() || (/^https:\/\/omny\.fm\/shows\/[^/]+\/[^/?#]+$/.test(String(rec['旧元ページURL'] || '').trim()) ? rec['旧元ページURL'] : '');   // 公式個別URLが空なら、Omny の回ページ（旧元ページURL）を公式ページとして使う
   return [...new Set([official, rec['Spotify'], rec['Apple'], rec['Amazon'], rec['Pocket Casts'], rec['LISTEN'], rec['Pody'], rec['YouTube']].map((u) => safeUrl(String(u || '').trim())).filter(Boolean))]; }
