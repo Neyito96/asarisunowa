@@ -818,6 +818,13 @@ const isVisiblePlaylist = (item: Playlist): boolean =>
   ![...HIDDEN_TEST_PLAYLIST_IDS].some((id) => (item.url || "").includes("/playlist/" + id));
 
 export default function Community({ playlists }: { playlists: Playlist[] }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setMenuOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
   const [livePlaylists, setLivePlaylists] = useState<Playlist[]>(() => playlists.filter(isVisiblePlaylist));
   const [recommendedPodcasts, setRecommendedPodcasts] = useState<RecommendedPodcast[]>(() => [...recommendedPodcastSnapshot].map(recommendedPodcastFromSnapshot).reverse());
   const [recommendedPodcastStatus, setRecommendedPodcastStatus] = useState<"loading" | "ready" | "error">("ready");
@@ -1587,6 +1594,17 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
     <>
       <header>
         <div className="wrap nav">
+          {/* 2026-11-26 試作: ☰ メニュー（管理人案・Prison Insider 風）。田では下の5つの扉も残す */}
+          <button
+            type="button"
+            className="menuToggle"
+            aria-expanded={menuOpen}
+            aria-controls="ringMenu"
+            aria-label={menuOpen ? "メニューを閉じる" : "メニューを開く"}
+            onClick={() => setMenuOpen((v) => !v)}
+          >
+            <span aria-hidden="true">{menuOpen ? "✕" : "☰"}</span>
+          </button>
           <b className="siteBrand">
             <span className="siteBrandText">
               <span className="siteBrandLead"><span className="asaMincho">朝</span>日新聞ポッドキャストの非公式リスナーサイト</span>
@@ -1594,15 +1612,32 @@ export default function Community({ playlists }: { playlists: Playlist[] }) {
               <span className="siteBrandTitle">朝リスの輪</span>
             </span>
           </b>
-          <a
-            href="https://www.asahi.com/special/podcasts/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <span className="asaMincho">朝</span> 公式・全番組 ↗
+          <a className="menuSearch" href="library/" target="_blank" rel="noopener" aria-label="蔵で過去の回を探す" title="蔵で過去の回を探す">
+            <span aria-hidden="true">🔍</span>
           </a>
         </div>
       </header>
+      {menuOpen && (
+        <>
+          <div className="menuBackdrop" onClick={() => setMenuOpen(false)} aria-hidden="true" />
+          <nav id="ringMenu" className="ringMenu" aria-label="メニュー">
+            <p className="ringMenuTitle">朝リスの輪</p>
+            <ul>
+              <li><a href="./" aria-current="page" onClick={() => setMenuOpen(false)}><b>田</b> 番組・プレイリスト</a></li>
+              <li><a href="library/" target="_blank" rel="noopener"><b>蔵</b> 過去の回を探す</a></li>
+              <li><a href="uchu/" target="_blank" rel="noopener"><b>宇宙</b> テーマでめぐる</a></li>
+              <li><a href="minna/" target="_blank" rel="noopener"><b>星読み</b> 分類に投票</a></li>
+              <li><a href="faq/" target="_blank" rel="noopener"><b>FAQ</b> よくある質問</a></li>
+            </ul>
+            <ul className="ringMenuSub">
+              <li><a href="https://www.asahi.com/special/podcasts/" target="_blank" rel="noreferrer"><span className="asaMincho">朝</span>日新聞ポッドキャスト 公式・全番組 ↗</a></li>
+              <li><a href="status/" target="_blank" rel="noopener">ロボットの様子</a></li>
+              <li><a href="open/" target="_blank" rel="noopener">公開しているもの</a></li>
+              <li><a href="privacy/" target="_blank" rel="noopener">プライバシー</a></li>
+            </ul>
+          </nav>
+        </>
+      )}
       {/* 2026-11-25 管理人案: 見出しは「朝リスの輪」、その下に 田・蔵・宇宙・星読み・FAQ の案内（第三者レビュー #551） */}
       <nav className="wrap ringNav" aria-label="朝リスの輪のページ">
         <span className="ringDoor here" aria-current="page"><b>田</b><small>番組・プレイリスト</small></span>

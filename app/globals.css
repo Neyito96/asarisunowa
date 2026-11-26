@@ -3502,3 +3502,69 @@ a.ringDoor:focus-visible { outline: 3px solid var(--sea); outline-offset: 2px; }
   .ringDoor { padding: 6px 1px; }
   .ringLead { font-size: 13.5px; }
 }
+
+/* 2026-11-26 試作: ☰ メニュー（田） */
+.menuToggle,
+.menuSearch {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(104,88,61,.22);
+  border-radius: 12px;
+  background: rgba(255,255,255,.7);
+  color: #4f513f;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  text-decoration: none;
+}
+.menuSearch { font-size: 19px; }
+.menuToggle:focus-visible,
+.menuSearch:focus-visible { outline: 3px solid var(--sea); outline-offset: 2px; }
+.nav .siteBrand { flex: 1 1 auto; min-width: 0; justify-content: center; text-align: center; }
+.menuBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(40,44,30,.28);
+}
+.ringMenu {
+  position: fixed;
+  z-index: 41;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: min(320px, 86vw);
+  overflow-y: auto;
+  padding: 22px 18px 28px;
+  background: #fffdf7;
+  box-shadow: 8px 0 30px rgba(40,44,30,.18);
+}
+.ringMenuTitle {
+  margin: 0 0 14px;
+  font-weight: 900;
+  font-size: 22px;
+  color: #4f513f;
+}
+.ringMenu ul { list-style: none; margin: 0; padding: 0; }
+.ringMenu li a {
+  display: block;
+  padding: 12px 10px;
+  border-radius: 10px;
+  color: #3e4232;
+  font-weight: 700;
+  text-decoration: none;
+}
+.ringMenu li a:hover,
+.ringMenu li a:focus-visible { background: #f1ecdd; }
+.ringMenu li a b { display: inline-block; min-width: 3.2em; color: var(--green); }
+.ringMenu li a[aria-current="page"] { background: #eef6e6; }
+.ringMenuSub { margin-top: 14px !important; padding-top: 12px !important; border-top: 1px solid rgba(104,88,61,.16) !important; }
+.ringMenuSub li a { font-weight: 600; font-size: 14px; padding: 9px 10px; }
+@media (max-width: 780px) {
+  .menuToggle, .menuSearch { width: 38px; height: 38px; font-size: 20px; }
+  .nav .siteBrand > .siteBrandText { max-width: none; }
+}
