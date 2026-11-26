@@ -90,7 +90,7 @@
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !drawer.hidden) setOpen(false); });
   }
 
-  var css = el('link', { rel: 'stylesheet', href: root + 'ring-menu.css?v=20261126' });
+  var css = el('link', { rel: 'stylesheet', href: root + 'ring-menu.css?v=20261126b' });
   document.head.appendChild(css);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', build); else build();
 })();
