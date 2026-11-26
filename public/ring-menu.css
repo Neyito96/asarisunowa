@@ -1,0 +1,29 @@
+/* ring-menu.css — 朝リスの輪の ☰ メニュー（全ページ共通）。田の app/globals.css の .ringMenu と同じ見た目 */
+.rm-bar { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #fffdf7; border-bottom: 1px solid rgba(104,88,61,.16); font-family: "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif; }
+.rm-title { flex: 1 1 auto; text-align: center; font-weight: 900; font-size: 20px; color: #4f513f; text-decoration: none; letter-spacing: .03em; }
+.rm-toggle, .rm-find { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; padding: 0; border: 1px solid rgba(104,88,61,.22); border-radius: 12px; background: rgba(255,255,255,.8); color: #4f513f; font-size: 18px; line-height: 1; cursor: pointer; text-decoration: none; }
+.rm-toggle:focus-visible, .rm-find:focus-visible, .rm-drawer a:focus-visible { outline: 3px solid #39b8cf; outline-offset: 2px; }
+.rm-bars { position: relative; display: block; width: 20px; height: 14px; }
+.rm-bars i { position: absolute; left: 0; width: 20px; height: 2.4px; border-radius: 2px; background: #4f513f; }
+.rm-bars i:nth-child(1) { top: 0; }
+.rm-bars i:nth-child(2) { top: 5.8px; }
+.rm-bars i:nth-child(3) { top: 11.6px; }
+.rm-bars.open i:nth-child(1) { top: 5.8px; transform: rotate(45deg); }
+.rm-bars.open i:nth-child(2) { opacity: 0; }
+.rm-bars.open i:nth-child(3) { top: 5.8px; transform: rotate(-45deg); }
+.rm-backdrop { position: fixed; inset: 0; z-index: 1000; background: rgba(40,44,30,.28); }
+.rm-drawer { position: fixed; z-index: 1001; top: 0; left: 0; bottom: 0; width: min(320px, 86vw); overflow-y: auto; padding: 22px 18px 28px; box-sizing: border-box; background: #fffdf7; box-shadow: 8px 0 30px rgba(40,44,30,.18); font-family: "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif; font-size: 15px; line-height: 1.5; text-align: left; }
+.rm-backdrop[hidden], .rm-drawer[hidden] { display: none; }
+.rm-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.rm-name { margin: 0; font-weight: 900; font-size: 22px; color: #4f513f; }
+.rm-drawer ul { list-style: none; margin: 0; padding: 0; }
+.rm-drawer li a { display: block; padding: 12px 10px; border-radius: 10px; color: #3e4232; font-weight: 700; text-decoration: none; }
+.rm-drawer li a:hover { background: #f1ecdd; }
+.rm-drawer li a b { display: inline-block; min-width: 3.2em; color: #4c7a3f; }
+.rm-drawer li a[aria-current="page"] { background: #eef6e6; }
+.rm-drawer .rm-sub { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(104,88,61,.16); }
+.rm-drawer .rm-sub a { font-weight: 600; font-size: 14px; padding: 9px 10px; }
+/* 宇宙（暗い上部バーの中に ☰ だけ置く） */
+[data-ring-menu-slot] { display: inline-flex; flex: none; }
+[data-ring-menu-slot] .rm-toggle { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.25); }
+[data-ring-menu-slot] .rm-bars i { background: #e8e4d8; }
