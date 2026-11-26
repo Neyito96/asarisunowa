@@ -1,11 +1,18 @@
 {
- "generatedAt": "2026-11-25T13:29:56.985Z",
+ "generatedAt": "2026-11-26T03:46:23.899Z",
  "source": "open.spotify.com（埋め込み＋番組ページ）",
  "shows": {
   "ニュースの現場から": {
    "showId": "392h0MYfvMTndEVzf2cOvC",
    "count": 51,
    "episodes": [
+    {
+     "id": "2FOurChQw7eD1zDKf3jJh4",
+     "url": "https://open.spotify.com/episode/2FOurChQw7eD1zDKf3jJh4",
+     "title": "（ON GOING）子どもの国語力が心配　本が読まれない時代、読解力をどう伸ばす",
+     "date": "2026-11-25",
+     "durationMs": 2447333
+    },
     {
      "id": "2HczIIAQUl454xMnBPWjnJ",
      "url": "https://open.spotify.com/episode/2HczIIAQUl454xMnBPWjnJ",
@@ -350,13 +357,6 @@
      "durationMs": 5066009
     },
     {
-     "id": "0XioVSOiu3u5huvtK87Rek",
-     "url": "https://open.spotify.com/episode/0XioVSOiu3u5huvtK87Rek",
-     "title": "（地球会議 #1）岡本多緒さんと考えよう　酷暑日、ヨーロッパの猛暑、多発する水害…気候変動のせい？",
-     "date": "2026-10-08",
-     "durationMs": 3525053
-    },
-    {
      "id": "1vVhoMqsDDYUmpajbMtF82",
      "url": "https://open.spotify.com/episode/1vVhoMqsDDYUmpajbMtF82",
      "title": "朝日新聞ポッドキャストを紹介する2分間の音声",
@@ -369,6 +369,13 @@
    "showId": "2uG9W6CnsaNi87AfSuGe8r",
    "count": 51,
    "episodes": [
+    {
+     "id": "0XUgqiyTDiurWngx3QbUYY",
+     "url": "https://open.spotify.com/episode/0XUgqiyTDiurWngx3QbUYY",
+     "title": "エヌビディアCEOの復帰",
+     "date": "2026-11-25",
+     "durationMs": 738858
+    },
     {
      "id": "5CD6DmBOfPQ7AsdkQRAuaG",
      "url": "https://open.spotify.com/episode/5CD6DmBOfPQ7AsdkQRAuaG",
@@ -711,13 +718,6 @@
      "title": "核燃料サイクル",
      "date": "2026-09-09",
      "durationMs": 708943
-    },
-    {
-     "id": "20jWK317FMcswBUVUrpS6o",
-     "url": "https://open.spotify.com/episode/20jWK317FMcswBUVUrpS6o",
-     "title": "概算要求",
-     "date": "2026-09-08",
-     "durationMs": 1027851
     },
     {
      "id": "23Q3UagtMmB8wwNgaFGF01",
@@ -1082,6 +1082,13 @@
    "count": 50,
    "episodes": [
     {
+     "id": "3Im8498wowCoqCQslsf5sg",
+     "url": "https://open.spotify.com/episode/3Im8498wowCoqCQslsf5sg",
+     "title": "（フィギュア #38）出産1年で4回転ジャンプ成功　アスリートが出産後も競技を続ける「権利」とは",
+     "date": "2026-11-25",
+     "durationMs": 3445221
+    },
+    {
      "id": "3zu1g26EuKaggdZIo0lqIQ",
      "url": "https://open.spotify.com/episode/3zu1g26EuKaggdZIo0lqIQ",
      "title": "（スポーツ×社会 #2）ハードルが高いプロ選手のカミングアウト　背景にマッチョな文化（後編）",
@@ -1423,13 +1430,6 @@
      "title": "（サッカーW杯）スウェーデンにドローで2位突破　次は本気のブラジル、組織的な守りで対抗を",
      "date": "2026-06-26",
      "durationMs": 1795592
-    },
-    {
-     "id": "3dAvdIJddj1qSROMfxhuyh",
-     "url": "https://open.spotify.com/episode/3dAvdIJddj1qSROMfxhuyh",
-     "title": "（フィギュア）素朴なギモンに答える回なのに、MCの涙が止まらない理由 #2284",
-     "date": "2026-06-24",
-     "durationMs": 4232154
     }
    ]
   },
@@ -1437,6 +1437,13 @@
    "showId": "0yhef9ORZkUZs9ZeotdCSY",
    "count": 50,
    "episodes": [
+    {
+     "id": "4UIxxMmORPUxft0M0tnVjQ",
+     "url": "https://open.spotify.com/episode/4UIxxMmORPUxft0M0tnVjQ",
+     "title": "（美術展の裏側）世界の名画たちをどう見せよう　「大人の文化祭」ができるまで",
+     "date": "2026-11-25",
+     "durationMs": 3540841
+    },
     {
      "id": "1WVCNTgEZTQ2DKW5haUHLL",
      "url": "https://open.spotify.com/episode/1WVCNTgEZTQ2DKW5haUHLL",
@@ -1779,13 +1786,6 @@
      "title": "（サステナ）映画で人をむすび、世界を前向きに　原点はワインそしてガザ",
      "date": "2026-09-09",
      "durationMs": 2329375
-    },
-    {
-     "id": "09Hy10Tr8vDdkYwCVULwi5",
-     "url": "https://open.spotify.com/episode/09Hy10Tr8vDdkYwCVULwi5",
-     "title": "（天声人語 #4）FIFAに、これだけは言いたい",
-     "date": "2026-09-08",
-     "durationMs": 2076124
     }
    ]
   },
@@ -2122,6 +2122,13 @@
    "count": 49,
    "episodes": [
     {
+     "id": "43dkqT95511p8qERFSouUp",
+     "url": "https://open.spotify.com/episode/43dkqT95511p8qERFSouUp",
+     "title": "（親モヤ #134）若い世代が怖い…女性が「副」にしかなれなかった時代を生きてきた",
+     "date": "2026-11-25",
+     "durationMs": 1987896
+    },
+    {
      "id": "2NCv1tgvdCJ7mD7RX52UIM",
      "url": "https://open.spotify.com/episode/2NCv1tgvdCJ7mD7RX52UIM",
      "title": "（ポすすめ）イシュミナのpodcast・耳より相関図",
@@ -2456,13 +2463,6 @@
      "title": "（日曜版）マリッジ・レインボー",
      "date": "2026-09-26",
      "durationMs": 6126621
-    },
-    {
-     "id": "5dYVN3uoZhTK8OQsPIOaOh",
-     "url": "https://open.spotify.com/episode/5dYVN3uoZhTK8OQsPIOaOh",
-     "title": "（ノーミライ #6）言い間違いに勘違い　案外あっとる？　というお話",
-     "date": "2026-09-25",
-     "durationMs": 3457981
     }
    ]
   }
