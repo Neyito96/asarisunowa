@@ -1,6 +1,6 @@
 import { stampText } from './stamp.mjs';
 import { publicationLabel } from './publication-scope.mjs';
-import { tidyDescription, withoutAwardPlea } from './description-tidy.mjs?v=tidy-501-20261125';
+import { tidyDescription, withoutAwardPlea, descriptionLines } from './description-tidy.mjs?v=tidy-lines-20261127';
 import { qrSvg } from './qr.mjs';
 import { filterEpisodes, safeUrl, normal, showSearchText } from './library-core.mjs?v=alias-20261119';
 const $=id=>document.getElementById(id), cache=new Map();
@@ -90,7 +90,7 @@ async function openDetail(id,fromUrl=false) {
  if(e.cast)body.append(node('p',e.cast,'detail-meta'));
  if(e.audio){const audio=document.createElement('audio');audio.controls=true;audio.preload='none';audio.hidden=true;const play=node('button','▶ この回を聴く');play.type='button';play.addEventListener('click',()=>{audio.hidden=false;audio.src=e.audio;play.hidden=true;audio.play().catch(()=>{note.textContent='プレーヤーの再生ボタン、または配信先リンクからお聴きください。';});});const note=node('p','配信元の音声です。再生ボタンを押すと読み込みます。','audio-note');audio.addEventListener('error',()=>{note.textContent='音声を読み込めませんでした。配信先リンクからお聴きください。';});body.append(play,audio,note);}
  else body.append(node('p','この回は配信先リンクからお聴きください。','audio-note'));
- const links=node('div',undefined,'detail-links');addLinks(links,listenLinks(liveLinks(e,e.links)).map(l=>l.url));if(!links.children.length)addLinks(links,['https://www.asahi.com/special/podcasts/']);if((e.links||[]).some(u=>isMovedLink(e,u)))links.append(node('p',MOVED_LINK_NOTE,'moved-note'));const tidy=tidyDescription(e.description),useTidy=tidy.status==='TIDY'||tidy.status==='AS_IS';body.append(links,node('p',tidy.status==='PROMO_ONLY'?'公式の概要欄は番組の告知だけで、この回の内容の説明はありません。':((useTidy?tidy.body:withoutAwardPlea(e.description)) || '概要欄は未収録です。公式ページをご確認ください。'),'description'));
+ const links=node('div',undefined,'detail-links');addLinks(links,listenLinks(liveLinks(e,e.links)).map(l=>l.url));if(!links.children.length)addLinks(links,['https://www.asahi.com/special/podcasts/']);if((e.links||[]).some(u=>isMovedLink(e,u)))links.append(node('p',MOVED_LINK_NOTE,'moved-note'));const tidy=tidyDescription(e.description),useTidy=tidy.status==='TIDY'||tidy.status==='AS_IS';body.append(links,node('p',tidy.status==='PROMO_ONLY'?'公式の概要欄は番組の告知だけで、この回の内容の説明はありません。':(descriptionLines(useTidy?tidy.body:withoutAwardPlea(e.description)) || '概要欄は未収録です。公式ページをご確認ください。'),'description'));
  {const u=document.createElement('a');u.textContent='✦ 朝リスの宇宙でこの回を見る ↗';u.href=`../uchu/#e=${encodeURIComponent(e.id)}`;u.target='_blank';u.rel='noopener';const p=node('p',undefined,'detail-meta to-uchu');p.append(u);body.append(p);}   // 蔵→宇宙（どの分類のあたりの星か、近い回）
  if(useTidy&&tidy.recordedAt&&!e.recording?.length)body.append(node('p',`${tidy.recordedAt}に収録`,'detail-meta'));
  // 概要の【関連記事】を1件ずつリンクに（概要にあったURLだけ。データ側の関連記事があればそちらを優先）
