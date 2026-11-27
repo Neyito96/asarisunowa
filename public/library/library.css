@@ -102,3 +102,13 @@ form{background:#fdfaf3;border:1px solid #baac94;border-top:7px solid #40352a;bo
 .spotify-wish{display:block;margin:8px 0;font-size:14px}
 .moved-note{flex-basis:100%;font-size:12px;color:var(--muted);margin:2px 0 0}
 nav[aria-label="サイト内"] small { font-size: .78em; opacity: .75; margin-left: 2px; }
+/* 2026-11-27 一覧をカードに・蔵書ボタンを見つけやすく（管理人＋DeepSeekレビュー「テキストの壁」 #572） */
+.episode{background:rgba(255,254,249,.94);border:1px solid #d9ccb6;border-radius:14px;padding:16px 20px;margin:12px 0;box-shadow:0 1px 3px rgba(60,48,30,.07)}
+.episode-title{font-size:18px;line-height:1.55}
+.episode-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
+.episode-actions .episode-more{min-height:40px;padding:8px 14px;font-size:13px;border-radius:999px;background:transparent;color:var(--green)}
+.episode-actions .episode-more{border:1px solid #cdbfa6}
+.episode-actions .shelf-save{min-height:40px;padding:8px 16px;font-size:14px;font-weight:700;border-radius:999px;background:#eef6e6;color:var(--green);border:1.5px solid var(--green)}
+.episode-actions .shelf-save[aria-pressed=true]{background:var(--green);color:#fff}
+.episode-actions .episode-more:hover,.episode-actions .shelf-save:hover{filter:brightness(.97)}
+@media(max-width:600px){.episode{padding:14px 14px;border-radius:12px}.episode-title{font-size:16.5px}}
