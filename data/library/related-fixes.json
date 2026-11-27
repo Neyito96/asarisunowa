@@ -1,0 +1,13 @@
+{
+  "_説明": "蔵の関連記事の手直し（公式の概要欄と照らして、管理人が確認したもの）。node scripts/library-related/apply-related-fixes.mjs で公開データに当てる。URL は公式に書かれたまま（打ち間違いも直さない＝推測でURLを作らない）",
+  "fixes": {
+    "EP-06651": {
+      "checked": "2026-11-27 管理人が公式ページのスクショで確認（関連記事は3本）",
+      "relatedArticles": [
+        { "title": "満州 アヘンでできた“理想郷” 参考文献・クレジット", "url": "https://www.asahi.com/articles/ASR7741RPR5RPLZU004.html" },
+        { "title": "米作りを教える側に 言葉のグルーヴの交換・交歓こそがわたしの糧", "url": "https://www.asahi.com/articles/ASV9S1J12V9STLVB007M.html" },
+        { "title": "罪深い負け戦、それでも音楽を書く（近藤康太郎と吉田純子の対談の紹介です）", "url": "https://www.asahi.com/articles/DA3S16550679.htmll" }
+      ]
+    }
+  }
+}
