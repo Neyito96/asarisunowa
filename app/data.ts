@@ -22,7 +22,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "IOK 伊藤大地・奥山晶二郎・神田大介",
     "I'm OK",
     "https://open.spotify.com/playlist/799Fo9to2TK0ahGEJsvcm2",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84e0bb218d517bbbae7f9cc91e",
     "2026-03-30",
     null,
     true
@@ -31,7 +31,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#ふな 冨名腰隆　旧【報談】",
     "ふね",
     "https://open.spotify.com/playlist/48tpuTjiqGdJrvkX8R1OkI",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84af69246b9a41e45e39aefb3e",
     "2025-07-11",
     null,
     true
@@ -40,7 +40,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "議員になんでも聞いてみよう　秋山訓子の政治家インタビュー",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/2H3SMQ51i2FG9ZX86R5VH8",
-    "https://mosaic.scdn.co/300/ab67656300005f1f46bdba4cf5ef29ec31f5b8c7ab67656300005f1f8620023b00a1b90d47b02feaab67656300005f1fb8e0b644ab05234c1a041046ab67656300005f1ff9a28ae7ac2ecbe57c60d441",
+    "https://mosaic.scdn.co/640/ab67656300005f1f46bdba4cf5ef29ec31f5b8c7ab67656300005f1f8620023b00a1b90d47b02feaab67656300005f1fb8e0b644ab05234c1a041046ab67656300005f1ff9a28ae7ac2ecbe57c60d441",
     "2022-05-01",
     null,
     false
@@ -58,7 +58,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "東日本大震災",
     "cobaltore12",
     "https://open.spotify.com/playlist/4nptiHJbbsjKS37kykLkNF",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8487c56fea5a948c8f1e451694",
     null,
     null,
     false
@@ -220,7 +220,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "アフガニスタン",
     "bigstone1977",
     "https://open.spotify.com/playlist/6I3Ge9DJykZkNlyk1Ktc3x",
-    "https://mosaic.scdn.co/300/ab67656300005f1f0edd5bbf650515f3b3be1828ab67656300005f1f877b774bf629cf9d72419972ab67656300005f1fa84f0f105934060881c12353ab67656300005f1fffca567e2bcca3b4e8d880fb",
+    "https://mosaic.scdn.co/640/ab67656300005f1f0edd5bbf650515f3b3be1828ab67656300005f1f877b774bf629cf9d72419972ab67656300005f1fa84f0f105934060881c12353ab67656300005f1fffca567e2bcca3b4e8d880fb",
     null,
     null,
     false
@@ -265,7 +265,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "SNS・ネット世論",
     "bigstone1977",
     "https://open.spotify.com/playlist/6BZFv1oPFANvVQnPVzpBWI",
-    "https://mosaic.scdn.co/300/ab67656300005f1f02aa7f5ac6cde247efd75d7eab67656300005f1f60890fd8b45020a6fce24755ab67656300005f1f8b6d90f8af99571b0d5bcf1dab67656300005f1fae51735bcfe42ffe77b81d98",
+    "https://mosaic.scdn.co/640/ab67656300005f1f02aa7f5ac6cde247efd75d7eab67656300005f1f60890fd8b45020a6fce24755ab67656300005f1f8b6d90f8af99571b0d5bcf1dab67656300005f1fae51735bcfe42ffe77b81d98",
     null,
     null,
     false
@@ -292,7 +292,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "ロシア・ウクライナ戦争",
     "bigstone1977",
     "https://open.spotify.com/playlist/34rJAgAZt7yPUqgCugKDYM",
-    "https://mosaic.scdn.co/300/ab67656300005f1f22b2a5e0194e2af9a6600e0aab67656300005f1f6b0bb55dd16be5e6235ea634ab67656300005f1fa3d1fc49b5b6db6d0e3b888eab67656300005f1ffe1ccc86b78baf3076d787de",
+    "https://mosaic.scdn.co/640/ab67656300005f1f22b2a5e0194e2af9a6600e0aab67656300005f1f6b0bb55dd16be5e6235ea634ab67656300005f1fa3d1fc49b5b6db6d0e3b888eab67656300005f1ffe1ccc86b78baf3076d787de",
     null,
     null,
     false
@@ -391,7 +391,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "ポキ-1グランプリ 2023",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/5xUDKa3r5arvKSx4gqjwI3",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8474741ef011e8289b8beefdd9",
     null,
     null,
     false
@@ -400,7 +400,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "「MEDIA TALK」 2023厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/6Q0iXwuC9PuLV3cqg11Dmt",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da841ee658084478764647096938",
     null,
     null,
     false
@@ -409,7 +409,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "楽屋裏2023　厳選エピソード",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/0I9wCLs5oFLNIG1aPLQneg",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da844c7dbdab8ea74c1dd2b5ce32",
     null,
     null,
     false
@@ -418,7 +418,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "バスケ通信―クラッチタイム（バスクラ）",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/3axOpfDhMhLEtelwGwvMHb",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244",
     null,
     null,
     false
@@ -526,7 +526,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "#初登場特集（#朝ポキ）",
     "koike",
     "https://open.spotify.com/playlist/3WLp56ohdZs2AqDoUwNNWd",
-    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef",
+    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da8494735e021118e344799819ef",
     null,
     null,
     false
@@ -544,7 +544,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "編集マニア",
     "カンダ ・マサキ",
     "https://open.spotify.com/playlist/71mdQ5ANqZda48jBkj0Qmz",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84c9ee6b760df847573805739d",
     null,
     null,
     false
@@ -562,7 +562,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "まなび場天声人語　見出しづくりにチャレンジ",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/7aKDEfAdCjTxiqiv19Grar",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da848d2c65afeadf0c8d7c18f392",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da848d2c65afeadf0c8d7c18f392",
     "2026-08-05",
     null,
     true
@@ -688,7 +688,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "朝鮮・韓国・コリア",
     "하대원동 / 下大院洞",
     "https://open.spotify.com/playlist/5JjGlKcagfLyDkg0cLZggK",
-    "https://mosaic.scdn.co/300/ab67656300005f1f218955520c86bcd5bed153b2ab67656300005f1f469e294bc9bdca3eac396289ab67656300005f1f600c19901ca1a2ffc49c1445ab67656300005f1fe3f02e44ba7d9a967f180f8a",
+    "https://mosaic.scdn.co/640/ab67656300005f1f218955520c86bcd5bed153b2ab67656300005f1f469e294bc9bdca3eac396289ab67656300005f1f600c19901ca1a2ffc49c1445ab67656300005f1fe3f02e44ba7d9a967f180f8a",
     "2026-09-30",
     "2026-11-24",
     false
