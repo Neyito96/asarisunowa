@@ -90,6 +90,8 @@
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !drawer.hidden) setOpen(false); });
   }
 
+  // アクセスの数え方（全ページ共通）
+  var cnt = document.createElement('script'); cnt.defer = true; cnt.src = root + 'count.js?v=20261128'; document.head.appendChild(cnt);
   var css = el('link', { rel: 'stylesheet', href: root + 'ring-menu.css?v=20261126b' });
   document.head.appendChild(css);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', build); else build();
