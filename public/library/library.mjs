@@ -5,7 +5,7 @@ import { qrSvg } from './qr.mjs';
 import { filterEpisodes, safeUrl, normal, showSearchText } from './library-core.mjs?v=alias-20261119';
 const $=id=>document.getElementById(id), cache=new Map();
 let manifest, page=0, generation=0, activeResults=null, activeDetail=0;
-import { SHELF_KEY, SHELF_LIMITS, readShelf, serializeShelf, toggleItem, moveItem, setMeta, encodeShare, decodeShare, cardLinks, listenLinks, liveLinks, isMovedLink, MOVED_LINK_NOTE } from './shelf-core.mjs';
+import { SHELF_KEY, SHELF_LIMITS, readShelf, serializeShelf, toggleItem, moveItem, setMeta, encodeShare, decodeShare, cardLinks, listenLinks, liveLinks, isMovedLink, MOVED_LINK_NOTE } from './shelf-core.mjs?v=paren-20261127';
 // 自分の蔵書一覧（#315）: 利用者が選んだ回だけを、この端末のブラウザに保存する（会員登録・送信なし）。検索の言葉や閲覧の記録は保存しない
 function loadShelf(){try{return readShelf(localStorage.getItem(SHELF_KEY));}catch{return readShelf(null);}}
 function saveShelf(next){try{localStorage.setItem(SHELF_KEY,serializeShelf(next));return true;}catch{return false;}}
@@ -181,7 +181,7 @@ sharedButton.addEventListener('click',()=>{sharedDialog.replaceChildren();const 
  const h=node('h2','🗂 みんなの蔵書');h.id='shared-title';sharedDialog.append(close,h,node('p','朝リスが作って「載せる」を選んで送った蔵書です。開くと、回の一覧と配信先リンクが見られます。自分の蔵書は「📚 わたしの蔵書」→「📮 朝リスに推薦する」で「みんなの蔵書に載せる」を選んで送れます。','detail-meta'));
  if(!sharedShelves.length)sharedDialog.append(node('p','まだありません。最初の1冊をお待ちしています。','empty'));
  const list=node('ul',undefined,'shared-list');
- for(const x of sharedShelves){const li=node('li'),a=node('a',x.title||'（無題の蔵書）');a.href='#'+encodeShare({title:x.title,description:x.description,ids:x.ids});a.addEventListener('click',()=>sharedDialog.close());
+ for(const x of sharedShelves){const li=node('li'),a=node('a',x.title||'（無題の蔵書）');a.href='#'+encodeShare({title:x.title,description:x.description,ids:x.ids});a.addEventListener('click',(ev)=>{sharedDialog.close();if(location.hash===a.getAttribute('href')){ev.preventDefault();renderShared();}});
   li.append(a,node('small',[x.nick?`${x.nick} さん`:'',`${x.ids.length}回`,x.date].filter(Boolean).join(' · '),'detail-meta'));if(x.description)li.append(node('p',x.description));list.append(li);}
  sharedDialog.append(list);sharedDialog.showModal();});
 // ===== 共有URLで開いたとき: 共有された蔵書カードを出す（アカウント不要。この端末には保存しない）=====
@@ -198,7 +198,7 @@ async function renderShared(){
   card.append(links);grid.append(card);});
  const take=node('button','この蔵書をわたしの蔵書に入れる','quiet');take.type='button';take.addEventListener('click',()=>{let s=loadShelf();for(const id of data.ids)if(eps[data.ids.indexOf(id)]&&!s.ids.includes(id))s=toggleItem(s,id);if(saveShelf(s)){take.textContent='入れました（このブラウザに保存）';refreshShelfButton();}});
  sec.append(grid,take,node('p','共有した人の名前や、ほかに保存している回は表示されません。','detail-meta'));
- $('search-form').before(sec);
+ $('search-form').before(sec);sec.scrollIntoView({behavior:'smooth',block:'start'});
 }
 window.addEventListener('hashchange',()=>{if(manifest)renderShared();});
 async function showStamp(){try{const u=await fetch('../uchu/data/manifest.json',{cache:'no-store'}).then(r=>r.ok?r.json():{});const t=stampText({generatedAt:manifest.generatedAt||u.generatedAt,newest:u.newest,app:u.apps?.library});if(t){const p=document.createElement('span');p.className='stamp';p.textContent=t;$('snapshot').append(document.createElement('br'),p);}}catch{}}   // データ更新とアプリ版（#430）

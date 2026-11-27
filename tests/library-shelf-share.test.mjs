@@ -41,3 +41,9 @@ test('蔵のページは検索の言葉を端末に保存しない', () => {
   assert.deepEqual([...new Set(sets)], ['SHELF_KEY']);
   assert.ok(!/sessionStorage|indexedDB|document\.cookie/.test(src));
 });
+
+test('共有URLの後ろに「）」や句読点が付いて貼られても読める（2026-11-27 Discord）', async () => {
+  const { encodeShare, decodeShare } = await import('../public/library/shelf-core.mjs');
+  const h = '#' + encodeShare({ title: '満州国', description: 'あの時代は遠くない', ids: ['EP-01228', 'EP-00697'] });
+  for (const tail of ['', '）', '%EF%BC%89', '。', ')', '&x=1']) assert.deepEqual(decodeShare(h + tail)?.ids, ['EP-01228', 'EP-00697'], tail);
+});

@@ -41,7 +41,8 @@ export function encodeShare({ title, description, ids }) {
   return 's=1.' + b64url(new TextEncoder().encode(json));
 }
 export function decodeShare(hash) {
-  const m = String(hash || '').replace(/^#/, '').match(/(?:^|&)s=1\.([A-Za-z0-9_-]{4,4000})(?:&|$)/);
+  // 共有URLの直後に「）」や句読点が付いて貼られても読めるよう、使える文字が途切れたところまでを読む（2026-11-27 Discord で「…19）」）
+  const m = String(hash || '').replace(/^#/, '').match(/(?:^|&)s=1\.([A-Za-z0-9_-]{4,4000})/);
   if (!m) return null;
   try {
     const o = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(unb64url(m[1])));
