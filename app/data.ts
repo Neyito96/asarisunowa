@@ -40,7 +40,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "議員になんでも聞いてみよう　秋山訓子の政治家インタビュー",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/2H3SMQ51i2FG9ZX86R5VH8",
-    "https://mosaic.scdn.co/640/ab67656300005f1f46bdba4cf5ef29ec31f5b8c7ab67656300005f1f8620023b00a1b90d47b02feaab67656300005f1fb8e0b644ab05234c1a041046ab67656300005f1ff9a28ae7ac2ecbe57c60d441",
+    "https://mosaic.scdn.co/300/ab67656300005f1f46bdba4cf5ef29ec31f5b8c7ab67656300005f1f8620023b00a1b90d47b02feaab67656300005f1fb8e0b644ab05234c1a041046ab67656300005f1ff9a28ae7ac2ecbe57c60d441",
     "2022-05-01",
     null,
     false
@@ -220,7 +220,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "アフガニスタン",
     "bigstone1977",
     "https://open.spotify.com/playlist/6I3Ge9DJykZkNlyk1Ktc3x",
-    "https://mosaic.scdn.co/640/ab67656300005f1f0edd5bbf650515f3b3be1828ab67656300005f1f877b774bf629cf9d72419972ab67656300005f1fa84f0f105934060881c12353ab67656300005f1fffca567e2bcca3b4e8d880fb",
+    "https://mosaic.scdn.co/300/ab67656300005f1f0edd5bbf650515f3b3be1828ab67656300005f1f877b774bf629cf9d72419972ab67656300005f1fa84f0f105934060881c12353ab67656300005f1fffca567e2bcca3b4e8d880fb",
     null,
     null,
     false
@@ -265,7 +265,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "SNS・ネット世論",
     "bigstone1977",
     "https://open.spotify.com/playlist/6BZFv1oPFANvVQnPVzpBWI",
-    "https://mosaic.scdn.co/640/ab67656300005f1f02aa7f5ac6cde247efd75d7eab67656300005f1f60890fd8b45020a6fce24755ab67656300005f1f8b6d90f8af99571b0d5bcf1dab67656300005f1fae51735bcfe42ffe77b81d98",
+    "https://mosaic.scdn.co/300/ab67656300005f1f02aa7f5ac6cde247efd75d7eab67656300005f1f60890fd8b45020a6fce24755ab67656300005f1f8b6d90f8af99571b0d5bcf1dab67656300005f1fae51735bcfe42ffe77b81d98",
     null,
     null,
     false
@@ -292,7 +292,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "ロシア・ウクライナ戦争",
     "bigstone1977",
     "https://open.spotify.com/playlist/34rJAgAZt7yPUqgCugKDYM",
-    "https://mosaic.scdn.co/640/ab67656300005f1f22b2a5e0194e2af9a6600e0aab67656300005f1f6b0bb55dd16be5e6235ea634ab67656300005f1fa3d1fc49b5b6db6d0e3b888eab67656300005f1ffe1ccc86b78baf3076d787de",
+    "https://mosaic.scdn.co/300/ab67656300005f1f22b2a5e0194e2af9a6600e0aab67656300005f1f6b0bb55dd16be5e6235ea634ab67656300005f1fa3d1fc49b5b6db6d0e3b888eab67656300005f1ffe1ccc86b78baf3076d787de",
     null,
     null,
     false
@@ -418,7 +418,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "バスケ通信―クラッチタイム（バスクラ）",
     "朝日新聞ポッドキャスト",
     "https://open.spotify.com/playlist/3axOpfDhMhLEtelwGwvMHb",
-    "https://image-cdn-ak.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244",
+    "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84817384ef5ab4e60ca0d80244",
     null,
     null,
     false
@@ -688,7 +688,7 @@ const rows:[string,string,string|null,string|null,string|null,string|null,boolea
     "朝鮮・韓国・コリア",
     "하대원동 / 下大院洞",
     "https://open.spotify.com/playlist/5JjGlKcagfLyDkg0cLZggK",
-    "https://mosaic.scdn.co/640/ab67656300005f1f218955520c86bcd5bed153b2ab67656300005f1f469e294bc9bdca3eac396289ab67656300005f1f600c19901ca1a2ffc49c1445ab67656300005f1fe3f02e44ba7d9a967f180f8a",
+    "https://mosaic.scdn.co/300/ab67656300005f1f218955520c86bcd5bed153b2ab67656300005f1f469e294bc9bdca3eac396289ab67656300005f1f600c19901ca1a2ffc49c1445ab67656300005f1fe3f02e44ba7d9a967f180f8a",
     "2026-09-30",
     "2026-11-24",
     false
