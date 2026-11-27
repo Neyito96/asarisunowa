@@ -150,15 +150,16 @@ async function renderShelf(){
 function renderRecommend(eps){
  shelfDialog.querySelector('.recommend-box')?.remove();
  const s=loadShelf(),box=node('section',undefined,'share-preview recommend-box');
- box.append(node('h3','📮 朝リスに推薦する'),node('p',`この蔵書（${eps.length}回）を、テーマ選びやプレイリストの参考として管理人に届けます。送るのは回番号・蔵書名・説明と、下のひとこと・ニックネーム（どちらも任意）だけです。管理人が確認してから使います。管理人が「公開OK」にすると、蔵書名・説明・回・ニックネームが「🗂 みんなの蔵書」に並びます（ひとことは載りません）。`));
+ box.append(node('h3','📮 朝リスに推薦する'),node('p',`この蔵書（${eps.length}回）を、テーマ選びやプレイリストの参考として管理人に届けます。送るのは回番号・蔵書名・説明と、下のひとこと・ニックネーム（どちらも任意）だけです。管理人が確認してから使います。`));
  const note=node('textarea');note.maxLength=300;note.rows=2;note.placeholder='ひとこと（任意）例：雨の日に聴きたい回を集めました';
  const nick=node('input');nick.type='text';nick.maxLength=30;nick.placeholder='ニックネーム（任意）';
  const hp=node('input');hp.type='text';hp.name='website2';hp.tabIndex=-1;hp.autocomplete='off';hp.className='hp';hp.setAttribute('aria-hidden','true');
+ const pubw=node('label',undefined,'publish-wish'),pub=node('input');pub.type='checkbox';pubw.append(pub,document.createTextNode(' 🗂 「みんなの蔵書」に載せる（蔵書名・説明・回の一覧・ニックネームを、誰でも見られるようにします。ひとことは載りません。あとから管理人が非公開にすることがあります）'));
  const go=node('button','この内容で送る'),out=node('p');out.setAttribute('role','status');go.type='button';
  go.addEventListener('click',async()=>{if(!eps.length){out.textContent='蔵書に回が入っていません。';return;}go.disabled=true;out.textContent='送っています…';
-  try{const r=await jsonp(SHELF_SUBMIT_ENDPOINT,{type:'shelfSubmit',ids:eps.map(e=>e.id).join(','),title:s.title||'',description:s.description||'',note:note.value,nick:nick.value,website2:hp.value});out.textContent=r&&r.ok?`${r.message}（受付番号 ${r.receiptId}）`:((r&&r.message)||'送れませんでした。');if(!(r&&r.ok))go.disabled=false;}
+  try{const r=await jsonp(SHELF_SUBMIT_ENDPOINT,{type:'shelfSubmit',ids:eps.map(e=>e.id).join(','),title:s.title||'',description:s.description||'',note:note.value,nick:nick.value,publish:pub.checked?'1':'',website2:hp.value});out.textContent=r&&r.ok?`${r.message}（受付番号 ${r.receiptId}）`:((r&&r.message)||'送れませんでした。');if(!(r&&r.ok))go.disabled=false;}
   catch{out.textContent='送れませんでした。通信状態を確かめて、もう一度お試しください。';go.disabled=false;}});
- box.append(note,nick,hp,go,out);shelfDialog.append(box);box.scrollIntoView({block:'start'});
+ box.append(note,nick,pubw,hp,go,out);shelfDialog.append(box);box.scrollIntoView({block:'start'});
 }
 function renderSharePreview(eps){
  const s=loadShelf(),box=node('section',undefined,'share-preview');box.append(node('h3','URLで人に渡す'),node('p','共有URLに入るのは、下でチェックした回の番号と、一覧のタイトル・説明だけです。お名前・メールアドレス・検索の言葉・端末の情報は入りません。URLを知っている人は誰でも見られます。サーバーに保存しないので、発行したURLは取り消せません（渡す相手を選んでください）。','detail-meta'));
@@ -177,7 +178,7 @@ const sharedDialog=node('dialog',undefined,'shelf-dialog');sharedDialog.setAttri
 let sharedShelves=[];
 fetch('./shelves.json',{cache:'no-store'}).then(r=>r.ok?r.json():{shelves:[]}).then(j=>{sharedShelves=Array.isArray(j.shelves)?j.shelves:[];sharedButton.textContent=`🗂 みんなの蔵書（${sharedShelves.length}）`;}).catch(()=>{});
 sharedButton.addEventListener('click',()=>{sharedDialog.replaceChildren();const close=node('button','×','close');close.type='button';close.setAttribute('aria-label','みんなの蔵書を閉じる');close.addEventListener('click',()=>sharedDialog.close());
- const h=node('h2','🗂 みんなの蔵書');h.id='shared-title';sharedDialog.append(close,h,node('p','朝リスが作って推薦し、管理人が公開した蔵書です。開くと、回の一覧と配信先リンクが見られます。自分の蔵書は「📚 わたしの蔵書」→「📮 朝リスに推薦する」から送れます。','detail-meta'));
+ const h=node('h2','🗂 みんなの蔵書');h.id='shared-title';sharedDialog.append(close,h,node('p','朝リスが作って「載せる」を選んで送った蔵書です。開くと、回の一覧と配信先リンクが見られます。自分の蔵書は「📚 わたしの蔵書」→「📮 朝リスに推薦する」で「みんなの蔵書に載せる」を選んで送れます。','detail-meta'));
  if(!sharedShelves.length)sharedDialog.append(node('p','まだありません。最初の1冊をお待ちしています。','empty'));
  const list=node('ul',undefined,'shared-list');
  for(const x of sharedShelves){const li=node('li'),a=node('a',x.title||'（無題の蔵書）');a.href='#'+encodeShare({title:x.title,description:x.description,ids:x.ids});a.addEventListener('click',()=>sharedDialog.close());
