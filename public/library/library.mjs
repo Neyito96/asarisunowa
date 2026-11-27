@@ -123,7 +123,7 @@ $('retry').addEventListener('click',()=>manifest?update(false):init());
 const shelfBar=node('div',undefined,'shelf-toolbar');const shelfButton=node('button','','shelf-open');shelfButton.type='button';shelfBar.append(shelfButton,node('small','気になる回を「＋ 蔵書に入れる」で集めて、あとで聴く・URLで人に渡す。保存はこのブラウザだけ（会員登録不要・検索の記録は残しません）。'));$('results').before(shelfBar);
 // 一覧の下（ページ送りのあと）にも同じボタン（2026-11-27 管理人）
 const shelfButton2=node('button','','shelf-open');shelfButton2.type='button';{const bar2=node('div',undefined,'shelf-toolbar shelf-toolbar-bottom');bar2.append(shelfButton2);document.querySelector('.pagination').after(bar2);}
-function refreshShelfButton(){const t=`📚 わたしの蔵書（${loadShelf().ids.length}）`;shelfButton.textContent=t;shelfButton2.textContent=t;}
+function refreshShelfButton(){const t=`📚 わたしの蔵書（${loadShelf().ids.length}）`;shelfButton.textContent=t;shelfButton2.textContent=t;shelfButton2.setAttribute('aria-label',`蔵書を開く（一覧の下・${loadShelf().ids.length}回）`);}
 const shelfDialog=node('dialog',undefined,'shelf-dialog');shelfDialog.setAttribute('aria-labelledby','shelf-title');document.body.append(shelfDialog);
 async function episodeById(id){const rows=await json(`details/${Math.floor(Number(id.slice(3))/manifest.detailBucketSize)}.json`).catch(()=>[]);return rows.find(x=>x.id===id)||null;}
 async function openShelf(){shelfDialog.replaceChildren(node('p','読み込んでいます…'));if(!shelfDialog.open)shelfDialog.showModal();await renderShelf();}
