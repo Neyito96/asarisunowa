@@ -1,47 +1,26 @@
 {
  "summary": {
-  "generatedAt": "2026-11-27T03:52:42.752Z",
-  "spotifyGeneratedAt": "2026-11-27T03:47:26.097Z",
+  "generatedAt": "2026-11-27T13:12:34.466Z",
+  "spotifyGeneratedAt": "2026-11-27T13:07:06.658Z",
   "ledgerRows": 6165,
-  "ledgerSpotifyEmpty": 15,
-  "verified": 4,
+  "ledgerSpotifyEmpty": 11,
+  "verified": 1,
   "counts": {
-   "VERIFIED": 4,
-   "VERIFIED_SAME": 267,
+   "VERIFIED_SAME": 271,
    "NO_ROW": 15,
-   "CANDIDATE": 59,
-   "HOLD": 1
+   "CANDIDATE": 58,
+   "HOLD": 1,
+   "VERIFIED": 1
   },
   "emptyNotInSpotifyList": 1
  },
  "verified": [
   {
-   "ep": "EP-06786",
-   "url": "https://open.spotify.com/episode/6h0PSCHmn12LSqlVKAhPP9",
-   "show": "ニュースの現場から",
-   "title": "（ゆるっと経済 #23）本の発売日が遅れる？　書店から考える日本経済",
-   "spotifyDate": "2026-11-26"
-  },
-  {
-   "ep": "EP-06789",
-   "url": "https://open.spotify.com/episode/17u2goit7ZGeg8Bf54N4PS",
-   "show": "ニュースの学校",
-   "title": "関芳弘文部科学大臣の政治資金パーティー問題",
-   "spotifyDate": "2026-11-26"
-  },
-  {
-   "ep": "EP-06788",
-   "url": "https://open.spotify.com/episode/1Qn0mef6FG1ttDwOrAF2US",
+   "ep": "EP-06723",
+   "url": "https://open.spotify.com/episode/4ZcqNCqd2ttUB8eQ56MyAl",
    "show": "スポンジ",
-   "title": "（フィギュア #39）りくりゅうに直撃　「ありがとうツアー」で見せたいカップル競技の魅力",
-   "spotifyDate": "2026-11-26"
-  },
-  {
-   "ep": "EP-06787",
-   "url": "https://open.spotify.com/episode/44jSQbiNiGlWItcwBh2EKK",
-   "show": "MEDIA TALK",
-   "title": "（Think Gender）男性更年期と小便器のゆううつ　通底する「男」の問題",
-   "spotifyDate": "2026-11-26"
+   "title": "（サッカー #35）日本人がFIFA会長に？勝算は？ 田嶋幸三氏が挑む「魑魅魍魎」の211票",
+   "spotifyDate": "2026-11-11"
   }
  ],
  "others": [
@@ -151,7 +130,7 @@
    "status": "CANDIDATE",
    "reason": "題名・日付は一致・長さが合わない",
    "same": false,
-   "gap": 59.01299999999992
+   "gap": 65.46699999999964
   },
   {
    "show": "報談",
@@ -672,17 +651,6 @@
   },
   {
    "show": "スポンジ",
-   "url": "https://open.spotify.com/episode/4ZcqNCqd2ttUB8eQ56MyAl",
-   "title": "（サッカー #35）日本人がFIFA会長に？勝算は？ 田嶋幸三氏が挑む「魑魅魍魎」の211票",
-   "spotifyDate": "2026-11-11",
-   "ep": "EP-06723",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない",
-   "same": false,
-   "gap": 1069.853
-  },
-  {
-   "show": "スポンジ",
    "url": "https://open.spotify.com/episode/5oTkiAL8jcJpW0Ag0r94aF",
    "title": "（サッカー #34）買い叩かれるか、世界と渡り合うか　秋開幕でJリーグに起きた異変",
    "spotifyDate": "2026-10-27",
@@ -767,8 +735,8 @@
    "show": "スポンジ",
    "title": "（サッカー #35）日本人がFIFA会長に？勝算は？ 田嶋幸三氏が挑む「魑魅魍魎」の211票",
    "published": "2026/11/12 04:00",
-   "status": "CANDIDATE",
-   "reason": "題名・日付は一致・長さが合わない",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
    "spotifyUrl": "https://open.spotify.com/episode/4ZcqNCqd2ttUB8eQ56MyAl"
   },
   {
@@ -797,42 +765,6 @@
    "status": "CANDIDATE",
    "reason": "題名・日付は一致・長さが合わない",
    "spotifyUrl": "https://open.spotify.com/episode/5SvBbhUVSpoOByxp6wkcco"
-  },
-  {
-   "ep": "EP-06786",
-   "show": "ニュースの現場から",
-   "title": "（ゆるっと経済 #23）本の発売日が遅れる？　書店から考える日本経済",
-   "published": "2026/11/27 04:00",
-   "status": "VERIFIED",
-   "reason": "番組ID・題名・日付・長さが一致",
-   "spotifyUrl": "https://open.spotify.com/episode/6h0PSCHmn12LSqlVKAhPP9"
-  },
-  {
-   "ep": "EP-06787",
-   "show": "MEDIA TALK",
-   "title": "（Think Gender）男性更年期と小便器のゆううつ　通底する「男」の問題",
-   "published": "2026/11/27 04:00",
-   "status": "VERIFIED",
-   "reason": "番組ID・題名・日付・長さが一致",
-   "spotifyUrl": "https://open.spotify.com/episode/44jSQbiNiGlWItcwBh2EKK"
-  },
-  {
-   "ep": "EP-06788",
-   "show": "スポンジ",
-   "title": "（フィギュア #39）りくりゅうに直撃　「ありがとうツアー」で見せたいカップル競技の魅力",
-   "published": "2026/11/27 04:00",
-   "status": "VERIFIED",
-   "reason": "番組ID・題名・日付・長さが一致",
-   "spotifyUrl": "https://open.spotify.com/episode/1Qn0mef6FG1ttDwOrAF2US"
-  },
-  {
-   "ep": "EP-06789",
-   "show": "ニュースの学校",
-   "title": "関芳弘文部科学大臣の政治資金パーティー問題",
-   "published": "2026/11/27 04:00",
-   "status": "VERIFIED",
-   "reason": "番組ID・題名・日付が一致・長さは番組ごとの一定差（Spotify版が約44秒短い）",
-   "spotifyUrl": "https://open.spotify.com/episode/17u2goit7ZGeg8Bf54N4PS"
   },
   {
    "ep": "EP-06790",
