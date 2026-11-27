@@ -589,6 +589,24 @@ function handleShelfSubmit_(e, callback) {
   var p = (e && e.parameter) || {}, res = shelfSubmit_({ ids: p.ids, title: p.title, description: p.description, note: p.note, nick: p.nick, spotify: p.spotify, hp: p.website2 });
   return (typeof apiResponse === 'function') ? apiResponse(res, callback) : res;
 }
+// みんなの蔵書（#463・2026-11-27 管理人決定）: 管理人が「状態」を「公開OK」にした行だけを返す（読むだけ。表には書かない）。
+// 出すのは 受付ID・受付日・蔵書名・説明・回の並び・ニックネーム だけ。「ひとこと」（管理人あての伝言）と管理メモは出さない。
+var SHELF_PUBLIC_STATUS_ = '公開OK';
+function shelfPublicRows_(rows) {
+  return rows.filter(function (r) { return String(r[2]).trim() === SHELF_PUBLIC_STATUS_; }).map(function (r) {
+    var ids = String(r[3] || '').split(/\s+/).filter(function (x) { return /^EP-\d{5}$/.test(x); }).slice(0, SHELF_LIMITS_.items);
+    var date = String(r[1] || '').slice(0, 10);
+    return { id: String(r[0]), date: /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : '', title: String(r[5] || '').replace(/^'/, ''), description: String(r[6] || '').replace(/^'/, ''), ids: ids, nick: String(r[8] || '').replace(/^'/, '') };
+  }).filter(function (x) { return /^SH-\d{14}-\d{3}$/.test(x.id) && x.ids.length; });
+}
+function handleShelfPublic_(e, callback) {
+  var res;
+  try {
+    var ss = SpreadsheetApp.openById(posuCfg().spreadsheetId), sh = ss.getSheetByName(SHELF_SHEET_);
+    res = { ok: true, type: 'shelfPublic', generatedAt: new Date().toISOString(), shelves: sh ? shelfPublicRows_(posuRows(sh, SHELF_H_.length)) : [] };
+  } catch (err) { res = { ok: false, error: String(err && err.message || err) }; }
+  return (typeof apiResponse === 'function') ? apiResponse(res, callback) : res;
+}
 
 // ---- Posukami.js ----
 var POSU_QUEUE_H = ['受付ID', '受付日時', '番組ID', '番組名', 'URL', '照合キー', '交流の種類', 'タイトル（投稿）', '配信日（投稿）', '補足', '検出タイトル', '検出配信日', 'ページ確認', '関係の手がかり', '状態', '判断メモ', '反映日時'];

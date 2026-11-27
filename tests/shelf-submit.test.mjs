@@ -14,3 +14,11 @@ test('回番号の形・重複・件数・ハニーポットを確かめ、式�
   assert.equal(S.shelfValidate_({ ids: Array.from({ length: 51 }, (_, i) => 'EP-' + String(i).padStart(5, '0')).join(',') }).errors[0], 'TOO_MANY');
   assert.equal(S.shelfValidate_({ ids: 'EP-00001', hp: 'x' }).errors[0], 'HONEYPOT');
 });
+
+test('みんなの蔵書（#463）: 「公開OK」の行だけを出し、ひとこと・管理メモは出さない', () => {
+  const row = (id, st, nick, note) => [id, '2026-11-27T06:14:55.922Z', st, 'EP-01228 EP-00697 bad', '2', "'=満州", '説明', note, nick, 'key', '管理メモ', '希望', '', ''];
+  const out = S.shelfPublicRows_([row('SH-20261127061455-430', '公開OK', 'マンモス', '管理人あての伝言'), row('SH-20261118013222-808', '承認待ち', '', 'x'), row('bad', '公開OK', '', '')]);
+  assert.equal(out.length, 1);
+  assert.deepEqual(JSON.parse(JSON.stringify(out[0])), { id: 'SH-20261127061455-430', date: '2026-11-27', title: '=満州', description: '説明', ids: ['EP-01228', 'EP-00697'], nick: 'マンモス' });
+  assert.ok(!JSON.stringify(out).includes('伝言') && !JSON.stringify(out).includes('管理メモ'));
+});

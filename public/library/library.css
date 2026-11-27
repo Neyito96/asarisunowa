@@ -115,3 +115,10 @@ nav[aria-label="サイト内"] small { font-size: .78em; opacity: .75; margin-le
 .shelf-open{min-height:46px;padding:10px 20px;font-size:15px;font-weight:700;border-radius:999px;background:var(--green);color:#fff;border:1px solid var(--green);box-shadow:0 2px 6px rgba(40,60,30,.18)}
 .shelf-open:hover{filter:brightness(1.06)}
 .shelf-toolbar-bottom{justify-content:center;margin:4px 0 36px}
+/* みんなの蔵書（#463） */
+.shelf-open-shared{background:#fffef9;color:var(--green);border:1.5px solid var(--green);box-shadow:none}
+.shared-list{list-style:none;padding:0;margin:12px 0 0}
+.shared-list li{border-top:1px solid var(--line);padding:14px 2px}
+.shared-list a{font-weight:700;font-size:17px}
+.shared-list small{display:block;margin-top:2px}
+.shared-list p{margin:6px 0 0;font-size:14px}

@@ -45,16 +45,22 @@ jobs:
         continue-on-error: true
         run: node scripts/minna/fetch-votes.mjs "https://script.google.com/macros/s/AKfycbxlZCNqGqOEY7j61OgcSGM8_xfGT08f4jjamXtSj2DES9fXl-xwJrvcRGYHnskidjIMug/exec?type=bunruiPublic"
 
+      # みんなの蔵書（#463）: 管理人が「公開OK」にした蔵書だけを public/library/shelves.json にする（失敗しても前回の版を残す）。
+      # 毎回の配達で版が変わる bunrui の Webアプリ（同じ本番プロジェクト）から読む
+      - name: Read shared shelves
+        continue-on-error: true
+        run: node scripts/library/fetch-shared-shelves.mjs "https://script.google.com/macros/s/AKfycbxlZCNqGqOEY7j61OgcSGM8_xfGT08f4jjamXtSj2DES9fXl-xwJrvcRGYHnskidjIMug/exec?type=shelfPublic"
+
       - name: Save changes
         run: |
-          if git diff --quiet -- app/data.ts app/recommended-podcasts-data.ts public/posusume/posukami.json public/minna/votes.json; then
+          if git diff --quiet -- app/data.ts app/recommended-podcasts-data.ts public/posusume/posukami.json public/minna/votes.json public/library/shelves.json; then
             echo "更新はありません"
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add app/data.ts app/recommended-podcasts-data.ts public/posusume/posukami.json public/minna/votes.json
+          git add app/data.ts app/recommended-podcasts-data.ts public/posusume/posukami.json public/minna/votes.json public/library/shelves.json
           git commit -m "朝リストをスプレッドシートから自動更新"
           git pull --rebase origin main
           git push

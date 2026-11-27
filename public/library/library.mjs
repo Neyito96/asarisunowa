@@ -150,7 +150,7 @@ async function renderShelf(){
 function renderRecommend(eps){
  shelfDialog.querySelector('.recommend-box')?.remove();
  const s=loadShelf(),box=node('section',undefined,'share-preview recommend-box');
- box.append(node('h3','📮 朝リスに推薦する'),node('p',`この蔵書（${eps.length}回）を、テーマ選びやプレイリストの参考として管理人に届けます。送るのは回番号・蔵書名・説明と、下のひとこと・ニックネーム（どちらも任意）だけです。管理人が確認してから使います。`));
+ box.append(node('h3','📮 朝リスに推薦する'),node('p',`この蔵書（${eps.length}回）を、テーマ選びやプレイリストの参考として管理人に届けます。送るのは回番号・蔵書名・説明と、下のひとこと・ニックネーム（どちらも任意）だけです。管理人が確認してから使います。管理人が「公開OK」にすると、蔵書名・説明・回・ニックネームが「🗂 みんなの蔵書」に並びます（ひとことは載りません）。`));
  const note=node('textarea');note.maxLength=300;note.rows=2;note.placeholder='ひとこと（任意）例：雨の日に聴きたい回を集めました';
  const nick=node('input');nick.type='text';nick.maxLength=30;nick.placeholder='ニックネーム（任意）';
  const hp=node('input');hp.type='text';hp.name='website2';hp.tabIndex=-1;hp.autocomplete='off';hp.className='hp';hp.setAttribute('aria-hidden','true');
@@ -171,6 +171,18 @@ function renderSharePreview(eps){
  box.append(make,out);shelfDialog.append(box);box.scrollIntoView({block:'start'});
 }
 shelfButton.addEventListener('click',openShelf);shelfButton2.addEventListener('click',openShelf);refreshShelfButton();
+// ===== みんなの蔵書（#463）: 管理人が「公開OK」にした蔵書の一覧。開くと共有URLと同じ表示になる =====
+const sharedButton=node('button','🗂 みんなの蔵書','shelf-open shelf-open-shared');sharedButton.type='button';shelfButton.after(sharedButton);
+const sharedDialog=node('dialog',undefined,'shelf-dialog');sharedDialog.setAttribute('aria-labelledby','shared-title');document.body.append(sharedDialog);
+let sharedShelves=[];
+fetch('./shelves.json',{cache:'no-store'}).then(r=>r.ok?r.json():{shelves:[]}).then(j=>{sharedShelves=Array.isArray(j.shelves)?j.shelves:[];sharedButton.textContent=`🗂 みんなの蔵書（${sharedShelves.length}）`;}).catch(()=>{});
+sharedButton.addEventListener('click',()=>{sharedDialog.replaceChildren();const close=node('button','×','close');close.type='button';close.setAttribute('aria-label','みんなの蔵書を閉じる');close.addEventListener('click',()=>sharedDialog.close());
+ const h=node('h2','🗂 みんなの蔵書');h.id='shared-title';sharedDialog.append(close,h,node('p','朝リスが作って推薦し、管理人が公開した蔵書です。開くと、回の一覧と配信先リンクが見られます。自分の蔵書は「📚 わたしの蔵書」→「📮 朝リスに推薦する」から送れます。','detail-meta'));
+ if(!sharedShelves.length)sharedDialog.append(node('p','まだありません。最初の1冊をお待ちしています。','empty'));
+ const list=node('ul',undefined,'shared-list');
+ for(const x of sharedShelves){const li=node('li'),a=node('a',x.title||'（無題の蔵書）');a.href='#'+encodeShare({title:x.title,description:x.description,ids:x.ids});a.addEventListener('click',()=>sharedDialog.close());
+  li.append(a,node('small',[x.nick?`${x.nick} さん`:'',`${x.ids.length}回`,x.date].filter(Boolean).join(' · '),'detail-meta'));if(x.description)li.append(node('p',x.description));list.append(li);}
+ sharedDialog.append(list);sharedDialog.showModal();});
 // ===== 共有URLで開いたとき: 共有された蔵書カードを出す（アカウント不要。この端末には保存しない）=====
 async function renderShared(){
  const data=decodeShare(location.hash);const old=$('shared');if(old)old.remove();if(!data)return;
