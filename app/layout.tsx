@@ -22,12 +22,8 @@ export default function RootLayout({
       <body className="antialiased">{children}
         {/* 作者の署名（画面には出ない。開発者ツールのコンソールにだけ出る） */}
         <Script id="neyito-signature" strategy="afterInteractive">{`console.log("%cこの宇宙はネジート（NEYITO）がAIを使って2026.9.6から描きはじめました", "color:#c9a96e;font-size:12px")`}</Script>
-        {/* Cloudflare Web Analytics */}
-        <Script
-          strategy="afterInteractive"
-          src="https://static.cloudflareinsights.com/beacon.min.js"
-          data-cf-beacon='{"token":"06c64615da3b42ceba758c2fa9a439c7"}'
-        />
+        {/* アクセスの数え方（全ページ共通 public/count.js: Cloudflare Web Analytics・数えない端末の印） */}
+        <Script strategy="afterInteractive" src="count.js?v=20261128" />
       </body>
     </html>
   );
