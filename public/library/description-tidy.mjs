@@ -120,3 +120,11 @@ export function tidyDescription(raw) {
   if (!hold && !out && !related.length && !recordedAt) hold = '本文が空になる';
   return { status: hold ? 'HOLD' : removed.length || related.length || recordedAt ? 'TIDY' : 'AS_IS', reason: hold, body: out, recordedAt, related, removed };
 }
+
+// 表示のときだけの改行（2026-11-27・管理人報告 EP-02595 月刊朝ポキ）。データには改行が無いので、
+// 「◆」「■」の見出しの前で改行し、見出しのあとに並ぶ回の一覧は「#1194」などの回番号ごとに改行する。消えたURLの跡「（ 。」は「。」に。
+export function descriptionLines(text) {
+  const t = String(text || '').replace(/[（(]\s*[）)]?\s*。/g, '。').replace(/。(\s*。)+/g, '。');
+  const parts = t.split(/\s*(?=[◆■])/);
+  return parts.map((p, i) => (i === 0 && !/^[◆■]/.test(p) ? p : p.replace(/^([◆■][^\s◆■]{1,30}(?:セレクト|エピソード))\s+/, '$1\n').replace(/(#\d+(?:-\d+)?)\s+(?=\S)/g, '$1\n'))).join('\n').trim();
+}
