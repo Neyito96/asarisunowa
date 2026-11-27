@@ -4,7 +4,7 @@
 // 外部ライブラリなし。Canvas 2D と素の DOM だけ。
 import { SHELF_KEY, readShelf, serializeShelf, toggleItem, listenLinks, liveLinks } from '../library/shelf-core.mjs';
 import { consensus, viewpoints, freshTally, topVotes } from '../minna/minna-core.mjs?v=456';
-import { tidyDescription, withoutAwardPlea } from '../library/description-tidy.mjs?v=tidy-501-20261125';
+import { tidyDescription, withoutAwardPlea } from '../library/description-tidy.mjs?v=tidy-inline-20261128';
 import { stampText } from '../library/stamp.mjs';
 
 const $ = (id) => document.getElementById(id);

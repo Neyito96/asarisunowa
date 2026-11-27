@@ -12,3 +12,12 @@ test('◆の無い本文は、URLの消えた跡「（ ）。」だけ整える'
   assert.equal(descriptionLines('収録しました。（ ）。'), '収録しました。');
   assert.equal(descriptionLines('ふつうの本文 #12 です。'), 'ふつうの本文 #12 です。');
 });
+
+test('文の途中の【関連記事】（直後が助詞）は見出しにしない／元の文面でも &hellip; &darr; を戻す（EP-06733）', async () => {
+  const { tidyDescription, withoutAwardPlea } = await import('../public/library/description-tidy.mjs');
+  const raw = 'なかなか厳しい道です&hellip;。この概要欄の続きにある【関連記事】の１つめは、奇跡のコラボです。 【関連記事】 湯屋で会った老人 https://www.asahi.com/articles/ASVBZ0SCQVBZTLVB003M.html?iref=omny 【出演・スタッフ】 近藤康太郎（MC）http://t.asahi.com/wqrp';
+  const t = tidyDescription(raw);
+  assert.equal(t.status, 'TIDY');
+  assert.equal(t.body, 'なかなか厳しい道です…。この概要欄の続きにある【関連記事】の１つめは、奇跡のコラボです。');
+  assert.equal(withoutAwardPlea('こちらから&darr; と&hellip;'), 'こちらから↓ と…');
+});
