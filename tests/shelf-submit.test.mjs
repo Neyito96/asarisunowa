@@ -22,3 +22,13 @@ test('みんなの蔵書（#463）: 「公開OK」の行だけを出し、ひと
   assert.deepEqual(JSON.parse(JSON.stringify(out[0])), { id: 'SH-20261127061455-430', date: '2026-11-27', title: '=満州', description: '説明', ids: ['EP-01228', 'EP-00697'], nick: 'マンモス' });
   assert.ok(!JSON.stringify(out).includes('伝言') && !JSON.stringify(out).includes('管理メモ'));
 });
+
+test('みんなの蔵書: URL・メール・電話番号らしきものがあれば自動では載せない', () => {
+  assert.equal(S.shelfPublicBlocked_({ title: '満州国', description: '2024年1月から半年間の連載', nick: 'マンモス' }), '');
+  assert.equal(S.shelfPublicBlocked_({ title: '見て', description: 'https://example.jp', nick: '' }), 'URL');
+  assert.equal(S.shelfPublicBlocked_({ title: 'a', description: '090-1234-5678', nick: '' }), 'PHONE');
+  assert.equal(S.shelfPublicBlocked_({ title: 'a', description: '', nick: 'me@example.com' }) !== '', true);
+  assert.equal(S.shelfValidate_({ ids: 'EP-00001', publish: '1' }).value.publish, true);
+  assert.equal(S.shelfPublicRows_([['SH-20261127061455-430', '2026-11-27T00:00:00Z', '公開', 'EP-00001', '1', 't', '', '', '', 'k', '', '', '', '']]).length, 1);
+  assert.equal(S.shelfPublicRows_([['SH-20261127061455-430', '2026-11-27T00:00:00Z', '非公開', 'EP-00001', '1', 't', '', '', '', 'k', '', '', '', '']]).length, 0);
+});

@@ -6,14 +6,24 @@ var SHELF_H_ = ['受付ID', '受付日時', '状態', 'EP-ID（並び順）', '�
 var SHELF_LIMITS_ = { items: 50, title: 60, description: 300, note: 300, nick: 30, perMinute: 20 };
 var SHELF_ERROR_TEXT_ = { HONEYPOT: '送信できませんでした', NO_ITEMS: '蔵書に回が入っていません', TOO_MANY: '一度に送れるのは50回までです', BAD_ID: '回番号の形が正しくありません', DUPLICATE: '同じ内容がすでに受け付けられています（承認待ち）', BUSY: '混み合っています。少し待ってからもう一度お試しください', RATE: '短い時間に送信が集中しています。少し待ってからお試しください', NOT_SAVED: '保存を確認できませんでした。もう一度お試しください' };
 function shelfClean_(s, max) { var t = String(s == null ? '' : s).replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max); return /^[=+\-@]/.test(t) ? "'" + t : t; }   // 表計算の式として解釈されないように
+// みんなの蔵書に自動で載せない文字（2026-11-27 管理人決定: 承認なしで先に載せ、まずいものは後から「非公開」にする）。
+// 題名・説明・ニックネームに URL・メールアドレス・電話番号らしきものがあれば、自動では載せず「承認待ち」にする
+function shelfPublicBlocked_(v) {
+  var t = [v.title, v.description, v.nick].join(' ');
+  if (/https?:|www\.|[a-z0-9-]+\.(com|jp|net|org|io|ly|me|co|info)\b/i.test(t)) return 'URL';
+  if (/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+/.test(t)) return 'MAIL';
+  if (/(?:\d[\s\-‐ー－]?){10,}/.test(t.replace(/[０-９]/g, function (d) { return String.fromCharCode(d.charCodeAt(0) - 0xFEE0); }))) return 'PHONE';
+  return '';
+}
 function shelfValidate_(sub) {
   if (String(sub.hp || '').trim()) return { ok: false, errors: ['HONEYPOT'] };
   var raw = String(sub.ids || '').split(/[\s,]+/).filter(Boolean), ids = [];
   for (var i = 0; i < raw.length; i++) { if (!/^EP-\d{5}$/.test(raw[i])) return { ok: false, errors: ['BAD_ID'] }; if (ids.indexOf(raw[i]) < 0) ids.push(raw[i]); }
   if (!ids.length) return { ok: false, errors: ['NO_ITEMS'] };
   if (ids.length > SHELF_LIMITS_.items) return { ok: false, errors: ['TOO_MANY'] };
-  var v = { ids: ids, title: shelfClean_(sub.title, SHELF_LIMITS_.title), description: shelfClean_(sub.description, SHELF_LIMITS_.description), note: shelfClean_(sub.note, SHELF_LIMITS_.note), spotify: /^(1|true|on)$/i.test(String(sub.spotify || '')), nick: shelfClean_(sub.nick, SHELF_LIMITS_.nick) };
+  var v = { ids: ids, title: shelfClean_(sub.title, SHELF_LIMITS_.title), description: shelfClean_(sub.description, SHELF_LIMITS_.description), note: shelfClean_(sub.note, SHELF_LIMITS_.note), spotify: /^(1|true|on)$/i.test(String(sub.spotify || '')), nick: shelfClean_(sub.nick, SHELF_LIMITS_.nick) , publish: /^(1|true|on)$/i.test(String(sub.publish || ''))};
   v.key = ids.join(',') + '|' + v.title;
+  v.blocked = shelfPublicBlocked_(v);
   return { ok: true, value: v };
 }
 // 既存タブには見出しが足りない列だけ右に足す（既存の列・行は動かさない）
@@ -30,23 +40,25 @@ function shelfSubmit_(sub) {
   var lock = LockService.getScriptLock(); if (!lock.tryLock(20000)) return { ok: false, errors: ['BUSY'], message: SHELF_ERROR_TEXT_.BUSY };
   try {
     var c = posuCfg(), ss = SpreadsheetApp.openById(c.spreadsheetId), sh = shelfSheet_(ss), rows = posuRows(sh, SHELF_H_.length), x = v.value;
-    if (rows.some(function (r) { return r[9] === x.key && r[2] === '承認待ち'; })) return { ok: false, errors: ['DUPLICATE'], message: SHELF_ERROR_TEXT_.DUPLICATE };
+    if (rows.some(function (r) { return r[9] === x.key && (r[2] === '承認待ち' || SHELF_PUBLIC_STATUSES_.indexOf(r[2]) >= 0); })) return { ok: false, errors: ['DUPLICATE'], message: SHELF_ERROR_TEXT_.DUPLICATE };
     var now = new Date().toISOString(), id = 'SH-' + now.replace(/[-:TZ.]/g, '').slice(0, 14) + '-' + Math.floor(Math.random() * 900 + 100);
-    sh.appendRow([id, now, '承認待ち', x.ids.join(' '), x.ids.length, x.title, x.description, x.note, x.nick, x.key, '', x.spotify ? '希望' : '', '', '']);
+    var pub = x.publish && !x.blocked;
+    sh.appendRow([id, now, pub ? '公開' : '承認待ち', x.ids.join(' '), x.ids.length, x.title, x.description, x.note, x.nick, x.key, x.publish && x.blocked ? '自動公開せず: ' + x.blocked : '', x.spotify ? '希望' : '', '', '']);
     SpreadsheetApp.flush();
     if (posuRows(sh, SHELF_H_.length).filter(function (r) { return r[0] === id; }).length !== 1) return { ok: false, errors: ['NOT_SAVED'], message: SHELF_ERROR_TEXT_.NOT_SAVED };
-    return { ok: true, status: 'PENDING', receiptId: id, count: x.ids.length, message: '受け付けました。管理人が確認してから、テーマ選びやプレイリストの参考にします' };
+    if (pub) return { ok: true, status: 'PUBLIC', receiptId: id, count: x.ids.length, message: '受け付けました。30分ほどで「みんなの蔵書」に並びます' };
+    return { ok: true, status: 'PENDING', receiptId: id, count: x.ids.length, message: x.publish ? '受け付けました。題名・説明・ニックネームにURLや連絡先らしきものがあるため、管理人が確認してから載せます' : '受け付けました。管理人が確認してから、テーマ選びやプレイリストの参考にします' };
   } finally { lock.releaseLock(); }
 }
 function handleShelfSubmit_(e, callback) {
-  var p = (e && e.parameter) || {}, res = shelfSubmit_({ ids: p.ids, title: p.title, description: p.description, note: p.note, nick: p.nick, spotify: p.spotify, hp: p.website2 });
+  var p = (e && e.parameter) || {}, res = shelfSubmit_({ ids: p.ids, title: p.title, description: p.description, note: p.note, nick: p.nick, spotify: p.spotify, publish: p.publish, hp: p.website2 });
   return (typeof apiResponse === 'function') ? apiResponse(res, callback) : res;
 }
-// みんなの蔵書（#463・2026-11-27 管理人決定）: 管理人が「状態」を「公開OK」にした行だけを返す（読むだけ。表には書かない）。
+// みんなの蔵書（#463・2026-11-27 管理人決定）: 「状態」が「公開」（本人が載せると選び、自動で通ったもの）か「公開OK」（管理人が手で）の行だけを返す（読むだけ。表には書かない）。
 // 出すのは 受付ID・受付日・蔵書名・説明・回の並び・ニックネーム だけ。「ひとこと」（管理人あての伝言）と管理メモは出さない。
-var SHELF_PUBLIC_STATUS_ = '公開OK';
+var SHELF_PUBLIC_STATUSES_ = ['公開', '公開OK'];   // 「非公開」にすれば一覧から消える
 function shelfPublicRows_(rows) {
-  return rows.filter(function (r) { return String(r[2]).trim() === SHELF_PUBLIC_STATUS_; }).map(function (r) {
+  return rows.filter(function (r) { return SHELF_PUBLIC_STATUSES_.indexOf(String(r[2]).trim()) >= 0; }).map(function (r) {
     var ids = String(r[3] || '').split(/\s+/).filter(function (x) { return /^EP-\d{5}$/.test(x); }).slice(0, SHELF_LIMITS_.items);
     var date = String(r[1] || '').slice(0, 10);
     return { id: String(r[0]), date: /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : '', title: String(r[5] || '').replace(/^'/, ''), description: String(r[6] || '').replace(/^'/, ''), ids: ids, nick: String(r[8] || '').replace(/^'/, '') };
@@ -60,4 +72,4 @@ function handleShelfPublic_(e, callback) {
   } catch (err) { res = { ok: false, error: String(err && err.message || err) }; }
   return (typeof apiResponse === 'function') ? apiResponse(res, callback) : res;
 }
-if (typeof module !== 'undefined') module.exports = { shelfValidate_: shelfValidate_, shelfClean_: shelfClean_, shelfPublicRows_: shelfPublicRows_, SHELF_H_: SHELF_H_ };
+if (typeof module !== 'undefined') module.exports = { shelfValidate_: shelfValidate_, shelfClean_: shelfClean_, shelfPublicRows_: shelfPublicRows_, shelfPublicBlocked_: shelfPublicBlocked_, SHELF_H_: SHELF_H_ };
