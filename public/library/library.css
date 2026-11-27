@@ -111,3 +111,7 @@ nav[aria-label="サイト内"] small { font-size: .78em; opacity: .75; margin-le
 .episode-actions .shelf-save[aria-pressed=true]{background:var(--green);color:#fff}
 .episode-actions .episode-more:hover,.episode-actions .shelf-save:hover{filter:brightness(.97)}
 @media(max-width:600px){.episode{padding:14px 14px;border-radius:12px}.episode-title{font-size:16.5px}}
+/* 2026-11-27 「わたしの蔵書」を見つけやすく（色・大きさ、一覧の下にも） */
+.shelf-open{min-height:46px;padding:10px 20px;font-size:15px;font-weight:700;border-radius:999px;background:var(--green);color:#fff;border:1px solid var(--green);box-shadow:0 2px 6px rgba(40,60,30,.18)}
+.shelf-open:hover{filter:brightness(1.06)}
+.shelf-toolbar-bottom{justify-content:center;margin:4px 0 36px}

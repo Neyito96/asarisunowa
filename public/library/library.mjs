@@ -120,8 +120,10 @@ $('clear-filters').addEventListener('click',()=>{$('search-form').reset();update
 $('prev').addEventListener('click',()=>{if(page>0){page--;update(false);}});$('next').addEventListener('click',()=>{page++;update(false);});
 $('retry').addEventListener('click',()=>manifest?update(false):init());
 // ===== 自分の蔵書一覧（並べ替え・タイトル・説明・共有の準備）=====
-const shelfBar=node('div',undefined,'shelf-toolbar');const shelfButton=node('button','','quiet');shelfButton.type='button';shelfBar.append(shelfButton,node('small','気になる回を「＋ 蔵書に入れる」で集めて、あとで聴く・URLで人に渡す。保存はこのブラウザだけ（会員登録不要・検索の記録は残しません）。'));$('results').before(shelfBar);
-function refreshShelfButton(){shelfButton.textContent=`📚 わたしの蔵書（${loadShelf().ids.length}）`;}
+const shelfBar=node('div',undefined,'shelf-toolbar');const shelfButton=node('button','','shelf-open');shelfButton.type='button';shelfBar.append(shelfButton,node('small','気になる回を「＋ 蔵書に入れる」で集めて、あとで聴く・URLで人に渡す。保存はこのブラウザだけ（会員登録不要・検索の記録は残しません）。'));$('results').before(shelfBar);
+// 一覧の下（ページ送りのあと）にも同じボタン（2026-11-27 管理人）
+const shelfButton2=node('button','','shelf-open');shelfButton2.type='button';{const bar2=node('div',undefined,'shelf-toolbar shelf-toolbar-bottom');bar2.append(shelfButton2);document.querySelector('.pagination').after(bar2);}
+function refreshShelfButton(){const t=`📚 わたしの蔵書（${loadShelf().ids.length}）`;shelfButton.textContent=t;shelfButton2.textContent=t;}
 const shelfDialog=node('dialog',undefined,'shelf-dialog');shelfDialog.setAttribute('aria-labelledby','shelf-title');document.body.append(shelfDialog);
 async function episodeById(id){const rows=await json(`details/${Math.floor(Number(id.slice(3))/manifest.detailBucketSize)}.json`).catch(()=>[]);return rows.find(x=>x.id===id)||null;}
 async function openShelf(){shelfDialog.replaceChildren(node('p','読み込んでいます…'));if(!shelfDialog.open)shelfDialog.showModal();await renderShelf();}
@@ -168,7 +170,7 @@ function renderSharePreview(eps){
   const open=node('a','共有された画面を確かめる ↗');open.href=url.href;open.target='_blank';open.rel='noopener noreferrer';out.replaceChildren(field,copy,open);});
  box.append(make,out);shelfDialog.append(box);box.scrollIntoView({block:'start'});
 }
-shelfButton.addEventListener('click',openShelf);refreshShelfButton();
+shelfButton.addEventListener('click',openShelf);shelfButton2.addEventListener('click',openShelf);refreshShelfButton();
 // ===== 共有URLで開いたとき: 共有された蔵書カードを出す（アカウント不要。この端末には保存しない）=====
 async function renderShared(){
  const data=decodeShare(location.hash);const old=$('shared');if(old)old.remove();if(!data)return;
