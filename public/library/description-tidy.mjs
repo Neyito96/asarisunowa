@@ -43,7 +43,8 @@ const AWARD_PLEA = /(?:★★[^★]{1,30}★★\s*)?ポッドキャストアワ�
 
 // 整形を保留（HOLD）して元の文面を出すときも、投票の呼びかけだけは外す
 export function withoutAwardPlea(raw) {
-  const s = String(raw || ''), flat = s.replace(/\s+/g, ' ');
+  // 元の文面を出すときも、&hellip; &darr; などの記号の書き方は元に戻す（2026-11-28・46回）
+  const s = String(raw || '').replace(/&[a-z#0-9]+;/gi, (x) => ENT[x] ?? x), flat = s.replace(/\s+/g, ' ');
   AWARD_PLEA.lastIndex = 0;
   if (!AWARD_PLEA.test(flat)) return s;   // 呼びかけがない回は元の文面（改行も）をそのまま
   return flat.replace(AWARD_PLEA, ' ').replace(/\s+/g, ' ').trim();
@@ -57,7 +58,8 @@ export function tidyDescription(raw) {
   const text = text0.replace(/mailto:\S+/g, ' ').replace(/([。！？])\s*(関連(?:記事)?[：:])/g, '$1 $2 ').replace(/(?:おたより)?フォーム\s*https:\/\/forms\.gle\/\S+|ツイッター\s*https:\/\/twitter\.com\/AsahiPodcast\S*|メール\s*podcast@asahi\.com/g, ' ').replace(/(https?:\/\/[\x21-\x7e]+?)(?=[^\x00-\x7f])/g, '$1 ')
     .replace(/※?\s*(?:なお、)?この番組は(\d{4})年(\d{1,2})月(\d{1,2})日に(収録|配信)しました。/g, (m, y, mo, d, k) => { if (k === '収録') recordedAt = recordedAt || `${y}年${Number(mo)}月${Number(d)}日`; else aired = aired || m.replace(/^なお、/, ''); return ' '; }).replace(/\s+/g, ' ').trim();
   if (!text) return { status: 'EMPTY', reason: '', body: '', recordedAt: '', related: [], removed: [] };
-  const parts = text.split(/(?=【[^】]{1,40}】)/), body = [], related = [], removed = [...awardRemoved];
+  // 「…続きにある【関連記事】の１つめは」のように文の途中で言葉として出る【…】は見出しにしない（直後が助詞のとき・2026-11-28 EP-06733）
+  const parts = text.split(/(?=【[^】]{1,40}】(?![のはをがにでともへや]))/), body = [], related = [], removed = [...awardRemoved];
   let hold = '';
   for (const part of parts) {
     const head = (part.match(/^【[^】]*】/) || [''])[0];

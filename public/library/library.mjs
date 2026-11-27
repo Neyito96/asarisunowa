@@ -1,6 +1,6 @@
 import { stampText } from './stamp.mjs';
 import { publicationLabel } from './publication-scope.mjs';
-import { tidyDescription, withoutAwardPlea, descriptionLines } from './description-tidy.mjs?v=tidy-lines-20261127';
+import { tidyDescription, withoutAwardPlea, descriptionLines } from './description-tidy.mjs?v=tidy-inline-20261128';
 import { qrSvg } from './qr.mjs';
 import { filterEpisodes, safeUrl, normal, showSearchText } from './library-core.mjs?v=alias-20261119';
 const $=id=>document.getElementById(id), cache=new Map();

@@ -83,7 +83,9 @@ const { chromium, webkit, devices } = require(process.env.LIBRARY_PLAYWRIGHT || 
     }
     assert.deepEqual(errors, []);
     if (process.env.LIBRARY_SCREENSHOT_DIR) {
-      await page.screenshot({ path: `${process.env.LIBRARY_SCREENSHOT_DIR}/library-${name}-mobile.png`, fullPage: true });
+      // 記録用の画像。ページが長すぎて全体が撮れない（32767px 超）ときは画面1枚分にする（2026-11-28）
+      const shot = `${process.env.LIBRARY_SCREENSHOT_DIR}/library-${name}-mobile.png`;
+      await page.screenshot({ path: shot, fullPage: true }).catch(() => page.screenshot({ path: shot }));
     }
     console.log(JSON.stringify({ engine: name, viewport: 'iPhone 13', initialPageRequests: 1, initialSearchRequests: 0, initialDetailRequests: 0, checks: 'pagination, oldest boundary, programme, speaker/article-title search, details, official links, no audio preload, empty, XSS, mobile overflow, policy exclusions, editor local draft/reload/no-send', errors }));
     await browser.close();
