@@ -1,0 +1,1797 @@
+// 04_自動更新の受付と通知（朝リスの輪 GAS 軽量版・自動生成。直すときは scripts/google-apps-script/ を直して node scripts/build-gas-lite.mjs）
+// もとのファイル: AutoUpdateRequest.js, AutoUpdateNotification.js, AutoUpdateAutomationV1.js, AutoUpdateRecovery.js
+
+// ---- AutoUpdateRequest.js ----
+const AUTO_UPDATE_REQUEST_SHEET_NAME = "自動更新申請";
+const AUTO_UPDATE_RECEIPT_CACHE_PREFIX_ = "AUTO_UPDATE_RECEIPT_";
+const AUTO_UPDATE_RECEIPT_SECONDS_ = 600;
+function handleAutoUpdateRequest_(data, url, title, maker, securityAnswer) {
+  const updateType = String(data.updateType || "").trim();
+  const inviteUrl = String(data.inviteUrl || "").trim();
+  const keywords = String(data.keywords || "").trim();
+  const ruleNote = String(data.ruleNote || "").trim();
+  const requestId = String(data.requestId || "").trim();
+
+  const validationError = validateAutoUpdateRequest_({
+    url: url,
+    title: title,
+    maker: maker,
+    updateType: updateType,
+    inviteUrl: inviteUrl,
+    keywords: keywords,
+    ruleNote: ruleNote,
+    securityAnswer: securityAnswer,
+    requestId: requestId
+  });
+
+  if (validationError) {
+    return jsonResponse({ ok: false, error: validationError });
+  }
+
+  // ブラウザ側が受付確認を再試行しても、同じ申請を二重保存しない。
+  if (requestId && CacheService.getScriptCache().get(
+    AUTO_UPDATE_RECEIPT_CACHE_PREFIX_ + requestId
+  ) === "accepted") {
+    return jsonResponse({
+      ok: true,
+      kind: "autoUpdateRequest",
+      added: false,
+      duplicateReason: "requestId",
+      message: "この申請はすでに受け付けています"
+    });
+  }
+
+  // 申請時点ではSpotifyへ接続せず、初回構築前の安全なプランだけを確定する。
+  const requestPlan = buildAutoPlaylistRequestPlan_({
+    updateType: updateType,
+    url: url,
+    title: title,
+    keywords: keywords
+  });
+
+  const autoUpdateLock = LockService.getScriptLock();
+  if (!autoUpdateLock.tryLock(5000)) {
+    throw new Error("ただいま投稿が混み合っています。少し待って再度お試しください");
+  }
+
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const requestSheet = getSheetLoose(ss, AUTO_UPDATE_REQUEST_SHEET_NAME);
+
+    if (!requestSheet) {
+      throw new Error("自動更新申請シートが見つかりません");
+    }
+
+    const playlistId = extractAutoUpdateSpotifyPlaylistId_(url);
+    const existingRequest = findActiveAutoUpdateRequestDuplicate_(requestSheet, playlistId);
+    if (existingRequest.found) {
+      if (requestId) {
+        CacheService.getScriptCache().put(
+          AUTO_UPDATE_RECEIPT_CACHE_PREFIX_ + requestId,
+          "accepted",
+          AUTO_UPDATE_RECEIPT_SECONDS_
+        );
+      }
+      return jsonResponse({
+        ok: true,
+        kind: "autoUpdateRequest",
+        added: false,
+        duplicateReason: "playlist",
+        existingRow: existingRequest.rowNumber,
+        existingStatus: existingRequest.status,
+        message: "このプレイリストの自動更新申請はすでに受け付けています"
+      });
+    }
+
+    requestSheet.appendRow([
+      new Date(),
+      url,
+      title,
+      maker,
+      inviteUrl,
+      keywords,
+      ruleNote,
+      "招待承認待ち",
+      "方式: " + updateType + " / ruleType: " + requestPlan.ruleType
+    ]);
+
+    SpreadsheetApp.flush();
+    const requestRowNumber = requestSheet.getLastRow();
+
+    // 2026-11-24 #521: テーマ別は受付時に旧 theme V2 へ登録しない。
+    // V2 の実行は 2026-10-05 以降止まっており、ここで V2 ルール（enabled・bootstrap）を作ると
+    // 毎時の初回補完がそれを拾って「ルール検証失敗」で止めてしまい、本来の Theme V3 開始
+    // （processPendingAutoUpdateRequestsV1 が「招待承認待ち」の行を拾う）に進めなかった。
+    // 行は「招待承認待ち」のまま残し、共同編集を確認できた時点で Theme V3 が開始する。
+
+    // 受付ごとの臨時トリガーは作らず、常設の1時間処理が順番に受け取る。
+    const immediateRun = { scheduled: true, reason: "hourly-backfill-queue" };
+
+    try {
+      notifyAutoUpdateRequestReceived_({
+        receivedAt: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy/MM/dd HH:mm:ss"),
+        title: title,
+        maker: maker,
+        updateType: updateType,
+        keywords: keywords,
+        rowNumber: requestRowNumber,
+        immediateRunScheduled: immediateRun.scheduled === true,
+        immediateRunReason: immediateRun.reason
+      });
+    } catch (notificationError) {
+      console.error("自動更新申請の管理者メール通知に失敗しました", notificationError);
+      const noteCell = requestSheet.getRange(requestRowNumber, 9);
+      const currentNote = String(noteCell.getDisplayValue() || "");
+      noteCell.setValue(currentNote + " / 管理者メール通知失敗");
+    }
+
+    if (requestId) {
+      CacheService.getScriptCache().put(
+        AUTO_UPDATE_RECEIPT_CACHE_PREFIX_ + requestId,
+        "accepted",
+        AUTO_UPDATE_RECEIPT_SECONDS_
+      );
+    }
+
+    return jsonResponse({
+      ok: true,
+      kind: "autoUpdateRequest",
+      message: "自動更新申請を受け付けました。共同編集確認後、初回分は1時間ごとに最大50件ずつ追加し、完了後は毎朝4〜5時に新着回だけ確認します",
+      lifecycle: requestPlan.status,
+      ruleType: requestPlan.ruleType,
+      productionWriteAllowed: requestPlan.productionWriteAllowed,
+      immediateRunScheduled: immediateRun.scheduled,
+      immediateRunReason: immediateRun.reason
+    });
+  } finally {
+    autoUpdateLock.releaseLock();
+  }
+}
+function findActiveAutoUpdateRequestDuplicate_(sheet, playlistId) {
+  const wantedId = String(playlistId || "").trim();
+  const lastRow = sheet ? sheet.getLastRow() : 0;
+  if (!wantedId || lastRow < 2) return { found: false, rowNumber: 0, status: "" };
+
+  const rows = sheet.getRange(2, 1, lastRow - 1, 8).getDisplayValues();
+  for (let index = rows.length - 1; index >= 0; index -= 1) {
+    const row = rows[index];
+    if (extractAutoUpdateSpotifyPlaylistId_(row[1]) !== wantedId) continue;
+    const status = String(row[7] || "").trim();
+    if (isInactiveAutoUpdateRequestStatus_(status)) continue;
+    return { found: true, rowNumber: index + 2, status: status || "受付済み" };
+  }
+  return { found: false, rowNumber: 0, status: "" };
+}
+function isInactiveAutoUpdateRequestStatus_(status) {
+  return ["重複申請", "却下", "取消", "キャンセル", "停止"].indexOf(
+    String(status || "").trim()
+  ) >= 0;
+}
+function handleAutoUpdateRequestStatus_(e, callback) {
+  const requestId = String(
+    e && e.parameter && e.parameter.requestId
+      ? e.parameter.requestId
+      : ""
+  ).trim();
+
+  if (!/^[A-Za-z0-9_-]{16,100}$/.test(requestId)) {
+    return apiResponse({ ok: false, accepted: false, error: "受付番号が正しくありません" }, callback);
+  }
+
+  const accepted = CacheService.getScriptCache().get(
+    AUTO_UPDATE_RECEIPT_CACHE_PREFIX_ + requestId
+  ) === "accepted";
+
+  return apiResponse({ ok: true, accepted: accepted }, callback);
+}
+
+// ---- AutoUpdateNotification.js ----
+const AUTO_UPDATE_NOTIFICATION_TO_ = "shuheinezu@gmail.com";
+const AUTO_UPDATE_NOTIFICATION_NAME_ = "朝リスの田";
+const AUTO_UPDATE_FAILURE_NOTICE_PREFIX_ = "AUTO_UPDATE_FAILURE_NOTICE_";
+const AUTO_UPDATE_FAILURE_NOTICE_SECONDS_ = 6 * 60 * 60;
+function buildAutoUpdateRequestNotificationMail_(request) {
+  const title = String(request && request.title ? request.title : "（タイトル未設定）").trim();
+  const receivedAt = String(request && request.receivedAt ? request.receivedAt : "").trim();
+  const maker = String(request && request.maker ? request.maker : "").trim();
+  const updateType = String(request && request.updateType ? request.updateType : "").trim();
+  const keywords = String(request && request.keywords ? request.keywords : "").trim();
+  const rowNumber = Number(request && request.rowNumber ? request.rowNumber : 0);
+  const immediateRunScheduled = request && request.immediateRunScheduled === true;
+  const immediateRunReason = String(request && request.immediateRunReason ? request.immediateRunReason : "").trim();
+
+  const lines = [
+    "朝リスの田に、新しい自動更新申請が届きました。",
+    "",
+    "受付日時：" + (receivedAt || "受付時刻を取得できませんでした"),
+    "タイトル：" + title,
+    "制作者：" + (maker || "未入力"),
+    "種類：" + (updateType || "未入力"),
+    "判定条件：" + (keywords || "未入力"),
+    "現在の状態：招待承認待ち",
+    "確認場所：自動更新申請シート " + (rowNumber >= 2 ? rowNumber + "行目" : "（行番号不明）"),
+    "初回処理：" + (immediateRunScheduled ? "1時間ごとの補完待ちに登録済み" : "補完待ちに登録できませんでした"),
+    "",
+    "共同編集の承認など、人の操作が必要な場合はシートの状態欄をご確認ください。"
+  ];
+  if (!immediateRunScheduled && immediateRunReason) {
+    lines.push("登録結果：" + immediateRunReason);
+  }
+
+  return {
+    to: AUTO_UPDATE_NOTIFICATION_TO_,
+    name: AUTO_UPDATE_NOTIFICATION_NAME_,
+    subject: "【朝リスの田】新しい自動更新申請：" + title,
+    body: lines.join("\n")
+  };
+}
+function notifyAutoUpdateRequestReceived_(request) {
+  const mail = buildAutoUpdateRequestNotificationMail_(request);
+  MailApp.sendEmail(mail);
+  return { sent: true, to: mail.to, subject: mail.subject };
+}
+
+
+// 通常投稿（朝ポキプレイリスト・おすすめPodcast・朝リスPodcast）の管理者通知。
+function getPostNotificationKindLabel_(kind) {
+  if (kind === "playlist") return "朝ポキプレイリスト";
+  if (kind === "podcast") return "おすすめPodcast";
+  if (kind === "listenerPodcast") return "朝リスPodcast";
+  return "通常投稿";
+}
+function buildPostReceivedNotificationMail_(request) {
+  const kind = String(request && request.kind ? request.kind : "").trim();
+  const kindLabel = getPostNotificationKindLabel_(kind);
+  const title = String(request && request.title ? request.title : "（タイトル未設定）").trim();
+  const maker = String(request && request.maker ? request.maker : "").trim();
+  const host = String(request && request.host ? request.host : "").trim();
+  const rss = String(request && request.rss ? request.rss : "").trim();
+  const url = String(request && request.url ? request.url : "").trim();
+  const comment = String(request && request.comment ? request.comment : "").trim();
+
+  const timeZone = Session.getScriptTimeZone() || "Asia/Tokyo";
+  const receivedAt = Utilities.formatDate(
+    new Date(),
+    timeZone,
+    "yyyy/MM/dd HH:mm:ss"
+  );
+
+  return {
+    to: AUTO_UPDATE_NOTIFICATION_TO_,
+    name: AUTO_UPDATE_NOTIFICATION_NAME_,
+    subject: "【朝リスの田】新しい投稿：" + kindLabel + "「" + title + "」",
+    body: [
+      "朝リスの田に、新しい投稿が届きました。",
+      "",
+      "受付日時：" + receivedAt,
+      "種類：" + kindLabel,
+      "タイトル：" + title,
+      "投稿者：" + (maker || "未入力"),
+      "ホスト：" + (host || "未入力"),
+      "番組URL：" + (url || "未入力"),
+      "RSS：" + (rss || "未入力"),
+      "コメント：" + (comment || "未入力"),
+      "",
+      "スプレッドシートをご確認ください。"
+    ].join("\n")
+  };
+}
+function notifyPostReceived_(request) {
+  const mail = buildPostReceivedNotificationMail_(request);
+  MailApp.sendEmail(mail);
+  return { sent: true, to: mail.to, subject: mail.subject };
+}
+function buildAutoUpdateFailureNotificationMail_(failure) {
+  const target = String(failure && failure.target ? failure.target : "対象不明").trim();
+  const stage = String(failure && failure.stage ? failure.stage : "自動更新").trim();
+  const rawError = String(failure && failure.error ? failure.error : "原因不明");
+  const safeError = rawError
+    .replace(/([?&]pt=)[^&#\s]+/gi, "$1[REDACTED]")
+    .replace(/(Bearer\s+)[A-Za-z0-9._~-]+/gi, "$1[REDACTED]")
+    .replace(/(refresh[_ -]?token|access[_ -]?token)\s*[:=]\s*[^\s,;]+/gi, "$1=[REDACTED]")
+    .slice(0, 1000);
+  return {
+    to: AUTO_UPDATE_NOTIFICATION_TO_,
+    name: AUTO_UPDATE_NOTIFICATION_NAME_,
+    subject: "【朝リスの田】自動更新エラー：" + target,
+    body: [
+      "朝リスの田の自動更新でエラーが発生しました。",
+      "",
+      "対象：" + target,
+      "処理：" + stage,
+      "内容：" + safeError,
+      "",
+      "Spotify、スプレッドシート、Apps Scriptの実行ログを確認してください。"
+    ].join("\n")
+  };
+}
+function notifyAutoUpdateFailure_(failure) {
+  const target = String(failure && failure.target ? failure.target : "unknown").trim();
+  const stage = String(failure && failure.stage ? failure.stage : "automation").trim();
+  const cache = CacheService.getScriptCache();
+  const cacheKey = AUTO_UPDATE_FAILURE_NOTICE_PREFIX_ + Utilities.base64EncodeWebSafe(stage + "|" + target);
+  if (cache.get(cacheKey) === "sent") return { sent: false, suppressed: true };
+  const mail = buildAutoUpdateFailureNotificationMail_(failure);
+  MailApp.sendEmail(mail);
+  cache.put(cacheKey, "sent", AUTO_UPDATE_FAILURE_NOTICE_SECONDS_);
+  return { sent: true, suppressed: false };
+}
+function notifyAutoUpdateFailureSafely_(failure) {
+  try {
+    return notifyAutoUpdateFailure_(failure);
+  } catch (notificationError) {
+    Logger.log("自動更新エラー通知に失敗しました: " + String(notificationError));
+    return { sent: false, notificationError: true };
+  }
+}
+
+// 管理者が明示的に実行する実送信テスト。シート・Spotifyは変更しない。
+function sendAutoUpdateNotificationTestMail() {
+  const timeZone = Session.getScriptTimeZone() || "Asia/Tokyo";
+  return notifyAutoUpdateRequestReceived_({
+    receivedAt: Utilities.formatDate(new Date(), timeZone, "yyyy/MM/dd HH:mm:ss") + "（送信テスト）",
+    title: "【テスト】新しいリスト投稿の通知確認",
+    maker: "朝リスの田",
+    updateType: "連載",
+    keywords: "テスト通知（実際の申請ではありません）",
+    rowNumber: 0,
+    immediateRunScheduled: true,
+    immediateRunReason: "test"
+  });
+}
+
+// ---- AutoUpdateAutomationV1.js ----
+const AUTO_UPDATE_V1_RULE_IDS_KEY_ = "AUTO_UPDATE_V1_RULE_IDS";
+const AUTO_UPDATE_V1_RULE_PREFIX_ = "AUTO_UPDATE_V1_RULE_";
+const AUTO_UPDATE_V1_BOUNDARY_PREFIX_ = "AUTO_UPDATE_V1_BOUNDARY_";
+const AUTO_UPDATE_V1_HUMAN_DELETED_PREFIX_ = "AUTO_UPDATE_V1_HUMAN_DELETED_";
+const AUTO_UPDATE_V1_MAX_ADDITIONS_PER_RUN_ = 10;
+const AUTO_UPDATE_V1_BOOTSTRAP_MAX_ADDITIONS_PER_RUN_ = 50;
+const AUTO_UPDATE_V1_RECENT_EPISODES_PER_SHOW_ = 20;
+const AUTO_UPDATE_V1_BOOTSTRAP_MAX_PAGES_PER_RUN_ = 5;
+const AUTO_UPDATE_V1_BOOTSTRAP_MAX_CANDIDATES_PER_SHOW_ = 500;
+const AUTO_UPDATE_V1_IMMEDIATE_HANDLER_ = "runAutoUpdateAutomationSoonV1";
+const AUTO_UPDATE_V1_DAILY_HANDLER_ = "runAutoUpdateAutomationV1";
+const AUTO_UPDATE_V1_BACKFILL_HANDLER_ = "runAutoUpdateBackfillHourlyV1";
+const AUTO_UPDATE_V1_BACKFILL_CURSOR_KEY_ = "AUTO_UPDATE_V1_BACKFILL_CURSOR";
+const AUTO_UPDATE_V1_IMMEDIATE_DELAY_MS_ = 60 * 1000;
+const AUTO_UPDATE_V1_MEDIA_TALK_SHOW_ID_ = "0yhef9ORZkUZs9ZeotdCSY";
+const AUTO_UPDATE_V1_MANAGED_FIXED_RULE_KEYS_ = [
+  "issho-shinbun",
+  "kino-douga",
+  "toyohide",
+  "ota-masahiko",
+  "no-mirai",
+  "polirebi",
+  "sato-yo"
+];
+
+// フォーム受付直後の1回だけを予約する。同じ予約があれば新規作成しない。
+function scheduleAutoUpdateAutomationV1_(delayMs) {
+  try {
+    const triggers = ScriptApp.getProjectTriggers();
+    const alreadyScheduled = triggers.some(function(trigger) {
+      return trigger.getHandlerFunction() === AUTO_UPDATE_V1_IMMEDIATE_HANDLER_;
+    });
+    if (alreadyScheduled) return { scheduled: true, reason: "already-scheduled" };
+
+    ScriptApp.newTrigger(AUTO_UPDATE_V1_IMMEDIATE_HANDLER_)
+      .timeBased()
+      .after(Math.max(60 * 1000, Number(delayMs) || AUTO_UPDATE_V1_IMMEDIATE_DELAY_MS_))
+      .create();
+    return { scheduled: true, reason: "created" };
+  } catch (error) {
+    if (!isAutoUpdateTriggerPermissionErrorV1_(error)) throw error;
+    Logger.log("継続トリガー予約を見送り、翌朝の日次巡回へ繰り越します: " + String(error));
+    return { scheduled: false, reason: "authorization-required" };
+  }
+}
+function isAutoUpdateTriggerPermissionErrorV1_(error) {
+  return /permission|script\.scriptapp|権限/i.test(String(error && error.message ? error.message : error));
+}
+function runAutoUpdateAutomationSoonV1() {
+  // 1回限りのトリガーは実行中も getProjectTriggers() に残ることがある。
+  // 先に自分自身を削除しないと、処理後の継続予約が
+  // "already-scheduled" と誤判定され、初回補完が5ページで止まる。
+  deleteAutoUpdateAutomationSoonTriggersV1_();
+  return runAutoUpdateAutomationV1();
+}
+function deleteAutoUpdateAutomationSoonTriggersV1_() {
+  let deleted = 0;
+  ScriptApp.getProjectTriggers().forEach(function(trigger) {
+    if (trigger.getHandlerFunction() !== AUTO_UPDATE_V1_IMMEDIATE_HANDLER_) return;
+    ScriptApp.deleteTrigger(trigger);
+    deleted += 1;
+  });
+  return deleted;
+}
+
+// 日次巡回を4時台に1本だけ維持する管理用関数。
+function installAutoUpdateAutomationDailyTriggerV1() {
+  ScriptApp.getProjectTriggers().forEach(function(trigger) {
+    if (trigger.getHandlerFunction() === AUTO_UPDATE_V1_DAILY_HANDLER_) {
+      ScriptApp.deleteTrigger(trigger);
+    }
+  });
+  const trigger = ScriptApp.newTrigger(AUTO_UPDATE_V1_DAILY_HANDLER_)
+    .timeBased()
+    .atHour(4)
+    .everyDays(1)
+    .create();
+  return { installed: true, handler: trigger.getHandlerFunction(), hour: 4 };
+}
+
+// 初回補完と新規申請の確認を1時間ごとに行う。プレイリスト別のトリガーは作らない。
+function installAutoUpdateBackfillHourlyTriggerV1() {
+  ScriptApp.getProjectTriggers().forEach(function(trigger) {
+    if (trigger.getHandlerFunction() === AUTO_UPDATE_V1_BACKFILL_HANDLER_) {
+      ScriptApp.deleteTrigger(trigger);
+    }
+  });
+  const trigger = ScriptApp.newTrigger(AUTO_UPDATE_V1_BACKFILL_HANDLER_)
+    .timeBased()
+    .everyHours(1)
+    .create();
+  return { installed: true, handler: trigger.getHandlerFunction(), everyHours: 1 };
+}
+
+// 管理用：日次巡回と初回補完の2本をまとめて設定し、旧直後実行トリガーを片付ける。
+function installAutoUpdateAutomationTriggersV1() {
+  deleteAutoUpdateAutomationSoonTriggersV1_();
+  return {
+    daily: installAutoUpdateAutomationDailyTriggerV1(),
+    backfill: installAutoUpdateBackfillHourlyTriggerV1()
+  };
+}
+
+// 初回だけGASエディタから実行し、時間主導トリガー権限を承認するための管理用関数。
+function authorizeAutoUpdateAutomationV1() {
+  return scheduleAutoUpdateAutomationV1_(AUTO_UPDATE_V1_IMMEDIATE_DELAY_MS_);
+}
+
+// 毎朝4時台：初回補完は行わず、前回境界より新しい回だけを確認する。
+// #432: 日次処理が Spotify の利用制限で飛ばされた日は印を残し、制限明け後の「1時間ごと」で1回だけ代わりに実行する
+var AU_DAILY_PENDING_KEY_ = "AUTO_UPDATE_DAILY_PENDING";
+var AU_DAILY_DONE_KEY_ = "AUTO_UPDATE_DAILY_DONE";
+function auTodayJst_(nowMs) { return Utilities.formatDate(new Date(Number(nowMs || Date.now())), "Asia/Tokyo", "yyyy-MM-dd"); }
+// 純粋: 代わりに実行すべきか（印がある・その日の日次がまだ・日次の時間帯ではない）
+function auShouldCatchUpDaily_(pending, done, today, inDailyWindow) {
+  return !!pending && pending === today && done !== today && !inDailyWindow;
+}
+function runAutoUpdateAutomationV1() {
+  if (typeof spotifySkipIfCooldown_ === "function" && spotifySkipIfCooldown_("runAutoUpdateAutomationV1")) {
+    PropertiesService.getScriptProperties().setProperty(AU_DAILY_PENDING_KEY_, auTodayJst_());
+    return { skipped: true, reason: "spotify-cooldown", catchUp: "pending" };
+  }
+  const auProps = PropertiesService.getScriptProperties();
+  auProps.setProperty(AU_DAILY_DONE_KEY_, auTodayJst_());
+  auProps.deleteProperty(AU_DAILY_PENDING_KEY_);
+  const activation = processPendingAutoUpdateRequestsV1();
+
+  // Daily fallback: even if the hourly backfill trigger is missing or delayed,
+  // one pending bootstrap (e.g. speaker playlists such as 斎藤健一郎) still advances.
+  const backfill = syncNextAutoUpdateBootstrapV1_();
+
+  const sync = syncApprovedAutoUpdateRequestsV1();
+
+  // Theme V3 uses the same daily trigger after initial automatic provisioning.
+  const theme = typeof runThemeV3Automation === "function"
+    ? runThemeV3Automation()
+    : (
+      typeof isThemeReviewSpotifyWriteEnabled_ === "function" &&
+      isThemeReviewSpotifyWriteEnabled_() &&
+      typeof runThemeReviewAutomation === "function"
+        ? runThemeReviewAutomation()
+        : { skipped: true, reason: "disabled" }
+    );
+
+  const managed = syncDailyManagedAutoPlaylistsV1_();
+  return {
+    activation: activation,
+    backfill: backfill,
+    sync: sync,
+    theme: theme,
+    managed: managed
+  };
+}
+
+// 1時間ごと：新規申請を確認し、補完中のリストを順番に最大50件ずつ処理する。
+// 朝の日次巡回と重なる時間帯は日次処理を優先する。
+function runAutoUpdateBackfillHourlyV1() {
+  if (isAutoUpdateDailyWindowV1_(Date.now())) {
+    return { skipped: true, reason: "daily-window" };
+  }
+  if (typeof spotifySkipIfCooldown_ === "function" && spotifySkipIfCooldown_("runAutoUpdateBackfillHourlyV1")) {
+    return { skipped: true, reason: "spotify-cooldown" };
+  }
+  {
+    const p = PropertiesService.getScriptProperties();
+    if (auShouldCatchUpDaily_(p.getProperty(AU_DAILY_PENDING_KEY_), p.getProperty(AU_DAILY_DONE_KEY_), auTodayJst_(), false)) {
+      Logger.log(JSON.stringify({ event: "dailyCatchUp", date: auTodayJst_() }));
+      return { dailyCatchUp: runAutoUpdateAutomationV1() };   // 日次処理を1回だけ代わりに実行（成功すれば印は消える）
+    }
+  }
+  const activation = processPendingAutoUpdateRequestsV1();
+  const backfill = syncNextAutoUpdateBootstrapV1_();
+  // 蔵書推薦で管理人が「Spotify追加OK」にした行だけをプレイリストへ入れる（ShelfSpotify.js）。
+  let shelf = null;
+  try {
+    shelf = typeof shelfSpotifySync_ === "function" ? shelfSpotifySync_() : null;
+  } catch (error) {
+    shelf = { error: String(error && error.message ? error.message : error) };
+  }
+  // 蔵を正本に既存プレイリストを育てる（LibraryPlaylist.js・LIBRARY_PLAYLIST_WRITE=ON の時だけ書く）
+  let libraryPlaylists = null;
+  try {
+    libraryPlaylists = typeof libraryPlaylistSyncAll_ === "function" ? libraryPlaylistSyncAll_() : null;
+  } catch (error) {
+    libraryPlaylists = { error: String(error && error.message ? error.message : error) };
+  }
+  // 新しく登録されたSpotifyリストの表紙・最終新着を1回だけ取る（#412: 既存リストの定期巡回はしない）
+  let liveMeta = null;
+  try {
+    liveMeta = typeof playlistLiveMetaWarm_ === "function" ? playlistLiveMetaWarm_() : null;
+  } catch (error) {
+    liveMeta = { error: String(error && error.message ? error.message : error) };
+  }
+  return { activation: activation, backfill: backfill, shelf: shelf, libraryPlaylists: libraryPlaylists, liveMeta: liveMeta };
+}
+function isAutoUpdateDailyWindowV1_(nowMs) {
+  const timeZone = Session.getScriptTimeZone() || "Asia/Tokyo";
+  const hhmm = Utilities.formatDate(new Date(Number(nowMs || Date.now())), timeZone, "HHmm");
+  return hhmm >= "0330" && hhmm < "0530";
+}
+
+// フォーム由来の実行ルールとは別に、初回登録済みの固定ルールを同じ日次巡回で育てる。
+function syncDailyManagedAutoPlaylistsV1_() {
+  const token = getSpotifyUserAccessToken();
+  if (!token) throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
+  const recentEpisodeCache = {};
+  return getDailyManagedAutoPlaylistKeysV1_().map(function(key) {
+    try {
+      const rule = getAutoPlaylistRuleByKey_(key);
+      const result = syncRecentManagedAutoPlaylistV1_(rule, token, recentEpisodeCache) || {};
+      return {
+        key: key,
+        ok: true,
+        addedCount: Number(result.addedCount || 0),
+        failedCount: Number(result.failedCount || 0)
+      };
+    } catch (error) {
+      Logger.log("固定ルール巡回失敗: " + key + " | " + String(error));
+      notifyAutoUpdateFailureSafely_({ target: key, stage: "毎朝巡回", error: error });
+      return { key: key, ok: false, error: String(error) };
+    }
+  });
+}
+
+// 毎朝の巡回は各Showの最新20件だけを見る。
+// 全件走査と初回補完は1時間ごとの別処理へ分離し、朝のAPI負荷を抑える。
+function syncRecentManagedAutoPlaylistV1_(rule, token, episodeCache) {
+  if (!rule || rule.enabled === false) throw new Error("有効な固定ルールがありません");
+  const episodesById = {};
+  getAutoPlaylistShowIds_(rule).forEach(function(showId) {
+    const cacheKey = String(showId);
+    const page = episodeCache[cacheKey] || fetchAutoUpdateShowFirstPageV1_(showId, token);
+    episodeCache[cacheKey] = page;
+    page.items.forEach(function(episode) {
+      if (episode && episode.id && matchesAutoPlaylistRule_(episode, rule)) {
+        episodesById[String(episode.id)] = episode;
+      }
+    });
+  });
+
+  const existingUris = new Set(getAllSpotifyPlaylistItems_(rule.playlistId, token).map(function(row) {
+    return String(row && row.item && row.item.uri ? row.item.uri : "");
+  }).filter(Boolean));
+  const missing = Object.keys(episodesById).map(function(id) {
+    return episodesById[id];
+  }).filter(function(episode) {
+    return !existingUris.has(String(episode.uri || ("spotify:episode:" + episode.id)));
+  }).sort(function(a, b) {
+    const left = String(a.release_date || "");
+    const right = String(b.release_date || "");
+    return left === right
+      ? String(a.id).localeCompare(String(b.id))
+      : left < right ? -1 : 1;
+  });
+
+  if (missing.length > AUTO_UPDATE_V1_MAX_ADDITIONS_PER_RUN_) {
+    throw new Error("朝の追加候補が上限を超えました: " + missing.length);
+  }
+  if (!missing.length) return { addedCount: 0, failedCount: 0 };
+  assertAutoPlaylistSheetLinkBeforeWrite_(rule);
+  const result = addAutoPlaylistEpisodesIndividually_(rule, token, missing);
+  if (result.failedCount > 0) throw new Error("Spotify追加に一部失敗しました");
+  if (result.addedCount > 0 && rule.updateLatestDateOnAdd === true) {
+    updatePlaylistLatestDate_(rule.playlistId, getLatestReleaseDate_(result.addedEpisodes));
+  }
+  return result;
+}
+function getDailyManagedAutoPlaylistKeysV1_() {
+  return AUTO_UPDATE_V1_MANAGED_FIXED_RULE_KEYS_.filter(function(key) {
+    const rule = getAutoPlaylistRuleByKey_(key);
+    return rule && rule.enabled !== false;
+  });
+}
+function processPendingAutoUpdateRequestsV1() {
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) throw new Error("別の自動更新処理が実行中です");
+
+  try {
+    const token = getSpotifyUserAccessToken();
+    if (!token) throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
+
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = getSheetLoose(ss, AUTO_UPDATE_REQUEST_SHEET_NAME);
+    if (!sheet) throw new Error("自動更新申請シートが見つかりません");
+
+    const lastRow = sheet.getLastRow();
+    if (lastRow < 2) return { checked: 0, activated: 0, waiting: 0, review: 0 };
+
+    const rows = sheet.getRange(2, 1, lastRow - 1, 9).getDisplayValues();
+    const result = { checked: 0, activated: 0, waiting: 0, review: 0, humanDeleted: 0 };
+
+    // スプレッドシートを管理UIとして扱う。
+    // H列を「人間削除」にした申請は、次回AUTO巡回でtombstoneへ同期し、
+    // runtime ruleが存在する場合も無効化して自動復活を防ぐ。
+    syncSheetHumanDeletedAutoUpdateRequestsV1_(sheet, rows, result);
+
+    const latestPendingRowByPlaylistId = {};
+    rows.forEach(function(row, index) {
+      const status = String(row[7] || "").trim();
+      if (["申請受付", "受付", "招待承認待ち"].indexOf(status) < 0) return;
+      const playlistId = extractAutoUpdateSpotifyPlaylistId_(String(row[1] || ""));
+      if (playlistId) latestPendingRowByPlaylistId[playlistId] = index + 2;
+    });
+
+    rows.forEach(function(row, index) {
+      const rowNumber = index + 2;
+      const status = String(row[7] || "").trim();
+      if (["申請受付", "受付", "招待承認待ち"].indexOf(status) < 0) return;
+      result.checked += 1;
+
+      const request = autoUpdateRequestFromSheetRowV1_(row);
+      const requestPlaylistId = extractAutoUpdateSpotifyPlaylistId_(request.url);
+      if (requestPlaylistId && latestPendingRowByPlaylistId[requestPlaylistId] !== rowNumber) {
+        sheet.getRange(rowNumber, 5).clearContent();
+        setAutoUpdateRequestStatusV1_(sheet, rowNumber, "重複申請", "同じプレイリストの新しい申請を採用しました");
+        return;
+      }
+      const validationError = validateAutoUpdateRequest_(request);
+      if (validationError) {
+        setAutoUpdateRequestStatusV1_(sheet, rowNumber, "確認待ち", validationError);
+        result.review += 1;
+        return;
+      }
+
+      const plan = buildAutoPlaylistRequestPlan_(request);
+      if (!isAutoUpdateV1TypeEligible_(plan.ruleType) &&
+        plan.ruleType !== AUTO_PLAYLIST_RULE_TYPE_THEME_) {
+        setAutoUpdateRequestStatusV1_(sheet, rowNumber, "確認待ち", "テーマ型・未対応方式は人の確認が必要です");
+        result.review += 1;
+        return;
+      }
+
+      const playlistId = requestPlaylistId;
+      if (isAutoUpdatePlaylistHumanDeletedV1_(playlistId)) {
+        setAutoUpdateRequestStatusV1_(
+          sheet,
+          rowNumber,
+          "人間削除済み",
+          "人間が削除したAUTO登録です。再開は管理関数から行ってください"
+        );
+        result.review += 1;
+        return;
+      }
+      const access = inspectAutoUpdatePlaylistAccessV1_(playlistId, token);
+      // Spotifyの新しい共同編集招待は、Web上で共同編集者になっていても
+      // Web APIの collaborative が false のまま返る。招待URLがあり、かつ
+      // 運用アカウントのライブラリに存在する場合を承認済みとして扱う。
+      const invitedAndSaved = Boolean(request.inviteUrl) && access.presentInLibrary === true;
+      if (!access.editable && !invitedAndSaved) {
+        setAutoUpdateRequestStatusV1_(sheet, rowNumber, "招待承認待ち", "運用アカウントで共同編集招待を承認してください");
+        result.waiting += 1;
+        return;
+      }
+
+      const rule = buildAutoUpdateRuntimeRuleV1_(request, playlistId, rowNumber);
+      const ruleValidation = validateAutoPlaylistRule_(rule);
+      if (!ruleValidation.valid) {
+        setAutoUpdateRequestStatusV1_(sheet, rowNumber, "確認待ち", ruleValidation.errors.join(" / "));
+        result.review += 1;
+        return;
+      }
+
+      // Theme V3: after Spotify edit access is confirmed, create one human-readable
+      // sheet, generate a broad AI draft, write it to Spotify, then enter incremental AUTO.
+      if (plan.ruleType === AUTO_PLAYLIST_RULE_TYPE_THEME_) {
+        if (
+          rule.enabled !== false ||
+          rule.productionWriteAllowed !== false ||
+          rule.reviewRequired !== true ||
+          rule.lifecycleStatus !== "requested"
+        ) {
+          throw new Error("テーマの初期安全設定が不正です");
+        }
+
+        const existing = loadAutoUpdateRuntimeRulesV1_().filter(function(saved) {
+          return saved && saved.playlistId === playlistId;
+        });
+
+        const fixedExists = AUTO_PLAYLIST_RULES.some(function(saved) {
+          return saved && saved.playlistId === playlistId;
+        });
+
+        const sameRequest = existing.length === 1 &&
+          existing[0].key === rule.key &&
+          Number(existing[0].requestSheetRow) === rowNumber;
+
+        if (fixedExists || (existing.length && !sameRequest)) {
+          setAutoUpdateRequestStatusV1_(
+            sheet,
+            rowNumber,
+            "重複申請",
+            "同じプレイリストの登録済みルールがあります"
+          );
+          result.review += 1;
+          return;
+        }
+
+        // 旧 theme V2 が受付時に保存したルール（themeEngineVersion 2）は使わず、
+        // シートの今の内容（キーワードの修正を含む）から作り直したルールで開始する（#521）。
+        const targetRule = sameRequest && existing[0].themeEngineVersion !== 2 ? existing[0] : rule;
+
+        try {
+          const themeResult = activateSubmittedThemeV3Request_(targetRule, token);
+
+          // Invite URL is no longer needed after access confirmation.
+          sheet.getRange(rowNumber, 5).clearContent();
+
+          setAutoUpdateRequestStatusV1_(
+            sheet,
+            rowNumber,
+            "増分自動更新",
+            "Theme V3自動開始 / タブ: " +
+              themeResult.sheetName +
+              " / 初稿 " +
+              themeResult.initialCandidateCount +
+              "件 / Spotify追加 " +
+              themeResult.addedCount +
+              "件"
+          );
+
+          result.activated += 1;
+        } catch (error) {
+          setAutoUpdateRequestStatusV1_(
+            sheet,
+            rowNumber,
+            "確認待ち",
+            "Theme V3自動開始に失敗しました: " +
+              (error && error.message ? error.message : String(error))
+          );
+          result.review += 1;
+        }
+
+        return;
+      }
+
+    assertAutoPlaylistRuleActivationSafe_(rule);
+
+      assertAutoPlaylistSheetLinkBeforeWrite_(rule);
+      let seed = findAutoUpdateSeedEpisodeV1_(
+        getAllSpotifyPlaylistItems_(rule.playlistId, token),
+        rule,
+        token
+      );
+      if (!seed && rule.seedDateOverride) {
+        seed = {
+          id: "manual-date-boundary-" + playlistId,
+          releaseDate: rule.seedDateOverride,
+          name: "申請で確認した最新既存回"
+        };
+      }
+      if (!seed) {
+        setAutoUpdateRequestStatusV1_(
+          sheet,
+          rowNumber,
+          "確認待ち",
+          "条件に合う起点エピソードがプレイリスト内にありません"
+        );
+        result.review += 1;
+        return;
+      }
+      prepareAutoUpdateSeedBootstrapV1_(rule, seed);
+      saveAutoUpdateRuntimeRuleV1_(rule);
+
+      // 招待リンクは権限確認後にシートから消し、不要な露出を残さない。
+      sheet.getRange(rowNumber, 5).clearContent();
+      setAutoUpdateRequestStatusV1_(
+        sheet,
+        rowNumber,
+        "初回補完中",
+        "起点 " + seed.releaseDate + " から不足回を古い順に補完します"
+      );
+      result.activated += 1;
+    });
+
+    SpreadsheetApp.flush();
+    Logger.log(JSON.stringify(result));
+    return result;
+  } finally {
+    lock.releaseLock();
+  }
+}
+function syncApprovedAutoUpdateRequestsV1() {
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) throw new Error("別の自動更新処理が実行中です");
+
+  try {
+    const token = getSpotifyUserAccessToken();
+    if (!token) throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
+    const rules = loadAutoUpdateRuntimeRulesV1_().filter(function(rule) {
+      return rule &&
+        rule.enabled !== false &&
+        rule.lifecycleStatus !== "human_deleted" &&
+        rule.bootstrapPending !== true &&
+        !(typeof isThemeV3RuntimeRule_ === "function" && isThemeV3RuntimeRule_(rule));
+    });
+    const results = [];
+    rules.forEach(function(rule) {
+      try {
+        const normalizedRule = normalizeAutoUpdateRuntimeRuleV1_(rule);
+        if (JSON.stringify(normalizedRule) !== JSON.stringify(rule)) {
+          saveAutoUpdateRuntimeRuleV1_(normalizedRule);
+        }
+        results.push(syncOneApprovedAutoUpdateRequestV1_(normalizedRule, token));
+      } catch (error) {
+        const reason = "巡回エラー: " + String(error && error.message ? error.message : error);
+        Logger.log(reason);
+        notifyAutoUpdateFailureSafely_({
+          target: String(rule && (rule.name || rule.key || rule.playlistId) || "申請プレイリスト"),
+          stage: "毎朝巡回",
+          error: error
+        });
+        results.push(pauseAutoUpdateRuleV1_(rule, reason));
+      }
+    });
+    Logger.log(JSON.stringify(results));
+    return results;
+  } finally {
+    lock.releaseLock();
+  }
+}
+function syncNextAutoUpdateBootstrapV1_() {
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) throw new Error("別の自動更新処理が実行中です");
+
+  try {
+    const token = getSpotifyUserAccessToken();
+    if (!token) throw new Error("Spotifyユーザー認証トークンを取得できませんでした");
+    const rules = loadAutoUpdateRuntimeRulesV1_().map(function(rule) {
+      const normalized = normalizeAutoUpdateRuntimeRuleV1_(rule);
+      if (JSON.stringify(normalized) !== JSON.stringify(rule)) {
+        saveAutoUpdateRuntimeRuleV1_(normalized);
+      }
+      return normalized;
+    }).filter(function(rule) {
+      // テーマ型は Theme V3（processPending の開始処理と runThemeV3Automation）が受け持つ。
+      // ここで拾うと検証で止めてしまうため除く（#521）。
+      return rule && rule.enabled !== false && rule.bootstrapPending === true &&
+        !(typeof isThemeV3RuntimeRule_ === "function" && isThemeV3RuntimeRule_(rule));
+    });
+
+    if (!rules.length) return { skipped: true, reason: "no-bootstrap-pending", addedCount: 0 };
+
+    const props = PropertiesService.getScriptProperties();
+    const selected = selectNextAutoUpdateBootstrapRuleV1_(
+      rules,
+      props.getProperty(AUTO_UPDATE_V1_BACKFILL_CURSOR_KEY_) || ""
+    );
+    props.setProperty(AUTO_UPDATE_V1_BACKFILL_CURSOR_KEY_, String(selected.key || selected.playlistId));
+
+    try {
+      return syncOneApprovedAutoUpdateRequestV1_(
+        selected,
+        token,
+        AUTO_UPDATE_V1_BOOTSTRAP_MAX_ADDITIONS_PER_RUN_
+      );
+    } catch (error) {
+      const reason = "初回補完エラー: " + String(error && error.message ? error.message : error);
+      Logger.log(reason);
+      if (isSpotifyRateLimitErrorV1_(error)) {
+        setAutoUpdateRuleSheetStatusV1_(
+          selected,
+          "初回補完中",
+          "Spotify混雑のため一時保留。次の1時間枠で同じ続きから再開します"
+        );
+        return {
+          playlistId: selected.playlistId,
+          ok: false,
+          retryNextHourlyRun: true,
+          reason: reason
+        };
+      }
+      notifyAutoUpdateFailureSafely_({
+        target: String(selected && (selected.name || selected.key || selected.playlistId) || "初回補完"),
+        stage: "毎時50件補充",
+        error: error
+      });
+      return pauseAutoUpdateRuleV1_(selected, reason);
+    }
+  } finally {
+    lock.releaseLock();
+  }
+}
+function isSpotifyRateLimitErrorV1_(error) {
+  return /Spotify API.*レート制限|status=429|\b429\b/i.test(
+    String(error && error.message ? error.message : error)
+  );
+}
+function selectNextAutoUpdateBootstrapRuleV1_(rules, previousKey) {
+  const source = Array.isArray(rules) ? rules.slice() : [];
+  if (!source.length) return null;
+  const lastIndex = source.findIndex(function(rule) {
+    return String(rule && (rule.key || rule.playlistId) ? (rule.key || rule.playlistId) : "") === String(previousKey || "");
+  });
+  return source[(lastIndex + 1) % source.length];
+}
+
+// 保存済みルールも現行仕様へ寄せる。
+// #52-（楽屋裏）/#42-（まなび場天声人語）は MEDIA TALK 内の連載なので、
+// 旧版が保存した全公式番組のshowIdsを実行時に自動修復する。
+function normalizeAutoUpdateRuntimeRuleV1_(rule) {
+  const normalized = Object.assign({}, rule || {});
+  const seriesTitleCode = String(normalized.seriesTitleCode || "").trim();
+  if (["#52-", "#42-"].indexOf(seriesTitleCode) >= 0) {
+    normalized.showIds = [AUTO_UPDATE_V1_MEDIA_TALK_SHOW_ID_];
+  }
+  // 旧設計の「翌朝まで待つ」情報は、毎時補完への移行時に破棄する。
+  if (normalized.bootstrapPending === true) delete normalized.bootstrapResumeAfterMs;
+  return normalized;
+}
+
+// 旧版ルールのshowIds修復後などに、初回補完の進捗だけが欠けていても
+// 同じ起点日から安全に再開できるようにする。候補は既存Playlistと照合してから
+// 追加されるため、再作成しても重複追加にはならない。
+function ensureAutoUpdateSeedBootstrapProgressV1_(rule) {
+  const seedDate = String(rule.bootstrapSeedDate || rule.seedDateOverride || "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(seedDate)) {
+    throw new Error("初回補完の起点日を復旧できません");
+  }
+
+  return getAutoPlaylistShowIds_(rule).map(function(showId) {
+    const existing = loadAutoPlaylistScopedState_(rule.key, showId);
+    if (existing) return existing;
+
+    const state = createAutoPlaylistScopedShowState_(rule, showId, "seed-bootstrap", "");
+    state.bootstrapSeedDate = seedDate;
+    saveAutoPlaylistScopedState_(state);
+    return state;
+  });
+}
+function syncOneApprovedAutoUpdateRequestV1_(rule, token, bootstrapMaxAdditions) {
+  const validation = validateAutoPlaylistRule_(rule);
+  if (!validation.valid) return pauseAutoUpdateRuleV1_(rule, "ルール検証失敗: " + validation.errors.join(" / "));
+
+  if (rule.bootstrapPending === true) {
+    ensureAutoUpdateSeedBootstrapProgressV1_(rule);
+    return syncAutoUpdateSeedBootstrapV1_(rule, token, bootstrapMaxAdditions);
+  }
+
+  const showIds = getAutoPlaylistShowIds_(rule);
+  let candidateIds = [];
+  const nextBoundaries = {};
+
+  for (let i = 0; i < showIds.length; i += 1) {
+    const showId = showIds[i];
+    const boundary = loadAutoUpdateBoundaryV1_(rule.playlistId, showId);
+    const page = fetchAutoUpdateShowFirstPageV1_(showId, token);
+    const episodes = page.items;
+    const headId = String(episodes[0] && episodes[0].id ? episodes[0].id : "").trim();
+    if (headId) nextBoundaries[showId] = headId;
+
+    if (!boundary) return pauseAutoUpdateRuleV1_(rule, "前回境界がありません: " + showId);
+    const boundaryIndex = episodes.findIndex(function(ep) {
+      return String(ep && ep.id ? ep.id : "") === boundary;
+    });
+    if (boundaryIndex < 0) {
+      return pauseAutoUpdateRuleV1_(
+        rule,
+        "最新" + AUTO_UPDATE_V1_RECENT_EPISODES_PER_SHOW_ + "件内に前回境界が見つかりません: " + showId
+      );
+    }
+
+    episodes.slice(0, boundaryIndex).forEach(function(ep) {
+      if (matchesAutoPlaylistRule_(ep, rule) && ep && ep.id) candidateIds.push(String(ep.id));
+    });
+  }
+
+  candidateIds = Array.from(new Set(candidateIds));
+  if (candidateIds.length > AUTO_UPDATE_V1_MAX_ADDITIONS_PER_RUN_) {
+    return pauseAutoUpdateRuleV1_(rule, "追加候補が上限を超えました: " + candidateIds.length);
+  }
+
+  const existingUris = new Set(getAllSpotifyPlaylistItems_(rule.playlistId, token).map(function(row) {
+    return String(row && row.item && row.item.uri ? row.item.uri : "");
+  }).filter(Boolean));
+  const missingIds = candidateIds.filter(function(id) {
+    return !existingUris.has("spotify:episode:" + id);
+  });
+  const episodesToAdd = fetchPlayableAutoUpdateEpisodesV1_(missingIds, token);
+  // 候補回の詳細を取れなかったら、境界を進めずに次回やり直す（取りこぼし防止）
+  if (episodesToAdd.failedCount > 0) {
+    return { playlistId: rule.playlistId, ok: false, retry: true, reason: "候補回の取得に失敗したため次回再試行: " + episodesToAdd.failedCount + "件" };
+  }
+
+  if (episodesToAdd.length) assertAutoPlaylistSheetLinkBeforeWrite_(rule);
+  const addResult = episodesToAdd.length
+    ? addAutoPlaylistEpisodesIndividually_(rule, token, episodesToAdd)
+    : { addedCount: 0, failedCount: 0, addedEpisodes: [] };
+  if (addResult.failedCount > 0) return pauseAutoUpdateRuleV1_(rule, "Spotify追加に一部失敗しました");
+
+  Object.keys(nextBoundaries).forEach(function(showId) {
+    saveAutoUpdateBoundaryV1_(rule.playlistId, showId, nextBoundaries[showId]);
+  });
+  if (addResult.addedCount > 0) {
+    updatePlaylistLatestDate_(rule.playlistId, getLatestReleaseDate_(addResult.addedEpisodes));
+  }
+  setAutoUpdateRuleSheetStatusV1_(rule, "増分自動更新", "前回追加 " + addResult.addedCount + "件");
+  return { playlistId: rule.playlistId, ok: true, addedCount: addResult.addedCount };
+}
+function findAutoUpdateSeedEpisodeV1_(playlistItems, rule, token) {
+  const episodes = (Array.isArray(playlistItems) ? playlistItems : []).map(function(row) {
+    const episode = row && (row.item || row.track) ? (row.item || row.track) : null;
+    if (!episode || !episode.id) return null;
+    const releaseDate = String(episode.release_date || "").trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(releaseDate)) return episode;
+    return fetchAutoUpdateEpisodeDetailV1_(episode.id, token);
+  }).filter(Boolean);
+  return selectAutoUpdateSeedEpisodeV1_(episodes, rule);
+}
+function fetchAutoUpdateEpisodeDetailV1_(episodeId, token) {
+  const response = UrlFetchApp.fetch(
+    "https://api.spotify.com/v1/episodes/" + encodeURIComponent(String(episodeId || "")) + "?market=JP",
+    {
+      muteHttpExceptions: true,
+      headers: { Authorization: "Bearer " + token, Accept: "application/json" }
+    }
+  );
+  if (response.getResponseCode() !== 200) return null;
+  return JSON.parse(response.getContentText());
+}
+function selectAutoUpdateSeedEpisodeV1_(episodes, rule) {
+  const validEpisodes = (Array.isArray(episodes) ? episodes : []).map(function(episode) {
+    const releaseDate = String(episode && episode.release_date ? episode.release_date : "").trim();
+    if (!episode || !episode.id || !/^\d{4}-\d{2}-\d{2}$/.test(releaseDate)) return null;
+    return {
+      id: String(episode.id),
+      releaseDate: releaseDate,
+      name: String(episode.name || episode.id),
+      matchesRule: matchesAutoPlaylistRule_(episode, rule)
+    };
+  }).filter(Boolean);
+
+  let seeds = validEpisodes.filter(function(episode) { return episode.matchesRule; });
+  // 連載コード付きの専用プレイリストでは、Spotify APIが共同編集項目の
+  // タイトルを省略して一致判定できない場合に限り、最新既存回を起点にする。
+  if (!seeds.length && String(rule && rule.seriesTitleCode ? rule.seriesTitleCode : "")) {
+    seeds = validEpisodes.slice();
+  }
+
+  seeds.sort(function(a, b) {
+    if (a.releaseDate !== b.releaseDate) return a.releaseDate > b.releaseDate ? -1 : 1;
+    return a.id > b.id ? -1 : 1;
+  });
+  return seeds.length ? seeds[0] : null;
+}
+function prepareAutoUpdateSeedBootstrapV1_(rule, seed) {
+  rule.bootstrapPending = true;
+  rule.bootstrapSeedEpisodeId = String(seed.id || "");
+  rule.bootstrapSeedDate = String(seed.releaseDate || "");
+
+  getAutoPlaylistShowIds_(rule).forEach(function(showId) {
+    const state = createAutoPlaylistScopedShowState_(rule, showId, "seed-bootstrap", "");
+    state.bootstrapSeedDate = rule.bootstrapSeedDate;
+    saveAutoPlaylistScopedState_(state);
+  });
+}
+function applyAutoUpdateSeedBootstrapPageV1_(state, episodes, rule, nextUrl) {
+  const current = Object.assign({}, state || {});
+  const seedDate = String(current.bootstrapSeedDate || rule.bootstrapSeedDate || "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(seedDate)) throw new Error("初回補完の起点日が不正です");
+
+  const source = Array.isArray(episodes) ? episodes : [];
+  if (!current.nextUrl && !current.pendingBoundaryId && source.length) {
+    current.pendingBoundaryId = String(source[0] && source[0].id ? source[0].id : "").trim();
+  }
+
+  let reachedSeedDate = false;
+  const pageCandidateIds = [];
+  source.forEach(function(episode) {
+    if (reachedSeedDate) return;
+    const releaseDate = String(episode && episode.release_date ? episode.release_date : "").trim();
+    if (releaseDate && releaseDate < seedDate) {
+      reachedSeedDate = true;
+      return;
+    }
+    // プレイリスト内の最新対象回を境界にし、その配信日より後だけを補完する。
+    // 起点回自身や同日公開の曖昧な回を再追加しない。
+    if (releaseDate && releaseDate > seedDate && episode && episode.id && matchesAutoPlaylistRule_(episode, rule)) {
+      pageCandidateIds.push(String(episode.id));
+    }
+  });
+
+  current.pagesFetched = Number(current.pagesFetched || 0) + 1;
+  current.inspectedCount = Number(current.inspectedCount || 0) + source.length;
+  current.candidateIds = mergeAutoPlaylistCandidateIds_(
+    current.candidateIds || [],
+    pageCandidateIds,
+    AUTO_UPDATE_V1_BOOTSTRAP_MAX_CANDIDATES_PER_SHOW_
+  );
+  current.candidateCount = current.candidateIds.length;
+  current.reachedBoundary = reachedSeedDate;
+  current.committed = false;
+
+  const hasNext = Boolean(String(nextUrl || "").trim());
+  current.complete = reachedSeedDate || !hasNext;
+  current.nextUrl = current.complete ? "" : String(nextUrl);
+  return current;
+}
+function fetchAutoUpdateSeedBootstrapPageV1_(rule, state, token) {
+  const url = String(state.nextUrl || "") || buildAutoPlaylistV2InitialUrl_(state.showId);
+  const response = fetchSpotifyReadWithRetry_(
+    url,
+    {
+      muteHttpExceptions: true,
+      headers: { Authorization: "Bearer " + token, Accept: "application/json" }
+    },
+    "Seed bootstrap " + state.showId
+  );
+  const status = response.getResponseCode();
+  if (status !== 200) throw new Error("初回補完のShow取得に失敗しました: " + state.showId + " status=" + status);
+  const data = JSON.parse(response.getContentText());
+  const nextState = applyAutoUpdateSeedBootstrapPageV1_(
+    state,
+    Array.isArray(data.items) ? data.items : [],
+    rule,
+    data.next || ""
+  );
+  saveAutoPlaylistScopedState_(nextState);
+  return nextState;
+}
+function syncAutoUpdateSeedBootstrapV1_(rule, token, maxAdditions) {
+  const showIds = getAutoPlaylistShowIds_(rule);
+  let pagesFetched = 0;
+
+  for (let i = 0; i < showIds.length && pagesFetched < AUTO_UPDATE_V1_BOOTSTRAP_MAX_PAGES_PER_RUN_; i += 1) {
+    let state = loadAutoPlaylistScopedState_(rule.key, showIds[i]);
+    if (!state) {
+      return pauseAutoUpdateRuleV1_(rule, "初回補完の進捗がありません: " + showIds[i]);
+    }
+    while (!state.complete && pagesFetched < AUTO_UPDATE_V1_BOOTSTRAP_MAX_PAGES_PER_RUN_) {
+      state = fetchAutoUpdateSeedBootstrapPageV1_(rule, state, token);
+      pagesFetched += 1;
+    }
+  }
+
+  const states = showIds.map(function(showId) {
+    return loadAutoPlaylistScopedState_(rule.key, showId);
+  });
+  if (states.some(function(state) { return !state || state.complete !== true; })) {
+    setAutoUpdateRuleSheetStatusV1_(rule, "初回補完中", "対象回を確認中（今回 " + pagesFetched + "ページ）");
+    return { playlistId: rule.playlistId, ok: true, bootstrapPending: true, pagesFetched: pagesFetched, addedCount: 0 };
+  }
+
+  const playlistItems = getAllSpotifyPlaylistItems_(rule.playlistId, token);
+  const existingUris = new Set(playlistItems.map(function(row) {
+    return String(row && row.item && row.item.uri ? row.item.uri : "");
+  }).filter(Boolean));
+  const allCandidateIds = mergeAutoPlaylistCandidateIds_([], states.reduce(function(all, state) {
+    return all.concat(state.candidateIds || []);
+  }, []), AUTO_PLAYLIST_MAX_PENDING_CANDIDATE_IDS_);
+  // Restore the release date if Spotify succeeded before rule persistence.
+  const existingCandidateIds = allCandidateIds.filter(function(id) {
+    return existingUris.has("spotify:episode:" + id);
+  });
+
+  const existingById = {};
+  playlistItems.forEach(function(row) {
+    const episode = row && row.item ? row.item : {};
+    const id = String(episode.id || String(episode.uri || "").split(":").pop());
+    if (id) existingById[id] = episode;
+  });
+
+  let recoveredDate = String(rule.bootstrapLatestAddedDate || "");
+  const missingDateIds = [];
+
+  existingCandidateIds.forEach(function(id) {
+    const episode = existingById[id] || {};
+    const date = String(episode.release_date || "").slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      missingDateIds.push(id);
+    } else if (date > recoveredDate) {
+      recoveredDate = date;
+    }
+  });
+
+  for (let offset = 0; offset < missingDateIds.length; offset += 50) {
+    const chunk = missingDateIds.slice(offset, offset + 50);
+    const details = fetchPlayableAutoUpdateEpisodesV1_(chunk, token);
+    const datesById = {};
+
+    details.forEach(function(ep) {
+      datesById[String(ep.id || "")] =
+        String(ep.release_date || "").slice(0, 10);
+    });
+
+    chunk.forEach(function(id) {
+      const date = datesById[id] || "";
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        throw new Error("初回補完の日付を復旧できません: " + id);
+      }
+      if (date > recoveredDate) recoveredDate = date;
+    });
+  }
+
+  if (recoveredDate !== String(rule.bootstrapLatestAddedDate || "")) {
+    rule.bootstrapLatestAddedDate = recoveredDate;
+    saveAutoUpdateRuntimeRuleV1_(rule);
+  }
+
+  const candidateIds = allCandidateIds.filter(function(id) {
+    return !existingUris.has("spotify:episode:" + id);
+  });
+  const additionLimit = Math.max(
+    1,
+    Math.min(
+      AUTO_UPDATE_V1_BOOTSTRAP_MAX_ADDITIONS_PER_RUN_,
+      Number(maxAdditions) || AUTO_UPDATE_V1_BOOTSTRAP_MAX_ADDITIONS_PER_RUN_
+    )
+  );
+  // Show APIは新しい順なので、末尾から取ると古い候補から50件に絞れる。
+  // 全候補の詳細を毎回取得せず、Spotifyへの読取回数も抑える。
+  const candidateIdsThisRun = candidateIds.slice(-additionLimit);
+  const candidateEpisodes = fetchPlayableAutoUpdateEpisodesV1_(candidateIdsThisRun, token).sort(function(a, b) {
+    const left = String(a.release_date || "");
+    const right = String(b.release_date || "");
+    if (left !== right) return left < right ? -1 : 1;
+    return String(a.id) < String(b.id) ? -1 : 1;
+  });
+  if (candidateEpisodes.length !== candidateIdsThisRun.length) {
+    return pauseAutoUpdateRuleV1_(rule, "取得できない候補回があるため初回補完を停止しました");
+  }
+  const episodesToAdd = candidateEpisodes;
+
+  if (episodesToAdd.length) assertAutoPlaylistSheetLinkBeforeWrite_(rule);
+  const addResult = episodesToAdd.length
+    ? addAutoPlaylistEpisodesBatch_(rule, token, episodesToAdd)
+    : { addedCount: 0, failedCount: 0, addedEpisodes: [] };
+  if (addResult.failedCount > 0) return pauseAutoUpdateRuleV1_(rule, "初回補完のSpotify追加に一部失敗しました");
+
+  // 初回補充で追加した最新日付を次回実行まで保持する。
+  if (addResult.addedCount > 0) {
+    const addedDate = getLatestReleaseDate_(addResult.addedEpisodes);
+    if (addedDate) {
+      const previousDate = String(rule.bootstrapLatestAddedDate || "");
+      rule.bootstrapLatestAddedDate =
+        previousDate > addedDate ? previousDate : addedDate;
+      saveAutoUpdateRuntimeRuleV1_(rule);
+    }
+  }
+
+  const resolvedIds = new Set(allCandidateIds.filter(function(id) {
+    return existingUris.has("spotify:episode:" + id);
+  }).concat(addResult.addedEpisodes.map(function(episode) { return String(episode.id); })));
+  states.forEach(function(state) {
+    state.candidateIds = (state.candidateIds || []).filter(function(id) { return !resolvedIds.has(String(id)); });
+    state.candidateCount = state.candidateIds.length;
+    saveAutoPlaylistScopedState_(state);
+  });
+
+  const remainingCount = states.reduce(function(sum, state) {
+    return sum + Number(state.candidateCount || 0);
+  }, 0);
+  if (remainingCount > 0) {
+    delete rule.bootstrapResumeAfterMs;
+    saveAutoUpdateRuntimeRuleV1_(rule);
+    setAutoUpdateRuleSheetStatusV1_(
+      rule,
+      "初回補完中",
+      "前回追加 " + addResult.addedCount + "件・残り " + remainingCount +
+        "件。1時間ごとに最大50件ずつ追加します"
+    );
+    return {
+      playlistId: rule.playlistId,
+      ok: true,
+      bootstrapPending: true,
+      deferredUntilHourly: true,
+      addedCount: addResult.addedCount,
+      remainingCount: remainingCount
+    };
+  }
+
+  // 全境界を先に検証し、途中からの保存を避ける。
+  states.forEach(function(state) {
+    if (!String(state.pendingBoundaryId || "").trim()) {
+      throw new Error("初回補完後の新着境界を確定できません: " + state.showId);
+    }
+  });
+
+  states.forEach(function(state) {
+    saveAutoUpdateBoundaryV1_(
+      rule.playlistId, state.showId, state.pendingBoundaryId
+    );
+  });
+
+  // 日付・申請状態が揃うまで毎時補充の対象に残す。
+  if (rule.bootstrapLatestAddedDate) {
+    updatePlaylistLatestDate_(
+      rule.playlistId, rule.bootstrapLatestAddedDate
+    );
+  }
+
+  setAutoUpdateRuleSheetStatusV1_(
+    rule,
+    "増分自動更新",
+    "初回補完完了。以後は新着回を巡回します"
+  );
+
+  // 最後に完了フラグを保存する。
+  rule.bootstrapPending = false;
+  delete rule.bootstrapResumeAfterMs;
+  saveAutoUpdateRuntimeRuleV1_(rule);
+
+  // 後片付けの失敗は完了処理を巻き戻さない。
+  states.forEach(function(state) {
+    try {
+      deleteAutoPlaylistScopedState_(rule.key, state.showId);
+    } catch (error) {
+      Logger.log("初回補完の進捗削除失敗: " + error);
+    }
+  });
+  return { playlistId: rule.playlistId, ok: true, bootstrapPending: false, addedCount: addResult.addedCount, complete: true };
+}
+function autoUpdateRequestFromSheetRowV1_(row) {
+  const typeMatch = String(row[8] || "").match(/方式:\s*([^/\s]+)/);
+  return {
+    url: String(row[1] || "").trim(),
+    title: String(row[2] || "").trim(),
+    maker: String(row[3] || "").trim(),
+    inviteUrl: String(row[4] || "").trim(),
+    keywords: String(row[5] || "").trim(),
+    ruleNote: String(row[6] || "").trim(),
+    updateType: typeMatch ? String(typeMatch[1] || "") : "",
+    securityAnswer: "大介",
+    requestId: "request_sheet_row_" + String(Date.now())
+  };
+}
+function isAutoUpdateV1TypeEligible_(ruleType) {
+  return ruleType === AUTO_PLAYLIST_RULE_TYPE_TITLE_TEXT_ || ruleType === AUTO_PLAYLIST_RULE_TYPE_SPEAKER_;
+}
+function buildAutoUpdateRuntimeRuleV1_(request, playlistId, rowNumber) {
+  const candidate = buildAutoPlaylistRuleCandidateFromRequest_(request);
+  candidate.key = "request-" + playlistId;
+  candidate.enabled = true;
+  candidate.lifecycleStatus = AUTO_PLAYLIST_LIFECYCLE_.INCREMENTAL;
+  candidate.productionWriteAllowed = true;
+  candidate.playlistId = playlistId;
+  candidate.requireSheetLinkBeforeWrite = true;
+  candidate.requestSheetRow = rowNumber;
+  candidate.updateType = String(request.updateType || "");
+  candidate.seriesTitleCode = extractAutoUpdateSeriesTitleCodeV1_(request.ruleNote);
+  candidate.seedDateOverride = extractAutoUpdateSeedDateV1_(request.ruleNote);
+  if (["#52-", "#42-"].indexOf(candidate.seriesTitleCode) >= 0) {
+    candidate.showIds = [AUTO_UPDATE_V1_MEDIA_TALK_SHOW_ID_];
+  }
+  // A submitted theme must remain inactive until separately reviewed.
+  // Never inherit the series automation's production-write permission.
+  if (getAutoPlaylistRuleType_(candidate) === AUTO_PLAYLIST_RULE_TYPE_THEME_) {
+    candidate.enabled = false;
+    candidate.productionWriteAllowed = false;
+    candidate.reviewRequired = true;
+    candidate.lifecycleStatus = "requested";
+  }
+
+  return candidate;
+}
+
+// 申請補足の「#52-」「#42-」などを連載固有コードとして取り込む。
+// タイトル側ではこのコードの直後に半角数字が続く場合だけ一致とする。
+function extractAutoUpdateSeriesTitleCodeV1_(ruleNote) {
+  const normalized = String(ruleNote || "").normalize("NFKC");
+  const match = normalized.match(/#(\d+)-/);
+  return match ? "#" + match[1] + "-" : "";
+}
+function extractAutoUpdateSeedDateV1_(ruleNote) {
+  const match = String(ruleNote || "").match(/(?:起点日|最新既存回)[：:\s]*(\d{4}-\d{2}-\d{2})/);
+  return match ? match[1] : "";
+}
+function inspectAutoUpdatePlaylistAccessV1_(playlistId, token) {
+  const meResponse = UrlFetchApp.fetch("https://api.spotify.com/v1/me", {
+    muteHttpExceptions: true,
+    headers: { Authorization: "Bearer " + token, Accept: "application/json" }
+  });
+  if (meResponse.getResponseCode() !== 200) return { editable: false, reason: "profile" };
+  const me = JSON.parse(meResponse.getContentText());
+  const playlistResponse = UrlFetchApp.fetch(
+    "https://api.spotify.com/v1/playlists/" + encodeURIComponent(playlistId) + "?fields=id,collaborative,owner(id)",
+    { muteHttpExceptions: true, headers: { Authorization: "Bearer " + token, Accept: "application/json" } }
+  );
+  if (playlistResponse.getResponseCode() !== 200) return { editable: false, reason: "playlist" };
+  const playlist = JSON.parse(playlistResponse.getContentText());
+  const owned = String(playlist.owner && playlist.owner.id ? playlist.owner.id : "") === String(me.id || "");
+  const presentInLibrary = owned || isAutoUpdatePlaylistInCurrentUserLibraryV1_(playlistId, token);
+  const collaborative = playlist.collaborative === true;
+  return {
+    editable: owned || (collaborative && presentInLibrary),
+    owned: owned,
+    collaborative: collaborative,
+    presentInLibrary: presentInLibrary
+  };
+}
+
+// 共同編集招待の承認状態を、秘密値を出さずに確認する管理用診断。
+function isAutoUpdatePlaylistInCurrentUserLibraryV1_(playlistId, token) {
+  let url = "https://api.spotify.com/v1/me/playlists?limit=50";
+  let pages = 0;
+  while (url && pages < 10) {
+    const response = UrlFetchApp.fetch(url, {
+      muteHttpExceptions: true,
+      headers: { Authorization: "Bearer " + token, Accept: "application/json" }
+    });
+    if (response.getResponseCode() !== 200) return false;
+    const data = JSON.parse(response.getContentText());
+    const found = (Array.isArray(data.items) ? data.items : []).some(function(item) {
+      return String(item && item.id ? item.id : "") === playlistId;
+    });
+    if (found) return true;
+    url = String(data.next || "");
+    pages += 1;
+  }
+  return false;
+}
+function fetchAutoUpdateShowFirstPageV1_(showId, token) {
+  const url = "https://api.spotify.com/v1/shows/" + encodeURIComponent(String(showId || "")) +
+    "/episodes?market=JP&limit=" + AUTO_UPDATE_V1_RECENT_EPISODES_PER_SHOW_;
+  const response = UrlFetchApp.fetch(url, {
+    muteHttpExceptions: true,
+    headers: { Authorization: "Bearer " + token, Accept: "application/json" }
+  });
+  const status = response.getResponseCode();
+  if (status !== 200) throw new Error("Show取得に失敗しました: " + showId + " status=" + status);
+  const data = JSON.parse(response.getContentText());
+  return { items: Array.isArray(data.items) ? data.items : [] };
+}
+function fetchPlayableAutoUpdateEpisodesV1_(episodeIds, token) {
+  const ids = Array.from(new Set((episodeIds || []).map(function(id) {
+    return String(id || "").trim();
+  }).filter(Boolean)));
+  const episodes = [];
+  let failedCount = 0;
+  // 2026-11-19: まとめ取り /v1/episodes?ids= は Spotify が 403 を返すようになり、
+  // 黙って0件扱い→追加されないまま境界だけ進む不具合になっていた。1件ずつ（20件ずつ並列・間隔あり）取る。
+  for (let offset = 0; offset < ids.length; offset += 20) {
+    if (offset) Utilities.sleep(600);
+    const batch = ids.slice(offset, offset + 20);
+    const responses = UrlFetchApp.fetchAll(batch.map(function(id) {
+      return {
+        url: "https://api.spotify.com/v1/episodes/" + encodeURIComponent(id) + "?market=JP",
+        muteHttpExceptions: true,
+        headers: { Authorization: "Bearer " + token, Accept: "application/json" }
+      };
+    }));
+    responses.forEach(function(response) {
+      if (response.getResponseCode() !== 200) { failedCount += 1; return; }
+      const episode = JSON.parse(response.getContentText());
+      if (!episode || episode.is_playable === false) return;
+      episodes.push({
+        id: String(episode.id || ""),
+        uri: String(episode.uri || ("spotify:episode:" + episode.id)),
+        name: String(episode.name || episode.id),
+        release_date: String(episode.release_date || "")
+      });
+    });
+  }
+  // 取得できなかった件数（呼び出し側が「境界を進めない」判断に使う）
+  episodes.failedCount = failedCount;
+  return episodes;
+}
+function saveAutoUpdateRuntimeRuleV1_(rule) {
+  const props = PropertiesService.getScriptProperties();
+  const ids = JSON.parse(props.getProperty(AUTO_UPDATE_V1_RULE_IDS_KEY_) || "[]");
+  if (ids.indexOf(rule.playlistId) < 0) ids.push(rule.playlistId);
+  props.setProperty(AUTO_UPDATE_V1_RULE_IDS_KEY_, JSON.stringify(ids));
+  props.setProperty(AUTO_UPDATE_V1_RULE_PREFIX_ + rule.playlistId, JSON.stringify(rule));
+}
+
+// 管理用：AUTO登録を一時停止する。行とルールは残し、再開可能にする。
+function stopAutoUpdatePlaylistV1(playlistId, reason) {
+  const id = String(playlistId || "").trim();
+  if (!id) throw new Error("playlistIdが必要です");
+  const rule = loadAutoUpdateRuntimeRuleByPlaylistIdV1_(id);
+  if (!rule) throw new Error("AUTO登録が見つかりません: " + id);
+  rule.enabled = false;
+  rule.lifecycleStatus = "paused";
+  rule.pausedAt = new Date().toISOString();
+  rule.pauseReason = String(reason || "人間による手動停止");
+  saveAutoUpdateRuntimeRuleV1_(rule);
+  setAutoUpdateRuleSheetStatusV1_(rule, "停止", rule.pauseReason);
+  return { playlistId: id, status: "停止", enabled: false };
+}
+
+// 管理用：AUTO登録を人間削除として残す。
+// 物理削除はせず tombstone を保存し、新規申請処理からの自動復活も防ぐ。
+function humanDeleteAutoUpdatePlaylistV1(playlistId, reason) {
+  const id = String(playlistId || "").trim();
+  if (!id) throw new Error("playlistIdが必要です");
+  const detail = String(reason || "人間による手動削除");
+  const deletedAt = new Date().toISOString();
+  const rule = loadAutoUpdateRuntimeRuleByPlaylistIdV1_(id);
+
+  if (rule) {
+    rule.enabled = false;
+    rule.lifecycleStatus = "human_deleted";
+    rule.humanDeletedAt = deletedAt;
+    rule.humanDeleteReason = detail;
+    saveAutoUpdateRuntimeRuleV1_(rule);
+    setAutoUpdateRuleSheetStatusV1_(rule, "人間削除", detail);
+  } else {
+    const requestRow = findLatestAutoUpdateRequestRowByPlaylistIdV1_(id);
+    if (!requestRow) throw new Error("AUTO申請が見つかりません: " + id);
+    setAutoUpdateRequestStatusV1_(requestRow.sheet, requestRow.rowNumber, "人間削除", detail);
+  }
+
+  PropertiesService.getScriptProperties().setProperty(
+    AUTO_UPDATE_V1_HUMAN_DELETED_PREFIX_ + id,
+    JSON.stringify({ deletedAt: deletedAt, reason: detail })
+  );
+  SpreadsheetApp.flush();
+  return {
+    playlistId: id,
+    status: "人間削除",
+    enabled: false,
+    runtimeRuleExisted: Boolean(rule)
+  };
+}
+function syncSheetHumanDeletedAutoUpdateRequestsV1_(sheet, rows, result) {
+  const props = PropertiesService.getScriptProperties();
+  const deletedAt = new Date().toISOString();
+  (rows || []).forEach(function(row, index) {
+    const status = String(row[7] || "").trim();
+    if (status !== "人間削除") return;
+
+    const playlistId = extractAutoUpdateSpotifyPlaylistId_(String(row[1] || ""));
+    if (!playlistId) return;
+
+    const tombstoneKey = AUTO_UPDATE_V1_HUMAN_DELETED_PREFIX_ + playlistId;
+    if (!props.getProperty(tombstoneKey)) {
+      props.setProperty(
+        tombstoneKey,
+        JSON.stringify({
+          deletedAt: deletedAt,
+          reason: "自動更新申請シートH列の人間削除"
+        })
+      );
+    }
+
+    const rule = loadAutoUpdateRuntimeRuleByPlaylistIdV1_(playlistId);
+    if (rule && (rule.enabled !== false || rule.lifecycleStatus !== "human_deleted")) {
+      rule.enabled = false;
+      rule.lifecycleStatus = "human_deleted";
+      rule.humanDeletedAt = deletedAt;
+      rule.humanDeleteReason = "自動更新申請シートH列の人間削除";
+      saveAutoUpdateRuntimeRuleV1_(rule);
+    }
+
+    if (result) result.humanDeleted += 1;
+  });
+}
+function findLatestAutoUpdateRequestRowByPlaylistIdV1_(playlistId) {
+  const id = String(playlistId || "").trim();
+  if (!id) return null;
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = getSheetLoose(ss, AUTO_UPDATE_REQUEST_SHEET_NAME);
+  if (!sheet) throw new Error("自動更新申請シートが見つかりません");
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return null;
+  const urls = sheet.getRange(2, 2, lastRow - 1, 1).getDisplayValues();
+  for (let index = urls.length - 1; index >= 0; index -= 1) {
+    if (extractAutoUpdateSpotifyPlaylistId_(String(urls[index][0] || "")) === id) {
+      return { sheet: sheet, rowNumber: index + 2 };
+    }
+  }
+  return null;
+}
+
+// 管理用：停止・人間削除したAUTO登録を明示的に再開する。
+// 人間削除tombstoneを消すのはこの関数だけ。
+function resumeAutoUpdatePlaylistV1(playlistId, reason) {
+  const id = String(playlistId || "").trim();
+  if (!id) throw new Error("playlistIdが必要です");
+  const rule = loadAutoUpdateRuntimeRuleByPlaylistIdV1_(id);
+  if (!rule) throw new Error("AUTO登録が見つかりません: " + id);
+  rule.enabled = true;
+  rule.lifecycleStatus = "active";
+  rule.resumedAt = new Date().toISOString();
+  delete rule.pausedAt;
+  delete rule.pauseReason;
+  delete rule.humanDeletedAt;
+  delete rule.humanDeleteReason;
+  PropertiesService.getScriptProperties().deleteProperty(AUTO_UPDATE_V1_HUMAN_DELETED_PREFIX_ + id);
+  saveAutoUpdateRuntimeRuleV1_(rule);
+  setAutoUpdateRuleSheetStatusV1_(
+    rule,
+    rule.bootstrapPending === true ? "初回補完中" : "増分自動更新",
+    String(reason || "人間が手動で再開")
+  );
+  return { playlistId: id, status: "再開", enabled: true };
+}
+function loadAutoUpdateRuntimeRuleByPlaylistIdV1_(playlistId) {
+  const id = String(playlistId || "").trim();
+  return loadAutoUpdateRuntimeRulesV1_().find(function(rule) {
+    return rule && String(rule.playlistId || "") === id;
+  }) || null;
+}
+function isAutoUpdatePlaylistHumanDeletedV1_(playlistId) {
+  const id = String(playlistId || "").trim();
+  if (!id) return false;
+  return Boolean(
+    PropertiesService.getScriptProperties().getProperty(AUTO_UPDATE_V1_HUMAN_DELETED_PREFIX_ + id)
+  );
+}
+function loadAutoUpdateRuntimeRulesV1_() {
+  const props = PropertiesService.getScriptProperties();
+  const ids = JSON.parse(props.getProperty(AUTO_UPDATE_V1_RULE_IDS_KEY_) || "[]");
+  return ids.map(function(id) {
+    const raw = props.getProperty(AUTO_UPDATE_V1_RULE_PREFIX_ + id);
+    return raw ? JSON.parse(raw) : null;
+  }).filter(Boolean);
+}
+function autoUpdateBoundaryKeyV1_(playlistId, showId) {
+  return AUTO_UPDATE_V1_BOUNDARY_PREFIX_ + playlistId + "_" + showId;
+}
+function saveAutoUpdateBoundaryV1_(playlistId, showId, episodeId) {
+  PropertiesService.getScriptProperties().setProperty(autoUpdateBoundaryKeyV1_(playlistId, showId), episodeId);
+}
+function loadAutoUpdateBoundaryV1_(playlistId, showId) {
+  return String(PropertiesService.getScriptProperties().getProperty(autoUpdateBoundaryKeyV1_(playlistId, showId)) || "");
+}
+function setAutoUpdateRequestStatusV1_(sheet, rowNumber, status, note) {
+  const noteCell = sheet.getRange(rowNumber, 9);
+  const existingNote = String(noteCell.getDisplayValue() || "");
+  sheet.getRange(rowNumber, 8, 1, 2).setValues([[
+    status,
+    mergeAutoUpdateStatusNoteV1_(existingNote, note)
+  ]]);
+}
+function mergeAutoUpdateStatusNoteV1_(existingNote, note) {
+  const typeMatch = String(existingNote || "").match(/方式:\s*([^/\s]+)/);
+  const detail = String(note || "").trim();
+  return typeMatch
+    ? "方式: " + String(typeMatch[1] || "") + (detail ? " / " + detail : "")
+    : detail;
+}
+function setAutoUpdateRuleSheetStatusV1_(rule, status, note) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = getSheetLoose(ss, AUTO_UPDATE_REQUEST_SHEET_NAME);
+  if (!sheet) throw new Error("自動更新申請シートが見つかりません");
+  const row = Number(rule.requestSheetRow || 0);
+  if (row >= 2) setAutoUpdateRequestStatusV1_(sheet, row, status, note);
+}
+function pauseAutoUpdateRuleV1_(rule, reason) {
+  setAutoUpdateRuleSheetStatusV1_(rule, "確認待ち", reason);
+  return { playlistId: rule.playlistId, ok: false, reviewRequired: true, reason: reason };
+}
+
+// ---- AutoUpdateRecovery.js ----
+var AUR_SINCE_ = '2026-08-01';
+var AUR_MAX_ADD_PER_RULE_ = 20;
+
+// 純粋: 蔵 lite 行 [id, 番組番号, 日時, 題名, …] → 期間内・指定番組の回（古い順）
+function aurPickLibrary_(liteRows, shows, showIdByName, wantShowIds, since) {
+  return (liteRows || []).filter(function (r) {
+    var sid = showIdByName[shows[r[1]]];
+    return sid && wantShowIds.indexOf(sid) >= 0 && String(r[2]).slice(0, 10) >= since;
+  }).sort(function (a, b) { return String(a[2]).localeCompare(String(b[2])); })
+    .map(function (r) { return { ep: r[0], date: String(r[2]).slice(0, 10), title: r[3] }; });
+}
+
+// 純粋: Spotify 実データ・ルール判定・既存URIから追加計画
+function aurPlan_(rule, episodes, existingUris, matcher) {
+  var showIds = getAutoPlaylistShowIds_(rule), seen = {};
+  return (episodes || []).filter(function (e) {
+    if (!e || !e.id || e.is_playable === false) return false;
+    if (showIds.indexOf(String(e.show && e.show.id || '')) < 0) return false;
+    var uri = String(e.uri || ('spotify:episode:' + e.id));
+    if (existingUris[uri] || seen[uri]) return false;
+    if (!matcher(e, rule)) return false;
+    seen[uri] = true; return true;
+  }).sort(function (a, b) { return String(a.release_date).localeCompare(String(b.release_date)); })
+    .map(function (e) { return { id: String(e.id), uri: String(e.uri || ('spotify:episode:' + e.id)), name: String(e.name || ''), release_date: String(e.release_date || '') }; });
+}
+
+// Spotify から1件ずつ読む。10件ずつ・1秒間隔、断られた分（429 など）は間を空けて最大3回やり直す
+function aurFetchEpisodes_(ids, token) {
+  var episodes = [], failed = 0, stopped = false;
+  for (var i = 0; i < ids.length; i += 10) {
+    var chunk = ids.slice(i, i + 10);
+    if (stopped) { failed += chunk.length; continue; }
+    if (i) Utilities.sleep(1500);
+    UrlFetchApp.fetchAll(chunk.map(function (id) {
+      return { url: 'https://api.spotify.com/v1/episodes/' + encodeURIComponent(id) + '?market=JP', muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' } };
+    })).forEach(function (r) {
+      if (spotifyCooldownNote_(r, 'AutoUpdateRecovery')) stopped = true;
+      if (r.getResponseCode() === 200) episodes.push(JSON.parse(r.getContentText())); else failed++;
+    });
+  }
+  return { episodes: episodes, failed: failed, stopped: stopped };
+}
+
+// 純粋: ルールの手がかり語（出演者名・題名の語など）。特別判定のルールは既定の語を使う
+function aurRuleTerms_(rule) {
+  var t = [].concat(Array.isArray(rule.keywords) ? rule.keywords : (rule.keyword ? [rule.keyword] : []));
+  if (rule.seriesTitleCode) t.push(String(rule.seriesTitleCode));
+  var special = { 'no-mirai-title-keywords': ['ノーミライ', '農MUSIC', '猟LIFE'], 'ota-safe-confirmed': ['太田匡彦'], 'sato-yo-safe-confirmed': ['佐藤陽'] };
+  if (special[rule.matchStrategy]) t = t.concat(special[rule.matchStrategy]);
+  return t.map(function (x) { return String(x || '').normalize('NFKC').replace(/\s+/g, '').toLowerCase(); }).filter(function (x) { return x.length >= 2; });
+}
+// 純粋: 蔵の題名・出演者に手がかり語が入っている回だけに絞る（Spotify への問い合わせを減らす）。語の無いルールが1つでもあれば絞らない
+function aurPrefilter_(picked, liteById, rules) {
+  var all = [], open = false;
+  rules.forEach(function (r) { var t = aurRuleTerms_(r); if (!t.length) open = true; all = all.concat(t); });
+  if (open) return picked;
+  return picked.filter(function (p) {
+    var row = liteById[p.ep] || [], text = String((row[3] || '') + ' ' + (row[4] || '')).normalize('NFKC').replace(/\s+/g, '').toLowerCase();
+    return all.some(function (t) { return text.indexOf(t) >= 0; });
+  });
+}
+function aurRules_() {
+  return loadAutoUpdateRuntimeRulesV1_().filter(function (rule) {
+    return rule && rule.enabled !== false && rule.lifecycleStatus !== 'human_deleted' && rule.bootstrapPending !== true &&
+      !(typeof isThemeV3RuntimeRule_ === 'function' && isThemeV3RuntimeRule_(rule));
+  }).map(function (rule) { return normalizeAutoUpdateRuntimeRuleV1_(rule); });
+}
+function aurRun_(write) {
+  var token = getSpotifyUserAccessToken(); if (!token) throw new Error('Spotifyトークンなし');
+  var rules = aurRules_(), wantShows = [];
+  rules.forEach(function (r) { getAutoPlaylistShowIds_(r).forEach(function (s) { if (wantShows.indexOf(s) < 0) wantShows.push(s); }); });
+  var manifest = libraryPlaylistFetchJson_(LIBRARY_PLAYLIST_DATA_ + 'manifest.json'), si = manifest.searchIndex || {};
+  var until = spotifyCooldownUntil_(); if (until) return { status: 'SPOTIFY_COOLDOWN', until: until };
+  var lite = libraryPlaylistFetchJson_(LIBRARY_PLAYLIST_DATA_ + si.lite), liteById = {};
+  lite.forEach(function (r) { liteById[r[0]] = r; });
+  var picked = aurPrefilter_(aurPickLibrary_(lite, si.shows || [], LIBRARY_PLAYLIST_SHOW_IDS_, wantShows, AUR_SINCE_), liteById, rules);
+  var lookup = shelfLibraryLookup_(picked.map(function (p) { return p.ep; }), function (u) { return libraryPlaylistFetchJson_(u); });
+  var ids = picked.map(function (p) { return lookup[p.ep] && lookup[p.ep].spotifyId; }).filter(Boolean);
+  var got = aurFetchEpisodes_(ids, token), episodes = got.episodes, failed = got.failed;
+  // 一部しか読めなかった時は書き込まない（取りこぼしたまま「完了」にしない）
+  if (got.stopped || failed) write = false;
+  var report = { since: AUR_SINCE_, libraryEpisodes: picked.length, withSpotify: ids.length, fetched: episodes.length, fetchFailed: failed, write: !!write, rules: [] };
+  rules.forEach(function (rule) {
+    var item = { name: rule.name || rule.key, playlistId: rule.playlistId };
+    try {
+      var existing = libraryPlaylistExisting_(rule.playlistId, token);
+      var plan = aurPlan_(rule, episodes, existing, matchesAutoPlaylistRule_);
+      item.add = plan.map(function (e) { return e.release_date + ' ' + e.name; });
+      if (write && plan.length) {
+        var batch = plan.slice(0, AUR_MAX_ADD_PER_RULE_);
+        assertAutoPlaylistSheetLinkBeforeWrite_(rule);
+        var added = addAutoPlaylistEpisodesIndividually_(rule, token, batch);
+        var after = libraryPlaylistExisting_(rule.playlistId, token);
+        item.added = added.addedCount; item.failed = added.failedCount;
+        item.lost = batch.filter(function (e) { return !after[e.uri]; }).map(function (e) { return e.name; });
+        if (added.addedCount > 0) updatePlaylistLatestDate_(rule.playlistId, getLatestReleaseDate_(added.addedEpisodes));
+      }
+    } catch (e) { item.error = String(e && e.message || e).slice(0, 200); }
+    if ((item.add && item.add.length) || item.error) report.rules.push(item);
+  });
+  report.rulesChecked = rules.length;
+  return report;
+}
+
+// 管理人が手で動かす用
+function AUTO_UPDATE_RECOVERY_DRY_RUN() { var r = aurRun_(false); Logger.log(JSON.stringify(r, null, 1)); return r; }
+function AUTO_UPDATE_RECOVERY_WRITE() {
+  var lock = LockService.getScriptLock(); if (!lock.tryLock(5000)) throw new Error('別の自動更新処理が実行中です');
+  try { var r = aurRun_(true); Logger.log(JSON.stringify(r, null, 1)); return r; } finally { lock.releaseLock(); }
+}
