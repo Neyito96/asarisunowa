@@ -4,25 +4,26 @@
 この文書は調査結果と段取りの案。**本番のコード・トリガー・シートには何も手を入れていない。**
 秘密の値は書かない。ID は先頭だけ。
 
-## 1. まず全体像：Apps Script のプロジェクトは 14 個ある
+## 1. まず全体像：Apps Script は 14 個、毎日動いているのは 6 個
 
-管理人のドライブにある Apps Script を一覧にした（2026-11-26・Drive で確認）。動いているのは 4〜5 個だけ。
+管理人のドライブの一覧（2026-11-26・Drive）と、**本番の時計の一覧**（2026-11-27・マイトリガー画面で確認。全16本）より。
 
-| 区分 | プロジェクト | ID（先頭） | 役目 | 引っ越し |
+| プロジェクト | ID（先頭） | 時計（関数） | 役目 | 引っ越し |
 |---|---|---|---|---|
-| **毎日動く** | 朝リスの輪 プレイリスト投稿受付（本番） | 1HpZNp… | 投稿受付（Webアプリ）・自動更新・テーマ別・蔵プレイリスト | **持っていく（軽量化して）** |
-| **毎日動く** | 朝リスの輪 GAS配達係 | 1jVW5I… | GitHub → 本番の自動配達、新着取り込みの起動係（Kicker） | 持っていく |
-| **毎日動く** | 概要欄清掃ロボ（COPY/V2作業用） | 1C3kV3… | 清掃・監査。**中の「RX」Webアプリが、毎朝の台帳→蔵の同期（library-v2-sync）の読み出し口**になっている | 持っていく（RX の URL を変えないこと） |
-| **毎日動く** | 朝ポキ｜本番ロボGAS | 1Ywoel… | 毎朝の新着取り込み | 持っていく。**シートに付いている型（Drive の一覧に出ない）。コードの控えが GitHub に無い**（追加ファイル P26 だけ） |
-| 要確認 | V2収蔵ボット COPY試験 | 1qVI_… | 収蔵の試験（日次トリガーの手順あり） | トリガーがあるか見て決める |
-| 終わったもの | 朝リス Phase25 COPY / 田 Phase14 COPY / Phase15 Lite / Phase2 隔離検証（＋BACKUP 2つ）/ 独立図書館 調査用 / SDGs概要補充 / ネジロボ・テスト / BACKUP 2026-11-18 投稿受付 | — | 過去の試験・控え | **持っていかない**（旧アカウントに置いたまま。消さない） |
+| 朝リスの輪 プレイリスト投稿受付（本番） | 1HpZNp… | runAutoUpdateAutomationV1・runAutoUpdateBackfillHourlyV1・syncKinoDougaPlaylist・syncIsshoShinbunPlaylist（エラー率 約17%）・syncToyohidePlaylist・syncListenerPodcastPlatforms | 投稿受付（Webアプリ）・自動更新・テーマ別・蔵プレイリスト | **持っていく（軽量化して）** |
+| 朝リスの輪 GAS配達係 | 1jVW5I… | deliveryHourly・K_定時起動 ×3 | 自動配達、新着取り込みの起動係 | 持っていく |
+| 概要欄清掃ロボ（COPY/V2作業用） | 1C3kV3… | P28_TICK | 配信先URLの巡回。**中の「RX」Webアプリが毎朝の台帳→蔵の同期の読み出し口** | 持っていく（RX の URL を変えないこと） |
+| 朝ポキ｜本番ロボGAS | 1Ywoel… | P18_TICK・P19_TICK | 毎朝の新着取り込み | 持っていく。**シートに付いている型。コードの控えが GitHub に無い** |
+| V2収蔵ボット COPY試験 | 1qVI_… | P25V2_D1_日次実行 | V2 台帳への日次の収蔵（名前は「試験」だが毎日動いている） | **持っていく** |
+| 朝リスの田_Phase14_COPY_20261023 | 1roni6… | phase14CopyMorningRunnerV19 ×2（エラー率 17%・67%） | 10月の旧試験。11/14 の切替計画で「停止候補・要承認」のまま動き続けている | **持っていかない。止めてよいか管理人が判断** |
+| ほか 8 個（Phase25 COPY / Phase15 Lite / Phase2 隔離検証＋BACKUP 2 / 独立図書館 調査用 / SDGs概要補充 / ネジロボ・テスト / BACKUP 2026-11-18） | — | なし | 過去の試験・控え | 持っていかない（消さない） |
 
 ## 2. 本番「投稿受付」の中身：118 ファイル → 動いているのは 66
 
 GitHub の控え（scripts/google-apps-script/）と本番の実物を照合した: **115 ファイル中 114 が一致**。
 本番だけにあるのは `SdgsArchiveMap.js`（#395 の一回きりの読み取り専用。下の「棚上げ」行き）。
 
-入口（Webアプリの doGet/doPost、シート編集の onEdit、コードが設置するトリガー: 自動更新 V1 の3本・テーマ確認・佐藤陽）から呼び出しをたどると:
+入口（Webアプリの doGet/doPost、シート編集の onEdit、**本番の実際の時計 6 本**、コードが必要なときに作る1回きりの時計）から呼び出しをたどると:
 
 - **使っている: 66 ファイル・約 14,700 行**（残す）
 - **どこからも呼ばれていない: 47 ファイル・約 7,300 行**（＋本番だけの1ファイル）
@@ -42,22 +43,24 @@ AutoUpdateImmediateV1, AutoUpdateRequestTests, PlaylistAutoLifecycleTransitionTe
 - 最終更新日の照合・復旧: AutoUpdateLatestDateReconcile, AutoUpdateLatestDateLight, AutoUpdateLatestDateBaselineApproval, AutoUpdateRecoveryPatchV1, AutoUpdateUrgentRepairV1, PlaylistDateAudit
 - Phase24 の試作: P24ConnectionCheck, P24LibraryPlaylistProposals20261105, P24NewPostPreview20261106, P24PolirebiMembershipReadOnly20261105
 
-**C. 本番のトリガー一覧を見てから決める — 5**
-| ファイル | 気になる点 |
+**C. 時計の一覧で決まったもの（2026-11-27）**
+| ファイル | 結果 |
 |---|---|
-| PlaylistSpecial.js | `syncToyohidePlaylist` などの古い入口。README に「既存トリガーが関数名を使っているかも」とある |
-| PlaylistAutoV2Production.js | `syncNoMiraiAutoPlaylistV2` が時計で動いているかもしれない |
-| ThemeRuntimeV2.js | `runSubmittedThemesV2` が時計で動いているかもしれない |
-| PlaylistAutoSatoYoTriggers.js | 佐藤陽の時計を設置する関数（時計そのものは残す側で動いている） |
-| AutoUpdateRecovery.js | 11/19 の復旧用の手押し関数。GitHub 側のテスト tests/auto-update-recovery.test.mjs あり。道具として残すか決める |
+| PlaylistSpecial.js | **使っている**（時計 syncToyohidePlaylist ほか）。本番側に残す |
+| PlaylistAutoV2Production.js（syncNoMiraiAutoPlaylistV2） | 時計なし → 棚へ（ノーミライは固定ルールで毎日更新中） |
+| ThemeRuntimeV2.js（runSubmittedThemesV2） | 時計なし → 棚へ（テーマ別は LibraryTheme が担当） |
+| PlaylistAutoSatoYoTriggers.js / PlaylistAutoSatoYoSync.js | 時計なし → 棚へ（佐藤陽は固定ルールで更新中） |
+| AutoUpdateRecovery.js | 復旧用の道具として本番側に残す（テストあり） |
 
-→ 本番の「トリガー」画面（時計のマーク）の一覧が分かれば、C も確定できる。
+### 実施（2026-11-27）
+46 ファイルを `scripts/google-apps-script-shelf/` へ移した（消していない）。本番側の控えは **67 ファイル**に。
+配達係は本番だけにあるファイルを残すので、**この時点で本番の中身は変わらない**。
 
 ## 3. 引っ越しの段取り（案）
 
-1. **トリガー一覧をもらう**（管理人: 4 つの毎日動くプロジェクトの「トリガー」画面のスクショ）。これで C が決まる
-2. **GitHub の中で棚上げ**: A・B（と C で不要と決まったもの）を `scripts/google-apps-script-shelf/` へ移す。
-   - 配達係は「本番だけにあるファイルは残す」作りなので、**この時点では本番は何も変わらない**（安全）
+1. ~~トリガー一覧を見る~~ **済**（2026-11-27）
+2. ~~GitHub の中で棚上げ~~ **済**（46 ファイル。本番は変わらない）
+   - Phase14 COPY の時計を止めるかは管理人が判断（COPY 用で本番には書かないが、毎朝エラーを出している）
 3. **本ロボのコードを GitHub に控える**: 本番ロボGAS は控えが無い。シートに付いている型なので、シートの持ち主を移せば一緒に移るが、控えが無いと直せる人が限られる
 4. **引っ越し当日**: 投稿受付は持ち主を移す（Webアプリの URL を変えないため）。そのあと本番から棚上げ分を消す
    （配達係に「消してよいファイルの一覧」を渡す作りを足すか、エディタで消す。**どちらも管理人の承認後**）

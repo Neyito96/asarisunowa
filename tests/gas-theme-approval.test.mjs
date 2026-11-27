@@ -8,7 +8,7 @@ const gasFiles = [
   "scripts/google-apps-script/PlaylistAutoRequestRule.js",
   "scripts/google-apps-script/AutoUpdateAutomationV1.js",
   "scripts/google-apps-script/PlaylistAutoThemeReview.js",
-  "scripts/google-apps-script/PlaylistAutoSafetyTests.js",
+  "scripts/google-apps-script-shelf/PlaylistAutoSafetyTests.js",
 ];
 
 test("keeps submitted themes stopped until explicit review approval", () => {

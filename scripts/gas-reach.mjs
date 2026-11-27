@@ -4,8 +4,10 @@
 // 使い方: node scripts/gas-reach.mjs [フォルダ] [入口の関数名...]
 import fs from 'node:fs'; import path from 'node:path';
 const dir = process.argv[2] || 'scripts/google-apps-script';
-const DEFAULT_ROOTS = ['doGet', 'doPost', 'onEdit', 'runAutoUpdateAutomationSoonV1', 'runAutoUpdateAutomationV1',
-  'runAutoUpdateBackfillHourlyV1', 'runThemeReviewAutomation', 'syncSatoYoAutoPlaylist'];
+// 入口 = 本番の実際のトリガー（2026-11-27 マイトリガー画面）＋ Webアプリ ＋ コードが必要なときに作る1回きりの時計
+const DEFAULT_ROOTS = ['doGet', 'doPost', 'onEdit', 'runAutoUpdateBackfillHourlyV1', 'runAutoUpdateAutomationV1',
+  'syncKinoDougaPlaylist', 'syncIsshoShinbunPlaylist', 'syncToyohidePlaylist', 'syncListenerPodcastPlatforms',
+  'runAutoUpdateAutomationSoonV1', 'runThemeReviewAutomation'];
 const rootNames = process.argv.length > 3 ? process.argv.slice(3) : DEFAULT_ROOTS;
 const ID = /[A-Za-z_$぀-鿿][\w$぀-鿿]*/gu;
 const files = fs.readdirSync(dir).filter((f) => f.endsWith('.js')).sort();
