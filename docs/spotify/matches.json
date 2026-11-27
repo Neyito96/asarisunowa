@@ -1,19 +1,49 @@
 {
  "summary": {
-  "generatedAt": "2026-11-26T13:14:37.466Z",
-  "spotifyGeneratedAt": "2026-11-26T13:09:03.959Z",
-  "ledgerRows": 6160,
-  "ledgerSpotifyEmpty": 10,
-  "verified": 0,
+  "generatedAt": "2026-11-27T03:52:42.752Z",
+  "spotifyGeneratedAt": "2026-11-27T03:47:26.097Z",
+  "ledgerRows": 6165,
+  "ledgerSpotifyEmpty": 15,
+  "verified": 4,
   "counts": {
-   "VERIFIED_SAME": 271,
+   "VERIFIED": 4,
+   "VERIFIED_SAME": 267,
    "NO_ROW": 15,
-   "CANDIDATE": 58,
+   "CANDIDATE": 59,
    "HOLD": 1
   },
   "emptyNotInSpotifyList": 1
  },
- "verified": [],
+ "verified": [
+  {
+   "ep": "EP-06786",
+   "url": "https://open.spotify.com/episode/6h0PSCHmn12LSqlVKAhPP9",
+   "show": "ニュースの現場から",
+   "title": "（ゆるっと経済 #23）本の発売日が遅れる？　書店から考える日本経済",
+   "spotifyDate": "2026-11-26"
+  },
+  {
+   "ep": "EP-06789",
+   "url": "https://open.spotify.com/episode/17u2goit7ZGeg8Bf54N4PS",
+   "show": "ニュースの学校",
+   "title": "関芳弘文部科学大臣の政治資金パーティー問題",
+   "spotifyDate": "2026-11-26"
+  },
+  {
+   "ep": "EP-06788",
+   "url": "https://open.spotify.com/episode/1Qn0mef6FG1ttDwOrAF2US",
+   "show": "スポンジ",
+   "title": "（フィギュア #39）りくりゅうに直撃　「ありがとうツアー」で見せたいカップル競技の魅力",
+   "spotifyDate": "2026-11-26"
+  },
+  {
+   "ep": "EP-06787",
+   "url": "https://open.spotify.com/episode/44jSQbiNiGlWItcwBh2EKK",
+   "show": "MEDIA TALK",
+   "title": "（Think Gender）男性更年期と小便器のゆううつ　通底する「男」の問題",
+   "spotifyDate": "2026-11-26"
+  }
+ ],
  "others": [
   {
    "show": "ニュースの現場から",
@@ -111,6 +141,17 @@
    "ep": "EP-00093 EP-00686",
    "status": "HOLD",
    "reason": "同じ番組に同じ題名の行が複数"
+  },
+  {
+   "show": "報談",
+   "url": "https://open.spotify.com/episode/5fvth1BrDjRu6KDjnBoOVl",
+   "title": "文科相の政治資金パーティー問題　本当にヤバいのはこれから、かも？ #198",
+   "spotifyDate": "2026-11-26",
+   "ep": "EP-06790",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "same": false,
+   "gap": 59.01299999999992
   },
   {
    "show": "報談",
@@ -756,6 +797,51 @@
    "status": "CANDIDATE",
    "reason": "題名・日付は一致・長さが合わない",
    "spotifyUrl": "https://open.spotify.com/episode/5SvBbhUVSpoOByxp6wkcco"
+  },
+  {
+   "ep": "EP-06786",
+   "show": "ニュースの現場から",
+   "title": "（ゆるっと経済 #23）本の発売日が遅れる？　書店から考える日本経済",
+   "published": "2026/11/27 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/6h0PSCHmn12LSqlVKAhPP9"
+  },
+  {
+   "ep": "EP-06787",
+   "show": "MEDIA TALK",
+   "title": "（Think Gender）男性更年期と小便器のゆううつ　通底する「男」の問題",
+   "published": "2026/11/27 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/44jSQbiNiGlWItcwBh2EKK"
+  },
+  {
+   "ep": "EP-06788",
+   "show": "スポンジ",
+   "title": "（フィギュア #39）りくりゅうに直撃　「ありがとうツアー」で見せたいカップル競技の魅力",
+   "published": "2026/11/27 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/1Qn0mef6FG1ttDwOrAF2US"
+  },
+  {
+   "ep": "EP-06789",
+   "show": "ニュースの学校",
+   "title": "関芳弘文部科学大臣の政治資金パーティー問題",
+   "published": "2026/11/27 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付が一致・長さは番組ごとの一定差（Spotify版が約44秒短い）",
+   "spotifyUrl": "https://open.spotify.com/episode/17u2goit7ZGeg8Bf54N4PS"
+  },
+  {
+   "ep": "EP-06790",
+   "show": "報談",
+   "title": "文科相の政治資金パーティー問題　本当にヤバいのはこれから、かも？ #198",
+   "published": "2026/11/27 04:00",
+   "status": "CANDIDATE",
+   "reason": "題名・日付は一致・長さが合わない",
+   "spotifyUrl": "https://open.spotify.com/episode/5fvth1BrDjRu6KDjnBoOVl"
   }
  ]
 }
