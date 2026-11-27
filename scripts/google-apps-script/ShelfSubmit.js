@@ -42,4 +42,22 @@ function handleShelfSubmit_(e, callback) {
   var p = (e && e.parameter) || {}, res = shelfSubmit_({ ids: p.ids, title: p.title, description: p.description, note: p.note, nick: p.nick, spotify: p.spotify, hp: p.website2 });
   return (typeof apiResponse === 'function') ? apiResponse(res, callback) : res;
 }
-if (typeof module !== 'undefined') module.exports = { shelfValidate_: shelfValidate_, shelfClean_: shelfClean_, SHELF_H_: SHELF_H_ };
+// みんなの蔵書（#463・2026-11-27 管理人決定）: 管理人が「状態」を「公開OK」にした行だけを返す（読むだけ。表には書かない）。
+// 出すのは 受付ID・受付日・蔵書名・説明・回の並び・ニックネーム だけ。「ひとこと」（管理人あての伝言）と管理メモは出さない。
+var SHELF_PUBLIC_STATUS_ = '公開OK';
+function shelfPublicRows_(rows) {
+  return rows.filter(function (r) { return String(r[2]).trim() === SHELF_PUBLIC_STATUS_; }).map(function (r) {
+    var ids = String(r[3] || '').split(/\s+/).filter(function (x) { return /^EP-\d{5}$/.test(x); }).slice(0, SHELF_LIMITS_.items);
+    var date = String(r[1] || '').slice(0, 10);
+    return { id: String(r[0]), date: /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : '', title: String(r[5] || '').replace(/^'/, ''), description: String(r[6] || '').replace(/^'/, ''), ids: ids, nick: String(r[8] || '').replace(/^'/, '') };
+  }).filter(function (x) { return /^SH-\d{14}-\d{3}$/.test(x.id) && x.ids.length; });
+}
+function handleShelfPublic_(e, callback) {
+  var res;
+  try {
+    var ss = SpreadsheetApp.openById(posuCfg().spreadsheetId), sh = ss.getSheetByName(SHELF_SHEET_);
+    res = { ok: true, type: 'shelfPublic', generatedAt: new Date().toISOString(), shelves: sh ? shelfPublicRows_(posuRows(sh, SHELF_H_.length)) : [] };
+  } catch (err) { res = { ok: false, error: String(err && err.message || err) }; }
+  return (typeof apiResponse === 'function') ? apiResponse(res, callback) : res;
+}
+if (typeof module !== 'undefined') module.exports = { shelfValidate_: shelfValidate_, shelfClean_: shelfClean_, shelfPublicRows_: shelfPublicRows_, SHELF_H_: SHELF_H_ };

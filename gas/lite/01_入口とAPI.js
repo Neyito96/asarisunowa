@@ -173,6 +173,9 @@ function doGet(e) {
     if (type === "shelfSubmit") {
       return handleShelfSubmit_(e, callback);
     }
+    if (type === "shelfPublic") {
+      return handleShelfPublic_(e, callback);
+    }
     if (type === "posukamiPublic") {
       return handlePosukamiPublic_(e, callback);
     }
