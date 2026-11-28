@@ -1,26 +1,40 @@
 {
  "summary": {
-  "generatedAt": "2026-11-27T13:12:34.466Z",
-  "spotifyGeneratedAt": "2026-11-27T13:07:06.658Z",
-  "ledgerRows": 6165,
-  "ledgerSpotifyEmpty": 11,
-  "verified": 1,
+  "generatedAt": "2026-11-28T03:36:38.019Z",
+  "spotifyGeneratedAt": "2026-11-28T03:31:17.912Z",
+  "ledgerRows": 6168,
+  "ledgerSpotifyEmpty": 13,
+  "verified": 3,
   "counts": {
-   "VERIFIED_SAME": 271,
+   "VERIFIED": 3,
+   "VERIFIED_SAME": 269,
    "NO_ROW": 15,
    "CANDIDATE": 58,
-   "HOLD": 1,
-   "VERIFIED": 1
+   "HOLD": 1
   },
   "emptyNotInSpotifyList": 1
  },
  "verified": [
   {
-   "ep": "EP-06723",
-   "url": "https://open.spotify.com/episode/4ZcqNCqd2ttUB8eQ56MyAl",
-   "show": "スポンジ",
-   "title": "（サッカー #35）日本人がFIFA会長に？勝算は？ 田嶋幸三氏が挑む「魑魅魍魎」の211票",
-   "spotifyDate": "2026-11-11"
+   "ep": "EP-06791",
+   "url": "https://open.spotify.com/episode/6gugz5PSPNkhLJ9dMixwnf",
+   "show": "ニュースの現場から",
+   "title": "（ポリレビ#21）非核三原則「持ち込ませず」に「例外」明記？　問われる政治のモラル　トランプ氏のエヌビディア人事介入",
+   "spotifyDate": "2026-11-27"
+  },
+  {
+   "ep": "EP-06792",
+   "url": "https://open.spotify.com/episode/0xK3KNcqRCreEeIe7pkeHC",
+   "show": "MEDIA TALK",
+   "title": "（記者サロン）「女性らしい」視点とは何か　イベント「ジェンダーを校閲する」を振り返ります",
+   "spotifyDate": "2026-11-27"
+  },
+  {
+   "ep": "EP-06793",
+   "url": "https://open.spotify.com/episode/0eXAOS9m5QLsylyzAVxiLt",
+   "show": "ドーナツ",
+   "title": "（ノーミライ#14）ごじゃな悩みはひと匙のカレーのごとし、というお話",
+   "spotifyDate": "2026-11-27"
   }
  ],
  "others": [
@@ -731,15 +745,6 @@
    "spotifyUrl": "https://open.spotify.com/episode/65EJpkBwQvuua7hfJW1idV"
   },
   {
-   "ep": "EP-06723",
-   "show": "スポンジ",
-   "title": "（サッカー #35）日本人がFIFA会長に？勝算は？ 田嶋幸三氏が挑む「魑魅魍魎」の211票",
-   "published": "2026/11/12 04:00",
-   "status": "VERIFIED",
-   "reason": "番組ID・題名・日付・長さが一致",
-   "spotifyUrl": "https://open.spotify.com/episode/4ZcqNCqd2ttUB8eQ56MyAl"
-  },
-  {
    "ep": "EP-06729",
    "show": "報談",
    "title": "相次ぐ個人情報の流出、AIそこまで関係なし　真の問題は「及び腰」 #196",
@@ -774,6 +779,33 @@
    "status": "CANDIDATE",
    "reason": "題名・日付は一致・長さが合わない",
    "spotifyUrl": "https://open.spotify.com/episode/5fvth1BrDjRu6KDjnBoOVl"
+  },
+  {
+   "ep": "EP-06791",
+   "show": "ニュースの現場から",
+   "title": "（ポリレビ#21）非核三原則「持ち込ませず」に「例外」明記？　問われる政治のモラル　トランプ氏のエヌビディア人事介入",
+   "published": "2026/11/28 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/6gugz5PSPNkhLJ9dMixwnf"
+  },
+  {
+   "ep": "EP-06792",
+   "show": "MEDIA TALK",
+   "title": "（記者サロン）「女性らしい」視点とは何か　イベント「ジェンダーを校閲する」を振り返ります",
+   "published": "2026/11/28 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/0xK3KNcqRCreEeIe7pkeHC"
+  },
+  {
+   "ep": "EP-06793",
+   "show": "ドーナツ",
+   "title": "（ノーミライ#14）ごじゃな悩みはひと匙のカレーのごとし、というお話",
+   "published": "2026/11/28 04:00",
+   "status": "VERIFIED",
+   "reason": "番組ID・題名・日付・長さが一致",
+   "spotifyUrl": "https://open.spotify.com/episode/0eXAOS9m5QLsylyzAVxiLt"
   }
  ]
 }

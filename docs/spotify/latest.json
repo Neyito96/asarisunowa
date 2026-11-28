@@ -1,11 +1,18 @@
 {
- "generatedAt": "2026-11-27T13:07:06.658Z",
+ "generatedAt": "2026-11-28T03:31:17.912Z",
  "source": "open.spotify.com（埋め込み＋番組ページ）",
  "shows": {
   "ニュースの現場から": {
    "showId": "392h0MYfvMTndEVzf2cOvC",
    "count": 51,
    "episodes": [
+    {
+     "id": "6gugz5PSPNkhLJ9dMixwnf",
+     "url": "https://open.spotify.com/episode/6gugz5PSPNkhLJ9dMixwnf",
+     "title": "（ポリレビ#21）非核三原則「持ち込ませず」に「例外」明記？　問われる政治のモラル　トランプ氏のエヌビディア人事介入",
+     "date": "2026-11-27",
+     "durationMs": 3385786
+    },
     {
      "id": "6h0PSCHmn12LSqlVKAhPP9",
      "url": "https://open.spotify.com/episode/6h0PSCHmn12LSqlVKAhPP9",
@@ -348,13 +355,6 @@
      "title": "（大阪目線#6）共産が支援する町長がかじをとる町は　 「天王山」の地、二分する選挙",
      "date": "2026-10-10",
      "durationMs": 4506884
-    },
-    {
-     "id": "7CqHaZnKM5bGq6rhjuW1ka",
-     "url": "https://open.spotify.com/episode/7CqHaZnKM5bGq6rhjuW1ka",
-     "title": "（ポリレビ#14）簗農水相の「予算カット」発言、辞任級の大問題　沖縄で米兵事件",
-     "date": "2026-10-09",
-     "durationMs": 3797276
     },
     {
      "id": "1vVhoMqsDDYUmpajbMtF82",
@@ -1438,6 +1438,13 @@
    "count": 50,
    "episodes": [
     {
+     "id": "0xK3KNcqRCreEeIe7pkeHC",
+     "url": "https://open.spotify.com/episode/0xK3KNcqRCreEeIe7pkeHC",
+     "title": "（記者サロン）「女性らしい」視点とは何か　イベント「ジェンダーを校閲する」を振り返ります",
+     "date": "2026-11-27",
+     "durationMs": 2395300
+    },
+    {
      "id": "44jSQbiNiGlWItcwBh2EKK",
      "url": "https://open.spotify.com/episode/44jSQbiNiGlWItcwBh2EKK",
      "title": "（Think Gender）男性更年期と小便器のゆううつ　通底する「男」の問題",
@@ -1779,13 +1786,6 @@
      "title": "（MT）「新R25」がメディア運営を終了する件",
      "date": "2026-09-13",
      "durationMs": 1851440
-    },
-    {
-     "id": "0592xiLf90HvffNDHkM1Yk",
-     "url": "https://open.spotify.com/episode/0592xiLf90HvffNDHkM1Yk",
-     "title": "（GOODLIFEフェア）桃鉄コラボやアフリカ料理、衣食住と盛りだくさん　25日は朝ポキ公開収録も",
-     "date": "2026-09-10",
-     "durationMs": 2703306
     }
    ]
   },
@@ -2122,6 +2122,13 @@
    "count": 49,
    "episodes": [
     {
+     "id": "0eXAOS9m5QLsylyzAVxiLt",
+     "url": "https://open.spotify.com/episode/0eXAOS9m5QLsylyzAVxiLt",
+     "title": "（ノーミライ#14）ごじゃな悩みはひと匙のカレーのごとし、というお話",
+     "date": "2026-11-27",
+     "durationMs": 2753274
+    },
+    {
      "id": "43dkqT95511p8qERFSouUp",
      "url": "https://open.spotify.com/episode/43dkqT95511p8qERFSouUp",
      "title": "（親モヤ #134）若い世代が怖い…女性が「副」にしかなれなかった時代を生きてきた",
@@ -2456,13 +2463,6 @@
      "title": "（1on1）カボベルデ、カメルーン　アフリカの話をしよう・前編　今泉奏さん",
      "date": "2026-09-27",
      "durationMs": 4156001
-    },
-    {
-     "id": "3j3bhH60nhu6IUwbyn2ddT",
-     "url": "https://open.spotify.com/episode/3j3bhH60nhu6IUwbyn2ddT",
-     "title": "（日曜版）マリッジ・レインボー",
-     "date": "2026-09-26",
-     "durationMs": 6126621
     }
    ]
   }
