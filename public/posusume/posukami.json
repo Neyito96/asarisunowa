@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "version": "POSU-1",
- "generatedAt": "2026-11-28T04:15:40.512Z",
+ "generatedAt": "2026-11-28T13:03:42.643Z",
  "submitEnabled": true,
  "cards": [
   {
@@ -477,7 +477,18 @@
      "verifiedAt": "2026-11-24"
     }
    ],
-   "replies": [],
+   "replies": [
+    {
+     "title": "Ep.152 - ポッドキャストは人生のアウトプット？",
+     "date": "2026-11-24",
+     "href": "https://open.spotify.com/episode/5NAnXXHnkyuLWstKAZN3QE?si=-YmCKyzTS-aQsff59Hpx3g&utm_source=copy-link&sci=spotify%3Acard-config%3A2RwgqJINTNtxXUYWdC4Aji",
+     "library": false,
+     "epId": "",
+     "verifiedAt": "2026-11-28",
+     "program": "イシュミナのPodcast",
+     "relation": "ポすすめ返し（ポすすめを受けて番組が配信した回）"
+    }
+   ],
    "specials": []
   }
  ]
