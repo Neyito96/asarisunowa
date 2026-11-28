@@ -161,5 +161,23 @@ export const recommendedPodcastSnapshot = [
     "listen": "",
     "standfm": "",
     "pody": ""
+  },
+  {
+    "id": "10",
+    "url": "https://open.spotify.com/show/2KwanmUKt3CmVZa7NCoyuz?si=q_2mixGkSfu0qFp273GFlQ&utm_source=copy-link&sci=spotify:card-config:07G1XW33ZDCb9IMvFbY62x",
+    "title": "セイジドウラク",
+    "maker": "ほしいも",
+    "comment": "報談の兄弟番組ことセイジドウラク。国会議員選挙では全選挙区総ざらいや、新閣僚総ざらいなど、どこからそのエネルギーが…？という狂気の回だけでなく、おすすめ政治本など様々なコンテンツが盛り沢山です。朝ポキリスナーさんなら相当楽しめると思います！",
+    "artwork": "",
+    "host": "TBS RADIO",
+    "genre": "その他",
+    "youtube": "",
+    "spotify": "https://open.spotify.com/show/2KwanmUKt3CmVZa7NCoyuz?si=q_2mixGkSfu0qFp273GFlQ&utm_source=copy-link&sci=spotify:card-config:07G1XW33ZDCb9IMvFbY62x",
+    "amazon": "",
+    "apple": "",
+    "pocketcasts": "",
+    "listen": "",
+    "standfm": "",
+    "pody": ""
   }
 ] as const;
